@@ -2189,3 +2189,136 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 
 
 <</nobr>><</widget>>
+
+
+<<widget "showmoney">><<nobr>>
+£<<print Math.trunc($args / 100)>>.<<if $args % 100 lte 9>>0<</if>><<print $args % 100>>
+<</nobr>><</widget>>
+
+/*
+diary stuff
+*/
+
+
+<<widget "loginit">><<nobr>>
+	/* init and start2 has most of this, making diarypages match with $days still might need a better place */
+	<<set $diary to []>>
+	<<set $diaryfilter to 3>>
+	<<set $diaryline to 0>>
+	/* stuff for figuring out stat changes since last log */
+	<<set $logmoney to 0>>
+	<<set $logstress to 0>>
+	<<set $logtrauma to 0>>
+	<<set $logpain to 0>>
+	<<set $logtiredness to 0>>
+	<<set $logarousal to 0>>
+	<<set $logcontrol to 0>>
+	<<set $logallure to 0>>
+	<<set $logweather to "">>
+	/*
+	old saves would probably need the next bit to make sure $days doesn't point outside of the array
+	*/
+	<<for _i to 0; _i lte $days; _i++>>
+	  <<set $diary.push([])>>
+	  <<set $diary[_i][0] to {text:"Day " + _i, timestamp:0,effect:"",comment:"",opinion:"",importance:0}>>
+	<</for>>
+<</nobr>><</widget>>
+
+<<widget "log">><<nobr>>
+	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
+	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
+	<<set $diarypage to $days>>
+	<<set $diaryline to $diary[$days].length>>
+	<<if $args[1] gte $logchangetreshold>>
+		<<set $diary[$days].push(
+			{
+		    timestamp:$time,
+		    text:$args[0],
+				importance:$args[1],
+				comment:"",
+				opinion:"",
+		    effect:
+					{
+					money:($money - $logmoney),
+					stress:($stress - $logstress),
+					trauma:($trauma - $logtrauma),
+					pain:($pain - $logpain),
+					tired:($tiredness - $logtiredness),
+					arousal:($arousal - $logarousal),
+					control:($control - $logcontrol ),
+					allure:($allure - $logallure),
+					weather:($weather),
+					antiqmoney:($antiqmoney - $logantiquemoney),
+					blackmoney:($blackmoney - $logblackmoney)
+					}
+		  }
+			)>>
+		<<set $logmoney to $money>>
+		<<set $logstress to $stress>>
+		<<set $logtrauma to $trauma>>
+		<<set $logpain to $pain>>
+		<<set $logtiredness to $tiredness>>
+		<<set $logarousal to $arousal>>
+		<<set $logcontrol to $control>>
+		<<set $logallure to $allure>>
+		<<set $logweather to $weather>>
+	<<else>>
+		<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,pain:0,tired:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}})>>
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "logedit">><<nobr>> /* edit the last entry text*/
+	<<set $diary[$days][$diaryline].text to $args[0]>>
+<</nobr>><</widget>>
+
+<<widget "logday">><<nobr>>
+	<<set $dayendreport to "">>
+	/* $moneytext might be useful in other situtations so could move this to some place that gets run more often */
+		<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
+		<<if $money % 100 lte 9>><<set $moneytext to $moneytext+"0">><</if>>
+		<<set $moneytext to $moneytext+$money % 100>>
+	<<set $dayendreport to "It's the start of a new day! I now have " + $moneytext + " I feel ">>
+	<<if $stress gte 10000>><<set $dayendreport to $dayendreport + "<span class='red'>extremely stressed out</span>">>
+	<<elseif $stress gte 8000>><<set $dayendreport to $dayendreport + "<span class='pink'>very stressed</span>">>
+	<<elseif $stress gte 6000>><<set $dayendreport to $dayendreport + "<span class='purple'>kind of stressed</span>">>
+	<<elseif $stress gte 4000>><<set $dayendreport to $dayendreport + "<span class='blue'>a bit tense</span>">>
+	<<elseif $stress gte 2000>>><<set $dayendreport to $dayendreport + "<span class='lblue'>somewhat relaxed</span>">>
+	<<elseif $stress gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>rather relaxed</span>">>
+	<<else>><<set $dayendreport to $dayendreport + "<span class='green'>serene</span>">>
+	<<set $dayendreport to $dayendreport + " and ">>
+	<<if $trauma gte $traumamax>><<set $dayendreport to $dayendreport + "<span class='red'>numb.</span>">>
+	<<elseif $trauma gte ($traumamax / 5) * 4>><<set $dayendreport to $dayendreport + "<span class='pink'>tormented.</span>">>
+	<<elseif $trauma gte ($traumamax / 5) * 3>><<set $dayendreport to $dayendreport + "<span class='purple'>disturbed.</span>">>
+	<<elseif $trauma gte ($traumamax / 5) * 2>><<set $dayendreport to $dayendreport + "<span class='blue'>troubled.</span>">>
+	<<elseif $trauma gte ($traumamax / 5) * 1>><<set $dayendreport to $dayendreport + "<span class='lblue'>nervous.</span>">>
+	<<elseif $trauma gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>uneasy.</span>">>
+	<<else>><<set $dayendreport to $dayendreport + "<span class='green'>healthy.</span>">>
+	<</if>>
+	<</if>>
+	<<set $diary[$days].push(
+		{
+	    timestamp:$time,
+	    text:$dayendreport,
+			importance:9, comment:"",	comment:"",	opinion:"", effect:{}
+	  }
+		)>>
+<</nobr>><</widget>>
+
+<<widget "logcomment">><<nobr>>
+	<<set $diary[$args[0]][$args[1]].comment to "("+$args[2]+")">>
+<</nobr>><</widget>>
+
+<<widget "logimportance">><<nobr>>
+	<<set $diary[$args[0]][$args[1]].importance to $args[2]>>
+<</nobr>><</widget>>
+
+<<widget "logopinion">><<nobr>>
+<<if $diaryprompts isnot 1 or $diaryprompts is 2>>
+<span id="hide"><<textarea "$plrcomment" $args[0] >>
+<<link "Add a comment to your diary">><<logcomment $days $diaryline $plrcomment>><<remove "#hide">><</link>><br></span>
+<</if>>
+<<if $diaryprompts is 2 or $diaryprompts is 3>>
+Select how you feel about this event from the options listed
+<<set $diary[$days][$diary[$days].length-1].opinion to "("+$args[0]+")">>
+<</if>>
+<</nobr>><</widget>>
