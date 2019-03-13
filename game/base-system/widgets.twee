@@ -2191,39 +2191,18 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <</nobr>><</widget>>
 
 
+<<widget "showmoney">><<nobr>>
+£<<print Math.trunc($args / 100)>>.<<if $args % 100 lte 9>>0<</if>><<print $args % 100>>
+<</nobr>><</widget>>
 
 /*
 diary stuff
 */
 
-
-<<widget "loginit">><<nobr>>
-	/* init and start2 has most of this, making diarypages match with $days still might need a better place */
-	<<set $diary to []>>
-	<<set $diaryfilter to 3>>
-	<<set $diaryline to 0>>
-	/* stuff for figuring out stat changes since last log */
-	<<set $logmoney to 0>>
-	<<set $logstress to 0>>
-	<<set $logtrauma to 0>>
-	<<set $logpain to 0>>
-	<<set $logtiredness to 0>>
-	<<set $logarousal to 0>>
-	<<set $logcontrol to 0>>
-	<<set $logallure to 0>>
-	<<set $logweather to "">>
-	/*
-	old saves would probably need the next bit to make sure $days doesn't point outside of the array
-	*/
-	<<for _i to 0; _i lte $days; _i++>>
-	  <<set $diary.push([])>>
-	  <<set $diary[_i][0] to {text:"Day " + _i, timestamp:0,effect:"",comment:"",opinion:"",importance:0}>>
-	<</for>>
-<</nobr>><</widget>>
-
 <<widget "log">><<nobr>>
 	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
 	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
+	<<set $logprep to "">>
 	<<set $diarypage to $days>>
 	<<set $diaryline to $diary[$days].length>>
 	<<if $args[1] gte $logchangetreshold>>
@@ -2311,11 +2290,12 @@ diary stuff
 
 <<widget "logopinion">><<nobr>>
 <<if $diaryprompts isnot 1 or $diaryprompts is 2>>
-<span id="hide"><<textarea "$plrcomment" $args[0] >>
+<span id="hide"><<textbox "$plrcomment" $args[0] >> /* is there an easy way to pick a random thing from an array? */
 <<link "Add a comment to your diary">><<logcomment $days $diaryline $plrcomment>><<remove "#hide">><</link>><br></span>
+<<set $diary[$days][$diaryline].opinion to "["+$args[0]+"]">>
 <</if>>
 <<if $diaryprompts is 2 or $diaryprompts is 3>>
 Select how you feel about this event from the options listed
-<<set $diary[$days][$diary[$days].length-1].opinion to "("+$args[0]+")">>
+<<set $diary[$days][$diary[$days].length-1].opinion to "["+$args[0]+"]">>
 <</if>>
 <</nobr>><</widget>>
