@@ -1,0 +1,141 @@
+/*
+$diary has a "page" for each day and each page has a number of entries with time, text, opinion/comment, importance and effects
+so you access entry text with $diary[daynumber][entrynumber].text
+.timestamp is simply $time
+.text is the diary entry that describes what exactly happened in 1st person
+.importance allows filtering out simply moving around and such and is used to decide how to color the text
+.comment is a string the player can input, set $diaryprompts to 1 or 2 to be asked for comment whenever an event is done
+.opinion (could be about) how you feel about an event and how you've chosen to rationalize it or just the default comment
+.effects list some stat changes like money since the last time log widget was used.
+
+to make this work time.twee has a thing that pushes a new day/page into existence at the start of each day, it also reports the date and stat changes of the day
+other than that and this there are some widgets at the bottom of widgets.twee and initStory and Start2() from init.twee are used to initialize everything.
+And finally nearly all events would ideally have the following bit near the end:
+
+<<log "" 3>>
+<<logopinion "">>
+
+1st "" being filled with diary entry and 3 beig the importance of event
+logopinion could have various opinions about the event split into different $args[] with $diaryprompts 2 or 3 events should(but don't atm) ask you to pick between them whenever they end
+*/
+
+:: Simple Diary[nobr]
+<<back>>
+<<for _i, _day range $diary>>
+  <br>
+  <<for _j, _entry range $diary[_i]>>
+    _entry.text
+    _entry.comment
+    <br>
+  <</for>>
+<</for>>
+
+:: Diary[nobr]
+<<if $canwrite is 1>><<return>><<else>><<back>><</if>>
+ | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>>
+ | <<link [[Show all days|Diary]]>><<set $diarymode to 1>><</link>> filter out events below <<link [["<"|Diary]]>><<set $diaryfilter-->><</link>> $diaryfilter <<link [[">"|Diary]]>><<set $diaryfilter++>><</link>> importance.<br> 
+/*
+nice way to get the last entry that ended up unnecessary:
+<<print $diary[$diarypage][$diary[$diarypage].length-1].text>>
+*/
+/*
+lists and makes selectable all days
+capture _i prevents all of the links setting $diarypage to the last value _i was
+could make a year selector since this will probably get annoyingly long after a year or two.
+*/
+<<if $diarymode is 0>>
+<<for _i to 0; _i lte $days; _i++>>
+<<capture _i>>
+<<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
+<</capture>>
+<</for>><br>
+<</if>>
+/* Comment color might be too much and it seems annoying to figure out how to do it in a way I'd like
+<br> Color
+<span class="gold"><<link [[1|Diary]]>><<set $diarycolor to "gold">><</link>>█</span>
+<span class="green"><<link [[2|Diary]]>><<set $diarycolor to "green">><</link>>█</span>
+<span class="teal">3</span>
+<span class="lblue">4</span>
+<span class="blue">5</span>
+<span class="purple">6</span>
+<span class="pink">7</span>
+<span class="red">8</span>
+*/
+<<if $canwrite is 1>>
+Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >> or importance(from <<print $diary[$diarypage][$diaryline].importance>> to
+<<link [[1|Diary]]>><<logimportance $diarypage $diaryline 1>><</link>>
+<<link [[2|Diary]]>><<logimportance $diarypage $diaryline 2>><</link>>
+<<link [[3|Diary]]>><<logimportance $diarypage $diaryline 3>><</link>>
+<<link [[4|Diary]]>><<logimportance $diarypage $diaryline 4>><</link>>
+<<link [[5|Diary]]>><<logimportance $diarypage $diaryline 5>><</link>>)
+<<else>>
+You aren't in a good spot(such as your bedroom) to edit your diary.
+<</if>>
+
+/* <<print "■"+$diary[$diarypage][$diary[$diarypage].length-1].text>> <br> */
+
+
+<<if $diarymode is 0>> /* single day mode */
+  <<for _i, _entry range $diary[$diarypage]>><br>
+  <<capture _i>>
+  <<if _entry.importance gte $diaryfilter >>
+    <<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>>
+
+    <<link [[■|Diary]]>><<set $diaryline to _i>><</link>>
+    <<if _entry.importance is 0 >>
+      <span class="grey">_entry.text </span>
+    <<elseif _entry.importance is 1 >>
+      <span class="blue">_entry.text </span>
+    <<elseif _entry.importance is 2 >>
+      <span class="lblue">_entry.text </span>
+    <<elseif _entry.importance is 3 >>
+      <span class="teal">_entry.text </span>
+    <<elseif _entry.importance is 4 >>
+      <span class="green">_entry.text </span>
+    <<elseif _entry.importance is 5 >>
+      <span class="gold">_entry.text </span>
+    <<else>>
+      _entry.text
+    <</if>>
+    <span class="purple">_entry.comment</span>
+    <<if _entry.effect.money isnot 0>>
+      <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
+      <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
+    <</if>>
+  <</if>>
+  <</capture>>
+  <</for>>
+<<else>> /* all days mode */
+  <<for _i, _day range $diary>>
+    <br>
+    <<for _j, _entry range $diary[_i]>>
+    <<capture _i, _j>>
+    <<if _entry.importance gte $diaryfilter >>
+      <<link [[■|Diary]]>><<set $diarypage to _i>><<set $diaryline to _j>><</link>>
+      <<if _entry.importance is 0 >>
+          <span class="grey">_entry.text </span>
+        <<elseif _entry.importance is 1 >>
+          <span class="blue">_entry.text </span>
+        <<elseif _entry.importance is 2 >>
+          <span class="lblue">_entry.text </span>
+        <<elseif _entry.importance is 3 >>
+          <span class="teal">_entry.text </span>
+        <<elseif _entry.importance is 4 >>
+          <span class="green">_entry.text </span>
+        <<elseif _entry.importance is 5 >>
+          <span class="gold">_entry.text </span>
+        <<else>>
+          _entry.text
+      <</if>>
+      <span class="purple">_entry.comment</span>
+    <</if>>
+    <</capture>>
+    <</for>>
+  <</for>>
+<</if>>
+
+/*
+
+<<run $diary.reverse()>>
+<<run $diary.reverse()>>
+*/
