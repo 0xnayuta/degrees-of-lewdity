@@ -2191,10 +2191,6 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <</nobr>><</widget>>
 
 
-<<widget "showmoney">><<nobr>>
-£<<print Math.trunc($args / 100)>>.<<if $args % 100 lte 9>>0<</if>><<print $args % 100>>
-<</nobr>><</widget>>
-
 /*
 diary stuff
 */
@@ -2205,7 +2201,7 @@ diary stuff
 	<<set $logprep to "">>
 	<<set $diarypage to $days>>
 	<<set $diaryline to $diary[$days].length>>
-	<<if $args[1] gte $logchangetreshold>>
+	<<if $args[1] gte $logchangetreshold or $dev is 1>>
 		<<set $diary[$days].push(
 			{
 		    timestamp:$time,
@@ -2289,13 +2285,25 @@ diary stuff
 <</nobr>><</widget>>
 
 <<widget "logopinion">><<nobr>>
-<<if $diaryprompts isnot 1 or $diaryprompts is 2>>
-<span id="hide"><<textbox "$plrcomment" $args[0] >> /* is there an easy way to pick a random thing from an array? */
-<<link "Add a comment to your diary">><<logcomment $days $diaryline $plrcomment>><<remove "#hide">><</link>><br></span>
-<<set $diary[$days][$diaryline].opinion to "["+$args[0]+"]">>
-<</if>>
+<span id="textbox1">
+<<set _c to "">>
+<<set $plropinion to "">>
 <<if $diaryprompts is 2 or $diaryprompts is 3>>
-Select how you feel about this event from the options listed
-<<set $diary[$days][$diary[$days].length-1].opinion to "["+$args[0]+"]">>
+	<span class="lblue">Select how you feel about this event:</span><br><span class="grey">
+		<<for _i to 0;_i lt $args.length; _i++>>
+			<label><<radiobutton "$plropinion" $args[_i]>> $args[_i]</label><br>
+		<</for>></span>
+<<else>>
+	<<if $args[0]>><<set _c to $args.random()>><</if>>
+	<<set $diary[$days][$diaryline].opinion to "["+_c+"]">> /* sets opinion to whatever if you don't have opinion prompts */
 <</if>>
+<<if $diaryprompts is 1>>
+	<<textbox "$plrcomment" _c >>
+	<<link "Add a comment to your diary">><<logcomment $days $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
+<<elseif $diaryprompts is 2>>
+	<span class="lblue">Comment:</span><<textbox "$plrcomment" "" >><br>
+	<<link "Add your opinion and comment to the diary">><<set $diary[$days][$diaryline].opinion to "["+$plropinion+"]">><<logcomment $days $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
+<<elseif $diaryprompts is 3>>
+	<<link "Add your opinion to the diary">><<set $diary[$days][$diaryline].opinion to "["+$plropinion+"]">><</link>><br>
+<</if>></span>
 <</nobr>><</widget>>
