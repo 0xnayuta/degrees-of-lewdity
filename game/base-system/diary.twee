@@ -16,7 +16,7 @@ And finally nearly all events would ideally have the following bit near the end:
 <<logopinion "">>
 
 1st "" being filled with diary entry and 3 beig the importance of event
-logopinion could have various opinions about the event split into different $args[] with $diaryprompts 2 or 3 events should(but don't atm) ask you to pick between them whenever they end
+logopinion could have various opinions about the event split into different $args[] with $diaryprompts 2 or 3 events ask you to pick between them whenever they end
 */
 
 :: Simple Diary[nobr]
@@ -32,8 +32,11 @@ logopinion could have various opinions about the event split into different $arg
 
 :: Diary[nobr]
 <<if $canwrite is 1>><<return>><<else>><<back>><</if>>
- | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>>
- | <<link [[Show all days|Diary]]>><<set $diarymode to 1>><</link>> filter out events below <<link [["<"|Diary]]>><<set $diaryfilter-->><</link>> $diaryfilter <<link [[">"|Diary]]>><<set $diaryfilter++>><</link>> importance.<br> 
+ | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
+ | <<link [[Show all days|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
+ | <<if $logshownotes is 1>><<link [[Hide|Diary]]>><<set $logshownotes to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshownotes to 1>><</link>><</if>> comments
+<<if $dev is 0>> | <<if $logshowops is 1>><<link [[Hide|Diary]]>><<set $logshowops to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowops to 1>><</link>><</if>> opinions<</if>>
+<br>
 /*
 nice way to get the last entry that ended up unnecessary:
 <<print $diary[$diarypage][$diary[$diarypage].length-1].text>>
@@ -44,23 +47,15 @@ capture _i prevents all of the links setting $diarypage to the last value _i was
 could make a year selector since this will probably get annoyingly long after a year or two.
 */
 <<if $diarymode is 0>>
+day:
 <<for _i to 0; _i lte $days; _i++>>
 <<capture _i>>
-<<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
+<<link [[_i+1|Diary]]>><<set $diarypage to _i>> <</link>>
 <</capture>>
 <</for>><br>
 <</if>>
-/* Comment color might be too much and it seems annoying to figure out how to do it in a way I'd like
-<br> Color
-<span class="gold"><<link [[1|Diary]]>><<set $diarycolor to "gold">><</link>>█</span>
-<span class="green"><<link [[2|Diary]]>><<set $diarycolor to "green">><</link>>█</span>
-<span class="teal">3</span>
-<span class="lblue">4</span>
-<span class="blue">5</span>
-<span class="purple">6</span>
-<span class="pink">7</span>
-<span class="red">8</span>
-*/
+
+
 <<if $canwrite is 1>>
 Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >> or importance(from <<print $diary[$diarypage][$diaryline].importance>> to
 <<link [[0|Diary]]>><<logimportance $diarypage $diaryline 0>><</link>>
@@ -73,13 +68,11 @@ Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomme
 You aren't in a good spot(such as your bedroom) to edit your diary.
 <</if>>
 
-/* <<print "■"+$diary[$diarypage][$diary[$diarypage].length-1].text>> <br> */
-
 
 <<if $diarymode is 0>> /* single day mode */
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry.importance gte $diaryfilter >><br>
+  <<if _entry.importance gte $diaryfilterA >><br>
     <<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>>
 
     <<link [[■|Diary]]>><<set $diaryline to _i>><</link>>
@@ -98,11 +91,12 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <<else>>
       _entry.text
     <</if>>
-    <span class="purple">_entry.comment</span>
     <<if _entry.effect.money isnot 0>>
       <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
       <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
     <</if>>
+    <<if $logshownotes is 1>><span class="purple">_entry.comment</span><</if>>
+    <<if $logshowops is 1>><span class="meek">_entry.opinion</span><</if>>
   <</if>>
   <</capture>>
   <</for>>
@@ -111,7 +105,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <br>
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry.importance gte $diaryfilter >>
+    <<if _entry.importance gte $diaryfilterB >>
       <<link [[■|Diary]]>><<set $diarypage to _i>><<set $diaryline to _j>><</link>>
       <<if _entry.importance is 0 >>
           <span class="grey">_entry.text </span>
@@ -128,7 +122,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
         <<else>>
           _entry.text
       <</if>>
-      <span class="purple">_entry.comment</span>
+      <<if $logshownotes is 1>><span class="purple">_entry.comment</span><</if>>
     <</if>>
     <</capture>>
     <</for>>
