@@ -17,6 +17,18 @@ And finally nearly all events would ideally have the following bit near the end:
 
 1st "" being filled with diary entry and 3 beig the importance of event
 logopinion could have various opinions about the event split into different $args[] with $diaryprompts 2 or 3 events ask you to pick between them whenever they end
+
+for more complex events usage of $logprep to change entry text based on choices made earlier is useful:
+
+<<set $logprep to "">>
+
+<<set $logprep to ""+$logprep>>
+<<log $logprep 3>>
+<<logopinion "">>
+
+Also if it's really necessary <<logedit>> and <<logediteffect>> can also be used to change the last entry
+for example if you want to have logopinion but there's still a choice with all options ending the event and putting you on street or something.
+
 */
 
 :: Simple Diary[nobr]
@@ -30,12 +42,13 @@ logopinion could have various opinions about the event split into different $arg
   <</for>>
 <</for>>
 
-:: Diary[nobr]
+:: Diary [nobr]
 <<if $canwrite is 1>><<return>><<else>><<back>><</if>>
- | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
+<<if $canwrite is 1>>
  | <<link [[Show all days|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
+ | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
  | <<if $logshownotes is 1>><<link [[Hide|Diary]]>><<set $logshownotes to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshownotes to 1>><</link>><</if>> comments
-<<if $dev is 0>> | <<if $logshowops is 1>><<link [[Hide|Diary]]>><<set $logshowops to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowops to 1>><</link>><</if>> opinions<</if>>
+<<if $dev is 1>> | <<if $logshowops is 1>><<link [[Hide|Diary]]>><<set $logshowops to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowops to 1>><</link>><</if>> opinions<</if>>
 <br>
 /*
 nice way to get the last entry that ended up unnecessary:
@@ -47,14 +60,15 @@ capture _i prevents all of the links setting $diarypage to the last value _i was
 could make a year selector since this will probably get annoyingly long after a year or two.
 */
 <<if $diarymode is 0>>
-day:
-<<for _i to 0; _i lte $days; _i++>>
-<<capture _i>>
-<<link [[_i+1|Diary]]>><<set $diarypage to _i>> <</link>>
-<</capture>>
-<</for>><br>
+  Day:
+  <<for _i to 0; _i lte $days; _i++>>
+  <<capture _i>>
+  <<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
+  <</capture>>
+  <</for>>
 <</if>>
 
+<</if>><br>
 
 <<if $canwrite is 1>>
 Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >> or importance(from <<print $diary[$diarypage][$diaryline].importance>> to
@@ -73,21 +87,20 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
   <<if _entry.importance gte $diaryfilterA >><br>
-    <<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>>
-
-    <<link [[■|Diary]]>><<set $diaryline to _i>><</link>>
-    <<if _entry.importance is 0 >>
-      <span class="grey">_entry.text </span>
+    <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diaryline to _i>><</link>><</if>>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>><</if>>
+    <<if _entry.importance lte 0 >>
+      <span class="black">_entry.text </span>
     <<elseif _entry.importance is 1 >>
-      <span class="blue">_entry.text </span>
+      <span class="grey">_entry.text </span>
     <<elseif _entry.importance is 2 >>
-      <span class="lblue">_entry.text </span>
+      <span class="blue">_entry.text </span>
     <<elseif _entry.importance is 3 >>
-      <span class="teal">_entry.text </span>
+      <span class="lblue">_entry.text </span>
     <<elseif _entry.importance is 4 >>
-      <span class="green">_entry.text </span>
+      <span class="teal">_entry.text </span>
     <<elseif _entry.importance is 5 >>
-      <span class="gold">_entry.text </span>
+      <span class="green">_entry.text </span>
     <<else>>
       _entry.text
     <</if>>
@@ -101,32 +114,45 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <</capture>>
   <</for>>
 <<else>> /* all days mode */
+  <<run $diary.reverse()>>
   <<for _i, _day range $diary>>
     <br>
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry.importance gte $diaryfilterB >>
-      <<link [[■|Diary]]>><<set $diarypage to _i>><<set $diaryline to _j>><</link>>
-      <<if _entry.importance is 0 >>
-          <span class="grey">_entry.text </span>
-        <<elseif _entry.importance is 1 >>
-          <span class="blue">_entry.text </span>
-        <<elseif _entry.importance is 2 >>
-          <span class="lblue">_entry.text </span>
-        <<elseif _entry.importance is 3 >>
-          <span class="teal">_entry.text </span>
-        <<elseif _entry.importance is 4 >>
-          <span class="green">_entry.text </span>
-        <<elseif _entry.importance is 5 >>
-          <span class="gold">_entry.text </span>
-        <<else>>
-          _entry.text
+    <<if _entry.importance gte $diaryfilterB >><br>
+      <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diarypage to $days-_i>><<set $diaryline to _j>><</link>><</if>> /* $days-_i prevents reversed day order from messing things up */
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j].timestamp % 60).toString().padStart(2, "0")>><</if>>
+      <<if _entry.importance lte 0 >>
+        <span class="black">_entry.text </span>
+      <<elseif _entry.importance is 1 >>
+        <span class="grey">_entry.text </span>
+      <<elseif _entry.importance is 2 >>
+        <span class="blue">_entry.text </span>
+      <<elseif _entry.importance is 3 >>
+        <span class="lblue">_entry.text </span>
+      <<elseif _entry.importance is 4 >>
+        <span class="teal">_entry.text </span>
+      <<elseif _entry.importance is 5 >>
+        <span class="green">_entry.text </span>
+      <<else>>
+        _entry.text
+      <</if>>
+      <<if _entry.effect.money isnot 0>>
+        <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
+        <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
       <</if>>
       <<if $logshownotes is 1>><span class="purple">_entry.comment</span><</if>>
+      /* the display might be a bit too busy with too many things demanding your attention so tried making it simpler with ■'s revealing extra details but that's just annoying, either hide all extra details or show them without needing to do crap
+      <<if _entry.effect.money isnot 0>>
+        <<if $diary[_i][_j].effect.money lt 0>><<linkappend "■ ">><<set $diarypage to _i>><<set $diaryline to _j>><span class="red">-£<<print Math.abs(Math.trunc($diary[_i][_j].effect.money / 100))>>.<<if $diary[_i][_j].effect.money % 100 lte 9>>0<</if>><<print $diary[_i][_j].effect.money % 100>></span> </span><span class="purple">_entry.comment</span><</linkappend>><</if>>
+        <<if $diary[_i][_j].effect.money gt 0>><<linkappend "■ ">><<set $diarypage to _i>><<set $diaryline to _j>><span class="gold">£<<print Math.trunc($diary[_i][_j].effect.money / 100)>>.<<if $diary[_i][_j].effect.money % 100 lte 9>>0<</if>><<print $diary[_i][_j].effect.money % 100>></span> <span class="purple">_entry.comment</span><</linkappend>><</if>>
+      <</if>>
+      */
     <</if>>
     <</capture>>
     <</for>>
   <</for>>
+  <<run $diary.reverse()>>
 <</if>>
 
 /*
