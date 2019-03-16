@@ -31,6 +31,20 @@ There's a note by the window.<br>
 
 <<roomoptions>>
 <<if $debug is 1>>
+Hair position<br>
+	Front: <<if $hairposition is "front">>
+	<<radiobutton "$hairposition" "front" checked>>
+	<<else>>
+	<<radiobutton "$hairposition" "front">>
+	<</if>>
+	<br>
+	Back:<<if $hairposition is "back">>
+	<<radiobutton "$hairposition" "back" checked>>
+	<<else>>
+	<<radiobutton "$hairposition" "back">>
+	<</if>>
+<br>
+
 <<link [[Default hair|Bedroom]]>><<set $hairtype to "default">><</link>><br>
 <<link [[Straight hair|Bedroom]]>><<set $hairtype to "straight">><</link>><br>
 <<link [[Default Fringe|Bedroom]]>><<set $fringetype to "default">><</link>><br>
@@ -75,9 +89,9 @@ A radio is on:<br>
 <</if>>
 
 Your bed takes up most of the room.<br>
-<<link [[Strip and get in bed|Bed]]>><<storeclothes>><</link>><br>
+<<link [[Strip and get in bed|Bed]]>><<storeclothes>><<set $canwrite to 0>><</link>><br>
 <<if $lowerpjsno isnot 0 and $upperpjsno isnot 0>>
-<<link [[Put on pyjamas and get in bed|Bed]]>><<storeupper>><<storelower>><<storeunder>><<upperpjs>><<lowerpjs>><</link>><br>
+<<link [[Put on pyjamas and get in bed|Bed]]>><<storeupper>><<storelower>><<storeunder>><<upperpjs>><<lowerpjs>><<set $canwrite to 0>><</link>><br>
 <</if>>
 <br>
 
@@ -185,11 +199,13 @@ You are in the bathroom.<br><br>
 <</if>>
 
 :: Sleep [nobr autosave]
+<<log "I went to sleep" 1>>
 <<sleep>><<effects>>
 
 <<sleepeffects>>
 
 <<if $robindebtwake is 1>><<set $robindebtwake to 0>><<set $robindebtknown to 1>><<set $schoolwake to 0>>
+<<log "Robin entering the room woke me up." 1>>
 <<robin>><<person1>>You're awoken by your door opening. You freeze in fear, until you see Robin peek through the gap. "Can I come in?" <<he>> asks.<br><br>
 
 	<<if $exposed gte 1>>
@@ -204,6 +220,7 @@ You are in the bathroom.<br><br>
 	<<link [[Next|Bed]]>><</link>><br>
 
 <<elseif $robinlovewake is 1>><<set $robinlovewake to 0>><<set $robinbed to 1>><<set $schoolwake to 0>>
+<<log "Robin came to my bed." 1>>
 <<robin>><<person1>>You feel a familiar presence. Robin wraps <<his>> arms around you.<br><br>
 
 <<link [[Cuddle|Bed]]>><<endevent>><<trauma -6>><<stress -12>><</link>><<ltrauma>><<lstress>><br>
@@ -211,6 +228,7 @@ You are in the bathroom.<br><br>
 
 
 <<elseif $baileyrapewake is 1>><<set $baileyrapewake to 0>><<set $schoolwake to 0>>
+<<set $logprep to "My sleep got interrupted by Bailey leading ">>
 <<generate1>><<person1>>You awaken to a shape looming over you and hands pulling off your covers. It's a <<personstop>> "Don't struggle," <<he>> says.
 
 	<<if $robinbed is 1>>
@@ -229,10 +247,12 @@ Bailey leans against the door frame, counting money.<br><br>
 You try to go back to sleep, but Bailey knocks again, reminding you to get up.
 			<<else>>
 You dream you are being hunted by something dark and terrible. The nightmares are interrupted by a hammering on your door. It's Bailey, waking you for school.
+  <<log "I slept badly and got woken by Bailey for school." 1>>
 			<</if>>
 <br><br><<set $motherwake to 1>>
 	<<else>>
 You dream you are being hunted by something dark and terrible. You quickly forget the specifics, but the sense of dread lingers.<br><br>
+  <<log "I slept badly." 1>>
 	<</if>>
 <<else>>
 	<<if $schoolwake is 1>><<set $schoolwake to 0>>
@@ -240,10 +260,12 @@ You dream you are being hunted by something dark and terrible. You quickly forge
 You try to go back to sleep, but Bailey knocks again, reminding you to get up.
 		<<else>>
 	You sleep soundly, but are awoken early by a hammering on your door. It's Bailey, waking you for school.
+  <<log "I slept soundly and got woken by Bailey for school." 1>>
 		<</if>>
 <br><br><<set $motherwake to 1>>
 	<<else>>
 	You sleep soundly, and wake up refreshed.<br><br>
+  <<log "I slept soundly." 1>>
 	<</if>>
 <</if>>
 
@@ -288,7 +310,8 @@ You scream. The trio recoil and scramble for the door handle. They flee into the
 <<tearful>> you climb from the bath.<br><br>
 
 <<endevent>>
-
+<<log "I screamed when some people suddenly barged into the bathroom while I was taking a bath" 1>>
+<<logopinion "That was embarassing" "They should have knocked">>
 <<link [[Next|Bathroom]]>><<clotheson>><</link>><br>
 
 :: Bath Ask [nobr]
@@ -310,8 +333,11 @@ They hesitate, then the <<person1>><<person>> lunges forward, grasps your mouth 
 
 <<else>>
 They hesitate, then the <<person3>><<person>> opens the door and leaves. The others follow, though the <<person1>><<person>> lingers a moment and leers at you.<br><br>
+
 <<endevent>>
 <<tearful>> you climb from the bath.<br><br>
+<<log "Some people suddenly barged into the bathroom while I was taking a bath, thankfully they left when I asked them to." 1>>
+<<logopinion "That was embarassing" "They should have knocked">>
 
 <<link [[Next|Bathroom]]>><<clotheson>><</link>><br>
 <</if>>
@@ -360,6 +386,15 @@ Someone shoves you face-first into the water. They scurry from the room.<br><br>
 
 <<clotheson>>
 <<endcombat>>
+<<if $logdebug is 1>>
+  <<setawarenesswords>>
+  <<set $logprep to "Some people suddenly barged into the bathroom while I was taking a bath and "+$molestedme+".">>
+  <<log $logprep 3>>
+<<else>>
+  <<log "Some people suddenly barged into the bathroom while I was taking a bath and molested me." 3>>
+<</if>>
+<<logopinion "That was awful">>
+
 
 <<link [[Next|Bathroom]]>><</link>><br>
 
@@ -372,6 +407,14 @@ The <<person1>><<person>> backs away from you, nursing an injury. The others ste
 <<clotheson>>
 <<endcombat>>
 
+<<if $logdebug is 1>>
+  <<setawarenesswords>>
+  <<set $logprep to "Some people suddenly barged into the bathroom while I was taking a bath and started "+$tomolestme+" so I beat them up.">>
+  <<log $logprep 3>>
+<<else>>
+  <<log "Some people suddenly barged into the bathroom while I was taking a bath and started to molest me so I beat them up." 3>>
+<</if>>
+<<logopinion "That was awful">>
 <<link [[Next|Bathroom]]>><</link>><br>
 
 <<else>><<set $rescued += 1>>/*Unnecessary if rescue is impossible*/
@@ -384,6 +427,14 @@ Heavy footsteps respond to your cry, getting closer. The trio recoil and scrambl
 <<clotheson>>
 <<endcombat>>
 
+<<if $logdebug is 1>>
+  <<setawarenesswords>>
+  <<set $logprep to "Some people suddenly barged into the bathroom while I was taking a bath and started "+$tomolestme+" but they ran away when Bailey came.">>
+  <<log $logprep 3>>
+<<else>>
+  <<log "Some people suddenly barged into the bathroom while I was taking a bath and started to molest me but they ran away when Bailey came." 3>>
+<</if>>
+<<logopinion "That was awful">>
 <<link [[Next|Bathroom]]>><</link>><br>
 
 <</if>>
@@ -436,7 +487,14 @@ You stand up. Their eyes grow wider. You grasp the <<person2>><<persons>> collar
 
 <<clotheson>>
 <<endcombat>>
-
+<<if $logdebug is 1>>
+  <<setawarenesswords>>
+  <<set $logprep to $ihadsex+" in the bath.">>
+  <<log $logprep 3>>
+<<else>>
+  <<log "I had sex in the bath." 3>> /* add more details after checking how you get to this? */
+<</if>>
+<<logopinion "That was interesting">>
 <<link [[Next|Bathroom]]>><</link>><br>
 
 <<elseif $enemyhealth lte 0>>
@@ -447,6 +505,8 @@ The <<person1>><<person>> backs away from you, nursing an injury. The others ste
 
 <<clotheson>>
 <<endcombat>>
+<<log "I fought in the bath." 3>> /* add more details after checking how you get to this? */
+<<logopinion "That was interesting">>
 
 <<link [[Next|Bathroom]]>><</link>><br>
 
@@ -460,6 +520,14 @@ Heavy footsteps respond to your cry, getting closer. The trio recoil and scrambl
 <<clotheson>>
 <<endcombat>>
 
+<<if $logdebug is 1>>
+  <<setawarenesswords>>
+  <<set $logprep to "I was "$havingsex+" in the bath but that stopped when Bailey came.">>
+  <<log $logprep 3>>
+<<else>>
+  <<log "I was having sex in the bath but that stopped when Bailey came." 3>> /* add more details after checking how you get to this? */
+<</if>>
+<<logopinion "That was interesting">>
 <<link [[Next|Bathroom]]>><</link>><br>
 
 <<else>>
@@ -485,6 +553,8 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 
 <<tearful>> you climb from the bath.<br><br><<endevent>>
 
+<<log "I bathed while being watched." 3>>
+<<logopinion "That was interesting">>
 <<link [[Next|Bathroom]]>><<clotheson>><</link>><br>
 
 :: Bath [nobr]
@@ -538,6 +608,7 @@ You wash until you're squeaky clean.<<wash>><br><br>
 You've pushed yourself too much.<br><br>
 <<passout>>
 
+<<log "I passed out at home." 3>>
 
 <<set $danger to random(1, 10000)>>
 
@@ -567,7 +638,7 @@ You've pushed yourself too much.<br><br>
 <<molested>>
 <<set $event to "molestationhome">>
 <<generate1>><<strangeman1init>><<set $mouthuse to "lefthand">><<set $lefthand to "mouth">>You feel something probing your nethers. As you open your eyes a hand clasps down on your mouth, muffling your screams.<br>
-<<set $rescue to 1>>
+<<set $rescue to 1>><<set $logprep to "I woke up to being molested">>
 <</if>>
 
 
@@ -615,6 +686,8 @@ You've pushed yourself too much.<br><br>
 
 <<endcombat>>
 
+<<log "I was molested at home." 3>>
+<<logopinion "That was awful">>
 [[Next|Bedroom]]
 
 :: Bed [nobr]
@@ -655,11 +728,13 @@ You snuggle under the covers.<br><br>
 
 <</if>>
 
+
 <<link [[Climb out of bed|Bedroom]]>><<endevent>><<set $clothesselect to "clotheson">><</link>><br><br>
 
 :: Orphanage [nobr]
 <<set $outside to 0>><<set $location to "home">><<effects>>
 
+<<if $loglocations is 1>><<log "Was at main hall of the orphanage." 0>><</if>>
 You are in the main hall of the orphanage.
 
 <<if $daystate is "day">>
@@ -688,6 +763,10 @@ You can't bear the thought of someone catching you like this. You hasten to your
 <<robin>><<person1>>You hear a voice shout behind you. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> runs towards you and fails to slow down in time, colliding with you and almost falling over. You hold <<his>> arm to steady <<himstop>> "Thanks," <<he>> says, looking embarrassed though still smiling.<br><br>
 
 "I didn't see you yesterday. Remember, <span class="gold">you can visit me in my room</span> anytime you want. I have something to show you. I'm so excited!" <<He>> hugs you, then runs off before you can respond.<br><br>
+
+<<set $logprep to "Robin told me "+$he+" has something to show me in "+$his+" room.">>
+<<log $logprep 5>>
+<<logopinion "Can't wait to see what it is" "I wonder what?">>
 <<endevent>>
 <<link [[Next|Orphanage]]>><</link>><br>
 
@@ -702,7 +781,7 @@ A hand rests on your shoulder from behind. It's Bailey.<br><br>
 <<link [[Bailey's Office (0:01)|Bailey's Office]]>><<pass 1>><</link>><br>
 <<if $kylarhometimer gte 100 and $kylarhome is undefined>>
 <<link [[Bedroom (0:01)|Kylar Bedroom 1]]>><<pass 1>><<set $kylarhometimer to 0>><<set $kylarhome to 0>><</link>><br>
-<<elseif $kylarhometimer gte 100 and $kylarhome is 0>>
+<<elseif $kylarhometimer gte 100 and $kylarhome is 0 and $kylarstate is "active">>
 <<link [[Bedroom (0:01)|Kylar Bedroom 2]]>><<pass 1>><<set $kylarhometimer to 0>><<set $kylarhome to 1>><</link>><br>
 <<else>>
 <<link [[Bedroom (0:01)|Bedroom]]>><<pass 1>><</link>><br>
@@ -726,6 +805,9 @@ You hear Bailey marching down the corridor outside, come to investigate your scr
 
 <<bailey>><<person1>>"I don't know what this town's coming to," Bailey says as <<he>> closes the window. <<He>> turns to you. "Don't disturb me again unless it's important." <<He>> slams the door shut as <<he>> leaves.<br><br>
 
+<<set $logprep to $logprep+" but luckily the molester ran away when Bailey came to see what I was screaming about.">>
+<<log $logprep 3>>
+<<logopinion "That was scary">>
 [[Next|Bedroom]]
 
 
@@ -751,19 +833,22 @@ You hear Bailey marching down the corridor outside, come to investigate your scr
 <<clotheson>>
 <<endcombat>>
 
+<<set $logprep to $logprep+" but I managed to find a chance to escape.">>
+<<log $logprep 3>>
+<<logopinion "That was scary">>
 [[Next|Bedroom]]
 
 
 :: Bask [nobr]
 <<effects>>
-
+<<set $logprep to "I basked in the sun">>
 You find a deserted part of the garden and bask in the sun. You feel the warmth seep into your skin.<br><br>
 
 It might feel even better if you were undressed...<br><br>
 
-<<link [[Strip|Nude bask]]>><<set $stress -= 40>><</link>><<exhibitionist1>><<lstress>><br>
+<<link [[Strip|Nude bask]]>><<set $stress -= 40>><<set $logprep to $logprep+" nude">><</link>><<exhibitionist1>><<lstress>><br>
 
-[[Stop|Garden]]
+<<link [[Stop|Garden]]>><<set $logprep to $logprep+".">><<log $logprep 1>><</link>>
 
 :: Nude bask [nobr]
 <<effects>>
@@ -779,20 +864,21 @@ The warmth feels wonderful on your bare skin.<br>
 <<if $danger gte (9900 - $allure) and $eventskip is 0>>
 You open your eyes and notice that your clothes aren't where you left them. You look around with increasing distress, but can't see them anywhere. Someone must have taken them. Maybe whoever did it is still around.<br><br>
 
-<<link [[Call out|Bask Call]]>><</link>><br>
-<<link [[Sneak inside|Bask Sneak]]>><<set $upperoff to 0>><<set $loweroff to 0>><</link>><br>
+<<link [[Call out|Bask Call]]>><<set $logprep to $logprep+". My clothes got stolen by someone">><</link>><br>
+<<link [[Sneak inside|Bask Sneak]]>><<set $upperoff to 0>><<set $logprep to $logprep+". My clothes were gone when I opened my eyes so">><<set $loweroff to 0>><</link>><br>
 <<else>>
+
 
 	<<if $daystate is "day">>
 	<<link [[Continue|Nude bask]]>><<set $stress -= 40>><<pass 20>><</link>><<lstress>><br>
 	<<link [[Masturbate|Nude Masturbation]]>><<set $masturbationstart to 1>><</link>><br>
-	<<link [[Stop|Garden]]>><<clotheson>><</link>>
+	<<link [[Stop|Garden]]>><<clotheson>><<set $logprep to $logprep+".">><<log $logprep 1>><</link>>
 
 	<<else>>
 
 	The sun starts to disappear behind the rooftops.<br><br>
 
-	<<link [[Get dressed|Garden]]>><<clotheson>><</link>>
+	<<link [[Get dressed|Garden]]>><<clotheson>><<set $logprep to $logprep+".">><<log $logprep 1>><</link>>
 
 	<</if>>
 
@@ -856,6 +942,8 @@ The last of the water drains from the bath, taking the slime with it. <<tearful>
 <<clotheson>>
 <<endcombat>>
 
+<<log "While bathing the bath water came alive and attacked me" 3>>
+<<logopinion "That was scary" "Did the water think I was too dirty and that's why it attacked me?">>
 <<link [[Next|Bathroom]]>><</link>>
 
 :: Garden Play [nobr]
@@ -953,7 +1041,7 @@ You return to your tiny bedroom and wonder what to do.<br><br>
 <<set $renttime to 7>><<set $rentday to $weekday>>
 <<set $rentstage to 1>>
 <<log "Bailey demands £100 by next week" 4>>
-<<logopinion "I'm sure the money will end up helping the other kids" "Doesn't sound too hard" "I've been freeloading long enough'" "Learning how to earn money will be a good experience" "I'd rather not but doesn't seem like I have a choice" "Fuck that I owe <<him>> nothing">>
+<<logopinion "I'm sure the money will end up helping the other kids" "Doesn't sound too hard" "I've been freeloading long enough'" "Learning how to earn money will be a good experience" "I'd rather not but doesn't seem like I have a choice" "Fuck that I owe Bailey nothing">>
 <<endevent>>
 <hr>
 Attitudes (Can be changed from your bedroom.)<br><br>
@@ -968,7 +1056,7 @@ Attitudes (Can be changed from your bedroom.)<br><br>
 <<bailey>><<person1>>You're awoken by a sharp pain in your face. It's Bailey. <<He>> slaps you again. "I provide a perfectly good bed for you, yet you opt to sleep on the floor." <<He>> slams the door shut as <<he>> leaves.<br><br>
 <<set $pain += 20>>
 <<log "Bailey slapped you awake for sleeping on the floor" 3>>
-<<logopinion "How nice of <<him>>" "I should be more careful" "Ugh" "The bastard">>
+<<logopinion "Bailey is so nice" "I should be more careful" "Ugh" "The bastard">>
 <<link [[Next|Bedroom]]>><<endevent>><</link>><br>
 
 :: Bedroom Bailey [nobr]
@@ -1021,7 +1109,7 @@ The cat is eager to lick up your fluid, and makes that its goal as you writhe on
 <<else>>
 You lie back and let the cat pleasure you, stroking its ears as it does. It soon grows bored and leaves you, walking back into the bush it came from.<br><br>
 <</if>>
-
+<<set $logprep to $logprep+" and was pleasured by a cat that appeared">>
 
 <<link [[Next|Nude bask]]>><</link>><br>
 
@@ -1030,7 +1118,7 @@ You lie back and let the cat pleasure you, stroking its ears as it does. It soon
 <<effects>>
 
 You reach out and pet the cat. It stretches into your hand and yawns. It turns its tail and leaves the way it came.<br><br>
-
+<<set $logprep to $logprep+" and pet a cat that appeared">>
 <<link [[Next|Nude bask]]>><</link>><br>
 
 :: Sleep Rape [nobr]
@@ -1082,6 +1170,9 @@ The <<person>> climbs off the bed and leaves the room. Bailey stares at you for 
 <<clotheson>>
 <<endcombat>>
 
+<<set $logprep to $logprep + " a person into my room who then raped me.">>
+<<log $logprep 3>>
+<<logopinion "That was awful" "I hope that doesn't happen again">>
 <<elseif $enemyhealth lte 0>>
 
 You knock the <<person>> off the bed, and <<he>> stumbles to the ground. "Fucking brat," <<he>> says, then turns to Bailey. "I want my money back."<br><br>
@@ -1092,6 +1183,9 @@ Bailey gives <<him>> a level stare. "You got what you paid for. Not my fault you
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to $logprep + " a would be rapist into my room who I then fought off.">>
+<<log $logprep 3>>
+<<logopinion "That was awful" "How annoying" "I hope that doesn't happen again">>
 
 <<else>>
 
@@ -1106,6 +1200,9 @@ Bailey gives <<him>> a level stare. "You got what you paid for. Not my fault you
 
 <<robin>><<person1>>Robin hugs you, but doesn't seem to be entirely awake. <<He>> falls asleep again in your arms.<br><br><<set $robindom += 1>>
 
+<<set $logprep to $logprep + " a person who tried to rape me into my room but Robin woke up and kicked them in the face.">>
+<<log $logprep 3>>
+<<logopinion "Robin is awesome" "I hope that doesn't happen again">>
 <<endevent>>
 
 <</if>>
