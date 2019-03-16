@@ -2193,6 +2193,10 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 
 /*
 diary stuff
+
+
+not 100% sure but it seems like you shouldn't try to build the entry text when using the log widget
+so either have just a single string without anything weird or use $logprep that already has the full entry text
 */
 
 <<widget "log">><<nobr>>
@@ -2201,7 +2205,7 @@ diary stuff
 	<<set $logprep to "">>
 	<<set $diarypage to $days>>
 	<<set $diaryline to $diary[$days].length>>
-	<<if $args[1] gte $logchangetreshold or $dev is 1>>
+	<<if $args[1] gte $logchangetreshold or $debug is 1>>
 		<<set $diary[$days].push(
 			{
 		    timestamp:$time,
@@ -2226,7 +2230,7 @@ diary stuff
 		  }
 			)>>
 			<<logeffectsupdated>>
-	<<else>>
+	<<else>> /* wait for more noteworthy event to add changes to, kind of unnecessary unless the diary actually shows changes to stats that are constantly changing */
 		<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,pain:0,tired:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}})>>
 	<</if>>
 <</nobr>><</widget>>
@@ -2249,7 +2253,7 @@ diary stuff
 	<<set $diary[$days][$diaryline].text to $args[0]>>
 <</nobr>><</widget>>
 
-<<widget "logediteffect">><<nobr>> /* UNTESTED update the last effect	will lose changes if anything besides the one selected has changed	*/
+<<widget "logediteffect">><<nobr>> /* UNTESTED update the last effect, will lose changes if anything besides the one selected has changed	*/
 	<<set $diary[$days][$diaryline].effect.$args[0] to $diary[$days][$diaryline].effect.$args[0]+$args[1]>>
 	<<logeffectsupdatedupdate>>
 <</nobr>><</widget>>
@@ -2260,7 +2264,16 @@ diary stuff
 		<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
 		<<if $money % 100 lte 9>><<set $moneytext to $moneytext+"0">><</if>>
 		<<set $moneytext to $moneytext+$money % 100>>
-	<<set $dayendreport to "It's the start of a new day! I now have " + $moneytext + " I feel ">>
+	<<set $dayendreport to "It's the start of a new day! I have " + $moneytext + " and I feel ">>
+
+	<<if $tiredness gte 2000>><<set $dayendreport to $dayendreport + "<span class='red'>exhausted</span>, ">>
+	<<elseif $tiredness gte 1600>><<set $dayendreport to $dayendreport + "<span class='pink'>fatigued</span>, ">>
+	<<elseif $tiredness gte 1200>><<set $dayendreport to $dayendreport + "<span class='purple'>tired</span>, ">>
+	<<elseif $tiredness gte 800>><<set $dayendreport to $dayendreport + "<span class='blue'>wearied</span>, ">>
+	<<elseif $tiredness gte 400>><<set $dayendreport to $dayendreport + "<span class='lblue'>alert</span>, ">>
+	<<elseif $tiredness gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>wide awake</span>, ">>
+	<<else>><<set $dayendreport to $dayendreport + "<span class='green'>refreshed</span>, ">>
+	<</if>>
 	<<if $stress gte 10000>><<set $dayendreport to $dayendreport + "<span class='red'>extremely stressed out</span>">>
 	<<elseif $stress gte 8000>><<set $dayendreport to $dayendreport + "<span class='pink'>very stressed</span>">>
 	<<elseif $stress gte 6000>><<set $dayendreport to $dayendreport + "<span class='purple'>kind of stressed</span>">>
@@ -2268,16 +2281,53 @@ diary stuff
 	<<elseif $stress gte 2000>>><<set $dayendreport to $dayendreport + "<span class='lblue'>somewhat relaxed</span>">>
 	<<elseif $stress gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>rather relaxed</span>">>
 	<<else>><<set $dayendreport to $dayendreport + "<span class='green'>serene</span>">>
+	<</if>>
 	<<set $dayendreport to $dayendreport + " and ">>
-	<<if $trauma gte $traumamax>><<set $dayendreport to $dayendreport + "<span class='red'>numb.</span>">>
-	<<elseif $trauma gte ($traumamax / 5) * 4>><<set $dayendreport to $dayendreport + "<span class='pink'>tormented.</span>">>
-	<<elseif $trauma gte ($traumamax / 5) * 3>><<set $dayendreport to $dayendreport + "<span class='purple'>disturbed.</span>">>
-	<<elseif $trauma gte ($traumamax / 5) * 2>><<set $dayendreport to $dayendreport + "<span class='blue'>troubled.</span>">>
-	<<elseif $trauma gte ($traumamax / 5) * 1>><<set $dayendreport to $dayendreport + "<span class='lblue'>nervous.</span>">>
-	<<elseif $trauma gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>uneasy.</span>">>
-	<<else>><<set $dayendreport to $dayendreport + "<span class='green'>healthy.</span>">>
+	<<if $awarelevel lt 1>>	/* this is wrong? */
+		<<if $trauma gte $traumamax>><<set $dayendreport to $dayendreport + "<span class='red'>numb</span>">>
+		<<elseif $trauma gte ($traumamax / 5) * 4>><<set $dayendreport to $dayendreport + "<span class='pink'>tormented</span>">>
+		<<elseif $trauma gte ($traumamax / 5) * 3>><<set $dayendreport to $dayendreport + "<span class='purple'>disturbed</span>">>
+		<<elseif $trauma gte ($traumamax / 5) * 2>><<set $dayendreport to $dayendreport + "<span class='blue'>troubled</span>">>
+		<<elseif $trauma gte ($traumamax / 5) * 1>><<set $dayendreport to $dayendreport + "<span class='lblue'>nervous</span>">>
+		<<elseif $trauma gte 1>><<set $dayendreport to $dayendreport + "<span class='teal'>uneasy</span>">>
+		<<else>><<set $dayendreport to $dayendreport + "<span class='green'>healthy</span>">>
+		<</if>>
+	<<else>>
+		<<if $awareness gte 0>><<set $dayendreport to $dayendreport + "<span class='red'>aware</span>">>
+		<<elseif $awareness gt -40>><<set $dayendreport to $dayendreport + "<span class='pink'>uncertain</span>">>
+		<<elseif $awareness gt -80>><<set $dayendreport to $dayendreport + "<span class='purple'>perplexed</span>">>
+		<<elseif $awareness gt -120>><<set $dayendreport to $dayendreport + "<span class='blue'>curious</span>">>
+		<<elseif $awareness gt -160>><<set $dayendreport to $dayendreport + "<span class='lblue'>trusting</span>">>
+		<<elseif $awareness gt -200>><<set $dayendreport to $dayendreport + "<span class='teal'>naive</span>">>
+		<<else>><<set $dayendreport to $dayendreport + "<span class='green'>oblivious</span>">>
+		<</if>>
 	<</if>>
+	<<set $dayendreport to $dayendreport + " and the state of my body ">> /* this psrt could probably be worded better */
+
+		<<if $pain gte 100>><<set $dayendreport to $dayendreport + "makes me <span class='red'>sob uncontrollably</span>">>
+		<<elseif $pain gte 80>><<set $dayendreport to $dayendreport + "makes me <span class='pink'>cry and whimper</span>">>
+		<<elseif $pain gte 60>><<set $dayendreport to $dayendreport + "makes me <span class='purple'>cry</span>">>
+		<<elseif $pain gte 40>><<set $dayendreport to $dayendreport + "makes <span class='blue'>tears run down my face</span>">>
+		<<elseif $pain gte 20>><<set $dayendreport to $dayendreport + "makes <span class='lblue'>tears well in my eyes</span>">>
+		<<elseif $pain gte 1>><<set $dayendreport to $dayendreport + "makes me <span class='teal'>upset</span>">>
+		<<else>><<set $dayendreport to $dayendreport + "<span class='green'>feels okay</span>">>
 	<</if>>
+
+	<<set $dayendreport to $dayendreport + " I'm also ">> /* this also could probably be worded better */
+
+		<<if $arousal gte 10000>><<set $dayendreport to $dayendreport + "<span class='red'>shaking with arousal</span>">>
+		<<elseif $arousal gte 8000>><<set $dayendreport to $dayendreport + "feeling like there is <span class='pink'>a heat rising within me</span>">>
+		<<elseif $arousal gte 6000>><<set $dayendreport to $dayendreport + "feeling <span class='purple'>horny</span>">>
+		<<elseif $arousal gte 4000>><<set $dayendreport to $dayendreport + "feeling <span class='blue'>lustful</span>">>
+		<<elseif $arousal gte 2000>><<set $dayendreport to $dayendreport + "feeling <span class='lblue'>aroused</span>">>
+		<<elseif $arousal gte 1>><<set $dayendreport to $dayendreport + "feeling <span class='teal'>sensual</span>">>
+		<<else>><<set $dayendreport to $dayendreport + "feeling <span class='green'>cold</span>">>
+	<</if>>
+
+	<<set $dayendreport to "Bazang! "+ $dayendreport>>
+
+
+	<<set $dayendreport to $dayendreport + ".">>
 	<<set $diary[$days].push(
 		{
 	    timestamp:$time,
