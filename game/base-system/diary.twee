@@ -45,15 +45,11 @@ for example if you want to have logopinion but there's still a choice with all o
 :: Diary [nobr]
 <<if $canwrite is 1>><<return>><<else>><<back>><</if>>
 <<if $canwrite is 1>>
- | <<link [[Show all days|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
- | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
- | <<if $logshownotes is 1>><<link [[Hide|Diary]]>><<set $logshownotes to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshownotes to 1>><</link>><</if>> comments
-<<if $dev is 1>> | <<if $logshowops is 1>><<link [[Hide|Diary]]>><<set $logshowops to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowops to 1>><</link>><</if>> opinions<</if>>
+ | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
+ | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
+ | <<if $logshowcomments is 1>><<link [[Hide|Diary]]>><<set $logshowcomments to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowcomments to 1>><</link>><</if>> comments
+<<if $debug is 1>> | <<if $logshowops is 1>><<link [[Hide|Diary]]>><<set $logshowops to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowops to 1>><</link>><</if>> opinions<</if>>
 <br>
-/*
-nice way to get the last entry that ended up unnecessary:
-<<print $diary[$diarypage][$diary[$diarypage].length-1].text>>
-*/
 /*
 lists and makes selectable all days
 capture _i prevents all of the links setting $diarypage to the last value _i was
@@ -71,7 +67,9 @@ could make a year selector since this will probably get annoyingly long after a 
 <</if>><br>
 
 <<if $canwrite is 1>>
-Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >> or importance(from <<print $diary[$diarypage][$diaryline].importance>> to
+/* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
+Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
+or importance(from <<print $diary[$diarypage][$diaryline].importance>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
 <<link [[0|Diary]]>><<logimportance $diarypage $diaryline 0>><</link>>
 <<link [[1|Diary]]>><<logimportance $diarypage $diaryline 1>><</link>>
 <<link [[2|Diary]]>><<logimportance $diarypage $diaryline 2>><</link>>
@@ -83,7 +81,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 <</if>>
 
 
-<<if $diarymode is 0>> /* single day mode */
+<<if $diarymode is 1>> /* single day mode */
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
   <<if _entry.importance gte $diaryfilterA >><br>
@@ -101,6 +99,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
       <span class="teal">_entry.text </span>
     <<elseif _entry.importance is 5 >>
       <span class="green">_entry.text </span>
+    <<elseif _entry.importance is 8 >> /* virginity loss */
+      <span class="red">_entry.text </span>
     <<else>>
       _entry.text
     <</if>>
@@ -108,7 +108,17 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
       <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
       <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
     <</if>>
-    <<if $logshownotes is 1>><span class="purple">_entry.comment</span><</if>>
+    <<if $logdebug is 1>>
+      <<if _entry.effect.pain isnot 0>>p:_entry.effect.pain<</if>>
+      <<if _entry.effect.arousal isnot 0>>a:_entry.effect.arousal<</if>>
+      <<if _entry.effect.tired isnot 0>>f:_entry.effect.tired<</if>>
+      <<if _entry.effect.stress isnot 0>>s:_entry.effect.stress<</if>>
+      <<if _entry.effect.trauma isnot 0>>t:_entry.effect.trauma<</if>>
+      <<if _entry.effect.inno isnot 0>>i:_entry.effect.inno<</if>>
+      <<if _entry.effect.control isnot 0>>c:_entry.effect.control<</if>>
+      <<if _entry.effect.allure isnot 0>>b:_entry.effect.allure<</if>>
+    <</if>>
+    <<if $logshowcomments is 1>><span class="purple">_entry.comment</span><</if>>
     <<if $logshowops is 1>><span class="meek">_entry.opinion</span><</if>>
   <</if>>
   <</capture>>
@@ -134,6 +144,14 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
         <span class="teal">_entry.text </span>
       <<elseif _entry.importance is 5 >>
         <span class="green">_entry.text </span>
+      <<elseif _entry.importance is 6 >>
+        <span class="orange">_entry.text </span>
+      <<elseif _entry.importance is 7 >>/* for date and end/start of day report that colors stuff on it's own */
+        _entry.text
+      <<elseif _entry.importance is 8 >> /* virginity loss */
+        <span class="red">_entry.text </span>
+      <<elseif _entry.importance is 9 >> /* not sure, transformations? */
+        <span class="gold">_entry.text </span>
       <<else>>
         _entry.text
       <</if>>
@@ -141,7 +159,18 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
         <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
         <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
       <</if>>
-      <<if $logshownotes is 1>><span class="purple">_entry.comment</span><</if>>
+      <<if $logdebug is 1>>
+        <<if _entry.effect.pain isnot 0>>p:_entry.effect.pain<</if>>
+        <<if _entry.effect.arousal isnot 0>>a:_entry.effect.arousal<</if>>
+        <<if _entry.effect.tired isnot 0>>f:_entry.effect.tired<</if>>
+        <<if _entry.effect.stress isnot 0>>s:_entry.effect.stress<</if>>
+        <<if _entry.effect.trauma isnot 0>>t:_entry.effect.trauma<</if>>
+        <<if _entry.effect.inno isnot 0>>i:_entry.effect.inno<</if>>
+        <<if _entry.effect.control isnot 0>>c:_entry.effect.control<</if>>
+        <<if _entry.effect.allure isnot 0>>b:_entry.effect.allure<</if>>
+      <</if>>
+      <<if $logshowcomments is 1>><span class="purple">_entry.comment</span><</if>>
+      <<if $logshowops is 1>><span class="meek">_entry.opinion</span><</if>>
       /* the display might be a bit too busy with too many things demanding your attention so tried making it simpler with ■'s revealing extra details but that's just annoying, either hide all extra details or show them without needing to do crap
       <<if _entry.effect.money isnot 0>>
         <<if $diary[_i][_j].effect.money lt 0>><<linkappend "■ ">><<set $diarypage to _i>><<set $diaryline to _j>><span class="red">-£<<print Math.abs(Math.trunc($diary[_i][_j].effect.money / 100))>>.<<if $diary[_i][_j].effect.money % 100 lte 9>>0<</if>><<print $diary[_i][_j].effect.money % 100>></span> </span><span class="purple">_entry.comment</span><</linkappend>><</if>>
@@ -154,9 +183,11 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <</for>>
   <<run $diary.reverse()>>
 <</if>>
+<br><br>
 
-/*
 
-<<run $diary.reverse()>>
-<<run $diary.reverse()>>
-*/
+
+<<set $rngvalues to []>>
+<<set $rngpregen to 1>>
+<<initrng>>
+$rngvalues
