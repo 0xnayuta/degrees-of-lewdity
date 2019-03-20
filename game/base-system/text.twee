@@ -2473,24 +2473,31 @@ With your arms bound, you can't even cover yourself, leaving you feeling utterly
 
 <<if $uppertype isnot "naked" and $upperintegrity lte 0 and $lowertype isnot "naked" and $lowerintegrity lte 0 and $undertype isnot "naked" and $underintegrity lte 0>>
 <span class="lewd">Your clothing snags on a $stripobject, tearing it from your body and leaving you totally bare!</span>
+<<set $logprep to $logprep+", my clothes snagged on a"+$stripobject>>
 
 <<elseif $uppertype isnot "naked" and $upperintegrity lte 0 and $lowertype isnot "naked" and $lowerintegrity lte 0>>
 <span class="lewd">Your <<outfit>> <<if $stripset is 1>>snags on a $stripobject, and is torn clean off your body.<<else>>snag on a $stripobject, and are torn from you body.<</if>></span>
+<<set $logprep to $logprep+", my clothes snagged on a"+$stripobject>>
 
 <<elseif $uppertype isnot "naked" and $upperintegrity lte 0 and $undertype isnot "naked" and $underintegrity lte 0>>
 <span class="lewd">Your $upperclothes and $underclothes snag on a $stripobject and are torn from your body.</span>
+<<set $logprep to $logprep+", my "+$upperclothes+" and "+$underclothes+" snagged on a"+$stripobject>>
 
 <<elseif $lowertype isnot "naked" and $lowerintegrity lte 0 and $undertype isnot "naked" and $underintegrity lte 0>>
 <span class="lewd">Your $lowerclothes and $underclothes snag on a $stripobject and are torn from your body.</span>
+<<set $logprep to $logprep+", my "+$lowerclothes+" and "+$underclothes+" snagged on a"+$stripobject>>
 
 <<elseif $uppertype isnot "naked" and $upperintegrity lte 0>>
 <span class="lewd">Your $upperclothes snags on a $stripobject and is torn from your body.</span>
+<<set $logprep to $logprep+", my "+$upperclothes+" snagged on a"+$stripobject>>
 
 <<elseif $lowertype isnot "naked" and $lowerintegrity lte 0>>
 <span class="lewd">Your $lowerclothes <<if $lowerplural is 1>>snag on a $stripobject and are torn from your body.<<else>>snags on a $stripobject and is torn from your body.<</if>></span>
+<<set $logprep to $logprep+", my "+$lowerclothes+" snagged on a "+$stripobject>>
 
 <<elseif $undertype isnot "naked" and $underintegrity lte 0>>
 <span class="lewd">Your $underclothes <<if $underplural is 1>>snag on a $stripobject and are torn from your body.<<else>>snags on a $stripobject and is torn from your body.<</if>></span>
+<<set $logprep to $logprep+", my "+$underclothes+" snagged on a "+$stripobject>>
 
 <</if>>
 
@@ -3595,26 +3602,55 @@ text stuff(move to text.twee at some point)
 
 <<widget "setawarenesswords">><<nobr>> /* not sure how it will actually do it but this should set various vars based on awareness  */
 	/* thing to keep in mind is that being able to follow most things with "and so I beat them up" would be good */
+	<<set $aw_molested to "molested">> /* 'I got Xed and then' touched weirdly/badly/funnily  massaged /-gently  hugged /-gently        */
 	<<set $tomolestme to "to molest me">> /* to touch me weirdly     */
 	<<set $molestedme to "molested me">> /* touched me weirdly   */
 	<<set $ihadsex to "I had sex">> /* I fucked, I did lewd things, I got hugged, I got hugged gently   -in a location  */
-	<<set $ihadsexwith to "I had sex with">> /* I fucked, I did lewd things with, I was hugged by, I was hugged gently by   -a person  */
+	<<set $ihadsexwith to "I had sex with">> /* I fucked, I did lewd things with, I was hugged by, I was hugged gently by   -a person(so it alternates between -by and -with)  */
 	<<set $havingsex to "having sex">> /* fucking, doing lewd things, hugging, I was hugged gently by   -was interrupted |ended up-  */
 	<<for _a to -200; _a lte 0; _a += 40>>
 	<</for>>
 	<<for _a to 0; _a lte 1000; _a += 200>>
 	<</for>>
+	/*
+	I should make this sometimes pick a word from a level above or below the current one
+	maybe make it based on current awareness so if you're at 50% you'll have 50% chance of using word from next level
+	but how should that actually work? % 40 / 40 for negative and % 100 / 100 for positive?
+	could make high trauma or something increase the chance of next level or act as fixed addition to the score though since the scale changes at negative that might not be good
+	*/
 	<<if $awareness gte 500>>
 	<<elseif $awareness gt 200>>
-	<<elseif $awareness gt 100>>
+	<<elseif $awareness gt 100>>	<<set _s to "molested:to molest me:molested me:I had sex:I had sex with:having sex:assault:assaulted:assaulted".split(:)>>
+	<<set _m to "".split(:)>>
+	<<set _s to "".split(:)>>
+	<<set _r to "rape:raped:raping me".split(:)>>
 	<<elseif $awareness gt 0>>
+	<<set _m to "".split(:)>>
+	<<set _s to "".split(:)>>
+	<<set _r to "".split(:)>>
 	<<elseif $awareness gt -40>>
 	<<elseif $awareness gt -80>>
+	<<set _m to "touch strangely:touched strangely:touching strangely to".split(:)>>
+	<<set _s to "do funny things:did funny things:doing funny things to".split(:)>>
+	<<set _r to "do weird things:did weird things:doing weird things to".split(:)>>
 	<<elseif $awareness gt -120>>
 	<<elseif $awareness gt -160>>
+	<<set _m to "massage:massaged:massaging me".split(:)>>
+	<<set _s to "hug:hugged:hugging me".split(:)>>
+	<<set _r to "hug hard:hugged hard:hugging me hard".split(:)>>
 	<<elseif $awareness gt -200>>
+	<<set _m to "massaged gently:to massage me gently:massaged me gently".split(:)>>
+	<<set _s to "I gently hugged:I gently hugged with:gently hugging".split(:)>>
+	<<set _r to "hug tightly:was hugged tightly:hugged tightly".split(:)>>
 	<<else>>
 	<</if>>
+	/* I hope all of this will work, I really should test things more  */
+	<<set $aw_molest to _m[_i]>>	<<set $aw_rape to _r[_i]>>	<<set $aw_sex to _s[_i]>><<set _i++>>
+	<<set $aw_molested to _m[_i]>>	<<set $aw_raped to _r[_i]>>	<<set $aw_sexed to _s[_i]>><<set _i++>>
+	<<set $aw_molestingme to _m[_i]>>	<<set $aw_rapingme to _r[_i]>>	<<set $aw_sexingme to _s[_i]>><<set _i++>>
+	<<set $aw_molest to _m[1]>>	<<set $aw_rape to _r[1]>>	<<set $aw_sex to _s[1]>><<set _i++>>
+	<<set $aw_molested to _m[1]>>
+	<<set $aw_molested to _m[2]>>
 <</nobr>><</widget>>
 
 
