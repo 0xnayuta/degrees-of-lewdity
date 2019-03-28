@@ -2235,13 +2235,13 @@ so either have just a single string without anything weird or use $logprep that 
 					}
 		  }
 			)>>
-			<<logeffectsupdated>>
+			<<logstatsupdate>>
 	<<else>> /* wait for more noteworthy event to add changes to, kind of unnecessary unless the diary actually shows changes to stats that are constantly changing */
 		<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,pain:0,tired:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}})>>
 	<</if>>
 <</nobr>><</widget>>
 
-<<widget "logeffectsupdated">><<nobr>> /* update logstats to current stats */
+<<widget "logstatsupdate">><<nobr>> /* update logstats to current stats */
 <<set $logmoney to $money>>
 <<set $logstress to $stress>>
 <<set $logtrauma to $trauma>>
@@ -2266,9 +2266,6 @@ so either have just a single string without anything weird or use $logprep that 
 <</nobr>><</widget>>
 
 <<widget "logupdateeffect">><<nobr>> /*  update the last effect	*/
-	old money change <<print $diary[$days][$diaryline].effect.money>> <br>
-	$money $logmoney $awareness $awarelevel $awareselect
-	<<set $diary[$days][$diaryline].effect.money to $diary[$days][$diaryline].effect.money + $money - $logmoney>>
 	<<set $diary[$days][$diaryline].effect to (
 				{
 				money:($diary[$days][$diaryline].effect.money + $money - $logmoney),
@@ -2284,9 +2281,12 @@ so either have just a single string without anything weird or use $logprep that 
 				antiqmoney:($diary[$days][$diaryline].effect.antiqmoney + $antiqmoney - $logantiquemoney),
 				blackmoney:($diary[$days][$diaryline].effect.blackmoney + $blackmoney - $logblackmoney)
 				})>>
-				*/
-	<<logeffectsupdated>>
-	<br> new money change:<<print $diary[$days][$diaryline].effect.money>>
+	<<logstatsupdate>>
+<</nobr>><</widget>>
+
+<<widget "logtimeupdate">><<nobr>> /*  change entry time in case log was called early for some reason */
+	$money $logmoney $awareness $awarelevel $awareselect
+	<<set $diary[$days][$diaryline].time to $time>>
 <</nobr>><</widget>>
 
 <<widget "logday">><<nobr>>
