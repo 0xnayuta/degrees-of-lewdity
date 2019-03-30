@@ -2192,6 +2192,88 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <</nobr>><</widget>>
 
 
+<<widget "simplevirginityloss">><<nobr>>
+<<if $enemytype is "beast">>
+	<<set $loss_partner = $beasttype>>
+<<elseif $npc isnot 0>>
+	<<set $loss_partner = $npcdescription + " " + $npc>>
+<<elseif $npcadult is 1>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " man">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " woman">>
+	<</if>>
+<<else>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " boy">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " girl">>
+	<</if>>
+<</if>>
+
+/*<<set $logextra "I lost my "+$args[0]+"virginity to "+jsArticle($loss_partner)+$loss_partner+".">>*/
+<<set $logextra "I lost my "+$args[0]+"virginity to "+$loss_partner+".">>
+
+<</nobr>><</widget>>
+
+
+<<widget "remembersettings">><<nobr>>/*  */
+<<remember $debug>>
+<<remember $tipdisable>>
+<<remember $cheatdisable>>
+<<remember $compactsidebar>>
+
+/* diary settings */
+<<remember $logdebug>>
+<<remember $diarymode>>
+<<remember $loglocations>>
+<<remember $diaryprompts>>
+<<remember $diarysidebar>>
+<<remember $diaryfilterA>>
+<<remember $diaryfilterB>>
+<<remember $compactsidebar>>
+<<remember $logshowcomments>>
+<<remember $logshowopinions>>
+<<remember $logchangetreshold>>
+<<remember $diaryshowunwritten>>
+<<remember $busimportance>>
+<<remember $workimportance>>
+<<remember $passoutimportance>>
+<<remember $exposureimportance>>
+<<remember $logextraimportance>>
+/* sliders */
+<<remember $malechance>>
+<<remember $beastmalechance>>
+<<remember $dgchance>>
+<<remember $cbchance>>
+<<remember $whitechance>>
+<<remember $blackchance>>
+/*content toggles*/
+<<remember $bestialitydisable>>
+<<remember $swarmdisable>>
+<<remember $parasitedisable>>
+<<remember $slimedisable>>
+<<remember $voredisable>>
+<<remember $tentacledisable>>
+<<remember $analdisable>>
+<<remember $transformdisable>>
+<<remember $hirsutedisable>>
+<<remember $breastfeedingdisable>>
+/* not sure if these are really necessary */
+<<remember $breastsizemax>>
+<<remember $gamemode>>
+<<remember $numberify_enabled>>
+<<remember $silhouettedisable>>
+<<remember $dev>>
+<<remember $images>>
+<<remember $textonly>>
+
+<</nobr>><</widget>>
+
+<<widget "forgetsettings">><<nobr>>/* not sure where would be a good place to actually use this if at all */
+<<forget $debug, $tipdisable, $cheatdisable, $compactsidebar, $malechance, $beastmalechance, $dgchance, $cbchance, $whitechance, $blackchance>>
+<<forget $logdebug, $diarysidebar, $diarymode, $loglocations, $diaryprompts, $diaryfilterA, $diaryfilterB, $logshowcomments, $logshowopinions, $logchangetreshold, $diaryshowunwritten>>
+<<forget $busimportance, $workimportance, $passoutimportance, $exposureimportance, $logextraimportance>>
+<<forget $bestialitydisable, $swarmdisable, $parasitedisable, $slimedisable, $voredisable, $tentacledisable, $analdisable, $transformdisable, $hirsutedisable, $breastfeedingdisable>>
+<<forget $breastsizemax, $gamemode, $numberify_enabled, $silhouettedisable, $dev, $images, $textonly>>
+<<run UI.reset()>>/* will ask to restart, Engine.reset() won't ask, anyway probably not a good idea to not do a restart after undefining all of these */
+<</nobr>><</widget>>
 
 
 /*
@@ -2223,7 +2305,7 @@ so either have just a single string without anything weird or use $logprep that 
 					money:($money - $logmoney),
 					stress:($stress - $logstress),
 					trauma:($trauma - $logtrauma),
-					inno:($awareness - $logawareness),
+					awareness:($awareness - $logawareness),
 					pain:($pain - $logpain),
 					tired:($tiredness - $logtiredness),
 					arousal:($arousal - $logarousal),
@@ -2237,7 +2319,10 @@ so either have just a single string without anything weird or use $logprep that 
 			)>>
 			<<logstatsupdate>>
 	<<else>> /* wait for more noteworthy event to add changes to, kind of unnecessary unless the diary actually shows changes to stats that are constantly changing */
-		<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,pain:0,tired:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}})>>
+		<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}})>>
+	<</if>>
+	<<if $logextra isnot "">> /* virginity loss entries should come after the event or as a special comment like thing */
+		<<set _exlog to $logextra>><<set $logextra to "">><<log _exlog $logextraimportance>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -2271,7 +2356,7 @@ so either have just a single string without anything weird or use $logprep that 
 				money:($diary[$days][$diaryline].effect.money + $money - $logmoney),
 				stress:($diary[$days][$diaryline].effect.stress + $stress - $logstress),
 				trauma:($diary[$days][$diaryline].effect.trauma + $trauma - $logtrauma),
-				inno:($diary[$days][$diaryline].effect.inno + $awareness - $logawareness),
+				awareness:($diary[$days][$diaryline].effect.awareness + $awareness - $logawareness),
 				pain:($diary[$days][$diaryline].effect.pain + $pain - $logpain),
 				tired:($diary[$days][$diaryline].effect.tired + $tiredness - $logtiredness),
 				arousal:($diary[$days][$diaryline].effect.arousal + $arousal - $logarousal),
@@ -2362,7 +2447,7 @@ so either have just a single string without anything weird or use $logprep that 
 		{
 	    timestamp:$time,
 	    text:$dayendreport,
-			importance:7, comment:"",	comment:"",	opinion:"", effect:{}
+			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,weather:"",antiqmoney:0,blackmoney:0}
 	  }
 		)>>
 	<<set $diaryline to $diary[$days].length>> /* */

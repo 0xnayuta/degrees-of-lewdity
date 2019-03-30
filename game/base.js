@@ -216,8 +216,7 @@ var disableNumberifyInVisibleElements = [
 	'#passage-asylum-wardrobe',
 	'#passage-strip-club-dressing-room',
 	'#passage-brothel-dressing-room',
-	'#passage-testing-room',
-	'#passage-diary'
+	'#passage-testing-room'
 ];
 
 // Number-ify links
