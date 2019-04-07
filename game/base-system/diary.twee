@@ -32,6 +32,11 @@ note using variable inside the string ie "$logprep blah blah" will make it updat
 Also if it's really necessary <<logadd>> and <<logupdateeffect>> can also be used to change the last entry
 for example if you want to have logopinion but there's still a choice with all options ending the event and putting you on street or something.
 
+
+$logextra will cause <<log>> to add another entry after the current one if it's anything other than ""
+
+
+
 */
 
 :: Simple Diary[nobr]
@@ -103,48 +108,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <<if _entry.importance gte $diaryfilterA >><br>
     <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diaryline to _i>><</link>><</if>>
     <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>><</if>>
-    <<if _entry.importance lte 0 >>
-      <span class="grey">_entry.text </span>
-    <<elseif _entry.importance is 1 >>
-      <span class="purple">_entry.text </span>
-    <<elseif _entry.importance is 2 >>
-      <span class="blue">_entry.text </span>
-    <<elseif _entry.importance is 3 >>
-      <span class="lblue">_entry.text </span>
-    <<elseif _entry.importance is 4 >>
-      <span class="teal">_entry.text </span>
-    <<elseif _entry.importance is 5 >>
-      <span class="green">_entry.text </span>
-    <<elseif _entry.importance is 6 >>
-      <span class="orange">_entry.text </span>
-    <<elseif _entry.importance is 7 >>/* for date and end/start of day report that colors stuff on it's own */
-      _entry.text
-    <<elseif _entry.importance is 8 >> /* virginity loss */
-      <span class="red">_entry.text </span>
-    <<elseif _entry.importance is 9 >> /* not sure, transformations? */
-      <span class="gold">_entry.text </span>
-    <<else>>
-      _entry.text
-    <</if>>
-    <<if _entry.effect.money isnot 0>>
-      <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
-      <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
-    <</if>>
-    <<if _entry.effect.antiqmoney gt 0>><span class="brown"> £<<print _entry.effect.antiqmoney>></span><</if>>
-    <<if _entry.effect.blackmoney gt 0>><span class="black"> £<<print _entry.effect.blackmoney>></span><</if>>
-    <<if $logdebug is 1>><span class="greyred">
-      <<if _entry.effect.pain isnot 0 and _entry.effect.pain isnot undefined>>pain:_entry.effect.pain<</if>>
-      <<if _entry.effect.arousal isnot 0 and _entry.effect.pain isnot undefined>>arousal:_entry.effect.arousal<</if>>
-      <<if _entry.effect.tired isnot 0 and _entry.effect.pain isnot undefined>>tiredness:_entry.effect.tired<</if>>
-      <<if _entry.effect.stress isnot 0 and _entry.effect.pain isnot undefined>>stress:_entry.effect.stress<</if>>
-      <<if _entry.effect.trauma isnot 0 and _entry.effect.pain isnot undefined>>trauma:_entry.effect.trauma<</if>>
-      <<if _entry.effect.awareness isnot 0 and _entry.effect.pain isnot undefined>>awareness:_entry.effect.awareness<</if>>
-      <<if _entry.effect.control isnot 0 and _entry.effect.pain isnot undefined>>control:_entry.effect.control<</if>>
-      <<if _entry.effect.allure isnot 0 and _entry.effect.pain isnot undefined>>allure:_entry.effect.allure<</if>>
-      </span>
-    <</if>>
-    <<if $logshowcomments is 1>><span class="meek">_entry.comment</span><</if>>
-    <<if $logshowopinions is 1>><span class="meek">_entry.opinion</span><</if>>
+    <<showdiaryentry _entry>>
   <</if>>
   <</capture>>
   <</for>>
@@ -157,54 +121,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <<if _entry.importance gte $diaryfilterB >><br>
       <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diarypage to $days-_i>><<set $diaryline to _j>><</link>><</if>> /* $days-_i prevents reversed day order from messing things up */
       <<if _j gt 1>><<print Math.floor($diary[_i][_j].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j].timestamp % 60).toString().padStart(2, "0")>><</if>>
-      <<if _entry.importance lte 0 >>/* after this stuff is same as above though it used to be more different, should make a widget or something  */
-        <span class="grey">_entry.text </span>
-      <<elseif _entry.importance is 1 >>
-        <span class="purple">_entry.text </span>
-      <<elseif _entry.importance is 2 >>
-        <span class="blue">_entry.text </span>
-      <<elseif _entry.importance is 3 >>
-        <span class="lblue">_entry.text </span>
-      <<elseif _entry.importance is 4 >>
-        <span class="teal">_entry.text </span>
-      <<elseif _entry.importance is 5 >>
-        <span class="green">_entry.text </span>
-      <<elseif _entry.importance is 6 >>
-        <span class="orange">_entry.text </span>
-      <<elseif _entry.importance is 7 >>/* for date and end/start of day report that colors stuff on it's own */
-        _entry.text
-      <<elseif _entry.importance is 8 >> /* virginity loss */
-        <span class="red">_entry.text </span>
-      <<elseif _entry.importance is 9 >> /* not sure, transformations? */
-        <span class="gold">_entry.text </span>
-      <<else>>
-        _entry.text
-      <</if>>
-      <<if _entry.effect.money isnot 0>>
-        <<if _entry.effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_entry.effect.money / 100))>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
-        <<if _entry.effect.money gt 0>><span class="gold">£<<print Math.trunc(_entry.effect.money / 100)>>.<<if _entry.effect.money % 100 lte 9>>0<</if>><<print _entry.effect.money % 100>></span><</if>>
-      <</if>>
-      <<if _entry.effect.antiqmoney gt 0>><span class="brown"> £<<print _entry.effect.antiqmoney>></span><</if>>
-      <<if _entry.effect.blackmoney gt 0>><span class="black"> £<<print _entry.effect.blackmoney>></span><</if>>
-      <<if $logdebug is 1>><span class="greyred">
-        <<if _entry.effect.pain isnot 0 and _entry.effect.pain isnot undefined>>pain:_entry.effect.pain<</if>>
-        <<if _entry.effect.arousal isnot 0 and _entry.effect.pain isnot undefined>>arousal:_entry.effect.arousal<</if>>
-        <<if _entry.effect.tired isnot 0 and _entry.effect.pain isnot undefined>>tiredness:_entry.effect.tired<</if>>
-        <<if _entry.effect.stress isnot 0 and _entry.effect.pain isnot undefined>>stress:_entry.effect.stress<</if>>
-        <<if _entry.effect.trauma isnot 0 and _entry.effect.pain isnot undefined>>trauma:_entry.effect.trauma<</if>>
-        <<if _entry.effect.awareness isnot 0 and _entry.effect.pain isnot undefined>>awareness:_entry.effect.awareness<</if>>
-        <<if _entry.effect.control isnot 0 and _entry.effect.pain isnot undefined>>control:_entry.effect.control<</if>>
-        <<if _entry.effect.allure isnot 0 and _entry.effect.pain isnot undefined>>allure:_entry.effect.allure<</if>>
-        </span>
-      <</if>>
-      <<if $logshowcomments is 1>><span class="meek">_entry.comment</span><</if>>
-      <<if $logshowopinions is 1>><span class="meek">_entry.opinion</span><</if>>
-      /* the display might be a bit too busy with too many things demanding your attention so tried making it simpler with ■'s revealing extra details but that's just annoying, either hide all extra details or show them without needing to do crap
-      <<if _entry.effect.money isnot 0>>
-        <<if $diary[_i][_j].effect.money lt 0>><<linkappend "■ ">><<set $diarypage to _i>><<set $diaryline to _j>><span class="red">-£<<print Math.abs(Math.trunc($diary[_i][_j].effect.money / 100))>>.<<if $diary[_i][_j].effect.money % 100 lte 9>>0<</if>><<print $diary[_i][_j].effect.money % 100>></span> </span><span class="purple">_entry.comment</span><</linkappend>><</if>>
-        <<if $diary[_i][_j].effect.money gt 0>><<linkappend "■ ">><<set $diarypage to _i>><<set $diaryline to _j>><span class="gold">£<<print Math.trunc($diary[_i][_j].effect.money / 100)>>.<<if $diary[_i][_j].effect.money % 100 lte 9>>0<</if>><<print $diary[_i][_j].effect.money % 100>></span> <span class="purple">_entry.comment</span><</linkappend>><</if>>
-      <</if>>
-      */
+      <<showdiaryentry _entry>>
     <</if>>
     <</capture>>
     <</for>>
