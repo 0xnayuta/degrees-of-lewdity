@@ -467,13 +467,13 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 
 <<widget "clothesruinstat">><<set $clothesruinstat += 1>><</widget>>
 
-<<widget "orgasmstat">><<set $orgasmstat += 1>><</widget>>
+<<widget "orgasmstat">><<if $orgasmstat == 0>><<combat_partner>><<set $logextra to $logextra+$Combat_partner+" made me orgasm for the first time. ">><</if>><<set $orgasmstat += 1>><</widget>>
 
-<<widget "ejacstat">><<set $ejacstat += 1>><</widget>>
+<<widget "ejacstat">><<if $ejacstat == 0>><<combat_partner>><<set $logextra to $logextra+$Combat_partner+" made me ejaculate for the first time. ">><</if>><<set $ejacstat += 1>><</widget>>
 
-<<widget "hitstat">><<set $hitstat += 1>><</widget>>
+<<widget "hitstat">><<set $hitstat += 1>><</widget>>/* add 1st time? */
 
-<<widget "attackstat">><<set $attackstat += 1>><</widget>>
+<<widget "attackstat">><<set $attackstat += 1>><</widget>>/* add 1st time? */
 
 <<widget "vaginalentranceejacstat">>
 <<if $vaginalentranceejacstat == 0>>
@@ -2197,7 +2197,7 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <</nobr>><</widget>>
 
 
-<<widget "combat_partner">><<nobr>>
+<<widget "combat_partner">><<nobr>>/* somehow set to "I" when masturbating? */
 <<if $enemytype is "beast">>
 	<<set $combat_partner = $beasttype>>
 <<elseif $npc isnot 0>>
@@ -2321,6 +2321,8 @@ so either have just a single string without anything weird or use $logprep that 
 					allure:($allure - $logallure),
 					antiqmoney:($antiqmoney - $logantiquemoney),
 					blackmoney:($blackmoney - $logblackmoney),
+					spray:($spray - $logspray),
+					spraymax:($spraymax - $logspraymax),
 					weather:(""),
 					clothupper:(""),
 					clothlower:(""),
@@ -2539,12 +2541,6 @@ so either have just a single string without anything weird or use $logprep that 
 <<else>>
 	$args[0].text
 <</if>>
-<<if $args[0].effect.money isnot 0>>
-	<<if $args[0].effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc($args[0].effect.money / 100))>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
-	<<if $args[0].effect.money gt 0>><span class="gold">£<<print Math.trunc($args[0].effect.money / 100)>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
-<</if>>
-<<if $args[0].effect.antiqmoney gt 0>><span class="brown"> £<<print $args[0].effect.antiqmoney>></span><</if>>
-<<if $args[0].effect.blackmoney gt 0>><span class="black"> £<<print $args[0].effect.blackmoney>></span><</if>>
 /* clothing change report */
 /*
 "Changed x to y" would be weird for situations where clothes break and such
@@ -2569,6 +2565,18 @@ this probably won't handle sets very well
 	<</if>>
 	<<listify $listed>>
 <</if>>
+
+<<if $args[0].effect.spray isnot 0>>
+	<<if $args[0].effect.spray lt 0>><span class="red">-pepper spray </span><</if>>
+	<<if $args[0].effect.spray gt 0>><span class="green">+pepper spray </span><</if>>
+<</if>>
+
+<<if $args[0].effect.money isnot 0>>
+	<<if $args[0].effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc($args[0].effect.money / 100))>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
+	<<if $args[0].effect.money gt 0>><span class="gold">£<<print Math.trunc($args[0].effect.money / 100)>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
+<</if>>
+<<if $args[0].effect.antiqmoney gt 0>><span class="brown"> £<<print $args[0].effect.antiqmoney>></span><</if>>
+<<if $args[0].effect.blackmoney gt 0>><span class="black"> £<<print $args[0].effect.blackmoney>></span><</if>>
 
 <<if $logdebug is 1>><span class="greyred">
 	<<if $args[0].effect.weather isnot "" and $args[0].effect.weather isnot undefined>>weather changed to $args[0].effect.weather<</if>>
