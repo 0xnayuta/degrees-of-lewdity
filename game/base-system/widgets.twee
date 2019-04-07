@@ -2319,7 +2319,7 @@ so either have just a single string without anything weird or use $logprep that 
 					arousal:($arousal - $logarousal),
 					control:($control - $logcontrol ),
 					allure:($allure - $logallure),
-					antiqmoney:($antiqmoney - $logantiquemoney),
+					antiquemoney:($antiquemoney - $logantiquemoney),
 					blackmoney:($blackmoney - $logblackmoney),
 					spray:($spray - $logspray),
 					spraymax:($spraymax - $logspraymax),
@@ -2346,10 +2346,10 @@ so either have just a single string without anything weird or use $logprep that 
 			<</if>>
 			<<logstatsupdate>>
 	<<else>> /* wait for more noteworthy event to add changes to, kind of unnecessary unless the diary actually shows changes to stats that are constantly changing */
-			<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiqmoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}})>>
+			<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}})>>
 	<</if>>
 	<<if $logextra isnot "" and $logextra isnot undefined>> /* virginity loss entries should come after the event (or as some special comment like thing) */
-		<<set _exlog to $logextra>><<set $logextra to "">><<log _exlog $logextraimportance>>
+		<<logextra $logextra $logextraimportance>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -2364,13 +2364,22 @@ so either have just a single string without anything weird or use $logprep that 
 <<set $logcontrol to $control>>
 <<set $logallure to $allure>>
 <<set $logblackmoney to $blackmoney>>
-<<set $logantiqmoney to $antiquemoney>>
+<<set $logantiquemoney to $antiquemoney>>
+<<set $logspray to $spray>>
+<<set $logspraymax to $spraymax>>
 <<if $logweather isnot $weather>><<set $logweather to $weather>><</if>>
 <<if $logupperclothes isnot $upperclothes>><<set $logupperclothes to $upperclothes>><</if>>
 <<if $loglowerclothes isnot $lowerclothes>><<set $loglowerclothes to $lowerclothes>><</if>>
 <<if $logunderclothes isnot $underclothes>><<set $logunderclothes to $underclothes>><</if>>
 <</nobr>><</widget>>
 
+<<widget "logextra">><<nobr>>
+<<if $args[1] == undefined>><<set $args[1] to 8>><</if>>
+<<set $logextra to "">>
+<<set $diarypage to $days>>
+<<set $diaryline to $diary[$days].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
+<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}})>>
+<</nobr>><</widget>>
 
 <<widget "logedit">><<nobr>> /* edit the last entry text*/
 	<<set $diary[$days][$diaryline].text to $args[0]>>
@@ -2392,8 +2401,10 @@ so either have just a single string without anything weird or use $logprep that 
 				arousal:($diary[$days][$diaryline].effect.arousal + $arousal - $logarousal),
 				control:($diary[$days][$diaryline].effect.control + $control - $logcontrol ),
 				allure:($diary[$days][$diaryline].effect.allure + $allure - $logallure),
+				spray:($diary[$days][$diaryline].effect.spray + $spray - $logspray),
+				spraymax:($diary[$days][$diaryline].effect.spraymax + $spraymax - $logspraymax),
 				weather:($weather),
-				antiqmoney:($diary[$days][$diaryline].effect.antiqmoney + $antiqmoney - $logantiquemoney),
+				antiquemoney:($diary[$days][$diaryline].effect.antiquemoney + $antiquemoney - $logantiquemoney),
 				blackmoney:($diary[$days][$diaryline].effect.blackmoney + $blackmoney - $logblackmoney)
 				})>>
 	<<logstatsupdate>>
@@ -2477,7 +2488,7 @@ so either have just a single string without anything weird or use $logprep that 
 		{
 	    timestamp:$time,
 	    text:$dayendreport,
-			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiqmoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}
+			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}
 	  }
 		)>>
 	<<set $diaryline to $diary[$days].length>> /* */
@@ -2548,6 +2559,7 @@ so either have just a single string without anything weird or use $logprep that 
 	actually is the "now" really necessary?
 this probably won't handle sets very well
 */
+<<if $args[0].effect.clothunder isnot undefined>>
 <<if $args[0].effect.clothupper isnot "" or $args[0].effect.clothlower isnot "" or $args[0].effect.clothunder isnot "">>/*could just check 1 now that all should be set if 1 is*/
 	wearing
 	<<if $args[0].effect.clothupper is "naked" and $args[0].effect.clothlower is "naked" and $args[0].effect.clothunder is "naked">>nothing <</if>>
@@ -2565,6 +2577,7 @@ this probably won't handle sets very well
 	<</if>>
 	<<listify $listed>>
 <</if>>
+<</if>>
 
 <<if $args[0].effect.spray isnot 0>>
 	<<if $args[0].effect.spray lt 0>><span class="red">-pepper spray </span><</if>>
@@ -2575,7 +2588,7 @@ this probably won't handle sets very well
 	<<if $args[0].effect.money lt 0>><span class="red">-£<<print Math.abs(Math.trunc($args[0].effect.money / 100))>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
 	<<if $args[0].effect.money gt 0>><span class="gold">£<<print Math.trunc($args[0].effect.money / 100)>>.<<if $args[0].effect.money % 100 lte 9>>0<</if>><<print $args[0].effect.money % 100>></span><</if>>
 <</if>>
-<<if $args[0].effect.antiqmoney gt 0>><span class="brown"> £<<print $args[0].effect.antiqmoney>></span><</if>>
+<<if $args[0].effect.antiquemoney gt 0>><span class="brown"> £<<print $args[0].effect.antiquemoney>></span><</if>>
 <<if $args[0].effect.blackmoney gt 0>><span class="black"> £<<print $args[0].effect.blackmoney>></span><</if>>
 
 <<if $logdebug is 1>><span class="greyred">
