@@ -1,7 +1,7 @@
 :: Widgets [widget]
 <<widget "toggledebug">><<nobr>>
 <<if $debug>> <<set $debug to 1>>
-<<else>> <<set $debug to 0>>
+<<else>> <<set $debug to -1>>
 <</if>>
 <</nobr>><</widget>>
 
@@ -2198,6 +2198,7 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 
 
 <<widget "combat_partner">><<nobr>>/* somehow set to "I" when masturbating? */
+<<set $combat_partner = "">>/* hopefulyy this will fix the "An an a slight boy" */
 <<if $enemytype is "beast">>
 	<<set $combat_partner = $beasttype>>
 <<elseif $npc isnot 0>>
@@ -2244,6 +2245,7 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <<remember $passoutimportance>>
 <<remember $exposureimportance>>
 <<remember $logextraimportance>>
+<<remember $locationimportance>>
 /* sliders */
 <<remember $malechance>>
 <<remember $beastmalechance>>
@@ -2275,12 +2277,17 @@ You take the pills prescribed in the asylum. You feel hazy.<<ggcontrol>><<llawar
 <</nobr>><</widget>>
 
 <<widget "forgetsettings">><<nobr>>/* not sure where would be a good place to actually use this if at all */
+<<remember $facreset to true>>
+<<run UI.restart()>>/* will ask to restart, Engine.restart() won't ask, anyway probably not a good idea to not do a restart after undefining all of these */
+
+/*
 <<forget $debug, $tipdisable, $cheatdisable, $compactsidebar, $malechance, $beastmalechance, $dgchance, $cbchance, $whitechance, $blackchance, $alluremod>>
 <<forget $logdebug, $diarysidebar, $diarymode, $loglocations, $diaryprompts, $diaryfilterA, $diaryfilterB, $logshowcomments, $logshowopinions, $logchangetreshold, $diaryshowunwritten>>
 <<forget $busimportance, $workimportance, $passoutimportance, $exposureimportance, $logextraimportance>>
 <<forget $bestialitydisable, $swarmdisable, $parasitedisable, $slimedisable, $voredisable, $tentacledisable, $analdisable, $transformdisable, $hirsutedisable, $breastfeedingdisable>>
 <<forget $breastsizemax, $gamemode, $numberify_enabled, $silhouettedisable, $dev, $images, $textonly>>
-<<run UI.restart()>>/* will ask to restart, Engine.restart() won't ask, anyway probably not a good idea to not do a restart after undefining all of these */
+<<run Engine.restart()>>
+*/
 <</nobr>><</widget>>
 
 
@@ -2323,6 +2330,9 @@ so either have just a single string without anything weird or use $logprep that 
 					blackmoney:($blackmoney - $logblackmoney),
 					spray:($spray - $logspray),
 					spraymax:($spraymax - $logspraymax),
+					drunk:($drunk),
+					drunkgain:($drunk - $logdrunk),
+					drugged:($drugged - $logdrugged),
 					weather:(""),
 					clothupper:(""),
 					clothlower:(""),
@@ -2332,7 +2342,7 @@ so either have just a single string without anything weird or use $logprep that 
 					oldclothunder:("")
 					}
 		  }
-			)>>
+			)>>/* effect.drunk will have the current stat instead of change from the last value */
 			/* string changeds */
 			<<if $logweather isnot $weather>><<set $diary[$days][$diaryline].effect.weather to $weather>><<set $logweather to $weather>><</if>>
 			/* need to list all clothing when something changes so that we don't need to search through previous entries to figure out if a part that didn't change is naked or not */
@@ -2403,6 +2413,9 @@ so either have just a single string without anything weird or use $logprep that 
 				allure:($diary[$days][$diaryline].effect.allure + $allure - $logallure),
 				spray:($diary[$days][$diaryline].effect.spray + $spray - $logspray),
 				spraymax:($diary[$days][$diaryline].effect.spraymax + $spraymax - $logspraymax),
+				drunk:($drunk),
+				drunkgain:($diary[$days][$diaryline].effect.drunkgain + $drunk - $logdrunk),
+				drugged:($diary[$days][$diaryline].effect.drugged + $drugged - $logdrugged),
 				weather:($weather),
 				antiquemoney:($diary[$days][$diaryline].effect.antiquemoney + $antiquemoney - $logantiquemoney),
 				blackmoney:($diary[$days][$diaryline].effect.blackmoney + $blackmoney - $logblackmoney)
@@ -2530,12 +2543,12 @@ so either have just a single string without anything weird or use $logprep that 
 <<widget "showdiaryentry">><<nobr>>
 
 <<if $args[0].importance lte 0 >>/* after this stuff is same as above though it used to be more different, should make a widget or something  */
-	<span class="grey">$args[0].text </span>
+	<span class="black">$args[0].text </span>
 <<elseif $args[0].importance is 1 >>
-	<span class="purple">$args[0].text </span>
+	<span class="grey">$args[0].text </span>
 <<elseif $args[0].importance is 2 >>
 	<span class="blue">$args[0].text </span>
-<<elseif $args[0].importance is 3 >>
+<<elseif $args[0].importance is 3 >>/* combat and other events of similar importance */
 	<span class="lblue">$args[0].text </span>
 <<elseif $args[0].importance is 4 >>
 	<span class="teal">$args[0].text </span>
@@ -2561,7 +2574,7 @@ this probably won't handle sets very well
 */
 <<if $args[0].effect.clothunder isnot undefined>>
 <<if $args[0].effect.clothupper isnot "" or $args[0].effect.clothlower isnot "" or $args[0].effect.clothunder isnot "">>/*could just check 1 now that all should be set if 1 is*/
-	wearing
+	Wearing
 	<<if $args[0].effect.clothupper is "naked" and $args[0].effect.clothlower is "naked" and $args[0].effect.clothunder is "naked">>nothing <</if>>
 	<<set $listed to []>>
 	<<if $args[0].effect.clothupper isnot "naked">><<set $listed.push($args[0].effect.clothupper)>><</if>>
@@ -2575,8 +2588,22 @@ this probably won't handle sets very well
 	<<elseif $args[0].effect.clothupper isnot "naked" or $args[0].effect.clothlower isnot "naked">>
 		<<set $listed.push("no underwear")>>
 	<</if>>
-	<<listify $listed>>
+	<<listify $listed>>.
 <</if>>
+<</if>>
+
+<<if $args[0].effect.drunk gt 0>><span class="purple">Feeling</span>
+	<<if $args[0].effect.drunk lte 120>>
+	<span class="blue"> woozy</span>.
+	<<elseif $args[0].effect.drunk lte 240>>
+	<span class="purple"> tipsy</span>.
+	<<elseif $args[0].effect.drunk lte 360>>
+	<span class="purple"> drunk</span>.
+	<<elseif $args[0].effect.drunk lte 480>>
+	<span class="pink"> smashed</span>.
+	<<else>>
+	<span class="pink"> wasted</span>.
+	<</if>>
 <</if>>
 
 <<if $args[0].effect.spray isnot 0>>
