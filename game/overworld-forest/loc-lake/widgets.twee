@@ -106,13 +106,13 @@ It's getting late, and the shadows of the forest grow longer. People are prepari
 	<<generatey1>><<person1>> A <<person>> watches you from the bank.<br><br>
 
 	<<link [[Wave (0:01)|Lake Wave]]>><<stress -2>><</link>><<lstress>><br>
-	<<link [[Ignore|Lake Shallows]]>><<endevent>><<set $eventskip to 1>><</link>><br>
+	<<link [[Ignore|Lake Shallows]]>><<endevent>><<set $eventskip to 1>><<log "TBD lake wave ignore" 1>><</link>><br>
 		<<if $playergenderappearance is "f" and $exhibitionism gte 35>>
 		<<link [[Flash|Lake Flash]]>><</link>><<exhibitionist3>><br>
 		<</if>>
 	<<else>>
 	Your leg gets tangled in some weeds. It takes a few minutes of struggling to free yourself.<<gtiredness>><<tiredness 2>><br><br><<pass 3>>
-
+	<<log "TBD tangled" 1>>
 	<<link [[Next|Lake Shallows]]>><<set $eventskip to 1>><</link>><br>
 	<</if>>
 <<else>>
@@ -127,8 +127,10 @@ It's getting late, and the shadows of the forest grow longer. People are prepari
 	<<else>>
 		<<if $daystate is "night" and $weather is "rain">>
 		Something brushes your leg and startles you. You look beneath the dark and violent water, but can't see anything. You feel strange.<<garousal>><<arousal 6>><<gstress>><<stress 6>><br><br>
+		<<log "TBD lake something brushes leg" 1>>
 		<<else>>
 		Something brushes your leg and startles you. You look beneath the water, but can't see anything.<<garousal>><<arousal 6>><<gstress>><<stress 6>><br><br>
+		<<log "TBD lake something brushes leg" 1>>
 		<</if>>
 
 	<<link [[Next|Lake Depths]]>><<set $eventskip to 1>><</link>><br>
@@ -146,12 +148,84 @@ You see a boar rifling through litter at the base of a tree. It spots you.<br><b
 <<link [[Run|Lake Boar Run]]>><</link>><br>
 <<elseif $rng gte 51>>
 You thought you heard someone call your name, but there's no one there.<<gtrauma>><<trauma 1>><br><br>
-<<set $eventskip to 1>>
+<<set $eventskip to 1>><<log "TBD name hear thought" 1>>
 <<destinationlake>>
 <<else>>
 A pair of eyes stares at you from between the trees, then vanishes.<<gstress>><<stress 6>><br><br>
-<<set $eventskip to 1>>
+<<set $eventskip to 1>><<log "TBD lake stared at" 1>>
 <<destinationlake>>
 <</if>>
+
+<</nobr>><</widget>>
+
+<<widget "ruinoptions">><<nobr>>
+<<if $args[0] isnot undefined>>
+	<<set $logprep to $logprep+$args[0]>>
+	$args[1]<br>
+	<<link [[Search pots|Lake Pots]]>><<wateraction>><<set $logprep to $logprep+" and continued searching pots.">><<log $logprep 1>><<set $phase to 0>><</link>><<loxygen>><br>
+	<<if $lakeruinkey is 1>>
+		<<link [[Open door with bronze key|Lake Ruin Door]]>><<wateraction>><<set $logprep to $logprep+" and went to use bronze key on the door.">><<log $logprep 1>><<set $phase to 0>><</link>><<loxygen>><br>
+	<</if>>
+	<<if $lakeruinkey is 2>>
+		<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><<set $logprep to $logprep+" and swum to the plinth room.">><<log $logprep 1>><<set $phase to 0>><</link>><<loxygen>><br>
+	<</if>>
+	/* option to take a discarded pot here would require checking that the current one isn't the last and be annoying to do in general*/
+	<br>
+	<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<set $logprep to $logprep+" and swum towards the exit.">><<log $logprep 1>><<set $phase to 0>><</link>><<loxygen>><br>
+
+
+<<else>>
+	<<link [[Search pots|Lake Pots]]>><<wateraction>><<set $phase to 0>><</link>><<loxygen>><br>
+	<<if $lakeruinkey is 1>>
+		<<link [[Open door with bronze key|Lake Ruin Door]]>><<wateraction>><<set $phase to 0>><</link>><<loxygen>><br>
+	<</if>>
+	<<if $lakeruinkey is 2>>
+		<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><<set $phase to 0>><</link>><<loxygen>><br>
+	<</if>>
+	<<if $historytrait gte 4 and $boxdumps.length gte 1>>
+		<<link [[Take a discarded box|Lake Ruin Dumped Box]]>><<wateraction>><<set $phase to 0>><</link>><<loxygen>><br>
+	<</if>>
+	<br>
+	<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><<set $phase to 0>><</link>><<loxygen>><br>
+<</if>>
+
+/
+<br>debug stuff
+<br>@
+$boxdumps[0]
+$boxdumps[1]
+$boxdumps[2]
+$boxdumps[3]
+
+<br><br>
+<<if $ruinpots isnot undefined>>
+<br><<for _ip to 0; _ip lt 20; _ip++>>
+| <<if $searchpot is _ip>><span class='meek'>!!</span><</if>>
+_ip $ruinpots[_ip].contents $ruinpots[_ip].searched $ruinpots[_ip].type /% somehow this breaks if I try to put it inside an if %/
+<<if $searchpot is _ip>><span class='meek'>!!</span><</if>>
+ |<</for>><br>
+<</if>>
+*/
+<</nobr>><</widget>>
+
+<<widget "potinit">><<nobr>>
+<<set $ruinpots to []>>
+<<set _mult to 10>>/* make 100 pots multiplied by this */
+<<for _i to 0; _i lt 28*_mult; _i++>><<run $ruinpots.push({contents:"dust",searched:false,type:"purple"})>><</for>>
+<<for _i to 0; _i lt 19*_mult; _i++>><<run $ruinpots.push({contents:"box",searched:false,type:"silver"})>><</for>>
+<<for _i to 0; _i lt 10*_mult; _i++>><<run $ruinpots.push({contents:"key",searched:false,type:"bronze"})>><</for>>
+<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({contents:"snapper",searched:false,type:"slow"})>><</for>>
+<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({contents:"ceramics",searched:false,type:""})>><</for>>
+<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({contents:"mud",searched:false,type:""})>><</for>>
+<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({contents:"pebbles",searched:false,type:""})>><</for>>
+<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({contents:"empty",searched:false,type:""})>><</for>>
+<<for _i to 0; _i lt 2*_mult; _i++>><<run $ruinpots.push({contents:"swarm",searched:false,type:""})>><</for>>
+<<for _i to 0; _i lt 1*_mult; _i++>><<run $ruinpots.push({contents:"box",searched:false,type:"gold"})>><</for>>
+
+<<run $ruinpots.shuffle()>>
+/*extras at the end*/
+<<run $ruinpots.push({contents:"swarm",searched:false,type:""})>>
+<<run $ruinpots.push({contents:"box",searched:false,type:"gold"})>>
+<<run $ruinpots.push({contents:"box",searched:false,type:"gold"})>>
 
 <</nobr>><</widget>>

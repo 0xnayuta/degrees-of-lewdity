@@ -3,6 +3,7 @@
 <<if $stress gte 10000>><<passoutlake>>
 <<else>>
 You are beneath the lake. You swim over dark silt and between tall weeds.
+<<if $loglocations is 1>><<log "Was beneath the lake." $locationimportance>><</if>>
 
 <<if $daystate is "night">>
 	<<if $weather is "rain">>
@@ -32,6 +33,7 @@ You are beneath the lake. You swim over dark silt and between tall weeds.
 
 :: Lake Ruin [nobr]
 <<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
+<<if $loglocations is 1>><<log "Was in the ruins beneath the lake." $locationimportance>><</if>>
 
 
 You are in the submerged ruin beneath the lake. Glowing purple lichen covers ancient walls.<br><br>
@@ -49,7 +51,9 @@ You are in the submerged ruin beneath the lake. Glowing purple lichen covers anc
 
 :: Lake Ruin Deep [nobr]
 <<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
+<<if $loglocations is 1>><<log "Was deep in the ruins beneath the lake." $locationimportance>><</if>>
 
+<<if $ruinpots is undefined>><<potinit>><</if>>
 
 You are deep in the submerged ruin beneath the lake. Pots of different sizes fill the room. There's an ancient door opposite the entrance.
 
@@ -65,36 +69,30 @@ It's open.
 <<if $stress gte 10000>><<passoutlake>>
 <<else>>
 
-<<if $lakeruinkey is 1>>
-<<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-<<if $lakeruinkey is 2>>
-<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
+<<ruinoptions>>
 
 <</if>>
 
 :: Lake Ruin Door [nobr]
 <<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
 <<set $lakeruinkey to 2>>
+<<set $logprep to "I used a bronze key I found to open the ancient door in the lake ruins, beyond the door I found a plinth with an ivory necklace atop it.">>
 You hear the ancient mechanism creak and the door groans open. Beyond is a plinth, stood alone in a rubble-strewn room. Atop it sits an ivory necklace. It's studded with blue jewels.<br><br>
 
-<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<if $antiqueivorynecklace is undefined>><<set $antiqueivorynecklace to "found">><</if>><</link>><br>
-<<link [[Leave|Lake Ruin Deep]]>><</link>><br>
+<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<if $antiqueivorynecklace is undefined>><<set $antiqueivorynecklace to "found">><</if>><<set $logprep to $logprep+" I took the necklace.">><<log $logprep 3>><</link>><br>
+<<link [[Leave|Lake Ruin Deep]]>><<set $logprep to $logprep+" I didn't take the necklace.">><<log $logprep 1>><</link>><br>
 
 
 :: Lake Ruin Plinth [nobr]
 <<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
+<<if $loglocations is 1>><<log "Was in the plinth room of ruins beneath the lake." $locationimportance>><</if>>
 
 You are deep in the lake ruin, in a small room with a plinth.
 
 <<if $antiqueivorynecklace is undefined>>
 An ivory necklace sits atop it. It's studded with blue jewels.<br><br>
 
-<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<if $antiqueivorynecklace is undefined>><<set $antiqueivorynecklace to "found">><</if>><</link>><br>
+<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<if $antiqueivorynecklace is undefined>><<set $antiqueivorynecklace to "found">><</if>><<log "I took the ivory necklace from the plinth room of ruins beneath the lake." 3>><</link>><br>
 <<else>>
 <br><br>
 <</if>>
@@ -105,87 +103,188 @@ An ivory necklace sits atop it. It's studded with blue jewels.<br><br>
 <<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
 <<if $stress gte 10000>><<passoutlake>>
 <<else>>
+/*<<set _r to $ruinpots.length/10>><<set $searchpot to random(_r)>>/* pick random pot from the 1st 10% */
+<<set $searchpot to Math.round($rng/10)>>/* pick random pot from the 1st 10 */
 
-<<if $rng gte 81>>
-You reach inside one of the pots, and find a small ivory box. It's sealed by a bronze lock.<br><br>
-
-<<if $historytrait gte 4>>
-The box itself is very old. It must be valuable.<br><br>
-
-<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><</link>><br>
-<</if>>
-<<set $skulduggerydifficulty to 300>>
-<<link [[Open it|Lake Ruin Box]]>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>><br>
-<<if $lakeruinkey is 1>>
-<<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-<<if $lakeruinkey is 2>>
-<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
-
-<<elseif $rng gte 78 and $swarmdisable is "f">>
+<<if $ruinpots[$searchpot].contents is "swarm">>/* 2% Should presence of swarms be separate from contents? */
+<<if $swarmdisable is "f">>
 You reach inside one of the pots. Swarms of small fish surge out, surrounding you.<br><br>
 
 <<link [[Next|Lake Swarm]]>><<set $molestationstart to 1>><</link>><br>
+<<else>>
+You reach inside one of the pots. School of small fish suddenly surge out of the otherwise empty pot surprising you.<<gstress>><<stress 3>><br><br>
+<<log "I searched a pot in the lake ruins, school of small fish surged out of it." 1>>
+<</if>>
 
-<<elseif $rng gte 51>>
+<<elseif $ruinpots[$searchpot].contents is "snapper">>/* 8% */
+You reach inside one of the pots. Something inside snaps at you. You pull your hand away in time, but it was close.<<gstress>><<stress 3>>
+<<log "I searched a pot in the lake ruins, something inside it tried to snap at me." 1>>
+
+<<elseif $ruinpots[$searchpot].contents is "box">>/* 20% */
+You reach inside one of the pots, and find a small ivory box. It's sealed by a bronze lock.<br><br>
+<<if $ruinpots[$searchpot].type is "gold">>
+<<run $boxdumps.push("gold necklace")>><<set $phase to 2>>
+<<elseif $ruinpots[$searchpot].type is "silver">>
+<<run $boxdumps.push("silver ring")>><<set $phase to 1>>
+<</if>>
+
+<<if $historytrait gte 4>>
+	The box itself is very old. It must be valuable.<br><br>
+
+	<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<run $boxdumps.pop()>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>>
+	<<log "I searched a pot in the lake ruins and found a locked small ivory box in it that I took without trying to open it." 2>>
+	<</link>><br>
+<</if>>
+<<set $skulduggerydifficulty to 300>>
+<<link [[Open it|Lake Ruin Box]]>><<wateraction>><<set $logprep to "I searched a pot in the lake ruins, it had a small locked ivory box.">><</link>><<skulduggerydifficulty>><<loxygen>><br>
+<<if $lakeruinkey gte 1>><<link [[Try to open it with bronze key|Lake Ruin Box Key]]>><<wateraction>><<set $logprep to "I searched a pot in the lake ruins, it had a small locked ivory box.">><</link>><<loxygen>><br><</if>>
+<<ruinoptions "I searched a pot in the lake ruins and found a small ivory box but I ignored it " "Leave the box and:">>/*  */
+
+
+<<elseif $ruinpots[$searchpot].contents is "dust">>/* 28% */
 
 You reach inside one of the pots. There's purple dust at the bottom. Your probing disturbs it, and it swirls around your arm. You feel heated.<<gstress>><<stress 3>><<garousal>><<arousal 6>><br><br>
+<<log "I searched a pot in the lake ruins, there was purple dust in it." 1>>
+<<set $ruinpots[$searchpot].contents to "empty">>
 
-<<if $lakeruinkey is 1>>
-<<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-<<if $lakeruinkey is 2>>
-<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
-
-<<elseif $rng gte 41 and $lakeruinkey is undefined>>
+<<elseif $ruinpots[$searchpot].contents is "key">> /* 10% */
+<<if $lakeruinkey is undefined>>
 You reach inside one of the pots. You find a decaying bronze key.<br><br>
 <<set $lakeruinkey to 1>>
-
-<<link [[Open door with bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>><br>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-<<if $lakeruinkey is 2>>
-<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>><br>
+<<log "I searched a pot in the lake ruins, there was a bronze key in it." 2>>
+<<set $ruinpots[$searchpot].contents to "empty">>
+<<else>>
+You reach inside one of the pots. It's empty.
+<<log "I searched a pot in the lake ruins, it was empty." 1>>
+<<set $ruinpots[$searchpot].contents to "empty">>
 <</if>>
-<br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
+
+ /* 40% */
+<<elseif $ruinpots[$searchpot].contents is "ceramics">> /* 20% of 40% = 8% */
+You reach inside one of the pots. It's full of broken ceramics.
+<<log "I searched a pot in the lake ruins, it was empty." 1>>
+
+<<elseif $ruinpots[$searchpot].contents is "mud">>
+You reach inside one of the pots. It's full of mud.
+<<log "I searched a pot in the lake ruins, it was full of mud." 1>>
+
+<<elseif $ruinpots[$searchpot].contents is "pebbles">>
+You reach inside one of the pots. It's full of pebbles.
+<<log "I searched a pot in the lake ruins, it was full of pebbles." 1>>
+
+<<elseif $ruinpots[$searchpot].contents is "empty">>
+You reach inside one of the pots. It's empty.
+<<log "I searched a pot in the lake ruins, it was empty." 1>>
 
 <<else>>
-<<set $rng to random(1, 100)>>
-	<<if $rng gte 81>>
-	You reach inside one of the pots. It's full of broken ceramics.
-	<<elseif $rng gte 61>>
-	You reach inside one of the pots. Something inside snaps at you. You pull your hand away in time, but it was close.<<gstress>><<stress 3>>
-	<<elseif $rng gte 41>>
-	You reach inside one of the pots. It's full of mud.
-	<<elseif $rng gte 21>>
-	You reach inside one of the pots. It's full of pebbles.
-	<<else>>
-	You reach inside one of the pots. It's empty.
-	<</if>>
+
+<</if>>
+
+<<if $ruinpots[$searchpot].searched is true>>
+ You've already searched this pot.
+<<else>>
+<<set $ruinpots[$searchpot].searched to true>>
+<</if>>
+
+
 <br><br>
-
-<<if $lakeruinkey is 1>>
-<<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>><br>
+<<if $ruinpots[$searchpot].contents is "swarm">>
+<<elseif $ruinpots[$searchpot].contents is "box">><<set $ruinpots[$searchpot].contents to "empty">>
+<<else>>
+<<ruinoptions>>
 <</if>>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-<<if $lakeruinkey is 2>>
-<<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>><br>
-<</if>>
-<br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
+/* move pot to the back of array and select it*/
+<<run $ruinpots.push($ruinpots[$searchpot])>>
+<<run $ruinpots.deleteAt($searchpot)>>
+<<set $searchpot to $ruinpots.length-1>>
+
+<</if>>/*closes passout check*/
+
+:: Lake Ruin Dumped Box [nobr]
+<<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
+<<if $boxdumps[$boxdumps.length-1] isnot "open">>
+<<if $boxdumps[$boxdumps.length-1] is "silver ring">><<set $phase to 1>><<elseif $boxdumps[$boxdumps.length-1] is "gold necklace">><<set $phase to 2>><</if>>
+You pick up a box that is still locked.<br>
+<<set $skulduggerydifficulty to 300>>
+<<link [[Open it|Lake Ruin Box]]>><<wateraction>><<set $logprep to "I picked up a still locked discarded box in the lake ruins,">><</link>><<skulduggerydifficulty>><<loxygen>><br>
+<<if $lakeruinkey gte 1>><<link [[Try to open it with bronze key|Lake Ruin Box Key]]>><<wateraction>><<set $logprep to "I picked up a still locked discarded box in the lake ruins,">><</link>><<loxygen>><br><</if>>
+<<ruinoptions "I picked up a discarded box that was locked but left it " "Leave the box and:">>
+
+<<else>>
+You take an opened old box with you. It belongs in a museum.<<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><br>
+<<run $boxdumps.pop()>>
+<<log "I picked up a discarded box in the lake ruins." 1>>
+<<ruinoptions>>
 
 <</if>>
 
 
+:: Lake Ruin Box Key [nobr]
+
+<<if $rng gte 4 and $phase isnot 2>>/* combines to about 8% chance of working */
+You tried to open the box with a bronze key but it doesn't fit.<br><br>
+<<link [[Open it|Lake Ruin Box]]>><<wateraction>><<set $logprep to $logprep+"">><</link>><<skulduggerydifficulty>><<loxygen>><br>
+<<if $historytrait gte 4>>
+<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><<set $logprep to $logprep+" I tried using the key I had on it, it didn't fit so I took the box as is.">><<log $logprep 2>><</link>><br>
 <</if>>
+<<ruinoptions "I tried using the key I had on it, it didn't fit so I left it " "Leave the box and:">>
+<<else>>
+You tried to open the box with a bronze key and surprisingly it worked and
+<<if $phase is 2>>you find a gold necklace <<set $antiquemoney += 500>><<if $antiquegoldnecklace is undefined>><<set $antiquegoldnecklace to "found">><</if>><<set $itemname to "a gold necklace">>
+<<elseif $phase is 1>>you find a silver ring <<set $antiquemoney += 30>><<if $antiquesilverring is undefined>><<set $antiquesilverring to "found">><</if>><<set $itemname to "a gold necklace">>
+<</if>> inside it that you
+<<set $logprep to $logprep+" I somehow managed to open it using the bronze key I had and it had "+$itemname+" in it that I took along with the box.">>
+<<if $historytrait gte 4>>
+take along with the empty box.
+<<else>>
+take.
+<</if>>
+<br><br>
+<<run $boxdumps.pop()>>
+<<log $logprep 2>>
+<<ruinoptions>>
+<</if>>
+
+:: Lake Ruin Box [nobr]
+<<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
+
+<<skulduggerycheck>>
+<<if $skulduggerysuccess is 1>>
+
+	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
+	<<skulduggeryskilluse>>
+	<<else>>
+	<span class="blue">That was too easy. You didn't learn anything.</span><br><br>
+	<</if>>
+
+	<<if $phase is 2>><<set $logprep to $logprep+" I unlocked it and found a gold necklace that I took">>
+	You find a gold necklace.<<set $antiquemoney += 500>><<if $antiquegoldnecklace is undefined>><<set $antiquegoldnecklace to "found">><</if>><br><br>
+	<<elseif $phase is 1>><<set $logprep to $logprep+" I unlocked it and found a silver ring that I took">>
+	You find a silver ring.<<set $antiquemoney += 30>><<if $antiquesilverring is undefined>><<set $antiquesilverring to "found">><</if>><br><br>
+	<</if>>
+
+<<if $historytrait gte 4>><<set $logprep to $logprep+" along with the box">>
+You take the empty box too. It belongs in a museum.<<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><br><br>
+<<run $boxdumps.pop()>>
+<<else>>
+<<set $boxdumps[$boxdumps.length-1] to "open">>
+<</if>>
+
+<<set $logprep to $logprep+".">>
+<<log $logprep 2>>
+<<ruinoptions>>
+
+<<else>>
+
+You fail to pick the lock.<br><br>
+<<if $historytrait gte 4>>
+<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><<set $logprep to $logprep+" I just took it as is after failing to open it.">><<log $logprep 2>><</link>><br>
+<</if>>
+<<link [[Try again|Lake Ruin Box]]>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>><br>
+<<if $lakeruinkey gte 1>><<link [[Try to open it with bronze key|Lake Ruin Box Key]]>><<wateraction>><</link>><<loxygen>><br><</if>>
+<<ruinoptions " I left it after failing to open it">>
+<</if>>
+
 
 :: Lake Swarm [nobr]
 <<if $molestationstart is 1>><<set $molestationstart to 0>>
@@ -250,7 +349,7 @@ It's all just too much for you. You pass out.<br><br>
 <</if>>
 
 <<endcombat>>
-
+<<log "I searched a pot in the lake ruins, school of small fish surged out of it and swarmed around me until I passed out." 3>>
 <<passoutlake>>
 
 
@@ -260,47 +359,8 @@ It's all just too much for you. You pass out.<br><br>
 
 <<clotheson>>
 <<endcombat>>
-
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-
-<</if>>
-
-:: Lake Ruin Box [nobr]
-<<set $outside to 0>><<set $location to "lake">><<underwater>><<effects>><<lakeeffects>>
-
-<<skulduggerycheck>>
-<<if $skulduggerysuccess is 1>>
-
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-	<<skulduggeryskilluse>>
-	<<else>>
-	<span class="blue">That was too easy. You didn't learn anything.</span><br><br>
-	<</if>>
-
-	<<if $rng gte 95>>
-	You find a gold necklace.<<set $antiquemoney += 500>><<if $antiquegoldnecklace is undefined>><<set $antiquegoldnecklace to "found">><</if>><br><br>
-	<<else>>
-	You find a silver ring.<<set $antiquemoney += 30>><<if $antiquesilverring is undefined>><<set $antiquesilverring to "found">><</if>><br><br>
-	<</if>>
-
-<<if $historytrait gte 4>>
-You take the empty box too. It belongs in a museum.<<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><br><br>
-<</if>>
-
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
-
-<<else>>
-
-You fail to pick the lock.<br><br>
-
-<<if $historytrait gte 4>>
-<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<if $antiquebox is undefined>><<set $antiquebox to "found">><</if>><</link>><br>
-<</if>>
-<<link [[Try again|Lake Ruin Box]]>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>><br>
-<<link [[Swim towards exit|Lake Ruin]]>><<wateraction>><</link>><<loxygen>><br>
-<<link [[Search pots|Lake Pots]]>><<wateraction>><</link>><<loxygen>><br>
+<<log "I searched a pot in the lake ruins, school of small fish surged out of it and swarmed around me until I managed to escape." 3>>
+<<ruinoptions>>
 
 <</if>>
 
@@ -363,6 +423,8 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 
 <<clotheson>>
 <<endcombat>>
+<<log "In the ruins beneath the lake I found lichen for my science project but was attacked by a strange creature." 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Lake Ruin]]>><</link>><br>
 
@@ -405,7 +467,8 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 
 <<clotheson>>
 <<endcombat>>
-
+<<log "In the ruins beneath the lake I found lichen for my science project but was attacked by a strange person who I defeated." 3>>
+<<logopinion "That was interesting">>
 
 <<else>>
 <<ejaculation>>
@@ -414,6 +477,9 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "In the ruins beneath the lake I found lichen for my science project but was attacked by a strange person who "+$aw_xedx+".">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <</if>>
 
@@ -486,6 +552,9 @@ It's all just too much for you. You pass out.<br><br>
 <</if>>
 
 <<endcombat>>
+<<set $logprep to "While swimming in the middle of the lake swarms of fish surrounded me until I passed out.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<passoutlake>>
 
@@ -497,6 +566,9 @@ It's all just too much for you. You pass out.<br><br>
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "While swimming in the middle of the lake swarms of fish surrounded me until I managed to escape.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Lake Depths]]>><</link>><br>
 
