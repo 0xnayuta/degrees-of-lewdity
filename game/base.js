@@ -293,3 +293,4 @@ $(document).on('keyup', function(ev) {
 			$(currentLinks[requestedLinkIndex]).click();
 	}
 });
+
