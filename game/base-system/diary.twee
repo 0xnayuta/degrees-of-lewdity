@@ -1,12 +1,12 @@
  /*
 $diary has a "page" for each day and each page has a number of entries with time, text, opinion/comment, importance and effects
-so you access entry text with $diary[daynumber][entrynumber].text
-.timestamp is simply $time
+so you access entry text with $diary[daynumber][entrynumber][$log.text]
+.time is simply $time
 .text is the diary entry that describes what exactly happened in 1st person
 .importance allows filtering out simply moving around and such and is used to decide how to color the text
 .comment is a string the player can input, set $diaryprompts to 1 or 2 to be asked for comment whenever an event is done
 .opinion (could be about) how you feel about an event and how you've chosen to rationalize it or just the default comment
-.effects list some stat changes like money since the last time log widget was used.
+$log.anythingelse lists some stat changes like money since the last time log widget was used.
 
 to make this work time.twee has a thing that pushes a new day/page into existence at the start of each day, it also reports the date and stat changes of the day
 other than that and this there are some widgets at the bottom of widgets.twee and initStory and Start2() from init.twee are used to initialize everything.
@@ -49,6 +49,22 @@ ie.:
 Can have results like "He raped me." and "She touched me weirdly."
 <<pronouns>> sets various variables like $he $him $his to match $pronoun since widgets like <<he>> don't work when building a string.
 
+
+How to Add new variables to be tracked by diary:
+1. add it to <<widget "loginit">>'s  <<set log to {...}>> part(so that $log.yourvariable will get it's position in a relevant array)
+  update <<set _len to >> to have the last $log. number
+  optional: if it's a string make it have "" instead of 0 in $logblank
+    <<set $logblank[$log.yourvariable] to ("")>>
+2. make <<widget "log">> track changes to it(if it's a number with wide range) or just it's value in some way
+  ,$yourvariable - $logged[$log.yourvariable]
+  <<set $diary[$days][$diaryline][$log.yourvariable] to ($yourvariable - $logged[$log.yourvariable])>>
+3. add it to <<widget "logstatsupdate">> just as ,$yourvariable
+4. add it at least to the debug section of <<widget "showdiaryentry">>
+  <<if _e[$log.yourvariable] isnot 0 and _e[$log.yourvariable] isnot undefined>>yourvariable:<<print _e[$log.yourvariable]>><</if>>
+
+
+
+
 */
 
 :: Simple Diary[nobr]
@@ -56,8 +72,8 @@ Can have results like "He raped me." and "She touched me weirdly."
 <<for _i, _day range $diary>>
   <br>
   <<for _j, _entry range $diary[_i]>>
-    _entry.text
-    _entry.comment
+    _entry[$log.text]
+    _entry[$log.comment]
     <br>
   <</for>>
 <</for>>
@@ -115,12 +131,13 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 
 
 <<if $diarymode is 1>> /* single day mode */
+  <br>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry.importance gte $diaryfilterA >><br>
+  <<if _entry[$log.importance] gte $diaryfilterA >><br>
     <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diaryline to _i>><</link>><</if>>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i].timestamp % 60).toString().padStart(2, "0")>><</if>>
-    <<showdiaryentry _entry>>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<showdiaryentry $diarypage _i>>
   <</if>>
   <</capture>>
   <</for>>
@@ -130,10 +147,10 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <br> /*  */
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry.importance gte $diaryfilterB >><br>
+    <<if _entry[$log.importance] gte $diaryfilterB >><br>
       <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diarypage to $days-_i>><<set $diaryline to _j>><</link>><</if>> /* $days-_i prevents reversed day order from messing things up */
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j].timestamp / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j].timestamp % 60).toString().padStart(2, "0")>><</if>>
-      <<showdiaryentry _entry>>
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<showdiaryentry _i _j>>
     <</if>>
     <</capture>>
     <</for>>
@@ -142,8 +159,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 <</if>>
 <br><br>
 
-
 /*
+$diary
 
 <<for _i to 0; _i lt $ruinpots.length; _i++>>
 $ruinpots[_i].i !
