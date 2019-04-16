@@ -479,7 +479,7 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 
 <<widget "clothesruinstat">><<set $clothesruinstat += 1>><</widget>>
 
-<<widget "orgasmstat">><<if $orgasmstat == 0>><<combat_partner>><<set $logextra to $logextra+$Combat_partner+" was the first to orgasm thanks to me. ">><</if>><<set $orgasmstat += 1>><</widget>>
+<<widget "orgasmstat">><<if $orgasmstat == 0>><<combat_partner>><<set $logextra to $logextra+$Combat_partner+" was the first to make me orgasm. ">><</if>><<set $orgasmstat += 1>><</widget>>
 
 <<widget "ejacstat">><<if $ejacstat == 0>><<combat_partner>><<set $logextra to $logextra+$Combat_partner+" was the first to ejaculate thanks to me. ">><</if>><<set $ejacstat += 1>><</widget>>
 
@@ -2625,9 +2625,8 @@ diary stuff
 <<set _ex[$log.importance] to $args[1]>>
 
 <<set $diarypage to $days>>
-<<run $diary[$days].push(_ex)>>
 <<set $diaryline to $diary[$days].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
-/*<<set $diary[$days].push({timestamp:$time,text:$args[0],importance:$args[1],comment:"",opinion:"",effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}})>>*/
+<<run $diary[$days].push(_ex)>>
 <</nobr>><</widget>>
 
 <<widget "logedit">><<nobr>> /* edit the last entry text*/
@@ -2638,37 +2637,26 @@ diary stuff
 	<<set $diary[$days][$diaryline][$log.text] to $diary[$days][$diaryline][$log.text]+$args[0]>>
 <</nobr>><</widget>>
 
-<<widget "logupdateeffect">><<nobr>> /*  update the last effect	*/
-update!#
+<<widget "logupdateeffect">><<nobr>> /*  update the last effect(strings require $logdebug since clothing report will be buggy)	*/
 <<set _l to clone($logged)>>
 <<logstatsupdate>>
 <<for _e to $log.money; _e lt $logblank.length; _e++>>/* assuming money is the 1st value we care about */
 	/* set newvaluechange to oldvaluechange + currentvalue - oldvalue */
-	<<set $diary[$days][$diaryline][_e] to $diary[$days][$diaryline][_e] + $logged[_e] - _l[_e]>>
-	/* some sort of exception for strings? */
+	<<if typeof($diary[$days][$diaryline][_e]) is "number">>
+		<<set _newvalue to $diary[$days][$diaryline][_e] + $logged[_e] - _l[_e]>>
+		<<set $diary[$days][$diaryline][_e] to _newvalue>>
+	<<elseif typeof($diary[$days][$diaryline][_e]) is "string">>
+		<<if $logdebug is 1>>
+			<<if $diary[$days][$diaryline][_e] isnot _l[_e]>>/* this should break clothing report so that it'll only say the new clothing */
+				<<set _newvalue to clone($logged[_e])+"¤removethis:"+clone(_l[_e])+" isnot "+$diary[$days][$diaryline][_e]+"¤">>
+				<<set $diary[$days][$diaryline][_e] to _newvalue>>
+			<</if>>
+		<</if>>
+	<<elseif typeof($diary[$days][$diaryline][_e]) is "boolean">>
+		/* do something? */
+	<<elseif typeof($diary[$days][$diaryline][_e]) is "undefined">>
+	<</if>>
 <</for>>
-/*
-	<<set $diary[$days][$diaryline].effect to (
-				{
-				money:($diary[$days][$diaryline].effect.money + $money - $logmoney),
-				stress:($diary[$days][$diaryline].effect.stress + $stress - $logstress),
-				trauma:($diary[$days][$diaryline].effect.trauma + $trauma - $logtrauma),
-				awareness:($diary[$days][$diaryline].effect.awareness + $awareness - $logawareness),
-				pain:($diary[$days][$diaryline].effect.pain + $pain - $logpain),
-				tired:($diary[$days][$diaryline].effect.tired + $tiredness - $logtiredness),
-				arousal:($diary[$days][$diaryline].effect.arousal + $arousal - $logarousal),
-				control:($diary[$days][$diaryline].effect.control + $control - $logcontrol ),
-				allure:($diary[$days][$diaryline].effect.allure + $allure - $logallure),
-				spray:($diary[$days][$diaryline].effect.spray + $spray - $logspray),
-				spraymax:($diary[$days][$diaryline].effect.spraymax + $spraymax - $logspraymax),
-				drunk:($drunk),
-				drunkgain:($diary[$days][$diaryline].effect.drunkgain + $drunk - $logdrunk),
-				drugged:($diary[$days][$diaryline].effect.drugged + $drugged - $logdrugged),
-				weather:($weather),
-				antiquemoney:($diary[$days][$diaryline].effect.antiquemoney + $antiquemoney - $logantiquemoney),
-				blackmoney:($diary[$days][$diaryline].effect.blackmoney + $blackmoney - $logblackmoney)
-				})>>
-	*/
 <</nobr>><</widget>>
 
 <<widget "logtimeupdate">><<nobr>> /*  change entry time in case log was called early for some reason */
@@ -2679,9 +2667,9 @@ update!#
 <<widget "logday">><<nobr>>
 	<<set $dayendreport to "">>
 	/* $moneytext might be useful in other situtations so could move this to some place that gets run more often */
-		<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
-		<<if $money % 100 lte 9>><<set $moneytext to $moneytext+"0">><</if>>
-		<<set $moneytext to $moneytext+$money % 100>>
+	<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
+	<<if $money % 100 lte 9>><<set $moneytext to $moneytext+"0">><</if>>
+	<<set $moneytext to $moneytext+$money % 100>>
 	<<set $dayendreport to "It's the start of a new day! I have " + $moneytext + " and I feel ">>
 
 	<<if $tiredness gte 2000>><<set $dayendreport to $dayendreport + "<span class='red'>exhausted</span>, ">>
@@ -2849,15 +2837,15 @@ this probably won't handle sets very well
 
 <<if _e[$log.drunk] gt 0>><span class="purple">Feeling</span>
 	<<if _e[$log.drunk] lte 120>>
-	<span class="blue"> woozy</span>.
+		<span class="blue"> woozy</span>.
 	<<elseif _e[$log.drunk] lte 240>>
-	<span class="purple"> tipsy</span>.
+		<span class="purple"> tipsy</span>.
 	<<elseif _e[$log.drunk] lte 360>>
-	<span class="purple"> drunk</span>.
+		<span class="purple"> drunk</span>.
 	<<elseif _e[$log.drunk] lte 480>>
-	<span class="pink"> smashed</span>.
+		<span class="pink"> smashed</span>.
 	<<else>>
-	<span class="pink"> wasted</span>.
+		<span class="pink"> wasted</span>.
 	<</if>>
 <</if>>
 
