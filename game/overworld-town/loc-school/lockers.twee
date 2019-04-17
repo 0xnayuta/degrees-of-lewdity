@@ -26,7 +26,7 @@ During school there may be valuables left inside them.<br><br>
 :: School Lockers Sneak [nobr]
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-<<if $rng gte 81>>
+<<if $rng gte 81 and $lockermoney gte 6>>
 
 You successfully pick the locks.
 
@@ -39,8 +39,8 @@ You successfully pick the locks.
 
 You find £6 worth of coins scattered around. Probably meant for bus fare.<br><br>
 
-<<link [[Take it|School Lockers]]>><<set $money += 600>><<crimeup 1>><</link>><<crime>><br>
-<<link [[Leave|School Lockers]]>><</link>><br>
+<<link [[Take it|School Lockers]]>><<set $money += 600>><<set $lockermoney -= 6>><<set $lockertheft += 6>><<crimeup 1>><<log "Broke into a locker at school and found some coins." 2>><</link>><<crime>><br>
+<<link [[Leave|School Lockers]]>><<log "Broke into a locker at school and found some coins but didn't take them." 2>><</link>><br>
 
 <<elseif $rng gte 61>>
 
@@ -55,9 +55,9 @@ You successfully pick the locks.
 
 There's nothing of interest inside the lockers. Just some pens and pencils strewn around.<br><br>
 
-<<link [[Leave|School Lockers]]>><</link>><br>
+<<link [[Leave|School Lockers]]>><<log "Broke into a locker at school but found nothing of interest." 1>><</link>><br>
 
-<<elseif $rng gte 41>>
+<<elseif $rng gte 41 and $lockermoney gte 30>>
 
 You successfully pick the locks.
 
@@ -70,8 +70,8 @@ You successfully pick the locks.
 
 A bit of rummaging uncovers £30.<br><br>
 
-<<link [[Take it|School Lockers]]>><<set $money += 3000>><<crimeup 5>><</link>><<crime>><br>
-<<link [[Leave|School Lockers]]>><</link>><br>
+<<link [[Take it|School Lockers]]>><<set $money += 3000>><<set $lockermoney -= 30>><<set $lockertheft += 30>><<crimeup 5>><<log "Broke into a locker at school and found some money" 2>><</link>><<crime>><br>
+<<link [[Leave|School Lockers]]>><<log "Broke into a locker at school and found some money but didn't take it." 2>><</link>><br>
 
 <<elseif $rng gte 21>>
 
@@ -86,7 +86,7 @@ You successfully pick the locks.
 
 You rummage through the belongings, but find nothing of value.<br><br>
 
-<<link [[Leave|School Lockers]]>><</link>><br>
+<<link [[Leave|School Lockers]]>><<log "Broke into a locker at school but found nothing of interest." 1>><</link>><br>
 
 <<else>>
 
@@ -98,22 +98,18 @@ You successfully pick the locks.
 <span class="blue">There's nothing more you can learn from locks this simple.</span>
 <</if>>
 <br><br>
-
-
-	<<if $schoolstate isnot "early" and $schoolstate isnot "late" and $schoolstate isnot "earlynoschool" and $schoolstate isnot "latenoschool" and $schoolstate isnot "daynoschool">>
-
-
+<<if $schoolstate isnot "early" and $schoolstate isnot "late" and $schoolstate isnot "earlynoschool" and $schoolstate isnot "latenoschool" and $schoolstate isnot "daynoschool">>
 	<<generatey1>>You are rummaging through some belongings when you hear a voice behind you. "Hey, that's my locker!" The voice belongs to a <<person1>><<personcomma>> who looks angry at your intrusion.<br><br>
 
-	<<link [[Apologize|School Lockers Apology]]>><<status -10>><</link>><<lcool>><br>
-	<<link [[Lie|School Lockers Lie]]>><<detention 3>><</link>><<gdelinquency>><br>
+	<<link [[Apologize|School Lockers Apology]]>><</link>><<lcool>><br>
+	<<link [[Lie|School Lockers Lie]]>><</link>><<gdelinquency>><br>
 	<<link [[Fight|School Lockers Fight]]>><<set $fightstart to 1>><</link>><br>
 
-	<<else>>
+<<else>>
 	There's nothing of interest inside the lockers. Just some pens and pencils strewn around.<br><br>
 
-	<<link [[Leave|School Lockers]]>><</link>><br>
-	<</if>>
+	<<link [[Leave|School Lockers]]>><<log "Broke into a locker at school but found nothing of interest." 1>><</link>><br>
+<</if>>
 
 <</if>>
 
@@ -123,20 +119,39 @@ You successfully pick the locks.
 
 You look down at your feet in shame. "S-sorry. I just wanted a look."<br><br>
 
-The <<person>> is not impressed, but doesn't seem as angry. "Just piss off," <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
-
-<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
+<<if $rng gte 95>><<status -5>>
+	The <<person>> looks mollified. "You really shouldn't do that, I thought you were trying to steal from me." <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
+	<<log "Broke into a locker at school and was found out but just saying sorry was enough to get the person to forgive me." 2>>
+	<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
+<<elseif $rng gte 5+$lockeralarm*2>>/* 5-25% fail chance*/<<status -10>>
+	The <<person>> is not impressed, but doesn't seem as angry. "Just piss off," <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
+	<<log "Broke into a locker at school and was found out but just saying sorry was enough to get the person to leave me alone." 2>>
+	<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
+<<else>><<status -10>>
+	The <<person>> seems to just get angrier. "Like hell you did, nobody steals from me!" <<he>> yells, and attacks you.<br><br>
+	<<link [[Next|School Lockers Fight]]>><<set $fightstart to 1>><<set $phase to 1>><</link>><br>
+<</if>>
 
 
 :: School Lockers Lie [nobr]
-<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<pronouns>>
 
 You feign confusion. "Your locker? I thought this was mine. Silly me."<br><br>
 
-"Your locker is nowhere near here, I'm not stupid," <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
-
-<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
-
+<<if $rng gte 95>>
+	The <<person>> is not impressed, but doesn't seem as angry. "Well, it's not, so piss off." <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
+	<<set $logprep to "Broke into a locker at school and was found out but luckily "+$he+" bought my excuse of thinking that it was my locker.">>
+	<<log $logprep 2>>
+	<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
+<<elseif $rng gte 5+$lockeralarm*3>><<detention 3>>
+	"Your locker is nowhere near here, I'm not stupid," <<he>> says, looking through <<his>> belongings. Probably checking if anything is missing.<br><br>
+	<<set $logprep to "Broke into a locker at school and was found out but despite "+$him+" not buying my excuse "+$he+" left me alone.">>
+	<<log $logprep 2>>
+	<<link [[Next|School Lockers]]>><<endevent>><</link>><br>
+<<else>>
+	The <<person>> seems to just get angrier. "That's a blatant lie, your locker is nowhere near here, I think you need some punishement." <<he>> says and attacks you.<br><br>
+	<<link [[Next|School Lockers Fight]]>><<set $fightstart to 1>><<set $phase to 1>><</link>><br>
+<</if>>
 
 :: School Lockers Fight [nobr]
 <<if $fightstart is 1>>
@@ -150,8 +165,13 @@ You feign confusion. "Your locker? I thought this was mine. Silly me."<br><br>
 <<set $enemyhealth -= 100>>
 <<set $enemyanger += 100>>
 <<npcidlegenitals>>
+<<if $phase is 1>>
+<<He>> runs and collides with you, sending you both tumbling to the ground.
+<br><br>
+<<else>>
 "Oh yeah," you say. "What are you gonna do about it?" <<He>> runs and collides with you, sending you both tumbling to the ground.
 <br><br>
+<</if>>
 <<set $timer to 10>>
 <</if>>
 
@@ -184,6 +204,9 @@ The climax seems to have robbed <<him>> of <<his>> remaining anger. "Just don't 
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "Broke into a locker at school and was found out by the owner of the locker who "+$aw_xedx+" until "+$he+" was satisfied.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<elseif $enemyhealth lte 0>>
 
@@ -191,6 +214,9 @@ The climax seems to have robbed <<him>> of <<his>> remaining anger. "Just don't 
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "Broke into a locker at school and was found out by the owner of the locker so I beat "+$him+" up.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<elseif $timer lte 0>>
 <<endevent>>
@@ -199,6 +225,9 @@ The climax seems to have robbed <<him>> of <<his>> remaining anger. "Just don't 
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "Broke into a locker at school and was found out by the owner of the locker so I fought "+$him+" until Leighton came to separate us.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 <</if>>
 
 <br><br>
