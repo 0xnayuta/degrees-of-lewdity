@@ -83,7 +83,78 @@
 	<</if>>
 <<set $delinquency += ($args[0] * 4)>>
 <</if>>
+/*
+Keep track of offense types waiting to be "served" at detention. Could make punishement match the "crimes" by checking if $detentions.x is above 0
+Also set the line to write in detention(some might be impossible to get atm due to getting a worse punishement)
+*/
+<<if $args[1]>>
+	<<set _s to $args[1].replace(/ /g,'')>>/*removes spaces*/
+	<<set $detentions[_s] += 1>>/* could be $detentions._s if it wouldn't use _s itself instead of it's value */
+	<<set _oldline to clone($detentionline)>>/* dunno if clone is necessary */
+	<<switch $args[1]>>
+		<<case "Wrong changing room">>
+			<<if $playergender is "f">>
+				<<set $detentionline to either("I won't enter the boy's changing room,","I won't peep into boy's changing room,","I will use the correct changing room,")>>
+			<<elseif $playergender is "m">>
+				<<set $detentionline to either("I won't enter the girl's changing room,","I won't peep into girl's changing room,","I will use the correct changing room,")>>
+			<<else>>
+				<<set $detentionline to either("I will use the correct changing room,")>>
+			<</if>>
+		<<case "Bus indecency">>
+			<<set $detentionline to either("I will not ride the bus without proper clothing,","I will be properly clothed when riding the bus,")>>
+		<<case "Indecency">>
+			<<set $detentionline to either("I will wear proper clothing during school,","I will be properly clothed in school,","I won't dress indecently in school,")>>
+		<<case "Tardiness">>
+			<<set $detentionline to either("I will arrive to classes in time from now on,","I will be in time for my classes,","I won't be late to class.")>>
+		<<case "Interrupt">>
+			<<set $detentionline to either("I won't interrupt other classes,","I won't disturb other classes,","I will go only to the classes I have.")>>
+		<<case "Mock">>
+			<<set $detentionline to either("I won't mock teachers,","I won't make fun of my teachers,","I will be polite to my teachers,","I will show only utmost respect and politeness to all of my teachers,")>>
+		<<case "Fighting">>
+			<<set $detentionline to either("I won't assault other students,","I won't fight with other students,","I won't attack other students,","I will avoid being violent from now on,")>>
+		<<case "Lewdity">>
+			<<set $detentionline to either("I won't perform indecent acts at school,","I won't do sexual acts at school,")>>
+		<<case "Vandalism">>
+			<<set $detentionline to either("I won't damage school property,","I won't willfully destroy school property,","I will avoid damaging school property,","I won't vandalise things at school,")>>
+		<<case "Disobedience">>
+			<<set $detentionline to either("I won't disobey instructions,","I will listen to my teachers,")>>
+		<<case "Harass">>
+			<<set $detentionline to either("I won't harass other students,","I won't bully other students,")>>
+		<<case "Truancy">>
+			<<set $detentionline to either("I won't skip classes without a reason,","I will attend all of my classes,")>>
+		<<case "Detention avoidance">>
+			<<set $detentionline to either("I won't try to avoid my punishements,","I will willingly attend my detentions,")>>
+		<<case "Theft">>
+			<<set $detentionline to either("I won't try to steal,","I will respect other people's property,")>>
+		<<case "Bothering">>
+			<<set $detentionline to either("I won't bother teachers pointlessly,","I will respect other people's time and won't bother them unnecessarily,","I won't waste teacher's time with inane things,")>>
+		<<case "Assault">>
+			<<set $detentionline to either("I won't attack teachers,","I won't act violently towards teachers,","I won't try to injure teachers")>>
+		<<case "Disturbance">>
+			<<set $detentionline to either("I won't disturb the class,","I will behave during class,")>>
+		<<case "Lying">>
+			<<set $detentionline to either("I won't tell lies,","I will tell the truth when asked,","I will answer honestly,")>>
+		<<case "Laziness">>
+			<<set $detentionline to either("I won't lollygag,","I won't be lazy,","I will do my best in any tasks that I receive,")>>
+	<</switch>>
+	<<if _oldline isnot "">>
+		<<set $detentionline to either($detentionline,_oldline)>>/*  */
+	<</if>>
+<</if>>
 <</nobr>><</widget>>
+
+<<widget "detentiondone">><<nobr>>
+<<set $detention to 0>>
+/* Move stuff from detentions{} to detentionstotal{} */
+<<for _i to 0;$detentiontypes.length gt _i;_i++>>
+	<<set $detentionstotal[$detentiontypes[_i]] += $detentions[$detentiontypes[_i]]>>
+	<<set $detentions[$detentiontypes[_i]] to 0>>
+<</for>>
+
+<<set $detentionline to "">>
+
+<</nobr>><</widget>>
+
 
 <<widget "status">><<nobr>>
 <<if $args[0]>>
