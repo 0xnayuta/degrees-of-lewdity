@@ -1,5 +1,6 @@
 :: School Front Playground [nobr]
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>><<set $bus to "schoolfrontplayground">>
+<<if $loglocations is 1>><<log "Was at the school front playground." $locationimportance>><</if>>
 
 <<if $schoolstate isnot "early" and $schoolstate isnot "late" and $schoolstate isnot "earlynoschool" and $schoolstate isnot "latenoschool" and $schoolstate isnot "daynoschool">>
 	<<if $schoolstate is "morning">>
@@ -63,6 +64,7 @@ The front playground is empty.<br><br>
 
 :: School Rear Playground [nobr]
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>><<set $bus to "schoolrearplayground">>
+<<if $loglocations is 1>><<log "Was at the school rear playground." $locationimportance>><</if>>
 
 <<if $schoolstate isnot "early" and $schoolstate isnot "late" and $schoolstate isnot "earlynoschool" and $schoolstate isnot "latenoschool" and $schoolstate isnot "daynoschool">>
 	<<if $schoolstate is "morning">>
@@ -98,7 +100,7 @@ The rear playground is empty.<br><br>
 	<<link [[Sneak into the school (0:03)|Hallways]]>><<pass 3>><</link>><br>
 	<<link [[Sneak in front of the school (0:05)|School Front Playground]]>><<pass 5>><</link>><br>
 	<br>
-	<<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>><br>
+	<<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence]]>><<set $phase to 1>><<pass 2>><</link>><br>
 
 	<<else>>
 
@@ -112,7 +114,7 @@ The rear playground is empty.<br><br>
 	<<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>><br>
 	<<link [[Front playground (0:02)|School Front Playground]]>><<pass 2>><</link>><br>
 	<br>
-	<<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>><br>
+	<<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence]]>><<set $phase to 1>><<pass 2>><</link>><br>
 
 	<</if>>
 
@@ -137,7 +139,7 @@ The school gate is shut and sealed by a sturdy padlock.<br><br>
 	<<if $skulduggery gte $lock>>
 	<span class="green">The lock looks easy to pick.</span><br><br>
 
-	<<link [[Pick it (0:10)|School Front Playground]]>><<pass 10>><<crimeup 1>><</link>><<crime>><br>
+	<<link [[Pick it (0:10)|School Front Playground]]>><<pass 10>><<crimeup 1>><<set $logprep to "Picked the schoolgate to get into the school.">><<log $logprep 0>><</link>><<crime>><br>
 	<<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>><br><br>
 	<</if>>
@@ -147,6 +149,7 @@ The school gate is shut and sealed by a sturdy padlock.<br><br>
 
 :: School Pool Entrance [nobr]
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<if $loglocations is 1>><<log "Was outside the school changing rooms." $locationimportance>><</if>>
 
 You are outside the school changing rooms. You need to pass through them to access the pool.<br><br>
 
@@ -154,7 +157,7 @@ You are outside the school changing rooms. You need to pass through them to acce
 
 A stack of towels sits on a trolley beside the door.
 <br><br>
-<<link [[Grab some towels|School Pool Entrance]]>><<towelup>><</link>>
+<<link [[Grab some towels|School Pool Entrance]]>><<towelup>><<set $logprep to "Took some towels from a trolley near school changing rooms.">><<log $logprep 0>><</link>>
 <br><br>
 
 <</if>>
@@ -179,7 +182,11 @@ A stack of towels sits on a trolley beside the door.
 :: School Rear Fence [nobr]
 <<set $outside to 1>><<set $location to "town">><<effects>>
 
-You haul yourself over the fence and drop down on the other side.
+<<if $phase is 1>>/*out of the school*/
+	You haul yourself over the fence and drop down on the other side.
+<<else>>/*into the school*/
+	You haul yourself over the fence and drop down on the other side.
+<</if>>
 
 
 <<set $lowerintegrity -= 20>>
@@ -188,56 +195,50 @@ You haul yourself over the fence and drop down on the other side.
 	<<set $underintegrity -= 20>>
 		<<if $underintegrity lte 0>>
 		You feel strangely cold. You look back at the fence, and see your $underclothes hanging from one of the spikes!
+		<<set $logprep to " but my "+$underclothes+" caught onto a spike and broke apart">>
 		<<else>>
 		Your $underclothes caught on a spike and tore slightly as you climbed over.
+		<<set $logprep to " but my "+$underclothes+" caught onto a spike and tore slightly">>
 		<</if>>
 	<<else>>
-	A breeze caresses your <<genitalscomma>> making you shiver.
+		<<if $rng gte 90>>
+			You scrath your <<genitals>> on a spike as you climbed over.
+			<<set $pain += 30>>
+			<<set $logprep to " and scrathed my "+$genitals+" on a spike">>
+		<<elseif $rng gte 70>>
+			You scrath your thigh a little on a spike as you climbed over.
+			<<set $pain += 5>>
+			<<set $logprep to " and scrathed my leg on a spike">>
+		<<else>>
+			A breeze caresses your <<genitalscomma>> making you shiver.
+			<<set $arousal += 5>>
+		<</if>>
 	<</if>>
 <<else>>
 	<<if $lowerintegrity lte 0>>
 	You feel strangely cold. You look back at the fence, and see your $lowerclothes hanging from one of the spikes!
+	<<set $logprep to " but my "+$lowerclothes+" caught onto a spike and broke apart">>
 	<<else>>
 	Your $lowerclothes caught on a spike and tore slightly as you climbed over.
+	<<set $logprep to " but my "+$lowerclothes+" caught onto a spike and tore slightly">>
 	<</if>>
 <</if>>
 <br><br>
-
-<<link [[Next|School Rear Playground]]>><</link>><br><br>
-
-
-:: School Rear Fence Exit [nobr]
-<<set $outside to 1>><<set $location to "town">><<effects>>
-
-You haul yourself over the fence and drop down on the other side.
-
-
-<<set $lowerintegrity -= 20>>
-<<if $lowertype is "naked">>
-	<<if $undertype isnot "naked">>
-	<<set $underintegrity -= 20>>
-		<<if $underintegrity lte 0>>
-		You feel strangely cold. You look back at the fence, and see your $underclothes hanging from one of the spikes!
-		<<else>>
-		Your $underclothes caught on a spike and tore slightly as you climbed over.
-		<</if>>
-	<<else>>
-	A breeze caresses your <<genitalscomma>> making you shiver.
-	<</if>>
+<<if $phase is 1>>
+	<<set $logprep to "I left the school by climbing over the fence"+$logprep+".">>
+	<<log $logprep 1>>
+	<<endevent>>
+	<<link [[Next|Industrial alleyways]]>><</link>><br><br>
 <<else>>
-	<<if $lowerintegrity lte 0>>
-	You feel strangely cold. You look back at the fence, and see your $lowerclothes hanging from one of the spikes!
-	<<else>>
-	Your $lowerclothes caught on a spike and tore slightly as you climbed over.
-	<</if>>
+	<<set $logprep to "I entered the school by climbing over it's fence"+$logprep+".">>
+	<<log $logprep 1>>
+	<<endevent>>
+	<<link [[Next|School Rear Playground]]>><</link>><br><br>
 <</if>>
-<br><br>
-
-<<link [[Next|Industrial alleyways]]>><</link>><br><br>
-
 
 :: Head's Office [nobr]
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<if $loglocations is 1>><<log "Was in Leighton's office." $locationimportance>><</if>>
 
 <<if $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late">>
 
@@ -271,6 +272,9 @@ You knock on the head<<if $pronoun is "m">>master<<else>>mistress<</if>>'s door.
 
 				<<if $headnodetention isnot 1>>
 					Leighton looks up from <<his>> desk as you enter. "You again? It's rude to keep bothering me without purpose. I'll have to flag you for punishment if this isn't important."<br><br>
+					<<pronouns>>
+					<<set $logprep to "I ended up bothering Leighton often enough that "+$he+" gave me detention for it.">>
+					<<log $logprep 1>>
 				<<else>>
 					Leighton looks up from <<his>> desk as you enter. "We have nothing to discuss. Get out."
 				<</if>>
@@ -299,22 +303,22 @@ You knock on the head<<if $pronoun is "m">>master<<else>>mistress<</if>>'s door.
 				<<if $rng gte 51>><<set $clothingselector to "m">>
 				<<He>> hands you a worn-looking school shirt and a pair of school shorts. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<else>><<set $clothingselector to "f">>
 				<<He>> hands you a worn-looking school shirt and skirt. <<He>> speaks before you can articulate any apprehension. "I know it's a girl's uniform, but it's all I have. Wear your own uniform if you don't want this to happen in the future." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare girl's school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<link [["There's no way I can wear this!" |Head's Office Refusal]]>><<detention 1 "Disobedience">><</link>><<gdelinquency>><br>
 				<</if>>
 			<<elseif $playergender is "f">>
 				<<if $rng gte 51>><<set $clothingselector to "f">>
 				<<He>> hands you a worn-looking school shirt and a school skirt. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<else>><<set $clothingselector to "m">>
 				<<He>> hands you a worn-looking school shirt and pair of shorts. <<He>> speaks before you can articulate any apprehension. "I know it's a boy's uniform, but it's all I have. Wear your own uniform if you don't want this to happen in the future." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare boy's school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<link [["There's no way I can wear this!" |Head's Office Refusal]]>><<detention 1 "Disobedience">><</link>><<gdelinquency>><br>
 				<</if>>
 			<</if>>
@@ -322,28 +326,28 @@ You knock on the head<<if $pronoun is "m">>master<<else>>mistress<</if>>'s door.
 			<<if $playergender is "m">>
 				<<if $rng gte 51>><<set $clothingselector to "m">>
 				<<He>> hands you a worn-looking pair of school shorts. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<else>><<set $clothingselector to "f">>
 				<<He>> hands you a worn-looking school skirt. <<He>> speaks before you can articulate any apprehension. "I know it's a girl's uniform, but it's all I have. Wear your own uniform if you don't want this to happen in the future." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare girl's school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<link [["There's no way I can wear this!" |Head's Office Refusal]]>><<detention 1 "Disobedience">><</link>><<gdelinquency>><br>
 				<</if>>
 			<<elseif $playergender is "f">>
 				<<if $rng gte 51>><<set $clothingselector to "f">>
 				<<He>> hands you a worn-looking school skirt. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<else>><<set $clothingselector to "m">>
 				<<He>> hands you a worn-looking pair of school shorts. <<He>> speaks before you can articulate any apprehension. "I know it's a boy's uniform, but it's all I have. Wear your own uniform if you don't want this to happen in the future." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare boy's school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 				<<link [["There's no way I can wear this!" |Head's Office Refusal]]>><<detention 1 "Disobedience">><</link>><<gdelinquency>><br>
 				<</if>>
 			<</if>>
 		<<elseif $uppertype isnot "school">>
 				<<He>> hands you a worn-looking school shirt. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.<br><br>
 
-				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><</link>><br>
+				<<link [[Get changed and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<endevent>><<pass 1>><<set $logprep to "I got a spare school uniform from Leighton.">><<log $logprep 1>><</link>><br>
 		<</if>>
 	<</if>>
 
@@ -362,8 +366,8 @@ The office is empty.<br><br>
 
 <<He>> looks at you sternly. "Don't talk back. I told you to get dressed. Now, get dressed."<br><br>
 
-<<link [[Wear the clothes and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<pass 1>><<endevent>><</link>><br>
-<<link [[Walk out|Hallways]]>><<detention 3 "Disobedience">><<endevent>><</link>><<gdelinquency>><br>
+<<link [[Wear the clothes and leave (0:01)|Hallways]]>><<storeclothes>><<set $storelocationinit to "pool">><<storelocation>><<undress>><<schoolspareclothes>><<pass 1>><<endevent>><<set $logprep to "I got a spare uniform from Leighton but it was for the wrong gender so I tried to complain but it was useless.">><<log $logprep 1>><</link>><br>
+<<link [[Walk out|Hallways]]>><<detention 3 "Disobedience">><<endevent>><<set $logprep to "I got a spare uniform from Leighton but it was for the wrong gender so I refused to wear it and walked out.">><<log $logprep 1>><</link>><<gdelinquency>><br>
 
 :: School Passout [nobr]
 You remain unconscious for a time.<br><br><<log "I passed out in the school." $passoutimportance>>/* this doesn't add to $passoutstat? */
@@ -405,6 +409,7 @@ A group of young students round the corner and stop when they see you, eyes wide
 A minute passes before a <<generatey1>><<generatey2>><<person1>><<person>> and <<person2>><<person>> round the corner. They initially react like the first group but, proving to be more inquisitive, they approach you.<br><br>
 
 "There's a button here," says the <<personstop>> "What do you think it does?" <<He>> raises <<his>> arm and hovers a finger over it.<br><br>
+<<set $logprep to "I woke up with metallic clamps restraining me to a wall outside the science classroom and spreading my legs out to display my "+$lewdness>>
 
 <<link [["Please don't press it!"|School Passout Exhibit]]>><<set $phase to 1>><<status -10>><</link>><<lcool>><br>
 <<link [[Remain silent|School Passout Exhibit]]>><<set $phase to 2>><</link>>
@@ -417,6 +422,9 @@ A minute passes before a <<generatey1>><<generatey2>><<person1>><<person>> and <
 
 	That could have been much worse, but you know the whole school will hear about it.<br><br>
 	<<towelup>>
+	<<set $logprep to $logprep+" thankfully I was released by some students who listened to my request to not press a button near me that could have done who knows what.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
 	<<link [[Next|Hallways]]>><<endevent>><</link>>
 	<<else>>
 	<<He>> looks taken aback, but pauses only a moment before giving you an evil grin and pressing the button.<br><br>
@@ -434,6 +442,9 @@ A minute passes before a <<generatey1>><<generatey2>><<person1>><<person>> and <
 		<</if>>
 
 	Its purpose apparently served, the restraints release you. You drop to your hands and knees, the object in your butt slipping out as you do. The pair exchange a worried glance before bolting down the corridor, leaving you exposed on the floor.<br><br>
+	<<set $logprep to $logprep+" some students came around and noticed a button near me that they decided to press despite my protests causing the fullness in my ass to vibrate wildly. After that the clamps released me on their own while the students who pressed the button ran away.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
 
 	<<link [[Next|Hallways]]>><<set $stress -= 500>><<endevent>><</link>><br>
 
@@ -454,6 +465,9 @@ A minute passes before a <<generatey1>><<generatey2>><<person1>><<person>> and <
 		<</if>>
 
 	Its purpose apparently served, the restraints release you. You drop to your hands and knees, the object in your butt slipping out as you do. The pair exchange a worried glance before bolting down the corridor, leaving you exposed on the floor.<br><br>
+	<<set $logprep to $logprep+" some students came around and noticed a button near me that they decided to press out of curiosity causing the fullness in my ass to vibrate wildly. After that the clamps released me on their own while the students who pressed the button ran away.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
 
 	<<link [[Next|Hallways]]>><<set $stress -= 500>><<endevent>><</link>><br>
 
@@ -534,6 +548,9 @@ You awaken in the science classroom, bent over a desk. Straps tie down your arms
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "TBD school passout rape cum.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|School Rear Playground]]>><</link>>
 
@@ -554,6 +571,9 @@ Your assailants recoil in pain. <<tearful>> you seize the opportunity and escape
 <br><br>
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "TBD school passout rape beat.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|School Rear Playground]]>><</link>>
 
@@ -563,6 +583,9 @@ Your assailants recoil in pain. <<tearful>> you seize the opportunity and escape
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "TBD school passout rape rescue.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|School Rear Playground]]>><</link>>
 <</if>>
@@ -577,6 +600,9 @@ Satisfied, the pair leave you tied to the desk. <<tearful>> you manage to work y
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "TBD school passout gang rape cum.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Science Classroom]]>><</link>>
 <<elseif $enemyhealth lte 0>>
@@ -584,6 +610,9 @@ Deciding you're more trouble than you're worth, the pair leave you tied to the d
 
 <<clotheson>>
 <<endcombat>>
+<<set $logprep to "TBD school passout gang rape beat.">>
+<<log $logprep 3>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Science Classroom]]>><</link>>
 <</if>>
@@ -600,6 +629,8 @@ You <<nervously>> poke your head outside. There's no one around. You leave the r
 <<exhibitionism4>>
 <</if>>
 <br><br>
+<<set $logprep to "Snuck out of the school toilets into the hallways while "+$naked+".">>
+<<log $logprep $exposureimportance>>
 
 <<link [[Next|Hallways]]>><</link>><br>
 
@@ -614,7 +645,7 @@ The school gate is shut and sealed by a sturdy padlock.<br><br>
 	<<if $skulduggery gte $lock>>
 	<span class="green">The lock looks easy to pick.</span><br><br>
 
-	<<link [[Pick it (0:10)|Oxford Street]]>><<pass 10>><<crimeup 1>><</link>><<crime>><br>
+	<<link [[Pick it (0:10)|Oxford Street]]>><<pass 10>><<crimeup 1>>	<<set $logprep to "Picked the schoolgate in order to leave.">><<log $logprep 0>><</link>><<crime>><br>
 	<<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>><br><br>
 	<</if>>
@@ -654,30 +685,26 @@ The school gate is shut and sealed by a sturdy padlock.<br><br>
 
 
 <<if $enemyarousal gte $enemyarousalmax>>
+	<<beastejaculation>>
+	Satisfied, the dog bounds away from you.
 
-<<beastejaculation>>
-
-
-Satisfied, the dog bounds away from you.
-
-<<tearful>> you rise to your feet.<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<playground>>
-
+	<<tearful>> you rise to your feet.<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<set $logprep to "TBD pg dog "+$aw_xx+" cum.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<playground>>
 <<elseif $enemyhealth lte 0>>
+	The dog whimpers and flees.
 
-The dog whimpers and flees.
-
-<<tearful>> you rise to your feet.<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<playground>>
-
+	<<tearful>> you rise to your feet.<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<set $logprep to "TBD pg dog beat.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<playground>>
 <</if>>
 
 
@@ -687,6 +714,8 @@ The dog whimpers and flees.
 <<set $parktunnelintro to 1>>
 
 You search for the old tunnel you read about. You find it behind an outbuilding, obscured by trees and moss. You peer into the dark, and see a distant light at the end. You walk through and try to ignore the damp smell, until you emerge back into the light. You're in the park.<br><br>
+<<set $logprep to "Walked through a secret tunnel leading to the park.">>
+<<log $logprep 1>>
 
 <<parkquick>>
 
@@ -697,6 +726,8 @@ You search for the old tunnel you read about. You find it behind an outbuilding,
 <<set $schooldrainintro to 1>>
 
 There's a shaft hidden beneath the rubber flooring that should lead to the town's storm drain system. You peel back the floor and open the hatch, before climbing down into the dark. The sound of running water grows stronger.<br><br>
+<<set $logprep to "Climbed down a secret tunnel leading to the storm drain system.">>
+<<log $logprep 1>>
 
 <<link [[Next|Commercial Drain]]>><</link>><br>
 
@@ -717,6 +748,9 @@ Leighton makes an appearance in the later pictures, sometimes posing with <<himc
 
 You copy the files. Now to decide what to do with them.<br><br>
 <<set $headdrive to 1>>
+<<set $logprep to "TBD Leighton computer pictures copied.">>
+<<log $logprep 4>>
+<<logopinion "That was interesting">>
 <<link [[Next|Hallways]]>><<endevent>><</link>><br>
 
 
@@ -759,6 +793,9 @@ This watch should be worth a fair bit if you could find a buyer.<<ggcontrol>><br
 
 <<set $blackmoney += 5000>><<set $headmoney to 1>><<control 25>><<endevent>><<set $submissive -= 10>>
 <br><br>
+<<set $logprep to "TBD Blackmailed Leighton into giving me "+$his+" expensive looking watch.">>
+<<log $logprep 4>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Hallways]]>><</link>><br>
 
@@ -772,6 +809,9 @@ You leave the office. That's one less problem to worry about.<<ggcontrol>><br><b
 
 <<set $headnodetention to 1>><<control 25>><<endevent>><<set $submissive -= 10>>
 <br><br>
+<<set $logprep to "TBD Blackmailed Leighton into not enforcing my detentions.">>
+<<log $logprep 4>>
+<<logopinion "That was interesting">>
 
 <<link [[Next|Hallways]]>><</link>><br>
 
@@ -905,7 +945,7 @@ You lean back on the stump. You close your eyes and listen to the chirping of bi
 	<<if $schoolstate isnot "late">>
 	<<link [[Keep relaxing (0:10)|School Stump]]>><<pass 10>><<stress -1>><<tiredness -1>><</link>><<ltiredness>><<lstress>><br>
 	<</if>>
-<<link [[Stop|School Rear Playground]]>><</link>><br>
+<<link [[Stop|School Rear Playground]]>><<set $logprep to "Sat on a stump at the school playground and relaxed for a while.">><<log $logprep 1>><</link>><br>
 <</if>>
 
 :: School Stump Ignore [nobr]
@@ -913,12 +953,14 @@ You lean back on the stump. You close your eyes and listen to the chirping of bi
 
 You turn away from the pervert and shut your eyes. "You're no fun," <<he>> says. You peek a few moment's later. <<Hes>> gone.<br><br>
 
+<<set $logprep to "TBD stump ignore">>
+<<log $logprep 2>>
 <<endevent>>
 
 	<<if $schoolstate isnot "late">>
 	<<link [[Keep relaxing (0:10)|School Stump]]>><<pass 10>><<stress -1>><<tiredness -1>><</link>><<ltiredness>><<lstress>><br>
 	<</if>>
-<<link [[Stop|School Rear Playground]]>><</link>><br>
+<<link [[Stop|School Rear Playground]]>><<set $logprep to "Sat on a stump at the school playground and relaxed for a while.">><<log $logprep 1>><</link>><br>
 
 
 :: School Stump Flash [nobr]
@@ -934,11 +976,13 @@ You wink at <<him>> and cover up before anyone else can see. <<He>> leaves with 
 
 <<exhibitionism2>>
 
+<<set $logprep to "TBD stump flash">>
+<<log $logprep 2>>
 <<endevent>>
 	<<if $schoolstate isnot "late">>
 	<<link [[Keep relaxing (0:10)|School Stump]]>><<pass 10>><<stress -1>><<tiredness -1>><</link>><<ltiredness>><<lstress>><br>
 	<</if>>
-<<link [[Stop|School Rear Playground]]>><</link>><br>
+<<link [[Stop|School Rear Playground]]>><<set $logprep to "Sat on a stump at the school playground and relaxed for a while.">><<log $logprep 1>><</link>><br>
 
 :: School Stump Genital Flash [nobr]
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
@@ -953,8 +997,10 @@ You wink at <<him>> and cover up before anyone else can see. <<He>> leaves with 
 
 <<exhibitionism5>>
 
+<<set $logprep to "TBD stump genital flash">>
+<<log $logprep 2>>
 <<endevent>>
 	<<if $schoolstate isnot "late">>
 	<<link [[Keep relaxing (0:10)|School Stump]]>><<pass 10>><<stress -1>><<tiredness -1>><</link>><<ltiredness>><<lstress>><br>
 	<</if>>
-<<link [[Stop|School Rear Playground]]>><</link>><br>
+<<link [[Stop|School Rear Playground]]>><<set $logprep to "Sat on a stump at the school playground and relaxed for a while.">><<log $logprep 1>><</link>><br>
