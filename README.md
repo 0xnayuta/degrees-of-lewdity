@@ -1,1 +1,2 @@
-compiled version https://drive.google.com/open?id=1EZX6ncztSUdV2ZYslkt8q7tkA8P4f2pE in case anyone wants to test this
+compiled file in case anyone wants to test this https://mega.nz/#!A0c2AaiL!ygtDqqLjNicIXQu9xjym9-JbNQvx_UDtQOu5vVwruU8 (without img folder so put it in the same folder as the game is)
+old version that includes streetpolice event from bsin https://drive.google.com/open?id=1EZX6ncztSUdV2ZYslkt8q7tkA8P4f2pE 
