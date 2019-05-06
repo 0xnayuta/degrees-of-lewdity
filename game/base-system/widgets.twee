@@ -775,7 +775,7 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 	<</if>>
 
 
-	
+
 	<div class="meter">
 		<<set $percent=Math.floor(($drunk/1000)*100)>>
 		<<if $drunk gte 500>>
@@ -1025,7 +1025,7 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 		<<elseif $location is "town">>
 		<img id="location" src="img/misc/townday.gif">
 		<<elseif $location is "docks">>
-		<img id="location" src="img/misc/townday.gif">		
+		<img id="location" src="img/misc/townday.gif">
 		<<elseif $location is "pub">>
 		<img id="location" src="img/misc/pubday.png">
 		<<elseif $location is "forest">>
@@ -1436,6 +1436,11 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 <<set $leftboundcarry to 0>>
 <<set $leftarm to 0>>
 <<set $rightarm to 0>>
+<</nobr>><</widget>>
+
+<<widget "bind">><<nobr>>
+<<set $leftarm to "bound">>
+<<set $rightarm to "bound">>
 <</nobr>><</widget>>
 
 <<widget "bindings">><<nobr>>
@@ -2446,6 +2451,91 @@ and your fringe is very short.
 
 <</nobr>><</widget>>
 
+
+<<widget "beasttype">><<nobr>>
+
+<<if $args[0]>>
+	<<if $beastname is "blackwolf">>
+		<<if $hallucinations gte 1 and $blackwolfmonster is 1 or $blackwolfmonster is 1 and $monsterhallucinations is "f">>
+		<<set $monster to 1>>
+			<<if $blackwolfgender is "f">>
+			<<set $beasttype to $args[0] + "girl">>
+			<<else>>
+			<<set $beasttype to $args[0] + "boy">>
+			<</if>>
+		<<else>>
+		<<set $monster to 0>>
+		<<set $beasttype to $args[0]>>		
+		<</if>>
+	<<elseif $monsterchance gte $rng and $hallucinations gte 1 or $monsterchance gte $rng and $monsterhallucinations is "f">>
+		<<set $monster to 1>>
+		<<if $args[0] is "creature">>
+			<<if $beastgender is "f">>
+			<<set $beasttype to "strange " + "girl">>
+			<<else>>
+			<<set $beasttype to "strange " + "boy">>
+			<</if>>
+		<<else>>
+			<<if $beastgender is "f">>
+			<<set $beasttype to $args[0] + "girl">>
+			<<else>>
+			<<set $beasttype to $args[0] + "boy">>
+			<</if>>
+		<</if>>
+	<<else>>
+	<<set $monster to 0>>
+	<<set $beasttype to $args[0]>>
+	<</if>>
+<<else>>
+<<set $monster to 0>>
+<<set $beasttype to "beast">>
+<</if>>
+
+<<beastgenitalsselect>>
+
+<</nobr>><</widget>>
+
+
+<<widget "beastgenitalsselect">><<nobr>>
+
+<<if $monster is 1>>
+	<<if $beastname is "blackwolf">>
+		<<if $blackwolfgenitals is "penis">>
+		<<set $penis to 0>>
+		<<set $vagina to "none">>		
+		<<else>>
+		<<set $vagina to 0>>
+		<<set $penis to "none">>		
+		<</if>>
+	<<elseif $beastgender is "m">>
+		<<if random(0, 99) gte $cbchance>>
+		<<set $penis to 0>>
+		<<set $vagina to "none">>
+		<<else>>
+		<<set $vagina to 0>>
+		<<set $penis to "none">>
+		<</if>>
+	<<elseif $beastgender is "f">>
+		<<if random(0, 99) gte $dgchance>>
+		<<set $vagina to 0>>
+		<<set $penis to "none">>
+		<<else>>
+		<<set $penis to 0>>
+		<<set $vagina to "none">>
+		<</if>>
+	<</if>>
+<<else>>
+	<<if $beastgender is "m">>
+	<<set $penis to 0>>
+	<<set $vagina to "none">>
+	<<else>>
+	<<set $vagina to 0>>
+	<<set $penis to "none">>
+	<</if>>
+<</if>>
+
+<</nobr>><</widget>>
+
 <<widget "combat_partner">><<nobr>>/* somehow set to "I" when masturbating? */
 <<set $combat_partner = "">>/* hopefulyy this will fix the "An an a slight boy", it does but instead causes just "A"s to appear */
 <<if $enemytype is "beast">>
@@ -2471,7 +2561,8 @@ and your fringe is very short.
 <<set $logextra "I lost my "+$args[0]+"virginity to "+jsArticle($combat_partner)+$combat_partner+".">>
 <<set $logextra "I lost my "+$args[0]+"virginity to "+$combat_partner+".">>
 */
-<</nobr>><</widget>>
+<</nobr>>
+<</widget>>
 
 
 <<widget "remembersettings">><<nobr>>/*  */
@@ -2502,12 +2593,14 @@ and your fringe is very short.
 /* sliders */
 <<remember $malechance>>
 <<remember $beastmalechance>>
+<<remember $monsterchance>>
 <<remember $dgchance>>
 <<remember $cbchance>>
 <<remember $whitechance>>
 <<remember $blackchance>>
 <<remember $alluremod>>
 /*content toggles*/
+<<remember $monsterhallucinations>>
 <<remember $bestialitydisable>>
 <<remember $swarmdisable>>
 <<remember $parasitedisable>>
@@ -2527,7 +2620,8 @@ and your fringe is very short.
 <<remember $images>>
 <<remember $textonly>>
 
-<</nobr>><</widget>>
+<</nobr>>
+<</widget>>
 
 <<widget "forgetsettings">><<nobr>>/* not sure where would be a good place to actually use this if at all */
 <<remember $facreset to true>>
@@ -2541,7 +2635,8 @@ and your fringe is very short.
 <<forget $breastsizemax, $gamemode, $numberify_enabled, $silhouettedisable, $dev, $images, $textonly>>
 <<run Engine.restart()>>
 */
-<</nobr>><</widget>>
+<</nobr>>
+<</widget>>
 
 
 
@@ -2557,4 +2652,5 @@ and your fringe is very short.
 	<</if>>
 <</for>>
 <<if $args[1]>><<else>>$listified<</if>>/*print only if $args[1] is undefined */
-<</nobr>><</widget>>
+<</nobr>>
+<</widget>>
