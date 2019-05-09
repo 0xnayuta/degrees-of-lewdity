@@ -1,4 +1,212 @@
 :: Widgets NPC Generation [widget]
+<<widget "generate">><<nobr>>/*args are "codename" "m/f" "adult/child" "forgettable/important/named"*/
+	/* 
+	only $args[0] is required forgettable adult of gender based on settings is the default
+	overwriting existing npcs should work fine though it will make a duplicate entry in $tobedeleted which should be fine since it'll just try to undefine something already undefined
+	*/
+
+	/* how should forgettable npcs work? $tempnpc array or object? or just among the named npcs but with a flag that says delete this on endevent? or instead of flag have a separate array with to be deleted npc names so that endevent doesn't need to go through every npc */
+	<<set $npcs[$args[0]] to {}>>
+	<<if $args[3] isnot "important" and $args[3] isnot "named" >>/* important is just for any npc that needs to stick around for a bit */
+		<<set $tobedeleted.push($args[0])>>
+	<</if>>
+
+	<<set $rng to random(1, 100)>>
+	<<if ($malechance lt $rng and $args[1] isnot "m") or $args[1] is "f">>
+	<<set $npcs[$args[0]].gender to "f">>
+	<<set $npcs[$args[0]].pronoun to "f">>
+	<<elseif $malechance gte $rng or $args[1] is "m">>
+	<<set $npcs[$args[0]].gender to "m">>
+	<<set $npcs[$args[0]].pronoun to "m">>
+	<</if>>
+
+	<<set $npcs[$args[0]].lefthand to 0>>
+	<<set $npcs[$args[0]].righthand to 0>>
+	<<set $npcs[$args[0]].mouth to 0>>
+
+
+
+	/*attributes*/
+
+	<<set $npcs[$args[0]].penis to "none">>
+	<<set $npcs[$args[0]].vagina to "none">>
+
+	<<if $npcs[$args[0]].gender is "m">>
+		<<if random(0, 99) gte $cbchance>>
+		<<set $npcs[$args[0]].penis to "clothed">>
+		<<else>>
+		<<set $npcs[$args[0]].vagina to "clothed">>
+		<</if>>
+	<<elseif $npcs[$args[0]].gender is "f">>
+		<<if random(0, 99) gte $dgchance>>
+		<<set $npcs[$args[0]].vagina to "clothed">>
+		<<else>>
+		<<set $npcs[$args[0]].penis to "clothed">>
+		<</if>>
+	<</if>>
+
+	<<set $npcskinselector to ($whitechance + $blackchance)>>
+	<<if $npcskinselector is 0>>
+	<<set $npcskinselector to 1>>
+	<</if>>
+	<<set $whitechanceselector to (($whitechance / $npcskinselector) * 100)>>
+	<<set $blackchanceselector to (($blackchance / $npcskinselector) * 100)>>
+	<<if random(1, 100) lte $blackchanceselector>>
+	<<set $npcs[$args[0]].skin to "black">>
+	<<else>>
+	<<set $npcs[$args[0]].skin to "white">>
+	<</if>>
+
+	<<set $rng to random(1, 100)>>
+	<<if $rng gte 91>>
+		<<if $npcs[$args[0]].penis isnot "none">>
+		<<set $npcs[$args[0]].insecurity to "penis">>
+		<<else>>
+		<<set $npcs[$args[0]].insecurity to "vagina">>
+		<</if>>
+	<<elseif $rng gte 81>>
+		<<if $npcs[$args[0]].vagina isnot "none">>
+		<<set $npcs[$args[0]].insecurity to "vagina">>
+		<<else>>
+		<<set $npcs[$args[0]].insecurity to "penis">>
+		<</if>>
+	<<elseif $rng gte 61>>
+	<<set $npcs[$args[0]].insecurity to "ethics">>
+	<<elseif $rng gte 41>>
+	<<set $npcs[$args[0]].insecurity to "weak">>
+	<<elseif $rng gte 21>>
+	<<set $npcs[$args[0]].insecurity to "skill">>
+	<<else>>
+	<<set $npcs[$args[0]].insecurity to "looks">>
+	<</if>>
+
+	/**/
+	<<if $args[2] is "child">>
+		<<set $npcs[$args[0]].adult to 0>>
+		<<set $npcs[$args[0]].child to 1>>
+		<<if $npcs[$args[0]].gender is "m">>
+			<<set $npcs[$args[0]].man to "boy">>
+		<<else>>
+			<<set $npcs[$args[0]].man to "girl">>
+		<</if>>
+	<<else>>
+		<<set $npcs[$args[0]].adult to 1>>
+		<<set $npcs[$args[0]].child to 0>>
+		<<if $npcs[$args[0]].gender is "m">>
+			<<set $npcs[$args[0]].man to "man">>
+		<<else>>
+			<<set $npcs[$args[0]].man to "woman">>
+		<</if>>
+	<</if>>
+	<<set $enemyno += 1>>
+
+	/* description */
+
+	<<if $npcs[$args[0]].adult is 0>>
+		<<if $npcs[$args[0]].pronoun is "f">>
+		<<set $npcs[$args[0]].description to either("cute", "fit", "graceful", "lean", "lissome", "lithe", "mousy", "petite", "plump", "robust", "shapely", "slender", "slight", "slim", "taut", "thin", "toned", "trim", "wide-eyed")>>
+		<<else>>
+		<<set $npcs[$args[0]].description to either("cute", "fit", "graceful", "lean", "lissome", "lithe", "mousy", "petite", "plump", "robust", "shapely", "slender", "slight", "slim", "taut", "thin", "toned", "trim", "wide-eyed")>>
+		<</if>>
+	<<else>>
+		<<if $npcs[$args[0]].pronoun is "f">>
+		<<set $npcs[$args[0]].description to either("curvy", "lean", "lissome", "lithe", "lush", "muscular", "petite", "plump", "plush", "robust", "shapely", "slender", "slight", "slim", "taut", "thin", "toned", "trim", "voluptuous")>>
+		<<else>>
+		<<set $npcs[$args[0]].description to either("broad", "bulky", "burly", "lanky", "lean", "lissome", "lithe", "muscular", "petite", "plump", "robust", "rugged", "slender", "slight", "slim", "taut", "thin", "toned", "trim")>>
+		<</if>>
+	<</if>>
+	<<set $npcs[$args[0]].xman to $npcs[$args[0]].description+" "+$npcs[$args[0]].man>>
+
+<</nobr>><</widget>>
+
+<<widget "forgetunimportantnpcs">><<nobr>>/* not sure how necessary this actually is  */
+	<<for $tobedeleted.length gt 0>>
+		<<set $npcs[$tobedeleted[0]] to undefined>>
+	  <<run $tobedeleted.deleteAt(0)>>
+	<</for>>
+<</nobr>><</widget>>
+
+
+<<widget "promotenpc">><<nobr>>/* prevent npc from being deleted also rename to $args[1] if one is provided */
+	<<if $args[1]>>
+	<<set $npcs[$args[1]] to $npcs[$args[0]]>>
+	<<else>>
+	<<run $tobedeleted.delete($args[0])>>
+	<</if>>
+<</nobr>><</widget>>
+
+
+<<widget "loadperson">><<nobr>>/* should be as if <<person1>> was used */
+<<set $npcadult to $npcs[$args[0]].adult>>
+<<set $pronoun to $npcs[$args[0]].pronoun>>
+<<set $description to $npcs[$args[0]].description>>
+<<set $man to $npcs[$args[0]].man>>
+<<set $person to $npcs[$args[0]].xman>>
+<</nobr>><</widget>>
+
+
+<<widget "loadnpctoslot">><<nobr>>/* will be as if the npc was just generated */
+<<switch $args[1]>>
+	<<case 1>>
+		<<set $gender1 to $npcs[$args[0]].gender>>
+		<<set $pronoun1 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin1 to $npcs[$args[0]].skin>>
+		<<set $insecurity1 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild1 to $npcs[$args[0]].child>>
+		<<set $npcadult1 to $npcs[$args[0]].adult>>
+		<<set $description1 to $npcs[$args[0]].description>>
+	<<case 2>>
+		<<set $gender2 to $npcs[$args[0]].gender>>
+		<<set $pronoun2 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin2 to $npcs[$args[0]].skin>>
+		<<set $insecurity2 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild2 to $npcs[$args[0]].child>>
+		<<set $npcadult2 to $npcs[$args[0]].adult>>
+		<<set $description2 to $npcs[$args[0]].description>>
+	<<case 3>>
+		<<set $gender3 to $npcs[$args[0]].gender>>
+		<<set $pronoun3 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin3 to $npcs[$args[0]].skin>>
+		<<set $insecurity3 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild3 to $npcs[$args[0]].child>>
+		<<set $npcadult3 to $npcs[$args[0]].adult>>
+		<<set $description3 to $npcs[$args[0]].description>>
+	<<case 4>>
+		<<set $gender4 to $npcs[$args[0]].gender>>
+		<<set $pronoun4 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin4 to $npcs[$args[0]].skin>>
+		<<set $insecurity4 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild4 to $npcs[$args[0]].child>>
+		<<set $npcadult4 to $npcs[$args[0]].adult>>
+		<<set $description4 to $npcs[$args[0]].description>>
+	<<case 5>>
+		<<set $gender5 to $npcs[$args[0]].gender>>
+		<<set $pronoun5 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin5 to $npcs[$args[0]].skin>>
+		<<set $insecurity5 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild5 to $npcs[$args[0]].child>>
+		<<set $npcadult5 to $npcs[$args[0]].adult>>
+		<<set $description5 to $npcs[$args[0]].description>>
+	<<case 6>>
+		<<set $gender6 to $npcs[$args[0]].gender>>
+		<<set $pronoun6 to $npcs[$args[0]].pronoun>>
+		<<set $npcskin6 to $npcs[$args[0]].skin>>
+		<<set $insecurity6 to $npcs[$args[0]].insecurity>>
+		<<set $npcchild6 to $npcs[$args[0]].child>>
+		<<set $npcadult6 to $npcs[$args[0]].adult>>
+		<<set $description6 to $npcs[$args[0]].description>>
+<</switch>>
+
+<<set $lefthand to 0>>
+<<set $righthand to 0>>
+<<set $mouth to 0>>
+<<set $penis to $npcs[$args[0]].penis>>
+<<set $vagina to $npcs[$args[0]].vagina>>
+
+
+<</nobr>><</widget>>
+
+
 <<widget "generate1">><<nobr>>
 
 <<set $rng to random(1, 100)>>

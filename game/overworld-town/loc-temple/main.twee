@@ -4,13 +4,20 @@
 
 You are in the main hall of the temple. Stone walls and pillars tower into darkness. Rows of seats face an altar at the end of the room.
 
-<<if $daystate isnot "night" and $daystate isnot "dusk">>
-A figure wearing a white cowl kneels before the altar.
-<</if>>
-
 <<if $weekday is 1 and $hour is 12 and $massattended isnot 1>>
 The seats are filled with worshipers, here the for Sunday mass.
 <</if>>
+
+<<if $daystate isnot "night" and $daystate isnot "dusk">>
+	<<if $jordan.activity is "kneeling">>
+		A figure wearing a white cowl kneels before the altar.
+	<<elseif $jordan.activity is "talking">>/* won't happen until met with Jordan */
+		<<jordan>><<person1>>Jordan is talking with a <<loadnpctoslot $jordan.talker 2>><<person2>><<person>> near the altar.
+	<<elseif $jordan.activity is "mass">>/**/
+	<<else>>
+	<</if>>
+<</if>>
+
 
 <<if $exposed gte 1>>
 You hide behind one of the pillars to conceal your <<nuditystop>>
@@ -37,7 +44,11 @@ You hide behind one of the pillars to conceal your <<nuditystop>>
 <</if>>
 
 <<if $daystate isnot "night" and $daystate isnot "dusk" and $exposed is 0>>
-<<link [[Approach the figure|Temple Jordan]]>><</link>>
+	<<if $jordan.activity is "kneeling">>
+		<<link [[Approach the figure|Temple Jordan]]>><</link>>
+	<<elseif $jordan.activity is "talking">>
+		<<link [[Approach the two|Temple Jordan Busy]]>><</link>>
+	<</if>>
 <</if>>
 
 <br>
@@ -56,6 +67,8 @@ You are called to the front for communion. You kneel in front of Jordan as the o
 
 Jordan finishes with a prayer.<br><br>
 <<endevent>>
+<<set $logprep to "Attended the mass at the temple.">>
+<<log $logprep 2>>
 <<link [[Next|Temple]]>><</link>><br>
 
 :: Temple Mass Angel [nobr]
@@ -67,6 +80,8 @@ You are called to the front for communion. You kneel in front of Jordan as the o
 
 Jordan finishes with a prayer.<br><br>
 <<endevent>>
+<<set $logprep to "Attended the mass at the temple.">>
+<<log $logprep 2>>
 <<link [[Next|Temple]]>><</link>><br>
 
 :: Temple Mass Fallen Angel [nobr]
@@ -78,6 +93,8 @@ You are called to the front for communion. You kneel in front of Jordan, but the
 
 Jordan finishes with a prayer.<br><br>
 <<endevent>>
+<<set $logprep to "Attended the mass at the temple.">>
+<<log $logprep 2>>
 <<link [[Next|Temple]]>><</link>><br>
 
 
@@ -90,8 +107,88 @@ You are called to the front for communion. You kneel in front of Jordan, but the
 
 Jordan finishes with a prayer.<br><br>
 <<endevent>>
+<<set $logprep to "Attended the mass at the temple.">>
+<<log $logprep 2>>
 <<link [[Next|Temple]]>><</link>><br>
 
+
+:: Temple Jordan Busy [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+You approach the two and 
+	<<if $rng gt 60>>
+		<<jordan>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan is 
+		<<pickfrom "carefully" "quietly" "intently" "gently" "happily" "strictly" "firmly">> 
+		<<pickfrom "reprimanding" "discussing with" "speaking to">> the <<person2>><<person>> about something. 
+	<<else>>
+		the <<person2>><<person>> is 
+		<<pickfrom "carefully" "quietly" "intently" "casually" "happily" "shyly" "excitedly">>
+		<<pickrandom "telling" "discussing with" "speaking to">>
+		<<jordan>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something. 
+	<</if>>
+	<br>They don't notice you.<br><br>
+	
+	<<link [[Interrupt them|Temple Jordan Interrupt]]>><</link>><br>
+	<<link [[Wait (0:05 - 0:30)|Temple Jordan]]>><<set $phase to 4>><<set _w to Math.ceil($rng/4)+5>><<pass _w>><<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with someone so I had to wait a bit.">><<log $logprep 2>><</link>><br>/* 5-30 minute wait if the exact time needs to be shown could use <<set _w to Math.ceil($rng/17)*5>> to make it a multiple of 5 */
+	<<link [[Leave|Temple]]>><</link>><br>
+	
+:: Temple Jordan Interrupt [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<jordan>><<person1>>
+
+<<if $submissive gte 1150>>
+	"I'm really sorry but can I talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something for a bit?," you say.<br>
+	<<if $rng lte 40>>
+		"Don't worry we were just about done, so go ahead," the <<person2>><<person>> says and leaves.
+		<<set $phase to 1>>
+	<<elseif $rng lte 80>>
+		"My matter isn't that important and can wait a bit, so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		<<set $phase to 2>>
+	<<else>>
+		"Sorry but you'll need to wait a bit," the <<person2>><<person>> says, Jordan looks at you apologetically before shifting <<jordan>><<his>> focus back on the <<person2>><<personstop>>
+		<<set $phase to 3>>
+	<</if>>
+<<elseif $submissive lte 850>>
+	"Hey! I need to talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan," you declare.<br>
+	<<if $rng lte 10>>
+		"Rude, but since we were just about done, go ahead," the <<person2>><<person>> says and leaves.
+		<<set $phase to 1>>
+	<<elseif $rng lte 30>>
+		"I guess I can wait a bit so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		<<set $phase to 2>>
+	<<else>>
+		"You'll get your turn in time!" the <<person2>><<person>> says while Jordan looks at you with reproach. <<llove>>
+		<<set $jordanlove -1>>
+		<<set $phase to 3>>
+	<</if>>
+<<else>>
+	"Excuse me but I really need to talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something," you say<br>
+	<<if $rng lte 30>>
+		"We were just about done, so go ahead," the <<person2>><<person>> says and leaves.
+		<<set $phase to 1>>
+	<<elseif $rng lte 90>>
+		"My matter isn't that important and can wait a bit, so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		<<set $phase to 2>>
+	<<else>>
+		"Sorry but you'll need to wait a bit," the <<person2>><<person>> says while Jordan remains focused on <<himstop>>
+		<<set $phase to 3>>
+	<</if>>
+<</if>>
+<br><br><<jordan>><<person1>><<pronouns>>
+<<if $phase is 3>>
+	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with someone so I tried to interrupt them but was just told to wait">>
+	<<log $logprep 2>>
+	<<link [[Wait (0:05 - 0:25)|Temple Jordan]]>><<set _w to Math.ceil($rng/5)+5>><<pass _w>><<logadd " so I did.">><<logtimeupdate>><<set $jordan.activity to "kneeling">><</link>><br>
+	<<link [[Leave|Temple]]>><<logadd " so I decided to just leave.">><<logtimeupdate>><</link>><br>
+<<elseif $phase is 2>>
+	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with someone so I interrupted them and got to talk with jordan while the other person listened.">>
+	<<log $logprep 2>>
+	<<link [[Next|Temple Jordan]]>><</link>><br>
+<<elseif $phase is 1>>
+	<<set $logprep to "Went to see Jordan at the temple but I had to interrupt "+$his+" talk with someone else to do so.">>
+	<<log $logprep 2>>
+	<<set $jordan.activity to "kneeling">>
+	<<link [[Next|Temple Jordan]]>><</link>><br>
+<</if>>
 
 :: Temple Jordan [nobr]
 <<set $outside to 0>><<set $location to "town">><<effects>>
@@ -109,9 +206,24 @@ You approach the figure. As you near, <<he>> stands and turns to face you. <<His
 <<logopinion "That was interesting">>
 
 <<else>>
-<<jordan>><<person1>>
-You approach the figure. <<He>> turns to greet you as you near, revealing Jordan's familiar face. "Welcome back," <<he>> says.<br><br>
-
+	<<if $phase is 1>>
+		As the <<person2>><<person>> leaves <<jordan>><<person1>>Jordan turns to greet you. "Welcome back, this has been an unusually busy day," <<he>> says.<br><br>
+	<<elseif $phase is 2>>
+		<<jordan>><<person1>>Jordan turns to greet you. "Welcome back, usually I'm not quite this popular," <<he>> says.<br><br>
+		<<if $purity lte 600>>
+			Even if the <<person2>><<person>> is standing nearby you don't really care about what <<he>> might hear.<br><br>
+			<<set $phase to 5>>
+		<<else>>
+			With the <<person2>><<person>> standing at the side it'll be embarassing to talk about certain things.<br><br>
+		<</if>>
+	<<elseif $phase is 3>>
+		As the <<person2>><<person>> leaves you finally get to talk with <<jordan>><<person1>>Jordan <<He>> turns to greet you. "Welcome, I hope having to wait didn't bother you too much," <<he>> says.<br><br>
+	<<elseif $phase is 4>>
+		After a while the <<person2>><<person>> leaves and <<jordan>><<person1>>Jordan <<He>> turns to greet you. "Welcome, sorry about the wait," <<he>> says.<br><br>
+	<<else>>
+		<<jordan>><<person1>>
+		You approach the figure. <<He>> turns to greet you as you near, revealing Jordan's familiar face. "Welcome back," <<he>> says.<br><br>
+	<</if>>
 
 <</if>>
 
@@ -120,14 +232,28 @@ You approach the figure. <<He>> turns to greet you as you near, revealing Jordan
 <<He>> looks at your crotch with a concerned look on <<his>> face. "If you have a belt-induced parasite problem, we can help for £20."<br><br>
 <</if>>
 
-<<link [[Inquire about chastity belts|Temple Chastity]]>><</link>><br>
+<<link [[Inquire about chastity belts|Temple Chastity]]>><<if $phase is 2>><<stress 3>><</if>><</link>><<if $phase is 2>><<gstress>><</if>><br>
 
 <<if $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $penilechastityparasite is 0>>
 <<elseif $money gte 2000>>
-<<link [[Have parasites removed (£20 0:05)|Temple Parasite]]>><<set $money -= 2000>><<pass 5>><</link>><br>
+<<link [[Have parasites removed (£20 0:05)|Temple Parasite]]>><<set $money -= 2000>><<pass 5>><<if $phase is 2>><<stress 3>><</if>><</link>><<if $phase is 2>><<gstress>><</if>><br>
 <</if>>
 /*
-<<link [[Inquire about purity certificate|Temple Purity Certification]]>><</link>><br>
+<<if $purityCerStatus is undefined>>
+<<link [[Ask about purity certification|Temple Purity Certification]]>><<set $purityCerEvent to "intro">><</link>><br>
+<<elseif $purityCerExpDay lt $days+7 and $purityCerStatus gte 1>>
+	<<if $purityCerExpDay gte $days>>
+		<<link [[Renew your purity certificate|Temple Purity Certification]]>><<set $purityCerEvent to "asked">><<if $phase is 2>><<stress 3>><</if>><</link>>
+		(<<print $purityCerExpDay-$days>> day<<if $purityCerExpDay-$days gt 1>>s<</if>> left)
+		<<if $phase is 2>><<gstress>><</if>>
+		<br>
+	<<else>>
+		<<link [[Renew your purity certificate|Temple Purity Certification]]>><<set $purityCerEvent to "expired">><<if $phase is 2>><<stress 3>><</if>><</link>>
+		(expired <<print $days-$purityCerExpDay>> day<<if $days-$purityCerExpDay gt 1>>s<</if>> ago)
+		<<if $phase is 2>><<gstress>><</if>>
+		<br>
+	<</if>>
+<</if>>
 */
 
 <<if $forgiveintro isnot 1 and $fallenangel gte 2>>
@@ -564,26 +690,95 @@ You awaken back at the temple. You're lying on a small bed in a little room. Jor
 :: Temple Purity Certification
 <<set $outside to 0>><<set $location to "town">><<effects>>
 
-Purity certificate is something that you can use to prove your virginity without needing to be tested for it every time you wish to do so. 
-It will be valid for only a week at a time requiring you to come here to be checked once a week, to discourage people from not keeping it up to date there will be a small fee if you wish to renew an expired certificate.
-
-For those that 
+WIP Purity certificate should add more to do at the temple but also make being a virgin more interesting. Also somewhat indirectly encourage trying to stay a virgin without the chastity belt.
 
 
+<<switch $purityCerEvent>>
+	<<case "intro">>
+		<<if $phase is 0>>
+			<<He>> happily explains "Purity certificate is something that you can use to prove your virginity without needing to be tested for it every time you wish to do so. 
+			It will be valid for only a week at a time requiring you to come here to be checked once a week, to discourage people from not keeping it up to date there will be a small fee if you wish to renew an expired certificate."
+ 
+			"Sadly only a few people seem interested in having the certificate just for the sake of it "
+			"Not that many people feel the need for the certificate but there are certain situations and jobs where it can be useful, there used to be others who would provide a similar service but they were far less serious about it and weren't as reliable." 
+			<<link [[Next|Temple Purity Certification]]>><<set $phase to 1>><</link>><br>
+
+		<<elseif $phase is 1>>
+			Your purity certificate, one side has your picture and says "Virginity Certificate. Certified as a virgin by <<if $jordangender is "f">>sister <<else>>broter <</if>>Jordan."
+			the other side says "This certificate is valid until:"  followed by a stamp indicating $purityCerExpDate and lots of empty space for more stamps.
+			<<endevent>>
+			<<set $logprep to "Got a purity certificate from the temple by letting Jordan check my virginity.">>
+			<<log $logprep 3>>
+			<<logopinion "That was interesting">>
+			<<link [[Next|Temple]]>><</link>><br>
+		<<elseif $phase is 2>>
+			<<set $logprep to "While having my virginity checked in order to get a chastity belt Jordan suggested that I could also get a purity certificate done for a small donation.">>
+			<<log $logprep 3>>
+			<<logopinion "That was interesting">>
+			<<link [[Next|Temple]]>><</link>><br>
+		<</if>>
+		
+	<<case "asked">>
+		<<set $logprep to "Asked Jordan to renew my purity certificate.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+	
+		<<set $logprep to "Asked Jordan to renew my purity certificate but had to do so in front of another person.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+	
+		<<set $logprep to "Asked Jordan to renew my purity certificate but "+$he+" was busy so it took a while.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+		
+	<<case "remind">>
+		<<set $logprep to "While at the temple Jordan reminded me to renew my purity certificate but I refused.">>
+
+		<<set $logprep to "While at the temple Jordan reminded me that "+$he+" needs to check my virginity today if I want to keep my purity certificate up to date but I refused.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+
+		<<set $logprep to "I let Jordan renew my purity certificate when "+$he+" asked to do so.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+
+		<<set $logprep to "Jordan took me to renew my purity certificate.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+		
+	<<case "expired">>
+		<<set $logprep to "I wanted to renew my already expired purity certificate but I "+"didn't have the money to pay:wasn't willing to pay"+" the fine so Jordan proposed I help "+$him+" out with something instead.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+
+		<<set $logprep to "I renewed my expired purity certificate at the temple"+" after paying a fee and letting Jordan chew me out while "+$he+" confirmed my virginity: and Jordan reminded me that I'd have to pay the next time I let that happen: and paid the fine to a disappointed seeming Jordan: "+".">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
 
 
+		<<set $logprep to "I once again went to the temple to renew my expired purity certificate but this time Jordan told me that since clearly having to just pay small fee isn't enough to make me actually keep it up to date "+$he+"'s going to think of a some other way to motivate me'.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
 
-Your purity certificate, one side has your picture and says "Virginity Certificate. Certified as a virgin by <<if $jordangender is "f">>sister <<else>>broter <</if>>Jordan."
-the other side says "This certificate is valid until:"  followed by a stamp indicating $purityCerExpDate and lots of empty space for more stamps.
+		
+	<<case "unpure">>
+	
+	<<case "improvements/selfserve intro">>
+
+		<<he>> leads you to the same old cloister with a padded bench but this time there's a wooden wall that cuts the room in half with a small curtain covered opening for the bench. "We are hoping to improve the certification process by making it unnecessary to ask for it in such a public setting and to let you get started without needing to wait for me/* or someone else*/ to be available. From now on you can just come here on your own and slide your certificate through this hole to indicate you need to be checked," you notice a small board sticking through the wall with a enough space above it to slide the certificate to the other side. "once you've done that just undress and lie down as usual and/* someone should see to you in a few moments*/ I'll see to you as soon as I'm able to"
+		Place your certificate on this table and remove your $lowerclothes and lie down with your waist on the other side of the curtain"
 
 
+		<<set $logprep to ".">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+		
+	<<case "">>
+	
 
-
-
-<<he>> leads you to a small cloister with a padded bench serving as a bed and a curtain in the middle. "Place your certificate on this table and remove your $lowerclothes and lie down with your waist on the other side of the curtain"
-
-
-<<he>> leads you to the same old cloister with a padded bench but this time there's a wooden wall that cuts the room in half with a small curtain covered opening for the bench. "We are hoping to improve the certification process by making it unnecessary to ask for it in such a public setting and to let you get started without needing to wait for me/* or someone else*/ to be available. From now on you can just come here on your own and slide your certifacte through this hole to indicate you need to be checked," you notice a small board sticking through the wall with a enough space above it to slide the certificate to the other side. "once you've done that just undress and lie down as usual and/* someone should see to you in a few moments*/ I'll see to you as soon as I'm able to"
-Place your certificate on this table and remove your $lowerclothes and lie down with your waist on the other side of the curtain"
-
+		<<set $logprep to "I went to the temple to get my purity certificate.">>
+		<<log $logprep 3>>
+		<<logopinion "That was interesting">>
+		
+<</switch>>
 
