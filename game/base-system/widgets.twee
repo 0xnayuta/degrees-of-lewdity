@@ -774,8 +774,6 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 	<span class="pink">You are wasted</span>
 	<</if>>
 
-
-
 	<div class="meter">
 		<<set $percent=Math.floor(($drunk/1000)*100)>>
 		<<if $drunk gte 500>>
@@ -853,7 +851,7 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 <</nobr>><</widget>>
 
 <<widget "paincaption">><<nobr>>
-<<if $pain gte 100>><span class="red">You sob uncontrollably.</span>
+<<if $pain gte 100 and $willpowerpain is 0>><span class="red">You sob uncontrollably.</span>
 <<elseif $pain gte 80>><span class="pink">You cry and whimper.</span>
 <<elseif $pain gte 60>><span class="purple">You are crying.</span>
 <<elseif $pain gte 40>><span class="blue">Tears run down your face.</span>
@@ -865,7 +863,7 @@ if I actually knew how combat works I'd probably make <<combat_partner>> get cal
 
 	<div class="meter">
 		<<set $percent=Math.floor(($pain/200)*100)>>
-		<<if $pain gte 100>>
+		<<if $pain gte 100 and $willpowerpain is 0>>
 		<<print '<div class="redbar" style="width:' + $percent + '%"></div>'>>
 		<<elseif $pain gte 80>>
 		<<print '<div class="pinkbar" style="width:' + $percent + '%"></div>'>>
@@ -1594,7 +1592,7 @@ Remove your <<link $underclothes>><<set $eventskip to 1>><<set $actionuncladunde
 
 <<if $actionuncladunder is 1>><<set $actionuncladunder to 0>>
 	<<if $storelocationinit is "wolfcave">>
-	You remove your $lowerclothes. They may be animals, but stripping in front of them makes your skin and <<genitals>> tingle.
+	You remove your $underclothes. They may be animals, but stripping in front of them makes your skin and <<genitals>> tingle.
 	<<else>>
 	You check to make sure no one is around, then slowly remove your $underclothes. Despite being alone, doing this in a public space makes your skin and <<genitals>> tingle.
 	<</if>>
@@ -2394,8 +2392,6 @@ You steal £$rng.<<set $money += $rng * 100>><<crimeup $rng>><<combatskulduggery
 
 <</nobr>><</widget>>
 
-
-
 <<widget "relationshipclamp">><<nobr>>
 
 <<set $robinlove = Math.clamp($robinlove, 0, 100)>>
@@ -2455,6 +2451,7 @@ and your fringe is very short.
 <<widget "beasttype">><<nobr>>
 
 <<if $args[0]>>
+<<set $basebeasttype to $args[0]>>
 	<<if $beastname is "blackwolf">>
 		<<if $hallucinations gte 1 and $blackwolfmonster is 1 or $blackwolfmonster is 1 and $monsterhallucinations is "f">>
 		<<set $monster to 1>>
@@ -2465,7 +2462,7 @@ and your fringe is very short.
 			<</if>>
 		<<else>>
 		<<set $monster to 0>>
-		<<set $beasttype to $args[0]>>		
+		<<set $beasttype to $args[0]>>
 		<</if>>
 	<<elseif $monsterchance gte $rng and $hallucinations gte 1 or $monsterchance gte $rng and $monsterhallucinations is "f">>
 		<<set $monster to 1>>
@@ -2495,17 +2492,16 @@ and your fringe is very short.
 
 <</nobr>><</widget>>
 
-
 <<widget "beastgenitalsselect">><<nobr>>
 
 <<if $monster is 1>>
 	<<if $beastname is "blackwolf">>
 		<<if $blackwolfgenitals is "penis">>
 		<<set $penis to 0>>
-		<<set $vagina to "none">>		
+		<<set $vagina to "none">>
 		<<else>>
 		<<set $vagina to 0>>
-		<<set $penis to "none">>		
+		<<set $penis to "none">>
 		<</if>>
 	<<elseif $beastgender is "m">>
 		<<if random(0, 99) gte $cbchance>>
@@ -2536,6 +2532,114 @@ and your fringe is very short.
 
 <</nobr>><</widget>>
 
+
+<<widget "willpowerpain">><<nobr>>
+<<if $pain gte 100 and $willpowerpain is undefined>>
+	<<if ($willpower / 10) gte (($pain - 100) + random(1, 100))>>
+	<span class="green">The pain threatens to overwhelm, but you endure it.</span><<gwillpower>><<willpower 1>><br>
+	<<else>>
+	<span class="red">The pain overwhelms you.</span><<ggwillpower>><<willpower 5>><<set $willpowerpain to 0>><br>
+	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "willpowerorgasm">><<nobr>>
+<<if $orgasmdown gte 1>>
+	<<if ($willpower / 10) gte (($orgasmdown * 30) + random(1, 80))>>
+	<span class="green">You endure the orgasmic shivers running through you.</span><<gwillpower>><<willpower 1>><<set $orgasmdown to 0>><br>
+	<<else>>
+	<span class="red">You struggle against the orgasmic spasms overwhelming you.</span><<gwillpower>><<willpower 1>><br>
+	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "upperclothescolour">><<nobr>>
+
+<<if $upperwetstage gte 3>>
+	<<if $uppercolour is "wetgreen">>
+		green
+	<<elseif $uppercolour is "wetred">>
+		red
+	<<elseif $uppercolour is "wetwhite">>
+		white
+	<<elseif $uppercolour is "wetblue">>
+		blue
+	<<elseif $uppercolour is "wetyellow">>
+		yellow
+	<<elseif $uppercolour is "wetpink">>
+		pink
+	<<elseif $uppercolour is "wetpurple">>
+		purple
+	<<elseif $uppercolour is "wettangerine">>
+		tangerine
+	<<elseif $uppercolour is "wetblack">>
+		black
+	<</if>>
+<<else>>
+$uppercolour
+<</if>>
+
+<</nobr>><</widget>>
+
+
+
+<<widget "lowerclothescolour">><<nobr>>
+
+<<if $lowerwetstage gte 3>>
+	<<if $lowercolour is "wetgreen">>
+		green
+	<<elseif $lowercolour is "wetred">>
+		red
+	<<elseif $lowercolour is "wetwhite">>
+		white
+	<<elseif $lowercolour is "wetblue">>
+		blue
+	<<elseif $lowercolour is "wetyellow">>
+		yellow
+	<<elseif $lowercolour is "wetpink">>
+		pink
+	<<elseif $lowercolour is "wetpurple">>
+		purple
+	<<elseif $lowercolour is "wettangerine">>
+		tangerine
+	<<elseif $lowercolour is "wetblack">>
+		black
+	<</if>>
+<<else>>
+$lowercolour
+<</if>>
+
+<</nobr>><</widget>>
+
+
+
+<<widget "underclothescolour">><<nobr>>
+
+<<if $underwetstage gte 3>>
+	<<if $undercolour is "wetgreen">>
+		green
+	<<elseif $undercolour is "wetred">>
+		red
+	<<elseif $undercolour is "wetwhite">>
+		white
+	<<elseif $undercolour is "wetblue">>
+		blue
+	<<elseif $undercolour is "wetyellow">>
+		yellow
+	<<elseif $undercolour is "wetpink">>
+		pink
+	<<elseif $undercolour is "wetpurple">>
+		purple
+	<<elseif $undercolour is "wettangerine">>
+		tangerine
+	<<elseif $undercolour is "wetblack">>
+		black
+	<</if>>
+<<else>>
+$undercolour
+<</if>>
+
+<</nobr>><</widget>>
 <<widget "combat_partner">><<nobr>>/* somehow set to "I" when masturbating? */
 <<set $combat_partner = "">>/* hopefulyy this will fix the "An an a slight boy", it does but instead causes just "A"s to appear */
 <<if $enemytype is "beast">>
