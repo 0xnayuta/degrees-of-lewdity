@@ -1,7 +1,6 @@
 config.history.controls = false;
 
-Config.history.maxStates = 20;
-
+Config.history.maxStates = 2;
 State.initPRNG();
 
 jQuery(document).ready(function(){
@@ -216,7 +215,8 @@ var disableNumberifyInVisibleElements = [
 	'#passage-asylum-wardrobe',
 	'#passage-strip-club-dressing-room',
 	'#passage-brothel-dressing-room',
-	'#passage-testing-room'
+	'#passage-testing-room',
+	'#passage-diary-edit'
 ];
 
 // Number-ify links

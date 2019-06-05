@@ -1,238 +1,288 @@
 :: Widgets Diary [widget]
 /*
 
-How to Add new variables to be tracked by diary:
-1. add it to <<widget "loginit">>'s <<set log to {...}>> part(so that $log.yourvariable will get it's position in a relevant array)
-  update <<set _len to >> to have the last $log. number
-  optional: if it's a string make it have "" instead of 0 in $logblank
-    <<set $logblank[$log.yourvariable] to ("")>>
-2. make <<widget "log">> track changes to it(if it's a number with wide range) or just it's value in some way
-  ,$yourvariable - $logged[$log.yourvariable]
-  <<set _d[$log.yourvariable] to ($yourvariable - $logged[$log.yourvariable])>>
-3. add it to <<widget "logstatsupdate">> just as ,$yourvariable
-4. add it at least to the debug section of <<widget "showdiaryentry">>
-  <<if _e[$log.yourvariable] isnot 0 and _e[$log.yourvariable] isnot undefined>>yourvariable:<<print _e[$log.yourvariable]>><</if>>
+You can add new variables to be tracked by diary by 
+1. adding , yourvariable:$yourvariable to $logged in <<logstats>>.
+2. if necessary add stuff to <<showdiaryentry>> otherwise it'll only show up with $logdebug 
+3. add it to <<setstatsto>> in widgets.twee
 
 */
 <<widget "loginit">><<nobr>>
 
-/* name diaryentry array indexes to make coding easier without making the game repeatedly use the names(in save files and such) 
-	could change to just an array with the var names($log to ["money","stress"...]) if $diary[][][] is changed back to $diary[][]{} might not have switched the last part to an array if I had figured out earlier that $object[$asd] can be used to make $object.$asd work even if that wasn't really what I was thinking of when I changed it 
-
-*/
-<<set _len to 85>>/* index of last $log.variable */
-<<if $logblank is undefined or $logblank.length lte _len>>/* checking _len to trigger on version update if new ones get added */
-	<<set $log to {
-		time:0,text:1,importance:2,comment:3,opinion:4,
-		money:5,stress:6,trauma:7,awareness:8,pain:9,
-		tiredness:10,arousal:11,control:12,allure:13,antiquemoney:14,
-		blackmoney:15,spray:16,spraymax:17,drunk:18,drunkgain:19,
-		drugged:20,weather:21,clothupper:22,clothlower:23,clothunder:24,
-		oldclothupper:25,oldclothlower:26,oldclothunder:27,collared:28,purity:29,
-		submissive:30,physique:31,beauty:32,promiscuity:33,exhibitionism:34,
-		deviancy:35,skulduggery:36,danceskill:37,swimmingskill:38,seductionskill:39,
-		oralskill:40,vaginalskill:41,penileskill:42,analskill:43,handskill:44,
-		feetskill:45,bottomskill:46,thighskill:47,chestskill:48,science:49,
-		maths:50,english:51,history:52,school:53,unclad:54,
-    cool:55,detention:56,fameexhibitionism:57,fameprostitution:58,famebestiality:59,
-    famerape:60,famesex:61,famegood:62,famebusiness:63,famepimp:64,
-    famescrap:65,dancestat:66,drinksservedstat:67,tablesservedstat:68,prostitutionstat:69,
-    forcedprostitutionstat:70,orgasmstat:71,ejacstat:72,moleststat:73,rapestat:74,
-    beastrapestat:75,tentaclerapestat:76,swallowedstat:77,parasitestat:78,hitstat:79,
-    attackstat:80,spraystat:81,rescued:82,clothesstripstat:83,clothesruinstat:84,
-    passoutstat:85
-	}>>
-	/*
-	to add:
-		Delinquency
-		More specific ejaculation stats
-		goo/semen
-		accesories worn
-		virginities?
-		transformation stats 
-		breast and hair stats?
-	*/
-	<<set $logblank to []>>
-	<<for $logblank.length lte _len>>
-		<<set $logblank.push(0)>>
-	<</for>>
-	<<set $logblank[$log.weather] to ("")>>
-	<<set $logblank[$log.clothupper] to ("")>>
-	<<set $logblank[$log.clothlower] to ("")>>
-	<<set $logblank[$log.clothunder] to ("")>>
-	<<set $logblank[$log.oldclothupper] to ("")>>
-	<<set $logblank[$log.oldclothlower] to ("")>>
-	<<set $logblank[$log.oldclothunder] to ("")>>
-
+<<if $logday is undefined>>
+	<<set $logday to 0>>
 <</if>>
 
-<<if $logged is undefined>><<set $logged to clone($logblank)>><</if>>
+<<if $diary is undefined>>
+	<<set $diary to []>>
+	<<set $diarypage to 0>>
+	<<set $diaryline to 0>>
+	<<set $todoentries to 0>>
+	<<set $logextra to "">>
+	<<set $logprep to "">>
+<</if>>
+<<if $log is undefined>>
+	<<set $log to {time:0,text:1,importance:2,comment:3,opinion:4,written:5,stats:6}>>
+<</if>>	
+<<if $logblank is undefined>>
+	<<set $logblank to [,,,,,,]>>
+<</if>>
+/*
+alternative between having logged stats as an object with nice names and having it as an array and a separate object for names much like this one, the main advantage this has is that the order of stuff doesn't matter while still not adding that much to save file size(potentially less since no need for blank data).
+1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM
+ëËêÊÿŸüÜûÛïÏîÎöÖôÔäÄâÂ
+õÕãÃñÑ
+éÉýÝúÚíÍóÓáÁèÈùÙìÌòÒàÀ
+åÅæÆœŒçÇðÐøØ
+ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσΤτΥυΦφΧχΨψΩω
+*/
+/*
+<<set $vars to {}>>
+<<set _v to [
+	"money","stress","trauma","awareness","pain",
+  "tiredness","arousal","control","allure","antiquemoney",
+	"blackmoney","spray","spraymax","drunk","drunk",
+	"drugged","weather",
+	"upperclothes","lowerclothes","underclothes",
+	"upperintegrity","lowerintegrity","underintegrity",
+	"upperintegritymax","lowerintegritymax","underintegritymax",
+	"collared","purity",
+	"submissive","physique","beauty","promiscuity","exhibitionism",
+	"deviancy","skulduggery","danceskill","swimmingskill","seductionskill",
+	"oralskill","vaginalskill","penileskill","analskill","handskill",
+	"feetskill","bottomskill","thighskill","chestskill","science",
+	"maths","english","history","school","unclad",
+  "cool","detention","fameexhibitionism","fameprostitution","famebestiality",
+  "famerape","famesex","famegood","famebusiness","famepimp",
+  "famescrap","dancestat","drinksservedstat","tablesservedstat","prostitutionstat",
+  "forcedprostitutionstat","orgasmstat","ejacstat","moleststat","rapestat",
+  "beastrapestat","tentaclerapestat","swallowedstat","parasitestat","hitstat",
+  "attackstat","spraystat","rescued","clothesstripstat","clothesruinstat",
+  "passoutstat"
+	]>>
+<<set _i2 to 0>>
+<<set _chars to "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMëËêÊÿŸüÜûÛïÏîÎöÖôÔäÄâÂõÕãÃñÑéÉýÝúÚíÍóÓáÁèÈùÙìÌòÒàÀåÅæÆœŒçÇðÐøØΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσΤτΥυΦφΧχΨψΩω">>
+<<for _i to 0 ; _i lt _v.length ; _i++>>
+	<<if _i gt _chars.length>>
+	<<set $vars[_v[_i]] to _chars.charAt(_i2)+_chars.charAt(_i)>>
+	<<elseif _i gt _chars.length*2>>
+	<<set $vars[_v[_i]] to _chars.charAt(_i2+1)+_chars.charAt(_i)>>
+	<<else>>
+	<<set $vars[_v[_i]] to _chars.charAt(_i)>>
+	<</if>>
+<</for>>
 
-<<if $diary.length-1 lt $days>> /* fill diary with blank days to catch up to current date */
-	<<for _i to 0; _i lt $days; _i++>>
+/* settings */
+<<if $logdebug is undefined>><<set $logdebug to 0>><</if>>
+<<if $diarymode is undefined>><<set $diarymode to 0>><</if>>
+<<if $loglocations is undefined>><<set $loglocations to 1>><</if>>
+<<if $diaryprompts is undefined>><<set $diaryprompts to 0>><</if>>
+<<if $diarysidebar is undefined>><<set $diarysidebar to 0>><</if>>
+<<if $diaryfilterA is undefined>><<set $diaryfilterA to 0>><</if>>
+<<if $diaryfilterB is undefined>><<set $diaryfilterB to 1>><</if>>
+<<if $compactsidebar is undefined>><<set $compactsidebar to 0>><</if>>
+<<if $logshowcomments is undefined>><<set $logshowcomments to 1>><</if>>
+<<if $logshowopinions is undefined>><<set $logshowopinions to 0>><</if>>
+<<if $logchangetreshold is undefined>><<set $logchangetreshold to 0>><</if>>
+<<if $diaryshowunwritten is undefined>><<set $diaryshowunwritten to false>><</if>>
+/* importances */
+<<if $busimportance is undefined>><<set $busimportance to 2>><</if>>
+<<if $workimportance is undefined>><<set $workimportance to 2>><</if>>
+<<if $passoutimportance is undefined>><<set $passoutimportance to 2>><</if>>
+<<if $exposureimportance is undefined>><<set $exposureimportance to 2>><</if>>
+<<if $logextraimportance is undefined>><<set $logextraimportance to 8>><</if>>
+<<if $locationimportance is undefined>><<set $locationimportance to 0>><</if>>
+<<if $lockpickimportance is undefined>><<set $lockpickimportance to 0>><</if>>
+
+/* How do I make it so that the diary doesn't have to have entries for each day?
+with $logday, it's like $days but can be set to smaller number when archiving old entries.
+ */
+<<if $diary.length-1 lt $logday>> /* fill diary with blank days to catch up to current date */
+	<<for _i to 0; _i lt $logday; _i++>>
 		<<if $diary[_i] is undefined>>
 			<<set $diary.push([])>>
 			<<set $diary[_i][0] to clone($logblank)>>
-			<<set $diary[_i][0][$log.text] to "Day " + _i>>
+			<<set $diary[_i][0][$log.text] to "Day " + $days - $logday + _i>>
 			<<set $diary[_i][0][$log.importance] to -5>>
 		<</if>>
 	<</for>>
-	<<set $diary.push([])>>
-	<<set _a to clone($logblank)>>
-	<<set _a[$log.text] to $month+" "+$monthday+" "+$logprep>>
+	<<set $diary.push([[]])>>
+	<<set _a to $diary[$logday][0]>>
+	<<set _a[$log.text] to $month+" "+$monthday>>
 	<<set _a[$log.time] to 0>>
 	<<set _a[$log.comment] to "(Day "+$days+")">>
 	<<set _a[$log.importance] to 7>>
-	<<set _a[$log.money] to "="+$money>>
-	<<set $diary[$days][0] to _a>>
-	/*<<set $diary[$days][0] to
-	{text:$month + " " + $monthday, timestamp:0,comment:"",opinion:"",importance:7,effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}}>>
-	*/
+	<<set _a[$log.written] to true>>
+	<<set _a[$log.stats] to {}>>
+<</if>>
+
+<<if $statlist is undefined>>
+	<<logstats>>
 <</if>>
 
 <</nobr>><</widget>>
 
-<<widget "log">><<nobr>>
-	<<if $logdebug is 1>>log<<print $args[1]>>(<<print $args[0]>>)<</if>>
+<<widget "logstats">><<nobr>> /* update logged to current stats */
+/*
+upperintegritymax:$upperintegritymax,lowerintegritymax:$lowerintegritymax:,underintegritymax:$underintegritymax,
+upperintegritylevel:($upperintegrity/$upperintegritymax),lowerintegritylevel:($lowerintegritymax/$lowerintegritymax),underintegritylevel:($underintegrity/$underintegritymax),
 
-	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
-	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
-	<<set $logprep to "">> /* if this didn't exist logadd wouldn't be necessary but I think it needs to since there might be some situations where logprep+"" needs to be the 1st thing */
-	<<set $diarypage to $days>>
-	<<set $diaryline to $diary[$days].length>>
-	<<set _d to $diary[$days][$diaryline]>>
-	<<if $args[1] gte $logchangetreshold or $debug is 1>>
-		<<set $diary[$days].push(clone($logblank))>>
-		<<set _d to $diary[$days][$diaryline]>>
-		<<set _d[$log.time] to $time>>
-		<<set _d[$log.text] to $args[0]>>
-		<<set _d[$log.importance] to $args[1]>>
-		<<set _d[$log.comment] to "">>
-		<<set _d[$log.opinion] to "">>
-		<<set _d[$log.money] to ($money - $logged[$log.money])>>
-		<<set _d[$log.stress] to ($stress - $logged[$log.stress])>>
-		<<set _d[$log.trauma] to ($trauma - $logged[$log.trauma])>>
-		<<set _d[$log.awareness] to ($awareness - $logged[$log.awareness])>>
-		<<set _d[$log.pain] to ($pain - $logged[$log.pain])>>
-		<<set _d[$log.tiredness] to ($tiredness - $logged[$log.tiredness])>>
-		<<set _d[$log.arousal] to ($arousal - $logged[$log.arousal])>>
-		<<set _d[$log.control] to ($control - $logged[$log.cotrol])>>
-		<<set _d[$log.allure] to ($allure - $logged[$log.allure])>>
-		<<set _d[$log.antiquemoney] to ($antiquemoney - $logged[$log.antiquemoney])>>
-		<<set _d[$log.blackmoney] to ($blackmoney - $logged[$log.blackmoney])>>
-		<<set _d[$log.spray] to ($spray - $logged[$log.spray])>>
-		<<set _d[$log.spraymax] to ($spraymax - $logged[$log.spraymax])>>
-		<<set _d[$log.drunk] to ($drunk)>>
-		<<set _d[$log.drunkgain] to ($drunk - $logged[$log.drunk])>>
-		<<set _d[$log.drugged] to ($drugged - $logged[$log.drugged])>>
-		<<set _d[$log.weather] to ("")>>
-		<<set _d[$log.clothupper] to ("")>>
-		<<set _d[$log.clothlower] to ("")>>
-		<<set _d[$log.clothunder] to ("")>>
-		<<set _d[$log.oldclothupper] to ("")>>
-		<<set _d[$log.oldclothlower] to ("")>>
-		<<set _d[$log.oldclothunder] to ("")>>
-		<<set _d[$log.collar] to ($collared)>>
-		<<set _d[$log.purity] to ($purity - $logged[$log.purity])>>
-		<<set _d[$log.submissive] to ($submissive - $logged[$log.submissive])>>
-		<<set _d[$log.physique] to ($physique - $logged[$log.physique])>>
-		<<set _d[$log.beauty] to ($beauty - $logged[$log.beauty])>>
-		<<set _d[$log.promiscuity] to ($promiscuity - $logged[$log.promiscuity])>>
-		<<set _d[$log.exhibitionism] to ($exhibitionism - $logged[$log.exhibitionism])>>
-		<<set _d[$log.deviancy] to ($deviancy - $logged[$log.deviancy])>>
-		<<set _d[$log.skulduggery] to ($skulduggery - $logged[$log.skulduggery])>>
-		<<set _d[$log.danceskill] to ($danceskill - $logged[$log.danceskill])>>
-		<<set _d[$log.swimmingskill] to ($swimmingskill - $logged[$log.swimmingskill])>>
-		<<set _d[$log.seductionskill] to ($seductionskill - $logged[$log.seductionskill])>>
-		<<set _d[$log.oralskill] to ($oralskill - $logged[$log.oralskill])>>
-		<<set _d[$log.vaginalskill] to ($vaginalskill - $logged[$log.vaginalskill])>>
-		<<set _d[$log.penileskill] to ($penileskill - $logged[$log.penileskill])>>
-		<<set _d[$log.analskill] to ($analskill - $logged[$log.analskill])>>
-		<<set _d[$log.handskill] to ($handskill - $logged[$log.handskill])>>
-		<<set _d[$log.feetskill] to ($feetskill - $logged[$log.feetskill])>>
-		<<set _d[$log.bottomskill] to ($bottomskill - $logged[$log.bottomskill])>>
-		<<set _d[$log.thighskill] to ($thighskill - $logged[$log.thighskill])>>
-		<<set _d[$log.chestskill] to ($chestskill - $logged[$log.chestskill])>>
-		<<set _d[$log.science] to ($science - $logged[$log.science])>>
-		<<set _d[$log.maths] to ($maths - $logged[$log.maths])>>
-		<<set _d[$log.english] to ($english - $logged[$log.english])>>
-		<<set _d[$log.history] to ($history - $logged[$log.history])>>
-		<<set _d[$log.school] to ($school - $logged[$log.school])>>
-		<<set _d[$log.unclad] to ($unclad - $logged[$log.unclad])>>
-    <<set _d[$log.cool] to ($cool - $logged[$log.cool])>>
-    <<set _d[$log.detention] to ($detention - $logged[$log.detention])>>
-    <<set _d[$log.fameexhibitionism] to ($fameexhibitionism - $logged[$log.fameexhibitionism])>>
-    <<set _d[$log.fameprostitution] to ($fameprostitution - $logged[$log.fameprostitution])>>
-    <<set _d[$log.famebestiality] to ($famebestiality - $logged[$log.famebestiality])>>
-    <<set _d[$log.famerape] to ($famerape - $logged[$log.famerape])>>
-    <<set _d[$log.famesex] to ($famesex - $logged[$log.famesex])>>
-    <<set _d[$log.famegood] to ($famegood - $logged[$log.famegood])>>
-    <<set _d[$log.famebusiness] to ($famebusiness - $logged[$log.famebusiness])>>
-    <<set _d[$log.famepimp] to ($famepimp - $logged[$log.famepimp])>>
-    <<set _d[$log.famescrap] to ($famescrap - $logged[$log.famescrap])>>
-    <<set _d[$log.dancestat] to ($dancestat - $logged[$log.dancestat])>>
-    <<set _d[$log.drinksservedstat] to ($drinksservedstat - $logged[$log.drinksservedstat])>>
-    <<set _d[$log.tablesservedstat] to ($tablesservedstat - $logged[$log.tablesservedstat])>>
-    <<set _d[$log.prostitutionstat] to ($prostitutionstat - $logged[$log.prostitutionstat])>>
-    <<set _d[$log.forcedprostitutionstat] to ($forcedprostitutionstat - $logged[$log.forcedprostitutionstat])>>
-    <<set _d[$log.orgasmstat] to ($orgasmstat - $logged[$log.orgasmstat])>>
-    <<set _d[$log.ejacstat] to ($ejacstat - $logged[$log.ejacstat])>>
-    <<set _d[$log.moleststat] to ($moleststat - $logged[$log.moleststat])>>
-    <<set _d[$log.rapestat] to ($rapestat - $logged[$log.rapestat])>>
-    <<set _d[$log.beastrapestat] to ($beastrapestat - $logged[$log.beastrapestat])>>
-    <<set _d[$log.tentaclerapestat] to ($tentaclerapestat - $logged[$log.tentaclerapestat])>>
-    <<set _d[$log.swallowedstat] to ($swallowedstat - $logged[$log.swallowedstat])>>
-    <<set _d[$log.parasitestat] to ($parasitestat - $logged[$log.parasitestat])>>
-    <<set _d[$log.hitstat] to ($hitstat - $logged[$log.hitstat])>>
-    <<set _d[$log.attackstat] to ($attackstat - $logged[$log.attackstat])>>
-    <<set _d[$log.spraystat] to ($spraystat - $logged[$log.spraystat])>>
-    <<set _d[$log.rescued] to ($rescued - $logged[$log.rescued])>>
-    <<set _d[$log.clothesstripstat] to ($clothesstripstat - $logged[$log.clothesstripstat])>>
-    <<set _d[$log.clothesruinstat] to ($clothesruinstat - $logged[$log.clothesruinstat])>>
-    <<set _d[$log.passoutstat] to ($passoutstat - $logged[$log.passoutstat])>>
-
-  	/* add strings only when they have changed, so if entry says weather is clear then it wasn't before that*/
-  	<<if $logged[$log.weather] isnot $weather>><<set $diary[$days][$diaryline][$log.weather] to $weather>><</if>>
-  	/* need to list all clothing when something changes so that we don't need to search through previous entries to figure out if a part that didn't change is naked or not */
-  	<<if $logged[$log.clothupper] isnot $upperclothes or $logged[$log.clothlower] isnot $lowerclothes or $logged[$log.clothunder] isnot $underclothes>>
-  		<<set $diary[$days][$diaryline][$log.oldclothupper] to clone($logged[$log.clothupper])>>
-  		<<set $diary[$days][$diaryline][$log.oldclothlower] to clone($logged[$log.clothlower])>>
-  		<<set $diary[$days][$diaryline][$log.oldclothunder] to clone($logged[$log.clothunder])>>
-  		<<set $diary[$days][$diaryline][$log.clothupper] to $upperclothes>>
-  		<<set $diary[$days][$diaryline][$log.clothlower] to $lowerclothes>>
-  		<<set $diary[$days][$diaryline][$log.clothunder] to $underclothes>>
-  	<</if>>
-
-  	<<logstatsupdate>>
-	<<else>> /* wait for more noteworthy event to add changes to, kind of unnecessary unless the diary actually shows changes to stats that are constantly changing */
-		<<run $diary[$days].push($logblank)>>
-	<</if>>
-	<<if $logextra isnot "" and $logextra isnot undefined>> /* virginity loss entries should come after the event (or as some special comment like thing) */
-		<<logextra $logextra $logextraimportance>>
-	<</if>>
-<</nobr>><</widget>>
-
-<<widget "logstatsupdate">><<nobr>> /* update logstats to current stats */
-/* must have same length as $log has and have things in the same order(could use <<set $logged[$log.x] >> to more reliably match) */
-<<set $logged to [$time,"",0,"","",
-	$money,$stress,$trauma,$awareness,$pain,
+*/
+/*
+thought I could skip adding integrity/max stuff to the clothing exception by making this
+upperintegritylevel:($upperintegrity/$upperintegritymax),lowerintegritylevel:($lowerintegritymax/$lowerintegritymax),underintegritylevel:($underintegrity/$underintegritymax),
+but then I realized that it still needs to happen.
+if $useshortlogvars isnot true>>
+*/
+	<<set $logged to {
+		money:$money,stress:$stress,trauma:$trauma,awareness:$awareness,pain:$pain,
+		tiredness:$tiredness,arousal:$arousal,control:$control,allure:$allure,antiquemoney:$antiquemoney,
+		blackmoney:$blackmoney,spray:$spray,spraymax:$spraymax,drunk:$drunk,drunk:$drunk,
+		drugged:$drugged,weather:$weather,
+		upperclothes:$upperclothes,lowerclothes:$lowerclothes,underclothes:$underclothes,
+		upperintegrity:$upperintegrity,lowerintegrity:$lowerintegrity,underintegrity:$underintegrity,
+		upperintegritymax:$upperintegritymax,lowerintegritymax:$lowerintegritymax,underintegritymax:$underintegritymax,
+		collared:$collared,purity:$purity,
+		submissive:$submissive,physique:$physique,beauty:$beauty,promiscuity:$promiscuity,exhibitionism:$exhibitionism,
+		deviancy:$deviancy,skulduggery:$skulduggery,danceskill:$danceskill,swimmingskill:$swimmingskill,seductionskill:$seductionskill,
+		oralskill:$oralskill,vaginalskill:$vaginalskill,penileskill:$penileskill,analskill:$analskill,handskill:$handskill,
+		feetskill:$feetskill,bottomskill:$bottomskill,thighskill:$thighskill,chestskill:$chestskill,science:$science,
+		maths:$maths,english:$english,history:$history,school:$school,unclad:$unclad,
+	  cool:$cool,detention:$detention,fameexhibitionism:$fameexhibitionism,fameprostitution:$fameprostitution,famebestiality:$famebestiality,
+	  famerape:$famerape,famesex:$famesex,famegood:$famegood,famebusiness:$famebusiness,famepimp:$famepimp,
+	  famescrap:$famescrap,dancestat:$dancestat,drinksservedstat:$drinksservedstat,tablesservedstat:$tablesservedstat,prostitutionstat:$prostitutionstat,
+	  forcedprostitutionstat:$forcedprostitutionstat,orgasmstat:$orgasmstat,ejacstat:$ejacstat,moleststat:$moleststat,rapestat:$rapestat,
+	  beastrapestat:$beastrapestat,tentaclerapestat:$tentaclerapestat,swallowedstat:$swallowedstat,parasitestat:$parasitestat,hitstat:$hitstat,
+	  attackstat:$attackstat,spraystat:$spraystat,rescued:$rescued,clothesstripstat:$clothesstripstat,clothesruinstat:$clothesruinstat,
+	  passoutstat:$passoutstat
+	}>>
+	<<set $statlist to Object.keys($logged)>>/* array with all of the statnames */
+/*
+<<else>>
+	<<set _values to [$money,$stress,$trauma,$awareness,$pain,
 	$tiredness,$arousal,$control,$allure,$antiquemoney,
 	$blackmoney,$spray,$spraymax,$drunk,$drunk,
-	$drugged,$weather,$upperclothes,$lowerclothes,$underclothes,
-	clone($logged[$log.clothupper]),$logged[$log.clothlower],$logged[$log.clothunder],$collared,$purity,
+	$drugged,$weather,
+	$upperclothes,$lowerclothes,$underclothes,
+	$upperintegrity,$lowerintegrity,$underintegrity,
+	$upperintegritymax,$lowerintegritymax,$underintegritymax,
+	$collared,$purity,
 	$submissive,$physique,$beauty,$promiscuity,$exhibitionism,
 	$deviancy,$skulduggery,$danceskill,$swimmingskill,$seductionskill,
 	$oralskill,$vaginalskill,$penileskill,$analskill,$handskill,
 	$feetskill,$bottomskill,$thighskill,$chestskill,$science,
 	$maths,$english,$history,$school,$unclad,
-  $cool,$detention,$fameexhibitionism,$fameprostitution,$famebestiality,
-  $famerape,$famesex,$famegood,$famebusiness,$famepimp,
-  $famescrap,$dancestat,$drinksservedstat,$tablesservedstat,$prostitutionstat,
-  $forcedprostitutionstat,$orgasmstat,$ejacstat,$moleststat,$rapestat,
-  $beastrapestat,$tentaclerapestat,$swallowedstat,$parasitestat,$hitstat,
-  $attackstat,$spraystat,$rescued,$clothesstripstat,$clothesruinstat,
-  $passoutstat
-]>>
+	$cool,$detention,$fameexhibitionism,$fameprostitution,$famebestiality,
+	$famerape,$famesex,$famegood,$famebusiness,$famepimp,
+	$famescrap,$dancestat,$drinksservedstat,$tablesservedstat,$prostitutionstat,
+	$forcedprostitutionstat,$orgasmstat,$ejacstat,$moleststat,$rapestat,
+	$beastrapestat,$tentaclerapestat,$swallowedstat,$parasitestat,$hitstat,
+	$attackstat,$spraystat,$rescued,$clothesstripstat,$clothesruinstat,
+	$passoutstat
+	]>>
+	<<for _i to 0 ; _i lt _v.length ; _i++>>
+		<<set $logged[$vars[_i]] to _values[_u]>>
+	<</for>>
+/if>>
+/*
+to add:
+Delinquency
+More specific ejaculation stats
+goo/semen
+accesories worn
+virginities?
+transformation stats 
+breast, penis and hair stats?
+*/
+<</nobr>><</widget>>
+
+<<widget "log">><<nobr>>
+	<<if $diaryshowunwritten is 90>>
+		How do I do this?
+		At first I was thinking I'd move entries from $diary to $writtendiary
+		But actually what if it was just a bool for having written it that gets checked whenever 
+		Also does $diaryshowunwritten need to be a number instead of boolean? I mean there could be more than just on/off as option but nah bool is fine
+		Since knowing the actual value is useful for say $drunk and probably for others should I somehow make it so that it doesn't need an exception to work,
+			what if 123 to 120 resulted in "123+-3" instead of "-3" or just use the same method as for strings so "123->120"?
+	<</if>>
+	<<if $logdebug is 1>><br>log<<print $args[1]>>(<<print $args[0]>>)<br><</if>>
+
+	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
+	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
+	<<set $logprep to "">>
+	<<set $logprep2 to "">>
+	<<set $diarypage to $logday>>
+	<<set $diaryline to $diary[$logday].length>>
+	<<set $diary[$logday].push([])>>
+	<<set $diary[$logday][$diaryline][$log.time] to $time>>
+	<<set $diary[$logday][$diaryline][$log.text] to $args[0]>>
+	<<set $diary[$logday][$diaryline][$log.importance] to $args[1]>>
+	<<set $diary[$logday][$diaryline][$log.comment] to "">>
+	<<set $diary[$logday][$diaryline][$log.opinion] to "">>
+	<<set $diary[$logday][$diaryline][$log.written] to false>>
+	<<if $args[1] gte $logwritetreshold>>
+		<<set $todoentries++>>
+	<</if>>
+	<<set $diary[$logday][$diaryline][$log.stats] to {}>>
+	<<if $args[1] gte $logchangetreshold or $logdebug is 1>>
+		/* is there way I could not have anything at all when stat hasn't changed? */
+		<<set $oldlogged to clone($logged)>>/* should this be clone($logged)>>? */
+  	<<logstats>>
+		<<for _i to $statlist.length-1; _i gt 0; _i-->>
+			<<set _d to $diary[$logday][$diaryline][$log.stats]>>
+			<<if $logged[$statlist[_i]] isnot $oldlogged[$statlist[_i]]>>
+				<<if $useshortlogvars is true>>
+				<</if>>
+				<<if typeof($logged[$statlist[_i]]) is "number">>
+					<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>/* note that this shows up only when it has changed */
+					<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]+"gain"] to ($logged[$statlist[_i]] - $oldlogged[$statlist[_i]])>>/* this makes it so that say .moneygain is how much money changed */
+				<<elseif typeof($logged[$statlist[_i]]) is "string">>
+					/*<<set _d[$statlist[_i]] to $oldlogged[$statlist[_i]]+"->"+$logged[$statlist[_i]]>>/* _d.weather.split("->")[1] to get the new value and .split("->")[0] for the old*/
+					/* having less properties per entry probably isn't that important now that only changes get defined(and each of them doesn't need their own shit) */
+					<<set _d[$statlist[_i]] to $logged[$statlist[_i]]>>
+					<<set _d["old"+$statlist[_i]] to $oldlogged[$statlist[_i]]>>
+				<<elseif typeof($logged[$statlist[_i]]) is "boolean">>
+					<<set _d[$statlist[_i]] to ($logged[$statlist[_i]])>>
+				<<elseif typeof($logged[$statlist[_i]]) is "undefined">>
+				<</if>>
+			<</if>>
+		<</for>>
+		
+  	/* need to list all clothing when something changes so that we don't need to search through previous entries to figure out if a part that didn't change is naked or not */
+		/* this makes it so that to see if you already were wearing a clothing you check if .old___erclothes is undefined, I'd like it to be somehow simpler but I'm not sure if it'll really be even used so this is good enough */
+		<<set _d to $diary[$logday][$diaryline][$log.stats]>>
+  	<<if _d.upperclothes isnot undefined or _d.lowerclothes isnot undefined or _d.underclothes isnot undefined>>
+  		<<set $diary[$logday][$diaryline][$log.stats].upperclothes to $upperclothes>>
+  		<<set $diary[$logday][$diaryline][$log.stats].upperintegrity to $upperintegrity>>
+  		<<set $diary[$logday][$diaryline][$log.stats].upperintegritymax to $upperintegritymax>>
+  		<<set $diary[$logday][$diaryline][$log.stats].lowerclothes to $lowerclothes>>
+  		<<set $diary[$logday][$diaryline][$log.stats].lowerintegrity to $lowerintegrity>>
+  		<<set $diary[$logday][$diaryline][$log.stats].lowerintegritymax to $lowerintegritymax>>
+  		<<set $diary[$logday][$diaryline][$log.stats].underclothes to $underclothes>>
+  		<<set $diary[$logday][$diaryline][$log.stats].underintegrity to $underintegrity>>
+  		<<set $diary[$logday][$diaryline][$log.stats].underintegritymax to $underintegritymax>>
+  	<</if>>
+		/* 
+		Actually what would looking through the old entries instead look like?
+			<<if upperclothes is undefined or lower or under>>
+				<<set _lookupday to $logday>>
+				<<for _lookupline to $diaryline-1;upp/low/und-erclothes is undefined;_lookupline-->>
+					<<if $diary[_lookupday][_lookupline][$log.stats].upperclothes isnot undefined>>
+						return $diary[_lookupday][_lookupline][$log.stats].upperclothes
+					<</if>>
+					same for other clothes
+					<<if _lookupline is 0>>
+						<<set _lookupday-->>
+						<<set _lookupline to $diary[_lookupday].length>> it'll -- now so that'll do -1 that length usually needs
+					<</if>>
+				<</for>>
+			<</if>>
+		so while it's certainly doable it might have to go through tons of stuff when say wearing a chastitybelt or if it should include accessories so at least for this purpose it seems like a bad idea, might be worth it if there was enough stuff that repeatedly storing the same values would somehow become a problem.
+		*/
+	<</if>>
+	<<if $logextra isnot "" and $logextra isnot undefined>> /* virginity loss entries should come after the event (or as some special comment like thing) */
+		<<logextra $logextra $logextraimportance>>
+	<</if>>
 <</nobr>><</widget>>
 
 <<widget "logextra">><<nobr>>
@@ -242,47 +292,48 @@ How to Add new variables to be tracked by diary:
 <<set _ex[$log.time] to $time>>
 <<set _ex[$log.text] to $args[0]>>
 <<set _ex[$log.importance] to $args[1]>>
+<<set _ex[$log.written] to false>>
+<<set _ex[$log.stats] to {}>>
 
-<<set $diarypage to $days>>
-<<set $diaryline to $diary[$days].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
-<<run $diary[$days].push(_ex)>>
+<<set $diarypage to $logday>>
+<<set $diaryline to $diary[$logday].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
+<<run $diary[$logday].push(_ex)>>
 <</nobr>><</widget>>
 
-<<widget "logedit">><<nobr>> /* edit the last entry text*/
-	<<set $diary[$days][$diaryline][$log.text] to $args[0]>>
+<<widget "logedit">><<nobr>> /* edit/replace the last entry text*/
+	<<set $diary[$logday][$diaryline][$log.text] to $args[0]>>
 <</nobr>><</widget>>
 
 <<widget "logadd">><<nobr>> /* add to the last entry text*/
-	<<set $diary[$days][$diaryline][$log.text] to $diary[$days][$diaryline][$log.text]+$args[0]>>
+	<<set $diary[$logday][$diaryline][$log.text] to $diary[$logday][$diaryline][$log.text]+$args[0]>>
 <</nobr>><</widget>>
 
 <<widget "logupdateeffect">><<nobr>> /*  update the last effect(strings require $logdebug since clothing report will be buggy)	*/
-<<set _l to clone($logged)>>
-<<logstatsupdate>>
-<<for _e to $log.money; _e lt $logblank.length; _e++>>/* assuming money is the 1st value we care about */
-	/* set newvaluechange to oldvaluechange + currentvalue - oldvalue */
-	<<if typeof($diary[$days][$diaryline][_e]) is "number">>
-		<<set _newvalue to $diary[$days][$diaryline][_e] + $logged[_e] - _l[_e]>>
-		<<set $diary[$days][$diaryline][_e] to _newvalue>>
-	<<elseif typeof($diary[$days][$diaryline][_e]) is "string">>
-		<<if $logdebug is 1>>
-			<<if $diary[$days][$diaryline][_e] isnot _l[_e]>>/* this should break clothing report so that it'll only say the new clothing */
-				<<set _newvalue to clone($logged[_e])+"¤removethis:"+clone(_l[_e])+" isnot "+$diary[$days][$diaryline][_e]+"¤">>
-				<<set $diary[$days][$diaryline][_e] to _newvalue>>
-			<</if>>
+<<set _old to clone($logged)>>
+<<logstats>>
+<<for _i to $statlist.length-1; _i gt 0; _i-->>
+	<<set _d to $diary[$logday][$diaryline][$log.stats]>>
+	<<if $logged[$statlist[_i]] isnot _old[$statlist[_i]]>>
+		<<if typeof($logged[$statlist[_i]]) is "number">>
+			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
+			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]+"gain"] to $logged[$statlist[_i]+"gain"] + _old[$statlist[_i]+"gain"]>>
+		<<elseif typeof($logged[$statlist[_i]]) is "string">>
+			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to $logged[$statlist[_i]]>>
+			<<set $diary[$logday][$diaryline][$log.stats]["old"+$statlist[_i]] to _old[$statlist[_i]]>>
+		<<elseif typeof($logged[$statlist[_i]]) is "boolean">>
+			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
+		<<elseif typeof($logged[$statlist[_i]]) is "undefined">>
 		<</if>>
-	<<elseif typeof($diary[$days][$diaryline][_e]) is "boolean">>
-		/* do something? */
-	<<elseif typeof($diary[$days][$diaryline][_e]) is "undefined">>
 	<</if>>
 <</for>>
+		
 <</nobr>><</widget>>
 
 <<widget "logtimeupdate">><<nobr>> /*  change entry time in case log was called early for some reason */
-	<<set $diary[$days][$diaryline][$log.time] to $time>>
+	<<set $diary[$logday][$diaryline].time to $time>>
 <</nobr>><</widget>>
 
-<<widget "logday">><<nobr>>
+<<widget "logday">><<nobr>>/* not to be confused with $logday */
 	<<set $dayendreport to "">>
 	/* $moneytext might be useful in other situtations so could move this to some place that gets run more often */
 	<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
@@ -351,17 +402,19 @@ How to Add new variables to be tracked by diary:
 
 
 	<<set $dayendreport to $dayendreport + ".">>
-	<<set $diaryline to $diary[$days].length>> /* */
-	<<set $diary[$days].push(clone($logblank))>>
-	<<set $diary[$days][$diaryline][$log.time] to $time>>
-	<<set $diary[$days][$diaryline][$log.text] to $dayendreport>>
-	<<set $diary[$days][$diaryline][$log.importance] to 7>>
+	<<set $diaryline to $diary[$logday].length>> /* */
+	<<set $diary[$logday].push(clone($logblank))>>
+	<<set $diary[$logday][$diaryline].time to $time>>
+	<<set $diary[$logday][$diaryline][$log.text] to $dayendreport>>
+	<<set $diary[$logday][$diaryline][$log.importance] to 7>>
+	<<set $diary[$logday][$diaryline].written to true>>
+	<<set $diary[$logday][$diaryline][$log.stats] to clone($logged)>>
 	/*
-	<<set $diary[$days].push(
+	<<set $diary[$logday].push(
 		{
 	    timestamp:$time,
 	    text:$dayendreport,
-			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",clothupper:"",clothlower:"",clothunder:"",oldclothupper:(""),oldclothlower:(""),oldclothunder:("")}
+			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",upperclothes:"",lowerclothes:"",underclothes:"",oldupperclothes:(""),oldlowerclothes:(""),oldunderclothes:("")}
 	  }
 		)>>*/
 <</nobr>><</widget>>
@@ -385,14 +438,14 @@ How to Add new variables to be tracked by diary:
 		<</for>></span>
 <<else>>
 	<<if $args[0]>><<set _c to $args.random()>><</if>>
-	/* <<set $diary[$days][$diaryline][$log.opinion] to "["+_c+"]">> /* sets opinion to whatever if you don't have opinion prompts */
+	/* <<set $diary[$logday][$diaryline][$log.opinion] to "["+_c+"]">> /* sets opinion to whatever if you don't have opinion prompts */
 <</if>>
 <<if $diaryprompts is 1>>
 	<<textbox "$plrcomment" _c >>
-	<<link "Add a comment to your diary">><<logcomment $days $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
+	<<link "Add a comment to your diary">><<logcomment $logday $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
 <<elseif $diaryprompts is 2>>
 	<span class="lblue">Comment:</span><<textbox "$plrcomment" "" >><br>
-	<<link "Add your opinion and comment to the diary">><<set $diary[$days][$diaryline][$log.opinion] to "["+$plropinion+"]">><<logcomment $days $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
+	<<link "Add your opinion and comment to the diary">><<set $diary[$logday][$diaryline][$log.opinion] to "["+$plropinion+"]">><<logcomment $logday $diaryline $plrcomment>><<remove "#textbox1">><</link>><br>
 <<elseif $diaryprompts is 3>>
 	<<link "Add your opinion to the diary">><<set $diary[$days][$diaryline][$log.opinion] to "["+$plropinion+"]">><</link>><br>
 <</if>></span>
@@ -431,145 +484,121 @@ How to Add new variables to be tracked by diary:
 "Now wearing x" might be best since it doesn't really mention how or why the clothing situation changed
 	actually is the "now" really necessary?
 this probably won't handle sets very well
+<<print JSON.stringify($diary[0][$args[1]])>>
 */
-<<set _eqsign to "=">>/* you get an error with just <<if x is "=">> */
-<<if _e[$log.clothunder] isnot undefined and _e[$log.clothunder].first() isnot _eqsign>>/* 1st entry of day lists current stats with = in front including clothes which we don't want*/
-<<if _e[$log.clothupper] isnot "" or _e[$log.clothlower] isnot "" or _e[$log.clothunder] isnot "">>/*could just check 1 now that all should be set if 1 is*/
+<<set _e to $diary[$args[0]][$args[1]][$log.stats]>>
+<<set _clothlist to ["upperclothes","lowerclothes","underclothes"]>>/*  */
+<<set _clothlist to ["upper","lower","under"]>>
+<<if _e.underclothes isnot undefined>>/* assuming that <<log>> has defined all clothes if it did one */
 	Wearing
-	<<if _e[$log.clothupper] is "naked" and _e[$log.clothlower] is "naked" and _e[$log.clothunder] is "naked">>nothing <</if>>
+	<<if _e.upperclothes is "naked" and _e.lowerclothes is "naked" and _e.underclothes is "naked">>
+		<span class='lewd'>''nothing''</span>.
+	<<else>>
 	<<set $listed to []>>
-	<<if _e[$log.clothupper] isnot "naked">><<set $listed.push(_e[$log.clothupper])>><</if>>
-	<<if _e[$log.clothlower] isnot "naked">><<set $listed.push(_e[$log.clothlower])>><</if>>
-	<<if _e[$log.clothunder] isnot "naked">>
-		<<if _e[$log.clothupper] is "naked" and _e[$log.clothlower] is "naked">>
-			<<set $listed.push("only "+_e[$log.clothunder])>>
-		<<else>>
-			<<set $listed.push(_e[$log.clothunder])>>
+	<<for _i to 0;_i lt _clothlist.length;_i++>>
+		<<if _e[_clothlist[_i]+"clothes"] isnot "naked">>
+			<<set _wearing to _e[_clothlist[_i]+"clothes"]>>
+		<<elseif _clothlist[_i] is "under">>
+			<<set _wearing to "no underwear">>
 		<</if>>
-	<<elseif _e[$log.clothupper] isnot "naked" or _e[$log.clothlower] isnot "naked">>
-		<<set $listed.push("no underwear")>>
+		<<if _wearing isnot undefined>>
+			<<if _e["old"+_clothlist[_i]+"clothes"] isnot undefined>>
+				<<set _wearing to "''"+_wearing+"''">>/* indicate new clothes by bolding them(could colour them instead or something) */
+			<</if>>
+			/* colour based on integrity? */
+			<<set _hp to _e[_clothlist[_i]+"integrity"]/_e[_clothlist[_i]+"integritymax"]>>
+			<<if _e[_clothlist[_i]+"clothes"] is "naked" and _clothlist[_i] is "under">>
+				<<set _wearing to "<span class='lewd'>"+_wearing+"</span>">>
+			<<else>>
+				<<if _hp lte 0.2>>
+					<<set _wearing to "<span class='blue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.5>>
+					<<set _wearing to "<span class='lblue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.9>>
+					<<set _wearing to "<span class='teal'>"+_wearing+"</span>">>
+				<<else>>
+					<<set _wearing to "<span class='green'>"+_wearing+"</span>">>
+				<</if>>
+			<</if>>
+			<<set $listed.push(_wearing)>>
+		<</if>>
+		<<set _wearing to undefined>>
+		<</for>>
+		<<if $listed.length is 1>>
+			<<set $listed[0] to "only "+$listed[0]>>/* if upper or skirt add a/an? jsArticle($listed[0]) */
+		<</if>>
+		<<listify $listed>>.
 	<</if>>
-	<<listify $listed>>.
-<</if>>
 <</if>>
 
-<<if _e[$log.drunk] gt 0>><span class="purple">Feeling</span>
-	<<if _e[$log.drunk] lte 120>>
+<<if _e.drunk gt 0 and _e.drunk isnot undefined>><span class="purple">Feeling</span>
+	<<if _e.drunk lte 120>>
 		<span class="blue"> woozy</span>.
-	<<elseif _e[$log.drunk] lte 240>>
+	<<elseif _e.drunk lte 240>>
 		<span class="purple"> tipsy</span>.
-	<<elseif _e[$log.drunk] lte 360>>
+	<<elseif _e.drunk lte 360>>
 		<span class="purple"> drunk</span>.
-	<<elseif _e[$log.drunk] lte 480>>
+	<<elseif _e.drunk lte 480>>
 		<span class="pink"> smashed</span>.
 	<<else>>
 		<span class="pink"> wasted</span>.
 	<</if>>
 <</if>>
 
-<<if _e[$log.drugged] isnot 0>>
-	<<if _e[$log.drugged] lt 0>><span class="blue">-lewd warmth </span><</if>>
-	<<if _e[$log.drugged] gt 0>><span class="pink">+lewd warmth </span><</if>>
+<<if _e.druggedgain isnot undefined>>
+	<<if _e.druggedgain lt 0>><span class="blue">-lewd warmth </span><</if>>
+	<<if _e.druggedgain gt 0>><span class="pink">+lewd warmth </span><</if>>
 <</if>>
 
-<<if _e[$log.science] isnot 0>><<if _e[$log.science] gt 0>><span class="green">+Science </span><</if>><</if>>
-<<if _e[$log.maths] isnot 0>><<if _e[$log.maths] gt 0>><span class="green">+Maths </span><</if>><</if>>
-<<if _e[$log.english] isnot 0>><<if _e[$log.english] gt 0>><span class="green">+English </span><</if>><</if>>
-<<if _e[$log.history] isnot 0>><<if _e[$log.history] gt 0>><span class="green">+History </span><</if>><</if>>
+<<if _e.sciencegain isnot undefined>><<if _e.sciencegain gt 0>><span class="green">+Science </span><</if>><</if>>
+<<if _e.mathsgain isnot undefined>><<if _e.mathsgain 0>><span class="green">+Maths </span><</if>><</if>>
+<<if _e.englishgain isnot undefined>><<if _e.englishgain gt 0>><span class="green">+English </span><</if>><</if>>
+<<if _e.historygain isnot undefined>><<if _e.historygain gt 0>><span class="green">+History </span><</if>><</if>>
 
-<<if _e[$log.cool] isnot 0>>
-	<<if _e[$log.cool] lt 0>><span class="red">-Status </span><</if>>
-	<<if _e[$log.cool] gt 0>><span class="green">+Status </span><</if>>
+<<if _e.coolgain isnot undefined>>
+	<<if _e.coolgain lt 0>><span class="red">-Status </span><</if>>
+	<<if _e.coolgain gt 0>><span class="green">+Status </span><</if>>
 <</if>>
 
-<<if _e[$log.detention] isnot 0>>
-	<<if _e[$log.detention] gt 0>><span class="red">+Detention </span><</if>>
-	<<if _e[$log.detention] lt 0>><span class="lblue">-Detention </span><</if>>
+<<if _e.detentiongain isnot undefined>>
+	<<if _e.detentiongain gt 0>><span class="red">+Detention </span><</if>>
+	<<if _e.detentiongain lt 0>><span class="lblue">-Detention </span><</if>>
 <</if>>
 
-<<if _e[$log.spray] isnot 0>>
-	<<if _e[$log.spray] lt 0>><span class="red">-pepper spray </span><</if>>
-	<<if _e[$log.spray] gt 0>><span class="green">+pepper spray </span><</if>>
+<<if _e.spraygain isnot undefined>>
+	<<if _e.spraygain lt 0>><span class="red">-pepper spray </span><</if>>
+	<<if _e.spraygain gt 0>><span class="green">+pepper spray </span><</if>>
 <</if>>
-
-<<if _e[$log.money] isnot 0>>
-	<<if _e[$log.money] lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_e[$log.money] / 100))>>.<<if _e[$log.money] % 100 lte 9>>0<</if>><<print _e[$log.money] % 100>></span><</if>>
-	<<if _e[$log.money] gt 0>><span class="gold">£<<print Math.trunc(_e[$log.money] / 100)>>.<<if _e[$log.money] % 100 lte 9>>0<</if>><<print _e[$log.money] % 100>></span><</if>>
+<<if _e.moneygain isnot undefined>>
+	<<if _e.moneygain lt 0>><span class="red">-£<<print Math.abs(Math.trunc(_e.moneygain / 100))>>.<<if _e.moneygain % 100 lte 9>>0<</if>><<print _e.moneygain % 100>></span><</if>>
+	<<if _e.moneygain gt 0>><span class="gold">£<<print Math.trunc(_e.moneygain / 100)>>.<<if _e.moneygain % 100 lte 9>>0<</if>><<print _e.moneygain % 100>></span><</if>>
 <</if>>
-<<if _e[$log.antiquemoney] gt 0>><span class="brown"> £<<print _e[$log.antiquemoney]>></span><</if>>
-<<if _e[$log.blackmoney] gt 0>><span class="black"> £<<print _e[$log.blackmoney]>></span><</if>>
+<<if _e.antiquemoneygain gt 0>><span class="brown"> £<<print _e.antiquemoneygain>></span><</if>>
+<<if _e.blackmoneygain gt 0>><span class="black"> £<<print _e.blackmoneygain>></span><</if>>
 
-<<if $logshowcomments is 1>><span class="meek"><<print _e[$log.comment]>></span><</if>>
-<<if $logshowopinions is 1>><span class="meek"><<print _e[$log.opinion]>></span><</if>>
+<<if $logshowcomments is 1>><span class="meek"><<print $diary[$args[0]][$args[1]][$log.comment]>></span><</if>>
+<<if $logshowopinions is 1>><span class="meek"><<print $diary[$args[0]][$args[1]][$log.opinion]>></span><</if>>
 
-<<if $logdebug is 1>><span class="greyred">/* Do I need the undefined checks? */
-	<<if _e[$log.weather] isnot "" and _e[$log.weather] isnot undefined>>weather changed to <<print _e[$log.weather]>><</if>>
-	<<if _e[$log.pain] isnot 0 and _e[$log.pain] isnot undefined>>pain:<<print _e[$log.pain]>><</if>>
-	<<if _e[$log.arousal] isnot 0 and _e[$log.arousal] isnot undefined>>arousal:<<print _e[$log.arousal]>><</if>>
-	<<if _e[$log.tiredness] isnot 0 and _e[$log.tiredness] isnot undefined>>tiredness:<<print _e[$log.tiredness]>><</if>>
-	<<if _e[$log.stress] isnot 0 and _e[$log.stress] isnot undefined>>stress:<<print _e[$log.stress]>><</if>>
-	<<if _e[$log.trauma] isnot 0 and _e[$log.trauma] isnot undefined>>trauma:<<print _e[$log.trauma]>><</if>>
-	<<if _e[$log.awareness] isnot 0 and _e[$log.awareness] isnot undefined>>awareness:<<print _e[$log.awareness]>><</if>>
-	<<if _e[$log.control] isnot 0 and _e[$log.control] isnot undefined>>control:<<print _e[$log.control]>><</if>>
-	<<if _e[$log.allure] isnot 0 and _e[$log.allure] isnot undefined>>allure:<<print _e[$log.allure]>><</if>>
-	<<if _e[$log.purity] isnot 0 and _e[$log.purity] isnot undefined>>purity:<<print _e[$log.purity]>><</if>>
-	<<if _e[$log.submissive] isnot 0 and _e[$log.submissive] isnot undefined>>submissive:<<print _e[$log.submissive]>><</if>>
-	<<if _e[$log.physique] isnot 0 and _e[$log.physique] isnot undefined>>physique:<<print _e[$log.physique]>><</if>>
-	<<if _e[$log.promiscuity] isnot 0 and _e[$log.promiscuity] isnot undefined>>promiscuity:<<print _e[$log.promiscuity]>><</if>>
-	<<if _e[$log.exhibitionism] isnot 0 and _e[$log.exhibitionism] isnot undefined>>exhibitionism:<<print _e[$log.exhibitionism]>><</if>>
-	<<if _e[$log.deviancy] isnot 0 and _e[$log.deviancy] isnot undefined>>deviancy:<<print _e[$log.deviancy]>><</if>>
-	<<if _e[$log.skulduggery] isnot 0 and _e[$log.skulduggery] isnot undefined>>skulduggery:<<print _e[$log.skulduggery]>><</if>>
-	<<if _e[$log.danceskill] isnot 0 and _e[$log.danceskill] isnot undefined>>dancing:<<print _e[$log.danceskill]>><</if>>
-	<<if _e[$log.swimmingskill] isnot 0 and _e[$log.swimmingskill] isnot undefined>>swimming:<<print _e[$log.swimmingskill]>><</if>>
-	<<if _e[$log.seductionskill] isnot 0 and _e[$log.seductionskill] isnot undefined>>seduction:<<print _e[$log.seductionskill]>><</if>>
-	<<if _e[$log.oralskill] isnot 0 and _e[$log.oralskill] isnot undefined>>oralskill:<<print _e[$log.oralskill]>><</if>>
-	<<if _e[$log.vaginalskill] isnot 0 and _e[$log.vaginalskill] isnot undefined>>vaginalskill:<<print _e[$log.vaginalskill]>><</if>>
-	<<if _e[$log.penileskill] isnot 0 and _e[$log.penileskill] isnot undefined>>penileskill:<<print _e[$log.penileskill]>><</if>>
-	<<if _e[$log.analskill] isnot 0 and _e[$log.analskill] isnot undefined>>analskill:<<print _e[$log.analskill]>><</if>>
-	<<if _e[$log.handskill] isnot 0 and _e[$log.handskill] isnot undefined>>handskill:<<print _e[$log.handskill]>><</if>>
-	<<if _e[$log.feetskill] isnot 0 and _e[$log.feetskill] isnot undefined>>feetskill:<<print _e[$log.feetskill]>><</if>>
-	<<if _e[$log.bottomskill] isnot 0 and _e[$log.bottomskill] isnot undefined>>bottomskill:<<print _e[$log.bottomskill]>><</if>>
-	<<if _e[$log.thighskill] isnot 0 and _e[$log.thighskill] isnot undefined>>thighskill:<<print _e[$log.thighskill]>><</if>>
-	<<if _e[$log.chestskill] isnot 0 and _e[$log.chestskill] isnot undefined>>chestskill:<<print _e[$log.chestskill]>><</if>>
-	<<if _e[$log.science] isnot 0 and _e[$log.science] isnot undefined>>science:<<print _e[$log.science]>><</if>>
-	<<if _e[$log.maths] isnot 0 and _e[$log.maths] isnot undefined>>maths:<<print _e[$log.maths]>><</if>>
-	<<if _e[$log.english] isnot 0 and _e[$log.english] isnot undefined>>english:<<print _e[$log.english]>><</if>>
-	<<if _e[$log.history] isnot 0 and _e[$log.history] isnot undefined>>history:<<print _e[$log.history]>><</if>>
-	<<if _e[$log.school] isnot 0 and _e[$log.school] isnot undefined>>school:<<print _e[$log.school]>><</if>>
-	<<if _e[$log.unclad] isnot 0 and _e[$log.unclad] isnot undefined>>unclad:<<print _e[$log.unclad]>><</if>>
-	<<if _e[$log.cool] isnot 0 and _e[$log.cool] isnot undefined>>cool:<<print _e[$log.cool]>><</if>>
-	<<if _e[$log.detention] isnot 0 and _e[$log.detention] isnot undefined>>detention:<<print _e[$log.detention]>><</if>>
-	<<if _e[$log.fameexhibitionism] isnot 0 and _e[$log.fameexhibitionism] isnot undefined>>fameexhibitionism:<<print _e[$log.fameexhibitionism]>><</if>>
-	<<if _e[$log.fameprostitution] isnot 0 and _e[$log.fameprostitution] isnot undefined>>fameprostitution:<<print _e[$log.fameprostitution]>><</if>>
-	<<if _e[$log.famebestiality] isnot 0 and _e[$log.famebestiality] isnot undefined>>famebestiality:<<print _e[$log.famebestiality]>><</if>>
-	<<if _e[$log.famerape] isnot 0 and _e[$log.famerape] isnot undefined>>famerape:<<print _e[$log.famerape]>><</if>>
-	<<if _e[$log.famesex] isnot 0 and _e[$log.famesex] isnot undefined>>famesex:<<print _e[$log.famesex]>><</if>>
-	<<if _e[$log.famegood] isnot 0 and _e[$log.famegood] isnot undefined>>famegood:<<print _e[$log.famegood]>><</if>>
-	<<if _e[$log.famebusiness] isnot 0 and _e[$log.famebusiness] isnot undefined>>famebusiness:<<print _e[$log.famebusiness]>><</if>>
-	<<if _e[$log.famepimp] isnot 0 and _e[$log.famepimp] isnot undefined>>famepimp:<<print _e[$log.famepimp]>><</if>>
-	<<if _e[$log.famescrap] isnot 0 and _e[$log.famescrap] isnot undefined>>famescrap:<<print _e[$log.famescrap]>><</if>>
-	<<if _e[$log.dancestat] isnot 0 and _e[$log.dancestat] isnot undefined>>dancestat:<<print _e[$log.dancestat]>><</if>>
-	<<if _e[$log.drinksservedstat] isnot 0 and _e[$log.drinksservedstat] isnot undefined>>drinksservedstat:<<print _e[$log.drinksservedstat]>><</if>>
-	<<if _e[$log.tablesservedstat] isnot 0 and _e[$log.tablesservedstat] isnot undefined>>tablesservedstat:<<print _e[$log.tablesservedstat]>><</if>>
-	<<if _e[$log.prostitutionstat] isnot 0 and _e[$log.prostitutionstat] isnot undefined>>prostitutionstat:<<print _e[$log.prostitutionstat]>><</if>>
-	<<if _e[$log.forcedprostitutionstat] isnot 0 and _e[$log.forcedprostitutionstat] isnot undefined>>forcedprostitutionstat:<<print _e[$log.forcedprostitutionstat]>><</if>>
-	<<if _e[$log.orgasmstat] isnot 0 and _e[$log.orgasmstat] isnot undefined>>orgasmstat:<<print _e[$log.orgasmstat]>><</if>>
-	<<if _e[$log.ejacstat] isnot 0 and _e[$log.ejacstat] isnot undefined>>ejacstat:<<print _e[$log.ejacstat]>><</if>>
-	<<if _e[$log.moleststat] isnot 0 and _e[$log.moleststat] isnot undefined>>moleststat:<<print _e[$log.moleststat]>><</if>>
-	<<if _e[$log.rapestat] isnot 0 and _e[$log.rapestat] isnot undefined>>rapestat:<<print _e[$log.rapestat]>><</if>>
-
-	<<if _e[$log.beastrapestat] isnot 0 and _e[$log.beastrapestat] isnot undefined>>beastrapestat:<<print _e[$log.beastrapestat]>><</if>>
-	<<if _e[$log.tentaclerapestat] isnot 0 and _e[$log.tentaclerapestat] isnot undefined>>tentaclerapestat:<<print _e[$log.tentaclerapestat]>><</if>>
-	<<if _e[$log.swallowedstat] isnot 0 and _e[$log.swallowedstat] isnot undefined>>swallowedstat:<<print _e[$log.swallowedstat]>><</if>>
-	<<if _e[$log.parasitestat] isnot 0 and _e[$log.parasitestat] isnot undefined>>parasitestat:<<print _e[$log.parasitestat]>><</if>>
-	<<if _e[$log.hitstat] isnot 0 and _e[$log.hitstat] isnot undefined>>hitstat:<<print _e[$log.hitstat]>><</if>>
-
-	<<if _e[$log.attackstat] isnot 0 and _e[$log.attackstat] isnot undefined>>attackstat:<<print _e[$log.attackstat]>><</if>>
-	<<if _e[$log.spraystat] isnot 0 and _e[$log.spraystat] isnot undefined>>spraystat:<<print _e[$log.spraystat]>><</if>>
-	<<if _e[$log.rescued] isnot 0 and _e[$log.rescued] isnot undefined>>rescued:<<print _e[$log.rescued]>><</if>>
-	<<if _e[$log.clothesstripstat] isnot 0 and _e[$log.clothesstripstat] isnot undefined>>clothesstripstat:<<print _e[$log.clothesstripstat]>><</if>>
-	<<if _e[$log.clothesruinstat] isnot 0 and _e[$log.clothesruinstat] isnot undefined>>clothesruinstat:<<print _e[$log.clothesruinstat]>><</if>>
-	<<if _e[$log.passoutstat] isnot 0 and _e[$log.passoutstat] isnot undefined>>passoutstat:<<print _e[$log.passoutstat]>><</if>>
+<<if $logdebug isnot 0>><span class="greyred">/* Do I need the undefined checks? */
+	<<for _i to 0; _i lt $statlist.length; _i++>>
+		<<if _e[$statlist[_i]] isnot undefined>>
+			<<if typeof(_e[$statlist[_i]]) is "number">>/* "statname:+statgain=statvalue" */
+				<<if _e[$statlist[_i]]+"gain" isnot undefined and Number.isNaN(parseFloat(_e[$statlist[_i]+"gain"])) is false>>/* needed to prevent errors from integrity and anything else that might get forced to give value without it changing */
+					<<print $statlist[_i]+":">>
+					<<if _e[$statlist[_i]+"gain"] gte 0>>+<<else>>-<</if>>
+					<<print Math.abs(parseFloat(_e[$statlist[_i]+"gain"].toFixed(2)))+" = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>/* tofixed(2) returns a string with 2 decimal places while parseFloat returns a number with decimals but more importantly in this case it changes 1.00 to 1 while keeping 1.01 as is  */
+				<<else>>
+					<<print $statlist[_i]+": = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>
+				<</if>>
+			<<elseif typeof(_e[$statlist[_i]]) is "string">>/* "statname:oldstring->newstring" */
+				<<print $statlist[_i]+":"+_e["old"+$statlist[_i]]+" -> ''"+_e[$statlist[_i]]+"''">>/* this should be fine with oldstat being undefined */
+			<<elseif typeof(_e[$statlist[_i]]) is "boolean">>
+				<<print $statlist[_i]+":''"+_e[$statlist[_i]]+"''">>
+			<</if>>
+		<</if>>
+	<</for>>
+	/*
+	*/
 	</span>
 <</if>>
 

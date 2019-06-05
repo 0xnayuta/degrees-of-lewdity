@@ -1,12 +1,13 @@
  /*
-$diary has a "page" for each day and each page has a number of entries with time, text, opinion/comment, importance and effects
-so you access entry text with $diary[daynumber][entrynumber][$log.text]
+$diary has a "page" for each day(since the diary was started) and each page has a number of entries with time, text, opinion/comment, importance and effects
+so you access entry text with $diary[logdaynumber][entrynumber][$log.text]
 .time is simply $time
 .text is the diary entry that describes what exactly happened in 1st person
 .importance allows filtering out simply moving around and such and is used to decide how to color the text
 .comment is a string the player can input, set $diaryprompts to 1 or 2 to be asked for comment whenever an event is done
 .opinion (could be about) how you feel about an event and how you've chosen to rationalize it or just the default comment
-$log.anythingelse lists some stat changes like money since the last time log widget was used.
+.written is to indicate if you have sat down and actually written the entry(if that matters)
+.stats lists most stat changes like money since the last time log widget was used.
 
 to make this work time.twee has a thing that pushes a new day/page into existence at the start of each day, it also reports the date and stat changes of the day
 other than that and this there are some widgets at the bottom of widgets.twee and initStory and Start2() from init.twee are used to initialize everything.
@@ -63,6 +64,8 @@ Can have results like "He raped me." and "She touched me weirdly."
   <<for _j, _entry range $diary[_i]>>
     _entry[$log.text]
     _entry[$log.comment]
+    
+    <<print JSON.stringify(_entry[$log.stats])>>
     <br>
   <</for>>
 <</for>>
@@ -75,56 +78,72 @@ You sit down and start writing to your diary.
 It's been  days since your last entry it takes you a moment to recall everything that happened.
 <</if>>
 
+$diary
+
 [[Next|Write Diary]]
 <<link [[Done]]>><<return>><</link>>
 
-:: Diary [nobr]
-<<if $canwrite is 1>><<return>><<else>><<set $menu to 2>><<back>> | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> | <<link [[Show current day|Diary]]>><<set $diarymode to 1>><<set $diarypage to $days>><</link>><</if>>
-<<if $canwrite is 1>>
- | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
- | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
- | <<if $logshowcomments is 1>><<link [[Hide|Diary]]>><<set $logshowcomments to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowcomments to 1>><</link>><</if>> comments
-<<if $debug is 1>> | <<if $logshowopinions is 1>><<link [[Hide|Diary]]>><<set $logshowopinions to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowopinions to 1>><</link>><</if>> opinions<</if>>
-<br>
+:: Open Diary 
+You take out your diary. <br>
+There are $todoentries<<if $logdebug is 1>> and $todominorentries less important<</if>> things you could write about <<if $diarywriteday lt $days-1>>and it's been <<print $days-$diarywriteday>> days since your last entry.<</if>>
+Would you like to write a new entry or just read old ones.<br><br>
+<<link [[Write (0:10+)|Write Diary]]>><</link>><br>
+<<link [[Read (0:05)|Diary]]>><</link>><br>
+[[SD|Simple Diary]]<br>
+[[Diary test]]
+
+<br><br>
+Testing:
+<<print JSON.stringify($logged)>>
+
+<<set $ploo to "panties->chastity belt">>
+<<print $ploo.split("->")[1]>>
+
+<<set _blarg to Object.keys($logged)>>
+_blarg
+
+<<set _testi to {}>>
+<<set _testi[$log.stats] to {}>>
+
+<<set _i to 1>>
+<<set $logged[_i] to 123>>
+<<set $oldlogged[_i] to 126>>
+<<set _testi[$log.stats][$statlist[_i]+"value"] to ($logged[_i])>>
+<<set _testi[$log.stats][$statlist[_i]] to ($logged[_i] - $oldlogged[_i])>>
+<<print _testi[$log.stats]["stress"] >>
+<<print _testi[$log.stats]["stressvalue"]>>
+
+
+
 /*
-lists and makes selectable all days
-capture _i prevents all of the links setting $diarypage to the last value _i was
-could make a year selector since this will probably get annoyingly long after a year or two.
-yearlog would probably be an array and use .push($diary) at the end of year before emptying $diary.
-compressing or exporting old entries could be a thing
+
+
 */
-<<if $diarymode is 0>>
-  Day:
-  <<for _i to 0; _i lte $days; _i++>>
-  <<capture _i>>
-  <<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
-  <</capture>>
-  <</for>>
+
+
+:: Diary [nobr]
+<<set $menu to 2>><<back>> 
+<<if Config.history.maxStates gte 10>>
+  | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> | <<link [[Show current day|Diary]]>><<set $diarymode to 1>><<set $diarypage to $logday>><</link>>
+  <br>
+  <<if $diarymode is 0>>
+    Day:
+    <<for _i to 0; _i lte $logday; _i++>>
+    <<capture _i>>
+    <<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
+    <</capture>>
+    <</for>>
+  <</if>>
 <</if>>
+<br>
 
-<</if>><br>
-
-<<if $canwrite is 1>>
-/* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
-Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
-or importance(from <<print $diary[$diarypage][$diaryline].importance>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
-<<link [[0|Diary]]>><<logimportance $diarypage $diaryline 0>><</link>>
-<<link [[1|Diary]]>><<logimportance $diarypage $diaryline 1>><</link>>
-<<link [[2|Diary]]>><<logimportance $diarypage $diaryline 2>><</link>>
-<<link [[3|Diary]]>><<logimportance $diarypage $diaryline 3>><</link>>
-<<link [[4|Diary]]>><<logimportance $diarypage $diaryline 4>><</link>>
-<<link [[5|Diary]]>><<logimportance $diarypage $diaryline 5>><</link>>)
-<<else>>
 You aren't in a good spot(such as your bedroom) to edit your diary.
-<</if>>
-
 
 <<if $diarymode is 1>> /* single day mode */
   <br>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
   <<if _entry[$log.importance] gte $diaryfilterA >><br>
-    <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diaryline to _i>><</link>><</if>>
     <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
     <<showdiaryentry $diarypage _i>>
   <</if>>
@@ -137,7 +156,6 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
     <<if _entry[$log.importance] gte $diaryfilterB >><br>
-      <<if $canwrite is 1>><<link [[■|Diary]]>><<set $diarypage to $days-_i>><<set $diaryline to _j>><</link>><</if>> /* $days-_i prevents reversed day order from messing things up */
       <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
       <<showdiaryentry _i _j>>
     <</if>>
@@ -148,119 +166,157 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 <</if>>
 <br><br>
 
+
+
+:: Diary Edit [nobr]
+/* Diary but with edit options and numberify disabled */
+<<back>> | <<return>>
+ | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary]]>><<set $diaryfilterB++>><</link>> 
+ | <<set $menu to 1>> <<link [[Show 1 day|Diary]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary]]>><<set $diaryfilterA++>><</link>>
+ | <<if $logshowcomments is 1>><<link [[Hide|Diary]]>><<set $logshowcomments to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowcomments to 1>><</link>><</if>> comments
+<<if $debug is 1>> | <<if $logshowopinions is 1>><<link [[Hide|Diary]]>><<set $logshowopinions to 0>><</link>><<else>><<link [[Show|Diary]]>><<set $logshowopinions to 1>><</link>><</if>> opinions
+<br>
 /*
-/ 
-<<generate "test" "m" "" "important">>
-<<generate "test2" "f">>
-<<generate "test3">>
-
-$npcs.test.gender
-$npcs.test2.gender
-$npcs.test3.gender
-$npcs.test4.gender
-
-<<promotenpc "test2" "woop">>
-<<forgetunimportantnpcs>>
-<br>
-$npcs.test.gender
-<br>
-$npcs.test2.gender
-<br>
-$npcs.woop.gender
-<br>
-$npcs.test3.gender
-<br>
-$npcs.test4.gender
-<br>
-<br>
-<<print JSON.stringify($npcs)>>
-
-
-/*
-$logblank.length
-Pain($log.pain):<<print $logged[$log.pain]>><br>
-Det($log.detention):<<print $logged[$log.detention]>><br>
-Cool($log.hitstat):<<print $logged[$log.hitstat]>><br>
-$logged
-<br><br>
-$diary
-/*
-<br><br>
-
-$physique
-<br>
-
-<<set _s to "test te st">>
-<<set _s to _s.replace(/ /g,'')>>
-
-/
-
-<br><br>
-<<detention 1 "Tardiness">>
-<<detention 2 "Wrongchangingroom">>
-<<detention 2 "Laziness">>
-
-<<detention 1 "Tardiness">>
-<<for _i to 0;$detentiontypes.length gt _i;_i++>>
-	<<set $detentionstotal[$detentiontypes[_i]] += $detentions[$detentiontypes[_i]]>>
-	<<set $detentions[$detentiontypes[_i]] to 0>>
-  $detentiontypes[_i] is <<print $detentionstotal[$detentiontypes[_i]]>>
-<</for>><br>
-$detentions.Tardiness
-<br>
-$detentions.Mock
-<br>
-Public indecency: $detentionstotal.Tardiness <br>
-Peeping: $detentionstotal.Wrongchangingroom <br>
-$diary
-
-<<for _i to 0; _i lt $ruinpots.length; _i++>>
-$ruinpots[_i].i !
-
-<</for>>
-
-*
-<br>
-<br><<awarenesswords "you">>
-<<set $testaus to "He wants to "+$aw_xx+" and so he "+$aw_xsx+" and only stopped "+$aw_xingx+" when he felt like he had "+$aw_xedx+" enough but only to go off to ">>
-<<awarenesswords "others">>
-<<set $testaus to $testaus+$aw_xx+" who after being ">>
-<<awarenesswords "">>
-<<set $testaus to $testaus+$aw_xedx+" gave up on life so unhindered he ">>
-<<awarenesswords "everyone">>
-<<set $testaus to $testaus+$aw_xsx+" until his "+$aw_xing+" spree was ended by Kylar.<br>">>
-<<print $testaus>>
-<br>
-<br>
-
-<<awarenesswords "BLARG">>
-<<set $aw_target to "ploo">>
-<<print $testaus>>
-<br>
-<br>
-
-To $aw_x is very natural and if you don't engage in $aw_xing it can be bad for you so if you haven't already $aw_xed you should find someone who $aw_xs often and ask them nicely.
-<br><<set $molestavoid to 0>>
-
-<br><<awarenesswords "me">>
-He wants to $aw_xx and so he $aw_xsx and only stopped $aw_xingx when he felt like he had $aw_xedx enough
-but only to go off to<<set $aw_target to "others">> $aw_xx who after being <<set $aw_target to "">>$aw_xedx gave up on life so unhindered he <<set $aw_target to "everyone">>$aw_xsx until his $aw_xing spree was ended by Kylar.<br>
-To $aw_x is very natural and if you don't engage in $aw_xing it can be bad for you so if you haven't already $aw_xed you should find someone who $aw_xs often and ask them nicely.
-<br><<set $sexavoid to 0>>
-
-<br><<awarenesswords "Robin">>
-He wants to $aw_xx and so he $aw_xsx and only stopped $aw_xingx when he felt like he had $aw_xedx enough
-but only to go off to<<set $aw_target to "others">> $aw_xx who after being <<set $aw_target to "">>$aw_xedx gave up on life so unhindered he <<set $aw_target to "everyone">>$aw_xsx until his $aw_xing spree was ended by Kylar.<br>
-To $aw_x is very natural and if you don't engage in $aw_xing it can be bad for you so if you haven't already $aw_xed you should find someone who $aw_xs often and ask them nicely.
-<br><<set $rapeavoid to 0>>
-
-<br><<awarenesswords "them">>
-He wants to $aw_xx and so he $aw_xsx and only stopped $aw_xingx when he felt like he had $aw_xedx enough
-but only to go off to<<set $aw_target to "others">> $aw_xx who after being <<set $aw_target to "">>$aw_xedx gave up on life so unhindered he <<set $aw_target to "everyone">>$aw_xsx until his $aw_xing spree was ended by Kylar.<br>
-To $aw_x is very natural and if you don't engage in $aw_xing it can be bad for you so if you haven't already $aw_xed you should find someone who $aw_xs often and ask them nicely.
+list and makes selectable all days
+could make a year selector since this will probably get annoyingly long after a year or two.
+yearlog would probably be an array and use .push($diary) at the end of year before emptying $diary.
+compressing or exporting old entries could be a thing
 */
-/*
+<<if $diarymode is 0>>
+  Day:
+  <<for _i to 0; _i lte $logday; _i++>>
+  <<capture _i>>/* prevents all of the links setting $diarypage to the last value _i was*/
+  <<link [[_i|Diary]]>><<set $diarypage to _i>> <</link>>
+  <</capture>>
+  <</for>>
+<</if>>
 
+<</if>><br>
+
+/* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
+Change entry $diaryline of day $diarypage's <<link [[comment|Diary]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
+or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
+<<link [[0|Diary]]>><<logimportance $diarypage $diaryline 0>><</link>>
+<<link [[1|Diary]]>><<logimportance $diarypage $diaryline 1>><</link>>
+<<link [[2|Diary]]>><<logimportance $diarypage $diaryline 2>><</link>>
+<<link [[3|Diary]]>><<logimportance $diarypage $diaryline 3>><</link>>
+<<link [[4|Diary]]>><<logimportance $diarypage $diaryline 4>><</link>>
+<<link [[5|Diary]]>><<logimportance $diarypage $diaryline 5>><</link>>)
+
+
+<<if $diarymode is 1>> /* single day mode */
+  <br>
+  <<for _i, _entry range $diary[$diarypage]>>
+  <<capture _i>>
+  <<if _entry[$log.importance] gte $diaryfilterA >><br>
+    <<link [[■|Diary]]>><<set $diaryline to _i>><</link>>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<showdiaryentry $diarypage _i>>
+  <</if>>
+  <</capture>>
+  <</for>>
+<<else>> /* all days mode */
+  <<run $diary.reverse()>>/* show current day first */
+  <<for _i, _day range $diary>>
+    <br> /*  */
+    <<for _j, _entry range $diary[_i]>>
+    <<capture _i, _j>>
+    <<if _entry[$log.importance] gte $diaryfilterB >><br>
+      <<link [[■|Diary]]>><<set $diarypage to $logday-_i>><<set $diaryline to _j>><</link>> /* $logday-_i prevents reversed day order from messing things up */
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<showdiaryentry _i _j>>
+    <</if>>
+    <</capture>>
+    <</for>>
+  <</for>>
+  <<run $diary.reverse()>>
+<</if>>
+<br><br>
+/*
+╔═║╗¦█▀▄ ■░▓▒«»
+/ 
 https://twinery.org/forum/discussion/1047/refreshing-updating-a-passage-without-linking-to-itself
 might be useful
 */
+[[Diary Archive]]
+
+:: Diary Archive
+
+/*
+exporting the diary needs to be an option in case someone plays long enough for it to become close to 5MB
+hopefully other things (to be)done to keep it from getting to that point will make this mostly unnecesary(short property names, rounding numbers, removing stats from older entries and possibly even removing less important older entries)
+
+*/
+
+<<textarea "_export" $diary >> <<linkappend "">>Are you sure? <<link "yes|">><<set $diary to _>><</link>><</linkappend>>
+Paste your old diary here:<<textbox "_diaryimport" "" >> to 
+<<link "read it">><<set $diary to _>><</link>><br>
+<br>
+
+
+:: Diary test
+Getting these to actually work nicely is too annoying.
+<<back>>  [[Diary]] [[Diary]]
+
+<<log "Testing!(default importance)">>
+
+<<set $tempstats to {}>>
+<<set $origstats to clone($logged)>>
+
+<<showdiaryentry $day $diaryline>>
+
+[[Diary test1]]
+
+:: Diary test1
+<<back>>  [[Diary]] [[Diary]]
+<<log "check" 6>>
+<<set $money to 123456>>  
+<<log "stat gain test1" 5>>
+<<for _i to $statlist.length-1; _i gt 0; _i-->>
+  <<set $tempstats[$statlist[_i]] to ($logged[$statlist[_i]])+10>>
+<</for>>
+/*
+*/
+<<setstatsto $tempstats>>
+/*
+*/
+
+[[Diary test2]]
+
+:: Diary test2
+<<back>>  [[Diary]] [[Diary]]
+<<log "setstatsto test1.5" 5>>
+<<log "check" 6>>
+
+<<set $logextra to "this is an extra log entry that gets added at the same time as previous entry">>
+<<log "logextra test2" 4>>
+
+<<log "timeupdate test3" 3>>
+
+<<set $time to $time + 75>>
+<<logtimeupdate>>
+<<logadd " logadd test4">>
+
+
+<<set $time to $time - 75>>
+<<log "going back in time" 2>>
+<<log "" 1>>
+<<logedit "logedit test5">>
+
+<<set $money to 123456>>
+<<log "logupdateeffect test6" 1>>
+<<for _i to $statlist.length-1; _i gt 0; _i-->>
+  <<set $tempstats[$statlist[_i]] to ($tempstats[$statlist[_i]])-5>>
+<</for>>
+<<setstatsto $tempstats>>
+<<logupdateeffect>>
+
+
+<<log "logday test7 next">>
+
+<<logday>>
+
+<<log "logcomment/logopinion test8">>
+<<logopinion "opinion!">>
+<<logcomment "comment!">>
+

@@ -409,14 +409,29 @@ Maximum player character penis size. Penises already above this size won't autom
 <label>Enable hints and tips <<radiobutton "$tipdisable" "f" checked>></label>
 | <label>Disable tips <<radiobutton "$tipdisable" "t">></label>
 <</if>><br>
-Show last diary entry in the sidebar:
-<<if $diarysidebar is 1>>
-<label>Yes <<radiobutton "$diarysidebar" 1 checked>></label>
-| <label>No<<radiobutton "$diarysidebar" 0>></label>
+Show the last
+<<if $diarysidebar is 3>>
+| <label>0 <<radiobutton "$diarysidebar" 0>></label>
+| <label>1 <<radiobutton "$diarysidebar" 1>></label>
+| <label>2 <<radiobutton "$diarysidebar" 2>></label>
+| <label>3 <<radiobutton "$diarysidebar" 3 checked>></label>
+<<elseif $diarysidebar is 2>>
+| <label>0 <<radiobutton "$diarysidebar" 0>></label>
+| <label>1 <<radiobutton "$diarysidebar" 1>></label>
+| <label>2 <<radiobutton "$diarysidebar" 2 checked>></label>
+| <label>3 <<radiobutton "$diarysidebar" 3>></label>
+<<elseif $diarysidebar is 1>>
+| <label>0 <<radiobutton "$diarysidebar" 0>></label>
+| <label>1 <<radiobutton "$diarysidebar" 1 checked>></label>
+| <label>2 <<radiobutton "$diarysidebar" 2>></label>
+| <label>3 <<radiobutton "$diarysidebar" 3>></label>
 <<else>>
-<label>Yes <<radiobutton "$diarysidebar" 1>></label>
-| <label>No <<radiobutton "$diarysidebar" 0 checked>></label>
-<</if>> <br>
+| <label>0 <<radiobutton "$diarysidebar" 0 checked>></label>
+| <label>1 <<radiobutton "$diarysidebar" 1>></label>
+| <label>2 <<radiobutton "$diarysidebar" 2>></label>
+| <label>3 <<radiobutton "$diarysidebar" 3>></label>
+<</if>> diary entries in the sidebar. <br>
+
 
 Compact sidebar:
 <<if $compactsidebar is 0>>
@@ -434,14 +449,13 @@ Compact sidebar:
 <</if>><br>
 <br>
 
-Don't add diary entries until you've actually sat down to write them(unimplemented atm): /*  */
-<<if $diaryshowunwritten is 1>>
-<label>Yes <<radiobutton "$diaryshowunwritten" 1 checked>></label>
-| <label>No<<radiobutton "$diaryshowunwritten" 0>></label>
+/*  */
+<label>Don't add diary entries until you've actually sat down to write them(WIP atm):
+<<if $diaryshowunwritten is false>>
+	<<checkbox "$diaryshowunwritten" true false checked>>
 <<else>>
-<label>Yes <<radiobutton "$diaryshowunwritten" 1>></label>
-| <label>No <<radiobutton "$diaryshowunwritten" 0 checked>></label>
-<</if>><br>
+	<<checkbox "$diaryshowunwritten" true false>>
+<</if>></label><br>
 
 Diary comment prompts:
 <<if $diaryprompts is 1>> /* option to not get default comments could be nice also opinion prompts if there were enough options for each event */
@@ -453,6 +467,7 @@ Diary comment prompts:
 <</if>><br>
 
 <br>
+
 
 <<if $debugdisable is "f">>
 <label>Enable additional error messages <<radiobutton "$debugdisable" "f" checked>></label>
@@ -471,22 +486,20 @@ Diary comment prompts:
 <</if>><br>
 
 <<if $debug isnot 0>>
-<<if $debug is 1>>
-<label>Enable debug <<radiobutton "$debug" 1 checked>></label>
-| <label>Disable debug <<radiobutton "$debug" -1>></label>
-<<else>>
-<label>Enable debug <<radiobutton "$debug" 1>></label>
-| <label>Disable debug <<radiobutton "$debug" -1 checked>></label>
-<</if>><br>
-<</if>>
-<<if $debug is 1>>
-<<if $logdebug is 1>>
-<label>Enable diary debug <<radiobutton "$logdebug" 1 checked>></label>
-| <label>Disable diary debug <<radiobutton "$logdebug" 0>></label>
-<<else>>
-<label>Enable diary debug <<radiobutton "$logdebug" 1>></label>
-| <label>Disable diary debug <<radiobutton "$logdebug" 0 checked>></label>
-<</if>><</if>> <br><br>
+	<label>Enable debug
+	<<if $logdebug is 1>>
+		<<checkbox "$debug" -1 1 checked>>
+	<<else>>
+		<<checkbox "$debug" -1 1>>
+	<</if>></label><br>
+	<label>Enable diary debug
+	<<if $logdebug is 1>>
+		<<checkbox "$logdebug" 0 1 checked>>
+	<<else>>
+		<<checkbox "$logdebug" 0 1>>
+	<</if>></label>
+	<br><br>
+<</if>> <br><br>
 
 
 
@@ -1094,13 +1107,28 @@ Mason the swimming teacher<br>
 
 :: Settings [nobr]
 <<settings>>
+<br>
+<<link [[Save import/export|Save import export]]>><</link>><br>
+<<link "Restart game with default settings">> <<forgetsettings>> <</link>><br><br>
+<<link [[Next|Bedroom]]>><<remembersettings>><<remember $facreset to false>><</link>><br>
+/* cancel going back to default settings on next restart in case UI.restart was refused*/
+
+:: Save import export [nobr]
+
 Workaround for save to disk not being available on mobile or otherwise:<br><<set $savetoexport to Save.serialize()>>
 Copy your current save from here:<<textbox "_export" $savetoexport >>
 /*(Save it into a text file and you should be able to load it with load from disk option)*/<br>
-Paste your old save here:<<textbox "$savetoimport" "" >> and <<link "load it">><<run Save.deserialize($savetoimport)>><</link>><br>
-<br>
-<<link "Restart game with default settings">> <<forgetsettings>> <</link>><br><br>
-<<link [[Next|Bedroom]]>><<remembersettings>><<remember $facreset to false>><</link>><br>/* cancel going back to default settings on next restart in case UI.restart was refused */
+Paste your old save here:<<textbox "$savetoimport" "" >> and <<link "load it">><<run Save.deserialize($savetoimport)>><</link>><br><br>
+<<set $savetoexport to undefined>><<set $savetoimport to undefined>>/* wouldn't want the save file to include itself */
 
-/* getting and showing Save.serialize() data might be slow so might be better to do it only when necessary */
-/* but it will create a save from the current situation so might be weird to load a game and end up in some export save data screen with nothing else on it */
+<<back>>
+
+/* the next bit is for figuring out how to make the save files smaller if necessary(most browsers will make the game stop working if save file would be above 5MB)*/
+/
+<<if $debug gte 1>>
+<br><br>Unserialized savedata: <br>
+<<run Save.autosave.save()>>
+<<set _data to JSON.stringify(Save.autosave.get()) >>
+_data
+<</if>>
+*/
