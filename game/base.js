@@ -1,60 +1,223 @@
 config.history.controls = false;
 
-Config.history.maxStates = 2;
+Config.history.maxStates = 1;
 
 State.initPRNG();
 
+window.statsConsole = function(){
+	console.log("PenisGrowthTimer",SugarCube.State.variables.penisgrowthtimer);
+	console.log("BreastGrowthTimer",SugarCube.State.variables.breastgrowthtimer);
+
+}
+
+window.overlayShowHide = function(elementId){
+	var div = document.getElementById(elementId);
+	if(div != undefined){
+		div.classList.toggle("hidden");
+		if(elementId === "debugOverlay"){
+		   SugarCube.State.variables.debugMenu[0] = !SugarCube.State.variables.debugMenu[0];
+		}
+	}
+}
+
+window.overlayMenu = function(elementId, type){
+	switch(type){
+		case "debug":
+		var debug = ["debugMain", "debugCharacter", "debugEvents"]
+		for(var i = 0, l = debug.length; i < l; i++){
+			var div = document.getElementById(debug[i]);
+			if(div != undefined){
+				SugarCube.State.variables.debugMenu[1] = elementId;
+				if(elementId === debug[i]){
+					div.classList.remove("hidden");
+				}else{
+					div.classList.add("hidden");
+				}
+			}
+		}
+		break;
+	}
+}
+
+window.returnSaveDetails = function(){
+	return Save.get();
+}
 
 
-document.addEventListener('touchstart', handleTouchStart, false);        
+window.loadSave = function(saveSlot){
+	if(saveSlot === "auto"){
+		Save.autosave.load();
+	}else{
+		Save.slots.load(saveSlot);
+	}
+}
+
+window.save = function(saveSlot){
+	if(saveSlot != undefined){
+		Save.slots.save(saveSlot);
+		SugarCube.State.variables.currentOverlay = null;
+		overlayShowHide("customOverlay");
+	}
+}
+
+window.deleteSave = function(saveSlot, confirm){
+	if(saveSlot === "all"){
+		if(confirm === undefined){
+			new Wikifier(null, '<<clearSaveMenu>>');
+			return;
+		}else if(confirm === true){
+			Save.clear();
+		}
+	}else if(saveSlot === "auto"){
+		Save.autosave.delete();
+	}else{
+		Save.slots.delete(saveSlot);
+	}
+	new Wikifier(null, '<<resetSaveMenu>>');
+}
+
+window.importSave = function(saveFile){
+	if(!window.FileReader) return; // Browser is not compatible
+
+	var reader = new FileReader();
+
+	reader.onloadend = function(){
+		DeserializeGame(this.result);
+	}
+
+	reader.readAsText(saveFile[0]);
+}
+
+importStyles("style.css")
+.then(function () {
+	console.log("External Style Sheet Active")
+})
+.catch(function (err) {
+	console.log("External Style Sheet Missing");
+});
+
+
+/*Sidebar swipe*/
+document.addEventListener('touchstart', handleTouchStart, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
 window.SerializeGame = function () { return Save.serialize(); }; window.DeserializeGame = function (myGameState) { return Save.deserialize(myGameState) };
 
-var xDown = null;                                                        
+
+window.getSaveData = function(){
+	var input = document.getElementById("saveDataInput");
+	input.value = Save.serialize();
+}
+
+window.loadSaveData = function(){
+	var input = document.getElementById("saveDataInput");
+	var result = Save.deserialize(input.value);
+	if (result === null) {
+		input.value = "Invalid Save."
+	}
+}
+
+window.clearTextBox = function(id){
+	document.getElementById(id).value = "";
+}
+
+window.topTextArea = function(id){
+	var textArea = document.getElementById(id);
+	textArea.scroll(0, 0);
+}
+
+window.bottomTextArea = function(id){
+	var textArea = document.getElementById(id);
+	textArea.scroll(0, textArea.scrollHeight);
+}
+
+window.hairdressers = function(type, value){
+    switch(type){
+        case 1:
+            SugarCube.State.variables.money -= 3000;
+            SugarCube.State.variables.hairlength = (100 * value);
+            SugarCube.State.variables.phase = 1;
+            new Wikifier(null, '<<pass 20>>');
+            break;
+        case 2:
+            SugarCube.State.variables.money -= 3000;
+            SugarCube.State.variables.fringelength = (200 * value);
+            SugarCube.State.variables.phase = 2;
+            new Wikifier(null, '<<pass 20>>');
+            break;
+        case 3:
+            SugarCube.State.variables.money -= 6000;
+            SugarCube.State.variables.haircolour = SugarCube.State.variables.hairdressersHairColour[value];
+            SugarCube.State.variables.phase = 3;
+            new Wikifier(null, '<<pass 30>>');
+            break;
+    }
+    SugarCube.State.display(SugarCube.State.variables.passage);
+}
+
+var xDown = null;
 var yDown = null;
 
-/*Sidebar swipe*/
+
 function getTouches(evt) {
-  return evt.touches ||             // browser API
-         evt.originalEvent.touches; // jQuery
-}                                                     
+	return evt.touches ||			 // browser API
+			evt.originalEvent.touches; // jQuery
+}
 
 function handleTouchStart(evt) {
-    var firstTouch = getTouches(evt)[0];                                      
-    xDown = firstTouch.clientX;                                      
-    yDown = firstTouch.clientY;                                      
-};                                                
-
-function handleTouchMove(evt) {
-    if ( ! xDown || ! yDown ) {
-        return;
-    }
-
-    var xUp = evt.touches[0].clientX;                                    
-    var yUp = evt.touches[0].clientY;
-
-    var xDiff = xDown - xUp;
-    var yDiff = yDown - yUp;
-
-    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-        if ( xDiff > 0 ) {
-           UIBar.stow();/* left swipe */ 
-        } else {
-           UIBar.unstow();/* right swipe */
-        }                       
-    } else {
-        if ( yDiff > 0 ) {
-            /* up swipe */ 
-        } else { 
-            /* down swipe */
-        }                                                                 
-    }
-    /* reset values */
-    xDown = null;
-    yDown = null;                                             
+	var firstTouch = getTouches(evt)[0];
+	xDown = firstTouch.clientX;
+	yDown = firstTouch.clientY;
 };
 
+function handleTouchMove(evt) {
+	if ( ! xDown || ! yDown ) {
+		return;
+	}
+
+	/**
+	 * Activate the swipe only when finger near the UI Bar.
+	 * 50px - +/- width of unstowed UI Bar
+	 * 280px - +/- width of unstowed UI bar
+	 */
+	if ( isUIBarStowed() ) {
+		if ( xDown > 50 ) {
+			return;
+		}
+	} else
+	{
+		if ( xDown > 280 ) {
+			return;
+		}
+	}
+
+	var xUp = evt.touches[0].clientX;
+	var yUp = evt.touches[0].clientY;
+
+	var xDiff = xDown - xUp;
+	var yDiff = yDown - yUp;
+
+	if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+		if ( xDiff > 0 ) {
+			UIBar.stow();/* left swipe */
+		} else {
+			UIBar.unstow();/* right swipe */
+		}
+	} else {
+		if ( yDiff > 0 ) {
+			/* up swipe */
+		} else {
+			/* down swipe */
+		}
+	}
+	/* reset values */
+	xDown = null;
+	yDown = null;
+};
+
+function isUIBarStowed() {
+	return $( '#ui-bar' ).hasClass( 'stowed' );
+}
 
 jQuery(document).ready(function(){
 	jQuery('#sidetooltip').appendTo("body");
@@ -276,23 +439,8 @@ window.AvsAn = (function () {
 var enableLinkNumberify = true;
 
 var disableNumberifyInVisibleElements = [
-	'#passage-hairdressers-seat',
-	'#passage-start',
-	'#passage-wardrobe',
-	'#passage-cheats',
-	'#passage-changing-room',
-	'#passage-eden-wardrobe',
-	'#passage-asylum-wardrobe',
-	'#passage-strip-club-dressing-room',
-	'#passage-brothel-dressing-room',
-	'#passage-school-boy-wardrobe',
-	'#passage-school-girl-wardrobe',
-	'#passage-eden-mirror',
-	'#passage-eerie-mirror-5',
-	'#passage-mirror-stop',
-	'#passage-mirror',
-	'#passage-diary-edit',
-	'#passage-testing-room'
+	'#passage-testing-room',
+	'#passage-diary-edit'
 ];
 
 // Number-ify links
@@ -323,6 +471,14 @@ function getPrettyKeyNumber(counter) {
 $(document).on(':passagerender', function(ev) {
 	currentLinks = [];
 
+	if (passage() == "GiveBirth") {
+		$(ev.content).find("[type=checkbox]").on('propertychange change', function() { new Wikifier(null, '<<resetPregButtons>>');generateNumbers(ev); } );
+	}
+
+	generateNumbers(ev);
+});
+
+function generateNumbers(ev){
 	if (!State.variables.numberify_enabled || !enableLinkNumberify)
 		return;
 
@@ -336,7 +492,7 @@ $(document).on(':passagerender', function(ev) {
 	$(currentLinks).each(function(i, el) {
 		$(el).html("(" + getPrettyKeyNumber(i + 1) + ") " + $(el).html());
 	});
-});
+}
 
 $(document).on('keyup', function(ev) {
 	if (!State.variables.numberify_enabled || !enableLinkNumberify)
@@ -370,3 +526,11 @@ $(document).on('keyup', function(ev) {
 	}
 });
 
+
+Config.navigation.override = function (destinationPassage) {
+	var sv = State.variables;
+	if (sv.eventend == true) {
+		sv.eventend = false
+		return "EventList";
+	}
+};

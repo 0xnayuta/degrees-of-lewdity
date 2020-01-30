@@ -58,7 +58,7 @@ alternative between having logged stats as an object with nice names and having 
   "forcedprostitutionstat","orgasmstat","ejacstat","moleststat","rapestat",
   "beastrapestat","tentaclerapestat","swallowedstat","parasitestat","hitstat",
   "attackstat","spraystat","rescued","clothesstripstat","clothesruinstat",
-  "passoutstat"
+  "passoutstat", "bus"
 	]>>
 <<set _i2 to 0>>
 <<set _chars to "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMëËêÊÿŸüÜûÛïÏîÎöÖôÔäÄâÂõÕãÃñÑéÉýÝúÚíÍóÓáÁèÈùÙìÌòÒàÀåÅæÆœŒçÇðÐøØΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσΤτΥυΦφΧχΨψΩω">>
@@ -80,6 +80,7 @@ alternative between having logged stats as an object with nice names and having 
 <<if $diarysidebar is undefined>><<set $diarysidebar to 0>><</if>>
 <<if $diaryfilterA is undefined>><<set $diaryfilterA to 0>><</if>>
 <<if $diaryfilterB is undefined>><<set $diaryfilterB to 1>><</if>>
+<<if $diaryinsertfilterinfo is undefined>><<set $diaryinsertfilterinfo to 0>><</if>>
 <<if $compactsidebar is undefined>><<set $compactsidebar to 0>><</if>>
 <<if $logshowcomments is undefined>><<set $logshowcomments to 1>><</if>>
 <<if $logshowopinions is undefined>><<set $logshowopinions to 0>><</if>>
@@ -135,7 +136,7 @@ but then I realized that it still needs to happen.
 if $useshortlogvars isnot true>>
 */
 	<<set $logged to {
-		money:$money,stress:$stress,trauma:$trauma,awareness:$awareness,pain:$pain,
+		hunger:$hunger,money:$money,stress:$stress,trauma:$trauma,awareness:$awareness,pain:$pain,
 		tiredness:$tiredness,arousal:$arousal,control:$control,allure:$allure,antiquemoney:$antiquemoney,
 		blackmoney:$blackmoney,spray:$spray,spraymax:$spraymax,drunk:$drunk,drunk:$drunk,
 		drugged:$drugged,weather:$weather,
@@ -154,7 +155,7 @@ if $useshortlogvars isnot true>>
 	  forcedprostitutionstat:$forcedprostitutionstat,orgasmstat:$orgasmstat,ejacstat:$ejacstat,moleststat:$moleststat,rapestat:$rapestat,
 	  beastrapestat:$beastrapestat,tentaclerapestat:$tentaclerapestat,swallowedstat:$swallowedstat,parasitestat:$parasitestat,hitstat:$hitstat,
 	  attackstat:$attackstat,spraystat:$spraystat,rescued:$rescued,clothesstripstat:$clothesstripstat,clothesruinstat:$clothesruinstat,
-	  passoutstat:$passoutstat
+	  passoutstat:$passoutstat,bus:$bus
 	}>>
 	<<set $statlist to Object.keys($logged)>>/* array with all of the statnames */
 /*
@@ -178,7 +179,7 @@ if $useshortlogvars isnot true>>
 	$forcedprostitutionstat,$orgasmstat,$ejacstat,$moleststat,$rapestat,
 	$beastrapestat,$tentaclerapestat,$swallowedstat,$parasitestat,$hitstat,
 	$attackstat,$spraystat,$rescued,$clothesstripstat,$clothesruinstat,
-	$passoutstat
+	$passoutstat, $bus
 	]>>
 	<<for _i to 0 ; _i lt _v.length ; _i++>>
 		<<set $logged[$vars[_i]] to _values[_u]>>
@@ -197,10 +198,11 @@ breast, penis and hair stats?
 <</nobr>><</widget>>
 
 <<widget "log">><<nobr>>
+<<if $reality is true>>
 	<<if $diaryshowunwritten is 90>>
 		How do I do this?
 		At first I was thinking I'd move entries from $diary to $writtendiary
-		But actually what if it was just a bool for having written it that gets checked whenever 
+		But actually what if it was just a per entry bool for having written it that gets checked whenever 
 		Also does $diaryshowunwritten need to be a number instead of boolean? I mean there could be more than just on/off as option but nah bool is fine
 		Since knowing the actual value is useful for say $drunk and probably for others should I somehow make it so that it doesn't need an exception to work,
 			what if 123 to 120 resulted in "123+-3" instead of "-3" or just use the same method as for strings so "123->120"?
@@ -209,8 +211,10 @@ breast, penis and hair stats?
 
 	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
 	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
-	<<set $logprep to "">>
-	<<set $logprep2 to "">>
+	<<if $args[2] isnot "keeplogprep">>/* this prevents <<stealclothes>> from clearing $logprep at a wrong time */
+		<<set $logprep to "">>
+		<<set $logprep2 to "">>
+	<</if>>
 	<<set $diarypage to $logday>>
 	<<set $diaryline to $diary[$logday].length>>
 	<<set $diary[$logday].push([])>>
@@ -225,7 +229,7 @@ breast, penis and hair stats?
 	<</if>>
 	<<set $diary[$logday][$diaryline][$log.stats] to {}>>
 	<<if $args[1] gte $logchangetreshold or $logdebug is 1>>
-		/* is there way I could not have anything at all when stat hasn't changed? */
+		/* is there way I could not have anything at all when stat hasn't changed? yes */
 		<<set $oldlogged to clone($logged)>>/* should this be clone($logged)>>? */
   	<<logstats>>
 		<<for _i to $statlist.length-1; _i gt 0; _i-->>
@@ -283,57 +287,68 @@ breast, penis and hair stats?
 	<<if $logextra isnot "" and $logextra isnot undefined>> /* virginity loss entries should come after the event (or as some special comment like thing) */
 		<<logextra $logextra $logextraimportance>>
 	<</if>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logextra">><<nobr>>
-<<if $args[1] == undefined>><<set $args[1] to 8>><</if>>
-<<set $logextra to "">>
-<<set _ex to clone($logblank)>>
-<<set _ex[$log.time] to $time>>
-<<set _ex[$log.text] to $args[0]>>
-<<set _ex[$log.importance] to $args[1]>>
-<<set _ex[$log.written] to false>>
-<<set _ex[$log.stats] to {}>>
+<<if $reality is true>>
+	<<if $args[1] == undefined>><<set $args[1] to 8>><</if>>
+	<<set $logextra to "">>
+	<<set _ex to clone($logblank)>>
+	<<set _ex[$log.time] to $time>>
+	<<set _ex[$log.text] to $args[0]>>
+	<<set _ex[$log.importance] to $args[1]>>
+	<<set _ex[$log.written] to false>>
+	<<set _ex[$log.stats] to {}>>
 
-<<set $diarypage to $logday>>
-<<set $diaryline to $diary[$logday].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
-<<run $diary[$logday].push(_ex)>>
+	<<set $diarypage to $logday>>
+	<<set $diaryline to $diary[$logday].length-1>>/* since <<log>> will get the correct diaryline it should be safe to set diaryline to -1 of what it really should be */
+	<<run $diary[$logday].push(_ex)>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logedit">><<nobr>> /* edit/replace the last entry text*/
+<<if $reality is true>>
 	<<set $diary[$logday][$diaryline][$log.text] to $args[0]>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logadd">><<nobr>> /* add to the last entry text*/
+<<if $reality is true>>
 	<<set $diary[$logday][$diaryline][$log.text] to $diary[$logday][$diaryline][$log.text]+$args[0]>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logupdateeffect">><<nobr>> /*  update the last effect(strings require $logdebug since clothing report will be buggy)	*/
-<<set _old to clone($logged)>>
-<<logstats>>
-<<for _i to $statlist.length-1; _i gt 0; _i-->>
-	<<set _d to $diary[$logday][$diaryline][$log.stats]>>
-	<<if $logged[$statlist[_i]] isnot _old[$statlist[_i]]>>
-		<<if typeof($logged[$statlist[_i]]) is "number">>
-			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
-			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]+"gain"] to $logged[$statlist[_i]+"gain"] + _old[$statlist[_i]+"gain"]>>
-		<<elseif typeof($logged[$statlist[_i]]) is "string">>
-			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to $logged[$statlist[_i]]>>
-			<<set $diary[$logday][$diaryline][$log.stats]["old"+$statlist[_i]] to _old[$statlist[_i]]>>
-		<<elseif typeof($logged[$statlist[_i]]) is "boolean">>
-			<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
-		<<elseif typeof($logged[$statlist[_i]]) is "undefined">>
+<<if $reality is true>>
+	<<set _old to clone($logged)>>
+	<<logstats>>
+	<<for _i to $statlist.length-1; _i gt 0; _i-->>
+		<<set _d to $diary[$logday][$diaryline][$log.stats]>>
+		<<if $logged[$statlist[_i]] isnot _old[$statlist[_i]]>>
+			<<if typeof($logged[$statlist[_i]]) is "number">>
+				<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
+				<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]+"gain"] to $logged[$statlist[_i]+"gain"] + _old[$statlist[_i]+"gain"]>>
+			<<elseif typeof($logged[$statlist[_i]]) is "string">>
+				<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to $logged[$statlist[_i]]>>
+				<<set $diary[$logday][$diaryline][$log.stats]["old"+$statlist[_i]] to _old[$statlist[_i]]>>
+			<<elseif typeof($logged[$statlist[_i]]) is "boolean">>
+				<<set $diary[$logday][$diaryline][$log.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>
+			<<elseif typeof($logged[$statlist[_i]]) is "undefined">>
+			<</if>>
 		<</if>>
-	<</if>>
-<</for>>
-		
+	<</for>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logtimeupdate">><<nobr>> /*  change entry time in case log was called early for some reason */
+<<if $reality is true>>
 	<<set $diary[$logday][$diaryline].time to $time>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logday">><<nobr>>/* not to be confused with $logday */
+<<if $reality is true>>
 	<<set $dayendreport to "">>
 	/* $moneytext might be useful in other situtations so could move this to some place that gets run more often */
 	<<set $moneytext to "£"+ Math.trunc($money / 100)+".">>
@@ -417,6 +432,7 @@ breast, penis and hair stats?
 			importance:7, comment:"",	comment:"",	opinion:"", effect:{money:0,stress:0,trauma:0,awareness:0,pain:0,tired:0,arousal:0,control:0,allure:0,antiquemoney:0,blackmoney:0,weather:"",upperclothes:"",lowerclothes:"",underclothes:"",oldupperclothes:(""),oldlowerclothes:(""),oldunderclothes:("")}
 	  }
 		)>>*/
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "logcomment">><<nobr>>
@@ -428,6 +444,7 @@ breast, penis and hair stats?
 <</nobr>><</widget>>
 
 <<widget "logopinion">><<nobr>>
+<<if $reality is true>>
 <span id="textbox1">
 <<set _c to "">>
 <<set $plropinion to "">>
@@ -449,6 +466,7 @@ breast, penis and hair stats?
 <<elseif $diaryprompts is 3>>
 	<<link "Add your opinion to the diary">><<set $diary[$days][$diaryline][$log.opinion] to "["+$plropinion+"]">><</link>><br>
 <</if>></span>
+<</if>>
 <</nobr>><</widget>>
 
 
@@ -469,7 +487,7 @@ breast, penis and hair stats?
 	<span class="green">_text </span>
 <<elseif _e[$log.importance] is 6 >>
 	<span class="orange">_text </span>
-<<elseif _e[$log.importance] is 7 >>/* for date and end/start of day report that colors stuff on it's own */
+<<elseif _e[$log.importance] is 7 >>/* for date and end/start of day report that colours stuff on it's own */
 	_text
 <<elseif _e[$log.importance] is 8 >> /* virginity loss */
 	<span class="red">_text </span>
@@ -583,15 +601,15 @@ this probably won't handle sets very well
 	<<for _i to 0; _i lt $statlist.length; _i++>>
 		<<if _e[$statlist[_i]] isnot undefined>>
 			<<if typeof(_e[$statlist[_i]]) is "number">>/* "statname:+statgain=statvalue" */
-				<<if _e[$statlist[_i]]+"gain" isnot undefined and Number.isNaN(parseFloat(_e[$statlist[_i]+"gain"])) is false>>/* needed to prevent errors from integrity and anything else that might get forced to give value without it changing */
+				<<if _e[$statlist[_i]+"gain"] isnot undefined and Number.isNaN(parseFloat(_e[$statlist[_i]+"gain"])) is false>>/* needed to prevent errors from clothing integrity and anything else that might get forced to give value without it changing */
 					<<print $statlist[_i]+":">>
 					<<if _e[$statlist[_i]+"gain"] gte 0>>+<<else>>-<</if>>
-					<<print Math.abs(parseFloat(_e[$statlist[_i]+"gain"].toFixed(2)))+" = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>/* tofixed(2) returns a string with 2 decimal places while parseFloat returns a number with decimals but more importantly in this case it changes 1.00 to 1 while keeping 1.01 as is  */
+					<<print Math.abs(parseFloat(_e[$statlist[_i]+"gain"].toFixed(2)))+" = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>/* tofixed(2) returns a string with 2 decimal places while parseFloat returns a number with decimals but more importantly in this case it changes 1.00 to 1 while keeping 1.01 as is. Point being that some stats would otherwise get super long floats.  */
 				<<else>>
-					<<print $statlist[_i]+": = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>
+					<<print $statlist[_i]+": = ''"+parseFloat(_e[$statlist[_i]].toFixed(2))+"''">>/*Without gain being defined we just report that the value still is whatever it was */
 				<</if>>
 			<<elseif typeof(_e[$statlist[_i]]) is "string">>/* "statname:oldstring->newstring" */
-				<<print $statlist[_i]+":"+_e["old"+$statlist[_i]]+" -> ''"+_e[$statlist[_i]]+"''">>/* this should be fine with oldstat being undefined */
+				<<print $statlist[_i]+":"+_e["old"+$statlist[_i]]+" -> ''"+_e[$statlist[_i]]+"''">>/* this should be fine with oldstat being undefined(in case we stop defining it) */
 			<<elseif typeof(_e[$statlist[_i]]) is "boolean">>
 				<<print $statlist[_i]+":''"+_e[$statlist[_i]]+"''">>
 			<</if>>
@@ -602,5 +620,178 @@ this probably won't handle sets very well
 	</span>
 <</if>>
 
+
+<</nobr>><</widget>>
+
+<<widget "filteredentriesinfo">><<nobr>>
+/*
+$diaryinsertfilterinfo=?
+0=Only filtered entry count total at the bottom
+1=On same line without a stat change summary
+2=On same line with a stat change summary
+3=On a new line with a stat change summary
+4=On a new line without a stat change summary
+*/
+<<if _hiddenentries gte 1>>
+	<<if $diaryinsertfilterinfo gte 1>>/* Do we want filtered entry messages mid diary? */
+		<<if $diaryinsertfilterinfo gte 3>>/* Should they be on new lines */
+			<br>
+		<</if>>
+		<span class="black">(_hiddenentries <<if _hiddenentries is 1>>entry<<else>>entries<</if>> filtered out)
+		<<if $diaryinsertfilterinfo is 2 or $diaryinsertfilterinfo is 3>>/* Should they include a summary of noteworthy stat changes */
+			<<filteredstatchanges>>
+		<</if>>
+		</span> 
+		<<set _hiddenentries to 0>>
+		<<set $diaryfiltersum to {}>>
+	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "dontshowdiaryentry">><<nobr>>/* for a summary of stat changes from filtered entries */
+/* doing this being made much later than previous stuff was a good chance to add comments for "obvious" stuff I probably wouldn't have bothered with when I still had all of this in my head. */
+<<set _e to $diary[$args[0]][$args[1]][$log.stats]>>/* e for diary entry. Args are day and line*/
+<<for _i to 0; _i lt $statlist.length; _i++>>/*go through each stat*/
+	<<if _e[$statlist[_i]] isnot undefined>>/*only things that changed are defined*/
+		<<if typeof(_e[$statlist[_i]]) is "number">>/* "statname:+statgain=statvalue" */
+			<<if _e[$statlist[_i]+"gain"] isnot undefined and Number.isNaN(parseFloat(_e[$statlist[_i]+"gain"])) is false>>/* Check that the stat actually changed and is a number and wasn't defined for some other reason. statnamegain is the change while $diary[day][line][6].statname is just the value after the change has happened. */
+				<<if $diaryfiltersum[$statlist[_i]+"gainsum"] is undefined>>/* $diaryfiltersum should be a blank object at the start of filtering. Also using different property names(not just statname and statnamegain) to make it clear these are a different thing */
+					<<set $diaryfiltersum[$statlist[_i]+"gainsum"] to 0>>
+					<<set $diaryfiltersum[$statlist[_i]+"original"] to _e[$statlist[_i]]-_e[$statlist[_i]+"gain"]>>/* subtracting the change gives us the value the stat was in the last entry before filtering started */
+				<</if>>
+				<<set $diaryfiltersum[$statlist[_i]+"gainsum"] to $diaryfiltersum[$statlist[_i]+"gainsum"]+_e[$statlist[_i]+"gain"]>>/* add up the change to last one(if there is one) */
+			<<else>>
+				<<set $diaryfiltersum[$statlist[_i]] to _e[$statlist[_i]]>>
+			<</if>>
+		<<elseif typeof(_e[$statlist[_i]]) is "string">>/* "statname:oldstring->newstring" */
+			<<if $diaryfiltersum[$statlist[_i]] is undefined>>
+				<<set $diaryfiltersum[$statlist[_i]+"original"] to _e["old"+$statlist[_i]]>>
+			<</if>>
+			<<set $diaryfiltersum[$statlist[_i]] to _e[$statlist[_i]]>>
+		<<elseif typeof(_e[$statlist[_i]]) is "boolean">>
+			<<set $diaryfiltersum[$statlist[_i]] to _e[$statlist[_i]]>>
+		<</if>>
+	<</if>>
+<</for>>
+/* Now $diaryfiltersum should have a sum of changes to each stat(ie. $$diaryfiltersum.sciencegainsum) since the last time it was cleared */
+<</nobr>><</widget>>
+
+
+<<widget "filteredstatchanges">><<nobr>> /* Copy paste from showdiaryentry but might want to adjust things a bit*/
+/*<<print JSON.stringify($diaryfiltersum)>>*/
+<<set _clothlist to ["upperclothes","lowerclothes","underclothes"]>>/*  */
+<<set _clothlist to ["upper","lower","under"]>>
+<<if $diaryfiltersum.underclothes isnot undefined>>/* assuming that <<log>> has defined all clothes if it did one */
+	Wearing
+	<<if $diaryfiltersum.upperclothes is "naked" and $diaryfiltersum.lowerclothes is "naked" and $diaryfiltersum.underclothes is "naked">>
+		<span class='lewd'>''nothing''</span>.
+	<<else>>
+	<<set $listed to []>>
+	<<for _i to 0;_i lt _clothlist.length;_i++>>
+		<<if $diaryfiltersum[_clothlist[_i]+"clothes"] isnot "naked">>
+			<<set _wearing to $diaryfiltersum[_clothlist[_i]+"clothes"]>>
+		<<elseif _clothlist[_i] is "under">>
+			<<set _wearing to "no underwear">>
+		<</if>>
+		<<if _wearing isnot undefined>>
+			<<if $diaryfiltersum[_clothlist[_i]+"clothesoriginal"] isnot undefined>>
+				<<set _wearing to "''"+_wearing+"''">>/* indicate new clothes by bolding them(could colour them instead or something) */
+			<</if>>
+			/* colour based on integrity? */
+			<<set _hp to $diaryfiltersum[_clothlist[_i]+"integrity"]/$diaryfiltersum[_clothlist[_i]+"integritymax"]>>
+			<<if $diaryfiltersum[_clothlist[_i]+"clothes"] is "naked" and _clothlist[_i] is "under">>
+				<<set _wearing to "<span class='lewd'>"+_wearing+"</span>">>
+			<<else>>
+				<<if _hp lte 0.2>>
+					<<set _wearing to "<span class='blue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.5>>
+					<<set _wearing to "<span class='lblue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.9>>
+					<<set _wearing to "<span class='teal'>"+_wearing+"</span>">>
+				<<else>>
+					<<set _wearing to "<span class='green'>"+_wearing+"</span>">>
+				<</if>>
+			<</if>>
+			<<set $listed.push(_wearing)>>
+		<</if>>
+		<<set _wearing to undefined>>
+		<</for>>
+		<<if $listed.length is 1>>
+			<<set $listed[0] to "only "+$listed[0]>>/* if upper or skirt add a/an? jsArticle($listed[0]) */
+		<</if>>
+		<<listify $listed>>.
+	<</if>>
+<</if>>
+
+<<if $diaryfiltersum.drunk gt 0 and $diaryfiltersum.drunk isnot undefined>><span class="purple">Feeling</span>
+	<<if $diaryfiltersum.drunk lte 120>>
+		<span class="blue"> woozy</span>.
+	<<elseif $diaryfiltersum.drunk lte 240>>
+		<span class="purple"> tipsy</span>.
+	<<elseif $diaryfiltersum.drunk lte 360>>
+		<span class="purple"> drunk</span>.
+	<<elseif $diaryfiltersum.drunk lte 480>>
+		<span class="pink"> smashed</span>.
+	<<else>>
+		<span class="pink"> wasted</span>.
+	<</if>>
+<</if>>
+
+<<if $diaryfiltersum.druggedgainsum isnot undefined>>
+	<<if $diaryfiltersum.druggedgainsum lt 0>><span class="blue">-lewd warmth </span><</if>>
+	<<if $diaryfiltersum.druggedgainsum gt 0>><span class="pink">+lewd warmth </span><</if>>
+<</if>>
+
+<<if $diaryfiltersum.sciencegainsum isnot undefined>><<if $diaryfiltersum.sciencegainsum gt 0>><span class="green">+Science </span><</if>><</if>>
+<<if $diaryfiltersum.mathsgainsum isnot undefined>><<if $diaryfiltersum.mathsgainsum gt 0>><span class="green">+Maths </span><</if>><</if>>
+<<if $diaryfiltersum.englishgainsum isnot undefined>><<if $diaryfiltersum.englishgainsum gt 0>><span class="green">+English </span><</if>><</if>>
+<<if $diaryfiltersum.historygainsum isnot undefined>><<if $diaryfiltersum.historygainsum gt 0>><span class="green">+History </span><</if>><</if>>
+
+<<if $diaryfiltersum.coolgainsum isnot undefined>>
+	<<if $diaryfiltersum.coolgainsum lt 0>><span class="red">-Status </span><</if>>
+	<<if $diaryfiltersum.coolgainsum gt 0>><span class="green">+Status </span><</if>>
+<</if>>
+
+<<if $diaryfiltersum.detentiongainsum isnot undefined>>
+	<<if $diaryfiltersum.detentiongainsum gt 0>><span class="red">+Detention </span><</if>>
+	<<if $diaryfiltersum.detentiongainsum lt 0>><span class="lblue">-Detention </span><</if>>
+<</if>>
+
+<<if $diaryfiltersum.spraygainsum isnot undefined>>
+	<<if $diaryfiltersum.spraygainsum lt 0>><span class="red">-pepper spray </span><</if>>
+	<<if $diaryfiltersum.spraygainsum gt 0>><span class="green">+pepper spray </span><</if>>
+<</if>>
+<<if $diaryfiltersum.moneygainsum isnot undefined>>
+	<<if $diaryfiltersum.moneygainsum lt 0>><span class="red">-£<<print Math.abs(Math.trunc($diaryfiltersum.moneygainsum / 100))>>.<<if $diaryfiltersum.moneygainsum % 100 lte 9>>0<</if>><<print $diaryfiltersum.moneygainsum % 100>></span><</if>>
+	<<if $diaryfiltersum.moneygainsum gt 0>><span class="gold">£<<print Math.trunc($diaryfiltersum.moneygainsum / 100)>>.<<if $diaryfiltersum.moneygainsum % 100 lte 9>>0<</if>><<print $diaryfiltersum.moneygainsum % 100>></span><</if>>
+<</if>>
+<<if $diaryfiltersum.antiquemoneygainsum gt 0>><span class="brown"> £<<print $diaryfiltersum.antiquemoneygainsum>></span><</if>>
+<<if $diaryfiltersum.blackmoneygainsum gt 0>><span class="black"> £<<print $diaryfiltersum.blackmoneygainsum>></span><</if>>
+
+<<if $logdebug isnot 0>><span class="darkblack">/* Do I need the undefined checks? */
+	<<for _dstat to 0; _dstat lt $statlist.length; _dstat++>>
+		<<if $diaryfiltersum[$statlist[_dstat]+"gainsum"] isnot undefined>>
+			/*<<print $statlist[_dstat]+":"+Math.abs(parseFloat($diaryfiltersum[$statlist[_dstat]+"original"].toFixed(2)))+" -> ">>*/
+			<<print $statlist[_dstat]+":">><<if $diaryfiltersum[$statlist[_dstat]+"gainsum"] gte 0>>+<<else>>-<</if>><<print "''"+parseFloat($diaryfiltersum[$statlist[_dstat]+"gainsum"].toFixed(2))+"''">>
+		<<elseif typeof($diaryfiltersum[$statlist[_dstat]]) is "string">>/* "statname:oldstring->newstring" */
+			<<print $statlist[_dstat]+":"+$diaryfiltersum[$statlist[_dstat]+"original"]+" -> ''"+$diaryfiltersum[$statlist[_dstat]]+"''">>/* this should be fine with oldstat being undefined(in case we stop defining it) */
+		<<elseif typeof($diaryfiltersum[$statlist[_dstat]]) is "boolean">>
+			<<print $statlist[_dstat]+":''"+$diaryfiltersum[$statlist[_dstat]]+"''">>
+		<</if>>
+	<</for>>
+	/*
+	*/
+	</span>
+<</if>>
+<</nobr>><</widget>>
+
+
+<<widget "cleandiary">><<nobr>>
+<<if $args[0] is "debugonlystats">><!-- Remove everything that shows up only with logdebug from entries older than $args[1] days. -->
+<!-- Need to make a list of stats that are like that, actually what if it was a customizable list so player could decide what if any stats are shown? -->
+<<if $args[0] is "nonmomeystats">><!-- Remove all stat info except for money from entries older than $args[1] days. -->
+<<if $args[0] is "allstats">><!-- Remove all stat info from entries older than $args[1] days. -->
+/*
+*/
 
 <</nobr>><</widget>>

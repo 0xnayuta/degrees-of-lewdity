@@ -3,7 +3,7 @@ $diary has a "page" for each day(since the diary was started) and each page has 
 so you access entry text with $diary[logdaynumber][entrynumber][$log.text]
 .time is simply $time
 .text is the diary entry that describes what exactly happened in 1st person
-.importance allows filtering out simply moving around and such and is used to decide how to color the text
+.importance allows filtering out simply moving around and such and is used to decide how to colour the text
 .comment is a string the player can input, set $diaryprompts to 1 or 2 to be asked for comment whenever an event is done
 .opinion (could be about) how you feel about an event and how you've chosen to rationalize it or just the default comment
 .written is to indicate if you have sat down and actually written the entry(if that matters)
@@ -58,7 +58,7 @@ Can have results like "He raped me." and "She touched me weirdly."
 */
 
 :: Simple Diary[nobr]
-<<back>>
+
 <<for _i, _day range $diary>>
   <br>
   <<for _j, _entry range $diary[_i]>>
@@ -71,7 +71,7 @@ Can have results like "He raped me." and "She touched me weirdly."
 <</for>>
 
 :: Diary Stringified [nobr]
-<<back>>
+
 <<print JSON.stringify($diary)>>
 
 :: Write Diary
@@ -83,6 +83,14 @@ It's been  days since your last entry it takes you a moment to recall everything
 <</if>>
 
 $diary
+How do you want to write this entry? (carefully written entries about bad events may make you recall them but  little effect but also won't help much)
+Quickly(0:01)
+Normally(0:02)
+Carefully(0:05)
+Stop
+
+
+Things are better now
 
 [[Next|Write Diary]]
 <<link [[Done]]>><<return>><</link>>
@@ -125,8 +133,154 @@ _blarg
 */
 
 
-:: Diary [nobr]
-<<set $menu to 2>><<back>> 
+:: Diary [widget]
+<<widget "diary">><<nobr>>
+<div class="fixedClose">
+	<<button Close>>
+		<<addclass "#customOverlay" "hidden">>
+		<<set $currentOverlay to null>>
+	<</button>>
+	<<button "Diary Settings">>
+		<<script>>overlayShowHide('diarySettings');<</script>>
+	<</button>>
+	<<button "Colour Codes">>
+		<<script>>overlayShowHide('statsHelp');<</script>>
+	<</button>>
+	<div id="statsHelp" class="hidden">
+    <span class="red">Lost money/virginity</span><br>
+    <span class="gold">Gained money</span><br>
+    <span class="brown">Gained antiques</span><br>
+    <span class="black">Gained stolen goods</span><br>
+    <span class="pink">Comment</span><br>
+    <span class="green">Importance 5</span><br>
+    <span class="teal">Importance 4</span><br>
+    <span class="lblue">Importance 3</span><br>
+    <span class="blue">Importance 2</span><br>
+    <span class="grey">Importance 1</span><br>
+    <span class="black">Importance 0</span><br>
+    <<if $logdebug is 1>><span class="greyred">Debug info</span><br><</if>>
+	</div>
+	<div id="diarySettings" class="hidden">
+    $diarymode
+    $diaryfilterA
+    $diaryfilterB
+    $diaryinsertfilterinfo
+    $logshowcomments
+    $logshowopinions
+    
+    $locationimportance
+    $workimportance
+    $busimportance
+    $passoutimportance
+    $exposureimportance
+    $logextraimportance
+    $lockpickimportance
+    /* NPC base importances, -1 for less important events and +1 for more important events, default should be 3 or 4(should all sex normally get a 3 or should named npcs get a 4 while nameless ones get 3?) I've been kind of bad at using higher importance levels, I don't think there's a single level 5 event. */
+    $robin.importance
+    $whitney.importance
+    $kylar.importance
+    $avery.importance
+    $doren.importance
+    
+    $diaryprompts
+    $diarysidebar
+    $logchangetreshold
+    
+    
+    $loglocations
+    🔒︎🔒
+    
+    <<print JSON.stringify($diary).length>>
+    /* Diary but with edit options and numberify disabled */[[Bedroom]]
+     | <<link [[Show all days|Diary Edit]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary Edit]]>><<set $diaryfilterB++>><</link>> 
+     | <<set $menu to 1>> <<link [[Show 1 day|Diary Edit]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary Edit]]>><<set $diaryfilterA++>><</link>>
+     | <<if $logshowcomments is 1>><<link [[Hide|Diary Edit]]>><<set $logshowcomments to 0>><</link>><<else>><<link [[Show|Diary Edit]]>><<set $logshowcomments to 1>><</link>><</if>> comments
+    <<if $debug is 1>> | <<if $logshowopinions is 1>><<link [[Hide|Diary Edit]]>><<set $logshowopinions to 0>><</link>><<else>><<link [[Show|Diary Edit]]>><<set $logshowopinions to 1>><</link>><</if>> opinions<</if>>
+    <br>
+    /*
+    list and makes selectable all days
+    could make a year selector since this will probably get annoyingly long after a year or two.
+    yearlog would probably be an array and use .push($diary) at the end of year before emptying $diary.
+    compressing or exporting old entries could be a thing
+    */Hmm
+    <<if $diarymode is 1>>
+      Day:
+      <<for _i to 0; _i lte $logday; _i++>>
+      <<capture _i>>/* prevents all of the links setting $diarypage to the last value _i was*/
+      <<link [[_i|Diary Edit]]>><<set $diarypage to _i>> <</link>>
+      <</capture>>
+      <</for>>
+    <</if>>
+    <br>
+    
+    /* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
+    Change entry $diaryline of day $diarypage's <<link [[comment|Diary Edit]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
+    or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
+    <<link [[0|Diary Edit]]>><<logimportance $diarypage $diaryline 0>><</link>>
+    <<link [[1|Diary Edit]]>><<logimportance $diarypage $diaryline 1>><</link>>
+    <<link [[2|Diary Edit]]>><<logimportance $diarypage $diaryline 2>><</link>>
+    <<link [[3|Diary Edit]]>><<logimportance $diarypage $diaryline 3>><</link>>
+    <<link [[4|Diary Edit]]>><<logimportance $diarypage $diaryline 4>><</link>>
+    <<link [[5|Diary Edit]]>><<logimportance $diarypage $diaryline 5>><</link>>)
+    
+
+
+	</div>
+</div>
+<br>
+
+
+Need to figure this stuff out.
+$reality
+
+You aren't in a good spot(such as your bedroom) to edit your diary.
+
+<<if $diarymode is 1>> /* single day mode */
+  <br>
+  <<set _hiddenentries to 0>>
+  <<for _i, _entry range $diary[$diarypage]>>
+  <<capture _i>>
+  <<if _entry[$log.importance] gte $diaryfilterA >><br>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<showdiaryentry $diarypage _i>>
+  <<else>>
+    <<set _hiddenentries += 1>>    
+  <</if>>
+  <</capture>>
+  <</for>>
+  <br><br>
+  _hiddenentries less important entries are not shown.
+<<else>> /* all days mode */
+  <<set _hiddenentries to 0>>
+  <<run $diary.reverse()>>/* show current day first */
+  <<for _i, _day range $diary>>
+    <br> /*  */
+    <<for _j, _entry range $diary[_i]>>
+    <<capture _i, _j>>
+    <<if _entry[$log.importance] gte $diaryfilterB >><br>
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<showdiaryentry _i _j>>
+    <<else>>
+      <<set _hiddenentries += 1>>    
+    <</if>>
+    <</capture>>
+    <</for>>
+  <</for>>
+  <<run $diary.reverse()>>
+<</if>>
+<br><br>
+_hiddenentries less important entries are not shown.
+<br><br>
+<<if $reality is true>>
+[[EventList]]
+<</if>>
+
+<</nobr>><</widget>>
+
+
+:: DiaryOold [nobr]
+
+/*<<set $menu to 2>>*/ 
 <<if Config.history.maxStates gte 10>>
   | <<link [[Show all days|Diary]]>><<set $diarymode to 0>><</link>> | <<link [[Show current day|Diary]]>><<set $diarymode to 1>><<set $diarypage to $logday>><</link>>
   <br>
@@ -174,7 +328,7 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 
 :: Diary Edit [nobr]
 /* Diary but with edit options and numberify disabled */[[Bedroom]]
-<<back>> | <<return>>
+ | <<return>>
  | <<link [[Show all days|Diary Edit]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary Edit]]>><<set $diaryfilterB++>><</link>> 
  | <<set $menu to 1>> <<link [[Show 1 day|Diary Edit]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary Edit]]>><<set $diaryfilterA++>><</link>>
  | <<if $logshowcomments is 1>><<link [[Hide|Diary Edit]]>><<set $logshowcomments to 0>><</link>><<else>><<link [[Show|Diary Edit]]>><<set $logshowcomments to 1>><</link>><</if>> comments
@@ -194,7 +348,6 @@ compressing or exporting old entries could be a thing
   <</capture>>
   <</for>>
 <</if>>
-
 <br>
 
 /* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
@@ -208,14 +361,26 @@ or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to 
 <<link [[5|Diary Edit]]>><<logimportance $diarypage $diaryline 5>><</link>>)
 
 
+<<set _hiddenentries to 0>>
+<<set _hiddenentriestotal to 0>>
+<<set $diaryinsertfilterinfo to 2>>
+<<if $diaryinsertfilterinfo is undefined>>
+<</if>>
+<<set $diaryfiltersum to {}>>
 <<if $diarymode is 1>> /* single day mode */
   <br>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry[$log.importance] gte $diaryfilterA >><br>
+  <<if _entry[$log.importance] gte $diaryfilterA >>
+    <<filteredentriesinfo>>
+    <br>
     <<link [[■|Diary Edit]]>><<set $diaryline to _i>><</link>>
     <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
     <<showdiaryentry $diarypage _i>>
+  <<else>>
+    <<set _hiddenentries += 1>>
+    <<set _hiddenentriestotal += 1>>
+    <<dontshowdiaryentry $diarypage _i>>
   <</if>>
   <</capture>>
   <</for>>
@@ -225,15 +390,32 @@ or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to 
     <br> /*  */
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry[$log.importance] gte $diaryfilterB >><br>
+    <<if _entry[$log.importance] gte $diaryfilterB >>
+      <<filteredentriesinfo>>
+      <br>
       <<link [[■|Diary Edit]]>><<set $diarypage to $logday-_i>><<set $diaryline to _j>><</link>> /* $logday-_i prevents reversed day order from messing things up */
       <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
       <<showdiaryentry _i _j>>
+    <<else>>
+      <<set _hiddenentries += 1>>
+      <<set _hiddenentriestotal += 1>>
+      <<dontshowdiaryentry _i _j>>
     <</if>>
     <</capture>>
     <</for>>
   <</for>>
   <<run $diary.reverse()>>
+<</if>>
+<<filteredentriesinfo>>
+<br><br>
+<<if _hiddenentriestotal gte 1>>
+  <span class="black">(_hiddenentriestotal entries filtered out in total)
+  <<if $diaryinsertfilterinfo is 0 and $diaryfiltersum isnot {}>>
+    <<filteredstatchanges>>/* this should lists effects from all of the filtered entries when not reporting them mid diary, not sure if that's good */
+  <</if>>
+  </span> 
+  <br>
+  <<set _hiddenentriestotal to 0>>
 <</if>>
 <br><br>
 /*
@@ -246,9 +428,9 @@ might be useful
 
 :: Diary Archive
 
-/*
 exporting the diary needs to be an option in case someone plays long enough for it to become close to 5MB
-hopefully other things (to be)done to keep it from getting to that point will make this mostly unnecesary(short property names, rounding numbers, removing stats from older entries and possibly even removing less important older entries)
+hopefully other things (to be)done to keep it from getting to that point will make this mostly unnecesary(short property names, stattracking only when things have changed, rounding numbers, removing stats from older entries and possibly even removing less important older entries)
+/*
 
 */
 
@@ -265,6 +447,7 @@ Paste your old diary here:<<textbox "_diaryimport" "" >> to
 $diarymode
 $diaryfilterA
 $diaryfilterB
+$diaryinsertfilterinfo
 $logshowcomments
 $logshowopinions
 
@@ -300,7 +483,7 @@ $loglocations
 
 :: Diary test
 Getting these to actually work nicely is too annoying.
-<<back>>  [[Diary]] [[Diary]]
+  [[Diary]] [[Diary]]
 
 <<log "Testing!(default importance)">>
 
@@ -312,7 +495,7 @@ Getting these to actually work nicely is too annoying.
 [[Diary test1]]
 
 :: Diary test1
-<<back>>  [[Diary]] [[Diary]]
+  [[Diary]] [[Diary]]
 <<log "check" 6>>
 <<set $money to 123456>>  
 <<log "stat gain test1" 5>>
@@ -328,7 +511,7 @@ Getting these to actually work nicely is too annoying.
 [[Diary test2]]
 
 :: Diary test2
-<<back>>  [[Diary]] [[Diary]]
+  [[Diary]] [[Diary]]
 <<log "setstatsto test1.5" 5>>
 <<log "check" 6>>
 
