@@ -85,13 +85,13 @@ but that would kind of mean that <<sleephour>> should also get the same tirednes
 		<<if $location is "asylum">>
 			<<asylumeffects>>
 		<</if>>
-		<<if $robinromance is 1 and $robinlust gte 20 and $robinbed isnot 1 and $location is "home" and $robinwakeday isnot 1>>
+		<<if $robinromance is 1 and $NPCName[$NPCNameList.indexOf("Robin")].lust gte 20 and $robinbed isnot 1 and $location is "home" and $robinwakeday isnot 1>>
 			<<if $hour gte 18 or $hour lte 6>>
 				<<set $schoolwake to 1>>
-				<<set $robinlovewake to 1>>
+				<<set $NPCName[$NPCNameList.indexOf("Robin")].lovewake to 1>>
 				<<set $robinwakeday to 1>>
 			<</if>>
-		<<elseif $robinlove gte 100 and $robindebtknown isnot 1 and $location is "home">>
+		<<elseif $NPCName[$NPCNameList.indexOf("Robin")].love gte 100 and $robindebtknown isnot 1 and $location is "home">>
 			<<if $hour gte 18 or $hour lte 6>>
 				<<set $schoolwake to 1>>
 				<<set $robindebtwake to 1>>
@@ -106,12 +106,15 @@ but that would kind of mean that <<sleephour>> should also get the same tirednes
 			<<set $rapewake to 1>>
 		<<elseif $schoolday is 1 and $hour is 7 and $location is "home">>
 			<<set $schoolwake to 1>>
-		<<elseif $hour lte 6 and $location is "cabin" and $edenlust gte 26 and $edenwake isnot 1>>
+		<<elseif $hour lte 6 and $location is "cabin" and $NPCName[$NPCNameList.indexOf("Eden")].lust gte 26 and $edenwake isnot 1>>
 			<<set $edenwake to 1>>
 			<<set $schoolwake to 1>>
 		<<elseif $location is "forest" and $wolfpackferocity gte 10 and $wolfwake isnot 1>>
 			<<set $schoolwake to 1>>
 			<<set $wolfwake to 1>>
+		<<elseif $location is "home" and $corruption_slime gte ($willpower / 20) and random(0,100) lt 3 and $daystate is "night" and $slimeSleepEvent is 0>>
+			<<set $schoolwake to 1>>
+			<<set $slimeWake to 1>>
 		<<else>>
 		<</if>>
 		<<if $schoolwake isnot 1>>
@@ -127,7 +130,6 @@ but that would kind of mean that <<sleephour>> should also get the same tirednes
 		<</if>>
 	<</for>>
 <</nobr>><</widget>>
-
 <<widget "sleepeffects">><<nobr>>
 	<<if $sleeptransform is 1>>
 		<<if $wolfgirl is 0 and $wolfbuild gte 5>>
@@ -206,3 +208,87 @@ but that would kind of mean that <<sleephour>> should also get the same tirednes
 	<</if>>
 	<<set $wear_outfit to "none">>
 <</nobr>><</widget>>
+
+<<widget "slimeNoSleep">><<nobr>>
+	<<if $corruption_slime gte 80>>
+		<<set _eventsList to ["have sex with someone or something", "only sleep naked from now on"]>>
+		
+		<<if $alwaysSleepNaked is true>>
+			<<set _eventsList.delete("only sleep naked from now on")>>
+		<</if>>
+	<<else>>
+		<<set _eventsList to ["have sex with someone", "go running or swimming for an hour"]>>
+	<</if>>
+	<<if $skulduggery gt 200>>
+		<<set _eventsList.push("steal something")>>
+	<</if>>
+	<<if $exhibitionism gt 35>>
+		<<set _eventsList.push("go running or swimming naked for an hour")>>
+	<</if>>
+	
+	<<set _maxEvents to _eventsList.length - 1>>
+	<<set $slimeEvent to _eventsList[random(0,_maxEvents)]>>
+	
+	<span class="lewd">You feel the slime in your head command you to <<print $slimeEvent>> before it allows you to sleep.</span> It promises rewards if you comply, and threatens consequences if you do not.
+	<br><br>
+	<<link [[Obey|SleepSlimeEventObey]]>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<set $submissive += 1>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
+	<br>
+	<<link [[Defy|SleepSlimeEventDefy]]>><<corruption -1>><<pain 8>><<stress 6>><<trauma 6>><<set $submissive -= 1>><</link>><<lcorruption>><<ggpain>><<ggtrauma>><<ggstress>>
+	<br>
+<</nobr>><</widget>>
+
+<<widget "slimeEventResult">><<nobr>>
+	<<if $slimeEvent is "go running or swimming naked for an hour" or "go running or swimming for an hour">>
+		<<set $slimeEventLength to 2>>
+	<</if>>
+	<<if $slimeEvent is "only sleep naked from now on">>
+		<<strip>>
+		<<set $alwaysSleepNaked to true>>
+		<<unset $slimeEvent>>
+		You strip before getting into bed.
+		<br><br>
+		<<link [[Next|Bed]]>><</link>>
+	<<else>>
+		You move away from you bed to do the task given to you.
+		<br><br>
+		<<link [[Next|Bedroom]]>><</link>>
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "slimeEventEnd">><<nobr>>
+<<switch $slimeEvent>>
+	<<case "go running or swimming naked for an hour">>
+		<<if $slimeEventLength is 1 and $exposed is 2>>
+			<<unset $slimeEvent>>
+			<<unset $slimeEventLength>>
+		<<elseif $exposed is 2>>
+			<<set $slimeEventLength -= 1>>
+		<</if>>
+	<<case "go running or swimming for an hour">>
+		<<if $slimeEventLength is 1>>
+			<<unset $slimeEvent>>
+			<<unset $slimeEventLength>>
+		<<else>>
+			<<set $slimeEventLength -= 1>>
+		<</if>>
+	<<default>>
+		<<unset $slimeEvent>>
+<</switch>>
+<</nobr>><</widget>>
+
+:: SleepSlimeEventObey
+	You obey the slimes demand. 
+	<<slimeEventResult>>
+
+:: SleepSlimeEventDefy
+<<if $corruption_slime gte ($willpower / 10)>>
+	The slime is able to force you to comy with it's demand.
+	<<slimeEventResult>>
+	
+<<else>>
+	You are able to defy what the slime is demanding and get into bed without listening any further.
+	<br><br>	
+	<<link [[Next|Bed]]>><</link>>
+<</if>>
+
+

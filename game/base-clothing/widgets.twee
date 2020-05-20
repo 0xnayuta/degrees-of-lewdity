@@ -23,11 +23,11 @@
 			<<set $worn.upper.accessory_colour to clone($worn.upper.accessory_colour_options.random())>>
 		<</if>>
 		<<if $worn.upper.one_piece is 1>>
-			<<for _i to 0; _i lt $clothes.lower.length; _i++>>
+			<<for _i to 0; _i lt $clothes.lower.length; _i++>>/*go through all lower clothes*/
 				<<if $clothes.lower[_i].set is $worn.upper.set>>
-				<<set _strip_restrict to 1>>
-				<<lowerundress "wardrobe">>
-				<<set $worn.lower to clone($clothes.lower[_i])>>
+					<<set _strip_restrict to 1>>
+					<<lowerundress "wardrobe">>
+					<<set $worn.lower to clone($clothes.lower[_i])>>
 					<<if $args[1]>>
 						<<set $worn.lower.colour to $args[1]>>
 					<<elseif $clothes.lower[_i].colour_options.length isnot 0>>
@@ -167,6 +167,29 @@
 					<</if>>
 				<</if>>
 			<</for>>
+		<</if>>
+	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "genitalswear">><<nobr>>
+<<if $worn.genitals.cursed is 1>>
+<<else>>
+	<<if $args[0]>>
+		<<set _temp to $args[0]>>
+		<<if $worn.genitals.name isnot "naked">>
+			<<genitalsundress "wardrobe">>
+		<</if>>
+		<<set $worn.genitals to clone($clothes.genitals[_temp])>>
+		<<if $args[1]>>
+			<<set $worn.genitals.colour to $args[1]>>
+		<<elseif $clothes.genitals[_temp].colour_options.length isnot 0>>
+			<<set $worn.genitals.colour to clone($worn.genitals.colour_options.random())>>
+		<</if>>
+		<<if $args[2] and $clothes.genitals[_temp].accessory is 1>>
+			<<set $worn.genitals.accessory_colour to $args[2]>>
+		<<elseif $clothes.genitals[_temp].accessory_colour_options.length isnot 0 and $worn.genitals.accessory is 1>>
+			<<set $worn.genitals.accessory_colour to clone($worn.genitals.accessory_colour_options.random())>>
 		<</if>>
 	<</if>>
 <</if>>
@@ -421,6 +444,23 @@
 				<</if>>
 			<</if>>
 		<</for>>
+	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "genitalssend">><<nobr>>
+<<set _temp to $args[0]>>
+<<if $args[1] is "wardrobe">>
+	<<set $wardrobe.genitals.push(clone($clothes.genitals[_temp]))>>
+	<<if $args[2]>>
+		<<set $wardrobe.genitals.last().colour to $args[2]>>
+	<<elseif $clothes.genitals[_temp].colour_options.length isnot 0>>
+		<<set $wardrobe.genitals.last().colour to clone($wardrobe.genitals.last().colour_options.random())>>
+	<</if>>
+	<<if $args[3] and $wardrobe.genitals.last().accessory is 1>>
+		<<set $wardrobe.genitals.last().accessory_colour to $args[3]>>
+	<<elseif $clothes.genitals[_temp].accessory_colour_options.length isnot 0 and $wardrobe.genitals.last().accessory is 1>>
+		<<set $wardrobe.genitals.last().accessory_colour to clone($wardrobe.genitals.last().accessory_colour_options.random())>>
 	<</if>>
 <</if>>
 <</nobr>><</widget>>
@@ -685,17 +725,17 @@
 <<else>>
 	<<set $upperwet to 0>><<set $upperwetstage to 0>>
 	<<if $carried.upper.name isnot "naked" and $clothingrebuy is 1 and $carried.upper.one_piece isnot "broken" and ($carried.upper.shop.includes("clothing") or $carried.upper.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.upper.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.upper.cost * 1.5 * $pricemult)>>
 			<<uppersend $carried.upper.index "wardrobe" $carried.upper.colour $carried.upper.accessory_colour>>
-			<<set $money -= Math.trunc($carried.upper.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.upper.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.upper.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.upper.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and $worn.upper.one_piece isnot "broken" and ($worn.upper.shop.includes("clothing") or $worn.upper.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.upper.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.upper.cost * 1.5 * $pricemult)>>
 			<<uppersend $worn.upper.index "wardrobe" $worn.upper.colour $worn.upper.accessory_colour>>
-			<<set $money -= Math.trunc($worn.upper.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.upper.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.upper.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.upper.name)>>
@@ -717,17 +757,17 @@
 <<else>>
 	<<set $lowerwet to 0>><<set $lowerwetstage to 0>>
 	<<if $carried.lower.name isnot "naked" and $clothingrebuy is 1 and $carried.lower.one_piece isnot "broken" and ($carried.lower.shop.includes("clothing") or $carried.lower.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.lower.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.lower.cost * 1.5 * $pricemult)>>
 			<<lowersend $carried.lower.index "wardrobe" $carried.lower.colour $carried.lower.accessory_colour>>
-			<<set $money -= Math.trunc($carried.lower.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.lower.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.lower.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.lower.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and $worn.lower.one_piece isnot "broken" and ($worn.lower.shop.includes("clothing") or $worn.lower.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.lower.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.lower.cost * 1.5 * $pricemult)>>
 			<<lowersend $worn.lower.index "wardrobe" $worn.lower.colour $worn.lower.accessory_colour>>
-			<<set $money -= Math.trunc($worn.lower.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.lower.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.lower.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.lower.name)>>
@@ -749,17 +789,17 @@
 <<else>>
 	<<set $underupperwet to 0>><<set $underupperwetstage to 0>>
 	<<if $carried.under_upper.name isnot "naked" and $clothingrebuy is 1 and $carried.under_upper.one_piece isnot "broken" and ($carried.under_upper.shop.includes("clothing") or $carried.under_upper.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.under_upper.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.under_upper.cost * 1.5 * $pricemult)>>
 			<<underuppersend $carried.under_upper.index "wardrobe" $carried.under_upper.colour $carried.under_upper.accessory_colour>>
-			<<set $money -= Math.trunc($carried.under_upper.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.under_upper.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.under_upper.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.under_upper.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and $worn.under_upper.one_piece isnot "broken" and ($worn.under_upper.shop.includes("clothing") or $worn.under_upper.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.under_upper.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.under_upper.cost * 1.5 * $pricemult)>>
 			<<underuppersend $worn.under_upper.index "wardrobe" $worn.under_upper.colour $worn.under_upper.accessory_colour>>
-			<<set $money -= Math.trunc($worn.under_upper.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.under_upper.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.under_upper.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.under_upper.name)>>
@@ -781,17 +821,17 @@
 <<else>>
 	<<set $underlowerwet to 0>><<set $underlowerwetstage to 0>>
 	<<if $carried.under_lower.name isnot "naked" and $clothingrebuy is 1 and $carried.under_lower.one_piece isnot "broken" and ($carried.under_lower.shop.includes("clothing") or $carried.under_lower.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.under_lower.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.under_lower.cost * 1.5 * $pricemult)>>
 			<<underlowersend $carried.under_lower.index "wardrobe" $carried.under_lower.colour $carried.under_lower.accessory_colour>>
-			<<set $money -= Math.trunc($carried.under_lower.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.under_lower.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.under_lower.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.under_lower.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and $worn.under_lower.one_piece isnot "broken" and ($worn.under_lower.shop.includes("clothing") or $worn.under_lower.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.under_lower.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.under_lower.cost * 1.5 * $pricemult)>>
 			<<underlowersend $worn.under_lower.index "wardrobe" $worn.under_lower.colour $worn.under_lower.accessory_colour>>
-			<<set $money -= Math.trunc($worn.under_lower.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.under_lower.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.under_lower.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.under_lower.name)>>
@@ -808,21 +848,46 @@
 <</if>>
 <</nobr>><</widget>>
 
+<<widget "genitalsruined">><<nobr>><<set $eventskipoverrule to 1>>
+<<if $worn.genitals.cursed is 1 and !$worn.genitals.type.includes("broken")>>
+<<else>>
+/**	<<if $carried.genitals.name isnot "naked" and $clothingrebuy is 1 and ($carried.genitals.shop.includes("clothing") or $carried.genitals.shop.includes("forest"))>>
+*		<<if $money gte Math.trunc($carried.genitals.cost * 1.5 * $pricemult)>>
+*			<<genitalssend $carried.genitals.index "wardrobe" $carried.genitals.colour $carried.genitals.accessory_colour>>
+*			<<set $money -= Math.trunc($carried.genitals.cost * 1.5 * $pricemult)>>
+*			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.genitals.name)>>
+*		<<else>>
+*			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.genitals.name)>>
+*		<</if>>
+*	<<elseif $clothingrebuy is 1 and ($worn.genitals.shop.includes("clothing") or $worn.genitals.shop.includes("forest"))>>
+*		<<if $money gte Math.trunc($worn.genitals.cost * 1.5 * $pricemult)>>
+*			<<genitalssend $worn.genitals.index "wardrobe" $worn.genitals.colour $worn.genitals.accessory_colour>>
+*			<<set $money -= Math.trunc($worn.genitals.cost * 1.5 * $pricemult)>>
+*			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.genitals.name)>>
+*		<<else>>
+*			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.genitals.name)>>
+*		<</if>>
+	<</if>>*/
+	<<set $worn.genitals to clone($clothes.genitals[0])>>
+	<<set $carried.genitals to clone($clothes.genitals[0])>>
+<</if>>
+<</nobr>><</widget>>
+
 <<widget "headruined">><<nobr>><<set $eventskipoverrule to 1>>
 <<if $worn.head.cursed is 1 and !$worn.head.type.includes("broken")>>
 <<else>>
 	<<if $carried.head.name isnot "naked" and $clothingrebuy is 1 and ($carried.head.shop.includes("clothing") or $carried.head.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.head.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.head.cost * 1.5 * $pricemult)>>
 			<<headsend $carried.head.index "wardrobe" $carried.head.colour $carried.head.accessory_colour>>
-			<<set $money -= Math.trunc($carried.head.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.head.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.head.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.head.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and ($worn.head.shop.includes("clothing") or $worn.head.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.head.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.head.cost * 1.5 * $pricemult)>>
 			<<headsend $worn.head.index "wardrobe" $worn.head.colour $worn.head.accessory_colour>>
-			<<set $money -= Math.trunc($worn.head.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.head.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.head.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.head.name)>>
@@ -837,17 +902,17 @@
 <<if $worn.face.cursed is 1 and !$worn.face.type.includes("broken")>>
 <<else>>
 	<<if $carried.face.name isnot "naked" and $clothingrebuy is 1 and ($carried.face.shop.includes("clothing") or $carried.face.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.face.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.face.cost * 1.5 * $pricemult)>>
 			<<facesend $carried.face.index "wardrobe" $carried.face.colour $carried.face.accessory_colour>>
-			<<set $money -= Math.trunc($carried.face.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.face.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.face.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.face.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and ($worn.face.shop.includes("clothing") or $worn.face.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.face.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.face.cost * 1.5 * $pricemult)>>
 			<<facesend $worn.face.index "wardrobe" $worn.face.colour $worn.face.accessory_colour>>
-			<<set $money -= Math.trunc($worn.face.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.face.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.face.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.face.name)>>
@@ -862,17 +927,17 @@
 <<if $worn.neck.cursed is 1 and !$worn.neck.type.includes("broken")>>
 <<else>>
 	<<if $carried.neck.name isnot "naked" and $clothingrebuy is 1 and ($carried.neck.shop.includes("clothing") or $carried.neck.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.neck.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.neck.cost * 1.5 * $pricemult)>>
 			<<necksend $carried.neck.index "wardrobe" $carried.neck.colour $carried.neck.accessory_colour>>
-			<<set $money -= Math.trunc($carried.neck.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.neck.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.neck.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.neck.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and ($worn.neck.shop.includes("clothing") or $worn.neck.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.neck.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.neck.cost * 1.5 * $pricemult)>>
 			<<necksend $worn.neck.index "wardrobe" $worn.neck.colour $worn.neck.accessory_colour>>
-			<<set $money -= Math.trunc($worn.neck.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.neck.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.neck.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.neck.name)>>
@@ -887,17 +952,17 @@
 <<if $worn.legs.cursed is 1 and !$worn.legs.type.includes("broken")>>
 <<else>>
 	<<if $carried.legs.name isnot "naked" and $clothingrebuy is 1 and ($carried.legs.shop.includes("clothing") or $carried.legs.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.legs.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.legs.cost * 1.5 * $pricemult)>>
 			<<legssend $carried.legs.index "wardrobe" $carried.legs.colour $carried.legs.accessory_colour>>
-			<<set $money -= Math.trunc($carried.legs.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.legs.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.legs.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.legs.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and ($worn.legs.shop.includes("clothing") or $worn.legs.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.legs.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.legs.cost * 1.5 * $pricemult)>>
 			<<legssend $worn.legs.index "wardrobe" $worn.legs.colour $worn.legs.accessory_colour>>
-			<<set $money -= Math.trunc($worn.legs.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.legs.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.legs.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.legs.name)>>
@@ -912,17 +977,17 @@
 <<if $worn.feet.cursed is 1 and !$worn.feet.type.includes("broken")>>
 <<else>>
 	<<if $carried.feet.name isnot "naked" and $clothingrebuy is 1 and ($carried.feet.shop.includes("clothing") or $carried.feet.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($carried.feet.cost * 1.5)>>
+		<<if $money gte Math.trunc($carried.feet.cost * 1.5 * $pricemult)>>
 			<<feetsend $carried.feet.index "wardrobe" $carried.feet.colour $carried.feet.accessory_colour>>
-			<<set $money -= Math.trunc($carried.feet.cost * 1.5)>>
+			<<set $money -= Math.trunc($carried.feet.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($carried.feet.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($carried.feet.name)>>
 		<</if>>
 	<<elseif $clothingrebuy is 1 and ($worn.feet.shop.includes("clothing") or $worn.feet.shop.includes("forest"))>>
-		<<if $money gte Math.trunc($worn.feet.cost * 1.5)>>
+		<<if $money gte Math.trunc($worn.feet.cost * 1.5 * $pricemult)>>
 			<<feetsend $worn.feet.index "wardrobe" $worn.feet.colour $worn.feet.accessory_colour>>
-			<<set $money -= Math.trunc($worn.feet.cost * 1.5)>>
+			<<set $money -= Math.trunc($worn.feet.cost * 1.5 * $pricemult)>>
 			<<set $effectsmessage to 1>><<set $rebuy_success to clone($worn.feet.name)>>
 		<<else>>
 			<<set $effectsmessage to 1>><<set $rebuy_failure to clone($worn.feet.name)>>
@@ -1325,6 +1390,9 @@
 
 <<else>>
 	<<set $upperwet to 0>><<set $upperwetstage to 0>>
+	<<if $worn.upper.set is $worn.lower.set>>
+		<<set $lowerwet to 0>><<set $lowerwetstage to 0>>
+	<</if>>
 	<<if $args[0] is "wardrobe">>
 		<<if $worn.upper.name is "towel top" or $worn.upper.name is "large towel">>
 			<<if $worn.upper.set is $worn.lower.set>>
@@ -1465,6 +1533,9 @@
 <<if $worn.under_upper.cursed is 1>>
 <<else>>
 <<set $underupperwet to 0>><<set $underupperwetstage to 0>>
+	<<if $worn.under_upper.set is $worn.under_lower.set>>
+		<<set $underlowerwet to 0>><<set $underlowerwetstage to 0>>
+	<</if>>
 	<<if $args[0] is "wardrobe">>
 		<<if $worn.under_upper.name isnot "naked">>
 			<<if $worn.under_upper.set is $worn.under_lower.set>>
@@ -1573,6 +1644,30 @@
 	<</if>>
 <</if>>
 <<unset _strip_restrict>>
+<</nobr>><</widget>>
+
+<<widget "genitalsundress">><<nobr>>
+<<if $worn.genitals.cursed is 1>>
+<<else>>
+	<<if $args[0] is "wardrobe">>
+		<<if $worn.genitals.name isnot "naked">>
+		<<set $wardrobe.genitals.push(clone($worn.genitals))>>
+		<<set $worn.genitals to clone($clothes.genitals[0])>>
+		<</if>>
+	<<elseif $args[0]>>
+		<<if $worn.genitals.name isnot "naked">>
+			<<for _u to 0; _u lt $store.genitals.length; _u++>>
+				<<if $args[0] is $store.genitals[_u].location>>
+				<<set $wardrobe.genitals.push(clone($store.genitals[_u]))>>
+				<<set $store.genitals.deleteAt(_u)>>
+				<</if>>
+			<</for>>
+		<<set $store.genitals.push(clone($worn.genitals))>>
+		<<set $store.genitals.last().location to $args[0]>>
+		<<set $worn.genitals to clone($clothes.genitals[0])>>
+		<</if>>
+	<</if>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "headundress">><<nobr>>

@@ -1,0 +1,1164 @@
+:: Arcade Lock [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>><<set $lock to 300>>
+The arcade is closed. A glowing sign beside the door reads "Opens: <span class="gold"><<if $timestyle is "ampm">>9:00 am<<else>>9:00<</if>></span>"
+<br><br>
+<<if $skulduggery gte $lock>>
+	<span class="green">The lock looks easy to pick.</span>
+	<br><br>
+	<<link [[Pick it (0:10)|Arcade]]>><<pass 10>><<crimeup 20>><<set $logprep to "Broke into the arcade.">><<log $logprep $lockpickimportance>><<info "locks" "arcade|door" $lock "success">><</link>><<crime>>
+	<br>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>><<info "locks" "arcade|door" $lock "chance">>
+	<br><br>
+<</if>>
+<<link [[Leave|Starfish Street]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Arcade [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<if $loglocations is 1>><<log "Was at the arcade." $locationimportance>><</if>>
+<<set $kylar_play to 0>>
+You are in the amusement arcade on Starfish Street.
+
+<<if $daystate is "day" or $daystate is "dusk">>
+The games and gambling machines beep and whirr.
+<<else>>
+The games and gambling machines lie silent.
+<</if>>
+<br><br>
+<<if $stress gte 10000>>
+<<passoutarcade>>
+<<else>>
+	<<if $hour is 21>>
+	It's closing time. Security is herding everyone outside.<<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
+	<br><br>
+
+		<<if $exposed lte 0>>
+		<<link [[Go Outside|Starfish Street]]>><</link>>
+		<br>
+		<<else>>
+		<<link [[Hide until it's over (1:00)|Arcade]]>><<pass 1 hour>><</link>>
+		<</if>>
+	<<else>>
+
+
+		<<if $daystate is "night" or $daystate is "dawn">>
+		You are alone in the darkness.
+		<br><br>
+		<<elseif $exposed gte 1>>
+		You hide beneath a pinball machine to protect your dignity.
+		<br><br>
+		<</if>>
+		<<if $money gte 500 and ($daystate is "day" or $daystate is "dusk") and $exposed lte 0>>
+			<<link [[Play (£5 0:20)|Arcade Play]]>><<set $money -= 500>><<pass 20>><<stress -2>><</link>><<lstress>>
+			<br>
+		<</if>>
+		<<if $exposed lte 0 and $NPCName[$NPCNameList.indexOf("Kylar")].state is "active" and $weather is "rain" and $daystate is "day">>
+			<<if $schoolday isnot 1 or $hour lte 8 or $hour gte 15>>
+				<br>
+				You see Kylar playing on one of the cabinets.
+				<br>
+				<<link [[Approach|Kylar Arcade]]>><</link>>
+				<br><br>
+			<</if>>
+		<</if>>
+
+		<<link [[Leave|Starfish Street]]>><</link>><br>
+	<</if>>
+<</if>>
+
+
+:: Arcade Play [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+<<if $rng gte 80>>
+	You play a shooter, and kill lots of <<print either("zombies", "pirates", "aliens", "soldiers", "criminals", "mutants")>>.
+	<<set $logprep to "shooter">>
+	<br><br>
+	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+		<<arcadeevent "shooter">>
+	<<else>>
+		<<set $rng to random(1, 100)>>
+		<<if $rng gte 71 - ($gamerskill.shooter/3)>>
+			You blow the final boss' head off with a satisfying squelch.
+			<<ltrauma>><<trauma -2>>
+			<<set $logprep2 to " it went well">>
+			<<set $gamerskill.shooter += 1>>
+		<<elseif $rng gte 31>>
+			You manage to get to that one part of the game everyone complains about. You're reminded why.
+			<<set $gamerskill.shooter += 0.5>>
+		<<else>>
+			You swear the gun isn't working properly. You try to shoot an enemy attack out of the air, but instead take it to the face.
+		<</if>>
+		<br><br>
+		<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+		<<log $logprep 1>>
+		<<endevent "ArcG1" 0>>
+		<<arcadeoptions>>
+	<</if>>
+<<elseif $rng gte 60 and $rng % 2>>
+	You play a fighting game.
+	<<set $logprep to "fighting">>
+	<br><br>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+			<<arcadeevent "fighting">>
+		<<else>>
+			<<set $rng to random(1, 100)>>
+			<<if $rng gte 71 - ($gamerskill.fighting/3)>>
+				You beat the final boss with a satisfying punch.
+				<<ltrauma>><<trauma -2>>
+				<<set $gamerskill.fighting += 1>>
+				<<set $logprep2 to " it went well">>
+			<<elseif $rng gte 31>>
+				You do decently.
+				<<set $gamerskill.fighting += 0.5>>
+			<<else>>
+				You keep failing to pull off combos and lose quickly.
+			<</if>>
+			<br><br>
+			<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+			<<log $logprep 1>>
+			<<endevent "ArcG2" 0>>
+			<<arcadeoptions>>
+		<</if>>
+<<elseif $rng gte 60>>
+	You play a beat-em-up game.
+	<<set $logprep to "beat-em-up">>
+	<br><br>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+			<<arcadeevent "beat-em-up">>
+		<<else>>
+			<<set $rng to random(1, 100)>>
+			<<if $rng gte 71 - ($gamerskill.fighting/3)>>
+				You beat the final boss with a satisfying punch.
+				<<ltrauma>><<trauma -2>>
+				<<set $logprep2 to " it went well">>
+			<<elseif $rng gte 31>>
+				You get a few stages in but end up losing around the mid point.
+			<<else>>
+				You get to the final boss but end up losing.
+			<</if>>
+			<<set $gamerskill.fighting += 0.5>>
+			<br><br>
+			<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+			<<log $logprep 1>>
+			<<endevent "ArcG3" 0>>
+			<<arcadeoptions>>
+		<</if>>
+<<elseif $rng gte 40 and $rng % 2>>
+	You play a dancing game.
+	<<set $logprep to "dancing">>
+	<br><br>
+	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+		<<arcadeevent "dancing">>
+	<<else>>
+		<<set $rng to random(1, 100)>>
+		<<if $danceskill gte $rng*6+400 - $gamerskill.rhythm>>
+			You do well.
+			<<ltrauma>><<trauma -2>>
+			<<danceskilluse>>
+			<<set $gamerskill.rhythm += 0.5>>
+			<<set $logprep2 to " it went well">>
+		<<elseif $danceskill gte $rng*6>>
+			It's a little too fast for you, and you barely keep up with the rhythm.
+			<<danceskilluse>>
+			<<set $gamerskill.rhythm += 0.5>>
+		<<else>>
+			You make many mistakes and get a bad score.
+		<</if>>
+		<<tiredness 1>><<physique 1>>
+		<br>
+		<br>
+		<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+		<<log $logprep 1>>
+		<<endevent "ArcG4" 0>>
+		<<arcadeoptions>>
+	<</if>>
+<<elseif $rng gte 40>>
+	You play a rhythm game.
+	<<set $logprep to "rhythm">>
+	<br><br>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+			<<arcadeevent "rhythm">>
+		<<else>>
+			<<set $rng to random(1, 100)>>
+			<<if $rng gte 71 - ($gamerskill.rhythm/3)>>
+				You nail it and make barely any mistakes.
+				<<ltrauma>><<trauma -2>>
+				<<set $gamerskill.rhythm += 1>>
+				<<set $logprep2 to " it went well">>
+			<<elseif $rng gte 31>>
+				You struggle a bit and don't get a very good result.
+				<<set $gamerskill.rhythm += 0.5>>
+			<<else>>
+				You can barely keep the rhythm and make many mistakes
+			<</if>>
+			<br><br>
+			<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+			<<log $logprep 1>>
+			<<endevent "ArcG5" 0>>
+			<<arcadeoptions>>
+		<</if>>
+<<elseif $rng gte 20>>
+	You play <<print either("a high speed", "a futuristic", "a surreal", "a colourful", "a realistic")>> racing game.
+	<<set $logprep to "racing">>
+	<br><br>
+		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+			<<arcadeevent "racing">>
+		<<else>>
+			<<set $rng to random(1, 100)>>
+			<<if $rng gte 71 - ($gamerskill.racing/3)>>
+				You race past the competition and during the final lap you even drive past some of the cars in the last places.
+				<<ltrauma>><<trauma -2>>
+				<<set $gamerskill.racing += 1>>
+				<<set $logprep2 to " it went well">>
+			<<elseif $rng gte 31>>
+				Race starts off decently but you never quite make it to the top spots.
+				<<set $gamerskill.racing += 0.5>>
+			<<else>>
+				You were in the lead for a while, but during the last stretch you make a mistake and cars just behind you finish before you.
+				<<set $gamerskill.racing += 0.5>>
+			<</if>>
+			<br><br>
+			<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+			<<log $logprep 1>>
+			<<endevent "ArcG6" 0>>
+			<<arcadeoptions>>
+		<</if>>
+<<elseif $rng gte 10>>
+	<<set $logprep to "pinball">>
+	You play pinball.
+	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+		<<arcadeevent "pinball">>
+	<<else>>
+		<<set $rng to random(1, 100)>>
+		<<if $rng gte 71 - ($gamerskill.pinball/3)>>
+			<<ltrauma>><<trauma -2>>
+			<<set $gamerskill.pinball += 1>>
+			It goes well.
+			<<set $logprep2 to " it went well">>
+		<<elseif $rng gte 31>>
+			It goes decently.
+		<<else>>
+			It goes badly.
+		<</if>>
+		<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+		<<log $logprep 1>>
+		<<endevent "ArcG7" 0>>
+		<<arcadeoptions>>
+	<</if>>
+<<else>>
+	You play a fast-paced shmup.
+	<<set $logprep to "shmup">>
+	<br><br>
+	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+		<<arcadeevent "shmup">>
+	<<else>>
+		<<set $rng to random(1, 100)>>
+		<<if $rng gte 71 - ($gamerskill.shmup/3)>>
+			Luck is on your side. The right powerup drops at the right moment, and you blaze through to victory.
+			<<ltrauma>><<trauma -2>>
+			<<set $logprep2 to " it went well">>
+		<<elseif $rng gte 31>>
+			It's a little too fast for you, and you're shot down halfway through the game.
+		<<else>>
+			You almost make it, but the final boss proves too tough.
+		<</if>>
+		<<set $gamerskill.shmup += 1>>
+		<br><br>
+		<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+".">>
+		<<log $logprep 1>>
+		<<endevent "ArcG8" 0>>
+		<<arcadeoptions>>
+	<</if>>
+<</if>>
+
+
+:: Arcade Watched Stop [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+You move away from the <<personstop>> Better safe than sorry.
+<br><br>
+<<set $logprep to "I played a "+$logprep+" game at the arcade but a "+$person+" started standing very close to me so I stopped.">>
+<<log $logprep 1>>
+<<endevent $eventstr>>
+<<arcadeoptions>>
+
+:: Arcade Watched Play [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+<<if $logprep is "beat-em-up">>
+	<<set $gamerskill.fighting += 0.5>>
+<<elseif $logprep is "dancing">>
+	<<set $gamerskill.rhythm += 0.5>>
+<<else>>
+	<<set $gamerskill[$logprep] += 0.5>>
+<</if>>
+<<if $rng gte 81>>
+You keep playing. The <<person>> creeps closer, until <<he>> presses against your back. <<His>> hands reach out.
+<br><br>
+<<set $logprep to "While playng a "+$logprep+" game at the arcade I kept playing despite a "+$person+" moving to stand very close to me and then">>
+<<link [[Next|Arcade Watched Rape]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+<<else>>
+You decide you're being paranoid, and keep playing. The <<person>> soon wanders away to offer advice to someone else.
+<br><br>
+<<set $logprep to "I played a "+$logprep+" game at the arcade but a "+$person+" trying to give me advise started standing way too close to me so I stopped.">>
+<<log $logprep 1>>
+<<endevent $eventstr>>
+<<arcadeoptions>>
+
+<</if>>
+
+:: Arcade Watched Dance [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+/* should add chastity, no underwear and crossdressing+no undies reactions */
+<<if $phase is 1>>
+	<<stress 1>><<tiredness 1>><<danceskilluse>><<physique 1>>
+	<<set $gamerskill.rhythm += 0.5>>
+	You keep playing despite the fact that the <<person>> might be seeing under your skirt.
+	<<exhibitionism1>>
+	<br>
+	<<if $danceskill gte $rng*6+400>>
+		You manage to play well despite the situation.
+		<br><br>
+		<<ltrauma>><<trauma -1>>
+		<<if $rng % 4 is 1>> 
+			
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game at the arcade a person stood behind me and crouched down giving "+$him+" a chance to see under my skirt, when I was done">>
+		<<else>>
+			<<He>> notices another person paying attention to <<him>> and <<he>> quietly moves away before you're done.
+			<br><br>
+			<<set $logprep to "While playing a dancing game at the arcade a person stood behind me and crouched down giving "+$him+" a chance to see under my skirt but I managed to play well despite that.">>
+			<<log $logprep 2>>
+		<</if>> 
+	<<else>>
+		<<His>> stare is too distracting and you play badly.
+		<<if $rng % 3 is 1>> 
+			<<He>> seems to enjoy how concious of <<him>> you seem to be.
+			<br><br>
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game at the arcade a person stood behind me and crouched down giving "+$him+" a chance to see under my skirt distracting me, when I was done">>
+		<<else>>
+			<<He>> notices it and looks apologetic before moving on.
+			<br><br>
+			<<set $logprep to "While playing a dancing game at the arcade a person stood behind me and crouched down giving "+$him+" a chance to see under my skirt causing me to be distracted and play badly.">>
+			<<log $logprep 2>>
+		<</if>> 
+	<</if>>
+<<elseif $phase is 2>>
+	<<tiredness 2>><<danceskilluse>><<physique 1>><<wearandtear "dance">>
+	<<if $worn.lower.skirt is 1>>
+		You keep playing and focus on making the movement of your ass and hips as tantalising as possible and giving the <<person>> plenty of chances to see under your skirt.
+		<<exhibitionism3>>
+		<<set $logprep2 to "seemingly trying to peek under my skirt">>
+	<<else>>
+		Now with someone watching you decide to put more effort into looking good while you play.
+		<<set $logprep2 to "">>
+	<</if>>
+	<br><br>
+	<<if $danceskill gte $rng*6+400>>
+		You perform well.
+		<<if $rng % 2>> 
+			<br><br>
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game someone came by to watch "+$logprep2+" so I decided to show off my skills and body which went well, when I was done">>
+		<<else>> 
+			<<He>> whistles appreciatively seeming very impressed with your skills but moves on after a while.
+			<<stress -2>><<lstress>>
+			<<set $logprep to "While playing a dancing game someone came by to watch "+$logprep2+" so I decided to show off my skills and body, "+$he+" seemed satisfied with my performance.">>
+			<<log $logprep 2>>
+		<</if>> 
+	<<else>>
+		Your score suffers and you feel like you ended up looking more <<if !$rng % 2>>silly<<else>><<if $awareness gte 100>>slutty<<else>>desperate<</if>><</if>> than good.
+		<<if !$rng % 2>> 
+			<<He>> seems to enjoy watching you anyway and when you're done <<he>> gives you a appreciative nod and a smile before moving on.
+			<br><br>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by to watch "+$logprep2+" so I decided to show off my skills and body but I ended up mostly just looking silly but "+$he+" seemed to enjoy watching me despite that.">>
+		<<else>>
+			<<He>> seems to enjoy watching your antics anyway.
+			<br><br>
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by to watch "+$logprep2+" so I decided to show off my skills and body which went well, when I was done">>
+			<<log $logprep 2>>
+		<</if>> 
+	<</if>>
+<<else>>/* no skirt, no show off */
+	<<stress 1>><<tiredness 1>><<danceskilluse>><<physique 1>>
+	<<set $gamerskill.rhythm += 0.5>>
+	You keep playing ignoring the <<person>> watching you.
+	<br>
+	<<if $danceskill gte $rng*6+400>>
+		You nail it and play way better than you were expecting.
+		<<if $rng % 5 is 1>> 
+			<<He>> seems to enjoy seeing how well you're moving.
+			<br><br>
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by to watch and enjoy seeing how well I was doing, when I was done">>
+		<<else>>
+			<<He>> seems to get bored and leaves after a while.
+			<br><br>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by to watch but "+$he+" got bored and left despite how well I was doing.">>
+			<<log $logprep 2>>
+		<</if>> 
+	<<else>>
+		<<if $rng % 5 is 1>> 
+			You don't so well but <<he>> seems to enjoy watching you fail.
+			<br><br>
+			<<set $phase to -1>>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by to watch my terrible performance, when I was done">>
+		<<else>>
+			You don't so well and <<he>> eventually leaves seeming bored.
+			<br><br>
+			<<set $logprep to "While playing a dancing game at the arcade someone came by and after watching my terrible performance for a bit "+$he+" got bored and left.">>
+			<<log $logprep 2>>
+		<</if>> 
+	<</if>> 
+<</if>>
+<<if $phase is -1>>
+	When you finish <<he>> moves behind you and grabs your ass.
+	<<stress 1>>
+	<br><br>
+	<<if $promiscuity gte 15>>
+		<<link [[Allow it|Arcade Watched Sex]]>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+	<<set $rng to random(1, 100)>>
+	<<if $physique gte $rng * 90 + 6000 or $rng is 1>>>>
+		<<link [[Struggle|Arcade Watched Rape]]>>
+			<<set $logprep to $he+" grabbed my ass">>
+		<</link>>
+		<br>
+	<<else>>
+		<<link [[Struggle|Arcade Watched Shove]]>>
+			<<set $logprep to $he+" grabbed my ass but I shoved him away.">>
+		<</link>>
+		<br>
+	<</if>>
+<<else>>
+	<<endevent "ArcE3">>
+	<<arcadeoptions>>
+<</if>> 
+
+:: Arcade Watched Rape [nobr]
+
+<<if $molestationstart is 1>>
+	<<combatstart>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+
+	<<maninit>>
+	<<set $rescue to 1>>
+<</if>>
+
+<<effects>>
+
+<<effectsman>><<man>>
+
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if $enemyhealth lte 0>>
+<span id="next"><<link [[Next|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+<span id="next"><<link [[Next|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
+<<elseif $alarm is 1 and $rescue is 1>>
+<span id="next"><<link [[Next|Arcade Watched Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+<span id="next"><<link [[Next|Arcade Watched Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcade Watched Rape Finish [nobr]
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+<<ejaculation>>
+
+The <<person1>><<person>> shoves you against the cabinet, before wandering off.
+<br><br>
+
+<<tearful>> you gather yourself.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+/*
+$logprep should be "..., when I was done" or "...I kept playing despite a "+$person+" moving to stand very close to me and then"
+*/
+<<set $logprep to $logprep+" "+$he+" "+$aw_xedx+" until "+$he+" was satisfied.">>
+<<log $logprep 3>>
+<<endevent $eventstr>>
+
+<<link [[Next|Arcade]]>><</link>>
+
+<<elseif $enemyhealth lte 0>>
+
+You shove the <<person>> to the ground.
+<br><br>
+
+<<tearful>> you take cover beneath a pinball machine.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+<<set $logprep to $logprep+" "+$he+" started to "+$aw_xx+" but I managed to shove "+$him+" away before "+$he+" was finished.">>
+<<log $logprep 3>>
+<<endevent $eventstr>>
+
+<<link [[Next|Arcade]]>><</link>>
+
+<<else>>
+<<set $rescued += 1>>
+
+Your cry attracts attention. People look over, including a member of staff. The <<person1>><<person>> steps away from you, claiming that <<he>> wasn't doing anything. <<He>> doesn't try anything else.
+<br><br>
+
+<<tearful>> you gather yourself.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+<<set $logprep to $logprep+" "+$he+" started to "+$aw_xx+" but I managed to cry out and attract attention of other people before "+$he+" was finished.">>
+<<log $logprep 3>>
+<<endevent $eventstr>>
+
+<<link [[Next|Arcade]]>><</link>>
+
+<</if>>
+
+
+:: Arcade Watched Shove [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+You manage to shove the <<person>> away.
+<br><br>
+<<He>> decides to leave when people start looking in your direction. 
+<<log $logprep 2>>
+
+<<endevent $eventstr>>
+
+<<link [[Next|Arcade]]>><</link>>
+
+
+:: Arcade Watched Lean [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+You lean closer to <<him>> and <<he>> eagerly starts grabs onto you.
+<br><br>
+<<set $logprep to "While playng a "+$logprep+" game at the arcade a "+$person+" giving me started standing really close to me so I leaned toward "+$him+" then">>
+<<link [[Next|Arcade Watched Sex]]>><</link>>
+
+:: Arcade Watched Sex [nobr]
+
+<<if $sexstart is 1>>
+	<<combatstart>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	
+	<<maninit>>
+	<<set $enemytrust += 50>><<promiscuity2>>
+<</if>>
+<<effects>>
+<<effectsman>><<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if $finish is 1>>
+	<span id="next"><<link [[Next|Arcade Watched Sex Finish]]>><</link>></span><<nexttext>>
+<<elseif $enemyhealth lte 0>>
+	<span id="next"><<link [[Next|Arcade Watched Sex Finish]]>><</link>></span><<nexttext>>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<span id="next"><<link [[Next|Arcade Watched Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcade Watched Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcade Watched Sex Finish [nobr]
+
+<<set $outside to 0>><<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<He>> says nothing and wanders off.
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<set $logprep to $logprep+" "+$he+" "+$aw_xedx+" until "+$he+" was satisfied.">>
+	<<log $logprep 3>>
+	<<endevent $eventstr>>
+	<<link [[Next|Arcade]]>><</link>>
+<<elseif $enemyhealth lte 0>>
+	You shove the <<person>> to the ground.
+	<br><br>
+	<<tearful>> you take cover beneath a pinball machine.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<set $logprep to $logprep+" "+$he+" started to "+$aw_xx+" but I shoved "+$him+" away before "+$he+" was finished.">>
+	<<log $logprep 3>>
+	<<endevent $eventstr>>
+	<<link [[Next|Arcade]]>><</link>>
+<<else>>
+	<<He>> looks disappointed and walks off.
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<set $logprep to $logprep+" "+$he+" started to "+$aw_xx+" but I asked "+$him+" to stop before "+$he+" was finished.">>
+	<<log $logprep 3>>
+	<<endevent $eventstr>>
+	<<link [[Next|Arcade]]>><</link>>
+<</if>>
+
+
+:: Arcade Keep Playing [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+Having a second player does help, and you make it to the end of the game. <<He>> leaves without a word.
+<br><br>
+<<if $logprep is "beat-em-up">>
+	<<set $gamerskill.fighting += 0.5>>
+<<elseif $logprep is "dancing">>
+	<<set $gamerskill.rhythm += 0.5>>
+<<else>>
+	<<set $gamerskill[$logprep] += 0.5>>
+<</if>>
+<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+", a "+$person+" joined in and quietly played as the second player.">>
+<<log $logprep 2>>
+<<endevent "ArcE1">>
+<<arcadeoptions>>
+
+
+:: Arcade Shove [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+You shoulder barge <<him>> aside and grab <<his>> gun. <<He>> takes the hint.
+<br><br>
+The rest of the game is easier with the extra weapon, but you do need to manage your lives more carefully.
+<br><br>
+<<if $logprep is "beat-em-up">>
+	<<set $gamerskill.fighting += 0.5>>
+<<elseif $logprep is "dancing">>
+	<<set $gamerskill.rhythm += 0.5>>
+<<else>>
+	<<set $gamerskill[$logprep] += 0.5>>
+<</if>>
+
+<<endevent "ArcE1">>
+<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+", a "+$person+" wanted to play as player two but I shoved "+$him+" away.">>
+<<log $logprep 2>>
+<<arcadeoptions>>
+
+:: Arcade Steal [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<if $logprep is "shooter">>
+You drop your gun and walk away. The <<person>> picks it up. <<Hes>> distracted managing both, so you reach for the money sticking out of <<his>> pocket.
+<</if>>
+<br><br>
+
+<<skulduggerycheck>>
+<<if $skulduggerysuccess is 1>>
+<<info "locks" "arcade|gamer" $skulduggerydifficulty "success">>
+
+<span class="green"><<He>> doesn't notice.</span> <span class="gold">You've gained £30.</span><<set $money += 3000>>
+<br><br>
+
+	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
+	<<skulduggeryskilluse>>
+	<<else>>
+	<span class="blue">That was too easy. You didn't learn anything.</span>
+	<br><br>
+	<</if>>
+<<endevent "ArcE1">>
+<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+", a "+$person+" wanted to play too but I walked away and stole from "+$him+".">>
+<<log $logprep 2>>
+<<link [[Next|Arcade]]>><</link>>
+<br>
+
+<<else>>
+<<info "locks" "arcade|gamer" $skulduggerydifficulty "fail">>
+
+<span class="red"><<He>> turns and spots you.</span> "Oi," <<he>> says. "Keep your mitts to yourself." <<He>> tucks the money further into <<his>> pocket, well beyond easy reach.
+<br><br>
+
+	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
+	<<skulduggeryskilluse>>
+	<<else>>
+	<span class="blue">That was too easy. You didn't learn anything.</span>
+	<br><br>
+	<</if>>
+<<endevent "ArcE1">>
+<<set $logprep to "I played a "+$logprep+" game at the arcade"+$logprep2+", a "+$person+" wanted to play too but I walked away and tried to stole from "+$him+" but "+$he+" caught me.">>
+<<log $logprep 2>>
+<<link [[Next|Arcade]]>><</link>>
+<br>
+
+<</if>>
+
+
+:: Passout Arcade [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+You've pushed yourself too much.
+<br><br>
+<<passout>>
+<<log "I passed out in the arcade." $passoutimportance>>
+<<set $danger to random(1, 10000)>>
+<<if $danger gte (9900 - $allure)>>
+	<<if $exposed gte 1 or $daystate is "night" or $daystate is "dawn">>
+	<<link [[Wake up|Arcade Trash]]>><</link>>
+	<<else>>
+	<<link [[Wake up|Arcade Crane]]>><</link>>
+	<</if>>
+<<else>>
+<<ambulance>>
+<</if>>
+
+<<pass 1 hour>>
+
+<<set $trauma +=10>><<set $stress -= 2000>>
+
+
+
+:: Arcade Crane [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<generatey1>><<generatey2>><<generatey3>><<generatey4>><<generatey5>><<generatey6>><<person1>>
+You awaken on something soft yet bumpy. It's a bed of plush toys. Your wrists and ankles are tied down. A metal claw hovers above you.
+<br><br>
+Your eyes adjust to the light, and you see a <<person>> behind a pane of glass, watching you. <<He>> has friends with <<himstop>>
+<br><br>
+"I got it this time," <<he>> says, looking determined. <<He>> pushes a coin into the machine, and pushes a lever. The claw moves above you.
+<br><br>
+<<set $logprep to "I woke up tied up inside a crane machine of the arcade with a bunch of kids trying to strip me using the crane">>
+
+<<link [[Next|Arcade Crane 2]]>><<set $phase to 0>><</link>>
+<br>
+
+:: Arcade Crane 2 [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+/* add choosing between trying to break free, dodging the crane and resting? */
+
+<<if !$worn.upper.type.includes("naked")>>
+
+The claw rests above your chest, then plunges down toward your $worn.upper.name. It hooks the fabric, and begins to rise. The <<person>> and <<his>> friends watch intently.
+
+<br><br>
+	<<if $rng gte 51>>
+		The claw loosens its grip, dropping your $worn.upper.name back against your body. The crowd sigh in frustration.
+		<br><br>
+		
+		<<if $phase is 0>>
+			"Idiot," a <<person2>><<person>> says, shoving <<his>> friend aside. "I'll show you how it's done."
+			<br><br>
+			
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+				
+		<<elseif $phase is 1>>
+			"My turn," a <<person3>><<person>> says, taking over the lever. "This can't be hard."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 2>>
+			"You guys must be new to this," a <<person4>><<person>> says. "Watch."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 3>>
+			"This is taking too long," a <<person5>><<person>> says. "Someone will catch us soon. Give me a go."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<else>>
+			<<endevent>><<generate1>><<person1>>
+			"What you kids up to over there?" a <<person>> shouts from somewhere out of view. The crowd turn and flee.
+			<br><br>
+			The <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<He>> reaches in, and unties the cables that bind you.
+			<br><br>
+			You crawl through the hole, escaping into the arcade proper.
+				<<if $exposed gte 1>>
+				Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+				<</if>>
+			<br><br>
+			"I can't believe how cruel some kids can be," <<he>> says, shaking <<his>> head. "You go careful now."
+			<br><br>
+			
+			<<endevent "ArcPO1" 0>>
+			<<set $logprep to $logprep+", luckily a "+$person+" drove them off while I was still clothed and let me out.">>
+			<<log $logprep 3>>
+			<<link [[Next|Arcade]]>><</link>>
+			<br>
+			
+		<</if>>
+	<<else>>
+		<<if $worn.upper.set is $worn.lower.set>>
+		<<set $worn.upper.integrity to 0>><<set $worn.lower.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.upper.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+		<br><br>
+		
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+		<<else>>
+		<<set $worn.upper.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.upper.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+		<br><br>
+		
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+		<</if>>
+	<</if>>
+
+<<elseif !$worn.lower.type.includes("naked")>>
+The claw rests above your thighs, then plunges down toward your $worn.lower.name. It hooks the fabric, and begins to rise. The <<person>> and <<his>> friends watch intently.
+
+<br><br>
+
+	<<if $rng gte 51>>
+		The claw loosens its grip, dropping your $worn.lower.name back against your body. The crowd sigh in frustration.
+		<br><br>
+		
+		<<if $phase is 0>>
+			"Idiot," a <<person2>><<person>> says, shoving <<his>> friend aside. "I'll show you how it's done."
+			<br><br>
+			
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+				
+		<<elseif $phase is 1>>
+			"My turn," a <<person3>><<person>> says, taking over the lever. "This can't be hard."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 2>>
+			"You guys must be new to this," a <<person4>><<person>> says. "Watch."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 3>>
+			"This is taking too long," a <<person5>><<person>> says. "Someone will catch us soon. Give me a go."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<else>>
+			<<endevent>><<generate1>><<person1>>
+			"What you kids up to over there?" a <<person>> shouts from somewhere out of view. The crowd turn and flee.
+			<br><br>
+			The <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<He>> reaches in, and unties the cables that bind you.
+			<br><br>
+			You crawl through the hole, escaping into the arcade proper.
+				<<if $exposed gte 1>>
+				Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+				<</if>>
+			<br><br>
+			"I can't believe how cruel some kids can be," <<he>> says, shaking <<his>> head. "You go careful now."
+			<br><br>
+			
+			<<endevent "ArcPO1" 0>>
+			<<set $logprep to $logprep+", luckily a "+$person+" drove them off while I was still mostly clothed and let me out.">>
+			<<log $logprep 3>>
+			<<link [[Next|Arcade]]>><</link>>
+			<br>
+			
+		<</if>>
+	<<else>>
+		<<set $worn.upper.integrity to 0>><<set $worn.lower.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.upper.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+
+	<</if>>
+	
+<<elseif !$worn.under_upper.type.includes("naked")>>		
+The claw rests above your thighs, then plunges down toward your $worn.under_upper.name. It hooks the fabric, and begins to rise. The <<person>> and <<his>> friends watch intently.
+	<br><br>
+	
+	<<if $rng gte 51>>
+		The claw loosens its grip, dropping your $worn.under_lower.name back against your body. The crowd sigh in frustration.
+		<br><br>
+		
+		<<if $phase is 0>>
+			"Idiot," a <<person2>><<person>> says, shoving <<his>> friend aside. "I'll show you how it's done."
+			<br><br>
+			
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+				
+		<<elseif $phase is 1>>
+			"My turn," a <<person3>><<person>> says, taking over the lever. "This can't be hard."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 2>>
+			"You guys must be new to this," a <<person4>><<person>> says. "Watch."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 3>>
+			"This is taking too long," a <<person5>><<person>> says. "Someone will catch us soon. Give me a go."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<else>>
+			<<endevent>><<generate1>><<person1>>
+			"What you kids up to over there?" a <<person>> shouts from somewhere out of view. The crowd turn and flee.
+			<br><br>
+			The <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<He>> reaches in, and unties the cables that bind you.
+			<br><br>
+			You crawl through the hole, escaping into the arcade proper.
+				<<if $exposed gte 1>>
+				Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+				<</if>>
+			<br><br>
+			"I can't believe how cruel some kids can be," <<he>> says, shaking <<his>> head. "You go careful now."
+			<br><br>
+			
+			<<endevent "ArcPO1" 0>>
+			<<set $logprep to $logprep+", eventually a "+$person+" appeared to drive them off and let me out.">>
+			<<log $logprep 3>>
+			<<link [[Next|Arcade]]>><</link>>
+			<br>
+			
+		<</if>>
+	<<else>>
+		<<if $worn.under_upper.set is $worn.under_lower.set>>
+		<<set $worn.under_upper.integrity to 0>><<set $worn.under_lower.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.upper.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+		<br><br>
+		
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+		<<else>>
+		<<set $worn.under_upper.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.under_upper.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+		<br><br>
+		
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+		<</if>>
+	<</if>>
+
+<<elseif !$worn.under_lower.type.includes("naked")>>
+The claw rests above your thighs, then plunges down toward your $worn.under_lower.name. It hooks the fabric, and begins to rise. The <<person>> and <<his>> friends watch intently.
+
+
+	<br><br>
+
+	<<if $rng gte 51>>
+		The claw loosens its grip, dropping your $worn.lower.name back against your body. The crowd sigh in frustration.
+		<br><br>
+		
+		<<if $phase is 0>>
+			"Idiot," a <<person2>><<person>> says, shoving <<his>> friend aside. "I'll show you how it's done."
+			<br><br>
+			
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+				
+		<<elseif $phase is 1>>
+			"My turn," a <<person3>><<person>> says, taking over the lever. "This can't be hard."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 2>>
+			"You guys must be new to this," a <<person4>><<person>> says. "Watch."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<elseif $phase is 3>>
+			"This is taking too long," a <<person5>><<person>> says. "Someone will catch us soon. Give me a go."
+			<br><br>
+			<<link [[Next|Arcade Crane 2]]>><<set $phase += 1>><</link>>
+		<<else>>
+			<<endevent>><<generate1>><<person1>>
+			"What you kids up to over there?" a <<person>> shouts from somewhere out of view. The crowd turn and flee.
+			<br><br>
+			The <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<He>> reaches in, and unties the cables that bind you.
+			<br><br>
+			You crawl through the hole, escaping into the arcade proper.
+				<<if $exposed gte 1>>
+				Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+				<</if>>
+			<br><br>
+			"I can't believe how cruel some kids can be," <<he>> says, shaking <<his>> head. "You go careful now."
+			<br><br>
+			
+			<<endevent "ArcPO1" 0>>
+			<<set $logprep to $logprep+", eventually a "+$person+" appeared to drive them off and let me out.">>
+			<<log $logprep 3>>
+			<<link [[Next|Arcade]]>><</link>>
+			<br>
+			
+		<</if>>
+	<<else>>
+		<<set $worn.under_lower.integrity to 0>>
+		The claw tugs at your fabric, pulling it off your body. With a tear, your $worn.under_lower.name is torn from you.<<integritycheck>><<exposure>>
+		<br>
+		
+		The <<person>> and <<his>> friends gape in awe and excitement, leering at your <<lewdnessstop>>
+		<br><br>
+		<<link [[Next|Arcade Crane 2]]>><</link>>
+
+	<</if>>	
+	
+<<else>>
+	You lie helpless as the <<person>> and <<his>> friends pull phones from pockets and take pictures. You continue to test your bindings, but it's no use.
+	<<fameexhibitionism 20>>
+	<br><br>
+	<<if $hour lte 19 or $rng gte 5>>
+		<<endevent>><<generate1>><<person1>>
+		"What you kids up to over there?" a <<person>> shouts from somewhere out of view. The crowd turn and flee.
+		<br><br>
+		The <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<He>> reaches in, and unties the cables that bind you.
+		<br><br>
+		You crawl through the hole, escaping into the arcade proper. Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+		<br><br>
+		
+		"I can't believe how cruel some kids can be," <<he>> says, shaking <<his>> head. "You go careful now."
+		<br><br>
+		
+		<<endevent "ArcPO1" 1>>
+		<<set $logprep to $logprep+", they managed to fully strip me and took a bunch of pictures before a "+$person+" came by to scare them away and let me out.">>
+		<<log $logprep 3>>
+		<<link [[Next|Arcade]]>><</link>>
+		<br>
+		<<link [[Hide|Arcade Crane 3]]>><</link>>
+	<<else>>
+		<<pass 15>>
+		Eventually they are satisfied and leave.
+		/* somehow moving/adding plushies so that you are less visible? */
+		<<set $logprep to $logprep+", they managed to fully strip me and took a bunch of pictures before getting bored and leaving.">>
+		<<log $logprep 3>>
+		<<link [[Next|Arcade Crane 3]]>><</link>>
+	<</if>>
+<</if>>
+
+
+:: Arcade Crane 3 [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<if $hour isnot 8>>
+	<<if $phase is 0>>
+		Arcade soon closes down leaving you with no hope of anyone noticing you for a long time.
+		<br><br>
+		<<link [[Try to free yourself (0:30)|Arcade Crane 3]]>><<set $phase to 1>><<pass 30>><</link>><<gpain>><<gtiredness>>
+		<br>
+		<<link [[Sleep (8:00)|Arcade Crane 3]]>><<set $phase to 2>><</link>><<ltiredness>>
+		<br>
+	<<elseif $phase is 1>>
+		You try to free yourself.
+		<<tiredness 2>><<physique 1>><<pain 2>>
+		<<if $rng gte 99 - ($physique/1000)>>/* means -16 at most */
+			You manage to break your bindings, there is hatch you could open and use to crawl out of the crane machine. 
+			<br>
+			The bed of plushies is pretty soft, you could sleep on it. <<if $hour lte 5 or $hour gte 21>> Considering how late it is <<if $exposed gte 2>>and how naked you are <</if>>it might be safer than wandering outside.<</if>>
+			<br><br>
+			<<link [[Leave|Arcade]]>><<endevent "ArcPO1" 2>><</link>>
+			<br>
+			<<link [[Sleep (8:00)|Arcade Crane 3]]>><<set $phase to 3>><</link>><<ltiredness>>
+			<br>
+		<<else>>
+			You fail.
+			<br><br>
+			<<link [[Try to free yourself (0:30)|Arcade Crane 3]]>><<set $phase to 1>><<pass 30>><</link>><<gpain>><<gtiredness>>
+			<br>
+			<<link [[Sleep|Arcade Crane 3]]>><<set $phase to 2>><</link>><<ltiredness>>
+			<br>
+		<</if>>
+	<<elseif $phase is 2 or $phase is 3>>
+		<<if $hour gt 10 or $hour + 8 lt 8>>
+			/*<<pass 8 "h">>*/
+			<<set $sleephour to 8>>
+		<<else>>
+			<<set $sleephour to 8-$hour>>
+			<<set $phase to 5>>
+		<</if>>
+		<<sleep>>
+		<<if $nightmares gte 1 and $controlled is 0>>
+			You dream you are being hunted by a scary plushy.
+		<<else>>
+			You sleep soundly among the plushies.
+		<</if>>
+		<<sleepeffects>>
+		<br><br>
+		<<if $phase is 5>>
+			Your sleep is interrupted by someone lifting you and bringing you to brightness but soon the darkness returns and you drift back to sleep despite the now harder bed below you.
+			<<link [[Next|Trash Intro]]>><<endevent "ArcPO1" 3>><</link>>
+		<<elseif $phase is 2>>
+			<<link [[Try to free yourself (0:30)|Arcade Crane 3]]>><<set $phase to 1>><<pass 30>><</link>><<gpain>><<gtiredness>>
+			<br>
+			<<link [[Sleep(8:00)|Arcade Crane 3]]>><<set $phase to 2>><</link>><<ltiredness>>
+		<<else>>
+			You wake from your sleep to a still dark arcade. But the bed of plushies is pretty soft and considering how late it is sleeping here until morning might be a safer than wandering outside naked.
+			<br><br>
+			<<link [[Leave|Arcade]]>><</link>>
+			<<link [[Wait (1:00)|Arcade Crane 3]]>><<set $phase to 4>><<pass 1 "h">><</link>>
+		<</if>>
+		
+	<<elseif $phase is 4>>
+		You wait for a while.
+		<br><br>
+		<<link [[Leave|Arcade]]>><</link>>
+		<<link [[Wait (1:00)|Arcade Crane 3]]>><<pass 1 "h">><</link>>
+	<</if>>
+<<else>>
+	<<generate1>><<person1>>
+	Lights are turned on and after a while a <<person>> walks into view. <<He>> gapes at the sight of you. Snapping to attention, <<he>> crouches beside the machine. A hatch opens after a few moments of <<his>> fiddling. <<if $phase lte 2>><<He>> reaches in, and unties the cables that bind you.<</if>>
+	<br><br>
+	You crawl through the hole, escaping into the arcade proper.
+		<<if $exposed gte 1>>
+		Blushing, <<he>> wraps some towels around you. "Not much, but better than nothing aye?"<<towelup>>
+		<</if>>
+	<br><br>
+	"How the heck did you end up in there?" <<he>> says, shaking <<his>> head. "No matter, I need to open this place up in a bit so off you go." He leads you out of the building.
+	<br><br>
+	<<link [[Next|Starfish Street]]>><</link>>
+	
+<</if>>
+
+:: Arcade Trash [nobr]
+<<set $outside to 0>><<set $location to "town">><<effects>>
+
+You awaken on something hard and bumpy. Just in time to see a door slam shut above you, plunging you into darkness. You drift back into unconsciousness.
+<br><br>
+
+<<link [[Next|Trash Intro]]>><</link>>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

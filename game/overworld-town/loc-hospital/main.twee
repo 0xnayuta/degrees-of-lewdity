@@ -11,7 +11,7 @@ You feel yourself being lifted onto a stretcher before passing out again.
 :: Widgets Ambulance [widget]
 <<widget "ambulance">><<nobr>>
 
-<<if $kylarsus gte 96 and $kylarstate is "active">>
+<<if $NPCName[$NPCNameList.indexOf("Kylar")].rage gte 96 and $NPCName[$NPCNameList.indexOf("Kylar")].state is "active">>
 <<link [[Wake up|Kylar Basement]]>><<pass 1 hour>><</link>>
 <<else>>
 <<link [[Wake up|Ambulance rescue]]>><<pass 1 hour>><</link>>
@@ -72,9 +72,9 @@ You are hiding under a hospital bed, hoping no one spots you in this state of un
 <span class="pink">You feel $vaginalchastityparasite squirming inside your vagina.</span>
 <br>
 <</if>>
-<<if $penilechastityparasite is 0 and $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $parasite.clit.name is undefined and $parasite.penis.name is undefined and $parasite.nipples.name is undefined and $parasite.bottom.name is undefined>>
+<<if $penilechastityparasite is 0 and $vaginalchastityparasite is 0 and $analchastityparasite is 0 and $parasite.clit.name is undefined and $parasite.penis.name is undefined and $parasite.nipples.name is undefined and $parasite.bottom.name is undefined and $parasite.left_ear.name is undefined and $parasite.right_ear.name is undefined>>
 <<else>>
-<<link [[Inquire about parasite removal (0:10)|Hospital Parasite]]>><<pass 10>><</link>>
+<<link [[Inquire about body parasite removal (0:10)|Hospital Parasite]]>><<pass 10>><</link>>
 <br>
 <</if>>
 <<if $breastsize lte 11>>
@@ -140,12 +140,12 @@ Through the door and to the left there is a precipitous drop. You peer down and 
 
 :: Molestation Hospital [nobr]
 <<if $molestationstart is 1>>
+<<combatstart>>
 <<set $molestationstart to 0>>
 <<controlloss>>
 <<violence 1>>
 <<neutral 1>>
 <<molested>>
-<<set $event to "molestationhospital">>
 <<generate1>><<nurseinit>><<person1>>You feel a sharp pain in your arm. You open your eyes to see a <<person>> in a nurse outfit and medical mask injecting you with a mystery liquid. Almost immediately a daze descends on you. You find it hard to move, or even think. A perverse warmth starts rising within your belly.
 <br>
 <</if>>
@@ -199,7 +199,7 @@ The nurse explains that you have suffered a severe stress response, but you are 
 <<endevent>>
 
 
-<<harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard enters.
+<<npc Harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard enters.
 <br><br>
 
 <<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young, can't be older than 25.
@@ -209,7 +209,7 @@ The nurse explains that you have suffered a severe stress response, but you are 
 <<else>>
 You awaken in a bed at the civic hospital.
 
-<<harper>><<person1>>Doctor Harper enters at that moment, carrying <<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to you examine you further.
+<<npc Harper>><<person1>>Doctor Harper enters at that moment, carrying <<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to you examine you further.
 <br><br>
 <<set $logprep to "I woke up at the hospital and Doctor Harper came in to ask some questions about my life">>
 
@@ -253,7 +253,7 @@ You've gained £5.
 <<logopinion "That was interesting">>
 <<endcombat>>
 
-[[Next->Paediatric ward]]
+<span id="next"><<link [[Next->Paediatric ward]]>><</link>></span><<nexttext>>
 
 
 :: Hospital Escape [nobr]
@@ -358,6 +358,10 @@ You've pushed yourself too much.
 :: Hospital Bed Examination [nobr]
 <<set $outside to 0>><<set $location to "town">><<effects>>
 <<unbind>>
+<<if $worn.face.type.includes("gag") or $worn.face.type.includes("blindfold")>>
+	<<set $worn.face.type.push("broken")>>
+	<<faceruined>>
+<</if>>
 <<if $exposed gte 1>>
 	<<if $player.gender is "m">>
 		<<underlowerwear 4>>
@@ -372,7 +376,7 @@ You've pushed yourself too much.
 <<if $trauma lte ($traumamax / 10) * 2>>
 <<He>> gently interrogates you on a variety of subjects relating to your home life, how school is going and how your well-being has been faring. <<He>> informs you that everything is okay as far as <<he>> can tell, but you should be careful in the future.
 <br><br>
-
+<<wash>>
 A nurse helps you to your feet, and you soon find yourself being discharged.
 <br><br>
 
@@ -429,7 +433,7 @@ It's dark out. Maybe you should wait until morning.
 <span class="gold">The doctor tells you to visit <<him>> here at the hospital on <span class="gold">Fridays</span> for therapy.</span>
 <br><br>
 <<set $psych to 1>>
-
+<<wash>>
 A nurse helps you to your feet, and you soon find yourself being discharged.
 <br><br>
 <<set $logprep to $logprep+" after answering them "+$he+" told me to come visit "+$him+" on Fridays for therapy.">>
@@ -437,7 +441,7 @@ A nurse helps you to your feet, and you soon find yourself being discharged.
 
 The doctor reminds you to visit <<him>> here at the hospital on <span class="gold">Fridays</span>.
 <br><br>
-
+<<wash>>
 A nurse helps you to your feet, and you soon find yourself being discharged.
 <br><br>
 <<set $logprep to $logprep+" after answering them "+$he+" reminded me to visit "+$him+" on Fridays.">>
@@ -572,11 +576,12 @@ As you walk down an empty corridor a door beside you opens and a pair of arms dr
 
 :: Rent Hospital Fight [nobr]
 <<if $fightstart is 1>>
+<<combatstart>>
 <<set $fightstart to 0>>
 
 <<neutral 1>>
-<<set $event to "molestationhome">>
-<<man1init>>
+
+<<maninit>>
 <<set $enemyhealthmax += 200>>
 <<set $enemyhealth += 200>>
 <<set $enemyanger += 200>>
@@ -678,19 +683,19 @@ You fall to the ground, too hurt to move.
 <<if $baileyhospital gte 2>>
 <<set $baileyhospital += 1>>
 
-<<bailey>><<person1>>Bailey waits for you beside <<his>> car. "This is the last time I'm picking you up like this. I've already wasted enough time." The journey home is uneventful.
+<<npc Bailey>><<person1>>Bailey waits for you beside <<his>> car. "This is the last time I'm picking you up like this. I've already wasted enough time." The journey home is uneventful.
 <br><br>
 <<set $logprep to " but warned me that this is the last time "+$he+" does so.">>
 <<elseif $baileyhospital gte 1>>
 <<set $baileyhospital += 1>>
 
-<<bailey>><<person1>>Bailey waits for you beside <<his>> car. "You need to be more careful. Next time you might not be so lucky." The journey home is uneventful.
+<<npc Bailey>><<person1>>Bailey waits for you beside <<his>> car. "You need to be more careful. Next time you might not be so lucky." The journey home is uneventful.
 <br><br>
 
 <<else>>
 <<set $baileyhospital to 1>>
 
-<<bailey>><<person1>>Bailey waits for you beside <<his>> car. "I'm glad you're alright," <<he>> says. "You wouldn't believe the paperwork involved when one of you idiots goes missing. Get in." The journey home is uneventful.
+<<npc Bailey>><<person1>>Bailey waits for you beside <<his>> car. "I'm glad you're alright," <<he>> says. "You wouldn't believe the paperwork involved when one of you idiots goes missing. Get in." The journey home is uneventful.
 <br><br>
 
 <</if>>
@@ -774,7 +779,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<if $hospitalintro is 0>><<set $hospitalintro to 1>>
 
-<<harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
+<<npc Harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
 <br><br>
 
 <<He>> smiles at you. "Hello, I'm Doctor Harper." You enter <<his>> office and take a seat. <<He>> looks young, can't be older than 25.
@@ -782,7 +787,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<else>>
 
-<<harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
+<<npc Harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
 <br><br>
 
 <</if>>
@@ -880,7 +885,7 @@ You can't afford it.
 <<upperstrip>>
 <<lowerstrip>>
 <<underlowerstrip>>
-Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.under_lower.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
+Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.genitals.type.includes("chastity")>>You can't remove your $worn.genitals.name, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
 <br><br>
 
 "Wear this." <<He>> instructs. You put the gown on. "Right, if you'd like to come with me, it's just a short walk away."
@@ -942,7 +947,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<if $hospitalintro is 0>><<set $hospitalintro to 1>>
 
-<<harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
+<<npc Harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
 <br><br>
 
 <<He>> smiles at you. "Hello, I'm Doctor Harper." You enter <<his>> office and take a seat. <<He>> looks young, can't be older than 25.
@@ -950,7 +955,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<else>>
 
-<<harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
+<<npc Harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
 <br><br>
 
 <</if>>
@@ -1048,7 +1053,7 @@ You can't afford it.
 <<upperstrip>>
 <<lowerstrip>>
 <<underlowerstrip>>
-Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.under_lower.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
+Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.genitals.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
 <br><br>
 
 "Wear this." <<He>> instructs. You put the gown on. "Right, if you'd like to come with me, it's just a short walk away."
@@ -1074,7 +1079,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<if $hospitalintro is 0>><<set $hospitalintro to 1>>
 
-<<harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
+<<npc Harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
 <br><br>
 
 <<He>> smiles at you. "Hello, I'm Doctor Harper." You enter <<his>> office and take a seat. <<He>> looks young, can't be older than 25.
@@ -1082,7 +1087,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<else>>
 
-<<harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
+<<npc Harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
 <br><br>
 
 <</if>>
@@ -1151,7 +1156,7 @@ You can't afford it.
 <<upperstrip>>
 <<lowerstrip>>
 <<underlowerstrip>>
-Harper accepts the payment. "Please undress," <<he>> says as <<he>> leaves the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.under_lower.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
+Harper accepts the payment. "Please undress," <<he>> says as <<he>> leaves the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.genitals.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
 <br><br>
 
 "Wear this." <<He>> instructs. You put the gown on. "Right, if you'd like to come with me, it's just a short walk away."
@@ -1211,7 +1216,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<if $hospitalintro is 0>><<set $hospitalintro to 1>>
 
-<<harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
+<<npc Harper>><<person1>>You don't have to wait long. A <<if $pronoun is "m">>man<<else>>woman<</if>> wearing a white medical coat and carrying a clipboard emerges from an adjacent room and beckons you over.
 <br><br>
 
 <<He>> smiles at you. "Hello, I'm Doctor Harper." You enter <<his>> office and take a seat. <<He>> looks young, can't be older than 25.
@@ -1219,7 +1224,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<else>>
 
-<<harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
+<<npc Harper>><<person1>>You don't have to wait long. Doctor Harper emerges from <<his>> office and beckons you over. You enter <<his>> office and take a seat.
 <br><br>
 
 <</if>>
@@ -1288,7 +1293,7 @@ You can't afford it.
 <<upperstrip>>
 <<lowerstrip>>
 <<underlowerstrip>>
-Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.under_lower.type.includes("chastity")>>You can't remove your chastity belt, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
+Harper accepts the payment. "Please undress," <<he>> says as <<he>> stands to leave the room. You remove your clothing and stand waiting, feeling more than a little exposed. <<if $worn.genitals.type.includes("chastity")>>You can't remove your $worn.genitals.name, you hope it won't be a problem. <</if>><<He>> soon returns, carrying a medical gown.
 <br><br>
 
 "Wear this." <<He>> instructs. You put the gown on. "Right, if you'd like to come with me, it's just a short walk away."

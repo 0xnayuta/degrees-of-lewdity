@@ -31,6 +31,9 @@
 <<widget "control">><<nobr>>
 	<<if $args[0]>>
 		<<set $control += ($args[0] * 10)>>
+		<<if $args[0] gte 1>>
+		<<set $controlstart += ($args[0] * 10)>>
+		<</if>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -39,6 +42,29 @@
 		<<set $control += ($args[0] * 10)>>
 		<<if $control gte $controlstart>>
 			<<set $control to $controlstart>>
+		<</if>>
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "corruption">><<nobr>>
+<<if $args[0]>>
+	<<set $corruption_slime += $args[0]>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "semenvolume">><<nobr>>
+	<<if $args[0]>>
+		<<set $semen_volume += ($args[0] * 3)>>
+		<<set $semen_volume = Math.clamp($semen_volume, 24, $semen_max)>>
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "milkvolume">><<nobr>>
+	<<if $args[0]>>
+		<<set $lactation_pressure += 1>>
+		<<if $lactating is 1>>
+			<<set $milk_volume += ($args[0] * 2)>>
+			<<set $milk_volume = Math.clamp($milk_volume, 24, $milk_max)>>
 		<</if>>
 	<</if>>
 <</nobr>><</widget>>
@@ -94,8 +120,22 @@
 <</nobr>><</widget>>
 
 <<widget "pain">><<nobr>>
+<!-- Including masochism effect for all pain NG v2.7 -->
 	<<if $args[0]>>
+		<<if $masochism gte 100>>
+			<<set $pain += (($args[0] * (1 - ($masochism / 1200))) * 4)>>
+			<<set $arousal += (($args[0] * (0 + ($masochism / 14))) * 4)>>
+			<<set $arousalmasochism += ($args[0] * (0 + ($masochism / 14)))>>
+		<<else>>
 		<<set $pain += ($args[0] * 4)>>
+		<</if>>			
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "masopain">><<nobr>>
+	<<if $args[0]>>
+		<<set $pain += (($args[0] * (1 - ($masochism / 1200))) * 4)>>
+		<<set $arousal += (($args[0] * (0 + ($masochism / 10))) * 4)>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -213,8 +253,27 @@
 <<widget "awareness">><<nobr>>
 	<<if $args[0]>>
 		<<set $awareness += ($args[0])>>
+		<<for _e to 0; _e lt $clothing_number; _e++>>
+		<<activeclothes>>
+			<<if $worn[_active_clothes].type.includes("dark")>>
+				<<set $awareness += ($args[0])>>
+			<</if>>
+		<</for>>
 	<</if>>
 <</nobr>><</widget>>
+
+<<widget "purity">><<nobr>>
+	<<if $args[0]>>
+		<<set $purity += ($args[0])>>
+		<<for _e to 0; _e lt $clothing_number; _e++>>
+		<<activeclothes>>
+			<<if $worn[_active_clothes].type.includes("holy")>>
+				<<set $purity += ($args[0])>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</nobr>><</widget>>
+
 
 <<widget "suspicion">><<nobr>>
 	<<if $args[0]>>
@@ -273,6 +332,25 @@
 	<<if $args[0]>>
 		<<set $submissive -= ($args[0] * 1)>>
 	<</if>>
+<</nobr>><</widget>>
+
+<<widget "incgpenisinsecurity">><<nobr>>
+	<<set _n to 10>>
+	<<if $args[0] and typeof($args[0]) is "number">> <<set _n to $args[0]>> <</if>>
+	<<switch $penissize>>
+		<<case 4>>
+			<<insecurity "penis_big" _n>><<ginsecurity "penis_big">>
+		<<case 1>>
+			<<insecurity "penis_small" _n>><<ginsecurity "penis_small">>
+		<<case 0>>
+			<<insecurity "penis_tiny" _n>><<ginsecurity "penis_tiny">>
+		<<case -1>>
+			<<insecurity "penis_tiny" _n>><<ginsecurity "penis_tiny">>
+	<</switch>>
+<</nobr>><</widget>>
+
+<<widget "incggpenisinsecurity">><<nobr>>
+	<<incgpenisinsecurity 20>>
 <</nobr>><</widget>>
 
 <<widget "insecurity">><<nobr>>
@@ -428,9 +506,95 @@
 	<<set $willpower = Math.clamp($willpower, 0, $willpowermax)>>
 <</nobr>><</widget>>
 
-<<widget "tanned">><<nobr>>
-	<!-- <<tanned #>> is meant to represent minutes of sunbathing. PC can tan for up to 10 hrs / 600 minutes for deep tan -->
-	<<if $args[0]>>
-		<<if $tanned lte 600>><<set $tanned += $args[0]>><</if>>
+<<widget "hope">><<nobr>>
+<<if $args[0]>>
+<<set $orphan_hope += ($args[0] * 2)>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "reb">><<nobr>>
+<<if $args[0]>>
+<<set $orphan_reb += ($args[0] * 2)>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "grace">><<nobr>>/*Optional second variable is the rank of the NPC giving the order. Grace changes won't apply if the player's rank equals or exceeds the NPC's.*/
+<<if $args[0]>>
+	<<if $args[1] is "monk">>
+		<<if $temple_rank is "initiate">>
+			<<set $grace += $args[0]>>
+			<<set $grace = Math.clamp($grace, -100, 100)>>
+		<<else>>
+		<</if>>
+	<<elseif $args[1] is "priest">>
+		<<if $temple_rank is "initiate" or $temple_rank is "monk">>
+			<<set $grace += $args[0]>>
+			<<set $grace = Math.clamp($grace, -100, 100)>>
+		<<else>>
+		<</if>>
+	<<elseif $args[1] is "bishop">>
+		<<if $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest">>
+			<<set $grace += $args[0]>>
+			<<set $grace = Math.clamp($grace, -100, 100)>>
+		<<else>>
+		<</if>>
+	<<else>>
+		<<set $grace += $args[0]>>
+		<<set $grace = Math.clamp($grace, -100, 100)>>
 	<</if>>
+<</if>>
+<</nobr>><</widget>>
+
+<<widget "smell">><<nobr>>/* add(or set with $args[2]="set") 1 or $args[1] to smell($args[0]) and sort smells */
+/* $smells probably shouldn't usually be changed without using this */
+<<if $args[1] isnot undefined>><<set _amount to $args[1]>><<else>><<set _amount to 1>><</if>>
+<<for _i to 0; _i lt $smells.length; _i++ >>
+	<<if $smells[_i].includes($args[0])>>
+		<<if $args[2] isnot "set">>
+			<<set $smells[_i][1] += _amount>>
+		<<else>>
+			<<set $smells[_i][1] to _amount>>
+		<</if>>
+		<<set _found to true>>
+	<</if>>
+<</for>>
+<<if _found isnot true>>
+	<<print "<br>Error, "+$args[0]+" isn't a valid smell name(new smell types can be added by adjusting widget \"cleansmells\").<br>">>
+	/* this could instead of an error add a new smell to $smells but that would mean typos and such wouldn't get caught as easily */
+<</if>>
+<<run $smells.sort(function(a,b){return b[1] - a[1];}) >>/* sort smells so that strongest come first, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort */
+<</nobr>><</widget>>
+
+<<widget "reducesmells">><<nobr>>/* reduce all smells equally(called by at least "hour" widget ) */
+<<if $args[1]>><<set _amount to $args[1]>><<else>><<set _amount to 0.1>><</if>>
+<<for _i to 0; _i lt $smells.length; _i++ >>
+	<<if $smells[_i][1] gt 0>>
+		<<set $smells[_i][1] -= _amount>>
+	<</if>>
+<</for>>
+<</nobr>><</widget>>
+
+<<widget "cleansmells">><<nobr>>/* also used for init */
+<<set $smells to [["soap", 0], ["semen", 0], ["slime", 0], ["trash", 0], ["sweat", 0], ["forest", 0], ["piss", 0], ["alcohol", 0], ["perfume", 0], ["blood", 0], ["salt", 0], ["chlorine", 0]]>>
+/*
+for now unused smells: perfume, blood, salt, chlorine
+potential smells: animals/fur/wolves, incense, smoke/fire/burnt, sweets/sugar
+*/
+
+/*
+<<set $smells to {soap:0, semen:0, slime:0, trash:0, sweat:0, plants:0, piss:0, alcohol:0, perfume:0, blood:0, salt:0, chlorine:0}>>
+<<set $smells to {}>>
+soap
+semen
+slime
+trash
+sweat
+forest
+piss
+alcohol
+perfume
+blood
+salt
+chlorine
+*/
 <</nobr>><</widget>>

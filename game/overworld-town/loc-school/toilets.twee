@@ -18,6 +18,10 @@ You are in the antechamber outside the school toilets.
 		<<link [[Secret tunnel to drain system (0:02)|Commercial Drain]]>><<pass 2>><</link>>
 		<br><br>
 	<</if>>
+	<<if $brothel_basement_intro is 1 and $promiscuity gte 55>>
+		<<link [[Set up gloryhole in antechamber|School Gloryhole Start]]>><</link>><<promiscuous4>>
+		<br><br>
+	<</if>>
 	<<link [[Leave the toilets (0:01)|Hallways]]>><<pass 1>><</link>>
 	<br>
 <</if>>
@@ -42,19 +46,19 @@ You hiss at the cat. It backs away from you, it's ears turned back. You stare at
 :: School Toilets Cat [nobr]
 
 <<if $molestationstart is 1>>
+	<<combatstart>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-	<<set $event to "dogpack">>
-	<<beast1init>><<beasttype cat>><<set $enemytrust -= 40>>
-	<<set $beaststance to "top">><<set $head to "grappled">>
+	<<beastNEWinit 1 cat>><<set $enemytrust -= 40>>
+	<<set $NPCList[0].stance to "top">><<set $head to "grappled">>
 <</if>>
 <<effects>>
 <<effectsman>>
 <br>
-<<beast>>
+<<beast $enemyno>>
 <br><br>
 <<stateman>>
 <br><br>
@@ -136,24 +140,24 @@ You hiss at the cat. It backs away from you, it's ears turned back. You stare at
 :: School Toilets Sex [nobr]
 
 <<if $sexstart is 1>>
+	<<combatstart>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-	<<set $event to "molestationhome">>
-	<<man1init>>
+	<<maninit>>
 	<<set $enemytrust += 100>>
 	You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly me. I think I need to be punished, don't you?"<<promiscuity2>>
 	<br><br>
 	<<set $logprep to "TBD toilet sex">>
 <</if>>
 <<if $molestationstart is 1>>
+	<<combatstart>>
 	<<set $molestationstart to 0>>
 	<<set $consensual to 0>>
 	<<controlloss>>
 	<<neutral 1>>
-	<<set $event to "molestationhome">>
-	<<man1init>>
+	<<maninit>>
 	<<molested>>
 	The stall door swings open, and the <<person1>><<person>> drags you out to where <<his>> friends await.
 	<br><br>
@@ -325,6 +329,11 @@ You hiss at the cat. It backs away from you, it's ears turned back. You stare at
 	<</if>>
 <<elseif $phase is 5>>
 	You try to plead with them, but it's no use. "If you won't play ball," the <<person1>><<person>> says. "Why should we?" They laugh as they leave the room. You peek out the stall, and see an empty space where your clothes once were.
+	<<if $bus is "boys">>
+		<<storeon "schoolboys" "delete">>
+	<<else>>
+		<<storeon "schoolgirls" "delete">>
+	<</if>>
 	<br><br>
 	<<set $logprep to "TBD school toilet clothes taken pleaded.">>
 	<<log $logprep 2>>
@@ -354,6 +363,14 @@ You are in the boy's toilets.
 	<<else>>
 		<<storeactions "schoolboys">>
 		<<link [[Masturbate|School Boy's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
+		<<if $canpee gt 0>>
+			<<link [[Use toilet (0:02)|School Toilets Use]]>><<pass 2>><<set $phase to "m">><</link>>
+		<<elseif $watersportsdisable is "f">>
+			Your bladder is still mostly empty.
+		<<else>>
+			You don't feel the need to use toilet.
+		<</if>>
 		<br>
 		<<storeon "schoolboys" "check">>
 		<<if _store_check isnot 1>>
@@ -387,6 +404,14 @@ You are in the girl's toilets.
 		<<storeactions "schoolgirls">>
 		<<link [[Masturbate|School Girl's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
 		<br>
+		<<if $canpee gt 0>>
+			<<link [[Use toilet (0:02)|School Toilets Use]]>><<pass 2>><<set $phase to "f">><</link>>
+		<<elseif $watersportsdisable is "f">>
+			Your bladder is still mostly empty.
+		<<else>>
+			You don't feel the need to use toilet.
+		<</if>>
+		<br>
 		<<storeon "schoolgirls" "check">>
 		<<if _store_check isnot 1>>
 			<<link [[Leave|Hallways]]>><</link>>
@@ -401,3 +426,16 @@ You are in the girl's toilets.
 <</if>>
 <<set $eventskip to 0>>
 <<storecleanup>>
+
+
+:: School Toilets Use [nobr]
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+
+<<toiletuse>>
+<<if $phase is "m">>
+	<<link [[Next|School Boy's Toilets]]>><</link>>
+	<<set $bus to "girls">>
+<<else>>
+	<<link [[Next|School Girl's Toilets]]>><</link>>
+	<<set $bus to "boys">>
+<</if>>

@@ -13,6 +13,16 @@
 		<<link [[Ask for help covering your tracks|Pub Task]]>><</link>>
 		<br>
 	<</if>>
+	<<if $police_hack is 1>>
+		<<link [[Ask for help breaking into the police computer|Pub Hack]]>><</link>>
+		<br>
+	<<elseif $pub_hack_job is 3 and $hacker_tasks.length gte 2>>
+		<<link [[Pass on the hacker's message|Pub Hack]]>><<set $pub_hack_job to 4>><</link>>
+		<br>
+	<<elseif $police_hack is 4>>
+		<<link [[Ask for updated police password (£300)|Pub Hack]]>><<set $money -= 30000>><</link>>
+		<br>
+	<</if>>
 	<<if $pubtask2 is 1>>
 		<<link [[Hand over the black box|Pub Box]]>><</link>>
 		<br>
@@ -85,7 +95,7 @@ You enter the pub. The interior has a cosy, rustic look. Old farm tools decorate
 	The place teems with activity. Getting a table must be difficult.
 <</if>>
 <br><br>
-<<landry>><<person1>>
+<<npc Landry>><<person1>>
 <<if $pronoun is "m">>
 	"I've not seen you around," says a man's voice beside you. <<He>> has short black hair, a grey sweater and dark trousers. Not someone you'd normally look twice at, least of all in a place like this. "Would you like to join me? I have a proposition for you."
 	<br><br>
@@ -109,7 +119,7 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 :: Pub Landry [nobr]
 
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
-<<landry>><<person1>>You ask the bartender for Landry, who nods and beckons you over to your usual table. You've barely sat down when Landry arrives and sits opposite you.
+<<npc Landry>><<person1>>You ask the bartender for Landry, who nods and beckons you over to your usual table. You've barely sat down when Landry arrives and sits opposite you.
 <br><br>
 "What have you got for me?" <<he>> asks.
 <br><br>
@@ -185,3 +195,81 @@ You make £$blackmoney.
 <<logopinion "That was interesting">>
 <<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
+
+:: Pub Hack [nobr]
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">><<set $phase to 1>>
+<<npc Landry>><<person1>>
+<<if $police_hack is 1>>
+	"Hacking a Police computer?!" Landry nods, reclining. "I like your style. But if you're looking for my help you're out of luck.
+	Never been into all that cyber stuff."
+	<br><br>
+	Landry sits forward, rubs <<his>> chin thoughtfully. "Times change though. And they all keep telling me that's where the money is nowadays. Tell you what -
+	they say there's this kid in town, <span class="teal">some orphan kid at the home on Domus.</span> Some kind of computers whiz. Makes stuff, breaks stuff.
+	I think the kid's called Mickey or McKay or something like that."
+	<br><br>
+	You think of the other orphans. One face leaps to mind.
+	<br>
+	"Whatever," Landry sits back. "Best hope is to go to the orphanage on Domus and find this kid. Just watch out. Person who runs the place is called Bailey.
+	Nasty piece of work. Makes Briar look like a bleeding-heart humanitarian. You know Briar? Well anyway, Bailey's protective. If you get caught, you're on your own.
+	Bailey's connected. My name won't help. But if you can get this kid to come work with me there'll be money in it for you."
+	<br><br>
+	/* The deal sounds like it's just for the money and you could convince the hacker to help you with police computer stuff regardless */
+
+	<<link [[Deal|Pub Hack Deal]]>><<set $police_hack to 2>><<set $pub_hack_job to 1>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[No Deal|Pub Hack Deal]]>><<set $phase to 2>><</link>>
+	<br>
+<<elseif $police_hack is 4>>
+	"Sure," Landry says. "Give me 10 minutes."
+	<br><br>
+
+	You watch the other bar customers for a while. Landry soon returns.
+	<br>
+	"Here you are," Landry says. One new police master password. And our mutual friend says hi."
+	<br><br>
+	<<set $police_hack to 5>>
+	<<set $logprep to "Got a new police password from Landry.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	<br>
+<<elseif $pub_hack_job is 4>>
+	"Yeah, the kid turned up already," Landry rubs <<his>> head. "Strange one. Won't even tell me his name? Her name? I can't even tell. Smart as you like though.
+	Said you'd have a bunch of Esty cards for me to take?"
+	<br>
+	You hand over the SD memory cards. In return Landry gives you an envelope. Inside is money and a card with a word scrawled on it.
+	<br><br>
+	"Thanks. And that there's the police master password along with a £500 thank you for bringing in some talent. I may have new kinds of work in the future.
+	There's also this."
+	<br>
+	Landry hands you a USB stick.
+	<br><br>
+
+	"Some kind of virus. Spreads over an eye-pee network? Wipes every computer clean. To quote our mutual friend: 'it will most certainly ruin someone's day.'
+	Should be able to cause some trouble with that one. Or make old trouble disappear. Right? Maybe next thing I'll be asking you to clear up my past misdeeds.
+	Happy hunting."
+	<br><br>
+	<<set $money += 50000>><<set $police_hack to 5>>
+	<<set $logprep to "Delivered hacker's message to Landry.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<link [[Leave|Pub]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Pub Hack Deal [nobr]
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+
+<<if $phase is 1>>
+	"Excellent. Good hunting."
+	<<set $logprep to "Agreed to try to get some Hacker living in the orphanage to work for Landry.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+<<elseif $phase is 2>>
+	"Then I can't really help you. Good luck with that computer."
+	<<set $logprep to "Landry wanted me to get some Hacker living in the orphanage to work for "+$him+" but I said I wasn't interested.">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+<</if>>
+<br><br>
+<<link [[Next|Pub]]>><<endevent>><</link>>
