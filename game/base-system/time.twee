@@ -2,6 +2,8 @@
 <<widget "day">><<nobr>>
 <<set $comb to 0>>
 
+<<earnAllFeats true>>
+<<set $noon_check to 0>>
 <<set $renttime -= 1>>
 <<set $motherwake to 0>>
 <<if $gamemode isnot "hard">>
@@ -136,6 +138,7 @@
 <<if $parasite.right_ear.name is "slime">>
 <<set $corruption_slime += 1>>
 <</if>>
+<<unset $street_slime>>
 <<if $chef_rework gte 1>>
 <<set $chef_rework -= 1>>
 <</if>>
@@ -167,8 +170,35 @@
 <<if $temple_event isnot undefined>>
 <<set $temple_event to 1>>
 <</if>>
+<<if $wolfcavebreast gte 1>>
+	<<unset $wolfcavebreast>>
+<</if>>
+<<unset $temple_pray>>
+<<unset $lake_meditate>>
+<<unset $ex_day>>
+<<unset $ex_club>>
+<<unset $ex_brothel>>
+<<unset $ex_studio>>
+<<unset $ex_high>>
+<<unset $ex_stall>>
+<<unset $ex_mason>>
+<<unset $mason_spoken>>
+<<unset $stall_rented>>
+<<if $stall_rejected gte 1>>
+	<<set $stall_rejected -= 1>>
+	<<set $stall_rejected = Math.clamp($stall_rejected, 0, 100)>>
+<</if>>
+<<if $mason_pond is 3>>
+	<<if $weather isnot "rain">>
+		<<set $mason_pond_timer -= 1>>
+	<</if>>
+	<<if $mason_pond_timer lte 0>>
+		<<unset $mason_pond_timer>>
+		<<set $mason_pond to 4>>
+	<</if>>
+<</if>>
 
-<<set $masochism *= 0.98>>
+<<set $masochism *= 0.985>>
 <<if $masochism_level is 0>>
 	<<if $masochism gte 100>><<set $masochism_level to 1>>
 	<<set $effectsmessage to 1>><<set $masochism_message to "up 1">>
@@ -196,8 +226,6 @@
 	<<set $effectsmessage to 1>><<set $masochism_message to "down 3">>
 	<</if>>
 <</if>>
-
-
 
 <<set $exhibitionismstress1 to 0>>
 <<set $exhibitionismstress2 to 0>>
@@ -263,66 +291,34 @@
 <</if>>
 
 <<set $monthday += 1>>
-<<if $month is "january">>
-	<<if $monthday gt 31>>
+
+<<set _months to ["january","february","march","april","may","june","july","august","september","october","november","december"]>>
+<<switch $month>>
+	<<case "february">>
+		<<if $year % 4 is 0>>
+			<<set _lastDay to 29>>
+		<<else>>
+			<<set _lastDay to 28>>
+		<</if>>
+		<<set _monthDefault to true>>
+	<<case "april" "june" "september" "november">>
+		<<set _lastDay to 30>>
+		<<set _monthDefault to true>>
+	<<case "december">>
+		<<if $monthday gt 31>>
+			<<set $monthday to 1>>
+			<<set $month to "january">>
+			<<set $year += 1>>
+		<</if>>
+	<<default>>
+		<<set _lastDay to 31>>
+		<<set _monthDefault to true>>
+<</switch>>
+
+<<if _monthDefault is true>>
+	<<if $monthday gt _lastDay>>
 		<<set $monthday to 1>>
-		<<set $month to "february">>
-	<</if>>
-<<elseif $month is "february">>
-	<<if $monthday gt 28>>
-		<<set $monthday to 1>>
-		<<set $month to "march">>
-	<</if>>
-<<elseif $month is "march">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "april">>
-	<</if>>
-<<elseif $month is "april">>
-	<<if $monthday gt 30>>
-		<<set $monthday to 1>>
-		<<set $month to "may">>
-	<</if>>
-<<elseif $month is "may">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "june">>
-	<</if>>
-<<elseif $month is "june">>
-	<<if $monthday gt 30>>
-		<<set $monthday to 1>>
-		<<set $month to "july">>
-	<</if>>
-<<elseif $month is "july">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "august">>
-	<</if>>
-<<elseif $month is "august">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "september">><<year>>
-	<</if>>
-<<elseif $month is "september">>
-	<<if $monthday gt 30>>
-		<<set $monthday to 1>>
-		<<set $month to "october">>
-	<</if>>
-<<elseif $month is "october">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "november">>
-	<</if>>
-<<elseif $month is "november">>
-	<<if $monthday gt 30>>
-		<<set $monthday to 1>>
-		<<set $month to "december">>
-	<</if>>
-<<elseif $month is "december">>
-	<<if $monthday gt 31>>
-		<<set $monthday to 1>>
-		<<set $month to "january">>
-		<<set $year += 1>>
+		<<set $month to _months[_months.indexOf($month) + 1]>>
 	<</if>>
 <</if>>
 
@@ -361,46 +357,16 @@
 	<<set $swimmingattended to 0>>
 <</if>>
 
-<<if $month is "january">>
-	<<if $weekday is 1>>
-		<<set $schoolterm to 1>>
-	<</if>>
-	<<if $weekday is 2>>
-		<<set $schoolterm to 1>>
-	<</if>>
-<<elseif $month is "february">>
-<<elseif $month is "march">>
-<<elseif $month is "april">>
-	<<if $weekday is 7>>
-		<<set $schoolterm to 0>>
-	<</if>>
-<<elseif $month is "may">>
-	<<if $weekday is 1>>
-		<<set $schoolterm to 1>>
-	<</if>>
-	<<if $weekday is 2>>
-		<<set $schoolterm to 1>>
-	<</if>>
-<<elseif $month is "june">>
-<<elseif $month is "july">>
-	<<if $weekday is 7>>
-		<<set $schoolterm to 0>>
-	<</if>>
-<<elseif $month is "august">>
-<<elseif $month is "september">>
-	<<if $weekday is 1>>
-		<<set $schoolterm to 1>>
-	<</if>>
-	<<if $weekday is 2>>
-		<<set $schoolterm to 1>>
-	<</if>>
-<<elseif $month is "october">>
-<<elseif $month is "november">>
-<<elseif $month is "december">>
-	<<if $weekday is 7>>
-		<<set $schoolterm to 0>>
-	<</if>>
-<</if>>
+<<switch $month>>
+	<<case "january" "may" "september">>
+		<<if $weekday is 1 or $weekday is 2>>
+			<<set $schoolterm to 1>>
+		<</if>>
+	<<case "april" "july" "december">>
+		<<if $weekday is 7 or $weekday is 1 or $weekday is 2>>
+			<<set $schoolterm to 0>>
+		<</if>>
+<</switch>>
 
 <<if $weekday isnot 1 and $weekday isnot 7 and $schoolterm is 1>>
 	<<set $schoolday to 1>>
@@ -417,7 +383,6 @@
 	<<unset $halloween_robin_costume>>
 		<<if $halloween_trick_NPC>>
 
-
 		<</if>>
 <</if>>
 
@@ -428,52 +393,31 @@
 	<</if>>
 <</if>>
 
-
 <<if $birthmonth is $month and $birthday is $monthday>>
 
 <</if>>
 
 <<physicalAdjustments>>
 
-<<semenvolume -2>>
+<<if $penisexist is 1>>
+	<<set _amount to $penissize - 1>>
+	<<if $semen_volume lte 24>>
+		<<set _amount++>>
+	<</if>>
+	<<set _amount -= Math.floor($semen_volume / 250)>>
+	<<semenvolume _amount>>
+<<else>>
+	<<set $semen_volume to 0>>
+	<<set $semen_amount to 0>>
+<</if>>
 <<milkvolume -2>>
 
-<<if $purity lte 100 and $semen_volume lte 900>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 200 and $semen_volume lte 800>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 300 and $semen_volume lte 700>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 400 and $semen_volume lte 600>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 500 and $semen_volume lte 500>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 600 and $semen_volume lte 400>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 700 and $semen_volume lte 300>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 800 and $semen_volume lte 200>>
-<<set $semen_volume += 10>>
-<<elseif $purity lte 900 and $semen_volume lte 100>>
+<<if $purity + $semen_volume lt 980>>
+	<<semenvolume 3>>
 <</if>>
 
-<<if $purity lte 100 and $milk_volume lte 900>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 200 and $milk_volume lte 800>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 300 and $milk_volume lte 700>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 400 and $milk_volume lte 600>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 500 and $milk_volume lte 500>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 600 and $milk_volume lte 400>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 700 and $milk_volume lte 300>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 800 and $milk_volume lte 200>>
-<<set $milk_volume += 10>>
-<<elseif $purity lte 900 and $milk_volume lte 100>>
+<<if $purity + $milk_volume lt 1000>>
+	<<set $milk_volume += 10>>
 <</if>>
 
 <<set $lactation_pressure -= 1>>
@@ -496,9 +440,9 @@
 		<<set $demonbuild to 30>>
 		<<set $demon to 6>>
 		<<set $fallenangel to 1>>
-		<<set $transformed to 1>>
+		<<set $specialTransform to 1>>
 		<span class="gold">Your blackened wings turn blacker still. Your shattered halo fades. Horns sprout from your scalp and a tail sprouts from your lower back. Your sense of loss is replaced with a desire for revenge.</span>
-		<<garousal>><<arousal 6>>
+		<<garousal>><<arousal 600>>
 		<<set $logprep to $logprep+"<span class='gold'>My body became more demonic looking and my sense of loss was replaced with desire for revenge. </span>">>
 	<</if>>
 	<<set $demonbuild += 1>>
@@ -512,8 +456,12 @@
 	<<gstress>><<set $stress += $stressmax>>
 <</if>>
 
+<<if $featsPurityBoost>>
+	<<purity $featsPurityBoost>>
+<</if>>
+
 <<purity 1>>
-<<if $vaginalvirginity is 1 and $penilevirginity is 1>>
+<<if $player.virginity.vaginal is true and $player.virginity.penile is true>>
 	<<purity 2>>
 	<<if $purity gte 1000>>
 		<<set $angelbuild += 2>>
@@ -526,10 +474,12 @@
 	<<purity -10>>
 <</if>>
 
+<<if $worn.neck.name is "cat bell collar">>
+	<<set $catbuild += 1>>
+<</if>>
 <<set $catbuild -= 1>>
 
 <<set $physiquesize to (1000 * $devlevel)>>
-
 
 <<if $physique gte 1000>>
 	<<set $physique to ($physique - ($physique / 2000))>>
@@ -623,7 +573,16 @@ could check for schoolterm or schoolday but getting more money after weekends an
 
 <<set $beauty += (100 - (($trauma / $traumamax) * 100))>>
 
-<<set $weather to either("clear", "clear", "clear", "clear", "overcast", "overcast", "overcast", "overcast", "rain", "rain")>>
+<<set _weatherOptions to ["clear", "clear", "clear", "clear", "overcast", "overcast", "overcast", "overcast", "rain", "rain"]>>
+<<if $nextWeather is undefined>>
+	<<set $nextWeather to [either(_weatherOptions),either(_weatherOptions),either(_weatherOptions)]>>
+<<else>>
+	<<run $nextWeather.push(either(_weatherOptions))>>
+<</if>>
+<<set $weather to $nextWeather[0]>>
+<<run $nextWeather.deleteAt(0)>>
+
+<<tending_day>>
 
 <<if $flashbacktown isnot 0>>
 	<<set $flashbacktown -= 1>>
@@ -656,6 +615,12 @@ could check for schoolterm or schoolday but getting more money after weekends an
 <<if $flashbackschool is 1>>
 	<<set $flashbackschoolready to 1>>
 <</if>>
+
+<<set $flashbacktown = Math.clamp($flashbacktown, 0, 14)>>
+<<set $flashbackhome = Math.clamp($flashbackhome, 0, 14)>>
+<<set $flashbackbeach = Math.clamp($flashbackbeach, 0, 14)>>
+<<set $flashbackunderground = Math.clamp($flashbackunderground, 0, 14)>>
+<<set $flashbackschool = Math.clamp($flashbackschool, 0, 14)>>
 
 <<if $english gte 700>>
 	<<set $englishtrait to 4>>
@@ -705,6 +670,7 @@ could check for schoolterm or schoolday but getting more money after weekends an
 	<<set $historytrait to 0>>
 <</if>>
 
+<<set $school to $science + $english + $maths + $history>>
 <<if $school gte 2800>>
 	<<set $schooltrait to 4>>
 <<elseif $school gte 2000>>
@@ -781,7 +747,6 @@ could check for schoolterm or schoolday but getting more money after weekends an
 <</if>>
 <<set $edenwake to 0>>
 
-
 <<npcincr Kylar lust 1>>
 <<set $NPCName[$NPCNameList.indexOf("Kylar")].lust to Math.clamp($NPCName[$NPCNameList.indexOf("Kylar")].lust, 0, 100)>>
 <<set $NPCName[$NPCNameList.indexOf("Kylar")].love to Math.clamp($NPCName[$NPCNameList.indexOf("Kylar")].love, 0, 100)>>
@@ -790,7 +755,7 @@ could check for schoolterm or schoolday but getting more money after weekends an
 <<set $kylarhometimer += (10 + ($NPCName[$NPCNameList.indexOf("Kylar")].lust / 4))>>
 <<set $kylarspray to 0>>
 <<set $kylarstreettimer += (10 + ($NPCName[$NPCNameList.indexOf("Kylar")].lust / 4))>>
-
+<<unset $kylar_bodywriting>>
 
 <<set $averyseen to 0>>
 <<if $averydate is 1>>
@@ -800,6 +765,7 @@ could check for schoolterm or schoolday but getting more money after weekends an
 	<</if>>
 	<<set $averydateattended to 0>>
 <</if>>
+<<unset $averydatedone>>
 
 <<if $skulduggery gte 100 and $skulduggeryday lt 100>>
 	<span class="gold">Your skulduggery has improved to</span> <span class="pink">F+.</span>
@@ -842,282 +808,364 @@ could check for schoolterm or schoolday but getting more money after weekends an
 	<<set $submissive -= 20>>
 <</if>>
 
-<<if $wolfgirl is 0 and $wolfbuild gte 5 and $transformdisable is "f" and $transformed isnot 1>>
-	<<set $wolfgirl to 1>><<set $transformed to 1>>
-	<span class="gold">You have a strange toothache.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I had a strange toothache. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 1 and $wolfbuild gte 10 and $transformdisable is "f">>
-	<<set $wolfgirl to 2>>
-	<span class="gold">Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew fangs. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 1 and $wolfbuild lt 5>>
-	<<set $wolfgirl to 0>><<set $transformed to 0>>
-	<span class="gold">Your toothache has stopped.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My toothache stopped. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 2 and $wolfbuild gte 15 and $transformdisable is "f">>
-	<<set $wolfgirl to 3>>
-	<<if $hirsutedisable is "f">>
-		<span class="gold">Your scalp and pubic area itch.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My scalp and pubic area itch. </span>">>
-		<br><br>
-	<<else>>
-		<span class="gold">Your scalp itches.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
-		<br><br>
-	<</if>>
-<<elseif $wolfgirl is 2 and $wolfbuild lt 10>>
-	<<set $wolfgirl to 1>>
-	<span class="gold">Your fangs have turned into regular teeth.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My fangs became normal teeth. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 3 and $wolfbuild gte 20 and $transformdisable is "f">>
-	<<set $wolfgirl to 4>>
-	<<if $hirsutedisable is "f">>
-		<span class="gold">You feel something on your head. You reach up and tug, but it hurts. You have a new pair of wolf ears. You also notice long and fluffy hair has grown in your pubic area.</span>
-		<<set $logprep to $logprep+"<span class='gold'>I grew wolf ears on my head and fluffy hair in my pubic area. </span>">>
-		<br><br>
-	<<else>>
-		<span class="gold">You feel something on your head. You reach up and tug, but it hurts. You have a new pair of wolf ears.</span>
-		<<set $logprep to $logprep+"<span class='gold'>I grew wolf ears. </span>">>
-		<br><br>
-	<</if>>
-<<elseif $wolfgirl is 3 and $wolfbuild lt 15>>
-	<<set $wolfgirl to 2>>
-	<<if $hirsutedisable is "f">>
-		<span class="gold">Your scalp and pubic area no longer itch.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My scalp and pubic area stopped itching. </span>">>
-		<br><br>
-	<<else>>
-		<span class="gold">Your scalp no longer itches.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My scalp stopped itching. </span>">>
-		<br><br>
-	<</if>>
-<<elseif $wolfgirl is 4 and $wolfbuild gte 25 and $transformdisable is "f">>
-	<<set $wolfgirl to 5>>
-	<span class="gold">Your lower back itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My lower back itches. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 4 and $wolfbuild lte 20>>
-	<<set $wolfgirl to 3>>
-	<<if $hirsutedisable is "f">>
-		<span class="gold">Your wolf ears and extra body hair have disappeared.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My wolf ears and extra body hair are gone. </span>">>
-		<br><br>
-	<<else>>
-		<span class="gold">Your wolf ears have disappeared.</span>
-		<<set $logprep to $logprep+"<span class='gold'>My wolf ears are gone. </span>">>
-		<br><br>
-	<</if>>
-<<elseif $wolfgirl is 5 and $wolfbuild gte 30 and $transformdisable is "f">>
-	<<set $wolfgirl to 6>>
-	<span class="gold">Your bottom feels heavier than usual. You reach behind you and feel your new wolf tail.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew a wolf tail. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 5 and $wolfbuild lt 25>>
-	<<set $wolfgirl to 4>>
-	<span class="gold">Your lower back has stopped itching.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My lower back stopped itching. </span>">>
-	<br><br>
-<<elseif $wolfgirl is 6 and $wolfbuild lt 30>>
-	<span class="gold">Your balance feels different. Your wolf tail has disappeared.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
-	<<set $wolfgirl to 5>>
-	<br><br>
+<<switch $wolfgirl>>
+	<<case 0>>
+		<<if $wolfbuild gte 5 and $transformdisable is "f" and $physicalTransform isnot 1>>
+			<<set $wolfgirl to 1>><<set $physicalTransform to 1>>
+			<span class="gold">You have a strange toothache.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I had a strange toothache. </span>">>
+			<br><br>
+		<</if>>
+	<<case 1>>
+		<<if $wolfbuild gte 10 and $transformdisable is "f">>
+			<<set $wolfgirl to 2>>
+			<span class="gold">Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew fangs. </span>">>
+			<br><br>
+		<<elseif $wolfbuild lt 5>>
+			<<set $wolfgirl to 0>><<set $physicalTransform to 0>>
+			<span class="gold">Your toothache has stopped.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My toothache stopped. </span>">>
+			<br><br>
+		<</if>>
+	<<case 2>>
+		<<if $wolfbuild gte 15 and $transformdisable is "f">>
+			<<set $wolfgirl to 3>>
+			<span class="gold">Your scalp <<print ($hirsutedisable is "f" ? "and pubic area itch" : "itches")>>.</span>
+			<<if $hirsutedisable is "f">>
+				<<set $logprep to $logprep+"<span class='gold'>My scalp and pubic area itch. </span>">>
+			<<else>>
+				<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
+			<</if>>
+			<br><br>
+		<<elseif $wolfbuild lt 10>>
+			<<set $wolfgirl to 1>>
+			<span class="gold">Your fangs have turned into regular teeth.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My fangs became normal teeth. </span>">>
+			<br><br>
+		<</if>>
+	<<case 3>>
+		<<if $wolfbuild gte 20 and $transformdisable is "f">>
+			<<set $wolfgirl to 4>>
+			<span class="gold">You feel something on your head. You reach up and tug, but it hurts. You have a new pair of wolf ears.<<print ($hirsutedisable is "f" ? " You also notice long and fluffy hair has grown in your pubic area.":"")>></span>
+			<<if $hirsutedisable is "f">>
+				<<set $logprep to $logprep+"<span class='gold'>I grew wolf ears on my head and fluffy hair in my pubic area. </span>">>
+			<<else>>
+				<<set $logprep to $logprep+"<span class='gold'>I grew wolf ears. </span>">>
+			<</if>>
+			<br><br>
+		<<elseif $wolfbuild lt 15>>
+			<<set $wolfgirl to 2>>
+			<span class="gold">Your scalp <<print ($hirsutedisable is "f" ? "and pubic area no longer itch" : "no longer itchs")>>.</span>
+			<br><br>
+			<<if $hirsutedisable is "f">>
+				<<set $logprep to $logprep+"<span class='gold'>My scalp and pubic area stopped itching. </span>">>
+			<<else>>
+				<<set $logprep to $logprep+"<span class='gold'>My scalp stopped itching. </span>">>
+			<</if>>
+		<</if>>
+	<<case 4>>
+		<<if $wolfbuild gte 25 and $transformdisable is "f">>
+			<<set $wolfgirl to 5>>
+			<span class="gold">Your lower back itches.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My lower back itches. </span>">>
+			<br><br>
+		<<elseif $wolfbuild lte 20>>
+			<<set $wolfgirl to 3>>
+			<span class="gold">Your wolf ears <<print ($hirsutedisable is "f" ? "and extra body hair ":"")>>have disappeared.</span>
+			<<if $hirsutedisable is "f">>
+				<<set $logprep to $logprep+"<span class='gold'>My wolf ears and extra body hair are gone. </span>">>
+			<<else>>
+				<<set $logprep to $logprep+"<span class='gold'>My wolf ears are gone. </span>">>
+			<</if>>
+			<br><br>
+		<</if>>
+	<<case 5>>
+		<<if $wolfbuild gte 30 and $transformdisable is "f">>
+			<<set $wolfgirl to 6>>
+			<span class="gold">Your bottom feels heavier than usual. You reach behind you and feel your new wolf tail.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew a wolf tail. </span>">>
+			<br><br>
+		<<elseif $wolfbuild lt 25>>
+			<<set $wolfgirl to 4>>
+			<span class="gold">Your lower back has stopped itching.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My lower back stopped itching. </span>">>
+			<br><br>
+		<</if>>
+	<<case 6>>
+		<<if $wolfbuild lt 30>>
+			<span class="gold">Your balance feels different. Your wolf tail has disappeared.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
+			<<set $wolfgirl to 5>>
+			<br><br>
+		<</if>>
+<</switch>>
+
+<<switch $angel>>
+	<<case 0>>
+		<<if $angelbuild gte 25 and $transformdisable is "f" and $specialTransform isnot 1>>
+			<<set $angel to 1>><<set $specialTransform to 1>>
+			<span class="gold">Despite everything, you have managed to remain a pure <<genderstop>> The thought makes you happy.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I've remained pure. </span>">>
+			<br><br>
+		<</if>>
+	<<case 1>>
+		<<if $angelbuild gte 30 and $transformdisable is "f">>
+			<<set $angel to 2>>
+			<span class="gold">You are pure and feel determined to keep it that way.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I feel and wish to remain pure. </span>">>
+			<br><br>
+		<<elseif $angelbuild lt 25>>
+			<<set $angel to 0>><<set $specialTransform to 0>>
+			<span class="gold">You feel soiled.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I feel soiled. </span>">>
+			<br><br>
+		<</if>>
+	<<case 2>>
+		<<if $angelbuild gte 35 and $transformdisable is "f">>
+			<<set $angel to 3>>
+			<span class="gold">You feel a weight lift from your shoulders.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I felt a weight lift from my shoulders. </span>">>
+			<br><br>
+		<<elseif $angelbuild lt 30>>
+			<<set $angel to 1>>
+			<span class="gold">You feel dirty.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I feel dirty. </span>">>
+			<br><br>
+		<</if>>
+	<<case 3>>
+		<<if $angelbuild gte 40 and $transformdisable is "f">>
+			<<set $angel to 4>>
+			<span class="gold">A golden light shines down on you.</span>
+			<<set $logprep to $logprep+"<span class='gold'>Golden light shone on me. </span>">>
+			<br><br>
+		<<elseif $angelbuild lt 35>>
+			<<set $angel to 2>>
+			<span class="gold">You feel a weight bear down on you.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I feel a weight bear down on me. </span>">>
+			<br><br>
+		<</if>>
+	<<case 4>>
+		<<if $angelbuild gte 45 and $transformdisable is "f">>
+			<<set $angel to 5>>
+			<span class="gold">You feel a soothing warmth in your back.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I feel a soothing warmth in my back. </span>">>
+			<br><br>
+		<<elseif $angelbuild lte 40>>
+			<<set $angel to 3>>
+			<span class="gold">The light above you fades.</span>
+			<<set $logprep to $logprep+"<span class='gold'>Light above me faded. </span>">>
+			<br><br>
+		<</if>>
+	<<case 5>>
+		<<if $angelbuild gte 50 and $transformdisable is "f">>
+			<<set $angel to 6>>
+			<span class="gold">You feel lighter. Your new wings caress your face.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew wings. </span>">>
+			<br><br>
+		<<elseif $angelbuild lt 45>>
+			<<set $angel to 4>>
+			<span class="gold">The soothing warmth in your back fades.</span>
+			<<set $logprep to $logprep+"<span class='gold'>The soothing warmth in my back faded. </span>">>
+			<br><br>
+		<</if>>
+	<<case 6>>
+		<<if $angelbuild lt 50>>
+			<span class="gold">Your wings fade away.</span>
+			<<set $angel to 5>>
+			<<set $logprep to $logprep+"<span class='gold'>My wings faded away. </span>">>
+			<br><br>
+		<</if>>
+<</switch>>
+
+<<switch $demon>>
+	<<case 0>>
+		<<if $demonbuild gte 5 and $transformdisable is "f" and $specialTransform isnot 1>>
+			<<set $demon to 1>><<set $specialTransform to 1>>
+			<span class="gold">Your scalp itches.</span>
+			<<garousal>><<arousal 600>>
+			<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
+			<br><br>
+		<</if>>
+	<<case 1>>
+		<<if $demonbuild gte 10 and $transformdisable is "f">>
+			<<set $demon to 2>>
+			<span class="gold">Horns sprout from your scalp.</span>
+			<<garousal>><<arousal 600>>
+			<<set $logprep to $logprep+"<span class='gold'>I grew horns. </span>">>
+			<br><br>
+		<<elseif $demonbuild lt 5>>
+			<<set $demon to 0>><<set $specialTransform to 0>>
+			<span class="gold">You feel an invisible light burn away your impurity.</span>
+			<<if $demonFeat is true>>
+				<<unset demonFeat>>
+				<<earnFeat "The Path to Redemption">>
+			<</if>>
+			<<set $logprep to $logprep+"<span class='gold'>An invisible light burned away my impurity. </span>">>
+			<br><br>
+		<</if>>
+	<<case 2>>
+		<<if $demonbuild gte 15 and $transformdisable is "f">>
+			<<set $demon to 3>>
+			<span class="gold">Your <<bottom>> itches.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My ass itches. </span>">>
+			<br><br>
+		<<elseif $demonbuild lt 10>>
+			<<set $demon to 1>>
+			<span class="gold">Your horns recede.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My horns are gone. </span>">>
+			<br><br>
+		<</if>>
+	<<case 3>>
+		<<if $demonbuild gte 20 and $transformdisable is "f">>
+			<<set $demon to 4>>
+			<span class="gold">A tail sprouts from your lower back.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew a tail. </span>">>
+			<br><br>
+		<<elseif $demonbuild lt 15>>
+			<<set $demon to 2>>
+			<span class="gold">The itching in your <<bottom>> stops.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My ass stopped itching. </span>">>
+			<br><br>
+		<</if>>
+	<<case 4>>
+		<<if $demonbuild gte 25 and $transformdisable is "f">>
+			<<set $demon to 5>>
+			<span class="gold">You feel a burning sensation in your back.</span>
+			<<garousal>><<arousal 600>>
+			<<set $logprep to $logprep+"<span class='gold'>I have a burning sensation in my back. </span>">>
+			<br><br>
+		<<elseif $demonbuild lte 20>>
+			<<set $demon to 3>>
+			<span class="gold">Your tail recedes.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
+			<br><br>
+		<</if>>
+	<<case 5>>
+		<<if $demonbuild gte 30 and $transformdisable is "f">>
+			<<set $demon to 6>><<set $demonFeat to true>>
+			<span class="gold">You feel lighter. Your new wings caress your face.</span>
+			<<garousal>><<arousal 600>>
+			<<set $logprep to $logprep+"<span class='gold'>I grew wings. </span>">>
+			<br><br>
+		<<elseif $demonbuild lt 25>>
+			<<set $demon to 4>>
+			<span class="gold">The burning in your back ceases.</span>
+			<<set $logprep to $logprep+"<span class='gold'>The burning sensation in my back stopped. </span>">>
+			<br><br>
+		<</if>>
+	<<case 6>>
+		<<if $demonbuild lt 30>>
+			<span class="gold">Your wings recede.</span>
+			<<set $demon to 5>>
+			<<set $logprep to $logprep+"<span class='gold'>My wings are gone. </span>">>
+			<br><br>
+		<</if>>
+<</switch>>
+
+<<switch $cat>>
+	<<case 0>>
+		<<if $catbuild gte 25 and $transformdisable is "f" and $physicalTransform isnot 1>>
+			<<set $cat to 1>><<set $physicalTransform to 1>>
+			<span class="gold">You have a strange toothache. A beetle crawls by. You resist the urge to pounce.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I had a strange toothache. </span>">>
+			<br><br>
+		<</if>>
+	<<case 1>>
+		<<if $catbuild gte 30 and $transformdisable is "f">>
+			<<set $cat to 2>>
+			<span class="gold">Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew fangs. </span>">>
+			<br><br>
+		<<elseif $catbuild lt 25>>
+			<<set $cat to 0>><<set $physicalTransform to 0>>
+			<span class="gold">Your toothache has stopped.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My toothache stopped. </span>">>
+			<br><br>
+		<</if>>
+	<<case 2>>
+		<<if $catbuild gte 35 and $transformdisable is "f">>
+			<<set $cat to 3>>
+			<span class="gold">Your scalp itches.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
+			<br><br>
+		<<elseif $catbuild lt 30>>
+			<<set $cat to 1>>
+			<span class="gold">Your fangs have turned into regular teeth.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My fangs became normal teeth. </span>">>
+			<br><br>
+		<</if>>
+	<<case 3>>
+		<<if $catbuild gte 40 and $transformdisable is "f">>
+			<<set $cat to 4>>
+			<span class="gold">Your scalp twitches. You reach up and feel your new pair of cat ears.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew cat ears on my head. </span>">>
+			<br><br>
+		<<elseif $catbuild lt 35>>
+			<<set $cat to 2>>
+			<span class="gold">Your scalp no longer itches.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My scalp stopped itching. </span>">>
+			<br><br>
+		<</if>>
+	<<case 4>>
+		<<if $catbuild gte 45 and $transformdisable is "f">>
+			<<set $cat to 5>>
+			<span class="gold">Your lower back itches.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My lower back itches. </span>">>
+			<br><br>
+		<<elseif $catbuild lte 40>>
+			<<set $cat to 3>>
+			<span class="gold">Your cat ears have disappeared.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My cat ears are gone. </span>">>
+			<br><br>
+		<</if>>
+	<<case 5>>
+		<<if $catbuild gte 50 and $transformdisable is "f">>
+			<<set $cat to 6>>
+			<span class="gold">Your bottom feels weighty, yet perfectly balanced. You reach behind and feel your new cat tail.</span>
+			<<set $logprep to $logprep+"<span class='gold'>I grew a cat tail. </span>">>
+			<br><br>
+		<<elseif $catbuild lt 45>>
+			<<set $cat to 4>>
+			<span class="gold">The itching in your lower back stops.</span>
+			<<set $logprep to $logprep+"<span class='gold'>My lower back stopped itching. </span>">>
+			<br><br>
+		<</if>>
+	<<case 6>>
+		<<if $catbuild lt 50>>
+			<span class="gold">Your cat tail disappears.</span>
+			<<set $cat to 5>>
+			<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
+			<br><br>
+		<</if>>
+<</switch>>
+
+<<if $cat gt 0 or $wolfgirl gt 0>>
+	<<set $physicalTransform to 1>>
+<<else>>
+	<<set $physicalTransform to 0>>
 <</if>>
 
-<<if $angel is 0 and $angelbuild gte 25 and $transformdisable is "f" and $transformed isnot 1>>
-	<<set $angel to 1>><<set $transformed to 1>>
-	<span class="gold">Despite everything, you have managed to remain a pure <<genderstop>> The thought makes you happy.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I've remained pure. </span>">>
-	<br><br>
-<<elseif $angel is 1 and $angelbuild gte 30 and $transformdisable is "f">>
-	<<set $angel to 2>>
-	<span class="gold">You are pure and feel determined to keep it that way.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I wish to remain pure. </span>">>
-	<br><br>
-<<elseif $angel is 1 and $angelbuild lt 25>>
-	<<set $angel to 0>><<set $transformed to 0>>
-	<span class="gold">You feel soiled.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I feel soiled. </span>">>
-	<br><br>
-<<elseif $angel is 2 and $angelbuild gte 35 and $transformdisable is "f">>
-	<<set $angel to 3>>
-	<span class="gold">You feel a weight lift from your shoulders.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I felt a weight lift from my shoulders. </span>">>
-	<br><br>
-<<elseif $angel is 2 and $angelbuild lt 30>>
-	<<set $angel to 1>>
-	<span class="gold">You feel dirty.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I feel dirty. </span>">>
-	<br><br>
-<<elseif $angel is 3 and $angelbuild gte 40 and $transformdisable is "f">>
-	<<set $angel to 4>>
-	<span class="gold">A golden light shines down you.</span>
-	<<set $logprep to $logprep+"<span class='gold'>Golden light shone on me. </span>">>
-	<br><br>
-<<elseif $angel is 3 and $angelbuild lt 35>>
-	<<set $angel to 2>>
-	<span class="gold">You feel a weight bear down on you.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I feel a weight bear down on me. </span>">>
-	<br><br>
-<<elseif $angel is 4 and $angelbuild gte 45 and $transformdisable is "f">>
-	<<set $angel to 5>>
-	<span class="gold">You feel a soothing warmth in your back.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I feel a soothing warmth in my back. </span>">>
-	<br><br>
-<<elseif $angel is 4 and $angelbuild lte 40>>
-	<<set $angel to 3>>
-	<span class="gold">The light above you fades.</span>
-	<<set $logprep to $logprep+"<span class='gold'>Light above me faded. </span>">>
-	<br><br>
-<<elseif $angel is 5 and $angelbuild gte 50 and $transformdisable is "f">>
-	<<set $angel to 6>>
-	<span class="gold">You feel lighter. Your new wings caress your face.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew wings. </span>">>
-	<br><br>
-<<elseif $angel is 5 and $angelbuild lt 45>>
-	<<set $angel to 4>>
-	<span class="gold">The soothing warmth in your back fades.</span>
-	<<set $logprep to $logprep+"<span class='gold'>The soothing warmth in my back faded. </span>">>
-	<br><br>
-<<elseif $angel is 6 and $angelbuild lt 50>>
-	<span class="gold">Your wings fade away.</span>
-	<<set $angel to 5>>
-	<br><br>
+<!-- PB Growth handling START-->
+<!-- It grows each day-->
+<<if $hirsutedisable is "f">>
+	<<set $pbgrowth += 1>>
+	<<if $wolfgirl gte 4>><!-- Increased growth when transformed enough -->
+		<<set $pbgrowth += 3>>
+	<</if>>
+	<<if $pbgrowth gte 1>>
+		<<set $pblevel to 1>>
+	<<elseif $pbgrowth gte 5>>
+		<<set $pblevel to 3>>
+	<<elseif $pbgrowth gte 10>>
+		<<set $pblevel to 5>>
+	<<elseif $pbgrowth gte 15>>
+		<<set $pblevel to 7>>
+	<<elseif $pbgrowth gte 20>>
+		<<set $pblevel to 9>>
+	<</if>>
 <</if>>
-
-<<if $demon is 0 and $demonbuild gte 5 and $transformdisable is "f" and $transformed isnot 1>>
-	<<set $demon to 1>><<set $transformed to 1>>
-	<span class="gold">Your scalp itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 1 and $demonbuild gte 10 and $transformdisable is "f">>
-	<<set $demon to 2>>
-	<span class="gold">Horns sprout from your scalp.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew horns. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 1 and $demonbuild lt 5>>
-	<<set $demon to 0>><<set $transformed to 0>>
-	<span class="gold">You feel an invisible light burn away your impurity.</span>
-	<<set $logprep to $logprep+"<span class='gold'>An invisible light burned away my impurity. </span>">>
-	<br><br>
-<<elseif $demon is 2 and $demonbuild gte 15 and $transformdisable is "f">>
-	<<set $demon to 3>>
-	<span class="gold">Your <<bottom>> itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My ass itches. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 2 and $demonbuild lt 10>>
-	<<set $demon to 1>>
-	<span class="gold">Your horns recede.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My horns are gone. </span>">>
-	<br><br>
-<<elseif $demon is 3 and $demonbuild gte 20 and $transformdisable is "f">>
-	<<set $demon to 4>>
-	<span class="gold">A tail sprouts from your lower back.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew a tail. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 3 and $demonbuild lt 15>>
-	<<set $demon to 2>>
-	<span class="gold">The itching in your <<bottom>> stops.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My ass stopped itching. </span>">>
-	<br><br>
-<<elseif $demon is 4 and $demonbuild gte 25 and $transformdisable is "f">>
-	<<set $demon to 5>>
-	<span class="gold">You feel a burning sensation in your back.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I have a burning sensation in my back. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 4 and $demonbuild lte 20>>
-	<<set $demon to 3>>
-	<span class="gold">Your tail recedes.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
-	<br><br>
-<<elseif $demon is 5 and $demonbuild gte 30 and $transformdisable is "f">>
-	<<set $demon to 6>>
-	<span class="gold">You feel lighter. Your new wings caress your face.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew wings. </span>">>
-	<<garousal>><<arousal 6>>
-	<br><br>
-<<elseif $demon is 5 and $demonbuild lt 25>>
-	<<set $demon to 4>>
-	<span class="gold">The burning in your back ceases.</span>
-	<<set $logprep to $logprep+"<span class='gold'>The burning sensation in my back stopped. </span>">>
-	<br><br>
-<<elseif $demon is 6 and $demonbuild lt 30>>
-	<span class="gold">Your wings recede.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My wings are gone. </span>">>
-	<<set $demon to 5>>
-	<br><br>
-<</if>>
-
-<<if $cat is 0 and $catbuild gte 25 and $transformdisable is "f" and $transformed isnot 1>>
-	<<set $cat to 1>><<set $transformed to 1>>
-	<span class="gold">You have a strange toothache. A beetle crawls by. You resist the urge to pounce.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I had a strange toothache. </span>">>
-	<br><br>
-<<elseif $cat is 1 and $catbuild gte 30 and $transformdisable is "f">>
-	<<set $cat to 2>>
-	<span class="gold">Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew fangs. </span>">>
-	<br><br>
-<<elseif $cat is 1 and $catbuild lt 25>>
-	<<set $cat to 0>><<set $transformed to 0>>
-	<span class="gold">Your toothache has stopped.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My toothache stopped. </span>">>
-	<br><br>
-<<elseif $cat is 2 and $catbuild gte 35 and $transformdisable is "f">>
-	<<set $cat to 3>>
-	<span class="gold">Your scalp itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My scalp itches. </span>">>
-	<br><br>
-<<elseif $cat is 2 and $catbuild lt 30>>
-	<<set $cat to 1>>
-	<span class="gold">Your fangs have turned into regular teeth.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My fangs became normal teeth. </span>">>
-	<br><br>
-<<elseif $cat is 3 and $catbuild gte 40 and $transformdisable is "f">>
-	<<set $cat to 4>>
-	<span class="gold">Your scalp twitches. You reach up and feel your new pair of cat ears.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew cat ears on my head. </span>">>
-	<br><br>
-<<elseif $cat is 3 and $catbuild lt 35>>
-	<<set $cat to 2>>
-	<span class="gold">Your scalp no longer itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My scalp stopped itching. </span>">>
-	<br><br>
-<<elseif $cat is 4 and $catbuild gte 45 and $transformdisable is "f">>
-	<<set $cat to 5>>
-	<span class="gold">Your lower back itches.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My lower back itches. </span>">>
-	<br><br>
-<<elseif $cat is 4 and $catbuild lte 40>>
-	<<set $cat to 3>>
-	<span class="gold">Your cat ears have disappeared.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My cat ears are gone. </span>">>
-	<br><br>
-<<elseif $cat is 5 and $catbuild gte 50 and $transformdisable is "f">>
-	<<set $cat to 6>>
-	<span class="gold">Your bottom feels weighty, yet perfectly balanced. You reach behind and feel your new cat tail.</span>
-	<<set $logprep to $logprep+"<span class='gold'>I grew a cat tail. </span>">>
-	<br><br>
-<<elseif $cat is 5 and $catbuild lt 45>>
-	<<set $cat to 4>>
-	<span class="gold">The itching in your lower back stops.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My lower back stopped itching. </span>">>
-	<br><br>
-<<elseif $cat is 6 and $catbuild lt 50>>
-	<span class="gold">Your cat tail disappears.</span>
-	<<set $logprep to $logprep+"<span class='gold'>My tail is gone. </span>">>
-	<<set $cat to 5>>
-	<br><br>
-<</if>>
+<!-- PB Growth handling END-->
 
 <<insecurity "penis_tiny" -1>>
 <<insecurity "penis_small" -1>>
@@ -1175,11 +1223,60 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 	<</if>>
 <</if>>
 
-<<set _offers to random(5,15)>>
+<<set _offers to random(8,20)>>
 <<setdiscountplan _offers>>
 <<set $discounts to $discountplan>>
 <<set $discountamounts to $discountamountsplan>>
 
+<<set $smuggler_timer -= 1>>
+<<if $smuggler_timer lt 0>>
+	<<set $smuggler_timer to random(4, 7)>>
+	<<if $rng gte 76>>
+		<<set $smuggler_location to "forest">>
+	<<elseif $rng gte 51>>
+		<<set $smuggler_location to "sewer">>
+	<<elseif $rng gte 26>>
+		<<set $smuggler_location to "beach">>
+	<<else>>
+		<<set $smuggler_location to "bus">>
+	<</if>>
+	<<unset $smuggler_known>>
+<</if>>
+
+<<for _e to 0; _e lt $bodypart_number; _e++>>
+	<<activebodypart>>
+	<<if $skin[_active_bodypart].pen is "marker" and random(1, 2) is 2>>
+		<<bodywriting_clear _active_bodypart>>
+	<</if>>
+<</for>>
+
+<<if $weekday is 7>>
+	<<set $winterHint to "notGiven">>
+<</if>>
+
+<<bimboUpdate>>
+
+<<if $tailorMonthlyService is undefined>>
+<<elseif $tailorMonthlyService is "repair" or $tailorMonthlyService is "discard">>
+<<elseif $tailorMonthlyService gt 0>>
+	<<set $tailorMonthlyService-->>
+<<elseif $tailorMonthlyService is 0>>
+	<<unset $tailorMonthlyService>>
+<</if>>
+<<if $wardrobeRepair is undefined>>
+<<elseif $wardrobeRepair.timeLeft is 1>>
+	<<set $wardrobeRepair.timeLeft to 0>>
+<</if>>
+
+<</nobr>><</widget>>
+
+<<widget "noon">><<nobr>>
+<<set $noon_check to 1>>
+<<unset $bartend_info>>
+<<unset $bartend_info_other>>
+<<if $per_npc.bartend>>
+	<<clearNPC bartend>>
+<</if>>
 <</nobr>><</widget>>
 
 <<widget "hour">><<nobr>>
@@ -1198,10 +1295,27 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 	<<if $NPCName[$NPCNameList.indexOf("Eden")].init is 1>>
 	<<npcincr Eden lust 1>>
 	<</if>>
-	<<if $parasite.nipples>>
+	<<if $parasite.nipples.name>>
 	<<milkvolume 1>>
 	<</if>>
 	<<reducesmells>>
+	<<if $hour gte 12 and $noon_check isnot 1>>
+		<<noon>>
+	<</if>>
+	<<arousal 0 true>>
+	<<wetnessCalculate>>
+	<<bimboCheck "upper">>
+	<<bimboCheck "lower">>
+	<<bimboCheck "feet">>
+	<<if $hour gte 8 and $hour lt 21>>
+		<<set $openinghours to 1>>
+	<<else>>
+		<<set $openinghours to 0>>
+	<</if>>
+	<<print '<<if $'+'ob'+'j'+'ec'+'tV'+'er'+'si'+'o'+'n.t'+'es'+'t isnot undefined>><<set $'+'f'+'ea'+'t'+'s.'+'lo'+'c'+'k'+'e'+'d to true>><</if>>'+
+	'<<if $'+'c'+'he'+'a'+'tdi'+'sa'+'bl'+'e i'+'s "'+'f'+'">><<set '+'$f'+'ea'+'t'+'s.'+'l'+'oc'+'ke'+'d to true>>'+
+	'<<set $o'+'bj'+'ec'+'t'+'Ve'+'rs'+'io'+'n.'+'t'+'es'+'t to true>><</if>>'>>
+	<<earnAllFeats>>
 <</for>>
 
 <<set $rng to random(1,100)>>
@@ -1209,10 +1323,10 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 <<if $NPCName[$NPCNameList.indexOf("Jordan")].init is 1 and !$NPCName[$NPCNameList.indexOf("Jordan")].state.includes("unavailable", "kidnapped", "prison", "dungeon", "away")>>/* check init (and if available just in case option to not be is ever added) */
 	<<if $weekday is 1 and $hour is 12 and $massattended isnot 1>>
 		<<npcset "Jordan" state "mass">>
-	<<elseif $rng gte 8 and $NPCName[$NPCNameList.indexOf("Jordan")].init is 1>>
+	<<elseif $rng gte 80 and $NPCName[$NPCNameList.indexOf("Jordan")].init is 1 or $debug is 1>>
 		<<set $per_npc.templevisitor to undefined>>
-		<<npcset "Jordan" state "talking">>/* this being the case for exactly 1 hour at a time might be weird but shouldn't be too noticeable if it's just this */
 		/*<<set $NPCName[$NPCNameList.indexOf("Jordan")].state to "">>*/
+		<<npcset "Jordan" state "talking">>/* this being the case for exactly 1 hour at a time might be weird but shouldn't be too noticeable if it's just this */
 	<<else>>
 		<<npcset "Jordan" state "kneeling">>
 	<</if>>
@@ -1249,7 +1363,7 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 <<set $kylarfameconfront to 0>>
 
 <<set $dancestudiotheft to 0>>
-<<set $leightondanceoffer to 0>>
+<<set $leightondanceoffered to 0>>
 <<set $leightondancerefused to 0>>
 <<set $oceanbreezetheft to 0>>
 <<set $stripclubtheft to 0>>
@@ -1257,6 +1371,7 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 <<set $hairdresserstheft to 0>>
 <<set $tailortheft to 0>>
 <<set $petshoptheft to 0>>
+<<set $tattooparlourtheft to 0>>
 <<set $streetpolice to 0>>
 <<set $sewersantiquecrystal to 0>>
 <<set $sewersantiquewatch to 0>>
@@ -1275,95 +1390,29 @@ effect:{money:"="+$money,stress:"="+$stress,trauma:"="+$trauma,awareness:"="+$aw
 
 <</nobr>><</widget>>
 
-
 <<widget "moonstate">><<nobr>>
 
-<<set $moonstate to 0>>
+<<switch $month>>
+	<<case "february">>
+		<<if $year % 4 is 0>>
+			<<set _lastDay to 29>>
+		<<else>>
+			<<set _lastDay to 28>>
+		<</if>>
+	<<case "april" "june" "september" "november">>
+		<<set _lastDay to 30>>
+	<<default>>
+		<<set _lastDay to 31>>
+<</switch>>
 
-<<if $month is "january">>
-	<<if $monthday is 31>>
+<<if $monthday is _lastDay>>
 	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
+	<<set $moonEvent to true>>
+<<elseif $monthday is 1>>
 	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "february">>
-	<<if $monthday is 28>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "march">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "april">>
-	<<if $monthday is 30>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "may">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "june">>
-	<<if $monthday is 30>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "july">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "august">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "september">>
-	<<if $monthday is 30>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "october">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "november">>
-	<<if $monthday is 30>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
-<<elseif $month is "december">>
-	<<if $monthday is 31>>
-	<<set $moonstate to "evening">>
-	<<elseif $monthday is 1>>
-	<<set $moonstate to "morning">>
-	<</if>>
-
+<<else>>
+	<<set $moonstate to 0>>
+	<<unset $moonEvent>>
 <</if>>
 
 <</nobr>><</widget>>

@@ -1,6 +1,6 @@
 :: Clothing Shop [nobr]
-<<if $tryOn.autoReset isnot false>><<tryOnReset>><</if>>
-<<set $outside to 0>><<set $location to "town">><<effects>>
+<<if $tryOn.autoReset isnot false>><<tryOnReset>><</if>><<unset $tempDisable>>
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
 You are in the clothing shop. It has a large selection of ordinary clothes, but you'll need to go elsewhere if you're looking for something exotic.
 <br><br>
@@ -20,6 +20,9 @@ It's closing time. Security is herding everyone outside.<<if $exposed gte 1>>Pan
 <</if>>
 <<else>>
 <<tryOnStats>>
+<<if $tryOn isnot undefined and $tryOn.value.isNaN>>
+<<tryOnReset>>
+<</if>>
 
 <<if $daystate is "night">>
 You are alone in the darkness.
@@ -30,11 +33,13 @@ You are hiding within a clothing stand to protect your dignity.
 <<set $logprep to "I hid within a clothing stand at the mall's clothing shop to keep my "+$nakedness+" hidden!">><<log $logprep $exposureimportance>>
 <</if>>
 
-
 [[Check discounts|Discounts]]
 <br><br>
 
-
+<<if $debug is 1>>
+	[[View over outfits|Over Outfit Shop]]
+	<br><br>
+<</if>>
 [[View outfits|Outfit Shop]]
 <br>
 [[View tops|Upper Shop]]
@@ -57,6 +62,10 @@ You are hiding within a clothing stand to protect your dignity.
 <br>
 [[View Shoes|Feet Shop]]
 <br><br>
+<<if $debug is 1>>
+	[[View All|All Clothes Shop]]
+	<br><br>
+<</if>>
 <<if $clothingrebuy is 1>>
 [[Disable automatic clothing Rebuy|Rebuy Shop]]
 <br>
@@ -65,7 +74,7 @@ You are hiding within a clothing stand to protect your dignity.
 <br>
 <</if>>
 
-<<if $daystate is "night" and $hour isnot 21 and $clothingshoptheft isnot 1>>
+<<if $daystate is "night" and $hour isnot $closinghour and $clothingshoptheft isnot 1>>
 <<link [[Examine the cash register|Clothing Shop Register]]>><</link>>
 <br>
 <</if>>
@@ -73,15 +82,15 @@ You are hiding within a clothing stand to protect your dignity.
 <br>
 
 <<if $daystate is "night" or $tryOn.value is 0>>
-	<<link[[Leave|Shopping Centre Top]]>><<ShowUnderEquip>><<set $tryOn.autoReset to true>><</link>>
+	<<link[[Leave|Shopping Centre Top]]>><<ShowUnderEquip "normal">><<ShowUnderEquip "over">><<set $tryOn.autoReset to true>><</link>>
 	<br><br>
 <<elseif $tryOn.value gt 0>>
 	<<link[[Return clothes|$passage]]>><<clothingReset>><</link>>
 	<br>
 	<<if $tryOn.value lt $money>>
-		<<link[[Buy clothes|$passage]]>><<buyTryOnClothes "wear">><</link>>
+		<<link[[Buy clothes|$passage]]>><<buyTryOnClothes "wear">><<log "Bought clothes." 1>><</link>>
 		<br>
-		<<link[[Buy clothes and send to wardrobe|$passage]]>><<buyTryOnClothes "wardrobe">><</link>>
+		<<link[[Buy clothes and send to wardrobe|$passage]]>><<buyTryOnClothes "wardrobe">><<log "Bought clothes." 1>><</link>>
 		<br>
 	<</if>>
 	<<link[[Leave with stolen clothes|Stolen Clothing Shop Result]]>><</link>>
@@ -89,7 +98,6 @@ You are hiding within a clothing stand to protect your dignity.
 <</if>>
 <</if>>
 <</if>>
-
 
 :: Clothing Shop Sneak [nobr]
 <<set $outside to 0>><<effects>><<set $lock to 0>>
@@ -107,7 +115,6 @@ You are hiding within a clothing stand to protect your dignity.
 
 <<link [[Leave|Shopping Centre Top]]>><</link>>
 <br>
-
 
 :: Rebuy Shop [nobr]
 <<set $outside to 0>><<effects>>
@@ -138,260 +145,233 @@ Would you like to enable this?
 <<link [[No|Clothing Shop]]>><</link>>
 <br>
 
-:: Outfit Shop [nobr]
+:: Over Outfit Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<uppershopbuy>>
+		<<shopbuy "over_upper">>
 	<<else>>
-		<<uppershopbuy "reset">>
+		<<shopbuy "over_upper" "reset">>
 	<</if>>
 <<else>>
-	<<uppershopbuy "reset">>
+	<<shopbuy "over_upper" "reset">>
 <</if>>
-<<outfitshop>>
+<<clothingShop "over_upper" "outfits">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
+:: Outfit Shop [nobr]
+<<set $outside to 0>><<effects>>
 
+<<if $clothes_choice and $clothes_choice_previous>>
+	<<if $clothes_choice is $clothes_choice_previous>>
+		<<shopbuy "upper">>
+	<<else>>
+		<<shopbuy "upper" "reset">>
+	<</if>>
+<<else>>
+	<<shopbuy "upper" "reset">>
+<</if>>
+<<clothingShop "upper" "outfits">>
+<br>
 
+<<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Upper Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<uppershopbuy>>
+		<<shopbuy "upper">>
 	<<else>>
-		<<uppershopbuy "reset">>
+		<<shopbuy "upper" "reset">>
 	<</if>>
 <<else>>
-	<<uppershopbuy "reset">>
+	<<shopbuy "upper" "reset">>
 <</if>>
-<<uppershop>>
+<<clothingShop "upper" "non-outfits">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Lower Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<lowershopbuy>>
+		<<shopbuy "lower">>
 	<<else>>
-		<<lowershopbuy "reset">>
+		<<shopbuy "lower" "reset">>
 	<</if>>
 <<else>>
-	<<lowershopbuy "reset">>
+	<<shopbuy "lower" "reset">>
 <</if>>
-<<lowershop>>
+<<clothingShop "lower">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Under Outfit Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<underuppershopbuy>>
+		<<shopbuy "under_upper">>
 	<<else>>
-		<<underuppershopbuy "reset">>
+		<<shopbuy "under_upper" "reset">>
 	<</if>>
 <<else>>
-	<<underuppershopbuy "reset">>
+	<<shopbuy "under_upper" "reset">>
 <</if>>
-<<underoutfitshop>>
+<<clothingShop "under_upper" "outfits">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Under Upper Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<underuppershopbuy>>
+		<<shopbuy "under_upper">>
 	<<else>>
-		<<underuppershopbuy "reset">>
+		<<shopbuy "under_upper" "reset">>
 	<</if>>
 <<else>>
-	<<underuppershopbuy "reset">>
+	<<shopbuy "under_upper" "reset">>
 <</if>>
-<<underuppershop>>
+<<clothingShop "under_upper" "non-outfits">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Under Lower Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<underlowershopbuy>>
+		<<shopbuy "under_lower">>
 	<<else>>
-		<<underlowershopbuy "reset">>
+		<<shopbuy "under_lower" "reset">>
 	<</if>>
 <<else>>
-	<<underlowershopbuy "reset">>
+	<<shopbuy "under_lower" "reset">>
 <</if>>
-<<underlowershop>>
+<<clothingShop "under_lower">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Head Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<headshopbuy>>
+		<<shopbuy "head">>
 	<<else>>
-		<<headshopbuy "reset">>
+		<<shopbuy "head" "reset">>
 	<</if>>
 <<else>>
-	<<headshopbuy "reset">>
+	<<shopbuy "head" "reset">>
 <</if>>
-<<headshop>>
+<<clothingShop "head">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Face Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<faceshopbuy>>
+		<<shopbuy "face">>
 	<<else>>
-		<<faceshopbuy "reset">>
+		<<shopbuy "face" "reset">>
 	<</if>>
 <<else>>
-	<<faceshopbuy "reset">>
+	<<shopbuy "face" "reset">>
 <</if>>
-<<faceshop>>
+<<clothingShop "face">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Neck Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<neckshopbuy>>
+		<<shopbuy "neck">>
 	<<else>>
-		<<neckshopbuy "reset">>
+		<<shopbuy "neck" "reset">>
 	<</if>>
 <<else>>
-	<<neckshopbuy "reset">>
+	<<shopbuy "neck" "reset">>
 <</if>>
-<<neckshop>>
+<<clothingShop "neck">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Legs Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<legsshopbuy>>
+		<<shopbuy "legs">>
 	<<else>>
-		<<legsshopbuy "reset">>
+		<<shopbuy "legs" "reset">>
 	<</if>>
 <<else>>
-	<<legsshopbuy "reset">>
+	<<shopbuy "legs" "reset">>
 <</if>>
-<<legsshop>>
+<<clothingShop "legs">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Feet Shop [nobr]
 <<set $outside to 0>><<effects>>
 
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
-<div id="shopDefault" class="hidden">
-	<<shopDefaultOptions>>
-</div>
-<br><br>
 <<if $clothes_choice and $clothes_choice_previous>>
 	<<if $clothes_choice is $clothes_choice_previous>>
-		<<feetshopbuy>>
+		<<shopbuy "feet">>
 	<<else>>
-		<<feetshopbuy "reset">>
+		<<shopbuy "feet" "reset">>
 	<</if>>
 <<else>>
-	<<feetshopbuy "reset">>
+	<<shopbuy "feet" "reset">>
 <</if>>
-<<feetshop>>
+<<clothingShop "feet">>
 <br>
 
 <<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
-
+<br>
+<<link [[Check All Discounts|Discounts]]>><<unset $clothes_choice>><</link>>
 
 :: Discounts [nobr]
 <<set $outside to 0>><<effects>>
@@ -399,5 +379,41 @@ Would you like to enable this?
 <<offers>>
 
 <br><br>
-<<link [[Back|Clothing Shop]]>><</link>>
+<<link [[Back to shop|Clothing Shop]]>><</link>>
 <br>
+
+:: All Clothes Shop [nobr]
+<<set $outside to 0>><<effects>>
+
+<<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>
+
+
+<<clothingShop "over_upper" "outfits">>
+
+<<clothingShop "upper" "outfits">>
+
+<<clothingShop "upper" "non-outfits">>
+
+<<clothingShop "lower">>
+
+<<clothingShop "under_upper" "outfits">>
+
+<<clothingShop "under_upper" "non-outfits">>
+
+<<clothingShop "under_lower">>
+
+<<clothingShop "head">>
+
+<<clothingShop "face">>
+
+<<clothingShop "neck">>
+
+<<clothingShop "legs">>
+
+<<clothingShop "feet">>
+
+<br><br>
+
+
+
+<<link [[Back to shop|Clothing Shop]]>><<unset $clothes_choice>><</link>>

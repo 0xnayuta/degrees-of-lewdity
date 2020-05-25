@@ -1,13 +1,62 @@
 :: Widgets Stats [widget]
 
 <<widget "trauma">><<nobr>>
-	<<if $args[0]>>
+	<<if $args[0] or $args[1]>>
 		<<if $args[0] gte 0>>
 			<<set $trauma += ($args[0] * 3) - (($args[0] * 1.5) * ($control / $controlmax))>>
 			<<if $dev is 1>><<set $control -= $args[0]>><</if>>
 		<<else>>
 			<<set $trauma += ($args[0] * 3) + (($args[0] * 1.5) * ($control / $controlmax))>>
 		<</if>>
+	<</if>>
+	<<if $trauma gte 1>>
+		<<set $sleeptrouble to 1>>
+	<<else>>
+		<<set $sleeptrouble to 0>>
+	<</if>>
+
+	<<if $trauma gte ($traumamax / 10) * 1>>
+		<<set $nightmares to 1>>
+	<<else>>
+		<<set $nightmares to 0>>
+	<</if>>
+
+	<<if $trauma gte ($traumamax / 10) * 7>>
+		<<set $anxiety to 2>>
+	<<elseif $trauma gte ($traumamax / 10) * 2>>
+		<<set $anxiety to 1>>
+	<<else>>
+		<<set $anxiety to 0>>
+	<</if>>
+
+	<<if $trauma gte ($traumamax / 10) * 8>>
+		<<set $flashbacks to 1>>
+	<<else>>
+		<<set $flashbacks to 0>>
+	<</if>>
+
+	<<if $trauma gte ($traumamax / 10) * 6>>
+		<<set $panicattacks to 2>>
+	<<elseif $trauma gte ($traumamax / 10) * 4>>
+		<<set $panicattacks to 1>>
+	<<else>>
+		<<set $panicattacks to 0>>
+	<</if>>
+
+	<<if $trauma gte ($traumamax / 10) * 5>>
+		<<set $hallucinations to 2>>
+	<<elseif $trauma gte ($traumamax / 10) * 3>>
+		<<set $hallucinations to 1>>
+	<<else>>
+		<<set $hallucinations to 0>>
+	<</if>>
+
+	<<if $trauma gte $traumamax>>
+		<<set $dissociation to 2>>
+	<<elseif $trauma gte ($traumamax / 10) * 9>>
+		<<set $dissociation to 1>>
+	<<else>>
+		<<set $dissociation to 0>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -32,7 +81,12 @@
 	<<if $args[0]>>
 		<<set $control += ($args[0] * 10)>>
 		<<if $args[0] gte 1>>
-		<<set $controlstart += ($args[0] * 10)>>
+			<<set $controlstart += ($args[0] * 10)>>
+		<</if>>
+		<<if $control gte ($controlmax / 5) * 2>>
+			<<set $controlled to 1>>
+		<<else>>
+			<<set $controlled to 0>>
 		<</if>>
 	<</if>>
 <</nobr>><</widget>>
@@ -42,6 +96,11 @@
 		<<set $control += ($args[0] * 10)>>
 		<<if $control gte $controlstart>>
 			<<set $control to $controlstart>>
+		<</if>>
+		<<if $control gte ($controlmax / 5) * 2>>
+			<<set $controlled to 1>>
+		<<else>>
+			<<set $controlled to 0>>
 		<</if>>
 	<</if>>
 <</nobr>><</widget>>
@@ -53,15 +112,17 @@
 <</nobr>><</widget>>
 
 <<widget "semenvolume">><<nobr>>
-	<<if $args[0]>>
+	<<if $args[0] and $penisexist is 1>>
 		<<set $semen_volume += ($args[0] * 3)>>
-		<<set $semen_volume = Math.clamp($semen_volume, 24, $semen_max)>>
+		<<set $semen_volume = Math.clamp($semen_volume, 0, $semen_max)>>
 	<</if>>
 <</nobr>><</widget>>
 
 <<widget "milkvolume">><<nobr>>
 	<<if $args[0]>>
-		<<set $lactation_pressure += 1>>
+		<<if $args[0] gt 0>>
+			<<set $lactation_pressure += 1>>
+		<</if>>
 		<<if $lactating is 1>>
 			<<set $milk_volume += ($args[0] * 2)>>
 			<<set $milk_volume = Math.clamp($milk_volume, 24, $milk_max)>>
@@ -92,20 +153,53 @@
 <</nobr>><</widget>>
 
 <<widget "arousal">><<nobr>>
-	<<if $args[0]>>
-		<<set $arousal += ($args[0] * 100)>>
+	<<if $args[0] gte 0 or $args[0] lt 0>>
+		<<set $arousal to Math.clamp($arousal + $args[0], 0, $arousalmax)>>
+		<<if $args[0] gte 0>>
+			<<if $args[1] is true>>
+				<<if $trackedArousal.length gt 4>>
+					<<run $trackedArousal.deleteAt(0)>>
+				<</if>>
+				<<run $trackedArousal.push(0)>>
+			<</if>>
+			<<set $trackedArousal[$trackedArousal.length - 1] += $args[0]>>
+		<</if>>
+	<<else>>
+		<<if $arousalError is undefined>>
+			<<set $arousalError to [$args[0]]>>
+		<<else>>
+			<<set $arousalError.push($args[0])>>
+		<</if>>
 	<</if>>
 <</nobr>><</widget>>
 
 <<widget "breastarousal">><<nobr>>
-	<<if $args[0]>>
-		<<set $arousal += ($args[0] * 100 * $breastsensitivity)>>
+	<<if $args[0] gte 0 or $args[0] lt 0>>
+		<<set $arousal += ($args[0] * $breastsensitivity)>>
+		<<if $args[0] gte 0>>
+			<<set $trackedArousal[$trackedArousal.length - 1] += $args[0] * $breastsensitivity>>
+		<</if>>
+	<<else>>
+		<<if $arousalError is undefined>>
+			<<set $arousalError to [$args[0]]>>
+		<<else>>
+			<<set $arousalError.push($args[0])>>
+		<</if>>
 	<</if>>
 <</nobr>><</widget>>
 
 <<widget "genitalarousal">><<nobr>>
-	<<if $args[0]>>
-		<<set $arousal += ($args[0] * 100 * $genitalsensitivity)>>
+	<<if $args[0] gte 0 or $args[0] lt 0>>
+		<<set $arousal += ($args[0] * $genitalsensitivity)>>
+		<<if $args[0] gte 0>>
+			<<set $trackedArousal[$trackedArousal.length - 1] += $args[0] * $genitalsensitivity>>
+		<</if>>
+	<<else>>
+		<<if $arousalError is undefined>>
+			<<set $arousalError to [$args[0]]>>
+		<<else>>
+			<<set $arousalError.push($args[0])>>
+		<</if>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -121,21 +215,23 @@
 
 <<widget "pain">><<nobr>>
 <!-- Including masochism effect for all pain NG v2.7 -->
-	<<if $args[0]>>
+	<<if $args[0] gte 0 or $args[0] lt 0>>
 		<<if $masochism gte 100>>
 			<<set $pain += (($args[0] * (1 - ($masochism / 1200))) * 4)>>
-			<<set $arousal += (($args[0] * (0 + ($masochism / 14))) * 4)>>
+			<<set _arousal to (($args[0] * (0 + ($masochism / 24))) * 4)>>
+			<<arousal _arousal>>
 			<<set $arousalmasochism += ($args[0] * (0 + ($masochism / 14)))>>
 		<<else>>
 		<<set $pain += ($args[0] * 4)>>
-		<</if>>			
+		<</if>>
 	<</if>>
 <</nobr>><</widget>>
 
 <<widget "masopain">><<nobr>>
 	<<if $args[0]>>
 		<<set $pain += (($args[0] * (1 - ($masochism / 1200))) * 4)>>
-		<<set $arousal += (($args[0] * (0 + ($masochism / 10))) * 4)>>
+		<<set _arousal to (($args[0] * (0 + ($masochism / 18))) * 4)>>
+		<<arousal _arousal>>
 	<</if>>
 <</nobr>><</widget>>
 
@@ -155,9 +251,9 @@
 			<<set _oldline to clone($detentionline)>>/* dunno if clone is necessary */
 			<<switch $args[1]>>
 				<<case "Wrong changing room">>
-					<<if $playergender is "f">>
+					<<if $player.gender is "f">>
 						<<set $detentionline to either("I won't enter the boy's changing room,","I won't peep into boy's changing room,","I will use the correct changing room,")>>
-					<<elseif $playergender is "m">>
+					<<elseif $player.gender is "m">>
 						<<set $detentionline to either("I won't enter the girl's changing room,","I won't peep into girl's changing room,","I will use the correct changing room,")>>
 					<<else>>
 						<<set $detentionline to either("I will use the correct changing room,")>>
@@ -177,7 +273,7 @@
 				<<case "Lewdity">>
 					<<set $detentionline to either("I won't perform indecent acts at school,","I won't do sexual acts at school,")>>
 				<<case "Vandalism">>
-					<<set $detentionline to either("I won't damage school property,","I won't willfully destroy school property,","I will avoid damaging school property,","I won't vandalise things at school,")>>
+					<<set $detentionline to either("I won't damage or dirty school property,","I won't willfully destroy school property or cause a mess,","I will avoid damaging or dirtying school property,","I won't vandalise things at school,")>>
 				<<case "Disobedience">>
 					<<set $detentionline to either("I won't disobey instructions,","I will listen to my teachers,")>>
 				<<case "Harass">>
@@ -198,6 +294,8 @@
 					<<set $detentionline to either("I won't tell lies,","I will tell the truth when asked,","I will answer honestly,")>>
 				<<case "Laziness">>
 					<<set $detentionline to either("I won't lollygag,","I won't be lazy,","I will do my best in any tasks that I receive,")>>
+				<<case "Dress">>
+					<<set $detentionline to either("I won't wear clothes or accessories not meant for school,","I will dress properly,","I won't dress strangely,")>>
 			<</switch>>
 			<<if _oldline isnot "">>
 				<<set $detentionline to either($detentionline,_oldline)>>/*  */
@@ -227,6 +325,9 @@
 				<<set $cool += ($args[0] * 1)>>
 			<</if>>
 			<<if $worn.head.type.includes("cool")>>
+				<<set $cool += ($args[0] * 1)>>
+			<</if>>
+			<<if $worn.upper.type.includes("cool")>>
 				<<set $cool += ($args[0] * 1)>>
 			<</if>>
 		<<elseif $args[0] lt 0>>
@@ -273,7 +374,6 @@
 		<</for>>
 	<</if>>
 <</nobr>><</widget>>
-
 
 <<widget "suspicion">><<nobr>>
 	<<if $args[0]>>
@@ -355,7 +455,7 @@
 
 <<widget "insecurity">><<nobr>>
 	<<if $args[0] is "penis_tiny" and $acceptance_penis_tiny lte 999>>
-		<<if $args[1]>>
+		<<if $args[1] and $penisexist is 1>>
 			<<set $insecurity_penis_tiny += ($args[1] * 10)>>
 			<<set $insecurity_penis_tiny = Math.clamp($insecurity_penis_tiny, 0, 1000)>>
 			<<if $insecurity_penis_tiny gte 1000>>
@@ -373,7 +473,7 @@
 			<</if>>
 		<</if>>
 	<<elseif $args[0] is "penis_small" and $acceptance_penis_small lte 999>>
-		<<if $args[1]>>
+		<<if $args[1] and $penisexist is 1>>
 			<<set $insecurity_penis_small += ($args[1] * 10)>>
 			<<set $insecurity_penis_small = Math.clamp($insecurity_penis_small, 0, 1000)>>
 			<<if $insecurity_penis_small gte 1000>>
@@ -391,7 +491,7 @@
 			<</if>>
 		<</if>>
 	<<elseif $args[0] is "penis_big" and $acceptance_penis_big lte 999>>
-		<<if $args[1]>>
+		<<if $args[1] and $penisexist is 1>>
 			<<set $insecurity_penis_big += ($args[1] * 10)>>
 			<<set $insecurity_penis_big = Math.clamp($insecurity_penis_big, 0, 1000)>>
 			<<if $insecurity_penis_big gte 1000>>
@@ -545,6 +645,22 @@
 <</if>>
 <</nobr>><</widget>>
 
+<<widget "livestock_obey">><<nobr>>
+	<<if $args[0] gte 0 and $args[0] lt 0>>
+		<<set $livestock_obey += $args[0]>>
+		<<set $livestock_obey = Math.clamp($livestock_obey, 0, 100)>>
+	<</if>>
+<</nobr>><</widget>>
+
+<<widget "shame">><<nobr>>
+<<if $args[0]>>
+	<<set $shame += $args[0]>>
+	<<set $shame = Math.clamp($shame, 0, 100)>>
+<</if>>
+<</nobr>><</widget>>
+
+/**/
+
 <<widget "smell">><<nobr>>/* add(or set with $args[2]="set") 1 or $args[1] to smell($args[0]) and sort smells */
 /* $smells probably shouldn't usually be changed without using this */
 <<if $args[1] isnot undefined>><<set _amount to $args[1]>><<else>><<set _amount to 1>><</if>>
@@ -552,6 +668,14 @@
 	<<if $smells[_i].includes($args[0])>>
 		<<if $args[2] isnot "set">>
 			<<set $smells[_i][1] += _amount>>
+			<<if $dev is 1 and $worn[Object.keys($worn)[_type]] isnot undefined>>/* add smells to clothes? */
+				/* not when setting since goo and semen or anything else that for now just sets the smell level probably wouldn't work nicely with clothing */
+				<<for _clothingtype to 0 ; _clothingtype lt Object.keys($worn).length ; _clothingtype++>>/*  */
+					<<if !$worn[Object.keys($worn)[_type]].type.includes("naked")>>
+						<<set $worn[Object.keys($worn)[_type]]["smell"][$args[0]][1] += _amount>>
+					<</if>>
+				<</for>>
+			<</if>>
 		<<else>>
 			<<set $smells[_i][1] to _amount>>
 		<</if>>
@@ -562,19 +686,30 @@
 	<<print "<br>Error, "+$args[0]+" isn't a valid smell name(new smell types can be added by adjusting widget \"cleansmells\").<br>">>
 	/* this could instead of an error add a new smell to $smells but that would mean typos and such wouldn't get caught as easily */
 <</if>>
+/* add smell to clothes? */
+<<if $args[2] isnot "set" and $dev is 1 and $worn[Object.keys($worn)[_type]] isnot undefined>>
+	/* not when setting since goo and semen or anything else that for now just sets the smell level probably wouldn't work nicely with clothes */
+	<<for _clothingtype to 0 ; _clothingtype lt Object.keys($worn).length ; _clothingtype++>>/*  */
+		<<if !$worn[Object.keys($worn)[_type]].type.includes("naked")>>
+			/* should clothing smell variable be just an object or should it also be an array that gets sorted based on smell strength? */
+			<<set $worn[Object.keys($worn)[_type]]["smell"][$args[0]] += _amount>>
+			<<set $worn[Object.keys($worn)[_type]]["smell"][_clothsmellid][1] += _amount>>
+		<</if>>
+	<</for>>
+<</if>>
 <<run $smells.sort(function(a,b){return b[1] - a[1];}) >>/* sort smells so that strongest come first, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort */
-<</nobr>><</widget>>
 
-<<widget "reducesmells">><<nobr>>/* reduce all smells equally(called by at least "hour" widget ) */
+<</nobr>><</widget>><<widget "reducesmells">><<nobr>>/* reduce all smells equally(called by at least "hour" widget ) */
+
 <<if $args[1]>><<set _amount to $args[1]>><<else>><<set _amount to 0.1>><</if>>
 <<for _i to 0; _i lt $smells.length; _i++ >>
 	<<if $smells[_i][1] gt 0>>
 		<<set $smells[_i][1] -= _amount>>
 	<</if>>
 <</for>>
-<</nobr>><</widget>>
 
-<<widget "cleansmells">><<nobr>>/* also used for init */
+<</nobr>><</widget>><<widget "cleansmells">><<nobr>>/* also used for init */
+
 <<set $smells to [["soap", 0], ["semen", 0], ["slime", 0], ["trash", 0], ["sweat", 0], ["forest", 0], ["piss", 0], ["alcohol", 0], ["perfume", 0], ["blood", 0], ["salt", 0], ["chlorine", 0]]>>
 /*
 for now unused smells: perfume, blood, salt, chlorine

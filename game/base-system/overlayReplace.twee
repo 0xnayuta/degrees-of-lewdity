@@ -4,28 +4,175 @@
 	<<if $args[0]>>
 		<<if $currentOverlay isnot $args[0]>>
 			<<set $currentOverlay to $args[0]>>
+			<<if $currentOverlay isnot "options">>
+				<<replace #customOverlaySaveContent>><</replace>>
+			<</if>>
 			<<switch $args[0]>>
 			<<case "characteristics">>
-				<<replace #customOverlay>><<characteristics>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "colorCodes">><</replace>>
+				<<replace #customOverlayContent>><<characteristics>><</replace>>
 			<<case "traits">>
-				<<replace #customOverlay>><<traits>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle>><</replace>>
+				<<replace #customOverlayContent>><<traits>><</replace>>
 			<<case "social">>
-				<<replace #customOverlay>><<social>><</replace>>
-			<<case "statistics">>
-				<<replace #customOverlay>><<statistics>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "colorCodes">><</replace>>
+				<<replace #customOverlayContent>><<social>><</replace>>
 			<<case "diary">>
-				<<replace #customOverlay>><<diary>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "diaryColorCodes">><</replace>>
+				<<replace #customOverlayContent>><<diary>><</replace>>
+			<<case "statistics">>
+				<<replace #customOverlayTitle>><<OverlayTitle "statistics">><</replace>>
+				<<replace #customOverlayContent>><<statistics>><</replace>>
+			<<case "extraStatistics">>
+				<<replace #customOverlayTitle>><<OverlayTitle "extraStatistics">><</replace>>
+				<<replace #customOverlayContent>><<extraStatistics>><</replace>>
+			<<case "gameFeats">>
+				<<replace #customOverlayTitle>><<OverlayTitle "feats">><</replace>>
+				<<replace #customOverlayContent>><<feats>><</replace>>
+			<<case "startFeats">>
+				<<replace #customOverlayTitle>><<OverlayTitle>><</replace>>
+				<<replace #customOverlayContent>><<feats>><</replace>>
 			<<case "options">>
-				<<replace #customOverlay>><<options>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "options">><</replace>>
+				<<replace #customOverlaySaveContent>>
+					<h3>Saves</h3>
+					<div id="saveList">
+						<<saveList>>
+					</div>
+				<</replace>>
+				<<replace #customOverlayContent>><<options>><</replace>>
+			<<case "test">>
+				<<replace #customOverlayTitle>><<OverlayTitle "test">><</replace>>
+				<<replace #customOverlayContent>><<options>><</replace>>
 			<<case "optionsExportImport">>
-				<<replace #customOverlay>><<optionsExportImport>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "optionsExportImport">><</replace>>
+				<<replace #customOverlayContent>><<optionsExportImport>><</replace>>
 			<<case "cheats">>
-				<<replace #customOverlay>><<cheats>><</replace>>
+				<<replace #customOverlayTitle>><<OverlayTitle "cheats">><</replace>>
+				<<replace #customOverlayContent>><<cheats>><</replace>>
 			<</switch>>
 			<<removeclass "#customOverlay" "hidden">>
+			<<run document.getElementById("customOverlay").scroll(0,0)>>
 		<<else>>
 			<<set $currentOverlay to null>>
 			<<addclass "#customOverlay" "hidden">>
 		<</if>>
 	<</if>>
+<</nobr>><</widget>>
+
+<<widget "OverlayTitle">><<nobr>>
+<<button Close>>
+	<<addclass "#customOverlay" "hidden">>
+	<<set $currentOverlay to null>>
+<</button>>
+<<if $args[0] is "options">>
+	/* split saves and options to different tabs? */
+	<<button "Options">>
+		<<overlayReplace "test">>
+		<<set $currentOverlay to null>>
+	<</button>>
+	<<button "Export/Import Save">>
+		<<overlayReplace "optionsExportImport">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "test">>
+	<<button "Saves">>
+		<<overlayReplace "options">>
+		<<set $currentOverlay to null>>
+	<</button>>
+	<<button "Export/Import Save">>
+		<<overlayReplace "optionsExportImport">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "optionsExportImport">>
+	<<button "Saves">>
+		<<overlayReplace "saves">>
+		<<set $currentOverlay to "saves">>
+	<</button>>
+	<<button "Options">>
+		<<overlayReplace "options">>
+		<<set $currentOverlay to "options">>
+	<</button>>
+<</if>>
+<<if $args[0] is "statistics">>
+	<<button "Extra Stats (Spoilers)">>
+		<<overlayReplace "extraStatistics">>
+		<<set $currentOverlay to null>>
+	<</button>>
+	<<button "Feats">>
+		<<overlayReplace "gameFeats">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "extraStatistics">>
+	<<button "Statistics">>
+		<<overlayReplace "statistics">>
+		<<set $currentOverlay to null>>
+	<</button>>
+	<<button "Feats">>
+		<<overlayReplace "gameFeats">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "feats">>
+	<<button "Statistics">>
+		<<overlayReplace "statistics">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "diary">>
+	<<button "settings">>
+		<<overlayReplace "diarysettings">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "diarysettings">>
+	<<button "diary">>
+		<<overlayReplace "diarysettings">>
+		<<set $currentOverlay to null>>
+	<</button>>
+<</if>>
+<<if $args[0] is "colorCodes">>
+	<<button "Colour Codes">>
+		<<script>>overlayShowHide('statsHelp');<</script>>
+	<</button>>
+	<div id="statsHelp" class="hidden">
+		<span class="green">Excellent</span>
+		<br>
+		<span class="teal">Good</span>
+		<br>
+		<span class="lblue">Decent</span>
+		<br>
+		<span class="blue">Okay</span>
+		<br>
+		<span class="purple">Poor</span>
+		<br>
+		<span class="pink">Bad</span>
+		<br>
+		<span class="red">Terrible</span>
+		<br>
+	</div>
+<</if>>
+<<if $args[0] is "diaryColorCodes">>
+<<button "Colour Codes">>
+	<<script>>overlayShowHide('statsHelp');<</script>>
+<</button>>
+	<div id="statsHelp" class="hidden">
+		<span class="red">Lost money/virginity</span><br>
+		<span class="gold">Gained money</span><br>
+		<span class="brown">Gained antiques</span><br>
+		<span class="black">Gained stolen goods</span><br>
+		<span class="pink">Comment</span><br>
+		<span class="green">Importance 5</span><br>
+		<span class="teal">Importance 4</span><br>
+		<span class="lblue">Importance 3</span><br>
+		<span class="blue">Importance 2</span><br>
+		<span class="grey">Importance 1</span><br>
+		<span class="black">Importance 0</span><br>
+		<<if $logdebug is 1>><span class="greyred">Debug info</span><br><</if>>
+	</div>
+<</if>>
+<br><br>
 <</nobr>><</widget>>

@@ -37,7 +37,6 @@
 <<set $combattype to "gang">>
 
 <<combatinit>>
-
 <</nobr>><</widget>>
 
 <<widget "beastNNPCinit">><<nobr>>
@@ -79,6 +78,8 @@
 <!-- This should be fixed globally later -->
 <<if $NPCList[0].monster is "monster">>
 	<<set $monster to 1>>
+<<else>>
+	<<set $monster to 0>>
 <</if>>
 
 <<combatinit>>
@@ -140,6 +141,8 @@
 <!-- This should be fixed globally later -->
 <<if $NPCList[0].monster is "monster">>
 	<<set $monster to 1>>
+<<else>>
+	<<set $monster to 0>>
 <</if>>
 
 <!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
@@ -217,6 +220,8 @@
 <!-- This should be fixed globally later -->
 <<if $NPCList[0].monster is "monster">>
 	<<set $monster to 1>>
+<<else>>
+	<<set $monster to 0>>
 <</if>>
 
 <!-- NG not sure what to do with below yet, this is part of indexing... leave for now V2.7-->
@@ -380,11 +385,11 @@
 <<set $traumagain to 0>>
 <<set $stressgain to 0>>
 
-
 <<set $leftarm to "bound">>
 <<set $rightarm to "bound">>
 
 <<combatinit>>
+
 <</nobr>><</widget>>
 
 <<widget "molestbusinit">><<nobr>>
@@ -417,13 +422,12 @@
 <<set $traumagain to 0>>
 <<set $stressgain to 0>>
 
-
 <<if $daystate isnot "night">><<set $rescue to 1>><</if>>
 
 <<set $mouthuse to "lefthand">>
 
-
 <<combatinit>>
+
 <</nobr>><</widget>>
 
 <<widget "busmoveinit">><<nobr>>
@@ -455,7 +459,6 @@
 <<set $stresssaved to $stress>>
 <<set $traumagain to 0>>
 <<set $stressgain to 0>>
-
 
 <<if $daystate isnot "night">><<set $rescue to 1>><</if>>
 
@@ -496,9 +499,7 @@
 <<set $traumagain to 0>>
 <<set $stressgain to 0>>
 
-
 <<if $daystate isnot "night">><<set $rescue to 1>><</if>>
-
 
 <<combatinit>>
 <</nobr>><</widget>>
@@ -532,7 +533,6 @@
 <<set $stresssaved to $stress>>
 <<set $traumagain to 0>>
 <<set $stressgain to 0>>
-
 
 <<set $drugged += 120>>
 
@@ -763,7 +763,7 @@
 <<if $genderknown.includes($npc)>>
 <<set $crossdressing to 0>>
 <<else>>
-	<<if $player.gender isnot $player.appearance>>
+	<<if $player.gender isnot $player.gender_appearance>>
 	<<set $crossdressing to 1>>
 	<<else>>
 	<<set $crossdressing to 0>>
@@ -803,7 +803,9 @@
 <<if $worn.face.type.includes("gag")>>
 <<set $mouthuse to "gagged">>
 <</if>>
-
+<<resetLastOptions>>
+<<getCombatDefaultsType>>
+<<wetnessCalculate>>
 <</nobr>><</widget>>
 
 <<widget "combatstart">><<nobr>>/* run once at the start of each combat just like combatinit but before start variables are set to 0 */
@@ -844,31 +846,41 @@ Be:
 <<widget "man">><<nobr>>
 
 <<if $finish isnot 1>>
+<<if $setupMidOrgasm is true>>
+	<<if $ejaculatingMid is true>>
+		<<set $ejaculating to 1>>
+		<<set $ejaculatingMid to false>>
+	<<elseif $ejaculatingMid is false>>
+		<<unset $ejaculatingMid>>
+	<</if>>
+<</if>>
+<div @class="($debugLines ? 'debugLines-combat' : '')">
 	<<if $enemyno gte 1>>
-<br>
-<<man-combat 1>>
-<br><br>
+		<br>
+		<<man-combat 1>>
+		<br><br>
 	<</if>>
 	<<if $enemyno gte 2>>
-<<man-combat 2>>
-<br><br>
+	<<man-combat 2>>
+	<br><br>
 	<</if>>
 	<<if $enemyno gte 3>>
-<<man-combat 3>>
-<br><br>
+		<<man-combat 3>>
+		<br><br>
 	<</if>>
 	<<if $enemyno gte 4>>
-<<man-combat 4>>
-<br><br>
+		<<man-combat 4>>
+		<br><br>
 	<</if>>
 	<<if $enemyno gte 5>>
-<<man-combat 5>>
-<br><br>
+		<<man-combat 5>>
+		<br><br>
 	<</if>>
 	<<if $enemyno gte 6>>
-<<man-combat 6>>
-<br><br>
+		<<man-combat 6>>
+		<br><br>
 	<</if>>
+</div>
 <</if>>
 
 <<set $rng to random(1, 100)>>
@@ -880,7 +892,18 @@ Be:
 
 <<if $worn.genitals.type.includesAll("chastity", "hidden")>>
 <<elseif $crossdressing is 1 and $worn.under_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1>>
-<<set $crossdressing to 0>>
+	<<set $crossdressing to 0>>
+	<<if !$backgroundTraits.includes("crossdresser")>>
+		<<if $crossdressingTrait is undefined>>
+			<<set $crossdressingTrait to 1>>
+		<<else>>
+			<<set $crossdressingTrait += 1>>
+		<</if>>
+		<<if $crossdressingTrait gte 100>>
+			<<run $backgroundTraits.push("crossdresser")>>
+			<<set _newTrait to true>>
+		<</if>>
+	<</if>>
 	<<if $enemyno gte 2>>
 		<<if $rng gte 96>>
 		<span class="red">They recoil in horror upon seeing your <<genitalsstop>> The deception has driven them mad with rage!</span>
@@ -916,7 +939,10 @@ Be:
 		<</if>>
 		<br><br>
 	<</if>>
+	<<if _newTrait is true>>
+		<<unset _newTrait>>
+		<span class="gold">Being seen while crossdressing makes you feel happy inside</span>
+	<</if>>
 <</if>>
-
 <<turnend>>
 <</nobr>><</widget>>

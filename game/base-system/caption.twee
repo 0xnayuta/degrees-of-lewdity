@@ -1,4 +1,5 @@
 :: StoryCaption [nobr]
+<div id="storyCaptionDiv" @class="($extendedStats ? 'storyCaptionDivExtended' : '')">
 <<if $intro is 0>>
 <<weatherdisplay>>
 <<exposure>>
@@ -18,7 +19,7 @@
 
 <<if $endeventerror isnot undefined>>
 	<<if $debugdisable is "f">>
-		<<if $images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red">Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatdisable is "f">>Disregard this if you've just used a cheat.<</if>></span>
+		<<if $images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red"><<print StartConfig.version>> Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatdisable is "f">>Disregard this if you've just used a cheat.<</if>></span>
 		<br><br>
 	<</if>>
 	<<unset $endeventerror>>
@@ -96,64 +97,21 @@
 	<</if>>
 <</if>>
 <<if $images is 1>>
-	<div id="stats">
-	<<if $sidebar.crossdress is 2>>
-		<<if $player.gender isnot $player.appearance>>
-			<<if $player.appearance is "m">>
-				<img class="icon_ui" src="img/ui/icon_m_cloth4.png">
-			<<elseif $player.appearance is "f">>
-				<img class="icon_ui" src="img/ui/icon_f_cloth4.png">
-			<</if>>
-		<<else>>
-			<<if $player.appearance is "m">>
-				<img class="icon_ui" src="img/ui/icon_m_cloth.png">
-			<<elseif $player.appearance is "f">>
-				<img class="icon_ui" src="img/ui/icon_f_cloth.png">
-			<</if>>
-		<</if>>
-	<</if>>
-	<<if $dev is 1>>
-	<<set $money = Math.trunc($money)>>
-	£<<print ($money / 100)>>.
-	<<else>>
-	£<<print Math.trunc($money / 100)>>.<<if $money % 100 lte 9>>0<</if>><<print $money % 100>>
-	<</if>>
-	&nbsp;
-	<<effectstime>>
-	<img class="icon_ui" src="img/ui/icon_time.png">
-	<<if $timestyle is "ampm">>
-		<<if $hour gte 13>>
-		<<print ($hour - 12)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> pm.
-		<<else>>
-		$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am.<</if>>
-		<</if>>
-	<<else>>
-	<<if $hour lt 10>>0<</if>>$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>>
-	<</if>>
-	&nbsp;
-	<img class="icon_ui" src="img/ui/icon_day.png">
-	<<switch $weekday>>
-	<<case 1>>Sun<<case 2>>Mon<<case 3>>Tue<<case 4>>Wed<<case 5>>Thu<<case 6>>Fri<<case 7>>Sat
-	<</switch>>
-	<<if $sidebar.school is 2>>
-		<<if $schoolterm is 1 and $weekday isnot 1 and $weekday isnot 7>>
-			<img class="icon_ui" src="img/ui/schoolday.png">
-		<<else>>
-		<</if>>
-	<</if>>
+	<div id="stats" @class="($extendedStats ? 'statsExtended' : '')" onclick="extendStats()">
+		<<statsCaption>>
 	</div>
 <<else>>/*no images*/
 	<<if $sidebar.crossdress is 2>>
-		<<if $player.gender isnot $player.appearance>>
-			<<if $player.appearance is "m">>
+		<<if $player.gender isnot $player.gender_appearance>>
+			<<if $player.gender_appearance is "m">>
 				👕♂!
-			<<elseif $player.appearance is "f">>
+			<<elseif $player.gender_appearance is "f">>
 				👚♀!
 			<</if>>
 		<<else>>
-			<<if $player.appearance is "m">>
+			<<if $player.gender_appearance is "m">>
 				👕♂
-			<<elseif $player.appearance is "f">>
+			<<elseif $player.gender_appearance is "f">>
 				👚♀
 			<</if>>
 		<</if>>
@@ -195,7 +153,7 @@
 <</if>>
 <<if $sidebar.crossdress gt -1 and $sidebar.crossdress lt 2>>
 <<if $player.gender is "m">>
-	<<if $player.gender isnot $player.appearance>>
+	<<if $player.gender isnot $player.gender_appearance>>
 		<<sidebardivide>>
 		<<if $sidebar.crossdress is 1>>
 			<span class="pink">You look like a girl!</span>
@@ -211,7 +169,7 @@
 		<</if>>
 	<</if>>
 <<elseif $player.gender is "f">>
-	<<if $player.gender isnot $player.appearance>>
+	<<if $player.gender isnot $player.gender_appearance>>
 		<<sidebardivide>>
 		<<if $sidebar.crossdress is 1>>
 			<span class="pink">You look like a boy!</span>
@@ -230,8 +188,6 @@
 <<else>>
 /* only character sprite hints at crossdressing status */
 <</if>>
-
-	
 
 <<clamp>>
 
@@ -266,14 +222,26 @@
 <<if $cat gte 6>><<set $allure += 500>><</if>>
 <<goocount>><<set $allure += ($goocount * 50) + ($semencount * 50)>>
 
+<<set $allure += ($famesex / 5)>>
+<<set $allure += ($famerape / 5)>>
+<<set $allure += ($famebestiality / 5)>>
+<<set $allure += ($fameexhibitionism / 5)>>
+
 <<set $allure -= $famescrap>>
 	<<if $dev is 1>>
 	<<set $allure -= $famegood>>
 	<<set $allure -= $famepimp>>
 	<<set $allure -= $famebusiness>>
 	<</if>>
+<<if $smells[0][0] is "trash" and $smells [0][1] gte 2>>/* strongest smell is trash and it's at least 2 */
+	/*<<set $allure -= $smells[0][1]>>*/
+	<<set $allure -= 100>>
+<</if>>
 <<set $allure *= $alluremod>>
 <<if $allure gte 8000 * $alluremod>><<set $allure to 8000 * $alluremod>><</if>>
+<<if $allure lt 0>>
+	<<set $allure to 0>>
+<</if>>
 
 <<set $attractiveness to (($beauty / 3) + $hairlength / 4 + $worn.upper.reveal + $worn.lower.reveal)>>
 <<if $worn.upper.type.includes("naked")>><<set $attractiveness += $worn.under_upper.reveal>><</if>>
@@ -442,7 +410,6 @@
 	<</switch>>
 <</if>>
 
-
 <<sidebardivide>>
 <<if $gamemode isnot "soft">>
 <<paincaption>>
@@ -463,6 +430,11 @@
 Air: <<oxygencaption>>
 <</if>>
 <<drunk>><<drugged>><<hallucinogen>>
+<br>
+<<if $passage isnot "Start" and $passage isnot "Start2" and $sidebar.stats isnot "Disabled">>
+	<<replace #mobileStats>><<mobileStats>><</replace>>
+<</if>>
+
 <<if $sidebar.brs is 1>><br><</if>>
 
 <<if $sidebar.log gte 1>>
@@ -484,8 +456,6 @@ Air: <<oxygencaption>>
 	<span class="lblue">''»''</span> <<print $diary[$logday][$diaryline][$log.text]>><br>
 	<<if $sidebar.brs is 1>><br><</if>>
 <</if>>
-
-
 
 <<if $tipdisable is "f">>
 <<if $sidebar.legend is 1>>
@@ -514,138 +484,123 @@ Air: <<oxygencaption>>
 
 <</silently>>
 
-<div id="customOverlay" class="customOverlay hidden">
-
-</div>
-
-
 <<if $sidebar.buttons is 1>>
 
-<<link Characteristics>>
-	<<overlayReplace "characteristics">>
-<</link>> |
-
-<<link Traits>>
-	<<overlayReplace "traits">>
-<</link>> |
-
-<<link Social>>
-	<<overlayReplace "social">>
-<</link>> |
-
-<<link Statistics>>
-	<<overlayReplace "statistics">>
-<</link>> |
-
-<<link Diary>>
-	<<overlayReplace "diary">>
-<</link>> |
-
-<<if $dancing is 0 and $combat is 0 and $cheatdisable is "f">>
-	<<link CHEATS>>
-		<<overlayReplace "cheats">>
+	<<link Characteristics>>
+		<<overlayReplace "characteristics">>
 	<</link>> |
-<</if>>
 
-<<if $debug is 1>>
-	<<debug>> |
-<</if>>
+	<<link Traits>>
+		<<overlayReplace "traits">>
+	<</link>> |
 
-<<link Saves/Options>> 
-	<<overlayReplace "options">>
-<</link>>
-<<if $enabledOldSaveMenu is true>> |
-	<<link Save/Load>>
-		<<script>>SugarCube.UI.saves();<</script>>
+	<<link Social>>
+		<<overlayReplace "social">>
+	<</link>> |
+
+	<<link Statistics/Feats>>
+		<<overlayReplace "statistics">>
+	<</link>> |
+
+	<<link Diary>>
+		<<overlayReplace "diary">>
+	<</link>> |
+
+	<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatdisable is "f">>
+		<<link CHEATS>>
+			<<overlayReplace "cheats">>
+		<</link>> |
+	<</if>>
+
+	<<if $debug is 1>>
+		<<debug>> |
+	<</if>>
+
+	<<link Saves/Options>> 
+		<<overlayReplace "options">>
 	<</link>>
-<</if>>
-<br>
+	<br>
 
 <<else>>
 
-<<button CHARACTERISTICS>>
-	<<overlayReplace "characteristics">>
-<</button>>
-
-<<button TRAITS>>
-	<<overlayReplace "traits">>
-<</button>>
-
-<<button SOCIAL>>
-	<<overlayReplace "social">>
-<</button>>
-
-<<button STATISTICS>>
-	<<overlayReplace "statistics">>
-<</button>>
-
-<<button DIARY>>
-	<<overlayReplace "diary">>
-<</button>>
-<br><br>
-<<if $dancing is 0 and $combat is 0 and $cheatdisable is "f">>
-	<<button CHEATS>>
-		<<overlayReplace "cheats">>
+	<<button CHARACTERISTICS>>
+		<<overlayReplace "characteristics">>
 	<</button>>
-<</if>>
 
-<<if $debug is 1>>
-	<<debug>>
-<</if>>
-
-<<button SAVES/OPTIONS>>
-	<<overlayReplace "options">>
-<</button>>
-<<if $enabledOldSaveMenu is true>>
-	<<button SAVE/LOAD>>
-		<<script>>SugarCube.UI.saves();<</script>>
+	<<button TRAITS>>
+		<<overlayReplace "traits">>
 	<</button>>
-<</if>>
-<br><br>
 
-<</if>>
+	<<button SOCIAL>>
+		<<overlayReplace "social">>
+	<</button>>
+
+	<<button STATISTICS/FEATS>>
+		<<overlayReplace "statistics">>
+	<</button>>
+
+	<<button DIARY>>
+		<<overlayReplace "diary">>
+	<</button>>
+	<br><br>
+	<<if $dancing is 0 and $combat is 0 and $passage isnot "Start2" and $cheatdisable is "f">>
+		<<button CHEATS>>
+			<<overlayReplace "cheats">>
+		<</button>>
+	<</if>>
+
+	<<if $debug is 1>>
+		<<debug>>
+	<</if>>
+
+	<<button SAVES/OPTIONS>>
+		<<overlayReplace "options">>
+	<</button>>
+
+<</if>>/* sidebar buttons setting end*/
 
 <<else>>/* intro isn't 0 */
+	<<versioninfo>>
 
-<<versioninfo>>
-
-<<button SAVES/OPTIONS>>
-	<<overlayReplace "options">>
-<</button>>
-<<if $enabledOldSaveMenu is true>>
-	<<button SAVE/LOAD>>
-		<<script>>SugarCube.UI.saves();<</script>>
+	<<button FEATS>>
+		<<overlayReplace "startFeats">>
 	<</button>>
-<</if>>
-<br><br>
-
+	<<button SAVES/OPTIONS>>
+		<<overlayReplace "options">>
+	<</button>>
 <</if>>
 
 
 <<set $currentOverlay to null>>
 <div id="customOverlay" class="customOverlay hidden">
-
+	<div id="customOverlayTitle" class="fixedClose"></div>
+	<div id="customOverlaySaveContent"></div>
+	<div id="customOverlayContent"></div>
+</div>
 </div>
 
 :: Widgets Clothing Caption [widget]
 <<widget "clothingcaption">><<nobr>>
 
-<<if $sidebar.cloth isnot 1>>
+<<if $sidebar.cloth is 1>>
 	<<set _clothlist to []>> 
 	<<if $sidebar.clothcolour is 1>> 
 		<<set _clothlist to [$worn.upper.integrity+"|"+$worn.upper.integrity_max+"|"+$worn.upper.colour+"|"+$worn.upper.name, $worn.lower.integrity+"|"+$worn.lower.integrity_max+"|"+$worn.lower.colour+"|"+$worn.lower.name, $worn.under_upper.integrity+"|"+$worn.under_upper.integrity_max+"|"+$worn.under_upper.colour+"|"+$worn.under_upper.name, $worn.under_lower.integrity+"|"+$worn.under_lower.integrity_max+"|"+$worn.under_lower.colour+"|"+$worn.under_lower.name]>> 
 		/* replace "wet" with ""? <<run _clothlist.delete("wet")>> actually it doesn't seem necessary, presumably things changed since clothescolour widgets were last updated. */
 		/* having the colour texts in white text might look better. */
 	<<else>>
-		<<set _clothlist to [$worn.upper.integrity+"|"+$worn.upper.integrity_max+"|0|"+$worn.upper.name, $worn.lower.integrity+"|"+$worn.lower.integrity_max+"|0|"+$worn.lower.name, $worn.under_upper.integrity+"|"+$worn.under_upper.integrity_max+"|0|"+$worn.under_upper.name, $worn.under_lower.integrity+"|"+$worn.under_lower.integrity_max+"|0|"$worn.under_lower.name]>> 
+		<<set _clothlist to [$worn.upper.integrity+"|"+$worn.upper.integrity_max+"|0|"+$worn.upper.name, $worn.lower.integrity+"|"+$worn.lower.integrity_max+"|0|"+$worn.lower.name, $worn.under_upper.integrity+"|"+$worn.under_upper.integrity_max+"|0|"+$worn.under_upper.name, $worn.under_lower.integrity+"|"+$worn.under_lower.integrity_max+"|0|"+$worn.under_lower.name]>> 
 	<</if>>
 	<<set _clothlist2 to [$worn.upper.name, $worn.lower.name, $worn.under_upper.name, $worn.under_lower.name]>>/* needed because naked isn't reliably 0|0|0|naked, could figure out a better way */
-	<<if _clothlist.count("0|0|0|naked") gte 4>>
+	<<if _clothlist.count("0|0|0|naked") gte 4 and $worn.genitals.name is "naked">>
 		<span class="red">Naked!</span>
 	<<elseif _clothlist2.count("naked") gte 4>>
 		<span class="red">Naked!</span>
+		<<if $worn.genitals.name isnot "naked">>
+			<span class="red">Only chastity!</span>
+		<</if>>
 	<<else>>
-		<<if $worn.lower.name is "naked" and $worn.under_lower.name is "naked">>
+		<<if $worn.lower.name is "naked" and $worn.under_lower.name is "naked" and $worn.genitals.name is "naked">>
 			<span class="red">Bottomless!</span>
 		<<elseif $worn.upper.name is "naked" and $worn.under_upper.name is "naked">>
 			<span class="pink">Topless!</span>
@@ -655,220 +610,167 @@ Air: <<oxygencaption>>
 			<span class="pink">Exposed underwear!</span>
 		<<elseif $worn.upper.name is "naked">>
 			<span class="pink">Exposed bra!</span>
-		<<elseif $worn.under_lower.name is "naked">>
+		<<elseif $worn.under_lower.name is "naked" and $worn.genitals.name is "naked">>
 			<span class="pink">No underwear!</span>
+		<</if>>
+		<<if $worn.genitals.name isnot "naked">>
+			<<if $sidebar.clothcolour is 1>>
+				<<run _clothlist.push($worn.genitals.integrity+"|"+$worn.genitals.integrity_max+"|"+$worn.genitals.colour+"|"+$worn.genitals.name)>>
+			<<else>>
+				<<run _clothlist.push($worn.genitals.integrity+"|"+$worn.genitals.integrity_max+"|0|"+$worn.genitals.name)>>
+			<</if>>
 		<</if>>
 		Wearing:<<clothlistify _clothlist>>
 	<</if>>
 <<else>>
-	<<if $worn.upper.name is "naked">>
-		<<if $worn.lower.name is "naked">>
-			<<if $worn.under_lower.name is "naked">>
-				<<if $worn.under_upper.name is "naked">>
-				<span class="red">You are completely naked!</span>
-				<<else>>
-				<span class="red">Your bottom half is completely exposed!</span> 
-				<span class="pink">Your <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name 
-				<<if $worn.under_upper.plural is 1>>give<<else>>gives<</if>> little comfort.</span>
-				<span class="red">Your bottom half is completely exposed!</span> <span class="pink">Your <<underupperintegrity>>
-				<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-				$worn.under_upper.name <<if $worn.under_upper.plural is 1>>give<<else>>gives<</if>> little comfort.</span>
-				<</if>>
+<!-- normal/old clothing text -->
+<!-- no colour text option is handled by the "...clothescolour" widgets(kind of assumes this is the only place they are used at) -->
+<<if $worn.upper.name is "naked">>
+	<<if $worn.lower.name is "naked">>
+		<<if $worn.under_lower.name is "naked" and $worn.genitals.name is "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			<span class="red">You are completely naked!</span>
+			<<else>>
+			<span class="red">Your bottom half is completely exposed!</span> <span class="pink">Your <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name <<if $worn.under_upper.plural is 1>>give<<else>>gives<</if>> little comfort.</span>
 			<</if>>
-			<<if $worn.under_lower.name isnot "naked">>
-				<<if $worn.under_upper.name is "naked">>
-				<span class="pink">You are wearing nothing but a <<if !$worn.under_lower.type.includes("chastity")>>pair of <</if>><<underlowerintegrity>>
-				<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-				$worn.under_lower.name.</span>
-				<<else>>
-					<<if $worn.under_lower.set is $worn.under_upper.set>>
-					<span class="pink">You are wearing nothing but <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					$worn.under_upper.name.</span>
-					<<else>>
-					<span class="pink">You are wearing a <<if !$worn.under_lower.type.includes("chastity")>>pair of <</if>><<underlowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-					 $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>><</if>> 
-					$worn.under_upper.name.</span>
-					<</if>>
-				<</if>>
+		<<elseif $worn.under_lower.name is "naked" and $worn.genitals.name isnot "naked">>
+			<<if $worn.under_upper.name is "naked">>
+				<span class="red">Your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>> gives you no comfort.</span>
+			<<else>>
+				<span class="red">Other than your <<genitalsintegrity>> $worn.genitals.name <<if $worn.genitals.anal_shield is 1>>with an anal shield<</if>>, your bottom half is completely exposed!</span>
 			<</if>>
 		<</if>>
-		<<if $worn.lower.name isnot "naked">>
-			<<if $worn.under_lower.name is "naked">>
-				<<if $worn.under_upper.name is "naked">>
-				<span class="pink">You are topless and wearing no underwear</span> but your lower half is covered by <<lowerword>> <<lowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-				 $worn.lower.name.
+		<<if $worn.under_lower.name isnot "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			<span class="pink">You are wearing nothing but a pair of <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.</span>
+			<<else>>
+				<<if $worn.under_lower.set is $worn.under_upper.set>>
+				<span class="pink">You are wearing nothing but <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name.</span>
 				<<else>>
-				<span class="pink">You are wearing <<underupperword>> <<underupperintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-	 			$worn.under_upper.name</span> and <<lowerword>> <<lowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-				 $worn.lower.name, <span class="purple">with nothing underneath.</span>
+				<span class="pink">You are wearing a pair of <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name.</span>
 				<</if>>
 			<</if>>
-			<<if $worn.under_lower.name isnot "naked">>
-				<<if $worn.under_upper.name is "naked">>
-				<span class="pink">You are topless</span> with <<lowerword>> <<lowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-				 $worn.lower.name and <<underlowerword>> <<underlowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-				 $worn.under_lower.name.
-				<<else>>
-				Your lower half is covered by <<lowerword>> <<lowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-				 $worn.lower.name and <<underlowerword>> <<underlowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-				 $worn.under_lower.name, <span class="pink">but only <<underupperword>> <<underupperintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-				 $worn.under_upper.name protects your chest.</span>
-				<</if>>
-			<</if>>
-		<</if>>
-	<<elseif $worn.upper.name isnot "naked">>
-		<<if $worn.lower.name is "naked">>
-			<<if $worn.under_lower.name is "naked">>
-				<<if $worn.upper.one_piece is "broken" and $worn.lower.set isnot $worn.upper.set>>
-					<<if $worn.under_upper.name is "naked">>
-					You are wearing just <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name that <<upperhas>> been torn at the waist <span class="red"> leaving your bottom half completely exposed!</span>
-					<<else>>
-					You are wearing <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-				 	$worn.under_upper.name beneath <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name that <<upperhas>> been torn at the waist <span class="red"> leaving your bottom half completely exposed!</span>
-					<</if>>
-				<<else>>
-					<<if $worn.under_upper.name is "naked">>
-					<span class="red">Your bottom half is completely exposed!</span> Your top half is covered by <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name, <span class="purple">with nothing beneath.</span>
-					<<else>>
-					<span class="red">Your bottom half is completely exposed!</span> Your top half is covered by <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name, with <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name beneath.
-					<</if>>
-				<</if>>
-			<</if>>
-			<<if $worn.under_lower.name isnot "naked">>
-				<<if $worn.upper.one_piece is "broken" and $worn.lower.set isnot $worn.upper.set>>
-					<<if $worn.under_upper.name is "naked">>
-					You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name that has been torn at the waist <span class="purple"> leaving your <<underlowerword>> <<underlowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-					 $worn.under_lower.name exposed.</span>
-					<<else>>
-					You are wearing <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name that has been torn at the waist <span class="purple"> leaving your <<underlowerword>> <<underlowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-					 $worn.under_lower.name exposed.</span>
-					<</if>>
-				<<else>>
-					<<if $worn.under_upper.name is "naked">>
-					You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name and <<underlowerword>> <span class="purple">exposed <<underlowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-					 $worn.under_lower.name.</span>
-					<<else>>
-						<<if $worn.under_upper.one_piece is 1>>
-						You are wearing <<underupperword>> <<underupperintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-						 $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-						 $worn.upper.name. <span class="purple">Your $worn.under_upper.name is visible beneath your waist.</span>
-						<<else>>
-						You are wearing <<underupperword>> <<underupperintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-						 $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-						 $worn.upper.name and <<underlowerword>> <span class="purple">exposed <<underlowerintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-						 $worn.under_lower.name.</span>
-						<</if>>
-					<</if>>
-				<</if>>
-			<</if>>
-		<</if>>
-		<<if $worn.lower.name isnot "naked">>
-			<<if $worn.under_lower.name is "naked">>
-				<<if $worn.under_upper.name is "naked">>
-					You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name
-					<<if $worn.lower.one_piece isnot 1>>
-					and <<lowerword>> <<lowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-					 $worn.lower.name
-					<</if>>
-					<span class="purple"><<if $worn.lower.type.includes("swim")>>and<<else>>but<</if>> you are not wearing underwear.</span>
-				<<else>>
-					You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name
-					<<if $worn.lower.one_piece isnot 1>>
-					and <<lowerword>> <<lowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-					 $worn.lower.name
-					<</if>>
-					<<if $worn.under_upper.one_piece is "broken">>
-					<span class="purple">with just <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name that has been torn at the waist beneath.</span>
-					<<else>>
-					<span class="purple">with just <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name beneath.</span>
-					<</if>>
-				<</if>>
-			<</if>>
-			<<if $worn.under_lower.name isnot "naked">>
-				<<if $worn.under_upper.name is "naked">>
-					You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name
-					<<if $worn.lower.one_piece isnot 1>>
-						and <<lowerword>> <<lowerintegrity>> 
-						<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-						 $worn.lower.name
-					<</if>>
-				<span class="purple">with just <<underlowerword>> <<underlowerintegrity>> 
-				<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-				 $worn.under_lower.name beneath.</span>
-				<<else>>
-				You are wearing <<upperword>> <<upperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<upperclothescolour>> <</if>>
-					 $worn.upper.name
-					<<if $worn.lower.one_piece isnot 1>>
-					and <<lowerword>> <<lowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<lowerclothescolour>> <</if>>
-					 $worn.lower.name
-					<</if>>
-					<<if $worn.under_lower.one_piece is 1>>
-					with <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name beneath.
-					<<else>>
-					with <<underlowerword>> <<underlowerintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underlowerclothescolour>> <</if>>
-					 $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> 
-					<<if $sidebar.clothcolour is 1>><<underupperclothescolour>> <</if>>
-					 $worn.under_upper.name beneath.
-					<</if>>
-				<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
 			<</if>>
 		<</if>>
 	<</if>>
+	<<if $worn.lower.name isnot "naked">>
+		<<if $worn.under_lower.name is "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			<span class="pink">You are topless and wearing no underwear</span> but your lower half is covered by <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name.
+			<<else>>
+			<span class="pink">You are wearing <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name</span> and <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name, <span class="purple">with nothing underneath.</span>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+			<</if>>
+		<</if>>
+		<<if $worn.under_lower.name isnot "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			<span class="pink">You are topless</span> with <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name and <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.
+			<<else>>
+			Your lower half is covered by <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name and <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name, <span class="pink">but only <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name protects your chest.</span>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+			<</if>>
+		<</if>>
+	<</if>>
+<<elseif $worn.upper.name isnot "naked">>
+	<<if $worn.lower.name is "naked">>
+		<<if $worn.under_lower.name is "naked">>
+			<<if $worn.upper.one_piece is "broken" and $worn.lower.set isnot $worn.upper.set>>
+				<<if $worn.under_upper.name is "naked">>
+				You are wearing just <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name that <<upperhas>> been torn at the waist <span class="red"> leaving your bottom half completely exposed!</span>
+				<<else>>
+				You are wearing <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name that <<upperhas>> been torn at the waist <span class="red"> leaving your bottom half completely exposed!</span>
+				<</if>>
+			<<else>>
+				<<if $worn.under_upper.name is "naked">>
+				<span class="red">Your bottom half is completely exposed!</span> Your top half is covered by <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name, <span class="purple">with nothing beneath.</span>
+				<<else>>
+				<span class="red">Your bottom half is completely exposed!</span> Your top half is covered by <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name, with <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath.
+				<</if>>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				<span class="red">Your <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>> gives you no comfort.</span>
+			<</if>>
+		<</if>>
+		<<if $worn.under_lower.name isnot "naked">>
+			<<if $worn.upper.one_piece is "broken" and $worn.lower.set isnot $worn.upper.set>>
+				<<if $worn.under_upper.name is "naked">>
+				You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name that has been torn at the waist <span class="purple"> leaving your <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name exposed.</span>
+				<<else>>
+				You are wearing <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name that has been torn at the waist <span class="purple"> leaving your <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name exposed.</span>
+				<</if>>
+			<<else>>
+				<<if $worn.under_upper.name is "naked">>
+				You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name and <<underlowerword>> <span class="purple">exposed <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.</span>
+				<<else>>
+					<<if $worn.under_upper.one_piece is 1>>
+					You are wearing <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name. <span class="purple">Your $worn.under_upper.name is visible beneath your waist.</span>
+					<<else>>
+					You are wearing <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name and <<underlowerword>> <span class="purple">exposed <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.</span>
+					<</if>>
+				<</if>>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+			        Your <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>> <<if $worn.under_lower.reveal gte 500>>is clearly visible<<else>>can be made out<</if>> underneath.
+			<</if>>
+		<</if>>
+	<</if>>
+	<<if $worn.lower.name isnot "naked">>
+		<<if $worn.under_lower.name is "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name
+				<<if $worn.lower.one_piece isnot 1>>
+				and <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name
+				<</if>>
+			<span class="purple"><<if $worn.lower.type.includes("swim")>>and<<else>>but<</if>> you are not wearing underwear.</span>
+			<<else>>
+				You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name
+				<<if $worn.lower.one_piece isnot 1>>
+				and <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name
+				<</if>>
+				<<if $worn.under_upper.one_piece is "broken">>
+				<span class="purple">with just <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name that has been torn at the waist beneath.</span>
+				<<else>>
+				<span class="purple">with just <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath.</span>
+				<</if>>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+			<</if>>
+		<</if>>
+		<<if $worn.under_lower.name isnot "naked">>
+			<<if $worn.under_upper.name is "naked">>
+			You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name
+				<<if $worn.lower.one_piece isnot 1>>
+				and <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name
+				<</if>>
+				<<if $breastsize lt 3>>
+					with <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name beneath.
+				<<else>>
+					<span class="purple">with just <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name beneath.</span>
+				<</if>>
+			<<else>>
+			You are wearing <<upperword>> <<upperintegrity>> <<upperclothescolour>> $worn.upper.name
+				<<if $worn.lower.one_piece isnot 1>>
+				and <<lowerword>> <<lowerintegrity>> <<lowerclothescolour>> $worn.lower.name
+				<</if>>
+				<<if $worn.under_lower.one_piece is 1>>
+				with <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath.
+				<<else>>
+				with <<underlowerword>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name beneath.
+				<</if>>
+			<</if>>
+			<<if $worn.genitals.name isnot "naked">>
+				You wear <<genitalsword>> <<genitalsintegrity>> $worn.genitals.name<<if $worn.genitals.anal_shield is 1>> with an anal shield<</if>>.
+			<</if>>
+		<</if>>
+	<</if>>
+<</if>>
 <</if>>
 
 <<if $worn.face.type.includes("mask")>>
@@ -880,7 +782,7 @@ Your identity is concealed by your $worn.face.name.
 
 <<widget "stripcaption">><<nobr>>
 
-<<if !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $underlowerwetstage gte 3 and !$worn.under_upper.type.includes("naked") and $underupperwetstage gte 3>>
+<<if !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3 and !$worn.under_upper.type.includes("naked") and $underupperwetstage gte 3>>
 	<<if $worn.under_upper.set is $worn.under_lower.set>>
 		<<if $worn.upper.set is $worn.lower.set>>
 	Your $worn.upper.name and $worn.under_upper.name are drenched, <span class="pink">revealing your <<breasts>> and <<genitalsstop>></span>
@@ -900,7 +802,7 @@ Your identity is concealed by your $worn.face.name.
 		<</if>>
 	<</if>>
 
-<<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $underlowerwetstage gte 3>>
+<<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
 	<<if $worn.upper.set is $worn.lower.set>>
 Your $worn.upper.name, and $worn.under_lower.name are drenched, <span class="pink">revealing your <<undertop>> and <<genitalsstop>></span>
 <br>
@@ -918,7 +820,6 @@ Your $worn.upper.name, $worn.lower.name and $worn.under_lower.name are drenched,
 	<br>
 	<</if>>
 
-
 <<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3 and $lowerwetstage gte 3 and !$worn.lower.type.includes("naked")>>
 	<<if $worn.upper.set is $worn.lower.set>>
 Your $worn.upper.name is drenched, <span class="purple">revealing your <<undertop>> and <<undiesstop>></span>
@@ -928,12 +829,11 @@ Your $worn.upper.name and $worn.lower.name are drenched, <span class="purple">re
 <br>
 	<</if>>
 
-
 <<elseif !$worn.upper.type.includes("naked") and $upperwetstage gte 3>>
 Your $worn.upper.name <<upperplural>> drenched, <span class="purple">revealing your <<breastsstop>></span>
 <br>
 
-<<elseif !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $underlowerwetstage gte 3>>
+<<elseif !$worn.lower.type.includes("naked") and $lowerwetstage gte 3 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
 Your $worn.lower.name and $worn.under_lower.name are drenched, <span class="pink">revealing your <<genitalsstop>></span>
 <br>
 
@@ -941,7 +841,7 @@ Your $worn.lower.name and $worn.under_lower.name are drenched, <span class="pink
 Your $worn.lower.name <<lowerplural>> drenched, <span class="purple">revealing your <<undiesstop>></span>
 <br>
 
-<<elseif !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $underlowerwetstage gte 3>>
+<<elseif !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $underlowerwetstage gte 3>>
 Your $worn.under_lower.name <<underlowerplural>> drenched, <span class="pink">revealing your <<genitalsstop>></span>
 <br>
 
@@ -949,7 +849,7 @@ Your $worn.under_lower.name <<underlowerplural>> drenched, <span class="pink">re
 Your $worn.under_upper.name <<underupperplural>> drenched, <span class="pink">revealing your <<breastsstop>></span>
 <br>
 
-<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $worn.under_lower.state isnot "waist" and !$worn.under_upper.type.includes("naked") and $worn.under_upper.state isnot $worn.under_upper.state_base>>
+<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist" and !$worn.under_upper.type.includes("naked") and $worn.under_upper.state isnot $worn.under_upper.state_base>>
 	<<if $worn.under_upper.set is $worn.under_lower.set>>
 		<<if $worn.upper.set is $worn.lower.set>>
 	Your $worn.upper.name, skirt and $worn.under_upper.name have been pulled aside, <span class="pink">revealing your <<breasts>> and <<genitalsstop>></span>
@@ -968,7 +868,7 @@ Your $worn.under_upper.name <<underupperplural>> drenched, <span class="pink">re
 		<</if>>
 	<</if>>
 
-<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
+<<elseif !$worn.upper.type.includes("naked") and $worn.upper.exposed is 2 and !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
 	<<if $worn.upper.set is $worn.lower.set>>
 Your $worn.upper.name, skirt and $worn.under_lower.name have been pulled aside, <span class="pink">revealing your <<undertop>> and <<genitalsstop>></span>
 <br>
@@ -999,7 +899,7 @@ Your $worn.upper.name and $worn.lower.name have been pulled aside, <span class="
 Your $worn.upper.name <<upperhas>> been pulled aside, <span class="purple">revealing your <<breastsstop>></span>
 <br>
 
-<<elseif !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
+<<elseif !$worn.lower.type.includes("naked") and $worn.lower.exposed is 2 and !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot "waist">>
 Your $worn.lower.name <<lowerhas>> been pulled aside and your $worn.under_lower.name pulled down, <span class="pink">revealing your <<genitalsstop>></span>
 <br>
 
@@ -1007,7 +907,7 @@ Your $worn.lower.name <<lowerhas>> been pulled aside and your $worn.under_lower.
 Your $worn.lower.name <<lowerhas>> been pulled aside, <span class="purple">revealing your <<undiesstop>></span>
 <br>
 
-<<elseif !$worn.under_lower.type.includes("naked") and !$worn.under_lower.type.includes("chastity") and $worn.under_lower.state isnot $worn.under_lower.state_base>>
+<<elseif !$worn.under_lower.type.includes("naked") and !$worn.genitals.type.includes("chastity") and $worn.under_lower.state isnot $worn.under_lower.state_base>>
 Your $worn.under_lower.name <<underlowerhas>> been pulled down to your $worn.under_lower.state, <span class="pink">revealing your <<genitalsstop>></span>
 <br>
 
@@ -1017,6 +917,61 @@ Your $worn.under_upper.name <<underupperhas>> been pulled down to your $worn.und
 
 <</if>>
 
+<</nobr>><</widget>>
+
+<<widget "statsCaption">><<nobr>>
+	<<if $sidebar.crossdress is 2>>
+		<<if $player.gender isnot $player.gender_appearance>>
+			<<if $player.gender_appearance is "m">>
+				<img class="icon_ui" src="img/ui/icon_m_cloth4.png">
+			<<elseif $player.gender_appearance is "f">>
+				<img class="icon_ui" src="img/ui/icon_f_cloth4.png">
+			<</if>>
+		<<else>>
+			<<if $player.gender_appearance is "m">>
+				<img class="icon_ui" src="img/ui/icon_m_cloth.png">
+			<<elseif $player.gender_appearance is "f">>
+				<img class="icon_ui" src="img/ui/icon_f_cloth.png">
+			<</if>>
+		<</if>>
+	<</if>>
+	<<if $dev is 1>>
+		<<set $money = Math.trunc($money)>>
+		£<<print ($money / 100)>>.
+	<<else>>
+		£<<print Math.trunc($money / 100)>>.<<if $money % 100 lte 9>>0<</if>><<print $money % 100>>
+	<</if>>
+	&nbsp;
+	<<effectstime>>
+	<img class="icon_ui" src="img/ui/icon_time.png">
+	<<if $timestyle is "ampm">>
+		<<if $hour gte 13>>
+		<<print ($hour - 12)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> pm.
+		<<else>>
+		$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am.<</if>>
+		<</if>>
+	<<else>>
+	<<if $hour lt 10>>0<</if>>$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>>
+	<</if>>
+	&nbsp;
+	<<if $extendedStats>>
+		<br>
+	<</if>>
+	<img class="icon_ui" src="img/ui/icon_day.png">
+	<<switch $weekday>>
+	<<case 1>>Sun<<case 2>>Mon<<case 3>>Tue<<case 4>>Wed<<case 5>>Thu<<case 6>>Fri<<case 7>>Sat
+	<</switch>>
+	<<if $sidebar.school is 2>>
+		<<if $schoolterm is 1 and $weekday is 1>>
+			<img class="icon_ui" src="img/ui/schooldaytomorrow.png">
+		<<elseif $schoolterm is 1 and $weekday isnot 1 and $weekday isnot 7>>
+			<img class="icon_ui" src="img/ui/schoolday.png">
+		<<else>>
+		<</if>>
+	<</if>>
+	<<if $extendedStats>>
+		$monthday<<monthday>> <<month true>>
+	<</if>>
 <</nobr>><</widget>>
 
 :: StoryRightSidebar

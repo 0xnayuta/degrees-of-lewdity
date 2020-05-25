@@ -3,34 +3,26 @@
 <<variablesStatic>>
 
 <<if $facreset is true>>/* forget all remembered settings */
-	<<forget $debug, $tipdisable, $cheatdisable, $compactsidebar, $sidebar $malechance, $beastmalechance, $dgchance, $cbchance, $whitechance, $blackchance, $alluremod>>
+	<<forget $debug, $tipdisable, $cheatdisable, $compactsidebar, $sidebar $malechance, $beastmalechance, $dgchance, $cbchance, $straponchance, $whitechance, $blackchance, $alluremod>>
 	<<forget $logdebug, $diarymode, $loglocations, $diaryprompts, $diaryfilterA, $diaryfilterB, $logshowcomments, $logshowopinions, $logchangetreshold, $diaryshowunwritten>>
 	<<forget $busimportance, $workimportance, $passoutimportance, $exposureimportance, $logextraimportance, $locationimportance>>
-	<<forget $bestialitydisable, $swarmdisable, $spiderdisable, $parasitedisable, $slimedisable, $voredisable, $tentacledisable, $analdisable, $transformdisable, $hirsutedisable, $breastfeedingdisable>>
-	<<forget $breastsizemax, $gamemode, $numberify_enabled, $silhouettedisable, $dev, $images, $timestyle>>
+	<<forget $bestialitydisable, $swarmdisable, $spiderdisable, $parasitedisable, $slimedisable, $voredisable, $tentacledisable, $analdisable, $transformdisable, $hirsutedisable, $breastfeedingdisable, $bodywritingdisable>>
+	<<forget $breastsizemax, $gamemode, $numberify_enabled, $silhouettedisable, $dev, $images, $timestyle, $zoom, $checkstyle>>
 	<<forget $monsterhallucinations, $monsterchance>>
 	<<remember $facreset to false>>
 <</if>>
 
-<<if $images is undefined>>
-	<<if StartConfig.enableImages is true>>
-		<<set $images to 1>>
-	<<else>>
-		<<set $images to 0>>
-	<</if>>
+<<if StartConfig.debug is true>>
+	<<set $debug to 1>>
+<<else>>
+	<<set $debug to 0>>
 <</if>>
 
-<<if $debug is undefined>>
-	<<if StartConfig.debug is true>>
-	    <<set $debug to 1>>
-	<<else>>
-	    <<set $debug to 0>>
-	<</if>>
-<</if>>
-
+<!-- This is for tracking what version objects/variables have been made in so that the when updating it can be handled correctly(or so I'm assuming) -->
 <<if $objectVersion is undefined>>
 	<<set $objectVersion to {
-		"updateClothes": 1
+		"updateClothes": 8,
+		"feats": 1
 	}>>
 <</if>>
 
@@ -50,9 +42,9 @@
 <<set $clothing_update to 1>>
 <<set $parasite_update to 1>>
 <<set $npcNamedVersion to 2>>
-<<set $clothing_number to 8>>
+<<set $clothing_number to 10>>
 
-<<set $player = {gender: 0, sex: 0, appearance: 0, penis: 0, vagina: 0, penissize: 0, breastsize: 0, buttsize: 0, ballssize: 0, pronoun: 0, pronouns: {he: 0, his: 0}}>>
+<<set $player = {gender: 0, sex: 0, appearance: 0, penis: 0, vagina: 0, penissize: 0, breastsize: 0, buttsize: 0, ballssize: 0, pronoun: 0, pronouns: {he: 0, his: 0}, gender_body: 0, virginity:{anal:true,oral:true,penile:true,vaginal:true,temple:false}}>>
 <<npcList>>
 <<npcNamed>>
 <<set $controlmax to 1000>>
@@ -125,7 +117,6 @@
 <<if $alluremod is undefined>><<set $alluremod to 1>><</if>>
 <<set $speechcycle to 0>>
 <<set $npcspeechcycle to 0>>
-<<set $museumno to 0>>
 <<set $museuminterest to 0>>
 <<set $crimemax to 50000>>
 <<set $orphan_hope to 0>>
@@ -143,14 +134,30 @@
 <<set $milk_volume to 30>>
 <<set $milk_max to 3000>>
 <<set $milk_produced_stat to 0>>
-<<set $semen_amount to 90>>
-<<set $semen_volume to 90>>
 <<set $semen_max to 3000>>
 <<set $semen_produced_stat to 0>>
 <<set $masturbation_semen to 0>>
 <<set $masturbation_milk to 0>>
 <<set $bunstat to 0>>
 <<set $chef_sus to 0>>
+<<set $smuggler_location to "sewer">>
+<<set $smuggler_timer to 0>>
+<<set $smuggler_stolen_stat to 0>>
+<<set $player.gender_body to "a">>
+<<set $closinghour to 21>>
+<<set $openinghours to 0>>
+<<set $dontHide to false>>
+<<set $swimnudecounter to 0>>
+<<set $swimall to 0>>
+<<set $garden_flowers_intro to 1>>
+<<set $eden_plot_intro to 1>>
+<<set $wolf_plot_intro to 1>>
+<<set $asylum_plot_intro to 1>>
+<<set $plots to {}>>
+<<set $plants_known to []>>
+<<set $plants to {}>>
+<<set $stall_rejected to 0>>
+<<set $produce_sold to 0>>
 
 <<set $orgasmtrait to 0>>
 <<set $ejactrait to 0>>
@@ -161,7 +168,8 @@
 <<set $voretrait to 0>>
 <<set $milkdranktrait to 0>>
 
-<<set $transformed to 0>>
+<<set $physicalTransform to 0>>
+<<set $specialTransform to 0>>
 <<set $angelbuild to 0>>
 <<set $angel to 0>>
 <<set $angelforgive to 0>>
@@ -170,7 +178,6 @@
 <<set $demonabsorb to 0>>
 <<set $catbuild to 0>>
 <<set $cat to 0>>
-
 
 <<set $seductionskill to 0>>
 <<set $oralskill to 0>>
@@ -187,20 +194,16 @@
 <<set $skulduggeryday to 0>>
 <<set $danceskill to 0>>
 <<set $swimmingskill to 0>>
+<<set $athletics to 0>>
+<<set $tending to 0>>
 
 <<set $hygiene to 0>>
 <<set $hunger to 0>>
 <<set $thirst to 0>>
 <<set $tiredness to 0>>
 <<set $arousal to 0>>
-<<set $arousalmasochism to 0>>
 <<set $stress to 0>>
 
-<<set $vaginalvirginity to 1>>
-<<set $analvirginity to 1>>
-<<set $oralvirginity to 1>>
-<<set $penilevirginity to 1>>
-<<set $temple_virginity to 0>>
 <<set $comb to 0>>
 <<set $pain to 0>>
 <<set $combat to 0>>
@@ -233,7 +236,6 @@
 <<set $squidcount to 0>>
 <<set $no_underwear to 0>>
 
-
 <<set $upperwet to 0>>
 <<set $upperwetstage to 0>>
 <<set $lowerwet to 0>>
@@ -243,9 +245,7 @@
 <<set $underupperwet to 0>>
 <<set $underupperwetstage to 0>>
 
-
 <<set $genderknown to ["Robin", "Bailey"]>>
-
 
 <<set $vaginause to 0>>
 <<set $anususe to 0>>
@@ -273,6 +273,7 @@
 
 <<if $dgchance is undefined>><<set $dgchance to 0>><</if>>
 <<if $cbchance is undefined>><<set $cbchance to 0>><</if>>
+<<if $straponchance is undefined>><<set $straponchance to 0>><</if>>
 <<set $breast_mod to 0>>
 <<set $penis_mod to 0>>
 
@@ -368,8 +369,17 @@
 <<set $submissive to 1000>>
 <<set $assertive to 0>>
 <<set $assertiveaction to "trauma">>
-<<set $exhibitionismaction to "embarrassed">>
-<<set $lightexhibitionismaction to "embarrassed">>
+/*
+<<set $uncomfortable to {
+	underwear: true,
+	nude: true,
+}>>
+*/
+<<set $attitude to {
+	sex: "trauma",
+	underwear: "embarrassed",
+	nude: "embarrassed"
+}>>
 <<set $rescue to 0>>
 <<set $drugged to 0>>
 <<set $drunk to 0>>
@@ -475,55 +485,7 @@
 <<set $wolfgirl to 0>>
 <<set $wolfbuild to 0>>
 
-<<set $swarm1 to 0>>
-<<set $swarm2 to 0>>
-<<set $swarm3 to 0>>
-<<set $swarm4 to 0>>
-<<set $swarm5 to 0>>
-<<set $swarm6 to 0>>
-<<set $swarm7 to 0>>
-<<set $swarm8 to 0>>
-<<set $swarm9 to 0>>
-<<set $swarm10 to 0>>
-<<set $swarmpending to 0>>
-<<set $swarmname to 0>>
-<<set $swarmmove to 0>>
-<<set $swarmactive to 0>>
-<<set $swarmcreature to 0>>
-<<set $swarmchestmolest to 0>>
-<<set $swarmchestgrab to 0>>
-<<set $swarmchestgrabintro to 0>>
-<<set $swarmchestgrabclothed to 0>>
-<<set $swarmchestclothed to 0>>
-<<set $swarmchestcover to 0>>
-<<set $swarmactivate to 0>>
-<<set $swarmspill to 0>>
-<<set $swarmback to 0>>
-<<set $swarmbackmolest to 0>>
-<<set $swarmbackgrab to 0>>
-<<set $swarmbackgrabintro to 0>>
-<<set $swarmbackgrabunderclothed to 0>>
-<<set $swarmbackunderclothed to 0>>
-<<set $swarmbackgrablowerclothed to 0>>
-<<set $swarmbacklowerclothed to 0>>
-<<set $swarmbackcover to 0>>
-<<set $swarmbackinside to 0>>
-<<set $swarmbackinsideintro to 0>>
-<<set $swarmbackgrablowerchastity to 0>>
-<<set $swarmfront to 0>>
-<<set $swarmfrontmolest to 0>>
-<<set $swarmfrontgrab to 0>>
-<<set $swarmfrontgrabintro to 0>>
-<<set $swarmfrontgrabunderclothed to 0>>
-<<set $swarmfrontunderclothed to 0>>
-<<set $swarmfrontgrablowerclothed to 0>>
-<<set $swarmfrontlowerclothed to 0>>
-<<set $swarmfrontcover to 0>>
-<<set $swarmfrontinside to 0>>
-<<set $swarmfrontinsideintro to 0>>
-<<set $swarmfrontgrablowerchastity to 0>>
-<<set $swarmsteady to 0>>
-<<set $swarmcount to 0>>
+<<set $swarm to {}>>
 
 <<set $claws to 1>>
 <<set $water to 0>>
@@ -570,7 +532,7 @@
 		19: null,
 		20: null,
 		"active": 0,
-		"max": 0,
+		"max": 0
 	}>>
 
 <<set $leftleg to 0>>
@@ -625,7 +587,6 @@
 <<set $history to 200>>
 <<set $scienceprogression to 0>>
 
-
 <<set $audienceselector to 0>>
 <<set $audiencecamera to 0>>
 <<set $audiencecamera1 to 0>>
@@ -652,8 +613,17 @@
 <<set $rightactioncarrydissociation to "rightcurl">>
 <<set $mouthactioncarrydissociation to "noises">>
 
+<<set $sleeptrouble to 0>>
+<<set $nightmares to 0>>
+<<set $anxiety to 0>>
+<<set $flashbacks to 0>>
+<<set $panicattacks to 0>>
+<<set $hallucinations to 0>>
+<<set $dissociation to 0>>
+
 <<set $scienceproject to "none">>
 <<set $mathsproject to "none">>
+
 <<set $yeardays to 0>>
 
 <<set $oxygenmax to 1200>>
@@ -703,7 +673,7 @@
 
 <<set $detentions to {}>>
 <<set $detentionstotal to {}>>
-<<set $detentiontypes to ["Wrongchangingroom","Busindecency","Indecency","Tardiness","Interrupt","Mock","Fighting","Lewdity","Vandalism","Disobedience","Harass","Truancy","Detentionavoidance","Theft","Bothering","Assault","Disturbance","Lying","Laziness"]>>
+<<set $detentiontypes to ["Wrongchangingroom","Busindecency","Indecency","Tardiness","Interrupt","Mock","Fighting","Lewdity","Vandalism","Disobedience","Harass","Truancy","Detentionavoidance","Theft","Bothering","Assault","Disturbance","Lying","Laziness","Dress"]>>
 <<for _a to clone($detentiontypes);_a.length gt 0;_a.deleteAt(0)>>
 	<<set $detentions[_a[0]] to 0>>
 	<<set $detentionstotal[_a[0]] to 0>>
@@ -714,19 +684,13 @@
 <<set $seenevents to []>>
 <<initevents>>
 <<set $reality to true>>
-	
-/*
-<<set $jordan to {}>>
-<<set $npcs to {}>>
-<<set $tobedeleted to []>>
-<<set $personx to []>>
-*/
-<<if $siderbar is undefined>>
+
+<<if $sidebar is undefined>>
 	<<set $sidebar to {school:2, clothcolour:1, cloth:0, crossdress:2, strip:1, parasites:2, binds:2, fluids:1, smell:-1, buttons:1, log:3, legend:1, andsym:"+", brs:0}>>
 <</if>>
 <<set $pricemult to 2>>
 <<set $discount to 1>>
-<<set _offers to random(5,15)>>
+<<set _offers to random(8,20)>>
 <<setdiscountplan _offers>>
 <<set $discounts to $discountplan>>
 <<set $discountamounts to $discountamountsplan>>
@@ -734,8 +698,13 @@
 <<cleansmells>>
 <<set $canpee to 1>>
 
+<<set $baileycomplaint to 0>>
+
+<<set $pet to {}>>
 
 <<set $sewingKit to 0>>
+
+<<bodywriting_init>>
 
 /*pillory related*/
 <<if ndef $pillory_tenant>><<setup_pillory>><</if>>
@@ -746,9 +715,29 @@
 <<set $hacker_tasks to []>>
 <<set $framed to 0>>
 
+/*raid related*/
+<<set $brothel_raid to 0>>
+<<set $brothel_raid_day to 0>>
+<<set $brothel_thief to 0>>
+
 <<set $showCaptionText to true>>
 <<set $confirmSave to false>>
 <<set $confirmLoad to false>>
 <<set $confirmDelete to false>>
 
 <<mapLocations>>
+
+<<set $feats to {
+	"locked":false,
+	"soft":false,
+	"allSaves":{},
+	"currentSave":{},
+	"filter":"All"
+}>>
+<<set _passageCheck to "Start">>
+<<updateFeats>>
+<<unset _passageCheck>>
+
+<<if $feats.allSaves.points gt 0>>
+	<<setupFeats>>
+<</if>>

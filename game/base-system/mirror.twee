@@ -1,7 +1,6 @@
 :: Widgets Mirror [widget]
 <<widget "mirror">><<nobr>>
 
-
 <<if $hairlength gte 1000>>
 <<set $hairlengthstage to "feet">>
 <<elseif $hairlength gte 800>>
@@ -65,6 +64,38 @@ stares back.
   <</if>>
   <br><br>
 <</if>>
+
+<<settextcolorfromgender $player.gender_appearance>>
+You look like a <span @class="_text_color"><<girlstop>></span>
+<br>
+The following factors are contributing:
+<br>
+<<for _x range $player.gender_appearance_factors>>
+	<<if _x.femininity is 0>>
+		<<continue>>
+	<</if>>
+	<<settextcolorfromfemininity _x.femininity>>
+	<span @class="_text_color">
+		_x.factor
+		<<if $debug is 1>>
+			_x.femininity
+		<<else>>
+			<<print "+".repeat(
+				Math.trunc(Math.clamp(
+					Math.abs(_x.femininity) / 100, 0, 10
+				))
+			)>>
+		<</if>>
+	</span>
+	<br>
+<</for>>
+<<if $debug is 1>>
+	<<settextcolorfromfemininity $player.femininity>>
+	Total femininity: <span @class="_text_color">$player.femininity</span>
+	<br>
+<</if>>
+
+<br>
 
 <<mirrorwet $necksemen $neckgoo "neck">>
 <<mirrorwet $rightarmsemen $rightarmgoo "right arm">>
@@ -372,7 +403,6 @@ Increasing your allure:
 	<br>
 <</if>>
 
-
 <<if $bestialitydisable is "f">>
 	<<if $famebestiality gte 1000>>
 		<span class="red">Notorious bitch</span>
@@ -494,43 +524,30 @@ Decreasing your allure:
 <span class="pink">Obscure socialite</span>
 <br>
 <</if>>
+<<if $smells[0][0] is "trash" and $smells [0][1] gte 2>>/* strongest smell is trash and it's at least 2 */
+Smell of trash
+<br>
+<</if>>
+<br><br>
+
+__Skin__<br>
+<<bodywriting>>
+<br>
+<<if $promiscuity gte 35>>
+	<<link [[Write an advertisement|Mirror Bodywriting]]>><<set $passage_mirror to $passage>><</link>>
+<<else>>
+	You're not promiscuous enough to write an advertisement.
+<</if>>
+<<unset $passage_mirror>>
 <br><br>
 
 __Smell__
+<br><br>
+<<smelltext $smells[0]>>
 <br>
-/* Should all of this be a widget? */
-/*
-<<for _i, _smell range Object.keys($smells)>>
-  <<if _highestval is undefined>>
-    <<set _highestval to 0>>
-    <<set _lowerval to 0>>
-  <</if>>
-  <<if _highestval lt $smells[_smell]>>
-    <<set _oldhighestval to _highestval>>
-    <<set _oldhighest to _highest>>
-    <<set _highestval to $smells[_smell]>>
-    <<set _highest to _smell>>
-  <</if>>
-<</for>>
-<<smelltext _highest _highestval>>
+<<smelltext $smells[1]>>
 <br>
-<<smelltext _oldhighest _oldhighestval>>
-<<set $smells to [["soap", 1], ["semen", 3], ["slime", 3], ["trash", 2], ["sweat", 0], ["forest", 4], ["piss", 0], ["alcohol", 0], ["perfume", 0], ["blood", 0], ["salt", 0], ["chlorine", 0]]>>
-*/
-<<smell "_asd">>
-<<smell "soap" 2.5 "set">>
-<br>
-<<smelltext 0 "stench">>
-<br>
-<<smelltext $smells[1] "smell">>
-<br>
-<<smelltext "slime">>
-<br>
-<<set _test to ["sweat",6]>>
-<<smelltext _test>>/* can basically lie this way if we want to. */
-
-<br>
-<<print JSON.stringify($smells)>>
+<<smelltext $smells[2]>>
 <br><br>
 
 __Hair__
@@ -543,20 +560,17 @@ Your sides are in the "$hairtype" style, and positioned <<if $hairposition is "f
 Changing your sides from natural will set your fringe to messy.
 <</if>>
 <br>
-<<set $mirrorVars to {
-	"type": ["Braid left","Braid right","Flat ponytail","Loose","Messy","Pigtails","Ponytail","Short","Side tail left","Side tail right","Straight","Swept left","Twin braids","Twintails"],
-	"typeVar": ["braid left","braid right","flat ponytail","loose","messy","pigtails","ponytail","short","side tail left","side tail right","straight","swept left","twin braids","twintails"],
-	"fringe": ["Flaps","Hime","Loose","Messy","Overgrown","Ringlets","Split","Straight","Swept left",],
-	"fringeVar": ["flaps","hime","loose","messy","overgrown","ringlets","split","straight","swept right",],
-}>>
+<<set _hairTypeByName to {"Braid left": "braid left", "Braid right": "braid right", "Flat ponytail": "flat ponytail", "Loose": "loose", "Messy": "messy", "Pigtails": "pigtails", "Ponytail": "ponytail", "Short": "short", "Side tail left": "side tail left", "Side tail right": "side tail right", "Straight": "straight", "Swept left": "swept left", "Twin braids": "twin braids", "Twintails": "twintails"}>>
+<<set _fringeTypeByName to {"Flaps": "flaps", "Hime": "hime", "Loose": "loose", "Messy": "messy", "Overgrown": "overgrown", "Ringlets": "ringlets", "Split": "split", "Straight": "straight", "Swept left": "swept right"}>>
 
-<<for _i to 0; _i lt $mirrorVars.typeVar.length;_i++>>
-	<<print '<a onclick="SugarCube.State.variables.hairtype=SugarCube.State.variables.mirrorVars.typeVar['+_i+'];SugarCube.State.display(SugarCube.State.active.title, null);">'+$mirrorVars.type[_i]+'</a>'>> |
-<</for>>
+<<linkradiogroup "$hairtype" _hairTypeByName>>
+
 <br><br>
 
-<a onclick="SugarCube.State.variables.hairposition='front';SugarCube.State.display(SugarCube.State.active.title, null)">Position in front of body</a> |
-<a onclick="SugarCube.State.variables.hairposition='back';SugarCube.State.display(SugarCube.State.active.title, null)">Position behind body</a>
+<<linkradiogroup "$hairposition" `{
+	"Position in front of body": "front",
+	"Position behind body": "back",
+}`>>
 <br><br>
 Your fringe is in the "$fringetype" style.
 
@@ -565,11 +579,31 @@ Changing your fringe from natural will set your sides to messy.
 <</if>>
 <br>
 
+<<linkradiogroup "$fringetype" _fringeTypeByName>>
 
-<<for _i to 0; _i lt $mirrorVars.fringeVar.length;_i++>>
-	<<print '<a onclick="SugarCube.State.variables.fringetype=SugarCube.State.variables.mirrorVars.fringeVar['+_i+'];SugarCube.State.display(SugarCube.State.active.title, null);">'+$mirrorVars.fringe[_i]+'</a>'>> |
-<</for>>
+<br><br>
+
+__Behaviour__
 <br>
+<<if $player.gender_posture is "n">>
+	You turn around to get a look at yourself. You look like a <<girlstop>> Maybe if you
+	carried yourself differently you could change that.
+<<elseif $player.gender_posture is "f">>
+	You strike a few girly poses and put on your best feminine voice.
+	<br>
+	<span class="pink">Others will be more likely to think that you're a girl.</span>
+<<elseif $player.gender_posture is "m">>
+	You flex your muscles and add some gruff to your voice.
+	<br>
+	<span class="lblue">Others will be more likely to think that you're a boy.</span>
+<</if>>
+<br>
+<<linkradiogroup "$player.gender_posture" `{
+	"Act naturally": "n",
+	"Take a feminine posture": "f",
+	"Take a masculine posture": "m",
+}`>>
+<br><br>
 
 <<if $debug is 1>>
 <br>
@@ -601,12 +635,10 @@ Hair Colour (<<= $haircolour>>):
 
 <br><br>
 
-
 <<link "Skip day">><<pass 23 hours>><<effects>><<goto "Mirror">><</link>>
 <br>
 
 <</if>>
-
 
 <</nobr>><</widget>>
 

@@ -24,11 +24,9 @@ arguments)}}(b))};e.init();p.Mousetrap=e;"undefined"!==typeof module&&module.exp
 
 }).call(window, window);
 
-
 Mousetrap.prototype.stopCallback = function(e, element, combo) {
 	return false;
 }
-
 
 Mousetrap.bind(["z", "n", "enter"], function () {
 	$("#passages #next a.macro-link").trigger("click");
@@ -58,7 +56,11 @@ Macro.add('time', {
 	}
 });
 
+window.ensureIsArray = function(x) {
+	if (Array.isArray(x)) return x;
 
+	return [x];
+}
 
 function DefineMacro(macroName, macroFunction) {
 	Macro.add(macroName, { isWidget: true, handler: function() {

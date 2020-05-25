@@ -18,14 +18,14 @@ window.loadSave = function(saveSlot, confirm){
 	}
 }
 
-window.save = function(saveSlot, confirm, saveId){
+window.save = function(saveSlot, confirm, saveId, saveName){
 	if (saveId == null){
 		new Wikifier(null, '<<saveConfirm '+saveSlot+'>>');
 	} else if((SugarCube.State.variables.confirmSave === true && confirm != true) || (SugarCube.State.variables.saveId != saveId && saveId != null)){
 		new Wikifier(null, '<<saveConfirm '+saveSlot+'>>');
 	}else{
 		if(saveSlot != undefined){
-			Save.slots.save(saveSlot, null, {saveId:SugarCube.State.variables.saveId});
+			Save.slots.save(saveSlot, null, {"saveId":saveId, "saveName":saveName});
 			SugarCube.State.variables.currentOverlay = null;
 			overlayShowHide("customOverlay");
 		}
@@ -45,14 +45,14 @@ window.deleteSave = function(saveSlot, confirm){
 			new Wikifier(null, '<<deleteConfirm '+saveSlot+'>>');
 			return;
 		}else{
-		   Save.autosave.delete();
+			Save.autosave.delete();
 		}
 	}else{
 		if(SugarCube.State.variables.confirmDelete === true && confirm === undefined){
 			new Wikifier(null, '<<deleteConfirm '+saveSlot+'>>');
 			return;
 		}else{
-		  Save.slots.delete(saveSlot);
+			Save.slots.delete(saveSlot);
 		}
 	}
 	new Wikifier(null, '<<resetSaveMenu>>');
@@ -149,12 +149,12 @@ var importSettingsData = function(data){
 	if(result != null && result != undefined){
 		//console.log("json",JSON.parse(result));
 		S = JSON.parse(result);
-		
+
 		if(V.passage === "Start" && S.starting != undefined){
 			var listObject = settingsObjects("starting");
 			var listKey = Object.keys(listObject);
 			var namedObjects = ["player","skinColor"];
-			
+
 			for(var i = 0; i < listKey.length; i++){
 				if(namedObjects.contains(listKey[i]) && S.starting[listKey[i]] != undefined){
 					var itemKey = Object.keys(listObject[listKey[i]]);
@@ -174,12 +174,12 @@ var importSettingsData = function(data){
 				}
 			}
 		}
-		
+
 		if(S.general != undefined){
 			var listObject = settingsObjects("general");
 			var listKey = Object.keys(listObject);
 			var namedObjects = ["map","skinColor"];
-						
+
 			for(var i = 0; i < listKey.length; i++){
 				if(namedObjects.contains(listKey[i]) && S.general[listKey[i]] != undefined){
 					var itemKey = Object.keys(listObject[listKey[i]]);
@@ -254,7 +254,7 @@ window.exportSettings = function(data, type){
 		var listObject = settingsObjects("starting");
 		var listKey = Object.keys(listObject);
 		var namedObjects = ["player","skinColor"];
-				
+
 		for(var i = 0; i < listKey.length; i++){
 			if(namedObjects.contains(listKey[i]) && V[listKey[i]] != undefined){
 				var itemKey = Object.keys(listObject[listKey[i]]);
@@ -274,11 +274,11 @@ window.exportSettings = function(data, type){
 			}
 		}
 	}
-	
+
 	var listObject = settingsObjects("general");
 	var listKey = Object.keys(listObject);
 	var namedObjects = ["map","skinColor"];
-	
+
 	for(var i = 0; i < listKey.length; i++){
 		if(namedObjects.contains(listKey[i]) && V[listKey[i]] != undefined){
 			var itemKey = Object.keys(listObject[listKey[i]]);
@@ -297,7 +297,7 @@ window.exportSettings = function(data, type){
 			}
 		}
 	}
-	
+
 	//console.log(S);
 	var result = JSON.stringify(S);
 	if(type === "text"){
@@ -325,10 +325,11 @@ var settingsObjects = function(type){
 				hairselect: {strings:["random","red","black","brown","lightbrown","blond","platinumblond","strawberryblond","ginger"]},
 				hairlength: {min:0,max:400,decimals:0},
 				awareselect: {strings:["innocent","knowledgeable"]},
-				background: {strings:["waif","nerd","athlete","delinquent","promiscuous","exhibitionist","deviant","beautiful","crossdresser"]},
+				background: {strings:["waif","nerd","athlete","delinquent","promiscuous","exhibitionist","deviant","beautiful","crossdresser", "lustful"]},
 				gamemode: {strings:["normal","soft","hard"]},
 				player:{
 					gender:{strings:["m","f"]},
+					gender:{strings:["m","f", "a"]}
 				},
 				skinColor:{
 					natural:{strings:["light","medium","dark","gyaru","ylight","ymedium","ydark","ygyaru"]},
@@ -345,6 +346,7 @@ var settingsObjects = function(type){
 				penis_mod: {min:-8,max:8,decimals:0},
 				whitechance: {min:0,max:100,decimals:0},
 				blackchance: {min:0,max:100,decimals:0},
+				straponchance: {min:0,max:100,decimals:0},
 				alluremod: {min:0.2,max:2,decimals:1},
 				beastmalechance: {min:0,max:100,decimals:0},
 				monsterchance: {min:0,max:100,decimals:0},
@@ -361,6 +363,7 @@ var settingsObjects = function(type){
 				analpregdisable: {boolLetter:true},
 				watersportsdisable: {boolLetter:true},
 				spiderdisable: {boolLetter:true},
+				bodywritingdisable: {boolLetter:true},
 				breastsizemax: {min:0,max:13,decimals:0},
 				bottomsizemax: {min:0,max:9,decimals:0},
 				penissizemax: {min:-1,max:4,decimals:0},

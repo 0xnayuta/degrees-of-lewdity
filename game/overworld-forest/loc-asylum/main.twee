@@ -1,6 +1,6 @@
 :: Asylum Intro [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if $gamemode is "hard">>
 	<<set $gamemode to "normal">>
 	<span class="gold">You survived $days days. Hard mode disabled.</span>
@@ -17,7 +17,7 @@
 <<set $asylumdistracted to 0>>
 <<if $asylumintro is 1>>
 	<<npc Harper>><<person1>>
-	<<set $leftarm to "bound">><<set $rightarm to "bound">>
+	<<bind>><<upperwear 35>>
 	You awaken on a bed in a white room. The walls and floor are padded. Doctor Harper stands over you.
 	"You're awake," <<he>> says. <<He>> jots something down on <<his>> clipboard. "Welcome back." Your arms are bound. "I'm sorry to admit we failed you last time. That won't happen again."
 	<br><br>
@@ -38,7 +38,7 @@
 <<else>>
 	<<set $asylumintro to 1>>
 	<<npc Harper>><<person1>>
-	<<set $leftarm to "bound">><<set $rightarm to "bound">>
+	<<bind>><<upperwear 35>>
 	You awaken on a bed in a white room. The walls and floor are padded. Doctor Harper stands over you.
 	<br><br>
 	"You're awake," <<he>> says. <<He>> jots something down on <<his>> clipboard. "There's nothing to be nervous about. You're here to get better." <<He>> crouches beside you. "We're in another hospital. In the forest." You can't move your arms. They're bound tight in front of you. "That's for your own safety. If you're good, we'll untie you in a day or two."
@@ -61,10 +61,9 @@
 	<br>
 <</if>>
 
-
 :: Asylum Cell [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<set $canwrite to 1>>
 <<if $loglocations is 1>><<log "I was at my cell in the Asylum." $locationimportance>><</if>>
 You are in your cell in the asylum. The walls and floor are padded. There's a window far above.
@@ -100,25 +99,36 @@ You are in your cell in the asylum. The walls and floor are padded. There's a wi
 <<link [[Settings|Asylum Settings]]>><</link>>
 <br><br>
 
-
 :: Asylum Bed [nobr]
-
 <<effects>>
+
 You snuggle under the covers.
 <br><br>
 <<sleepoptions "Asylum Sleep">>
 <<link [[Climb out of bed|Asylum Cell]]>><</link>>
 <br><br>
 
-
-:: Asylum Sleep [nobr autosave]
+:: Asylum Sleep [nobr]
+<<run Save.autosave.save(null, {"saveId":$saveId, "saveName":$saveName})>>
 
 <<log "I went to sleep." 1>>
 <<sleep>><<effects>>
 <<if $nightmares gte 1 and $controlled is 0>>
 	You dream you are being hunted by something dark and terrible.
 <<else>>
-	You sleep soundly.
+	<<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte 9000>>
+		Your sleep is plagued by dirty dreams.
+		<<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
+		<<arousal `100 * $sleepHoursTotal`>>
+		<<if $arousal gte $arousalmax>>
+			They push you over the edge.
+			<<orgasmpassage>>
+		<<else>>
+			<br><br>
+		<</if>>
+	<<else>>
+		You sleep soundly.
+	<</if>>
 <</if>>
 <<sleepeffects>>
 <<if $schoolwake is 1>>
@@ -175,19 +185,14 @@ You snuggle under the covers.
 <</if>>
 <<set $phase to 0>>
 
-
 :: Asylum Settings [nobr]
-
+<<set $settingsExitPassage to "Asylum Cell">>
 <<settings>>
-<br><br>
-<<link [[Confirm|Asylum Cell]]>><<initnpcgender>><<tanned 0 true>><</link>>
-<br>
-
 
 :: Asylum [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
-<<if $loglocations is 1>><<log "I was at Asylum." $locationimportance>><</if>>
+<<if $loglocations is 1>><<log "Was in the Asylum." $locationimportance>><</if>>
+
 You are in the asylum, deep in the forest. The building is over a century old, and little of it has been renovated to modern standards. Security patrol the grounds between the building and surrounding fence.
 <<if $asylumstate is "sleep">>
 	You're supposed to be in your cell.
@@ -238,7 +243,7 @@ You are in the asylum, deep in the forest. The building is over a century old, a
 	The Doctor is indeed waiting outside. The other patients line up near <<himstop>> <<Hes>> holding a whistle. "Time for your daily exercise," <<he>> says. "When I blow, I want you to run in a circle around the grounds. Don't stop until you hear me blow again."
 	<br><br>
 	<<He>> whistles, and you run. It's not too harsh a pace, but orderlies follow after and chastise those who fall behind.
-	<<physique 3>><<pass 30>>
+	<<gathletics>><<athletics 3>><<physique 3>><<pass 30>>
 	<br><br>
 	<<He>> whistles again, and the group stops. A few sit on the ground. "We're not done yet," <<he>> says.
 	<br><br>
@@ -267,33 +272,39 @@ You are in the asylum, deep in the forest. The building is over a century old, a
 			<<link [[Breakfast (1:00)|Asylum Breakfast]]>><<asylumstatus 1>><<awareness -10>><<trauma -3>><<stress -6>><<pass 60>><</link>><<exhibitionist5>><<gcool>><<llawareness>><<ltrauma>><<lstress>>
 			<br>
 		<</if>>
-		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<exhibitionist5>><<gtiredness>><<lstress>>
+		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<exhibitionist5>><<gtiredness>><<lstress>><<gathletics>>
 		<br>
 		<<link [[Socialise (0:30)|Asylum Socialise]]>><<asylumstatus 1>><<trauma -3>><<stress -6>><<pass 30>><</link>><<exhibitionist5>><<gcool>><<ltrauma>><<lstress>>
 		<br>
 		<<link [[Study (0:50)|Asylum Study]]>><<pass 50>><<schoolskill>><</link>><<exhibitionist5>><<gschool>>
+		<br>
+		<<link [[Garden|Asylum Garden]]>><</link>>
 		<br>
 	<<elseif $exposed gte 1 and $exhibitionism gte 35>>
 		<<if $hour is 6>>
 			<<link [[Breakfast (1:00)|Asylum Breakfast]]>><<asylumstatus 1>><<awareness -10>><<trauma -3>><<stress -6>><<pass 60>><</link>><<exhibitionist3>><<gcool>><<llawareness>><<ltrauma>><<lstress>>
 			<br>
 		<</if>>
-		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<exhibitionist3>><<gtiredness>><<lstress>>
+		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<exhibitionist3>><<gtiredness>><<lstress>><<gathletics>>
 		<br>
 		<<link [[Socialise (0:30)|Asylum Socialise]]>><<asylumstatus 1>><<trauma -3>><<stress -6>><<pass 30>><</link>><<exhibitionist3>><<gcool>><<ltrauma>><<lstress>>
 		<br>
 		<<link [[Study (0:50)|Asylum Study]]>><<pass 50>><<schoolskill>><</link>><<exhibitionist3>><<gschool>>
+		<br>
+		<<link [[Garden|Asylum Garden]]>><</link>>
 		<br>
 	<<elseif $exposed is 0>>
 		<<if $hour is 6>>
 			<<link [[Breakfast (1:00)|Asylum Breakfast]]>><<asylumstatus 1>><<awareness -10>><<trauma -3>><<stress -6>><<pass 60>><</link>><<gcool>><<llawareness>><<ltrauma>><<lstress>>
 			<br>
 		<</if>>
-		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<gtiredness>><<lstress>>
+		<<link [[Exercise outside (0:30)|Asylum Exercise]]>><<tiredness 3>><<stress -6>><<pass 30>><</link>><<gtiredness>><<lstress>><<gathletics>>
 		<br>
 		<<link [[Socialise (0:30)|Asylum Socialise]]>><<asylumstatus 1>><<trauma -3>><<stress -6>><<pass 30>><</link>><<gcool>><<ltrauma>><<lstress>>
 		<br>
 		<<link [[Study (0:50)|Asylum Study]]>><<pass 50>><<schoolskill>><</link>><<gschool>>
+		<br>
+		<<link [[Garden|Asylum Garden]]>><</link>>
 		<br>
 	<</if>>
 	<<if $asylumstatus gte 80 and $asylumdistracted isnot 1>>
@@ -305,20 +316,18 @@ You are in the asylum, deep in the forest. The building is over a century old, a
 	<br>
 <</if>>
 
-
 :: Asylum Distract [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You ask for help distracting the orderlies. You have trouble finding anyone who will agree to it, until a <<generate1>><<person1>><<personstop>> <<He>> looks at <<his>> friends, then back at you. "Alright," <<he>> says. "We'll make sure you get some proper alone time with the good Doctor." <i>Harper will not receive aid the next time you attack them.</i>
 <br><br>
 <<log "I managed to get a promise from some patients to distract the orderlies the next time I confront Doctor Harper." 4>>
 <<link [[Next|Asylum]]>><</link>>
 <br>
 
-
 :: Asylum Towels [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<generate1>><<person1>>
 You sneak to a nurse. "Excuse me," you say. <<He>> turns, and puts a hand to <<his>> mouth to conceal laughter when <<he>> sees you. <<covered>> "Can I have some towels please?"
 <br><br>
@@ -329,36 +338,34 @@ You sneak to a nurse. "Excuse me," you say. <<He>> turns, and puts a hand to <<h
 <<link [[Next|Asylum]]>><<endevent>><</link>>
 <br>
 
-
 :: Asylum Exercise [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if $exposed is 2>>
 	<<flaunting>> you run around the asylum grounds. Security keeps a close eye on you, and warn you off when you jog too close to the perimeter fence.
-	<<physique 3>>
+	<<athletics 3>><<physique 3>>
 	<br><br>
 	Your <<lewdness>> on display makes you the centre of attention.
 	<<exhibitionism5>>
 	<<log "I ran around the asylum grounds for exercise while "+$naked"." 1>>
 <<elseif $exposed is 1>>
 	<<flaunting>> you run around the asylum grounds. Security keeps a close eye on you, and warn you off when you jog too close to the perimeter fence.
-	<<physique 3>>
+	<<athletics 3>><<physique 3>>
 	<br><br>
 	Your <<lewdness>> on display makes you the centre of attention.
 	<<exhibitionism3>>
 	<<log "I ran around the asylum grounds for exercise while somewhat exposed." 1>>
 <<else>>
 	You run around the asylum grounds. Security keeps a close eye on you, and warn you off when you jog too close to the perimeter fence.
-	<<physique 3>>
+	<<athletics 3>><<physique 3>>
 	<br><br>
 	<<log "I ran around the asylum grounds for exercise." 1>>
 <</if>>
 <<asylumevents>>
 
-
 :: Asylum Socialise [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You chat with the other patients.
 <<if $exposed is 2>>
 	Your <<lewdness>> on display makes you the centre of attention.
@@ -406,10 +413,9 @@ You chat with the other patients.
 <<endevent>>
 <<asylumevents>>
 
-
 :: Asylum Study [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You read old text books in the dusty library. Most of this should still apply.
 <<set $logprep to "I read books in the asylum library">>
 <<if $leftarm is "bound" and $rightarm is "bound">>
@@ -439,10 +445,9 @@ You read old text books in the dusty library. Most of this should still apply.
 	<<asylumevents>>
 <</if>>
 
-
 :: Asylum Study Help [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You nod. The orderly pulls a chair close and sits down.
 <br><br>
 <<He>> helps you with the material. <<Hes>> quite knowledgeable.
@@ -452,10 +457,9 @@ You nod. The orderly pulls a chair close and sits down.
 <<link [[Rest a hand on their thigh|Asylum Study Thigh]]>><</link>><<promiscuous1>>
 <br>
 
-
 :: Asylum Study Thank [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if $submissive gte 1150>>
 	"Thank you for the help," you say. "I couldn't have understood it without you."
 <<elseif $submissive lte 850>>
@@ -471,10 +475,9 @@ The <<person>> smiles. "Anytime," <<he>> says. "I need to get back to work. You 
 <<link [[Next|Asylum]]>><<endevent>><</link>>
 <br>
 
-
 :: Asylum Study Thigh [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You rest a hand on their thigh as they explain something to you. Their voice wavers. You ignore their glance in your direction. You keep your focus on the book in front of you, as if nothing were amiss.
 <<promiscuity1>>
 <<set $logprep to $logprep+". TBD study help thigh.">>
@@ -490,10 +493,9 @@ You rest a hand on their thigh as they explain something to you. Their voice wav
 	<</if>>
 <</if>>
 
-
 :: Asylum Study Hand [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<famesex 1>>
 <<if $phase is 0>>
 	You unzip <<his>> fly.
@@ -532,10 +534,9 @@ You rest a hand on their thigh as they explain something to you. Their voice wav
 <<link [[Next|Asylum]]>><<endevent>><</link>>
 <br>
 
-
 :: Asylum Breakfast [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You sit down and enjoy breakfast with the other patients.
 <<set $logprep to "I ate breakfast">>
 <<if $leftarm is "bound" and $rightarm is "bound">>
@@ -557,10 +558,9 @@ The food is good, and leaves you feeling warm and happy. It's not just you. The 
 <<log $logprep 1>>
 <<asylumevents>>
 
-
 :: Asylum Staff [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You approach the staff door with a keycard lock.
 <<if $asylumkeycard is 1>>
 	<<if $leftarm is "bound" and $rightarm is "bound">>
@@ -586,10 +586,9 @@ You approach the staff door with a keycard lock.
 <<link [[Back|Asylum]]>><</link>>
 <br>
 
-
 :: Asylum Open [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You open the door and peek through.
 <<if $asylumstate is "sleep">>
 	The hallway beyond is dark and empty. You tiptoe through.
@@ -608,10 +607,9 @@ You open the door and peek through.
 	<<link [[Next|Asylum]]>><</link>>
 <</if>>
 
-
 :: Asylum Cameras [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if random(1, 1000) lte ($science + 100)>>
 	<<if $science gte 400>>
 		You try to work out how to operate the machine. There's a logic to it, and through trial and error you discover how to turn up the aphrodisiac. Without warning, an alarm blares. The screen now reads "<span class="red">WARNING Aphrodisiac ministration active: 2000%</span>" You hear shouting.
@@ -640,10 +638,9 @@ You open the door and peek through.
 	<</if>>
 <</if>>
 
-
 :: Asylum Escape [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You return to the patient's area, taking cover in alcoves whenever frantic security run by. You arrive, and behold a scene of chaos. Cell doors stand open, their occupants loose. Some members of security have already fallen, their uniforms stripped. Several patients assault each one. Their colleagues try to rescue them, but their batons are no match for the patient's numbers and lust. Many of the patients satisfy themselves with the fallen security personnel, but others fuck each other on tables, chairs or just the floor.
 <br><br>
 You look out the window. The towers are unmanned and the patrols missing as all hands arrive to contain the threat. Doctor Harper enters from a door opposite, surrounded by security. Now's your chance.
@@ -657,26 +654,24 @@ You run through the front door unobstructed, and across the grounds. You climb t
 <<link [[Next|Forest]]>><<set $forest to 100>><</link>>
 <br>
 
-
 :: Asylum Hide [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You squeeze beneath a chair in the recreation room and wait. The lights turn off, leaving you alone in the dark.
 <br><br>
 <<log "I hid under a chair in recreationt room to avoid having to go back to my cell." 1>>
 <<endevent>>
 <<link [[Next|Asylum]]>><</link>>
 
-
 :: Asylum Shower [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if $rng gte 71>>
 	Harper leads you and the other patients indoors, to the showers. "The water should be on," <<he>> says. "Hygiene is important. I want to see everyone wash."
 	<br><br>
 	<<He>> rests a hand on your shoulder as the other patients strip. "As I said, hygiene is important. You wouldn't mind if I take care to personally ensure yours is up to standard?"
 	<br><br>
-	<<link [[Accept|Asylum Shower Accept]]>><<strip>><<wash>><<stress 6>><<arousal 18>><<set $suspicion -= 1>><<npcincr Harper love 1>><</link>><<exhibitionist1>><<gstress>><<garousal>><<lsuspicion>>
+	<<link [[Accept|Asylum Shower Accept]]>><<strip>><<wash>><<stress 6>><<arousal 1800>><<set $suspicion -= 1>><<npcincr Harper love 1>><</link>><<exhibitionist1>><<gstress>><<garousal>><<lsuspicion>>
 	<br>
 	<<link [[Refuse|Asylum Shower Refuse]]>><<set $suspicion += 1>><<npcincr Harper love -1>><</link>><<gsuspicion>>
 	<br>
@@ -695,10 +690,9 @@ You squeeze beneath a chair in the recreation room and wait. The lights turn off
 	<br>
 <</if>>
 
-
 :: Asylum Shower Refuse [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You shake your head. Harper frowns, but doesn't pressure you. <<He>> notices some of the other patients hesitate to undress. <<He>> sends the orderlies to help them out of their clothes.
 <br><br>
 <<set $logprep to "TBD Asylum shower refuse.">>
@@ -712,10 +706,9 @@ You shake your head. Harper frowns, but doesn't pressure you. <<He>> notices som
 <<link [[Sneak away|Asylum]]>><<endevent>><<suspicion 5>><</link>><<ggsuspicion>>
 <br>
 
-
 :: Asylum Shower Accept [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You nod. Harper smiles and begins to disrobe you. <<His>> movements are clinical. <<covered>> <<He>> folds your clothes in a neat pile and picks up a sponge as you step under the shower.
 <<exhibitionism1>>
 You stand still as <<he>> scrubs your body from top to bottom, focusing first on your neck, arms, torso, stomach, back, legs, then up to your butt. <<He>> scrubs more softly. You try to breathe normally.
@@ -737,10 +730,9 @@ By the time <<he>> stops, your legs feel weak. <<He>> pecks you on the cheek as 
 <<link [[Next|Asylum]]>><<clotheson>><<endevent>><</link>>
 <br>
 
-
 :: Asylum Shower Secluded [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You strip slowly, just fast enough to keep the orderlies at bay. By the time your <<lewdness>> is exposed the other patients are already in the showers proper. You follow after them, but find somewhere secluded where you won't be watched. You wash quickly, and get dressed before the other patients finish.
 <<exhibitionism1>>
 <<endevent>>>>
@@ -748,10 +740,9 @@ You strip slowly, just fast enough to keep the orderlies at bay. By the time you
 <<link [[Next|Asylum]]>><<clotheson>><</link>>
 <br>
 
-
 :: Asylum Shower Wash [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You strip and enter the showers proper. You stand in the middle of a large room and wash alongside the other patients. You notice a <<generate2>><<generate3>><<person2>><<person>> and <<person3>><<person>> checking you out, but most don't pay you any attention. You head back to your clothes, dry yourself and get dressed.
 <<exhibitionism2>>
 <<log "I took a shower among the other patients." 1>>
@@ -759,9 +750,7 @@ You strip and enter the showers proper. You stand in the middle of a large room 
 <<link [[Next|Asylum]]>><<clotheson>><</link>>
 <br>
 
-
 :: Asylum Harper Sex [nobr]
-
 <<if $sexstart is 1>>
 	<<combatstart>>
 	<<set $sexstart to 0>>
@@ -779,6 +768,7 @@ You strip and enter the showers proper. You stand in the middle of a large room 
 	<<molested>>
 	<<maninit>>
 <</if>>
+
 <<effects>>
 <<effectsman>><<man>>
 <<stateman>>
@@ -790,10 +780,9 @@ You strip and enter the showers proper. You stand in the middle of a large room 
 	<span id="next"><<link [[Next|Asylum Harper Sex Finish]]>><</link>></span><<nexttext>>
 <</if>>
 
-
 :: Asylum Harper Sex Finish [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<if $enemyhealth lte 0>>
 	<<if $asyluminnocence is 1 and $NPCName[$NPCNameList.indexOf("Harper")].love gte 30>>/* using $aw_ here seems kind of pointless */
 		You push <<him>> away from you. <<He>> looks sad for a moment, but then <<he>> looks at you with a sympathetic but slightly happy look on <<his>> face and says "I know you'd rather stay here under my care but sadly lashing out like this won't help besides I want you to still see me every Friday at the hospital so don't be afraid that you wouldn't get to see me again. Be well."
@@ -854,10 +843,9 @@ You emerge from the wood far from town, but the road curves north through moor a
 <<logopinion "Harper has helped me a lot" "That was nice" >> /* there's another one in the next scene so dunno if this should be here. */
 <<link [[Next|Asylum Return]]>><</link>>
 
-
 :: Asylum Harper Shove [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You shove the Doctor away from you. <<He>> looks angry, but soon regains <<his>> composure. "You still have some issues with anger management," <<he>> says. "But that's not why you were here. I'd like to keep seeing you on Fridays, at the hospital. There's a vehicle waiting to take you back to town. Be well."
 <br><br>
 <<awarenesswords>><<set $logprep to "My treatment in the asylum is done and I shoved Doctor Harper away when "+$he+" tried to "+$aw_sexx+".">>
@@ -887,10 +875,9 @@ You emerge from the wood far from town, but the road curves north through moor a
 <<endevent>>
 <<link [[Next|Asylum Return]]>><</link>>
 
-
 :: Asylum Return [nobr]
-
 <<set $outside to 0>><<set $location to "home">><<effects>>
+
 <<if $NPCName[$NPCNameList.indexOf("Robin")].init is 1 and $robinmissing isnot 1>>
 	<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 80>>
 		You enter the orphanage and head to your room. You don't meet anyone. There's a small cake sat on the windowsill with a note attached.
@@ -932,10 +919,9 @@ You emerge from the wood far from town, but the road curves north through moor a
 <<link [[Next|Bedroom]]>><</link>>
 <br>
 
-
 :: Asylum Truth [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You point at the <<persons>> hiding place. The <<person2>><<person>> crouches beside it and reaches in, pulling the struggling <<person1>><<person>> out by the arm. "Doctor Harper said you need to stay," <<person2>><<he>><<person1>>says as <<he>> drags <<him>> away. "It's for your own good."
 <br><br>
 <<log "Another patient tried to hide from the orderlies but I prevented that." 2>>
@@ -943,10 +929,9 @@ You point at the <<persons>> hiding place. The <<person2>><<person>> crouches be
 <<link [[Next|Asylum]]>><</link>>
 <br>
 
-
 :: Asylum Lie [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 The <<person2>><<person>> frowns at you, but doesn't push the matter. Once gone, the <<person1>><<person>> emerges and gives you a thankful bow.
 <br><br>
 <<log "Another patient tried to hide from the orderlies and I helped with that." 2>>
@@ -954,10 +939,9 @@ The <<person2>><<person>> frowns at you, but doesn't push the matter. Once gone,
 <<link [[Next|Asylum]]>><</link>>
 <br>
 
-
 :: Asylum Intervene [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You pull the <<person1>><<persons>> arm away from the <<person2>><<personstop>> They both look shocked. "Don't touch me," the <<person1>><<person>> says. "Just who do you think you are?" The <<person2>><<person>> gives you a grateful smile.
 <br><br>
 <<awarenesswords "a nurse">>
@@ -967,10 +951,9 @@ You pull the <<person1>><<persons>> arm away from the <<person2>><<personstop>> 
 <<link [[Next|Asylum]]>><</link>>
 <br>
 
-
 :: Asylum Flirt [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 You smile back at the <<personstop>> <<He>> walks over and you have a pleasant chat.
 <<promiscuity1>>
 <br><br>
@@ -981,10 +964,9 @@ You smile back at the <<personstop>> <<He>> walks over and you have a pleasant c
 	<br>
 <</if>>
 
-
 :: Asylum Seduce [nobr]
-
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
+
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
 <br><br>
@@ -1006,9 +988,7 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<br>
 <</if>>
 
-
 :: Asylum Sex [nobr]
-
 <<if $sexstart is 1>>
 	<<combatstart>>
 	<<set $sexstart to 0>>
@@ -1018,6 +998,7 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<<maninit>>
 	<<set $enemytrust += 50>>
 <</if>>
+
 <<effects>>
 <<effectsman>><<man>>
 <<stateman>>
@@ -1033,10 +1014,9 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<span id="next"><<link [[Next|Asylum Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-
 :: Asylum Sex Finish [nobr]
+<<set $outside to 1>><<set $location to "asylum">><<effects>>
 
-<<set $outside to 1>><<set $location to "beach">><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	"The Doctor told me to be more accepting of advances," <<he>> says. "I've been missing out."
@@ -1070,9 +1050,7 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 <br><br>
 <<link [[Next|Asylum]]>><</link>>
 
-
 :: Asylum Cell Rape [nobr]
-
 <<if $molestationstart is 1>>
 	<<combatstart>>
 	<<set $molestationstart to 0>>
@@ -1082,8 +1060,12 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<<molested>>
 	<<maninit>>
 <</if>>
+
 <<effects>>
 <<effectsman>><<man>>
+
+<<if $enemyhealth gt 0>><<npcdamage>><</if>>
+
 <<stateman>>
 <br><br>
 <<actionsman>>
@@ -1095,10 +1077,9 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<span id="next"><<link [[Next|Asylum Cell Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
-
 :: Asylum Cell Rape Finish [nobr]
-
 <<effects>>
+
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	"Don't go whining to no one," the <<person1>><<person>> says. "Not that they'll believe you." The pair laugh as the cell door locks with a click. <<tearful>> you lie back on the bed.
@@ -1116,6 +1097,160 @@ You lean closer to the <<personstop>> "There are a lot of quiet places here," yo
 	<<endcombat>>
 	<<set $logprep to $logprep +". I fought them off when they tried to "+$aw_rapex+".">>
 	<<log $logprep 3>>
-	<<logopinion >>
 	<<link [[Next|Asylum Cell]]>><</link>>
 <</if>>
+
+:: Asylum Exposure Accept [nobr]
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"O-Okay," you say. "You can show me."
+<<elseif $submissive lte 850>>
+	"Sure," you say. "I'll take a look."
+<<else>>
+	"Okay," You say. "You can show me."
+<</if>>
+<br><br>
+
+The <<person>> hesitates, then unfolds <<his>> gown, revealing <<his>>
+<<if $pronoun is "m">>
+	<<if $NPCList[0].penis isnot "none">>
+		<<print $NPCList[0].penisdesc>>.
+	<<else>>
+		pussy.
+	<</if>>
+<<else>>
+	<<if $NPCList[0].penis isnot "none">>
+		<<print $NPCList[0].breastsdesc>> and <<print $NPCList[0].penisdesc>>.
+	<<else>>
+		<<print $NPCList[0].breastsdesc>>.
+	<</if>>
+<</if>>
+
+<<He>> shuts <<his>> eyes and stands there, hands clutching <<his>> sides. <<He>> counts under <<his>> breath.
+<br><br>
+
+With a sigh, <<he>> bends over and retrieves <<his>> grown, wrapping it around <<him>> with haste. "Th-thank you," <<he>> says before hurrying away.
+<br><br>
+
+<<endevent>>
+<<set $logprep to "I helped another patient in "+$his+" task by letting "+$him+" expose "+$his+" body to me.">>
+<<log $logprep 2>>
+
+<<link [[Next|Asylum]]>><</link>>
+<br>
+
+:: Asylum Exposure Refuse [nobr]
+<<effects>>
+
+You shake your head. The <<person>> looks relieved for a moment, but <<his>> ordeal isn't over. <<He>> leaves to find someone else to offer <<himself>> to.
+<br><br>
+
+<<endevent>>
+<<set $logprep to "I refused to help another patient who asked me to be one of the dozen "+$he+" was supposed to expose "+$his+" body to.">>
+<<log $logprep 2>>
+<<link [[Next|Asylum]]>><</link>>
+<br>
+
+:: Asylum Exposure Shut [nobr]
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"O-Okay," you say, loud enough for the staff to hear. "You can show me."
+<<elseif $submissive lte 850>>
+	"Sure," you say, loud enough for the staff to hear. "I'll take a look."
+<<else>>
+	"Okay," You say, loud enough for the staff to hear. "You can show me."
+<</if>>
+You close your eyes.
+<br><br>
+
+You hear the shuffle of the <<persons>> gown fall to the floor. <<He>> starts counting under <<his>> breath. <<He>> reaches ten, then you hear another shuffle.
+<br><br>
+
+"Thank you!" <<he>> says. You open your eyes. The <<person>> smiles, looking relieved. "Thank you." <<He>> hurries away.
+<br><br>
+
+<<endevent>>
+<<set $logprep to "I helped another patient in "+$his+" task by letting "+$him+" expose "+$his+" body to me but I kept my eyes shut while "+$he+" did it.">>
+<<log $logprep 2>>
+<<link [[Next|Asylum]]>><</link>>
+<br>
+
+:: Asylum Exposure Peek [nobr]
+<<effects>>
+
+<<if $submissive gte 1150>>
+	"O-Okay," you say. "You can show me."
+<<elseif $submissive lte 850>>
+	"Sure," you say. "I'll take a look."
+<<else>>
+	"Okay," You say. "You can show me."
+<</if>>
+You pretend to close your eyes, though you really keep them a little open. Enough to see.
+<br><br>
+
+The <<person>> hesitates, then unfolds <<his>> gown, revealing <<his>>
+<<if $pronoun is "m">>
+	<<if $NPCList[0].penis isnot "none">>
+		<<print $NPCList[0].penisdesc>>.
+	<<else>>
+		pussy.
+	<</if>>
+<<else>>
+	<<if $NPCList[0].penis isnot "none">>
+		<<print $NPCList[0].breastsdesc>> and <<print $NPCList[0].penisdesc>>.
+	<<else>>
+		<<print $NPCList[0].breastsdesc>>.
+	<</if>>
+<</if>>
+
+<<He>> shuts <<his>> eyes and stands there, hands clutching <<his>> sides. <<He>> counts under <<his>> breath.
+<br><br>
+
+With a sigh, <<he>> bends over and retrieves <<his>> grown, wrapping it around <<him>> with haste. "Thank you!" <<he>> says. You pretend to open your eyes. The <<person>> smiles, looking relieved. "Thank you." <<He>> hurries away.
+<br><br>
+<<set $logprep to "I helped another patient in "+$his+" task by letting "+$him+" expose "+$his+" body to me and I pretended to keep my eyes shut while "+$he+" did it.">>
+<<log $logprep 2>>
+
+<<link [[Next|Asylum]]>><<endevent>><</link>>
+<br>
+
+:: Asylum Garden [nobr]
+<<effects>>
+<<if $loglocations is 1>><<log "Was in the Asylum gardens." $locationimportance>><</if>>
+
+Each patient is given a bed of soil to work as they please. Many are untended, but some hold small, beautiful displays.
+<br><br>
+
+<<plot_effects>>
+
+<<if $asylum_plot_intro is 1>><<unset $asylum_plot_intro>>
+	<<plots_init asylum 1 earth 3 small>>
+<</if>>
+
+<<display_plot asylum>>
+
+<<if !$plants_known.includes("poppy")>>
+	<<link [[Search for seeds (0:30)|Asylum Garden Seeds]]>><<set $plants_known.push("poppy")>><<pass 30>><</link>>
+	<br>
+<</if>>
+<br>
+
+<<link [[Leave|Asylum]]>><</link>>
+<br>
+
+:: Asylum Garden Seeds [nobr]
+<<effects>>
+
+Much of grounds are untended, with wild poppies growing from the exterior fence all the way up to the building. You gather some seeds.
+<br><br>
+
+<span class="gold">You can now grow poppies.</span>
+<br><br>
+<<set $logprep to "Searched the asylum grounds for seeds to plant and found poppy seeds.">>
+<<log $logprep 3>>
+
+<<link [[Next|Asylum Garden]]>><</link>>
+<br>
+
