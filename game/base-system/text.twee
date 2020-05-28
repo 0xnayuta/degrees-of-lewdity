@@ -436,13 +436,22 @@ its
 <</nobr>><</widget>>
 
 <<widget "hers">><<nobr>>
-<<if $pronoun is "m">>his
-<<elseif $pronoun is "f">>hers
-<<elseif $pronoun is "i">>its
-<<elseif $pronoun is "n">>the
-<<elseif $pronoun is "t">>theirs
-<<else>>his
+<<if $pronoun is "m">>
+	<<set _text_output to "his">>
 <</if>>
+<<if $pronoun is "f">>
+	<<set _text_output to "hers">>
+<</if>>
+<<if $pronoun is "i">>
+	<<set _text_output to "its">>
+<</if>>
+<<if $pronoun is "n">>
+	<<set _text_output to "the">>
+<</if>>
+<<if $pronoun is "t">>
+	<<set _text_output to "theirs">>
+<</if>>
+<<print _text_output>>
 <</nobr>><</widget>>
 
 <<widget "He">><<nobr>>
@@ -525,13 +534,22 @@ its
 <</nobr>><</widget>>
 
 <<widget "him">><<nobr>>
-<<if $pronoun is "m">>him
-<<elseif $pronoun is "f">>her
-<<elseif $pronoun is "i">>it
-<<elseif $pronoun is "n">>them
-<<elseif $pronoun is "t">>them
-<<else>>him
+<<if $pronoun is "m">>
+	<<set _text_output to "him">>
 <</if>>
+<<if $pronoun is "f">>
+	<<set _text_output to "her">>
+<</if>>
+<<if $pronoun is "i">>
+	<<set _text_output to "it">>
+<</if>>
+<<if $pronoun is "n">>
+	<<set _text_output to "them">>
+<</if>>
+<<if $pronoun is "t">>
+	<<set _text_output to "them">>
+<</if>>
+<<print _text_output>>
 <</nobr>><</widget>>
 
 <<widget "himstop">><<nobr>>
@@ -607,10 +625,11 @@ its
 
 <<widget "himself">><<nobr>>
 <<if $pronoun is "m">>
-himself
+	<<set _text_output to "himself">>
 <<else>>
-herself
+	<<set _text_output to "herself">>
 <</if>>
+<<print _text_output>>
 <</nobr>><</widget>>
 
 <<widget "himselfcomma">><<nobr>>
@@ -627,16 +646,18 @@ himself.
 <<else>>
 herself.
 <</if>>
+
 <</nobr>><</widget>>
 
 <<widget "people">><<nobr>>
 <<if $malechance is 100>>
-men
+	<<set _text_output to "men">>
 <<elseif $malechance is 0>>
-women
+	<<set _text_output to "women">>
 <<else>>
-men and women
+	<<set _text_output to "men and women">>
 <</if>>
+<<print _text_output>>
 <</nobr>><</widget>>
 
 <<widget "peoplestop">><<nobr>>
@@ -1727,57 +1748,43 @@ boy
 <</if>>
 <</nobr>><</widget>>
 
-<<widget "genitals">><<nobr>>
-/*
+<<widget "genitals">><<nobr>><<silently>>
+<!--
 args[0]=1 can't be chastity belt/cage 
 args[0]=2 get just "penis" or "pussy" without caring about virginity 
-*/
+$args[1]="noprint" set _text_output without printing
+-->
 <<if $worn.genitals.type.includes("chastity") and $args[0] is undefined>>
 	<<set _text_output to $worn.genitals.name>>
 <<else>>
-	<<if $penisexist is 1 and $vaginaexist is 1>>
-		<<if $player.virginity.penile is true and $player.virginity.vaginal is true and $args[0] isnot 2>>
-			<<set _text_output to "virgin penis and pussy">>
-		<<elseif $player.virginity.penile is true and $args[0] isnot 2>>
-			<<set _text_output to "pussy and virgin penis">>
-		<<elseif $player.virginity.vaginal is true and $args[0] isnot 2>>
-			<<set _text_output to "penis and virgin pussy">>
-		<<else>>
-			<<set _text_output to "penis and pussy">>
-		<</if>>
-	<<elseif $penisexist is 1>>
-		<<if $player.virginity.penile is true and $args[0] isnot 2>>
-			<<set _text_output to "virgin penis">>
-		<<else>>
-			<<set _text_output to "penis">>
-		<</if>>
-	<<else>>
-		<<if $player.virginity.vaginal is true and $args[0] isnot 2>>
-			<<set _text_output to "virgin pussy">>
-		<<else>>
-			<<set _text_output to "pussy">>
-		<</if>>
-	<</if>>
+        <<set _text_output to "">>
+        <<if $penisexist is 1>>
+           <<if $player.virginity.penile is true and $args[0] isnot 2>>
+              <<set _text_output += "virgin ">>
+           <</if>>
+           <<set _text_output += "penis">>
+        <</if>>
+        <<if $penisexist is 1 and $vaginaexist is 1>>
+           <<set _text_output += " and ">>
+        <</if>>
+        <<if $vaginaexist is 1>>
+           <<if $player.virginity.vaginal is true and $args[0] isnot 2>>
+              <<set _text_output += "virgin ">>
+           <</if>>
+           <<if $pblevel is 9>>
+              <<set _text_output += "bushy ">>
+           <</if>>
+           <<set _text_output += "pussy">>
+        <</if>>
 <</if>>
-<<set $genitals to _text_output >>
-<<print _text_output>>
+<<set $genitals to _text_output >><!-- any use of $genitals could be replaced with _text_output by using the noprint argument(though in some situations needing to split things off to handle changing _text_output to different things might be annoying.) -->
+<</silently>>
+<<if $args[1] isnot "noprint">> <<print _text_output>><</if>>
 <</nobr>><</widget>>
 
-<<widget "genitalsstop">><<nobr>>
-<<if $worn.genitals.type.includes("chastity") and $args[0] is undefined>>
-	$worn.genitals.name
-<<else>>
-	<<if $penisexist is 1>><<if $player.virginity.penile is true and $args[0] isnot 2>>virgin <</if>>penis<</if>><<if $penisexist is 1 and $vaginaexist is 1>> and <</if>><<if $vaginaexist is 1>><<if $player.virginity.vaginal is true and $args[0] isnot 2>>virgin <</if>><<if $pblevel is 9>> bushy <</if>>pussy<</if>>.
-<</if>>
-<</nobr>><</widget>>
+<<widget "genitalsstop">><<nobr>><<genitals $args[0]>>.<</nobr>><</widget>>
 
-<<widget "genitalscomma">><<nobr>>
-<<if $worn.genitals.type.includes("chastity") and $args[0] is undefined>>
-	$worn.genitals.name
-<<else>>
-	<<if $penisexist is 1>><<if $player.virginity.penile is true and $args[0] isnot 2>>virgin <</if>>penis<</if>><<if $penisexist is 1 and $vaginaexist is 1>> and <</if>><<if $vaginaexist is 1>><<if $player.virginity.vaginal is true and $args[0] isnot 2>>virgin <</if>><<if $pblevel is 9>> bushy <</if>>pussy<</if>>,
-<</if>>
-<</nobr>><</widget>>
+<<widget "genitalscomma">><<nobr>><<genitals $args[0]>>,<</nobr>><</widget>>
 
 <<widget "lcorruption">><<nobr>> |
 <span class="teal">- Corruption</span>
@@ -2732,27 +2739,51 @@ args[0]=2 get just "penis" or "pussy" without caring about virginity
 <</nobr>><</widget>>
 
 <<widget "lobey">><<nobr>> |
-<span class="red">- Obey</span>
+<span class="red">- Obedience</span>
 <</nobr>><</widget>>
 
 <<widget "llobey">><<nobr>> |
-<span class="red">- - Obey</span>
+<span class="red">- - Obedience</span>
 <</nobr>><</widget>>
 
 <<widget "lllobey">><<nobr>> |
-<span class="red">- - - Obey</span>
+<span class="red">- - - Obedience</span>
 <</nobr>><</widget>>
 
 <<widget "gobey">><<nobr>> |
-<span class="pink">+ Obey</span>
+<span class="pink">+ Obedience</span>
 <</nobr>><</widget>>
 
 <<widget "ggobey">><<nobr>> |
-<span class="pink">+ + Obey</span>
+<span class="pink">+ + Obedience</span>
 <</nobr>><</widget>>
 
 <<widget "gggobey">><<nobr>> |
-<span class="pink">+ + + Obey</span>
+<span class="pink">+ + + Obedience</span>
+<</nobr>><</widget>>
+
+<<widget "lhunger">><<nobr>> |
+<span class="green">- Hunger</span>
+<</nobr>><</widget>>
+
+<<widget "llhunger">><<nobr>> |
+<span class="green">- - Hunger</span>
+<</nobr>><</widget>>
+
+<<widget "lllhunger">><<nobr>> |
+<span class="green">- - - Hunger</span>
+<</nobr>><</widget>>
+
+<<widget "ghunger">><<nobr>> |
+<span class="red">+ Hunger</span>
+<</nobr>><</widget>>
+
+<<widget "gghunger">><<nobr>> |
+<span class="red">+ + Hunger</span>
+<</nobr>><</widget>>
+
+<<widget "ggghunger">><<nobr>> |
+<span class="red">+ + + Hunger</span>
 <</nobr>><</widget>>
 
 <<widget "gacceptance">><<nobr>> |
@@ -3877,7 +3908,7 @@ miss,
 <<elseif $arousal gte (($arousalmax / 10) * 4)>>
 	You feel a warmth build despite the embarrassment.
 <<elseif $arousal gte (($arousalmax / 10) * 3)>>
-	Your so embarrassed. Your heart skips a beat.
+	You're so embarrassed. Your heart skips a beat.
 <<elseif $arousal gte (($arousalmax / 10) * 2)>>
 	You shiver with embarrassment.
 <<elseif $arousal gte (($arousalmax / 10) * 1)>>
@@ -4138,7 +4169,6 @@ miss,
 	<</switch>>
 <</if>>
 <<embarrassment>>
-<</if>>
 <</nobr>><</widget>>
 
 <<widget "passagestrip">><<nobr>>
@@ -5885,3 +5915,72 @@ $NPCList[_na].type's
 	<</if>>
 <</if>>
 <</nobr>><</widget>>
+
+<<widget "voice">><<nobr>>
+<<switch $args[0]>>
+	<<case "plead">>
+		<<if $pain lte 60>>
+			<<if $rng lte 33>>
+				<<set _text_output to "plead">>
+			<<elseif $rng lte 66>>
+				<<set _text_output to "beg">>
+			<<elseif $wolfgirl gte 4>>
+				<<set _text_output to "whimper">>
+			<<elseif $cat gte 4>>
+				<<set _text_output to "mewl">>
+			<<else>>
+				<<set _text_output to "plead">>
+			<</if>>
+		<<else>>
+			<<if $rng lte 50>>
+				<<set _text_output to "cry and plead">>
+			<<else>>
+				<<set _text_output to "weep and plead">>
+			<</if>>
+		<</if>>
+	<<case "moan">>	
+		<<if $rng lte 25>>
+			<<if $arousal lte 6000>>
+				<<set _text_output to "moan">>
+			<<else>>
+				<<set _text_output to "gasp and moan">>
+			<</if>>
+		<<elseif $rng lte 50>>
+			<<set _text_output to "murmur">>		
+		<<elseif $rng lte 75>>
+			<<if $arousal lte 6000>>
+				<<set _text_output to "giggle">>
+			<<else>>
+				<<set _text_output to "gasp and giggle">>
+			<</if>>
+		<<elseif $wolfgirl gte 4>>
+			<<set _text_output to "pant">>
+		<<elseif $cat gte 4>>
+			<<set _text_output to "purr">>
+		<<else>>
+			<<set _text_output to "moan">>
+		<</if>>
+	<<case "demand">>
+		<<if $arousal lte 6000>>
+			<<if $rng lte 33>>
+				<<set _text_output to "speak">>
+			<<elseif $rng lte 66>>
+				<<set _text_output to "yell">>
+			<<elseif $wolfgirl gte 4>>
+				<<set _text_output to "bark">>
+			<<elseif $cat gte 4>>
+				<<set _text_output to "hiss">>
+			<<else>>
+				<<set _text_output to "spit">>
+			<</if>>
+		<<elseif $rng lte 50>>
+			<<set _text_output to "gasp">>
+		<<else>>
+			<<set _text_output to "growl">>
+		<</if>>
+	<<default>>
+		<<set _text_output to "try to speak, but hiccup instead. This is a bug, Please report to Vrelnir" + ($args[0] isnot undefined ? $args[0] : "undefined")>>
+<</switch>>
+<<print _text_output>>
+<</nobr>><</widget>>
+

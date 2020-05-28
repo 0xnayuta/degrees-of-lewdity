@@ -1,4 +1,5 @@
 :: Test [nobr]
+<<effects>>
 
 <<set _ctypes to Object.keys(setup.clothes)>>
 there are _ctypes.length clothing types:
@@ -43,7 +44,8 @@ $discountplan
 <<print JSON.stringify($smells)>>
 <br>
 -->
-<<generate1>><<generate2>>
+<<link [[Livestock Job Pig Gang Rape]]>><<set $molestationstart to 1>><</link>>
+<br>
 
 ::Test2 [nobr]
 <<set $NPCName[$NPCNameList.indexOf("Kylar")].state to "active">>
@@ -163,33 +165,33 @@ Test - $test2
 :: Rape Finish [nobr]
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
-Text about the aftermath of them cumming.
-<br><br>
-<<tearful>> you recover.
-<br><br>
-<<clotheson>>
-<<endcombat>>
-<<link [[Next|Rape]]>><</link>>/*Point links wherever you want the player to end up*/
+	<<ejaculation>>
+	Text about the aftermath of them cumming.
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Rape]]>><</link>>/*Point links wherever you want the player to end up*/
 
 <<elseif $enemyhealth lte 0>>
-Text about escaping.
-<br><br>
-<<tearful>> you recover.
-<br><br>
-<<clotheson>>
-<<endcombat>>
-<<link [[Next|Rape]]>><</link>>
+	Text about escaping.
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Rape]]>><</link>>
 
 <<else>>
-<<set $rescued += 1>>/*Unnecessary if rescue is impossible*/
-Text about being rescued.
-<br><br>
-<<tearful>> you recover.
-<br><br>
-<<clotheson>>
-<<endcombat>>
-<<link [[Next|Rape]]>><</link>>
+	<<set $rescued += 1>>/*Unnecessary if rescue is impossible*/
+	Text about being rescued.
+	<br><br>
+	<<tearful>> you recover.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Rape]]>><</link>>
 
 <</if>>
 
@@ -407,7 +409,7 @@ Insert text about the beast stopping because you asked it to.
 <<elseif $enemyarousal gte $enemyarousalmax>>
 <span id="next"><<link [[Next|Beast Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
-<span id="next"><<link "Next">><<script>>state.display(state.active.title, null, "back")<</script>><</link>></span><<nexttext>>
+<span id="next"><<link "Next">><<script>>state.display(state.active.title, null)<</script>><</link>></span><<nexttext>>
 <</if>>
 
 :: Beast Rape Finish [nobr]
@@ -464,7 +466,10 @@ Insert text about being rescued.
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-	<<beastNEWinit 3 wolf>>
+	<<set $combatTrain.length to 2>>
+	<<set $combatTrain.beastTypes to ["wolf","wolf"]>>
+	<<set $combatTrain.numberPerTrain to [1,1]>>
+	<<beastNEWinit 1 wolf>>
 	<<set $rescue to 1>>/*optional*/
 <</if>>
 <<effects>>
@@ -489,37 +494,27 @@ Insert text about being rescued.
 <<effects>>
 <<if $enemyhealth lte 0>>
 	<<beastwound>>
-	<<if $enemyno gte 3>>
+	<<if $combatTrain.length gt 0>>
 		The $beasttype recoils in pain and fear, but another is eager for a go.
-		<<set $enemyno -= 1>>
+		<<beastNEWinit $combatTrain.numberPerTrain[0] $combatTrain.beastTypes[0]>>
+		<<combatTrainAdvance>>
 		<br><br>
 		[[Next|Beast Gang]]
-	<<elseif $enemyno is 2>>
-		The $beasttype recoils in pain and fear, but the last is eager for a go.
-		<<set $enemyno -= 1>>
-		<br><br>
-		[[Next|Beast Gang]]
-	<<elseif $enemyno is 1>>
+	<<else>>
 		The $beasttype recoils in pain and fear.
-		<<set $enemyno -= 1>>
 		<br><br>
 		<<link [[Next|Beast Gang End]]>><<set $finish to 1>><</link>>
 	<</if>>
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<beastejaculation>>
-	<<if $enemyno gte 3>>
+	<<if $combatTrain.length gt 0>>
 		Satisfied, the $beasttype moves and another takes its turn.
-		<<set $enemyno -= 1>>
+		<<beastNEWinit $combatTrain.numberPerTrain[0] $combatTrain.beastTypes[0]>>
+		<<combatTrainAdvance>>
 		<br><br>
 		[[Next|Beast Gang]]
-	<<elseif $enemyno is 2>>
-		Satisfied, the $beasttype moves and the last takes its turn.
-		<<set $enemyno -= 1>>
-		<br><br>
-		[[Next|Beast Gang]]
-	<<elseif $enemyno is 1>>
+	<<else>>
 		Satisfied, the $beasttype moves away from you.
-		<<set $enemyno -= 1>>
 		<br><br>
 		<<link [[Next|Beast Gang End]]>><<set $finish to 1>><</link>>
 	<</if>>
@@ -890,6 +885,13 @@ Description of escaping/being left alone by the tentacles.
 /*How to destroy a cursed item, replacing "face" with the slot in question:*/
 <<set $worn.face.type.push("broken")>>
 <<faceruined>>
+
+<<if $exposed gte 2 and $exhibitionism lt 95 or $exposed gte 2 and $uncomfortable.nude is true>>
+	
+<<else>>
+	
+<</if>>
+
 
 :: Masturbation [nobr]
 
