@@ -206,8 +206,8 @@
 	<</if>>
 	<<if $daystate is "day" and $weather is "clear" and $outside is 1>>
 		<<tanned `$pass / 10`>>
-		<<if $exposed gte 2>><!-- increase tanning rate when more exposed, not sure how necessary this is, -Mauno  -->
-			<<tanned `$pass / 10`>>
+		<<if $exposed gte 2>>/*- increase tanning rate when more exposed, not sure how necessary this is,  */
+			<<tanned `$pass / 20`>>
 		<</if>>
 	<</if>>
 	<<for _type to 0 ; _type lt Object.keys($worn).length ; _type++>>/* add to dirt and usage of everything worn */
@@ -4533,37 +4533,44 @@ __Map__<br>
 	<<set $args[0] to 0>>
 	/* made everything set this manually just so I can easily search for "stat>>" to see ones where I haven't looked into if they need it or not. */
 <</if>>
-<<if $enemytype is "beast">> 
-	<<set $combat_partner = $NPCList[$args[0]].description+" "+$NPCList[$args[0]].type>>
-<<elseif $enemytype is "tentacles">>?
-	<<set _id to Math.abs($args[0].replace("tentacle", ""))>>
-	<<set $combat_partner to $tentacles[_id].desc+" tentacle">>
-<<elseif $swallowed is 1>>
-	<<set $combat_partner to $vorecreature>>
-	
-<<elseif $swarmcreature isnot 0>>/* is a swarm */
-	<<set $combat_partner to $swarmcreature>>
-<<elseif $npc isnot 0>>/* is a named npc */
-	<<set $combat_partner = $npcdescription + " " + $npc>>
-<<elseif $npcadult is 1>>/* is a named npc */
-	<<if $NPCList[$args[0]].gender is "m">><<set $combat_partner = $NPCList[$args[0]].description + " man">>
-	<<elseif $NPCList[$args[0]].gender is "f">><<set $combat_partner = $NPCList[$args[0]].description + " woman">>
-	<<elseif $NPCList[$args[0]].gender is "i">><<set $combat_partner = $NPCList[$args[0]].description + " thing">>
-	<<elseif $NPCList[$args[0]].gender is "t">><<set $combat_partner = $NPCList[$args[0]].description + " person">>/* just people? or somehow figure out all of the people this is about? */
-	<<elseif $NPCList[$args[0]].gender is "n">><<set $combat_partner = $NPCList[$args[0]].description + " one">>
-	<<else>><<set $combat_partner = $description + " person("+$pronoun+","+$NPCList[$args[0]].gender+")">>
+<!-- Make sure that we actually have someone we could call a partner -->
+<<if $NPCList[$args[0]] isnot undefined or $swallowed is 1 or $enemytype is "tentacles" or $enemytype is "beast" or $swarm.type isnot 0>>
+	<<if $enemytype is "beast">> 
+		<<set $combat_partner = $NPCList[$args[0]].description+" "+$NPCList[$args[0]].type>>
+	<<elseif $enemytype is "tentacles">>?
+		<<set _id to Math.abs($args[0].replace("tentacle", ""))>>
+		<<set $combat_partner to $tentacles[_id].desc+" tentacle">>
+	<<elseif $swallowed is 1>>
+		<<set $combat_partner to $vorecreature>>
+		
+	<<elseif $swarm.type isnot 0>>/* is a swarm */
+		<<set $combat_partner to $swarm.type>>
+	<<elseif $npc isnot 0>>/* is a named npc */
+		<<set $combat_partner = $npcdescription + " " + $npc>>
+	<<elseif $npcadult is 1>>/* is a named npc */
+		<<if $NPCList[$args[0]].gender is "m">><<set $combat_partner = $NPCList[$args[0]].description + " man">>
+		<<elseif $NPCList[$args[0]].gender is "f">><<set $combat_partner = $NPCList[$args[0]].description + " woman">>
+		<<elseif $NPCList[$args[0]].gender is "i">><<set $combat_partner = $NPCList[$args[0]].description + " thing">>
+		<<elseif $NPCList[$args[0]].gender is "t">><<set $combat_partner = $NPCList[$args[0]].description + " person">>/* just people? or somehow figure out all of the people this is about? */
+		<<elseif $NPCList[$args[0]].gender is "n">><<set $combat_partner = $NPCList[$args[0]].description + " one">>
+		<<else>><<set $combat_partner = $description + " person("+$pronoun+","+$NPCList[$args[0]].gender+")">>
+		<</if>>
+	<<else>>
+		<<if $NPCList[$args[0]].gender is "m">><<set $combat_partner = $NPCList[$args[0]].description + " boy">>
+		<<elseif $NPCList[$args[0]].gender is "f">><<set $combat_partner = $NPCList[$args[0]].description + " girl">>
+		<<elseif $NPCList[$args[0]].gender is "i">><<set $combat_partner = $NPCList[$args[0]].description + " thing">>
+		<<elseif $NPCList[$args[0]].gender is "t">><<set $combat_partner = $NPCList[$args[0]].description + " kid">>
+		<<elseif $NPCList[$args[0]].gender is "n">><<set $combat_partner = $NPCList[$args[0]].description + " one">>
+		<<else>><<set $combat_partner = $description + " kid("+$pronoun+","+$NPCList[$args[0]].gender+")">>/* this should appear if all else fails, hopefully preventing no description at all */
+		<</if>>
 	<</if>>
 <<else>>
-	<<if $NPCList[$args[0]].gender is "m">><<set $combat_partner = $NPCList[$args[0]].description + " boy">>
-	<<elseif $NPCList[$args[0]].gender is "f">><<set $combat_partner = $NPCList[$args[0]].description + " girl">>
-	<<elseif $NPCList[$args[0]].gender is "i">><<set $combat_partner = $NPCList[$args[0]].description + " thing">>
-	<<elseif $NPCList[$args[0]].gender is "t">><<set $combat_partner = $NPCList[$args[0]].description + " kid">>
-	<<elseif $NPCList[$args[0]].gender is "n">><<set $combat_partner = $NPCList[$args[0]].description + " one">>
-	<<else>><<set $combat_partner = $description + " kid("+$pronoun+","+$NPCList[$args[0]].gender+")">>/* this should appear if all else fails, hopefully preventing no description at all */
-	<</if>>
+	<!-- Some lines probably sound weird with this(should either make them replace "myself" with "I" or be adjusted to work with "myself") -->
+	<<set $combat_partner to "myself">>
+	<<set $combat_partner to "No one?(this is either a solo action or a bug)">>
 <</if>>
 
-<<if $swarmcreature is 0>>/* no a/an for swarms since they have plural names */
+<<if $swarm.type isnot 0>>/* no a/an for swarms since they have plural names */
 	<<set $combat_partner to jsArticle($combat_partner)>>
 <</if>>
 <<set $Combat_partner to jsCapitalize($combat_partner)>>
