@@ -115,24 +115,14 @@ with $logday, it's like $days but can be set to smaller number when archiving ol
 	<<set _a[$log.stats] to {}>>
 <</if>>
 
-<<if $statlist is undefined>>
+<<if $statlist is undefined or $objectVersion.statlog is undefined or $objectVersion.statlog lt 1>>
 	<<logstats>>
+	<<set $objectVersion.statlog to 1>>
 <</if>>
 
 <</nobr>><</widget>>
 
 <<widget "logstats">><<nobr>> /* update logged to current stats */
-/*
-upperintegritymax:$upperintegritymax,lowerintegritymax:$lowerintegritymax:,underintegritymax:$underintegritymax,
-upperintegritylevel:($upperintegrity/$upperintegritymax),lowerintegritylevel:($lowerintegritymax/$lowerintegritymax),underintegritylevel:($underintegrity/$underintegritymax),
-
-*/
-/*
-thought I could skip adding integrity/max stuff to the clothing exception by making this
-upperintegritylevel:($upperintegrity/$upperintegritymax),lowerintegritylevel:($lowerintegritymax/$lowerintegritymax),underintegritylevel:($underintegrity/$underintegritymax),
-but then I realized that it still needs to happen.
-if $useshortlogvars isnot true>>
-*/
 	<<set $logged to {
 		hunger:$hunger,money:$money,stress:$stress,trauma:$trauma,awareness:$awareness,pain:$pain,
 		tiredness:$tiredness,arousal:$arousal,control:$control,allure:$allure,antiquemoney:$antiquemoney,
@@ -145,49 +135,63 @@ if $useshortlogvars isnot true>>
 		oralskill:$oralskill,vaginalskill:$vaginalskill,penileskill:$penileskill,analskill:$analskill,handskill:$handskill,
 		feetskill:$feetskill,bottomskill:$bottomskill,thighskill:$thighskill,chestskill:$chestskill,science:$science,
 		maths:$maths,english:$english,history:$history,school:$school,unclad:$unclad,
+		athletics:$athletics,tending:$tending,
 	  cool:$cool,detention:$detention,fameexhibitionism:$fameexhibitionism,fameprostitution:$fameprostitution,famebestiality:$famebestiality,
 	  famerape:$famerape,famesex:$famesex,famegood:$famegood,famebusiness:$famebusiness,famepimp:$famepimp,
+		famesocial:$famesocial,famepark:$famepark,
 	  famescrap:$famescrap,dancestat:$dancestat,drinksservedstat:$drinksservedstat,tablesservedstat:$tablesservedstat,prostitutionstat:$prostitutionstat,
 	  forcedprostitutionstat:$forcedprostitutionstat,orgasmstat:$orgasmstat,ejacstat:$ejacstat,moleststat:$moleststat,rapestat:$rapestat,
 	  beastrapestat:$beastrapestat,tentaclerapestat:$tentaclerapestat,swallowedstat:$swallowedstat,parasitestat:$parasitestat,hitstat:$hitstat,
 	  attackstat:$attackstat,spraystat:$spraystat,rescued:$rescued,clothesstripstat:$clothesstripstat,clothesruinstat:$clothesruinstat,
-	  passoutstat:$passoutstat,bus:$bus
+	  passoutstat:$passoutstat,bus:$bus,
+		packtrust:$wolfpacktrust,packfear:$wolfpackfear,
+		insecurity_penis_tiny:$insecurity_penis_tiny,insecurity_penis_small:$insecurity_penis_small,insecurity_penis_big:$insecurity_penis_big,insecurity_breasts_tiny:$insecurity_breasts_tiny,insecurity_breasts_small:$insecurity_breasts_small,insecurity_breasts_big:$insecurity_breasts_big,
+		acceptance_penis_tiny:$acceptance_penis_tiny,acceptance_penis_small:$acceptance_penis_small,acceptance_penis_big:$acceptance_penis_big,acceptance_breasts_tiny:$acceptance_breasts_tiny,acceptance_breasts_small:$acceptance_breasts_small,acceptance_breasts_big:$acceptance_breasts_big,
+		breastsize:$breastsize,bottomsize:$bottomsize,penissize:$penissize,ballssize:$ballssize
 	}>>
-	<<set $statlist to Object.keys($logged)>>/* array with all of the statnames */
+	<<if $statlist isnot Object.keys($logged)>>
+		<<set $statlist to Object.keys($logged)>>/* array with all of the statnames */
+	<</if>>
 /*
+<<if 0 is 0>>
 <<else>>
 	<<set _values to [$money,$stress,$trauma,$awareness,$pain,
 	$tiredness,$arousal,$control,$allure,$antiquemoney,
 	$blackmoney,$spray,$spraymax,$drunk,$drunk,
 	$drugged,$weather,
-	worn:$worn,
+	$worn,
 	$collared,$purity,
 	$submissive,$physique,$beauty,$promiscuity,$exhibitionism,
 	$deviancy,$skulduggery,$danceskill,$swimmingskill,$seductionskill,
 	$oralskill,$vaginalskill,$penileskill,$analskill,$handskill,
 	$feetskill,$bottomskill,$thighskill,$chestskill,$science,
 	$maths,$english,$history,$school,$unclad,
+	$athletics,$tending,
 	$cool,$detention,$fameexhibitionism,$fameprostitution,$famebestiality,
 	$famerape,$famesex,$famegood,$famebusiness,$famepimp,
+	$famesocial,$famepark,
 	$famescrap,$dancestat,$drinksservedstat,$tablesservedstat,$prostitutionstat,
 	$forcedprostitutionstat,$orgasmstat,$ejacstat,$moleststat,$rapestat,
 	$beastrapestat,$tentaclerapestat,$swallowedstat,$parasitestat,$hitstat,
 	$attackstat,$spraystat,$rescued,$clothesstripstat,$clothesruinstat,
-	$passoutstat, $bus
+	$passoutstat, $bus,
+	$wolfpacktrust,$wolfpackfear,
+	$insecurity_penis_tiny,$insecurity_penis_small,$insecurity_penis_big,$insecurity_breasts_tiny,$insecurity_breasts_small,$insecurity_breasts_big,
+	$acceptance_penis_tiny,$acceptance_penis_small,$acceptance_penis_big,$acceptance_breasts_tiny,$acceptance_breasts_small,$acceptance_breasts_big,
+	$breastsize,$bottomsize,$penissize,$ballssize
 	]>>
 	<<for _i to 0 ; _i lt _v.length ; _i++>>
 		<<set $logged[$vars[_i]] to _values[_u]>>
 	<</for>>
-/if>>
-/*
+<</if>>
+/
 to add:
 Delinquency
 More specific ejaculation stats
 goo/semen
-accesories worn
 virginities?
 transformation stats 
-breast, penis and hair stats?
+lactation and hair stats?
 */
 <</nobr>><</widget>>
 
@@ -787,10 +791,21 @@ $diaryinsertfilterinfo=?
 <<if $args[0] is "allstats">><!-- Remove all stat info from entries older than $args[1] days. -->
 /*
 */
+<!-- Check for most duplicated entry texts and change them to use some var? -->
+<<set $logdupes[0] to "">>
 
 <</nobr>><</widget>>
 
 
+<<widget "logcount">><<nobr>>
+<!-- Count amount of trauma and other stats gained from all uwritten entries -->
+<!--  -->
+
+
+<<set _unresolved.traumagain to 0>>
+<<set _unresolved.traumaloss to 0>>
+
+<</nobr>><</widget>>
 
 
 <<widget "info">><<nobr>>
