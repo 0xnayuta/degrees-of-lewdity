@@ -1,14 +1,24 @@
-:: Eerie Mirror [nobr]
-<<effects>>
+:: Eerie Mirror Tracking Test and Info [nobr]
 
-/* 
+
 keep track of how far you've gone before? And how often? 
 $lastmirrorstage for where you stopped last time
 $lastmirrorday for how long it's been since last time
 $mirrortentacleexp how many times you've done each stage, not sure how useful it will be or if it should count just seeing the glow from mirror
-$mirrortentaclefirstday for the 1st day you interacted with the mirror tentacles so that frecuency of interacting with them after that can be calculated
-*/
 
+$mirrortentaclefirstday for the 1st day you interacted with the mirror tentacles so that frecuency of interacting with them after that can be calculated(no longer needed?)
+
+the stuff that should remove the need for mirrortentaclefirstday:
+<<set _newmirrordayfrequency to ($days-$lastmirrorday)/$mirrortentacleexp[1]>>
+<<if  $mirrordayfrequency lt _newmirrordayfrequency+2>>
+<</if>>
+<<set $mirrordayfrequency to _newmirrordayfrequency>>
+doesn't work exactly like it'd work using mirrortentaclefirstday but it seems good enough.
+Might want to actually recheck the math(and add more info here) at some point to see if it actually works nicely(or just change how all of it works).
+
+
+:: Eerie Mirror [nobr]
+<<effects>>
 
 You walk up to the mirror and gaze into its depths. It no longer reflects, but glows with a curious light. It's purple, or pink, or maybe red.
 <br><br>
@@ -33,6 +43,10 @@ The light takes shape and extends into the space in front of you. A single tenta
 <<effects>>
 
 <<set $lastmirrorday to $days>>
+
+<<set _newmirrordayfrequency to ($days-$lastmirrorday)/$mirrortentacleexp[1]>>
+<<set $mirrordayfrequency to _newmirrordayfrequency>>
+
 You pull away from the mirror. The light goes out at once.
 <br><br>
 
@@ -78,13 +92,17 @@ A pink liquid drips from the tip.
 You lick the tip of the tentacle, and taste the pink liquid. It's sweet, and warm. You lap it up and feel the shuddering warmth spread down your mouth and throat.
 <<deviancy2>>
 
+/*<<set _newmirrordayfrequency to ($days-$mirrortentaclefirstday)/$mirrortentacleexp[1]>>*/
 <<set _newmirrordayfrequency to ($days-$lastmirrorday)/$mirrortentacleexp[1]>>
+<!-- I think I did some math and figured out that things would sort of work fine without using $mirrortentaclefirstday but can't remember wtf the reason for it was. -->
+<!-- Or wait... we're dividing days since last visit with total amount of visits and comparing that to what the result of that was last time so for detecting a an increase or decrease compared to last time it works fine and I think it might have been even in some ways nicer than actually getting the change in average frequency which had some issues -->
+
 Several other tentacles form from the light. They <<if  $mirrordayfrequency lt _newmirrordayfrequency+2 and $mirrortentacleexp[5] gte 6>> hungrily<<elseif $lastmirrorstage is 4>> shyly<<elseif $lastmirrorstage gte 5>> excitedly<</if>> dance closer.
 <br><br>
 <<set $mirrortentacleexp[4] += 1>>
 
 <<if $deviancy gte 15>>
-	<<link [[Lick|Eerie Mirror 5]]>><</link>><<deviant2>>
+	<<link [[Lick|Eerie Mirror 5]]>><<set $drugged += 60>><</link>><<deviant2>>
 	<br>
 <</if>>
 <<link [[Step away|Eerie Mirror Stop]]>><<set $lastmirrorstage to 4>><<set $logprep to $logprep+" but stepped away when more tentacles came out of it after I had licked the sole one that came out of it first for a bit.">><</link>>
@@ -93,43 +111,154 @@ Several other tentacles form from the light. They <<if  $mirrordayfrequency lt _
 :: Eerie Mirror 5 [nobr]
 <<effects>>
 
+/*<<set _tentacledays to $days-$mirrortentaclefirstday>>
+<<set _newmirrordayfrequency to _tentacledays/$mirrortentacleexp[1]>>*/
 <<set _tentacledays to $days-$lastmirrorday>>
 <<set _newmirrordayfrequency to _tentacledays/$mirrortentacleexp[1]>>
 
-
-The first tentacle retracts<<if $mirrortentacleexp[5] lt 6>>, leaving you with a deep longing. It doesn't last. The<<else>> and as usual the<</if>> other tentacles twist around your arms, legs and hips<<if $mirrortentacleexp[5] gte 6>> with familiarity<</if>>. Shivers of pleasure emanate from wherever they touch. They squeeze and caress to a gentle rhythm.
-<<deviancy2>>
-<<if $lastmirrorday lt $days-9 and $mirrordayfrequency lt _newmirrordayfrequency+4 and $mirrortentacleexp[5] gte 6>>
-  <br><br>
-  The light fades slightly and the tentacles along with it but then the light gets stronger and the tentacles hold on to you tighter and even more of them come out of the mirror to gently caress your <<breasts>> and <<genitals>>. 
-  <<arousal 6000>>
-  <<if $arousal gte 10000>><<orgasmpassage>><</if>>
-  They continue to do so for a long time. 
-  <<arousal 4000>>
-  <<if $arousal gte 10000>><<orgasmpassage>><</if>>
-  <<pass 1 hour>>Eventually the tentacles start to calm down
-  <<set $drugged += 60>>
+<<if $moonstate is "morning">>
+	You continue to lick the tip of the tentacle, and taste the sweet liquid. It pushes against your tongue, as if it wants to
+	enter your mouth.
+	<<deviancy2>>
+	The light brightens to an eerie red, and other tentacles twist around your arms, legs and hips. Shivers of pleasure emanate
+	from wherever they touch. They squeeze and caress to a gentle rhythm.
 	<br><br>
-  and finally the light really fades, and the tentacles fade with it.
-	<br><br>
-<<elseif $mirrortentacleexp[5] gte 5>>
-  The light starts to fade, and the tentacles give you a one last squeeze as a goodbye before they fade and you get the feeling that they'd be disappointed if you didn't see them again.
-	<br><br>
+	<<if $deviancy gte 75>>
+		<<if $player.virginity.oral is true>>
+			<<link [[Swallow|Eerie Mirror 6]]>><<takeVirginity "Eerie Mirror Tentacle" "oral">><<set $lostOral to true>><</link>> |
+			<span class="red"> This action will take your oral virginity</span> <<deviant5>>
+		<<else>>
+			<<link [[Swallow|Eerie Mirror 6]]>><</link>><<deviant5>>
+		<</if>>
+		<br>
+	<</if>>
+	<<link [[Step away|Eerie Mirror Stop]]>><<set $lastmirrorstage to 5>><<set $logprep to $logprep+" but stepped away when a tentacle started pushing against my tongue as if it wanted to enter my mouth.">><</link>>
+	<br>
 <<else>>
-  The light fades, and the tentacles fade with it.
-	<br><br>
+	The first tentacle retracts<<if $mirrortentacleexp[5] lt 6>>, leaving you with a deep longing. It doesn't last. The<<else>> and as usual the<</if>> other tentacles twist around your arms, legs and hips<<if $mirrortentacleexp[5] gte 6>> with familiarity<</if>>. Shivers of pleasure emanate from wherever they touch. They squeeze and caress to a gentle rhythm.
+	<<deviancy2>>
+	<<if $lastmirrorday lt $days-9 and $mirrordayfrequency lt _newmirrordayfrequency+4 and $mirrortentacleexp[5] gte 6>>
+		<!-- Make this potentially lead to the new Eerie Mirror 6? -->
+	  <br><br>
+	  The light fades slightly and the tentacles along with it but then the light gets stronger and the tentacles hold on to you tighter and even more of them come out of the mirror to gently caress your <<breasts>> and <<genitals>>. 
+	  <<arousal 6000>>
+	  <<if $arousal gte 10000>><<orgasmpassage>><</if>>
+	  They continue to do so for a long time. 
+	  <<arousal 4000>>
+	  <<if $arousal gte 10000>><<orgasmpassage>><</if>>
+	  <<pass 1 hour>>Eventually the tentacles start to calm down
+	  <<set $drugged += 60>>
+		<br><br>
+	  and finally the light really fades, and the tentacles fade with it.
+		<br><br>
+	<<elseif $mirrortentacleexp[5] gte 5>>
+	  The light starts to fade, and the tentacles give you a one last squeeze as a goodbye before they fade and you get the feeling that they'd be disappointed if you didn't see them again.
+		<br><br>
+	<<else>>
+	  The light fades, and the tentacles fade with it.
+		<br><br>
+	<</if>>
+
+	<<if $mirrortentacleexp[5] is 0>>
+		<<set $logprep to "I gazed into my eerily glowing mirror and a tentacle came out of it so I licked it until it started dripping with pink liquid and several other tentacle took it's place and squeezed and caressed me all over making me shiver in pleasure until they were satisfied and disappeared.">>
+	<<else>>
+		<<set $logprep to "I again licked the tentacles that came out of my eerily glowing mirror until they were satisfied.">>
+	<</if>>
+	<<set $mirrortentacleexp[5] += 1>>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<set $lastmirrorday to $days>>
+	<<set $mirrordayfrequency to _newmirrordayfrequency>>
+
+	<<mirror>>
+	<<link [[Step away|Bedroom]]>><<set $lastmirrorstage to 5>><</link>>
 <</if>>
 
-<<if $mirrortentacleexp[5] is 0>>
-<<set $logprep to "I gazed into my eerily glowing mirror and a tentacle came out of it so I licked it until it started dripping with pink liquid and several other tentacle took it's place and squeezed and caressed me all over making me shiver in pleasure until they were satisfied and disappeared.">>
+:: Eerie Mirror 6 [nobr]
+<<effects>>
+
+<<if $mirrortentacleexp[6] gte 6>>As usual you <<else>>You<</if>>
+take the first tentacle into your
+<<if $lostOral>>
+	<<unset $lostOral>>
+	virgin mouth
 <<else>>
-<<set $logprep to "I again licked the tentacles that came out of my eerily glowing mirror until they were satisfied.">>
+	mouth
 <</if>>
-<<set $mirrortentacleexp[5] += 1>>
-<<log $logprep 3>>
-<<logopinion "That was interesting">>
-<<set $lastmirrorday to $days>>
+and start sucking. You gulp down the sweet and warm liquid.
+<<deviancy5>>
+<<if $lastmirrorday lt $days-2 $mirrortentacleexp[6] gte 1>>
+	<!-- Add option for things to end here? But since the other tentacles are already wrapping around your limbs it could have a chance to fail. -->
+	Just like before the other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
+	<<undress "wardrobe">>
+	<br><br>
+	<<set $mirrortentacleexp[6] += 1>>
+	<<link [[Keep sucking|Eerie Mirror Tentacles]]>><<undress "wardrobe">><<set $sexstart to 1>><<set $phase to 1>><</link>>
+	<<link [[Step away|Eerie Mirror Stop]]>><<set $logprep to $logprep+" but stepped away when the tentacles started started wrapping around my limbs and removing my clothes.">><</link>>
+<<else>>
+	<!-- Presumably you can be fully naked when doing this. -->
+	The other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
+	<<undress "wardrobe">>
+	<br><br>
+	<<set $mirrortentacleexp[6] += 1>>
+	<<link [[Next|Eerie Mirror Tentacles]]>><<set $sexstart to 1>><</link>>
+<</if>>
+
+:: Eerie Mirror Tentacles [nobr]
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+
+	<<set $enemytrust += 100>>
+	<<tentaclestart 10 15>>
+	<<set $mouthstate to "tentacledeep">><<set $tentacles[0].head to "mouthdeep">>
+	<<if $phase is 1>>
+		You keep sucking the tentacle as other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
+	<</if>>
+<</if>>
+
+<<statetentacles>>
+You count $tentacles.active tentacles surrounding you.
+
+<<effects>>
+<<effectstentacles>>
+<<tentacles>>
+<<actionstentacles>>
+<<if $tentacles.active lte ($tentacles.max / 2)>>
+	<span id="next"><<link [[Next|Eerie Mirror Tentacles Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Eerie Mirror Tentacles]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+:: Eerie Mirror Tentacles Finish [nobr]
+<<effects>>
+
+Without warning, the tentacles tighten their grip and pull you towards the mirror.
+<br><br>
+You try to scream for help, <span class="pink">but the aphrodisiacs make it sound like a lewd moan.</span> Some rub against your <<genitals>>, but most keep pulling you.
+<br><br>
+<<endcombat>>
+<<if $mirrortentacleexp[7] is 0>>
+<<set $logprep to "I gazed into my eerily glowing mirror and allowed the tentacles that came out of it to surrounded and have their way with me but then they dragged me into the mirror.">>
+<<else>>
+<<set $logprep to "I again let the tentacles that came out of my eerily glowing mirror have their way with me and drag me into the mirror.">>
+<</if>>
+<<set $mirrortentacleexp[7] += 1>>
+<<set _newmirrordayfrequency to ($days-$lastmirrorday)/$mirrortentacleexp[1]>>
 <<set $mirrordayfrequency to _newmirrordayfrequency>>
+<<log $logprep 3>>
+<<set $lastmirrorday to $days>>
 
-<<mirror>>
-<<link [[Step away|Bedroom]]>><<set $lastmirrorstage to 5>><</link>>
+<<link [[Next|Eerie Mirror Tentacle Plains]]>><<set $sexstart to 1>><</link>>
+
+
+:: Eerie Mirror Tentacle Plains [nobr]
+<<set $outside to 0>><<set $location to "tentworld">><<effects>>
+<<tentacleworldintro>>
+On being pulled through the mirror, you find yourself on an alien landscape.
+Giant tentacles writhe against the sky. <span class="red">An orgasm here could be dangerous.</span>
+<br><br>
+<<link [[Next|Tentacle Plains]]>><<set $tentacleEntrance to "mirror">><</link>>
