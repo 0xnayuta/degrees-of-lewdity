@@ -49,10 +49,10 @@ The light takes shape and extends into the space in front of you. A single tenta
 
 You pull away from the mirror. The light goes out at once.
 <br><br>
-
 <<log $logprep 3>>
 <<logopinion "That was interesting">>
-<<link [[Step away|Bedroom]]>><</link>>
+
+<<link [[Step away|Bedroom]]>><<unset $mirrorMenu>><</link>>
 <<mirror>>
 
 :: Eerie Mirror 2 [nobr]
@@ -171,7 +171,7 @@ Several other tentacles form from the light. They <<if  $mirrordayfrequency lt _
 	<<set $mirrordayfrequency to _newmirrordayfrequency>>
 
 	<<mirror>>
-	<<link [[Step away|Bedroom]]>><<set $lastmirrorstage to 5>><</link>>
+	<<link [[Step away|Bedroom]]>><<unset $mirrorMenu>><<set $lastmirrorstage to 5>><</link>>
 <</if>>
 
 :: Eerie Mirror 6 [nobr]
@@ -187,14 +187,18 @@ take the first tentacle into your
 <</if>>
 and start sucking. You gulp down the sweet and warm liquid.
 <<deviancy5>>
-<<if $lastmirrorday lt $days-2 $mirrortentacleexp[6] gte 1>>
+<<if $mirrortentacleexp[6] gte 1>><!-- Already done this once -->
 	<!-- Add option for things to end here? But since the other tentacles are already wrapping around your limbs it could have a chance to fail. -->
 	Just like before the other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
 	<<undress "wardrobe">>
 	<br><br>
 	<<set $mirrortentacleexp[6] += 1>>
-	<<link [[Keep sucking|Eerie Mirror Tentacles]]>><<undress "wardrobe">><<set $sexstart to 1>><<set $phase to 1>><</link>>
-	<<link [[Step away|Eerie Mirror Stop]]>><<set $logprep to $logprep+" but stepped away when the tentacles started started wrapping around my limbs and removing my clothes.">><</link>>
+	<<link [[Keep sucking|Eerie Mirror Tentacles]]>><<set $sexstart to 1>><<set $phase to 1>><</link>>
+	<<if $lastmirrorday lt $days-9 and $mirrordayfrequency lt _newmirrordayfrequency>>
+		<<link [[Step away|Eerie Mirror Tentacles]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+	<<else>>
+		<<link [[Step away|Eerie Mirror Stop]]>><<set $logprep to $logprep+" but stepped away when the tentacles started started wrapping around my limbs and removing my clothes.">><</link>>
+	<</if>>
 <<else>>
 	<!-- Presumably you can be fully naked when doing this. -->
 	The other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
@@ -206,9 +210,11 @@ and start sucking. You gulp down the sweet and warm liquid.
 
 :: Eerie Mirror Tentacles [nobr]
 <<if $sexstart is 1>>
+	<<combatstart>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
+	<<set $enemytype to "tentacles">>
 	<<neutral 1>>
 
 	<<set $enemytrust += 100>>
@@ -217,6 +223,16 @@ and start sucking. You gulp down the sweet and warm liquid.
 	<<if $phase is 1>>
 		You keep sucking the tentacle as other tentacles <<if $exposed lt 2>>remove your clothing with a precise dexterity. They further<</if>> twist around your arms, legs and hips while wiggling closer to your <<genitals>>.
 	<</if>>
+<<elseif $molestationstart is 1>>
+	<<combatstart>>
+	<<set $molestationstart to 0>>
+	<<set $combat to 1>>
+	<<set $enemytype to "tentacles">>
+	<<molested>>
+	<<tentaclestart 10 15>>
+	<<set $mouthstate to "tentacledeep">><<set $tentacles[0].head to "mouthdeep">>
+	<<controlloss>>
+	You try to step away but the tentacles refuse to let go.
 <</if>>
 
 <<statetentacles>>
