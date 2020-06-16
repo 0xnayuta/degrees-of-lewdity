@@ -1,6 +1,6 @@
  /*
 $diary has a "page" for each day(since the diary was started) and each page has a number of entries with time, text, opinion/comment, importance and effects
-so you access entry text with $diary[logdaynumber][entrynumber][$log.text]
+so you access entry text with $diary[logdaynumber][entrynumber][$logpars.text]
 .time is simply $time
 .text is the diary entry that describes what exactly happened in 1st person
 .importance allows filtering out simply moving around and such and is used to decide how to colour the text
@@ -62,10 +62,10 @@ Can have results like "He raped me." and "She touched me weirdly."
 <<for _i, _day range $diary>>
   <br>
   <<for _j, _entry range $diary[_i]>>
-    _entry[$log.text]
-    _entry[$log.comment]
+    _entry[$logpars.text]
+    _entry[$logpars.comment]
     
-    <<print JSON.stringify(_entry[$log.stats])>>
+    <<print JSON.stringify(_entry[$logpars.stats])>>
     <br>
   <</for>>
 <</for>>
@@ -74,18 +74,23 @@ Can have results like "He raped me." and "She touched me weirdly."
 
 <<print JSON.stringify($diary)>>
 
-:: Write Diary
+:: Write Diary [nobr]
 
 You sit down and start writing to your diary.
+<<if $eventlog is undefined>>
+  <<set $eventlog to $diary>>
+<</if>>
 
 <<logcount>>
 <<if _unresolved.traumagain gte 10>>
 <</if>>
-<<if $log.length-1 gt $diary.length>>
-It's been <<print $days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
+<<if $eventlog.length-1 gt 1>>
+It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
 <</if>>
+<br>
 
-$diary
+<<showdiaryentry 0 0>>
+<<showlogentry>>
 How do you want to write this entry? (carefully written entries about bad events may make you recall them but  
   little effect but also won't help much)
 Quickly(0:01)
@@ -151,15 +156,15 @@ Testing:
 _blarg
 
 <<set _testi to {}>>
-<<set _testi[$log.stats] to {}>>
+<<set _testi[$logpars.stats] to {}>>
 
 <<set _i to 1>>
 <<set $logged[_i] to 123>>
 <<set $oldlogged[_i] to 126>>
-<<set _testi[$log.stats][$statlist[_i]+"value"] to ($logged[_i])>>
-<<set _testi[$log.stats][$statlist[_i]] to ($logged[_i] - $oldlogged[_i])>>
-<<print _testi[$log.stats]["stress"] >>
-<<print _testi[$log.stats]["stressvalue"]>>
+<<set _testi[$logpars.stats][$statlist[_i]+"value"] to ($logged[_i])>>
+<<set _testi[$logpars.stats][$statlist[_i]] to ($logged[_i] - $oldlogged[_i])>>
+<<print _testi[$logpars.stats]["stress"] >>
+<<print _testi[$logpars.stats]["stressvalue"]>>
 
 
 
@@ -253,7 +258,7 @@ _blarg
     
     /* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
     Change entry $diaryline of day $diarypage's <<link [[comment|Diary Edit]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
-    or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
+    or importance(from <<print $diary[$diarypage][$diaryline][$logpars.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
     <<link [[0|Diary Edit]]>><<logimportance $diarypage $diaryline 0>><</link>>
     <<link [[1|Diary Edit]]>><<logimportance $diarypage $diaryline 1>><</link>>
     <<link [[2|Diary Edit]]>><<logimportance $diarypage $diaryline 2>><</link>>
@@ -279,8 +284,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <<set _hiddenentries to 0>>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry[$log.importance] gte $diaryfilterA >><br>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+  <<if _entry[$logpars.importance] gte $diaryfilterA >><br>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
     <<showdiaryentry $diarypage _i>>
   <<else>>
     <<set _hiddenentries += 1>>    
@@ -296,8 +301,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <br> /*  */
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry[$log.importance] gte $diaryfilterB >><br>
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<if _entry[$logpars.importance] gte $diaryfilterB >><br>
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
       <<showdiaryentry _i _j>>
     <<else>>
       <<set _hiddenentries += 1>>    
@@ -340,8 +345,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   <br>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry[$log.importance] gte $diaryfilterA >><br>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+  <<if _entry[$logpars.importance] gte $diaryfilterA >><br>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
     <<showdiaryentry $diarypage _i>>
   <</if>>
   <</capture>>
@@ -352,8 +357,8 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
     <br> /*  */
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry[$log.importance] gte $diaryfilterB >><br>
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<if _entry[$logpars.importance] gte $diaryfilterB >><br>
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
       <<showdiaryentry _i _j>>
     <</if>>
     <</capture>>
@@ -391,7 +396,7 @@ compressing or exporting old entries could be a thing
 
 /* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
 Change entry $diaryline of day $diarypage's <<link [[comment|Diary Edit]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
-or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
+or importance(from <<print $diary[$diarypage][$diaryline][$logpars.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
 <<link [[0|Diary Edit]]>><<logimportance $diarypage $diaryline 0>><</link>>
 <<link [[1|Diary Edit]]>><<logimportance $diarypage $diaryline 1>><</link>>
 <<link [[2|Diary Edit]]>><<logimportance $diarypage $diaryline 2>><</link>>
@@ -410,11 +415,11 @@ or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to 
   <br>
   <<for _i, _entry range $diary[$diarypage]>>
   <<capture _i>>
-  <<if _entry[$log.importance] gte $diaryfilterA >>
+  <<if _entry[$logpars.importance] gte $diaryfilterA >>
     <<filteredentriesinfo>>
     <br>
     <<link [[■|Diary Edit]]>><<set $diaryline to _i>><</link>>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
     <<showdiaryentry $diarypage _i>>
   <<else>>
     <<set _hiddenentries += 1>>
@@ -429,11 +434,11 @@ or importance(from <<print $diary[$diarypage][$diaryline][$log.importance]>> to 
     <br> /*  */
     <<for _j, _entry range $diary[_i]>>
     <<capture _i, _j>>
-    <<if _entry[$log.importance] gte $diaryfilterB >>
+    <<if _entry[$logpars.importance] gte $diaryfilterB >>
       <<filteredentriesinfo>>
       <br>
       <<link [[■|Diary Edit]]>><<set $diarypage to $logday-_i>><<set $diaryline to _j>><</link>> /* $logday-_i prevents reversed day order from messing things up */
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$log.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$log.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
       <<showdiaryentry _i _j>>
     <<else>>
       <<set _hiddenentries += 1>>

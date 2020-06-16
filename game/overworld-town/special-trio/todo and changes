@@ -71,6 +71,9 @@ Sitting down to write diary entris
     Job options(theft locations, museum deliveries)
       Option to decide if you care about being a thief to toggle getting entries for seeing opportunities to commit crime.
 
+Shortcut "quests"?
+  Instead of shortcuts just suddenly showing up when you're in a location it'd be more interesting if you learned about each one without being in a location and then had to search for them or something.
+
 Clothing sales
   Add support of for sale status changing.
     Have array of items being sold? Shop property would still be needed when deciding what to sell.
@@ -245,6 +248,21 @@ Parents day at school? Or something else that makes not having parents undesirab
   Of course telling Bailey should result in being told to fuck off.
   Is it known that you're an orphan at school? If not ending up revealing that and getting bullied could be a thing.
 
+Split combat from rest of the game more clearly(probably won't do)
+  Make it possible to easily switch to using an entirely different combat system.
+  Replace all combat passages with one generic one that just gets told exitpassage, combat type(sex/swarm/vore/tentacles), rescue possibility, who the enemies are and specific goals/rules(ie. strip, punish, get a blowjob, pillory, gloryhole).
+    passing an object as arg might be a decent way to tell the specific details(allows just not defining unnecesary bits) 
+      <<combat `{type:"rape", consensual:0, rescue:1, exitpassage:"Rape Finish"}`>>
+  And then combat happens in whatever form providing a result(enemy came, got beaten or player got rescued) and some stat changes. 
+  
+Tentacle world stuff
+  General agitation/unruliness level with something bad happening if it reaches max(tentacles take over the town or the tentacle world just breaks apart or maybe it just falls into total anarchy from which it's hard to recover)
+    Lowered by satisfying tentacles or through orders that passively change it
+  Class of tentacles (or just some spirit of the tentacle world or such) that can use telepathy to tell you that since you're so amazing it/they want you to rule the tentacle world and make it a better place.
+    Or maybe no specific entity you communicate with just that after entering the tentacle world/plains you get a general impression of overall state of it and after defeating a tentacle creature you can just will them to do something(within some limitations).
+    Possibly the first order of business being to guard you while you sleep/do whatever
+
+
 Things I'd rather not do Diary entries for(due to wanting to (re)experience them blindly or not caring about them)
   overworld-forest\loc-cabin
   overworld-forest\loc-tentacle-world
@@ -269,7 +287,6 @@ Diary entries that I should do but haven't
   overworld-town\loc-strip club\events.twee
   overworld-town\loc-temple\
   overworld-town\special-robin\lemonade.twee
-  overworld-town\special-robin\walk.twee
   overworld-underground\loc-sewers
   overworld-underground\special-smuggler
 
@@ -280,13 +297,15 @@ growth messages are handled at least in part by effects.twee instead of time or 
 catcall based diary entries should figure out what the catcall was and say that instead of just saying "got catcalled"
   "schoolcatcall"
   Widgets School Events
-made every sexstat increase add a diary entry claiming it's the first time(just replaced "stat is 0" with "stat gte 0" in system/widgets.twee)
 Should I make $aw_xedx and such variables to $aw.xedx?
 :: MuseumAntiques made me realize that I probably can in fact use widgets when making a string by using backticks(``) that might majorly change how I handle certain things, maybe even let me get of all the vars that I'm using to get the same thing as a widget gives.
-  Did some testing and backtick use doesn't look very promising but a temp var like _text_output after it's been set <<silently>> using a widget seems to work(wasn't sure about the scope of temporary variables and didn't think they'd be usable outside of the widget that defines them).
+  Did some testing and backtick use doesn't look very promising but a temp var like _text_output after it's been set <<silently>> using a widget seems to work(wasn't sure about the scope of temporary variables and didn't want to assume they'd be usable outside of the widget that defines them).
     So replace all the pronoun vars and such with temporary ones? Would need to make sure they are set in the same passage which definitely isn't the case in some events.
+For diary I had to figure out a way to get stuff like "He saw my virgin pussy" that doesn't change later to be something like "She saw my penis" so I aded some vars so I could have it be $He+" saw my "+$genitals but this made me realize using temporary variables should work too(actually probably not worth switching to temp vars).
+I think I mentioned or did a draft for something like <<exposureeffect>> somewhere but can't remember where or what I called it.
+Did I have something planned for making diary not care about the day number so much? Currently it should assume that $diary has a spot for each day.
 
-For diary I had to figure out a way to get stuff like "He saw my virgin pussy" that doesn't change later to be something like "She saw my penis" so I aded some vars so I could have it be $He+" saw my "+$genitals but this made me realize using temporary variables should work too.
+
 
 2020-01-22 07:41
 So dol, what did/do I need to do?
@@ -365,6 +384,33 @@ Arcade stuff also kind of needed more work.
   Hadn't looked at Kylar's events when added stuuf to arcade, stuff might need adjustments.
 Footbridge crossing event is weird if you get it when leaving a location, there probably should be a section for street events that can only happen actually moving from one street location to another. Does location get changed before the event is decided? If not just checking for town on the event might work.
 
+2020-06-07 01:43
+Writing in the diary shouldn't automatically remove the event log entries.
+Talking with harper could use bunch of variable checks to decide what topics you could bring up and then save that topic as talked about so that you can bring up multiple topics before the topics you can talk about are reset and become unavailable until you've experienced them again.
+Lastseenbynpc variable could also be useful for letting you talk about an npc though means being seen without knowing about it might be weird, maybe lastinteracted/lastmet var would be good too.
+
+2020-06-15 12:06
+For diary entry writing, unresolved trauma, rationalisations and such what do I need to do?
+  Make log entries have a written flag and have a separate object for summarized and curated entries that by default replace older log entries.
+    I already have a $log variable that I'm using sort of weirdly, should remove it so it can instead replace $diary for unwritten stuff.
+  Somehow handle giving trauma and telling player that they should write or talk about what has happened.
+  Figure out how log entries are turned into diary entries
+    Could keep things simple and just go through them 1 by 1 and do nothing but add a comment based on selected rationalisation.
+    Or could somehow ask the player to write their own diary entry that summarizes the events.
+      Possibly just check important log entries to keep and others just get combined into some misc. events entries.
+      With entry based checkboxes or such and combining based on them it'd be pretty easy to add an option to combine whatever events you want ie. replace bunch of entries with "I got raped 4 times while walking around"
+      Not sure if I want to bother with all that.
+  Rationalisation selection
+    assuming we go through traumatic log entries 1 by 1 then we just add a radiobutton or such for rationalisation.
+      should time/effort spent writing also be a thing?
+  Anything else? If I'm not doing the whole combine entries stuff this seems easier to do than I was expecting.
+    Right, figuring out what the traumatic entries are is a thing that needs to happen, not that hard to do.
+      That also means need a thing that goes through entries and tallies up how much unresolved trauma you have.
+Do I want the $log/$eventlog to also be split by days?
+  Maybe, it should make moving stuff to $diary simpler and can't really think of a reason not to besides having a simpler for loops and such(but would mean not simply copying the existing stuff I already have).
+  Maybe not, it shouldn't be too hard to just have day indicator and... actually how hard would it be to smash the stuff together in a temporary variable?
+Considering using $eventlog since while $log is nice and simple but there are bunch of variables that start with $log such as $logprep meaning to find ones that actually use $log you'd need some regex like \$log[^dgepbslcw] but I suppose that isn't actually that big of a deal.
+
 
 New changes and addittions:
 You can jump into ocean from the storm drain exit if you want to instead of requiring an event to do so, also hitting the water from so high can hurt.
@@ -392,3 +438,4 @@ Made pubic hair and shaving it care about hirsutedisable and wolf transformation
 Cleaned up <<covered>> code to be easier to understand and adjust.
 You can stick your penis into occupied pots.
 Can react to nudity and underwear exposure in more than 2 ways.
+  <<exposureeffect>>
