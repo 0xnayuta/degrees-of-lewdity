@@ -2,7 +2,7 @@
 <<widget "img">><<nobr>>
 <<set _filters to $skinColor.current>>
 <<set _img to setup.tanImg[$skinColor.tanImgEnabled].sidebar>>
-<div id="img" @class="colourContainerClasses() + ($imgLighten is true? ' imgLighten':'')">
+<div id="img" @class="limitedColourContainerClasses() + ($imgLighten is true? ' imgLighten':'')">
 	/*Prep for image checks*/
 	<<switch $breastsize>>
 		<<case 12>>
@@ -113,8 +113,8 @@
 		<<elseif _coverLeft is false>>
 			<img class="layer-base" @src="_img.leftarmidle" @style="'filter: '+_filters.body">
 			<<if !_disabled.includes($transformationParts.demon.wings)>>
-				<<if $exposed gte 2>>
-					<img class="layer-tailPenisCover anim-idle-2f" @src="'img/transformations/demon/flauntWings/'+$transformationParts.demon.wings+'.png'">
+				<<if $exposed gte 2 and $dontHide is false>>
+					<img class="layer-tailPenisCover anim-idle-2f" @src="'img/transformations/demon/flauntwings/'+$transformationParts.demon.wings+'.png'">
 				<<else>>
 					<img class="layer-backhair anim-idle-2f" @src="'img/transformations/demon/wings/'+$transformationParts.demon.wings+'.png'">
 				<</if>>
@@ -171,8 +171,8 @@
 		<<elseif _coverRight is false>>
 			<img class="layer-base" @src="_img.rightarmidle" @style="'filter: '+_filters.body">
 			<<if !_disabled.includes($transformationParts.demon.tail)>>
-				<<if $exposed gte 2>>
-					<img class="layer-tailPenisCover anim-idle-2f" @src="'img/transformations/demon/flauntTail/'+$transformationParts.demon.tail+'.png'">
+				<<if $exposed gte 2 and $dontHide is false>>
+					<img class="layer-tailPenisCover anim-idle-2f" @src="'img/transformations/demon/flaunttail/'+$transformationParts.demon.tail+'.png'">
 				<<else>>
 					<img class="layer-backhair anim-idle-2f" @src="'img/transformations/demon/tail/'+$transformationParts.demon.tail+'.png'">
 				<</if>>
@@ -352,13 +352,13 @@
 		<<case 1>><img class="layer-tears" src="img/body/cum/MouthCumDripStart.png">
 	<</switch>>
 	<<if !_disabled.includes($transformationParts.fallenAngel.halo)>>
-		<img class="layer-backhair anim-idle-2f" @src="'img/transformations/fallen/backBrokenHalo/'+$transformationParts.fallenAngel.halo+'.png'">
-		<img class="layer-parasite anim-idle-2f" @src="'img/transformations/fallen/frontBrokenHalo/'+$transformationParts.fallenAngel.halo+'.png'">
+		<img class="layer-backhair anim-idle-2f" @src="'img/transformations/fallen/backbrokenhalo/'+$transformationParts.fallenAngel.halo+'.png'">
+		<img class="layer-parasite anim-idle-2f" @src="'img/transformations/fallen/frontbrokenhalo/'+$transformationParts.fallenAngel.halo+'.png'">
 	<</if>>
 
 	<<if !_disabled.includes($transformationParts.angel.halo)>>
-		<img class="layer-backhair anim-idle-2f" @src="'img/transformations/angel/backHalo/'+$transformationParts.angel.halo+'.png'">
-		<img class="layer-parasite anim-idle-2f" @src="'img/transformations/angel/frontHalo/'+$transformationParts.angel.halo+'.png'">
+		<img class="layer-backhair anim-idle-2f" @src="'img/transformations/angel/backhalo/'+$transformationParts.angel.halo+'.png'">
+		<img class="layer-parasite anim-idle-2f" @src="'img/transformations/angel/fronthalo/'+$transformationParts.angel.halo+'.png'">
 	<</if>>
 
 	<<if !_disabled.includes($transformationParts.wolf.tail)>>
@@ -378,7 +378,7 @@
 	<</if>>
 
 	<<if !_disabled.includes($transformationParts.wolf.pubes)>>
-		<img class="layer-hirsute colour-hair anim-idle-2f" @src="'img/transformations/hirsute/pits/'+$transformationParts.wolf.pubes+'.png'">
+		<img class="layer-hirsute colour-hair anim-idle-2f" @src="'img/transformations/hirsute/pubes/'+$transformationParts.wolf.pubes+'.png'">
 	<</if>>
 
 	<<if !_disabled.includes($transformationParts.cat.ears)>>
@@ -389,7 +389,7 @@
 		<img class="layer-neck anim-idle-2f" @src="'img/transformations/demon/horns/'+$transformationParts.demon.horns+'.png'">
 		/*<img class="layer-face colour-hair anim-idle-2f" src="img/transformations/demon/hair_overlay.png">*/
 	<</if>>
-	
+
 	<<if !_disabled.includes($transformationParts.cow.horns)>>
 		<img class="layer-neck anim-idle-2f" @src="'img/transformations/cow/horns/'+$transformationParts.cow.horns+'.png'">
 	<</if>>
@@ -428,7 +428,6 @@
 		<img class="layer-brow colour-hair" src="img/hair/red/browtopred.png">
 	<</if>>
 
-	<<imgOpacity>>
 	<<upperimg>>
 	<<overupperimg>>
 	<<genitalsimg>>
@@ -436,12 +435,12 @@
 	<<overlowerimg>>
 	<<underlowerimg>>
 	<<underupperimg>>
-	<<headimg>>
-	<<overheadimg>>
-	<<faceimg>>
-	<<neckimg>>
-	<<legsimg>>
-	<<feetimg>>
+	<<baseClothingImg "head">>
+	<<baseClothingImg "over_head">>
+	<<baseClothingImg "face">>
+	<<baseClothingImg "neck">>
+	<<baseClothingImg "legs">>
+	<<baseClothingImg "feet">>
 
 	<!-- P image insert here - This is not compatible with female pdmod, requires additional editing - add new layer in base.css-->
 	<<if _penisSize isnot undefined>>
@@ -521,10 +520,8 @@
 	<</if>>
 <</if>>
 
-<<if $worn.lower.name is "bikini bottoms">>
-	<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed"
-	@src="'img/sex/doggy/active/bikinibottom/doggyactive_bikinibottom_' + $worn.lower.state + '.png'">
-<<elseif !$worn.lower.type.includes("naked") and $worn.upper.set isnot $worn.lower.set>>
+
+<<if !$worn.lower.type.includes("naked") and $worn.upper.set isnot $worn.lower.set>>
 	<<if $worn.lower.skirt is 1 and $worn.lower.skirt_down is 0 and $worn.lower.state is "waist">>
 		<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/skirt/doggyactive_skirt_waist.png" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
 	<<elseif $worn.lower.skirt is 1 and $worn.lower.state is "waist">>
@@ -546,7 +543,9 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_lower.type.includes("naked")>>
+<<if $worn.under_lower.name is "bikini bottoms">>
+	<img @class="'layer-sexunder colour-under_lower anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/bikinibottom/doggyactive_bikinibottom_' + $worn.under_lower.state + '.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
+<<elseif !$worn.under_lower.type.includes("naked")>>
 	<<if $worn.under_lower.state is "waist">>
 		<img @class="'layer-sexunder colour-under_lower anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/plainpanties/doggyactive_plainpanties_hips.png" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
 	<<elseif $worn.under_lower.state is "thighs">>
@@ -558,15 +557,9 @@
 	<</if>>
 <</if>>
 
-<<if $worn.upper.name is "bikini top">>
 
-	<<if $worn.upper.state isnot "chest" and $worn.upper.state isnot "midriff">>
-		<img @class="'layer-sexunder colour-upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img @class="'layer-sexunder colour-upper anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.upper.state+'.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<</if>>
 
-<<elseif $worn.upper.name is "tank top" and $tanktoptest is 1>>
+<<if $worn.upper.name is "tank top" and $tanktoptest is 1>>
 	<<if $leftarm isnot "bound" and $leftarm isnot "grappled">>
 		<<if $worn.upper.state is "waist">>
 			<img @class="'layer-sexunder colour-upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/tanktop/doggyactive_tanktop_waist.png" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
@@ -599,6 +592,35 @@
 	<</if>>
 <</if>>
 
+
+<<if $worn.under_upper.name is "bikini top">>
+	<<if $worn.under_upper.state isnot "chest" and $worn.under_upper.state isnot "midriff">>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _upperOpacity : '')">
+	<<else>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.under_upper.state+'.png'" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>
+<<elseif $worn.under_upper.name is "chest wrap">>
+	<<if $worn.under_upper.exposed is 0>>
+		<<if $breastsize is 0>>
+			<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/chestwrap/none.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize is 1 or $breastsize is 2>>
+			<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/chestwrap/tiny.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize is 3 or $breastsize is 4>>
+			<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/chestwrap/small.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize gte 5 and $breastsize lte 7>>
+			<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/chestwrap/large.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize gte 8 and $breastsize lte 12>>
+			<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/chestwrap/huge.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<</if>>
+	<</if>>
+<<elseif !$worn.under_upper.type.includes("naked")>>
+	<<if $worn.under_upper.state isnot "chest" and $worn.under_upper.state isnot "midriff">>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _upperOpacity : '')">
+	<<else>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.under_upper.state+'.png'" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>	
+<</if>>
+
 <<if $worn.face.type.includes("gag")>>
 <img @class="'layer-sexunder anim-doggy-4f-'+_animspeed" src="img/sex/doggy/active/gag/full.png" @style="$worn.face.colourCustom">
 <</if>>
@@ -617,15 +639,15 @@
 	<<if $worn.feet.accessory_colour>>
 		<<set _shoeAccColour to $worn.feet.accessory_colourCustom>>
 	<</if>>
-	<img @class="'layer-sexunder colour-feet anim-doggy-4f-'+_animspeed" @src="('img/sex/doggy/active/shoes/'
-	+ $worn.feet.variable + '/' + _feetjob + '.png')" @style="_shoeColour">
+	<img @class="'layer-sexunder colour-feet anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/shoes/'
+	+ $worn.feet.variable + '/' + _feetjob + '.png'" @style="_shoeColour">
 	<<if $worn.feet.accessory>>
 		<<if $worn.feet.accessory_colour isnot 0>>
-			<img @class="'layer-sexshoes colour-feet_acc anim-doggy-4f-'+_animspeed" @src="('img/sex/doggy/active/shoes/'
-			+ $worn.feet.variable + '/' + _feetjob + 'acc.png')" @style="_shoeColour">
+			<img @class="'layer-sexshoes colour-feet_acc anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/shoes/'
+			+ $worn.feet.variable + '/' + _feetjob + 'acc.png'" @style="_shoeColour">
 		<<else>>
-			<img @class="'layer-sexshoes anim-doggy-4f-'+_animspeed" @src="('img/sex/doggy/active/shoes/'
-			+ $worn.feet.variable + '/' + _feetjob + 'acc.png')">
+			<img @class="'layer-sexshoes anim-doggy-4f-'+_animspeed" @src="'img/sex/doggy/active/shoes/'
+			+ $worn.feet.variable + '/' + _feetjob + 'acc.png'">
 		<</if>>
 	<</if>>
 <</if>>
@@ -651,12 +673,8 @@
 	<</if>>
 <</if>>
 
-<<if $worn.lower.name is "bikini bottoms">>
 
-<img class="layer-sexlower colour-lower anim-idle-2f"
-	@src="'img/sex/doggy/active/bikinibottom/doggyactive_bikinibottom_' + $worn.lower.state + '.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-
-<<elseif $worn.lower.name is "towel skirt">>
+<<if $worn.lower.name is "towel skirt">>
 	<<if $worn.lower.skirt is 1 and $worn.lower.skirt_down is 0 and $worn.lower.state is "waist">>
 		<img class="layer-sexlower colour-lower anim-idle-2f"
 		@src="'img/sex/doggy/active/lowertowel/doggyactive_towel_skirtup.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
@@ -707,7 +725,10 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_lower.type.includes("naked")>>
+<<if $worn.under_lower.name is "bikini bottoms">>
+	<img class="layer-sexunder colour-under_lower anim-idle-2f"
+	@src="'img/sex/doggy/active/bikinibottom/doggyactive_bikinibottom_' + $worn.under_lower.state + '.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
+<<elseif !$worn.under_lower.type.includes("naked")>>
 	<<if $worn.under_lower.state is "waist">>
 		<img class="layer-sexunder colour-under_lower anim-idle-2f" src="img/sex/doggy/active/plainpanties/doggyactive_plainpanties_hips.png" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
 	<<elseif $worn.under_lower.state is "thighs">>
@@ -719,15 +740,9 @@
 	<</if>>
 <</if>>
 
-<<if $worn.upper.name is "bikini top">>
 
-	<<if $worn.upper.state isnot "chest" and $worn.upper.state isnot "midriff">>
-		<img class="layer-sexunder colour-upper anim-idle-2f" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-sexunder colour-upper anim-idle-2f" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.upper.state+'.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<</if>>
 
-<<elseif $worn.upper.name is "towel top">>
+<<if $worn.upper.name is "towel top">>
 	<<if $leftarm isnot "bound" and $leftarm isnot "grappled">>
 		<<if $worn.upper.state is "waist">>
 			<img class="layer-sexunder colour-upper anim-idle-2f" src="img/sex/doggy/active/uppertowel/doggyactive_towel_waist.png" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
@@ -795,6 +810,34 @@
 	<</if>>
 <</if>>
 
+<<if $worn.under_upper.name is "bikini top">>
+	<<if $worn.under_upper.state isnot "chest" and $worn.under_upper.state isnot "midriff">>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<else>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.under_upper.state+'.png'" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>
+<<elseif $worn.under_upper.name is "chest wrap">>
+	<<if $worn.under_upper.exposed is 0>>
+		<<if $breastsize is 0>>
+			<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/chestwrap/none.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize is 1 or $breastsize is 2>>
+			<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/chestwrap/tiny.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize is 3 or $breastsize is 4>>
+			<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/chestwrap/small.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize gte 5 and $breastsize lte 7>>
+			<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/chestwrap/large.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<elseif $breastsize gte 8 and $breastsize lte 12>>
+			<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/chestwrap/huge.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<</if>>
+	<</if>>
+<<elseif !$worn.under_upper.type.includes("naked")>>
+	<<if $worn.under_upper.state isnot "chest" and $worn.under_upper.state isnot "midriff">>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/doggy/active/bikinitop/doggyactive_bikinitop_thorax.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<else>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" @src="'img/sex/doggy/active/bikinitop/doggyactive_bikinitop_'+$worn.under_upper.state+'.png'" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>
+<</if>>
+
 <<if $worn.face.type.includes("gag")>>
 	<img class="layer-sexunder colour-upper anim-idle-2f" src="img/sex/doggy/active/gag/full.png" @style="$worn.face.colourCustom">
 <</if>>
@@ -813,15 +856,15 @@
 	<<if $worn.feet.accessory_colour>>
 		<<set _shoeAccColour to $worn.feet.accessory_colourCustom>>
 	<</if>>
-	<img class="layer-sexunder colour-feet anim-idle-2f" @src="('img/sex/doggy/active/shoes/'
-	+ $worn.feet.variable + '/' + _feetjob + '.png')" @style="_shoeColour">
+	<img class="layer-sexunder colour-feet anim-idle-2f" @src="'img/sex/doggy/active/shoes/'
+	+ $worn.feet.variable + '/' + _feetjob + '.png'" @style="_shoeColour">
 	<<if $worn.feet.accessory>>
 		<<if $worn.feet.accessory_colour isnot 0>>
-			<img class="layer-sexshoes colour-feet_acc anim-idle-2f" @src="('img/sex/doggy/active/shoes/'
-			+ $worn.feet.variable + '/' + _feetjob + 'acc.png')" @style="_shoeColour">
+			<img class="layer-sexshoes colour-feet_acc anim-idle-2f" @src="'img/sex/doggy/active/shoes/'
+			+ $worn.feet.variable + '/' + _feetjob + 'acc.png'" @style="_shoeColour">
 		<<else>>
-			<img class="layer-sexshoes anim-idle-2f" @src="('img/sex/doggy/active/shoes/'
-			+ $worn.feet.variable + '/' + _feetjob + 'acc.png')">
+			<img class="layer-sexshoes anim-idle-2f" @src="'img/sex/doggy/active/shoes/'
+			+ $worn.feet.variable + '/' + _feetjob + 'acc.png'">
 		<</if>>
 	<</if>>
 <</if>>
@@ -848,7 +891,7 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_upper.type.includes("naked")>>
+<<if !$worn.under_upper.type.includes("naked") and $worn.under_upper.name isnot "chest wrap">>
 	<<if $breastsize is 0>>
 	<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/idle/breastcover/none.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
 	<<elseif $breastsize lte 2>>
@@ -1003,8 +1046,20 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_upper.type.includes("naked")>>
-<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/idle/bra/bra.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+<<if $worn.under_upper.name is "chest wrap" and $worn.under_upper.exposed is 0>>
+	<<if $breastsize is 0>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/active/chestwrap/none.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize is 1 or $breastsize is 2>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/active/chestwrap/tiny.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize is 3 or $breastsize is 4>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/active/chestwrap/small.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize gte 5 and $breastsize lte 7>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/active/chestwrap/large.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize gte 8 and $breastsize lte 12>>
+		<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/active/chestwrap/huge.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>
+<<elseif !$worn.under_upper.type.includes("naked") and $worn.under_upper.exposed isnot 0>>
+	<img class="layer-sexunder colour-under_upper anim-idle-2f" src="img/sex/missionary/idle/bra/bra.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
 <</if>>
 
 <<if $worn.face.type.includes("gag")>>
@@ -1026,21 +1081,21 @@
 	<<if $worn.feet.accessory_colour>>
 		<<set _shoeAccColour to $worn.feet.accessory_colourCustom>>
 	<</if>>
-	<img class="layer-sexbaseoverlay colour-feet" @src="('img/sex/missionary/active/shoes/'
-	+ $worn.feet.variable + '/' + _legl + '.png')" @style="_shoeColour">
-	<img class="layer-sexunder colour-feet" @src="('img/sex/missionary/active/shoes/'
-	+ $worn.feet.variable + '/' + _legr + '.png')" @style="_shoeColour">
+	<img class="layer-sexbaseoverlay colour-feet" @src="'img/sex/missionary/active/shoes/'
+	+ $worn.feet.variable + '/' + _legl + '.png'" @style="_shoeColour">
+	<img class="layer-sexunder colour-feet" @src="'img/sex/missionary/active/shoes/'
+	+ $worn.feet.variable + '/' + _legr + '.png'" @style="_shoeColour">
 	<<if $worn.feet.accessory>>
 		<<if $worn.feet.accessory_colour isnot 0>>
-			<img class="layer-sexbaseoverlay colour-feet_acc" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legl + 'acc.png')" @style="_shoeAccColour">
-			<img class="layer-sexshoes colour-feet_acc" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legr + 'acc.png')" @style="_shoeAccColour">
+			<img class="layer-sexbaseoverlay colour-feet_acc" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legl + 'acc.png'" @style="_shoeAccColour">
+			<img class="layer-sexshoes colour-feet_acc" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legr + 'acc.png'" @style="_shoeAccColour">
 		<<else>>
-			<img class="layer-sexbaseoverlay @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legl + 'acc.png')">
-			<img class="layer-sexshoes @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legr + 'acc.png')">
+			<img class="layer-sexbaseoverlay @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legl + 'acc.png'">
+			<img class="layer-sexshoes @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legr + 'acc.png'">
 		<</if>>
 	<</if>>
 <</if>>
@@ -1066,7 +1121,7 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_upper.type.includes("naked")>>
+<<if !$worn.under_upper.type.includes("naked") and $worn.under_upper.name isnot "chest wrap">>
 	<<if $breastsize is 0>>
 	<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/breastcover/none.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
 	<<elseif $breastsize lte 2>>
@@ -1140,7 +1195,11 @@
 	<</if>>
 <<elseif !$worn.lower.type.includes("naked") and $worn.upper.set isnot $worn.lower.set>>
 	<<if $worn.lower.state is "waist">>
-	<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/shorts/waist.png" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
+		<<if $penisuse is "othervagina" or $penisuse is "otheranus">>
+			<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/shorts/waistdown.png" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
+		<<else>>
+			<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/shorts/waist.png" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
+		<</if>>
 	<<else>>
 		<<if $penisuse is "othervagina" or $penisuse is "otheranus">>
 		<img @class="'layer-sexlower colour-lower anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/shorts/ankledown.png" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
@@ -1166,8 +1225,21 @@
 	<</if>>
 <</if>>
 
-<<if !$worn.under_upper.type.includes("naked")>>
-<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/bra/bra.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+
+<<if $worn.under_upper.name is "chest wrap" and $worn.under_upper.exposed is 0>>
+	<<if $breastsize is 0>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/chestwrap/none.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize is 1 or $breastsize is 2>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/chestwrap/tiny.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize is 3 or $breastsize is 4>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/chestwrap/small.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize gte 5 and $breastsize lte 7>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/chestwrap/large.png" @style="($worn.under_upper.colour is 'custom' ? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<elseif $breastsize gte 8 and $breastsize lte 12>>
+		<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/chestwrap/huge.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<</if>>
+<<elseif !$worn.under_upper.type.includes("naked")>>
+	<img @class="'layer-sexunder colour-under_upper anim-doggy-4f-'+_animspeed" src="img/sex/missionary/active/bra/bra.png" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
 <</if>>
 
 <<if $worn.face.type.includes("gag")>>
@@ -1194,21 +1266,21 @@
 	<<if $worn.feet.accessory_colour>>
 		<<set _shoeAccColour to $worn.feet.accessory_colourCustom>>
 	<</if>>
-	<img @class="'layer-sexbaseoverlay colour-feet anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-	+ $worn.feet.variable + '/' + _legl + '.png')" @style="_shoeColour">
-	<img @class="'layer-sexunder colour-feet anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-	+ $worn.feet.variable + '/' + _legr + '.png')" @style="_shoeColour">
+	<img @class="'layer-sexbaseoverlay colour-feet anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+	+ $worn.feet.variable + '/' + _legl + '.png'" @style="_shoeColour">
+	<img @class="'layer-sexunder colour-feet anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+	+ $worn.feet.variable + '/' + _legr + '.png'" @style="_shoeColour">
 	<<if $worn.feet.accessory>>
 		<<if $worn.feet.accessory_colour isnot 0>>
-			<img @class="'layer-sexbaseoverlay colour-feet_acc anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legl + 'acc.png')" @style="_shoeAccColour">
-			<img @class="'layer-sexshoes colour-feet_acc anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legr + 'acc.png')" @style="_shoeAccColour">
+			<img @class="'layer-sexbaseoverlay colour-feet_acc anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legl + 'acc.png'" @style="_shoeAccColour">
+			<img @class="'layer-sexshoes colour-feet_acc anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legr + 'acc.png'" @style="_shoeAccColour">
 		<<else>>
-			<img @class="'layer-sexbaseoverlay anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legl + 'acc.png')">
-			<img @class="'layer-sexshoes anim-doggy-4f-'+_animspeed" @src="('img/sex/missionary/active/shoes/'
-			+ $worn.feet.variable + '/' + _legr + 'acc.png')">
+			<img @class="'layer-sexbaseoverlay anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legl + 'acc.png'">
+			<img @class="'layer-sexshoes anim-doggy-4f-'+_animspeed" @src="'img/sex/missionary/active/shoes/'
+			+ $worn.feet.variable + '/' + _legr + 'acc.png'">
 		<</if>>
 	<</if>>
 <</if>>
@@ -1219,366 +1291,310 @@
 
 :: Widgets Clothes Img [widget]
 
-<<widget "headimg">><<nobr>>
-<<if $worn.head.mainImage isnot 0>>
-	<<if $worn.head.colour isnot 0>>
-	<img class="layer-head colour-head anim-idle-2f" @src="'img/clothes/head/' + $worn.head.variable + '/' + 'full.png'" @style="$worn.head.colourCustom">
-	<<else>>
-	<img class="layer-head anim-idle-2f" @src="'img/clothes/head/' + $worn.head.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.head.accessory is 1>>
-	<<if $worn.head.accessory_colour isnot 0>>
-	<img class="layer-head colour-head_acc anim-idle-2f" @src="'img/clothes/head/' + $worn.head.variable + '/' + 'acc.png'" @style="$worn.head.accessory_colourCustom">
-	<<else>>
-	<img class="layer-head anim-idle-2f" @src="'img/clothes/head/' + $worn.head.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<<if $worn.head.back_img is 1>>
-<img class="layer-head-back colour-head_acc anim-idle-2f" @src="'img/clothes/head/' + $worn.head.variable + '/' + 'back.png'">
-<</if>>
+<<widget "baseClothingStrings">><<nobr>>
+<<set _class to 'anim-idle-2f' + ($worn[$args[0]].colour ? ' clothes-'+$worn[$args[0]].colour:'')>>
+<<set _classAcc to 'anim-idle-2f ' + ($worn[$args[0]].accessory_colour ? ' clothes-'+$worn[$args[0]].accessory_colour :'')>>
+<<set _style to ($worn[$args[0]].colourCustom ? $worn[$args[0]].colourCustom :'')>>
+<<set _styleAcc to ($worn[$args[0]].accessory_colourCustom ? $worn[$args[0]].accessory_colourCustom :'')>>
 <</nobr>><</widget>>
 
-<<widget "overheadimg">><<nobr>>
-<<if $worn.over_head.mainImage isnot 0>>
-	<<if $worn.over_head.colour isnot 0>>
-	<img class="layer-over_head colour-over_head anim-idle-2f" @src="'img/clothes/over_head/' + $worn.over_head.variable + '/' + 'full.png'" @style="$worn.over_head.colourCustom">
-	<<else>>
-	<img class="layer-over_head anim-idle-2f" @src="'img/clothes/over_head/' + $worn.over_head.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.over_head.accessory is 1>>
-	<<if $worn.over_head.accessory_colour isnot 0>>
-	<img class="layer-over_head colour-over_head_acc anim-idle-2f" @src="'img/clothes/over_head/' + $worn.over_head.variable + '/' + 'acc.png'" @style="$worn.over_head.accessory_colourCustom">
-	<<else>>
-	<img class="layer-over_head anim-idle-2f" @src="'img/clothes/over_head/' + $worn.over_head.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<<if $worn.over_head.back_img is 1>>
-<img class="layer-over_head-back colour-over_head_acc anim-idle-2f" @src="'img/clothes/over_head/' + $worn.over_head.variable + '/' + 'back.png'">
-<</if>>
-<</nobr>><</widget>>
-
-<<widget "faceimg">><<nobr>>
-<<if $worn.face.mainImage isnot 0>>
-	<<if $worn.face.colour isnot 0>>
-	<img class="layer-face colour-face anim-idle-2f" @src="'img/clothes/face/' + $worn.face.variable + '/' + 'full.png'" @style="$worn.face.colourCustom">
-	<<else>>
-	<img class="layer-face anim-idle-2f" @src="'img/clothes/face/' + $worn.face.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.face.accessory is 1>>
-	<<if $worn.face.accessory_colour isnot 0>>
-	<img class="layer-face colour-face_acc anim-idle-2f" @src="'img/clothes/face/' + $worn.face.variable + '/' + 'acc.png'" @style="$worn.face.accessory_colourCustom">
-	<<else>>
-	<img class="layer-face anim-idle-2f" @src="'img/clothes/face/' + $worn.face.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<</nobr>><</widget>>
-
-<<widget "neckimg">><<nobr>>
-<<if $worn.neck.mainImage isnot 0>>
-	<<if $worn.neck.colour isnot 0>>
-	<img class="layer-neck colour-neck anim-idle-2f" @src="'img/clothes/neck/' + $worn.neck.variable + '/' + 'full.png'" @style="$worn.neck.colourCustom">
-	<<else>>
-	<img class="layer-neck anim-idle-2f" @src="'img/clothes/neck/' + $worn.neck.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.neck.accessory is 1>>
-	<<if $worn.neck.accessory_colour isnot 0>>
-	<img class="layer-neck colour-neck_acc anim-idle-2f" @src="'img/clothes/neck/' + $worn.neck.variable + '/' + 'acc.png'" @style="$worn.neck.accessory_colourCustom">
-	<<else>>
-	<img class="layer-neck anim-idle-2f" @src="'img/clothes/neck/' + $worn.neck.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<</nobr>><</widget>>
-
-<<widget "legsimg">><<nobr>>
-<<if $worn.legs.mainImage isnot 0>>
-	<<if $worn.legs.colour isnot 0>>
-	<img class="layer-legs colour-legs anim-idle-2f" @src="'img/clothes/legs/' + $worn.legs.variable + '/' + 'full.png'" @style="$worn.legs.colourCustom">
-	<<else>>
-	<img class="layer-legs anim-idle-2f" @src="'img/clothes/legs/' + $worn.legs.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.legs.accessory is 1>>
-	<<if $worn.legs.accessory_colour isnot 0>>
-	<img class="layer-legs colour-legs_acc anim-idle-2f" @src="'img/clothes/legs/' + $worn.legs.variable + '/' + 'acc.png'" @style="$worn.legs.accessory_colourCustom">
-	<<else>>
-	<img class="layer-legs anim-idle-2f" @src="'img/clothes/legs/' + $worn.legs.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<</nobr>><</widget>>
-
-<<widget "feetimg">><<nobr>>
-<<if $worn.feet.mainImage isnot 0>>
-	<<if $worn.feet.colour isnot 0>>
-	<img class="layer-feet colour-feet anim-idle-2f" @src="'img/clothes/feet/' + $worn.feet.variable + '/' + 'full.png'" @style="$worn.feet.colourCustom">
-	<<else>>
-	<img class="layer-feet anim-idle-2f" @src="'img/clothes/feet/' + $worn.feet.variable + '/' + 'full.png'">
-	<</if>>
-<</if>>
-<<if $worn.feet.accessory is 1>>
-	<<if $worn.feet.accessory_colour isnot 0>>
-	<img class="layer-feet colour-feet_acc anim-idle-2f" @src="'img/clothes/feet/' + $worn.feet.variable + '/' + 'acc.png'" @style="$worn.feet.accessory_colourCustom">
-	<<else>>
-	<img class="layer-feet anim-idle-2f" @src="'img/clothes/feet/' + $worn.feet.variable + '/' + 'acc.png'">
+<<widget "baseClothingImg">><<nobr>>
+<<if $worn[$args[0]].name isnot "naked">>
+	<<baseClothingStrings $args[0]>>
+	<div @class="'clothes-div layer-'+$args[0]">
+		<<if $worn[$args[0]].mainImage isnot 0>>
+			<img @class="_class" @src="'img/clothes/'+[$args[0]]+'/' + $worn[$args[0]].variable + '/' + 'full.png'" @style="_style">
+		<</if>>
+		<<if $worn[$args[0]].accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/'+[$args[0]]+'/' + $worn[$args[0]].variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if $worn[$args[0]].back_img is 1>>
+		<div @class="'clothes-div layer-'+$args[0]+'-back'">
+			<img @class="_classAcc" @src="'img/clothes/'+[$args[0]]+'/' + $worn[$args[0]].variable + '/' + 'back.png'" @style="_styleAcc">
+		</div>
 	<</if>>
 <</if>>
 <</nobr>><</widget>>
 
 <<widget "underupperimg">><<nobr>>
+<<if $worn.under_upper.name isnot "naked">>
+	<<baseClothingStrings "under_upper">>
+	<<switch $underupperwetstage>>
+		<<case 1>><<set _underUpperWetness to " clothes-damp">>
+		<<case 2>><<set _underUpperWetness to " clothes-wet">>
+		<<case 3>><<set _underUpperWetness to " clothes-drenshed">>
+		<<default>><<set _underUpperWetness to "">>
+	<</switch>>
 
-<<if $worn.under_upper.mainImage isnot 0>>
 	<<if $worn.under_upper.integrity lte ($worn.under_upper.integrity_max / 10) * 2>>
-		<img class="layer-under_upper colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'tattered.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<set _imgName to "tattered">>
 	<<elseif $worn.under_upper.integrity lte ($worn.under_upper.integrity_max / 10) * 5>>
-		<img class="layer-under_upper colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'torn.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<set _imgName to "torn">>
 	<<elseif $worn.under_upper.integrity lte ($worn.under_upper.integrity_max / 10) * 9>>
-		<img class="layer-under_upper colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'frayed.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<set _imgName to "frayed">>
 	<<else>>
-		<img class="layer-under_upper colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'full.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+		<<set _imgName to "full">>
 	<</if>>
-<</if>>
-<<if $worn.under_upper.breast_img is 1>>
-	<img class="layer-under_upper colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + (_breastSize - 1) + '.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
-<</if>>
-<<if $worn.under_upper.accessory is 1>>
-	<<if $worn.under_upper.accessory_colour isnot 0>>
-		<img class="layer-under_upper colour-under_upper_acc anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'acc.png'" @style="($worn.under_upper.accessory_colour is 'custom' ? $worn.under_upper.accessory_colourCustom + _underUpperOpacity : '')">
-	<<else>>
-		<img class="layer-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'acc.png'">
+	<div @class="'clothes-div layer-under_upper' + _underUpperWetness">
+		<<if $worn.under_upper.mainImage isnot 0>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + _imgName + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.under_upper.breast_img is 1>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + (_breastSize - 1) + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.under_upper.accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'acc.png'" @style="_styleAcc">
+			<<if $worn.under_upper.breast_img is 1>>
+				<img @class="_classAcc" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + (_breastSize - 1) + '_acc.png'" @style="_styleAcc">
+			<</if>>
+		<</if>>
+	</div>
+	<<if _coverRight isnot undefined and $worn.under_upper.sleeve_img is 1>>
+		<div @class="'clothes-div layer-rightarmunderclothes' + _underUpperWetness">
+		<<if _coverRight is true>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'right_cover.png'" @style="_style">
+		<<else>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'right.png'" @style="_style">
+		<</if>>
+		</div>
 	<</if>>
-<</if>>
-<<if $worn.under_upper.breast_img is 1 and $worn.under_upper.accessory is 1>>
-	<<if $worn.under_upper.accessory_colour isnot 0>>
-		<img class="layer-under_upper colour-under_upper_acc anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + (_breastSize - 1) + '_acc.png'" @style="($worn.under_upper.accessory_colour is 'custom' ? $worn.under_upper.accessory_colourCustom + _underUpperOpacity : '')">
-	<<else>>
-		<img class="layer-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + (_breastSize - 1) + '_acc.png'">
-	<</if>>
-<</if>>
-<<if _coverRight isnot undefined and $worn.under_upper.sleeve_img is 1>>
-	<<if _coverRight is true>>
-		<img class="layer-rightarmunderclothes colour-under_upper anim-idle-1f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'right_cover.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
-	<<else>>
-		<img class="layer-rightarmunderclothes colour-under_upper anim-idle-1f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'right.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
-	<</if>>
-<</if>>
-<<if _coverLeft isnot undefined and $worn.under_upper.sleeve_img is 1>>
-	<<if _coverLeft is true>>
-		<img class="layer-leftarmunderclothes colour-under_upper anim-idle-2f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'left_cover.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
-	<<else>>
-		<img class="layer-leftarmunderclothes colour-under_upper anim-idle-1f" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'left.png'" @style="($worn.under_upper.colour is 'custom'? $worn.under_upper.colourCustom + _underUpperOpacity : '')">
+	<<if _coverLeft isnot undefined and $worn.under_upper.sleeve_img is 1>>
+		<div @class="'clothes-div layer-leftarmunderclothes' + _underUpperWetness">
+		<<if _coverLeft is true>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'left_cover.png'" @style="_style">
+		<<else>>
+			<img @class="_class" @src="'img/clothes/under_upper/' + $worn.under_upper.variable + '/' + 'left.png'" @style="_style">
+		<</if>>
+		</div>
 	<</if>>
 <</if>>
 
 <</nobr>><</widget>>
 
 <<widget "underlowerimg">><<nobr>>
+<<if $worn.under_lower.name isnot "naked">>
+	<<baseClothingStrings "under_lower">>
+	<<switch $underlowerwetstage>>
+		<<case 1>><<set _underlowerWetness to " clothes-damp">>
+		<<case 2>><<set _underlowerWetness to " clothes-wet">>
+		<<case 3>><<set _underlowerWetness to " clothes-drenshed">>
+		<<default>><<set _underlowerWetness to "">>
+	<</switch>>
 
-<<if $worn.under_lower.mainImage isnot 0>>
-	<<if $worn.under_lower.high_img is 1>>
-		<<if $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 2>>
-			<img class="layer-under_lower-high colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'tattered.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 5>>
-			<img class="layer-under_lower-high colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'torn.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 9>>
-			<img class="layer-under_lower-high colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'frayed.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<else>>
-			<img class="layer-under_lower-high colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'full.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<</if>>
+	<<if $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 2>>
+		<<set _imgName to "tattered">>
+	<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 5>>
+		<<set _imgName to "torn">>
+	<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 9>>
+		<<set _imgName to "frayed">>
 	<<else>>
-		<<if $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 2>>
-			<img class="layer-under_lower colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'tattered.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 5>>
-			<img class="layer-under_lower colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'torn.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<elseif $worn.under_lower.integrity lte ($worn.under_lower.integrity_max / 10) * 9>>
-			<img class="layer-under_lower colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'frayed.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
-		<<else>>
-			<img class="layer-under_lower colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'full.png'" @style="($worn.under_lower.colour is 'custom'? $worn.under_lower.colourCustom + _underLowerOpacity : '')">
+		<<set _imgName to "full">>
+	<</if>>
+	<<if $worn.under_lower.mainImage isnot 0 and $worn.under_lower.high_img is 1>>
+		<div @class="'clothes-div layer-under_lower-high' + _underlowerWetness">
+			<img @class="_class" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + _imgName + '.png'" @style="_style">
+		</div>
+	<</if>>
+	<div @class="'clothes-div layer-under_lower' + _underlowerWetness">
+		<<if $worn.under_lower.mainImage isnot 0 and $worn.under_lower.high_img isnot 1>>
+			<img @class="_class" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + _imgName + '.png'" @style="_style">
 		<</if>>
+		<<if $worn.under_lower.accessory is 1>>
+			<img  @class="_classAcc" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if $worn.under_lower.penis_img is 1 and $penisexist is 1>>
+		<div @class="'clothes-div layer-under_lower-top' + _underlowerWetness">
+			<img @class="_class" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'penis.png'" @style="_style">
+			<<if $worn.under_lower.accessory is 1>>
+				<img @class="_classAcc" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc_penis.png'" @style="_styleAcc">
+			<</if>>
+		</div>
 	<</if>>
 <</if>>
-
-<<if $worn.under_lower.penis_img is 1 and $penisexist is 1>>
-	<img class="layer-under_lower-top colour-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'penis.png'">
-<</if>>
-<<if $worn.under_lower.accessory is 1>>
-	<<if $worn.under_lower.accessory_colour isnot 0>>
-		<<if $worn.under_lower.penis_img is 1 and $penisexist is 1>>
-			<img class="layer-under_lower-top colour-under_lower_acc anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc_penis.png'" @style="($worn.under_lower.accessory_colour is 'custom' ? $worn.under_lower.accessory_colourCustom + _underLowerOpacity : '')">
-		<</if>>
-			<img class="layer-under_lower colour-under_lower_acc anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc.png'" @style="($worn.under_lower.accessory_colour is 'custom' ? $worn.under_lower.accessory_colourCustom + _underLowerOpacity : '')">
-	<<else>>
-		<<if $worn.under_lower.penis_img is 1 and $penisexist is 1>>
-			<img class="layer-under_lower-top anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc_penis.png'">
-		<</if>>
-			<img class="layer-under_lower anim-idle-2f" @src="'img/clothes/under_lower/' + $worn.under_lower.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-
 <</nobr>><</widget>>
 
 <<widget "lowerimg">><<nobr>>
+<<if $worn.lower.name isnot "naked">>
+	<<baseClothingStrings "lower">>
+	<<switch $lowerwetstage>>
+		<<case 1>><<set _lowerWetness to " clothes-damp">>
+		<<case 2>><<set _lowerWetness to " clothes-wet">>
+		<<case 3>><<set _lowerWetness to " clothes-drenshed">>
+		<<default>><<set _lowerWetness to "">>
+	<</switch>>
 
-<<if $worn.lower.mainImage isnot 0>>
-	<<if $worn.lower.high_img is 1>>
-		<<if $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 2>>
-			<img class="layer-lower-high colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'tattered.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 5>>
-			<img class="layer-lower-high colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'torn.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 9>>
-			<img class="layer-lower-high colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'frayed.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<else>>
-			<img class="layer-lower-high colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'full.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<</if>>
+	<<if $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 2>>
+		<<set _imgName to "tattered">>
+	<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 5>>
+		<<set _imgName to "torn">>
+	<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 9>>
+		<<set _imgName to "frayed">>
 	<<else>>
-		<<if $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 2>>
-			<img class="layer-lower colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'tattered.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 5>>
-			<img class="layer-lower colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'torn.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<elseif $worn.lower.integrity lte ($worn.lower.integrity_max / 10) * 9>>
-			<img class="layer-lower colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'frayed.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-		<<else>>
-			<img class="layer-lower colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'full.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
+		<<set _imgName to "full">>
+	<</if>>
+
+	<<if $worn.lower.mainImage isnot 0 and $worn.lower.high_img is 1>>
+		<div @class="'clothes-div layer-lower-high' + _lowerWetness">
+			<img @class="_class" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + _imgName + '.png'" @style="_style">
+		</div>
+	<</if>>
+	<div @class="'clothes-div layer-lower' + _lowerWetness">
+		<<if $worn.lower.mainImage isnot 0 and $worn.lower.high_img isnot 1>>
+			<img @class="_class" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + _imgName + '.png'" @style="_style">
 		<</if>>
+		<<if $worn.lower.accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if $worn.lower.back_img is 1>>
+		<div @class="'clothes-div layer-back-lower' + _lowerWetness">
+			<img @class="_class" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'back.png'" @style="_style">
+		</div>
 	<</if>>
 <</if>>
-<<if $worn.lower.accessory is 1>>
-	<<if $worn.lower.accessory_colour isnot 0>>
-		<img class="layer-lower colour-lower_acc anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'acc.png'" @style="($worn.lower.accessory_colour is 'custom' ? $worn.lower.accessory_colourCustom + _lowerOpacity : '')">
-	<<else>>
-		<img class="layer-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<<if $worn.lower.back_img is 1>>
-	<img class="layer-back-lower colour-lower anim-idle-2f" @src="'img/clothes/lower/' + $worn.lower.variable + '/' + 'back.png'" @style="($worn.lower.colour is 'custom'? $worn.lower.colourCustom + _lowerOpacity : '')">
-<</if>>
-
 <</nobr>><</widget>>
 
 <<widget "overlowerimg">><<nobr>>
-
-<<if $worn.over_lower.mainImage isnot 0>>
+<<if $worn.over_lower.name isnot "naked">>
+	<<baseClothingStrings "over_lower">>
 	<<if $worn.over_lower.integrity lte ($worn.over_lower.integrity_max / 10) * 2>>
-		<img class="layer-over_lower colour-over_lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'tattered.png'" @style="($worn.over_lower.colour is 'custom'? $worn.over_lower.colourCustom + _lowerOpacity : '')">
+		<<set _imgName to "tattered">>
 	<<elseif $worn.over_lower.integrity lte ($worn.over_lower.integrity_max / 10) * 5>>
-		<img class="layer-over_lower colour-over_lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'torn.png'" @style="($worn.over_lower.colour is 'custom'? $worn.over_lower.colourCustom + _lowerOpacity : '')">
+		<<set _imgName to "torn">>
 	<<elseif $worn.over_lower.integrity lte ($worn.over_lower.integrity_max / 10) * 9>>
-		<img class="layer-over_lower colour-over_lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'frayed.png'" @style="($worn.over_lower.colour is 'custom'? $worn.over_lower.colourCustom + _lowerOpacity : '')">
+		<<set _imgName to "frayed">>
 	<<else>>
-		<img class="layer-over_lower colour-over_lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'full.png'" @style="($worn.over_lower.colour is 'custom'? $worn.over_lower.colourCustom + _lowerOpacity : '')">
+		<<set _imgName to "full">>
 	<</if>>
-<</if>>
-<<if $worn.over_lower.accessory is 1>>
-	<<if $worn.over_lower.accessory_colour isnot 0>>
-		<img class="layer-lower colour-over_lower_acc anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'acc.png'" @style="($worn.over_lower.accessory_colour is 'custom' ? $worn.over_lower.accessory_colourCustom + _lowerOpacity : '')">
-	<<else>>
-		<img class="layer-lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'acc.png'">
+	<div class="layer-layer-over_lower">
+		<<if $worn.over_lower.mainImage isnot 0>>
+			<img @class="_class" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + _imgName + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.over_lower.accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if $worn.over_lower.back_img is 1>>
+		<div class="layer-back-lower">
+			<img @class="_class" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'back.png'" @style="_style">
+		</div>
 	<</if>>
-<</if>>
-<<if $worn.over_lower.back_img is 1>>
-	<img class="layer-back-lower colour-over_lower anim-idle-2f" @src="'img/clothes/over_lower/' + $worn.over_lower.variable + '/' + 'back.png'" @style="($worn.over_lower.colour is 'custom'? $worn.over_lower.colourCustom + _lowerOpacity : '')">
 <</if>>
 
 <</nobr>><</widget>>
 
 <<widget "genitalsimg">><<nobr>>
-
-<<if $worn.genitals.mainImage isnot 0 and !$worn.genitals.hideUnderLower.includes($worn.under_lower.name)>>
-	<<if $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 2>>
-		<img class="layer-genitals colour-lower anim-idle-2f" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'tattered.png'" @style="$worn.genitals.colourCustom">
-	<<elseif $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 5>>
-		<img class="layer-genitals colour-lower anim-idle-2f" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'torn.png'" @style="$worn.genitals.colourCustom">
-	<<elseif $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 9>>
-		<img class="layer-genitals colour-lower anim-idle-2f" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'frayed.png'" @style="$worn.genitals.colourCustom">
-	<<else>>
-		<img class="layer-genitals colour-lower anim-idle-2f" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'full.png'" @style="$worn.genitals.colourCustom">
-	<</if>>
+<<if $worn.genitals.name isnot "naked">>
+	<div class="layer-genitals">
+		<<if $worn.genitals.mainImage isnot 0 and !$worn.genitals.hideUnderLower.includes($worn.under_lower.name)>>
+			<<if $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 2>>
+				<img @class="'anim-idle-2f' + ($worn.genitals.colour ? ' clothes-'+$worn.genitals.colour :'')" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'tattered.png'" @style="$worn.genitals.colourCustom">
+			<<elseif $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 5>>
+				<img @class="'anim-idle-2f' + ($worn.genitals.colour ? ' clothes-'+$worn.genitals.colour :'')" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'torn.png'" @style="$worn.genitals.colourCustom">
+			<<elseif $worn.genitals.integrity lte ($worn.genitals.integrity_max / 10) * 9>>
+				<img @class="'anim-idle-2f' + ($worn.genitals.colour ? ' clothes-'+$worn.genitals.colour :'')" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'frayed.png'" @style="$worn.genitals.colourCustom">
+			<<else>>
+				<img @class="'anim-idle-2f' + ($worn.genitals.colour ? ' clothes-'+$worn.genitals.colour :'')" @src="'img/clothes/genitals/' + $worn.genitals.variable + '/' + 'full.png'" @style="$worn.genitals.colourCustom">
+			<</if>>
+		<</if>>
+	</div>
 <</if>>
 
 <</nobr>><</widget>>
 
 <<widget "upperimg">><<nobr>>
-
-<<if $worn.upper.mainImage isnot 0>>
-	<<if $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 2>>
-		<img class="layer-upper colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'tattered.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<elseif $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 5>>
-		<img class="layer-upper colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'torn.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<elseif $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 9>>
-		<img class="layer-upper colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'frayed.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-upper colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'full.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
+<<if $worn.upper.name isnot "naked">>
+	<<baseClothingStrings "upper">>
+	<<switch $upperwetstage>>
+		<<case 1>><<set _upperWetness to " clothes-damp">>
+		<<case 2>><<set _upperWetness to " clothes-wet">>
+		<<case 3>><<set _upperWetness to " clothes-drenshed">>
+		<<default>><<set _upperWetness to "">>
+	<</switch>>
+	<div @class="'clothes-div layer-upper' + _upperWetness">
+		<<if $worn.upper.mainImage isnot 0>>
+			<<if $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 2>>
+				<<set _imgName to "tattered">>
+			<<elseif $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 5>>
+				<<set _imgName to "torn">>
+			<<elseif $worn.upper.integrity lte ($worn.upper.integrity_max / 10) * 9>>
+				<<set _imgName to "frayed">>
+			<<else>>
+				<<set _imgName to "full">>
+			<</if>>
+			<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + _imgName + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.upper.breast_img is 1>>
+			<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + (_breastSize - 1) + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.upper.accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if _coverRight isnot undefined and $worn.upper.sleeve_img is 1>>
+		<div @class="'clothes-div layer-rightarmclothes' + _upperWetness">
+			<<if _coverRight is true>>
+				<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'right_cover.png'" @style="_style">
+			<<else>>
+				<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'right.png'" @style="_style">
+			<</if>>
+		</div>
+	<</if>>
+	<<if _coverLeft isnot undefined and $worn.upper.sleeve_img is 1>>
+		<div @class="'clothes-div layer-leftarmclothes' + _upperWetness">
+			<<if _coverLeft is true>>
+				<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'left_cover.png'" @style="_style">
+			<<else>>
+				<img @class="_class" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'left.png'" @style="_style">
+			<</if>>
+		</div>
 	<</if>>
 <</if>>
-<<if $worn.upper.breast_img is 1>>
-	<img class="layer-upper colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + (_breastSize - 1) + '.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-<</if>>
-
-<<if $worn.upper.accessory is 1>>
-	<<if $worn.upper.accessory_colour isnot 0>>
-		<img class="layer-upper colour-upper_acc anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'acc.png'" @style="($worn.upper.accessory_colour is 'custom' ? $worn.upper.accessory_colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'acc.png'">
-	<</if>>
-<</if>>
-<<if _coverRight isnot undefined and $worn.upper.sleeve_img is 1>>
-	<<if _coverRight is true>>
-		<img class="layer-rightarmclothes colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'right_cover.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-rightarmclothes colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'right.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<</if>>
-<</if>>
-<<if _coverLeft isnot undefined and $worn.upper.sleeve_img is 1>>
-	<<if _coverLeft is true>>
-		<img class="layer-leftarmclothes colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'left_cover.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-leftarmclothes colour-upper anim-idle-2f" @src="'img/clothes/upper/' + $worn.upper.variable + '/' + 'left.png'" @style="($worn.upper.colour is 'custom' ? $worn.upper.colourCustom + _upperOpacity : '')">
-	<</if>>
-	<<set _underUpperOpacity to " opacity("+_opacity+")">>
-<</if>>
-
 <</nobr>><</widget>>
 
 <<widget "overupperimg">><<nobr>>
-
-<<if $worn.over_upper.mainImage isnot 0>>
+<<if $worn.over_upper.name isnot "naked">>
+	<<baseClothingStrings "over_upper">>
 	<<if $worn.over_upper.integrity lte ($worn.over_upper.integrity_max / 10) * 2>>
-		<img class="layer-over_upper colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'tattered.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
+		<<set _imgName to "tattered">>
 	<<elseif $worn.over_upper.integrity lte ($worn.over_upper.integrity_max / 10) * 5>>
-		<img class="layer-over_upper colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'torn.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
+		<<set _imgName to "torn">>
 	<<elseif $worn.over_upper.integrity lte ($worn.over_upper.integrity_max / 10) * 9>>
-		<img class="layer-over_upper colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'frayed.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
+		<<set _imgName to "frayed">>
 	<<else>>
-		<img class="layer-over_upper colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'full.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
+		<<set _imgName to "full">>
 	<</if>>
-<</if>>
-<<if $worn.over_upper.breast_img is 1>>
-	<img class="layer-over_upper colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + (_breastSize - 1) + '.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
-<</if>>
-
-<<if $worn.over_upper.accessory is 1>>
-	<<if $worn.over_upper.accessory_colour isnot 0>>
-		<img class="layer-over_upper colour-over_upper_acc anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'acc.png'" @style="($worn.over_upper.accessory_colour is 'custom' ? $worn.over_upper.accessory_colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'acc.png'">
+	<div class="layer-over_upper">
+		<<if $worn.over_upper.mainImage isnot 0>>
+			<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + _imgName + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.over_upper.breast_img is 1>>
+			<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + (_breastSize - 1) + '.png'" @style="_style">
+		<</if>>
+		<<if $worn.over_upper.accessory is 1>>
+			<img @class="_classAcc" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'acc.png'" @style="_styleAcc">
+		<</if>>
+	</div>
+	<<if _coverRight isnot undefined and $worn.over_upper.sleeve_img is 1>>
+		<div class="layer-rightarmoverclothes">
+			<<if _coverRight is true>>
+				<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'right_cover.png'" @style="_style">
+			<<else>>
+				<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'right.png'" @style="_style">
+			<</if>>
+		</div>
 	<</if>>
-<</if>>
-<<if _coverRight isnot undefined and $worn.over_upper.sleeve_img is 1>>
-	<<if _coverRight is true>>
-		<img class="layer-rightarmoverclothes colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'right_cover.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-rightarmoverclothes colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'right.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
+	<<if _coverLeft isnot undefined and $worn.over_upper.sleeve_img is 1>>
+		<div class="layer-leftarmoverclothes">
+			<<if _coverLeft is true>>
+				<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'left_cover.png'" @style="_style">
+			<<else>>
+				<img @class="_class" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'left.png'" @style="_style">
+			<</if>>
+		</div>
 	<</if>>
-<</if>>
-<<if _coverLeft isnot undefined and $worn.over_upper.sleeve_img is 1>>
-	<<if _coverLeft is true>>
-		<img class="layer-leftarmoverclothes colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'left_cover.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
-	<<else>>
-		<img class="layer-leftarmoverclothes colour-over_upper anim-idle-2f" @src="'img/clothes/over_upper/' + $worn.over_upper.variable + '/' + 'left.png'" @style="($worn.over_upper.colour is 'custom' ? $worn.over_upper.colourCustom + _upperOpacity : '')">
-	<</if>>
-	<<set _underUpperOpacity to " opacity("+_opacity+")">>
 <</if>>
 
 <</nobr>><</widget>>
@@ -1586,9 +1602,6 @@
 <<widget "imgOpacity">><<nobr>>
 <<if _underUpperOpacity is undefined>>
 	<<set _opacity to 1>>
-	<<if $worn.under_upper.baseOpacity isnot undefined>>
-		<<set _opacity to $worn.under_upper.baseOpacity>>
-	<</if>>
 	<<if !$worn.under_upper.type.includes("swim")>>
 		<<if $underupperwetstage gte 3>>
 			<<set _opacity = Math.clamp(_opacity - 0.5, 0, 1)>>
@@ -1601,9 +1614,6 @@
 
 <<if _underLowerOpacity is undefined>>
 	<<set _opacity to 1>>
-	<<if $worn.under_lower.baseOpacity isnot undefined>>
-		<<set _opacity to $worn.under_lower.baseOpacity>>
-	<</if>>
 	<<if !$worn.under_lower.type.includes("swim")>>
 		<<if $underlowerwetstage gte 3>>
 			<<set _opacity = Math.clamp(_opacity - 0.5, 0, 1)>>
@@ -1616,9 +1626,6 @@
 
 <<if _lowerOpacity is undefined>>
 	<<set _opacity to 1>>
-	<<if $worn.lower.baseOpacity isnot undefined>>
-		<<set _opacity to $worn.lower.baseOpacity>>
-	<</if>>
 	<<if !$worn.lower.type.includes("swim")>>
 		<<if $lowerwetstage gte 3>>
 			<<set _opacity = Math.clamp(_opacity - 0.5, 0, 1)>>
@@ -1631,9 +1638,6 @@
 
 <<if _upperOpacity is undefined>>
 	<<set _opacity to 1>>
-	<<if $worn.upper.baseOpacity isnot undefined>>
-		<<set _opacity to $worn.upper.baseOpacity>>
-	<</if>>
 	<<if !$worn.upper.type.includes("swim")>>
 		<<if $upperwetstage gte 3>>
 			<<set _opacity = Math.clamp(_opacity - 0.5, 0, 1)>>
