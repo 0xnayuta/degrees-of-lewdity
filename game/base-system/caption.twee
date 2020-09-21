@@ -1,101 +1,59 @@
 :: StoryCaption [nobr]
 <div id="storyCaptionDiv" @class="($extendedStats ? 'storyCaptionDivExtended' : '')">
-<<if $intro is 0>>
+<<if $intro is 0>>/* show stuff other than the version and save menu */
 <<weatherdisplay>>
 <<exposure>>
 <<if $gamemode is "soft">>
 	<<set $pain to 0>>
 <</if>>
 <<if $images is 1>>
-	<<addclass body has-images>>
-	<<removeclass body no-images>>
-	<<img>>
+<<addclass body has-images>>
+<<removeclass body no-images>>
+<<img>>
 <<else>>
-	<<removeclass body has-images>>
-	<<addclass body no-images>>
+<<removeclass body has-images>>
+<<addclass body no-images>>
 <</if>>
 <<exposure>>
 <<combateffects>>
 
-
 <<if $endeventerror isnot undefined>>
-	<<if $debugdisable is "f">>
+<<if $debugdisable is "f">>
 		<<if $images is 1>><img class="layer-sexmouth" src="img/ui/sym_awareness.png"><</if>><span class="red"><<print StartConfig.version>> Error: An NPC generated on the "$endeventerror" passage broke free. Please inform Vrelnir. <<if $cheatdisable is "f">>Disregard this if you've just used a cheat.<</if>></span>
 		<br><br>
-	<</if>>
+<</if>>
 	<<unset $endeventerror>>
 <</if>>
 
 <<if $physiquechange is 1>><<set $physiquechange to 0>>
-	<<if $physiqueuse gte $physique / 1000>>
-		<span class="gold">Your physique is improving due to all the exercise you are getting.</span>
-		<<set $physiqueuse to 0>>
-		<br>
-		<<sidebardivide>>
-	<<else>>
+<<if $physiqueuse gte $physique / 1000>>
+	<span class="gold">Your physique is improving due to all the exercise you are getting.</span>
+	<<set $physiqueuse to 0>>
+	<br>
+	<<sidebardivide>>
+<<else>>
 		<span class="pink">You didn't get enough exercise yesterday, your physique has deteriorated slightly as a result.</span>
 		<<set $physiqueuse to 0>>
-		<br>
-		<<sidebardivide>>
-	<</if>>
+	<br>
+	<<sidebardivide>>
 <</if>>
-<<if $swimmingmissedtext isnot 1 and $mathsmissedtext isnot 1 and $sciencemissedtext isnot 1 and $englishmissedtext isnot 1 and $historymissedtext isnot 1>>
+<</if>>
+<<if !$lessonmissedtext>>
 <<else>>
-	<<if $swimmingmissedtext is 1>><<set $swimmingmissedtext to 0>>
-		<<if $swimmingmissed gte 10>>
-		<span class="red">You've missed so many swimming lessons that the police have been informed.</span><<crimeup 5>>
-		<br>
-		<<else>>
-		<span class="pink">You missed yesterday's swimming lesson.</span>
-		<br>
-		<</if>>
-		<<sidebardivide>>
-
+	<<if $lessonmissedtext is 1>>
+		<span class="pink">You missed a lesson yesterday.</span>
+	<<elseif $lessonmissedtext gte 2>>
+		<span class="pink">You missed $lessonmissedtext lessons yesterday.</span>
 	<</if>>
-	<<if $mathsmissedtext is 1>><<set $mathsmissedtext to 0>>
-		<<if $mathsmissed gte 10>>
-		<span class="red">You've missed so many maths lessons that the police have been informed.</span><<crimeup 5>>
-		<br>
-		<<else>>
-		<span class="pink">You missed yesterday's maths lesson!</span>
-		<br>
-		<</if>>
-		<<sidebardivide>>
+	<<if $lessonmissed gte 50>>
+		<span class="red">You've missed many lessons. The police have been informed.</span>
+		<<crimeup 25>>
+	
 
-	<</if>>
-	<<if $sciencemissedtext is 1>><<set $sciencemissedtext to 0>>
-		<<if $sciencemissed gte 10>>
-		<span class="red">You've missed so many science lessons that the police have been informed.</span><<crimeup 5>>
-		<br>
-		<<else>>
-		<span class="pink">You missed yesterday's science lesson!</span>
-		<br>
-		<</if>>
-		<<sidebardivide>>
-
-	<</if>>
-	<<if $englishmissedtext is 1>><<set $englishmissedtext to 0>>
-		<<if $englishmissed gte 10>>
-		<span class="red">You've missed so many English lessons that the police have been informed.</span><<crimeup 5>>
-		<br>
-		<<else>>
-		<span class="pink">You missed yesterday's English lesson!</span>
-		<br>
-		<</if>>
-		<<sidebardivide>>
-
-	<</if>>
-	<<if $historymissedtext is 1>><<set $historymissedtext to 0>>
-		<<if $historymissed gte 10>>
-		<span class="red">You've missed so many history lessons that the police have been informed.</span><<crimeup 5>>
-		<br>
-		<<else>>
-		<span class="pink">You missed yesterday's history lesson!</span>
-		<br>
-		<</if>>
-		<<sidebardivide>>
-
-	<</if>>
+<</if>>
+<<sidebardivide>>
+	<<set $lessonmissedtext to 0>>
+	<br>
 <</if>>
 <<if $images is 1>>
 	<div id="stats" @class="($extendedStats ? 'statsExtended' : '')" onclick="extendStats()">
@@ -119,9 +77,9 @@
 		<<if $sidebar.brs>><br><</if>>
 	<</if>>
 	<<if $dev is 1>>
-		<<set $money = Math.trunc($money)>>
-		You have £<<print ($money / 100)>>
-		<br>
+			<<set $money = Math.trunc($money)>>
+			You have £<<print ($money / 100)>>
+			<br>
 	<<else>>
 		You have £<<print Math.trunc($money / 100)>>.<<if $money % 100 lte 9>>0<</if>><<print $money % 100>>
 		<br>
@@ -133,7 +91,7 @@
 			It is <<print ($hour - 12)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> pm
 			<br>
 		<<else>>
-			It is $hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am<</if>>
+				It is <<print ($hour is 0 ? "12" : $hour)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am<</if>>
 			<br>
 		<</if>>
 	<<else>>
@@ -193,17 +151,17 @@
 <<clamp>>
 
 <<if $daystate is "night">>
-<<set $nightmod to 1.5>>
+	<<set $nightmod to 1.5>>
 <<else>>
-<<set $nightmod to 1>>
+	<<set $nightmod to 1>>
 <</if>>
 
 <<if $exposed gte 2>>
-<<set $exposedmod to 1.4>>
+	<<set $exposedmod to 1.4>>
 <<elseif $exposed gte 1>>
-<<set $exposedmod to 1.2>>
+	<<set $exposedmod to 1.2>>
 <<else>>
-<<set $exposedmod to 1>>
+	<<set $exposedmod to 1>>
 <</if>>
 
 <<set $allure to (($beauty / 3) + $hairlength / 4 + $worn.upper.reveal + $worn.lower.reveal)>>
@@ -230,14 +188,20 @@
 <<set $allure += ($fameexhibitionism / 5)>>
 
 <<set $allure -= $famescrap>>
-	<<if $dev is 1>>
+<<set $allure -= $famegood>>
+<<set $allure -= $famebusiness>>
+<<set $allure -= $famesocial>>
+<<if $dev is 1>>
 	<<set $allure -= $famegood>>
 	<<set $allure -= $famepimp>>
 	<<set $allure -= $famebusiness>>
-	<</if>>
+<</if>>
 <<if $smells[0][0] is "trash" and $smells [0][1] gte 2>>/* strongest smell is trash and it's at least 2 */
 	/*<<set $allure -= $smells[0][1]>>*/
 	<<set $allure -= 100>>
+<</if>>
+<<if $moonstate is "evening" and $hour gte 21 or $moonstate is "morning" and $hour lte 6>>
+	<<set $allure += 2000>>
 <</if>>
 <<set $allure *= $alluremod>>
 <<if $allure gte 8000 * $alluremod>><<set $allure to 8000 * $alluremod>><</if>>
@@ -271,7 +235,7 @@
 		<<sidebardivide>>
 	<</if>>
 	<<if $sidebar.parasites is 2>>
-		Parasites in:
+		<<if $innocencestate gte 1>>Friends<<else>>Parasites<</if>> in:
 		<<set _parsin to []>>
 		<<if $vaginalchastityparasite isnot 0>>
 			<<run _parsin.push("Vagina")>>
@@ -291,6 +255,18 @@
 		<<if $parasite.clit.name>>
 			<<run _parsin.push("Clit")>>
 		<</if>>
+		<<if $parasite.left_ear.name and $parasite.left_ear.name is $parasite.right_ear.name>>
+			<<if $parasite.left_ear.name is "slime">>
+				<<run _parsin.push("Ears")>>
+			<</if>>
+		<<else>>
+			<<if $parasite.left_ear.name is "slime">>
+				<<run _parsin.push("Ear")>>
+			<</if>>
+			<<if $parasite.right_ear.name is "slime">>
+				<<run _parsin.push("Ear")>>
+			<</if>>
+		<</if>>
 		<<listify _parsin 1>>
 		<span class="pink">$listified</span>
 	<<elseif $sidebar.parasites is 1>>
@@ -300,30 +276,63 @@
 		<<if $parasite.nipples.name>>	Nipples have <span class="pink">$parasite.nipples.name </span>	<</if>>
 		<<if $parasite.penis.name>>	Penis has<span class="pink">$parasite.penis.name </span>	<</if>>
 		<<if $parasite.clit.name>>	Clit has <span class="pink">$parasite.clit.name </span>	<</if>>
-	<<elseif $sidebar.parasites is 0>>
-		<<if $vaginalchastityparasite isnot 0>>
-			<span class="pink">You feel $vaginalchastityparasite squirming inside your vagina.</span>
-			<br>
+		<<if $parasite.left_ear.name and $parasite.left_ear.name is $parasite.right_ear.name>>
+			Ears have <span class="lewd">$parasite.left_ear.name</span> each
+		<<elseif $parasite.left_ear.name>>
+			Left ear has <span class="lewd">$parasite.left_ear.name</span>
 		<</if>>
+		<<if $parasite.right_ear.name>>Right ear has <span class="lewd">$parasite.left_ear.name</span><</if>>
+	<<elseif $sidebar.parasites is 0>>	
 		<<if $penilechastityparasite isnot 0>>
 			<span class="pink">You feel $penilechastityparasite squirming around your penis.</span>
+			<br>
+		<</if>>
+		<<if $vaginalchastityparasite isnot 0 and $vaginalchastityparasite eq $analchastityparasite>>
+			<span class="pink">You feel $vaginalchastityparasite squirming inside your vagina and lower intestine.</span>
+			<br>
+		<<else>>
+		<<if $vaginalchastityparasite isnot 0>>
+			<span class="pink">You feel $vaginalchastityparasite squirming inside your vagina.</span>
 			<br>
 		<</if>>
 		<<if $analchastityparasite isnot 0>>
 			<span class="pink">You feel $analchastityparasite squirming inside your lower intestine.</span>
 			<br>
 		<</if>>
-		<<if $parasite.nipples.name>>
-			<span class="pink">The $parasite.nipples.name parasites clinging to your nipples suck and massage you.</span><br>
-		<</if>>
-		<<if $parasite.penis.name>>
-			<span class="pink">The $parasite.penis.name parasite clinging to your penis sucks and massages you.</span><br>
-		<</if>>
-		<<if $parasite.clit.name>>
-			<span class="pink">The $parasite.clit.name parasite clinging to your clit sucks and massages you.</span><br>
-		<</if>>
-		<<if $parasite.bottom.name>>
-			<span class="pink">The $parasite.bottom.name parasite clinging to your bottom sucks and massages you.</span><br>
+		<<for _type range $parasite.types>>
+			<<switch $parasite[_type].length>>
+			<<case 0>>
+			<<case 1>>
+				<<if $parasite[_type][0] is "nipples">>
+					<span class="pink">The _type parasites clinging to your <<print $parasite[_type][0]>> suck and massage you.</span>
+				<<else>>
+					<span class="pink">The _type parasite clinging to your <<print $parasite[_type][0]>> sucks and massages you.</span>
+			<<case 2>>
+				<span class="pink">The _type parasites clinging to your <<print $parasite[_type][0]>> and <<print $parasite[_type][1]>> suck and massage you.</span>
+				<br>
+			<<default>>
+				<<set _pstring to $parasite[_type][0]>>
+				<<for _i to 1; _i lt $parasite[_type].length - 1; _i++>>
+					<<set _pstring += ", " + $parasite[_type][_i]>>
+				<</for>>
+				<<set _pstring += ", and " + $parasite[_type][_i]>>
+				<span class="pink">The _type parasites clinging to your _pstring suck and massage you.</span>
+				<br>
+			<</switch>>
+		<</for>>
+		<<if $parasite.left_ear.name and $parasite.left_ear.name eq $parasite.right_ear.name>>
+			<<if $parasite.left_ear.name is "slime">>
+				<span class="lewd">The $parasite.left_ear.name in each ear influences your thoughts.</span>
+				<br>
+			<</if>>
+		<<else>>
+			<<if $parasite.left_ear.name is "slime">>
+				<span class="lewd">The $parasite.left_ear.name in your left ear influences your thoughts.</span>
+			<</if>>
+			<<if $parasite.right_ear.name is "slime">>
+				<span class="lewd">The $parasite.right_ear.name in your right ear influences your thoughts.</span>
+				<br>
+			<</if>>
 		<</if>>
 	<<else>>
 	/* only character sprite shows parasites */
@@ -368,7 +377,7 @@
 	<<else>>
 	/* only character sprite shows binds */
 	<</if>>
-<</if>>
+	<</if>>
 
 <<if $goocount gte 1 or $semencount gte 1>>
 	<<if $sidebar.fluids gt -1>>
@@ -415,27 +424,35 @@
 
 <<sidebardivide>>
 <<if $gamemode isnot "soft">>
-<<paincaption>>
+	<<paincaption>>
 <</if>>
 <<arousalcaption>>
 <<tirednesscaption>>
 <<stresscaption>>
 <<if $innocencestate is 1>>
-<<innocencecaption>>
+	<<innocencecaption>>
 <<else>>
-<<traumacaption>>
+	<<traumacaption>>
 <</if>>
 <<if $gamemode isnot "soft">>
-<<controlcaption>>
+	<<controlcaption>>
 <</if>>
 <<allurecaption>>
 <<if $underwater is 1>>
-Air: <<oxygencaption>>
+	<<oxygencaption true>>
 <</if>>
 <<drunk>><<drugged>><<hallucinogen>>
 <br>
-<<if $passage isnot "Start" and $passage isnot "Start2" and $sidebar.stats isnot "Disabled">>
-	<<replace #mobileStats>><<mobileStats>><</replace>>
+<<if $passage isnot "Start" and $passage isnot "Start2">>
+	<<if $sidebar.time is "top">>
+		<<append #mobileStats>><<mobileStatsTime>><</append>>
+	<</if>>
+	<<if $sidebar.stats isnot "Disabled">>
+		<<append #mobileStats>><<mobileStats>><</append>>
+	<</if>>
+	<<if $sidebar.time is "bottom">>
+		<<append #mobileStats>><<mobileStatsTime>><</append>>
+	<</if>>
 <</if>>
 
 <<if $sidebar.brs is 1>><br><</if>>
@@ -636,12 +653,12 @@ Air: <<oxygencaption>>
 		<</if>>
 		<<if $worn.under_lower.name isnot "naked">>
 			<<if $worn.under_upper.name is "naked">>
-			<span class="pink">You are wearing nothing but a pair of <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.</span>
+			<span class="pink">You are wearing nothing but a<<if $worn.under_lower.name.last() is "s">> pair of<</if>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name.</span>
 			<<else>>
 				<<if $worn.under_lower.set is $worn.under_upper.set>>
 				<span class="pink">You are wearing nothing but <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name.</span>
 				<<else>>
-				<span class="pink">You are wearing a pair of <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name.</span>
+				<span class="pink">You are wearing a<<if $worn.under_lower.name.last() is "s">> pair of<</if>> <<underlowerintegrity>> <<underlowerclothescolour>> $worn.under_lower.name and <<underupperword>> <<underupperintegrity>> <<underupperclothescolour>> $worn.under_upper.name.</span>
 				<</if>>
 			<</if>>
 			<<if $worn.genitals.name isnot "naked">>
@@ -942,7 +959,7 @@ Your $worn.under_upper.name <<underupperhas>> been pulled down to your $worn.und
 		<<if $hour gte 13>>
 		<<print ($hour - 12)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> pm.
 		<<else>>
-		$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am.<</if>>
+			<<print ($hour is 0 ? "12" : $hour)>>:<<print ($time - $hour * 60).toString().padStart(2, "0")>> <<if $hour is 12>>pm<<else>>am.<</if>>
 		<</if>>
 	<<else>>
 	<<if $hour lt 10>>0<</if>>$hour:<<print ($time - $hour * 60).toString().padStart(2, "0")>>
@@ -968,6 +985,6 @@ Your $worn.under_upper.name <<underupperhas>> been pulled down to your $worn.und
 	<</if>>
 <</nobr>><</widget>>
 
-:: StoryRightSidebar
+:: StoryRightSidebar [nobr]
 
 Testing

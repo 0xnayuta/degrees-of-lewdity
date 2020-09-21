@@ -13,9 +13,9 @@ compiled file for anyone who anyone wants to test this https://mega.nz/file/F9tH
 
 1. Open `01-config\sugarcubeConfig.js`.
 2. Edit the `window.StartConfig` object to the relevant config type.
-    * Normal Build - `enableImages` needs to be `true` and `enableLinkNumberify` needs to be `true`.
-    * Text Only Build - `enableImages` needs to be `false` and `enableLinkNumberify` needs to be `true`.
-    * Android Build - `enableImages` needs to be `true` and `enableLinkNumberify` needs to be `false`.
+	* Normal Build - `enableImages` needs to be `true` and `enableLinkNumberify` needs to be `true`.
+	* Text Only Build - `enableImages` needs to be `false` and `enableLinkNumberify` needs to be `true`.
+	* Android Build - `enableImages` needs to be `true` and `enableLinkNumberify` needs to be `false`.
 3. `version` is optional between release versions but will be displayed on screen in several places and stored in the saves made.
 4. `debug` is optional and will only effect new games.
 
