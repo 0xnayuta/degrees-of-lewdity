@@ -1,0 +1,1730 @@
+:: Virginity Widgets [widget]
+/*
+from https://gitgud.io/Pedy/Degrees_Of_Pedity with permission and some edits
+mainly using it to figure out who caused virginity loss but the description it generates is nice on it's own too
+
+*/
+
+<<widget "fvirginityloss_set">><<nobr>>
+
+<<set $loss_day = $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location + "," + $devlevel>>
+
+<<if $enemytype is "beast">>
+<<set $loss_partner = $beasttype>>
+<<elseif $npc isnot 0>>
+/*todo - complete stranger whose name you don't even know flag, change depending whether you actually get to know their name in the future autism-fulled npc interaction rework*/
+<<set $loss_partner = $npcdescription + " " + $npc>>
+<<elseif $npcadult is 1>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " man">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " woman">>
+	<</if>>
+<<else>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " boy">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " girl">>
+	<</if>>
+<</if>>
+
+<<if jsStrcount($vaginastate, "mouth")>>
+<<set $loss_circum = "tongue">>
+<<else>>
+<<set $loss_circum = "penis">>
+<</if>>
+
+/* actions that have you initiate this in some way pass 1*/
+<<if $virginlossinitiated == 1>>
+	<<set $vagdeflorationinitiated = 1>>
+<</if>>
+
+<<if $npc is "Robin">>/*for now assume robin is love only*/
+	<<set $loss_feel = "love">>
+<<elseif $npc is "Eden">>
+	<<if $edenlove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $edenlove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $edenlove >= 20 || $syndromeeden is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<elseif $npc is "Whitney">> /* copy paste from eden, no idea if these are appropriate */
+	<<if $whitneylove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $whitneylove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $whitneylove >= 20 || $whitneyromance is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<elseif $npc is "Kylar">>/* copy paste from eden, no idea if these are appropriate */
+	<<if $kylarlove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $kylarlove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $kylarlove >= 20 || $kylargag is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<else>>
+	<<if $drugged is 1>>
+		<<set $loss_feel = "drug">>
+	<<elseif $druggedtimer > 480>>
+		<<set $loss_feel = "drunk">>
+	/* $loss_feel = "pain" won't be doing pain because it's always nearly maxed on loss currently */
+	<<elseif $arousal gte 10000>>
+	   <<set  $loss_feel = "arousal">>
+	<<elseif $tiredness gte 2000>>
+		<<set $loss_feel = "tired">>
+	<<elseif $stress gte 10000>>
+		<<set $loss_feel = "stress">>
+	<<elseif $trauma gte $traumamax>>
+		<<set $loss_feel = "trauma">>
+	<<else>>
+		<<if $promiscuity > 35 && $promiscuity < 75>>
+			<<set $loss_feel = "curious">>
+		<<elseif $promiscuity > 75>>
+			<<set $loss_feel = "slut">>
+		<<elseif $awarelevel < 1>>
+			<<set $loss_feel = "ignorant">>
+		<<else>>
+			<<set $loss_feel = "hate">>
+		<</if>>
+	<</if>>
+<</if>>
+<<set $loss_add = "">>
+<<if $enemytype is "beast">>
+	<<set $loss_add += "creature:">>
+<<elseif $pronoun is "m">>
+	<<set $loss_add += "male:">>
+<<else>>
+	<<set $loss_add += "female:">>
+<</if>>
+<<if $consensual == 0>><<set $loss_add += "rape:">><</if>>
+<<if $enemyanger > 60>><<set $loss_add += "angry:">><</if>>
+<<if $angel gte 4>><<set $loss_add += "angel:">><</if>>
+<<if $analvirginity == 0>><<set $loss_add += "analnonvirgin:">><</if>>
+
+/* format  Date//Partner//Circumstance//Perceived Feeling//Additional */
+<<set $fvirginlossinfo = $loss_day + "//" + $loss_partner + "//" + $loss_circum + "//" + $loss_feel + "//" + $loss_add>>
+<<set $logextraimportance to 8>>
+<<set $logextra "I lost my virginity to "+$loss_partner+".">>
+
+<</nobr>><</widget>>
+
+<<widget "fvirginityloss_print">><<nobr>>
+/* extract the data */
+<<set $loss_day = $fvirginlossinfo.split("//")[0]>><<set $loss_partner = $fvirginlossinfo.split("//")[1]>><<set $loss_circum = $fvirginlossinfo.split("//")[2]>><<set $loss_feel = $fvirginlossinfo.split("//")[3]>><<set $loss_add = $fvirginlossinfo.split("//")[4]>>
+/*str.replace(/,$/g, "");*/
+<<set $loss_output = "">>
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set _tempPronoun = "it">><<set _tempPronounPos = "its">><<set _tempPronounRef = "it">>
+<<elseif jsSplitcheck($loss_add, "male")>>
+	<<set _tempPronoun = "he">><<set _tempPronounPos = "his">><<set _tempPronounRef = "him">>
+<<else>>
+	<<set _tempPronoun = "she">><<set _tempPronounPos = "her">><<set _tempPronounRef = "her">>
+<</if>>
+
+<<if !( jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal") ) && jsRandom(1)>>
+	<<set $loss_output = "You got robbed of your virginity by">>
+<<elseif jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+	<<set $loss_output = "You " + jsSplitr("had your first with:gave your virginity to:offered your virginity to:surrendered your virginity to:had your cherry popped by")>>
+<<else>>
+	<<set $loss_output = jsSplitr("Your virginity has been taken by:Your first partner was:You lost your virginity to:You've been deflorated by:Your cherry has been popped by")>>
+<</if>>
+
+<<set $loss_output += " " + (jsSplitcheck($loss_add, "creature") ? jsArticle($loss_partner) : $loss_partner) + " who tore your hymen with " + _tempPronounPos + " " + $loss_circum>>
+/*        0               1               2               3               4               5               6*/
+/* $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location  + age (7)*/
+<<set $loss_output += " on " + jsCount($loss_day.split(",")[2]) + " of " + jsCapitalize($loss_day.split(",")[3])>>
+
+<<if $loss_day.split(",")[1] == $days>> <<set $loss_output += " (which happened just today)">>
+<<elseif $loss_day.split(",")[1] == $days-1>> <<set $loss_output += " (which happened just yesterday)">>
+<<elseif $loss_day.split(",")[1] > $days-7>> <<set $loss_output += " (which happened just couple of days ago)">>
+<</if>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<set $loss_output += " outside">>
+<</if>>
+
+<<switch $loss_day.split(",")[6]>>
+	<<case "beach">>
+		<<set $loss_output += " on the beach">>
+	<<case "sea">>
+		<<set $loss_output += " somewhere at the sea">>
+	<<case "home">>
+		<<set $loss_output += " at the orphanage">>
+	<<case "town">>
+		<<set $loss_output += " somewhere in the town">> /* todo? more precise locations */
+	<<case "forest">>
+		<<set $loss_output += " somewhere in the forest">>
+	<<case "underground">>
+		<<set $loss_output += " in the depths of underground">>
+	<<case "school">>
+		<<set $loss_output += " at the school grounds">>
+	<<case "cabin">>
+		<<set $loss_output += " in the hunter's cabin">>
+	<<case "pool">>
+		<<set $loss_output += " at the pool">>
+<</switch>>
+<<set $loss_output += " during " + $loss_day.split(",")[0]>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<switch $loss_day.split(",")[4]>>
+		<<case "clear">>
+			<<set $loss_output += " under the sun">>
+		<<case "overcast">>
+			<<set $loss_output += " as it was cloudy">>
+		<<case "rain">>
+			<<set $loss_output += " under the rain">>
+	<</switch>>
+<</if>>
+
+<<set $loss_output += ".<br>">>
+
+<<if jsSplitcheck($loss_add, "analnonvirgin") && $penilevirginity>> /* show this only once per v/p virginity loss to avoid repetition*/
+	<<set $loss_output += "Having already lost your so called backup virginity beforehand, you only had to guess how long it would take before you would lose your main">>
+	<<set _local = $avirginlossinfo.split("//")[0]>><<set _local = _local.split(",")[1]>>
+	<<if _local == $loss_day.split(",")[1]>>
+		<<set $loss_output += ", which surprisingly happened on the same day as well">>
+	<</if>>
+	<<set $loss_output += ".<br>">>
+<</if>>
+
+<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+	<<set $loss_output += "Although it still hurt a lot physically, the thought of finally becoming one ">>
+	/* if we ever get a beast you can fall in love with or befriend, add a case here */
+	<<if jsStrcount($loss_feel, "love")>>
+		<<set $loss_output += jsSplitr("with your lover:with your beloved partner:with an important person in your life:with a person you care about")>>
+	<<else>>
+		<<set $loss_output += jsSplitr("with a person whom you consider to be your friend:with someone who surely cares about you:with a person you didn't mind to become more intimate:with a person you care about")>>
+	<</if>>
+	<<set $loss_output += " made it much bearable, surely being one of your dearest memory">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " even despite getting raped by " + _tempPronounRef>><</if>>
+	<<set $loss_output += ".">>
+<<elseif jsStrcount($loss_feel, "okay")>>
+	<<set $loss_output += "Although you were somewhat uncertain about it, at least it wasn't a complete stranger">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " albeit the fact that you were taken by force spoiled it somewhat">><</if>>
+	<<set $loss_output += ".">>
+<<else>>
+	<<if jsStrcount($loss_feel, "drug")>>
+		<<set $loss_output += "You were drugged and too high to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "drunk")>>
+		<<set $loss_output += "You were intoxicated and completely wasted to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were extremely aroused and horny and didn't seem to mind it at the time, although it still took you by surprise.">>
+	<<elseif jsStrcount($loss_feel, "tired")>>
+		<<set $loss_output += "You were too exhausted to prevent it in the first place, and were more concerned about staying conscious.">>
+	<<elseif jsStrcount($loss_feel, "stress")>>
+		<<set $loss_output += "You were too stressed out to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "trauma")>>
+		<<set $loss_output += "You were severely traumatized at that point already and completely detached from reality to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "curious")>>
+		<<set $loss_output += "You were sexually curious and wanted to actually experience the real thing and how does it feel.">>
+	<<elseif jsStrcount($loss_feel, "slut")>>
+		<<set $loss_output += "You were very naughty and debauched, and at that point your virginity didn't mean much for you, being just an obstacle to the wondrous world of a new pleasure you were yet to experience.">>
+	<<elseif jsStrcount($loss_feel, "ignorant")>>
+		<<set $loss_output += "You had no idea what was going on and why it seemed like a big deal, but you have a feeling it wasn't such a good thing.">>
+	<<else>>
+		<<set $loss_output += "You seem to regret the fact of the incident, not being happy about getting defiled just like that. The thoughts of what could've been if you would've put more effort into preventing it continue to assail you">>
+		<<if $days-7 > $loss_day.split(",")[1]>><<set $loss_output += "to this day">><</if>>
+		<<set $loss_output += ".">>
+	<</if>>
+<</if>>
+<<set $loss_output += "<br>">>
+
+<<if $vagdeflorationinitiated>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "You were glad to welcome your partner in yourself, <<fsyn 'insert:f:ing'>> " + _tempPronounPos + " " + $loss_circum + " on your own.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were so impatient it was actually you who <<fsyn 'insert:f:ed'>> it in.">>
+	<<else>>
+		<<set $loss_output += "It's hard to explain what were you thinking because it was you who <<fsyn 'insert:f:ed'>> it in the first place.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $vagdeflorationcreampie>>
+	<<set $loss_output += jsCapitalize(_tempPronoun) + " had also ejaculated into your pussy during your first time, making it the very first cumshot that has marked your womb.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+<<if jsSplitcheck($loss_add, "rape")>>
+	<<if jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You would've much preferred if it didn't happen by the means of rape however.">>
+	<<else>>
+		<<set $loss_output += "In the end, you've become just another victim of rape.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angel") && $penilevirginity>> /* show this only once per v/p virginity loss to avoid repetition*/
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "Although you didn't mind the person in question being your first, the loss of your angelic status still pains you somewhat.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "However the loss of your special angelic status followed shortly after still makes it quite frustrating.">>
+	<<else>>
+		<<set $loss_output += "The loss of your special angelic status followed shortly after makes this even more aggravating.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angry")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay") + jsStrcount($loss_feel, "curious") + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "For one reason or another " + _tempPronoun + " was angry with you at the moment, which made it more painful than it should've been.">>
+	<<else>>
+		<<set $loss_output += "Seems like you made " + _tempPronounRef + " angry in the process as well, which caused " + _tempPronounRef + " to act much rougher than usual, making this memory particularly painful for you.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set $loss_output += "Nevertheless, having some ">>
+	<<if $loss_partner == "dog" || $loss_partner == "cat">>
+		<<set $loss_output += jsSplitr("dirty :filthy ")>>
+	<<elseif $loss_partner == "wolf" || $loss_partner == "bear">>
+		<<set $loss_output += jsSplitr("feral :forest ")>>
+	<</if>>
+	<<set $loss_output += $loss_partner + " as your first is a hell of a way of losing your virginity...">>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $vagdeflorationorgasm>>
+	<<set $loss_output += "In addition, you clearly remember orgasming" + ($vagdeflorationorgasm > 1 ? " multiple times" : "") + " during the act, which can be considered quite unusual.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+$loss_output
+<</nobr>><</widget>>
+
+
+<<widget "pvirginityloss_set">><<nobr>>
+<<set $loss_day = $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location + "," + $devlevel>>
+
+<<if $enemytype is "beast">>
+<<set $loss_partner = $beasttype>>
+<<elseif $npc isnot 0>>
+<<set $loss_partner = $npcdescription + " " + $npc>>
+<<elseif $npcadult is 1>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " man">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " woman">>
+	<</if>>
+<<else>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " boy">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " girl">>
+	<</if>>
+<</if>>
+
+<<if jsStrcount($penisstate, "mouth")>>
+<<set $loss_circum = "mouth">>
+<<elseif jsStrcount($penisstate, "anus")>>
+<<set $loss_circum = "anus">>
+<<elseif jsStrcount($penisstate, "tentacle")>>
+<<set $loss_circum = "tentacle">>
+<<else>>
+<<set $loss_circum = "vagina">>
+<</if>>
+
+/* actions that have you initiate this in some way pass 1*/
+<<if $penislossinitiated == 1>>
+	<<set $peniledeflorationinitiated = 1>>
+<</if>>
+
+<<if $npc is "Robin">>/*for now assume robin is love only*/
+	<<set $loss_feel = "love">>
+<<elseif $npc is "Eden">>
+	<<if $edenlove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $edenlove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $edenlove >= 20 || $syndromeeden is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<else>>
+	<<if $drugged is 1>>
+		<<set $loss_feel = "drug">>
+	<<elseif $druggedtimer > 480>>
+		<<set $loss_feel = "drunk">>
+	/* $loss_feel = "pain" won't be doing pain because it's always nearly maxed on loss currently */
+	<<elseif $arousal gte 10000>>
+	   <<set  $loss_feel = "arousal">>
+	<<elseif $tiredness gte 2000>>
+		<<set $loss_feel = "tired">>
+	<<elseif $stress gte 10000>>
+		<<set $loss_feel = "stress">>
+	<<elseif $trauma gte $traumamax>>
+		<<set $loss_feel = "trauma">>
+	<<else>>
+		<<if $promiscuity > 35 && $promiscuity < 75>>
+			<<set $loss_feel = "curious">>
+		<<elseif $promiscuity > 75>>
+			<<set $loss_feel = "slut">>
+		<<elseif $awarelevel < 1>>
+			<<set $loss_feel = "ignorant">>
+		<<else>>
+			<<set $loss_feel = "hate">>
+		<</if>>
+	<</if>>
+<</if>>
+<<set $loss_add = "">>
+<<if $enemytype is "beast">>
+	<<set $loss_add += "creature:">>
+<<elseif $pronoun is "m">>
+	<<set $loss_add += "male:">>
+<<else>>
+	<<set $loss_add += "female:">>
+<</if>>
+<<if $consensual == 0>><<set $loss_add += "rape:">><</if>>
+<<if $enemyanger > 60>><<set $loss_add += "angry:">><</if>>
+<<if $angel gte 4>><<set $loss_add += "angel:">><</if>>
+<<if $analvirginity == 0>><<set $loss_add += "analnonvirgin:">><</if>>
+
+/* format  Date//Partner//Circumstance//Perceived Feeling//Additional */
+<<set $pvirginlossinfo = $loss_day + "//" + $loss_partner + "//" + $loss_circum + "//" + $loss_feel + "//" + $loss_add>>
+<<set $logextraimportance to 8>>
+<<set $logextra "I lost my virginity to "+$loss_partner+".">>
+
+<</nobr>><</widget>>
+
+<<widget "pvirginityloss_print">><<nobr>>
+/* extract the data */
+<<set $loss_day = $pvirginlossinfo.split("//")[0]>><<set $loss_partner = $pvirginlossinfo.split("//")[1]>><<set $loss_circum = $pvirginlossinfo.split("//")[2]>><<set $loss_feel = $pvirginlossinfo.split("//")[3]>><<set $loss_add = $pvirginlossinfo.split("//")[4]>>
+/*str.replace(/,$/g, "");*/
+<<set $loss_output = "">>
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set _tempPronoun = "it">><<set _tempPronounPos = "its">><<set _tempPronounRef = "it">>
+<<elseif jsSplitcheck($loss_add, "male")>>
+	<<set _tempPronoun = "he">><<set _tempPronounPos = "his">><<set _tempPronounRef = "him">>
+<<else>>
+	<<set _tempPronoun = "she">><<set _tempPronounPos = "her">><<set _tempPronounRef = "her">>
+<</if>>
+
+<<if !( jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal") ) && jsRandom(1)>>
+	<<set $loss_output = "You got robbed of your penile virginity by">>
+<<elseif jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+	<<set $loss_output = "You " + jsSplitr("had your first with:got laid with:had your cherry popped by")>>
+<<else>>
+	<<set $loss_output = jsSplitr("Your virginity has been taken by:Your first partner was:You lost your virginity to:Your cherry has been popped by")>>
+<</if>>
+
+<<set $loss_output += " " + (jsSplitcheck($loss_add, "creature") ? jsArticle($loss_partner) : $loss_partner) + " who turned you into a man with " + _tempPronounPos + " ">>
+
+<<if $loss_circum == "mouth">>
+	<<set $loss_output += "mouth">>
+<<elseif $loss_circum == "anus">>
+	<<set $loss_output += "<<fsyn 'anus'>>">>
+<<elseif $loss_circum == "tentacle">>
+	<<set $loss_output += "onahole-like <<fsyn 'vagina'>>-shaped feeler">>
+<<else>>
+	<<if jsStrcount($loss_partner, "woman") || jsStrcount($loss_partner, "Eden")>>
+		<<set $loss_output += "<<fsyn 'vagina:a'>>">>
+	<<else>>
+		<<set $loss_output += "<<fsyn 'vagina:ch'>>">>
+	<</if>>
+<</if>>
+
+/*        0               1               2               3               4               5               6*/
+/* $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location  + age (7)*/
+<<set $loss_output += " on " + jsCount($loss_day.split(",")[2]) + " of " + jsCapitalize($loss_day.split(",")[3])>>
+
+<<if $loss_day.split(",")[1] == $days>> <<set $loss_output += " (which happened just today)">>
+<<elseif $loss_day.split(",")[1] == $days-1>> <<set $loss_output += " (which happened just yesterday)">>
+<<elseif $loss_day.split(",")[1] > $days-7>> <<set $loss_output += " (which happened just couple of days ago)">>
+<</if>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<set $loss_output += " outside">>
+<</if>>
+
+<<switch $loss_day.split(",")[6]>>
+	<<case "beach">>
+		<<set $loss_output += " on the beach">>
+	<<case "sea">>
+		<<set $loss_output += " somewhere at the sea">>
+	<<case "home">>
+		<<set $loss_output += " at the orphanage">>
+	<<case "town">>
+		<<set $loss_output += " somewhere in the town">> /* todo? more precise locations */
+	<<case "forest">>
+		<<set $loss_output += " somewhere in the forest">>
+	<<case "underground">>
+		<<set $loss_output += " in the depths of underground">>
+	<<case "school">>
+		<<set $loss_output += " at the school grounds">>
+	<<case "cabin">>
+		<<set $loss_output += " in the hunter's cabin">>
+	<<case "pool">>
+		<<set $loss_output += " at the pool">>
+<</switch>>
+<<set $loss_output += " during " + $loss_day.split(",")[0]>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<switch $loss_day.split(",")[4]>>
+		<<case "clear">>
+			<<set $loss_output += " under the sun">>
+		<<case "overcast">>
+			<<set $loss_output += " as it was cloudy">>
+		<<case "rain">>
+			<<set $loss_output += " under the rain">>
+	<</switch>>
+<</if>>
+
+<<set $loss_output += ".<br>">>
+
+<<if jsSplitcheck($loss_add, "analnonvirgin")>>
+	<<set $loss_output += "Having already lost your so called backup virginity beforehand, you only had to guess how long it would take before you would lose your main">>
+	<<set _local = $avirginlossinfo.split("//")[0]>><<set _local = _local.split(",")[1]>>
+	<<if _local == $loss_day.split(",")[1]>>
+		<<set $loss_output += ", which surprisingly happened on the same day as well">>
+	<</if>>
+	<<set $loss_output += ".<br>">>
+<</if>>
+
+<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+	<<set $loss_output += "Getting to make love ">>
+	/* if we ever get a beast you can fall in love with or befriend, add a case here */
+	<<if jsStrcount($loss_feel, "love")>>
+		<<set $loss_output += jsSplitr("with your lover:with your beloved partner:with an important person in your life:with a person you care about")>>
+	<<else>>
+		<<set $loss_output += jsSplitr("with a person whom you consider to be your friend:with someone who surely cares about you:with a person you didn't mind to become more intimate:with a person you care about")>>
+	<</if>>
+	<<set $loss_output += " for your first time made it special, surely being one of your dearest memory">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " even despite getting raped by " + _tempPronounRef>><</if>>
+	<<set $loss_output += ".">>
+<<elseif jsStrcount($loss_feel, "okay")>>
+	<<set $loss_output += "Although you were somewhat uncertain about it, at least it wasn't a complete stranger">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " albeit the fact that you were taken by force spoiled it somewhat">><</if>>
+	<<set $loss_output += ".">>
+<<else>>
+	<<if jsStrcount($loss_feel, "drug")>>
+		<<set $loss_output += "You were drugged and too high to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "drunk")>>
+		<<set $loss_output += "You were intoxicated and completely wasted to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were extremely aroused and horny and didn't seem to mind it at the time, although it still took you by surprise.">>
+	<<elseif jsStrcount($loss_feel, "tired")>>
+		<<set $loss_output += "You were too exhausted to prevent it in the first place, and were more concerned about staying conscious.">>
+	<<elseif jsStrcount($loss_feel, "stress")>>
+		<<set $loss_output += "You were too stressed out to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "trauma")>>
+		<<set $loss_output += "You were severely traumatized at that point already and completely detached from reality to remember any particular feelings about it.">>
+	<<elseif jsStrcount($loss_feel, "curious")>>
+		<<set $loss_output += "You were sexually curious and wanted to actually experience the real thing and how does it feel.">>
+	<<elseif jsStrcount($loss_feel, "slut")>>
+		<<set $loss_output += "You were very naughty and debauched, and at that point your virginity didn't mean much for you, being just an obstacle to the wondrous world of a new pleasure you were yet to experience.">>
+	<<elseif jsStrcount($loss_feel, "ignorant")>>
+		<<set $loss_output += "You had no idea what was going on and why it seemed like a big deal, but you have a feeling it wasn't such a good thing.">>
+	<<else>>
+		<<set $loss_output += "You seem to regret the fact of the incident, not being happy about getting defiled just like that. The thoughts of what could've been if you would've put more effort into preventing it continue to assail you">>
+		<<if $days-7 > $loss_day.split(",")[1]>><<set $loss_output += "to this day">><</if>>
+		<<set $loss_output += ".">>
+	<</if>>
+<</if>>
+<<set $loss_output += "<br>">>
+
+/* todo - we assume that player character is not exactly adult for now*/
+/* todo -also, should be this done for other types as well?*/
+/* todo -some type of npc age check? in case this gets overly long*/
+<<if jsStrcount($loss_partner, "woman") || jsStrcount($loss_partner, "Eden")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay") + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "Being taught the joys of sex by an older woman you actually " + jsSplitRand("love/find attractive/date", jsStrcount($loss_feel, "love"), "befriended/didn't mind spending time with", jsStrcount($loss_feel, "friend"), "wanted to relieve you of your virginity", jsStrcount($loss_feel, "curious") + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal") ) + " felt amazing indeed.">>
+	<<else>>
+		<<set $loss_output += "You felt completely powerless after being " + jsSplitr("taken advantage of:preyed upon:dominated") + " just like that by an older woman.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $peniledeflorationinitiated>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "You were glad to welcome your partner in yourself, <<fsyn 'insert:ing'>> " + _tempPronounPos + " " + $loss_circum + " on your own.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were so impatient it was actually you who <<fsyn 'insert:ed'>> it in.">>
+	<<else>>
+		<<set $loss_output += "It's hard to explain what were you thinking because it was you who <<fsyn 'insert:ed'>> it in the first place.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+/* todo - specify whether it's truly inside or not if "pull out" action will be implemented*/
+<<if $peniledeflorationcreampie>>
+	<<set $loss_output += "You have managed to ejaculate inside on your first time as well">>
+	<<if $peniledeflorationorgasm>>
+		<<set $loss_output += ", orgasming" + ($peniledeflorationorgasm > 1 ? " multiple times" : "") + " during the act">>
+	<</if>>
+	<<set $loss_output += ".<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "rape")>>
+	<<if jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You would've much preferred if it didn't happen by the means of rape however.">>
+	<<else>>
+		<<set $loss_output += "In the end, you've become just another victim of rape.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angel")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "Although you didn't mind the person in question being your first, the loss of your angelic status still pains you somewhat.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "However the loss of your special angelic status followed shortly after still makes it quite frustrating.">>
+	<<else>>
+		<<set $loss_output += "The loss of your special angelic status followed shortly after makes this even more aggravating.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angry")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay") + jsStrcount($loss_feel, "curious") + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "For one reason or another " + _tempPronoun + " was angry with you at the moment, which made it somewhat rougher.">>
+	<<else>>
+		<<set $loss_output += "Seems like you made " + _tempPronounRef + " angry in the process as well, which caused " + _tempPronounRef + " to act much rougher than usual, making this memory particularly uncomfortable for you.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $loss_circum == "tentacle">>
+	<<set $loss_output += "Losing virginity to tentacle's feeler certainly felt weird...">>
+/*placeholder in case we get female animals*/
+<<elseif jsSplitcheck($loss_add, "creature")>>
+	<<set $loss_output += "Nevertheless, getting to <<fverb>> some ">>
+	<<if $loss_partner == "dog" || $loss_partner == "cat">>
+		<<set $loss_output += jsSplitr("dirty :filthy ")>>
+	<<elseif $loss_partner == "wolf" || $loss_partner == "bear">>
+		<<set $loss_output += jsSplitr("feral :forest ")>>
+	<</if>>
+	<<set $loss_output += $loss_partner + " animal <<fsyn 'vagina'>> is an interesting way of losing your penile virginity...">>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+$loss_output
+<</nobr>><</widget>>
+
+<<widget "avirginityloss_set">><<nobr>>
+<<set $loss_day = $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location + "," + $devlevel>>
+
+<<if $enemytype is "beast">>
+<<set $loss_partner = $beasttype>>
+<<elseif $npc isnot 0>>
+<<set $loss_partner = $npcdescription + " " + $npc>>
+<<elseif $npcadult is 1>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " man">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " woman">>
+	<</if>>
+<<else>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " boy">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " girl">>
+	<</if>>
+<</if>>
+
+<<if jsStrcount($anusstate, "mouth")>>
+<<set $loss_circum = "tongue">>
+<<else>>
+<<set $loss_circum = "penis">>
+<</if>>
+
+/* actions that have you initiate this in some way pass 1*/
+<<if $anuslossinitiated == 1>>
+	<<set $anusdeflorationinitiated = 1>>
+<</if>>
+
+<<if $npc is "Robin">>/*for now assume robin is love only*/
+	<<set $loss_feel = "love">>
+<<elseif $npc is "Eden">>
+	<<if $edenlove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $edenlove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $edenlove >= 20 || $syndromeeden is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<else>>
+	<<if $drugged is 1>>
+		<<set $loss_feel = "drug">>
+	<<elseif $druggedtimer > 480>>
+		<<set $loss_feel = "drunk">>
+	/* $loss_feel = "pain" won't be doing pain because it's always nearly maxed on loss currently */
+	<<elseif $arousal gte 10000>>
+	   <<set  $loss_feel = "arousal">>
+	<<elseif $tiredness gte 2000>>
+		<<set $loss_feel = "tired">>
+	<<elseif $stress gte 10000>>
+		<<set $loss_feel = "stress">>
+	<<elseif $trauma gte $traumamax>>
+		<<set $loss_feel = "trauma">>
+	<<else>>
+		<<if $promiscuity > 35 && $promiscuity < 75>>
+			<<set $loss_feel = "curious">>
+		<<elseif $promiscuity > 75>>
+			<<set $loss_feel = "slut">>
+		<<elseif $awarelevel < 1>>
+			<<set $loss_feel = "ignorant">>
+		<<else>>
+			<<set $loss_feel = "hate">>
+		<</if>>
+	<</if>>
+<</if>>
+<<set $loss_add = "">>
+<<if $enemytype is "beast">>
+	<<set $loss_add += "creature:">>
+<<elseif $pronoun is "m">>
+	<<set $loss_add += "male:">>
+<<else>>
+	<<set $loss_add += "female:">>
+<</if>>
+<<if $consensual == 0>><<set $loss_add += "rape:">><</if>>
+<<if $enemyanger > 60>><<set $loss_add += "angry:">><</if>>
+<<if $angel gte 4>><<set $loss_add += "angel:">><</if>>
+<<if $penilevirginity && $vaginalvirginity>><<set $loss_add += "virgin:">><</if>>
+
+/* format  Date//Partner//Circumstance//Perceived Feeling//Additional */
+<<set $avirginlossinfo = $loss_day + "//" + $loss_partner + "//" + $loss_circum + "//" + $loss_feel + "//" + $loss_add>>
+<<set $logextraimportance to 8>>
+<<set $logextra "I lost my anal virginity to "+$loss_partner+".">>
+
+<</nobr>><</widget>>
+
+<<widget "avirginityloss_print">><<nobr>>
+/* extract the data */
+<<set $loss_day = $avirginlossinfo.split("//")[0]>><<set $loss_partner = $avirginlossinfo.split("//")[1]>><<set $loss_circum = $avirginlossinfo.split("//")[2]>><<set $loss_feel = $avirginlossinfo.split("//")[3]>><<set $loss_add = $avirginlossinfo.split("//")[4]>>
+/*str.replace(/,$/g, "");*/
+<<set $loss_output = "">>
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set _tempPronoun = "it">><<set _tempPronounPos = "its">><<set _tempPronounRef = "it">>
+<<elseif jsSplitcheck($loss_add, "male")>>
+	<<set _tempPronoun = "he">><<set _tempPronounPos = "his">><<set _tempPronounRef = "him">>
+<<else>>
+	<<set _tempPronoun = "she">><<set _tempPronounPos = "her">><<set _tempPronounRef = "her">>
+<</if>>
+
+<<if !( jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal") ) && jsRandom(1)>>
+	<<set $loss_output = "You got robbed of your anal virginity by">>
+<<elseif jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+	<<set $loss_output = "You " + jsSplitr("had your first anal sex with:gave your anal virginity to:offered your anal virginity to")>>
+<<else>>
+	<<set $loss_output = jsSplitr("Your anal virginity has been taken by:Your first anal partner was:You lost your anal virginity to:You've been anally deflorated by")>>
+<</if>>
+
+<<set $loss_output += " " + (jsSplitcheck($loss_add, "creature") ? jsArticle($loss_partner) : $loss_partner) + " who invaded your <<fsyn 'anus'>> for the first time with " + _tempPronounPos + " " + $loss_circum>>
+/*        0               1               2               3               4               5               6*/
+/* $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location  + age (7)*/
+<<set $loss_output += " on " + jsCount($loss_day.split(",")[2]) + " of " + jsCapitalize($loss_day.split(",")[3])>>
+
+<<if $loss_day.split(",")[1] == $days>> <<set $loss_output += " (which happened just today)">>
+<<elseif $loss_day.split(",")[1] == $days-1>> <<set $loss_output += " (which happened just yesterday)">>
+<<elseif $loss_day.split(",")[1] > $days-7>> <<set $loss_output += " (which happened just couple of days ago)">>
+<</if>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<set $loss_output += " outside">>
+<</if>>
+
+<<switch $loss_day.split(",")[6]>>
+	<<case "beach">>
+		<<set $loss_output += " on the beach">>
+	<<case "sea">>
+		<<set $loss_output += " somewhere at the sea">>
+	<<case "home">>
+		<<set $loss_output += " at the orphanage">>
+	<<case "town">>
+		<<set $loss_output += " somewhere in the town">> /* todo? more precise locations */
+	<<case "forest">>
+		<<set $loss_output += " somewhere in the forest">>
+	<<case "underground">>
+		<<set $loss_output += " in the depths of underground">>
+	<<case "school">>
+		<<set $loss_output += " at the school grounds">>
+	<<case "cabin">>
+		<<set $loss_output += " in the hunter's cabin">>
+	<<case "pool">>
+		<<set $loss_output += " at the pool">>
+<</switch>>
+<<set $loss_output += " during " + $loss_day.split(",")[0]>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<switch $loss_day.split(",")[4]>>
+		<<case "clear">>
+			<<set $loss_output += " under the sun">>
+		<<case "overcast">>
+			<<set $loss_output += " as it was cloudy">>
+		<<case "rain">>
+			<<set $loss_output += " under the rain">>
+	<</switch>>
+<</if>>
+
+<<set $loss_output += ".<br>">>
+
+<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+	<<set $loss_output += "Having your anal walls being forcibly spread did hurt, but you were more relieved than pained since it was ">>
+	/* if we ever get a beast you can fall in love with or befriend, add a case here */
+	<<if jsStrcount($loss_feel, "love")>>
+		<<set $loss_output += jsSplitr("with your lover:with your beloved partner:with an important person in your life:with a person you care about")>>
+	<<else>>
+		<<set $loss_output += jsSplitr("with a person whom you consider to be your friend:with someone who surely cares about you:with a person you didn't mind to become more intimate:with a person you care about")>>
+	<</if>>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += ", even despite getting raped by " + _tempPronounRef>><</if>>
+<<elseif jsStrcount($loss_feel, "okay")>>
+	<<set $loss_output += "Although you were somewhat uncertain about it, at least it wasn't a complete stranger">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " albeit the fact that you were taken by force spoiled it somewhat">><</if>>
+<<else>>
+	<<if jsStrcount($loss_feel, "drug")>>
+		<<set $loss_output += "You were drugged and too high to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "drunk")>>
+		<<set $loss_output += "You were intoxicated and completely wasted to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were extremely aroused and horny and didn't seem to mind it at the time, although it still took you by surprise">>
+	<<elseif jsStrcount($loss_feel, "tired")>>
+		<<set $loss_output += "You were too exhausted to prevent it in the first place, and were more concerned about staying conscious">>
+	<<elseif jsStrcount($loss_feel, "stress")>>
+		<<set $loss_output += "You were too stressed out to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "trauma")>>
+		<<set $loss_output += "You were severely traumatized at that point already and completely detached from reality to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "curious")>>
+		<<set $loss_output += "You were sexually curious and wanted to experience anal intercourse">>
+	<<elseif jsStrcount($loss_feel, "slut")>>
+		<<set $loss_output += "You were very naughty and debauched, and at that point your already less valuable anal virginity didn't mean anything for you at all, being just an obstacle to the wondrous world of kinky pleasure you were yet to experience">>
+	<<elseif jsStrcount($loss_feel, "ignorant")>>
+		<<set $loss_output += "Shoving things into a dirty hole that's supposed to excrete certainly seemed shocking and very strange for you at the time">>
+	<<else>>
+		<<set $loss_output += "You already had an idea that your butt certainly wasn't meant for sex, further confirming it by lots of pain, scaring you. The thoughts of what could've been if you would've put more effort into preventing it continue to assail you">>
+		<<if $days-7 > $loss_day.split(",")[1]>><<set $loss_output += "to this day">><</if>>
+	<</if>>
+<</if>>
+<<set $loss_output += ". ">>
+
+<<if !jsSplitcheck($loss_add, "virgin")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "Since your virginity was already taken at the time, giving your another first was the least you could do for " + _tempPronounRef>>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "Since you already " + ($vaginalvirginity == 0 ? " got used to being penetrated, " : " had some first-hand sexual experience ") + ", giving up your another first wasn't such a big deal anymore">>
+	<<else>>
+		<<set $loss_output += "Being robbed of your another virginity wasn't a part of your plan, especially in a such ruthless way">>
+	<</if>>
+<<else>>
+	<<if $penilevirginity && $vaginalvirginity>>
+		<<set $loss_output += "It seems like you were protecting your virginity, offering another hole instead as a possible substitute">>
+		<<if jsSplitcheck($loss_add, "angel")>>
+			<<set $loss_output += " which is perfectly understandable for an angel">>
+			<<if $fallenangel>> /* am I dumb for doing this? this line won't be shown, unless you can restore your virginities legit way*/
+				<<set $loss_output += ", although in the end you still fell from grace despite your efforts">>
+			<</if>>
+		<</if>>
+	<<else>>
+		<<set $loss_output += "It seems like you were trying to protect your virginity">>
+
+		/*there's probably a better way of handling and creating multiple temp vars instead of making shitton of 'em, but fuck it*/
+		<<if $fvirginlossinfo>><<set _local1 = $fvirginlossinfo.split("//")[0]>><<set _local1 = _local1.split(",")[1]>><</if>>
+		<<if $pvirginlossinfo>><<set _local2 = $pvirginlossinfo.split("//")[0]>><<set _local2 = _local2.split(",")[1]>><</if>>
+		<<if _local1 == $loss_day.split(",")[1] || _local2 == $loss_day.split(",")[1]>>
+			<<set $loss_output += ", which had failed spectacularly since you lost it on the same day">>
+		<<else>>
+			<<set $loss_output += ", only to lose it later on anyway" + _local1>>
+		<</if>>
+		<<if jsSplitcheck($loss_add, "angel")>>
+			<<set $loss_output += ", as well as revoking your angel status">>
+		<</if>>
+	<</if>>
+<</if>>
+<<set $loss_output += ".">>
+<<set $loss_output += "<br>">>
+
+<<if $anusdeflorationinitiated>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "You were glad to welcome your partner in yourself, <<fsyn 'insert:f:ing'>> " + _tempPronounPos + " " + $loss_circum + " on your own.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were so impatient it was actually you who <<fsyn 'insert:f:ed'>> it in.">>
+	<<else>>
+		<<set $loss_output += "It's hard to explain what were you thinking because it was you who <<fsyn 'insert:f:ed'>> it in the first place.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $anusdeflorationcreampie>>
+	<<set $loss_output += jsCapitalize(_tempPronoun) + " had also ejaculated into your anus during your first time, making it the very first cumshot that has marked your bowels.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+<<if jsSplitcheck($loss_add, "rape")>>
+	<<if jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You would've much preferred if it didn't happen by the means of rape however.">>
+	<<else>>
+		<<set $loss_output += "In the end, you've become just another victim of rape.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angry")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay") + jsStrcount($loss_feel, "curious") + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "For one reason or another " + _tempPronoun + " was angry with you at the moment, which made it more painful than it should've been.">>
+	<<else>>
+		<<set $loss_output += "Seems like you made " + _tempPronounRef + " angry in the process as well, which caused " + _tempPronounRef + " to act much rougher than usual, making this memory particularly painful for you.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set $loss_output += "Nevertheless, having some ">>
+	<<if $loss_partner == "dog" || $loss_partner == "cat">>
+		<<set $loss_output += jsSplitr("dirty :filthy ")>>
+	<<elseif $loss_partner == "wolf" || $loss_partner == "bear">>
+		<<set $loss_output += jsSplitr("feral :forest ")>>
+	<</if>>
+	<<set $loss_output += $loss_partner + " as a partner is a hell of a way of having your first anal...">>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $analdeflorationorgasm>>
+	<<set $loss_output += "In addition, you clearly remember orgasming" + ($analdeflorationorgasm > 1 ? " multiple times" : "") + " during the act, which can be considered quite unusual.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+$loss_output
+<</nobr>><</widget>>
+
+<<widget "ovirginityloss_set">><<nobr>>
+<<set $loss_day = $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location + "," + $devlevel>>
+
+<<if $enemytype is "beast">>
+<<set $loss_partner = $beasttype>>
+<<elseif $npc isnot 0>>
+<<set $loss_partner = $npcdescription + " " + $npc>>
+<<elseif $npcadult is 1>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " man">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " woman">>
+	<</if>>
+<<else>>
+	<<if $pronoun is "m">><<set $loss_partner = $description + " boy">>
+	<<elseif $pronoun is "f">><<set $loss_partner = $description + " girl">>
+	<</if>>
+<</if>>
+
+/*todo - kisses and vaginas don't take oral virginity, but we will note them as first kiss source later on*/
+/*<<if jsStrcount($anusstate, "mouth")>>
+<<set $loss_circum = "tongue">>
+<<else>>
+<<set $loss_circum = "penis">>
+<</if>>*/
+<<set $loss_circum = "penis">>
+
+/* actions that have you initiate this in some way pass 1*/
+<<if $orallossinitiated == 1>>
+	<<set $oraldeflorationinitiated = 1>>
+<</if>>
+
+<<if $npc is "Robin">>/*for now assume robin is love only*/
+	<<set $loss_feel = "love">>
+<<elseif $npc is "Eden">>
+	<<if $edenlove >= 80>>
+		<<set $loss_feel = "love">>
+	<<elseif $edenlove >= 40>>
+		<<set $loss_feel = "friend">>
+	<<elseif $edenlove >= 20 || $syndromeeden is 1>>
+		<<set $loss_feel = "okay">>
+	<</if>>
+<<else>>
+	<<if $drugged is 1>>
+		<<set $loss_feel = "drug">>
+	<<elseif $druggedtimer > 480>>
+		<<set $loss_feel = "drunk">>
+	/* $loss_feel = "pain" won't be doing pain because it's always nearly maxed on loss currently */
+	<<elseif $arousal gte 10000>>
+	   <<set  $loss_feel = "arousal">>
+	<<elseif $tiredness gte 2000>>
+		<<set $loss_feel = "tired">>
+	<<elseif $stress gte 10000>>
+		<<set $loss_feel = "stress">>
+	<<elseif $trauma gte $traumamax>>
+		<<set $loss_feel = "trauma">>
+	<<else>>
+		<<if $promiscuity > 35 && $promiscuity < 75>>
+			<<set $loss_feel = "curious">>
+		<<elseif $promiscuity > 75>>
+			<<set $loss_feel = "slut">>
+		<<elseif $awarelevel < 1>>
+			<<set $loss_feel = "ignorant">>
+		<<else>>
+			<<set $loss_feel = "hate">>
+		<</if>>
+	<</if>>
+<</if>>
+<<set $loss_add = "">>
+<<if $enemytype is "beast">>
+	<<set $loss_add += "creature:">>
+<<elseif $pronoun is "m">>
+	<<set $loss_add += "male:">>
+<<else>>
+	<<set $loss_add += "female:">>
+<</if>>
+<<if $consensual == 0>><<set $loss_add += "rape:">><</if>>
+<<if $enemyanger > 60>><<set $loss_add += "angry:">><</if>>
+<<if $angel gte 4>><<set $loss_add += "angel:">><</if>>
+<<if $penilevirginity && $vaginalvirginity>><<set $loss_add += "virgin:">><</if>>
+
+/* format  Date//Partner//Circumstance//Perceived Feeling//Additional */
+<<set $ovirginlossinfo = $loss_day + "//" + $loss_partner + "//" + $loss_circum + "//" + $loss_feel + "//" + $loss_add>>
+<<set $logextraimportance to 8>>
+<<set $logextra "I lost my oral virginity to "+$loss_partner+".">>
+
+<</nobr>><</widget>>
+
+<<widget "ovirginityloss_print">><<nobr>>
+/* extract the data */
+<<set $loss_day = $ovirginlossinfo.split("//")[0]>><<set $loss_partner = $ovirginlossinfo.split("//")[1]>><<set $loss_circum = $ovirginlossinfo.split("//")[2]>><<set $loss_feel = $ovirginlossinfo.split("//")[3]>><<set $loss_add = $ovirginlossinfo.split("//")[4]>>
+/*str.replace(/,$/g, "");*/
+<<set $loss_output = "">>
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set _tempPronoun = "it">><<set _tempPronounPos = "its">><<set _tempPronounRef = "it">>
+<<elseif jsSplitcheck($loss_add, "male")>>
+	<<set _tempPronoun = "he">><<set _tempPronounPos = "his">><<set _tempPronounRef = "him">>
+<<else>>
+	<<set _tempPronoun = "she">><<set _tempPronounPos = "her">><<set _tempPronounRef = "her">>
+<</if>>
+
+<<if !( jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal") ) && jsRandom(1)>>
+	<<set $loss_output = "You got robbed of your oral virginity by">>
+<<elseif jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+	<<set $loss_output = "You " + jsSplitr("had your first oral sex with:gave your first blowjob to")>>
+<<else>>
+	<<set $loss_output = jsSplitr("Your oral virginity has been taken by:Your first oral partner was")>>
+<</if>>
+
+<<set $loss_output += " " + (jsSplitcheck($loss_add, "creature") ? jsArticle($loss_partner) : $loss_partner) + " who invaded your mouth for the first time with " + _tempPronounPos + " " + $loss_circum>>
+/*        0               1               2               3               4               5               6*/
+/* $daystate + "," + $days + "," + $monthday + "," + $month + "," + $weather + "," + $outside + "," + $location  + age (7)*/
+<<set $loss_output += " on " + jsCount($loss_day.split(",")[2]) + " of " + jsCapitalize($loss_day.split(",")[3])>>
+
+<<if $loss_day.split(",")[1] == $days>> <<set $loss_output += " (which happened just today)">>
+<<elseif $loss_day.split(",")[1] == $days-1>> <<set $loss_output += " (which happened just yesterday)">>
+<<elseif $loss_day.split(",")[1] > $days-7>> <<set $loss_output += " (which happened just couple of days ago)">>
+<</if>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<set $loss_output += " outside">>
+<</if>>
+
+<<switch $loss_day.split(",")[6]>>
+	<<case "beach">>
+		<<set $loss_output += " on the beach">>
+	<<case "sea">>
+		<<set $loss_output += " somewhere at the sea">>
+	<<case "home">>
+		<<set $loss_output += " at the orphanage">>
+	<<case "town">>
+		<<set $loss_output += " somewhere in the town">> /* todo? more precise locations */
+	<<case "forest">>
+		<<set $loss_output += " somewhere in the forest">>
+	<<case "underground">>
+		<<set $loss_output += " in the depths of underground">>
+	<<case "school">>
+		<<set $loss_output += " at the school grounds">>
+	<<case "cabin">>
+		<<set $loss_output += " in the hunter's cabin">>
+	<<case "pool">>
+		<<set $loss_output += " at the pool">>
+<</switch>>
+<<set $loss_output += " during " + $loss_day.split(",")[0]>>
+
+<<if $loss_day.split(",")[5] == 1>>
+	<<switch $loss_day.split(",")[4]>>
+		<<case "clear">>
+			<<set $loss_output += " under the sun">>
+		<<case "overcast">>
+			<<set $loss_output += " as it was cloudy">>
+		<<case "rain">>
+			<<set $loss_output += " under the rain">>
+	<</switch>>
+<</if>>
+
+<<set $loss_output += ".<br>">>
+/* todo - taste branching, throatfuck branching*/
+<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+	<<set $loss_output += "You think that sucking the <<fsyn 'penis'>> ">>
+	/* if we ever get a beast you can fall in love with or befriend, add a case here */
+	<<if jsStrcount($loss_feel, "love")>>
+		<<set $loss_output += jsSplitr("of your lover:of your beloved partner:of an important person in your life:of a person you care about")>>
+	<<else>>
+		<<set $loss_output += jsSplitr("of a person whom you consider to be your friend:of someone who surely cares about you:of a person you didn't mind to become more intimate:of a person you care about")>>
+	<</if>>
+	<<set $loss_output += " as your first and the thought of relieving " + _tempPronounRef + " that way is probably one of the best possible outcomes for this">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += ", even despite getting raped by " + _tempPronounRef>><</if>>
+<<elseif jsStrcount($loss_feel, "okay")>>
+	<<set $loss_output += "You weren't exactly excited about the thought of sucking a <<fsyn 'penis'>>, but at least it wasn't a complete stranger">>
+	<<if jsSplitcheck($loss_add, "rape")>><<set $loss_output += " albeit the fact that you were taken by force spoiled it somewhat">><</if>>
+<<else>>
+/* maybe refine those, to be a bit more unique*/
+	<<if jsStrcount($loss_feel, "drug")>>
+		<<set $loss_output += "You were drugged and too high to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "drunk")>>
+		<<set $loss_output += "You were intoxicated and completely wasted to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were extremely aroused and horny and didn't seem to mind it at the time, although it still took you by surprise">>
+	<<elseif jsStrcount($loss_feel, "tired")>>
+		<<set $loss_output += "You were too exhausted to prevent it in the first place, and were more concerned about staying conscious">>
+	<<elseif jsStrcount($loss_feel, "stress")>>
+		<<set $loss_output += "You were too stressed out to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "trauma")>>
+		<<set $loss_output += "You were severely traumatized at that point already and completely detached from reality to remember any particular feelings about it">>
+	<<elseif jsStrcount($loss_feel, "curious")>>
+		<<set $loss_output += "You were sexually curious and wanted to experience anal intercourse">>
+	<<elseif jsStrcount($loss_feel, "slut")>>
+		<<set $loss_output += "You were very naughty and debauched, and the thought of sucking off somebody certainly thrilled you at the time">>
+	<<elseif jsStrcount($loss_feel, "ignorant")>>
+		<<set $loss_output += "Putting such a dirty thing into your mouth seemed outrageous to you at the time, and it tasted very strange">>
+	<<else>>
+		<<set $loss_output += "You absolutely abhor the thought of having your mouth defiled by someone's genitals">>
+	<</if>>
+<</if>>
+<<set $loss_output += ". ">>
+
+<<if $oraldeflorationinitiated>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend")>>
+		<<set $loss_output += "You were glad to welcome your partner in yourself, <<fsyn 'insert:f:ing'>> " + _tempPronounPos + " " + $loss_circum + " on your own.">>
+	<<elseif jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You were so impatient it was actually you who <<fsyn 'insert:f:ed'>> it in.">>
+	<<else>>
+		<<set $loss_output += "It's hard to explain what were you thinking because it was you who <<fsyn 'insert:f:ed'>> it in the first place.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $oraldeflorationcreampie>>
+	<<set $loss_output += jsCapitalize(_tempPronoun) + " had also ejaculated into your mouth during your first blowjob, making it the very first cumshot that has marked your throat.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+<<if jsSplitcheck($loss_add, "rape")>>
+	<<if jsStrcount($loss_feel, "okay")  + jsStrcount($loss_feel, "curious")  + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "You would've much preferred if it didn't happen by the means of rape however.">>
+	<<else>>
+		<<set $loss_output += "In the end, you've become just another victim of rape.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "angry")>>
+	<<if jsStrcount($loss_feel, "love") + jsStrcount($loss_feel, "friend") + jsStrcount($loss_feel, "okay") + jsStrcount($loss_feel, "curious") + jsStrcount($loss_feel, "slut") + jsStrcount($loss_feel, "arousal")>>
+		<<set $loss_output += "For one reason or another " + _tempPronoun + " was angry with you at the moment, which made it somewhat uncomfortable.">>
+	<<else>>
+		<<set $loss_output += "Seems like you made " + _tempPronounRef + " angry in the process as well, which caused " + _tempPronounRef + " to act much rougher than usual, making this memory particularly painful for you.">>
+	<</if>>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if jsSplitcheck($loss_add, "creature")>>
+	<<set $loss_output += "Nevertheless, having to taste the <<fsyn 'penis'>> of some ">>
+	<<if $loss_partner == "dog" || $loss_partner == "cat">>
+		<<set $loss_output += jsSplitr("dirty :filthy ")>>
+	<<elseif $loss_partner == "wolf" || $loss_partner == "bear">>
+		<<set $loss_output += jsSplitr("feral :forest ")>>
+	<</if>>
+	<<set $loss_output += $loss_partner + " is a hell of a way of having your first oral experience...">>
+	<<set $loss_output += "<br>">>
+<</if>>
+
+<<if $oraldeflorationorgasm>>
+	<<set $loss_output += "In addition, you clearly remember orgasming" + ($analdeflorationorgasm > 1 ? " multiple times" : "") + " during the act, which can be considered quite unusual.">>
+	<<set $loss_output += "<br>">>
+<</if>>
+$loss_output
+<</nobr>><</widget>>
+
+/* these are activated when gaining the experience for the first time, flip the temporary switch and global switch, generate loss text*/
+/* if hymen restoration will be possible, trigger needs to be changed (or maybe do it differently for new deflorations?)*/
+<<widget "vagdefloration">><<set $virginloss to 1>><<set $vagdefloration to 1>><<fvirginityloss_set>><</widget>>
+
+<<widget "analdefloration">><<set $avirginloss to 1>><<set $analdefloration to 1>><<avirginityloss_set>><</widget>>
+
+<<widget "oraldefloration">><<set $ovirginloss to 1>><<set $oraldefloration to 1>><<ovirginityloss_set>><</widget>>
+
+<<widget "peniledefloration">><<set $pvirginloss to 1>><<set $peniledefloration to 1>><<pvirginityloss_set>><</widget>>
+
+
+<<widget "fverb">><<nobr>>
+<<if $args[0] == undefined>><<set $args[0] = "">><</if>>
+
+<<if jsSplitcheck($args[0], "f")>>
+	<<if jsSplitcheck($args[0], "ing")>>
+		<<set $output = "bouncing on:grinding on:going down on:riding:gyrating atop">>
+	<<elseif jsSplitcheck($args[0], "s")>>
+		<<set $output = "bounces on:grinds on:goes down on:rides:gyrates atop">>
+	<<elseif jsSplitcheck($args[0], "ed")>>
+		<<set $output = "bounced on:grinded on:ridden:gyrated atop">>
+	<<else>>
+		<<set $output = "bounce on:grind on:go down on:ride:gyrate atop">>
+	<</if>>
+<<elseif jsSplitcheck($args[0], "n")>>
+	<<set $output = "fucking:thrusting:pounding:penetrating:ravaging:pumping:pistoning:churning:plunging:pummeling:hammering:dicking">>
+<<else>>
+	<<if jsSplitcheck($args[0], "ing")>>
+		<<set $output = "fucking:thrusting into:pounding at:penetrating:ravaging:pumping into:grinding into:churning:plunging into:pummeling:hammering into">>
+	<<elseif jsSplitcheck($args[0], "s")>>
+		<<set $output = "fucks:thrusts into:pounds at:penetrates:ravages:pumps into:grinds into:churns:plunges into:pummels:hammers into">>
+	<<elseif jsSplitcheck($args[0], "ed")>>
+		<<set $output = "fucked:pounded:penetrated:ravaged:pumped:churned:pummeled:hammered">>
+	<<else>>
+		<<set $output = "fuck:thrust into:pound at:penetrate:ravage:pump into:grind into:churn:plunge into:pummel:hammer into">>
+	<</if>>
+<</if>>
+
+<<print jsSplitr($output)>>
+<</nobr>><</widget>>
+
+<<widget "kissing">><<nobr>>
+	<<set $output = jsSplitr("Kiss:Suck:Lick:Slurp:Smooch:Shlurp")>>
+	<<if $args[0]>>
+		<<print $output.toLowerCase()>>
+	<<else>>
+		<<print $output>>
+	<</if>>
+<</nobr>><</widget>>
+
+/*put an argument here and receive proper synonyms, second argument for plural*/
+<<widget "fsyn">>\
+<<silently>>\
+/* choose from multiple if split is used, otherwise it should be always the first */
+<<set $args[0] = jsSplitr($args[0], "//")>>
+
+<<if $args[0] == undefined || $args[0] == "">><<set $args[0] = "(No arguments)">><</if>>
+<<if $args[1] == undefined>><<set $args[1] = 1>><</if>>
+<<switch $args[0].toLowerCase().split(":")[0]>>
+	<<case "reflex">>
+		<<if jsSplitcheck($args[0], "ly")>>
+			<<set $output = "unconsciously:on reflex:on impulse:unintentionally">>
+		<<else>>
+			<<set $output = "reflex:impulse:habit:instinct">>
+		<</if>>
+	<<case "rub">>
+		<<set $output = "rub:stroke:caress:fondle">>
+	<<case "stare">>
+		<<set $output = "stare:look:gawk:gaze">>
+	<<case "shame">>
+		<<if jsSplitcheck($args[0], "d")>>
+			<<set $output = "embarrassed:ashamed:disgraced:humiliated">>
+		<<elseif jsSplitcheck($args[0], "es")>>
+			<<set $output = "embarrasses:disgraces:humiliates">>
+		<<elseif jsSplitcheck($args[0], "ly")>>
+			<<set $output = "embarrassingly:shamefully:disgracefully:humiliatingly">>
+		<<elseif jsSplitcheck($args[0], "n")>>
+			<<set $output = "embarrassment:shame:disgrace:humiliation">>
+		<<else>>
+			<<set $output = "embarrassing:shameful:disgraceful">>
+		<</if>>
+	<<case "gentle">>
+		<<if jsSplitcheck($args[0], "ly")>>
+			<<set $output = "gently:tenderly:kindly:affectionately">>
+		<<else>>
+			<<set $output = "gentle:tender:kind:affectionate">>
+		<</if>>
+	<<case "lick">>
+		<<set $output = "<<kissing, 'low'>>">>
+	<<case "pant">>
+		<<set $output = "pant:wheeze:gasp">>
+		<<if jsSplitcheck($args[0], "ing", "s", "ed")>>
+			<<set $output = $output + ":breathe " + jsSplitr("roughly:heavily")>>
+		<</if>>
+	<<case "insane">>
+		<<set $output = "insane:crazy:mad:nuts">>
+	<<case "intense">>
+		<<if jsSplitcheck($args[0], "ly")>>
+			<<set $output = "intensely:strongly:fiercely:violently:vehemently:vigorously:forcibly:furiously:heavily:frantically:relentlessly:feverishly:mercilessly">>
+		<<elseif jsSplitcheck($args[0], "ness")>>
+			<<set $output = "intenseness:fierceness:violence:furiousness:force:strength">>
+		<<else>>
+			<<set $output = "intense:strong:fierce:violent:vehement:furious:relentless">>
+		<</if>>
+	<<case "contract">>
+		<<set $output = "contract:clench:tighten:squeeze">>
+	<<case "stir">>
+		<<set $output = "stir:ransack:ravage:ravish:violate:fill:churn:mess">>
+	<<case "shoot">> /*dumps their load*/
+		<<set $output = "pump:dump:pour:blow:ejaculate:spurt:shoot:erupt:let out">>
+	<<case "ejac">>
+		<<if jsSplitcheck($args[0], "p")>>
+			<<set $output = "pour:ejaculate:release">>
+		<<else>>
+			<<set $output = "pour:blow:ejaculate:spurt:shoot:release">>
+		<</if>>
+	<<case "letout">> /*letting out so much...*/
+		<<if jsSplitcheck($args[0], "it")>>
+			<<set $output = "pouring it:ejaculating it:spurting it:splurting it:shooting it:letting it out">>
+		<<elseif jsSplitcheck($args[0], "s-it")>>
+			<<set $output = "pours it:ejaculates it:spurts it:splurts it:shoots it:lets it out">>
+		<<else>>
+			<<set $output = "pour:ejaculate:spurt:splurt:shoot:let out:cum">>
+		<</if>>
+	<<case "pour">> /*pouring into*/
+		<<set $output = "pour:pump:spurt:splurt:shoot">>
+	<<case "fill">> /*with semen*/
+		<<set $output = "fill:cram:stuff:pack:flood">>
+	<<case "squirm">>
+		<<set $output = "squirm:writhe:wriggle:squiggle:twist">>
+	<<case "clamp">> /*clamping down on*/
+		<<set $output = "clamp:tighten:press:grip">>
+	<<case "twine">>
+		<<set $output = "twine:coil:twist">>
+	<<case "milk">>
+		<<set $output = "milk:squeeze:wring">>
+	<<case "moan">>
+		<<set $output = "moan:groan:squeal">>
+	<<case "drench">>
+		<<set $output = "drench:soak">>
+	<<case "tired">>
+		<<set $output = "exhausted:tired:spent:worn out">>
+	<<case "leak">>
+		<<set $output = "leak:ooze:flow:run:trickle:spill:drip">>
+	<<case "overflow">>
+		<<set $output = "overflow:ooze:spill">>
+	<<case "stream">>
+		<<set $output = "stream:jet:flow">>
+	<<case "pee">>
+		<<if jsSplitcheck($args[0], "n")>>
+			<<set $output = "pee:urine:piss">>
+		<<else>>
+			<<set $output = "pee:urinate:piss">>
+		<</if>>
+	<<case "squirt">>
+		<<set $output = "squirt:gush:splash">>
+	<<case "hug">>
+		<<set $output = "hug:grasp onto:embrace:squeeze:cling to">>
+	<<case "twitch">>
+		<<set $output = "twitch:shake:convulse:waver:jerk:writhe">>
+	<<case "tremble">>
+		<<set $output = "tremble:squirm:shudder:shiver:quiver">>
+	<<case "throb">> /*throbbing dick*/
+		<<set $output = "throb:pulsate:tremble:twitch">>
+	<<case "orgasm">>
+		<<set $output = "orgasm:cum:climax">>
+	<<case "grind">> /* + her hips*/
+		<<set $output = "grind:pump:gyrate:bang:move:shake:swing:sway">>
+	<<case "thrust">> /* + his dick*/
+		<<set $output = "thrust:slam:grind:pump:pound:hammer:plunge:shove:bang">>
+	<<case "hold">>
+		<<set $output = "hold:grasp:grab">>
+	<<case "grope">>
+		<<set $output = "grab:grip:grope:fondle:squeeze">>
+	<<case "remove">>
+		<<if jsSplitcheck($args[0], "out")>>
+			<<set $output = "sliding out:slipping out:pulling out:removing">>
+		<<else>>
+			<<set $output = "slide:slip:pull:remove">>
+		<</if>>
+	<<case "insert">>
+		<<if jsSplitcheck($args[0], "f")>>
+			<<set $output = "push:guide:slide:take:insert:slip">>
+		<<else>>
+			<<set $output = "jam:thrust:push:slide:insert:ram:stick:bury">>
+		<</if>>
+	<<case "pushdown">>
+		<<set $output = "push:toss:roll:shove">>
+	<<case "pindown">>
+		<<set $output = "pin:push:toss:throw:hold:shove">>
+	<<case "restrain">>
+		<<set $output = "pin:hold:press">>
+	<<case "slap">>
+		<<set $output = "slap:smack">>
+	<<case "start">>
+		<<set $output = "start:begin">>
+	<<case "small">>
+		<<set $output = "small:tiny:little:puny">>
+	<<case "cute">>
+		<<set $output = "cute:adorable:precious">>
+	<<case "immature">>
+		<<if jsSplitcheck($args[0], "anus")>>
+			<<set $output = "immature:childish:pink">>
+		<<else>>
+			<<set $output = "immature:childish:undeveloped:youthful">>
+		<</if>>
+	<<case "tender">>
+		<<set $output = "tender:delicate:gentle">>
+	<<case "adult">>
+		<<set $output = "adult:matured:ripe">>
+	<<case "adult_ad">>
+		<<if jsSplitcheck($args[0], "anus")>>
+			<<if $analstat >= 100 && jsRandom(2)>>
+				<<set $output = "seasoned:darkened:experienced">>
+			<<elseif $devlevel < 16>>
+				<<set $output = "rosy:youthful:maturing:developing">>
+			<<else>>
+				<<set $output = "mature:developed:adult">>
+			<</if>>
+		<<elseif jsSplitcheck($args[0], "penis")>>
+				<<set $output = "adult">>
+		<<else>>
+			<<if $vaginalstat >= 100 && jsRandom(2)>>
+				<<set $output = "seasoned:experienced:obscene">>
+			<<elseif $devlevel < 16>>
+				<<set $output = "precocious:developing:maturing:adult-like">>
+			<<else>>
+				<<set $output = "womanly:mature:developed:adult">>
+			<</if>>
+		<</if>>
+	<<case "tingle">>
+		<<set $output = "tingle:quiver:itch:ache">>
+	<<case "aroused">>
+		<<set $output = "aroused:reddened:ready:excited">>
+	<<case "wet">>
+		<<set $output = "leaking:oozing:drooling:wet:drenched:slimy:sloppy">>
+	<<case "cumming">>
+		<<set $output = "cumming:ejaculating">>
+	<<case "hole">>
+		<<set $output = "hole:opening:orifice">>
+	<<case "yo">>
+		<<set $output = jsintToString($devlevel) + " year old">>
+	<<case "loli">>
+		<<set $output = ($player.gender == "m" ? "shota" : "loli")>>
+	<<case "penis">>
+		<<set _local = 0>>
+		<<if jsSplitcheck($args[0], "player")>>
+			<<if $devstate gte 1>>
+				<<set _local = 1>>
+			<<else>>
+				<<set _local = 2>>
+			<</if>>
+		<<elseif jsSplitcheck($args[0], "npc")>>
+			<<if $npcadult is 1>>
+				<<set _local = 1>>
+			<<else>>
+				<<set _local = 2>>
+			<</if>>
+		<</if>>
+
+		<<if jsSplitcheck($args[0], "a") || _local == 1 || ( _local == 0 && !jsSplitcheck($args[0], "ch") )>>
+			<<set $output = "penis:cock:dick">>
+		<<else>>
+			<<set $output = "willy:nilly:weewee:peepee:weenie">> /* these variants are mostly for the player character to say, using them in description would be too silly */
+		<</if>>
+	<<case "hardeness">>
+		<<if $arousal gte 8000>>
+			<<set $output = "rock-hard:demanding:eager:fully engorged:raging:vigorous:fiery">>
+		<<elseif $arousal gte 6000>>
+			<<set $output = "erect:stiff:hard:ready">>
+		<<elseif $arousal gte 4000>>
+			<<set $output = "raising:hardening:half-hard:swelling:bulging">>
+		<<elseif $arousal gte 2000>>
+			<<set $output = "still soft:somewhat soft">>
+		<<else>>
+			<<set $output = "flaccid:soft:shrunk:limp">>
+		<</if>>
+	<<case "vagina">>
+		<<set _local = 0>>
+		<<if jsSplitcheck($args[0], "player")>>
+			<<if $vaginalstat >= 100 && jsRandom(2)>>
+				<<set _local = 1>>
+			<<elseif $devstate gte 1>>
+				<<set _local = 2>>
+			<<else>>
+				<<set _local = 3>>
+			<</if>>
+		<<elseif jsSplitcheck($args[0], "npc")>>
+			<<if $npcadult is 1>> /*for now assume all npcs are non-virgins*/
+				<<set _local = jsRandom(1,2)>>
+			<<else>>
+				<<set _local = 3>>
+			<</if>>
+		<</if>>
+
+		<<if jsSplitcheck($args[0], "ex") || _local == 1>>
+			<<set $output = "fuckhole:snatch:twat:honeypot">>
+		<<elseif jsSplitcheck($args[0], "ch") || _local == 3>>
+			<<set $output = "pussy:cunny:coochie:quim">>
+		<<elseif jsSplitcheck($args[0], "a") || _local == 2 || _local == 0>>
+			<<set $output = "vagina:pussy:cunt">>
+		<</if>>
+	<<case "ass">>
+		<<set $output = "ass:butt:backside:bottom">>
+	<<case "anus">>
+		<<set _local = 0>>
+		<<if jsSplitcheck($args[0], "player")>>
+			<<if $analstat >= 100 && jsRandom(2)>>
+				<<set _local = 1>>
+			<</if>>
+		<</if>>
+
+		<<if jsSplitcheck($args[0], "ex") || _local == 1>>
+			<<set $output = "anus:ass-pussy:butt-pussy">>
+		<<else>>
+			<<set $output = "anus:asshole:butthole:rectum">>
+		<</if>>
+	<<case "anal">>
+		<<set $output = "rectum:bowels:anus">>
+	<<case "chest">>
+		<<if jsSplitcheck($args[0], "plu")>>
+			<<set $output = "breasts:chests:tits:boobs:boobies">>
+		<<else>>
+			<<set $output = "breasts:chest:tits:boobs:boobies">>
+		<</if>>
+	<<case "labia">>
+		<<set $output = "labia:" + jsSplitr("pussy:vaginal") + " " + jsSplitr("lips:folds:petals")>>
+	<<case "balls">>
+		<<set $output = "balls:testes:testicles:nuts">>
+	<<case "virgin">>
+		<<switch $args[0].toLowerCase().split(":")[1]>>
+			<<case "vagina" "anus">>
+				<<set _local = $args[0].toLowerCase().split(":")[1]>>
+
+				<<if _local == "vagina" && $vaginalvirginity == 1 || _local == "anus" && $analvirginity == 1>>
+					<<set $output = "virgin:virginal:unused:shut tight:untapped:cherry">>
+				<<else>>
+					<<if _local == "vagina">><<set _local = $vaginalstat>><<else>><<set _local = $analstat>><</if>>
+					<<if _local < 1200>>
+						<<if _local < 10>>
+							<<set $output = "inexperienced:barely used:untrained:nearly-virgin:barely tried:recently deflorated">>
+						<<elseif _local < 30>>
+							<<set $output = "tight:tense:stiff:narrow:closed:firm">>
+						<<elseif _local < 100>>
+							<<set $output = "fresh:raw:inviting:neat">>
+						<<elseif _local < 600>>
+							<<set $output = "experienced:matured:well-trained:full-fledged:ripened">>
+						<<elseif _local < 900>>
+							<<set $output = "well-used:lustful:naughty:perverted">>
+						<<else>>
+							<<set $output = "much-used:widened:depraved">>
+						<</if>>
+					<<else>>
+						<<set $output = "wasted:used up:defiled:unchaste:ravished:violated:ravaged:ransacked">>
+					<</if>>
+				<</if>>
+			<<default>>
+				<<set $output = "virgin:virginal:unused:chaste:celibate:shut tight:untapped:cherry">>
+			<</if>>
+		<</switch>>
+	<<case "semen">>
+		<<unset _local, _local1>>
+		<<if jsSplitcheck($args[0], "add")>>
+			<<set _randres = jsRandom(30)>>
+			<<if _randres <= 20>>
+				<<if _randres <= 5>>
+					<<set _local = "warm ">>
+				<<elseif _randres <= 10>>
+					<<set _local = "hot ">>
+				<<elseif _randres <= 15>>
+					<<set _local = "sticky ">>
+				<<else>>
+					<<set _local = "thick ">>
+				<</if>>
+			<<else>>
+				<<set _local = jsSplitr("smelly :stinky :white :viscous :cloudy :bitter :salty ::::")>>
+			<</if>>
+		<</if>>
+		<<if jsSplitcheck($args[0], "player")>>
+			<<if $penilevirginity == 1 && !jsRandom(3)>><<set _local = "virgin ">><</if>>
+		<</if>>
+		<<set _randres = jsRandom(15)>>
+		<<if _randres <= 10>>
+			<<if _randres <= 5>>
+				<<set $output = "semen">>
+			<<else>>
+				<<set $output = "cum">>
+			<</if>>
+		<<else>>
+			<<set $output = jsSplitr("spunk:seed:sperm:jizz")>>
+		<</if>>
+		<<if _local>><<set $output = _local + $output>><</if>>
+	<<case "goo">>
+		<<set $output = "goo:slime">>
+	<<case "creampie">>/*this case requires some actual semen/goo and won't work properly without it*/
+		<<unset _local, _local1, _local2>>
+		<<set _local = $args[0].toLowerCase().split(":")[1]>>
+
+		<<if _local == "vagina">><<set _local1 = $vaginasemen, _local2 = $vaginagoo>><<else>><<set _local1 = $anussemen, _local2 = $anusgoo>><</if>>
+		<<if _local1 > _local2>>
+			<<set $output = "<<fsyn 'semen'>>">>
+		<<elseif _local2 > _local1>>
+			<<set $output = "<<fsyn 'goo'>>">>
+		<<elseif _local1 == _local2>>
+			<<set $output = "<<fsyn 'semen'>> and <<fsyn 'goo'>>">>
+		<<else>>
+			<<set $output = "something's wrong (report this)">>
+		<</if>>
+
+		<<if _local1 + _local2 >= 3>>
+			<<set $output += "-" + jsSplitr("filled:packed:stuffed")>>
+		<<else>>
+			<<set $output += "-" + jsSplitr("filled:dripping:leaking")>>
+		<</if>>
+	<<case "juice">>
+		<<set $output = jsRandom(5) ? jsSplitr("pussy:vaginal:love:lewd:sticky:hot") + jsSplitr(" juice: nectar: honey: fluid: lube") : "girlcum">>
+	<<case "push">>
+		<<set $output = "drag:force:push:shove">>
+	<<default>>
+		<<set $output = "Shit happened retard! (specified args - '" + $args[0] + "' doesn't exist)">>
+<</switch>>
+<</silently>>\
+<<set $output = jsSplitr($output)>>\
+<<if jsSplitcheck($args[0], "cap")>>\
+	<<set $output = jsCapitalize($output)>>\
+<</if>>\
+<<if jsSplitcheck($args[0], "ing")>>\
+	<<print jsVerbtContinuous($output)>>\
+<<elseif jsSplitcheck($args[0], "s") && $args[1] <= 1>>\
+	<<print jsVerbtSimple($output)>>\
+<<elseif jsSplitcheck($args[0], "ed") && $args[1] <= 1>>\
+	<<print jsVerbtPast($output)>>\
+<<elseif $args[1] > 1>>/*pluralize*/\
+	<<print jsPlNoun($output, $args[1])>>\
+<<else>>\
+	<<print $output>>\
+<</if>>\
+<<unset $output>>\
+<</widget>>
+
+
+<<widget "bodypart_asd">>\
+<<silently>>\
+/* choose from multiple if split is used, otherwise it should be always the first */
+<<set $args[0] = jsSplitr($args[0], "//")>>
+
+<<if $args[0] == undefined || $args[0] == "">><<set $args[0] = "(No arguments)">><</if>>
+
+<<set $output = "">>
+
+<<switch $args[0].toLowerCase().split(":")[0]>>
+/*todo - other parts, chest, all that stuff*/
+<<case "vagina">>
+	<<set _local = 0>>
+	/* main descriptives, which take precedence */
+	<<if $orgasmcount gte 23>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "tortured">>
+		<<else>>
+		<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<elseif $orgasmcount gte 9>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//orgasm:ing'>>">>
+		<<else>>
+			<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<else>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//orgasm:ing'>>">>
+		<<else>>
+			<<if $arousal gte 8000>>
+				<<set $output = "<<fsyn 'wet'>>">>
+			<<elseif $arousal gte 6000>>
+				<<set $output = "<<fsyn 'aroused'>>">>
+			<<elseif $arousal gte 4000>>
+				<<set $output = "<<fsyn 'tremble:ing'>>">>
+			<<elseif $arousal gte 2000>>
+				<<set $output = "<<fsyn 'tingle:ing'>>">>
+			<<else>>
+				<<set _local = 1>>
+			<</if>>
+		<</if>>
+	<</if>>
+	/* if none of the descriptors were attached, we flip local and can have an additional descriptor with a high chance, otherwise we can attach it with much lowered chance */
+	<<if (_local == 1 && jsRandom(2)) || (_local == 0 && !jsRandom(4))>>
+		/* additional descriptors go here, watch the spaces and put splitter at the end so that it could choose one from the available, we don't want to print too many descriptors at the same time */
+		/*we can also have additional switches preventing certain descriptors from being shown, passed as a widget argument here*/
+		<<if $vaginasemen + $vaginagoo && !jsSplitcheck($args[0], "nodrip")>><<set $output += " <<fsyn 'creampie:vagina'>>@">><</if>>
+
+		<<if $devstate gte 1>>
+			<<set $output += " <<fsyn 'adult_ad//virgin:vagina'>>">>
+		<<else>>
+			<<set $output += " <<fsyn 'small//cute//immature//tender//yo//virgin:vagina//loli'>>">>
+		<</if>>
+	<</if>>
+	<<set $output = jsSplitr($output, "@")>>
+
+	<<set $output += " <<fsyn 'vagina:player'>>">>
+<<case "anus">>
+	<<set _local = 0>>
+	<<if $orgasmcount gte 23>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "tortured">>
+		<<else>>
+		<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<elseif $orgasmcount gte 9>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//orgasm:ing'>>">>
+		<<else>>
+			<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<else>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//orgasm:ing'>>">>
+		<<else>>
+			<<if $arousal gte 8000>>
+				<<set $output = "<<fsyn 'contract:ing'>>">>
+			<<elseif $arousal gte 6000>>
+				<<set $output = "<<fsyn 'twitch:ing'>>">>
+			<<elseif $arousal gte 4000>>
+				<<set $output = "<<fsyn 'tremble:ing'>>">>
+			<<elseif $arousal gte 2000>>
+				<<set $output = "<<fsyn 'tingle:ing'>>">>
+			<<else>>
+				<<set _local = 1>>
+			<</if>>
+		<</if>>
+	<</if>>
+	<<if (_local == 1 && jsRandom(2)) || (_local == 0 && !jsRandom(4))>>
+		<<if $anussemen + $anusgoo && !jsSplitcheck($args[0], "nodrip")>><<set $output += " <<fsyn 'creampie:anus'>>@">><</if>>
+
+		<<if $devstate gte 1>>
+			<<set $output += " <<fsyn 'adult_ad:anus//virgin:anus'>>">>
+		<<else>>
+			<<set $output += " <<fsyn 'small//cute//immature:anus//tender//virgin:anus//loli'>>">>
+		<</if>>
+	<</if>>
+	<<set $output = jsSplitr($output, "@")>>
+
+	<<set $output += " <<fsyn 'anus:player'>>">>
+<<case "penis">>
+	<<set _local = 0>>
+	<<if $orgasmcount gte 23>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "tortured">>
+		<<else>>
+		<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<elseif $orgasmcount gte 9>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//cumming'>>">>
+		<<else>>
+			<<set $output = "<<fsyn 'tired'>>">>
+		<</if>>
+	<<else>>
+		<<if $orgasmdown gte 1>>
+			<<set $output = "<<fsyn 'twitch:ing//cumming'>>">>
+		<<else>>
+			<<if $arousal gte 8000>>
+				<<set $output = "<<fsyn 'throb:ing'>>">>
+			<<elseif $arousal gte 6000>>
+				<<set $output = "<<fsyn 'wet'>>">>
+			<<elseif $arousal gte 4000>>
+				<<set $output = "<<fsyn 'tremble:ing'>>">>
+			<<elseif $arousal gte 2000>>
+				<<set $output = "<<fsyn 'tingle:ing'>>">>
+			<<else>>
+				<<set _local = 1>>
+			<</if>>
+		<</if>>
+	<</if>>
+	/* if none of the descriptors were attached, we flip local and can have an additional descriptor with a high chance, otherwise we can attach it with much lowered chance */
+	<<if (_local == 1 && jsRandom(2)) || (_local == 0 && !jsRandom(4))>>
+		<<if $penilevirginity == 1>>
+			<<set $output += " " + jsSplitr("virgin:virginal:unused") + "@">>
+		<</if>>
+
+		<<if $devstate gte 1>>
+			<<set $output += " <<fsyn 'adult_ad:penis//hardeness'>>">>
+		<<else>>
+			<<set $output += " <<fsyn 'small//cute//immature:penis//tender//loli//hardeness'>>">>
+		<</if>>
+		/* for now assume that shota penis is small, size cannot be specified yet, cut-uncut state as well */
+	<</if>>
+	<<set $output = jsSplitr($output, "@")>>
+
+	<<set $output += " <<fsyn 'penis'>>">>
+<<default>>
+	<<set $output = "Shit happened retard! (specified args - '" + $args[0] + "' doesn't exist)">>
+<</switch>>
+<</silently>>\
+$output\
+<<unset $output>>\
+<</widget>>
+
+<<widget "texts">><<nobr>>
+<<silently>>
+<<switch $args[0].toLowerCase().split(":")[0]>>
+	<<case "weekday">>
+		<<set $output = DayOfWeek[$weekday%8]>>
+	<<case "version">>
+		<<set $output = "Mod Version: v" + ModVersion>>
+<<default>>
+	<<set $output = "Shit happened retard! (specified args - '" + $args[0] + "' doesn't exist)">>
+<</switch>>
+<</silently>>
+$output<<unset $output>>
+<</nobr>><</widget>>
