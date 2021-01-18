@@ -10,6 +10,23 @@ Forth argument - item index*/
 <<set _shop_temp to $args[3]>>
 <<set $clothes_choice_previous to $clothes_choice>>
 
+<<if _shop_temp isnot undefined and ($randomLock isnot true or $args[1] is "try")>>
+	<<if $colouraction is "random">>
+		<<set _colouractionChoices to clone(setup.clothes[$args[0]][_shop_temp].colour_options)>>
+		<<run _colouractionChoices.delete("custom")>>
+		<<set $colouraction2 to _colouractionChoices.pluck()>>
+	<<else>>
+		<<set $colouraction2 to clone($colouraction)>>
+	<</if>>
+	<<if $accessorycolouraction is "random">>
+		<<set _accessorycolouractionChoices to clone(setup.clothes[$args[0]][_shop_temp].accessory_colour_options)>>
+		<<run _accessorycolouractionChoices.delete("custom")>>
+		<<set $accessorycolouraction2 to _accessorycolouractionChoices.pluck()>>
+	<<else>>
+		<<set $accessorycolouraction2 to clone($accessorycolouraction)>>
+	<</if>>
+<</if>>
+
 <<if $args[0] is "upper" or $args[0] is "lower">>
 	<<ShowUnderEquip "normal">>
 <</if>>
@@ -32,13 +49,16 @@ Forth argument - item index*/
 	<<clothingReset $args[0]>>
 <<elseif $args[1] is "reset">>
 	<<unset $colouraction>>
+	<<unset $colouraction2>>
 	<<unset $accessorycolouraction>>
+	<<unset $accessorycolouraction2>>
 	<<set $shopDefaults.colorSet to null>>
 	<<set $shopDefaults.secColorSet to null>>
+	<<unset $randomLock>>
 <</if>>
 
 <<if $args[2] is "wear">>
-	<<generalWear $args[0] _shop_temp $colouraction $accessorycolouraction>>
+	<<generalWear $args[0] _shop_temp $colouraction2 $accessorycolouraction2>>
 	<<updateOwned $args[0]>>
 <<elseif $args[2] is "send">>
 	<<set _loop to $args[4]>>
@@ -46,7 +66,7 @@ Forth argument - item index*/
 		<<set _loop to 1>>
 	<</if>>
 	<<for _s to 0; _s lt _loop; _s++>>
-		<<generalSend "wardrobe" $args[0] _shop_temp $colouraction $accessorycolouraction>>
+		<<generalSend "wardrobe" $args[0] _shop_temp $colouraction2 $accessorycolouraction2>>
 	<</for>>
 <</if>>
 
@@ -56,7 +76,7 @@ Forth argument - item index*/
 <<if $args[0]>>
 	<<set $clothingShopSlot to $args[0]>>
 <</if>>
-<input type="button" value="DEFAULT OPTIONS" onclick="SugarCube.Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
+<input type="button" value="DEFAULT OPTIONS" onclick="Wikifier.wikifyEval('<<shopDefaultOptionsToggle>>');">
 <div id="shopDefault" class="hidden">
 	<<shopDefaultOptions>>
 </div>
@@ -81,6 +101,7 @@ Forth argument - item index*/
 	<<set _slimeSlots to ["over_upper","over_lower","upper","lower","under_upper","under_lower"]>>
 	<<if !_slimeSlots.includes($clothingShopSlot) or $willpower gte 800 or _temp_choice.reveal gte 500 or _temp_choice.type.includesAny("school", "event") or $corruption_slime lt 80>>
 		<<if _temp_choice.colour_options.length isnot 0>>
+			<<run _temp_choice.colour_options.pushUnique("random")>>
 			There's a range of colours to choose from:
 			<br>
 			<<set _setChecked to false>>
@@ -99,6 +120,7 @@ Forth argument - item index*/
 			<br><br>
 		<</if>>
 		<<if _temp_choice.accessory_colour_options.length isnot 0>>
+			<<run _temp_choice.accessory_colour_options.pushUnique("random")>>
 			Secondary colour:
 			<br>
 			<<set _setChecked to false>>
@@ -117,12 +139,12 @@ Forth argument - item index*/
 			<br><br>
 		<</if>>
 		<<if _temp_choice.colour_options.length isnot 0 or _temp_choice.accessory_colour_options.length isnot 0>>
-			<input type="button" value="Custom Colours" onclick="SugarCube.Wikifier.wikifyEval('<<shopCustomColorsToggle>>');">
+			<input type="button" value="Custom Colours" onclick="Wikifier.wikifyEval('<<shopCustomColorsToggle>>');">
 			<br>
 			<<shopCustomColors>>
 		<</if>>
 		<<if $images is 1>>
-			<input type="button" value="Image" onclick="SugarCube.Wikifier.wikifyEval('<<shopFullImageToggle>>');">
+			<input type="button" value="Image" onclick="Wikifier.wikifyEval('<<shopFullImageToggle>>');">
 			<br>
 			<div id="shopFullImage" @class="($shopDefaults.invertImagesHidden is true? '' : ' hidden')"><<shopFullImage $clothingShopSlot $clothes_choice>></div>
 			<br>
@@ -165,14 +187,14 @@ Forth argument - item index*/
 					<br>
 				<<else>>
 					<<link [[Steal and wear|$passage]]>>
-						<<shopbuy $clothingShopSlot "steal" "wear" $clothes_choice>><<crimeup _cost / 100>><<unset $clothes_choice>>
+						<<shopbuy $clothingShopSlot "steal" "wear" $clothes_choice>><<crimeup `_cost / 100`>><<unset $clothes_choice>>
 						<<set $clothingShop.stolenClothes++>>
 						<<set $clothingShop.totalStolenClothes++>>
 					<</link>><<crime>>
 					<br>
 				<</if>>
 				<<link [[Steal and take home|$passage]]>>
-					<<shopbuy $clothingShopSlot "steal" "send" $clothes_choice>><<crimeup _cost / 100>>
+					<<shopbuy $clothingShopSlot "steal" "send" $clothes_choice>><<crimeup `_cost / 100`>>
 					<<set $clothingShop.stolenClothes++>>
 					<<set $clothingShop.totalStolenClothes++>>
 					<<if $shopDefaults.disableReturn is false>>
@@ -229,10 +251,10 @@ Forth argument - item index*/
 		<</if>>
 		<<if _cursedPrevent is true>>
 		<<elseif $tryOn.tryingOn>>
-			<<link [[Try On|$passage]]>><<shopbuy $clothingShopSlot "try" null $clothes_choice>><</link>>
+			<<link [[Try On|$passage]]>><<shopbuy $clothingShopSlot "try" null $clothes_choice>><<set $randomLock to true>><</link>>
 			<br>
 			<<if $tryOn.tryingOn[[$clothingShopSlot]] isnot null>>
-			<<link [[Return|$passage]]>><<shopbuy $clothingShopSlot "return" null $clothes_choice>><</link>>
+			<<link [[Return|$passage]]>><<shopbuy $clothingShopSlot "return" null $clothes_choice>><<unset $randomLock>><</link>>
 			<br>
 			<</if>>
 		<</if>>
@@ -372,14 +394,18 @@ High Heeled - Causes fatigue and tripping if you lack skilled feet. Improves kic
 Chest Binding - Fits tight around your chest, concealing your breasts.
 <br>
 <</if>>
+<<if _temp_choice.type.includes("eerie")>>
+Eerie - <<if $transformdisable is "f">>Protects a specific transformation.<<else>>There's something peculiar about this object.<</if>>
+<br>
+<</if>>
 <br>
 <</nobr>><</widget>>
 
 <<widget "shopDefaultOptions">><<nobr>>
 
 <br>
-<<set _colorOptions to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"]>>
-<<set _secondaryColorOptions to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"]>>
+<<set _colorOptions to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"]>>
+<<set _secondaryColorOptions to ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom", "random"]>>
 
 Primary Colour:
 <br>
@@ -599,7 +625,7 @@ Name: <input id="colorName" type="text" value="Custom" onfocus="SugarCube.State.
 	<<if _shopFullImageVar is undefined>>
 		<<set _shopFullImageVar to [$args[0], $args[1]]>>
 	<</if>>
-	<a value="Refresh" onclick="SugarCube.Wikifier.wikifyEval('<<replace #shopFullImage>><<shopFullImage SugarCube.State.temporary.shopFullImageVar[0] SugarCube.State.temporary.shopFullImageVar[1]>><</replace>>');">Refresh</a>
+	<a value="Refresh" onclick="Wikifier.wikifyEval('<<replace #shopFullImage>><<shopFullImage SugarCube.State.temporary.shopFullImageVar[0] SugarCube.State.temporary.shopFullImageVar[1]>><</replace>>');">Refresh</a>
 	<br>
 	<div class="hideImageOverflow">
 		<div class="shopImg">

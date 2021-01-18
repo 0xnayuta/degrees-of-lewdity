@@ -1,15 +1,15 @@
-window.mapMove = function(moveTo){
+window.mapMove = function (moveTo) {
 	var currentPassage = SugarCube.State.variables.passage;
 	var destination_table = [];
-	for(var i=1; i < SugarCube.State.variables.link_table.length; i++) {
+	for (var i = 1; i < SugarCube.State.variables.link_table.length; i++) {
 		var temp = SugarCube.State.variables.link_table[i].split("|")[1];
-		if(temp) {
+		if (temp) {
 			destination_table[destination_table.length] = temp.split("]]")[0];
 		}
 	}
 	var avaliable = SugarCube.State.variables.map.avaliable;
 
-	if(SugarCube.State.variables.debug == 1 || avaliable[currentPassage].includes(moveTo) && destination_table.includes(moveTo))
+	if (SugarCube.State.variables.debug == 1 || avaliable[currentPassage].includes(moveTo) && destination_table.includes(moveTo))
 	//if(SugarCube.State.variables.debug == 1 || avaliable[currentPassage].includes(moveTo))
 	{
 		new Wikifier(null, '<<pass 5>>');
@@ -17,35 +17,35 @@ window.mapMove = function(moveTo){
 	}
 }
 
-window.wikifier = function(widget, arg1, arg2, arg3){
-	if(arg3 !== undefined){
-		new Wikifier(null, '<<'+widget+' '+ arg1 +' '+ arg2 +' '+ arg3 +'>>');
+window.wikifier = function (widget, arg1, arg2, arg3) {
+	if (arg3 !== undefined) {
+		new Wikifier(null, '<<' + widget + ' ' + arg1 + ' ' + arg2 + ' ' + arg3 + '>>');
 	}
-	else if(arg2 !== undefined){
-		new Wikifier(null, '<<'+widget+' '+ arg1 +' '+ arg2 +'>>');
+	else if (arg2 !== undefined) {
+		new Wikifier(null, '<<' + widget + ' ' + arg1 + ' ' + arg2 + '>>');
 	}
-	else if(arg1 !== undefined){
-		new Wikifier(null, '<<'+widget+' '+ arg1 +'>>');
+	else if (arg1 !== undefined) {
+		new Wikifier(null, '<<' + widget + ' ' + arg1 + '>>');
 	}
-	else if(arg1 === undefined){
-		new Wikifier(null, '<<'+widget+'>>');
+	else if (arg1 === undefined) {
+		new Wikifier(null, '<<' + widget + '>>');
 	}
 }
 
-window.wikifier2 = function(str){
+window.wikifier2 = function (str) {
 	new Wikifier(null, str);
 }
 
-window.combatListColor = function(name, value, type){
+window.combatListColor = function (name, value, type) {
 	var color = "";
 	var check = "";
-	if(value != undefined){
+	if (value != undefined) {
 		check = value;
-	}else{
+	} else {
 		check = SugarCube.State.variables[name];
 	}
-	if(type === ""){
-		switch(check) {
+	if (type === "") {
+		switch (check) {
 			/*leftaction or rightaction*/
 			case "steal": case "penwhack": case "leftcovervagina": case "leftcoverpenis": case "leftcoveranus": case "rightcovervagina":
 			case "rightcoverpenis": case "rightcoveranus":
@@ -64,7 +64,7 @@ window.combatListColor = function(name, value, type){
 			/*feetaction*/
 			case "kick":
 			/*mouthaction*/
-			case "bite": case "demand": case "breastbite":
+			case "bite": case "demand": case "breastbite": case "handbite":
 				color = "def";
 			break;
 
@@ -91,7 +91,7 @@ window.combatListColor = function(name, value, type){
 			case "penistovagina": case "penistoanus": case "penisvaginafuck": case "penisanusfuck": case "othermouthtease": case "othermouthrub":
 			case "othermouthcooperate": case "tease": case "cooperate": case "otheranustease": case "otheranusrub": case "otheranuscooperate": case "clitrub":
 			/*vaginaaction*/
-			case "vaginatopenis": case "vaginapenisfuck":
+                        case "vaginatopenis": case "vaginapenisfuck": case "othervaginarub": case "vaginatovagina":
 			/*anusaction*/
 			case "anustopenis": case "anuspenisfuck": case "penistease": case "otherMouthAnusRub": case "otherAnusRub":
 				color = "sub";
@@ -102,8 +102,8 @@ window.combatListColor = function(name, value, type){
 			break;
 		}
 	}
-	else if(type === "Tentacle"){
-		switch(check.replace(/\d+/g, '')) {
+	else if (type === "Tentacle") {
+		switch (check.replace(/\d+/g, '')) {
 			/*leftaction or rightaction*/
 			case "lefthittentacle": case "righthittentacle":
 			case "lefthit": case "righthit":
@@ -158,29 +158,29 @@ window.combatListColor = function(name, value, type){
 
 DefineMacroS("combatListColor", combatListColor);
 
-function combatButtonAdjustments(name, extra){
-	jQuery(document).on('change', '#listbox-'+name,{"name":name, "extra":extra}, function(e) {
+function combatButtonAdjustments(name, extra) {
+	jQuery(document).on('change', '#listbox-' + name, { "name": name, "extra": extra }, function (e) {
 		/*console.log(e.data);*/
-		new Wikifier(null, '<<replace #'+e.data.name+'Difficulty>><<'+e.data.name+'Difficulty'+e.data.extra+'>><</replace>>');
-		$('#'+e.data.name+'Select' ).removeClass('whiteList bratList meekList defList subList');
-		$('#'+e.data.name+'Select' ).addClass(combatListColor(e.data.name, undefined, e.data.extra) + "List");
+		new Wikifier(null, '<<replace #' + e.data.name + 'Difficulty>><<' + e.data.name + 'Difficulty' + e.data.extra + '>><</replace>>');
+		$('#' + e.data.name + 'Select').removeClass('whiteList bratList meekList defList subList');
+		$('#' + e.data.name + 'Select').addClass(combatListColor(e.data.name, undefined, e.data.extra) + "List");
 	});
 	return "";
 }
 
 DefineMacroS("combatButtonAdjustments", combatButtonAdjustments);
 
-function combatDefaults(){
-	jQuery(document).on('change', '#listbox--defaultactions', function(e) {
-		new Wikifier(null, '<<replace #othersFeelings>><<othersFeelings '+this.value+'>><</replace>>');
+function combatDefaults() {
+	jQuery(document).on('change', '#listbox--defaultactions', function (e) {
+		new Wikifier(null, '<<replace #othersFeelings>><<othersFeelings ' + this.value + '>><</replace>>');
 	});
 	return "";
 }
 
 DefineMacroS("combatDefaults", combatDefaults);
 
-function hairdressersReset(){
-	jQuery(document).on('change', '.macro-listbox', function(e) {
+function hairdressersReset() {
+	jQuery(document).on('change', '.macro-listbox', function (e) {
 		new Wikifier(null, '<<replace #hairDressers>><<hairDressersOptions>><</replace>>');
 		new Wikifier(null, '<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>>');
 	});
@@ -189,8 +189,8 @@ function hairdressersReset(){
 
 DefineMacroS("hairdressersReset", hairdressersReset);
 
-function NPCSettingsReset(){
-	jQuery(document).on('change', '.macro-listbox', function(e) {
+function NPCSettingsReset() {
+	jQuery(document).on('change', '.macro-listbox', function (e) {
 		new Wikifier(null, '<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>');
 	});
 	return "";
@@ -198,11 +198,11 @@ function NPCSettingsReset(){
 
 DefineMacroS("NPCSettingsReset", NPCSettingsReset);
 
-function loveInterestFunction(){
-	jQuery(document).on('change', '#listbox-loveinterestprimary', function(e) {
+function loveInterestFunction() {
+	jQuery(document).on('change', '#listbox-loveinterestprimary', function (e) {
 		new Wikifier(null, '<<replace #loveInterest>><<loveInterest>><</replace>>');
 	});
-	jQuery(document).on('change', '#listbox-loveinterestsecondary', function(e) {
+	jQuery(document).on('change', '#listbox-loveinterestsecondary', function (e) {
 		new Wikifier(null, '<<replace #loveInterest>><<loveInterest>><</replace>>');
 	});
 	return "";
