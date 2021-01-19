@@ -606,34 +606,93 @@ _ip $ruinpots[_ip].i $ruinpots[_ip].s $ruinpots[_ip].t /% somehow this breaks if
 <</if>>
 <</nobr>><</widget>>
 
-/* 
-I should do something about this, remove it? make it use a less "wasteful" system? 
-Making it so that it tracks just the number of specific encounters and maybe the next 20 or so events could be ok
-*/
-<<widget "potinit">><<nobr>> /* i=item s=searched t=type */
+<<widget "potinit">><<nobr>> /*  */
+<<set $potpool to []>>
 <<set $ruinpots to []>>
-<<set _mult to 10>>/* make 100 pots multiplied by this */
-<<for _i to 0; _i lt 28*_mult; _i++>><<run $ruinpots.push({i:"dust",s:false,t:"purple"})>><</for>>
-<<for _i to 0; _i lt 19*_mult; _i++>><<run $ruinpots.push({i:"box",s:false,t:"silver"})>><</for>>
-<<for _i to 0; _i lt 10*_mult; _i++>><<run $ruinpots.push({i:"key",s:false,t:"bronze"})>><</for>>
-<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({i:"snapper",s:false,t:"slow"})>><</for>>
-<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({i:"ceramics",s:false,t:""})>><</for>>
-<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({i:"mud",s:false,t:""})>><</for>>
-<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({i:"pebbles",s:false,t:""})>><</for>>
-<<for _i to 0; _i lt 8*_mult; _i++>><<run $ruinpots.push({i:"empty",s:false,t:""})>><</for>>
-<<for _i to 0; _i lt 2*_mult; _i++>><<run $ruinpots.push({i:"swarm",s:false,t:""})>><</for>>
-<<for _i to 0; _i lt 1*_mult; _i++>><<run $ruinpots.push({i:"box",s:false,t:"gold"})>><</for>>
-<<for _i to 0; _i lt 1*_mult; _i++>><<run $ruinpots.push({i:"box",s:false,t:"gold"})>><</for>>
-<<run $ruinpots.push({i:"box",s:false,t:"chastity"})>>
-<<run $ruinpots.push({i:"box",s:false,t:"chastity"})>>
-<<run $ruinpots.push({i:"box",s:false,t:"chastity"})>>
+<<set $pots to {dust:0, boxSR:1, key:2, snap:3, ceram:4, mud:5, pebb:6, empty:7, swarm:8, boxGN:9, boxGCB:10}>>
+<<set _mult to 2.1>>
 
-<<run $ruinpots.shuffle()>>
-/*extras at the end*/
-<<run $ruinpots.push({i:"swarm",s:false,t:""})>>
-<<run $ruinpots.push({i:"box",s:false,t:"gold"})>>
-<<run $ruinpots.push({i:"box",s:false,t:"gold"})>>
+/* 20% or 200/1000 chance of box */
+<<set $potpool[$pots.boxSR] to Math.round(187*_mult)>>
+<<set $potpool[$pots.boxGN] to Math.round(10*_mult)>>
+<<set $potpool[$pots.boxGCB] to Math.round(3*_mult)>>
+/* 30% of swarm or dust */
+<<set $potpool[$pots.swarm] to Math.round(30*_mult)>>
+<<set $potpool[$pots.dust] to Math.round(270*_mult)>>
+/* 10% */
+<<set $potpool[$pots.key] to Math.round(100*_mult)>>
+/* 40%  */
+<<set $potpool[$pots.snap] to Math.round(80*_mult)>>
+<<set $potpool[$pots.ceram] to Math.round(80*_mult)>>
+<<set $potpool[$pots.mud] to Math.round(80*_mult)>>
+<<set $potpool[$pots.pebb] to Math.round(80*_mult)>>
+<<set $potpool[$pots.empty] to Math.round(80*_mult)>>
 
+<<potgen 10>>
+
+<</nobr>><</widget>>/**/
+
+
+<<widget "potgen">><<nobr>>/* take $args[0] pots from $potpool randomly and add them to $ruinpots or $args[1] for a preset searching order */
+<<if $args[0]>>
+	<<if $args[0] gt 1000>>
+		<<run console.warn("tried to pick more than 1000 pots with <<potgen>>, picked only 1000")>>
+	<</if>>
+	<<set _potstopick to Math.min($args[0],1000)>>
+<<else>>
+	<<set _potstopick to 10>>
+<</if>>
+
+<<set _totalpots to 0>>
+<<for _i to 0 ; _i lt  Object.keys($pots).length ; _i++>> /* Get total number of pots by summing every value in potpool.*/
+	<<set _totalpots += $potpool[_i]>>
+<</for>>
+
+<<if _potstopick gt _totalpots>>/* don't pick more pots than the pool has */
+	<<set _potstopick to _totalpots>>
+	/* add more handling for running out of pots somewhere */
+<</if>>
+
+<<if $debug is 1>>
+	<<run console.log("Total pots="+_totalpots+"("+Object.keys($pots).length+" types)")>>
+<</if>>
+
+<<set _potselection to []>>
+<<for _i2 to 0 ; _i2 lt _potstopick ; _i2++>>/* generate set of random unique numbers between 0 and _totalpots */
+	<<set _randomnumber to random(0 , _totalpots)>>
+	<<if _potselection.includes(_randomnumber)>>/* reroll if picking already picked pot */
+		<<for _potselection.includes(_randomnumber)>>
+			<<set _randomnumber to random(0 , _totalpots)>>
+		<</for>>
+	<<else>>
+		<<set _potselection.push(_randomnumber)>>
+	<</if>>
+<</for>>
+
+<<if $debug is 1>>
+	<<run console.log("_potselection="+_potselection)>>
+<</if>>
+<<run _potselection.sort()>>
+
+<<set _currenttypemax to 0>>
+<<set _seldpot to 0>>
+<<set _potarray to []>>
+/* convert the random pot numbers in _potselection into pot types in $potpool. For example if _potselection = [1, 3, 6, 13] and $potpool = [5,4,8] we'd change numbers 1 and 3 to 0(they're in range 0-4) then 6 to 1(5-9) and 13 to 2(10-17) */
+<<for _type to 0 ; _type lt Object.keys($pots).length ; _type++>>
+	<<set _currenttypemax += $potpool[_type]>>/* will be same as _totalpots at the end */
+	/* go through _potselection adding current type pots to _potarray until _potselection number higher than_currenttypemax */
+	<<for _o to 0 ; _potselection[_seldpot] lte _currenttypemax ; _seldpot++>>/* is the init expression necessary in for when using 2nd and 3rd thing or can it be skipped?(added one just in case) */
+		<<set _potarray.push(_type)>>
+		<<set $potpool[_type] -= 1>>/*remove pot from potpool(can be done right away thanks to _currenttypemax not being affected)*/
+	<</for>>
+<</for>>
+<<run _potarray.shuffle()>>
+/* combine shuffled potarray with ruinpots */
+<<set $ruinpots to $ruinpots.concat(_potarray)>>
+
+<<if $debug is 1>>
+	<<run console.log("ruinpots="+JSON.stringify($ruinpots))>>
+<</if>>
 <</nobr>><</widget>>/**/
 
 

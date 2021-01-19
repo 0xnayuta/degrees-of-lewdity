@@ -75,7 +75,7 @@ You are deep in the submerged ruin beneath the lake. Pots of different sizes fil
 You hear the ancient mechanism creak and the door groans open. Beyond is a plinth, stood alone in a rubble-strewn room. Atop it sits an ivory necklace. It's studded with blue jewels.
 <<set $logprep to "I used a bronze key I found to open the ancient door in the lake ruins, beyond the door I found a plinth with an ivory necklace atop it.">>
 <br><br>
-<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><</if>><<set $logprep to $logprep+" I took the necklace.">><<log $logprep 3>><</link>>
+<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><<set $logprep to $logprep+" I took the necklace.">><<log $logprep 3>><</link>>
 <br>
 <<link [[Leave|Lake Ruin Deep]]>><<set $logprep to $logprep+" I didn't take the necklace.">><<log $logprep 1>><</link>>
 <br>
@@ -184,7 +184,7 @@ Red moonlight filters down from cracks in the ceiling. There isn't much, but the
 <<elseif $museumAntiques.antiques.antiqueivorynecklace is "notFound">>
 	An ivory necklace sits atop it. It's studded with blue jewels.
 	<br><br>
-	<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><</if>><<log "I took the ivory necklace from the plinth room of ruins beneath the lake." 3>><</link>>
+	<<link [[Take it|Lake Ruin Deep]]>><<set $antiquemoney += 2000>><<museumAntiqueStatus "antiqueivorynecklace" "found">><<log "I took the ivory necklace from the plinth room of ruins beneath the lake." 3>><</link>>
 	<br>
 <<elseif $tentacledisable is "f" and $hallucinations gte 2>>
 	<<log "I heard a faint slithering sound in the plinth room of ruins beneath the lake." 2>>
@@ -311,9 +311,12 @@ You count $tentacles.active tentacles surrounding you.
 <<if $stress gte 10000>>
 	<<passoutlake>>
 <<else>>
+
 /*<<set _r to $ruinpots.length/10>><<set $searchpot to random(_r)>>/* pick random pot from the 1st 10% */
-<<set $searchpot to Math.round($rng/10)>>/* pick random pot from the 1st 10 */
-<<if $ruinpots[$searchpot].i is "swarm">>/* 2% Should presence of swarms be separate from contents? */
+/*<<set $searchpot to Math.round($rng/($ruinpots.length-1))>> pick random pot from set ones */
+<<set $searchpot to 0>>
+
+<<if $ruinpots[$searchpot] is $pots.swarm>>/* 2% Should presence of swarms be separate from contents? */
 	<<if $swarmdisable is "f">>
 		You reach inside one of the pots. Swarms of small fish surge out, surrounding you.
 		<br><br>
@@ -324,7 +327,7 @@ You count $tentacles.active tentacles surrounding you.
 		<br><br>
 		<<log "I searched a pot in the lake ruins, school of small fish surged out of it." 1>>
 	<</if>>
-<<elseif $ruinpots[$searchpot].i is "snapper">>/* 8% */
+<<elseif $ruinpots[$searchpot] is $pots.snap>>/* 8% */
 	You reach inside one of the pots. 
 	<<if $physique + $skulduggery * 3 gte $rng * 100 + 6000 and $rng isnot 100>>
 		Something inside snaps at you. You pull your hand away in time, but it was close.<<gstress>><<stress 3>>
@@ -334,19 +337,28 @@ You count $tentacles.active tentacles surrounding you.
 			<br>
 			You assume the creature inside is the type you're familiar with.
 			<br>
-			<<if $worn.genitals.type.includes("chastity")>>
-				Your $worn.genitals.name prevents you from potentially inserting your <<genitals 1>> into the pot.
+			<<if $worn.genitals.type.includes("chastity") and $penisexist is 1>>
+				Your $worn.genitals.name prevents you from potentially inserting your <<penis>> into the pot.
 				<br>
 			<<else>>
 				<<link [[Insert your penis into the pot|Snapper Insert]]>>
 					<<set $combat_partner = "snapper">>/* makes sure 1st time experience diary entries know what to say */
 					<<set $timer to 7>>
 					<<set $thrustdepth to 0>>
+					<<set $phase to 0>>
 					<<wateraction>>
 				<</link>><<loxygen>><<deviant2>>
 				<br>
 			<</if>>
 		<</if>>
+		/* Intentional hand/finger reinsertion could be an option so that there's something interesting even without a penis or enough deviancy. */
+		/*
+		<<link [[Insert your hand back into the pot|Snapper Hand]]>>
+			<<set $timer to 7>>
+			<<wateraction>>
+		<</link>><<loxygen>><<deviant1>>
+		<br>
+		*/
 		<<ruinoptions>>
 	<<elseif $physique + $skulduggery * 3 gte $rng * 50 + 4000 and $rng isnot 99>>
 		Something inside snaps at you and scratches you before you get your hand out of the pot.<<gpain>><<pain 5>><<gstress>><<stress 1>>
@@ -366,17 +378,26 @@ You count $tentacles.active tentacles surrounding you.
 			<br>
 		<<else>>
 			Being at this creature's mercy scares you.
-			<<gstress>><<stress 300>>
+			<<gstress>><<stress 3>>
 			<br>
 		<</if>>
 		<<if $oxygen lt $oxygenmax/2.9>>
-			The thought of running out of air with your hand stuck stresses you.<<gstress>><<stress 3>>
+			<<if $oxygen gt 0>>
+				The thought of running out of air with your hand stuck scares you.
+			<<else>>
+				Getting your hand stuck while desperately needing air scares you.
+			<</if>>
+			<<gstress>><<stress 3>><<gtrauma>><<trauma 3>>
 			<br>
 		<</if>>
+		/* since swimming skill doesn't matter for this situation changing things manually instead of using <<wateraction>> to add seconds(5-18) and oxygen use(50-180) */
 		<br>
+		<<set $strugglecount to 0>>
+		<<set $waitcount to 0>>
+		<<set $lewdsnap to 0>>
 		<<link [[Struggle|Hand Snapper]]>>
 			<<set $phase to 1>>
-			<<set $timespent to 30 - $physique / 1000>>
+			<<set $timespent to 30 - ($physique+$skulduggery*2) / 1000>>
 			<<set $seconds += $timespent>>
 			/*<<set $oxygen -= 300 - $physique / 100>>*/
 			<<set $oxygen -= $timespent*10>>
@@ -390,15 +411,15 @@ You count $tentacles.active tentacles surrounding you.
 			<<set $oxygen -= $timespent*10>>
 		<</link>><<lloxygen>>
 	<</if>>
-<<elseif $ruinpots[$searchpot].i is "box">>/* 20% */
+<<elseif $ruinpots[$searchpot] is $pots.boxSR or $ruinpots[$searchpot] is $pots.boxGN or $ruinpots[$searchpot] is $pots.boxGCB>>/* 20% */
 	You reach inside one of the pots, and find a small ivory box. It's sealed by a bronze lock.
-	<<if $ruinpots[$searchpot].t is "silver">>
+	<<if $ruinpots[$searchpot] is $pots.boxSR>>
 		<<run $boxdumps.push("silver ring")>>
 		<<set $phase to 1>>
-	<<elseif $ruinpots[$searchpot].t is "gold">>
+	<<elseif $ruinpots[$searchpot] is $pots.boxGN>>
 		<<run $boxdumps.push("gold necklace")>>
 		<<set $phase to 2>>
-	<<elseif $ruinpots[$searchpot].t is "chastity">>
+	<<elseif $ruinpots[$searchpot] is $pots.boxGCB>>
 		<<run $boxdumps.push("gold chastity belt")>>
 		<<set $phase to 3>>
 	<</if>>
@@ -406,7 +427,7 @@ You count $tentacles.active tentacles surrounding you.
 		The box itself is very old. It must be valuable.
 		<br><br>
 
-		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<run $boxdumps.pop()>><<museumAntiqueStatus "antiquebox" "found">><</if>>
+		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<run $boxdumps.pop()>><<museumAntiqueStatus "antiquebox" "found">>
 		<<log "I searched a pot in the lake ruins and found a locked small ivory box in it that I took without trying to open it." 2>>
 		<</link>>
 		<br>
@@ -420,60 +441,71 @@ You count $tentacles.active tentacles surrounding you.
 		<br>
 	<</if>>
 	<<ruinoptions "I searched a pot in the lake ruins and found a small ivory box but I ignored it " "Leave the box and:">>/*  */
-<<elseif $ruinpots[$searchpot].i is "dust">>/* 28% */
+<<elseif $ruinpots[$searchpot] is $pots.dust>>/* 28% */
 	You reach inside one of the pots. There's purple dust at the bottom. Your probing disturbs it, and it swirls around your arm. You feel heated.
 	<<gstress>><<stress 3>><<garousal>><<arousal 600>>
 	<<log "I searched a pot in the lake ruins, there was purple dust in it." 1>>
-	<<set $ruinpots[$searchpot].i to "empty">>
-<<elseif $ruinpots[$searchpot].i is "key">> /* 10% */
+<<elseif $ruinpots[$searchpot] is $pots.key>> /* 10% */
 	<<if $lakeruinkey is undefined>>
 		You reach inside one of the pots. You find a decaying bronze key.
 		<<set $lakeruinkey to 1>>
 		<<log "I searched a pot in the lake ruins, there was a bronze key in it." 2>>
-		<<set $ruinpots[$searchpot].i to "empty">>
 	<<else>>
 		You reach inside one of the pots. It's empty.
 		<<log "I searched a pot in the lake ruins, it was empty." 1>>
-		<<set $ruinpots[$searchpot].i to "empty">>
 	<</if>>
  /* 40% */
-<<elseif $ruinpots[$searchpot].i is "ceramics">> /* 20% of 40% = 8% */
+<<elseif $ruinpots[$searchpot] is $pots.ceram>> /* 20% of 40% = 8% */
 	You reach inside one of the pots. It's full of broken ceramics.
 	<<log "I searched a pot in the lake ruins, it was empty." 1>>
-<<elseif $ruinpots[$searchpot].i is "mud">>
+<<elseif $ruinpots[$searchpot] is $pots.mud>>
 	You reach inside one of the pots. It's full of mud.
 	<<log "I searched a pot in the lake ruins, it was full of mud." 1>>
-<<elseif $ruinpots[$searchpot].i is "pebbles">>
+<<elseif $ruinpots[$searchpot] is $pots.pebb>>
 	You reach inside one of the pots. It's full of pebbles.
 	<<log "I searched a pot in the lake ruins, it was full of pebbles." 1>>
-<<elseif $ruinpots[$searchpot].i is "empty">>
+<<elseif $ruinpots[$searchpot] is $pots.empty>>
 	You reach inside one of the pots. It's empty.
 	<<log "I searched a pot in the lake ruins, it was empty." 1>>
 <<else>>
 
 <</if>>
 
-<<if $ruinpots[$searchpot].s is true>>
-	 You've already searched this pot.
-<<else>>
-	<<set $ruinpots[$searchpot].s to true>>
-<</if>>
-
 
 <br><br>
 /*prevent ruinoptions for some events*/
-<<if $ruinpots[$searchpot].i is "swarm">>
-<<elseif $ruinpots[$searchpot].i is "box">>
-	<<set $ruinpots[$searchpot].i to "empty">>
-<<elseif $ruinpots[$searchpot].i is "swarm">>
-<<elseif $ruinpots[$searchpot].i is "snapper">>
+<<if $ruinpots[$searchpot] is $pots.swarm>>
+<<elseif $ruinpots[$searchpot] is $pots.boxSR>>
+<<elseif $ruinpots[$searchpot] is $pots.boxGN>>
+<<elseif $ruinpots[$searchpot] is $pots.boxGCB>>
+<<elseif $ruinpots[$searchpot] is $pots.snap>>
 <<else>>
 	<<ruinoptions>>
 <</if>>
-/* move pot to the back of array and select it*/
-<<run $ruinpots.push($ruinpots[$searchpot])>>
+
 <<run $ruinpots.deleteAt($searchpot)>>
-<<set $searchpot to $ruinpots.length-1>>
+/*<<potgen 1>>*/
+<<if $ruinpots.length lt 20>>
+<<set _r to $rng % 11 + 1>>/* adds somewhat pointless randomness to when pots are picked */
+<<potgen _r>>
+<</if>>
+
+/* move pot to the back of array and select it*/
+/*<<run $ruinpots.push($ruinpots[$searchpot])>>*/
+/*<<run $ruinpots.deleteAt($searchpot)>>*/
+/*<<set $searchpot to $ruinpots.length-1>>*/
+<<if $debug>>
+<br><br><br>
+__DEBUG__
+<br>Number of unassigned pots of each type:
+<br><<print $potpool>>
+<br>Types of next $ruinpots.length pots:
+<br><<print $ruinpots>>
+<br>Pot types:
+<br><<print JSON.stringify($pots)>>
+<br>Boxdumps:
+<br><<print JSON.stringify($boxdumps)>>
+<</if>>
 
 <</if>>/*closes passout check*/
 
@@ -500,7 +532,7 @@ You count $tentacles.active tentacles surrounding you.
 	<<ruinoptions "I picked up a discarded box that was locked but left it " "Leave the box and:">>
 <<else>>
 	You take an opened old box with you. It belongs in a museum.
-	<<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><</if>>
+	<<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">>
 	<br>
 	<<run $boxdumps.pop()>>
 	<<log "I picked up a discarded box in the lake ruins." 1>>
@@ -516,7 +548,7 @@ You count $tentacles.active tentacles surrounding you.
 	<<link [[Open it|Lake Ruin Box]]>><<wateraction>><<set $logprep to $logprep+"">><</link>><<skulduggerydifficulty>><<loxygen>>
 	<br>
 	<<if $historytrait gte 4>>
-		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><</if>><<set $logprep to $logprep+" I tried using the key I had on it, it didn't fit so I took the box as is.">><<log $logprep 2>><</link>>
+		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><<set $logprep to $logprep+" I tried using the key I had on it, it didn't fit so I took the box as is.">><<log $logprep 2>><</link>>
 		<br>
 	<</if>>
 	<<ruinoptions "I tried using the key I had on it, it didn't fit so I left it " "Leave the box and:">>
@@ -524,15 +556,15 @@ You count $tentacles.active tentacles surrounding you.
 	You tried to open the box with a bronze key and surprisingly it worked and
 	<<if $phase is 2>>
 		you find a gold necklace 
-		<<set $antiquemoney += 500>><<museumAntiqueStatus "antiquegoldnecklace" "found">><</if>>
+		<<set $antiquemoney += 500>><<museumAntiqueStatus "antiquegoldnecklace" "found">>
 		<<set $itemname to "a gold necklace">>
 	<<elseif $phase is 1>>
 		you find a silver ring 
-		<<set $antiquemoney += 30>><<museumAntiqueStatus "antiquesilverring" "found">><</if>>
+		<<set $antiquemoney += 30>><<museumAntiqueStatus "antiquesilverring" "found">>
 		<<set $itemname to "a silver ring">>
 	<<elseif $phase is 3>>
 		You find a gold chastity belt.
-		<<set $antiquemoney += 2000>><<museumAntiqueStatus "antiquegoldchastitybelt" "found">><</if>>
+		<<set $antiquemoney += 2000>><<museumAntiqueStatus "antiquegoldchastitybelt" "found">>
 		<<set $itemname to "a gold chastity belt">>
 		<<set _goldchastity to true>>
 	<</if>> inside it that you
@@ -570,24 +602,24 @@ You count $tentacles.active tentacles surrounding you.
 	<<if $phase is 2>>
 		<<set $logprep to $logprep+" I unlocked it and found a gold necklace that I took">>
 		You find a gold necklace.
-		<<set $antiquemoney += 500>><<museumAntiqueStatus "antiquegoldnecklace" "found">><</if>>
+		<<set $antiquemoney += 500>><<museumAntiqueStatus "antiquegoldnecklace" "found">>
 		<br><br>
 	<<elseif $phase is 1>>
 		<<set $logprep to $logprep+" I unlocked it and found a silver ring that I took">>
 		You find a silver ring.
-		<<set $antiquemoney += 30>><<museumAntiqueStatus "antiquesilverring" "found">><</if>>
+		<<set $antiquemoney += 30>><<museumAntiqueStatus "antiquesilverring" "found">>
 		<br><br>
 	<<elseif $phase is 3>>
 		<<set $logprep to $logprep+" I unlocked it and found a gold chastity belt that I took">>
 		You find a gold chastity belt.
-		<<set $antiquemoney += 2000>><<museumAntiqueStatus "antiquegoldchastitybelt" "found">><</if>>
+		<<set $antiquemoney += 2000>><<museumAntiqueStatus "antiquegoldchastitybelt" "found">>
 		<<set _goldchastity to true>>
 		<br><br>
 	<</if>>
 
 	<<if $historytrait gte 4>><<set $logprep to $logprep+" along with the box">>
 		You take the empty box too. It belongs in a museum.
-		<<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><</if>>
+		<<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">>
 		<br><br>
 		<<run $boxdumps.pop()>>
 	<<else>>
@@ -607,7 +639,7 @@ You count $tentacles.active tentacles surrounding you.
 	You fail to pick the lock.<br><br>
 	<<info "locks" "ivorybox" $skulduggerydifficulty "fail">>
 	<<if $historytrait gte 4>>
-		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><</if>><<set $logprep to $logprep+" I just took it as is after failing to open it.">><<log $logprep 2>><</link>>
+		<<link [[Just take the box|Lake Ruin Deep]]>><<set $antiquemoney += 20>><<museumAntiqueStatus "antiquebox" "found">><<set $logprep to $logprep+" I just took it as is after failing to open it.">><<log $logprep 2>><</link>>
 		<br>
 	<</if>>
 	<<link [[Try again|Lake Ruin Box]]>><<wateraction>><</link>><<skulduggerydifficulty>><<loxygen>>
@@ -899,59 +931,180 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 <<else>>
 	<<set _timeadj to "eventually">>
 <</if>>
-<<if $phase is 1>>
-	You _timeadj overpower the creatures jaw and free your hand.
-	<<set $logprep to "I searched a pot in the lake ruins, something inside it grabbed onto my hand but I managed to "+_timeadj+" free myself.">>
-	<<log $logprep 2>>
-<<elseif $phase is 2>>
-	<<if $timespent gt 40>>
-		It holds onto your hand for a while, sucking at it and tasting it before it finally lets go of it.
-		<<garousal>><<arousal 300>>
+<<if $rng % 10 isnot 0 and $strugglecount lt 4 and $waitcount lt 5>>/* fail to get free */
+/*timespent not being fixed amount doesn't make as much sense when this is an option but it's probably fine, for struggling it mostly makes sense and for just waiting it could be just time until you feel like questioning if you should keep waiting. */
+	<<if $phase is 1>>
+		<<if $rng gte 50>>
+			You try to pull out you hand for a while but the creature manages to keep holding onto it.
+			<<gpain>><<pain 1>>
+		<<elseif $rng lte 10>>
+			While trying to struggle free you end up scratching your hand on something.
+			<<gpain>><<pain 5>>
+		<<else>>
+			You try to pull out you hand for a while and make some progress.
+			<<set $strugglecount += 1>>
+			<<set $waitcount -= 1>>
+		<</if>>
+		<br>
+		<<if $oxygen lt $oxygenmax/5>>
+			<<if $oxygen gt 0>>
+				The thought of running out of air with your hand stuck stresses you.
+			<<else>>
+				Having your hand stuck while desperately needing air scares you.
+			<</if>>
+			<<gstress>><<stress 1>><<gtrauma>><<trauma 1>>
+			<br>
+		<</if>>
+		<<link [[Keep trying|Hand Snapper]]>>
+			<<set $phase to 1>>
+			<<set $timespent to 30 - ($physique+$skulduggery*2) / 1000>>
+			<<if $debug is 1>>
+				<<run console.log("timespent = 30 - phys+skull*2("+($physique+$skulduggery*2)+")/1000")>>
+			<</if>>
+			<<set $seconds += $timespent>>
+			<<set $oxygen -= $timespent*10>>
+		<</link>><<loxygen>>
+		<br>
+		<<link [[Wait a while|Hand Snapper]]>>
+			<<set $phase to 3>>
+			<<set $timespent to 10>>
+			<<set $seconds += $timespent>>
+			<<set $oxygen -= $timespent*10>>
+		<</link>><<lloxygen>>
+	<<elseif $phase is 2 or $phase is 3>>
+		You <<if $phase is 2>>wait<<else>>keep waiting<</if>> for the the creature to let go of your hand.
+		<<if $rng gte 50>>
+			It feels like it's licking and rubbing all around your hand.
+			<<garousal>><<arousal 300>>
+			<<if $rng gte 90 and $waitcount gte 2>>
+				<<set $lewdsnap to 1>>
+			<</if>>
+			<<set $waitcount += 1>>
+		<<elseif $rng lte 10>>
+			It's clamping down on your hand pretty hard, it's slightly uncomfortable.
+			<<gpain>><<pain 1>>
+			<<set $strugglecount -= 1>>
+		<<else>>
+			<<set $waitcount += 1>>
+			<<if $lewdsnap is 1>>
+				You suddenly realize that the creature isn't just rubbing or licking your hand but also covering it in some sort of sticky substance.
+				<<set $lewdsnap += 1>>
+				<<set $drugged += 30>>
+				<<garousal>><<arousal 300>>
+			<<elseif $lewdsnap gte 2>>
+				It feels like it's licking and rubbing all around your hand while  adding more of the sticky substance onto your hand.
+				<<set $lewdsnap += 1>>
+				<<set $drugged += 30>>
+				<<garousal>><<arousal 300>>
+			<</if>>
+		<</if>>
+		<br>
+		<<if $oxygen lt $oxygenmax/5>>
+			<<if $oxygen gt 0>>
+				The thought of running out of air with your hand stuck stresses you.
+			<<else>>
+				Having your hand stuck while desperately needing air scares you.
+			<</if>>
+			<<gstress>><<stress 1>><<gtrauma>><<trauma 1>>
+			<br>
+		<</if>>
+		<<link [[Keep waiting|Hand Snapper]]>>
+			<<set $phase to 3>>
+			<<set $timespent to 10>>
+			<<set $seconds += $timespent>>
+			<<set $oxygen -= $timespent*10>>
+		<</link>><<loxygen>>
+		<br>
+		<<link [[Try to pull out your hand|Hand Snapper]]>>
+			<<set $phase to 1>>
+			<<set $timespent to 30 - ($physique+$skulduggery*2) / 1000>>
+			<<set $seconds += $timespent>>
+			<<set $oxygen -= $timespent*10>>
+		<</link>><<lloxygen>>
+	<</if>>
+<<else>>/* succeed in getting free */
+	<<if $phase is 1>>
+		<<if $strugglecount gte 4>>
+			The creature seems to tire and loosens it's grip enough for you to free your hand.
+			<<set $logprep to "I searched a pot in the lake ruins, something inside it grabbed onto my hand but I managed to free myself after a few tries.">>
+		<<else>>
+			You _timeadj overpower the creatures jaw and free your hand.
+			<<set $logprep to "I searched a pot in the lake ruins, something inside it grabbed onto my hand but I managed to "+_timeadj+" free myself.">>
+		<</if>>
+		<<log $logprep 2>>
+	<<elseif $phase is 2 or $phase is 3>>
+		<<if $waitcount gte 5>>
+			Seemingly satisfied with fully exploring and tasting your hand the creature finally lets go of it. 
+			<<if $lewdsnap gte 1>>
+				Your hand is sticky with some sort of fluid.
+				<<garousal>><<arousal 300>>
+				<<set $drugged += 30>>
+			<</if>>
+		<<elseif $timespent gt 40 or $phase is 3>>
+			It holds onto your hand for a while, sucking at it and tasting it before it finally lets go of it.
+			<<garousal>><<arousal 300>>
+		<<else>>
+			It lets go of your hand _timeadj.
+		<</if>>
+		<<set $logprep to "I searched a pot in the lake ruins, something inside it grabbed onto my hand and I waited until it decided to let me go.">>
+		<<log $logprep 2>>
 	<<else>>
-		It lets go of your hand _timeadj.
 	<</if>>
-	<<set $logprep to "I searched a pot in the lake ruins, something inside it grabbed onto my hand and I waited until it decided to let me go.">>
-	<<log $logprep 2>>
-<<else>>
-	Hand Snapper error
-<</if>>
-<<unset $timespent>>
-<<if $deviancy gte 15>>
+	<<unset $timespent>>
+	<<unset $strugglecount>>
+	<<unset $waitcount>>
+	<<unset $lewdsnap>>
+	<<if $deviancy gte 15 and $penisexist is 1>>
+		<br>
+		<<if $potinserts is undefined>>
+			<<set $potinserts to 0>>
+		<</if>>
+		You wonder if letting the creature suck on some other part of your body would feel good.
+		<<if $worn.genitals.type.includes("chastity") and $penisexist is 1>>
+			Your $worn.genitals.name prevents you from potentially inserting your <<penis>> into the pot.
+			<br>
+		<<elseif $penisexist is 1>>
+			<br>
+			<<link [[Insert your penis into the pot|Snapper Insert]]>>
+				<<set $combat_partner = "snapper">>/* makes sure 1st time experience diary entries know what to say */
+				<<set $timer to 7>>
+				<<set $thrustdepth to 0>>
+				<<set $phase to 0>>
+				<<wateraction>>
+			<</link>><<loxygen>><<deviant2>>
+		<</if>>
+	<</if>>
 	<br>
-	<<if $potinserts is undefined>>
-		<<set $potinserts to 0>>
-	<</if>>
-	You wonder if letting the creature suck on some other part of your body would feel good.
-	<<if $worn.genitals.type.includes("chastity")>>
-		Your $worn.genitals.name prevents you from potentially inserting your <<genitals 1>> into the pot.
-		<br>
-	<<elseif $penisexist is 1>>
-		<br>
-		<<link [[Insert your penis into the pot|Snapper Insert]]>>
-			<<set $combat_partner = "snapper">>/* makes sure 1st time experience diary entries know what to say */
-			<<set $timer to 7>>
-			<<set $thrustdepth to 0>>
-			<<wateraction>>
-		<</link>><<loxygen>><<deviant2>>
-	<</if>>
+	/* Intentional hand/finger reinsertion could be an option so that there's something interesting even without a penis or enough deviancy. */
+	/*
+	<<link [[Insert your hand back into the pot|Snapper Hand]]>>
+		<<set $timer to 7>>
+		<<wateraction>>
+	<</link>><<loxygen>><<deviant1>>
+	<br>
+	*/
+	<<ruinoptions>>
 <</if>>
-<br>
-<<ruinoptions>>
 
 
 :: Snapper Insert [nobr]
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
 <<if $stress gte 10000>>
 	<<if $arousal gte 9000>>
+		<<orgasmpassage "snapper">>
+		Your consciousness starts slipping as the creature sucks out your cum.
+		/*
 		As your consciousness starts slipping your penis erupts spurting semen into the creatures mouth.
 		<<orgasmstat "snapper">>
 		<<set $orgasmcount += 1>>
-		<<set $arousal -= 8000>>
+		<<arousal -8000>>
+		*/
 		<<set $logprep to "I decided to insert my penis into a pot in the lake ruins that had some sort of creature living in it. It made me cum just as I passed out.">>
 		<<log $logprep 3>>
-		<br><br>
 	<</if>>
 	<<unset $thrustdepth>>
+	<<unset $lewdsnap>>
+	<<unset $poisonsnap>>
 	<<passoutlake>>
 <<else>>
 	<<if $phase is 0>>
@@ -965,85 +1118,133 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 			into the pot, it's only half-way in when the creatures snaps it's mouth around it.
 		<</if>>
 		<<deviancy2>>
-		<<if $penilevirginity is 1>>
+		<<if $player.virginity.penile is true>>
 			/*
 			If it just snaps around the dick and sucks on it without otherwise moving wouldn't it technically not be separating foreskin from glans and thus not cause virginity loss?
 			 <span class="pink">The creature sucks on your virgin penis,</span><span class="red"> separating your foreskin from your glans and forever robbing you of your purity.</span>
-			<<set $penilevirginity to 0>>
+			<<set $player.virginity.penile to false>>
 			<<set $temple_virginity to 0>>
 			<<penilestat "snapper">>
 			*/
 			The creature sucks on your virgin penis, but with your foresking in the way it doesn't feel as good as it otherwise might.
-			<<set $arousal += 50>><<garousal>>
+			<<arousal 300>><<garousal>>
 		<<else>>
 			The creature sucks on your penis.
-			<<set $arousal += 100>><<garousal>>
+			<<arousal 600>><<garousal>>
 		<</if>>
-	<<elseif $phase is 1>>
-		You push your dick deeper into the creature.
-		<<set $thrustdepth++>>
-		<<set $arousal += 100>><<garousal>>
-		<<if $penilevirginity is 1>>
+	<<elseif $phase is 1 or $phase is 4>>
+		<<if $phase is 1>>
+			You push your dick deeper into the creature.
+			<<set $thrustdepth++>>
+		<<else>>
+			You thrust your <<penis>> in and out inside the creatures mouth.
+			<<set $timer++>>
+		<</if>>
+		<<if $player.virginity.penile is true>>
 			 <span class="pink">Doing so,</span><span class="red"> separates your foreskin from your glans, forever robbing you of your purity.</span>
-			<<set $penilevirginity to 0>>
+			<<set $player.virginity.penile to false>>
 			<<set $temple_virginity to 0>>
 			<<penilestat "snapper">>
 		<</if>>
+		<<if $rng gte 95 and $lewdsnap is undefined>>
+			There's a change in how the creature's insides feel, it's warmer and more sticky.
+			<<set $drugged += 60>>
+			<<set $lewdsnap to 1>>
+		<</if>>
+		<<arousal 2000>>
+		<<ggarousal>>
+		<<if $rng lte 1 and $poisonsnap is undefined>>
+			You start feeling a burning pain on your penis.
+			<<ggpain>><<pain 12>>
+			<<set $poisonsnap to 1>>
+		<</if>>
 	<<elseif $phase is 2>>
-		<<set $arousal += 200>><<garousal>>
-		<<if $thrustdepth gte 1 or $timer gte 4>>/* and or something more random */
+		<<arousal 200>><<garousal>>
+		/* $timer is reduced by 1 by <<effects>> */
+		/* Not sure but I think the idea was that even after orgasming it wouldn't let go until timer is 0, don't know if I want to do that. */
+		<<if $thrustdepth gte 1 or $timer gte 4>>/* prevent pulling out if enough time hasn't passed. and or something more random? */
 			You try to pull your dick out of the pot the creature is holding firmly onto it.
 			<<set $thrustdepth-->>
 			<<set $timer++>>
+			<<arousal 1200>>
+			<<ggarousal>>
+			<<if $rng lte 1 and $poisonsnap is undefined>>
+				Suddenly it shoots out something warm against your <<penis>> and soon after you feel terrible pain on the affected area.
+				<<ggpain>><<pain 12>>
+				<<set $poisonsnap to 1>>
+			<</if>>
 		<<else>>
 			With some effort you manage to pull your dick out of the pot.
+			<<set $phase to 8>>
+			<br><br>
 			<<link [[Next|Snapper Insert Finish]]>><<set $phase to 2>><</link>>
 		<</if>>
 	<<elseif $phase is 3>>
-		You allow the creature to suck on your penis in peace.
+		You allow the creature to <<print either("suck on","tease","rub","lick")>> your penis in peace.
+		<<if $rng gte 9 and $lewdsnap is undefined>>
+			It starts covering your penis in a warm and sticky substance that makes you feel hot.
+			<<set $drugged += 60>>
+			<<set $lewdsnap to 1>>
+		<</if>>
 		<<arousal 600>>
 		<<garousal>>
+		<<if $rng lte 1 and $poisonsnap is undefined>>
+			Suddenly it shoots out something warm against your <<penis>> and soon after you feel terrible pain on the affected area.
+			<<ggpain>><<pain 12>>
+			<<set $poisonsnap to 1>>
+		<</if>>
 		
+	<</if>>
+	<br>
+	<<if $oxygen lt $oxygenmax/5 and $phase lte 5>>
+		<<if $oxygen gt 0>>
+			The thought of running out of air because of your penis being trapped scares and excites you.
+		<<else>>
+			Having your penis trapped while desperately needing air scares and excites you.
+		<</if>>
+		<<gstress>><<stress 1>><<gtrauma>><<trauma 1>>
+		<<garousal>><<arousal 300>>
+		<br>
 	<</if>>
 	<<if $thrustdepth is 1>>
 	<</if>>
 	<<if $arousal gte 10000>>
-		<<set $arousal -= 8000>>
-		<<set $stress -= 200>>
-
-		The warmth within you continues to build, but Harper shows no sign of letting up. You feel yourself pass the point of no return, and you whimper softly. "Please, no." Harper is looking at you puzzled when it hits you. The orgasm emerges and your back immediately arcs. Uncontrollable moans escape your lips and you grip the side of the bed to stop your arms flailing.
-		<<orgasmstat "snapper">>
-		<<set $orgasmcount += 1>>
-		<br><br>
-		<<if $penisexist is 1 and $orgasmcount lte 23 and $devstate is 1>>
-			<<if !$worn.genitals.type.includes("naked")>>
-				You ejaculate, generating a large wet patch and filling the inside of your $worn.genitals.name with your fluids.
-			<<elseif !$worn.under_lower.type.includes("naked")>>
-				You ejaculate, generating a large wet patch and filling the inside of your $worn.under_lower.name with your fluids.
-			<<else>>
-				Semen spurts from the tip of your penis, rising into the air and splattering all over your thighs and torso.
-			<</if>>
+		You struggle to hold your breath.
+		<<orgasmpassage "snapper">>
+		<<if $semen_amount gte (($semen_volume / 24) * 12)>>/* ideally this would be checked before orgasm passage but it doesn't matter much. */
+			Your fill the small creature's insides with your fluids.
 		<</if>>
-		
-		Despite it all, Harper continues as if absolutely nothing is amiss. You lie there, spent and humiliated, as <<he>> finishes <<his>> examination. Finally, <<he>> grabs some paper towels and starts cleaning up your fluids. You pretend to be elsewhere.
-		<br><br>
+		/* Is there something I should add to make the cum disappear into the creature instead of presumably staining yourself before it gets washed off? */
+		/*
+		<<arousal -8000>>
+		<<set $stress -= 200>>
+		<<set $orgasmcount += 1>>
+		<<orgasmstat "snapper">>
+		Ministrations of the creature finally take you over the edge and you cum inside it filling the small creature with your fluids while struggling to hold your breath as the orgasm ravages your body.
+		*/
+		<<print either("Shrinking","Softening")>> of your penis causes it to easily slip out of the creature's grasp.
+		<br>
+		<<set $phase to 10>>
 	<</if>>
 	<br>
 
-	<<if $phase lte 9 or $timer lte 0>>
+	<<if $phase lte 5>>
 		<<if $thrustdepth lte $penissize-2 and $penissize gte 2>>
 			<<link [[Thrust deeper|Snapper Insert]]>><<wateraction>><<set $phase to 1>><</link>><<loxygen>>
-			<<if $penilevirginity is 1>>
+			<<if $player.virginity.penile is true>>
 				Will cause virginity loss
 			<</if>>
 			<br>
 		<</if>>
+		<<link [[Thrust|Snapper Insert]]>><<wateraction>><<set $phase to 4>><</link>><<loxygen>>
+		<<if $player.virginity.penile is true>>
+			Will cause virginity loss
+		<</if>>
+		<br>
 		<<link [[Try to pull out|Snapper Insert]]>><<wateraction>><<set $phase to 2>><</link>><<loxygen>>
 		<br>
 		<<link [[Do nothing|Snapper Insert]]>><<wateraction>><<set $phase to 3>><</link>><<loxygen>>
-	<<else>>
-
-		<br><br>
+	<<elseif $phase isnot 8>>
 		<<link [[Next|Snapper Insert Finish]]>><</link>>
 	<</if>>
 <</if>>
@@ -1051,13 +1252,19 @@ The creature recoils from you and disappears into darkness. <<tearful>> you turn
 
 :: Snapper Insert Finish [nobr]
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>
+<<if $phase is 2>>
+	<<set $logprep to "I decided to insert my penis into a pot in the lake ruins that had some sort of creature living in it. I pulled out without orgasming.">>
+	<<log $logprep 3>>
+<<else>>
+	<<set $logprep to "I decided to insert my penis into a pot in the lake ruins that had some sort of creature living in it. It made me cum.">>
+	<<log $logprep 3>>
+<</if>>
 
-
-<<set $logprep to "I decided to insert my penis into a pot in the lake ruins that had some sort of creature living in it. It made me cum.">>
-<<log $logprep 3>>
 <br>
 <<ruinoptions>>
 <<unset $thrustdepth>>
+<<unset $lewdsnap>>
+<<unset $poisonsnap>>
 
 :: Tentacle Pot [nobr]
 <<set $outside to 0>><<set $location to "lake_ruin">><<underwater>><<effects>><<lakeeffects>>

@@ -1033,14 +1033,20 @@ if I(Mauno) actually knew how combat works I'd probably make <<combat_partner $a
 <</nobr>><</widget>>
 
 <<widget "orgasmstat">><<nobr>>
+<<if $debug is 1>>
+	<<run console.log("orgasmstat with "+$args[0]+"(args[0]) as partner")>>
+<</if>>
 <<if $orgasmstat is 0>>
+	<<set $orgasmstat += 1>>
 	<<combat_partner $args[0]>>
 	<<set $logextra to $logextra+"I came for the first time, it happened with "+$combat_partner+". ">>
 <<elseif $orgasmstat gte 1 and $logdebug is 1>>
+	<<set $orgasmstat += 1>>
 	<<combat_partner>>
 	<<set $logextra to $logextra+"<span class='greyred'>I came for the "+$orgasmstat+"th time, it happened with "+$combat_partner+".</span> ">>
+<<else>>
+	<<set $orgasmstat += 1>>
 <</if>>
-<<set $orgasmstat += 1>>
 <</nobr>><</widget>>
 
 <<widget "ejacstat">><<nobr>>
@@ -4929,7 +4935,7 @@ __Map__<br>
 <<widget "combat_partner">><<nobr>>/* somehow set to "I" when masturbating? */
 <<set $combat_partner = "">>/* hopefulyy this will fix the "An an a slight boy", it does but instead causes just "A"s to appear */
 /* $args[0] is the id/slot of the relevant npc */
-/* not sure if anything aside from beasts that no longer set $besttype need it. Hopefully adding the arg to everywhere where it needs to be is worth it(all uses of <<-stat>> widgets). */
+/* not sure if anything aside from beasts that no longer set $beasttype need it. Hopefully adding the arg to everywhere where it needs to be is worth it(all uses of <<-stat>> widgets). */
 /* Considered if someting like $combat_partner with $NPCList[$args[0]].description + $NPCList[$args[0]].type could replace this widget but this is still needed to at least get a man/woman/boy/girl out of "m" or "f" and for handling how beast, swarm and tentacle descriptions differ from human ones */
 /* $pronoun gets set to "n" in some situations  */
 
@@ -4939,7 +4945,7 @@ __Map__<br>
 	/* made everything set this manually just so I can easily search for "stat>>" to see ones where I haven't looked into if they need it or not. */
 <</if>>
 <!-- Make sure that we actually have someone we could call a partner -->
-<<if $NPCList[$args[0]] isnot undefined or $swallowed is 1 or $enemytype is "tentacles" or $enemytype is "beast" or $swarm.type isnot 0>>
+<<if typeof($args[0]) is "number" and ($NPCList[$args[0]].description isnot 0 or $swallowed is 1 or $enemytype is "tentacles" or $enemytype is "beast" or $swarm.type isnot 0)>>
 	<<if $enemytype is "beast">> 
 		<<set $combat_partner = $NPCList[$args[0]].description+" "+$NPCList[$args[0]].type>>
 	<<elseif $enemytype is "tentacles">>?
@@ -4973,6 +4979,11 @@ __Map__<br>
 	<!-- Some lines probably sound weird with this(should either make them replace "myself" with "I" or be adjusted to work with "myself") -->
 	<<set $combat_partner to "myself">>
 	<<set $combat_partner to "No one?(this is either a solo action or a bug)">>
+	<!-- allow "manually" setting the partner by giving a string instead of number ie. "snapper" -->
+	<!-- Don't remember if there was any situation where a non number was used before adding this. I think I defaulted to using 0 whenever -->
+	<<if typeof($args[0]) is "string">>
+		<<set $combat_partner to $args[0]>>
+	<</if>>
 <</if>>
 
 <<if $swarm.type isnot 0>>/* no a/an for swarms since they have plural names */
