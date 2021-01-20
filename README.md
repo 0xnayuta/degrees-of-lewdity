@@ -1,5 +1,3 @@
-compiled file for anyone who anyone wants to test this https://mega.nz/file/F9tHDLZR#yaEMeXYFsDMhgoO9ORI8C8s75m3wb-q8iytVDUzQMTo without needing to compile it(no img folder so some images will be missing)
-
 # Degrees of Lewdity
 
 ## How to build

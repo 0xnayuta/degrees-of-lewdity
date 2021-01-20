@@ -1,6 +1,6 @@
  /*
-$diary has a "page" for each day(since the diary was started) and each page has a number of entries with time, text, opinion/comment, importance and effects
-so you access entry text with $diary[logdaynumber][entrynumber][$logpars.text]
+$log has a "page" for each day(since the diary was started) and each page has a number of entries with time, text, opinion/comment, importance and effects
+so you access entry text with $log[logdaynumber][entrynumber][$logpars.text]
 .time is simply $time
 .text is the diary entry that describes what exactly happened in 1st person
 .importance allows filtering out simply moving around and such and is used to decide how to colour the text
@@ -8,19 +8,21 @@ so you access entry text with $diary[logdaynumber][entrynumber][$logpars.text]
 .opinion (could be about) how you feel about an event and how you've chosen to rationalise it or just the default comment
 .written is to indicate if you have sat down and actually written the entry(if that matters)
 .stats lists most stat changes like money since the last time log widget was used.
+.day the day event happened so that we can more easily not use days as pages or whatever.
 
-to make this work time.twee has a thing that pushes a new day/page into existence at the start of each day, it also reports the date and stat changes of the day
-other than that and this there are some widgets at the bottom of widgets.twee and initStory and Start2() from init.twee are used to initialize everything.
-And finally nearly all events would ideally have the following bit near the end:
+Most of what makes this work is here or in diary-widgets-twee
+time.twee has a thing that pushes a new day/page into existence at the start of each day, it also reports the date and stat changes of the day.
+initStory and Start2() from init.twee have some stuff used to initialize things.
+And finally for any entries to get added, events should have something like the following bit near the end:
 
 <<set $logprep to "">>
 <<log $logprep 3>>
-<<logopinion "">>
 
-1st "" being filled with diary entry and 3 beig the importance of event
-logopinion could have various opinions about the event split into different $args[] with $diaryprompts 2 or 3 events ask you to pick between them whenever they end
+"" being filled with diary entry and 3 being the importance of event
+if entry is pure text with no variables used just <<log "" 3>> also works
+<<log `$logprep+""` 3>> seems to work too though I've not used it much since main reason I was considering using it at some point was potentially using widgets with it but couldn't figure out a way to make the result stick around, <<log `<<He>>+" did stuff."` 3>> gave errors while <<log `"<<He>> did stuff."` 3>> reruns the widget everytime the string is displayed.
 
-for more complex events usingg $logprep to change entry text based on choices made earlier is useful:
+for more complex events using $logprep to change entry text based on choices made earlier is useful:
 
 <<set $logprep to "">>
 <<set $logprep to $logprep+"">>
@@ -57,37 +59,117 @@ Can have results like "He raped me." and "She touched me weirdly."
 
 :: Simple Diary[nobr]
 
-<<for _i, _day range $diary>>
+<<for _i, _day range $log>>
   <br>
-  <<for _j, _entry range $diary[_i]>>
-    _entry[$logpars.text]
-    _entry[$logpars.comment]
+  <<for _j, _entry range $log[_i]>>
+    <<print _entry[$logpars.text]>>
+    <<print _entry[$logpars.comment]>>
     
-    <<print JSON.stringify(_entry[$logpars.stats])>>
+    /*<<print JSON.stringify(_entry[$logpars.stats])>>*/
     <br>
   <</for>>
 <</for>>
 
 :: Diary Stringified [nobr]
 
-<<print JSON.stringify($diary)>>
+<<print JSON.stringify($log)>>
+
 
 :: Write Diary [nobr]
 
+<<logcount>>
+<<if _unresolved.traumagain gte 10>>
+<</if>>
+<<if $log.length-1 gt 1>>
+It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
+<</if>>
+<br>
+<<run console.log("diary write")>>
+/*
+Day less:
+<<for _i to 0; $log[_i][$logpars.written] is false ; _i++>>
+<</for>>
+*/
+<<for _tday, _day range $log>>
+  <<for _tline, _entry range $log[_tday]>>
+    <<if _entry[$logpars.written] is false>>
+		/*
+		<<print _entry[$logpars.day]>>
+		<<print _entry[$logpars.text]>>
+		*/
+		<<if _entry[$logpars.stats].traumagain gt 0>>
+			<<run console.log("\$log["+_tday+"]["+_tline+"] was traumatic")>>
+			<span class='red'>!!!</span>
+			<<showlogentry _tday _tline>>
+			<br>
+		<!--
+		-->
+		<<elseif _entry[$logpars.importance] gt 1>>
+			<<showlogentry _tday _tline>>
+			<br>
+		<</if>>
+	<</if>>
+  <</for>>
+<</for>>
+
+[[Next|Write Diary]]
+[[Back|Open Diary]]
+<<link [[Done]]>><<return>><</link>>
+
+:: Write DiaryB [nobr]
+
+/* 
+need to switch to using eventlog in some places for this to work... Or do I? There was also the option of just having "written" tag but I didn't want to do that for some probably good reason... Or was that really what I decided to do? Written seems so much easier to do and I had it in logpars twice even. Main reason for having two things was that it'd mean that what an entry looks like and knows after being written can be very different(one thing being that for written entries I wanted the option to combine multiple ones and have player written text which in addittion to making the diary nicer also allows trimming out more data than otherwise).
+Should the eventlog also have day based split? Actually, I think each day knowing the day number could be good in various ways,
+
+*/
 You sit down and start writing to your diary.
-<<if $eventlog is undefined>>
-  <<set $eventlog to $diary>>
+<<if $log is undefined>>
+  <<set $log to $diary>>
 <</if>>
 
 <<logcount>>
 <<if _unresolved.traumagain gte 10>>
 <</if>>
-<<if $eventlog.length-1 gt 1>>
+<<if $log.length-1 gt 1>>
 It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
 <</if>>
 <br>
-
-<<showdiaryentry 0 0>>
+<<run console.log("diary write")>>
+/*
+Day less:
+<<for _i to 0; $log[_i][$logpars.written] is false ; _i++>>
+<</for>>
+*/
+<<for _i, _day range $log>>
+  <<for _j, _entry range $log[_i]>>
+    <<if _entry[$logpars.written] is false>>
+		<<if _entry[$logpars.stats].traumagain gt 0>>
+			!!!
+			<<print _entry[$logpars.day]>>
+			<<print _entry[$logpars.text]>>
+			<br>
+			<<run console.log("\_i is:"+_i+" \_j is:"+_j)>>
+			/*
+			<<run console.log("\_entry is:"+_entry)>>
+			<<showlogentry _day _entry>>
+			*/
+			<<print JSON.stringify($log[_i][_j])>>
+			<br><br>
+			<<showlogentry _i _j>>
+			<br><br>
+		<<elseif _entry[$logpars.importance] gt 1>>
+		<</if>>
+	<</if>>
+  <</for>>
+<</for>>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<<showlogentry 0 0>>
 <<showlogentry>>
 How do you want to write this entry? (carefully written entries about bad events may make you recall them but  
   little effect but also won't help much)
@@ -231,7 +313,7 @@ _blarg
     $loglocations
     🔒︎🔒
     
-    <<print JSON.stringify($diary).length>>
+    <<print JSON.stringify($log).length>>
     /* Diary but with edit options and numberify disabled */[[Bedroom]]
      | <<link [[Show all days|Diary Edit]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary Edit]]>><<set $diaryfilterB++>><</link>> 
      | <<set $menu to 1>> <<link [[Show 1 day|Diary Edit]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary Edit]]>><<set $diaryfilterA++>><</link>>
@@ -241,7 +323,7 @@ _blarg
     /*
     list and makes selectable all days
     could make a year selector since this will probably get annoyingly long after a year or two.
-    yearlog would probably be an array and use .push($diary) at the end of year before emptying $diary.
+    yearlog would probably be an array and use .push($log) at the end of year before emptying $diary.
     compressing or exporting old entries could be a thing
     */Hmm
     <<if $diarymode is 1>>
@@ -256,7 +338,7 @@ _blarg
     
     /* originally I was thinking players could add entries on their own but that didn't seem as useful as just adding comments to existing ones */
     Change entry $diaryline of day $diarypage's <<link [[comment|Diary Edit]]>><<logcomment $diarypage $diaryline $entry>><</link>><<textbox "$entry" "" >>
-    or importance(from <<print $diary[$diarypage][$diaryline][$logpars.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
+    or importance(from <<print $log[$diarypage][$diaryline][$logpars.importance]>> to /* Should I somehow protect entries with above 5 importance? Someone might change them and regret not being able to restore them */
     <<link [[0|Diary Edit]]>><<logimportance $diarypage $diaryline 0>><</link>>
     <<link [[1|Diary Edit]]>><<logimportance $diarypage $diaryline 1>><</link>>
     <<link [[2|Diary Edit]]>><<logimportance $diarypage $diaryline 2>><</link>>
@@ -265,26 +347,32 @@ _blarg
     <<link [[5|Diary Edit]]>><<logimportance $diarypage $diaryline 5>><</link>>)
     
 
+$reality
 
 	</div>
 /*
 </div>
 */
+
+<<link "Delete Day 0">>
+	<<run $log.deleteAt(0)>>
+	<<set $logday-->>
+<</link>>
+
 <br>
 
+<<logcount>>
 
-$reality
-
-You aren't in a good spot(such as your bedroom) to edit your diary.
+You aren't in a good spot(such as your bedroom) to write your diary so you just recall recent events that you could write down.
 
 <<if $diarymode is 1>> /* single day mode */
   <br>
   <<set _hiddenentries to 0>>
-  <<for _i, _entry range $diary[$diarypage]>>
+  <<for _i, _entry range $log[$diarypage]>>
   <<capture _i>>
   <<if _entry[$logpars.importance] gte $diaryfilterA >><br>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
-    <<showdiaryentry $diarypage _i>>
+    <<if _i gt 1>><<print Math.floor($log[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($log[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<showlogentry $diarypage _i>>
   <<else>>
     <<set _hiddenentries += 1>>    
   <</if>>
@@ -294,21 +382,21 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
   _hiddenentries less important entries are not shown.
 <<else>> /* all days mode */
   <<set _hiddenentries to 0>>
-  <<run $diary.reverse()>>/* show current day first */
-  <<for _i, _day range $diary>>
+  <<run $log.reverse()>>/* show current day first */
+  <<for _i, _day range $log>>
     <br> /*  */
-    <<for _j, _entry range $diary[_i]>>
+    <<for _j, _entry range $log[_i]>>
     <<capture _i, _j>>
     <<if _entry[$logpars.importance] gte $diaryfilterB >><br>
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
-      <<showdiaryentry _i _j>>
+      <<if _j gt 1>><<print Math.floor($log[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($log[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<showlogentry _i _j>>
     <<else>>
       <<set _hiddenentries += 1>>    
     <</if>>
     <</capture>>
     <</for>>
   <</for>>
-  <<run $diary.reverse()>>
+  <<run $log.reverse()>>
 <</if>>
 <br><br>
 _hiddenentries less important entries are not shown.
@@ -341,35 +429,36 @@ You aren't in a good spot(such as your bedroom) to edit your diary.
 
 <<if $diarymode is 1>> /* single day mode */
   <br>
-  <<for _i, _entry range $diary[$diarypage]>>
+  <<for _i, _entry range $log[$diarypage]>>
   <<capture _i>>
   <<if _entry[$logpars.importance] gte $diaryfilterA >><br>
-    <<if _i gt 1>><<print Math.floor($diary[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
-    <<showdiaryentry $diarypage _i>>
+    <<if _i gt 1>><<print Math.floor($log[$diarypage][_i][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($log[$diarypage][_i][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
+    <<showlogentry $diarypage _i>>
   <</if>>
   <</capture>>
   <</for>>
 <<else>> /* all days mode */
-  <<run $diary.reverse()>>/* show current day first */
-  <<for _i, _day range $diary>>
+  <<run $log.reverse()>>/* show current day first */
+  <<for _i, _day range $log>>
     <br> /*  */
-    <<for _j, _entry range $diary[_i]>>
+    <<for _j, _entry range $log[_i]>>
     <<capture _i, _j>>
     <<if _entry[$logpars.importance] gte $diaryfilterB >><br>
-      <<if _j gt 1>><<print Math.floor($diary[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($diary[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
-      <<showdiaryentry _i _j>>
+      <<if _j gt 1>><<print Math.floor($log[_i][_j][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($log[_i][_j][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>
+      <<showlogentry _i _j>>
     <</if>>
     <</capture>>
     <</for>>
   <</for>>
-  <<run $diary.reverse()>>
+  <<run $log.reverse()>>
 <</if>>
 <br><br>
 
 
 
 :: Diary Edit [nobr]
-/* Diary but with edit options and numberify disabled */[[Bedroom]]
+/* This is still using $diary( \$diary(?![plfsimdgeblcw]) ) instead of $log since editing the $log isn't something you are supposed to do and whenever I get around to actually adding $diary I might want to repurpose this for that. */
+/* Diary but with edit options and disabled numberify  */[[Bedroom]]
  | <<return>>
  | <<link [[Show all days|Diary Edit]]>><<set $diarymode to 0>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterB-->><</link>> $diaryfilterB <<link [[">"|Diary Edit]]>><<set $diaryfilterB++>><</link>> 
  | <<set $menu to 1>> <<link [[Show 1 day|Diary Edit]]>><<set $diarymode to 1>><</link>> filter: <<link [["<"|Diary Edit]]>><<set $diaryfilterA-->><</link>> $diaryfilterA <<link [[">"|Diary Edit]]>><<set $diaryfilterA++>><</link>>
@@ -532,7 +621,7 @@ Getting these to actually work nicely is too annoying.
 <<set $tempstats to {}>>
 <<set $origstats to clone($logged)>>
 
-<<showdiaryentry $day $diaryline>>
+<<showlogentry $day $diaryline>>
 
 [[Diary test1]]
 
