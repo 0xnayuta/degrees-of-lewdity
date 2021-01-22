@@ -112,7 +112,7 @@ with $logday, it's like $days but can be set to smaller number when archiving ol
 	<<set _a[$logpars.time] to 0>>
 	<<set _a[$logpars.comment] to "(Day "+$days+")">>
 	<<set _a[$logpars.importance] to 7>>
-	<<set _a[$logpars.written] to true>>
+	<<set _a[$logpars.written] to 2>>
 	<<set _a[$logpars.stats] to {}>>
 <</if>>
 
@@ -226,7 +226,7 @@ lactation and hair stats?
 	<<set $log[$logday][$diaryline][$logpars.importance] to $args[1]>>
 	<<set $log[$logday][$diaryline][$logpars.comment] to "">>
 	<<set $log[$logday][$diaryline][$logpars.opinion] to "">>
-	<<set $log[$logday][$diaryline][$logpars.written] to false>>
+	<<set $log[$logday][$diaryline][$logpars.written] to 0>>
 	<<if $args[1] gte $logwritetreshold>>
 		<<set $todoentries++>>
 	<</if>>
@@ -302,7 +302,7 @@ lactation and hair stats?
 	<<set _ex[$logpars.time] to $time>>
 	<<set _ex[$logpars.text] to $args[0]>>
 	<<set _ex[$logpars.importance] to $args[1]>>
-	<<set _ex[$logpars.written] to false>>
+	<<set _ex[$logpars.written] to 0>>
 	<<set _ex[$logpars.stats] to {}>>
 
 	<<set $diarypage to $logday>>
@@ -326,7 +326,7 @@ lactation and hair stats?
 	<<set $log[$logday][$diaryline][$logpars.importance] to $args[1]>>
 	<<set $log[$logday][$diaryline][$logpars.comment] to "">>
 	<<set $log[$logday][$diaryline][$logpars.opinion] to "">>
-	<<set $log[$logday][$diaryline][$logpars.written] to false>>
+	<<set $log[$logday][$diaryline][$logpars.written] to 0>>
 	<<set $log[$logday][$diaryline][$logpars.stats] to {}>>
 <</if>>
 <</nobr>><</widget>>
@@ -447,7 +447,7 @@ lactation and hair stats?
 	<<set $log[$logday][$diaryline].time to $time>>
 	<<set $log[$logday][$diaryline][$logpars.text] to $dayendreport>>
 	<<set $log[$logday][$diaryline][$logpars.importance] to 7>>
-	<<set $log[$logday][$diaryline].written to false>>
+	<<set $log[$logday][$diaryline].written to 0>>
 	<<set $log[$logday][$diaryline][$logpars.stats] to clone($logged)>>
 	/*
 	<<set $log[$logday].push(
@@ -521,6 +521,10 @@ lactation and hair stats?
 <<else>>
 	_text
 <</if>>
+/*
+todo: make a thing for (at least temporarily) saving the rest of this it might make opening diary faster(and I suspect logdebug stuff of causing too much recursion errors when this used in some situations).
+*/
+
 /* clothing change report */
 /*
 "Changed x to y" would be weird for situations where clothes break and such
@@ -648,7 +652,7 @@ this probably won't handle sets very well
 
 <</nobr>><</widget>>
 
-<<widget "filteredentriesinfo">><<nobr>>
+<<widget "filteredentriesinfo">><<nobr>>/* Say if entries got filtered */
 /*
 $diaryinsertfilterinfo=?
 0=Only filtered entry count total at the bottom
@@ -838,7 +842,7 @@ $diaryinsertfilterinfo=?
 	
 <<for _i, _day range $log>>
   <<for _j, _entry range $log[_i]>>
-    <<if _entry[$logpars.written] is false>>
+    <<if _entry[$logpars.written] lt 2>>
 		<<if _entry[$logpars.stats].traumagain gt 0>>
 			<<set _unresolved.traumagain += _entry[$logpars.stats].traumagain>>
 		<<elseif _entry[$logpars.stats].traumagain lt 0>>

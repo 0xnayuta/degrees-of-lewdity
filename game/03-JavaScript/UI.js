@@ -105,22 +105,67 @@ Links.currentLinks = [];
 function getPrettyKeyNumber(counter) {
 	var str = "";
 
-	if (counter > 30)
-		str = "Ctrl + ";
-	else if (counter > 20)
-		str = "Alt + ";
-	else if (counter > 10)
-		str = "Shift + ";
+	if (counter > 0 && State.variables.useAbcLinks) {
+		if (counter > 288) {
+			str = "";
+			console.warn("Too many links to numberify.");
+		}
+		else {
+			if (counter > 252)
+				str = "Ctrl + Alt + Shift + ";
+			else if (counter > 216)
+				str = "Ctrl + Alt +";
+			else if (counter > 180)
+				str = "Ctrl + Shift + ";
+			else if (counter > 144)
+				str = "Alt + Shift + ";
+			else if (counter > 108)
+				str = "Ctrl + ";
+			else if (counter > 72)
+				str = "Alt + ";
+			else if (counter > 36)
+				str = "Shift + ";
 
-	if (counter % 10 === 0)
-		str += "0";
-	else if (counter < 10)
-		str += counter;
-	else {
-		var c = Math.floor(counter / 10);
-		str += (counter - (10 * c)).toString();
+			if (counter % 36 === 0) // replace 0 with Z
+				str += "Z"; // could also use String.fromCharCode(90)
+			else if (counter % 36 === 10) // replace 10 with 0
+				str += "0";
+			else if (counter % 36 <= 10) // get 1 to 9
+				str += (counter % 36);
+			else // get A to Y
+				str += String.fromCharCode(65 - 11 + (counter % 36));
+		}
 	}
+	else if (counter > 80) {
+		str = "";
+		console.warn("Too many links to numberify.");
+	}
+	else {
+		if (counter > 70)
+			str = "Ctrl + Alt + Shift + ";
+		else if (counter > 60)
+			str = "Ctrl + Alt";
+		else if (counter > 50)
+			str = "Ctrl + Shift + ";
+		else if (counter > 40)
+			str = "Alt + Shift + ";
+		else if (counter > 30)
+			str = "Ctrl + ";
+		else if (counter > 20)
+			str = "Alt + ";
+		else if (counter > 10)
+			str = "Shift + ";
 
+		if (counter % 10 === 0)// replace 10 with 0
+			str += "0";
+		else if (counter < 10)
+			str += counter;
+		else {
+			var c = Math.floor(counter / 10); // set c to first number in a 2 digit number
+			str += (counter - (10 * c)).toString(); // get 0-9 by subtracting c*10
+			// not sure if there's a reason to not use counter % 10 here too.
+		}
+	}
 	return str;
 }
 
@@ -137,6 +182,7 @@ $(document).on(':passagerender', function (ev) {
 	Links.generateLinkNumbers(ev.content);
 });
 
+// matches with a string(linktext in this case) that starts with ( followed by any number of anything but ) followed by )
 Links.keyNumberMatcher = /^\([^\)]+\)/
 
 Links.generateLinkNumbers = function generateLinkNumbers(content) {
@@ -154,9 +200,10 @@ Links.generateLinkNumbers = function generateLinkNumbers(content) {
 		.not(".no-numberify *, .no-numberify");
 
 	$(Links.currentLinks).each(function (i, el) {
-		if (Links.keyNumberMatcher.test(el.innerHTML)) {
-			el.innerHTML = el.innerHTML.replace(Links.keyNumberMatcher, `(${getPrettyKeyNumber(i + 1)})`)
+		if (Links.keyNumberMatcher.test(el.innerHTML)) { 
+			el.innerHTML = el.innerHTML.replace(Links.keyNumberMatcher, `(${getPrettyKeyNumber(i + 1)})`) // if there's a a valid link like [[(whatever)link|$passage]] replace whatever with an appropriate numberify text
 		} else {
+			//console.log("numberify i is " + i + " and el is " + JSON.stringify(el) + " ");
 			$(el).html("(" + getPrettyKeyNumber(i + 1) + ") " + $(el).html());
 		}
 	});
@@ -164,34 +211,72 @@ Links.generateLinkNumbers = function generateLinkNumbers(content) {
 Links.generate = () => Links.generateLinkNumbers(document.getElementsByClassName("passage")[0] || document);
 
 $(document).on('keyup', function (ev) {
+	/*
+	if ((ev.keyCode >= 65 && ev.keyCode <= 90))
+		console.log("Pressed " + String.fromCharCode(ev.keyCode) + "(" + ev.keyCode + ")");
+	*/
 	if (!State.variables.numberify_enabled || !StartConfig.enableLinkNumberify || State.variables.tempDisable)
 		return;
 
-	if ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105)) {
-		var fixedKeyIndex = (ev.keyCode < 60 ? ev.keyCode - 48 : ev.keyCode - 96);
+	if ((ev.keyCode >= 48 && ev.keyCode <= 57) || (ev.keyCode >= 96 && ev.keyCode <= 105) || (ev.keyCode >= 65 && ev.keyCode <= 90)) { // 48 to 57 are 0-9, 96 to 105 are numpad 0-9 and 65 to 90 are A to Z
 
-		var requestedLinkIndex = [
-			9,
-			0,
-			1,
-			2,
-			3,
-			4,
-			5,
-			6,
-			7,
-			8
-		][fixedKeyIndex];
+		if (State.variables.useAbcLinks) {
+			if (ev.keyCode < 60)
+				var fixedKeyIndex = ev.keyCode - 48; // 0 to 9 are 1 to 10
+			else if (ev.keyCode >= 96)
+				var fixedKeyIndex = ev.keyCode - 96; // numpad 0 to 9 are 1 to 10
+			else if (ev.keyCode >= 65 && ev.keyCode <= 90)
+				var fixedKeyIndex = ev.keyCode - 55; // a to z are 11 to 36
+			
+			var requestedLinkIndex = [
+				9,0,1,2,3,4,5,6,7,8,
+				10,11,12,13,14,15,16,17,18,19,
+				20,21,22,23,24,25,26,27,28,29,
+				30,31,32,33,34,35
+			][fixedKeyIndex]; // set requestedLinkIndex to fixedKeyIndexth number in this array
+			
+			if (ev.shiftKey && ev.altKey && ev.ctrlKey)
+				requestedLinkIndex += 252;
+			else if (ev.altKey && ev.ctrlKey)
+				requestedLinkIndex += 216;
+			else if (ev.shiftKey && ev.ctrlKey)
+				requestedLinkIndex += 180;
+			else if (ev.shiftKey && ev.altKey)
+				requestedLinkIndex += 144;
+			else if (ev.ctrlKey)
+				requestedLinkIndex += 108;
+			else if (ev.altKey)
+				requestedLinkIndex += 72;
+			else if (ev.shiftKey)
+				requestedLinkIndex += 36;
+		}
+		else {
+			var fixedKeyIndex = (ev.keyCode < 60 ? ev.keyCode - 48 : ev.keyCode - 96); // get 0 to 9 regardless of if using numpad or not from the currently pressed key by subtracting keycode of 0 from it
+			var requestedLinkIndex = [
+			9,0,1,2,3,4,5,6,7,8
+			][fixedKeyIndex];
+			
+			if (ev.shiftKey && ev.altKey && ev.ctrlKey)
+				requestedLinkIndex += 70;
+			else if (ev.altKey && ev.ctrlKey)
+				requestedLinkIndex += 60;
+			else if (ev.shiftKey && ev.ctrlKey)
+				requestedLinkIndex += 50;
+			else if (ev.shiftKey && ev.altKey)
+				requestedLinkIndex += 40;
+			else if (ev.ctrlKey)
+				requestedLinkIndex += 30;
+			else if (ev.altKey)
+				requestedLinkIndex += 20;
+			else if (ev.shiftKey)
+				requestedLinkIndex += 10;
+		}
 
-		if (ev.ctrlKey)
-			requestedLinkIndex += 30;
-		else if (ev.altKey)
-			requestedLinkIndex += 20;
-		else if (ev.shiftKey)
-			requestedLinkIndex += 10;
-
-		if ($(Links.currentLinks).length >= requestedLinkIndex + 1)
+		console.log("What is this?: " + JSON.stringify(requestedLinkIndex) + "  or " + fixedKeyIndex + " ??? ");
+		if ($(Links.currentLinks).length >= requestedLinkIndex + 1) { // I don't really understand this
+			console.log("What is this?: " + JSON.stringify(requestedLinkIndex) + " or " + fixedKeyIndex + " ??? ");
 			$(Links.currentLinks[requestedLinkIndex]).click();
+		}
 	}
 });
 

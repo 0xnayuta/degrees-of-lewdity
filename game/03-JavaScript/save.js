@@ -395,6 +395,7 @@ var settingsObjects = function (type) {
 				images: { min: 0, max: 1, decimals: 0 },
 				silhouettedisable: { boolLetter: true },
 				numberify_enabled: { min: 0, max: 1, decimals: 0 },
+				useAbcLinks: { boolLetter: true },
 				timestyle: { strings: ["military", "ampm"] },
 				tipdisable: { boolLetter: true },
 				debugdisable: { boolLetter: true },

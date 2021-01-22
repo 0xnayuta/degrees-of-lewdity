@@ -6,7 +6,7 @@ so you access entry text with $log[logdaynumber][entrynumber][$logpars.text]
 .importance allows filtering out simply moving around and such and is used to decide how to colour the text
 .comment is a string the player can input, set $diaryprompts to 1 or 2 to be asked for comment whenever an event is done
 .opinion (could be about) how you feel about an event and how you've chosen to rationalise it or just the default comment
-.written is to indicate if you have sat down and actually written the entry(if that matters)
+.written is to indicate if you have sat down and actually written the entry. It's either 0(not written), 1(plan to write) or 2(written)
 .stats lists most stat changes like money since the last time log widget was used.
 .day the day event happened so that we can more easily not use days as pages or whatever.
 
@@ -75,7 +75,10 @@ Can have results like "He raped me." and "She touched me weirdly."
 <<print JSON.stringify($log)>>
 
 
-:: Write Diary [nobr]
+:: Write Diary [nobr notransition]
+<!-- notransition tag sets transition to none to make selecting stuff feel more responsive(unless I figure out how to get cycle links to work or use check boxes but neither of those get numberified)
+Another reason to avoid reloading the whole passage would be that it loses the scroll position but I do want to use numberify now that I've gotten it to support up to 288 links.
+ -->
 
 <<logcount>>
 <<if _unresolved.traumagain gte 10>>
@@ -84,137 +87,148 @@ Can have results like "He raped me." and "She touched me weirdly."
 It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
 <</if>>
 <br>
+<<cycle "_test" autoselect>>
+	<<option "asd" 0>>
+	<<option "qwe" 1>>
+<</cycle>>
+<br>
+<<cycle "_test" autoselect>>
+	<<option "(x)" 0>>
+	<<option "zxc(■)qwefghcvb" 1>>
+<</cycle>>
+<br>
+<<cycle "_test" autoselect>>
+	<<option "(2) zxc" 0>>
+	<<option "(2) cxz" 1>>
+<</cycle>>
+<br>
+<<linkprepend "cycletest">>
+<<cycle "_test" autoselect>>
+	<<option "(x)" 0>>
+	<<option "(■)" 1>>
+<</cycle>>
+<</link>>
+<br><br>
+<<linkappend "cycletest2">>
+<<cycle "_test" autoselect>>
+	<<option "(x)" 0>>
+	<<option "(■)" 1>>
+<</cycle>>
+<</link>>
+<br><br>
+<<linkreplace "cycletest2">>
+<<cycle "_test" autoselect>>
+	<<option "(x)" 0>>
+	<<option "(■)" 1>>
+<</cycle>>
+<</link>>
+<br><br>
+<br>
 <<run console.log("diary write")>>
+Decide which events to write down:
+<br>
+
 /*
 Day less:
-<<for _i to 0; $log[_i][$logpars.written] is false ; _i++>>
+<<for _i to 0; $log[_i][$logpars.written] lt 2 ; _i++>>
 <</for>>
 */
+
+
+<<set _hiddenentries to 0>>
+<<set _hiddenentriestotal to 0>>
+<<set $diaryinsertfilterinfo to 3>>
+<<set $diaryfiltersum to {}>>
+
+<<set _entrynum to -1>>
+
 <<for _tday, _day range $log>>
-  <<for _tline, _entry range $log[_tday]>>
-    <<if _entry[$logpars.written] is false>>
-		/*
-		<<print _entry[$logpars.day]>>
-		<<print _entry[$logpars.text]>>
-		*/
-		<<if _entry[$logpars.stats].traumagain gt 0>>
-			<<run console.log("\$log["+_tday+"]["+_tline+"] was traumatic")>>
-			<span class='red'>!!!</span>
-			<<showlogentry _tday _tline>>
-			<br>
-		<!--
-		-->
-		<<elseif _entry[$logpars.importance] gt 1>>
-			<<showlogentry _tday _tline>>
-			<br>
+	Day <<print $days - $logday + _tday>>
+	<br>
+	<<for _tline, _entry range $log[_tday]>>
+		<<set _entrynum++>>
+		/*<<run console.log(_entry[$logpars.written])>>*/
+		<<if _entry[$logpars.written] lt 2>>
+			<<if _entry[$logpars.importance] gte 1>>/* Importance check just in case I change my mind about showing nearly all unwritten entries here(default checking rules should make that less of a problem) */
+				/*<<filteredentriesinfo>>*/
+				<<capture _tday, _tline>>
+				<!-- cycle doesn't get numberified, not sure if I'd want that or not -->
+				<!-- Also doesn't seem to care about capture... Or wait, I think SugarCube v2.29.0 might fix that so I'll check again after merging. -->
+				/* disabled for now
+				<<cycle "$log[_tday][_tline][$logpars.written]" autoselect>>
+					<<option "(x)" 0>>
+					<<option "(■)" 1>>
+				<</cycle>>
+				*/
+				
+				<<if _entry[$logpars.importance] gte 1>>
+					<<if _entry[$logpars.written] is 0>>
+						<<link [[□|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 1>><</link>>
+					<<elseif _entry[$logpars.written] is 1>>
+						<b>
+						<<link [[■|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 0>><</link>>
+						</b>
+					<</if>>
+				<<else>>
+					<span class="no-numberify">
+					<<if _entry[$logpars.written] is 0>>
+						<<link [[□|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 1>><</link>>
+					<<elseif _entry[$logpars.written] is 1>>
+						<b>
+						<<link [[■|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 0>><</link>>
+						</b>
+					<</if>>
+					</span>
+				<</if>>
+				
+				<!-- Different way to make the links, no real difference afaict so kind of pointless(for some reason was hoping it'd be faster or avoid scrolling up) -->
+				/*
+				<<if _entry[$logpars.written] is 0>>
+					<<link "□">>
+						<<set $log[_tday][_tline][$logpars.written] to 1>>
+						<<script>>state.display(state.active.title, null)<</script>>
+					<</link>>
+				<<elseif _entry[$logpars.written] is 1>>
+					<<link "■">>
+						<<set $log[_tday][_tline][$logpars.written] to 0>>
+						<<script>>state.display(state.active.title, null)<</script>>
+					<</link>>
+				<</if>>
+				*/
+				
+				<<if _entry[$logpars.stats].traumagain gt 0>>
+					<<run console.log("\$log["+_tday+"]["+_tline+"] was traumatic")>>
+					<span class='red'>!!!</span>
+				<<elseif _entry[$logpars.importance] gt 1>>
+				<</if>>
+				
+				
+				<<if _tline gt 1>><<print Math.floor($log[_tday][_tline][$logpars.time] / 60).toString().padStart(2, "0")>>:<<print ($log[_tday][_tline][$logpars.time] % 60).toString().padStart(2, "0")>><</if>>/* time as 21:00 */
+				
+				<<if _entry[$logpars.written] is 1>>
+					<b>
+					<<showlogentry _tday _tline>>
+					</b>
+				<<else>>
+					<<showlogentry _tday _tline>>
+				<</if>>
+				<br>
+				<</capture>>
+			<<else>>
+				<<set _hiddenentries += 1>>
+				<<set _hiddenentriestotal += 1>>
+				<<dontshowlogentry _tday _tline>>
+			<</if>>
 		<</if>>
-	<</if>>
-  <</for>>
+	<</for>>
 <</for>>
 
-[[Next|Write Diary]]
-[[Back|Open Diary]]
-<<link [[Done]]>><<return>><</link>>
-
-:: Write DiaryB [nobr]
-
-/* 
-need to switch to using eventlog in some places for this to work... Or do I? There was also the option of just having "written" tag but I didn't want to do that for some probably good reason... Or was that really what I decided to do? Written seems so much easier to do and I had it in logpars twice even. Main reason for having two things was that it'd mean that what an entry looks like and knows after being written can be very different(one thing being that for written entries I wanted the option to combine multiple ones and have player written text which in addittion to making the diary nicer also allows trimming out more data than otherwise).
-Should the eventlog also have day based split? Actually, I think each day knowing the day number could be good in various ways,
-
-*/
-You sit down and start writing to your diary.
-<<if $log is undefined>>
-  <<set $log to $diary>>
-<</if>>
-
-<<logcount>>
-<<if _unresolved.traumagain gte 10>>
-<</if>>
-<<if $log.length-1 gt 1>>
-It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
-<</if>>
+<br><br>
+<<link [[Start writing|Write Diary2]]>><</link>>
+<br><br>
+<<link [[Stop|Open Diary]]>><</link>>
 <br>
-<<run console.log("diary write")>>
-/*
-Day less:
-<<for _i to 0; $log[_i][$logpars.written] is false ; _i++>>
-<</for>>
-*/
-<<for _i, _day range $log>>
-  <<for _j, _entry range $log[_i]>>
-    <<if _entry[$logpars.written] is false>>
-		<<if _entry[$logpars.stats].traumagain gt 0>>
-			!!!
-			<<print _entry[$logpars.day]>>
-			<<print _entry[$logpars.text]>>
-			<br>
-			<<run console.log("\_i is:"+_i+" \_j is:"+_j)>>
-			/*
-			<<run console.log("\_entry is:"+_entry)>>
-			<<showlogentry _day _entry>>
-			*/
-			<<print JSON.stringify($log[_i][_j])>>
-			<br><br>
-			<<showlogentry _i _j>>
-			<br><br>
-		<<elseif _entry[$logpars.importance] gt 1>>
-		<</if>>
-	<</if>>
-  <</for>>
-<</for>>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<<showlogentry 0 0>>
-<<showlogentry>>
-How do you want to write this entry? (carefully written entries about bad events may make you recall them but  
-  little effect but also won't help much)
-Quickly(0:01)
-Normally(0:02)
-Carefully(0:05) 
-Stop
 
-
-
-<<if $rationalisation.deserve isnot undefined>>
-  I deserved that.
-<<elseif $rationalisation.holy isnot undefined>>
-  <<if _resistsuccess isnot 1>>
-    My blessings belong to everyone.
-  <<else>>
-    They didn't deserve my blessing.
-  <</if>>
-<<elseif $rationalisation.learn isnot undefined>>
-  At least I learned something
-<<elseif $rationalisation.need isnot undefined>>
-  They probably needed that more than I was 
-<<elseif $rationalisation.kind isnot undefined>>
-  Hopefully they are happier after that. 
-<<elseif $rationalisation.polite isnot undefined>>
-  <<if _resistsuccess isnot 1>>
-    It would have been rude to deny them.
-  <<else>>
-    It was rude to deny them.
-  <</if>>
-<<elseif $rationalisation.weak isnot undefined>>
-  <<if _resistsuccess isnot 1>>
-    I was too weak, it's only right for strong to rule over weak.
-  <<else>>
-    I proved myself stronger than them.
-  <</if>>
-
-<</if>>
-
-
-
-Things are better now
-
-[[Next|Write Diary]]
-<<link [[Done]]>><<return>><</link>>
 
 :: Open Diary 
 You take out your diary. <br>
@@ -225,7 +239,32 @@ Would you like to write a new entry or just read old ones.<br><br>
 [[SD|Simple Diary]]<br>
 [[Diary test]]
 
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+//
+<rect width="100%" height="100%" fill="#939" />
+</svg>
+
+<svg height="200" width="500">
+	<polyline points="20,20 40,25 60,40 80,120 120,140 200,180"
+	style="fill:none;stroke:white;stroke-width:3" />
+</svg> 
+
 <br><br>
+
+
+<<for _tday, _day range $log>>
+	Day _tday
+	<br>
+	<<for _tline, _entry range $log[_tday]>>
+		<<if _entry[$logpars.written] is true>> 
+			<<set _entry[$logpars.written] to 2>>
+		<<elseif _entry[$logpars.written] is false>> 
+			<<set _entry[$logpars.written] to 0>>
+		<</if>>
+	<</for>>
+<</for>>
+<br>
+
 Testing:
 <<print JSON.stringify($logged)>>
 
@@ -246,6 +285,7 @@ _blarg
 <<print _testi[$logpars.stats]["stress"] >>
 <<print _testi[$logpars.stats]["stressvalue"]>>
 
+<br>
 
 
 /*
@@ -282,7 +322,7 @@ _blarg
     <span class="black">Importance 0</span><br>
     <<if $logdebug is 1>><span class="greyred">Debug info</span><br><</if>>
 	</div>
-  */
+*/
 	<div id="diarySettings" class="hidden">
     $diarymode
     $diaryfilterA
@@ -704,3 +744,105 @@ Getting these to actually work nicely is too annoying.
 <<print JSON.stringify($characters)>>
 
 [[Test1]]
+
+
+:: Write DiaryB [nobr]
+
+/* 
+need to switch to using eventlog in some places for this to work... Or do I? There was also the option of just having "written" tag but I didn't want to do that for some probably good reason... Or was that really what I decided to do? Written seems so much easier to do and I had it in logpars twice even. Main reason for having two things was that it'd mean that what an entry looks like and knows after being written can be very different(one thing being that for written entries I wanted the option to combine multiple ones and have player written text which in addittion to making the diary nicer also allows trimming out more data than otherwise).
+Should the eventlog also have day based split? Actually, I think each day knowing the day number could be good in various ways,
+
+*/
+You sit down and start writing to your diary.
+<<if $log is undefined>>
+	<<set $log to $diary>>
+<</if>>
+
+<<logcount>>
+<<if _unresolved.traumagain gte 10>>
+<</if>>
+<<if $log.length-1 gt 1>>
+It's been <<print 0+$days-$diarywriteday>> days since your last entry it takes you a moment to recall everything that happened.
+<</if>>
+<br>
+<<run console.log("diary write")>>
+/*
+Day less:
+<<for _i to 0; $log[_i][$logpars.written] lt 2 ; _i++>>
+<</for>>
+*/
+<<for _i, _day range $log>>
+	<<for _j, _entry range $log[_i]>>
+		<<if _entry[$logpars.written] lt 2>>
+			<<if _entry[$logpars.stats].traumagain gt 0>>
+				!!!
+				<<print _entry[$logpars.day]>>
+				<<print _entry[$logpars.text]>>
+				<br>
+				<<run console.log("\_i is:"+_i+" \_j is:"+_j)>>
+				/*
+				<<run console.log("\_entry is:"+_entry)>>
+				<<showlogentry _day _entry>>
+				*/
+				<<print JSON.stringify($log[_i][_j])>>
+				<br><br>
+				<<listlogentry _i _j>>
+				<br><br>
+			<<elseif _entry[$logpars.importance] gt 1>>
+				<<listlogentry _i _j>>
+			<</if>>
+		<</if>>
+	<</for>>
+<</for>>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<<showlogentry 0 0>>
+<<showlogentry>>
+How do you want to write this entry? (carefully written entries about bad events may make you recall them but  
+  little effect but also won't help much)
+Quickly(0:01)
+Normally(0:02)
+Carefully(0:05) 
+Stop
+
+
+
+<<if $rationalisation.deserve isnot undefined>>
+	I deserved that.
+<<elseif $rationalisation.holy isnot undefined>>
+	<<if _resistsuccess isnot 1>>
+		My blessings belong to everyone.
+	<<else>>
+		They didn't deserve my blessing.
+	<</if>>
+<<elseif $rationalisation.learn isnot undefined>>
+	At least I learned something
+<<elseif $rationalisation.need isnot undefined>>
+	They probably needed that more than I was 
+<<elseif $rationalisation.kind isnot undefined>>
+	Hopefully they are happier after that. 
+<<elseif $rationalisation.polite isnot undefined>>
+	<<if _resistsuccess isnot 1>>
+		It would have been rude to deny them.
+  <<else>>
+		It was rude to deny them.
+	<</if>>
+<<elseif $rationalisation.weak isnot undefined>>
+	<<if _resistsuccess isnot 1>>
+		I was too weak, it's only right for strong to rule over weak.
+	<<else>>
+		I proved myself stronger than them.
+	<</if>>
+
+<</if>>
+
+
+
+Things are better now
+
+[[Next|Write Diary]]
+<<link [[Done]]>><<return>><</link>>
