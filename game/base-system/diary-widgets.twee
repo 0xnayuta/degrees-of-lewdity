@@ -8,6 +8,9 @@ You can add new variables to be tracked by diary by
 
 */
 <<widget "loginit">><<nobr>>
+<<if $debug>>
+	<<run console.log("Ran loginit.")>>
+<</if>>
 
 <<if $logday is undefined>>
 	<<set $logday to 0>>
@@ -22,8 +25,10 @@ You can add new variables to be tracked by diary by
 	<<set $logprep to "">>
 <</if>>
 <<if $logpars is undefined>>
-	<!-- This just lets diary be an array while using it mostly like an object, so instead of $log.text we use $log[$logpars.text] -->
-	<<set $logpars to {time:0,text:1,importance:2,comment:3,opinion:4,written:5,stats:6,day:7}>>
+	<!-- This just lets log be an array while using it mostly like an object, so instead of $log.text we use $log[$logpars.text] -->
+	<!-- I could probably get rid of the opinion, for now moving it to be last -->
+	<<set $logpars to {time:0,text:1,importance:2,comment:3,day:4,written:5,stats:6,opinion:7}>>
+	<<set $logpars to {time:0,text:1,importance:2,comment:3,opinion:4,written:5,stats:6,day:7}>><!--remove before making new save-->
 <</if>>	
 <<if $logblank is undefined>>
 	<<set $logblank to [,,,,,,,]>>
@@ -94,10 +99,13 @@ alternative between having logged stats as an object with nice names and having 
 <<if $locationimportance is undefined>><<set $locationimportance to 0>><</if>>
 <<if $lockpickimportance is undefined>><<set $lockpickimportance to 0>><</if>>
 
-/* How do I make it so that the diary doesn't have to have entries for each day?
+/* How do I make it so that the log doesn't have to have entries for each day?
 with $logday, it's like $days but can be set to smaller number when archiving old entries.
  */
-<<if $log.length-1 lt $logday>> /* fill diary with blank days to catch up to current date */
+<<if $log.length-1 lt $logday>> /* fill log with blank days to catch up to current date */
+	<<if $debug>>
+		<<run console.log("filling log with blank days to catch up to current date.")>>
+	<</if>>
 	<<for _i to 0; _i lt $logday; _i++>>
 		<<if $log[_i] is undefined>>
 			<<set $log.push([])>>
@@ -114,12 +122,38 @@ with $logday, it's like $days but can be set to smaller number when archiving ol
 	<<set _a[$logpars.importance] to 7>>
 	<<set _a[$logpars.written] to 2>>
 	<<set _a[$logpars.stats] to {}>>
+	<<set _a[$logpars.day] to $days>>
 <</if>>
 
 <<if $statlist is undefined or $objectVersion.statlog is undefined or $objectVersion.statlog lt 1>>
 	<<logstats>>
 	<<set $objectVersion.statlog to 1>>
 <</if>>
+
+<</nobr>><</widget>>
+
+
+<<widget "diaryinit">><<nobr>>
+
+<<if $diary is undefined>>
+	<!--
+	<<set $diary to [[[]]]>>
+	<<set $diary to {year2021:{month9:{day0:[]}}}>>
+	-->
+	<<set $diary to {day0: {day: 0 , entries: [] , stats: {} } }>>
+<</if>>
+
+<<if $dpars is undefined>><!-- diary parameters -->
+	<!-- This just lets diary entries be an arrays while using them mostly like objects, so instead of 
+	$diary[_day].entries[_entry].text 
+	we use 
+	$diary[_day].entries[_entry].[$dpars.text] 
+	-->
+	<<set $dpars to {time:0,text:1,importance:2,comment:3,stats:4}>>
+<</if>>	
+
+
+
 
 <</nobr>><</widget>>
 
@@ -224,8 +258,13 @@ lactation and hair stats?
 	<<set $log[$logday][$diaryline][$logpars.time] to $time>>
 	<<set $log[$logday][$diaryline][$logpars.text] to $args[0]>>
 	<<set $log[$logday][$diaryline][$logpars.importance] to $args[1]>>
-	<<set $log[$logday][$diaryline][$logpars.comment] to "">>
-	<<set $log[$logday][$diaryline][$logpars.opinion] to "">>
+	<<if $logdebug is 1>>
+		<<set $log[$logday][$diaryline][$logpars.comment] to " :: "+$passage>>
+		<<set $log[$logday][$diaryline][$logpars.opinion] to " :: "+$passage>>
+	<<else>>
+		<<set $log[$logday][$diaryline][$logpars.comment] to "">>
+		<<set $log[$logday][$diaryline][$logpars.opinion] to "">>
+	<</if>>
 	<<set $log[$logday][$diaryline][$logpars.written] to 0>>
 	<<if $args[1] gte $logwritetreshold>>
 		<<set $todoentries++>>
@@ -234,6 +273,10 @@ lactation and hair stats?
 	<<if $args[1] gte $logchangetreshold or $logdebug is 1 or $oldlogged is undefined>>
 		/* is there way I could not have anything at all when stat hasn't changed? yes */
 		<<set $oldlogged to clone($logged)>>/* should this be clone($logged)>>? */
+		<<if $trauma gt $logged[$statlist.trauma]+1>><!-- Add some trauma to traumatic entries so that writing them down can later remove that amount without affecting overall trauma balance. -->
+			<<trauma 2>>
+		<</if>>
+		<!---->
 		<<logstats>>
 		<<for _i to $statlist.length-1; _i gt 0; _i-->>
 			<<set _d to $log[$logday][$diaryline][$logpars.stats]>>
@@ -289,6 +332,9 @@ lactation and hair stats?
 	<</if>>
 	<<if $logextra isnot "" and $logextra isnot undefined>> /* virginity loss entries should come after the event (or as some special comment like thing) */
 		<<logextra $logextra $logextraimportance>>
+	<</if>>
+	<<if $args[0].includes("TBD")>>/* Prompt for a better wording. */
+		<<logtbd $args[0]>>
 	<</if>>
 <</if>>
 <</nobr>><</widget>>
@@ -492,6 +538,16 @@ lactation and hair stats?
 	<<link "Add your opinion to the diary">><<set $log[$days][$diaryline][$logpars.opinion] to "["+$plropinion+"]">><</link>><br>
 <</if>></span>
 <</if>>
+<</nobr>><</widget>>
+
+<<widget "logtbd">><<nobr>>
+<span id="textbox1">
+<<set $tbdline to $args[0]>>
+Log entry marked as TBD(To be decided), you can write a better one:
+<<textbox "$tbdline" $args[0] >>
+<<link "Use this">><<logedit $tbdline>><<logcomment $logday $diaryline `"Was originally:"+$args[0]`>><<remove "#textbox1">><</link>><br>
+<<link "Leave it as it was">><<remove "#textbox1">><</link>><br>
+</span>
 <</nobr>><</widget>>
 
 
@@ -830,7 +886,7 @@ $diaryinsertfilterinfo=?
 
 <<widget "logcount">><<nobr>>
 <!-- Count amount of trauma and other stats gained from all uwritten entries -->
-<!--  -->
+<!-- removed making of $traumaticevents from this to make it only happen after all of the .written have been set -->
 <<if $log is undefined>>
 	<<run console.log("ERROR.")>>
 <</if>>
@@ -859,6 +915,20 @@ You've reduced your trauma by <<print Math.abs(_unresolved.traumaloss)>>.
 
 <</nobr>><</widget>>
 
+<<widget "settraumaticevents">><<nobr>>
+<!-- Make traumatic events easy to find making an array with just (log)day, line and writestatus of trauma increasing events -->
+<<set $traumaticevents to []>>
+<<for _i, _day range $log>>
+  <<for _j, _entry range $log[_i]>>
+    <<if _entry[$logpars.written] lt 2>>
+		<<if _entry[$logpars.stats].traumagain gt 0>>
+			<<run $traumaticevents.push({ d: _i , l: _j , w: _entry[$logpars.written] })>>
+			<<run console.log("entry("+_i+","+_j+") was traumatic.")>>
+		<</if>>
+	<</if>>
+  <</for>>
+<</for>>
+<</nobr>><</widget>>
 
 <<widget "showdiaryentry">><<nobr>>
 showdiaryentry does nothing atm.

@@ -105,10 +105,10 @@ Links.currentLinks = [];
 function getPrettyKeyNumber(counter) {
 	var str = "";
 
-	if (counter > 0 && State.variables.useAbcLinks) {
+	if (counter > 10 && State.variables.useAbcLinks) {
 		if (counter > 288) {
 			str = "";
-			console.warn("Too many links to numberify.");
+			console.warn("Too many links(" + counter + ") to numberify.");
 		}
 		else {
 			if (counter > 252)
@@ -138,7 +138,7 @@ function getPrettyKeyNumber(counter) {
 	}
 	else if (counter > 80) {
 		str = "";
-		console.warn("Too many links to numberify.");
+		console.warn("Too many links(" + counter + ") to numberify.");
 	}
 	else {
 		if (counter > 70)
@@ -169,6 +169,7 @@ function getPrettyKeyNumber(counter) {
 	return str;
 }
 
+
 $(document).on(':passagerender', function (ev) {
 	Links.currentLinks = [];
 
@@ -195,15 +196,15 @@ Links.generateLinkNumbers = function generateLinkNumbers(content) {
 	}
 
 	// wanted to use .macro-link, but wardrobe and something else doesn't get selected, lmao
+	// I'd like this to find .macro-cycle too to potentially make diary writing stuff use them but can't be bothered to figure out how to do it even if it seems like it should be pretty simple.
 	Links.currentLinks = $(content)
-		.find(".link-internal")
+		.find(".link-internal") 
 		.not(".no-numberify *, .no-numberify");
-
+	
 	$(Links.currentLinks).each(function (i, el) {
 		if (Links.keyNumberMatcher.test(el.innerHTML)) { 
 			el.innerHTML = el.innerHTML.replace(Links.keyNumberMatcher, `(${getPrettyKeyNumber(i + 1)})`) // if there's a a valid link like [[(whatever)link|$passage]] replace whatever with an appropriate numberify text
 		} else {
-			//console.log("numberify i is " + i + " and el is " + JSON.stringify(el) + " ");
 			$(el).html("(" + getPrettyKeyNumber(i + 1) + ") " + $(el).html());
 		}
 	});
@@ -272,9 +273,7 @@ $(document).on('keyup', function (ev) {
 				requestedLinkIndex += 10;
 		}
 
-		console.log("What is this?: " + JSON.stringify(requestedLinkIndex) + "  or " + fixedKeyIndex + " ??? ");
-		if ($(Links.currentLinks).length >= requestedLinkIndex + 1) { // I don't really understand this
-			console.log("What is this?: " + JSON.stringify(requestedLinkIndex) + " or " + fixedKeyIndex + " ??? ");
+		if ($(Links.currentLinks).length >= requestedLinkIndex + 1) { 
 			$(Links.currentLinks[requestedLinkIndex]).click();
 		}
 	}

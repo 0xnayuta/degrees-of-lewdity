@@ -30,6 +30,17 @@ During school there may be valuables left inside them.
 
 <<link [[Leave (0:01)|Hallways]]>><<pass 1>><</link>>
 <br>
+<<if $debug is 1>>
+	<br>
+	__Debug__
+	<br>
+	Money in lockers: $lockermoney
+	<br>
+	Money stolen from lockers: $lockertheft
+	<br>
+	Locker theft wariness: $lockeralarm
+	<br>
+<</if>>
 
 :: School Lockers Sneak [nobr]
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -53,7 +64,7 @@ You find £6 worth of coins scattered around. Probably meant for bus fare.
 <<link [[Leave|School Lockers]]>><<log "Broke into a locker at school and found some coins but didn't take them." 2>><</link>>
 <br>
 
-<<elseif $rng gte 61>>
+<<elseif $rng gte 61+$lockeralarm>>
 
 You successfully pick the locks.
 
@@ -70,6 +81,48 @@ There's nothing of interest inside the lockers. Just some pens and pencils strew
 <<link [[Leave|School Lockers]]>><<log "Broke into a locker at school but found nothing of interest." 1>><</link>>
 <br>
 
+<<elseif $rng gte 60>><!-- 1 + $lockeralarm % chance -->
+
+You successfully pick the locks.
+
+<<if $skulduggery lt 100>>
+<<skulduggeryskilluse>><<set $skulduggery += 5>>
+<<else>>
+<span class="blue">There's nothing more you can learn from locks this simple.</span>
+<</if>>
+<br><br>
+
+<<if $rng % 2 is 1>>
+	You begin to search the locker for anything worthwhile when suddenly you're pushed into the locker. The locker slams shut and you hear the lock click. "Since you love my locker so much feel free to stay in it." They leave you trapped there.
+	<<endevent>>
+	<!-- -->
+	<<link [[Make noise|School Lockers Life]]>><<set $phase to "noise">><</link>>
+	<br>
+	<<link [[Wait|School Lockers Life]]>><<set $phase to "wait">><</link>>
+<<else>>
+	You begin to search the locker for anything worthwhile when suddenly you're pushed into the locker. The locker slams shut and you hear the lock click. "Since you love lockers so much feel free to stay in one." They leave you trapped there.
+	<<endevent>>
+	<br><br>
+	Half an hour passes before a <<generatey1>><<person1>><<person>> unwittingly frees you, jumping back in shock as you step out. <<covered>>
+	<<pass 30>>
+	<<if $submissive gte 1150>>
+		You scurry past <<him>> without looking.
+	<<elseif $submissive lte 850>>
+		"Took long enough," you say, leaving them dumbstruck.
+	<<else>>
+		"Thanks," you say as you hurry past them, leaving them dumbstruck.
+	<</if>>
+	<br><br>
+	<<clotheson>>
+	<<set $logprep to "TBD Stuck in locker">>
+	<<log $logprep 3>>
+	<<logopinion "That was interesting">>
+	<<link [[Next|School Lockers]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<br>
+<</if>>
+
+
+
 <<elseif $rng gte 41 and $lockermoney gte 30>>
 
 You successfully pick the locks.
@@ -84,8 +137,12 @@ You successfully pick the locks.
 A bit of rummaging uncovers £30.
 <br><br>
 
-<<link [[Take it|School Lockers]]>><<set $money += 3000>><<set $lockermoney -= 30>><<set $lockertheft += 30>><<crimeup 5>><<log "Broke into a locker at school and found some money" 2>><</link>><<crime>>
-<br>
+<<if $lockeralarm lt 5 or $rng % 4 isnot 1>>
+	<<link [[Take it|School Lockers]]>><<set $money += 3000>><<set $lockermoney -= 30>><<set $lockertheft += 30>><<crimeup 5>><<log "Broke into a locker at school and found some money" 2>><</link>><<crime>>
+	<br>
+<<else>>
+	<<link [[Take it|School Lockers Trap]]>><<set $money += 3000>><<set $lockermoney -= 30>><<set $lockertheft += 30>><<crimeup 5>><</link>><<crime>>
+<</if>>
 <<link [[Leave|School Lockers]]>><<log "Broke into a locker at school and found some money but didn't take it." 2>><</link>>
 <br>
 
@@ -272,3 +329,46 @@ The climax seems to have robbed <<him>> of <<his>> remaining anger. "Just don't 
 
 <br><br>
 <<link [[Next|School Lockers]]>><</link>>
+
+:: School Lockers Trap [nobr]
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+
+<<if $rng gte 60>>
+As you take the money you realise it's covered in some sort of powder and breathing some of that in makes you feel funny.
+<<set $hallucinogen += 60>>
+<<elseif $rng gte 10>>
+As you take the money you suddenly feel pain in your hand and quickly pull it away. You notice that now there's a sharp spike with your blood on it near where the money was.
+<<pain 20>>
+<<else>>
+As you take the money you realise it's covered in some sort of powder and breathing some of that in makes you feel warm.
+<<gggarousal>><<arousal 2000>><<set $drugged += 180>>
+<</if>>
+<br><br>
+<<link [[Next|School Lockers]]>><</link>>
+
+:: School Lockers Life [nobr]
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+
+<<if $lockertime is undefined>>
+	<<set $lockertime to 0>>
+<</if>>
+
+<<if $phase is "noise">>
+	<<if !$worn.face.type.includes("gag")>>
+		You yell and knock around in the locker making as much noise as possible.
+		<<if $lockertime lte 5 or $rng gte 90>>
+			Soon the locker opens but instead of being let out you're held in place as your mouth is gagged and the door is closed again leaving you trapped and gagged.
+			<<facewear 4>>
+			<<pass 5>>
+			<<link [[Make noise|School Lockers Life]]>><<set $phase to "noise">><</link>>
+			<br>
+			<<link [[Wait|School Lockers Life]]>><<set $phase to "wait">><</link>>
+		<</if>>
+	<<else>>
+		You make as much noise as you can despite the gag muffling your voice and the tight space preventing your kicks and hits from being strong enough to be very loud.
+	<</if>>
+<<elseif $phase is "wait">>
+<<else>>
+<</if>>
+<br>
+<<link [[Leave|School Lockers]]>><</link>>

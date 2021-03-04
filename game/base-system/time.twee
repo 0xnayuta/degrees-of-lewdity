@@ -591,14 +591,30 @@
 /* locker money management 
 could check for schoolterm or schoolday but getting more money after weekends and vacations pretty much resetting things seems good 
 */
-<<if $lockermoney lt 150 and $lockeralarm lt 10>>/* increase alarm when total money drops below this(currently means you can get ��450 beyond what gets added daily before it increases which seems kind of high to me but not raising alarm unless you skip classes to steal from lockers or savescum a lot seems fine to me) */
-<<set $lockeralarm++>>
-<<elseif $lockermoney gt 200 and $lockeralarm gt 0>>
-<<set $lockeralarm-->>
+<!-- makes total amount stolen increase sensitivity of alarm increases -->
+<<if $lockertheft lt 500 >>
+	<<set _alarmtrigger to 150>><!-- can steal at least £450 a day without alarm increase(assuming locker money is at max(600))-->
+	<<set _alarmreduce to 200>>
+<<elseif $lockertheft gte 500>>
+	<<set _alarmtrigger to 350>><!-- can steal at least £250 a day without alarm increase(assuming locker money is at max(600))-->
+	<<set _alarmreduce to 300>>
+<<elseif $lockertheft gte 1000>>
+	<<set _alarmtrigger to 500>><!-- can steal at least £100 a day without alarm increase(assuming locker money is at max(600))-->
+	<<set _alarmreduce to 600>>
+<<elseif $lockertheft gte 2000>>
+	<<set _alarmtrigger to 550>><!-- can steal at least £50 a day without alarm increase(assuming locker money is at max(600))-->
+	<<set _alarmreduce to 600>>
+<</if>>
+
+<<if $lockermoney lt _alarmtrigger and $lockeralarm lt 10>>/* increase alarm when total money drops below this(currently means you can get £450 beyond what gets added daily before it increases which seems kind of high to me but not raising alarm unless you skip classes to steal from lockers or savescum a lot also seems fine to me) */
+	<<set $lockeralarm++>>
+<<elseif $lockermoney gte _alarmreduce and $lockeralarm gt 0>>
+	<<set $lockeralarm-->>
 <</if>>
 
 <<if $lockermoney lt 600>>/* this sets roughly the max amount lockers can have at a time */
-<<set $lockermoney += 120-$lockeralarm*10>>/* money added per day, slows with higher alarm(make sure the numbers work out so it won't go negative at alarm level 10) */
+	<<set $lockermoney += 60-$lockeralarm*4>>/* money added per day, slows with higher alarm(make sure the numbers work out so it won't go negative at alarm level 10) */
+	<!-- At max alarm only £20 a day gets added. Which means it would take 30 days for the max amount to be reached from 0 and at most another 10 days for alarm to get back to normal. -->
 <</if>>
 
 <<set $beauty += (100 - (($trauma / $traumamax) * 100))>>
@@ -881,7 +897,6 @@ could check for schoolterm or schoolday but getting more money after weekends an
 <</for>>
 <<set _a to $log[$logday][0]>>
 */
-<<set $log.push([])>>
 <<set _a to $logblank>>
 <<set _a[$logpars.text] to $month+" "+$monthday+" ">>
 <<set _a[$logpars.time] to 0>>
