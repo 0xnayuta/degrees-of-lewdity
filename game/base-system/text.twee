@@ -4629,17 +4629,22 @@ priestess's
 
 <<widget "smelltext">><<nobr>>
 /* $smells should look something like [["forest", 6], ["piss", 4], ["soap", 1]] and be sorted with $smells[0][1] being highest number */
+/* 
+$args[0] decides the smell. 
+$args[1] can be "verbose", "short", "stench" or 0/undefined (just colours the smell name) 
+$args[2] gets added to the end of the text(for comma nad period)
+*/
 <<if typeof($args[0]) is "object">>/* know exactly what we want ie. ["soap", 1] */
 	<<set _smelltype to $args[0][0]>>
 	<<set _smelllevel to $args[0][1]>>
-<<elseif typeof($args[0]) is "string">>/* pick a specific smell type ie. "saap" and figure out it's level */
+<<elseif typeof($args[0]) is "string">>/* pick a specific smell type ie. "soap" and figure out it's level */
 	<<set _smelltype to $args[0]>>
 	<<for _i; _i lt $smells.length; _i++ >>
 		<<if $smells[_i].includes($args[0])>>
 			<<set _smelllevel to $smells[_i][1]>>
 		<</if>>
 	<</for>>
-<<elseif typeof($args[0]) is "number">>/* pick nth strongest smell(means if $args[0] is $smells[0] it can be replaced with just 0) */
+<<elseif typeof($args[0]) is "number">>/* pick nth strongest smell(means if $args[0] would be $smells[0] it can be replaced with just 0) */
 	<<set _smelltype to $smells[$args[0]][0]>>
 	<<set _smelllevel to $smells[$args[0]][1]>>
 <</if>>
@@ -4659,7 +4664,7 @@ priestess's
 	<<default>><<print "<br>Error, "+_smelltype+" is an unknown smelltype for widget \"smelltext\"<br>">><<set _colour to "<span class='red'>">>
 <</switch>>
 <<set _smelllevel to Math.round(_smelllevel)>>
-<<if $args[1] is "smell1of3" or $args[1] is "smell2of3" or $args[1] is "smell3of3" or $args[1] is 1>>
+<<if $args[1] is 1 or $args[1] is "verbose">>
 	<<switch _smelllevel>>
 		<<case 0>><<set _stenchlevel to "barely">>
 		<<case 1>><<set _stenchlevel to "slightly">>
@@ -4670,15 +4675,10 @@ priestess's
 		<<case 6>><<set _stenchlevel to "overwhelmingly">>
 		<<default>><<set _stenchlevel to "extremely strongly">>
 	<</switch>>
-	<<if $args[1] is 1>>
-		<<set _text to "You smell "+_stenchlevel+" of "+_colour+_smelltype+"</span>.">>
-	/* there's probably a better way to do the next bit */
-	<<elseif $args[1] is "smell1of3">>
-		<<set _text to "You smell "+_stenchlevel+" of "+_colour+_smelltype+"</span>,">>
-	<<elseif $args[1] is "smell2of3">>
+	<<if $args[1] is "verbose">>
 		<<set _text to ""+_stenchlevel+" of "+_colour+_smelltype+"</span>">>
-	<<elseif $args[1] is "smell3of3">>
-		<<set _text to "and "+_stenchlevel+" of "+_colour+_smelltype+"</span>.">>
+	<<elseif $args[1] is 1>>
+		<<set _text to "You smell "+_stenchlevel+" of "+_colour+_smelltype+"</span>.">>
 	<</if>>
 <<elseif $args[1] is "stench" or $args[1] is "short" or $args[1] is 2>>
 	<<switch _smelllevel>>
@@ -4700,6 +4700,10 @@ priestess's
 	<<set _text to ""+_colour+_smelltype+"</span>">>
 <<else>>
 	<<print "<br>Error args:"+$args[0]+" and "+$args[1]+" aren't valid for widget \"smelltext\"<br>">>
+	<<run console.error("Error args:"+$args[0]+" and "+$args[1]+" aren't valid for widget \"smelltext\"")>>
+<</if>>
+<<if $args[2]>>
+	<<set _text to _text+$args[2]>>
 <</if>>
 <<if _smelllevel gte 1 or $args[1] is undefined>>
 	<<print _text>>

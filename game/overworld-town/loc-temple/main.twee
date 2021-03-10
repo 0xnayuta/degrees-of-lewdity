@@ -4,19 +4,23 @@
 
 You are in the main hall of the temple. Stone walls and pillars tower into darkness. Rows of seats face an altar at the end of the room.
 <<if $daystate isnot "night" and $daystate isnot "dusk">>
-	<<if $NPCName[$NPCNameList.indexOf("Jordan")].state is "kneeling" or $NPCName[$NPCNameList.indexOf("Jordan")].init isnot 1>>
+	<<if $NPCName[$NPCNameList.indexOf("Jordan")].activity is "kneeling" or $NPCName[$NPCNameList.indexOf("Jordan")].init isnot 1>>
 		A figure wearing a white cowl kneels before the altar.
-	<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].state is "talking">>/* won't happen until met with Jordan */
-		/* NAmed npcs as possible visitors might be nice */
+	<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].activity is "talking">>/* won't happen until met with Jordan */
+		<<npc Jordan>>
+		/* Named npcs as possible visitors might be nice */
 		<<if $per_npc.templevisitor isnot undefined>>
 			<<loadNPC 2 templevisitor>>
+			<<if $debug>>
+				<<run console.log("Using old templevisitor.")>>
+			<</if>>
 		<<else>>
 			<<generateNPC 2 "r">>
 			<<saveNPC 2 templevisitor>>
 		<</if>>
-	<<npc Jordan>><<personselect 1>>Jordan is talking with a <<personselect 2>><<person>> near the altar.
-	<<generate1>>
-	<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].state is "mass">>/**/
+		<<personselect 0>>Jordan is talking with a <<personselect 1>><<person>> near the altar.
+		<<endevent>>
+	<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].activity is "mass">>/**/
 	<<else>>
 	<</if>>
 <</if>>
@@ -55,9 +59,9 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<br>
 	<</if>>
 	<<if $daystate isnot "night" and $daystate isnot "dusk" and $exposed is 0>>
-		<<if $NPCName[$NPCNameList.indexOf("Jordan")].state is "kneeling" or $NPCName[$NPCNameList.indexOf("Jordan")].init isnot 1>>
+		<<if $NPCName[$NPCNameList.indexOf("Jordan")].activity is "kneeling" or $NPCName[$NPCNameList.indexOf("Jordan")].init isnot 1>>
 			<<link [[Approach the figure|Temple Jordan]]>><</link>>
-		<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].state is "talking">>
+		<<elseif $NPCName[$NPCNameList.indexOf("Jordan")].activity is "talking">>
 			<<link [[Approach the two|Temple Jordan Busy]]>><</link>>
 		<</if>>
 		<br>
@@ -575,81 +579,84 @@ Jordan finishes with a prayer.
 :: Temple Jordan Busy [nobr]
 <<set $outside to 0>><<set $location to "town">><<effects>>
 
+<<npc Jordan>>
+<<loadNPC 2 templevisitor>>
 You approach the two and 
 	<<if $rng gt 60>>
-		<<npc Jordan>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan is 
+		<<personselect 0>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan is 
 		<<pickfrom "carefully" "quietly" "intently" "gently" "happily" "strictly" "firmly">> 
-		<<pickfrom "reprimanding" "discussing with" "speaking to">> the <<person2>><<person>> about something. 
+		<<pickfrom "reprimanding" "discussing something with" "speaking to">> the <<personselect 1>><<person>>. 
 	<<else>>
-		the <<person2>><<person>> is 
+		the <<personselect 1>><<person>> is 
 		<<pickfrom "carefully" "quietly" "intently" "casually" "happily" "shyly" "excitedly">>
-		<<pickrandom "telling" "discussing with" "speaking to">>
-		<<npc Jordan>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something. 
+		<<pickrandom "telling something to" "explaining something" "speaking to">>
+		<<npc Jordan>><<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan. 
 	<</if>>
 	<br>They don't notice you.<br><br>
 	
 	<<link [[Interrupt them|Temple Jordan Interrupt]]>><</link>><br>
-	<<link [[Wait (0:05 - 0:30)|Temple Jordan]]>><<set $phase to 4>><<set _w to Math.ceil($rng/4)+5>><<pass _w>><<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with someone so I had to wait a bit.">><<log $logprep 2>><</link>><br>/* 5-30 minute wait if the exact time needs to be shown could use <<set _w to Math.ceil($rng/17)*5>> to make it a multiple of 5 */
+	<<link [[Wait (0:05 - 0:30)|Temple Jordan]]>><<set $phase to 4>><<set _w to Math.ceil($rng/4)+5>><<pass _w>><<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with someone so I had to wait a bit.">><<log $logprep 2>><</link>><br>/* 5-30 minute wait, if the exact time needs to be shown could use <<set _w to Math.ceil($rng/17)*5>> to make it a multiple of 5 */
 	<<link [[Leave|Temple]]>><</link>><br>
 	
 :: Temple Jordan Interrupt [nobr]
 <<set $outside to 0>><<set $location to "town">><<effects>>
 
-<<npc Jordan>><<person1>>
+<<personselect 0>>
 
 <<if $submissive gte 1150>>
 	"I'm really sorry but can I talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something for a bit?," you say.<br>
 	<<if $rng lte 40>>
-		"Don't worry we were just about done, so go ahead," the <<person2>><<person>> says and leaves.
+		"Don't worry we were just about done, so go ahead," the <<personselect 1>><<person>> says and leaves.
 		<<set $phase to 1>>
 	<<elseif $rng lte 80>>
-		"My matter isn't that important and can wait a bit, so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		"My matter isn't that important and can wait a bit, so go ahead," the <<personselect 1>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
 		<<set $phase to 2>>
 	<<else>>
-		"Sorry but you'll need to wait a bit," the <<person2>><<person>> says, Jordan looks at you apologetically before shifting <<npc Jordan>><<his>> focus back on the <<person2>><<personstop>>
+		"Sorry but you'll need to wait a bit," the <<personselect 1>><<person>> says, Jordan looks at you apologetically before shifting <<personselect 0>><<his>> focus back on the <<personselect 1>><<personstop>>
 		<<set $phase to 3>>
 	<</if>>
 <<elseif $submissive lte 850>>
 	"Hey! I need to talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan," you declare.<br>
 	<<if $rng lte 10>>
-		"Rude, but since we were just about done, go ahead," the <<person2>><<person>> says and leaves.
+		"Rude, but since we were just about done, go ahead," the <<personselect 1>><<person>> says and leaves.
 		<<set $phase to 1>>
 	<<elseif $rng lte 30>>
-		"I guess I can wait a bit so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		"I guess I can wait a bit so go ahead," the <<personselect 1>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
 		<<set $phase to 2>>
 	<<else>>
-		"You'll get your turn in time!" the <<person2>><<person>> says while Jordan looks at you with reproach. <<llove>>
+		"You'll get your turn in time!" the <<personselect 1>><<person>> says while Jordan looks at you with reproach. <<llove>>
 		<<npcincr Jordan love -1>>
 		<<set $phase to 3>>
 	<</if>>
 <<else>>
 	"Excuse me but I really need to talk to <<if $pronoun is "m">>brother<<else>>sister<</if>> Jordan about something," you say<br>
 	<<if $rng lte 30>>
-		"We were just about done, so go ahead," the <<person2>><<person>> says and leaves.
+		"We were just about done, so go ahead," the <<personselect 1>><<person>> says and leaves.
 		<<set $phase to 1>>
 	<<elseif $rng lte 90>>
-		"My matter isn't that important and can wait a bit, so go ahead," the <<person2>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
+		"My matter isn't that important and can wait a bit, so go ahead," the <<personselect 1>><<person>> says and moves back a bit waiting for you to speak to Jordan in front of <<himstop>>
 		<<set $phase to 2>>
 	<<else>>
-		"Sorry but you'll need to wait a bit," the <<person2>><<person>> says while Jordan remains focused on <<himstop>>
+		"Sorry but you'll need to wait a bit," the <<personselect 1>><<person>> says while Jordan remains focused on <<himstop>>
 		<<set $phase to 3>>
 	<</if>>
 <</if>>
-<br><br><<npc Jordan>><<person1>>
+<br><br>
+<<personselect 0>>
 <<if $phase is 3>>
-	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with a "+$NPCList[1].description+" so I tried to interrupt them but was just told to wait">>
+	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with a "+$NPCList[1].fullDescription+" so I tried to interrupt them but was just told to wait">>
 	<<log $logprep 2>>
-	<<link [[Wait (0:05 - 0:25)|Temple Jordan]]>><<set _w to Math.ceil($rng/5)+5>><<pass _w>><<logadd " so I did.">><<logtimeupdate>><<set $NPCName[$NPCNameList.indexOf("Jordan")].state to "kneeling">><</link>><br>
-	<<link [[Leave|Temple]]>><<logadd " so I decided to just leave.">><<logtimeupdate>><</link>><br>
+	<<link [[Wait (0:05 - 0:25)|Temple Jordan]]>><<set _w to Math.ceil($rng/5)+5>><<pass _w>><<logadd " so I did.">><<logtimeupdate>><<endevent>><<set $NPCName[$NPCNameList.indexOf("Jordan")].activity to "kneeling">><</link>><br>
+	<<link [[Leave|Temple]]>><<endevent>><<logadd " so I decided to just leave.">><<logtimeupdate>><</link>><br>
 <<elseif $phase is 2>>
-	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with a "+$NPCList[1].description+" so I interrupted them and got to talk with jordan while the "+$NPCList[1].description+" listened.">>
+	<<set $logprep to "Went to see Jordan at the temple but "+$he+" was already talking with a "+$NPCList[1].fullDescription+" so I interrupted them and got to talk with jordan while the "+$NPCList[1].fullDescription+" listened.">>
 	<<log $logprep 2>>
-	<<link [[Next|Temple Jordan]]>><</link>><br>
+	<<link [[Next|Temple Jordan]]>><<endevent>><</link>><br>
 <<elseif $phase is 1>>
-	<<set $logprep to "Went to see Jordan at the temple but I had to interrupt "+$his+" talk with a "+$NPCList[1].description+" to do so.">>
+	<<set $logprep to "Went to see Jordan at the temple but I had to interrupt "+$his+" talk with a "+$NPCList[1].fullDescription+" to do so.">>
 	<<log $logprep 2>>
-	<<set $NPCName[$NPCNameList.indexOf("Jordan")].state to "kneeling">>
-	<<link [[Next|Temple Jordan]]>><</link>><br>
+	<<set $NPCName[$NPCNameList.indexOf("Jordan")].activity to "kneeling">>
+	<<link [[Next|Temple Jordan]]>><<endevent>><</link>><br>
 <</if>>
 
 :: Temple Jordan [nobr]
@@ -667,6 +674,8 @@ You approach the two and
 	<<if $pronoun is "m">><<set $logprep to "brother">><<else>><<set $logprep to "sister">><</if>> 
 	<<set $logprep to "Approached and met with "+$logprep+" Jordan at the temple who mentioned that I could get a chastity belt from there.">>
 	<<log $logprep 3>>
+	<<npcset "Jordan" activity "kneeling">>
+	<<npcset "Jordan" state "kneeling">>
 <<else>>
 	<<if $phase is 1>>
 		As the <<person2>><<person>> leaves <<npc Jordan>><<person1>>Jordan turns to greet you. "Welcome back, this has been an unusually busy day," <<he>> says.
