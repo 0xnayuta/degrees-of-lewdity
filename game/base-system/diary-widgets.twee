@@ -9,7 +9,7 @@ You can add new variables to be tracked by diary by
 */
 <<widget "loginit">><<nobr>>
 <<if $debug>>
-	<<run console.log("Ran loginit.")>>
+	<<run console.log("Ran loginit in "+$passage+".")>>
 <</if>>
 
 <<if $logday is undefined>>
@@ -134,26 +134,30 @@ with $logday, it's like $days but can be set to smaller number when archiving ol
 
 
 <<widget "diaryinit">><<nobr>>
+<!--<<run console.log("Ran diaryinit.")>>-->
+<<if $diarydisable is undefined>><!-- $diarydisable makes only log stuff happen making it just a uninteractive record of events -->
+	<<if $diary is undefined>>
+		<!--
+		<<set $diary to [[[]]]>>
+		<<set $diary to {year2021:{month9:{day0:[]}}}>>
+		-->
+		<<set _dayX to "day"+$days>>
+		<<set $diary to {}>>
+		<<set $diary[_dayX] to { day: $days , entries: [] , stats: {} }>>
+	<</if>>
 
-<<if $diary is undefined>>
-	<!--
-	<<set $diary to [[[]]]>>
-	<<set $diary to {year2021:{month9:{day0:[]}}}>>
-	-->
-	<<set $diary to {day0: {day: 0 , entries: [] , stats: {} } }>>
-<</if>>
-
-<<if $dpars is undefined>><!-- diary parameters -->
-	<!-- This just lets diary entries be an arrays while using them mostly like objects, so instead of 
-	$diary[_day].entries[_entry].text 
-	we use 
-	$diary[_day].entries[_entry].[$dpars.text] 
-	-->
-	<<set $dpars to {time:0,text:1,importance:2,comment:3,stats:4}>>
+	<<if $dpars is undefined>><!-- diary parameters -->
+		<!-- This just lets diary entries be an arrays while using them mostly like objects, so instead of 
+		$diary[_day].entries[_entry].text 
+		we use 
+		$diary[_day].entries[_entry].[$dpars.text] 
+		-->
+		<<set $dpars to {time:0,text:1,importance:2,comment:3,stats:4}>>
 <</if>>	
 
 
 
+<</if>>	
 
 <</nobr>><</widget>>
 
@@ -243,7 +247,10 @@ lactation and hair stats?
 			what if 123 to 120 resulted in "123+-3" instead of "-3" or just use the same method as for strings so "123->120"?
 				gain stuff took care of this I think?
 	<</if>>
-	<<if $logdebug is 1>><br>log<<print $args[1]>>(<<print $args[0]>>)<br><</if>>
+	<<if $logdebug is 1>>
+		<br>log<<print $args[1]>>(<<print $args[0]>>)<br>
+		<<run console.log("::"+$passage+" <<log \""+$args[0]+"\" "+$args[1]+">>")>>
+	<</if>>
 
 	<<if $args[0] == undefined>><<set $args[0] to "Did something.">><</if>>
 	<<if $args[1] == undefined>><<set $args[1] to 1>><</if>>
@@ -273,7 +280,7 @@ lactation and hair stats?
 	<<if $args[1] gte $logchangetreshold or $logdebug is 1 or $oldlogged is undefined>>
 		/* is there way I could not have anything at all when stat hasn't changed? yes */
 		<<set $oldlogged to clone($logged)>>/* should this be clone($logged)>>? */
-		<<if $trauma gt $logged[$statlist.trauma]+1>><!-- Add some trauma to traumatic entries so that writing them down can later remove that amount without affecting overall trauma balance. -->
+		<<if $trauma gt $logged[$statlist.trauma]+1 and $diarydisable is undefined>><!-- Add some trauma to traumatic entries so that writing them down can later remove that amount without affecting overall trauma balance. -->
 			<<trauma 2>>
 		<</if>>
 		<!---->
@@ -281,18 +288,39 @@ lactation and hair stats?
 		<<for _i to $statlist.length-1; _i gt 0; _i-->>
 			<<set _d to $log[$logday][$diaryline][$logpars.stats]>>
 			<<if $logged[$statlist[_i]] isnot $oldlogged[$statlist[_i]]>>
-				<<if $useshortlogvars is true>>
-				<</if>>
 				<<if typeof($logged[$statlist[_i]]) is "number">>
 					<<set $log[$logday][$diaryline][$logpars.stats][$statlist[_i]] to ($logged[$statlist[_i]])>>/* note that this shows up only when it has changed */
-					<<set $log[$logday][$diaryline][$logpars.stats][$statlist[_i]+"gain"] to ($logged[$statlist[_i]] - $oldlogged[$statlist[_i]])>>/* this makes it so that say .moneygain is how much money changed */
+					<<set $log[$logday][$diaryline][$logpars.stats][$statlist[_i]+"gain"] to ($logged[$statlist[_i]] - $oldlogged[$statlist[_i]])>> /* this makes it so that say .moneygain is how much money changed */
+					<<if $diarydisable is undefined>>
+						<<set _dayX to "day"+$days>>
+						<<if $diary[_dayX].stats[$statlist[_i]] is undefined>>
+							<<set $diary[_dayX].stats[$statlist[_i]] to 0>> 
+						<</if>>
+						<<set $diary[_dayX].stats[$statlist[_i]] += ($logged[$statlist[_i]] - $oldlogged[$statlist[_i]])>> 
+						<!-- 
+						I'm tired, what this should translate to is for example $diary.day2.stats.stress = stress gain of the whole day
+						-->
+					<</if>>
 				<<elseif typeof($logged[$statlist[_i]]) is "string">>
 					/*<<set _d[$statlist[_i]] to $oldlogged[$statlist[_i]]+"->"+$logged[$statlist[_i]]>>/* _d.weather.split("->")[1] to get the new value and .split("->")[0] for the old*/
-					/* having less properties per entry probably isn't that important now that only changes get defined(and each of them doesn't need their own shit) */
+					/* having less properties per entry probably isn't that important now that only changes get defined(and each of them doesn't need their own shit(meaning that we now have both "oldstring" and "string" instead of "oldstring->string")) */
 					<<set _d[$statlist[_i]] to $logged[$statlist[_i]]>>
 					<<set _d["old"+$statlist[_i]] to $oldlogged[$statlist[_i]]>>
+					<<if $diarydisable is undefined>>
+						/* for the daily statchange summary we do want all the changes in one value which for strings can look a bit weird */
+						<<if $diary["day"+$days].stats[$statlist[_i]] is undefined>>
+							<<set $diary["day"+$days].stats[$statlist[_i]] to $logged[$statlist[_i]]>> 
+						<<else>>
+							<<set $diary["day"+$days].stats[$statlist[_i]] += "->"+$logged[$statlist[_i]]+"">>
+						<</if>>
+					<</if>>
 				<<elseif typeof($logged[$statlist[_i]]) is "boolean">>
 					<<set _d[$statlist[_i]] to ($logged[$statlist[_i]])>>
+					<<if $diarydisable is undefined>>
+						<<set $diary["day"+$days].stats[$statlist[_i]] to ($logged[$statlist[_i]])>>
+					<</if>>
+				<<elseif typeof($logged[$statlist[_i]]) is "object">>
+					<!-- No idea how or if objects should be handled, clothing and npc stuff could be handled as objects but including only the changed bits would be tricky as would displaying the changes -->
 				<<elseif typeof($logged[$statlist[_i]]) is "undefined">>
 				<</if>>
 			<</if>>
@@ -391,6 +419,9 @@ lactation and hair stats?
 <</nobr>><</widget>>
 
 <<widget "logupdateeffect">><<nobr>> /*  update the last effect(strings require $logdebug since clothing report will be buggy)	*/
+/* I'd really like to remove this but Robin Money Demand and Kylar Shake passages seem hellish to handle without this(adding a thing to every single link in "robinoptions" and "kylaroptions" just to handle such a minor thing seems insane)
+One semi reasonable option would be to just do two log entries(done, leaving this in just in case I change my mind or something).
+ */
 <<if $reality is true>>
 	<<set _old to clone($logged)>>
 	<<logstats>>
@@ -545,38 +576,268 @@ lactation and hair stats?
 <<set $tbdline to $args[0]>>
 Log entry marked as to be decided, you can write a better one:<br>
 <<textbox "$tbdline" $args[0] >>
-<<link "Use this">><<logedit $tbdline>><<logcomment $logday $diaryline `"Was originally:"+$args[0]`>><<remove "#textbox1">><</link>> |
+<<link "Use this">>
+	<<logedit $tbdline>>
+	<<if $tbdline isnot $args[0]>><!-- check that the line was actually changed -->
+		<<logcomment $logday $diaryline `"Was originally:"+$args[0]`>>
+	<</if>>
+	<<remove "#textbox1">>
+<</link>> |
 <<link "Leave it as it was">><<remove "#textbox1">><</link>><br>
 </span>
+<</nobr>><</widget>>
+
+
+
+<<widget "showlogentry4">><<nobr>>
+<!-- 
+1560, 1453, 1447, 1483, 1391, 1393, 1530, 1384, 1392, 1488, 1447, 1409, 1457, 1461, 1436, 
+avg = 1448.73
+-->
+<</nobr>><</widget>>
+
+
+<<widget "showlogentryJS">><<nobr>>
+<<set _text to $log[$args[0]][$args[1]][$logpars.text]>>
+<<set _e to $log[$args[0]][$args[1]]>>
+<<script>>
+<!-- var t = state.variables.log[]. -->
+state.temporary.text
+<</script>>
+<</nobr>><</widget>>
+
+
+<!--
+Performance testing
+
+times:
+v1(showlogentry): 
+1657, 1530, 1570, 1730, 1658, 1574, 1557, 1522, 1614, 1476, 1494, 1487, 1545, 1517, 1558, 1519, 1486, 1482, 1519, 1514, 1481, 1551, 1509, 1471, 1474, 1506, 1478, 1475, 1516, 1483, 1467, 1532, 
+avg = 1529.75
+
+v2(with presetlogentry):
+1616, 1391, 1400, 1393, 1366, 1428, 1429, 1523, 1390, 1286, 1297, 1276, 1262, 1330, 1475, 
+avg = 1390.80
+	At least on subsequent runs the time is more than 100ms better, which is relevant for changing written status
+
+v2 with links removed:
+1392, 1450, 1500, 1359, 1291, 1270, 1288, 1260, 1285, 1267, 1312, 1214, 1225, 1262, 1264, 1214, 
+avg = 1303.31
+
+v2(again since I might have closed things between v2 and link removal):
+1367, 1447, 1352, 1321, 1324, 1323, 1351, 1272, 1293, 1262, 1254, 1228, 1439, 1411, 1275, 1420, 1386, 1317, 1505, 1421, 1432, 1434, 1320, 1334, 1273,
+avg = 1350.44
+	So links do have an impact but it's small
+	
+v2 with links, autowrite and !!!s on traumatic entries removed:
+1416, 1260, 1234, 1245, 1245, 1232, 1264, 1268, 1250, 1224, 1200, 1209, 1198, 1185, 1189, 1248, 1196, 1201, 1202,
+avg = 1235.05
+
+v2 with no hidden entries:
+334, 334, 335, 335, 335, 336, 340, 346, 347, 358, 361, 373, 376, 381, 383, 391, 409, 450
+avg = 362.44
+	Wow.
+	
+v2 with hidden entries but no <<dontshowlogentry>>:
+220, 221, 223, 227, 228, 228, 230, 232, 232, 240, 241, 245, 246, 248, 250, 252, 257, 258, 265, 265, 268, 277, 285, 317, 338
+avg = 251.72
+	Yeah, seems like the <<dontshowlogentry>> that I didn't even think about being there is super slow.
+	I should check how v1 would be affected by the same thing but don't feel like doing that atm.
+
+:
+
+avg = 
+-->
+<<widget "presetlogentry">><<nobr>>
+<!-- Figure out formatting for a log entry ahead of time -->
+
+
+<<set _text to $log[$args[0]][$args[1]][$logpars.text]>>
+<<set _e to $log[$args[0]][$args[1]]>>
+<<set _entry to "">>
+<<set _entry to Math.floor(_e[$logpars.time] / 60).toString().padStart(2, "0")+":"+(_e[$logpars.time] % 60).toString().padStart(2, "0")>>/* time as 21:00 , should add ampm setting */
+
+<<switch $log[$args[0]][$args[1]][$logpars.importance]>>
+	<<case 0>>
+		<<set _entrycolour to "black">>
+	<<case 1 >>
+		<<set _entrycolour to "grey">>
+	<<case 2 >>
+		<<set _entrycolour to "blue">>
+	<<case 3 >>/* combat and other events of similar importance */
+		<<set _entrycolour to "lblue">>
+	<<case 4 >>
+		<<set _entrycolour to "teal">>
+	<<case 5 >>
+		<<set _entrycolour to "green">>
+	<<case 6 >>
+		<<set _entrycolour to "orange">>
+	<<case 7 >>/* for date and end/start of day report that colours stuff on it's own */
+		/* results in <span class=''> */
+	<<case 8 >> /* virginity loss */
+		<<set _entrycolour to "red">>
+	<<case 9 >> /* not sure, transformations? */
+		<<set _entrycolour to "gold">>
+	<<default>>
+<</switch>>
+
+<<set _entry += " <span class='"+_entrycolour+"'>"+_text+"</span>">>
+
+
+<<set _stats to $log[$args[0]][$args[1]][$logpars.stats]>>
+
+<!--
+TODO: clothing and npc relations
+<<set _clothlist to ["upperclothes","lowerclothes","underclothes"]>>/*  */
+<<set _clothlist to ["upper","lower","under"]>>
+<<if _stats.underclothes isnot undefined>>/* assuming that <<log>> has defined all clothes if it did one */
+	Wearing
+	<<if _stats.upperclothes is "naked" and _stats.lowerclothes is "naked" and _stats.underclothes is "naked">>
+		<span class='lewd'>''nothing''</span>.
+	<<else>>
+	<<set $listed to []>>
+	<<for _i to 0;_i lt _clothlist.length;_i++>>
+		<<if _stats[_clothlist[_i]+"clothes"] isnot "naked">>
+			<<set _wearing to _stats[_clothlist[_i]+"clothes"]>>
+		<<elseif _clothlist[_i] is "under">>
+			<<set _wearing to "no underwear">>
+		<</if>>
+		<<if _wearing isnot undefined>>
+			<<if _stats["old"+_clothlist[_i]+"clothes"] isnot undefined>>
+				<<set _wearing to "''"+_wearing+"''">>/* indicate new clothes by bolding them(could colour them instead or something) */
+			<</if>>
+			/* colour based on integrity? */
+			<<set _hp to _stats[_clothlist[_i]+"integrity"]/_stats[_clothlist[_i]+"integritymax"]>>
+			<<if _stats[_clothlist[_i]+"clothes"] is "naked" and _clothlist[_i] is "under">>
+				<<set _wearing to "<span class='lewd'>"+_wearing+"</span>">>
+			<<else>>
+				<<if _hp lte 0.2>>
+					<<set _wearing to "<span class='blue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.5>>
+					<<set _wearing to "<span class='lblue'>"+_wearing+"</span>">>
+				<<elseif _hp lte 0.9>>
+					<<set _wearing to "<span class='teal'>"+_wearing+"</span>">>
+				<<else>>
+					<<set _wearing to "<span class='green'>"+_wearing+"</span>">>
+				<</if>>
+			<</if>>
+			<<set $listed.push(_wearing)>>
+		<</if>>
+		<<set _wearing to undefined>>
+		<</for>>
+		<<if $listed.length is 1>>
+			<<set $listed[0] to "only "+$listed[0]>>/* if upper or skirt add a/an? jsArticle($listed[0]) */
+		<</if>>
+		<<listify $listed>>.
+	<</if>>
+<</if>>
+
+-->
+
+<<if _stats.drunk gt 0 and _stats.drunk isnot undefined>>
+	<<set _entry += " <span class='purple'>Feeling</span>">>
+	<<if _stats.drunk lte 120>>
+		<<set _entry += "<span class='blue'> woozy</span>.">>
+	<<elseif _stats.drunk lte 240>>
+		<<set _entry += "<span class='purple'> tipsy</span>.">>
+	<<elseif _stats.drunk lte 360>>
+		<<set _entry += "<span class='purple'> drunk</span>.">>
+	<<elseif _stats.drunk lte 480>>
+		<<set _entry += "<span class='pink'> smashed</span>.">>
+	<<else>>
+		<<set _entry += "<span class='pink'> wasted</span>.">>
+	<</if>>
+<</if>>
+
+<<if _stats.druggedgain isnot undefined>>
+	<<if _stats.druggedgain lt 0>><<set _entry += " <span class='blue'>-lewd warmth </span>">><</if>>
+	<<if _stats.druggedgain gt 0>><<set _entry += " <span class='pink'>+lewd warmth </span>">><</if>>
+<</if>>
+
+<<if _stats.sciencegain isnot undefined>>
+	<<if _stats.sciencegain gt 0>>
+		<<set _entry += " <span class='green'>+Science</span>">>
+	<</if>>
+<</if>>
+<<if _stats.mathsgain isnot undefined>><<if _stats.mathsgain gt 0>><<set _entry += " <span class='green'>+Maths</span>">><</if>><</if>>
+<<if _stats.englishgain isnot undefined>><<if _stats.englishgain gt 0>><<set _entry += " <span class='green'>+English</span>">><</if>><</if>>
+<<if _stats.historygain isnot undefined>><<if _stats.historygain gt 0>><<set _entry += " <span class='green'>+History</span>">><</if>><</if>>
+
+<<if _stats.coolgain isnot undefined>>
+	<<if _stats.coolgain lt 0>><<set _entry += " <span class='red'>-Status </span>">><</if>>
+	<<if _stats.coolgain gt 0>><<set _entry += " <span class='green'>+Status </span>">><</if>>
+<</if>>
+
+<<if _stats.detentiongain isnot undefined>>
+	<<if _stats.detentiongain gt 0>><<set _entry += " <span class='red'>+Detention </span>">><</if>>
+	<<if _stats.detentiongain lt 0>><<set _entry += " <span class='lblue'>-Detention </span>">><</if>>
+<</if>>
+
+<<if _stats.spraygain isnot undefined>>
+	<<if _stats.spraygain lt 0>><<set _entry += " <span class='red'>-pepper spray</span>">><</if>>
+	<<if _stats.spraygain gt 0>><<set _entry += " <span class='green'>+pepper spray</span>">><</if>>
+<</if>>
+<<if _stats.moneygain isnot undefined>>
+	<<if _stats.moneygain lt 0>>
+		<<set _entry += " <span class='red'>-£" + Math.abs(Math.trunc(_stats.moneygain / 100)) + "." + ((_stats.moneygain % 100).toString().padStart(2, '0')) + "</span>">>
+	<</if>>
+	<<if _stats.moneygain gt 0>>
+		<<set _entry += " <span class='gold'>£" + Math.trunc(_stats.moneygain / 100) + "." + ((_stats.moneygain % 100).toString().padStart(2, '0')) + "</span>">>
+	<</if>>
+<</if>>
+<<if _stats.antiquemoneygain gt 0>><<set _entry += " <span class='brown'> £"+_stats.antiquemoneygain+"</span>">><</if>>
+<<if _stats.blackmoneygain gt 0>><<set _entry += " <span class='black'> £"+_stats.blackmoneygain+"</span>">><</if>>
+
+
+<<if $logshowcomments is 1>>
+	<<set _entry to _entry+" <span class='meek'>"+_e[$logpars.comment]+"</span>">>
+<</if>>
+<<if $logshowopinions is 1>>
+	<<set _entry to _entry+" <span class='meek'>"+_e[$logpars.opinion]+"</span>">>
+<</if>>
+
+<<if $presetlogdisplaystrings is undefined>>
+	<<set $presetlogdisplaystrings to []>>
+<</if>>
+<<if $presetlogdisplaystrings[$args[0]] is undefined>>
+	<<run $presetlogdisplaystrings.push()>>
+<</if>>
+<<if $presetlogdisplaystrings[$args[0]][$args[1]] is undefined>>
+	<<run $presetlogdisplaystrings[$args[0]].push(_entry)>>
+<<else>>
+	<<set $presetlogdisplaystrings[$args[0]][$args[1]] to _entry>>
+<</if>>
+
 <</nobr>><</widget>>
 
 
 <<widget "showlogentry">><<nobr>>
 <<set _text to $log[$args[0]][$args[1]][$logpars.text]>>
 <<set _e to $log[$args[0]][$args[1]]>>
-<<if _e[$logpars.importance] lte 0 >>/* after this stuff is same as above though it used to be more different, should make a widget or something  */
-	<span class="black">_text </span>
-<<elseif _e[$logpars.importance] is 1 >>
-	<span class="grey">_text </span>
-<<elseif _e[$logpars.importance] is 2 >>
-	<span class="blue">_text </span>
-<<elseif _e[$logpars.importance] is 3 >>/* combat and other events of similar importance */
-	<span class="lblue">_text </span>
-<<elseif _e[$logpars.importance] is 4 >>
-	<span class="teal">_text </span>
-<<elseif _e[$logpars.importance] is 5 >>
-	<span class="green">_text </span>
-<<elseif _e[$logpars.importance] is 6 >>
-	<span class="orange">_text </span>
-<<elseif _e[$logpars.importance] is 7 >>/* for date and end/start of day report that colours stuff on it's own */
-	_text
-<<elseif _e[$logpars.importance] is 8 >> /* virginity loss */
-	<span class="red">_text </span>
-<<elseif _e[$logpars.importance] is 9 >> /* not sure, transformations? */
-	<span class="gold">_text </span>
-<<else>>
-	_text
-<</if>>
+<<switch $log[$args[0]][$args[1]][$logpars.importance]>>
+	<<case 0>>/* after this stuff is same as above though it used to be more different, should make a widget or something  */
+		<span class="black">_text </span>
+	<<case 1 >>
+		<span class="grey">_text </span>
+	<<case 2 >>
+		<span class="blue">_text </span>
+	<<case 3 >>/* combat and other events of similar importance */
+		<span class="lblue">_text </span>
+	<<case 4 >>
+		<span class="teal">_text </span>
+	<<case 5 >>
+		<span class="green">_text </span>
+	<<case 6 >>
+		<span class="orange">_text </span>
+	<<case 7 >>/* for date and end/start of day report that colours stuff on it's own */
+		_text
+	<<case 8 >> /* virginity loss */
+		<span class="red">_text </span>
+	<<case 9 >> /* not sure, transformations? */
+		<span class="gold">_text </span>
+	<<default>>
+		_text
+<</switch>>
 /*
 todo: make a thing for (at least temporarily) saving the rest of this it might make opening diary faster(and I suspect logdebug stuff of causing too much recursion errors when this used in some situations).
 */

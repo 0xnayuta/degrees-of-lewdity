@@ -33,8 +33,7 @@ for more complex events using $logprep to change entry text based on choices mad
 
 note using variable inside the string ie "$logprep blah" will make it update when $logprep changes while using $logprep+"blah" doesn't do that
 
-Also if it's really necessary <<logadd>> and <<logupdateeffect>> can also be used to change the last entry
-for example if you want to have logopinion but there's still a choice with all options ending the event and putting you on street or something.
+Also if it's necessary <<logedit>> and <<logadd>> can be used to change the last entry
 
 
 $logextra will cause <<log>> to (sneakily) add another entry after the current one if it's anything other than ""
@@ -79,6 +78,7 @@ Can have results like "He raped me." and "She touched me weirdly."
 <!-- notransition tag sets transition to none to make selecting stuff feel more responsive(unless I figure out how to get cycle links to work or use check boxes but neither of those get numberified)
 Another reason to avoid reloading the whole passage would be that it loses the scroll position but I do want to use numberify now that I've gotten it to support up to 288 links.
  -->
+<<set $passagestarttime to new Date().getTime()>>
 
 <<logcount>>
 <<if _unresolved.traumagain gte 10>>
@@ -99,8 +99,85 @@ Day less:
 <<for _i to 0; $log[_i][$logpars.written] lt 2 ; _i++>>
 <</for>>
 */
-<<if $presetlogdisplaystrings isnot undefined>><!-- WIP Set in the previous passage to spread out the load times a bit -->
-	<<for _a, _b range $presetlogdisplaystrings>>
+<<set $forbegintime to new Date().getTime()>>
+<<if $presetlogdisplaystrings isnot undefined>><!-- WIP Set in the previous passage to spread out the load times a bit, since only the "last" bit is different atm. could move the check there but I'm hoping I'll think of a way to handle other bits ahead of time too -->
+	<<for _tday, _day range $presetlogdisplaystrings>>
+	<</for>>
+	<<set _hiddenentries to 0>>
+	<<set _hiddenentriestotal to 0>>
+	<<set $diaryinsertfilterinfo to 3>>
+	<<set $diaryfiltersum to {}>>
+
+	<<set _entrynum to -1>>
+
+	<<for _tday, _day range $presetlogdisplaystrings>>
+		Day <<print $days - $logday + _tday>>
+		<br>
+		<<for _tline, _entry range $presetlogdisplaystrings[_tday]>>
+			
+			<<set _entrynum++>>
+			/*<<run console.log(_entry[$logpars.written])>>*/
+			<<if $log[_tday][_tline][$logpars.written] lt 2 and $log[_tday][_tline][$logpars.written] gt -2 or $debug>>
+				<<if $log[_tday][_tline][$logpars.importance] gte 1>>/* Importance check just in case I change my mind about showing nearly all unwritten entries here(default checking rules should make that less of a problem) */
+					<<capture _tday, _tline>>
+					<!-- auto set to be written -->
+					<<if $log[_tday][_tline][$logpars.written] is 0 and ($log[_tday][_tline][$logpars.importance] gte 3 or $log[_tday][_tline][$logpars.stats].moneygain gte 100)>>
+						<<set $log[_tday][_tline][$logpars.written] to 1>>
+					<</if>>
+					
+					<<if $log[_tday][_tline][$logpars.importance] gte 1>>
+						<<if $log[_tday][_tline][$logpars.written] is 0 or $log[_tday][_tline][$logpars.written] is -1>>
+							<<link [[□|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 1>><</link>>
+						<<elseif $log[_tday][_tline][$logpars.written] is 1>>
+							<b>
+							<<link [[■|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to -1>><</link>>
+							</b>
+						<</if>>
+					<<else>>
+						<span class="no-numberify">
+						<<if $log[_tday][_tline][$logpars.written] is 0 or $log[_tday][_tline][$logpars.written] is -1>>
+							<<link [[□|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to 1>><</link>>
+						<<elseif $log[_tday][_tline][$logpars.written] is 1>>
+							<b>
+							<<link [[■|Write Diary]]>><<set $log[_tday][_tline][$logpars.written] to -1>><</link>>
+							</b>
+						<</if>>
+						</span>
+					<</if>>
+					
+					<<if $log[_tday][_tline][$logpars.stats].traumagain gt 0>>
+						<<run console.log("\$log["+_tday+"]["+_tline+"] was traumatic")>>
+						<span class='red'>!!!</span>
+					<<elseif $log[_tday][_tline][$logpars.importance] gt 1>>
+					<</if>>
+					
+					
+					<<if $log[_tday][_tline][$logpars.written] is 1>>
+						<b>
+						_entry
+						</b>
+					<<elseif $log[_tday][_tline][$logpars.written] is 2>>
+						<!-- Already written -->
+						<<if $debug>>
+							<u><b>
+							_entry
+							</b></u>
+						<</if>>
+					<<elseif $log[_tday][_tline][$logpars.written] is -2>>
+						<!-- Already chose not to write -->
+						<<if $debug>>
+							<s>
+							_entry
+							</s>
+						<</if>>
+					<<else>>
+						_entry
+					<</if>>
+					<br>
+					<</capture>>
+				<</if>>
+			<</if>>
+		<</for>>
 	<</for>>
 <<else>>
 	<<set _hiddenentries to 0>>
@@ -220,6 +297,27 @@ Day less:
 <<link [[Stop|Open Diary]]>><</link>>
 <br>
 
+<<if $times is undefined>>
+	<<set $times to []>>
+<</if>>
+
+<<set $timertest2 to new Date().getTime()>>
+
+passage start: <<print $passagestarttime-$timertest>>
+<br>
+start to for loop: <<print $forbegintime-$passagestarttime>>
+<br>
+for loop time: <<print $timertest2-$forbegintime>>
+<br>
+
+for loop times:
+<br>
+<<set _timed to $timertest2-$forbegintime>>
+<<run $times.push(_timed)>>
+<<for  _i, _time range $times>>
+	_time,
+<</for>>
+
 :: Write Diary2 [nobr]
 <!--
 How should this work?
@@ -241,7 +339,7 @@ Days in diary are objects {day:0, entries:[0(time), ""(entry),[](rationalisation
 
 -->
 
-<<if $diary is undefined>>
+<<if $diarywriteday is undefined>>
 	<<diaryinit>>
 	<<set $diarywriteday to 0>>
 	<<set $diarywriteline to 0>>
@@ -324,18 +422,39 @@ Days in diary are objects {day:0, entries:[0(time), ""(entry),[](rationalisation
 	<<pickrationalisation ` $traumaticevents[$ratiid].d ` ` $traumaticevents[$ratiid].l `>>
 <<else>>
 	<<unset $ratidone>>
-	<<showlogentry ` $traumaticevents[$ratiid].d ` ` $traumaticevents[$ratiid].l `>>
+	<<if $debug>>
+		<<showlogentry ` $traumaticevents[$ratiid].d ` ` $traumaticevents[$ratiid].l `>>
+	<</if>>
 	<br><br>
 	<<log "Wrote in my diary." 3>><!-- Somehow set the new entry as written and not needing rationalisation(to avoid trauma gain from writing being added to whatever you do next) -->
 	Added $writecount entries to diary.
+	<<set $writecount to 0>>
+	<br><br>
+	<!-- How do I actually show the written entries? -->
+	<!-- This just shows the whole $diary atm. -->
+	<<for _i, _day range $diary>>
+		<<run console.log(" i is "+_i+".")>>
+		_i
+		<br>
+		<<for _j, _entry range $diary[_i].entries>>
+			<<run console.log(" j is "+_j+".")>>
+			_j
+			<<print $diary[_i].entries[_j][$dpars.time]>>
+			<<print $diary[_i].entries[_j][$dpars.text]>>
+			<!--
+			<<print _entry[$logpars.comment]>>
+			<<run console.log("Entry is: \""+$diary[_entryday].entries[$diary[_entryday].entries.length-1][1]+"\"("+_i+","+_j+").")>>
+			-->
+			
+			/*<<print JSON.stringify(_entry[$logpars.stats])>>*/
+			<br>
+		<</for>>
+	<</for>>
+	
 	<br><br>
 	<<link [[Done|Open Diary]]>><</link>>
 <</if>>
 
-<br><br>
-<<link [[Start writing|Write Diary2]]>><</link>>
-<br><br>
-<<link [[Stop|Open Diary]]>><</link>>
 
 <<if $debug>>
 <<set $testid to 0>>
@@ -343,6 +462,10 @@ Days in diary are objects {day:0, entries:[0(time), ""(entry),[](rationalisation
 
 <br><br>
 
+<br><br>
+<<link [[Start writing|Write Diary2]]>><</link>>
+<br><br>
+<<link [[Stop|Open Diary]]>><</link>>
 
 
 
@@ -408,14 +531,31 @@ Why doesn't this work?...
 You take out your diary. <br>
 There are $todoentries<<if $logdebug is 1>> and $todominorentries less important<</if>> things you could write about <<if $writingday lt $days-1>>and it's been <<print $days-$writingday>> days since your last entry.<</if>>
 Would you like to write a new entry or just read old ones.
+<br>
+
+<<set $presetlogdisplaystrings to []>>
+<<for _pls to 0 ; _pls lt $log.length ; _pls++ >>
+	<<run $presetlogdisplaystrings.push([])>>
+<</for>>
+
+<<for _tday, _day range $log>>
+	<<for _tline, _entry range $log[_tday]>>
+		<<presetlogentry _tday _tline>>
+	<</for>>
+<</for>>
+
 <br><br>
-<<link [[Write (0:10+)|Write Diary]]>><</link>>
+<<link [[Write (0:10+)|Write Diary]]>>
+<<set $timertest to new Date().getTime()>>
+<</link>>
 <br>
 <<link [[Read (0:05)|Diary]]>><</link>>
 <br>
 <<link [[Close Diary|$diaryentrypassage]]>><<unset $diaryentrypassage>><</link>>
 <br>
 <<if $debug>>
+<br><br>
+<br><br>
 [[Simple Diary|Simple Diary]]
 <br>
 [[Diary test]]
@@ -855,6 +995,21 @@ Getting these to actually work nicely is too annoying.
 <<showlogentry $day $diaryline>>
 
 [[Diary test1]]
+
+
+
+<<set _timertest to 0>>
+<<set _timertest2 to new Date().getTime()>>
+<<script>>
+var d = new Date();
+var n = d.getTime();
+state.variables.timertest = new Date().getTime();
+state.temporary.timertest = new Date().getTime();
+<</script>>
+<<print _timertest >>
+<<print _timertest2 >>
+
+
 
 :: Diary test1
   [[Diary]] [[Diary]]
