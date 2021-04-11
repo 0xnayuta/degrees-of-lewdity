@@ -218,3 +218,18 @@ Config.navigation.override = function (destinationPassage) {
 		return "EventList";
 	}
 };
+
+// Text To Speech
+// No idea if this is a good place for it
+// Would like to make it say the selected link without stuff inside parantheses so just Bedroom in "(3) Bedroom (0:01)"
+$(document).on(":passagerender", function (ev) {
+	var synth = window.speechSynthesis;
+	//var thingToSay = (Story.get(passage()).text);
+	//var thingToSay = ("test");
+	//var thingToSay = (Story.get(passage()).description);
+	var thingToSay = State.variables.passage;
+	var utterThis = new SpeechSynthesisUtterance(thingToSay);
+	console.log("TtS: " + JSON.stringify(thingToSay) + "");
+	utterThis.voice = speechSynthesis.getVoices()[0];
+	synth.speak(utterThis);
+});
