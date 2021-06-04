@@ -73,8 +73,8 @@ window.getClothingCost = function (item) {
 	let lewdCoef = 1 + (v.clothesPriceLewd - 1) * lewdness;
 	cost *= lewdCoef;
 
-	if (v.passage === "Sydney Shop"){
-		cost *= 1 + (((v.delinquency - 500) / 5000) + ((v.NPCName[v.NPCNameList.indexOf("Sydney")] - 50) / -500))
+	if (v.passage === "School Library Shop"){
+		cost *= 1.4 + (((v.delinquency - 500) / 5000) + ((v.NPCName[v.NPCNameList.indexOf("Sydney")].love - 50) / -500))
 	}
 
 	return Math.round(cost);
