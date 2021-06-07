@@ -21,7 +21,7 @@ You are in the school library.
 	<br>
 <</if>>
 /*indev - Extra library description*/
-A large desk sits near the back of the library, with a large sign reading "Book Rental + Clothing" hanging above.
+A large desk sits near the back of the library, with a sign reading "Book Rental + Clothing" hanging above.
 <br>
 There are several shelves with typical academic literature. You see books on engineering, biology, social sciences and language learning. Everything that is useful in catching up.
 <br>
@@ -50,12 +50,12 @@ Next to it is a small basket with returned and not yet sorted books.
 					A student sits at the rental counter, shuffling papers and stamping cards.
 					<br>
 				<</if>>
-				<<link [[Counter|Library Rental Counter]]>><</link>>
+				<<link [[Counter|Library Rental Counter]]>><<set $counterApproach to 1>><</link>>
 				<br><br>
 			<<elseif _sydney_location is "library">>
 				Sydney sits at the desk of the rental counter, shuffling papers and stamping cards.
 				<br>
-				<<link [[Approach Sydney|Library Rental Counter]]>><</link>>
+				<<link [[Approach Sydney|Library Rental Counter]]>><<set $counterApproach to 1>><</link>>
 				<br><br>
 			<</if>>
 		<</if>>
@@ -94,7 +94,7 @@ Next to it is a small basket with returned and not yet sorted books.
 		<</if>>
 		/*indev - scarlet book possible to be taken. English 200+ required*/
 		<<if $english gte 300>>
-			<<link [[Take "Raul and Janet" from the basket (0:01)|ScarletBook1]]>><<pass 1>><</link>>
+			<<link [[Take "Raul and Janet" from the basket (0:01)|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to "School Library">><</link>>
 			<br>
 		<<elseif $english gte 200>>
 			<<link [[Take the medium-sized scarlet book from the basket (0:01)|ScarletBook1]]>><<pass 1>><</link>>
@@ -500,12 +500,21 @@ You follow <<him>> down the corridor toward the entrance. "H-here," <<he>> says 
 :: Library Rental Counter
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<sydneySchedule>>
-<<if $schoolShopAction is undefined>>
+<<if $counterApproach is 1>>
+	<<unset $counterApproach>>
+	<<set _counterApproach to 1>>
 	You approach the rental counter.
+<<elseif $schoolShopAction is undefined>>
+	You are at the library's rental counter.
 <</if>>
 <<if _sydney_location isnot "library">>
-	<<if $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late">>
+	<<if $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late" and _counterApproach is 1>>
 		No one's there. You ring the bell. No one responds.
+	<</if>>
+	<br><br>
+	<<if ($schoolday isnot 1 or $schoolstate is "early" or $schoolstate is "late")>>
+		<<bookRentalOptions>>
+		<br>
 	<</if>>
 	<<if $schoollibrarymoneytheft isnot 1>>
 		<<link [[Examine the cash register|School Library Register]]>><</link>>
@@ -514,48 +523,108 @@ You follow <<him>> down the corridor toward the entrance. "H-here," <<he>> says 
 	<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	<<if $sydneySeen is undefined>>
-		<<npc "Sydney">><<person1>>
-		<<set $sydneySeen.push("library")>>
-		Behind it sits an exhausted-looking <<personsimple>>, who looks up at you and gently smiles, seeming to recognize you. <<sydneyGreeting>> It's Sydney, a student known for <<his>> innocent nature. A pair of reading glasses accents amber eyes and strawberry blonde hair worn in a ponytail. <<He>> seems overworked. A holy pendant hangs from <<his>> neck.
-		<br><br>
-		<<sydneyPendant>>
-		<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn. "Time. You can also buy school-approved clothes here. <<if $NPCName[$NPCNameList.indexOf("Leighton")].pronoun is "f">>Headmistress<<else>>Headmaster<</if>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
-		<br><br>
-		"Books can be rented out for two weeks at a time, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book. My name's Sydney, by the way! Pleasure's all mine."
-		<br><br>
-		<<sydneyOptionsLibrary>>
-	<<elseif !$sydneySeen.includes("library")>>
-		<<npc "Sydney">><<person1>>
-		<<set $sydneySeen.push("library")>>
-		Sydney sits behind it, and <<he>> looks up at you with tired eyes, smiling. <<sydneyGreeting>>
-		<br><br>
-		<<sydneyPendant>>
-		<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn. "Time. You can also buy school-approved clothes here. <<if $NPCName[$NPCNameList.indexOf("Leighton")].pronoun is "f">>Headmistress<<else>>Headmaster<</if>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
-		<br><br>
-		"Books can be rented out for two weeks at a time, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book."
-		<br><br>
-		<<sydneyOptionsLibrary>>
-	<<elseif $schoolShopAction>>
-		<<npc "Sydney">><<person1>>
-		<<if $schoolShopAction.includes("wear")>>
-			"Thank you for your purchase! That looks good on you."
-		<<elseif $schoolShopAction.includes("buy")>>
-			"Thank you for your purchase!"
-		<<elseif $schoolShopAction.includes("return")>>
-			"Couldn't find the right size? I'll inform the <<if $NPCName[$NPCNameList.indexOf("Leighton")].pronoun is "f">>headmistress<<else>>headmaster<</if>>."
-		<</if>>	
-		Sydney leads you back to <<his>> post at the rental counter.
-		<<unset $schoolShopAction>>
-		<br><br>
-		<<sydneyOptionsLibrary>>
-	<<else>>
-		<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
-			Sydney smiles upon seeing you. <<sydneyGreeting>>
-		<<else>>
-			Sydney nods to you. <<sydneyGreeting>>
-		<</if>>
-		<br><br>
-		<<sydneyOptionsLibrary>>
-	<</if>>
+	<<sydneyLibrary>>
 <</if>>
+
+:: Book Rental
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<sydneySchedule>>
+<<sydneyStatusCheck>>
+You
+<<switch $bookRent>>
+	<<case "return">>
+		return the<<if $book_rent_timer lt 0>> overdue<</if>>
+		<<if $phase is 5>>
+			copy of "Raul and Janet".
+		<<else>>
+			$studyBooks.rented textbook.
+		<</if>>
+		<<if _sydney_location is "library">>
+			<<if $book_rent_timer lt 0>>
+				<<if $NPCName[$NPCNameList.indexOf("Sydney")].love lt 10>>
+					"Late. But at least it isn't damaged. Please try to be more punctual on returns." Sydney writes something down, frowning. <<bookCriminal>>
+				<<elseif $sydneyromance is 1>>
+					<<if _sydneyStatus is "corruptLust" or _sydneyStatus is "corrupt">>
+						"I wish you'd stay on top of your rentals as well as you stay on top of me," <<he>> says while blushing. <<bookCriminal>>
+					<<else>>
+						"I wish I could make exceptions for you, but... <<headmaster>> Leighton scares me." <<bookCriminal>>
+					<</if>>
+				<<else>>
+					"Late." Sydney looks up. "I know you know better." <<bookCriminal>>
+				<</if>>
+			<<elseif $book_rent_timer is 14>>
+				"That was... fast." Sydney fumbles around with the register for a moment, before handing you <<moneyGain 15>>.
+			<<elseif $book_rent_timer gt 7>>
+				"Done early?" Sydney fumbles around with the register for a moment, before handing you <<moneyGain 10>>.
+			<<else>>
+				"Thanks for being punctual!" Sydney happily takes the book from you, before returning it to its place.
+			<</if>>
+		<<else>>
+			<<set $bookReturnedAbsent to 1>>
+		<</if>>
+		<<set $studyBooks.rented to "none">>
+		<<set $book_rent_timer to 0>>
+		<<unset $bookOverdue>>
+	<<case "rent">>
+		rent a
+		<<if $phase is 5>>
+			copy of "Raul and Janet".
+			<<switch _sydneyStatus>>
+				<<case "pure">>
+					<<if $sydneyromance is 1>>
+						Sydney smiles at you. "Romance on your mind? I wish it had a happier ending." <<He>> looks down, face flushed. "Do.... do you think we'll get a happy ending?"
+					<<else>>
+						Sydney looks down at the book and frowns. "A good love story, but I never really got what they were doing near the end. Why did they have to-" <<he>> cuts <<himself>> off. "Oh! Sorry, don't want to spoil it. Enjoy!"
+					<</if>>
+				<<case "pureLust">>
+					Sydney's cheeks turn red. "An... interesting read!<<if $sydneyromance is 1>> Maybe... maybe you can read it to me, sometime.<</if>>" <<he>> slides the book back to you, avoiding eye contact.
+				<<case "corrupt">>
+					Sydney looks down at the book and grins. "Such a sinful read. Don't have too much fun, now."
+				<<case "corruptLust">>
+					Sydney looks down at the book and grins. "Such a sinful read. Don't have too much fun, now." <<He>> hands the book back to you<<if $sydneyromance is 1>>, and gently places <<his>> hand on yours when you reach for it. "Maybe we can re-enact Act 3 Scene V sometime." <<arousal 1000>><<garousal>><</if>>.
+				<<default>>
+					Sydney looks down at the book and frowns. "A story full of love and sin." <<if $temple_rank is "initiate">><<He>> leans in and whispers. "Jordan's actually a big fan of this book, but don't tell <<nnpc_him "Jordan">> I told you! <<nnpc_He "Jordan">> says it's a good cautionary tale of the consequences of lust."<</if>> <<He>> hands the book back to you. "Enjoy."
+			<</switch>>			
+		<<else>>
+			$studyBooks.rented textbook.
+			<<if $sydneyromance is 1>>
+				Sydney smiles at you. "Look at you, putting the extra work in! I'm proud of you."
+			<<else>>
+				Sydney smiles. "Thanks for your rental!"
+			<</if>>
+		<</if>>
+		<<set $book_rent_timer to 14>>
+	<<case "renew">>
+		renew your rented
+		<<if $studyBooks.rented is "Raul and Janet">>
+			copy of "Raul and Janet".
+		<<else>>
+			$studyBooks.rented textbook.
+		<</if>>
+		<<set $book_rent_timer to 14>>
+		Sydney smiles. "Thanks for staying on top of this.<<if $sydneyromance is 1 and (_sydneyStatus is "corrupt" or _sydneyStatus is "corruptLust")>> Now if only you'd stay on top of me.<</if>>"
+	<<case "steal">>
+		steal a
+		<<if $phase is 5>>
+			copy of "Raul and Janet".
+		<<else>>
+			$studyBooks.stolen textbook.
+		<</if>>
+		<<set $bookStolen to 1>>
+	<<default>>
+<</switch>>
+<br><br>
+<<sydneyOptionsLibrary>>
+<br>
+
+:: Book Rental Return Stolen
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<sydneySchedule>>
+You return the stolen
+<<if $phase is 5>>
+	copy of "Raul and Janet".
+<<else>>
+	$studyBooks.stolen textbook.
+<</if>>
+<<set $studyBooks.stolen to "none">>
+<<unset $bookStolen>>

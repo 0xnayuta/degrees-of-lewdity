@@ -30,7 +30,7 @@
     <<else>>
         to you.
     <</if>>
-    "My name's Sydney. Pleasure's all mine," <<he>> whispers. "<span class="blue">I help out at the library at school.</span> Come and see me there sometime."
+    "My name's Sydney. Pleased to meet you," <<he>> whispers. "<span class="blue">I help out at the library at school.</span> Come and see me there sometime."
     <br><br>
     Jordan finishes with a prayer, and Sydney disappears towards the back of the temple as the mass begins to disperse.
     <br><br>
@@ -77,6 +77,58 @@
         <<case 3>>
             You spot Sydney on the other side of the temple. <<nnpc_he "Sydney">> sees you too, and waves. <<npcincr Sydney love 1>><<glove>>
     <</switch>>
+<</if>>
+<</widget>>
+
+<<widget "sydneyLibrary">>
+<<if $sydneySeen is undefined>>
+	<<npc "Sydney">><<person1>>
+	<<set $sydneySeen.push("library")>>
+	Behind it sits an exhausted-looking <<personsimple>>, who looks up at you and gently smiles, seeming to recognize you. <<sydneyGreeting>> It's Sydney, a student known for <<his>> innocent nature. A pair of reading glasses accents amber eyes and strawberry blonde hair worn in a ponytail. <<He>> seems overworked. A holy pendant hangs from <<his>> neck.
+	<<sydneyPendant>>
+    <br><br>
+	<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn<<if $sydney_dailyGreeting and $hour lte 12>> again<</if>>. "Time. You can also buy school-approved clothes here. <<Headmaster>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
+	<br><br>
+	"<span class="gold">Books can be rented out for two weeks at a time</span>, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book. My name's Sydney, by the way! Pleased to meet you."
+	<br><br>
+	<<sydneyOptionsLibrary>>
+<<elseif !$sydneySeen.includes("library")>>
+	<<npc "Sydney">><<person1>>
+	<<set $sydneySeen.push("library")>>
+	Sydney sits behind it, and <<he>> looks up at you with tired eyes, smiling. <<sydneyGreeting>>
+	<<sydneyPendant>>
+    <br><br>
+	<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn<<if $sydney_dailyGreeting and $hour lte 12>> again<</if>>. "Time. You can also buy school-approved clothes here. <<Headmaster>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
+	<br><br>
+	"<span class="gold">Books can be rented out for two weeks at a time</span>, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book."
+	<br><br>
+	<<sydneyOptionsLibrary>>
+<<elseif $schoolShopAction>>
+	<<npc "Sydney">><<person1>>
+	<<if $schoolShopAction.includes("wear")>>
+		"Thank you for your purchase! That looks good on you."
+	<<elseif $schoolShopAction.includes("buy")>>
+		"Thank you for your purchase!"
+	<<elseif $schoolShopAction.includes("return")>>
+		"Couldn't find the right size? I'll inform the <<headmaster>>."
+	<</if>>	
+	Sydney leads you back to <<his>> post at the rental counter.
+	<<unset $schoolShopAction>>
+	<br><br>
+	<<sydneyOptionsLibrary>>
+<<else>>
+    <<npc "Sydney">><<person1>>
+	<<if _counterApproach is 1>>
+		<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
+			Sydney smiles upon seeing you. <<sydneyGreeting>>
+		<<else>>
+			Sydney nods to you. <<sydneyGreeting>>
+		<</if>>
+	<<else>>
+		Sydney looks busy.
+	<</if>>
+	<br><br>
+	<<sydneyOptionsLibrary>>
 <</if>>
 <</widget>>
 
@@ -146,7 +198,7 @@
 
 <<widget "sydneyOptionsLibrary">>
 <<sydneyOptions>>
-<br>
+<br><br>
 <<bookRentalOptions>>
 <br>
 <<link [[Buy clothes|School Library Shop]]>><</link>>
@@ -158,18 +210,72 @@
 <<widget "sydneyOptions">>
 <</widget>>
 
-<<widget "bookRentalOptions">>
-<</widget>>
-
 <<widget "sydneyStatusCheck">>
 <<set _sydneyStatus to 0>>
-<<if $sydneyRomance is 1>>
-    <<if ($NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 40>>
-        <<set _sydneyStatus to "pureLust">>
-    <<elseif ($NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 1>>
-        <<set _sydneyStatus to "corrupt">>
-    <<elseif $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
-        <<set _sydneyStatus to "neutralLust">>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 40>>
+    <<set _sydneyStatus to "pureLust">>
+<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 10 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
+     <<set _sydneyStatus to "corruptLust">>
+<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50>>
+    <<set _sydneyStatus to "pure">>
+<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 10>>
+    <<set _sydneyStatus to "corrupt">>
+<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
+    <<set _sydneyStatus to "neutralLust">>
+<<else>>
+    <<set _sydneyStatus to "neutral">>
+<</if>>
+<</widget>>
+
+<<widget "bookCriminal">>
+<<bodywriting_exposure_check>>
+<<if _bodywriting_exposed gte 1 and ($skin[_bodypart].writing is "Book Criminal >:(" or $skin[_bodypart].writing is "Book Criminal <3")>>
+    <<if $skin[_bodypart].pen is "tattoo">>
+        <<if $bookTattoo is undefined>>
+            <<set $bookTattoo to 1>>
+            <<He>> sighs, reaching out to you as <<he>> uncaps a red marker. <<He>> suddenly freezes, looking at you incredulously as <<he>> runs <<his>> fingers over the <<tattoo _bodypart>> on your <<bodypart _bodypart>>.
+            <br><br>
+            "You... I... it's... permanent? Book... you've..." <<He>> stammers off<<if $bus is "schoollibrary">>, slowly sitting back<</if>>. <<He>> seems unsure of what to do.
+        <<else>>
+            Sydney eyes the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "You're a nut." <<He>> can't help but giggle.
+        <</if>>
+    <<else>>
+        Sydney eyes the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "I... guess my punishment isn't harsh enough." <<if _sydneyStatus is "corrupt" or _sydneyStatus is "corruptLust">><<He>> looks around before whispering in your ear. "Maybe you'll need to teach me how to punish you properly." <<arousal 500>><<garousal>><</if>>
+    <</if>>
+<<elseif $skin.forehead.writing isnot "Book Criminal >:(" and $skin.forehead.writing isnot "Book Criminal <3" and $skin.left_cheek.writing isnot "Book Criminal >:(" and $skin.left_cheek.writing isnot "Book Criminal <3" and $skin.right_cheek.writing isnot "Book Criminal >:(" and $skin.right_cheek.writing isnot "Book Criminal <3">>
+    <<if $bookCriminal is undefined>>
+        <<set $bookCriminal to 1>>
+        <<He>> sighs. "I don't have the authority to punish you, so <<headmaster>> Leighton lets me do this instead."
+        Sydney brandishes a red permanent marker, and pulls you close with surprising strength.
+    <<else>>
+        <<if $NPCName[$NPCNameList.indexOf("Sydney")].love lt 10>>
+            <<He>> suddenly reaches up and pulls your head down to <<his>> level with surprising strength. <<He>> brandishes a marker, removing the cap with <<his>> teeth.
+        <<elseif $sydneyromance is 1>>
+            <<He>> lets out an exaggerated sigh, but smiles. "Come here, you." <<He>> reaches for you as <<he>> uncaps a marker.
+        <<else>>
+            <<He>> sighs. "You know the rules." <<He>> brandishes a marker, and reaches for you.
+        <</if>>
+    <</if>>
+    <<if $bodywritingdisable is "t">>
+        <span class="red">You instinctively smack the marker away.</span> Sydney pouts at you. <<npcincr Sydney love -2>><<llove>>
+    <<else>>
+        <<if _bodywriting_exposed gte 1 and $skin[_bodypart].special is "Sydney">>
+            However, <<he>> stops upon seeing the <<tattoo _bodypart>> on your _bodypart. <<His>> face begins to turn a bright red. You catch <<him>> looking into your eyes, before looking away again. "B...be more courteous next time, please. You may go."
+        <<elseif !$skin.forehead.writing>>
+            <<He>> scribbles something on your forehead, and holds up a small pocket mirror. Your forehead now reads: <<bodywriting_npc_sydney_book forehead "marker">>
+        <<elseif $skin.forehead.writing is "pen" or $skin.forehead.writing is "lipstick" or $skin.forehead.writing is "mud">>
+            <<He>> wipes away your <<tattoo forehead>> on your forehead, and scribbles something of <<his>> own. <<bodywriting_clear forehead>> Your forehead now reads: <<bodywriting_npc_sydney_book forehead "marker">>
+        <<elseif !$skin.left_cheek.writing>>
+            <<He>> scribbles something on your left cheek, and holds up a small pocket mirror. Your left cheek now reads: <<bodywriting_npc_sydney_book left_cheek "marker">>
+        <<elseif $skin.left_cheek.writing is "pen" or $skin.left_cheek.writing is "lipstick" or $skin.left_cheek.writing is "mud">>
+            <<He>> wipes away your <<tattoo left_cheek>> on your left cheek, and scribbles something of <<his>> own. <<bodywriting_clear left_cheek>> Your left cheek now reads: <<bodywriting_npc_sydney_book left_cheek "marker">>
+        <<elseif !$skin.right_cheek.writing>>
+            <<He>> scribbles something on your right cheek, and holds up a small pocket mirror. Your right cheek now reads: <<bodywriting_npc_sydney_book right_cheek "marker">>
+        <<elseif $skin.right_cheek.writing is "pen" or $skin.right_cheek.writing is "lipstick" or $skin.right_cheek.writing is "mud">>
+            <<He>> wipes away your <<tattoo right_cheek>> on your right cheek, and scribbles something of <<his>> own. <<bodywriting_clear right_cheek>> Your right cheek now reads: <<bodywriting_npc_sydney_book right_cheek "marker">>
+        <<else>>
+            <<He>> stares for a moment, glaring at your living canvas of a face. <<He>> pouts and relents. <<npcincr Sydney love -2>><<llove>>
+        <</if>>
     <</if>>
 <<else>>
 <</if>>
