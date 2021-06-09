@@ -45,11 +45,12 @@ Next to it is a small basket with returned and not yet sorted books.
 	<<if $exposed gte 1 and $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late">>
 	<<else>>
 		<<if $exposed lte 0>>
-			<<if $sydneySeen is undefined or _sydney_location isnot "library">>
-				<<if _sydney_location is "library">>
-					A student sits at the rental counter, shuffling papers and stamping cards.
-					<br>
-				<</if>>
+			<<if _sydney_location is "library" and ($sydneySeen is undefined or !$sydneySeen.includes("library"))>>
+				<<if $sydneySeen>>Sydney<<else>>A student<</if>> sits at the rental counter, shuffling papers and stamping cards.
+				<br>
+				<<link [[Counter|Sydney Library Intro]]>><</link>>
+				<br><br>
+			<<elseif _sydney_location isnot "library">>
 				<<link [[Counter|Library Rental Counter]]>><<set $counterApproach to 1>><</link>>
 				<br><br>
 			<<elseif _sydney_location is "library">>
@@ -544,7 +545,7 @@ You
 				<<if $NPCName[$NPCNameList.indexOf("Sydney")].love lt 10>>
 					"Late. But at least it isn't damaged. Please try to be more punctual on returns." Sydney writes something down, frowning. <<bookCriminal>>
 				<<elseif $sydneyromance is 1>>
-					<<if _sydneyStatus is "corruptLust" or _sydneyStatus is "corrupt">>
+					<<if _sydneyStatus.includes("corrupt")>>
 						"I wish you'd stay on top of your rentals as well as you stay on top of me," <<he>> says while blushing. <<bookCriminal>>
 					<<else>>
 						"I wish I could make exceptions for you, but... <<headmaster>> Leighton scares me." <<bookCriminal>>
@@ -559,12 +560,16 @@ You
 			<<else>>
 				"Thanks for being punctual!" Sydney happily takes the book from you, before returning it to its place.
 			<</if>>
+			<<unset $bookOverdue>>
+			<br><br>
+			<<sydneyOptionsLibrary>>
 		<<else>>
 			<<set $bookReturnedAbsent to 1>>
+			<br><br>
+			<<bookRentalOptions>>
 		<</if>>
 		<<set $studyBooks.rented to "none">>
 		<<set $book_rent_timer to 0>>
-		<<unset $bookOverdue>>
 	<<case "rent">>
 		rent a
 		<<if $phase is 5>>
@@ -594,6 +599,8 @@ You
 			<</if>>
 		<</if>>
 		<<set $book_rent_timer to 14>>
+		<br><br>
+		<<sydneyOptionsLibrary>>
 	<<case "renew">>
 		renew your rented
 		<<if $studyBooks.rented is "Raul and Janet">>
@@ -603,6 +610,8 @@ You
 		<</if>>
 		<<set $book_rent_timer to 14>>
 		Sydney smiles. "Thanks for staying on top of this.<<if $sydneyromance is 1 and (_sydneyStatus is "corrupt" or _sydneyStatus is "corruptLust")>> Now if only you'd stay on top of me.<</if>>"
+		<br><br>
+		<<sydneyOptionsLibrary>>
 	<<case "steal">>
 		steal a
 		<<if $phase is 5>>
@@ -611,20 +620,44 @@ You
 			$studyBooks.stolen textbook.
 		<</if>>
 		<<set $bookStolen to 1>>
+		<br><br>
+		<<bookRentalOptions>>
 	<<default>>
 <</switch>>
 <br><br>
-<<sydneyOptionsLibrary>>
 <br>
 
 :: Book Rental Return Stolen
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<sydneySchedule>>
+<<sydneyStatusCheck>>
 You return the stolen
 <<if $phase is 5>>
 	copy of "Raul and Janet".
 <<else>>
 	$studyBooks.stolen textbook.
 <</if>>
-<<set $studyBooks.stolen to "none">>
-<<unset $bookStolen>>
+<<if _sydney_location is "library">>
+	<<if $bookStolenKnown isnot undefined>>
+		<<switch $bookStolenKnown>>
+			<<case 1>>
+				"That's...!" Sydney looks aghast as you hand the book over. "You found it!" Before you can interject, Sydney pulls you into a hug from over the counter.
+				"I was so afraid of being punished by <<headmaster>> Leighton. You've really saved my <<if _sydneyStatus.includes("corrupt")>>ass<<else>>skin<</if>>." <<npcincr Sydney love 5>><<gglove>>
+			<<case 2>>
+				"That book is in the record as stolen. This is the second time you've returned one of those..." Sydney stands up with a look of sudden understanding and frowns at you. "I'm disappointed. But thank you for returning it and being honest." <<bookCriminal>>
+			<<default>>
+				Sydney looks to be on the verge of tears. "Why do you keep doing this? You know that the <<Headmaster>> will hold me responsible for all this, right?" <<npcincr Sydney love -5>><<lllove>>
+		<</switch>>
+		<<set $bookStolenKnown += 1>>
+	<<else>>
+		Sydney looks at you, confused. "That book was never checked out. Did you just find it laying around?"
+	<</if>>
+	<<set $studyBooks.stolen to "none">>
+	<br><br>
+	<<sydneyOptionsLibrary>>
+<<else>>
+	<<set $bookStolenAbsent to 1>>
+	<<set $studyBooks.stolen to "none">>
+	<br><br>
+	<<bookRentalOptions>>
+<</if>>

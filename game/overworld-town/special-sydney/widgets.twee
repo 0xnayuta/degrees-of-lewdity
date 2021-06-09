@@ -81,30 +81,8 @@
 <</widget>>
 
 <<widget "sydneyLibrary">>
-<<if $sydneySeen is undefined>>
-	<<npc "Sydney">><<person1>>
-	<<set $sydneySeen.push("library")>>
-	Behind it sits an exhausted-looking <<personsimple>>, who looks up at you and gently smiles, seeming to recognize you. <<sydneyGreeting>> It's Sydney, a student known for <<his>> innocent nature. A pair of reading glasses accents amber eyes and strawberry blonde hair worn in a ponytail. <<He>> seems overworked. A holy pendant hangs from <<his>> neck.
-	<<sydneyPendant>>
-    <br><br>
-	<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn<<if $sydney_dailyGreeting and $hour lte 12>> again<</if>>. "Time. You can also buy school-approved clothes here. <<Headmaster>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
-	<br><br>
-	"<span class="gold">Books can be rented out for two weeks at a time</span>, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book. My name's Sydney, by the way! Pleased to meet you."
-	<br><br>
-	<<sydneyOptionsLibrary>>
-<<elseif !$sydneySeen.includes("library")>>
-	<<npc "Sydney">><<person1>>
-	<<set $sydneySeen.push("library")>>
-	Sydney sits behind it, and <<he>> looks up at you with tired eyes, smiling. <<sydneyGreeting>>
-	<<sydneyPendant>>
-    <br><br>
-	<<He>> resumes stamping after a moment, while still looking at you. "First time at the rental counter? You can rent out one book at a ti-" <<he>> pauses to yawn<<if $sydney_dailyGreeting and $hour lte 12>> again<</if>>. "Time. You can also buy school-approved clothes here. <<Headmaster>> Leighton's marked the prices way up, though. <span class="green">Students that behave well get special discounts.</span>" <<His>> tone is upbeat, and <<he>> seems excited despite <<his>> clear exhaustion.
-	<br><br>
-	"<span class="gold">Books can be rented out for two weeks at a time</span>, you can renew your rental at any time... you get the point, right? I'm not boring you, am I?" <<He>> suddenly looks down at <<his>> hand, realizing that <<hes>> stamped <<himself>> "<span class="red"><i>Overdue</i></span>". <<He>> smiles at you nervously, before sitting back down. "Let's call that foreshadowing for what happens if you return a late or damaged book."
-	<br><br>
-	<<sydneyOptionsLibrary>>
-<<elseif $schoolShopAction>>
-	<<npc "Sydney">><<person1>>
+<<npc "Sydney">><<person1>>
+<<if $schoolShopAction>>
 	<<if $schoolShopAction.includes("wear")>>
 		"Thank you for your purchase! That looks good on you."
 	<<elseif $schoolShopAction.includes("buy")>>
@@ -116,8 +94,23 @@
 	<<unset $schoolShopAction>>
 	<br><br>
 	<<sydneyOptionsLibrary>>
+<<elseif $bookReturnedAbsent>>
+    <<unset $bookReturnedAbsent>>
+    <<unset $bookOverdue>>
+    Sydney looks up at you. "Thanks for returning that overdue book, even though I wasn't here." <<bookCriminal>>
+    <br><br>
+    <<sydneyOptionsLibrary>>
+<<elseif $bookOverdue and $sydneyOverdueMessage isnot 1>>
+    <<set $sydneyOverdueMessage to 1>>
+    Sydney looks up at you. "You've got a book overdue." <<bookCriminal>>
+    <br><br>
+    <<sydneyOptionsLibrary>>
+<<elseif $bookStolenAbsent>>
+    <<unset $bookStolenAbsent>>
+    Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
+    <br><br>
+    <<sydneyOptionsLibrary>>
 <<else>>
-    <<npc "Sydney">><<person1>>
 	<<if _counterApproach is 1>>
 		<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
 			Sydney smiles upon seeing you. <<sydneyGreeting>>
@@ -229,6 +222,7 @@
 
 <<widget "bookCriminal">>
 <<bodywriting_exposure_check>>
+<<sydneyStatusCheck>>
 <<if _bodywriting_exposed gte 1 and ($skin[_bodypart].writing is "Book Criminal >:(" or $skin[_bodypart].writing is "Book Criminal <3")>>
     <<if $skin[_bodypart].pen is "tattoo">>
         <<if $bookTattoo is undefined>>
