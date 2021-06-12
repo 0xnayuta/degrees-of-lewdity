@@ -39,7 +39,11 @@
 			<<if $consensual is 1 and ($promiscuity lte 74 and $enemytype is "man" or $deviancy lte 74 and $enemytype isnot "man")>>
 				<!-- Do Nothing -->
 			<<elseif $NPCList[_j].stance isnot "topface" and ($enemytype isnot "man" or ($NPCList[_j].location.genitals is 0 and $NPCList[_j].location.head isnot "genitals"))>>
-				<<set _anusaction["Straddle their penis"] to "anustopenis">>
+				<<if $NPCList[_j].chastity.penis.includes("chastity")>>
+					<<set _anusaction[["Straddle " + $NPCList[_j].pronouns.his + " " + $NPCList[_j].chastity.penis]] to "anustopenis">>
+				<<else>>
+					<<set _anusaction["Straddle " + $NPCList[_j].pronouns.his + " penis"] to "anustopenis">>
+				<</if>>
 				<<break>>
 			<</if>>
 		<</if>>
@@ -88,10 +92,10 @@
 	<</if>>
 	<<for _j = $enemyno-1; _j gte _end; _j-->>
 		<<if $NPCList[_j].penis is "anusentrance" or $NPCList[_j].penis is "anusimminent">>
-			<<if $consensual is 1 and ($promiscuity lte 74 and $enemytype is "man" or $deviancy lte 74 and $enemytype isnot "man")>>
+			<<if $consensual is 1 and ($promiscuity lte 74 and $enemytype is "man" or $deviancy lte 74 and $enemytype isnot "man") or $NPCList[_j].chastity.penis.includes("chastity")>>
 				<!-- Do Nothing -->
 			<<else>>
-				<<set _anusaction["Envelop their penis"] to "anuspenisfuck">>
+				<<set _anusaction["Envelop " + $NPCList[_j].pronouns.his + " penis"] to "anuspenisfuck">>
 				<<break>>
 			<</if>>
 		<</if>>
@@ -101,16 +105,36 @@
 <</widget>>
 
 <<widget "actionsanusMouthEntrance">>
-<<if $consensual is 1 and $promiscuity lt 0>>
+<<if $combattype is "train">>
+	<<set _end to $enemyno-1>>
 <<else>>
-	<<set _anusaction["Press your butt against their mouth"] to "bottombay">>
+	<<set _end to 0>>
 <</if>>
-<<set _anusaction["Rub against their face"] to "othermouthtease">>
+<<for _j = $enemyno-1; _j gte _end; _j-->>
+	<<if $NPCList[_j].mouth is "anusentrance">>
+		<<if $consensual is 1 and $promiscuity lt 0>>
+		<<else>>
+			<<set _anusaction["Press your butt against " + $NPCList[_j].pronouns.his + " mouth"] to "bottombay">>
+		<</if>>
+		<<set _anusaction["Rub against " + $NPCList[_j].pronouns.his + " face"] to "othermouthtease">>
+		<<break>>
+	<</if>>
+<</for>>
 <</widget>>
 
 <<widget "actionsanusMouthImminent">>
-<<set _anusaction["Rub against their lips"] to "othermouthrub">>
-<<set _anusaction["Pull away"] to "othermouthescape">>
+<<if $combattype is "train">>
+	<<set _end to $enemyno-1>>
+<<else>>
+	<<set _end to 0>>
+<</if>>
+<<for _j = $enemyno-1; _j gte _end; _j-->>
+	<<if $NPCList[_j].mouth is "anusimminent">>
+		<<set _anusaction["Rub against " + $NPCList[_j].pronouns.his + " lips"] to "othermouthrub">>
+		<<set _anusaction["Pull away"] to "othermouthescape">>
+		<<break>>
+	<</if>>
+<</for>>
 <</widget>>
 
 <<widget "actionsanusMouthPenetration">>
@@ -176,7 +200,7 @@
 		<<for _j = $enemyno-1; _j gte _end; _j-->>
 			<<if $NPCList[_j].penis is 0 and ($enemytype isnot "man" or ($NPCList[_j].location.genitals is 0 and $NPCList[_j].location.head isnot "genitals"))>>
 				<<submission 2>><<set $anususe to "penis">><<set $NPCList[_j].penis to "anusentrance">><<set $anusstate to "entrance">>
-				<span class="lblue">You straddle the <<personselect _j>><<combatperson>> and press <<his1>> $NPCList[_j].penisdesc with your <<bottom>>.</span>
+				<span class="lblue">You straddle the <<personselect _j>><<combatperson>> and press <<his1>> <<npcPenis _j>> with your <<bottom>>.</span>
 				<<if $enemytype is "beast">><<set $NPCList[_j].stance to "top">><</if>>
 				<<set $NPCList[_j].location.genitals to "genitals">>
 				<<break>>
