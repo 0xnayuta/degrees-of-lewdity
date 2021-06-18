@@ -5,7 +5,7 @@
     <<set $sydneySeen.push("mass")>>
     You hardly even notice the <<personsimple>> quickly taking a seat next to you, until you hear <<his>> exasperated breathing. It seems <<he>> was late.
     <br><br>
-    <<His>> eyes meet yours, and <<he>> gives you a gentle smile. It's Sydney, a student from the local school known for <<his>> innocent nature, and for being overworked. A pair of reading glasses accents amber eyes, and strawberry blonde hair worn in a ponytail. A holy pendant hangs from <<his>> neck. "H-hi. Haven't seen you here before, but I think I've seen you around at school. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
+    <<His>> eyes meet yours, and <<he>> gives you a gentle smile. It's Sydney, a student from the local school known for <<his>> innocent nature, and for being overworked. A pair of reading glasses accents amber eyes, and <<npcHair "Sydney">> hair worn in a ponytail. A holy pendant hangs from <<his>> neck. "H-hi. Haven't seen you here before, but I think I've seen you around at school. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
     <<sydneyPendant>>
     <br><br>
     You are called to the front for communion, and Sydney keeps <<his>> eyes on you the whole time.
@@ -88,28 +88,28 @@
 	<<elseif $schoolShopAction.includes("buy")>>
 		"Thank you for your purchase!"
 	<<elseif $schoolShopAction.includes("return")>>
-		"Couldn't find the right size? I'll inform the <<headmaster>>."
+		"Couldn't find the right size? I'll inform the <<Headmaster>>."
 	<</if>>	
 	Sydney leads you back to <<his>> post at the rental counter.
 	<<unset $schoolShopAction>>
 	<br><br>
-	<<sydneyOptionsLibrary>>
+	<<sydneyOptions>>
 <<elseif $bookReturnedAbsent>>
     <<unset $bookReturnedAbsent>>
     <<unset $bookOverdue>>
     Sydney looks up at you. "Thanks for returning that overdue book, even though I wasn't here." <<bookCriminal>>
     <br><br>
-    <<sydneyOptionsLibrary>>
+    <<sydneyOptions>>
 <<elseif $bookOverdue and $sydneyOverdueMessage isnot 1>>
     <<set $sydneyOverdueMessage to 1>>
     Sydney looks up at you. "You've got a book overdue." <<bookCriminal>>
     <br><br>
-    <<sydneyOptionsLibrary>>
+    <<sydneyOptions>>
 <<elseif $bookStolenAbsent>>
     <<unset $bookStolenAbsent>>
     Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
     <br><br>
-    <<sydneyOptionsLibrary>>
+    <<sydneyOptions>>
 <<else>>
 	<<if _counterApproach is 1>>
 		<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
@@ -121,8 +121,37 @@
 		Sydney looks busy.
 	<</if>>
 	<br><br>
-	<<sydneyOptionsLibrary>>
+	<<sydneyOptions>>
 <</if>>
+<</widget>>
+
+<<widget "sydneyOptions">>
+<<sydneySchedule>><<sydneyStatusCheck>>
+<<if $bus is "schoollibrary">>
+    <<switch _sydney_location>>
+        <<case "library">>
+            <<bookRentalOptions>>
+            <br>
+            <<link [[Buy clothes|School Library Shop]]>><</link>>
+            <br>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
+        <<case "science">>
+            <<if $sydneyScience is 1>>
+                Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! We're late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
+            <<else>>
+                Sydney glances up to you. "Classes usually start around now. Aren't you going to be late?"
+            <</if>>
+        <<case "canteen">>
+        <<case "temple">>
+        <<case "home">>
+        <<case "shop">>
+        <<default>>
+    <</switch>>
+<</if>>
+<</widget>>
+
+<<widget "sydneyOptionsLeave">>
 <</widget>>
 
 <<widget "sydneyPendant">>
@@ -176,33 +205,6 @@
 <</if>>
 <</widget>>
 
-<<widget "sydneyGreeting">>
-<<if $sydney_dailyGreeting is undefined>>
-    <<set $sydney_dailyGreeting to 1>>
-    <<if $hour lte 3 or $hour gte 18>>
-        "Good evening," <<he>> says.
-    <<elseif $hour lte 12>>
-        "Good morning..." <<he>> yawns out.
-    <<else>>
-        "Good afternoon," <<he>> says.
-    <</if>>
-<</if>>
-<</widget>>
-
-<<widget "sydneyOptionsLibrary">>
-<<sydneyOptions>>
-<br><br>
-<<bookRentalOptions>>
-<br>
-<<link [[Buy clothes|School Library Shop]]>><</link>>
-<br>
-<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
-<br>
-<</widget>>
-
-<<widget "sydneyOptions">>
-<</widget>>
-
 <<widget "sydneyStatusCheck">>
 <<set _sydneyStatus to 0>>
 <<if $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 40>>
@@ -220,6 +222,19 @@
 <</if>>
 <</widget>>
 
+<<widget "sydneyGreeting">>
+<<if $sydney_dailyGreeting is undefined>>
+    <<set $sydney_dailyGreeting to 1>>
+    <<if $hour lte 3 or $hour gte 18>>
+        "Good evening," <<he>> says.
+    <<elseif $hour lte 12>>
+        "Good morning..." <<he>> yawns out.
+    <<else>>
+        "Good afternoon," <<he>> says.
+    <</if>>
+<</if>>
+<</widget>>
+
 <<widget "bookCriminal">>
 <<bodywriting_exposure_check>>
 <<sydneyStatusCheck>>
@@ -234,12 +249,12 @@
             Sydney eyes the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "You're a nut." <<He>> can't help but giggle.
         <</if>>
     <<else>>
-        Sydney eyes the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "I... guess my punishment isn't harsh enough." <<if _sydneyStatus is "corrupt" or _sydneyStatus is "corruptLust">><<He>> looks around before whispering in your ear. "Maybe you'll need to teach me how to punish you properly." <<arousal 500>><<garousal>><</if>>
+        Sydney eyes the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. "I... guess my punishment isn't harsh enough." <<if _sydneyStatus is "corrupt" or _sydneyStatus is "corruptLust">><<He>> looks around before whispering in your ear. "Maybe you'll need to teach me how to punish you properly." <<arousal 500>><<garousal>><<else>><<detention 3>><<gdelinquency>><</if>>
     <</if>>
 <<elseif $skin.forehead.writing isnot "Book Criminal >:(" and $skin.forehead.writing isnot "Book Criminal <3" and $skin.left_cheek.writing isnot "Book Criminal >:(" and $skin.left_cheek.writing isnot "Book Criminal <3" and $skin.right_cheek.writing isnot "Book Criminal >:(" and $skin.right_cheek.writing isnot "Book Criminal <3">>
     <<if $bookCriminal is undefined>>
         <<set $bookCriminal to 1>>
-        <<He>> sighs. "I don't have the authority to punish you, so <<headmaster>> Leighton lets me do this instead."
+        <<He>> sighs. "I don't have the authority to punish you, so <<Headmaster>> Leighton lets me do this instead."
         Sydney brandishes a red permanent marker, and pulls you close with surprising strength.
     <<else>>
         <<if $NPCName[$NPCNameList.indexOf("Sydney")].love lt 10>>
@@ -251,7 +266,7 @@
         <</if>>
     <</if>>
     <<if $bodywritingdisable is "t">>
-        <span class="red">You instinctively smack the marker away.</span> Sydney pouts at you. <<npcincr Sydney love -2>><<llove>>
+        <span class="red">You instinctively smack the marker away.</span> Sydney pouts at you. <<detention 3>><<gdelinquency>><<npcincr Sydney love -2>><<llove>>
     <<else>>
         <<if _bodywriting_exposed gte 1 and $skin[_bodypart].special is "Sydney">>
             However, <<he>> stops upon seeing the <<tattoo _bodypart>> on your _bodypart. <<His>> face begins to turn a bright red. You catch <<him>> looking into your eyes, before looking away again. "B...be more courteous next time, please. You may go."
@@ -268,9 +283,23 @@
         <<elseif $skin.right_cheek.writing is "pen" or $skin.right_cheek.writing is "lipstick" or $skin.right_cheek.writing is "mud">>
             <<He>> wipes away your <<tattoo right_cheek>> on your right cheek, and scribbles something of <<his>> own. <<bodywriting_clear right_cheek>> Your right cheek now reads: <<bodywriting_npc_sydney_book right_cheek "marker">>
         <<else>>
-            <<He>> stares for a moment, glaring at your living canvas of a face. <<He>> pouts and relents. <<npcincr Sydney love -2>><<llove>>
+            <<He>> stares for a moment, glaring at your living canvas of a face. <<He>> pouts and relents. <<detention 3>><<gdelinquency>><<npcincr Sydney love -2>><<llove>>
         <</if>>
     <</if>>
 <<else>>
 <</if>>
+<</widget>>
+
+<<widget "sydneymum">>
+<<if $NPCName[$NPCNameList.indexOf("Sirris")].pronoun is "m">>
+	<<set _text_output to "dad">>
+<<else>>
+	<<set _text_output to "mum">>
+<</if>>
+<<print _text_output>>
+<</widget>>
+
+<<widget "sydneyMum">>
+<<sydneymum>><<set _text_output to _text_output.toLocaleUpperFirst()>>
+<<print _text_output>>
 <</widget>>

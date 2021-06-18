@@ -210,6 +210,7 @@
 
 <<widget "generatePronouns">>
 <<if $args[0]>>
+	<<set $args[0].pronouns to {}>>
 	<<switch $args[0].pronoun>>
 	<<case "m">>
 		<<set $args[0].pronouns.he = "he">>
@@ -258,6 +259,12 @@
 		<<set $args[0].pronouns.men = "men">>
 	<</switch>>
 <</if>>
+<</widget>>
+
+<<widget "updatePronouns">>
+<<for _i to 0; _i lt $NPCNameList.length; _i++>>
+	<<generatePronouns $NPCName[_i]>>
+<</for>>
 <</widget>>
 
 <<widget "clearPronouns">>
@@ -1143,22 +1150,12 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "combatperson">><<silently>>
-<<if $enemytype is "beast">>
-	<<beasttype>>
-<<elseif $npc_named is 1 and $npcdescription>>
-	<<set _text_output to $npcdescription>>
-<<elseif $npcadult is 1>>
-	<<if $pronoun is "m">>
-		<<set _text_output to $description+" man">>
-	<<elseif $pronoun is "f">>
-		<<set _text_output to $description+" woman">>
-	<</if>>
+<<if $npc_named is 1>>
+	<<set _text_output to $NPCList[_j].fullDescription>>
+<<elseif $enemytype is "beast">>
+	<<set _text_output to "the " + $NPCList[_j].type>>
 <<else>>
-	<<if $pronoun is "m">>
-		<<set _text_output to $description+" boy">>
-	<<elseif $pronoun is "f">>
-		<<set _text_output to $description+" girl">>
-	<</if>>
+	<<set _text_output to "the " + $NPCList[_j].fullDescription>>
 <</if>><</silently>><<print _text_output>><</widget>>
 
 <<widget "combatpersons">><<silently>>
@@ -2785,7 +2782,7 @@
 <</widget>>
 
 <<widget "combatpromiscuous1">>
-<<if $consensual is 1>>
+<<if $consensual is 1 and !$promiscuityIgnore>>
 	<<if $enemytype is "man">>
 <span class="teal">Promiscuity 1</span>
 	<<else>>
@@ -2795,7 +2792,7 @@
 <</widget>>
 
 <<widget "combatpromiscuous2">>
-<<if $consensual is 1>>
+<<if $consensual is 1 and !$promiscuityIgnore>>
 	<<if $enemytype is "man">>
 <span class="lblue">Promiscuity 2</span>
 	<<else>>
@@ -2805,7 +2802,7 @@
 <</widget>>
 
 <<widget "combatpromiscuous3">>
-<<if $consensual is 1>>
+<<if $consensual is 1 and !$promiscuityIgnore>>
 	<<if $enemytype is "man">>
 <span class="blue">Promiscuity 3</span>
 	<<else>>
@@ -2815,7 +2812,7 @@
 <</widget>>
 
 <<widget "combatpromiscuous4">>
-<<if $consensual is 1>>
+<<if $consensual is 1 and !$promiscuityIgnore>>
 	<<if $enemytype is "man">>
 <span class="purple">Promiscuity 4</span>
 	<<else>>
@@ -2825,7 +2822,7 @@
 <</widget>>
 
 <<widget "combatpromiscuous5">>
-<<if $consensual is 1>>
+<<if $consensual is 1 and !$promiscuityIgnore>>
 	<<if $enemytype is "man">>
 <span class="pink">Promiscuity 5</span>
 	<<else>>
@@ -5928,6 +5925,24 @@ and
 	<<set _text_output to $NPCList[_npcGen].chastity.anus>>
 <<else>>
 	<<set _text_output to "ass">>
+<</if>>
+<<print _text_output>>
+<</widget>>
+
+<<widget "npcHair">>
+<<if $args[0]>>
+	<<switch $NPCName[$NPCNameList.indexOf($args[0])].hairColour>>
+		<<case "strawberryblond">>
+			<<set _text_output to "strawberry blond">>
+		<<case "platinumblond">>
+			<<set _text_output to "platinum blond">>
+		<<case "lightbrown">>
+			<<set _text_output to "light brown">>
+		<<default>>
+			<<set _text_output to $NPCName[$NPCNameList.indexOf($args[0])].hairColour>>
+	<</switch>>
+<<else>>
+	<<set _text_output to "phantasmal ghost colour because someone forgot to define an NPC for the npcHair widget, please inform Vrelnir">>
 <</if>>
 <<print _text_output>>
 <</widget>>
