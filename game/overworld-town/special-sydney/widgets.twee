@@ -90,38 +90,82 @@
 	<<elseif $schoolShopAction.includes("return")>>
 		"Couldn't find the right size? I'll inform the <<Headmaster>>."
 	<</if>>	
-	Sydney leads you back to <<his>> post at the rental counter.
+	Sydney leads you back to <<his>> post at the rental counter<<if $sydneyPeek is 1>>, looking incredibly nervous and trying to conceal <<his>> blush all the while<</if>>.
 	<<unset $schoolShopAction>>
 	<br><br>
 	<<sydneyOptions>>
-<<elseif $bookReturnedAbsent>>
-    <<unset $bookReturnedAbsent>>
-    <<unset $bookOverdue>>
-    Sydney looks up at you. "Thanks for returning that overdue book, even though I wasn't here." <<bookCriminal>>
-    <br><br>
-    <<sydneyOptions>>
-<<elseif $bookOverdue and $sydneyOverdueMessage isnot 1>>
-    <<set $sydneyOverdueMessage to 1>>
-    Sydney looks up at you. "You've got a book overdue." <<bookCriminal>>
-    <br><br>
-    <<sydneyOptions>>
-<<elseif $bookStolenAbsent>>
-    <<unset $bookStolenAbsent>>
-    Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
-    <br><br>
-    <<sydneyOptions>>
-<<else>>
-	<<if _counterApproach is 1>>
-		<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
-			Sydney smiles upon seeing you. <<sydneyGreeting>>
-		<<else>>
-			Sydney nods to you. <<sydneyGreeting>>
-		<</if>>
+<<elseif _counterApproach is 1>>
+    <<if $studyBooks.stolen isnot "none" and $sydneyStolenKnown isnot 1>>
+        <<set $sydneyStolenKnown to 1>>
+        Sydney frantically searches for something behind the counter. After a few moments, <<he>> stands up, sighs, and lets <<himself>> fall back into <<his>> chair in resignation. <<He>> slowly looks up at you.
+        <br><br>
+        "There's a book missing," <<he>> says. "And <<Headmaster>> Leighton is going to hold me responsible for it."
+        <br><br>
+        <<sydneyOptions>>
+    <<elseif $bookReturnedAbsent>>
+        <<unset $bookReturnedAbsent>>
+        <<unset $bookOverdue>>
+        Sydney looks up at you. "Thanks for returning that overdue book, even though I wasn't here." <<bookCriminal>>
+        <br><br>
+        <<sydneyOptions>>
+    <<elseif $bookOverdue and $sydneyOverdueMessage isnot 1>>
+        <<set $sydneyOverdueMessage to 1>>
+        Sydney looks up at you. "You've got a book overdue." <<bookCriminal>>
+        <br><br>
+        <<sydneyOptions>>
+    <<elseif $bookStolenAbsent>>
+        <<unset $bookStolenAbsent>>
+        Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
+        <br><br>
+        <<sydneyOptions>>
+    <<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40>>
+        Sydney's eyes light up upon seeing you. <<He>> allows you to step behind the counter with <<him>>.
+        <br><br>
+        <<sydneyOptions>>
+	<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
+		Sydney smiles upon seeing you. <<sydneyGreeting>>
+        <br><br>
+        <<sydneyOptions>>
 	<<else>>
-		Sydney looks busy.
+		Sydney nods to you. <<sydneyGreeting>>
+        <br><br>
+        <<sydneyOptions>>
 	<</if>>
-	<br><br>
-	<<sydneyOptions>>
+<<else>>
+	Sydney looks busy.
+    <br><br>
+    <<sydneyOptions>>
+<</if>>
+<</widget>>
+
+<<widget "sydneyOptionsTalk">>
+<<if $bus is "schoollibrary" and $sydneyPeek is 1 and $sydneyPeekConfront isnot 1>>
+    <<link [[Confront about changing room|Sydney Peek Confront]]>><<set $sydneyPeekConfront to 1>><</link>>
+    <br>
+<</if>>
+<<if $location is "school" and $sydneySeen.includes("science") and $hour is 8 and $minute gte 40>>
+    <<link [[Walk to science class (0:05)|Sydney Science Walk]]>><<pass 5>><<npcincr Sydney love 1>><</link>><<glove>>
+    <br>
+<</if>>
+<<link [[Chat (0:15)|Sydney Chat]]>><<pass 15>><<npcincr Sydney love 1>><<stress -2>><</link>><<lstress>><<glove>>
+<br>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $sydneyFlirt is 1>>
+    <<link [[Flirt (0:15)|Sydney Flirt]]>><<pass 15>><<npcincr Sydney purity -1>><<stress -2>><</link>><<promiscuous1>><<lstress>><<lspurity>>
+    <br>
+<</if>>
+<<if $location is "school">>
+	<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $milkshake gte 2>>
+	<<link [[Offer milkshake (0:20)|Sydney Give Milkshake]]>><<pass 20>><<set $milkshake -= 2>><<npcincr Sydney love 1>><<stress -5>><</link>><<lstress>><<glove>>
+	<br>
+	<</if>>
+	<<if $sydneyromance is 1 and $milkshake gte 1>>
+	<<link [[Share milkshake (0:20)|Sydney Share Milkshake]]>><<pass 20>><<set $milkshake -= 1>><<npcincr Sydney love 2>><<stress -10>><</link>><<lstress>><<gglove>>
+	<br>
+	<</if>>
+    <<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40 and $sydneywalk isnot 1>>
+    <<link [[Ask to go somewhere together|Sydney Date]]>><</link>>
+	<br>
+    <</if>>
 <</if>>
 <</widget>>
 
@@ -130,23 +174,74 @@
 <<if $bus is "schoollibrary">>
     <<switch _sydney_location>>
         <<case "library">>
+            <<sydneyOptionsTalk>>
+            <br>
             <<bookRentalOptions>>
+            <br>
+            You can purchase any school-sanctioned clothing here.
             <br>
             <<link [[Buy clothes|School Library Shop]]>><</link>>
             <br>
             <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
             <br>
         <<case "science">>
-            <<if $sydneyScience is 1>>
+            <<if $sydneySeen.includes("science")>>
                 Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! We're late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
             <<else>>
-                Sydney glances up to you. "Classes usually start around now. Aren't you going to be late?"
+                Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! I completely forgot about my schedule change, I'm late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
             <</if>>
+            <br><br>
+            <<link [[Go with Sydney|Science Sydney Late]]>><<set $eventskip to 1>><</link>>
+            <br>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
         <<case "canteen">>
+            Sydney stands up, stretching, before placing a small sign on the front of the counter. <span class="blue">"At canteen"</span>.
+            <<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10>>
+                <br><br>
+                "I'm going to get lunch. Would you like to come with me?"
+            <</if>>
+            <br><br>
+            <<link [[Go with Sydney|Canteen Sydney]]>><<set $eventskip to 1>><<npcincr Sydney love 1>><</link>><<glove>>
+            <br>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
         <<case "temple">>
-        <<case "home">>
+            Sydney stands up, yawning.
+            <<if $sydneySeen.includes("mass") or $sydneySeen.includes("intiate")>>
+                "It's closing time. I'm off to the temple.<<if $sydneyromance is 1>> Would you... mind walking me there?<<else>> There's plenty to be done, would you like to come with me?<</if>>"
+                <br><br>
+                <<link [[Go with Sydney|Temple Sydney Walk]]>><<set $eventskip to 1>><<npcincr Sydney love 1>><</link>><<glove>>
+                <br>
+            <<else>>
+                "It's closing time."
+                <<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20 and $sydneyTemple isnot 1>>
+                    <<He>> begins gathering his things, but pauses. "I usually go to the temple after school. Would you like to come with me? I bet it'd be good for you!" <<He>> looks to you hopefully.
+                    <br><br>
+                    <<link [[Go with Sydney|Temple Sydney Walk]]>><<set $eventskip to 1>><<npcincr Sydney love 1>><</link>><<glove>>
+                    <br>
+                <<else>>
+                    <<He>> gathers <<his>> things, and starts to lead any lingering students out of the library.
+                    <br><br>
+                    <<link [[Ask to go with Sydney|Temple Sydney Walk Ask]]>><<set $eventskip to 1>><<npcincr Sydney love 5>><</link>><<gglove>>
+                    <br>
+                <</if>>
+            <</if>>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
         <<case "shop">>
+            <<if $sydneySeen.includes("shop")>>
+                <!-- Currently Unobtainable, will be able to help set up shop in the future. -->
+                "It's closing time. I'm off to help set up the new shop." <<He>> gathers <<his>> things,<<if $sydneyromance is 1>> kisses you on the cheek,<</if>> and starts to lead any lingering students out of the library.
+            <<else>>
+                "It's closing time. I'm off to help my <<sydneymum>> set up the new shop in town." <<He>> gathers <<his>> things,<<if $sydneyromance is 1>> kisses you on the cheek,<</if>> and starts to lead any lingering students out of the library. <<if $sydneySeen.includes("mass") or $sydneySeen.includes("initiate")>>Once <<he>> exits, you notice that <<hes>> not heading towards the temple, and instead towards High Street.<</if>> 
+            <</if>>
+            <br><br>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
         <<default>>
+            <<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
+            <br>
     <</switch>>
 <</if>>
 <</widget>>
@@ -176,7 +271,9 @@
 <</widget>>
 
 <<widget "sydneySchedule">>
-<<if $weekday is 1 and $hour gte 11 and $hour lte 12>>
+<<if $sydneyPunish is 1>>
+    <<set _sydney_location to "home">>
+<<elseif $weekday is 1 and $hour gte 11 and $hour lte 12>>
     <<set _sydney_location to "mass">>
 <<elseif $weekday is 1 or $weekday is 7>>
     <<if $hour gte 7 and $hour lte 15>>
@@ -195,7 +292,7 @@
         <<set _sydney_location to "canteen">>
 	<<elseif $hour lte 16>>
 		<<set _sydney_location to "library">>
-    <<elseif $hour is 17>>
+    <<elseif $hour is 17 or $hour is 18>>
         <<set _sydney_location to "temple">>
     <<else>>
         <<set _sydney_location to "home">>

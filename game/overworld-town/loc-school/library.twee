@@ -100,6 +100,29 @@ Next to it is a small basket with returned and not yet sorted books.
 <<sydneySchedule>>
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
+<<elseif _sydney_location is "library" and ($sydneyLeightonConfront is 1 or $leightonAssaulted is 1) and $exposed lte 0 and $NPCName[$NPCNameList.indexOf("Leighton")].init is 1 and $pillory_tenant.special.name isnot "Leighton" and !$sydneyLeightonConfrontTimer>>
+	<<unset $sydneyLeightonConfront>><<set $sydneyLeightonConfrontTimer to 7>><<set $corruptionEvent to 1>>
+	<<if ($bookStolenKnown isnot undefined and $bookStolenKnown gte 3) or $libraryMoneyStolen gte 1000 or $leightonAssaulted is 1>>
+		<<if $leightonAssaulted is 1>>
+			<<set $leightonAssaulted to 2>>
+		<</if>>
+		<<npc "Sydney">><<person1>>
+		You hear footsteps behind you, and feel a hand on your shoulder. "Perfect timing." It's Leighton. "It seems you just can't learn your lesson. I should get the police involved with how often you've been stealing from us, but I'll settle for a more... homely punishment instead."
+		<br><br>
+		<<nnpc_He "Leighton">> begins to lead you towards the rental counter. "Your friend will be sharing in your punishment.<<if $studyBooks.stolen isnot "none">><<set $studyBooks.stolen to "none">><<unset $sydneyStolenKnown>> Oh, and I'll be taking that stolen book back.<</if>>"
+		<br><br>
+		The door has been locked behind you. You only now realize that the library is empty, save for the three of you.
+		<br><br>
+		<<link [[Next|Sydney Leighton Spank]]>><<set $phase to 4>><</link>>
+		<br>
+	<<else>>
+		You see Leighton stood in front of Sydney's counter. <<nnpc_He "Leighton">> seems to be harshly scolding <<nnpc_him "Sydney">> for something. After a moment, <span class="red">Leighton grabs <<nnpc_his "Sydney">> arm and begins to raise <<nnpc_his "Leighton">> voice.</span>
+		<br><br>
+		<<link [[Intervene|Sydney Leighton Intervene]]>><<npcincr Sydney love 1>><</link>><<glove>>
+		<br>
+		<<link [[Ignore|Sydney Leighton Ignore]]>><<stress 12>><<npcincr Sydney love -10>><<npcincr Sydney purity -5>><</link>><<ggstress>><<llllove>><<llspurity>>
+		<br>
+	<</if>>
 <<else>>
 	<<if $exposed gte 1 and $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late">>
 	<<else>>
@@ -117,6 +140,7 @@ Next to it is a small basket with returned and not yet sorted books.
 				<br>
 				<<link [[Approach Sydney|Library Rental Counter]]>><<set $counterApproach to 1>><</link>>
 				<br><br>
+				<</if>>
 			<</if>>
 		<</if>>
 		<<projectoptions>>
@@ -567,29 +591,33 @@ You follow <<him>> down the corridor toward the entrance. "H-here," <<he>> says 
 <<elseif $schoolShopAction is undefined>>
 	You are at the library's rental counter.
 <</if>>
-<<if _sydney_location isnot "library">>
-	<<if $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late" and _counterApproach is 1>>
-		No one's there. You ring the bell. No one responds.
-	<</if>>
-	<br><br>
-	<<if ($schoolday isnot 1 or $schoolstate is "early" or $schoolstate is "late")>>
-		<<bookRentalOptions>>
+<<switch _sydney_location>>
+	<<case "library">>
+		<<sydneyLibrary>>
+	<<case "science">>
+		A sign hangs from the front. <span class="blue">"In class"</span>.
+	<<case "canteen">>
+		A sign hangs from the front. <span class="blue">"At canteen"</span>.
+	<<default>>
+		<<if $schoolday is 1 and $schoolstate isnot "early" and $schoolstate isnot "late" and _counterApproach is 1>>
+			No one's there. You ring the bell. No one responds.
+		<</if>>
+		<br><br>
+		<<if ($schoolday isnot 1 or $schoolstate is "early" or $schoolstate is "late")>>
+			<<bookRentalOptions>>
+			<br>
+		<</if>>
+		<<if $schoollibrarymoneytheft isnot 1>>
+			<<link [[Examine the cash register|School Library Register]]>><</link>>
+			<br>
+		<</if>>
+		<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
-	<</if>>
-	<<if $schoollibrarymoneytheft isnot 1>>
-		<<link [[Examine the cash register|School Library Register]]>><</link>>
-		<br>
-	<</if>>
-	<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
-	<br>
-<<else>>
-	<<sydneyLibrary>>
-<</if>>
+<</switch>>
 
 :: Book Rental
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
-<<sydneySchedule>>
-<<sydneyStatusCheck>>
+<<sydneySchedule>><<sydneyStatusCheck>>
 You
 <<switch $bookRent>>
 	<<case "return">>
@@ -688,8 +716,7 @@ You
 
 :: Book Rental Return Stolen
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
-<<sydneySchedule>>
-<<sydneyStatusCheck>>
+<<sydneySchedule>><<sydneyStatusCheck>>
 You return the stolen
 <<if $phase is 5>>
 	copy of "Raul and Janet".
@@ -705,9 +732,10 @@ You return the stolen
 			<<case 2>>
 				"That book is in the record as stolen. This is the second time you've returned one of those..." Sydney stands up with a look of sudden understanding and frowns at you. "I'm disappointed. But thank you for returning it and being honest." <<bookCriminal>>
 			<<default>>
-				Sydney looks to be on the verge of tears. "Why do you keep doing this?! You know that the <<Headmaster>> will hold me responsible for all this, right?" <<npcincr Sydney love -10>><<lllove>>
+				Sydney looks to be on the verge of tears. "Why do you keep doing this?! You understand that the <<Headmaster>> will hold me responsible for all this, right?" <<npcincr Sydney love -10>><<lllove>>
 		<</switch>>
 		<<set $bookStolenKnown += 1>>
+		<<unset $sydneyStolenKnown>>
 	<<else>>
 		Sydney looks at you, confused. "That book was never checked out. Did you just find it laying around?"
 	<</if>>
@@ -717,6 +745,7 @@ You return the stolen
 <<else>>
 	<<set $bookStolenAbsent to 1>>
 	<<set $studyBooks.stolen to "none">>
+	<<unset $sydneyStolenKnown>>
 	<br><br>
 	<<bookRentalOptions>>
 <</if>>
