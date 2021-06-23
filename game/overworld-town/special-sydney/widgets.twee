@@ -2,7 +2,7 @@
 <<widget "sydneyMass">>
 <<if $sydneySeen is undefined>>
     <<endevent>><<npc "Sydney">><<person1>>
-    <<set $sydneySeen.push("mass")>>
+    <<set $sydneySeen.pushUnique("mass")>>
     You hardly even notice the <<personsimple>> quickly taking a seat next to you, until you hear <<his>> exasperated breathing. It seems <<he>> was late.
     <br><br>
     <<His>> eyes meet yours, and <<he>> gives you a gentle smile. It's Sydney, a student from the local school known for <<his>> innocent nature, and for being overworked. A pair of reading glasses accents amber eyes, and <<npcHair "Sydney">> hair worn in a ponytail. A holy pendant hangs from <<his>> neck. "H-hi. Haven't seen you here before, but I think I've seen you around at school. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
@@ -36,7 +36,7 @@
     <br><br>
 <<elseif !$sydneySeen.includes("mass") and !$sydneySeen.includes("initiate")>>
     <<endevent>><<npc "Sydney">><<person1>>
-    <<set $sydneySeen.push("mass")>>
+    <<set $sydneySeen.pushUnique("mass")>>
     You hardly even notice the <<personsimple>> quickly taking a seat next to you, until you hear <<his>> exasperated breathing. It's Sydney. It seems <<he>> was late.
     <br><br>
     <<His>> eyes meet yours, and <<he>> gives you a surprised smile. "Oh, hi! I'm really happy to see you here. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
@@ -95,8 +95,12 @@
 	<br><br>
 	<<sydneyOptions>>
 <<elseif _counterApproach is 1>>
-    <<if $studyBooks.stolen isnot "none" and $sydneyStolenKnown isnot 1>>
-        <<set $sydneyStolenKnown to 1>>
+    <<if ($studyBooks.stolen isnot "none" and $sydneyStolenKnown isnot 1) or $sydneyLibraryEvent is 1>>
+        <<if $sydneyLibraryEvent is 1>>
+            <<set $sydneyLibraryEvent to 2>>
+        <<else>>
+            <<set $sydneyStolenKnown to 1>>
+        <</if>>
         Sydney frantically searches for something behind the counter. After a few moments, <<he>> stands up, sighs, and lets <<himself>> fall back into <<his>> chair in resignation. <<He>> slowly looks up at you.
         <br><br>
         "There's a book missing," <<he>> says. "And <<Headmaster>> Leighton is going to hold me responsible for it."
@@ -253,17 +257,17 @@
 <<if !$sydneySeen.includes("pendant")>>
     <<switch $worn.neck.name>>
         <<case "holy pendant">>
-            <<set $sydneySeen.push("pendant")>>
+            <<set $sydneySeen.pushUnique("pendant")>>
             <<His>> gaze is drawn to the holy pendant around your neck, and <<he>> smiles at you again. <<npcincr Sydney love 5>><<gglove>>
         <<case "stone pendant">>
-            <<set $sydneySeen.push("pendant")>>
+            <<set $sydneySeen.pushUnique("pendant")>>
             <<His>> gaze is drawn to the stone pendant around your neck, and <<he>> looks interested. <<npcincr Sydney love 2>><<glove>>
         <<case "holy stole">>
-            <<set $sydneySeen.push("pendant")>>
+            <<set $sydneySeen.pushUnique("pendant")>>
             <<His>> gaze is drawn to the holy stole around your neck, and <<he>> looks at you with awe. <<npcincr Sydney love 10>><<ggglove>>
         <<case "dark pendant">>
-            <<set $sydneySeen.push("pendant")>>
-            <<set $sydneySeen.push("dark pendant")>>
+            <<set $sydneySeen.pushUnique("pendant")>>
+            <<set $sydneySeen.pushUnique("dark pendant")>>
             <<His>> gaze is drawn to the dark pendant around your neck. <<He>> gasps, before placing <<his>> hands over <<his>> mouth, suddenly looking nervous. <<npcincr Sydney purity -2>><<lspurity>>
         <<default>>
     <</switch>>
@@ -447,3 +451,32 @@
 <<sydneymum>><<set _text_output to _text_output.toLocaleUpperFirst()>>
 <<print _text_output>>
 <</widget>>
+
+<<widget "sydneymother">>
+<<if $NPCName[$NPCNameList.indexOf("Sirris")].pronoun is "m">>
+	<<set _text_output to "father">>
+<<else>>
+	<<set _text_output to "mother">>
+<</if>>
+<<print _text_output>>
+<</widget>>
+
+<<widget "sydneyMother">>
+<<sydneymother>><<set _text_output to _text_output.toLocaleUpperFirst()>>
+<<print _text_output>>
+<</widget>>
+
+<<widget "sydneyGenitals">><<silently>>
+<<set _text_output to "">>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity")>>
+    <<set _text_output += "protected ">>
+<</if>>
+<<if ($NPCName[$NPCNameList.indexOf("Sydney")].virginity.penile is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m") or ($NPCName[$NPCNameList.indexOf("Sydney")].virginity.vaginal is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "f")>>
+    <<set _text_output += "virgin ">>
+<</if>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m">>
+    <<set _text_output += "penis">>
+<<else>>
+    <<set _text_output += "pussy">>
+<</if>>
+<</silently>><<print _text_output>><</widget>>
