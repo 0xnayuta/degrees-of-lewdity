@@ -2,7 +2,7 @@
 <<widget "sydneyMass">>
 <<if $sydneySeen is undefined>>
     <<endevent>><<npc "Sydney">><<person1>>
-    <<set $sydneySeen.pushUnique("mass")>>
+    <<set $sydneySeen.pushUnique("mass")>><<set $sydneyFirstSeen to "mass">>
     You hardly even notice the <<personsimple>> quickly taking a seat next to you, until you hear <<his>> exasperated breathing. It seems <<he>> was late.
     <br><br>
     <<His>> eyes meet yours, and <<he>> gives you a gentle smile. It's Sydney, a student from the local school known for <<his>> innocent nature, and for being overworked. A pair of reading glasses accents amber eyes, and <<npcHair "Sydney">> hair worn in a ponytail. A holy pendant hangs from <<his>> neck. "H-hi. Haven't seen you here before, but I think I've seen you around at school. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
@@ -39,7 +39,7 @@
     <<set $sydneySeen.pushUnique("mass")>>
     You hardly even notice the <<personsimple>> quickly taking a seat next to you, until you hear <<his>> exasperated breathing. It's Sydney. It seems <<he>> was late.
     <br><br>
-    <<His>> eyes meet yours, and <<he>> gives you a surprised smile. "Oh, hi! I'm really happy to see you here. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
+    <<His>> eyes meet yours, and <<he>> gives you a surprised smile. "Oh, hi!<<if $sydneySeen.includes("Rescue") and $sydneyRescueMessage isnot 1>><<set $sydneyRescueMessage to 1>> I hope you're doing alright after what happened.<</if>> I'm really happy to see you here. I'd ask if this was your first time attending mass, but here I am, being the late one." <<He>> quickly hushes and puts <<his>> head down as Jordan's gaze passes over <<him>>.
     <<sydneyPendant>>
     <br><br>
     You are called to the front for communion, and Sydney keeps <<his>> eyes on you the whole time.
@@ -94,6 +94,15 @@
 	<<unset $schoolShopAction>>
 	<br><br>
 	<<sydneyOptions>>
+<<elseif $hour is 9 and $sydneyScience isnot 1 and $sydneyScienceWarn isnot 1>>
+    <<set $sydneyScienceWarn to 1>>
+    <<if $sydneyromance is 1>>
+        Sydney looks up at you. "Are you... skipping class just to see me?"
+    <<else>>
+        Sydney looks up at you. "Classes usually start around now. Aren't you going to be late?"
+    <</if>>
+    <br><br>
+    <<sydneyOptions>>
 <<elseif _counterApproach is 1>>
     <<if ($studyBooks.stolen isnot "none" and $sydneyStolenKnown isnot 1) or $sydneyLibraryEvent is 1>>
         <<if $sydneyLibraryEvent is 1>>
@@ -101,7 +110,7 @@
         <<else>>
             <<set $sydneyStolenKnown to 1>>
         <</if>>
-        Sydney frantically searches for something behind the counter. After a few moments, <<he>> stands up, sighs, and lets <<himself>> fall back into <<his>> chair in resignation. <<He>> slowly looks up at you.
+        Sydney frantically searches for something behind the counter. After a few moments, <<he>> stands up, sighs, and lets <<himself>> fall back into <<his>> chair in resignation. A few strands of <<npcHair "Sydney">> hair drift from <<his>> head. <<He>> slowly looks up at you.
         <br><br>
         "There's a book missing," <<he>> says. "And <<Headmaster>> Leighton is going to hold me responsible for it."
         <br><br>
@@ -117,8 +126,8 @@
         Sydney looks up at you. "You've got a book overdue." <<bookCriminal>>
         <br><br>
         <<sydneyOptions>>
-    <<elseif $bookStolenAbsent>>
-        <<unset $bookStolenAbsent>>
+    <<elseif $bookStolenAbsent and $sydneyStolenKnown>>
+        <<unset $bookStolenAbsent>><<unset $sydneyStolenKnown>>
         Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
         <br><br>
         <<sydneyOptions>>
@@ -142,37 +151,6 @@
 <</if>>
 <</widget>>
 
-<<widget "sydneyOptionsTalk">>
-<<if $bus is "schoollibrary" and $sydneyPeek is 1 and $sydneyPeekConfront isnot 1>>
-    <<link [[Confront about changing room|Sydney Peek Confront]]>><<set $sydneyPeekConfront to 1>><</link>>
-    <br>
-<</if>>
-<<if $location is "school" and $sydneySeen.includes("science") and $hour is 8 and $minute gte 40>>
-    <<link [[Walk to science class (0:05)|Sydney Science Walk]]>><<pass 5>><<npcincr Sydney love 1>><</link>><<glove>>
-    <br>
-<</if>>
-<<link [[Chat (0:15)|Sydney Chat]]>><<pass 15>><<npcincr Sydney love 1>><<stress -2>><</link>><<lstress>><<glove>>
-<br>
-<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $sydneyFlirt is 1>>
-    <<link [[Flirt (0:15)|Sydney Flirt]]>><<pass 15>><<npcincr Sydney purity -1>><<stress -2>><</link>><<promiscuous1>><<lstress>><<lspurity>>
-    <br>
-<</if>>
-<<if $location is "school">>
-	<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $milkshake gte 2>>
-	<<link [[Offer milkshake (0:20)|Sydney Give Milkshake]]>><<pass 20>><<set $milkshake -= 2>><<npcincr Sydney love 1>><<stress -5>><</link>><<lstress>><<glove>>
-	<br>
-	<</if>>
-	<<if $sydneyromance is 1 and $milkshake gte 1>>
-	<<link [[Share milkshake (0:20)|Sydney Share Milkshake]]>><<pass 20>><<set $milkshake -= 1>><<npcincr Sydney love 2>><<stress -10>><</link>><<lstress>><<gglove>>
-	<br>
-	<</if>>
-    <<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40 and $sydneywalk isnot 1>>
-    <<link [[Ask to go somewhere together|Sydney Date]]>><</link>>
-	<br>
-    <</if>>
-<</if>>
-<</widget>>
-
 <<widget "sydneyOptions">>
 <<sydneySchedule>><<sydneyStatusCheck>>
 <<if $bus is "schoollibrary">>
@@ -192,7 +170,7 @@
             <<if $sydneySeen.includes("science")>>
                 Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! We're late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
             <<else>>
-                Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! I completely forgot about my schedule change, I'm late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
+                Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! I forgot about my schedule change, I'm late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
             <</if>>
             <br><br>
             <<link [[Go with Sydney|Science Sydney Late]]>><<set $eventskip to 1>><</link>>
@@ -250,6 +228,37 @@
 <</if>>
 <</widget>>
 
+<<widget "sydneyOptionsTalk">>
+<<if $bus is "schoollibrary" and $sydneyPeek is 1 and $sydneyPeekConfront isnot 1>>
+    <<link [[Confront about changing room|Sydney Peek Confront]]>><<set $sydneyPeekConfront to 1>><</link>>
+    <br>
+<</if>>
+<<if $location is "school" and $sydneySeen.includes("science") and $hour is 8 and $minute gte 45>>
+    <<link [[Walk to science class (0:05)|Sydney Science Walk]]>><<pass 5>><<npcincr Sydney love 1>><</link>><<glove>>
+    <br>
+<</if>>
+<<link [[Chat (0:15)|Sydney Chat]]>><<pass 15>><<npcincr Sydney love 1>><<stress -2>><</link>><<lstress>><<glove>>
+<br>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $sydneyFlirt is 1>>
+    <<link [[Flirt (0:15)|Sydney Flirt]]>><<pass 15>><<npcincr Sydney purity -1>><<stress -2>><</link>><<promiscuous1>><<lstress>><<lspurity>>
+    <br>
+<</if>>
+<<if $location is "school">>
+	<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $milkshake gte 2>>
+        <<link [[Offer milkshake (0:15)|Sydney Give Milkshake]]>><<pass 15>><<set $milkshake -= 2>><<npcincr Sydney love 1>><<stress -5>><</link>><<lstress>><<glove>>
+        <br>
+	<</if>>
+	<<if $sydneyromance is 1 and $milkshake gte 1>>
+        <<link [[Share milkshake (0:15)|Sydney Share Milkshake]]>><<pass 15>><<set $milkshake -= 1>><<npcincr Sydney love 2>><<stress -10>><</link>><<lstress>><<gglove>>
+        <br>
+	<</if>>
+    <<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40 and $sydneywalk isnot 1>>
+        <<link [[Ask to go somewhere together|Sydney Date]]>><</link>>
+        <br>
+    <</if>>
+<</if>>
+<</widget>>
+
 <<widget "sydneyOptionsLeave">>
 <</widget>>
 
@@ -288,7 +297,7 @@
 <<elseif $weekday is 6 and $hour gte 16 and $hour lt 20>>
     <<set _sydney_location to "shop">>
 <<elseif $schoolday is 1 and $hour gte 7>>
-    <<if $hour is 7 or $hour is 8>>
+    <<if $hour is 7 or $hour is 8 or ($hour is 9 and $sydneyScience isnot 1)>>
 		<<set _sydney_location to "library">>
     <<elseif $hour is 9>>
 		<<set _sydney_location to "science">>
@@ -308,7 +317,7 @@
 
 <<widget "sydneyStatusCheck">>
 <<set _sydneyStatus to 0>>
-<<if $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 40>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 60>>
     <<set _sydneyStatus to "pureLust">>
 <<elseif $NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 10 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
      <<set _sydneyStatus to "corruptLust">>
@@ -316,7 +325,7 @@
     <<set _sydneyStatus to "pure">>
 <<elseif $NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 10>>
     <<set _sydneyStatus to "corrupt">>
-<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
+<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 40>>
     <<set _sydneyStatus to "neutralLust">>
 <<else>>
     <<set _sydneyStatus to "neutral">>
@@ -435,6 +444,66 @@
         <</if>>
     <</if>>
 <<else>>
+<</if>>
+<</widget>>
+
+<<widget "sydneyBodywriting">>
+<<sydneyStatusCheck>>
+<<set _targets to []>>
+<<if !$skin.forehead.writing>>
+    <<set _targets.pushUnique("forehead")>>
+<</if>>
+<<if !$worn.face.type.includes("mask")>>
+    <<if !$skin.left_cheek.writing>>
+        <<set _targets.pushUnique("left_cheek")>>
+    <</if>>
+    <<if !$skin.right_cheek.writing>>
+        <<set _targets.pushUnique("right_cheek")>>
+    <</if>>
+<</if>>
+<<if ($worn.upper.exposed gte 2 or $worn.upper.open is 1) and ($worn.under_upper.exposed gte 1 or $worn.under_open is 1)>>
+    <<if !$skin.left_shoulder.writing>>
+        <<set _targets.pushUnique("left_shoulder")>>
+    <</if>>
+    <<if !$skin.right_shoulder.writing>>
+        <<set _targets.pushUnique("right_shoulder")>>
+    <</if>>
+<</if>>
+<<if _sydneyStatus.includes("corrupt")>>
+    <<if $worn.upper.exposed gte 2 and ($worn.under_upper.exposed gte 1 or $worn.under_upper.open is 1)>>
+        <<if !$skin.breasts.writing>>
+            <<set _targets.pushUnique("breasts")>>
+        <</if>>
+        <<if !$skin.back.writing>>
+            <<set _targets.pushUnique("back")>>
+        <</if>>
+    <</if>>
+    <<if ($worn.lower.exposed gte 2 or $worn.lower.anus_exposed gte 1) and ($worn.under_lower.exposed gte 1 or !$worn.under_lower.type.includes("athletic"))>>
+        <<if !$skin.left_bottom.writing>>
+            <<set _targets.pushUnique("left_bottom")>>
+        <</if>>
+        <<if !$skin.right_bottom.writing>>
+            <<set _targets.pushUnique("right_bottom")>>
+        <</if>>
+    <</if>>
+    <<if $worn.lower.exposed gte 1 and ($worn.under_lower.exposed gte 1 or !$worn.under_lower.type.includes("athletic"))>>
+        <<if !$skin.pubic.writing>>
+            <<set _targets.pushUnique("pubic")>>
+        <</if>>
+    <</if>>
+    <<if $worn.lower.vagina_exposed gte 1 and !$worn.under_lower.type.includes("athletic")>>
+        <<if !$skin.left_thigh.writing>>
+            <<set _targets.pushUnique("left_thigh")>>
+        <</if>>
+        <<if !$skin.right_thigh.writing>>
+            <<set _targets.pushUnique("right_thigh")>>
+        <</if>>
+    <</if>>
+<</if>>
+<<if _targets.length gt 0>>
+    
+<<else>>
+    <<set _writingFail to 1>>
 <</if>>
 <</widget>>
 
