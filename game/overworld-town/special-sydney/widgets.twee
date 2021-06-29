@@ -94,12 +94,12 @@
 	<<unset $schoolShopAction>>
 	<br><br>
 	<<sydneyOptions>>
-<<elseif $hour is 9 and $sydneyScience isnot 1 and $sydneyScienceWarn isnot 1>>
-    <<set $sydneyScienceWarn to 1>>
-    <<if $sydneyromance is 1>>
-        Sydney looks up at you. "Are you... skipping class just to see me?"
-    <<else>>
+<<elseif $hour is 9 and $sydneyScience isnot 1 and !$sydneyScienceWarn>>
+    <<set $sydneyScienceWarn++>>
+    <<if $sydneyScienceWarn is 1>>
         Sydney looks up at you. "Classes usually start around now. Aren't you going to be late?"
+    <<elseif $sydneyScienceWarn is 2>>
+        Sydney looks up at you. "Are you... skipping class just to see me?"
     <</if>>
     <br><br>
     <<sydneyOptions>>
@@ -135,7 +135,7 @@
         Sydney's eyes light up upon seeing you. <<He>> allows you to step behind the counter with <<him>>.
         <br><br>
         <<sydneyOptions>>
-	<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 20>>
+	<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10>>
 		Sydney smiles upon seeing you. <<sydneyGreeting>>
         <br><br>
         <<sydneyOptions>>
@@ -257,10 +257,64 @@
         <br>
     <</if>>
 <</if>>
+<<if $bus is "schoollibrary" and $NPCName[$NPCNameList.indexOf("Sydney")].love gte 50 and $trauma gte ($traumamax / 7) * 3 and $sydneyBreakdown isnot 1>>
+    <<link [[Break down (0:25)|Sydney Library Break]]>><<pass 25>><<stress -24>><<trauma -12>><<set $sydneyBreakdown to 1>><</link>><<llstress>><<lltrauma>>
+    <br>  
+<</if>>
 <</widget>>
 
 <<widget "sydneyOptionsLeave">>
 <</widget>>
+
+<<widget "sydneySexFail">>
+<br><span class="lewd"><i>Perhaps Sydney would be more open to sex if you opened <<nnpc_his "Sydney">> mind to impure thoughts, or aroused <<nnpc_him "Sydney">> enough.</i></span><br>
+<</widget>>
+
+<<widget "sydneyChastityMessage">>
+<<set $sydneyChastityKnown to 1>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity")>>
+    <br><span class="lewd"><i>Sydney might be willing to get <<nnpc_his "Sydney">> chastity device removed for someone completely pure, or if <<nnpc_his "Sydney">> mind was opened to lewdity.</i></span><br>
+<</if>>
+<</widget>>
+
+<<widget "sydneyLewd">>
+<<if !$sydneySeen.includes("lewd")>>
+    <<set $sydneySeen.pushUnique("lewd")>>
+    <<if _sydneyStatus.includes("corrupt")>>
+        "<span class="green">I've been waiting a long time to do something like this with you.</span> I'd never imagine doing it with anyone else."
+    <<else>>
+        "<span class="green">I've never done anything like this before.</span> I'm scared." You spend some time reassuring <<him>>, telling <<him>> you'll stop if <<he>> asks. Eventually, <<he>> agrees. "I... I trust you."
+    <</if>>
+<</if>>
+<</widget>>
+
+<<widget "sydneyExpose">>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity")>>
+    <<if $sydneyChastityKnown is 1>>
+        You get a glimpse of <<his>> <<sydneyGenitals "short">> behind <<his>> chastity belt.
+    <<else>>
+        <<set $sydneyChastityKnown to 1>>
+        <span class="lewd">You see a chastity belt protecting <<him>>.</span> "I... should have mentioned that. Sorry."
+    <</if>>
+<<else>>
+    You get an unobstructed view of <<his>> <<sydneyGenitals>>.
+<</if>>
+<</widget>>
+
+<<widget "sydneyGenitals">>
+<<set _text_output to "">>
+<<if ($NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity")) and $args[0] isnot 'short' and $sydneyChastityKnown is 1>>
+    <<set _text_output += "protected ">>
+<</if>>
+<<if $args[0] isnot 'short' and (($NPCName[$NPCNameList.indexOf("Sydney")].virginity.penile is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m") or ($NPCName[$NPCNameList.indexOf("Sydney")].virginity.vaginal is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "f"))>>
+    <<set _text_output += "virgin ">>
+<</if>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m">>
+    <<set _text_output += "penis">>
+<<else>>
+    <<set _text_output += "pussy">>
+<</if>>
+<<print _text_output>><</widget>>
 
 <<widget "sydneyPendant">>
 <<if !$sydneySeen.includes("pendant")>>
@@ -316,7 +370,7 @@
 <</widget>>
 
 <<widget "sydneyStatusCheck">>
-<<set _sydneyStatus to 0>>
+<<set _sydneyStatus to "">>
 <<if $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 60>>
     <<set _sydneyStatus to "pureLust">>
 <<elseif $NPCName[$NPCNameList.indexOf("Sydney")].corruption gte 10 and $NPCName[$NPCNameList.indexOf("Sydney")].lust gte 20>>
@@ -329,6 +383,9 @@
     <<set _sydneyStatus to "neutralLust">>
 <<else>>
     <<set _sydneyStatus to "neutral">>
+<</if>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity")>>
+    <<set _sydneyChastity to 1>>
 <</if>>
 <</widget>>
 
@@ -379,7 +436,7 @@
         <span class="red">You instinctively smack the marker away.</span> Sydney pouts at you. <<detention 3>><<gdelinquency>><<npcincr Sydney love -2>><<llove>>
     <<else>>
         <<if _bodywriting_exposed gte 1 and $skin[_bodypart].special is "Sydney">>
-            However, <<he>> stops upon seeing the <<tattoo _bodypart>> on your _bodypart. <<His>> face begins to turn a bright red. You catch <<him>> looking into your eyes, before looking away again. "B...be more courteous next time, please. You may go."
+            However, <<he>> stops upon seeing the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. <<His>> face begins to turn a bright red. You catch <<him>> looking into your eyes, before looking away again. "B...be more courteous next time, please. You may go."
         <<elseif !$skin.forehead.writing>>
             <<He>> scribbles something on your forehead, and holds up a small pocket mirror. Your forehead now reads: <<bodywriting_npc_sydney_book forehead "marker">>
             <<if $sydneyromance is 1>>
@@ -447,105 +504,79 @@
 <</if>>
 <</widget>>
 
-<<widget "sydneyBodywriting">>
+<<widget "sydneyBodywritingLocation">>
 <<sydneyStatusCheck>>
 <<set _targets to []>>
-<<if !$skin.forehead.writing>>
-    <<set _targets.pushUnique("forehead")>>
-<</if>>
+<<set _targets.pushUnique("forehead")>>
 <<if !$worn.face.type.includes("mask")>>
-    <<if !$skin.left_cheek.writing>>
-        <<set _targets.pushUnique("left_cheek")>>
-    <</if>>
-    <<if !$skin.right_cheek.writing>>
-        <<set _targets.pushUnique("right_cheek")>>
-    <</if>>
+    <<set _targets.pushUnique("left_cheek")>>
+    <<set _targets.pushUnique("right_cheek")>>
 <</if>>
-<<if ($worn.upper.exposed gte 2 or $worn.upper.open is 1) and ($worn.under_upper.exposed gte 1 or $worn.under_open is 1)>>
-    <<if !$skin.left_shoulder.writing>>
-        <<set _targets.pushUnique("left_shoulder")>>
-    <</if>>
-    <<if !$skin.right_shoulder.writing>>
-        <<set _targets.pushUnique("right_shoulder")>>
-    <</if>>
-<</if>>
+<<set _targets.pushUnique("left_shoulder")>>
+<<set _targets.pushUnique("right_shoulder")>>
 <<if _sydneyStatus.includes("corrupt")>>
     <<if $worn.upper.exposed gte 2 and ($worn.under_upper.exposed gte 1 or $worn.under_upper.open is 1)>>
-        <<if !$skin.breasts.writing>>
-            <<set _targets.pushUnique("breasts")>>
-        <</if>>
-        <<if !$skin.back.writing>>
-            <<set _targets.pushUnique("back")>>
-        <</if>>
+        <<set _targets.pushUnique("breasts")>>
+        <<set _targets.pushUnique("back")>>
     <</if>>
     <<if ($worn.lower.exposed gte 2 or $worn.lower.anus_exposed gte 1) and ($worn.under_lower.exposed gte 1 or !$worn.under_lower.type.includes("athletic"))>>
-        <<if !$skin.left_bottom.writing>>
-            <<set _targets.pushUnique("left_bottom")>>
-        <</if>>
-        <<if !$skin.right_bottom.writing>>
-            <<set _targets.pushUnique("right_bottom")>>
-        <</if>>
+        <<set _targets.pushUnique("left_bottom")>>
+        <<set _targets.pushUnique("right_bottom")>>
     <</if>>
     <<if $worn.lower.exposed gte 1 and ($worn.under_lower.exposed gte 1 or !$worn.under_lower.type.includes("athletic"))>>
-        <<if !$skin.pubic.writing>>
-            <<set _targets.pushUnique("pubic")>>
-        <</if>>
+        <<set _targets.pushUnique("pubic")>>
     <</if>>
     <<if $worn.lower.vagina_exposed gte 1 and !$worn.under_lower.type.includes("athletic")>>
-        <<if !$skin.left_thigh.writing>>
-            <<set _targets.pushUnique("left_thigh")>>
-        <</if>>
-        <<if !$skin.right_thigh.writing>>
-            <<set _targets.pushUnique("right_thigh")>>
-        <</if>>
+        <<set _targets.pushUnique("left_thigh")>>
+        <<set _targets.pushUnique("right_thigh")>>
     <</if>>
 <</if>>
+<<set _targets to _targets.filter( target => !$skin[target].writing )>>
 <<if _targets.length gt 0>>
-    
+	<<set $rng to random(0, (_targets.length -1))>>
+    <<set _bodypart to _targets[$rng]>>
 <<else>>
     <<set _writingFail to 1>>
 <</if>>
 <</widget>>
 
-<<widget "sydneymum">>
+<<widget "sydneyBodywriting">>
+<<if $args[0]>>
+    <<add_bodywriting _bodypart $args[0] "marker">>
+    <<bodywriting_finalisation _bodypart>>
+<</if>>
+<</widget>>
+
+<<widget "sydneymum">><<silently>>
 <<if $NPCName[$NPCNameList.indexOf("Sirris")].pronoun is "m">>
 	<<set _text_output to "dad">>
 <<else>>
 	<<set _text_output to "mum">>
 <</if>>
-<<print _text_output>>
-<</widget>>
+<</silently>><<print _text_output>><</widget>>
 
-<<widget "sydneyMum">>
+<<widget "sydneyMum">><<silently>>
 <<sydneymum>><<set _text_output to _text_output.toLocaleUpperFirst()>>
-<<print _text_output>>
-<</widget>>
+<</silently>><<print _text_output>><</widget>>
 
-<<widget "sydneymother">>
+<<widget "sydneymother">><<silently>>
 <<if $NPCName[$NPCNameList.indexOf("Sirris")].pronoun is "m">>
 	<<set _text_output to "father">>
 <<else>>
 	<<set _text_output to "mother">>
 <</if>>
-<<print _text_output>>
-<</widget>>
+<</silently>><<print _text_output>><</widget>>
 
-<<widget "sydneyMother">>
+<<widget "sydneyMother">><<silently>>
 <<sydneymother>><<set _text_output to _text_output.toLocaleUpperFirst()>>
-<<print _text_output>>
-<</widget>>
+<</silently>><<print _text_output>><</widget>>
 
-<<widget "sydneyGenitals">><<silently>>
-<<set _text_output to "">>
-<<if $NPCName[$NPCNameList.indexOf("Sydney")].chastity.penis.includes("chastity") or $NPCName[$NPCNameList.indexOf("Sydney")].chastity.vagina.includes("chastity")>>
-    <<set _text_output += "protected ">>
-<</if>>
-<<if ($NPCName[$NPCNameList.indexOf("Sydney")].virginity.penile is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m") or ($NPCName[$NPCNameList.indexOf("Sydney")].virginity.vaginal is true and $NPCName[$NPCNameList.indexOf("Sydney")].gender is "f")>>
-    <<set _text_output += "virgin ">>
-<</if>>
-<<if $NPCName[$NPCNameList.indexOf("Sydney")].gender is "m">>
-    <<set _text_output += "penis">>
-<<else>>
-    <<set _text_output += "pussy">>
+<<widget "sydneyGlasses">><<silently>>
+<<if $sydneyGlasses is "glasses">>
+    <<set _text_output to "glasses">>
+<<elseif $sydneyGlasses is "broken" or $sydneyGlasses is "playerbroken">>
+    <<set _text_output to "broken glasses">>
+<<elseif $sydneyGlasses is "contacts">>
+    <<set _text_output to "contacts">>
 <</if>>
 <</silently>><<print _text_output>><</widget>>
