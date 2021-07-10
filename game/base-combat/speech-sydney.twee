@@ -1,6 +1,6 @@
 :: Widgets speech-SYDNEY [widget]
 <<widget "speech-sydney">>
-<<sydneyStatusCheck>><<set $rng to random(0,100)>>
+<<sydneyStatusCheck>><<set $rng to random(1, 100)>>
 <<if !$sydneyComments>>
 	<<set $sydneyComments to {}>>
 	<<set $sydneyUniqueComments to []>>
@@ -527,7 +527,7 @@
 	<<switch _sydneyStatus>>
 		<<case "pure" "pureLust">>
 			<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
-				<<set _sydneyText to `<<He>> stifles <<printAnd>> moans. "I... I think... something's coming..."`>>
+				<<set _sydneyText to `<<He>> stifles a moan. "I... I think... something's coming..."`>>
 			<<elseif $enemyarousal gte ($enemyarousalmax / 5) * 2>>
 				<<set _sydneyText to `<<He>> gasps. "Th... this is called foreplay, right?"`>>
 			<<else>>
@@ -593,7 +593,7 @@
 			<<if $rng lte 35>>
 				<<set _sydneyText to `<<He>> speaks. "I'll stick my fingers in your mouth after this, so you can taste yourself."`>>
 			<<elseif $rng lte 70>>
-				<<set _sydneyText to `<<He>> speaks. "Just relax, and let me take care of this."`>>
+				<<set _sydneyText to `<<He>> speaks. "Just relax, <<printAnd>> let me take care of this."`>>
 			<<else>>
 				<<set _sydneyText to `<<He>> giggles. "Make sure to keep it down!"`>>
 			<</if>>
@@ -621,7 +621,7 @@
 			<<if $rng lte 35>>
 				<<set _sydneyText to `<<He>> speaks. "I'm going to wring you dry."`>>
 			<<elseif $rng lte 70>>
-				<<set _sydneyText to `<<He>> speaks. "Just relax, and let me take care of this."`>>
+				<<set _sydneyText to `<<He>> speaks. "Just relax, <<printAnd>> let me take care of this."`>>
 			<<else>>
 				<<set _sydneyText to `<<He>> giggles. "Make sure to keep it down!"`>>
 			<</if>>
@@ -649,7 +649,7 @@
 			<<if $rng lte 35>>
 				<<set _sydneyText to `<<He>> speaks. "Maybe we should stick something bigger in there."`>>
 			<<elseif $rng lte 70>>
-				<<set _sydneyText to `<<He>> speaks. "Just relax, and let me take care of this."`>>
+				<<set _sydneyText to `<<He>> speaks. "Just relax, <<printAnd>> let me take care of this."`>>
 			<<else>>
 				<<set _sydneyText to `<<He>> giggles. "Make sure to keep it down!"`>>
 			<</if>>
@@ -685,13 +685,108 @@
 			<<if $rng lte 35>>
 				<<set _sydneyText to `<<He>> speaks. "You're staring. At least let me look at yours, too..."`>>
 			<<elseif $rng lte 70>>
-				<<set _sydneyText to `<<He>> speaks. "What are you going to do?"`>>
+				<<set _sydneyText to `<<He>> speaks. "What are you going <<printto>> do?"`>>
 			<<else>>
 				<<set _sydneyText to `<<He>> speaks. "W...well? Don't just stand there..."`>>
 			<</if>>
 	<</switch>>
 <<else>>
-	/* Say Nothing */
+	<<if $rng gte 95 and !$sydneyUniqueComments.includes("clothes")>>
+		<<set $sydneyUniqueComments.pushUnique("clothes")>>
+		<<if $worn.upper.name is "nun's habit" or $worn.upper.name is "monk's habit">>
+			<<if _sydneyStatus.includes("corrupt")>>
+				<<set _sydneyText to `<<He>> runs <<his>> hands over your $worn.upper.name. <<He>> almost seems nostalgic. <<npcincr Sydney purity 2>><<gspurity>>`>>
+			<<else>>
+				<<set _sydneyText to `<<He>> looks over your $worn.upper.name. "Does... wearing that make this all okay?" <<npcincr Sydney purity 2>><<gspurity>>`>>
+			<</if>>
+		<<elseif $worn.neck.name is "holy pendant" or $worn.neck.name is "stone pendant">>
+			<<set $sydneySeen.pushUnique("holy pendant")>>
+			<<if _sydneyStatus.includes("corrupt")>>
+				<<set _sydneyText to `<<He>> stares at your $worn.neck.name. <<He>> almost seems nostalgic. <<npcincr Sydney purity 2>><<gspurity>>`>>
+			<<else>>
+				<<set _sydneyText to `<<He>> looks over your $worn.neck.name. "Does... wearing that make this all okay?" <<npcincr Sydney purity 2>><<gspurity>>`>>
+			<</if>>
+		<<elseif $worn.neck.name is "dark pendant">>
+			<<set $sydneySeen.pushUnique("dark pendant")>>
+			<<if _sydneyStatus.includes("corrupt")>>
+				<<set _sydneyText to `<<He>> stares at your $worn.neck.name. <<He>> seems to get lost in it for a moment. <<npcincr Sydney purity -2>><<lspurity>>`>>
+			<<else>>
+				<<set _sydneyText to `<<He>> looks over your $worn.neck.name. "It's... so pretty, but also a little unsettling..." <<npcincr Sydney purity -2>><<lspurity>>`>>
+			<</if>>
+		<<elseif $location is "school" and $exposed lte 0 and (!$worn.upper.type.includes("school") and !$worn.lower.type.includes("school"))>>
+			<<if _sydneyStatus.includes("corrupt")>>
+				<<set _sydneyText to `<<He>> looks over your clothes, and giggles. "That's not proper school uniform. Don't worry, I can help you take it off." <<set $combatgoal to "strip">>`>>
+			<<else>>
+				<<set _sydneyText to `<<He>> looks over your clothes. "Y-you should really adhere to the dress code, before you get in trouble..."`>>
+			<</if>>
+		<<elseif $exposed gte 1>>
+			<<if _sydneyStatus.includes("corrupt")>>
+				<<set _sydneyText to `<<He>> looks over your body, and giggles. "You look even better all exposed like this." <<npcincr Sydney lust 1>><<glust>>`>>
+			<<else>>
+				<<set _sydneyText to `<<He>> shyly looks over your exposed body. "Y-youre... you look... uhm..." <<he>> looks away for a moment. "You look good." <<npcincr Sydney lust 1>><<npcincr Sydney purity -2>><<gslust>><<lspurity>>`>>
+			<</if>>		
+		<<else>>
+			/* Say Nothing */
+			<<set _sydneyText to ``>>
+		<</if>>	
+	<<elseif $rng gte 90>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> murmurs. "Sorry, I don't really know what I'm doing..."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> speaks. "We sure know how to have fun."`>>
+			<<default>>
+				<<set _sydneyText to `"I used to get so nervous about this kind of thing..."`>>
+		<</switch>>
+	<<elseif $rng gte 85>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> speaks. "This is... so sinful..."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> speaks. "You've opened my eyes, being a sinner is too much fun!"`>>
+			<<default>>
+				<<set _sydneyText to `<<He>> speaks. "I was always taught that this was sinful, but..."`>>
+		<</switch>>
+	<<elseif $rng gte 80>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> murmurs. "N...not too rough, please..."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> speaks. "I can handle anything you have for me. Come on, show me what you've got!"`>>
+			<<default>>
+				<<set _sydneyText to `<<He>> speaks. "I... you can be a little rough, if you want..."`>>
+		<</switch>>
+	<<elseif $rng gte 75>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> takes a deep breath. "I... I can do this."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> speaks. "Think you can keep up?"`>>
+			<<default>>
+				<<set _sydneyText to `<<He>> speaks. "I think I can keep pace with you, now."`>>
+		<</switch>>
+	<<elseif $rng gte 70>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> takes a deep breath. "We... need to stay quiet..."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> giggles. "Shh!"`>>
+			<<default>>
+				<<set _sydneyText to `<<He>> speaks. "Let's try not to get caught..."`>>
+		<</switch>>
+	<<elseif $rng gte 65>>
+		<<switch _sydneyStatus>>
+			<<case "pure" "pureLust">>
+				<<set _sydneyText to `<<He>> looks upwards. "Forgive me..."`>>
+			<<case "corrupt" "corruptLust">>
+				<<set _sydneyText to `<<He>> giggles. "Looks like I'm due for some discipline. Maybe you can punish me?"`>>
+			<<default>>
+				<<set _sydneyText to `<<He>> giggles. "I've sinned... is this my punishment?"`>>
+		<</switch>>	
+	<<else>>
+		/* Say Nothing */
+		<<set _sydneyText to ``>>
+	<</if>>
 <</if>>
 <<if $sydneyComments>>
 	<<set _keys to Object.keys($sydneyComments)>>
@@ -702,11 +797,3 @@
 	<</for>>
 <</if>>
 <</widget>>
-
-<<set _sydneyText to `<<He>> speaks. "This is... so sinful..."`>>
-
-<<switch _sydneyStatus>>
-	<<case "pure" "pureLust">>
-	<<case "corrupt" "corruptLust">>
-	<<default>>
-<</switch>>
