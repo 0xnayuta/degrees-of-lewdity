@@ -92,7 +92,10 @@
 	<<unset $schoolShopAction>>
 	<br><br>
 	<<sydneyOptions>>
-<<elseif $hour is 9 and $sydneyScience isnot 1 and !$sydneyScienceWarn>>
+<<elseif $hour is 9 and $sydneyScience isnot 1 and $sydneyScienceWarn isnot 2>>
+	<<if !$sydneyScienceWarn>>
+		<<set $sydneyScienceWarn to 0>>
+	<</if>>
 	<<set $sydneyScienceWarn++>>
 	<<if $sydneyScienceWarn is 1>>
 		Sydney looks up at you. "Classes usually start around now. Aren't you going to be late?"
@@ -129,8 +132,12 @@
 		Sydney is beaming. "That missing book turned up! I have no idea what happened, but it's back now. I'm so relieved." <<stress 2>><<gstress>>
 		<br><br>
 		<<sydneyOptions>>
+	<<elseif $sydneyGlasses is "broken" or $sydneyGlasses is "playerbroken">>
+		Sydney squints through <<his>> broken glasses as you approach, but smiles when <<he>> realizes it's you.
+		<br><br>
+		<<sydneyOptions>>
 	<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40>>
-		Sydney's eyes light up upon seeing you. <<He>> allows you to step behind the counter with <<him>>.
+		Sydney's eyes light up upon seeing you. <<He>> allows you to step behind the counter with <<him>>. "I can always make time for you."
 		<br><br>
 		<<sydneyOptions>>
 	<<elseif $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10>>
@@ -143,7 +150,16 @@
 		<<sydneyOptions>>
 	<</if>>
 <<else>>
-	Sydney looks busy.
+	<<switch random(1, 6)>>
+		<<case 1>>
+			Sydney tries to focus on <<his>> work, while also paying attention to you. <<if $sydneyGlasses is "broken" or $sydneyGlasses is "playerbroken">> <<His>> <<sydneyGlasses>> seem to be making it difficult.<</if>>
+		<<case 2>>
+			Sydney yawns.
+		<<case 3>>
+			Sydney stamps through a stack of papers.
+		<<default>>
+		/* Say Nothing */
+	<</switch>>
 	<br><br>
 	<<sydneyOptions>>
 <</if>>
@@ -165,11 +181,7 @@
 			<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
 		<<case "science">>
-			<<if $sydneySeen.includes("science")>>
-				Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! We're late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
-			<<else>>
-				Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! I forgot about my schedule change, I'm late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
-			<</if>>
+			Sydney's eyes grow wide. "Sh<<if _sydneyStatus.includes("corrupt")>>i<<else>>oo<</if>>t! We're late for science class!" <<He>> begins to quickly pack up <<his>> things. "<<sydneyMum>>'s gonna kill me..."
 			<br><br>
 			<<link [[Go with Sydney|Science Sydney Late]]>><<set $eventskip to 1>><</link>>
 			<br>
@@ -214,7 +226,7 @@
 				<!-- Currently Unobtainable, will be able to help set up shop in the future. -->
 				"It's closing time. I'm off to help set up the new shop." <<He>> gathers <<his>> things,<<if $sydneyromance is 1>> kisses you on the cheek,<</if>> and starts to lead any lingering students out of the library.
 			<<else>>
-				"It's closing time. I'm off to help my <<sydneymum>> set up the new shop in town." <<He>> gathers <<his>> things,<<if $sydneyromance is 1>> kisses you on the cheek,<</if>> and starts to lead any lingering students out of the library. <<if $sydneySeen.includes("mass") or $sydneySeen.includes("initiate")>>Once <<he>> exits, you notice that <<hes>> not heading towards the temple, and instead towards High Street.<</if>> 
+				"It's closing time. I'm off to help my <<sydneymum>> set up the new shop in town." <<He>> gathers <<his>> things,<<if $sydneyromance is 1>> kisses you on the cheek,<</if>> and starts to lead any lingering students out of the library. <<if $sydneySeen.includes("mass") or $sydneySeen.includes("initiate")>>Once <<he>> exits, you notice that <<hes>> not heading towards the temple, and instead towards Elk Street.<</if>>
 			<</if>>
 			<br><br>
 			<<link [[Leave|School Library]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -237,7 +249,7 @@
 <</if>>
 <<link [[Chat (0:15)|Sydney Chat]]>><<pass 15>><<npcincr Sydney love 1>><<stress -2>><</link>><<lstress>><<glove>>
 <br>
-<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and $sydneyFlirt is 1>>
+<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 10 and ($sydneyFlirt is 1 or $sydneyromance is 1)>>
 	<<link [[Flirt (0:15)|Sydney Flirt]]>><<pass 15>><<npcincr Sydney purity -1>><<stress -2>><</link>><<promiscuous1>><<lstress>><<lspurity>>
 	<br>
 <</if>>
@@ -252,6 +264,9 @@
 	<</if>>
 	<<if $NPCName[$NPCNameList.indexOf("Sydney")].love gte 40 and $sydneywalk isnot 1>>
 		<<link [[Ask to go somewhere together|Sydney Date]]>><</link>>
+		<br>
+	<<elseif $sydneyGlasses is "broken" or $sydneyGlasses is "playerbroken">>
+		<<link [["Offer to replace " + $NPCList[_j].pronouns.his + " glasses"|Sydney Date]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -283,6 +298,9 @@
 	<<else>>
 		"<span class="green">I've never done anything like this before.</span> I'm scared." You spend some time reassuring <<him>>, telling <<him>> you'll stop if <<he>> asks. Eventually, <<he>> agrees. "I... I trust you."
 	<</if>>
+<</if>>
+<<if $sydneyGlasses isnot "contacts">>
+	<<He>> removes <<his>> <<sydneyGlasses>>.
 <</if>>
 <</widget>>
 
@@ -348,12 +366,16 @@
 	<</if>>
 <<elseif $weekday is 6 and $hour gte 16 and $hour lt 20>>
 	<<set _sydney_location to "shop">>
-<<elseif $schoolday is 1 and $hour gte 7>>
-	<<if $hour is 7 or $hour is 8 or ($hour is 9 and $sydneyScience isnot 1)>>
+<<elseif $schoolday is 1>>
+	<<if $hour gte 6 and $hour lte 9 and $sydneyLate is 1>>
+		<<set _sydney_location to "temple">>
+	<<elseif $hour is 6>>
+		<<set _sydney_location to "temple">>
+	<<elseif $hour is 7 or $hour is 8 or ($hour is 9 and $sydneyScience isnot 1)>>
 		<<set _sydney_location to "library">>
 	<<elseif $hour is 9>>
 		<<set _sydney_location to "science">>
-	<<elseif $schoolstate is "lunch" and $luncheaten isnot 1>>
+	<<elseif $schoolstate is "lunch" and $luncheaten isnot 1 and $minute lte 15>>
 		<<set _sydney_location to "canteen">>
 	<<elseif $hour lte 16>>
 		<<set _sydney_location to "library">>
@@ -393,13 +415,27 @@
 <<widget "sydneyGreeting">>
 <<if $sydney_dailyGreeting is undefined>>
 	<<set $sydney_dailyGreeting to 1>>
-	<<if $hour lte 3 or $hour gte 18>>
-		"Good evening," <<he>> says.
-	<<elseif $hour lte 12>>
-		"Good morning..." <<he>> yawns out.
+	<<if $sydneyromance is 1>>
+		<<if $hour lte 3 or $hour gte 18>>
+			"Good evening, my beloved," <<he>> says before kissing you on the cheek.
+		<<elseif $hour lte 12>>
+			"Good morning, my beloved," <<he>> says before kissing you on the cheek.
+		<<else>>
+			"Good afternoon, my beloved," <<he>> says before kissing you on the cheek.
+		<</if>>
 	<<else>>
-		"Good afternoon," <<he>> says.
+		<<if $hour lte 3 or $hour gte 18>>
+			"Good evening," <<he>> says.
+		<<elseif $hour lte 12>>
+			"Good morning..." <<he>> yawns out.
+		<<else>>
+			"Good afternoon," <<he>> says.
+		<</if>>
 	<</if>>
+<</if>>
+<<if $sydneyGlassesNotice>>
+	<<unset $sydneyGlassesNotice>>
+	<<He>> seems to have gotten a new pair of glasses.
 <</if>>
 <</widget>>
 
@@ -572,6 +608,14 @@
 
 <<widget "sydneyMother">><<silently>>
 <<sydneymother>><<set _text_output to _text_output.toLocaleUpperFirst()>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "sydneyOtherParent">><<silently>>
+<<if $NPCName[$NPCNameList.indexOf("Sirris")].pronoun is "m">>
+	<<set _text_output to "mother">>
+<<else>>
+	<<set _text_output to "father">>
+<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "sydneyGlasses">><<silently>>
