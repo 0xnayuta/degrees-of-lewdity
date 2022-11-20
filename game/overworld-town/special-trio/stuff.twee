@@ -64,6 +64,38 @@ Docility or tameness seem good if the idea of being proactive about it isn't imp
 <<set $petscore to 0>><!-- this is for how "in character" you are, probably replaced with $petness -->
 <<set $petness to 0>><!-- how used to acting like a pet you are -->
 <<set $petobedience to 0>><!-- obedience decides how strict the trio is -->
+<!-- For more detailed obedience what would be good way to do it? -->
+<!--
+obedience to Jean/Noel/Kallen gently/mockingly/commandingly/neutrally ordering you to do a specific thing
+Making it actually care about the specific combination seems like too much trouble to actually do but doing it in a way that doesn't prevent caring about it someday should be easy enough.
+So have a short obedience log with who, how and what was ordered and your reaction to it that gets processed once a day to three entirely separate scores, obedience to specific individuals, styles of orders you like/obey and what sort of things you obey. Disobedience should be different from just not getting orders so each thing should have two values, counts for times obeyed and times disobeyed.
+What about disobeying set rules such as talking or standing after it's been established those aren't allowed? And what about proactively obeying rules or doing things?
+Maybe just a general pet action log that to an extent doubles as a diary.
+	Which remind me of the idea to allow eventually writing sort of separate diary for the pet you to fully disassociate from your regular life and get separate trauma stat or such. So change entries from saying "I did" to "$petname did" and such.
+But that still requires game being able to understand the actions in some meaningful way so have a stat for obedience to rules/trio as a whole and count things you do or don't do without being ordered towards that.
+Enthusiasm and proactivity can be handled just with trio's love, dom and lust stats and your petness.
+	In theory could try to do obedience just with trio's dom stats so the more obedient you are higher their dom stats are.
+Ok so... 
+<<set $petlog to [
+	[["Trio"],["rule"],["allFours"],1],
+	[["Jean"],["nice","shy"],["sit"],1],
+	[["Kallen"],["rude","bitch"],["paw"],0],
+	[["Trio"],["rule"],["noSpeech"],0],
+	[["Noel"],["firm","repeat"],["paw"],1],
+	[["Noel","Jean"],[],["walk"],1],
+]>>/*just a log example*/
+-->
+<!--Realized that stuff like shyly calling you a bitch and such would need multiple styletags, could've tried adding some name thing where what you're called when ordered is a separate thing but just having that as another style seems fine.-->
+<!-- repeat is for when an order is repeated differently after you've refused it once already-->
+<!-- stuff like being walked by two of the trio doesn't seem like it'd really have a suitable styletag but it still should be in the log-->
+<<set $petlog to []>>
+<<set $petobedience to {
+	towards:{Jean:[0,0], Noel:[0,0], Kallen:[0,0], Trio:[0,0], Stranger:[0,0]},
+	styletags:{firm:[0,0], shy::[0,0], rude:[0,0], nice:[0,0], rule:[0,0], repeat:[0,0], bitch:[0,0]}
+	task:{sit:[0,0], paw:[0,0], fetch:[0,0], noSpeech:[0,0], allFours:[0,0], walk:[0,0]}
+	}>>	
+
+<!-- -->
 <<set $triogender to "m">>
 <<set $peteventbag to []>>
 
@@ -91,20 +123,31 @@ Docility or tameness seem good if the idea of being proactive about it isn't imp
 <<run $peteventbag.shuffle>>
 
 
-You see a group of kids/boys/girls hanging around
+You see a group of three kids/boys/girls hanging around
+<<if $schoolday and $rng % 4>>They're wearing a school unform but you don't recognise them.<</if>>
 
-[[Approach the kids|Park kids]]
+<<link [[Approach the trio|Park trio]]>><<set $phase to 0>><</link>>
+/*[[Move closer to the trio|Park trio]]*/
 
 :: Park trio [nobr]
 <<if $phase is 0>>
-  They notice you but quickly decide to ignore you. They don't know you and you are/seem like a boy/girl
-
-  <<link [[Stick around|Park trio]]>><<set $phase to 3>><</link>>
-  <br>
-  <<link [[Talk to them|Park trio]]>><<set $phase to 1>><</link>>
-  <br>
-  <<link [[Leave|Park]]>><<set $phase to 0>><</link>>
-  <br>
+  They notice you but quickly decide to ignore you. /*They don't know you and you are/seem like a boy/girl*/
+	/* doing some exhibitionism might make more sense here instead of after talking to them but not sure how or if it happening here would lead to potentially becoming their pet, hmm maybe that'd be the path where they "capture" you more forcefully */
+	
+	/*<<if $trioparkshow gte 1 and _notTheSameDayAsPreviousShow>>*/
+	<<if $trioparkshow gte 1 and $trioparkshow lt £days>>
+		<<link [[Give them a show again|Park trio teasing]]>><<set $phase to 2>><</link>>
+		<br>
+	<<elseif _lewdappearance and $trioparkshow is undefined>>
+		<<link [[Give them a show|Park trio teasing]]>><</link>>
+		<br>
+	<</if>>
+	<<link [[Stick around|Park trio]]>><<set $phase to 3>><</link>>
+	<br>
+	<<link [[Talk to them|Park trio]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[Leave|Park]]>><<set $phase to 0>><</link>>
+	<br>
 <</if>>
 
 
@@ -118,12 +161,31 @@ You walk to them and just as you've opened your mouth to say something one of th
 "Ew, a boy, please leave."
 "We don't know you and we'd rather keep it that way so leave."
 */
+<<if >>
+<<set _lewdappearance to true>>
+<<br>>
+Despite their words you notice them sneaking a few looks  
+<<if breasts>>at your chest
+<<elseif >>at your skirt/underwear
+<<else>>at the way you're dressed
+<</if>>
+<</if>>
+
 /* since I'm not really interested in this leading to anything  I'd probably have them just not understand what you're suggesting */
-<<if $promiscuity gte 55>>
-  <<link [[Seduce them "Are you sure about that?"|Park]]>><</link>><br><<promiscuous4>>
+/* Actually making it still lead to becoming their pet could be great */
+<<if $promiscuity gte 10>>
+  <<link [[Try to seductively convince them|Park trio seduction]]>><</link>><br><<promiscuous1>>
+  <br>
+<<else>>
+  <<link [[Try to convince them"|Park trio seduction]]>><</link>><br>
   <br>
 <</if>>
-  <<link [[Stick around nearby without bothering them (0:30)|Park trio]]>><</link>>
+<<if _lewdappearance>>
+  <<link [[Tease them by giving them something more to look at|Park trio teasing]]>><</link>><br><<exhibitionism1>>
+  <br>
+<</if>>
+<</if>>
+  <<link [[Stick around nearby without bothering them (0:30)|Park trio]]>><<set $phase to 2>><</link>>
   <br>
 
   <<link [[Leave them alone|Park]]>><</link>>
@@ -140,6 +202,12 @@ if defiant "Make me"
 Time passes and looking at them having fun relaxes you even if you aren't having fun with them.
 
 At some point they stop to talk about something before one of them yells at you "Hey you! Come here."
+<br>
+<<link [[Come over|Park trio]]>><<set $phase to 4>><</link>>
+<br>
+<<link [[Leave|Park]]>><</link>>
+<br>
+<</if>>
 
 <<if $phase is 4>>
 "Spill it, what do you want from us? You keep hanging around like some creep."
@@ -219,6 +287,46 @@ daily could also work if most of the time you get something simple like a normal
 
 
 */
+
+:: Park trio seduction 1[nobr]
+/*Point of doing this over other options would be to avoid no speaking rule from the get go and make them more aroused*/
+You ask "Are you sure about that?" in the cutest and most seductive way you can manage, "I'm sure we could work something out." You wiggle your butt a bit <<if $breastsize? > 2>>and push your breasts together<</if>>
+
+/*Different results based on your success*/
+<<if seductionrating = 0>>
+	They don't seem convinced.
+	<br>
+	"Yeah, we're sure, right <<trioguys>>?" "Yeah, we can't just break our code." "Actually, you've always wanted a pet right?" <<noel's adjective>> one asks <<jean's adjective>> one
+	<<if _sorry>>
+	"I do feel a bit sorry for <<pher>> and our code doesn't say anything about adopting pets so if she agreed to be one we could in theory accept her."
+	<<else>>
+	"<<pShe>> did suggest we probably could work something out and having <<pher>> be our pet would give us the pet we've been wanting and let <<pher>> join us without breaking our code."
+	<</if>>
+
+<<elseif seductionrating = 1>>
+	It clearly has an effect on them.
+	<br>
+	"Ah... Umm" "Well..."
+	/*"I want a dog!" "Be our dog!"*/
+	/*
+	maybe present it more as a last ditch effort by one of them to avoid "losing" to you by asking something there's no way you'd accept]
+	[back out option? where you go "Ah, well that's a bit too much don't you think?" or so and get them to sort of smugly mock you and such which allows you to more meekly accept or actually back out.]
+	*/
+	"Don't let <<her>> trick you!" <<noel's adjective>> one of them says. "We're not accepting any new members into our group!" "But..." the other two don't seem quite convinced so the <<noel's adjective>> one continues "Only way we could accept <<her>> without breaking our code is if she became our pet but there's no way <<she>> would agree to that!" The two turn to look at you with hope in their eyes.
+<<elseif seductionrating = 2>>
+It clearly has an effect on them.
+<br>
+"Ah... Umm" "Well..."
+<</if>>
+
+
+:: Park trio seduction 2[nobr]
+"Oh, I can be your dog if you want me to."
+You get on all fours and crawl towards them.
+"Woof woof, won't you take this poor little dog into your care?"
+"..." "F-Fine." "If y-you'll be our pet I suppose it's fine" "Yeah, that's right, our /*rules don't*/code doesn't say anthing about not getting a pet!"
+
+
 :: Trio pet greet [nobr]
 
 You approach 
