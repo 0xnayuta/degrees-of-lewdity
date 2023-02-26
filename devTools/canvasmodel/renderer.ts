@@ -1,4 +1,5 @@
 ///<reference path="model.d.ts"/>
+import tinycolor from "tinycolor2";
 
 /*
  * Created by aimozg on 29.08.2020.
@@ -16,7 +17,7 @@ namespace Renderer {
 		          layer: CompositeLayer,
 		          successCallback: (src: string, layer: CompositeLayer, image: HTMLImageElement) => any,
 		          errorCallback: (src: string, layer: CompositeLayer, error: any) => any
-		);
+		): void;
 	}
 	export const DefaultImageLoader: LayerImageLoader = {
 		loadImage(src: string,
@@ -84,7 +85,7 @@ namespace Renderer {
 		return {
 			desaturate: false,
 			blend: "",
-			blendMode: "",
+			blendMode: undefined,
 			brightness: 0.0,
 			contrast: 1.0
 		}
@@ -160,7 +161,7 @@ namespace Renderer {
 	 */
 	export function composeOverCutout(sourceImage: CanvasImageSource,
 	                                  color: string,
-	                                  blendMode: string = 'multiply',
+	                                  blendMode: GlobalCompositeOperation = 'multiply',
 	                                  canvas: CanvasRenderingContext2D = createCanvas(sourceImage.width as number, sourceImage.height as number)
 	): CanvasRenderingContext2D {
 		canvas = cutout(sourceImage, color, canvas);
@@ -261,7 +262,7 @@ namespace Renderer {
 	export function composeOverSpecialRect(
 		sourceImage: CanvasImageSource,
 		fillStyle: CanvasGradient|CanvasPattern,
-		blendMode: string,
+		blendMode: GlobalCompositeOperation,
 		frameCount: number,
 		targetCanvas: CanvasRenderingContext2D = createCanvas(
 			sourceImage.width as number,
@@ -281,7 +282,7 @@ namespace Renderer {
 	 */
 	export function composeOverRect(sourceImage: CanvasImageSource,
 	                                color: string,
-	                                blendMode: string,
+	                                blendMode: GlobalCompositeOperation,
 	                                targetCanvas: CanvasRenderingContext2D = createCanvas(sourceImage.width as number,
 		                                sourceImage.height as number)
 	): CanvasRenderingContext2D {
@@ -300,7 +301,7 @@ namespace Renderer {
 	 */
 	export function composeUnderCutout(sourceImage: CanvasImageSource,
 	                                   color: string,
-	                                   blendMode: string = 'multiply',
+	                                   blendMode: GlobalCompositeOperation = 'multiply',
 	                                   canvas: CanvasRenderingContext2D =
 		                                   createCanvas(sourceImage.width as number, sourceImage.height as number)) {
 		const cut = cutout(sourceImage, color);
@@ -319,7 +320,7 @@ namespace Renderer {
 	 */
 	export function composeUnderRect(sourceImage: CanvasImageSource,
 	                                   color: string,
-	                                   blendMode: string = 'multiply',
+	                                   blendMode: GlobalCompositeOperation = 'multiply',
 	                                   targetCanvas: CanvasRenderingContext2D =
 		                                   createCanvas(sourceImage.width as number, sourceImage.height as number)): CanvasRenderingContext2D {
 		let fill = createCanvas(sourceImage.width as number, sourceImage.height as number, color);
@@ -345,7 +346,7 @@ namespace Renderer {
 		doCutout: boolean,
 		sourceImage: CanvasImageSource,
 		color: string,
-		blendMode: string,
+		blendMode: GlobalCompositeOperation,
 		targetCanvas: CanvasRenderingContext2D = createCanvas(
 			sourceImage.width as number,
 			sourceImage.height as number)
@@ -378,7 +379,7 @@ namespace Renderer {
 			} else if (k === 'contrast' && 'contrast' in target) {
 				target.contrast *= source.contrast;
 			} else if (overwrite || !(k in target)) {
-				target[k] = source[k];
+				(target as any)[k] = (source as any)[k];
 			}
 		}
 		return target;
@@ -1130,7 +1131,7 @@ namespace Renderer {
 		}
 
 		function genAnimationSpec(): string {
-			let j = {};
+			let j:Record<string,any> = {};
 			for (let animation of animatingCanvas.animations) {
 				if (animation.complex) {
 					j[animation.name] = animation.keyframeIndex;
@@ -1169,7 +1170,7 @@ namespace Renderer {
 		function applyKeyframe(keyframe: KeyframeSpec, layer: CompositeLayer) {
 			layer.frames = [keyframe.frame];
 			for (let ap of AnimatableProps) {
-				if (ap in keyframe) layer[ap] = keyframe[ap];
+				if (ap in keyframe) (layer as any)[ap] = (keyframe as any)[ap];
 			}
 		}
 
@@ -1204,7 +1205,7 @@ namespace Renderer {
 						doCompose0();
 						resolve();
 					} catch (e) {
-						rendererError(listener, e);
+						rendererError(listener, e as Error);
 						reject(e)
 					}
 				})
@@ -1225,11 +1226,11 @@ namespace Renderer {
 						listener.keyframeRender(spec, false, 0);
 					}
 					const myListener = Object.assign({}, listener, {
-						renderingDone(time) {
+						renderingDone(time:number) {
 							let canvas = createCanvas(targetCanvas.canvas.width, targetCanvas.canvas.height);
 							canvas.drawImage(targetCanvas.canvas, 0, 0);
 							keyframeCaches[genAnimationSpec()] = canvas;
-							if (listener && listener.renderingDone) listener.renderingDone.apply(listener, arguments);
+							if (listener && listener.renderingDone) listener.renderingDone.apply(listener, [time]);
 						}
 					})
 					try {
@@ -1288,13 +1289,13 @@ namespace Renderer {
 		return lintRgb(value * n - i, points[i], points[i + 1]);
 	}
 
-	window.Renderer = Renderer;
+	(window as any).Renderer = Renderer;
 	// Expose library functions needed by model evaluation, to global ns
-	window.lint = Renderer.lint;
-	window.lintArray = Renderer.lintArray;
-	window.lintStaged = Renderer.lintStaged;
-	window.lintRgb = Renderer.lintRgb;
-	window.lintRgbStaged = Renderer.lintRgbStaged;
+	(window as any).lint = Renderer.lint;
+	(window as any).lintArray = Renderer.lintArray;
+	(window as any).lintStaged = Renderer.lintStaged;
+	(window as any).lintRgb = Renderer.lintRgb;
+	(window as any).lintRgbStaged = Renderer.lintRgbStaged;
 }
 
 interface Window {
