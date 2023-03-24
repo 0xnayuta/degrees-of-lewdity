@@ -16,7 +16,7 @@ window.DOL = {
 	Errors: {},
 	/**
 	 * Registry of state schema, used for migrating DoL to new versions.
-	 * See {@link ./02-version/.init.js} for more.
+	 * See {@link ./02-version/0000-init.js} for more.
 	 */
 	Versions: {},
 	Perflog: {},

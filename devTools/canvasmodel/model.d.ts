@@ -42,7 +42,7 @@ declare interface CompositeLayerParams {
 	/**
 	 * Blend mode.
 	 */
-	blendMode?: string;
+	blendMode?: GlobalCompositeOperation;
 	/**
 	 * Desaturate the image before processing.
 	 */
