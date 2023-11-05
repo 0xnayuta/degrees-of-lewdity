@@ -4,33 +4,33 @@
 	<<if $exposed gte 2>>
 		<<if Time.dayState is "night">>
 			<<if $exhibitionism gte 55>>
-				<<orphanagedoorsicon>><<link [[Sneak outside (0:02)|Home Leave Naked]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist4>><</if>>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:02)|Home Leave Naked]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist4>><</if>>
 				<br>
 			<</if>>
 		<<else>>
 			<<if $exhibitionism gte 75>>
-				<<orphanagedoorsicon>><<link [[Sneak outside (0:05)|Home Leave Naked Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist5>><</if>>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:05)|Home Leave Naked Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist5>><</if>>
 				<br>
 			<</if>>
 		<</if>>
 	<<elseif $exposed gte 1>>
 		<<if Time.dayState is "night">>
 			<<if $exhibitionism gte 15>>
-				<<orphanagedoorsicon>><<link [[Sneak outside (0:02)|Home Leave Undies]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist2>><</if>>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:02)|Home Leave Undies]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist2>><</if>>
 				<br>
 			<</if>>
 		<<else>>
 			<<if $exhibitionism gte 35>>
-				<<orphanagedoorsicon>><<link [[Sneak outside (0:05)|Home Leave Undies Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist3>><</if>>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:05)|Home Leave Undies Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist3>><</if>>
 				<br>
 			<</if>>
 		<</if>>
 	<<else>>
 		<<if Time.hour gte 18 and Time.hour lte 20 and $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
-			<<orphanagedoorsicon>><<link [[Leave orphanage (0:01)|Robin Trauma Visit]]>><<set $phase to 2>><<pass 1>><</link>>
+			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Robin Trauma Visit]]>><<set $phase to 2>><<pass 1>><</link>>
 			<br>
 		<<else>>
-			<<orphanagedoorsicon>><<link [[Leave orphanage (0:01)|Domus Street]]>><<pass 1>><</link>>
+			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Domus Street]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -156,8 +156,14 @@
 <</widget>>
 
 <<widget "orphanageWardOptions">>
-	<<childicon "crib">><<link [[Nursery|Childrens Home]]>><<set $exitPassage to $passage>><</link>>
-	<br>
+	<<getChildrenIds `{location:"home", father:"Ivory Wraith"}`>><<rngWraith 1 "night">>
+	<<if _childrenIds.length gte 1 and _wraithEvent and !$possessed>>
+		<<childicon "crib">><<link [[Nursery|Orphanage Ward Wraith Sing]]>><<set $exitPassage to $passage>><</link>>
+		<br>
+	<<else>>
+		<<childicon "crib">><<link [[Nursery|Childrens Home]]>><<set $exitPassage to $passage>><</link>>
+		<br>
+	<</if>>
 	<<if $hallucinations gte 2 and $rng is 100>>
 		<<main_hall_icon>><<link [[Main Hall|Orphanage Ward Door]]>><</link>>
 		<br>
@@ -180,4 +186,21 @@
 		<</if>>
 		<<bathroomicon>><<link [[Bathroom (0:01)|Bathroom]]>><<pass 1>><</link>>
 	<</if>>
+<</widget>>
+
+<<widget "generateSleepLinks">>
+	<<set _sleep_passage to _args[0]>>
+	<<set _maxHours to ($sleeptrouble is 1 and $controlled is 0) ? 10 : 8>>
+	<<for _i = _maxHours; _i > 0; _i-->>
+		<<if _i is 1>>
+			<<link [[Sleep for 1 hour|_sleep_passage]]>><<set $sleephour to 1>><</link>> &#8194;(<<timeAfterXHours 1>>)<<ltiredness>>
+		<<else>>
+			<<capture _i>>
+				<<link [["Sleep for " + _i + " hours"|_sleep_passage]]>><<set $sleephour to _i>><</link>> (<<timeAfterXHours _i>>)<<ltiredness>>
+			<</capture>>
+		<</if>>
+		<br>
+	<</for>>
+	<<link [[Just sleep|_sleep_passage]]>><<set $sleephour to -1>><</link>> (??:??)<<ltiredness>>
+	<br><br>
 <</widget>>

@@ -367,6 +367,10 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "A">><<silently>>
+	<<a _args[0]>><<capitalise>>
+<</silently>>_text_output<</widget>>
+
 <<widget "theowner">><<silently>>
 	<<if $enemyno gte 2 and $enemytype is "man">>
 		<<set _text_output to "the owner">>
@@ -1585,6 +1589,14 @@
 
 <<widget "Sister">><<silently>>
 	<<sister>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "sister_npc">><<silently>>
+	<<set _text_output to ($pronoun is "m" ? "brother" : "sister")>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "Sister_npc">><<silently>>
+	<<sister_npc>><<capitalise>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "victimgirl">>
@@ -3507,6 +3519,42 @@
 	<</if>>
 <</widget>>
 
+<<widget "gbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "ggbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gggbaton">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + + Baton proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ Whip proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "ggwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + Whip proficiency</span>
+	<</if>>
+<</widget>>
+
+<<widget "gggwhip">>
+	<<if $statdisable is "f">> |
+		<span class="green">+ + + Whip proficiency</span>
+	<</if>>
+<</widget>>
+
 <<widget "gsecurity">>
 	<<if $statdisable is "f">> |
 		<span class="red">+ Security</span>
@@ -3738,7 +3786,7 @@
 <</widget>>
 
 <<widget "lgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- Grace</span>
@@ -3761,7 +3809,7 @@
 <</widget>>
 
 <<widget "llgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- - Grace</span>
@@ -3784,7 +3832,7 @@
 <</widget>>
 
 <<widget "lllgrace">>
-	<<if $statdisable is "f">>
+	<<if $statdisable is "f" and $temple_rank isnot undefined and $temple_rank isnot "prospective">>
 		<<if _args[0] is "monk">>
 			<<if $temple_rank is "initiate">> |
 				<span class="red">- - - Grace</span>
@@ -5243,7 +5291,7 @@
 			<</if>>
 		<<set _clothing_strip_sequence += 1>><<lowerstrip>><<exposure>>
 		<</if>>
-		<<if $worn.under_upper.exposed lte 0>>
+		<<if $worn.under_upper.exposed lte 0 and _args[0] isnot "undies">>
 			<<if _underOutfit is true>>
 				<<if _clothing_strip_sequence is 0>>
 					<<flaunting>> you shuffle out of your $worn.under_upper.name, revealing your <<breasts>> and <<genitals>>.
@@ -5267,7 +5315,7 @@
 			<</if>>
 		<<set _clothing_strip_sequence += 1>><<underupperstrip>><<exposure>>
 		<</if>>
-		<<if $worn.under_lower.exposed lte 0>>
+		<<if $worn.under_lower.exposed lte 0 and _args[0] isnot "undies">>
 			<<if _clothing_strip_sequence is 0>>
 				<<flaunting>> you pull down your $worn.under_lower.name, displaying your <<genitals>>.
 			<<elseif _clothing_strip_sequence is 1>>
@@ -5841,7 +5889,11 @@
 				<</if>>
 			<<else>>
 				<<if $pain gte 100>>
-					Face covered in tears,
+					<<if $water is 1>>
+						Tears streaking away into the water,
+					<<else>>
+						Face covered in tears,
+					<</if>>
 				<<elseif $pain gte 40>>
 					Feeling battered, but still determined to make the best of things,
 				<<else>>
@@ -5969,7 +6021,20 @@
 <</widget>>
 
 <<widget "wallet">><<silently>>
-	<<set _text_output to ($pronoun is "m" ? "wallet" : "purse")>>
+	<<if !isNaN(_args[0]) and $NPCList[_args[0]] and $NPCList[_args[0]].clothes and $NPCList[_args[0]].clothes.set>>
+		<<set $_clothesSet to $NPCList[_args[0]].clothes.set>>
+	<</if>>
+	<<if $location is "island">>
+		<<set _text_output to "clothes">>
+	<<elseif ["maleSchoolSwim", "maleSchoolSwimShirt", "femaleSchoolSwim", "maleSwim1", "maleSwim2", "femaleSwim1", "femaleSwim2", "neutralSwim", "divingSuit"].includes($_clothesSet)>>
+		<<set _text_output to "swimsuit">>
+		<<set $_clothesType to setup.npcClothesSets.find(set => set.name is $_clothesSet)>>
+		<<if $_clothesType>>
+			<<set _stealType to $_clothesType.type>>
+		<</if>>
+	<<else>>
+		<<set _text_output to ($pronoun is "m" ? "wallet" : "purse")>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pullupall">>
@@ -6187,7 +6252,12 @@
 <</widget>>
 
 <<widget "monk">><<silently>>
-	<<set _text_output to ($pronoun is "m" ? "monk" : "nun")>>
+	<<if _args[0] is "desc">>
+		<<set _text_output to $description + " ">>
+		<<set _text_output += ($pronoun is "m" ? "monk" : "nun")>>
+	<<else>>		
+		<<set _text_output to ($pronoun is "m" ? "monk" : "nun")>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "monks">><<silently>>
@@ -6201,6 +6271,26 @@
 		<<set _text_output to "nuns">>
 	<<else>>
 		<<set _text_output to "monks and nuns">>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "Monks_and_Nuns">><<silently>>
+	<<if maleChance() is 100>>
+		<<set _text_output to "monks">>
+	<<elseif maleChance() is 0>>
+		<<set _text_output to "nuns">>
+	<<else>>
+		<<set _text_output to "monks and nuns">>
+	<</if>><<capitalise>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "brothers_and_sisters">><<silently>>
+	<<if maleChance() is 100>>
+		<<set _text_output to "brothers">>
+	<<elseif maleChance() is 0>>
+		<<set _text_output to "sisters">>
+	<<else>>
+		<<set _text_output to "brothers and sisters">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -6218,6 +6308,30 @@
 
 <<widget "priestapo">><<silently>>
 	<<set _text_output to ($pronoun is "m" ? "priest's" : "priestess'")>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bishop">><<silently>>
+	<<if $temple_confessor_intro>>
+		<<set _text_output to "bishop">>
+	<<else>>
+		<<set _text_output to ($pronoun is "m" ? "priest" : "priestess")>>
+	<</if>>
+<</silently>><<print _text_output>><</widget>>
+
+<<widget "bishop_hands">><<silently>>
+	<<if $temple_confessor_intro and _args[0] isnot "long">>
+		<<set _text_output to "bishop's hands">>
+	<<elseif $per_npc.bishop_right_hand>>
+		<<if $per_npc.bishop_right_hand.pronoun is "m" and $per_npc.bishop_left_hand.pronoun is "m">>
+			<<set _text_output to "priests">>
+		<<elseif $per_npc.bishop_right_hand.pronoun is "f" and $per_npc.bishop_left_hand.pronoun is "f">>
+			<<set _text_output to "priestesses">>
+		<<else>>
+			<<set _text_output to "priest and priestess">>
+		<</if>>
+	<<else>>
+		<<set _text_output to "dark-robed pair">>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "vaginalvirginitywarning">>

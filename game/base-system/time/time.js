@@ -1,9 +1,9 @@
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
-	
+
 	Time.date - Returns Date object of current date.
-	
+
 	Time.holidayMonths - Returns array of all months that are considered holidays.
 
 	Time.second - Returns current number of seconds since last whole minute.
@@ -134,7 +134,11 @@ const Time = (() => {
 
 	function nextSchoolTermStartDate(date) {
 		const newDate = new DateTime(date);
-		newDate.addMonths(holidayMonths.find(e => e >= newDate.month) - newDate.month + 1);
+		if (!holidayMonths.includes(newDate.month) && date.day < newDate.getFirstWeekdayOfMonth(2).day) {
+			return newDate.getFirstWeekdayOfMonth(2);
+		}
+
+		newDate.addMonths(holidayMonths.find(e => e > newDate.month) - newDate.month + 1);
 		return newDate.getFirstWeekdayOfMonth(2);
 	}
 
@@ -145,10 +149,14 @@ const Time = (() => {
 	}
 
 	function isSchoolTerm(date) {
+		const termEndDate = nextSchoolTermEndDate(date).addDays(1);
 		const firstMonday = date.getFirstWeekdayOfMonth(2);
-		const startOfHoliday = firstMonday.addDays(-2);
-		return !holidayMonths.some(
-			month => (month === date.month && date.day >= startOfHoliday.day) || (month % 12 === date.month && date.day < startOfHoliday.day)
+		const prevMonth = ((date.month - 2 + 12) % 12) + 1;
+
+		return !(
+			date.timeStamp >= termEndDate.timeStamp ||
+			(holidayMonths.includes(date.month) && date.day >= firstMonday.day) ||
+			(holidayMonths.includes(prevMonth) && date.day < firstMonday.day)
 		);
 	}
 
@@ -442,7 +450,7 @@ function dayPassed() {
 	if (V.temple_quarters >= 1) V.temple_quarters = Math.clamp(V.temple_quarters - 10, 0, 100);
 	if (V.temple_chastity_timer > 0) V.temple_chastity_timer--;
 	if (V.temple_rank !== "prospective" && V.temple_rank !== "initiate") {
-		if (V.grace >= 1) fragment.append(wikifier("grace", -1));
+		if (V.grace >= 1 && !V.daily.graceUp) fragment.append(wikifier("grace", -2));
 	}
 	if (V.temple_evaluation) {
 		V.temple_evaluation--;
@@ -647,7 +655,20 @@ function dayPassed() {
 	if (V.pillory_tenant.exists && V.pillory_tenant.endday < Time.days) fragment.append(wikifier("clear_pillory"));
 
 	delete V.daily;
-	V.daily = { school: { attended: {} }, whitney: {}, robin: {}, kylar: {}, morgan: {}, eden: {}, alex: {}, sydney: {}, ex: {}, pharm: {}, prison: {} };
+	V.daily = {
+		school: { attended: {} },
+		whitney: {},
+		robin: {},
+		kylar: {},
+		morgan: {},
+		eden: {},
+		alex: {},
+		sydney: {},
+		ex: {},
+		pharm: {},
+		prison: {},
+		livestock: {},
+	};
 
 	if (Number.isInteger(V.challengetimer)) {
 		V.challengetimer--;
@@ -753,7 +774,7 @@ function minutePassed(minutes) {
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
 	if (isPlayerNonparasitePregnancyEnding()) {
-		// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		V.stress += Math.floor(minutes * 40);
 	}
@@ -954,6 +975,7 @@ function dailyNPCEffects() {
 		else C.npc.Sydney.title = "faithful";
 		if (V.sydneyScience !== 1 || V.sydneySeen.includes("science")) delete V.sydneyLate;
 		if (Time.schoolDay && random(1, 4) === 1) V.sydneyLate = 1;
+		if (Time.weekDay === 2 && V.sydney && V.sydney.rank === "initiate") V.sydneyLate = 1;
 		if (
 			V.sydneySeen.includes("library") &&
 			C.npc.Sydney.love >= 60 &&
@@ -1003,7 +1025,7 @@ function dailyNPCEffects() {
 				V.wraithCompoundChance = 0;
 				if (V.wraith.offspring === "sold") V.wraithCompoundChance += 10;
 			}
-			V.wraithCompoundChance++;
+			if (V.world_corruption_soft >= 30) V.wraithCompoundChance++;
 			if (V.wraithCompoundChance >= random(5, 60 - C.npc["Ivory Wraith"].lust)) {
 				V.wraithCompoundEvent = true;
 				delete V.wraithCompoundChance;
@@ -1469,6 +1491,16 @@ function dailySchoolEffects() {
 			V.island.walnut -= rng;
 			V.island.walnut_dried += rng;
 		}
+	}
+
+	if (V.temple_initiate_days !== undefined) {
+		V.temple_initiate_days += 1;
+	}
+	if (V.temple_monk_days !== undefined) {
+		V.temple_monk_days += 1;
+	}
+	if (V.temple_spar !== undefined) {
+		delete V.temple_spar;
 	}
 
 	return fragment;

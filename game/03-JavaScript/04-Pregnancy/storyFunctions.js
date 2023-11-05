@@ -165,7 +165,7 @@ window.playerNormalPregnancyType = playerNormalPregnancyType;
 function wakingPregnancyEvent() {
 	const pregnancy = getPregnancyObject();
 	if (!pregnancy.fetus || V.statFreeze) return false;
-	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0) || pregnancy.type === "parasite") return false;
+	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0 && !playerIsPregnant()) || pregnancy.type === "parasite") return false;
 
 	const rng = random(0, 100);
 	const menstruation = V.sexStats.vagina.menstruation;
@@ -256,7 +256,7 @@ window.wakingPregnancyEvent = wakingPregnancyEvent;
 function dailyPregnancyEvent() {
 	const pregnancy = getPregnancyObject();
 	if (!pregnancy.fetus || V.statFreeze) return false;
-	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0) || pregnancy.type === "parasite") return false;
+	if ((!V.player.vaginaExist && playerNormalPregnancyTotal() === 0 && !playerIsPregnant()) || pregnancy.type === "parasite") return false;
 
 	const rng = random(0, 100) + (V.daily.pregnancyEvent || 0);
 	const menstruation = V.sexStats.vagina.menstruation;
@@ -264,7 +264,9 @@ function dailyPregnancyEvent() {
 	const pregnancyStage = pregnancy.timerEnd ? Math.clamp(pregnancy.timer / pregnancy.timerEnd, 0, 1) : false;
 	let dailyEffects;
 
-	if ((between(pregnancyStage, 0.9, 0.95) && rng > 80) || (between(pregnancyStage, 0.95, 1) && rng >= 75)) {
+	if (pregnancy.gaveBirth) {
+		/* Show no events right after giving birth */
+	} else if ((between(pregnancyStage, 0.9, 0.95) && rng > 80) || (between(pregnancyStage, 0.95, 1) && rng >= 75)) {
 		dailyEffects = "nearBirthEvent";
 	} else if ((between(pregnancyStage, 0.7, 0.8) && rng > 85) || (between(pregnancyStage, 0.8, 0.9) && rng >= 80)) {
 		dailyEffects = "nearBirth";
@@ -698,7 +700,7 @@ function knowsAboutAnyPregnancy(mother, whoToCheck) {
 	}
 	return !!Object.entries(V.pregnancyStats.awareOfBirthId)
 		.filter(awareOf => awareOf[0].includes(mother))
-		.find(awareOf => awareOf.includes(whoToCheckConverted));
+		.find(awareOf => awareOf[1].includes(whoToCheckConverted));
 }
 window.knowsAboutAnyPregnancy = knowsAboutAnyPregnancy;
 

@@ -100,7 +100,8 @@
 		))
 	)>>
 	<<set _items = applyClothingShopFilters(_items)>>
-	<<set _maxPage = Math.ceil(_items.length / $shopItemsPerPage)>>
+
+	<<set _maxPage = Math.ceil(filterShopGroup(_items).length / $shopItemsPerPage)>>
 	<!-- Makes sure $shopPage is never showing a blank page -->
 	<<if $shopPage gte _maxPage>>
 		<<set $shopPage to 0>>
@@ -264,7 +265,7 @@
 	<<run $('#shop-pagination > .btn-pagination.next').toggleClass('disabled', $shopPage >= _maxPage - 1)>>
 
 	<!-- Re-generate keyboard shortcuts -->
-	<<run Links.generateLinkNumbers($('#clothingShop-div'))>>
+	/*<<run Links.generateLinkNumbers($('#clothingShop-div'))>>*/
 
 	<!-- Change page number text on small screens -->
 	<<replace '#shop-pagination > .shop-pages-number'>><<print ($shopPage + 1) + " out of " + _maxPage>><</replace>>
@@ -272,7 +273,9 @@
 
 <<widget "generateshoppage">>
 	<<set _page = _args[0]>>
-	<<set _itemsOnPage = _items.slice(_page * $shopItemsPerPage, (_page + 1) * $shopItemsPerPage)>>
+	<<set _itemGroups to []>>
+	<<set _itemsOnPage = filterShopGroup(_items)>>
+	<<set _itemsOnPage = _itemsOnPage.slice(_page * $shopItemsPerPage, (_page + 1) * $shopItemsPerPage)>>
 	<<set _hidden = _page == $shopPage ? "" : " hidden">>
 	<<set _compact = $shopDefaults.compactMode ? "compact" : "">>
 
@@ -289,6 +292,11 @@
 			<div class="clothing-item div-link">
 				<!-- Clothing icon -->
 				<div @class="'clothing-icon ' + _compact">
+					<<if $options.images is 1 and _itemData.shopGroup and _items.reduce((prev, curr) => {
+						if (!curr.shopGroup) return prev;
+						if (curr.shopGroup === _itemData.shopGroup) return prev + 1;
+						return prev;
+					},0) gt 1 and $options.images is 1>><div class='fa-icon fa-plus clothing-icon-plus'></div><</if>>
 					<<if _locked and $options.images is 1>>
 						<img src="img/misc/icon/lock.png" class="clothing-locked">
 					<<else>>
@@ -580,6 +588,24 @@
 				<<warmth_description>>
 			</div>
 			<br>
+
+			<<if !$options.images and _temp_choice.shopGroup>>
+				<<link "Previous Style">>
+					<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+					<<set _groupIndexMax to _itemGroups[_temp_choice.shopGroup].length - 1>>
+					<<set $clothes_choice to _groupIndex gt 0 ? _itemGroups[_temp_choice.shopGroup][_groupIndex - 1] : _itemGroups[_temp_choice.shopGroup][_groupIndexMax]>>
+					<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+					<<run linkifyDivs('.clothing-details')>>
+				<</link>> |
+				<<link "Next Style">>
+					<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+					<<set $clothes_choice to _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] ? _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] : _itemGroups[_temp_choice.shopGroup][0]>>
+					<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+					<<run linkifyDivs('.clothing-details')>>
+				<</link>>
+				<br>
+			<</if>>
+
 			<<if $multipleWardrobes is "all">>
 				<span>Send items to:</span>
 				<div id="sendItemsTo">
@@ -1182,6 +1208,33 @@
 						<<link "">><<toggleMannequinGender>><</link>>
 					</div>
 				</div>
+				<<if _temp_choice.shopGroup and Array.isArray(_items) and _items.reduce((prev, curr) => {
+						if (!curr.shopGroup) return prev;
+						if (curr.shopGroup === _itemData.shopGroup) return prev + 1;
+						return prev;
+					},0) gt 1>>
+					<div class="mannequin-buttons-right no-numberify">
+						<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+						<<link "<span class='fa-icon fa-left-arrow'></span>">>
+							<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+							<<set _groupIndexMax to _itemGroups[_temp_choice.shopGroup].length - 1>>
+							<<set $clothes_choice to _groupIndex gt 0 ? _itemGroups[_temp_choice.shopGroup][_groupIndex - 1] : _itemGroups[_temp_choice.shopGroup][_groupIndexMax]>>
+							<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+							<<run linkifyDivs('.clothing-details')>>
+							/* The below widget ends up breaking the shop list when clicking fast enough */
+							/*<<updateclotheslist>>*/
+						<</link>>
+						_groupIndex
+						<<link "<span class='fa-icon fa-right-arrow'></span>">>
+							<<set _groupIndex to _itemGroups[_temp_choice.shopGroup].indexOf($clothes_choice)>>
+							<<set $clothes_choice to _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] ? _itemGroups[_temp_choice.shopGroup][_groupIndex + 1] : _itemGroups[_temp_choice.shopGroup][0]>>
+							<<replace ".clothing-details">><<shopDetailsv2>><</replace>>
+							<<run linkifyDivs('.clothing-details')>>
+							/* The below widget ends up breaking the shop list when clicking fast enough */
+							/*<<updateclotheslist>>*/
+						<</link>>
+					</div>
+				<</if>>
 
 				<<if $options.sidebarRenderer isnot "canvas">>
 				<div class="mannequin-clothes">
