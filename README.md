@@ -1,7 +1,5 @@
 # Degrees of Lewdity
 
-Server :https://github.com/jiayuqi7813/Dol-Archive-Server
-
 ## Lexicon of Lewdity
 
 Looking to contribute to Degrees of Lewdity? Read the [Lexicon of Lewdity](https://gitgud.io/Vrelnir/degrees-of-lewdity/-/wikis/home).
