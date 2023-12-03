@@ -694,6 +694,275 @@ function validateValue(keys, value) {
 }
 window.validateValue = validateValue;
 
+const DoLSaveOnServer = ((Story, Save) => {
+	"use strict";
+
+	const DEFAULT_DETAILS = Object.freeze({
+		id: Story.domId,
+		autosave: null,
+		slots: [null, null, null, null, null, null, null, null],
+	});
+	const KEY_DETAILS = "dolSaveDetails";
+
+
+	function saveOnServer(saveSlot, confirm, saveId, saveName) {
+		// console.log("saveOnServer", saveSlot, confirm, saveId, saveName);
+		// debugger;
+		if (saveId == null) {
+			Wikifier.wikifyEval(`<<saveConfirm ${saveSlot}>>`);
+		} else if ((V.confirmSave === true && confirm !== true) || (V.saveId !== saveId && saveId != null)) {
+			Wikifier.wikifyEval(`<<saveConfirm ${saveSlot}>>`);
+		} else {
+			if (saveSlot != null) {
+				const success = Save.slots.save(saveSlot, null, {
+					saveId,
+					saveName,
+					ironman: V.ironmanmode,
+				});
+				if (success) {
+					const save = Save.slots.get(saveSlot);
+					// Copy save metadata (it includes the jsoncompressed indicator)
+					const metadata = { ...save.metadata, saveId, saveName };
+					if (V.ironmanmode) {
+						Object.assign(metadata, {
+							ironman: V.ironmanmode,
+							signature: V.ironmanmode ? IronMan.getSignature(save) : false,
+							schema: IronMan.schema,
+						});
+					}
+
+					setSaveDetailOnServer(saveSlot, metadata);
+					const savesdata = localStorage.getItem('degrees-of-lewdity.saves');
+					UploadOnServer(savesdata, "saves.json");
+
+					delete T.currentOverlay;
+					// todo: find a better solution
+					closeOverlay();
+					if (V.ironmanmode === true) Engine.restart();
+				}
+			}
+		}
+	}
+
+	function setSaveDetailOnServer(saveSlot, metadata, story) {
+		const saveDetails = JSON.parse(localStorage.getItem(KEY_DETAILS));
+		if (saveSlot === "autosave") {
+			saveDetails.autosave = {
+				id: Story.domId,
+				title: Story.get(V.passage).description(),
+				date: Date.now(),
+				metadata,
+			};
+		} else {
+			const slot = parseInt(saveSlot);
+			saveDetails.slots[slot] = {
+				id: Story.domId,
+				title: Story.get(V.passage).description(),
+				date: Date.now(),
+				metadata,
+			};
+		}
+		localStorage.setItem(KEY_DETAILS, JSON.stringify(saveDetails));
+		UploadOnServer(JSON.stringify(saveDetails), "saveDetails.json");
+	}
+
+
+	function prepareSaveDetailsOnServer(forceRun) {
+		const saveDetails = getSaveDetailsOnServer();
+
+		if (saveDetails == null || saveDetails.id !== Story.domId || forceRun) {
+			const scSaveDetails = Save.get();
+			const dolSaveDetails = Object.assign({}, DEFAULT_DETAILS);
+			/* Search SugarCube's autosave property, if it exists, reflect this in the save details. */
+			if (scSaveDetails.autosave != null) {
+				dolSaveDetails.autosave = {
+					title: scSaveDetails.autosave.title,
+					date: scSaveDetails.autosave.date,
+					metadata: scSaveDetails.autosave.metadata,
+				};
+				if (dolSaveDetails.autosave.metadata === undefined) {
+					dolSaveDetails.autosave.metadata = { saveName: "" };
+				}
+				if (dolSaveDetails.autosave.metadata.saveName === undefined) {
+					dolSaveDetails.autosave.metadata.saveName = "";
+				}
+			}
+			/* Check whether SugarCube's save slots exist, and populate save details with them. */
+			for (let i = 0; i < scSaveDetails.slots.length; i++) {
+				if (scSaveDetails.slots[i] !== null) {
+					dolSaveDetails.slots[i] = {
+						title: scSaveDetails.slots[i].title,
+						date: scSaveDetails.slots[i].date,
+						metadata: scSaveDetails.slots[i].metadata,
+					};
+					if (dolSaveDetails.slots[i].metadata === undefined) {
+						dolSaveDetails.slots[i].metadata = { saveName: "old save", saveId: 0 };
+					}
+					if (dolSaveDetails.slots[i].metadata.saveName === undefined) {
+						dolSaveDetails.slots[i].metadata.saveName = "old save";
+					}
+				} else {
+					dolSaveDetails.slots[i] = null;
+				}
+			}
+
+			localStorage.setItem(KEY_DETAILS, JSON.stringify(dolSaveDetails));
+			GetSavesDataOnServer();
+			return true;
+		}
+		return false;
+	}
+
+	function getSaveDetailsOnServer(saveSlot) {
+		var saveDetails = null;
+
+		fetch('/saveDetails')
+			.then(response => response.json())
+			.then(data => {
+				console.log("Success:", data);
+				saveDetails = data;
+				localStorage.setItem(KEY_DETAILS, JSON.stringify(saveDetails));
+			})
+			.catch(error => {
+				console.error("Error:", error);
+			});
+		if (typeof saveSlot === "number") {
+			if (saveDetails != null) {
+				return saveDetails.slots[saveSlot];
+			}
+		} else {
+			return saveDetails;
+		}
+		return null;
+		// if (Object.hasOwn(localStorage, KEY_DETAILS)) {
+		// 	const saveDetails = JSON.parse(localStorage.getItem(KEY_DETAILS));
+		// 	if (typeof saveSlot === "number") {
+		// 		if (saveDetails != null) {
+		// 			return saveDetails.slots[saveSlot];
+		// 		}
+		// 	} else {
+		// 		return saveDetails;
+		// 	}
+		// }
+		// return null;
+	}
+
+	function deleteSaveOnServer(saveSlot, confirm) {
+		// debugger;
+		if (saveSlot === "all") {
+			if (confirm === undefined) {
+				Wikifier.wikifyEval("<<clearSaveMenuOnServer>>");
+				return;
+			} else if (confirm === true) {
+				Save.clear();
+				deleteAllSaveDetailsOnServer();
+			}
+		} else if (saveSlot === "auto") {
+			if (V.confirmDelete === true && confirm === undefined) {
+				Wikifier.wikifyEval(`<<deleteConfirmOnServer ${saveSlot}>>`);
+				return;
+			} else {
+				Save.autosave.delete();
+				deleteSaveDetailsOnServer("autosave");
+			}
+		} else {
+			if (V.confirmDelete === true && confirm === undefined) {
+				Wikifier.wikifyEval(`<<deleteConfirmOnServer ${saveSlot}>>`);
+				return;
+			} else {
+				Save.slots.delete(saveSlot);
+				deleteSaveDetailsOnServer(saveSlot);
+			}
+		}
+
+		Wikifier.wikifyEval("<<resetSaveMenuOnServer>>");
+	}
+
+
+	function deleteAllSaveDetailsOnServer() {
+		localStorage.setItem(KEY_DETAILS, JSON.stringify(DEFAULT_DETAILS));
+		UploadOnServer(JSON.stringify(DEFAULT_DETAILS), "saveDetails.json");
+		const savesdata = localStorage.getItem('degrees-of-lewdity.saves');
+		UploadOnServer(savesdata, "saves.json");
+
+	}
+
+	function deleteSaveDetailsOnServer(saveSlot) {
+		const saveDetails = JSON.parse(localStorage.getItem(KEY_DETAILS));
+		if (saveSlot === "autosave") {
+			saveDetails.autosave = null;
+		} else {
+			const slot = parseInt(saveSlot);
+			saveDetails.slots[slot] = null;
+		}
+		localStorage.setItem(KEY_DETAILS, JSON.stringify(saveDetails));
+		UploadOnServer(JSON.stringify(saveDetails), "saveDetails.json");
+		const savesdata = localStorage.getItem('degrees-of-lewdity.saves');
+		UploadOnServer(savesdata, "saves.json");
+		// console.log("delete done",savesdata);
+	}
+
+	function resetSaveMenuOnServer() {
+		Wikifier.wikifyEval("<<resetSaveMenuOnServer>>");
+	}
+
+
+	function UploadOnServer(data, filename) {
+		const fromData = new FormData();
+		fromData.append("file", new Blob([data], { type: "application/json" }), filename);
+		fetch("/upload", {
+			method: "POST",
+			body: fromData,
+		})
+			.then(response => response.json())
+			.catch(error => {
+				console.error("Error:", error);
+			});
+	}
+
+	function GetSavesDataOnServer(forceRun){
+		fetch('/saves')
+			.then(response => response.json())
+			.then(data => {
+				// console.log("Success:", data);
+				localStorage.setItem('degrees-of-lewdity.saves',JSON.stringify(data));
+			})
+			.catch(error => {
+				console.error("Error:", error);
+			});
+	}
+
+	function checkRunningContext() {
+		if (window.location.protocol === "file:") {
+			return false;
+		} else if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+			return true;
+		}
+	}
+
+	return Object.freeze({
+		saveOnServer,
+		prepareSaveDetailsOnServer,
+		setSaveDetailOnServer,
+		getSaveDetailsOnServer,
+		GetSavesDataOnServer,
+		deleteSaveOnServer,
+		resetSaveMenuOnServer,
+		checkRunningContext,
+	});
+})(Story, Save);
+
+window.DoLSaveOnServer = DoLSaveOnServer;
+
+window.saveOnServer = DoLSaveOnServer.saveOnServer;
+window.setSaveDetailOnServer = DoLSaveOnServer.setSaveDetailOnServer;
+window.prepareSaveDetailsOnServer = DoLSaveOnServer.prepareSaveDetailsOnServer;
+window.getSaveDetailsOnServer = DoLSaveOnServer.getSaveDetailsOnServer;
+window.GetSavesDataOnServer = DoLSaveOnServer.GetSavesDataOnServer;
+window.deleteSaveOnServer = DoLSaveOnServer.deleteSaveOnServer;
+window.resetSaveMenuOnServer = DoLSaveOnServer.resetSaveMenuOnServer;
+window.checkRunningContext= DoLSaveOnServer.checkRunningContext;
+
 function exportSettings(data, type) {
 	const S = {
 		general: {
@@ -963,8 +1232,7 @@ function settingsObjects(type) {
 				clothesPrice: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
 				clothesPriceUnderwear: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
 				clothesPriceSchool: { min: 1, max: 2, decimals: 1, displayName: "Cost of school clothes:", randomize: "gameplay" },
-				clothesPriceLewd: { min: 0.1, max: 5, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
-				furniturePriceFactor: { min: 0.6, max: 2, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
+				clothesPriceLewd: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
 				tending_yield_factor: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 				rentmod: { min: 0.1, max: 3, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
 				beastmalechance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of beasts attracted to you that are male:", randomize: "encounter" },
@@ -1032,7 +1300,7 @@ function settingsObjects(type) {
 					},
 				},
 				parasitedisable: { boolLetter: true, bool: true, displayName: "Parasites:" },
-				ruinedorgasmdisable: { boolLetter: true, bool: true, displayName: "Ruined orgasms:" },
+				// ruinedorgasmdisable: { boolLetter: true, bool: true, displayName: "Ruined orgasms:" }, uncomment when `$earSlimeTest` and `V.earSlimeTest` is removed from the code
 				slugdisable: { boolLetter: true, bool: true, displayName: "Slugs:" },
 				waspdisable: { boolLetter: true, bool: true, displayName: "Wasps:" },
 				beedisable: { boolLetter: true, bool: true, displayName: "Bees:" },
@@ -1206,8 +1474,7 @@ function settingsObjects(type) {
 					overlayFontSize: { strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Overlay font size:" },
 					sidebarFontSize: { strings: [0, 12, 14, 16, 18, 20], displayName: "Sidebar font size:" },
 					genderBody: { strings: ["default", "m", "a", "f"], displayName: "Body type displayed:" },
-					notesAutoSave: { bool: true, displayName: "Notes auto saving:" },
-					dateFormat: { strings: ["en-GB", "en-US", "zh-CN"], displayName: "Date format:" },
+					notesAutoSave: { bool: true, displayName: "Notes auto saving:" }
 				},
 				shopDefaults: {
 					alwaysBackToShopButton: { bool: true },
