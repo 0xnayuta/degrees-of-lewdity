@@ -46,11 +46,16 @@
 		<<elseif $whitneypantiescheck is 2>>
 			"I said you should wear panties, and I meant it. I'll have to take everything now."
 		<</if>>
-		<<if $forcedcrossdressingdisable is "t" or $whitneyskirtcheck isnot 1>>
+		<<set _maleClothes to Object.keys($worn).filter((slot) => {
+			return $worn[slot].gender is "m" and !["genitals", "under_upper"].includes(slot);
+		})>>
+		<<if $forcedcrossdressingdisable is "t" or !$whitneyskirtcheck>>
+		<<elseif $whitneyFeminineCheck and _maleClothes.length>>
+			<<He>> sneers. "You're clearly wearing boy's clothes<<if clothingData('lower', $worn.lower, "skirt") isnot 1>> and not bothering with a skirt<</if>>."
 		<<elseif clothingData('lower', $worn.lower, "skirt") isnot 1>>
 			<<He>> sneers. "You're not even wearing a skirt."
-		<<elseif $worn.lower.reveal lt 200>>
-			<<He>> sneers. "You're not even wearing a short skirt."
+		<<elseif $worn.lower.reveal lte 200>>
+			<<He>> sneers. "That skirt isn't anywhere near short enough."
 		<</if>>
 		<br><br>
 
@@ -59,10 +64,25 @@
 		<<link [[Fight|Bully Panties Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 		<br>
 	<<elseif $whitneyskirtmaths>>
+		<<set _wearingSkirt to (clothingData('lower', $worn.lower, "skirt") is 1)>>
+		<<set _maleClothes to Object.keys($worn).filter((slot) => {
+			return $worn[slot].gender is "m" and !["genitals", "under_upper", "under_lower"].includes(slot);
+		})>>
+		<<set _whitneyMadAtSkirt to $whitneyskirtcheck gte 1 and (!_wearingSkirt or $worn.lower.reveal lte 200)>>
+		<<set _whitneyMadAtClothes to $whitneyFeminineCheck gte 1 and _maleClothes.length>>
 		You've barely stepped into the hallway when <<npc Whitney>><<person1>>Whitney and <<his>> friends surround you. "You've been a bad <<girl>>," <<he>> grins. <<His>> friends look excited.
 
-		"Sluts don't dress like that. I said short skirts, and I meant it. I'll have to take everything now."
-		<br><br>
+		"Sluts don't dress like that.
+		<<if _whitneyMadAtClothes>>
+			I said no boy's clothes, and I meant it.
+			<<if _whitneyMatAtSkirt>>
+				I said short skirts, and I meant that too.
+			<</if>>
+		<<elseif _whitneyMadAtSkirt>>
+			I said short skirts, and I meant it.
+		<</if>>
+        I'll have to take everything now."
+        <br><br>
 
 		<<link [[Let it happen|Bully Panties]]>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
 		<br>
@@ -550,7 +570,7 @@ You start checking the lockers, and soon find one that has been left unlocked. Y
 	<<gstress>><<garousal>><<stress 6>><<arousal 600>>
 	<br><br>
 
-	Once their voices subside, you gently push the door. It doesn't budge. You push harder. It still doesn't move. <<He>> locked it this time. Though your movement is restricted, you feel around the darkness for something that could help, and realise there's a cool draft around your feet. Investigating further, you find that the back of the locker is missing, and you can feel the brick wall of the school. The lower portion of which is coming loose.
+	Once their voices subside, you gently push the door. It doesn't budge. You push harder. It still doesn't move. <<He>> locked it this time. Though your movement is restricted, you feel around the darkness for something that could help, and realise there's a cool draught around your feet. Investigating further, you find that the back of the locker is missing, and you can feel the brick wall of the school. The lower portion of which is coming loose.
 	<br><br>
 	<<endevent>>
 
@@ -558,7 +578,7 @@ You start checking the lockers, and soon find one that has been left unlocked. Y
 		<<link [[Kick through|Hallways Exposed Tentacles]]>><<set $molestationstart to 1>><</link>>
 		<br>
 	<<else>>
-		You break away the brickwork, and the draft increases in strength. Knocking away all the loose bricks leaves a hole maybe just big enough for you. You put one leg through, then the other, then slowly wiggle your way further down.
+		You break away the brickwork, and the draught increases in strength. Knocking away all the loose bricks leaves a hole maybe just big enough for you. You put one leg through, then the other, then slowly wiggle your way further down.
 		<br><br>
 
 		<<link [[Next|Industrial Drain]]>><<set $eventskip to 1>><</link>>
@@ -653,7 +673,7 @@ You run to the window and throw it open. You don't have enough time to be sure, 
 
 	<<tentaclestart 4 15>>
 
-	You break away the brickwork, and the draft increases in strength. Knocking away all the loose bricks leaves a hole maybe just big enough for you. You put one leg through, then the other, then slowly wiggle your way further down. You're wondering if the school has a basement when something strokes your <<bottom>>.
+	You break away the brickwork, and the draught increases in strength. Knocking away all the loose bricks leaves a hole maybe just big enough for you. You put one leg through, then the other, then slowly wiggle your way further down. You're wondering if the school has a basement when something strokes your <<bottom>>.
 	<br><br>
 <</if>>
 
@@ -1078,7 +1098,7 @@ You shove the <<person>> away from you. "Crazy fuck," <<he>> says. "I'm telling 
 
 	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
 <<elseif $finish is 1>>
-	"Fucking tease," <<he>> says as <<he>> adjusts <<his>> clothing. <<He>> leave the cupboard.
+	"Fucking tease," <<he>> says as <<he>> adjusts <<his>> clothing. <<He>> leaves the cupboard.
 	<br><br>
 
 	<<clotheson>>
@@ -1167,38 +1187,37 @@ You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse
 	<br><br>
 <</if>>
 
-:: Whitney Bully Parasite Event Submit
-
+:: Bully Parasite
 <<effects>>
-<<eventwhitneyparasitecontinue>>
 
-:: Whitney Bully Parasite Event Escape Attempt
-
-<<effects>>
-<<if $physiqueSuccess>>
-	With a burst of strength, you throw off the <<group>> and prepare for a fight.
-	<br><br>
-	<<link [[Fight|Whitney Bully Parasite Event Combat]]>><<set $molestationstart to 1>><</link>>
+<<if $phase is 0>>
+	<<WhitneyParasite>>
 <<else>>
-	<<physiquedifficulty 1 10000 true>>
 	<<if $physiqueSuccess>>
-		Horrified and enraged, you struggle for your freedom. You throw one of Whitney's cronies off you, shocking the others with your brawn. Another replaces them though, and then another, until they have enough for Whitney to plant a firm punch into your abdomen, robbing you of your strength.
-		<<pain 10>><<gpain>>
+		With a burst of strength, you throw off the <<group>> and prepare for a fight.
+		<br><br>
+		<<link [[Fight|Bully Parasite Fight]]>><<set $molestationstart to 1>><</link>>
 	<<else>>
-		Horrified, you struggle against the <<group>>, hoping you can break their grip just enough to slip out and away to safety. Unfortunately, you aren't strong enough to escape the grip of this many strong hands. Your pathetic attempt at struggling earns you a
-		<<if playerBellySize(true) gte 8>>
-			kick to the shin
+		<<physiquedifficulty 1 10000 true>>
+		<<if $physiqueSuccess>>
+			Horrified and enraged, you struggle for your freedom. You throw one of Whitney's cronies off you, shocking the others with your brawn. Another replaces them though, and then another, until they have enough for Whitney to plant a firm punch into your abdomen, robbing you of your strength.
+			<<pain 10>><<gpain>>
 		<<else>>
-			punch to the gut
+			Horrified, you struggle against the <<group>>, hoping you can break their grip just enough to slip out and away to safety. Unfortunately, you aren't strong enough to escape the grip of this many strong hands. Your pathetic attempt at struggling earns you a
+			<<if playerBellySize(true) gte 8>>
+				kick to the shin
+			<<else>>
+				punch to the gut
+			<</if>>
+			from Whitney, and a slap across the face for even daring to resist.
+			<<pain 15>><<ggpain>>
 		<</if>>
-		from Whitney, and a slap across the face for even daring to resist.
-		<<pain 15>><<ggpain>>
+		<br><br>
+		<<WhitneyParasite>>
 	<</if>>
-	<br><br>
-	<<eventwhitneyparasitecontinue>>
 <</if>>
 
-:: Whitney Bully Parasite Event Combat
+:: Bully Parasite Fight
 
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -1208,8 +1227,8 @@ You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse
 	<<neutral 1>>
 	<<molested>>
 	<<maninit>><<npcidlegenitals>>
-	<<set $enemyanger += 200>>
 	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
 	"You're getting stripped, bitch," the <<person>> says. "Whether you want it or not."
 	<br><br>
 <</if>>
@@ -1219,49 +1238,48 @@ You lift the hem of your $worn.lower.name, giving the <<person>> a brief glimpse
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Whitney Bully Parasite Event Combat Victory]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
-	<span id="next"><<link [[Next|Whitney Bully Parasite Event Combat Loss]]>><</link>></span><<nexttext>>
-<<elseif $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") and $worn.under_upper.type.includes("naked")>>
-	<span id="next"><<link [[Next|Whitney Bully Parasite Event Combat Loss]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Whitney Bully Parasite Event Combat Victory]]>><</link>></span><<nexttext>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0) or ($worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") and $worn.under_upper.type.includes("naked"))>>
+	<span id="next"><<link [[Next|Bully Parasite Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next|Whitney Bully Parasite Event Combat]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Bully Parasite Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Whitney Bully Parasite Event Combat Loss
-
-<<effects>>
-<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") and $worn.under_upper.type.includes("naked")>>
-	Having stripped you the gang relent, but they're still far from done with you.
-<<else>>
-	Having beaten you into submission the gang relent, but they're still far from done with you.
-<</if>>
-<br><br>
-<<endcombat>>
-<<npc Whitney>><<person1>>
-<<eventwhitneyparasitecontinue>>
-
-:: Whitney Bully Parasite Event Combat Victory
+:: Bully Parasite Fight Finish
 <<effects>>
 
-<<if $enemyarousal gte $enemyarousalmax>>
-	<<ejaculation "short">>
-	<<tearful>> you leave Whitney and <<person1>><<his>> friends panting on the floor.
-	<br><br>
-<<else>>
+<<if $enemyhealth lte 0>>
 	You bask in the thrill of victory as your foes whimper in pain on the hallway floor. Having an audience for your feat of combat prowess certainly doesn't hurt your ego or your reputation either.
 	<<status 15>><<ggcool>>
 	<br><br>
 
-<</if>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<endcombat>>
-<<clotheson>>
-<br><br>
-<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation "short">>
+	<<tearful>> you leave Whitney and <<person1>><<his>> friends panting on the floor.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+
+<<else>>
+	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") and $worn.under_upper.type.includes("naked")>>
+		Having stripped you the gang relent, but they're still far from done with you.
+	<<else>>
+		Having beaten you into submission the gang relent, but they're still far from done with you.
+	<</if>>
+	<br><br>
+
+	<<endcombat>>
+
+	<<npc Whitney>><<person1>>
+	<<WhitneyParasite>>
+<</if>>
 
 :: Hallways Exposed Hypnosis
 <<effects>>
@@ -1541,7 +1559,6 @@ The <<person>> makes the first move, stepping closer. You grasp <<his>> arm and 
 	<br>
 <<else>>
 	<<set $rescued += 1>>
-	<<endcombat>>
 	<<if $rescue gte 2>>
 		A shout from down the hall spurs the students into running. You're grabbed from behind before you can do the same, and find yourself face-to-face with Whitney. <<nnpc_He "Whitney">> looks mad.<<status 1>><<gcool>>
 		<br>
@@ -1555,6 +1572,7 @@ The <<person>> makes the first move, stepping closer. You grasp <<his>> arm and 
 
 		Whitney gapes at Doren, then sneers. "Whatever, <<if $pronoun is "m">>wolfman<<else>>you hairy old mop<</if>>. You deal with <<phim>>." <<nnpc_He "Whitney">> shoves you to Doren, who instinctively recoils. <<nnpc_He "Whitney">> leaves without looking back.
 		<<clotheson>>
+		<<endcombat>>
 
 		<<link [[Next|Hallways Exposed Doren]]>><<set $phase to 1>><</link>>
 		<br>
@@ -1565,6 +1583,7 @@ The <<person>> makes the first move, stepping closer. You grasp <<his>> arm and 
 		<br><br>
 
 		<<clotheson>>
+		<<endcombat>>
 		Doren stops at the sight of you, and averts <<his>> eyes.
 		<br><br>
 
@@ -1690,7 +1709,7 @@ You let the <<person1>><<person>> shove you into the classroom, and bend you ove
 	<br><br>
 	"W-we can explain," the <<person1>><<person>> says, fumbling with <<his>> clothes. "We-"
 	<br><br>
-	Leighton ignores <<him>>. "Leave," <<he>> says, looking at you. <<tearful>> you shuffle past <<person3>><<him>>. The <<person2>><<person>> tries to follow, but is blocked by Leighton's outstretched arm. "You two stay."
+	Leighton ignores <<him>>. "Leave," <<person3>><<he>> says, looking at you. <<tearful>> you shuffle past <<him>>. The <<person2>><<person>> tries to follow, but is blocked by Leighton's outstretched arm. "You two stay."
 	<br><br>
 	The door thuds shut behind you.
 	<br><br>
@@ -2105,7 +2124,6 @@ You turn away from the group, making it clear that you'd rather be left alone. T
 	<br>
 <<else>>
 	<<set $rescued += 1>>
-	<<endcombat>>
 	<<if $rescue gte 2>>
 		A shout from down the hall spurs the students into running. You're grabbed from behind before you can do the same, and find yourself face-to-face with Whitney. <<nnpc_He "Whitney">> looks mad.<<status 1>><<gcool>>
 		<br>
@@ -2119,6 +2137,7 @@ You turn away from the group, making it clear that you'd rather be left alone. T
 
 		Whitney gapes at Doren, then sneers. "Whatever, <<if $pronoun is "m">>wolfman<<else>>you hairy old mop<</if>>. You deal with <<phim>>." <<nnpc_He "Whitney">> shoves you to Doren, who instinctively recoils. <<nnpc_He "Whitney">> leaves without looking back.
 		<<clotheson>>
+		<<endcombat>>
 
 		<<link [[Next|Hallways Exposed Doren]]>><<set $phase to 1>><</link>>
 		<br>
@@ -2129,6 +2148,7 @@ You turn away from the group, making it clear that you'd rather be left alone. T
 		<br><br>
 
 		<<clotheson>>
+		<<endcombat>>
 		Doren stops at the sight of you, and averts <<his>> eyes.
 		<br><br>
 
@@ -2157,7 +2177,7 @@ The <<person>> grasps your collar tightly. "My parents took me to see a doc beca
 <<link [[Refuse|Hallways Pregnant Student Refuse]]>><<detention 50>><</link>><<gggdelinquency>>
 <br>
 <<if $submissive gte 1500>>
-	<<link [[Plead|Hallways PRegnant Student Plead]]>><<sub 1>><</link>><<submissivetext>>
+	<<link [[Plead|Hallways Pregnant Student Plead]]>><<sub 1>><</link>><<submissivetext>>
 	<br>
 <</if>>
 
@@ -2428,7 +2448,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 			The <<person1>><<person>> looks you up and down and then tries to shove you, but you grab onto <<him>>.<br>
 			There are a few a moments of scuffle, but you're stronger and able to overpower <<him>>.
 			<br><br>
-			With a frustrated yell, the <<person>> twists free, scowls at you frustrated and walks away.<<gpain>><<pain 2>><<gcool>><<status 1>>
+			With a frustrated yell, the <<person>> twists free, scowls at you, and walks away.<<gpain>><<pain 2>><<gcool>><<status 1>>
 		<<elseif (currentSkillValue('athletics') gte 500 or currentSkillValue('danceskill') gte 500)>>
 			The <<person1>><<person>> looks you up and down and then tries to grab you. However, with your speed and dexterity, you slip away.<br>
 			You smile. "Let's dance."
@@ -2462,7 +2482,7 @@ The <<person1>> looks at you with concern, <<his>> anger begins to turn into sad
 		<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
 	<<elseif $delinquency gte 400>>
-		The teacher looks skeptical, given your reputation, but does go to help.
+		The teacher looks sceptical, given your reputation, but does go to help.
 		<br><br>
 		By the time you get back, the teacher is marching the <<person1>><<person>> down the hallway. <<lstress>><<stress -2>><<famegood 1>>
 		<br><br>
@@ -2715,7 +2735,7 @@ The group of students fight to pull down your <<if setup.clothes.lower[clothesIn
 	You turn around, letting everyone get a look at your fully naked butt and exposed <<genitals>>.<<ggarousal>><<arousal 1200>>
 	<br><br>
 
-	Several students have their phones out, recording your whole display. You realize that most of the school will see this soon. You are surrounded by your peers, seeing you in this state of undress.
+	Several students have their phones out, recording your whole display. You realise that most of the school will see this soon. You are surrounded by your peers, seeing you in this state of undress.
 	<br><br>
 
 

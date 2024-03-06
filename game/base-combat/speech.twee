@@ -3,7 +3,20 @@
 	<<rng>>
 	<<He>> speaks.
 	<<if $player.gender_appearance is "m" or ($exposed gte 2 and $player.penisExist)>>
-		<<if $orgasmcount gte 24 and $speechorgasmnocumcount is 0>>
+		<<if _deniedOrgasm and $speechorgasmnocumcount is 0>>
+			<<set $speechorgasmnocumcount += 1>>
+			<<if $enemyanger lte 100>>
+				"Weren't you just going to come? What happened?"
+			<<else>>
+				 "Good! You don't deserve to come, you little brat."
+			<</if>>
+		<<elseif _deniedOrgasm and $enemyanger gt 100>>
+			<<switch random(1,3)>>
+				<<case 1>> "What's the matter? Did that orgasm hurt? Good lesson for a little brat.",
+				<<case 2>> "Good! You deserve it, you little brat.",
+				<<case 3>> "Maybe if we're a bit rougher it'll make the pain of having an orgasm easier on you."
+			<</switch>>
+		<<elseif ($orgasmcount gte 24 or $femaleclimax) and $speechorgasmnocumcount is 0>>
 			<<set $speechorgasmnocumcount += 1>>
 			"You climaxed but nothing came out! What's wrong with you?"
 		<<elseif $speechorgasmnocumcount gte 1>>
@@ -145,10 +158,15 @@
 			`"Both? I hope there's nothing else wrong with you."`,
 			`"Why do I never get anyone normal?"`,
 		][random(0,4)]>>
-	<<elseif $speechsextoyaroused is 1 or $speechsextoy is 1 and random(0,2) isnot 0>>
-		<<set $speechsextoyaroused to 0>>
-		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-		<<He>> gazes with hunger at your $_sexToy.
+	<<elseif $speechSextoyState is "aroused" or $speechsextoy is 1 and random(0,2) isnot 0 and ($rightarm is "heldSexToy" or $leftarm is "heldSexToy")>>
+		<<if $rightarm is "heldSexToy" and $leftarm is "heldSexToy">>
+			<<set $_sexToy to "sex toys">>
+		<<elseif $rightarm is "heldSexToy">>
+			<<set $_sexToy to $currentSexToyRight.name>>
+		<<else>>
+			<<set $_sexToy to $currentSexToyLeft.name>>
+		<</if>>
+			<<He>> gazes with hunger at your $_sexToy.
 		<<print [
 			`"What a treat!"`,
 			`"You're full of surprises."`,
@@ -156,9 +174,14 @@
 			`"I can't wait to see you use it."`,
 			`"Such a slut. I know just what to do with you."`,
 		][random(0,4)]>>
-	<<elseif $speechsextoyshocked is 1>>
-		<<set $speechsextoyshocked to 0>>
-		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+	<<elseif $speechSextoyState is "shocked" and ($rightarm is "heldSexToy" or $leftarm is "heldSexToy")>>
+		<<if $rightarm is "heldSexToy" and $leftarm is "heldSexToy">>
+			<<set $_sexToy to "sex toys">>
+		<<elseif $rightarm is "heldSexToy">>
+			<<set $_sexToy to $currentSexToyRight.name>>
+		<<else>>
+			<<set $_sexToy to $currentSexToyLeft.name>>
+		<</if>>
 		<<He>> stares at your $_sexToy in shock.
 		<<print [
 			`"I've not seen anything like this. You're still pretty cute though."`,
@@ -167,9 +190,14 @@
 			`"This is fine too."`,
 			`"I didn't expect to see this."`,
 		][random(0,4)]>>
-	<<elseif $speechsextoydisappointed is 1>>
-		<<set $speechsextoydisappointed to 0>>
-		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+	<<elseif $speechSextoyState is "disappointed" and ($rightarm is "heldSexToy" or $leftarm is "heldSexToy")>>
+		<<if $rightarm is "heldSexToy" and $leftarm is "heldSexToy">>
+			<<set $_sexToy to "sex toys">>
+		<<elseif $rightarm is "heldSexToy">>
+			<<set $_sexToy to $currentSexToyRight.name>>
+		<<else>>
+			<<set $_sexToy to $currentSexToyLeft.name>>
+		<</if>>
 		<<He>> looks at your $_sexToy and sighs.
 		<<print [
 			`"This isn't what I signed up for."`,
@@ -178,9 +206,14 @@
 			`"I just wanted us to be together."`,
 			`"Why do I never get anyone normal?"`,
 		][random(0,4)]>>
-	<<elseif $speechdildoangry is 1>>
-		<<set $speechdildoangry to 0>>
-		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+	<<elseif $speechSextoyState is "angry" and ($rightarm is "heldSexToy" or $leftarm is "heldSexToy")>>
+		<<if $rightarm is "heldSexToy" and $leftarm is "heldSexToy">>
+			<<set $_sexToy to "sex toys">>
+		<<elseif $rightarm is "heldSexToy">>
+			<<set $_sexToy to $currentSexToyRight.name>>
+		<<else>>
+			<<set $_sexToy to $currentSexToyLeft.name>>
+		<</if>>
 		<<He>> glares at your $_sexToy.
 		<<print [
 			`"This isn't what I signed up for."`,
@@ -2270,7 +2303,7 @@
 			<<elseif $enemyanger lte 100>>
 				<<if $enemyarousal gte ($enemyarousalmax / 5) * 4>>
 					<<if $worn.genitals.name is "chastity parasite">>
-						<<He>> is lost in the moment. "If only my penis juice could mix with your."
+						<<He>> is lost in the moment. "If only my penis juice could mix with yours."
 					<<else>>
 						<<He>> is lost in the moment. "Our penis juices are mingling together."
 					<</if>>
@@ -4428,10 +4461,10 @@
 		<</if>>
 	<<elseif $speechcum is 1>>
 		<<if $exposed gte 2 and $player.penisExist>>
-			<<if $semen_amount lte (($semen_volume / 24) * 6) or $orgasmcount gte 24>>
+			<<if $semen_amount lte (($semen_volume / 24) * 6) or $orgasmcount gte 24 or $femaleclimax or _deniedOrgasm>>
 				<<He>> blinks. "Where's the, y'know... the cum? Is that it?"
 			<<elseif ["othervagina","otheranus","tentacle","tentacledeep"].includes($penisstate)>>
-				<<if $parasite.penis.name or _condom>>
+				<<if $parasite.penis.name or _condom or $worn.genitals.name is "chastity parasite">>
 					<<He>> groans. "Come on, get that thing off your dick! It blocked all the cum!"
 				<<elseif $orgasmcurrent is 1>>
 					<<He>> moans. "Oh, that's the stuff. I'll milk you dry for this. Fertilise me more."
@@ -4593,7 +4626,7 @@
 					<<if $tentacletrait is 1 and random(1,5) is 1>>
 						<<He>> grins. "I can see it in your eyes. You've been dying for this, haven't you?" <<He>> leans in to whisper in your ear. "Someone like me, filling your every hole with my vines.
 						<<if $speech_attitude is "bratty">>
-							Let me fulfill that wish, little <span class="lewd">witch</span>."
+							Let me fulfil that wish, little <span class="lewd">witch</span>."
 						<<else>>
 							Turning you into my <span class="lewd">prey</span>."
 						<</if>>
@@ -4651,9 +4684,9 @@
 			<<elseif $speechsextoy is 1>>
 				<<set $speechsextoy to 0>>
 				<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-				<<if $NPCName[$NPCNameList.indexOf("Robin")].dom gte 70>>
+				<<if C.npc.Robin.dom gte 70>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and giggles. "` + [`I've wanted to do this with you for a while.`, `This is so dirty... keep going.`][random(0,1)] + `"`>>
-				<<elseif $NPCName[$NPCNameList.indexOf("Robin")].dom lte 30>>
+				<<elseif C.npc.Robin.dom lte 30>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and blushes. "` + [`Woah! Don't you feel embarrassed?`, `Just take it slow, okay?`][random(0,1)] + `"`>>
 				<<else>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and giggles. "` + [`I can't believe you're touching that.`, `This is so dirty... keep going.`][random(0,1)] + `"`>>
@@ -4856,7 +4889,7 @@
 			<<elseif $speechsextoy is 1>>
 				<<set $speechsextoy to 0>>
 				<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-				<<if $NPCName[$NPCNameList.indexOf("Avery")].rage gte 60>>
+				<<if C.npc.Avery.rage gte 60>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and speaks. "` + [`Well, this is a nice change of pace.`, `Everyone has their tools of the trade.`][random(0,1)] + `"`>>
 				<<else>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and speaks. "` + [`Oh, no. I'm paying you too much for this.`, `You put that back this instant.`][random(0,1)] + `"`>>
@@ -4894,10 +4927,10 @@
 			<<elseif $speechsextoy is 1>>
 				<<set $speechsextoy to 0>>
 				<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-				<<if $NPCName[$NPCNameList.indexOf("Alex")].dom gte 30>>
+				<<if C.npc.Alex.dom gte 30>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and grins. "` + [`Now we're getting somewhere.`, `Cute toy. You better know how to use it.`, `Is that the best thing town has to offer?`][random(0,2)] + `"`>>
-				<<elseif $NPCName[$NPCNameList.indexOf("Alex")].dom lte -30>>
-					<<set $_text_output to `<<He>> looks at your $_sexToy and hesitates. "` + [`All right. I trust your judgment.`, `Hope you know how to use that thing.`, `You always know just how to have a good time.`][random(0,2)] + `"`>>
+				<<elseif C.npc.Alex.dom lte -30>>
+					<<set $_text_output to `<<He>> looks at your $_sexToy and hesitates. "` + [`All right. I trust your judgement.`, `Hope you know how to use that thing.`, `You always know just how to have a good time.`][random(0,2)] + `"`>>
 				<<else>>
 					<<set $_text_output to `<<He>> looks at your $_sexToy and smiles. "` + [`I like where your head's at.`, `Looks like we're in for a wild ride.`, `So this is what sells in town.`][random(0,2)] + `"`>>
 				<</if>>
@@ -4996,6 +5029,16 @@
 				<<set $speechsextoy to 0>>
 				<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
 				<<set $_text_output to `<<He>> looks at your $_sexToy and speaks. "<<charles>>, what is that?"`>>
+			<</if>>
+		<<case "Zephyr">>
+			<<if $possessed>>
+				<<if $control gte $controlmax>>
+					<<set $_text_output to `<<He>> scoffs. "Now leave, and leave <<phim>> be."`>>
+				<<elseif $npcspeechcycle is 0>>
+					<<set $_text_output to `<<He>> raises <<his>> telescope to <<his>> eye for a moment, before putting it away.`>>
+				<<else>>
+					<<set $_text_output to `<<He>> stares you down, silent.`>>
+				<</if>>
 			<</if>>
 		<<case "Bailey">>
 			<<set $_stringsPre to ($enemyanger lte 60 ? "<<He>> snickers. ":"<<He>> snarls. ")>>

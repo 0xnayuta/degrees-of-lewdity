@@ -2,11 +2,11 @@
 <<widget "statistics">>
 	<<foldout false "_virginitiesFoldout">>
 		<span class="gold">Virginities</span>
-		<<if $player.vaginaExist>>
+		<<if $player.vaginaExist or $player.virginity.vaginal isnot true>>
 			Vaginal virginity: <<print ($player.virginity.vaginal is true ? "Present" : "Taken by " + ($player.virginity.vaginal is false ? "unknown" : $player.virginity.vaginal))>>
 			<br>
 		<</if>>
-		<<if $player.penisExist>>
+		<<if $player.penisExist or $player.virginity.penile isnot true>>
 			Penile virginity: <<print ($player.virginity.penile is true ? "Present" : "Taken by " + ($player.virginity.penile is false ? "unknown" : $player.virginity.penile))>>
 			<br>
 		<</if>>
@@ -125,28 +125,40 @@
 			Orgasms while being choked: $chokeorgasm
 			<br>
 		<</if>>
-		<<if $player.penisExist or $toydildodisable is "f">>
+		<<if $player.penisExist or $penilestat>>
 			Penetrated others: $penilestat
+			<br>
+			Last penetrated others: <<statisticsTimeCompare $penileTimeStat>>
 			<br>
 		<</if>>
 		<<if $straponstat>>
 			Penetrated others with a strapon: $straponstat
 			<br>
 		<</if>>
-		<<if $player.penisExist>>
+		<<if $player.penisExist or $penileejacstat>>
 			Ejaculated in others: $penileejacstat
+			<br>
+			Last ejaculated in others: <<statisticsTimeCompare $penileEjacTimeStat>>
 			<br>
 		<</if>>
 		<<if $player.vaginaExist>>
 			Vaginally penetrated: $vaginalstat
 			<br>
+			Last vaginally penetrated: <<statisticsTimeCompare $vaginalTimeStat>>
+			<br>
 			Ejaculated in vaginally: $vaginalejacstat
+			<br>
+			Last ejaculated in vaginally: <<statisticsTimeCompare $vaginalEjacTimeStat>>
 			<br>
 		<</if>>
 		<<if $analdisable is "f">>
 			Anally penetrated: $analstat
 			<br>
+			Last anally penetrate: <<statisticsTimeCompare $analTimeStat>>
+			<br>
 			Ejaculated in anally: $analejacstat
+			<br>
+			Last ejaculated in anally: <<statisticsTimeCompare $analEjacTimeStat>>
 			<br>
 		<</if>>
 		Orally penetrated: $oralstat
@@ -199,7 +211,11 @@
 		<br>
 		Masturbated: $masturbationstat
 		<br>
+		Last masturbated: <<statisticsTimeCompare $masturbationTimeStat>>
+		<br>
 		Masturbated to orgasm: $masturbationorgasmstat
+		<br>
+		Last masturbated to orgasm: <<statisticsTimeCompare $masturbationOrgasmTimeStat>>
 		<br>
 		Minutes spent masturbating: <<print Math.trunc($secondsSpentMasturbating / 60)>>
 		<br>
@@ -213,7 +229,7 @@
 			Nectar drank: <<print Math.floor($nectar_drank_stat)>> mL
 			<br>
 		<</if>>
-		<<if $player.penisExist>>
+		<<if $player.penisExist or $semen_produced_stat>>
 			Semen produced: <<print Math.floor($semen_produced_stat)>> mL
 			<br>
 		<</if>>
@@ -221,7 +237,7 @@
 			Lewd fluid produced: <<print Math.floor($lube_produced_stat)>> mL
 			<br>
 		<</if>>
-		<<if $player.penisExist or $breastfeedingdisable is "f">>
+		<<if $player.penisExist or $breastfeedingdisable is "f" or $fluid_forced_stat>>
 			Fluid forcibly milked: <<print Math.floor($fluid_forced_stat)>> mL
 			<br>
 		<</if>>
@@ -253,7 +269,11 @@
 			<span class="gold">Violence</span>
 			Molested: $moleststat
 			<br>
+			Last molested: <<statisticsTimeCompare $molestTimeStat>>
+			<br>
 			Raped: $rapestat
+			<br>
+			Last raped: <<statisticsTimeCompare $rapeTimeStat>>
 			<br>
 			<<if $bestialitydisable is "f">>
 				Raped by animals: $beastrapestat
@@ -280,7 +300,7 @@
 			<br>
 			Pepper spray used: $spraystat
 			<br>
-			<<if $NPCName[$NPCNameList.indexOf("Eden")].init>>
+			<<if C.npc.Eden.init>>
 				Practise shots fired with Eden: $stat_shoot
 				<br>
 			<</if>>
@@ -426,6 +446,8 @@
 		<br>
 		Passed out: $passoutstat
 		<br>
+		Last passed out: <<statisticsTimeCompare $passoutTimeStat>>
+		<br>
 		Distinctions won: $distinction_stat
 		<br>
 		Hours slept: $sleepStat
@@ -469,6 +491,18 @@
 			Most days with a passive ear slime: $earSlimePassiveDaysStat
 			<br>
 		<</if>>
+		<<if $whitney_smoke gte 1>>
+			Cigarettes smoked: $whitney_smoke
+			<br>
+		<</if>>
+		Total paid to Bailey: <<printmoney $baileyPaidStat true>>
+		<mouse class="tooltip linkBlue">(?)<span>Not tracked in versions '0.4.5.X' and older</span></mouse>
+		<br>
+		<<if $baileyRefusedToPayTotal>>
+			Total in missed payments to Bailey: <<printmoney $baileyRefusedToPayTotalStat "red">>
+			<mouse class="tooltip linkBlue">(?)<span>Not tracked in versions '0.4.5.X' and older</span></mouse>
+			<br>
+		<</if>>
 		<br>
 	<</foldout>>
 
@@ -495,7 +529,7 @@
 			<mouse class="tooltip linkBlue">(?)<span>Total number of times a save has been loaded, does not track repeated load times of the same save. Not tracked in versions '0.3.12.X' and older</span></mouse>
 			<br>
 			Play Time: <<print msToTime(($saveDetails.playTime ? $saveDetails.playTime : 0) + ($saveDetails.loadTime ? new Date() - $saveDetails.loadTime : 0))>>
-			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked, to avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
+			<mouse class="tooltip linkBlue">(?)<span>Formatted into 'h:mm:ss'. Be aware that leaving the game for hours alone, then saving will have its time tracked. To avoid, save the game before ending play and then load the save when you resume play. Not tracked in versions '0.3.13.X' and older</span></mouse>
 			<br>
 		<</if>>
 		<<if $saveVersions isnot undefined>>
@@ -661,8 +695,10 @@
 						<mouse class="tooltip linkBlue">(?)<span>At max size.</span></mouse>
 					<</if>>
 					<br>
-					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.penissize gte 0 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lte -20)>>
-					<<if $player.penissize is -1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gt -20>>
+					Penis can shrink: <<print $player.penissize gt $penissizemin and ($player.gender isnot "f" or $player.penissize gt 0) and ($player.penissize gte 0 or $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) lte -20)>>
+					<<if $player.gender is "f" && $player.penissize is 0>>
+						<mouse class="tooltip linkBlue">(?)<span>At min size for the parasite penis.</span></mouse>
+					<<elseif $player.penissize is -1 and $sexStats.pills["pills"]["penis growth"].overdose - $sexStats.pills["pills"]["penis reduction"].overdose - ($worn.genitals.type.includes("shrinking") ? 20 : 0) gt -20>>
 						<mouse class="tooltip linkBlue">(?)<span>Need to overdose on shrinking pills or use a slime penis parasite.</span></mouse>
 					<<elseif $player.penissize is $penissizemin>>
 						<mouse class="tooltip linkBlue">(?)<span>At min size.</span></mouse>
@@ -769,10 +805,8 @@
 			<br>
 			Model fame: <<print Math.trunc($fame.model)>>
 			<br>
-			<<if $islander_language>>
-				Islander language: <<print Math.trunc($islander_language)>>
-				<br>
-			<</if>>
+			Islander language: <<if $islander_language is undefined>>0<<else>><<print Math.trunc($islander_language)>><</if>>
+			<br><br>
 		<</foldout>>
 
 		<<foldout false "_crimeFoldout">>
@@ -856,7 +890,7 @@
 				<<for _i to 0; _i lt maxParasites("anus"); _i++>>
 					<<if $_aPregnancy.fetus[_i] isnot undefined>>
 						<<if $_aPregnancy.fetus[_i].fertilised>>
-							Anal slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature,
+							Anal slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature.
 							<<if $_aPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
 								<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_aPregnancy.fetus[_i].daysLeft is 0>>
 									Dr Harper will be able to help you to deliver at any time.
@@ -867,9 +901,9 @@
 								<</if>>
 							<<else>>
 								<<if $_aPregnancy.fetus[_i].daysLeft is 0>>
-									and will be ready to deliver at any time soon.
+									It will be ready to deliver at any time soon.
 								<<else>>
-									and will be ready to deliver in less than <<=$_aPregnancy.fetus[_i].daysLeft>> days.
+									It will be ready to deliver in less than <<=$_aPregnancy.fetus[_i].daysLeft>> days.
 								<</if>>
 							<</if>>
 							<br>
@@ -895,7 +929,7 @@
 					<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
 						<<if $_vPregnancy.fetus[_i] isnot undefined>>
 							<<if $_vPregnancy.fetus[_i].fertilised>>
-								Vagina slot <<=_i+1>> is pregnant with a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature,
+								Vagina slot <<=_i+1>> is pregnant with a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature.
 								<<if $_vPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
 									<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_vPregnancy.fetus[_i].daysLeft is 0>>
 										Dr Harper will be able to help you to deliver at any time.
@@ -906,9 +940,9 @@
 									<</if>>
 								<<else>>
 									<<if $_vPregnancy.fetus[_i].daysLeft is 0>>
-										and will be ready to deliver at any time soon.
+										It will be ready to deliver at any time soon.
 									<<else>>
-										and will be ready to deliver in less than <<=$_vPregnancy.fetus[_i].daysLeft>> days.
+										It will be ready to deliver in less than <<=$_vPregnancy.fetus[_i].daysLeft>> days.
 									<</if>>
 								<</if>>
 								<br>
@@ -1069,4 +1103,40 @@
 		<<case "human">>normal babies.
 		<<case "wolf">>wolf puppies.
 	<</switch>>
+<</widget>>
+
+<<widget "statisticsTimeCompare">><<silently>>
+	<<if $statFreeze is true>>
+		Not avaliable when stats are being frozen
+	<<elseif $args[0]>>
+		<<set _difference to new DateTime($args[0]).compareWith(Time.date)>>
+		<<set $_text_output to "">>
+		<<if _difference.years>>
+			<<set $_text_output += `${_difference.years} year${_difference.years gt 1 ? "s" : ""}`>>
+		<</if>>
+		<<if _difference.months>>
+			<<if $_text_output>><<set $_text_output += ", ">><</if>>
+			<<set $_text_output += `${_difference.months} month${_difference.months gt 1 ? "s" : ""}`>>
+		<</if>>
+		<<if _difference.days>>
+			<<if $_text_output>><<set $_text_output += ", ">><</if>>
+			<<set $_text_output += `${_difference.days} day${_difference.days gt 1 ? "s" : ""}`>>
+		<</if>>
+		<<if _difference.hours>>
+			<<if $_text_output>><<set $_text_output += ", ">><</if>>
+			<<set $_text_output += `${_difference.hours} hour${_difference.hours gt 1 ? "s" : ""}`>>
+		<</if>>
+		<<if _difference.minutes>>
+			<<if $_text_output>><<set $_text_output += ", ">><</if>>
+			<<set $_text_output += `${_difference.minutes} minute${_difference.minutes gt 1 ? "s" : ""}`>>
+		<</if>>
+		<<if !$_text_output>>
+			<<set $_text_output += "recently">>
+		<<else>>
+			<<set $_text_output += " ago">>
+		<</if>>
+	<<else>>
+		<<set $_text_output to "never">>
+	<</if>>
+<</silently>><<if $_text_output>><<print $_text_output>><</if>>
 <</widget>>

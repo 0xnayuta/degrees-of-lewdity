@@ -8,11 +8,13 @@
 	<</if>>
 <</widget>>
 
+/* min, current, max, rightMeter */
 <<widget "statbar">>
-	<div @class="(_args[2] is true ? 'rightMeter' : 'meter')">
-		<<if _args[0] is 0>>
+	<div @class="(_args[3] is true ? 'rightMeter' : 'meter')">
+		<<if _args[1] is 0>>
 		<<else>>
-			<<set _percent=Math.floor((_args[0]/_args[1])*100)>>
+			<<set _percent to Math.floor((_args[1]/_args[2])*100)>>
+			<<set _minPercent to Math.clamp(Math.floor((_args[0]/_args[2])*100), 0, _percent)>>
 			<<switch Math.floor(_percent/10)>>
 				<<case 8 9>><<set _statColor to "pinkbar">>
 				<<case 6 7>><<set _statColor to "purplebar">>
@@ -22,6 +24,9 @@
 				<<default>><<set _statColor to "redbar">>
 			<</switch>>
 			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+			<<if _minPercent>>
+				<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
+			<</if>>
 		<</if>>
 	</div>
 <</widget>>
@@ -31,7 +36,7 @@
 	<div @class="(_args[2] is true ? 'rightMeter' : 'meter')">
 		<<if _args[0] is 0>>
 		<<else>>
-			<<set _percent=Math.floor((_args[0]/_args[1])*100)>>
+			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
 			<<switch Math.floor(_percent/10)>>
 				<<case 8 9>><<set _statColor to "tealbar">>
 				<<case 6 7>><<set _statColor to "lbluebar">>
@@ -587,6 +592,7 @@
 					<<set $_foxCrimeRequired = Math.floor(50 * (1 + $foxbuild))>>
 					<<if $foxCrimeProgress gte $_foxCrimeRequired>>
 						<<transform fox 1>>
+						<<set $effectsmessage to true>>
 						<<set $foxCrimeMessage to true>>
 						<<set $foxCrimeProgress to Math.clamp($foxCrimeProgress, 0, ($foxCrimeProgress - $_foxCrimeRequired))>>
 					<</if>>
@@ -948,16 +954,24 @@
 <</widget>>
 
 <<widget "athletics">>
-	<<if _args[0] and $statFreeze isnot true>>
-		<<set _temp to _args[0]>>
-		<<if $exposed gte 2>>
-			<<set $athletics += 2>>
-		<<elseif $exposed is 1>>
-			<<set $athletics += 1>>
+	<<if _args[0] and not $statFreeze>>
+		<<set _temp to _args[0] || 1>>
+		<<set _temp *= ($exposed gte 2 ? 1.2 : $exposed is 1 ? 1.1 : 1)>>
+
+		<<for _slot range ["upper", "lower", "feet", "legs"]>>
+			<<if $worn[_slot].type.includes("athletic")>>
+				<<set _temp *= 1.1>>
+			<</if>>
+		<</for>>
+
+		<<if $worn.under_upper.type.includes("athletic") and $player.breastsize gte 6>>
+			<<set _temp *= 1.1>>
+		<<elseif $player.breastsize gte 6>>
+			<<set _temp /= 1.1>>
 		<</if>>
-		<<set $athletics += Math.trunc(_temp * 1.4)>>
+
+		<<set $athletics += Math.trunc(_temp * 1.3)>>
 		<<set $athletics to Math.clamp($athletics, 0, 1000)>>
-		<<set $tending to Math.clamp($tending, 0, 1000)>>
 	<</if>>
 <</widget>>
 
@@ -1075,17 +1089,17 @@
 	<</if>>
 <</widget>>
 
-<<widget "rapestat">><<if $statFreeze isnot true>><<set $rapestat += 1>><</if>><</widget>>
+<<widget "rapestat">><<if $statFreeze isnot true>><<set $rapestat += 1>><<set $rapeTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "moleststat">><<if $statFreeze isnot true>><<set $moleststat += 1>><</if>><</widget>>
+<<widget "moleststat">><<if $statFreeze isnot true>><<set $moleststat += 1>><<set $molestTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><</if>><</widget>>
+<<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><<set $vaginalTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><</if>><</widget>>
+<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "analstat">><<if $statFreeze isnot true>><<set $analstat += 1>><</if>><</widget>>
+<<widget "analstat">><<if $statFreeze isnot true>><<set $analstat += 1>><<set $analTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites>><<creampie "self" "anus">><</if>><</widget>>
+<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "oralstat">><<if $statFreeze isnot true>><<set $oralstat += 1>><</if>><</widget>>
 
@@ -1113,11 +1127,15 @@
 
 <<widget "penilestat">><<silently>>
 <<if $statFreeze isnot true>>
-	<<if $player.penisExist and !playerHasStrapon()>><<set $penilestat += 1>>
-	<<elseif playerHasStrapon()>><<set $straponstat += 1>><</if>>
+	<<if $player.penisExist and !playerHasStrapon()>>
+		<<set $penilestat += 1>>
+		<<set $penileTimeStat to Time.date.timeStamp>>
+	<<elseif playerHasStrapon()>>
+		<<set $straponstat += 1>>
+	<</if>>
 <</if>><</silently>><</widget>>
 
-<<widget "penileejacstat">><<if $statFreeze isnot true>><<set $penileejacstat += 1>><</if>><</widget>>
+<<widget "penileejacstat">><<if $statFreeze isnot true>><<set $penileejacstat += 1>><<set $penileEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "clothesstripstat">><<if $statFreeze isnot true>><<set $clothesstripstat += 1>><</if>><</widget>>
 
@@ -1232,7 +1250,7 @@
 
 			<<set $tiredness = Math.clamp($tiredness, 0, C.tiredness.max)>>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar $tiredness `C.tiredness.max` _showCaptionText>>
+			<<statbar 0 $tiredness `C.tiredness.max` _showCaptionText>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1281,7 +1299,7 @@
 			</div>
 			<<set $stress = Math.clamp($stress, 0, $stressmax)>>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar $stress $stressmax _showCaptionText>>
+			<<statbar 0 $stress $stressmax _showCaptionText>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1311,7 +1329,7 @@
 				<</if>>
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar $trauma $traumamax _showCaptionText>>
+			<<statbar 0 $trauma $traumamax _showCaptionText>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1417,7 +1435,7 @@
 				<</if>>
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar $arousal $arousalmax _showCaptionText>>
+			<<statbar `minArousal()` $arousal $arousalmax _showCaptionText>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1440,21 +1458,21 @@
 				<</if>>
 			</div>
 			<div @class="($options.showCaptionText is true ? 'meter' : 'rightMeter')">
-				<<set $percent=Math.floor(($allure/(8000 * $alluremod))*100)>>
+				<<set _percent=Math.floor(($allure/(8000 * $alluremod))*100)>>
 				<<if $allure gte (6000 * $alluremod)>>
-				<<print '<div class="redbar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="redbar" style="width:' + _percent + '%"></div>'>>
 				<<elseif $allure gte (4000 * $alluremod)>>
-				<<print '<div class="pinkbar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
 				<<elseif $allure gte (3000 * $alluremod)>>
-				<<print '<div class="purplebar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
 				<<elseif $allure gte (2000 * $alluremod)>>
-				<<print '<div class="bluebar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
 				<<elseif $allure gte (1500 * $alluremod)>>
-				<<print '<div class="lbluebar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
 				<<elseif $allure gte (1000 * $alluremod)>>
-				<<print '<div class="tealbar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
 				<<else>>
-				<<print '<div class="greenbar" style="width:' + $percent + '%"></div>'>>
+				<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 				<</if>>
 			</div>
 
@@ -1583,7 +1601,7 @@
 		<div id="hallucinogencaption">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				<<if $options.showCaptionText is true>>
-					<span class="purple">Your perception is altered</span>
+					<span class="purple">Your perception is altered.</span>
 				<<else>>
 					Hallucinogen:
 				<</if>>
@@ -1613,21 +1631,28 @@
 				<</if>>
 			</div>
 			<div @class="($options.showCaptionText is true ? 'meter' : 'rightMeter')">
-				<<set $percent=Math.floor(($pain/100)*100)>>
+				<<set _percent to Math.floor(($pain/100)*100)>>
+				<<set _minPercent to Math.clamp(Math.floor((minPain()/100)*100), 0, _percent)>>
 				<<if $pain gte 100 and $willpowerpain is 0>>
-				<<print '<div class="redbar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "redbar">>
 				<<elseif $pain gte 80>>
-				<<print '<div class="pinkbar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "pinkbar">>
 				<<elseif $pain gte 60>>
-				<<print '<div class="purplebar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "purplebar">>
 				<<elseif $pain gte 40>>
-				<<print '<div class="bluebar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "bluebar">>
 				<<elseif $pain gte 20>>
-				<<print '<div class="lbluebar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "lbluebar">>
 				<<elseif $pain gte 1>>
-				<<print '<div class="tealbar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "tealbar">>
 				<<else>>
-				<<print '<div class="greenbar" style="width:' + $percent + '%"></div>'>>
+					<<set _statColor to "greenbar">>
+				<</if>>
+				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+				<<if minPain()>>
+					<<if _minPercent>>
+						<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
+					<</if>>
 				<</if>>
 			</div>
 			<div style="clear:both;"></div>
@@ -1721,7 +1746,10 @@
 		<</if>>
 	<</if>>
 	<<set $trueconsensual to 1>>
-	<<if $npc.length is 1 and ($npc[0] is "Robin" and $NPCName[$NPCNameList.indexOf("Robin")].dom lte 10 and $debug is 1) or ($npc[0] is "Sydney" and $NPCName[$NPCNameList.indexOf("Sydney")].purity gte 50)>>
+	<<if _args[0]>>
+		<<set $consensualGuaranteed to 1>>
+	<</if>>
+	<<if $npc.length is 1 and ($npc[0] is "Robin" and C.npc.Robin.dom lte 10 and $debug is 1) or ($npc[0] is "Sydney" and C.npc.Sydney.purity gte 50)>>
 		<<npc_submissive>>
 	<</if>>
 <</widget>>
@@ -2157,14 +2185,14 @@
 	<<set $exposed to 0>>
 	<<if $worn.upper.exposed gte 1 and $worn.over_upper.exposed gte 1>>
 		<<if $player.gender_appearance is "m">>
-		<<elseif $libertine gte 1 or $possessed or ["plaid school pinafore","school pinafore","shortalls"].includes($worn.lower.name)>>
+		<<elseif $libertine gte 1 or $possessed or $worn.under_upper.type.includes("covered") or $worn.lower.type.includes("covered")>>
 		<<else>>
 			<<set $exposed to 1>>
 		<</if>>
 	<</if>>
 	<<if $worn.upper.exposed gte 2 and $worn.over_upper.exposed gte 2 and $player.gender_appearance isnot "m">>
 		<<if $possessed>>
-		<<elseif ["plaid school pinafore","school pinafore","shortalls"].includes($worn.lower.name)>>
+		<<elseif $worn.under_upper.type.includes("covered") or $worn.lower.type.includes("covered")>>
 		<<elseif $libertine is 1>>
 			<<set $topless to 1>>
 		<<else>>
@@ -2174,7 +2202,7 @@
 		<<set $topless to 0>>
 	<</if>>
 	<<if $worn.lower.exposed gte 1 and $worn.over_lower.exposed gte 1>>
-		<<if $libertine gte 1 or $possessed>>
+		<<if $libertine gte 1 or $possessed or $worn.under_lower.type.includes("covered")>>
 		<<else>>
 			<<set $exposed to 1>>
 		<</if>>
@@ -2184,7 +2212,7 @@
 		<<if $possessed>>
 		<<elseif $worn.under_lower.exposed gte 1>>
 			<<set $exposed to 2>>
-		<<elseif $libertine gte 1>>
+		<<elseif $libertine gte 1 or $worn.under_lower.type.includes("covered")>>
 		<<else>>
 			<<set $exposed to 1>>
 		<</if>>
@@ -2309,6 +2337,10 @@
 <</widget>>
 
 <<widget "unbind">>
+	/*<<unbind>> is only used for the player unbinding their arms after they've been tied with rope. it will destroy handheld items. do not use it for unbinding arms after they've been temporarily restrained; use <<unbindtemp>> instead*/
+	<<if $rightarm is "bound" and $worn.handheld.name isnot "naked">>
+		<<handheldruined>>
+	<</if>>
 	<<set $rightboundcarry to 0>>
 	<<set $leftboundcarry to 0>>
 	<<set $leftarm to 0>>
@@ -2329,7 +2361,35 @@
 	<</if>>
 <</widget>>
 
+<<widget "unbindtemp">>
+	<<set $rightboundcarry to 0>>
+	<<set $leftboundcarry to 0>>
+	<<set $leftarm to 0>>
+	<<set $rightarm to 0>>
+	<<remove_shackle>>
+	<<leg_unbind>>
+	<<if $head is "bound">>
+		<<set $head to 0>>
+	<</if>>
+<</widget>>
+
 <<widget "bind">>
+	/*<<bind>> and <<unbind>> are only used for binding the player's arms with rope. they are only meant to be used for scenes where the player is left helpless and must undo their bindings elsewhere, forcing them to leave behind their handheld items. Use <<bindtemp>> and <<unbindtemp>> for temporarily binding arms.*/
+	<<if _args[0]>>
+		<<set _args[0] to "bound">>
+		<<if $rightarm is "bound" and $worn.handheld.name isnot "naked">>
+			<<handheldruined>>
+		<</if>>
+	<<else>>
+		<<set $leftarm to "bound">>
+		<<set $rightarm to "bound">>
+		<<if $worn.handheld.name isnot "naked">>
+			<<handheldruined>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "bindtemp">>
 	<<set $leftarm to "bound">>
 	<<set $rightarm to "bound">>
 <</widget>>
@@ -2838,6 +2898,7 @@
 <<widget "passout">>
 	<<set $stress -= 5000>>
 	<<set $passoutstat += 1>>
+	<<set $passoutTimeStat to Time.date.timeStamp>>
 	<<ruffleHair>>
 <</widget>>
 
@@ -3009,7 +3070,7 @@
 
 <<widget "roomoptions">>
 	<<if $sexStats.pills.boughtOnce is true or $sexStats.pills["pills"]["Dr Harper\'s prescription"].owned gte 1 or $sexStats.pills["pills"]["asylum\'s prescription"].owned gte 1>>
-		<<pillicon>><<link [[Check your pills|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
+		<<pillicon>><<link [[Check your Medicine Drawer|PillCollection]]>><<set $pillsExitPassage to $passage>><<endevent>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -3041,9 +3102,6 @@
 			<br>
 		<</if>>
 	<</if>>
-	<<if $christmas is 1 and !$christmas_wraith>>
-		<<rngWraith 1>>
-	<</if>>
 <</widget>>
 
 
@@ -3065,6 +3123,14 @@
 			<span class="green">You find a stick.</span><<set $island.wood += 1>>
 		<<elseif (currentSkillValue("skulduggery") gte 800 and $rng gte 80) or $rng gte 90>>
 			<span class="green">You find a handful of walnuts.</span><<set $island.walnut += 1>>
+		<<else>>
+			<span class="red">You find nothing to steal.</span>
+		<</if>>
+	<<elseif $location is "farm">>
+		<<if $rng gte 90 and !$farm_key>>
+			<<set $farm_key to true>>
+			<<set $farmCellUnlk to false>>
+			You pull a <span class="green">ring of keys</span> from the <<persons>> pocket and hide it in the straw.<<combatskulduggeryskilluse>><<combatcontrol 10>><<gcombatcontrol>>
 		<<else>>
 			<span class="red">You find nothing to steal.</span>
 		<</if>>
@@ -3835,18 +3901,18 @@
 <<widget "nounderwearcheck">>
 	/*Checks if the PC is pantiless, but otherwise decent. Results in low level exhibitionism increases.*/
 	/*
-		Feature was disabled previous but left the text as is, just disabling the text rather than removing it
+		Feature was disabled previously, has been re-enabled after meeting the below requirement
 		Vrelnir: Exhibitionism should only rise when the player directly choses certain actions. The PC could have their underwear stolen, which would result in exhibitionism rising without a direct decision to do so.
-		Left in incase a valid use of the feature can be correctly implemented that meets the above requirement
 	*/
-	/*<<if !$worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") and $exposed lte 0 and $exhibitionism lt 19>>
+	<<if (!$worn.over_lower.type.includes("naked") or !$worn.lower.type.includes("naked")) and $worn.under_lower.type.includes("naked") and ["notWorn", "notBought", "sold", "given"].includes($worn.under_lower.exposedType) and $exposed lte 0 and $exhibitionism lt 19 and !$daily.no_underwear>>
 		<<set $no_underwear += 1>>
 	<</if>>
-	<<if $no_underwear gte 8>>
+	<<if $no_underwear gte 20>>
+		<<set $daily.no_underwear to true>>
 		<<set $no_underwear to 0>>
 		<<set $effectsmessage to 1>>
 		<<set $exhibitionism_message to 1>>
-	<</if>>*/
+	<</if>>
 <</widget>>
 
 <<widget "breastfed">>
@@ -3899,7 +3965,7 @@
 
 <<widget "new_npc_pillory">>
 	<<if not _args[0]>>
-		<<if $rng gte 20>><<generate1>><<else>><<generatec1>><</if>>
+		<<if $rng gte 20>><<generate1>><<else>><<generatey1>><</if>>
 		<<set _already_served to random(0,2)>>
 	<<else>>
 		<<set _already_served to 0>>
@@ -3910,8 +3976,8 @@
 	<<set $pillory_tenant.startday to Time.days>>
 	<<set $pillory_tenant.starthour to (Time.hour - _already_served)>>
 	/*set $endDate to timestamp and compare to $timeStamp*/
-	<<set $pillory_tenant.endDate to ($pillory_tenant.startday * Time.secondsPerDay + ($pillory_tenant.starthour + $pillory_tenant.duration - 7) * Time.secondsPerHour)>>
-	<<set $pillory_tenant.endhour to (($pillory_tenant.endDate % Time.secondsPerDay) / Time.secondsPerHour)>>
+	<<set $pillory_tenant.endDate to ($pillory_tenant.startday * TimeConstants.secondsPerDay + ($pillory_tenant.starthour + $pillory_tenant.duration - 7) * TimeConstants.secondsPerHour)>>
+	<<set $pillory_tenant.endhour to (($pillory_tenant.endDate % TimeConstants.secondsPerDay) / TimeConstants.secondsPerHour)>>
 	<<set $pillory_tenant.crowd to 1>>
 	<<set $pillory_tenant.wet to 0>>
 	<<set $pillory_tenant.upperexposed to 0>>
@@ -4458,14 +4524,14 @@
 <<widget "npc_pillory_release_schedule">>
 	<<get_pillory_npc>>
 	<br>
-	<<if ($pillory_tenant.endDate - $timeStamp) lte Time.secondsPerDay>>
-	<<set _a_few to Math.floor(($pillory_tenant.endDate - $timeStamp) / Time.secondsPerHour)>>
+	<<if ($pillory_tenant.endDate - $timeStamp) lte TimeConstants.secondsPerDay>>
+	<<set _a_few to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerHour)>>
 		<<He>> will be released
 		<<if _a_few gt 0>>in _a_few hours.
 		<<else>>imminently.
 		<</if>>
 	<<else>>
-		<<set _days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / Time.secondsPerDay)>>
+		<<set _days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerDay)>>
 		<<He>> is scheduled for release <<if _days_left is 1>>tomorrow<<else>>in two days<</if>> at
 		<<switch $pillory_tenant.endhour>>
 			<<case 0>>midnight.
@@ -4600,7 +4666,7 @@
 	<<if _args[0] is "icon">>
 		<<if _table>>
 			<br>
-			<<bedroomtablechairicon>> Your _table.name <<if _chair and _chair.name isnot "chair">>and another _chair.nameSolo are <<else>>is <</if>> situated next to a wall.
+			<<bedroomtablechairicon>> Your _table.name <<if _chair and _chair.name isnot "chair">>and a _chair.nameSolo are <<else>>is <</if>> situated next to a wall.
 		<<elseif _chair and _chair.name isnot "chair">>
 			<br>
 			<<bedroomtablechairicon>> A second _chair.nameSolo is situated next to a wall.
@@ -4659,6 +4725,24 @@
 	($worn.under_upper.type.includes("naked") or $worn.under_upper.type.includes("swim")) and
 	($worn.under_lower.type.includes("naked") or $worn.under_lower.type.includes("swim"))>>
 		<<set _swim_check to 1>>
+	<</if>>
+<</widget>>
+
+<<widget "pantsable">>
+	<!-- check if lowerwear allows for player to be pantsed or upskirted
+	_pantsable: lowerwear can be pulled down; _upskirt: skirt can be flipped up -->
+	<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1 and ($worn.lower.set is $worn.upper.set)>>
+		<<set _upskirt to 1>>
+		<<set _pantsable to 0>>
+	<<elseif setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<set _upskirt to 1>>
+		<<set _pantsable to 1>>
+	<<elseif ["shortalls"].includes($worn.lower.name) or ($worn.lower.set is $worn.upper.set)>>
+		<<set _upskirt to 0>>
+		<<set _pantsable to 0>>
+	<<else>>
+		<<set _upskirt to 0>>
+		<<set _pantsable to 1>>
 	<</if>>
 <</widget>>
 
@@ -4759,7 +4843,8 @@
 	<<if !playerChastity("hidden")>>
 		<<if $player.penisExist and $player.vaginaExist>>
 			<<schoolrep herm 1>>
-		<<elseif $player.gender isnot $player.gender_appearance>>
+		<<elseif $player.gender isnot $player.gender_appearance and $NudeGenderDC gt 0>>
+			/*increases crossdressing fame if NPCs judge gender based on genitals*/
 			<<schoolrep crossdress 1>>
 		<<elseif $player.gender is $player.gender_appearance and $schoolrep.crossdress gt 0 and !$daily.crossdressingFameReduction and !$weekly.crossdressingFameReduction and random(0,100) gte 100 - ($schoolrep.crossdress * 3)>>
 			<<schoolrep crossdress -1>>
@@ -4971,7 +5056,7 @@
 			<</if>>
 		<!--/case -->
 	<</switch>>
-	<<if !$_fail>>
+	<<if !$_fail and (!$_clear or _args.last() lte -5)>>
 		<<if !V.player.penisExist>>
 			<<run $_bodypart.delete("penis")>>
 		<</if>>
@@ -5033,13 +5118,60 @@
 
 
 <<widget "semenswallowedstat">>
-	<<if $statFreeze isnot true and $args[0] isnot undefined>>
-		<<set $semenswallowedstat += $args[0]>>
+	<<if $statFreeze isnot true and _args[0] isnot undefined>>
+		<<set $semenswallowedstat += _args[0]>>
 	<</if>>
 <</widget>>
 
 <<widget "animalsemenswallowedstat">>
-	<<if $statFreeze isnot true and $args[0] isnot undefined>>
-		<<set $animalsemenswallowedstat += $args[0]>>
+	<<if $statFreeze isnot true and _args[0] isnot undefined>>
+		<<set $animalsemenswallowedstat += _args[0]>>
 	<</if>>
+<</widget>>
+
+<<widget "visionPrepMorph">>
+	/*
+	!!!!! Should be used after <<freezePlayerStats>> !!!!!!
+	Resets stats to a default state in preparation to transform player into another character.
+	*/
+	<<if !$frozenValues>>
+		<<error {message:"<<visionPrepMorph>> was called, but player stats are not frozen!"}>>
+		<<exitAll>>
+	<</if>>
+
+	<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
+	<<run delete V.worn.butt_plug>>
+	<<set $clothingrebuy to 0>>
+
+	<<for _bodypart range $parasite.bodyparts>>
+		<<set $parasite[_bodypart] to {}>>
+	<</for>>
+	<<bodyliquid "clear">>
+	<<bodywriting_init>>
+	<<set $player.virginity to {anal:true,oral:true,penile:true,vaginal:true,temple:false,handholding:true,kiss:true}>>
+
+	<<set $pain to 0>>
+	<<set $arousal to 0>>
+	<<set $tiredness to 0>>
+	<<set $stress to 0>>
+	<<set $trauma to 0>>
+	<<set $control to 500>>
+
+	<<set $angel to 0>>
+	<<set $angelbuild to 0>>
+	<<set $demon to 0>>
+	<<set $wolfgirl to 0>>
+	<<set $cat to 0>>
+	<<set $cow to 0>>
+	<<set $harpy to 0>>
+	<<set $fox to 0>>
+	<<run Object.keys(V.transformationParts).forEach((tf) => {
+		Object.entries(V.transformationParts[tf]).forEach(([part, value]) => {
+			if (value !== 'disabled' && value !== 'hidden') {
+				V.transformationParts[tf][part] = 'hidden';
+			}
+		});
+	})>>
+	<<set $skulduggery to 0>>
+	<<set $spray to 0>>
 <</widget>>

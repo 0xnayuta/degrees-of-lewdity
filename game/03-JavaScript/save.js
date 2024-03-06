@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const DoLSave = ((Story, Save) => {
 	"use strict";
 
@@ -645,7 +644,11 @@ const importSettingsData = function (data) {
 					// eslint-disable-next-line no-var
 					for (let j = 0; j < listKey.length; j++) {
 						// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-						if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && S.npc[V.NPCNameList[i]][listKey[j]] === "none") {
+						if (
+							V.passage === "Start" &&
+							["pronoun", "gender", "skincolour"].includes(listKey[j]) &&
+							S.npc[V.NPCNameList[i]][listKey[j]] === "none"
+						) {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
 						} else if (validateValue(listObject[listKey[j]], S.npc[V.NPCNameList[i]][listKey[j]])) {
 							V.NPCName[i][listKey[j]] = S.npc[V.NPCNameList[i]][listKey[j]];
@@ -764,7 +767,7 @@ function exportSettings(data, type) {
 		S.npc[V.NPCNameList[i]] = {};
 		for (let j = 0; j < listKey.length; j++) {
 			// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
-			if (V.passage === "Start" && ["pronoun", "gender"].includes(listKey[j]) && V.NPCName[i][listKey[j]] === "none") {
+			if (V.passage === "Start" && ["pronoun", "gender", "skincolour"].includes(listKey[j]) && V.NPCName[i][listKey[j]] === "none") {
 				S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
 			} else if (validateValue(listObject[listKey[j]], V.NPCName[i][listKey[j]])) {
 				S.npc[V.NPCNameList[i]][listKey[j]] = V.NPCName[i][listKey[j]];
@@ -878,7 +881,6 @@ function settingsObjects(type) {
 						"beautiful",
 						"crossdresser",
 						"lustful",
-						"greenthumb",
 						"plantlover",
 					],
 					displayName: "Background:",
@@ -963,7 +965,7 @@ function settingsObjects(type) {
 				clothesPrice: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
 				clothesPriceUnderwear: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
 				clothesPriceSchool: { min: 1, max: 2, decimals: 1, displayName: "Cost of school clothes:", randomize: "gameplay" },
-				clothesPriceLewd: { min: 0.1, max: 5, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
+				clothesPriceLewd: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
 				furniturePriceFactor: { min: 0.6, max: 2, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
 				tending_yield_factor: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 				rentmod: { min: 0.1, max: 3, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
@@ -1180,6 +1182,8 @@ function settingsObjects(type) {
 					lightCombat: { min: 0, max: 1, decimals: 2, displayName: "Combat light:" },
 					lightTFColor: { min: 0, max: 1, decimals: 2, displayName: "Angel/Devil TF colour components:" },
 					maxStates: { min: 1, max: 20, decimals: 0, displayName: "History depth:" },
+					maxSessionStates: { min: 1, max: 20, decimals: 0, displayName: "Session history depth:" },
+					historyControls: { bool: true, displayName: "Show history controls:" },
 					newWardrobeStyle: { bool: true, displayName: "Use the new wardrobe style:" },
 					useNarrowMarket: { bool: true, displayName: "Use 'narrow screen' version of market inventory:" },
 					skipStatisticsConfirmation: { bool: true, displayName: "Skip confirmation when viewing extra stats:" },
@@ -1232,6 +1236,11 @@ function settingsObjects(type) {
 			result = {
 				pronoun: { strings: ["m", "f"], displayName: "Pronoun: ", textMap: { none: "N/A", m: "Male", f: "Female" } },
 				gender: { strings: ["m", "f"], displayName: "Genitalia: ", textMap: { none: "N/A", m: "Penis", f: "Vagina" } },
+				skincolour: {
+					strings: ["white", "black", "ghost"],
+					displayName: "Skin colour: ",
+					textMap: { none: "N/A", white: "Pale", black: "Dark", ghost: "Ghostly Pale" },
+				},
 				penissize: { min: 0, max: 4, decimals: 0, displayName: "Penis size: ", textMap: { 0: "N/A", 1: "Tiny", 2: "Average", 3: "Thick", 4: "Huge" } },
 				breastsize: {
 					min: 0,

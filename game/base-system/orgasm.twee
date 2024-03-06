@@ -76,7 +76,7 @@
 						/*ToDo: Pregnancy, figure out how the Wraith, plantpeople, etc will handle pregnancy.*/
 					<<elseif $npcrow.includes($penistarget)>>
 						<<recordSperm `{target: $NPCList[$penistarget].fullDescription, spermOwner: "pc", spermType: "human", rngModifier: _orgasmSpermRng}`>>
-					<<elseif $NPCList[$penistarget].pregnancy is 0 and $consensual is 1 and ["realistic", "fetish"].includes($pregnancytype)>>
+					<<elseif $NPCList[$penistarget].pregnancy is 0 and ["realistic", "fetish"].includes($pregnancytype)>>
 						/* Pregnancy Count */
 						<<set $_count to Object.values($storedNPCs).reduce((prev, curr) => {
 							if(curr.pregnancy) return prev + 1;
@@ -92,14 +92,14 @@
 						<</if>>
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
 						/*If random NPC is impregnated, compress NPC and fetus*/
-						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation) and $_count lte 10>>
+						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
 							<<switch $NPCList[$penistarget].type>>
 								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(V.NPCList[$penistarget], "pc", true)>>
 								<<case "wolf">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", false)>>
 								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", true)>>
 							<</switch>>
 							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
-								<<if random(0,2) is 0 or setup.pregnancy.randomAlwaysKeep.includes($location)>>
+								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
 									<<compressNPC $penistarget "pregnancy">>
 									<<set $storedNPCs[_lastCompressedName].pregnancy to $_pregnancy>>
 									/* ToDo: Uncomment when compression when is ready */
@@ -922,11 +922,19 @@
 		<<vaginaWetnessCalculate>>
 	<</if>>
 	<<if $player.penisExist>>
+		<<set $_minimumPenis to 0>>
+		<<if playerRutMinArousal() and numberOfEarSlime() and $earSlime.focus is "impregnation" and $earSlime.growth gte 100>>
+			<<set $_minimumPenis += Math.floor(($earSlime.growth - 100) / 2)>>
+		<</if>>
 		<<set $penisWetness to setup.bodyliquid.combined("penis") * 12>>
-		<<set $penisWetness to Math.clamp($penisWetness, 0, 120)>>
+		<<set $penisWetness to Math.clamp($penisWetness, Math.clamp($_minimumPenis, 0, 45), 120)>>
 	<</if>>
 	<<set $anusWetness to (setup.bodyliquid.combined("anus") + setup.bodyliquid.combined("bottom")) * 6>>
-	<<set $anusWetness to Math.clamp($anusWetness, 0, 120)>>
+	<<set $_minimum to 0>>
+	<<if playerHeatMinArousal() and numberOfEarSlime() and $earSlime.focus is "pregnancy" and $earSlime.growth gte 100 and $player.gender is "m">>
+		<<set $_minimum += Math.floor(($earSlime.growth - 100) / 2)>>
+	<</if>>
+	<<set $anusWetness to Math.clamp($anusWetness, Math.clamp($_minimum, 0, 45), 120)>>
 	<<if $combat is 1>>
 		<<penetrationPainCalculate>>
 	<</if>>
@@ -954,8 +962,13 @@
 		<<set $combatWetBoost to 0>>
 	<</if>>
 
+	<<set $_minimum to 0>>
+	<<if playerHeatMinArousal() and numberOfEarSlime() and $earSlime.focus is "pregnancy" and $earSlime.growth gte 100>>
+		<<set $_minimum += Math.floor(($earSlime.growth - 100) / 2)>>
+	<</if>>
+
 	<<set $vaginaWetness to $vaginaArousalWetness + $combatWetBoost + (setup.bodyliquid.combined("vagina") + setup.bodyliquid.combined("vaginaoutside")) * 6>>
-	<<set $vaginaWetness to Math.clamp($vaginaWetness, 0, 120)>>
+	<<set $vaginaWetness to Math.clamp($vaginaWetness, Math.clamp($_minimum, 0, 45), 120)>>
 <</widget>>
 
 <<widget "penetrationPainCalculate">>
