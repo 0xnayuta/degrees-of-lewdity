@@ -354,11 +354,11 @@ function mapPcToClothingOptions(pc, options) {
 			worn: {},
 		};
 		options.filters.worn[slot] = {};
-		options.filters[mainFilterKey] = clothing.colour_sidebar
+		options.filters[mainFilterKey] = clothing.colour
 			? lookupColour(options, setup.colours.clothes_map, clothes.item.colour, slot + " clothing", "worn_" + slot + "_custom", clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		if (clothing.accessory_colour_sidebar) {
+		if (clothing.accessory_colour) {
 			options.filters[accFilterKey] = lookupColour(
 				options,
 				setup.colours.clothes_map,
