@@ -63,10 +63,13 @@ const combatMainNpc = {
 		baseShadow: {
 			srcfn(options) {
 				const path = `${options.src}shadow/${options.type}/${options.state}.png`;
+				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				return !!options.showShadow;
+				const show = !!options.showShadow;
+				console.warn("NPC showing:", show);
+				return show;
 			},
 			animationfn(options) {
 				return options.animKey;

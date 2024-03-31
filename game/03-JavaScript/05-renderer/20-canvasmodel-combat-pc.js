@@ -413,11 +413,11 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				if (clothes.state !== "handjob") return "";
+				if (options.position === "missionary" && clothes.state !== "handjob") return "";
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${clothes.state}.png`;
 				return path;
 			},
-			z: zi.base - 4,
+			z: zi.base - 2,
 		}),
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
@@ -547,12 +547,12 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.upper;
 				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
-				// Sleeves on the side behind are never shown, except for handjobs.
-				if (!["handjob"].includes(clothes.sleeves)) return false;
+				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
+				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 10,
+			z: zi.base - 1,
 		}),
 		upperFrontSleeves: genClothingLayer("upper", {
 			srcfn(options) {

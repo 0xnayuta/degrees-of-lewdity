@@ -68,24 +68,11 @@ function mapPlayerToOptions(options) {
 	options.breastsExposed = true;
 
 	// Copied from <<leg_position>> - Centralise usage later. Added footjob state
-	const parts = [V.anususe, V.vaginause, V.chestuse, V.mouthuse];
-	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
-		options.legFrontPosition = "up";
-		options.legBackPosition = "up";
-	} else if (V.feetuse === "penis") {
-		options.legFrontPosition = "footjob";
-		options.legBackPosition = "footjob";
-	} else if (parts.includes("penis") || parts.includes(1)) {
-		options.legFrontPosition = "up";
-		options.legBackPosition = "up";
-	} else {
-		options.legFrontPosition = "down";
-		options.legBackPosition = "down";
-	}
+	mapPcToLegPosition(options);
 
 	// Set values for blush and tears
-	options.blush = Math.clamp(0, 0, 5);
-	options.tears = Math.clamp(0, 0, 5);
+	options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
+	options.tears = painToTearsLvl(V.pain);
 
 	// Set animation speed
 	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
@@ -139,6 +126,38 @@ Macro.add("mapplayertooptions", {
 		T.options[slot] = mapPlayerToOptions(options);
 	},
 });
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapPcToLegPosition(options) {
+	const parts = [V.anususe, V.vaginause, V.chestuse, V.mouthuse];
+	if (V.feetuse === "penis") {
+		options.legFrontPosition = "footjob";
+		options.legBackPosition = "footjob";
+		return options;
+	}
+	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
+	if (options.position === "doggy") {
+		options.legFrontPosition = "down";
+		options.legBackPosition = "down";
+		return options;
+	}
+	if (parts.includes("penis") || parts.includes(1)) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
+	options.legFrontPosition = "down";
+	options.legBackPosition = "down";
+	return options;
+}
 
 /**
  *
