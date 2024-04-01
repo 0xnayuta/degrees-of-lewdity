@@ -413,9 +413,16 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				if (options.position === "missionary" && clothes.state !== "handjob") return "";
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${clothes.state}.png`;
 				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes == null || clothes.name == null) return false;
+				if (options.position === "missionary") {
+					if (options.armBackPosition === "bound2" || clothes.state !== "handjob") return false;
+				}
+				return true;
 			},
 			z: zi.base - 2,
 		}),
@@ -425,6 +432,14 @@ const combatMainPc = {
 				if (clothes == null || clothes.name == null) return "";
 				const path = `${options.src}clothing/hands/${clothes.name}/front-${clothes.state}.png`;
 				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes == null || clothes.name == null) return false;
+				if (options.position === "missionary") {
+					if (options.armFrontPosition === "bound2") return false;
+				}
+				return true;
 			},
 			z: zi.base + 14,
 		}),
