@@ -3573,7 +3573,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 46 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 48 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3584,20 +3584,20 @@
 			<!--Should'nt need to re-run that often-->
 			<<run clothesDataTrimmerLoop()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 46>>
+		<<set $objectVersion.updateClothes to 48>>
 		<!--If you have added any `colour_combat` or `accessory_colour_combat` to clothes that need their `colour` or `accessory_colour`, this will clear them.
 		Remove `colour_combat` or `accessory_colour_combat` where this is the case, they are independant so `colour_combat` will only clear `colour`-->
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 14 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 15 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 14>>
+		<<set $objectVersion.specialClothes to 15>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 8 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 9 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 8>>
+		<<set $objectVersion.wardrobes to 9>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -4823,9 +4823,17 @@
 		/*fix weeksEmpty increasing even when the player hasn't started the vending machine questline. reset vending machine questline if vending machines were sold despite never having started the questline*/
 	<</if>>
 
-	/* To fix cases where the value could be delete after starting the game */
+	/* To fix cases where the value could be deleted after starting the game */
 	<<if $cycledisable is undefined>>
 		<<set $cycledisable to "f">>
+	<</if>>
+
+	/*0.4.6.0 Adding arrays for photos and videos taken of the PC that they'll be able to find online*/
+	<<if $internet is undefined>>
+		<<set $internet to {
+			photos: [],
+			videos: []
+		}>>
 	<</if>>
 
 	<!-- V0.4.6.0 Vision type events refactor and $real_ variables cleanup -->
@@ -4998,6 +5006,7 @@
 
 				migrateRealVars(['weather', 'moonstate', 'timeStamp', 'location', 'parasite', 'pain', 'arousal', 'tiredness', 'trauma', 'control', 'angel', 'angelbuild', 'fallenangel', 'transformationParts', 'purity', 'parasitepregdisable', 'worn', 'skin']);
 			} else if (event === 'prayerroom') {
+				/* DO NOT MODIFY FURTHER, SEE 'Fix to freezePlayerStats being used in the Corrupt Temple scene' */
 				overwriteObjProp('virginity', V.real_virginity, V.frozenValues.player);
 				overwriteObjProp('virginity', V.real_virginity_sydney, V.frozenValues.NPCName[V.NPCNameList.indexOf('Sydney')]);
 
@@ -5042,4 +5051,51 @@
 	<<unset $speechsextoyshocked>>
 	<<unset $speechsextoyaroused>>
 	<<unset $speechsextoydisappointed>>
+
+	/*Added npc generation and pronoun widgets to the livestock horse passages*/
+	<<if $livestock_horse_rescued is $pronoun >>
+		<<set $livestock_horse_rescued to true>>
+	<</if>>
+
+	/*Adds Gift Variable for Office Manager for old saves*/
+	<<if $managerGift is undefined>>
+		<<set $managerGift to 1>>
+	<</if>>
+
+	/* Stat tracking for unsafe sex */
+	<<if $unsafeSexTimeStat is undefined>>
+		<<set $unsafeSexTimeStat to {}>>
+	<</if>>
+
+	<!-- V0.4.6.0 Draggletail fix -->
+	<<if $hairtype is "draggletail">>
+		<<set $hairtype to "messy ponytail">>
+	<</if>>
+
+	/*Fix inconsistent naming for ufarm escape variable*/
+	<<if $livestockEscape is "birth">>
+		<<set $livestock_escape to "birth">>
+		<<unset $livestockEscape>>
+	<</if>>
+
+	/* Fix to freezePlayerStats being used in the Corrupt Temple scene, modification of '$real_ variables cleanup' related to this even shouldnt be modified any longer */
+	<<if !$replayScene and $statFreeze and $frozenValues and ($passage.match(/^Sydney Temple Corrupt (Sex( Finish)?|End( [^2F]|$))/)
+		|| ($passage === 'Sydney Temple Corrupt End 2' && !$sydneySeen.includes("corruptroom"))) and !$defileSacredGroundStore and !$objectVersion.defileSacredGroundStore>>
+		<<set $defileSacredGroundStore to {
+			playerVirginity: clone($frozenValues.player.virginity),
+			sydneyVirginity: clone($frozenValues.NPCName[$NPCNameList.indexOf("Sydney")].virginity),
+			angel: $frozenValues.angel,
+			angelbuild: $frozenValues.angelbuild,
+			fallenangel: $frozenValues.fallenangel,
+			transformationParts: $frozenValues.transformationParts,
+			purity: $frozenValues.purity,
+			trauma: $frozenValues.trauma,
+		}>>
+		<<unset $frozenValues>>
+		<<unset $frozenKeys>>
+		<<unset $statFreeze>>
+		<<set $objectVersion.defileSacredGroundStore to 1>>
+	<</if>>
 <</widget>>
+
+

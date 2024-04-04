@@ -11,23 +11,29 @@
  */
 function updateClothingColours(item, itemRef) {
 	switch (item.name) {
+		case "swimming goggles":
+			if (item.accessory_colour === 0) item.accessory_colour = "white";
+			break;
 		case "winter jacket":
 			if (item.colour === 0) item.colour = "black";
 			if (item.accessory_colour === 0) item.accessory_colour = "tan";
 			break;
 		// eslint-disable-next-line no-fallthrough
-		case "cool shades":
-		case "square shades":
-		case "round shades":
-		case "shield shades":
-		case "punk shades":
-		case "leather dress":
 		case "long leather gloves":
+		case "leather dress":
+		case "round shades":
 		case "witch shoes":
 			if (item.colour === 0) item.colour = "black";
 			break;
+		case "square shades":
+		case "shield shades":
+		case "punk shades":
+			if (item.colour === 0) item.colour = "black";
+			if (item.accessory_colour === 0) item.colour = "black";
+			break;
 		case "aviators":
 			if (item.colour === 0) item.colour = "grey";
+			if (item.accessory_colour === 0) item.colour = "original";
 			break;
 		case "glasses":
 			if (item.colour === 0) item.colour = "silver";
@@ -53,11 +59,14 @@ function updateClothingColours(item, itemRef) {
 			break;
 		case "overall bottoms":
 		case "overalls":
-			if (item.colour === 0) item.colour = "original";
+			if (item.colour === 0 || item.colour === "original") item.colour = "denim";
 			if (item.accessory_colour === 0) item.accessory_colour = "gold";
 			break;
+		case "jean miniskirt":
+		case "booty jorts":
+		case "denim shorts":
 		case "jeans":
-			if (item.colour === 0) item.colour = "original";
+			if (item.colour === 0 || item.colour === "original") item.colour = "denim";
 			break;
 		case "loose socks":
 			if (item.colour === 0) item.colour = "white";
@@ -66,6 +75,10 @@ function updateClothingColours(item, itemRef) {
 			if (item.accessory_colour === 0) {
 				item.accessory_colour = item.colour !== "custom" ? item.colour : "black";
 			}
+			break;
+		case "cowboy hat":
+			if (item.colour === 0) item.colour = "sand";
+			if (item.accessory_colour === 0) item.accessory_colour = "black";
 			break;
 		default:
 			// Catch-all case if people forget to adjust this widget for whatever clothing item is updated. Can make weird looking clothes if "custom" is selected.
@@ -162,7 +175,10 @@ function updateClothesItem(slot, item, debug) {
 	}
 	item.colour = remapColours[item.colour] || item.colour;
 	item.accessory_colour = remapColours[item.accessory_colour] || item.accessory_colour;
-	if ((item.colour === 0 && itemRef.colour_options.length > 0) || (item.accessory_colour === 0 && itemRef.accessory_colour_options > 0))
+	if (
+		((item.colour === 0 || item.colour === "original") && itemRef.colour_options.length > 0) ||
+		(item.accessory_colour === 0 && itemRef.accessory_colour_options.length > 0)
+	)
 		updateClothingColours(item, itemRef);
 	// Fix for 0.2.21.x issue
 	if (item.colour_combat !== undefined && itemRef.colour_options.length === 0) item.colour = 0;
@@ -228,7 +244,6 @@ function updateClothesItem(slot, item, debug) {
 		case "futuristic bodysuit pants":
 		case "skeleton bottoms":
 		case "cheerleader gloves":
-		case "football helmet":
 			item.type = ["costume"];
 			break;
 		case "rag top":
@@ -258,6 +273,30 @@ function updateClothesItem(slot, item, debug) {
 		case "boy's gym socks":
 		case "girl's gym socks":
 			item.type = ["school", "athletic"];
+			break;
+		case "padded football shirt":
+			item.name = "foreign football shirt";
+			item.name_cap = "Foreign football shirt";
+			break;
+		case "football shorts":
+			item.name = "foreign football shorts";
+			item.name_cap = "Foreign football shorts";
+			break;
+		case "football helmet":
+			item.name = "foreign football helmet";
+			item.name_cap = "Foreign football helmet";
+			item.type = ["costume"];
+			break;
+		case "soccer shorts":
+			item.name = "football shorts";
+			item.name_cap = "Football shorts";
+			break;
+		case "soccer shirt":
+			item.name = "football shirt";
+			item.name_cap = "Football shirt";
+			break;
+		case "kittycat hat":
+			item.name_cap = "Kittycat hat";
 			break;
 	}
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -447,6 +486,12 @@ function wardrobesUpdate() {
 		Object.values(V.wardrobes).forEach(wardrobe => {
 			if (wardrobe && Array.isArray(wardrobe.upper) && !wardrobe.handheld) wardrobe.handheld = [];
 		});
+	}
+	if (!V.wardrobes.officeBuilding) {
+		V.wardrobes.officeBuilding = clone(defWardrobe);
+		V.wardrobes.officeBuilding.name = "Office agency changing room";
+		V.wardrobes.officeBuilding.unlocked = V.officejobintro === 1;
+		V.wardrobes.officeBuilding.space = 5;
 	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

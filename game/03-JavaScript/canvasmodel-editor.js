@@ -478,6 +478,9 @@ Macro.add("canvasModelEditor", {
 		const options = model.options;
 
 		function redraw() {
+			let options = model.options;
+			model.reset();
+			model.options = options;
 			model.redraw();
 		}
 
