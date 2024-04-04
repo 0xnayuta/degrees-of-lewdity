@@ -1,11 +1,13 @@
 :: Widgets Orgasm [widget]
 
 <<widget "orgasm">>
-	<<orgasmstat>><<orgasmcount 1>><<set $orgasmdown to 3>>
-	<<if $combat is 1>>
-		<<set $speechcum to 1>><<set $speechorgasmcount += 1>>
+	<<if $orgasmdown lte 0>>
+		<<orgasmstat>><<orgasmcount 1>><<set $orgasmdown to 3>>
+		<<if $combat is 1>>
+			<<set $speechcum to 1>><<set $speechorgasmcount += 1>>
+		<</if>>
+		<<tinyPenisDryOrgasmChance>>
 	<</if>>
-	<<tinyPenisDryOrgasmChance>>
 	<<if $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $ruinedorgasmdisable is "f">>
 		<span class="red">You are almost overcome by sensation, but it ends prematurely.</span><<pain 10>><<stress 10>><<gpain>><<gstress>>
 		<<set _deniedOrgasm to true>>
@@ -16,7 +18,7 @@
 	<<elseif $player.penisExist>>
 		<<if $earSlime.focus is "pregnancy" and $earSlime.growth gte 100>>
 			<<set _cumDesc to "watery cum">>
-		<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 100>>
+		<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 100 or (setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
 			<<set _cumDesc to "thick cum">>
 		<<else>>
 			<<set _cumDesc to "cum">>
@@ -55,16 +57,22 @@
 			<<elseif $penisuse is "othervagina">>
 				<<if $NPCList[$penistarget].vagina is "penis">>
 					<<personselect $penistarget>>
-					<<penileejacstat>>
-					<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> womb.</span>
+					<<if $orgasmdown is 3>>
+						<<penileejacstat>>
+					<</if>>
+					<<if $orgasmdown is 3>>
+						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> womb.</span>
+					<<elseif $orgasmdown gte 1 and (setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
+						<span class="pink">The peak of your orgasm persists as you continue ejaculating<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> womb.</span>
+					<</if>>
 					<<if $earSlime.event is "ejaculate into someone's vagina">>
 						<<set $earSlime.event to "">>
 						<<set $_earslimeEjaculateTask to true>>
 					<</if>>
-					<<purity -1>><<internalejac>><<creampie "npc" "vagina">>
+					<<purity -1>><<if $orgasmdown is 3>><<internalejac>><<creampie "npc" "vagina">><</if>>
 					<<if $earSlime.focus is "pregnancy" and $earSlime.growth gte 75>>
 						<<set _orgasmSpermRng to 25>>
-					<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 75>>
+					<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 75 or (setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
 						<<set _orgasmSpermRng to 200>>
 					<<else>>
 						<<set _orgasmSpermRng to 100>>
@@ -154,7 +162,11 @@
 			<<elseif $penisuse is "tentacle">>
 				<<if $penisstate isnot "tentacleentrance" and $penisstate isnot "tentacleimminent">>
 					<<penileejacstat>>
-					<span class="pink">You are overcome by sensation. The $tentaclePenis milks you of your semen.</span>
+					<<if $orgasmdown is 3>>
+						<span class="pink">You are overcome by sensation. The $tentaclePenis milks you of your semen.</span>
+					<<elseif $orgasmdown gte 1 and (setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
+						<span class="pink">The peak of your orgasm persists. The $tentaclePenis continues to milk you of your semen.</span>
+					<</if>>
 					<<purity -1>><<internalejac>>
 					<!-- <<creampie "npc" "tentacle">> -->
 				<<else>>
@@ -194,17 +206,26 @@
 			<<else>>
 				<span class="pink">You are overcome by sensation. A surge of _cumDesc erupts from your<<print $parasitePenis>> penis.</span>
 			<</if>>
-			<<if $semen_amount lte ($semen_volume * (6 / 24))>>
-				<span class="pink">Exhausted, your body only manages to produce a few droplets of watery cum.</span>
-				<<semenvolume -2>>
-			<<elseif $semen_amount lte ($semen_volume * (12 / 24))>>
-				<span class="pink">Tired from overuse, your cum is thin and watery.</span>
-				<<semenvolume -1>>
-			<<elseif $semen_amount lte ($semen_volume * (18 / 24))>>
-				<span class="pink">The repeated orgasms are taking their toll, reducing the amount of _cumDesc your body manages to produce.</span>
-				<<semenvolume -1>>
+			<<if !(setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
+				<<if $semen_amount lte ($semen_volume * (6 / 24))>>
+					<span class="pink">Exhausted, your body only manages to produce a few droplets of watery cum.</span>
+					<<semenvolume -2>>
+				<<elseif $semen_amount lte ($semen_volume * (12 / 24))>>
+					<span class="pink">Tired from overuse, your cum is thin and watery.</span>
+					<<semenvolume -1>>
+				<<elseif $semen_amount lte ($semen_volume * (18 / 24))>>
+					<span class="pink">The repeated orgasms are taking their toll, reducing the amount of _cumDesc your body manages to produce.</span>
+					<<semenvolume -1>>
+				<</if>>
+			<<else>>
+				<<if $semen_amount lte ($semen_volume * (6 / 24))>>
+					<span class="pink">Your balls struggle to keep up.</span>
+				<<elseif $semen_amount lte ($semen_volume * (12 / 24))>>
+					<span class="pink">Your body works harder to continue producing the volume of _cumDesc you're ejaculating.</span>
+				<<elseif $semen_amount lte ($semen_volume * (18 / 24))>>
+					<span class="pink">Your body manages to continue ejaculating _cumDesc, despite your balls starting to empty.</span>
+				<</if>>
 			<</if>>
-
 		<</if>>
 	<</if>>
 	<<if $player.vaginaExist and !_deniedOrgasm>>
@@ -859,7 +880,11 @@
 			<<set $_semen_gain to Math.floor($semen_volume * (1/24))>>
 		<</if>>
 		<<if $cow gte 6 or ($earSlime.growth gte 100 and $earSlime.focus is "impregnation")>>
-			<<set $_semen_gain *= 2>>
+			<<if !(setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
+				<<set $_semen_gain *= 2>>
+			<<else>>
+				<<set $_semen_gain *=2.2>>
+			<</if>>
 		<</if>>
 		<<if $earSlime.growth gte 100 and $earSlime.focus is "pregnancy">>
 			<<set $_semen_gain /= 4>>
@@ -877,6 +902,9 @@
 			<</if>>
 			<<if $drugged gte 1>>
 				<<semenvolume 1>>
+			<</if>>
+			<<if (setup.bodyparts.find(p => $skin[p].special is "impreg" and $skin[p].pen is "magic"))>>
+				<<semenvolume 2>>
 			<</if>>
 			<<set $semen_amount to $semen_volume>>
 		<</if>>
