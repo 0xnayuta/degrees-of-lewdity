@@ -19,8 +19,8 @@
  * @property {string} hairLength The named stage of the hair length.
  * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
  * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
- * @property {"bound"|"handjob"} armBackPosition The position the back arm is in.
- * @property {"bound"|"handjob"} armFrontPosition The position the front arm is in.
+ * @property {"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
+ * @property {"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
  * @property {1|2|3|4|5} blush The volume of blush on the player, higher is more.
  * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.

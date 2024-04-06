@@ -141,6 +141,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const result = options.showPlayer && options.position === "doggy";
+				if (options.armBackPosition === "bound2") return false;
 				return !!result;
 			},
 			animationfn(options) {
@@ -186,13 +187,10 @@ const combatMainPc = {
 		},
 		frontthigh: {
 			srcfn(options) {
-				if (options.position === "doggy") {
-					return options.src + "";
-				}
 				return `${options.src}body/thighs/front-${options.legFrontPosition}.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer && options.position !== "doggy";
+				const result = options.showPlayer;
 				return !!result;
 			},
 			animationfn(options) {
@@ -419,9 +417,8 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return false;
-				if (options.position === "missionary") {
-					if (options.armBackPosition === "bound2" || clothes.state !== "handjob") return false;
-				}
+				if (options.armBackPosition === "bound2") return false;
+				if (options.position === "missionary" && clothes.state !== "handjob") return false;
 				return true;
 			},
 			z: zi.base - 2,
@@ -436,9 +433,7 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return false;
-				if (options.position === "missionary") {
-					if (options.armFrontPosition === "bound2") return false;
-				}
+				if (options.armFrontPosition === "bound2") return false;
 				return true;
 			},
 			z: zi.base + 14,
