@@ -344,6 +344,13 @@ function mapPcToClothingOptions(pc, options) {
 			// state = options.legBackPosition;
 		}
 
+		// Wetness
+		let alpha = 1;
+		const stage = V[slot + "wetstage"];
+		if (stage != null) {
+			alpha = Math.clamp(1 - stage / 4, 0, 1);
+		}
+
 		/**
 		 * @type {ClothingState}
 		 */
@@ -351,7 +358,7 @@ function mapPcToClothingOptions(pc, options) {
 			item: clothing,
 			name: clothing.combatImg,
 			state,
-			alpha: 1,
+			alpha,
 		};
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
 			if (clothing.sleeve_img === 1) {
