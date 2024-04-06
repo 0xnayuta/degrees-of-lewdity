@@ -154,6 +154,11 @@ function mapPcToLegPosition(options) {
 		options.legBackPosition = "up";
 		return options;
 	}
+	if (combat.positions.vagina >= 2 || combat.positions.anus >= 2) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
 	options.legFrontPosition = "down";
 	options.legBackPosition = "down";
 	return options;
