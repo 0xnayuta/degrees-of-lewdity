@@ -137,12 +137,12 @@ const combatMainPc = {
 		 */
 		backarm: {
 			srcfn(options) {
-				return `${options.src}body/arms/back.png`;
+				return `${options.src}body/arms/back-${options.armBackPosition}.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer && options.position === "doggy";
+				if (!options.showPlayer) return false;
 				if (options.armBackPosition === "bound2") return false;
-				return !!result;
+				return true;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -411,14 +411,14 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/back-${clothes.state}.png`;
+				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return false;
-				if (options.armBackPosition === "bound2") return false;
-				if (options.position === "missionary" && clothes.state !== "handjob") return false;
+				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
+				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
 				return true;
 			},
 			z: zi.base - 2,
@@ -427,7 +427,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/front-${clothes.state}.png`;
+				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
 				return path;
 			},
 			showfn(options) {
@@ -482,6 +482,14 @@ const combatMainPc = {
 			z: zi.frontThigh + 2,
 		}),
 		lower: genClothingLayer("lower", {
+			srcfn(options) {
+				const clothes = options.clothes.lower;
+				if (clothes == null || clothes.name == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/${options.legFrontPosition}-${clothes.state}.png`;
+				console.log("Lower", "Path:", path);
+				return path;
+			},
+			/*
 			dxfn(options) {
 				if (options.legFrontPosition === "footjob") {
 					return -10;
@@ -494,6 +502,7 @@ const combatMainPc = {
 				}
 				return 0;
 			},
+			*/
 			z: zi.frontThigh + 3,
 		}),
 		neckWear: genClothingLayer("neck", {
@@ -550,7 +559,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${clothes.sleeves}.png`;
+				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${options.armBackPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
@@ -558,6 +567,7 @@ const combatMainPc = {
 				const clothes = options.clothes.upper;
 				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
+				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;
@@ -568,7 +578,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${clothes.sleeves}.png`;
+				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${options.armFrontPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},

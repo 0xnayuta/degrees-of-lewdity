@@ -19,8 +19,8 @@
  * @property {string} hairLength The named stage of the hair length.
  * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
  * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
- * @property {"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
- * @property {"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
+ * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
+ * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
  * @property {1|2|3|4|5} blush The volume of blush on the player, higher is more.
  * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.
@@ -132,8 +132,34 @@ Macro.add("mapplayertooptions", {
  * @param {Options} options
  * @returns {Options}
  */
+function mapPcToArmPosition(options) {
+	if (options.position === "missionary") {
+		options.armBackPosition = getArmState(V.leftarm);
+		options.armFrontPosition = getArmState(V.rightarm);
+		return options;
+	}
+	options.armBackPosition = getArmState(V.rightarm);
+	options.armFrontPosition = getArmState(V.leftarm);
+	return options;
+}
+
+function getArmState(arm) {
+	if (["bound", "grappled", "behind"].includes(arm)) {
+		return "bound2";
+	}
+	if (arm === "penis") {
+		return "handjob";
+	}
+	return "default";
+}
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
 function mapPcToLegPosition(options) {
-	const parts = [V.anususe, V.vaginause, V.chestuse, V.mouthuse];
+	const parts = [V.anususe, V.vaginause];
 	if (V.feetuse === "penis") {
 		options.legFrontPosition = "footjob";
 		options.legBackPosition = "footjob";
@@ -339,7 +365,7 @@ function mapPcToClothingOptions(pc, options) {
 			}
 			if (clothing.state === "thighs" && (isSkirtDown || areLegsUp)) {
 				options.genitalsExposed = true;
-				state = "thighs-down";
+				state = "thighs";
 			}
 		}
 
@@ -413,15 +439,7 @@ window.mapPcToClothingOptions = mapPcToClothingOptions;
  * @returns {Options}
  */
 function mapPcToBodyOptions(pc, options) {
-	// Set arm position
-	options.armBackPosition = "default";
-	if (["bound", "grappled", "behind"].includes(V.leftarm)) {
-		options.armBackPosition = "bound2"; // Could assign with V.leftarm?
-	}
-	options.armFrontPosition = "default";
-	if (["bound", "grappled", "behind"].includes(V.rightarm)) {
-		options.armFrontPosition = "bound2"; // Could assign with V.rightarm?
-	}
+	mapPcToArmPosition(options);
 	return options;
 }
 window.mapPcToBodyOptions = mapPcToBodyOptions;

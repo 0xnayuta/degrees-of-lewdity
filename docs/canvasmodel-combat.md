@@ -29,6 +29,10 @@ Lower:
 
 -   skirt
 
+### Issues
+
+-   [ ] Shirt sprites have sleeves embedded into them, these should be moved to the sleeves of the sprites.
+
 ## Penetrators
 
 Penetrator(s) need to be redesigned to rest upon the face of the PC:
