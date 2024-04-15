@@ -15,6 +15,7 @@
 		<<else>>
 			<<set _percent to Math.floor((_args[1]/_args[2])*100)>>
 			<<set _minPercent to Math.clamp(Math.floor((_args[0]/_args[2])*100), 0, _percent)>>
+			<<set _pin to Math.clamp(Math.floor((_args[4]/_args[2])*100), 0, _args[2])>>
 			<<switch Math.floor(_percent/10)>>
 				<<case 8 9>><<set _statColor to "pinkbar">>
 				<<case 6 7>><<set _statColor to "purplebar">>
@@ -26,6 +27,8 @@
 			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
 			<<if _minPercent>>
 				<div @class="_statColor + ' meterMin'" @style="'width:' + _minPercent + '%'"></div>
+			<<elseif _pin>>
+				<div class="meterPin" @style="'width:' + _pin + '%'"></div>
 			<</if>>
 		<</if>>
 	</div>
@@ -45,7 +48,7 @@
 				<<case 0 1>><<set _statColor to "pinkbar">>
 				<<default>><<set _statColor to "greenbar">>
 			<</switch>>
-			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
+				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
 		<</if>>
 	</div>
 <</widget>>
@@ -1096,9 +1099,9 @@
 
 <<widget "oralejacstat">><<if $statFreeze isnot true>><<set $oralejacstat += 1>><<purity -1>><<internalejac>><<creampie "self" "mouth">><</if>><</widget>>
 
-<<widget "cunnilingusStat">><<if $statFreeze isnot true>><<set $cunnilingusStat += 1>><</if>><</widget>>
+<<widget "cunnilingusstat">><<if $statFreeze isnot true>><<set $cunnilingusstat += 1>><</if>><</widget>>
 
-<<widget "cunnilingusEjecStat">><<if $statFreeze isnot true>><<set $cunnilingusEjecStat += 1>><</if>><</widget>>
+<<widget "cunnilingusejacstat">><<if $statFreeze isnot true>><<set $cunnilingusejacstat += 1>><</if>><</widget>>
 
 <<widget "handstat">><<if $statFreeze isnot true>><<set $handstat += 1>><</if>><</widget>>
 
@@ -1136,7 +1139,7 @@
 
 <<widget "clothesruinstat">><<if $statFreeze isnot true>><<set $clothesruinstat += 1>><</if>><</widget>>
 
-<<widget "orgasmstat">><<if $statFreeze isnot true>><<set $orgasmstat += 1>><</if>><</widget>>
+<<widget "orgasmstat">><<if $statFreeze isnot true>><<set $orgasmstat += 1>><<set $orgasmTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "ejacstat">><<if $statFreeze isnot true>><<set $ejacstat += 1>><</if>><</widget>>
 
@@ -1423,7 +1426,7 @@
 					<<elseif $arousal gte $arousalmax / 5>>
 						<span class="lblue">You feel aroused.</span>
 					<<elseif $arousal gte 1>>
-						<span class="teal">You feel sensual.</span>
+						<span class="teal">You feel stimulated.</span>
 					<<else>>
 						<span class="green">You feel cold.</span>
 					<</if>>
@@ -1431,6 +1434,36 @@
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
 			<<statbar `minArousal()` $arousal $arousalmax _showCaptionText>>
+			<div style="clear:both;"></div>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "lewditycaption">>
+	<<if Number.isFinite($lewdity)>>
+		<div id="lewditycaption" @title="'lewdity: ' + $lewdity.toFixed(2)">
+			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
+				lewdity:
+				<<if $options.showCaptionText is true>>
+					<<if $lewdity gte $lewditymax>>
+						<span class="red">You shiver with energy.</span>
+					<<elseif $lewdity gte ($lewditymax / 5) * 4>>
+						<span class="pink">You feel a trembling.</span>
+					<<elseif $lewdity gte ($lewditymax / 5) * 3>>
+						<span class="purple">You feel exhilarated.</span>
+					<<elseif $lewdity gte ($lewditymax / 5) * 2>>
+						<span class="blue">You feel sensual.</span>
+					<<elseif $lewdity gte $lewditymax / 5>>
+						<span class="lblue">You feel excited.</span>
+					<<elseif $lewdity gte 1>>
+						<span class="teal">You feel tingly.</span>
+					<<else>>
+						<span class="green">You feel steady.</span>
+					<</if>>
+				<</if>>
+			</div>
+			<<set _showCaptionText to !$options.showCaptionText>>
+			<<statbar 0 $lewdity $lewditymax _showCaptionText `restLewdity)`>>
 			<div style="clear:both;"></div>
 		</div>
 	<</if>>
@@ -1540,7 +1573,7 @@
 		<<set $_percent to Math.floor(($drunk/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
 
-		<div id="drunkcaption">
+		<div id="drunkcaption" @title="'Drunk: ' + $drunk.toFixed(2)">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				<<if $options.showCaptionText is true>>
 					<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4) * 120>>
@@ -1570,7 +1603,7 @@
 		<<set $_percent to Math.floor(($drugged/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
 
-		<div id="druggedcaption">
+		<div id="druggedcaption" @title="'Drugged: ' + $drugged.toFixed(2)">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				<<if $options.showCaptionText is true>>
 					<span class="pink">A lewd warmth fills you.</span>
@@ -1593,7 +1626,7 @@
 		<<set $_percent to Math.floor(($hallucinogen/1000)*100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
 
-		<div id="hallucinogencaption">
+		<div id="hallucinogencaption" @title="'Hallucinogens: ' + $hallucinogen.toFixed(2)">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				<<if $options.showCaptionText is true>>
 					<span class="purple">Your perception is altered.</span>
@@ -2058,16 +2091,17 @@
 <</widget>>
 
 <<widget "towelup">>
+	<<outfitChecks>>
 	<<if $exposed gte 1>>
-		<<if $upperwetstage gte 3>>
+		<<if $upperwetstage gte 3 and !_underTop>>
 			<<upperwear 3>>
 		<</if>>
-		<<if $lowerwetstage gte 3>>
+		<<if $lowerwetstage gte 3 and !_underBottoms>>
 			<<lowerwear 3>>
 		<</if>>
-		<<if $worn.upper.exposed gte 1>>
+		<<if $worn.upper.exposed gte 1 and !_underTop>>
 			<<upperwear 14>>
-		<<elseif $worn.lower.exposed gte 1>>
+		<<elseif $worn.lower.exposed gte 1 and !_underBottoms>>
 			<<lowerwear 3>>
 		<</if>>
 	<</if>>
@@ -2075,10 +2109,10 @@
 
 <<widget "towelupm">>
 	<<if $exposed gte 1>>
-		<<if $lowerwetstage gte 3>>
+		<<if $lowerwetstage gte 3 and !_underBottoms>>
 			<<lowerwear 3>>
 		<</if>>
-		<<if $worn.lower.exposed gte 1>>
+		<<if $worn.lower.exposed gte 1 and !_underBottoms>>
 			<<lowerwear 3>>
 		<</if>>
 	<</if>>
@@ -2205,7 +2239,7 @@
 
 	<<if $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 2>>
 		<<if $possessed>>
-		<<elseif $worn.under_lower.exposed gte 1>>
+		<<elseif $worn.under_lower.exposed gte 1 and !$worn.legs.type.includes("covered")>>
 			<<set $exposed to 2>>
 		<<elseif $libertine gte 1 or $worn.under_lower.type.includes("covered")>>
 		<<else>>
@@ -2222,11 +2256,12 @@
 <</widget>>
 
 <<widget "integritycheck">>
+	<<outfitChecks>>
 	<<if $worn.over_upper.name isnot "naked">>
 		<<if $worn.over_upper.integrity lte 0>>
 			<<set $worn.over_upper.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.over_upper.name <<upperplural>> ripped into scraps<<if $worn.upper.exposed gte 2>>, exposing your <<breasts>><</if>>.</span>
+				<span class="lewd">Your $worn.over_upper.name <<upperplural>> ripped into scraps<<if $worn.upper.exposed gte 2 and !_underTop>>, exposing your <<breasts>><</if>>.</span>
 				<br>
 			<</if>>
 		<<overupperruined>><<clothesruinstat>><<if $worn.upper.exposed gte 2>><<set $upperoff to 0>><</if>>
@@ -2236,7 +2271,7 @@
 		<<if $worn.over_lower.integrity lte 0>>
 			<<set $worn.over_lower.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.over_lower.name <<upperplural>> ripped into scraps<<if $worn.lower.exposed gte 2>>, exposing your <<undies>><</if>>.</span>
+				<span class="lewd">Your $worn.over_lower.name <<upperplural>> ripped into scraps<<if $worn.lower.exposed gte 2 and !_underBottoms>>, exposing your <<undies>><</if>>.</span>
 				<br>
 			<</if>>
 		<<overlowerruined>><<clothesruinstat>><<if $worn.lower.exposed gte 2>><<set $upperoff to 0>><</if>>
@@ -2246,7 +2281,7 @@
 		<<if $worn.upper.integrity lte 0>>
 			<<set $worn.upper.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.upper.name <<upperplural>> ripped into scraps, exposing your <<breasts>>.</span>
+				<span class="lewd">Your $worn.upper.name <<upperplural>> ripped into scraps<<if !_underTop>>, exposing your <<breasts>><</if>>.</span>
 				<br>
 			<</if>>
 		<<upperruined>><<clothesruinstat>><<set $upperoff to 0>>
@@ -2256,7 +2291,7 @@
 		<<if $worn.lower.integrity lte 0>>
 			<<set $worn.lower.type.push("broken")>>
 			<<if _args[0] isnot "no_text">>
-				<span class="lewd">Your $worn.lower.name <<lowerplural>> ripped into scraps, exposing your <<undies>>.</span>
+				<span class="lewd">Your $worn.lower.name <<lowerplural>> ripped into scraps<<if !_underBottoms>>, exposing your <<undies>><</if>>.</span>
 				<br>
 			<</if>>
 		<<lowerruined>><<clothesruinstat>><<set $loweroff to 0>>
@@ -3301,7 +3336,25 @@
 			<<if $options.images is 1 and _config.icon>>
 				<img class="characteristic-icon" @src="'img/' + _config.icon + '.png'" />
 			<</if>>
-			<span class="characteristic-title">_config.name<<characteristic-box-modifier `clone(_config.modifier)` `clone(_config.modTypes)` `clone(_config.name)`>></span>
+			<span class="characteristic-title">
+				_config.name<<characteristic-box-modifier `clone(_config.modifier)` `clone(_config.modTypes)` `clone(_config.name)`>>
+				<<if _config.sensitivity gte 4>>
+					<mouse class = "pink tooltip-small">
+						!!!
+						<span class="pink"><i>Sensitivity: <<print _config.sensitivity>></i></span>
+					</mouse>
+				<<elseif _config.sensitivity gte 3>>
+					<mouse class = "purple tooltip-small">
+						!!
+						<span class="purple"><i>Sensitivity: <<print _config.sensitivity>></i></span>
+					</mouse>
+				<<elseif _config.sensitivity gte 2>>
+					<mouse class = "blue tooltip-small">
+						!
+						<span class="blue"><i>Sensitivity: <<print _config.sensitivity>></i></span>
+					</mouse>
+				<</if>>
+			</span>
 			<<if _config.states>>
 				<<if _config.displayType eq "level">>
 					<span @class="'characteristic-level ' + _config.color">

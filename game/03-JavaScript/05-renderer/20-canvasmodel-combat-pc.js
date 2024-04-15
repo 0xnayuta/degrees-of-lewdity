@@ -137,11 +137,12 @@ const combatMainPc = {
 		 */
 		backarm: {
 			srcfn(options) {
-				return `${options.src}body/arms/back.png`;
+				return `${options.src}body/arms/back-${options.armBackPosition}.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer && options.position === "doggy";
-				return !!result;
+				if (!options.showPlayer) return false;
+				if (options.armBackPosition === "bound2") return false;
+				return true;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -186,13 +187,10 @@ const combatMainPc = {
 		},
 		frontthigh: {
 			srcfn(options) {
-				if (options.position === "doggy") {
-					return options.src + "";
-				}
 				return `${options.src}body/thighs/front-${options.legFrontPosition}.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer && options.position !== "doggy";
+				const result = options.showPlayer;
 				return !!result;
 			},
 			animationfn(options) {
@@ -413,18 +411,30 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				if (clothes.state !== "handjob") return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/back-${clothes.state}.png`;
+				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}.png`;
 				return path;
 			},
-			z: zi.base - 4,
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes == null || clothes.name == null) return false;
+				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
+				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
+				return true;
+			},
+			z: zi.base - 2,
 		}),
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/front-${clothes.state}.png`;
+				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
 				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes == null || clothes.name == null) return false;
+				if (options.armFrontPosition === "bound2") return false;
+				return true;
 			},
 			z: zi.base + 14,
 		}),
@@ -472,6 +482,14 @@ const combatMainPc = {
 			z: zi.frontThigh + 2,
 		}),
 		lower: genClothingLayer("lower", {
+			srcfn(options) {
+				const clothes = options.clothes.lower;
+				if (clothes == null || clothes.name == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/${options.legFrontPosition}-${clothes.state}.png`;
+				console.log("Lower", "Path:", path);
+				return path;
+			},
+			/*
 			dxfn(options) {
 				if (options.legFrontPosition === "footjob") {
 					return -10;
@@ -484,6 +502,7 @@ const combatMainPc = {
 				}
 				return 0;
 			},
+			*/
 			z: zi.frontThigh + 3,
 		}),
 		neckWear: genClothingLayer("neck", {
@@ -540,25 +559,26 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${clothes.sleeves}.png`;
+				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${options.armBackPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
 				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
-				// Sleeves on the side behind are never shown, except for handjobs.
-				if (!["handjob"].includes(clothes.sleeves)) return false;
+				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
+				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
+				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 10,
+			z: zi.base - 1,
 		}),
 		upperFrontSleeves: genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${clothes.sleeves}.png`;
+				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${options.armFrontPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},

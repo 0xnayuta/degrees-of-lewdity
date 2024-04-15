@@ -35,10 +35,16 @@ Debugging:
 
 <<combatdemotools>>
 
-<<set $sexstart to 1>>
-
 <br>
-<<link [[Start|Combat Demo]]>><</link>>
+<<link [[Start|Combat Demo]]>><<set $sexstart to 1>><</link>>
+<br>
+<<link [[Editor|Canvas Combat Editor]]>><<set $sexstart to 1>><</link>>
+<br><br>
+<<link [[Bedroom|Bedroom]]>><</link>>
+<br>
+<<link [[Clothing store|Shopping Centre Top]]>><</link>>
+<br>
+<<link [[Forest store|Forest Shop]]>><</link>>
 
 :: Combat Demo
 
@@ -181,6 +187,7 @@ Debugging:
 :: Combat Demo Widgets [widget]
 
 <<widget "animateCombat">>
+	<<resetNpcStates>>
 	<!-- Centres the inner grid -->
 	<div class="flex-row flex-centre">
 		<!-- Organises canvas windows into a grid -->
@@ -191,44 +198,31 @@ Debugging:
 				<div class="combat-close-chest">
 					<<newcanvasstart 64 64>>
 					<<newcanvasselect "combatCloseChest" "combatCloseChest">>
-					<<newcanvascompile $_closeOptions>>
+					<<newcanvascompile "combatCloseChest" "combatCloseChest" $_closeOptions>>
 					<<newcanvasanimate `"border " + ($_closeOptions.showChest ? "border-primary" : "border-dark")`>>
 				</div>
 				<div class="combat-close-vagina">
 					<<newcanvasstart 64 64>>
 					<<newcanvasselect "combatCloseVagina" "combatCloseVagina">>
-					<<newcanvascompile $_closeOptions>>
+					<<newcanvascompile "combatCloseVagina" "combatCloseVagina" $_closeOptions>>
 					<<newcanvasanimate `"border " + ($_closeOptions.showVagina ? "border-primary" : "border-dark")`>>
 				</div>
 				<div class="combat-close-penis">
 					<<newcanvasstart 64 64>>
 					<<newcanvasselect "combatClosePenis" "combatClosePenis">>
-					<<newcanvascompile $_closeOptions>>
+					<<newcanvascompile "combatClosePenis" "combatClosePenis" $_closeOptions>>
 					<<newcanvasanimate `"border " + ($_closeOptions.showPenis ? "border-primary" : "border-dark")`>>
 				</div>
 				<div class="combat-close-arse">
 					<<newcanvasstart 64 64>>
 					<<newcanvasselect "combatCloseArse" "combatCloseArse">>
-					<<newcanvascompile $_closeOptions>>
+					<<newcanvascompile "combatCloseArse" "combatCloseArse" $_closeOptions>>
 					<<newcanvasanimate `"border " + ($_closeOptions.showArse ? "border-primary" : "border-dark")`>>
 				</div>
 			</div>
 			<!-- Main canvas container. -->
 			<div class="combat-main d-flex justify-content-center">
 				<<newcanvasstart 256 256>>
-
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================== PC canvas ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC layers. -->
-				<<newcanvasselect "combatMainPc" "combatMainPc">>
-				<!-- Load T.options[slot] from PC data. -->
-				<<mapplayertooptions "combatMainPc">>
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================= PC compile ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC model and push to layer pipeline. -->
-				<<newcanvascompile "combatMainPc">>
 
 				<<run console.warn("===============================================")>>
 				<<run console.warn("================= NPC canvas ==================")>>
@@ -242,7 +236,7 @@ Debugging:
 						<<run console.warn("===============================================")>>
 						<<run console.warn(`======== Human NPC ${_index} compile ==========`)>>
 						<<run console.warn("===============================================")>>
-						<<newcanvascompile $_slot>>
+						<<newcanvascompile "combatMainNpc" $_slot>>
 					<<elseif $BeastList.includes(_npc.type)>>
 						<<set $_slot to "combatMainNpc" + _index>>
 						<<newcanvasselect "combatMainNpc" $_slot>>
@@ -250,13 +244,30 @@ Debugging:
 						<<run console.warn("===============================================")>>
 						<<run console.warn(`======== ${_npc.type} NPC ${_index} compile ==========`)>>
 						<<run console.warn("===============================================")>>
-						<<newcanvascompile $_slot>>
+						<<newcanvascompile "combatMainNpc" $_slot>>
 					<</if>>
 				<</for>>
+
+				<<run console.warn("===============================================")>>
+				<<run console.warn("================== PC canvas ==================")>>
+				<<run console.warn("===============================================")>>
+				<!-- Compile PC layers. -->
+				<<newcanvasselect "combatMainPc" "combatMainPc">>
+				<!-- Load T.options[slot] from PC data. -->
+				<<mapplayertooptions "combatMainPc">>
+				<<run console.warn("===============================================")>>
+				<<run console.warn("================= PC compile ==================")>>
+				<<run console.warn("===============================================")>>
+				<!-- Compile PC model and push to layer pipeline. -->
+				<<newcanvascompile "combatMainPc" "combatMainPc">>
+
 				<<newcanvasanimate "border border-primary">>
 			</div>
 		</div>
 	</div>
+	<<if $debug>>
+		<<canvasCombatEditor>>
+	<</if>>
 <</widget>>
 
 <<widget "endcombatdemo">>

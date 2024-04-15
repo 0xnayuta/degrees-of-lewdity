@@ -19,8 +19,8 @@
  * @property {string} hairLength The named stage of the hair length.
  * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
  * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
- * @property {"bound"|"handjob"} armBackPosition The position the back arm is in.
- * @property {"bound"|"handjob"} armFrontPosition The position the front arm is in.
+ * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
+ * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
  * @property {1|2|3|4|5} blush The volume of blush on the player, higher is more.
  * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.
@@ -68,24 +68,11 @@ function mapPlayerToOptions(options) {
 	options.breastsExposed = true;
 
 	// Copied from <<leg_position>> - Centralise usage later. Added footjob state
-	const parts = [V.anususe, V.vaginause, V.chestuse, V.mouthuse];
-	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
-		options.legFrontPosition = "up";
-		options.legBackPosition = "up";
-	} else if (V.feetuse === "penis") {
-		options.legFrontPosition = "footjob";
-		options.legBackPosition = "footjob";
-	} else if (parts.includes("penis") || parts.includes(1)) {
-		options.legFrontPosition = "up";
-		options.legBackPosition = "up";
-	} else {
-		options.legFrontPosition = "down";
-		options.legBackPosition = "down";
-	}
+	mapPcToLegPosition(options);
 
 	// Set values for blush and tears
-	options.blush = Math.clamp(0, 0, 5);
-	options.tears = Math.clamp(0, 0, 5);
+	options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
+	options.tears = painToTearsLvl(V.pain);
 
 	// Set animation speed
 	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
@@ -139,6 +126,69 @@ Macro.add("mapplayertooptions", {
 		T.options[slot] = mapPlayerToOptions(options);
 	},
 });
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapPcToArmPosition(options) {
+	if (options.position === "missionary") {
+		options.armBackPosition = getArmState(V.leftarm);
+		options.armFrontPosition = getArmState(V.rightarm);
+		return options;
+	}
+	options.armBackPosition = getArmState(V.rightarm);
+	options.armFrontPosition = getArmState(V.leftarm);
+	return options;
+}
+
+function getArmState(arm) {
+	if (["bound", "grappled", "behind"].includes(arm)) {
+		return "bound2";
+	}
+	if (arm === "penis") {
+		return "handjob";
+	}
+	return "default";
+}
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapPcToLegPosition(options) {
+	const parts = [V.anususe, V.vaginause];
+	if (V.feetuse === "penis") {
+		options.legFrontPosition = "footjob";
+		options.legBackPosition = "footjob";
+		return options;
+	}
+	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
+	if (options.position === "doggy") {
+		options.legFrontPosition = "down";
+		options.legBackPosition = "down";
+		return options;
+	}
+	if (parts.includes("penis") || parts.includes(1)) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
+	if (combat.positions.vagina >= 2 || combat.positions.anus >= 2) {
+		options.legFrontPosition = "up";
+		options.legBackPosition = "up";
+		return options;
+	}
+	options.legFrontPosition = "down";
+	options.legBackPosition = "down";
+	return options;
+}
 
 /**
  *
@@ -315,7 +365,7 @@ function mapPcToClothingOptions(pc, options) {
 			}
 			if (clothing.state === "thighs" && (isSkirtDown || areLegsUp)) {
 				options.genitalsExposed = true;
-				state = "thighs-down";
+				state = "thighs";
 			}
 		}
 
@@ -325,6 +375,13 @@ function mapPcToClothingOptions(pc, options) {
 			// state = options.legBackPosition;
 		}
 
+		// Wetness
+		let alpha = 1;
+		const stage = V[slot + "wetstage"];
+		if (stage != null) {
+			alpha = Math.clamp(1 - stage / 4, 0, 1);
+		}
+
 		/**
 		 * @type {ClothingState}
 		 */
@@ -332,7 +389,7 @@ function mapPcToClothingOptions(pc, options) {
 			item: clothing,
 			name: clothing.combatImg,
 			state,
-			alpha: 1,
+			alpha,
 		};
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
 			if (clothing.sleeve_img === 1) {
@@ -354,11 +411,11 @@ function mapPcToClothingOptions(pc, options) {
 			worn: {},
 		};
 		options.filters.worn[slot] = {};
-		options.filters[mainFilterKey] = clothing.colour_sidebar
+		options.filters[mainFilterKey] = clothing.colour
 			? lookupColour(options, setup.colours.clothes_map, clothes.item.colour, slot + " clothing", "worn_" + slot + "_custom", clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		if (clothing.accessory_colour_sidebar) {
+		if (clothing.accessory_colour) {
 			options.filters[accFilterKey] = lookupColour(
 				options,
 				setup.colours.clothes_map,
@@ -382,15 +439,7 @@ window.mapPcToClothingOptions = mapPcToClothingOptions;
  * @returns {Options}
  */
 function mapPcToBodyOptions(pc, options) {
-	// Set arm position
-	options.armBackPosition = "default";
-	if (["bound", "grappled", "behind"].includes(V.leftarm)) {
-		options.armBackPosition = "bound2"; // Could assign with V.leftarm?
-	}
-	options.armFrontPosition = "default";
-	if (["bound", "grappled", "behind"].includes(V.rightarm)) {
-		options.armFrontPosition = "bound2"; // Could assign with V.rightarm?
-	}
+	mapPcToArmPosition(options);
 	return options;
 }
 window.mapPcToBodyOptions = mapPcToBodyOptions;

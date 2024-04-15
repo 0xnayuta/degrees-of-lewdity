@@ -63,10 +63,13 @@ const combatMainNpc = {
 		baseShadow: {
 			srcfn(options) {
 				const path = `${options.src}shadow/${options.type}/${options.state}.png`;
+				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				return !!options.showShadow;
+				const show = !!options.showShadow;
+				console.warn("NPC showing:", show);
+				return show;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -88,7 +91,14 @@ const combatMainNpc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 59,
+			zfn(options) {
+				if (options.penetrators.length <= 0) return;
+				const penetrator = options.penetrators[0];
+				if (penetrator.position === "leftarm") {
+					return 46; // Behind the Z index of PC's "backarm"
+				}
+				return 59;
+			},
 		},
 		penetratorEjaculate: {
 			srcfn(options) {

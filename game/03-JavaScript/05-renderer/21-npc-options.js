@@ -34,16 +34,6 @@
  * @property {string} hex
  */
 
-const target = {
-	pc: -1,
-	npc0: 0,
-	npc1: 1,
-	npc2: 2,
-	npc3: 3,
-	npc4: 4,
-	npc5: 5,
-};
-
 /**
  *
  * @param {number} index
@@ -94,6 +84,11 @@ function mapNpcToShadowOptions(npc, options) {
 	if (penetrator != null) {
 		// Figure out which shadow base to use from penetrator:
 		options.state = penetrator.position;
+		// Calculate DP state from positions, if position is >= 2, add double at least, triple P not sure what to do.
+		if (combat.positions[penetrator.position] >= 2) {
+			options.state += "-double";
+			penetrator.state += "-double";
+		}
 		// Figure out whether to show the shadow man or not:
 		options.showShadow = V.options.silhouetteEnabled && ["vagina", "anus", "mouth"].includes(penetrator.position);
 
@@ -115,7 +110,7 @@ function mapNpcToPenetratorOptions(npc) {
 		show: true,
 		type: npc.type,
 		colour: npc.skincolour,
-		target: target.pc,
+		target: combat.target.pc,
 		isEjaculating: V.enemyarousal >= V.enemyarousalmax && wearingCondom(V.vaginatarget) !== "worn" && !npcHasStrapon(V.vaginatarget),
 		ejaculate: {
 			type: "sperm",
@@ -125,18 +120,22 @@ function mapNpcToPenetratorOptions(npc) {
 		case "anusentrance":
 			penetrator.position = "anus";
 			penetrator.state = "entrance";
+			combat.positions.anus++;
 			return penetrator;
 		case "anusentrancedouble":
 			penetrator.position = "anus";
-			penetrator.state = "entrancedouble";
+			penetrator.state = "entrance";
+			combat.positions.anus++;
 			return penetrator;
 		case "anus":
 			penetrator.position = "anus";
 			penetrator.state = "penetrated";
+			combat.positions.anus++;
 			return penetrator;
 		case "anusdouble":
 			penetrator.position = "anus";
-			penetrator.state = "penetrateddouble";
+			penetrator.state = "penetrated";
+			combat.positions.anus++;
 			return penetrator;
 		case "penisentrance":
 			return null;
@@ -147,38 +146,47 @@ function mapNpcToPenetratorOptions(npc) {
 		case "vaginaentrance":
 			penetrator.position = "vagina";
 			penetrator.state = "entrance";
+			combat.positions.vagina++;
 			return penetrator;
 		case "vaginaentrancedouble":
 			penetrator.position = "vagina";
-			penetrator.state = "entrancedouble";
+			penetrator.state = "entrance";
+			combat.positions.vagina++;
 			return penetrator;
 		case "vaginaimminent":
 			penetrator.position = "vagina";
 			penetrator.state = "imminent";
+			combat.positions.vagina++;
 			return penetrator;
 		case "vaginaimminentdouble":
 			penetrator.position = "vagina";
-			penetrator.state = "imminentdouble";
+			penetrator.state = "imminent";
+			combat.positions.vagina++;
 			return penetrator;
 		case "vagina":
 			penetrator.position = "vagina";
 			penetrator.state = "penetrated";
+			combat.positions.vagina++;
 			return penetrator;
 		case "vaginadouble":
 			penetrator.position = "vagina";
-			penetrator.state = "penetrateddouble";
+			penetrator.state = "penetrated";
+			combat.positions.vagina++;
 			return penetrator;
 		case "mouthentrance":
 			penetrator.position = "mouth";
 			penetrator.state = "entrance";
+			combat.positions.mouth++;
 			return penetrator;
 		case "mouthimminent":
 			penetrator.position = "mouth";
 			penetrator.state = "imminent";
+			combat.positions.mouth++;
 			return penetrator;
 		case "mouth":
 			penetrator.position = "mouth";
 			penetrator.state = "penetrated";
+			combat.positions.mouth++;
 			return penetrator;
 		case "othermouth":
 			// Not sure of the usage?
@@ -235,5 +243,6 @@ Macro.add("mapnpctooptions", {
 		const index = this.args[1];
 		const options = T.options[slot] || {};
 		T.options[slot] = mapNpcToOptions(index, options);
+		console.log(T.options[slot]);
 	},
 });
