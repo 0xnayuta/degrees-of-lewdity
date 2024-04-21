@@ -1,12 +1,19 @@
 /**
+ * @typedef {object} NpcObject
+ * @property {string | 0 | null} vagina
+ * @property {string | 0 | null} penis
+ */
+
+/**
  * @typedef {object} NpcOptions
  * @property {"img/newsex"} root
  * @property {string} src Typically "img/newsex/missionary/"
  * @property {"missionary" | "doggy"} position
+ * @property {"shadow" | "beast"} category
  * @property {string} type
  * @property {Colour} colour
  * @property {string} state
- * @property {boolean} showShadow
+ * @property {boolean} show
  * @property {Penetrator[]} penetrators
  */
 
@@ -33,6 +40,8 @@
  * @typedef {object} Colour
  * @property {string} hex
  */
+
+const beastModels = ["bear", "boar", "cat", "creature", "dog", "dolphin", "fox", "horse", "lizard", "pig", "wolf"];
 
 /**
  *
@@ -62,9 +71,10 @@ function mapNpcToOptions(index, options) {
 	// Configure state
 	// Maybe use active_enemy? const index = V.active_enemy.
 	const npc = V.NPCList[index];
+	options.category = beastModels.includes(npc.type) ? "beast" : "shadow";
 	options.type = npc.type;
 	options.state = "default";
-	options.showShadow = false;
+	options.show = false;
 
 	mapNpcToShadowOptions(npc, options);
 
@@ -74,7 +84,7 @@ window.mapNpcToOptions = mapNpcToOptions;
 
 /**
  *
- * @param {object} npc
+ * @param {NpcObject} npc
  * @param {NpcOptions} options
  * @returns {NpcOptions}
  */
@@ -90,18 +100,44 @@ function mapNpcToShadowOptions(npc, options) {
 			penetrator.state += "-double";
 		}
 		// Figure out whether to show the shadow man or not:
-		options.showShadow = V.options.silhouetteEnabled && ["vagina", "anus", "mouth"].includes(penetrator.position);
+		options.show = ["vagina", "anus", "mouth"].includes(penetrator.position);
 
 		console.log("Pushing penetrator to list:", penetrator);
 		options.penetrators.push(penetrator);
+		return options;
 	}
+	// Since no penetrator exists on the NPC, check for their other states
+	// WHY IS ANAL LIKE THIS
+	if (["otheranusfrot", "otheranusentrance", "otheranusimminent", "otheranus"].includes(npc.penis)) {
+		options.state = options.category === "shadow" ? "default" : "under-default";
+		options.show = true;
+		return options;
+	}
+	if (npc.vagina && npc.vagina !== "none") {
+		console.warn("NPC's Vagina:", npc.vagina);
+		switch (npc.vagina) {
+			case "penisentrance":
+			case "penisimminent":
+			case "penis":
+				options.state = "default";
+				options.show = true;
+				break;
+		}
+	}
+	// Primary for being pinned:
+	if (npc.stance === "top") {
+		options.state = options.category === "shadow" ? "default" : "under-default";
+		options.show = true;
+		return options;
+	}
+
 	return options;
 }
 window.mapNpcToShadowOptions = mapNpcToShadowOptions;
 
 /**
  *
- * @param {object} npc
+ * @param {NpcObject} npc
  * @returns {Penetrator?}
  */
 function mapNpcToPenetratorOptions(npc) {

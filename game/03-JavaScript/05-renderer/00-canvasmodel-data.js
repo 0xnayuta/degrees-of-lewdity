@@ -150,3 +150,26 @@ Renderer.Animations["sex-4f-vfast"] = {
 	frames: 4,
 	duration: 80,
 };
+
+Renderer.Animations["machine-4f"] = {
+	frames: 4,
+	duration: 80,
+};
+
+Renderer.Animations["machine-2f"] = {
+	keyframes: [
+		{
+			frame: 0,
+			duration: 200,
+		},
+		{
+			frame: 2,
+			duration: 200,
+		},
+	],
+};
+
+Renderer.Animations["prop-4f-tank"] = {
+	frames: 4,
+	duration: 60,
+};

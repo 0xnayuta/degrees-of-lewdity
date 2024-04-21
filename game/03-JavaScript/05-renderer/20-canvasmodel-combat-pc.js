@@ -79,6 +79,7 @@ const combatMainPc = {
 	height: 256,
 	frames: 4,
 	/*
+	 * http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=generated
 	 *	 ██████  ███████ ███    ██ ███████ ██████   █████  ████████ ███████ ██████
 	 *	██       ██      ████   ██ ██      ██   ██ ██   ██    ██    ██      ██   ██
 	 *	██   ███ █████   ██ ██  ██ █████   ██████  ███████    ██    █████   ██   ██
@@ -129,6 +130,184 @@ const combatMainPc = {
 	},
 	layers: {
 		/*
+		 *    ██████  ██████   ██████  ██████  ███████
+		 *    ██   ██ ██   ██ ██    ██ ██   ██ ██
+		 *    ██████  ██████  ██    ██ ██████  ███████
+		 *    ██      ██   ██ ██    ██ ██           ██
+		 *    ██      ██   ██  ██████  ██      ███████
+		 */
+		bench: {
+			srcfn(options) {
+				return `${options.root}prop/bench/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.bench.show;
+			},
+			z: 5,
+		},
+		examTable: {
+			srcfn(options) {
+				return `${options.root}prop/exam-table/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.examTable.show;
+			},
+			z: 5,
+		},
+		haybale: {
+			srcfn(options) {
+				return `${options.root}prop/haybale/haybale.png`;
+			},
+			showfn(options) {
+				return !!options.props.haybale.show;
+			},
+			z: 5,
+		},
+		hospitalBed: {
+			srcfn(options) {
+				return `${options.root}prop/hospital-bed/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.hospitalBed.show;
+			},
+			z: 5,
+		},
+		hospitalBedRails: {
+			srcfn(options) {
+				return `${options.root}prop/hospital-bed/${options.position}-rails.png`;
+			},
+			showfn(options) {
+				return !!options.props.hospitalBed.show;
+			},
+			z: 95,
+		},
+		ivBag: {
+			srcfn(options) {
+				return `${options.root}prop/iv-bag/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.ivBag.show;
+			},
+			z: 5,
+		},
+		milkTank: {
+			srcfn(options) {
+				const tank = options.props.milkTank;
+				if (tank.isFull) {
+					return `${options.root}prop/milk-tank/tank-full.png`;
+				}
+				return `${options.root}prop/milk-tank/tank.png`;
+			},
+			showfn(options) {
+				return !!options.props.milkTank.show;
+			},
+			animation: "prop-4f-tank",
+			z: 1,
+		},
+		milkTankVolume: {
+			srcfn(options) {
+				const tank = options.props.milkTank;
+				return `${options.root}prop/milk-tank/${tank.volume}.png`;
+			},
+			showfn(options) {
+				return !!options.props.milkTank.show;
+			},
+			animation: "prop-4f-tank",
+			z: 3,
+		},
+		semenTank: {
+			srcfn(options) {
+				if (options.props.semenTank.isFull) {
+					return `${options.root}prop/semen-tank/semen-full.png`;
+				}
+				return `${options.root}prop/semen-tank/semen.png`;
+			},
+			showfn(options) {
+				const show = options.props.semenTank.show;
+				return !!show;
+			},
+			animation: "prop-4f-tank",
+			z: 2,
+		},
+		semenTankVolume: {
+			srcfn(options) {
+				const tank = options.props.semenTank;
+				return `${options.root}prop/semen-tank/${tank.volume}.png`;
+			},
+			showfn(options) {
+				const show = options.props.semenTank.show;
+				return !!show;
+			},
+			animation: "prop-4f-tank",
+			z: 2,
+		},
+		table: {
+			srcfn(options) {
+				return `${options.root}prop/table/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.table.show;
+			},
+			z: 5,
+		},
+		/*
+		 *    ███    ███  █████   ██████ ██   ██ ██ ███    ██ ███████ ███████
+		 *    ████  ████ ██   ██ ██      ██   ██ ██ ████   ██ ██      ██
+		 *    ██ ████ ██ ███████ ██      ███████ ██ ██ ██  ██ █████   ███████
+		 *    ██  ██  ██ ██   ██ ██      ██   ██ ██ ██  ██ ██ ██           ██
+		 *    ██      ██ ██   ██  ██████ ██   ██ ██ ██   ████ ███████ ███████
+		 */
+		breastMilker: {
+			srcfn(options) {
+				const size = Math.clamp(options.breastSize, 1, 4);
+				return `${options.root}machine/milker/${options.position}/breasts-${size}.png`;
+			},
+			showfn(options) {
+				return !!options.machines.breastMilker.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.base + 10,
+		},
+		breastMilkerVolume: {
+			srcfn(options) {
+				const size = Math.clamp(options.breastSize, 1, 4);
+				return `${options.root}machine/milker/${options.position}/breasts-${size}-milk.png`;
+			},
+			showfn(options) {
+				return !!options.machines.breastMilker.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.base + 9,
+		},
+		penisMilker: {
+			srcfn(options) {
+				return `${options.root}machine/milker/${options.position}/penis.png`;
+			},
+			showfn(options) {
+				return !!options.machines.penisMilker.show;
+			},
+			animationfn(options) {
+				return options.machineAnimKey;
+			},
+			z: zi.base + 7,
+		},
+		penisMilkerVolume: {
+			srcfn(options) {
+				return `${options.root}machine/milker/${options.position}/penis-semen.png`;
+			},
+			showfn(options) {
+				return !!options.machines.penisMilker.show;
+			},
+			animationfn(options) {
+				return options.machineAnimKey;
+			},
+			z: zi.base + 4,
+		},
+		/*
 		 *	██████   █████  ███████ ███████
 		 *	██   ██ ██   ██ ██      ██
 		 *	██████  ███████ ███████ █████
@@ -141,6 +320,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				if (!options.showPlayer) return false;
+				if (options.position === "missionary" && options.armBackPosition === "default") return false;
 				if (options.armBackPosition === "bound2") return false;
 				return true;
 			},
@@ -238,8 +418,7 @@ const combatMainPc = {
 		},
 		penetrator: {
 			srcfn(options) {
-				const penetrator = options.penetrator;
-				return `${options.src}body/penetrator/${penetrator.position}-${penetrator.state}.png`;
+				return `${options.src}body/penetrator/default-default.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
@@ -254,11 +433,12 @@ const combatMainPc = {
 		penetratorEjaculate: {
 			srcfn(options) {
 				const penetrator = options.penetrator;
-				return `${options.src}body/penetrator/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
+				return `${options.src}body/penetrator/default-default-${penetrator.ejaculate.type}.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
 				console.log("ejac penetrator", JSON.parse(JSON.stringify(penetrator)));
+				if (options.machines.penisMilker.show) return false;
 				const result = options.showPlayer && penetrator.show && penetrator.isEjaculating;
 				return !!result;
 			},
@@ -308,7 +488,7 @@ const combatMainPc = {
 				return !!result;
 			},
 			animationfn(options) {
-				return options.animKeyStill;
+				return options.animKey;
 			},
 			z: zi.base + 2,
 		},
@@ -320,7 +500,7 @@ const combatMainPc = {
 				return !!options.showPlayer;
 			},
 			animationfn(options) {
-				return options.animKeyStill;
+				return options.animKey;
 			},
 			filters: ["phair"],
 			z: zi.base + 3,
@@ -372,7 +552,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["hair"],
-			z: zi.hair,
+			z: 81 /* zi.hair */,
 		},
 		/*
 		 *	 ██████ ██       ██████  ████████ ██   ██ ██ ███    ██  ██████
@@ -451,7 +631,7 @@ const combatMainPc = {
 			},
 			z: zi.backThigh + 1,
 		}),
-		legwearAccBack: genClothingLayer("legs", {
+		legwearAccBack: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes == null || clothes.name == null) return "";
@@ -471,7 +651,7 @@ const combatMainPc = {
 			},
 			z: zi.frontThigh + 1,
 		}),
-		legwearAccFront: genClothingLayer("legs", {
+		legwearAccFront: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes == null || clothes.name == null) return "";
@@ -526,17 +706,7 @@ const combatMainPc = {
 		upper: genClothingLayer("upper", {
 			z: zi.base + 11,
 		}),
-		upperAcc: genClothingLayer("upper", {
-			srcfn(options) {
-				const clothes = options.clothes.upper;
-				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/acc.png`;
-				console.log("Path:", path);
-				return path;
-			},
-			filtersfn(options) {
-				return ["worn_upper_acc"];
-			},
+		upperAcc: genClothingAccLayer("upper", {
 			z: zi.base + 12,
 		}),
 		upperBreasts: genClothingLayer("upper", {
@@ -553,7 +723,7 @@ const combatMainPc = {
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 13,
+			z: zi.base + 10,
 		}),
 		upperBackSleeves: genClothingLayer("upper", {
 			srcfn(options) {
@@ -629,6 +799,49 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		filtersfn(options) {
 			const filter = `worn_${slot}_main`;
+			console.log(slot, "Filters:", filter, options.filters[filter]);
+			return [filter];
+		},
+		z: zi[slot],
+	};
+	return Object.assign(defaults, overrideOptions);
+}
+
+/**
+ *
+ * @param {string} slot
+ * @param {CanvasModelLayer} overrideOptions
+ * @returns {CanvasModelLayer}
+ */
+function genClothingAccLayer(slot, overrideOptions = {}) {
+	/**
+	 * @type {CanvasModelLayer}
+	 */
+	const defaults = {
+		srcfn(options) {
+			const clothes = options.clothes[slot];
+			if (clothes == null || clothes.name == null) return "";
+			const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
+			console.log(slot, "Path:", path);
+			return path;
+		},
+		showfn(options) {
+			const clothes = options.clothes[slot];
+			const show = options.showClothing && clothes != null && clothes.hasAccessory;
+			console.log(slot, "Show?:", show);
+			return !!show;
+		},
+		alphafn(options) {
+			const clothes = options.clothes[slot];
+			const alpha = clothes.alpha;
+			console.log(slot, "Alpha:", alpha);
+			return alpha;
+		},
+		animationfn(options) {
+			return options.animKey;
+		},
+		filtersfn(options) {
+			const filter = `worn_${slot}_acc`;
 			console.log(slot, "Filters:", filter, options.filters[filter]);
 			return [filter];
 		},

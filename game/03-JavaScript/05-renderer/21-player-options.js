@@ -12,6 +12,7 @@
  * @property {string} src The computed directory path for the position.
  * @property {string} animKey The key used for fetching the animation configuration.
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
+ * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
  * @property {number} breastSize The size of the player breasts.
  * @property {number} breastsExposed Whether the breasts are shown.
  * @property {Penetrator} penetrator Typically the PC's penis, or strapon etc.
@@ -26,6 +27,55 @@
  * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.
  * @property {Object<string, ClothingState>} clothes Template.
  * @property {object} filters The filters for layers.
+ * @property {Props} props
+ * @property {Machines} machines
+ */
+
+/**
+ * @typedef {object} Props
+ * @property {Prop} bench
+ * @property {Prop} examTable
+ * @property {Prop} haybale
+ * @property {Prop} hospitalBed
+ * @property {Prop} ivBag
+ * @property {TankProp} milkTank
+ * @property {Prop} pillory
+ * @property {TankProp} semenTank
+ * @property {Prop} rail
+ * @property {Prop} shakles
+ * @property {Prop} table
+ * @property {Prop} web
+ */
+
+/**
+ * @typedef {object} Prop
+ * @property {boolean} show
+ */
+
+/**
+ * @typedef {object} TankProp
+ * @property {boolean} show
+ * @property {boolean} isFull
+ * @property {1|2|3|4|5|6|7} volume
+ */
+
+/**
+ * @typedef {object} Machines
+ * @property {DildoMachine} dildo
+ * @property {Machine} breastMilker
+ * @property {Machine} penisMilker
+ * @property {Machine} tattoo
+ */
+
+/**
+ * @typedef {object} Machine
+ * @property {boolean} show
+ */
+
+/**
+ * @typedef {object} DildoMachine
+ * @property {boolean} show
+ * @property {"entrance" | "penetrated"} state
  */
 
 /**
@@ -35,6 +85,7 @@
  * @property {string} name The name of the clothing directory.
  * @property {string} state The state of the clothing, the file name.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
+ * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBreasts Whether the clothing uses breast sprites.
  * @property {string} breasts Breast state.
  * @property {boolean} hasSleeves Whether the clothing uses sleeve sprites.
@@ -77,6 +128,7 @@ function mapPlayerToOptions(options) {
 	// Set animation speed
 	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
 	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-1f-idle";
+	options.machineAnimKey = combat.isActive() ? "machine-4f" : "machine-2f";
 
 	// Ensure breast size is calculated before clothing options.
 	options.breastSize = Math.clamp(V.player.perceived_breastsize / 3, 0, 4);
@@ -110,6 +162,12 @@ function mapPlayerToOptions(options) {
 		"hair_fringe"
 	);
 
+	// Set props
+	mapPcToPropsOptions(options);
+
+	// Set machine
+	mapPcToMachineOptions(options);
+
 	console.warn("===============================================");
 	console.warn("=============== Player Options: ===============");
 	console.warn("===============================================");
@@ -126,6 +184,91 @@ Macro.add("mapplayertooptions", {
 		T.options[slot] = mapPlayerToOptions(options);
 	},
 });
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapPcToPropsOptions(options) {
+	function mapVolume(source) {
+		if (source >= 3000) {
+			return 7;
+		}
+		if (source >= 2000) {
+			return 6;
+		}
+		if (source >= 1500) {
+			return 5;
+		}
+		if (source >= 1000) {
+			return 4;
+		}
+		if (source >= 500) {
+			return 3;
+		}
+		if (source >= 200) {
+			return 2;
+		}
+		return 1;
+	}
+
+	const propList = ["bench", "examTable", "haybale", "hospitalBed", "ivBag", "milkTank", "pillory", "semenTank", "rail", "shakles", "table", "web"];
+	options.props = {};
+	propList.forEach(p => {
+		options.props[p] = { show: false };
+	});
+	if (V.prop.includes("haybale")) {
+		options.props.haybale = {
+			show: true,
+		};
+	}
+
+	if (V.prop.includes("milk")) {
+		const volume = mapVolume(T.barn_milk);
+		options.props.milkTank = {
+			show: true,
+			isFull: volume === 7,
+			volume,
+		};
+	}
+	if (V.prop.includes("semen")) {
+		const volume = mapVolume(T.barn_semen);
+		options.props.semenTank = {
+			show: true,
+			isFull: volume === 7,
+			volume,
+		};
+	}
+	return options;
+}
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapPcToMachineOptions(options) {
+	const machineList = ["dildo", "milker", "tattoo"];
+	options.machines = {};
+	machineList.forEach(p => {
+		options.machines[p] = { show: false };
+	});
+
+	if (V.prop.includes("penis_pump")) {
+		options.machines.penisMilker = {
+			show: true,
+		};
+	}
+
+	if (V.prop.includes("breast_pump")) {
+		options.machines.breastMilker = {
+			show: true,
+		};
+	}
+
+	return options;
+}
 
 /**
  *
@@ -283,9 +426,9 @@ function mapPcToPenetratorOptions(pc, options) {
 			penetrator.position = "mouth";
 			penetrator.state = "penetrated";
 			return penetrator;
-		case "othermouth": // Not sure of the usage?
+		case "othermouth": // "Wraps its tongue around your penis"
 			penetrator.position = "mouth";
-			penetrator.state = "penetrated";
+			penetrator.state = "entrance";
 			return penetrator;
 		case "feet":
 			penetrator.position = "feet";
@@ -390,13 +533,15 @@ function mapPcToClothingOptions(pc, options) {
 			name: clothing.combatImg,
 			state,
 			alpha,
+			hasAccessory: clothing.accessory === 1,
 		};
+
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
 			if (clothing.sleeve_img === 1) {
 				clothes.hasSleeves = true;
 				clothes.sleeves = "default";
 			}
-			if (clothing.breast_img === 1) {
+			if (clothing.breast_img !== 0) {
 				clothes.hasBreasts = true;
 				clothes.breasts = options.breastSize;
 			}
@@ -415,18 +560,16 @@ function mapPcToClothingOptions(pc, options) {
 			? lookupColour(options, setup.colours.clothes_map, clothes.item.colour, slot + " clothing", "worn_" + slot + "_custom", clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		if (clothing.accessory_colour) {
-			options.filters[accFilterKey] = lookupColour(
-				options,
-				setup.colours.clothes_map,
-				clothes.item.accessory_colour,
-				slot + " accessory",
-				"worn_" + slot + "_acc_custom",
-				clothing.prefilter
-			);
-		} else {
-			options.filters[accFilterKey] = Renderer.emptyLayerFilter();
-		}
+		options.filters[accFilterKey] = clothing.accessory_colour
+			? lookupColour(
+					options,
+					setup.colours.clothes_map,
+					clothes.item.accessory_colour,
+					slot + " accessory",
+					"worn_" + slot + "_acc_custom",
+					clothing.prefilter
+			  )
+			: Renderer.emptyLayerFilter();
 	}
 	return options;
 }

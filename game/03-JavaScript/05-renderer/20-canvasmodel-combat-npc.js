@@ -60,21 +60,39 @@ const combatMainNpc = {
 	},
 	/** @type {Object<string, CanvasModelLayerNpc>} */
 	layers: {
-		baseShadow: {
+		body: {
 			srcfn(options) {
-				const path = `${options.src}shadow/${options.type}/${options.state}.png`;
+				const path = `${options.src}${options.category}/${options.type}/${options.state}.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				const show = !!options.showShadow;
+				const show = options.show && V.options.silhouetteEnabled;
 				console.warn("NPC showing:", show);
-				return show;
+				return !!show;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 60,
+			zfn(options) {
+				return options.position === "doggy" ? 20 : 60;
+			},
+		},
+		frontleg: {
+			srcfn(options) {
+				const path = `${options.src}${options.category}/${options.type}/${options.state}-leg.png`;
+				console.warn("NPC path:", path);
+				return path;
+			},
+			showfn(options) {
+				const show = options.show && V.options.silhouetteEnabled;
+				console.warn("NPC showing:", show);
+				return !!show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 80,
 		},
 		penetrator: {
 			srcfn(options) {
