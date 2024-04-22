@@ -5705,6 +5705,7 @@ function initLower() {
 			name: "dolphin shorts",
 			name_cap: "Dolphin shorts",
 			variable: "dolphinshorts",
+			combatImg: "shorts",
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,

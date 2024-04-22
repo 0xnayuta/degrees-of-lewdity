@@ -268,7 +268,12 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 10,
+			zfn(options) {
+				if (options.position === "doggy") {
+					return zi.base + 10;
+				}
+				return zi.base + 12;
+			},
 		},
 		breastMilkerVolume: {
 			srcfn(options) {
@@ -281,7 +286,12 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 9,
+			zfn(options) {
+				if (options.position === "doggy") {
+					return zi.base + 9;
+				}
+				return zi.base + 11;
+			},
 		},
 		penisMilker: {
 			srcfn(options) {
@@ -665,24 +675,17 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/${options.legFrontPosition}-${clothes.state}.png`;
+
+				let state = `${options.legFrontPosition}-${clothes.state}`;
+
+				if (options.legFrontPosition === "footjob" && ["waist"].includes(clothes.state)) {
+					state = `up-${clothes.state}`;
+				}
+
+				const path = `${options.src}clothing/lower/${clothes.name}/${state}.png`;
 				console.log("Lower", "Path:", path);
 				return path;
 			},
-			/*
-			dxfn(options) {
-				if (options.legFrontPosition === "footjob") {
-					return -10;
-				}
-				return 0;
-			},
-			dyfn(options) {
-				if (options.legFrontPosition === "footjob") {
-					return 4;
-				}
-				return 0;
-			},
-			*/
 			z: zi.frontThigh + 3,
 		}),
 		neckWear: genClothingLayer("neck", {

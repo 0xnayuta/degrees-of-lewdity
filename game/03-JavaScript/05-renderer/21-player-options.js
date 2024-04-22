@@ -302,7 +302,6 @@ function getArmState(arm) {
  * @returns {Options}
  */
 function mapPcToLegPosition(options) {
-	const parts = [V.anususe, V.vaginause];
 	if (V.feetuse === "penis") {
 		options.legFrontPosition = "footjob";
 		options.legBackPosition = "footjob";
@@ -318,6 +317,7 @@ function mapPcToLegPosition(options) {
 		options.legBackPosition = "down";
 		return options;
 	}
+	const parts = [V.anususe, V.vaginause, V.thighuse];
 	if (parts.includes("penis") || parts.includes(1)) {
 		options.legFrontPosition = "up";
 		options.legBackPosition = "up";
@@ -390,6 +390,10 @@ function mapPcToPenetratorOptions(pc, options) {
 			return null;
 		case "penis":
 			return null;
+		case "othervagina":
+			penetrator.position = "vagina";
+			penetrator.state = "entrance";
+			return penetrator;
 		case "vaginaentrance":
 			penetrator.position = "vagina";
 			penetrator.state = "entrance";
@@ -501,15 +505,8 @@ function mapPcToClothingOptions(pc, options) {
 		const isSkirtDown = clothing.skirt_down === 0;
 		const areLegsUp = ["footjob", "up"].includes(options.legFrontPosition) || ["footjob", "up"].includes(options.legFrontPosition);
 		// Replace slot === "lower" with all lower slots? In case we need this logic for all lower layers that could be skirts.
-		if (slot === "lower") {
-			if (clothing.state === "waist" && (isSkirtDown || areLegsUp)) {
-				options.genitalsExposed = true;
-				state = "hips";
-			}
-			if (clothing.state === "thighs" && (isSkirtDown || areLegsUp)) {
-				options.genitalsExposed = true;
-				state = "thighs";
-			}
+		if (slot === "lower" && ["thighs", "waist"].includes(clothing.state) && (isSkirtDown || areLegsUp)) {
+			options.genitalsExposed = true;
 		}
 
 		// Feet clothing states

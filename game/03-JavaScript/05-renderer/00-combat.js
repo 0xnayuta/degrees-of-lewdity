@@ -46,6 +46,7 @@ class CombatSystem {
 			this.isMouthActive() ||
 			this.isPenisActive() ||
 			this.isArmActive() ||
+			this.isThighActive() ||
 			this.isChestActive() ||
 			this.isFeetActive()
 		);
@@ -93,6 +94,11 @@ class CombatSystem {
 
 	isChestActive() {
 		const activeUse = ["penis"].includes(V.chestuse);
+		return activeUse;
+	}
+
+	isThighActive() {
+		const activeUse = ["penis"].includes(V.thighuse);
 		return activeUse;
 	}
 

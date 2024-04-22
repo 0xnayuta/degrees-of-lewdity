@@ -94,6 +94,10 @@ function mapNpcToShadowOptions(npc, options) {
 	if (penetrator != null) {
 		// Figure out which shadow base to use from penetrator:
 		options.state = penetrator.position;
+		// Add penetrator states to NPC state so the shadows can be staggered for oral.
+		if (penetrator.position === "mouth") {
+			options.state += "-" + penetrator.state;
+		}
 		// Calculate DP state from positions, if position is >= 2, add double at least, triple P not sure what to do.
 		if (combat.positions[penetrator.position] >= 2) {
 			options.state += "-double";
@@ -119,14 +123,16 @@ function mapNpcToShadowOptions(npc, options) {
 			case "penisentrance":
 			case "penisimminent":
 			case "penis":
-				options.state = "default";
-				options.show = true;
+				if (options.category !== "shadow") {
+					options.state = "penis";
+					options.show = true;
+				}
 				break;
 		}
 	}
 	// Primary for being pinned:
 	if (npc.stance === "top") {
-		options.state = options.category === "shadow" ? "default" : "under-default";
+		options.state = options.category === "shadow" ? "default" : "over-default";
 		options.show = true;
 		return options;
 	}

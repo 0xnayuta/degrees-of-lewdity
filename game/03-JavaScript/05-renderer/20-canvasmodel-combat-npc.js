@@ -75,7 +75,13 @@ const combatMainNpc = {
 				return options.animKey;
 			},
 			zfn(options) {
-				return options.position === "doggy" ? 20 : 60;
+				if (options.position === "doggy") {
+					return 20;
+				}
+				if (options.state === "penis") {
+					return 90;
+				}
+				return 60;
 			},
 		},
 		frontleg: {
@@ -85,7 +91,7 @@ const combatMainNpc = {
 				return path;
 			},
 			showfn(options) {
-				const show = options.show && V.options.silhouetteEnabled;
+				const show = options.show && V.options.silhouetteEnabled && options.category === "beast";
 				console.warn("NPC showing:", show);
 				return !!show;
 			},
@@ -104,6 +110,7 @@ const combatMainNpc = {
 			showfn(options) {
 				if (options.penetrators.length <= 0) return;
 				const penetrator = options.penetrators[0];
+				if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
 				return !!penetrator.show;
 			},
 			animationfn(options) {
@@ -112,6 +119,9 @@ const combatMainNpc = {
 			zfn(options) {
 				if (options.penetrators.length <= 0) return;
 				const penetrator = options.penetrators[0];
+				if (penetrator.position === "thighs") {
+					return 30;
+				}
 				if (penetrator.position === "leftarm") {
 					return 46; // Behind the Z index of PC's "backarm"
 				}
