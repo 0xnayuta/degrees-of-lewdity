@@ -108,7 +108,7 @@ const statChange = (() => {
 	DefineMacro("traumaclamp", traumaClamp);
 
 	function updateHallucinations() {
-		if (V.trauma >= (V.traumamax / 10) * 5 || V.awareness >= 400 || V.hallucinogen > 0 || isBloodmoon() || V.worn.face.type.includes("esoteric")) {
+		if (V.trauma >= (V.traumamax / 10) * 5 || V.awareness >= 400 || V.hallucinogen > 0 || isBloodmoon() || V.worn.face.type.includes("esoteric") || setup.bodyparts.find(p => $skin[p].special === 'esoteric')) {
 			V.hallucinations = 2;
 		} else if (V.trauma >= (V.traumamax / 10) * 3 || V.awareness >= 300) {
 			V.hallucinations = 1;
@@ -379,8 +379,7 @@ const statChange = (() => {
 	function minArousal() {
 		let result = playerHeatMinArousal() + playerRutMinArousal();
 
-		if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy")
-		result += 2000;
+		if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy") result += 2000;
 
 		result += Object.values(V.worn).reduce((prev, curr) => {
 			if (curr.type.includes("fetish")) return prev + 150;
