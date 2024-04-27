@@ -678,7 +678,7 @@ const combatMainPc = {
 
 				let state = `${options.legFrontPosition}-${clothes.state}`;
 
-				if (options.legFrontPosition === "footjob" && ["waist"].includes(clothes.state)) {
+				if (options.legFrontPosition === "footjob" && ["waist", "thighs"].includes(clothes.state)) {
 					state = `up-${clothes.state}`;
 				}
 
