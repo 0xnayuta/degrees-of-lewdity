@@ -156,8 +156,8 @@ declare interface ClothesItem {
 	 * * Value represents the image used:
 	 *     - null if no clothed breast image exists for that breast size.
 	 *     - 0..6 for clothed breast image used for that breast size.
-	   */
-	breast_img: null | 1 | 0;
+ 	 */
+	breast_img: object | 1 | 0;
 	cursed: number;
 	location: number;
 	iconFile: string;
