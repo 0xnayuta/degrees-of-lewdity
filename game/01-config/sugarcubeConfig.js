@@ -11,7 +11,7 @@ window.StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.6.7",
+	version: "0.4.7.2",
 	versionName: "",
 	sneaky: false,
 };
@@ -598,6 +598,13 @@ Config.navigation.override = function (dest) {
 			case "Livestock Field Horse Lewd Sex Finish":
 			case "Livestock Field Horse Lewd Female Sex Finish":
 				return "Livestock Field Deviancy Sex";
+
+			case "Beach Cave Tentacle Under Top":
+				return "Beach Cave Tentacle Top";
+
+			case "Beach Cave Rope Under Top":
+			case "Beach Cave Rope Over Top":
+				return "Beach Cave Rope Top";
 
 			default:
 				return false;
