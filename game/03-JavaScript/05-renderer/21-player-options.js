@@ -126,9 +126,9 @@ function mapPlayerToOptions(options) {
 	options.tears = painToTearsLvl(V.pain);
 
 	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-1f-idle";
-	options.machineAnimKey = combat.isActive() ? "machine-4f" : "machine-2f";
+	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
+	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
+	options.machineAnimKey = combat.isActive() ? "machine-4f" : "machine-4f-slow";
 
 	// Ensure breast size is calculated before clothing options.
 	options.breastSize = Math.clamp(V.player.perceived_breastsize / 3, 0, 4);

@@ -65,8 +65,8 @@ function mapNpcToOptions(index, options) {
 	options.src = `${options.root}/${options.position}/`;
 
 	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-1f-idle";
+	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
+	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
 
 	// Configure state
 	// Maybe use active_enemy? const index = V.active_enemy.
