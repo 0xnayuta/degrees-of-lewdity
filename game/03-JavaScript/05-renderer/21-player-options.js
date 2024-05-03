@@ -83,7 +83,7 @@
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string} name The name of the clothing directory.
- * @property {string} state The state of the clothing, the file name.
+ * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles"} state The state of the clothing, the file name.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBreasts Whether the clothing uses breast sprites.
@@ -125,11 +125,6 @@ function mapPlayerToOptions(options) {
 	options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
 	options.tears = painToTearsLvl(V.pain);
 
-	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
-	options.machineAnimKey = combat.isActive() ? "machine-4f" : "machine-4f-slow";
-
 	// Ensure breast size is calculated before clothing options.
 	options.breastSize = Math.clamp(V.player.perceived_breastsize / 3, 0, 4);
 
@@ -168,6 +163,11 @@ function mapPlayerToOptions(options) {
 	// Set machine
 	mapPcToMachineOptions(options);
 
+	// Set animation speed
+	options.animKey = getPcAnimationSpeed(options);
+	options.animKeyStill = getPcAnimationSpeed(options);
+	options.machineAnimKey = getMachineAnimationSpeed(options);
+
 	console.warn("===============================================");
 	console.warn("=============== Player Options: ===============");
 	console.warn("===============================================");
@@ -184,6 +184,37 @@ Macro.add("mapplayertooptions", {
 		T.options[slot] = mapPlayerToOptions(options);
 	},
 });
+
+/**
+ * @param {Options} options
+ * @returns {string}
+ */
+function getPcAnimationSpeed(options) {
+	if (options.props.semenTank.show || options.props.milkTank.show) {
+		return "sex-2f-idle";
+	}
+	if (combat.isPenetrated()) {
+		return "sex-4f-vfast";
+	}
+	if (combat.isActive()) {
+		return "sex-4f-slow";
+	}
+	return "sex-2f-idle";
+}
+
+/**
+ * @param {Options} options
+ * @returns {string}
+ */
+function getMachineAnimationSpeed(options) {
+	if (options.machines.penisMilker.show || options.machines.breastMilker.show) {
+		return "machine-2f-slow";
+	}
+	if (combat.isActive()) {
+		return "machine-4f";
+	}
+	return "machine-4f-slow";
+}
 
 /**
  *
@@ -249,22 +280,18 @@ function mapPcToPropsOptions(options) {
  * @returns {Options}
  */
 function mapPcToMachineOptions(options) {
-	const machineList = ["dildo", "milker", "tattoo"];
+	const machineList = ["dildo", "penisMilker", "breastMilker", "tattoo"];
 	options.machines = {};
 	machineList.forEach(p => {
 		options.machines[p] = { show: false };
 	});
 
 	if (V.prop.includes("penis_pump")) {
-		options.machines.penisMilker = {
-			show: true,
-		};
+		options.machines.penisMilker.show = true;
 	}
 
 	if (V.prop.includes("breast_pump")) {
-		options.machines.breastMilker = {
-			show: true,
-		};
+		options.machines.breastMilker.show = true;
 	}
 
 	return options;
@@ -334,6 +361,23 @@ function mapPcToLegPosition(options) {
 }
 
 /**
+ * @param {Options} options
+ * @returns {boolean}
+ */
+function isPenisExposed(options) {
+	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles"];
+	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state);
+	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state);
+	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state);
+	const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
+
+	if (clothingExposed) {
+		return true;
+	}
+	return false;
+}
+
+/**
  *
  * @param {object} pc
  * @param {Options} options
@@ -341,7 +385,7 @@ function mapPcToLegPosition(options) {
  */
 function mapPcToPenetratorOptions(pc, options) {
 	const hasPenetrator = pc.penisExist || playerHasStrapon();
-	const isExposed = V.worn.lower.exposed > 1 && V.worn.under_lower.exposed > 0;
+	const isExposed = isPenisExposed(options);
 	const hasChastityBelt = V.worn.genitals.name.includes("chastity belt");
 	/** @type {Penetrator} */
 	const penetrator = {
@@ -553,19 +597,20 @@ function mapPcToClothingOptions(pc, options) {
 			worn: {},
 		};
 		options.filters.worn[slot] = {};
-		options.filters[mainFilterKey] = clothing.colour
-			? lookupColour(options, setup.colours.clothes_map, clothes.item.colour, slot + " clothing", "worn_" + slot + "_custom", clothing.prefilter)
+
+		const colour = clothing.colour || clothing.colour_combat;
+		const debugName = slot + " clothing";
+		const filterName = "worn_" + slot + "_custom";
+		console.log("Clothing colour:", slot, colour);
+		options.filters[mainFilterKey] = colour
+			? lookupColour(options, setup.colours.clothes_map, colour, debugName, filterName, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		options.filters[accFilterKey] = clothing.accessory_colour
-			? lookupColour(
-					options,
-					setup.colours.clothes_map,
-					clothes.item.accessory_colour,
-					slot + " accessory",
-					"worn_" + slot + "_acc_custom",
-					clothing.prefilter
-			  )
+		const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
+		const accDebugName = slot + " accessory";
+		const accFilterName = "worn_" + slot + "_acc_custom";
+		options.filters[accFilterKey] = accColour
+			? lookupColour(options, setup.colours.clothes_map, accColour, accDebugName, accFilterName, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 	}
 	return options;

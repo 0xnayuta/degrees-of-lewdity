@@ -64,10 +64,6 @@ function mapNpcToOptions(index, options) {
 	options.root = "img/newsex";
 	options.src = `${options.root}/${options.position}/`;
 
-	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-4f-mid";
-
 	// Configure state
 	// Maybe use active_enemy? const index = V.active_enemy.
 	const npc = V.NPCList[index];
@@ -78,9 +74,27 @@ function mapNpcToOptions(index, options) {
 
 	mapNpcToShadowOptions(npc, options);
 
+	// Set animation speed
+	options.animKey = getNpcAnimationSpeed(options);
+	options.animKeyStill = getNpcAnimationSpeed(options);
+
 	return options;
 }
 window.mapNpcToOptions = mapNpcToOptions;
+
+/**
+ * @param {NpcOptions} options
+ * @returns {string}
+ */
+function getNpcAnimationSpeed(options) {
+	if (combat.isPenetrated()) {
+		return "sex-4f-vfast";
+	}
+	if (combat.isActive()) {
+		return "sex-4f-mid";
+	}
+	return "sex-2f-idle";
+}
 
 /**
  *

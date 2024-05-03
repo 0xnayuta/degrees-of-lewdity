@@ -130,6 +130,25 @@ const combatMainPc = {
 	},
 	layers: {
 		/*
+		 *    ██████  ███████ ██████  ██    ██  ██████
+		 *    ██   ██ ██      ██   ██ ██    ██ ██
+		 *    ██   ██ █████   ██████  ██    ██ ██   ███
+		 *    ██   ██ ██      ██   ██ ██    ██ ██    ██
+		 *    ██████  ███████ ██████   ██████   ██████
+		 */
+		frameCount: {
+			srcfn(options) {
+				return `${options.root}${options.animKey.includes("4f") ? "4f" : "2f"}.png`;
+			},
+			showfn(options) {
+				return true;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 100,
+		},
+		/*
 		 *    ██████  ██████   ██████  ██████  ███████
 		 *    ██   ██ ██   ██ ██    ██ ██   ██ ██
 		 *    ██████  ██████  ██    ██ ██████  ███████
@@ -726,7 +745,7 @@ const combatMainPc = {
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 10,
+			z: zi.base + 13,
 		}),
 		upperBackSleeves: genClothingLayer("upper", {
 			srcfn(options) {

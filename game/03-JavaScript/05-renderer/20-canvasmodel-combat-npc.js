@@ -144,7 +144,17 @@ const combatMainNpc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 61,
+			zfn(options) {
+				if (options.penetrators.length <= 0) return;
+				const penetrator = options.penetrators[0];
+				if (penetrator.position === "thighs") {
+					return 32;
+				}
+				if (penetrator.position === "leftarm") {
+					return 48; // Behind the Z index of PC's "backarm"
+				}
+				return 61;
+			},
 		},
 	},
 };

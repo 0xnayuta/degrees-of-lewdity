@@ -39,6 +39,10 @@ class CombatSystem {
 		this.positions.mouth = 0;
 	}
 
+	isPenetrated() {
+		return this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
+	}
+
 	isActive() {
 		return (
 			this.isVaginaActive() ||
@@ -52,12 +56,22 @@ class CombatSystem {
 		);
 	}
 
+	isVaginaPenetrated() {
+		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
+		return activeState;
+	}
+
 	isVaginaActive() {
 		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.vaginastate
 		);
 		const activeUse = ["tentaclerub"].includes(V.vaginause);
 		return activeState || activeUse;
+	}
+
+	isAnusPenetrated() {
+		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
+		return activeState;
 	}
 
 	isAnusActive() {
@@ -75,8 +89,18 @@ class CombatSystem {
 		return activeState || activeUse;
 	}
 
+	isMouthPenetrated() {
+		const activeState = ["penetrated", "tentacledeep"].includes(V.mouthstate);
+		return activeState;
+	}
+
 	isMouthActive() {
 		const activeState = ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
+		return activeState;
+	}
+
+	isPenisPenetrated() {
+		const activeState = ["penetrated", "tentacledeep"].includes(V.penisstate);
 		return activeState;
 	}
 
