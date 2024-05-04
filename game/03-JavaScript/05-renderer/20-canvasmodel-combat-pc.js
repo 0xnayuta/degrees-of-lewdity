@@ -429,7 +429,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 11,
+			z: zi.base + 14,
 		},
 		frontbreast: {
 			srcfn(options) {

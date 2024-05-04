@@ -106,12 +106,26 @@ function mapNpcToShadowOptions(npc, options) {
 	options.penetrators = options.penetrators = [];
 	const penetrator = mapNpcToPenetratorOptions(npc);
 	if (penetrator != null) {
+		console.log("Pushing penetrator to list:", penetrator);
+		options.penetrators.push(penetrator);
+
 		// Figure out which shadow base to use from penetrator:
 		options.state = penetrator.position;
+
+		if (options.category === "beast") {
+			if (npc.stance === "top") {
+				options.state = options.category === "shadow" ? "default" : "over-default";
+				options.show = ["vagina", "anus"].includes(penetrator.position);
+				return options;
+			}
+		}
+
 		// Add penetrator states to NPC state so the shadows can be staggered for oral.
+		/*
 		if (penetrator.position === "mouth") {
 			options.state += "-" + penetrator.state;
 		}
+		*/
 		// Calculate DP state from positions, if position is >= 2, add double at least, triple P not sure what to do.
 		if (combat.positions[penetrator.position] >= 2) {
 			options.state += "-double";
@@ -120,8 +134,6 @@ function mapNpcToShadowOptions(npc, options) {
 		// Figure out whether to show the shadow man or not:
 		options.show = ["vagina", "anus", "mouth"].includes(penetrator.position);
 
-		console.log("Pushing penetrator to list:", penetrator);
-		options.penetrators.push(penetrator);
 		return options;
 	}
 	// Since no penetrator exists on the NPC, check for their other states
