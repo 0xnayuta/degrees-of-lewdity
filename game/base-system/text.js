@@ -52,12 +52,12 @@ const statDisplay = {
 };
 window.statDisplay = statDisplay;
 
-statDisplay.create("ggrace", expectedRank => statDisplay.grace(1, expectedRank));
-statDisplay.create("gggrace", expectedRank => statDisplay.grace(2, expectedRank));
-statDisplay.create("ggggrace", expectedRank => statDisplay.grace(3, expectedRank));
 statDisplay.create("lgrace", expectedRank => statDisplay.grace(-1, expectedRank));
 statDisplay.create("llgrace", expectedRank => statDisplay.grace(-2, expectedRank));
 statDisplay.create("lllgrace", expectedRank => statDisplay.grace(-3, expectedRank));
+statDisplay.create("ggrace", expectedRank => statDisplay.grace(1, expectedRank));
+statDisplay.create("gggrace", expectedRank => statDisplay.grace(2, expectedRank));
+statDisplay.create("ggggrace", expectedRank => statDisplay.grace(3, expectedRank));
 
 statDisplay.create("lstress", () => statDisplay.statChange("Stress", -1, "green"));
 statDisplay.create("llstress", () => statDisplay.statChange("Stress", -2, "green"));
@@ -428,40 +428,40 @@ statDisplay.create("gggawareness", () => {
 });
 
 statDisplay.create("lspurity", () => {
-	let result;
+	const result = document.createDocumentFragment();
 	if (C.npc.Sydney.purity >= 1) {
-		result = statDisplay.statChange("Sydney's Purity", -1, "purple");
+		result.append(statDisplay.statChange("Sydney's Purity", -1, "purple"));
 	} else {
-		result = statDisplay.statChange("Sydney's Corruption", 1, "purple");
+		result.append(statDisplay.statChange("Sydney's Corruption", 1, "purple"));
 	}
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
-		result += statDisplay.statChange("Lust", 1, "lewd");
+		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
 	T.warnstate = -1;
 	return result;
 });
 statDisplay.create("llspurity", () => {
-	let result;
+	const result = document.createDocumentFragment();
 	if (C.npc.Sydney.purity >= 1) {
-		result = statDisplay.statChange("Sydney's Purity", -2, "purple");
+		result.append(statDisplay.statChange("Sydney's Purity", -2, "purple"));
 	} else {
-		result = statDisplay.statChange("Sydney's Corruption", 2, "purple");
+		result.append(statDisplay.statChange("Sydney's Corruption", 2, "purple"));
 	}
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
-		result += statDisplay.statChange("Lust", 1, "lewd");
+		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
 	T.warnstate = -2;
 	return result;
 });
 statDisplay.create("lllspurity", () => {
-	let result;
+	const result = document.createDocumentFragment();
 	if (C.npc.Sydney.purity >= 1) {
-		result = statDisplay.statChange("Sydney's Purity", -3, "purple");
+		result.append(statDisplay.statChange("Sydney's Purity", -3, "purple"));
 	} else {
-		result = statDisplay.statChange("Sydney's Corruption", 3, "purple");
+		result.append(statDisplay.statChange("Sydney's Purity", 3, "purple"));
 	}
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
-		result += statDisplay.statChange("Lust", 1, "lewd");
+		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
 	T.warnstate = -3;
 	return result;
@@ -514,21 +514,18 @@ statDisplay.create("gggslust", () => {
 
 statDisplay.create("lscience", () => statDisplay.statChange("Science", -1, "red"));
 statDisplay.create("gscience", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Science", 1, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("science_star"));
 	return result;
 });
 statDisplay.create("ggscience", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Science", 2, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("science_star"));
 	return result;
 });
 statDisplay.create("gggscience", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Science", 3, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("science_star"));
@@ -537,21 +534,18 @@ statDisplay.create("gggscience", () => {
 
 statDisplay.create("lmaths", () => statDisplay.statChange("Maths", -1, "red"));
 statDisplay.create("gmaths", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Maths", 1, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("maths_star"));
 	return result;
 });
 statDisplay.create("ggmaths", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Maths", 2, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("maths_star"));
 	return result;
 });
 statDisplay.create("gggmaths", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("Maths", 3, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("maths_star"));
@@ -560,21 +554,18 @@ statDisplay.create("gggmaths", () => {
 
 statDisplay.create("lenglish", () => statDisplay.statChange("English", -1, "red"));
 statDisplay.create("genglish", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("English", 1, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("english_star"));
 	return result;
 });
 statDisplay.create("ggenglish", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("English", 2, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("english_star"));
 	return result;
 });
 statDisplay.create("gggenglish", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("English", 3, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("english_star"));
@@ -583,21 +574,18 @@ statDisplay.create("gggenglish", () => {
 
 statDisplay.create("lhistory", () => statDisplay.statChange("History", -1, "red"));
 statDisplay.create("ghistory", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("History", 1, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("history_star"));
 	return result;
 });
 statDisplay.create("gghistory", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("History", 2, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("history_star"));
 	return result;
 });
 statDisplay.create("ggghistory", () => {
-	T.lustincrdisplay = 1;
 	const result = statDisplay.statChange("History", 3, "green");
 	result.append(" ");
 	result.appendChild(gainSchoolStar("history_star"));
@@ -605,11 +593,11 @@ statDisplay.create("ggghistory", () => {
 });
 
 statDisplay.create("ghousekeeping", amount => {
-	if (V.statsdisable === "f") return "";
+	if (V.statsdisable === "t") return "";
 	if (amount === undefined || V.housekeeping < amount) {
 		return statDisplay.statChange("Housekeeping", 1, "green");
 	} else if (V.housekeeping >= amount) {
-		return "You're too skilled for this to improve your housekeeping.";
+		return " You're too skilled for this to improve your housekeeping.";
 	}
 	return "";
 });
@@ -669,13 +657,13 @@ statDisplay.create("lrespect", () => statDisplay.statChange("Respect", -1, "red"
 statDisplay.create("llrespect", () => statDisplay.statChange("Respect", -2, "red"));
 statDisplay.create("lllrespect", () => statDisplay.statChange("Respect", -3, "red"));
 statDisplay.create("grespect", arg =>
-	statDisplay.statChange("Respect", 1, "green", () => (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
+	statDisplay.statChange("Respect", 1, "green", () => arg === undefined || (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
 );
 statDisplay.create("ggrespect", arg =>
-	statDisplay.statChange("Respect", 2, "green", () => (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
+	statDisplay.statChange("Respect", 2, "green", () => arg === undefined || (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
 );
 statDisplay.create("gggrespect", arg =>
-	statDisplay.statChange("Respect", 3, "green", () => (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
+	statDisplay.statChange("Respect", 3, "green", () => arg === undefined || (arg === "scum" && V.pirate_rank !== 0) || (arg === "mate" && V.pirate_rank !== 1))
 );
 
 statDisplay.create("ladeviancy", () => statDisplay.statChange("Alex's Deviancy", -1, "green"));
