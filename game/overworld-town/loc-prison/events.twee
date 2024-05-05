@@ -89,6 +89,9 @@ They trade threats while their goons stare each other down, until they're interr
 
 :: Prison Shower Take
 <<effects>>
+<<set _willLower to (Object.values(V.skin).filter(tat => tat.special === "conceal").length * 100)>>
+<<set _willHigher to (Object.values(V.skin).filter(tat => tat.special === "conceal").length * 200)>>
+
 
 You step into the shower proper. There's no privacy. Dozens of bodies are packed beneath rust-worn faucets. At least there's soap.
 <br><br>
@@ -101,6 +104,16 @@ You step into the shower proper. There's no privacy. Dozens of bodies are packed
 	<br>
 	<<link [[Forget it|Prison Shower]]>><<clotheson>><<prison_inmates -1>><</link>><<lrespect>>
 	<br>
+
+<<elseif setup.bodyparts.find(p => $skin[p].special is "conceal") and random(1, 6) is 6>>
+	You reach for the soap, but it slides out of your fingers and lands on the floor.
+	<br>
+	<<hypnosisicon>><span class="purple">You feel an urge to bend over and pick it up.</span><<hypnosisicon>>
+	<br><br>
+
+	<<link [[Pick it up|Prison Shower Soap Drop]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[Resist it|Prison Shower Soap Drop]]>><<set $phase to 2>><</link>><<willpowerdifficulty _willLower _willHigher>>
 <<else>>
 	No one pays you attention as you wash yourself.
 	<br><br>
@@ -320,6 +333,91 @@ You shout. The <<person>> shoves a hand over your mouth. "You'll regret that, sl
 <</if>>
 
 :: Prison Shower Fight Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<generate_veteran_guard 1>>
+	<<He>> gives you <<bottom>> a final spank before swaggering away.<<lrespect>><<prison_inmates -1>>
+	<br><br>
+	<<veteran_guard 1 cap>> pushes through the audience, and starts breaking them up. <<tearful>> you stagger away.
+	<br><br>
+	<<endcombat>>
+	<<link [[Next|Prison Shower Take]]>><<pass 10>><</link>>
+
+<<elseif $enemyhealth lte 0>>
+	<<generate_veteran_guard 1>>
+	The <<person>> stumbles backwards, tripping over a bench. The audience make room for <<his>> fall, revealing <<veteran_guard 1>>, hands on hips.<<ggrespect>><<prison_inmates 3>>
+	<br><br>
+	<<person2>>"Thought it was you," <<he>> says, unstrapping <<his>> baton. "Let's have a word."
+	<br><br>
+	<<tearful>> you disappear into the crowd.
+	<br><br>
+	<<endcombat>>
+	<<link [[Next|Prison Shower Take]]>><<pass 10>><</link>>
+<<else>>
+	<<generate_veteran_guard 1>>
+	<<veteran_guard 1 cap>><<person2>> pushes <<his>> way through the crowd. <<He>> smacks the <<person1>><<persons>> arm with <<person2>><<his>> baton. "Let's have a word," <<he>> says.
+	<Br><br>
+	<<tearful>> you disappear into the crowd.
+	<br><br>
+
+	<<endcombat>>
+	<<link [[Next|Prison Shower Take]]>><<pass 10>><</link>>
+	<br>
+
+<</if>>
+
+:: Prison Shower Soap Drop
+<<effects>>
+
+<<if $phase is 1>>
+	You give in to the suggestion and and bend over to grab the soap off the floor. <span class="red">You feel a pair of hands around your waist as your fingers touch the bar of soap.</span>
+	<br><br>
+	<<link [[Next|Prison Shower Rape]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	<<if $willpowerSuccess>>
+		<span class="green">You resist the urge and crouch to pick up the soap</span>, lest someone take advantage of your vulnerability. Thankfully, the rest of your shower passes without incident.
+		<br><br>
+		<<link [[Next|Prison Shower]]>><<clotheson>><<pass 10>><</link>>
+	<<else>>
+		<span class="red">You are unable to resist</span>. You reach down to grab the bar of soap. A pair of hands grip your waist as you bend down.
+		<br><br>
+		<<link [[Next|Prison Shower Rape]]>><<set $molestationstart to 1>><</link>>
+	<</if>>
+<</if>>
+:: Prison Shower Rape
+<<generate1>>
+<<undressNPC 1>>
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<enable_rescue>>
+
+	The inmates take notice of what's happening and begin crowding around, eager to watch.
+	<<set $timer to random(3, 12)>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or $timer lte 1>>
+	<span id="next"><<link [[Next|Prison Shower Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Prison Shower Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Prison Shower Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
