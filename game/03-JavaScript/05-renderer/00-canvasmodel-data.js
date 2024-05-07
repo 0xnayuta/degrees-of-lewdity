@@ -106,6 +106,8 @@ const ZIndices = {
 	frontLeg: 24,
 	frontBreast: 26,
 	frontArm: 28,
+
+	old_over_upper: 171,
 };
 window.ZIndices = ZIndices;
 

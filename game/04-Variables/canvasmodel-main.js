@@ -1747,7 +1747,7 @@ Renderer.CanvasModels["main"] = {
 				return options.angel_halo_lower && isPartEnabled(options.angel_halo_type) ? 20 : 0;
 			},
 			zfn(options) {
-				return options.angel_halo_lower && isPartEnabled(options.angel_halo_type) ? ZIndices.over_head : ZIndices.over_upper;
+				return options.angel_halo_lower && isPartEnabled(options.angel_halo_type) ? ZIndices.over_head : ZIndices.old_over_upper;
 			},
 			animation: "idle"
 		},
@@ -1860,7 +1860,7 @@ Renderer.CanvasModels["main"] = {
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.fallen_halo_type);
 			},
-			z: ZIndices.over_upper,
+			z: ZIndices.old_over_upper,
 			animation: "idle"
 		},
 
@@ -3727,7 +3727,7 @@ Renderer.CanvasModels["main"] = {
 				}
 			},
 			zfn(options) {
-				return options.handheld_overhead || options.worn_handheld_setup.type.includes("prop") ? ZIndices.over_upper : ZIndices.handheld;
+				return options.handheld_overhead || options.worn_handheld_setup.type.includes("prop") ? ZIndices.old_over_upper : ZIndices.handheld;
 			},
 		}),
 		"handheld_acc": genlayer_clothing_accessory('handheld', {
@@ -3751,7 +3751,7 @@ Renderer.CanvasModels["main"] = {
 				}
 			},
 			zfn(options) {
-				return options.handheld_overhead || options.worn_handheld_setup.type.includes("prop") ? ZIndices.over_upper : ZIndices.handheld;
+				return options.handheld_overhead || options.worn_handheld_setup.type.includes("prop") ? ZIndices.old_over_upper : ZIndices.handheld;
 			},
 		}),
 		"handheld_left": {
