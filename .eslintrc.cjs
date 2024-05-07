@@ -306,6 +306,7 @@ module.exports = {
 					"CanvasModelLayer",
 					"AnimatingCanvas",
 					"Options",
+					"Npc",
 					"NpcOptions",
 				],
 			},

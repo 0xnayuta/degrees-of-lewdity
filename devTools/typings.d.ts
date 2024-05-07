@@ -9,6 +9,10 @@ import { SugarCubeStoryVariables, SugarCubeTemporaryVariables } from "twine-suga
 
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
+		options: {
+			silhouetteEnabled: boolean;
+		};
+
 		arousal: number;
 		pain: number;
 		position: "missionary" | "doggy";
@@ -18,7 +22,11 @@ declare module "twine-sugarcube" {
 		haircolour: string;
 		eyeselect: string;
 		prop: string[];
+
 		NPCList: Npc[];
+
+		enemyarousal: number;
+		enemyarousalmax: number;
 
 		orgasmdown: number;
 		orgasmcount: number;
@@ -79,6 +87,10 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface Npc {
+		skincolour: string;
+		penis: string;
+		vagina: string;
+		stance: string;
 		type: string;
 	}
 

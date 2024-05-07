@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @typedef CombatZIndices
  * @type {object}
@@ -6,19 +7,19 @@
  * @property {50} base
  * @property {100} near
  * Hair:
- * @property {35} backHair
+ * @property {20} backHair
  * @property {55} hair
  * Back legs:
- * @property {40} backCalf
- * @property {41} backFoot
- * @property {42} backThigh
- * @property {43} backCalfUnderwear
- * @property {44} backThighUnderwear
- * @property {45} backFootwear
- * @property {46} backCalfWear
- * @property {47} backThighWear
- * @property {48} backCalfOverwear
- * @property {49} backThighOverwear
+ * @property {26} backCalf
+ * @property {27} backFoot
+ * @property {28} backThigh
+ * @property {29} backCalfUnderwear
+ * @property {30} backThighUnderwear
+ * @property {31} backFootwear
+ * @property {32} backCalfWear
+ * @property {33} backThighWear
+ * @property {34} backCalfOverwear
+ * @property {35} backThighOverwear
  * Front Legs:
  * @property {65} frontCalf
  * @property {66} frontFoot
@@ -70,7 +71,59 @@ const zi = {
 };
 
 /**
- * @type {CanvasModelOptions}
+ * @typedef {object} CanvasModelLayerPc
+ * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
+ * @property {string} [src] Image path. Either `src` or `srcfn` is required.
+ * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
+ * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
+ * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
+ * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
+ * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
+ * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
+ * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
+ * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
+ * @property {string} [animation] Name of animation to apply, default none.
+ * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
+ * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
+ * @property {number} [dx] Layer X position on the image, default 0.
+ * @property {number} [dy] Layer Y position on the image, default 0.
+ * @property {number} [width] Layer subsprite width, default = model width.
+ * @property {number} [height] Layer subsprite width, default = model height.
+ *
+ * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
+ * @property {function(Options): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
+ * @property {function(Options): string} [srcfn] (options)=>string.
+ * @property {function(Options): number} [zfn] (options)=>number.
+ * @property {function(Options): number} [alphafn] (options)=>number.
+ * @property {function(Options): boolean} [desaturatefn] (options)=>boolean.
+ * @property {function(Options): number} [brightnessfn] (options)=>number.
+ * @property {function(Options): number} [contrastftn] (options)=>number.
+ * @property {function(Options): (string|object)} [blendModefn] (options)=>(string|object).
+ * @property {function(Options): string} [blendfn] (options)=>string.
+ * @property {function(Options): string} [masksrcfn] (options)=>string.
+ * @property {function(Options): string} [animationfn] (options)=>string.
+ * @property {function(Options): number[]} [framesfn] (options)=>number[].
+ * @property {function(Options): string[]} [filtersfn] (options)=>string[].
+ * @property {function(Options): number} [dxfn] (options)=>number.
+ * @property {function(Options): number} [dyfn] (options)=>number.
+ * @property {function(Options): number} [widthfn] (options)=>number.
+ * @property {function(Options): number} [heightfn] (options)=>number.
+ */
+
+/**
+ * @typedef {object} CanvasModelPcOptions
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {Object<string, CanvasModelLayerPc>} layers Layers (by name).
+ * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
+ * @property {Function} [defaultOptions] Function ()=>object returning default options.
+ * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
+ */
+
+/**
+ * @type {CanvasModelPcOptions}
  */
 const combatMainPc = {
 	name: "combatMainPc",
@@ -577,7 +630,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
-				const result = options.showPlayer && penetrator.show;
+				const result = options.showPlayer && penetrator?.show;
 				return !!result;
 			},
 			animationfn(options) {
@@ -588,13 +641,13 @@ const combatMainPc = {
 		penetratorEjaculate: {
 			srcfn(options) {
 				const penetrator = options.penetrator;
-				return `${options.src}body/penetrator/default-default-${penetrator.ejaculate.type}.png`;
+				return `${options.src}body/penetrator/default-default-${penetrator?.ejaculate.type}.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
 				console.log("ejac penetrator", JSON.parse(JSON.stringify(penetrator)));
 				if (options.machines.penisMilker.show) return false;
-				const result = options.showPlayer && penetrator.show && penetrator.isEjaculating;
+				const result = options.showPlayer && penetrator?.show && penetrator?.isEjaculating;
 				return !!result;
 			},
 			animationfn(options) {

@@ -5,6 +5,7 @@
  * @property {"img/sex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
  * @property {boolean} showPlayer Flag to show the player model.
+ * @property {boolean} showFace
  * @property {boolean} showClothing Flag to show the clothing layers.
  * @property {boolean} showNPCs Flag to show the NPC model(s).
  * @property {number} animSpeed The global speed to play animations.
@@ -29,6 +30,7 @@
  * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
+ * @property {boolean} inOral
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
  * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
  * @property {Object<string, ClothingState>} clothes Template.

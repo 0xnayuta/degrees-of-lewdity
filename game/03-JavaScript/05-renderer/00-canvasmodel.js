@@ -51,23 +51,23 @@
  * @property {number} [height] Layer subsprite width, default = model height.
  *
  * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(Options): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(Options): string} [srcfn] (options)=>string.
- * @property {function(Options): number} [zfn] (options)=>number.
- * @property {function(Options): number} [alphafn] (options)=>number.
- * @property {function(Options): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(Options): number} [brightnessfn] (options)=>number.
- * @property {function(Options): number} [contrastftn] (options)=>number.
- * @property {function(Options): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(Options): string} [blendfn] (options)=>string.
- * @property {function(Options): string} [masksrcfn] (options)=>string.
- * @property {function(Options): string} [animationfn] (options)=>string.
- * @property {function(Options): number[]} [framesfn] (options)=>number[].
- * @property {function(Options): string[]} [filtersfn] (options)=>string[].
- * @property {function(Options): number} [dxfn] (options)=>number.
- * @property {function(Options): number} [dyfn] (options)=>number.
- * @property {function(Options): number} [widthfn] (options)=>number.
- * @property {function(Options): number} [heightfn] (options)=>number.
+ * @property {function(object): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
+ * @property {function(object): string} [srcfn] (options)=>string.
+ * @property {function(object): number} [zfn] (options)=>number.
+ * @property {function(object): number} [alphafn] (options)=>number.
+ * @property {function(object): boolean} [desaturatefn] (options)=>boolean.
+ * @property {function(object): number} [brightnessfn] (options)=>number.
+ * @property {function(object): number} [contrastftn] (options)=>number.
+ * @property {function(object): (string|object)} [blendModefn] (options)=>(string|object).
+ * @property {function(object): string} [blendfn] (options)=>string.
+ * @property {function(object): string} [masksrcfn] (options)=>string.
+ * @property {function(object): string} [animationfn] (options)=>string.
+ * @property {function(object): number[]} [framesfn] (options)=>number[].
+ * @property {function(object): string[]} [filtersfn] (options)=>string[].
+ * @property {function(object): number} [dxfn] (options)=>number.
+ * @property {function(object): number} [dyfn] (options)=>number.
+ * @property {function(object): number} [widthfn] (options)=>number.
+ * @property {function(object): number} [heightfn] (options)=>number.
  */
 
 /**
@@ -322,7 +322,7 @@ window.CanvasModel = class CanvasModel {
 };
 
 /**
- * @type {Object<string, CanvasModelOptions>}
+ * @type {Object<string, CanvasModelOptions}
  */
 Renderer.CanvasModels = {};
 /**

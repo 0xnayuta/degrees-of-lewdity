@@ -1,11 +1,6 @@
+// @ts-check
 /**
- * @typedef {object} NpcObject
- * @property {string | 0 | null} vagina
- * @property {string | 0 | null} penis
- */
-
-/**
- * @typedef {object} NpcOptions
+ * @typedef NpcOptions
  * @property {"img/newsex"} root
  * @property {string} src Typically "img/newsex/missionary/"
  * @property {"missionary" | "doggy"} position
@@ -15,14 +10,16 @@
  * @property {string} state
  * @property {boolean} show
  * @property {Penetrator[]} penetrators
+ * @property {string} animKey
+ * @property {string} animKeyStill
  */
 
 /**
- * @typedef {object} Penetrator
+ * @typedef Penetrator
  * @property {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"} type
  * @property {number} size
  * @property {string} colour
- * @property {-1|0|1|2|3|4|5} target PC is -1. NPCs are 0 to 5.
+ * @property {number} target PC is -1. NPCs are 0 to 5.
  * @property {string} position Area that the penetrator is in.
  * @property {string} state What it is doing in the position.
  * @property {boolean} isEjaculating Whether the penetrator is ejaculating.
@@ -32,12 +29,12 @@
  */
 
 /**
- * @typedef {object} Ejaculate
+ * @typedef Ejaculate
  * @property {"sperm" | "pee" | "girlcum" | "sriracha"} type
  */
 
 /**
- * @typedef {object} Colour
+ * @typedef Colour
  * @property {string} hex
  */
 
@@ -98,7 +95,7 @@ function getNpcAnimationSpeed(options) {
 
 /**
  *
- * @param {NpcObject} npc
+ * @param {Npc} npc
  * @param {NpcOptions} options
  * @returns {NpcOptions}
  */
@@ -120,7 +117,7 @@ function mapNpcToBodyOptions(npc, options) {
 				return options;
 			}
 			if (npc.stance === "top") {
-				options.state = options.category === "shadow" ? "default" : "over-default";
+				options.state = "over-default";
 				options.show = ["vagina", "anus"].includes(penetrator.position);
 				return options;
 			}
@@ -149,6 +146,7 @@ function mapNpcToBodyOptions(npc, options) {
 		options.show = true;
 		return options;
 	}
+
 	if (npc.vagina && npc.vagina !== "none") {
 		console.warn("NPC's Vagina:", npc.vagina);
 		switch (npc.vagina) {
@@ -174,21 +172,45 @@ function mapNpcToBodyOptions(npc, options) {
 window.mapNpcToBodyOptions = mapNpcToBodyOptions;
 
 /**
- * @param {NpcObject} npc
+ * @param {Npc} npc
  * @param {NpcOptions} options
  * @returns {Penetrator?}
  */
 function mapNpcToPenetratorOptions(npc, options) {
+	/**
+	 * @param {Npc} npc
+	 * @returns {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"}
+	 */
+	function getPenetratorType(npc) {
+		if (["dog", "wolf", "fox"].includes(npc.type)) {
+			return "equine";
+		}
+		if (["horse", "centaur"].includes(npc.type)) {
+			return "equine";
+		}
+		if (["cat", "cougar"].includes(npc.type)) {
+			return "feline";
+		}
+		if (["pig"].includes(npc.type)) {
+			return "sus";
+		}
+		return "human";
+	}
+
 	/** @type {Penetrator} */
 	const penetrator = {
 		show: true,
-		type: npc.type,
+		type: getPenetratorType(npc),
 		colour: npc.skincolour,
 		target: combat.target.pc,
 		isEjaculating: V.enemyarousal >= V.enemyarousalmax && wearingCondom(V.vaginatarget) !== "worn" && !npcHasStrapon(V.vaginatarget),
 		ejaculate: {
 			type: "sperm",
 		},
+		size: 0,
+		position: "default",
+		state: "default",
+		hasCondom: false,
 	};
 	if (["horse", "centaur"].includes(npc.type)) {
 		if (options.position === "missionary") {
