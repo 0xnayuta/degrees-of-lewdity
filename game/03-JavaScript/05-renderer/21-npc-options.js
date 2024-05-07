@@ -72,7 +72,7 @@ function mapNpcToOptions(index, options) {
 	options.state = "default";
 	options.show = false;
 
-	mapNpcToShadowOptions(npc, options);
+	mapNpcToBodyOptions(npc, options);
 
 	// Set animation speed
 	options.animKey = getNpcAnimationSpeed(options);
@@ -102,9 +102,9 @@ function getNpcAnimationSpeed(options) {
  * @param {NpcOptions} options
  * @returns {NpcOptions}
  */
-function mapNpcToShadowOptions(npc, options) {
+function mapNpcToBodyOptions(npc, options) {
 	options.penetrators = options.penetrators = [];
-	const penetrator = mapNpcToPenetratorOptions(npc);
+	const penetrator = mapNpcToPenetratorOptions(npc, options);
 	if (penetrator != null) {
 		console.log("Pushing penetrator to list:", penetrator);
 		options.penetrators.push(penetrator);
@@ -113,6 +113,12 @@ function mapNpcToShadowOptions(npc, options) {
 		options.state = penetrator.position;
 
 		if (options.category === "beast") {
+			if (["horse", "centaur"].includes(npc.type)) {
+				const isPenetrating = [V.anusstate, V.vaginastate].includes("penetrated");
+				options.state = isPenetrating ? "over-penetrated" : "over-default";
+				options.show = true;
+				return options;
+			}
 			if (npc.stance === "top") {
 				options.state = options.category === "shadow" ? "default" : "over-default";
 				options.show = ["vagina", "anus"].includes(penetrator.position);
@@ -165,14 +171,14 @@ function mapNpcToShadowOptions(npc, options) {
 
 	return options;
 }
-window.mapNpcToShadowOptions = mapNpcToShadowOptions;
+window.mapNpcToBodyOptions = mapNpcToBodyOptions;
 
 /**
- *
  * @param {NpcObject} npc
+ * @param {NpcOptions} options
  * @returns {Penetrator?}
  */
-function mapNpcToPenetratorOptions(npc) {
+function mapNpcToPenetratorOptions(npc, options) {
 	/** @type {Penetrator} */
 	const penetrator = {
 		show: true,
@@ -184,6 +190,14 @@ function mapNpcToPenetratorOptions(npc) {
 			type: "sperm",
 		},
 	};
+	if (["horse", "centaur"].includes(npc.type)) {
+		if (options.position === "missionary") {
+			return null;
+		}
+		penetrator.position = "default";
+		penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrated" : "entrance";
+		return penetrator;
+	}
 	switch (npc.penis) {
 		case "anusentrance":
 			penetrator.position = "anus";
@@ -269,9 +283,7 @@ function mapNpcToPenetratorOptions(npc) {
 			penetrator.state = "footjob";
 			return penetrator;
 		case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-			penetrator.position = "feet";
-			penetrator.state = "footjob";
-			return penetrator;
+			return null;
 		case "leftarm":
 			penetrator.position = "leftarm";
 			penetrator.state = "handjob";

@@ -29,6 +29,7 @@
  * @property {object} filters The filters for layers.
  * @property {Props} props
  * @property {Machines} machines
+ * @property {Tentacles} tentacles
  */
 
 /**
@@ -84,12 +85,33 @@
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string} name The name of the clothing directory.
  * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles"} state The state of the clothing, the file name.
+ * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBreasts Whether the clothing uses breast sprites.
  * @property {string} breasts Breast state.
  * @property {boolean} hasSleeves Whether the clothing uses sleeve sprites.
  * @property {string} sleeves Sleeve state.
+ */
+
+/**
+ * @typedef Tentacles
+ * @property {Tentacle} anus
+ * @property {Tentacle} breasts
+ * @property {Tentacle} feet
+ * @property {Tentacle} backArm
+ * @property {Tentacle} frontArm
+ * @property {Tentacle} backLeg
+ * @property {Tentacle} frontLeg
+ * @property {Tentacle} mouth
+ * @property {Tentacle} penis
+ * @property {Tentacle} vagina
+ */
+
+/**
+ * @typedef Tentacle
+ * @property {boolean} show
+ * @property {string} state
  */
 
 /**
@@ -158,10 +180,13 @@ function mapPlayerToOptions(options) {
 	);
 
 	// Set props
-	mapPcToPropsOptions(options);
+	mapToPropsOptions(options);
 
 	// Set machine
-	mapPcToMachineOptions(options);
+	mapToMachineOptions(options);
+
+	// Set tentacles
+	mapToTentacleOptions(options);
 
 	// Set animation speed
 	options.animKey = getPcAnimationSpeed(options);
@@ -201,6 +226,7 @@ function getPcAnimationSpeed(options) {
 	}
 	return "sex-2f-idle";
 }
+window.getPcAnimationSpeed = getPcAnimationSpeed;
 
 /**
  * @param {Options} options
@@ -215,13 +241,14 @@ function getMachineAnimationSpeed(options) {
 	}
 	return "machine-4f-slow";
 }
+window.getMachineAnimationSpeed = getMachineAnimationSpeed;
 
 /**
  *
  * @param {Options} options
  * @returns {Options}
  */
-function mapPcToPropsOptions(options) {
+function mapToPropsOptions(options) {
 	function mapVolume(source) {
 		if (source >= 3000) {
 			return 7;
@@ -249,6 +276,7 @@ function mapPcToPropsOptions(options) {
 	propList.forEach(p => {
 		options.props[p] = { show: false };
 	});
+
 	if (V.prop.includes("haybale")) {
 		options.props.haybale = {
 			show: true,
@@ -273,13 +301,14 @@ function mapPcToPropsOptions(options) {
 	}
 	return options;
 }
+window.mapToPropsOptions = mapToPropsOptions;
 
 /**
  *
  * @param {Options} options
  * @returns {Options}
  */
-function mapPcToMachineOptions(options) {
+function mapToMachineOptions(options) {
 	const machineList = ["dildo", "penisMilker", "breastMilker", "tattoo"];
 	options.machines = {};
 	machineList.forEach(p => {
@@ -296,6 +325,92 @@ function mapPcToMachineOptions(options) {
 
 	return options;
 }
+window.mapToMachineOptions = mapToMachineOptions;
+
+function getTentacles() {
+	const count = V.tentacles.active;
+	const tentacles = [];
+	for (let i = 0; i < count; i++) {
+		const tentacle = V.tentacles[i];
+		tentacles.push(tentacle);
+	}
+	return tentacles;
+}
+window.getTentacles = getTentacles;
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapToTentacleOptions(options) {
+	/**
+	 * @param {Object<string, string>[]} parts
+	 * @returns {string | null}
+	 */
+	function getTentacleHeadPosition(...parts) {
+		const count = V.tentacles.max;
+		// const count = V.tentacles.active;
+		for (let i = 0; i < count; i++) {
+			const tentacle = V.tentacles[i];
+			if (tentacle.tentaclehealth <= 0) {
+				continue;
+			}
+
+			const part = parts.find(a => tentacle.head in a);
+			if (part) {
+				console.log("Tentacle", i, tentacle, "selected for:", parts);
+				return part[tentacle.head];
+			}
+		}
+		return null;
+	}
+
+	console.log(getTentacles().map(t => t.head));
+
+	/**
+	 * @param {Object<string, string>[]} parts
+	 * @returns {Tentacle}
+	 */
+	function getState(...parts) {
+		const state = getTentacleHeadPosition(parts);
+		return {
+			state,
+			show: state != null,
+		};
+	}
+
+	console.log(V.tentacles);
+
+	const tentacles = {};
+	tentacles.anus = getState({ anusentrance: "anal-entrance" }, { anusimminent: "anal-imminent" }, { anus: "anal" }, { anusrub: "anal-rub" });
+	tentacles.breasts = getState();
+	tentacles.feet = getState();
+	tentacles.backLeg = getState();
+	tentacles.frontLeg = getState({ feet: "footjob" }, { leftlegentrance: "footjob" });
+	tentacles.mouth = getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" });
+	tentacles.penis = getState({ penisentrance: "penis-entrance-0" }, { penisimminent: "penis-imminent" }, { penis: "penis" }, { penisdeep: "penis" });
+	tentacles.vagina = getState({ vaginaentrance: "vagina-entrance" }, { vaginaimminent: "vagina-imminent" }, { vagina: "vagina" }, { vaginadeep: "vagina" });
+	if (V.anusstate === "tentacledeep") {
+		tentacles.anus = getState({ finished: "anal" });
+	}
+	if (V.feetstate === "tentacle") {
+		tentacles.feet = getState({ finished: "footjob" });
+	}
+	switch (options.position) {
+		case "doggy":
+			tentacles.backArm = getState({ rightarm: "handjob-right" });
+			tentacles.frontArm = getState({ leftarm: "handjob-left" });
+			break;
+		case "missionary":
+			tentacles.backArm = getState({ leftarm: "handjob-left" });
+			tentacles.frontArm = getState({ rightarm: "handjob-right" });
+			break;
+	}
+	options.tentacles = tentacles;
+	return options;
+}
+window.mapToTentacleOptions = mapToTentacleOptions;
 
 /**
  *
@@ -312,16 +427,43 @@ function mapPcToArmPosition(options) {
 	options.armFrontPosition = getArmState(V.leftarm);
 	return options;
 }
+window.mapPcToArmPosition = mapPcToArmPosition;
 
 function getArmState(arm) {
 	if (["bound", "grappled", "behind"].includes(arm)) {
 		return "bound2";
 	}
-	if (arm === "penis") {
+	if (
+		[
+			"penis",
+			"tentacle0",
+			"tentacle1",
+			"tentacle2",
+			"tentacle3",
+			"tentacle4",
+			"tentacle5",
+			"tentacle6",
+			"tentacle7",
+			"tentacle8",
+			"tentacle9",
+			"tentacle10",
+			"tentacle11",
+			"tentacle12",
+			"tentacle13",
+			"tentacle14",
+			"tentacle15",
+			"tentacle16",
+			"tentacle17",
+			"tentacle18",
+			"tentacle19",
+			"tentacle20",
+		].includes(arm)
+	) {
 		return "handjob";
 	}
 	return "default";
 }
+window.getArmState = getArmState;
 
 /**
  *
@@ -329,9 +471,14 @@ function getArmState(arm) {
  * @returns {Options}
  */
 function mapPcToLegPosition(options) {
-	if (V.feetuse === "penis") {
+	if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 		options.legFrontPosition = "footjob";
 		options.legBackPosition = "footjob";
+		return options;
+	}
+	if (options.position === "missionary" && V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
+		options.legFrontPosition = "down";
+		options.legBackPosition = "up";
 		return options;
 	}
 	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
@@ -359,6 +506,7 @@ function mapPcToLegPosition(options) {
 	options.legBackPosition = "down";
 	return options;
 }
+window.mapPcToLegPosition = mapPcToLegPosition;
 
 /**
  * @param {Options} options
@@ -376,6 +524,7 @@ function isPenisExposed(options) {
 	}
 	return false;
 }
+window.isPenisExposed = isPenisExposed;
 
 /**
  *
@@ -543,7 +692,8 @@ function mapPcToClothingOptions(pc, options) {
 
 		const clothing = Object.assign({}, setupObj, wornObj);
 
-		let state = clothing.state || "full";
+		let state = clothing.state;
+		let show = true;
 
 		// Lower clothing states
 		const isSkirtDown = clothing.skirt_down === 0;
@@ -551,6 +701,10 @@ function mapPcToClothingOptions(pc, options) {
 		// Replace slot === "lower" with all lower slots? In case we need this logic for all lower layers that could be skirts.
 		if (slot === "lower" && ["thighs", "waist"].includes(clothing.state) && (isSkirtDown || areLegsUp)) {
 			options.genitalsExposed = true;
+		}
+
+		if (slot === "upper" && state === 0) {
+			show = false;
 		}
 
 		// Feet clothing states
@@ -572,9 +726,10 @@ function mapPcToClothingOptions(pc, options) {
 		const clothes = {
 			item: clothing,
 			name: clothing.combatImg,
-			state,
+			state: state || "full",
 			alpha,
 			hasAccessory: clothing.accessory === 1,
+			show,
 		};
 
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
@@ -638,7 +793,7 @@ window.mapPcToBodyOptions = mapPcToBodyOptions;
  * @param {string} debugName used when reporting errors
  * @param {string} customFilterName key in options.filters
  * @param {string} prefilterName name of prefilter to apply
- * @returns {any} CompositeLayerParams - Check TS docs for model.d.ts
+ * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
  */
 function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
 	console.log("lookupColour", dict, key, debugName, customFilterName, prefilterName);
@@ -663,3 +818,4 @@ function lookupColour(options, dict, key, debugName, customFilterName, prefilter
 	}
 	return filter;
 }
+window.lookupColour = lookupColour;

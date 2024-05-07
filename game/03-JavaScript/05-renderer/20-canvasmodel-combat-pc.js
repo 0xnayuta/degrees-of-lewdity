@@ -337,6 +337,133 @@ const combatMainPc = {
 			z: zi.base + 4,
 		},
 		/*
+		 *    ████████ ███████ ███    ██ ████████  █████   ██████ ██      ███████ ███████
+		 *       ██    ██      ████   ██    ██    ██   ██ ██      ██      ██      ██
+		 *       ██    █████   ██ ██  ██    ██    ███████ ██      ██      █████   ███████
+		 *       ██    ██      ██  ██ ██    ██    ██   ██ ██      ██      ██           ██
+		 *       ██    ███████ ██   ████    ██    ██   ██  ██████ ███████ ███████ ███████
+		 */
+		tentacleAnal: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.anus.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.anus.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleBreasts: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.breasts.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.breasts.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleFeet: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.feet.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.feet.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleLeftArm: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.backArm.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.backArm.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleRightArm: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.frontArm.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.frontArm.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleLeftLeg: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.backLeg.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.backLeg.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleRightLeg: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.frontLeg.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.frontLeg.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleOral: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.mouth.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.mouth.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentaclePenis: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.penis.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.penis.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleVagina: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.vagina.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.vagina.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		/*
 		 *	██████   █████  ███████ ███████
 		 *	██   ██ ██   ██ ██      ██
 		 *	██████  ███████ ███████ █████
@@ -741,7 +868,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasBreasts;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasBreasts;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -757,7 +884,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
@@ -776,7 +903,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -806,7 +933,7 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const clothes = options.clothes[slot];
-			const show = options.showClothing && clothes != null;
+			const show = options.showClothing && clothes != null && clothes.show;
 			console.log(slot, "Show?:", show);
 			return !!show;
 		},
@@ -849,7 +976,7 @@ function genClothingAccLayer(slot, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const clothes = options.clothes[slot];
-			const show = options.showClothing && clothes != null && clothes.hasAccessory;
+			const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
 			console.log(slot, "Show?:", show);
 			return !!show;
 		},
