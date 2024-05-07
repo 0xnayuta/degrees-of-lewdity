@@ -25,9 +25,9 @@
  * @property {-1|0|1|2|3|4|5} target PC is -1. NPCs are 0 to 5.
  * @property {string} position Area that the penetrator is in.
  * @property {string} state What it is doing in the position.
- * @property {string} isEjaculating Whether the penetrator is ejaculating.
+ * @property {boolean} isEjaculating Whether the penetrator is ejaculating.
  * @property {Ejaculate} ejaculate The type of ejaculate.
- * @property {string} hasCondom Whether the penetrator is wrapped in a condom.
+ * @property {boolean} hasCondom Whether the penetrator is wrapped in a condom.
  * @property {boolean} show Whether to render the penetrator.
  */
 

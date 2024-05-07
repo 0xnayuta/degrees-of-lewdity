@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 /**
  * @typedef {object} CanvasModelLayerNpc
  * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!

@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/no-undefined-types */
+// @ts-check
 /**
  * @typedef Options
  * @type {object}
@@ -14,17 +14,23 @@
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
  * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
  * @property {number} breastSize The size of the player breasts.
- * @property {number} breastsExposed Whether the breasts are shown.
- * @property {Penetrator} penetrator Typically the PC's penis, or strapon etc.
+ * @property {boolean} breastsExposed Whether the breasts are shown.
+ * @property {Penetrator?} penetrator Typically the PC's penis, or strapon etc.
+ * @property {"custom"|"light"|"medium"|"dark"|"gyaru"} skinType
+ * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.
+ * @property {string} hairColour
+ * @property {string} hairFringeColour
+ * @property {string} leftEye
+ * @property {string} rightEye
  * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
  * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
- * @property {1|2|3|4|5} blush The volume of blush on the player, higher is more.
- * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.
+ * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
+ * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
  * @property {Object<string, ClothingState>} clothes Template.
  * @property {object} filters The filters for layers.
  * @property {Props} props
@@ -83,8 +89,8 @@
  * @typedef ClothingState
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
- * @property {string} name The name of the clothing directory.
- * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles"} state The state of the clothing, the file name.
+ * @property {string?} name The name of the clothing directory.
+ * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob"} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
@@ -111,7 +117,7 @@
 /**
  * @typedef Tentacle
  * @property {boolean} show
- * @property {string} state
+ * @property {string?} state
  */
 
 /**
@@ -156,9 +162,7 @@ function mapPlayerToOptions(options) {
 	// Ensure body options comes after clothing options
 	mapPcToBodyOptions(V.player, options);
 
-	/** @type {Penetrator} */
-	const penetrator = mapPcToPenetratorOptions(V.player, options);
-	options.penetrator = penetrator;
+	options.penetrator = mapPcToPenetratorOptions(V.player, options);
 
 	options.skinType = V.skinColor.natural;
 	options.skinTone = V.skinColor.range / 100;
@@ -249,6 +253,10 @@ window.getMachineAnimationSpeed = getMachineAnimationSpeed;
  * @returns {Options}
  */
 function mapToPropsOptions(options) {
+	/**
+	 * @param {number} source
+	 * @returns {1 | 2 | 3 | 4 | 5 | 6 | 7}
+	 */
 	function mapVolume(source) {
 		if (source >= 3000) {
 			return 7;
@@ -271,34 +279,45 @@ function mapToPropsOptions(options) {
 		return 1;
 	}
 
-	const propList = ["bench", "examTable", "haybale", "hospitalBed", "ivBag", "milkTank", "pillory", "semenTank", "rail", "shakles", "table", "web"];
-	options.props = {};
-	propList.forEach(p => {
-		options.props[p] = { show: false };
-	});
-
-	if (V.prop.includes("haybale")) {
-		options.props.haybale = {
-			show: true,
+	/**
+	 * @param {string} id
+	 * @param {number} volume
+	 * @returns {TankProp}
+	 */
+	function createTank(id, volume) {
+		const level = mapVolume(volume);
+		return {
+			show: V.prop.includes(id),
+			isFull: level === 7,
+			volume: level,
 		};
 	}
 
-	if (V.prop.includes("milk")) {
-		const volume = mapVolume(T.barn_milk);
-		options.props.milkTank = {
-			show: true,
-			isFull: volume === 7,
-			volume,
+	/**
+	 * @param {string} id
+	 * @returns {Prop}
+	 */
+	function createProp(id) {
+		return {
+			show: V.prop.includes(id),
 		};
 	}
-	if (V.prop.includes("semen")) {
-		const volume = mapVolume(T.barn_semen);
-		options.props.semenTank = {
-			show: true,
-			isFull: volume === 7,
-			volume,
-		};
-	}
+
+	options.props = {
+		bench: createProp("bench"),
+		examTable: createProp("examtable"),
+		haybale: createProp("haybale"),
+		hospitalBed: createProp("hospitalbed"),
+		ivBag: createProp("ivbag"),
+		milkTank: createTank("milk", T.barn_milk),
+		pillory: createProp("pillory"),
+		semenTank: createTank("semen", T.barn_semen),
+		rail: createProp("rails"),
+		shakles: createProp("arm_shackle"), // Neck and leg shackle?
+		table: createProp("table"),
+		web: createProp("web"),
+	};
+
 	return options;
 }
 window.mapToPropsOptions = mapToPropsOptions;
@@ -309,24 +328,33 @@ window.mapToPropsOptions = mapToPropsOptions;
  * @returns {Options}
  */
 function mapToMachineOptions(options) {
-	const machineList = ["dildo", "penisMilker", "breastMilker", "tattoo"];
-	options.machines = {};
-	machineList.forEach(p => {
-		options.machines[p] = { show: false };
-	});
-
-	if (V.prop.includes("penis_pump")) {
-		options.machines.penisMilker.show = true;
+	/**
+	 * @param {string} id
+	 * @returns {Prop}
+	 */
+	function createMachine(id) {
+		return {
+			show: V.prop.includes(id),
+		};
 	}
 
-	if (V.prop.includes("breast_pump")) {
-		options.machines.breastMilker.show = true;
-	}
+	options.machines = {
+		dildo: {
+			show: false,
+			state: "entrance",
+		},
+		penisMilker: createMachine("penis_pump"),
+		breastMilker: createMachine("breast_pump"),
+		tattoo: createMachine("tattoo"),
+	};
 
 	return options;
 }
 window.mapToMachineOptions = mapToMachineOptions;
 
+/**
+ * @returns {TentacleState[]}
+ */
 function getTentacles() {
 	const count = V.tentacles.active;
 	const tentacles = [];
@@ -345,8 +373,8 @@ window.getTentacles = getTentacles;
  */
 function mapToTentacleOptions(options) {
 	/**
-	 * @param {Object<string, string>[]} parts
-	 * @returns {string | null}
+	 * @param {...Object<string, string>} parts
+	 * @returns {string?}
 	 */
 	function getTentacleHeadPosition(...parts) {
 		const count = V.tentacles.max;
@@ -369,11 +397,11 @@ function mapToTentacleOptions(options) {
 	console.log(getTentacles().map(t => t.head));
 
 	/**
-	 * @param {Object<string, string>[]} parts
+	 * @param {...Object<string, string>} parts
 	 * @returns {Tentacle}
 	 */
 	function getState(...parts) {
-		const state = getTentacleHeadPosition(parts);
+		const state = getTentacleHeadPosition(...parts);
 		return {
 			state,
 			show: state != null,
@@ -429,6 +457,10 @@ function mapPcToArmPosition(options) {
 }
 window.mapPcToArmPosition = mapPcToArmPosition;
 
+/**
+ * @param {object} arm
+ * @returns {"bound2" | "handjob" | "default"}
+ */
 function getArmState(arm) {
 	if (["bound", "grappled", "behind"].includes(arm)) {
 		return "bound2";
@@ -554,6 +586,9 @@ function mapPcToPenetratorOptions(pc, options) {
 		ejaculate: {
 			type: "sperm",
 		},
+		position: "default",
+		state: "default",
+		hasCondom: false,
 	};
 	switch (V.penisuse) {
 		case 1:
@@ -681,13 +716,8 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 function mapPcToClothingOptions(pc, options) {
 	// Clothing filters and options
 	for (const slot of setup.clothes_all_slots) {
-		/**
-		 * @type {ClothesItem}
-		 */
 		const wornObj = V.worn[slot];
-		/**
-		 * @type {ClothesItem}
-		 */
+
 		const setupObj = setup.clothes[slot][wornObj.index];
 
 		const clothing = Object.assign({}, setupObj, wornObj);
@@ -697,9 +727,9 @@ function mapPcToClothingOptions(pc, options) {
 
 		// Lower clothing states
 		const isSkirtDown = clothing.skirt_down === 0;
-		const areLegsUp = ["footjob", "up"].includes(options.legFrontPosition) || ["footjob", "up"].includes(options.legFrontPosition);
+		const areLegsUp = ["footjob", "up"].includes(options.legBackPosition) || ["footjob", "up"].includes(options.legFrontPosition);
 		// Replace slot === "lower" with all lower slots? In case we need this logic for all lower layers that could be skirts.
-		if (slot === "lower" && ["thighs", "waist"].includes(clothing.state) && (isSkirtDown || areLegsUp)) {
+		if (slot === "lower" && ["thighs", "waist"].includes(clothing.state.toString()) && (isSkirtDown || areLegsUp)) {
 			options.genitalsExposed = true;
 		}
 
@@ -730,6 +760,10 @@ function mapPcToClothingOptions(pc, options) {
 			alpha,
 			hasAccessory: clothing.accessory === 1,
 			show,
+			hasBreasts: false,
+			breasts: "0",
+			hasSleeves: false,
+			sleeves: "default",
 		};
 
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
@@ -739,9 +773,10 @@ function mapPcToClothingOptions(pc, options) {
 			}
 			if (clothing.breast_img !== 0) {
 				clothes.hasBreasts = true;
-				clothes.breasts = options.breastSize;
+				clothes.breasts = Math.trunc(options.breastSize).toString();
 			}
 		}
+
 		options.clothes = options.clothes || {};
 		options.clothes[slot] = clothes;
 
@@ -792,7 +827,7 @@ window.mapPcToBodyOptions = mapPcToBodyOptions;
  * @param {string} key colour name.
  * @param {string} debugName used when reporting errors
  * @param {string} customFilterName key in options.filters
- * @param {string} prefilterName name of prefilter to apply
+ * @param {string | undefined} prefilterName name of prefilter to apply
  * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
  */
 function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {

@@ -293,6 +293,24 @@ module.exports = {
 		"jsdoc/require-returns-description": "off",
 		"jsdoc/require-returns": "off",
 
+		"jsdoc/no-undefined-types": [
+			1,
+			{
+				definedTypes: [
+					"ClothesItem",
+					"Penetrator",
+					"TentacleState",
+					"CompositeLayerParams",
+					"CompositeLayerSpec",
+					"CanvasModelOptions",
+					"CanvasModelLayer",
+					"AnimatingCanvas",
+					"Options",
+					"NpcOptions",
+				],
+			},
+		],
+
 		/* eslint-plugin-prettier */
 
 		"prettier/prettier": "warn",

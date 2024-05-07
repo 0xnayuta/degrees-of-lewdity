@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 /*
  * On caching.
  *
