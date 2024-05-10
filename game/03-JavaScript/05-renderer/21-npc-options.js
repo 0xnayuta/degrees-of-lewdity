@@ -1,38 +1,44 @@
+// @ts-check
 /**
- * @typedef {object} NpcOptions
+ * @typedef NpcOptions
  * @property {"img/newsex"} root
  * @property {string} src Typically "img/newsex/missionary/"
  * @property {"missionary" | "doggy"} position
+ * @property {"shadow" | "beast"} category
  * @property {string} type
  * @property {Colour} colour
  * @property {string} state
- * @property {boolean} showShadow
+ * @property {boolean} show
  * @property {Penetrator[]} penetrators
+ * @property {string} animKey
+ * @property {string} animKeyStill
  */
 
 /**
- * @typedef {object} Penetrator
+ * @typedef Penetrator
  * @property {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"} type
  * @property {number} size
  * @property {string} colour
- * @property {-1|0|1|2|3|4|5} target PC is -1. NPCs are 0 to 5.
+ * @property {number} target PC is -1. NPCs are 0 to 5.
  * @property {string} position Area that the penetrator is in.
  * @property {string} state What it is doing in the position.
- * @property {string} isEjaculating Whether the penetrator is ejaculating.
+ * @property {boolean} isEjaculating Whether the penetrator is ejaculating.
  * @property {Ejaculate} ejaculate The type of ejaculate.
- * @property {string} hasCondom Whether the penetrator is wrapped in a condom.
+ * @property {boolean} hasCondom Whether the penetrator is wrapped in a condom.
  * @property {boolean} show Whether to render the penetrator.
  */
 
 /**
- * @typedef {object} Ejaculate
+ * @typedef Ejaculate
  * @property {"sperm" | "pee" | "girlcum" | "sriracha"} type
  */
 
 /**
- * @typedef {object} Colour
+ * @typedef Colour
  * @property {string} hex
  */
+
+const beastModels = ["bear", "boar", "cat", "creature", "dog", "dolphin", "fox", "horse", "lizard", "pig", "wolf"];
 
 /**
  *
@@ -55,67 +61,165 @@ function mapNpcToOptions(index, options) {
 	options.root = "img/newsex";
 	options.src = `${options.root}/${options.position}/`;
 
-	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-1f-idle";
-
 	// Configure state
 	// Maybe use active_enemy? const index = V.active_enemy.
 	const npc = V.NPCList[index];
+	options.category = beastModels.includes(npc.type) ? "beast" : "shadow";
 	options.type = npc.type;
 	options.state = "default";
-	options.showShadow = false;
+	options.show = false;
 
-	mapNpcToShadowOptions(npc, options);
+	mapNpcToBodyOptions(npc, options);
+
+	// Set animation speed
+	options.animKey = getNpcAnimationSpeed(options);
+	options.animKeyStill = getNpcAnimationSpeed(options);
 
 	return options;
 }
 window.mapNpcToOptions = mapNpcToOptions;
 
 /**
+ * @param {NpcOptions} options
+ * @returns {string}
+ */
+function getNpcAnimationSpeed(options) {
+	if (combat.isRapid()) {
+		return "sex-4f-vfast";
+	}
+	if (combat.isActive()) {
+		return "sex-4f-mid";
+	}
+	return "sex-2f-idle";
+}
+
+/**
  *
- * @param {object} npc
+ * @param {Npc} npc
  * @param {NpcOptions} options
  * @returns {NpcOptions}
  */
-function mapNpcToShadowOptions(npc, options) {
+function mapNpcToBodyOptions(npc, options) {
 	options.penetrators = options.penetrators = [];
-	const penetrator = mapNpcToPenetratorOptions(npc);
+	const penetrator = mapNpcToPenetratorOptions(npc, options);
 	if (penetrator != null) {
+		console.log("Pushing penetrator to list:", penetrator);
+		options.penetrators.push(penetrator);
+
 		// Figure out which shadow base to use from penetrator:
 		options.state = penetrator.position;
+
+		if (options.category === "beast") {
+			if (["horse", "centaur"].includes(npc.type)) {
+				const isPenetrating = [V.anusstate, V.vaginastate].includes("penetrated");
+				options.state = isPenetrating ? "over-penetrated" : "over-default";
+				options.show = true;
+				return options;
+			}
+			if (npc.stance === "top") {
+				options.state = "over-default";
+				options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
+				return options;
+			}
+		}
+
+		// Add penetrator states to NPC state so the shadows can be staggered for oral.
+		/*
+		if (penetrator.position === "mouth") {
+			options.state += "-" + penetrator.state;
+		}
+		*/
 		// Calculate DP state from positions, if position is >= 2, add double at least, triple P not sure what to do.
 		if (combat.positions[penetrator.position] >= 2) {
 			options.state += "-double";
 			penetrator.state += "-double";
 		}
 		// Figure out whether to show the shadow man or not:
-		options.showShadow = V.options.silhouetteEnabled && ["vagina", "anus", "mouth"].includes(penetrator.position);
+		options.show = ["vagina", "anus", "mouth"].includes(penetrator.position);
 
-		console.log("Pushing penetrator to list:", penetrator);
-		options.penetrators.push(penetrator);
+		return options;
 	}
+	// Since no penetrator exists on the NPC, check for their other states
+	// WHY IS ANAL LIKE THIS
+	if (["otheranusfrot", "otheranusentrance", "otheranusimminent", "otheranus"].includes(npc.penis)) {
+		options.state = options.category === "shadow" ? "default" : "under-default";
+		options.show = true;
+		return options;
+	}
+
+	if (npc.vagina && npc.vagina !== "none") {
+		console.warn("NPC's Vagina:", npc.vagina);
+		switch (npc.vagina) {
+			case "penisentrance":
+			case "penisimminent":
+			case "penis":
+				if (options.category !== "shadow") {
+					options.state = "penis";
+					options.show = true;
+				}
+				break;
+		}
+	}
+	// Primary for being pinned:
+	if (npc.stance === "top") {
+		options.state = options.category === "shadow" ? "default" : "over-default";
+		options.show = true;
+		return options;
+	}
+
 	return options;
 }
-window.mapNpcToShadowOptions = mapNpcToShadowOptions;
+window.mapNpcToBodyOptions = mapNpcToBodyOptions;
 
 /**
- *
- * @param {object} npc
+ * @param {Npc} npc
+ * @param {NpcOptions} options
  * @returns {Penetrator?}
  */
-function mapNpcToPenetratorOptions(npc) {
+function mapNpcToPenetratorOptions(npc, options) {
+	/**
+	 * @param {Npc} npc
+	 * @returns {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"}
+	 */
+	function getPenetratorType(npc) {
+		if (["dog", "wolf", "fox"].includes(npc.type)) {
+			return "knotted";
+		}
+		if (["horse", "centaur"].includes(npc.type)) {
+			return "equine";
+		}
+		if (["cat", "cougar"].includes(npc.type)) {
+			return "feline";
+		}
+		if (["pig"].includes(npc.type)) {
+			return "sus";
+		}
+		return "human";
+	}
+
 	/** @type {Penetrator} */
 	const penetrator = {
 		show: true,
-		type: npc.type,
+		type: getPenetratorType(npc),
 		colour: npc.skincolour,
 		target: combat.target.pc,
 		isEjaculating: V.enemyarousal >= V.enemyarousalmax && wearingCondom(V.vaginatarget) !== "worn" && !npcHasStrapon(V.vaginatarget),
 		ejaculate: {
 			type: "sperm",
 		},
+		size: 0,
+		position: "default",
+		state: "default",
+		hasCondom: false,
 	};
+	if (["horse", "centaur"].includes(npc.type)) {
+		if (options.position === "missionary") {
+			return null;
+		}
+		penetrator.position = "default";
+		penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrated" : "entrance";
+		return penetrator;
+	}
 	switch (npc.penis) {
 		case "anusentrance":
 			penetrator.position = "anus";
@@ -201,9 +305,7 @@ function mapNpcToPenetratorOptions(npc) {
 			penetrator.state = "footjob";
 			return penetrator;
 		case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-			penetrator.position = "feet";
-			penetrator.state = "footjob";
-			return penetrator;
+			return null;
 		case "leftarm":
 			penetrator.position = "leftarm";
 			penetrator.state = "handjob";

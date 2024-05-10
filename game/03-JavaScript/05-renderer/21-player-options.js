@@ -1,10 +1,11 @@
-/* eslint-disable jsdoc/no-undefined-types */
+// @ts-check
 /**
  * @typedef Options
  * @type {object}
  * @property {"img/sex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
  * @property {boolean} showPlayer Flag to show the player model.
+ * @property {boolean} showFace
  * @property {boolean} showClothing Flag to show the clothing layers.
  * @property {boolean} showNPCs Flag to show the NPC model(s).
  * @property {number} animSpeed The global speed to play animations.
@@ -12,33 +13,114 @@
  * @property {string} src The computed directory path for the position.
  * @property {string} animKey The key used for fetching the animation configuration.
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
+ * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
  * @property {number} breastSize The size of the player breasts.
- * @property {number} breastsExposed Whether the breasts are shown.
- * @property {Penetrator} penetrator Typically the PC's penis, or strapon etc.
+ * @property {boolean} breastsExposed Whether the breasts are shown.
+ * @property {Penetrator?} penetrator Typically the PC's penis, or strapon etc.
+ * @property {"custom"|"light"|"medium"|"dark"|"gyaru"} skinType
+ * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.
+ * @property {string} hairColour
+ * @property {string} hairFringeColour
+ * @property {string} leftEye
+ * @property {string} rightEye
  * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
  * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
- * @property {1|2|3|4|5} blush The volume of blush on the player, higher is more.
- * @property {1|2|3|4|5} tears The volume of tears the player displays, higher is more.
+ * @property {boolean} inOral
+ * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
+ * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
  * @property {Object<string, ClothingState>} clothes Template.
  * @property {object} filters The filters for layers.
+ * @property {Props} props
+ * @property {Machines} machines
+ * @property {Tentacles} tentacles
+ */
+
+/**
+ * @typedef {object} Props
+ * @property {Prop} bench
+ * @property {Prop} examTable
+ * @property {Prop} haybale
+ * @property {Prop} hospitalBed
+ * @property {Prop} ivBag
+ * @property {TankProp} milkTank
+ * @property {Prop} pillory
+ * @property {TankProp} semenTank
+ * @property {Prop} rail
+ * @property {Prop} shakles
+ * @property {Prop} table
+ * @property {Prop} web
+ */
+
+/**
+ * @typedef {object} Prop
+ * @property {boolean} show
+ */
+
+/**
+ * @typedef {object} TankProp
+ * @property {boolean} show
+ * @property {boolean} isFull
+ * @property {1|2|3|4|5|6|7} volume
+ */
+
+/**
+ * @typedef {object} Machines
+ * @property {DildoMachine} dildo
+ * @property {Machine} breastMilker
+ * @property {Machine} penisMilker
+ * @property {Machine} tattoo
+ */
+
+/**
+ * @typedef {object} Machine
+ * @property {boolean} show
+ */
+
+/**
+ * @typedef {object} DildoMachine
+ * @property {boolean} show
+ * @property {"entrance" | "penetrated"} state
  */
 
 /**
  * @typedef ClothingState
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
- * @property {string} name The name of the clothing directory.
- * @property {string} state The state of the clothing, the file name.
+ * @property {string?} name The name of the clothing directory.
+ * @property {"up" | "down" | "footjob"} position Part of the file name for certain clothing, such as lowerwear.
+ * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob"} state The state of the clothing, the file name.
+ * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
+ * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBreasts Whether the clothing uses breast sprites.
  * @property {string} breasts Breast state.
  * @property {boolean} hasSleeves Whether the clothing uses sleeve sprites.
  * @property {string} sleeves Sleeve state.
+ */
+
+/**
+ * @typedef Tentacles
+ * @property {Tentacle} anus
+ * @property {Tentacle} breasts
+ * @property {Tentacle} feet
+ * @property {Tentacle} backArm
+ * @property {Tentacle} frontArm
+ * @property {Tentacle} backLeg
+ * @property {Tentacle} frontLeg
+ * @property {Tentacle} mouth
+ * @property {Tentacle} penis
+ * @property {Tentacle} vagina
+ */
+
+/**
+ * @typedef Tentacle
+ * @property {boolean} show
+ * @property {string?} state
  */
 
 /**
@@ -74,10 +156,6 @@ function mapPlayerToOptions(options) {
 	options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
 	options.tears = painToTearsLvl(V.pain);
 
-	// Set animation speed
-	options.animKey = combat.isActive() ? "sex-4f-vfast" : "sex-2f-idle";
-	options.animKeyStill = combat.isActive() ? "sex-4f-vfast" : "sex-1f-idle";
-
 	// Ensure breast size is calculated before clothing options.
 	options.breastSize = Math.clamp(V.player.perceived_breastsize / 3, 0, 4);
 
@@ -87,9 +165,7 @@ function mapPlayerToOptions(options) {
 	// Ensure body options comes after clothing options
 	mapPcToBodyOptions(V.player, options);
 
-	/** @type {Penetrator} */
-	const penetrator = mapPcToPenetratorOptions(V.player, options);
-	options.penetrator = penetrator;
+	options.penetrator = mapPcToPenetratorOptions(V.player, options);
 
 	options.skinType = V.skinColor.natural;
 	options.skinTone = V.skinColor.range / 100;
@@ -110,6 +186,20 @@ function mapPlayerToOptions(options) {
 		"hair_fringe"
 	);
 
+	// Set props
+	mapToPropsOptions(options);
+
+	// Set machine
+	mapToMachineOptions(options);
+
+	// Set tentacles
+	mapToTentacleOptions(options);
+
+	// Set animation speed
+	options.animKey = getPcAnimationSpeed(options);
+	options.animKeyStill = getPcAnimationSpeed(options);
+	options.machineAnimKey = getMachineAnimationSpeed(options);
+
 	console.warn("===============================================");
 	console.warn("=============== Player Options: ===============");
 	console.warn("===============================================");
@@ -128,6 +218,238 @@ Macro.add("mapplayertooptions", {
 });
 
 /**
+ * @param {Options} options
+ * @returns {string}
+ */
+function getPcAnimationSpeed(options) {
+	if (options.props.semenTank.show || options.props.milkTank.show) {
+		return "sex-2f-idle";
+	}
+	if (combat.isRapid()) {
+		return "sex-4f-vfast";
+	}
+	if (combat.isActive()) {
+		return "sex-4f-mid";
+	}
+	return "sex-2f-idle";
+}
+window.getPcAnimationSpeed = getPcAnimationSpeed;
+
+/**
+ * @param {Options} options
+ * @returns {string}
+ */
+function getMachineAnimationSpeed(options) {
+	if (options.machines.penisMilker.show || options.machines.breastMilker.show) {
+		return "machine-2f-slow";
+	}
+	if (combat.isActive()) {
+		return "machine-4f";
+	}
+	return "machine-4f-slow";
+}
+window.getMachineAnimationSpeed = getMachineAnimationSpeed;
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapToPropsOptions(options) {
+	/**
+	 * @param {number} source
+	 * @returns {1 | 2 | 3 | 4 | 5 | 6 | 7}
+	 */
+	function mapVolume(source) {
+		if (source >= 3000) {
+			return 7;
+		}
+		if (source >= 2000) {
+			return 6;
+		}
+		if (source >= 1500) {
+			return 5;
+		}
+		if (source >= 1000) {
+			return 4;
+		}
+		if (source >= 500) {
+			return 3;
+		}
+		if (source >= 200) {
+			return 2;
+		}
+		return 1;
+	}
+
+	/**
+	 * @param {string} id
+	 * @param {number} volume
+	 * @returns {TankProp}
+	 */
+	function createTank(id, volume) {
+		const level = mapVolume(volume);
+		return {
+			show: V.prop.includes(id),
+			isFull: level === 7,
+			volume: level,
+		};
+	}
+
+	/**
+	 * @param {string} id
+	 * @returns {Prop}
+	 */
+	function createProp(id) {
+		return {
+			show: V.prop.includes(id),
+		};
+	}
+
+	options.props = {
+		bench: createProp("bench"),
+		examTable: createProp("examtable"),
+		haybale: createProp("haybale"),
+		hospitalBed: createProp("hospitalbed"),
+		ivBag: createProp("ivbag"),
+		milkTank: createTank("milk", T.barn_milk),
+		pillory: createProp("pillory"),
+		semenTank: createTank("semen", T.barn_semen),
+		rail: createProp("rails"),
+		shakles: createProp("arm_shackle"), // Neck and leg shackle?
+		table: createProp("table"),
+		web: createProp("web"),
+	};
+
+	return options;
+}
+window.mapToPropsOptions = mapToPropsOptions;
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapToMachineOptions(options) {
+	/**
+	 * @param {string} id
+	 * @returns {Prop}
+	 */
+	function createMachine(id) {
+		return {
+			show: V.prop.includes(id),
+		};
+	}
+
+	options.machines = {
+		dildo: {
+			show: false,
+			state: "entrance",
+		},
+		penisMilker: createMachine("penis_pump"),
+		breastMilker: createMachine("breast_pump"),
+		tattoo: createMachine("tattoo"),
+	};
+
+	return options;
+}
+window.mapToMachineOptions = mapToMachineOptions;
+
+/**
+ * @returns {TentacleState[]}
+ */
+function getTentacles() {
+	const count = V.tentacles.active;
+	const tentacles = [];
+	for (let i = 0; i < count; i++) {
+		const tentacle = V.tentacles[i];
+		tentacles.push(tentacle);
+	}
+	return tentacles;
+}
+window.getTentacles = getTentacles;
+
+/**
+ *
+ * @param {Options} options
+ * @returns {Options}
+ */
+function mapToTentacleOptions(options) {
+	/**
+	 * @param {...Object<string, string>} parts
+	 * @returns {string?}
+	 */
+	function getTentacleHeadPosition(...parts) {
+		const count = V.tentacles.max;
+		// const count = V.tentacles.active;
+		for (let i = 0; i < count; i++) {
+			const tentacle = V.tentacles[i];
+			if (tentacle.tentaclehealth <= 0) {
+				continue;
+			}
+
+			const part = parts.find(a => tentacle.head in a);
+			if (part) {
+				console.log("Tentacle", i, tentacle, "selected for:", parts);
+				return part[tentacle.head];
+			}
+		}
+		return null;
+	}
+
+	console.log(getTentacles().map(t => t.head));
+
+	/**
+	 * @param {...Object<string, string>} parts
+	 * @returns {Tentacle}
+	 */
+	function getState(...parts) {
+		const state = getTentacleHeadPosition(...parts);
+		return {
+			state,
+			show: state != null,
+		};
+	}
+
+	console.log(V.tentacles);
+
+	const tentacles = {};
+	tentacles.anus = getState({ anusentrance: "anal-entrance" }, { anusimminent: "anal-imminent" }, { anus: "anal" }, { anusrub: "anal-rub" });
+	tentacles.breasts = getState();
+	tentacles.feet = getState();
+	tentacles.backLeg = getState();
+	tentacles.frontLeg = getState({ feet: "footjob" }, { leftlegentrance: "footjob" });
+	tentacles.mouth = getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" });
+	tentacles.penis = getState(
+		{ penisentrance: "penis-entrance-0" },
+		{ penisimminent: "penis-imminent" },
+		{ penis: "penis" },
+		{ penisdeep: "penis" },
+		{ penisrub: "penis" }
+	);
+	tentacles.vagina = getState({ vaginaentrance: "vagina-entrance" }, { vaginaimminent: "vagina-imminent" }, { vagina: "vagina" }, { vaginadeep: "vagina" });
+	if (V.anusstate === "tentacledeep") {
+		tentacles.anus = getState({ finished: "anal" });
+	}
+	if (V.feetstate === "tentacle") {
+		tentacles.feet = getState({ finished: "footjob" });
+	}
+	switch (options.position) {
+		case "doggy":
+			tentacles.backArm = getState({ rightarm: "handjob-right" });
+			tentacles.frontArm = getState({ leftarm: "handjob-left" });
+			break;
+		case "missionary":
+			tentacles.backArm = getState({ leftarm: "handjob-left" });
+			tentacles.frontArm = getState({ rightarm: "handjob-right" });
+			break;
+	}
+	options.tentacles = tentacles;
+	return options;
+}
+window.mapToTentacleOptions = mapToTentacleOptions;
+
+/**
  *
  * @param {Options} options
  * @returns {Options}
@@ -142,16 +464,47 @@ function mapPcToArmPosition(options) {
 	options.armFrontPosition = getArmState(V.leftarm);
 	return options;
 }
+window.mapPcToArmPosition = mapPcToArmPosition;
 
+/**
+ * @param {object} arm
+ * @returns {"bound2" | "handjob" | "default"}
+ */
 function getArmState(arm) {
 	if (["bound", "grappled", "behind"].includes(arm)) {
 		return "bound2";
 	}
-	if (arm === "penis") {
+	if (
+		[
+			"penis",
+			"tentacle0",
+			"tentacle1",
+			"tentacle2",
+			"tentacle3",
+			"tentacle4",
+			"tentacle5",
+			"tentacle6",
+			"tentacle7",
+			"tentacle8",
+			"tentacle9",
+			"tentacle10",
+			"tentacle11",
+			"tentacle12",
+			"tentacle13",
+			"tentacle14",
+			"tentacle15",
+			"tentacle16",
+			"tentacle17",
+			"tentacle18",
+			"tentacle19",
+			"tentacle20",
+		].includes(arm)
+	) {
 		return "handjob";
 	}
 	return "default";
 }
+window.getArmState = getArmState;
 
 /**
  *
@@ -159,11 +512,22 @@ function getArmState(arm) {
  * @returns {Options}
  */
 function mapPcToLegPosition(options) {
-	const parts = [V.anususe, V.vaginause];
-	if (V.feetuse === "penis") {
+	if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 		options.legFrontPosition = "footjob";
 		options.legBackPosition = "footjob";
 		return options;
+	}
+	if (options.position === "missionary") {
+		if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
+			options.legFrontPosition = "down";
+			options.legBackPosition = "up";
+			return options;
+		}
+		if (V.NPCList.some(a => ["dog"].includes(a.type))) {
+			options.legFrontPosition = "up";
+			options.legBackPosition = "up";
+			return options;
+		}
 	}
 	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
 		options.legFrontPosition = "up";
@@ -175,6 +539,7 @@ function mapPcToLegPosition(options) {
 		options.legBackPosition = "down";
 		return options;
 	}
+	const parts = [V.anususe, V.vaginause, V.thighuse];
 	if (parts.includes("penis") || parts.includes(1)) {
 		options.legFrontPosition = "up";
 		options.legBackPosition = "up";
@@ -189,6 +554,25 @@ function mapPcToLegPosition(options) {
 	options.legBackPosition = "down";
 	return options;
 }
+window.mapPcToLegPosition = mapPcToLegPosition;
+
+/**
+ * @param {Options} options
+ * @returns {boolean}
+ */
+function isPenisExposed(options) {
+	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles"];
+	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state) || !options.clothes.lower.show;
+	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state) || !options.clothes.under_lower.show;
+	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state) || !options.clothes.over_lower.show;
+	const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
+
+	if (clothingExposed) {
+		return true;
+	}
+	return false;
+}
+window.isPenisExposed = isPenisExposed;
 
 /**
  *
@@ -198,7 +582,7 @@ function mapPcToLegPosition(options) {
  */
 function mapPcToPenetratorOptions(pc, options) {
 	const hasPenetrator = pc.penisExist || playerHasStrapon();
-	const isExposed = V.worn.lower.exposed > 1 && V.worn.under_lower.exposed > 0;
+	const isExposed = isPenisExposed(options);
 	const hasChastityBelt = V.worn.genitals.name.includes("chastity belt");
 	/** @type {Penetrator} */
 	const penetrator = {
@@ -218,6 +602,9 @@ function mapPcToPenetratorOptions(pc, options) {
 		ejaculate: {
 			type: "sperm",
 		},
+		position: "default",
+		state: "default",
+		hasCondom: false,
 	};
 	switch (V.penisuse) {
 		case 1:
@@ -247,6 +634,10 @@ function mapPcToPenetratorOptions(pc, options) {
 			return null;
 		case "penis":
 			return null;
+		case "othervagina":
+			penetrator.position = "vagina";
+			penetrator.state = "entrance";
+			return penetrator;
 		case "vaginaentrance":
 			penetrator.position = "vagina";
 			penetrator.state = "entrance";
@@ -283,9 +674,9 @@ function mapPcToPenetratorOptions(pc, options) {
 			penetrator.position = "mouth";
 			penetrator.state = "penetrated";
 			return penetrator;
-		case "othermouth": // Not sure of the usage?
+		case "othermouth": // "Wraps its tongue around your penis"
 			penetrator.position = "mouth";
-			penetrator.state = "penetrated";
+			penetrator.state = "entrance";
 			return penetrator;
 		case "feet":
 			penetrator.position = "feet";
@@ -341,35 +732,39 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 function mapPcToClothingOptions(pc, options) {
 	// Clothing filters and options
 	for (const slot of setup.clothes_all_slots) {
-		/**
-		 * @type {ClothesItem}
-		 */
 		const wornObj = V.worn[slot];
-		/**
-		 * @type {ClothesItem}
-		 */
+
 		const setupObj = setup.clothes[slot][wornObj.index];
 
 		const clothing = Object.assign({}, setupObj, wornObj);
 
-		let state = clothing.state || "full";
+		let state = clothing.state;
+		let show = true;
+		// Any up legs are enough to force the up position.
+		/** @type {"down" | "up" | "footjob"} */
+		let position = "down";
 
-		// Lower clothing states
-		const isSkirtDown = clothing.skirt_down === 0;
-		const areLegsUp = ["footjob", "up"].includes(options.legFrontPosition) || ["footjob", "up"].includes(options.legFrontPosition);
-		// Replace slot === "lower" with all lower slots? In case we need this logic for all lower layers that could be skirts.
-		if (slot === "lower") {
-			if (clothing.state === "waist" && (isSkirtDown || areLegsUp)) {
-				options.genitalsExposed = true;
-				state = "hips";
-			}
-			if (clothing.state === "thighs" && (isSkirtDown || areLegsUp)) {
-				options.genitalsExposed = true;
-				state = "thighs";
-			}
+		if (options.legBackPosition === "up" || options.legFrontPosition === "up") {
+			position = "up";
 		}
 
-		// Feet clothing states
+		if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
+			position = "footjob";
+		}
+
+		if (clothing.index === 0) {
+			// Clothing is naked.
+			show = false;
+		}
+
+		if (slot === "upper" && state === 0) {
+			show = false;
+		}
+
+		if (slot === "lower") {
+			position = position === "down" ? "down" : "up";
+		}
+
 		if (slot === "feet") {
 			state = options.legFrontPosition;
 			// state = options.legBackPosition;
@@ -388,19 +783,28 @@ function mapPcToClothingOptions(pc, options) {
 		const clothes = {
 			item: clothing,
 			name: clothing.combatImg,
-			state,
+			position,
+			state: state || "full",
 			alpha,
+			hasAccessory: clothing.accessory === 1,
+			show,
+			hasBreasts: false,
+			breasts: "0",
+			hasSleeves: false,
+			sleeves: "default",
 		};
+
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
 			if (clothing.sleeve_img === 1) {
 				clothes.hasSleeves = true;
 				clothes.sleeves = "default";
 			}
-			if (clothing.breast_img === 1) {
+			if (clothing.breast_img !== 0) {
 				clothes.hasBreasts = true;
-				clothes.breasts = options.breastSize;
+				clothes.breasts = Math.trunc(options.breastSize).toString();
 			}
 		}
+
 		options.clothes = options.clothes || {};
 		options.clothes[slot] = clothes;
 
@@ -411,22 +815,21 @@ function mapPcToClothingOptions(pc, options) {
 			worn: {},
 		};
 		options.filters.worn[slot] = {};
-		options.filters[mainFilterKey] = clothing.colour
-			? lookupColour(options, setup.colours.clothes_map, clothes.item.colour, slot + " clothing", "worn_" + slot + "_custom", clothing.prefilter)
+
+		const colour = clothing.colour || clothing.colour_combat;
+		const debugName = slot + " clothing";
+		const filterName = "worn_" + slot + "_custom";
+		console.log("Clothing colour:", slot, colour);
+		options.filters[mainFilterKey] = colour
+			? lookupColour(options, setup.colours.clothes_map, colour, debugName, filterName, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		if (clothing.accessory_colour) {
-			options.filters[accFilterKey] = lookupColour(
-				options,
-				setup.colours.clothes_map,
-				clothes.item.accessory_colour,
-				slot + " accessory",
-				"worn_" + slot + "_acc_custom",
-				clothing.prefilter
-			);
-		} else {
-			options.filters[accFilterKey] = Renderer.emptyLayerFilter();
-		}
+		const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
+		const accDebugName = slot + " accessory";
+		const accFilterName = "worn_" + slot + "_acc_custom";
+		options.filters[accFilterKey] = accColour
+			? lookupColour(options, setup.colours.clothes_map, accColour, accDebugName, accFilterName, clothing.prefilter)
+			: Renderer.emptyLayerFilter();
 	}
 	return options;
 }
@@ -452,8 +855,8 @@ window.mapPcToBodyOptions = mapPcToBodyOptions;
  * @param {string} key colour name.
  * @param {string} debugName used when reporting errors
  * @param {string} customFilterName key in options.filters
- * @param {string} prefilterName name of prefilter to apply
- * @returns {any} CompositeLayerParams - Check TS docs for model.d.ts
+ * @param {string | undefined} prefilterName name of prefilter to apply
+ * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
  */
 function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
 	console.log("lookupColour", dict, key, debugName, customFilterName, prefilterName);
@@ -478,3 +881,4 @@ function lookupColour(options, dict, key, debugName, customFilterName, prefilter
 	}
 	return filter;
 }
+window.lookupColour = lookupColour;

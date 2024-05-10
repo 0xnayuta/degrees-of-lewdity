@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/no-undefined-types */
+// @ts-check
 /**
  * @typedef {object} CanvasModelLayerNpc
  * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
@@ -40,7 +40,19 @@
  */
 
 /**
- * @type {CanvasModelOptions}
+ * @typedef {object} CanvasModelNpcOptions
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {Object<string, CanvasModelLayerNpc>} layers Layers (by name).
+ * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
+ * @property {Function} [defaultOptions] Function ()=>object returning default options.
+ * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
+ */
+
+/**
+ * @type {CanvasModelNpcOptions}
  */
 const combatMainNpc = {
 	name: "combatMainNpc",
@@ -58,42 +70,69 @@ const combatMainNpc = {
 	preprocess() {
 		console.log(this.name, "preprocess");
 	},
-	/** @type {Object<string, CanvasModelLayerNpc>} */
 	layers: {
-		baseShadow: {
+		body: {
 			srcfn(options) {
-				const path = `${options.src}shadow/${options.type}/${options.state}.png`;
+				const path = `${options.src}${options.category}/${options.type}/${options.state}.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				const show = !!options.showShadow;
+				const show = options.show && V.options.silhouetteEnabled;
 				console.warn("NPC showing:", show);
-				return show;
+				return !!show;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 60,
+			zfn(options) {
+				if (options.position === "doggy") {
+					return 20;
+				}
+				if (options.state === "penis") {
+					return 90;
+				}
+				return 60;
+			},
+		},
+		frontleg: {
+			srcfn(options) {
+				const path = `${options.src}${options.category}/${options.type}/${options.state}-leg.png`;
+				console.warn("NPC path:", path);
+				return path;
+			},
+			showfn(options) {
+				const show = options.show && V.options.silhouetteEnabled && options.category === "beast";
+				console.warn("NPC showing:", show);
+				return !!show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 80,
 		},
 		penetrator: {
 			srcfn(options) {
-				if (options.penetrators.length <= 0) return;
+				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
 				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}.png`;
 				return path;
 			},
 			showfn(options) {
-				if (options.penetrators.length <= 0) return;
+				if (options.penetrators.length <= 0) return false;
 				const penetrator = options.penetrators[0];
+				// if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
 				return !!penetrator.show;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
 			zfn(options) {
-				if (options.penetrators.length <= 0) return;
+				if (options.penetrators.length <= 0) return 0;
 				const penetrator = options.penetrators[0];
+				if (penetrator.position === "thighs") {
+					return 30;
+				}
 				if (penetrator.position === "leftarm") {
 					return 46; // Behind the Z index of PC's "backarm"
 				}
@@ -102,13 +141,13 @@ const combatMainNpc = {
 		},
 		penetratorEjaculate: {
 			srcfn(options) {
-				if (options.penetrators.length <= 0) return;
+				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
 				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
 				return path;
 			},
 			showfn(options) {
-				if (options.penetrators.length <= 0) return;
+				if (options.penetrators.length <= 0) return false;
 				const penetrator = options.penetrators[0];
 				const result = penetrator.show && penetrator.isEjaculating;
 				return !!result;
@@ -116,7 +155,17 @@ const combatMainNpc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 61,
+			zfn(options) {
+				if (options.penetrators.length <= 0) return 0;
+				const penetrator = options.penetrators[0];
+				if (penetrator.position === "thighs") {
+					return 32;
+				}
+				if (penetrator.position === "leftarm") {
+					return 48; // Behind the Z index of PC's "backarm"
+				}
+				return 61;
+			},
 		},
 	},
 };

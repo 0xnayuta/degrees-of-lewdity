@@ -1,4 +1,4 @@
-/* eslint-disable jsdoc/no-undefined-types */
+// @ts-check
 /**
  * @typedef CombatZIndices
  * @type {object}
@@ -7,19 +7,19 @@
  * @property {50} base
  * @property {100} near
  * Hair:
- * @property {35} backHair
+ * @property {20} backHair
  * @property {55} hair
  * Back legs:
- * @property {40} backCalf
- * @property {41} backFoot
- * @property {42} backThigh
- * @property {43} backCalfUnderwear
- * @property {44} backThighUnderwear
- * @property {45} backFootwear
- * @property {46} backCalfWear
- * @property {47} backThighWear
- * @property {48} backCalfOverwear
- * @property {49} backThighOverwear
+ * @property {26} backCalf
+ * @property {27} backFoot
+ * @property {28} backThigh
+ * @property {29} backCalfUnderwear
+ * @property {30} backThighUnderwear
+ * @property {31} backFootwear
+ * @property {32} backCalfWear
+ * @property {33} backThighWear
+ * @property {34} backCalfOverwear
+ * @property {35} backThighOverwear
  * Front Legs:
  * @property {65} frontCalf
  * @property {66} frontFoot
@@ -71,7 +71,59 @@ const zi = {
 };
 
 /**
- * @type {CanvasModelOptions}
+ * @typedef {object} CanvasModelLayerPc
+ * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
+ * @property {string} [src] Image path. Either `src` or `srcfn` is required.
+ * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
+ * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
+ * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
+ * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
+ * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
+ * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
+ * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
+ * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
+ * @property {string} [animation] Name of animation to apply, default none.
+ * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
+ * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
+ * @property {number} [dx] Layer X position on the image, default 0.
+ * @property {number} [dy] Layer Y position on the image, default 0.
+ * @property {number} [width] Layer subsprite width, default = model width.
+ * @property {number} [height] Layer subsprite width, default = model height.
+ *
+ * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
+ * @property {function(Options): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
+ * @property {function(Options): string} [srcfn] (options)=>string.
+ * @property {function(Options): number} [zfn] (options)=>number.
+ * @property {function(Options): number} [alphafn] (options)=>number.
+ * @property {function(Options): boolean} [desaturatefn] (options)=>boolean.
+ * @property {function(Options): number} [brightnessfn] (options)=>number.
+ * @property {function(Options): number} [contrastftn] (options)=>number.
+ * @property {function(Options): (string|object)} [blendModefn] (options)=>(string|object).
+ * @property {function(Options): string} [blendfn] (options)=>string.
+ * @property {function(Options): string} [masksrcfn] (options)=>string.
+ * @property {function(Options): string} [animationfn] (options)=>string.
+ * @property {function(Options): number[]} [framesfn] (options)=>number[].
+ * @property {function(Options): string[]} [filtersfn] (options)=>string[].
+ * @property {function(Options): number} [dxfn] (options)=>number.
+ * @property {function(Options): number} [dyfn] (options)=>number.
+ * @property {function(Options): number} [widthfn] (options)=>number.
+ * @property {function(Options): number} [heightfn] (options)=>number.
+ */
+
+/**
+ * @typedef {object} CanvasModelPcOptions
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {Object<string, CanvasModelLayerPc>} layers Layers (by name).
+ * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
+ * @property {Function} [defaultOptions] Function ()=>object returning default options.
+ * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
+ */
+
+/**
+ * @type {CanvasModelPcOptions}
  */
 const combatMainPc = {
 	name: "combatMainPc",
@@ -79,6 +131,7 @@ const combatMainPc = {
 	height: 256,
 	frames: 4,
 	/*
+	 * http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=generated
 	 *	 ██████  ███████ ███    ██ ███████ ██████   █████  ████████ ███████ ██████
 	 *	██       ██      ████   ██ ██      ██   ██ ██   ██    ██    ██      ██   ██
 	 *	██   ███ █████   ██ ██  ██ █████   ██████  ███████    ██    █████   ██   ██
@@ -129,6 +182,340 @@ const combatMainPc = {
 	},
 	layers: {
 		/*
+		 *    ██████  ███████ ██████  ██    ██  ██████
+		 *    ██   ██ ██      ██   ██ ██    ██ ██
+		 *    ██   ██ █████   ██████  ██    ██ ██   ███
+		 *    ██   ██ ██      ██   ██ ██    ██ ██    ██
+		 *    ██████  ███████ ██████   ██████   ██████
+		 */
+		frameCount: {
+			srcfn(options) {
+				return `${options.root}${options.animKey.includes("4f") ? "4f" : "2f"}.png`;
+			},
+			showfn(options) {
+				return true;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 100,
+		},
+		/*
+		 *    ██████  ██████   ██████  ██████  ███████
+		 *    ██   ██ ██   ██ ██    ██ ██   ██ ██
+		 *    ██████  ██████  ██    ██ ██████  ███████
+		 *    ██      ██   ██ ██    ██ ██           ██
+		 *    ██      ██   ██  ██████  ██      ███████
+		 */
+		bench: {
+			srcfn(options) {
+				return `${options.root}prop/bench/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.bench.show;
+			},
+			z: 5,
+		},
+		examTable: {
+			srcfn(options) {
+				return `${options.root}prop/exam-table/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.examTable.show;
+			},
+			z: 5,
+		},
+		haybale: {
+			srcfn(options) {
+				return `${options.root}prop/haybale/haybale.png`;
+			},
+			showfn(options) {
+				return !!options.props.haybale.show;
+			},
+			z: 5,
+		},
+		hospitalBed: {
+			srcfn(options) {
+				return `${options.root}prop/hospital-bed/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.hospitalBed.show;
+			},
+			z: 5,
+		},
+		hospitalBedRails: {
+			srcfn(options) {
+				return `${options.root}prop/hospital-bed/${options.position}-rails.png`;
+			},
+			showfn(options) {
+				return !!options.props.hospitalBed.show;
+			},
+			z: 95,
+		},
+		ivBag: {
+			srcfn(options) {
+				return `${options.root}prop/iv-bag/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.ivBag.show;
+			},
+			z: 5,
+		},
+		milkTank: {
+			srcfn(options) {
+				const tank = options.props.milkTank;
+				if (tank.isFull) {
+					return `${options.root}prop/milk-tank/tank-full.png`;
+				}
+				return `${options.root}prop/milk-tank/tank.png`;
+			},
+			showfn(options) {
+				return !!options.props.milkTank.show;
+			},
+			animation: "prop-4f-tank",
+			z: 1,
+		},
+		milkTankVolume: {
+			srcfn(options) {
+				const tank = options.props.milkTank;
+				return `${options.root}prop/milk-tank/${tank.volume}.png`;
+			},
+			showfn(options) {
+				return !!options.props.milkTank.show;
+			},
+			animation: "prop-4f-tank",
+			z: 3,
+		},
+		semenTank: {
+			srcfn(options) {
+				if (options.props.semenTank.isFull) {
+					return `${options.root}prop/semen-tank/semen-full.png`;
+				}
+				return `${options.root}prop/semen-tank/semen.png`;
+			},
+			showfn(options) {
+				const show = options.props.semenTank.show;
+				return !!show;
+			},
+			animation: "prop-4f-tank",
+			z: 2,
+		},
+		semenTankVolume: {
+			srcfn(options) {
+				const tank = options.props.semenTank;
+				return `${options.root}prop/semen-tank/${tank.volume}.png`;
+			},
+			showfn(options) {
+				const show = options.props.semenTank.show;
+				return !!show;
+			},
+			animation: "prop-4f-tank",
+			z: 2,
+		},
+		table: {
+			srcfn(options) {
+				return `${options.root}prop/table/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.table.show;
+			},
+			z: 5,
+		},
+		/*
+		 *    ███    ███  █████   ██████ ██   ██ ██ ███    ██ ███████ ███████
+		 *    ████  ████ ██   ██ ██      ██   ██ ██ ████   ██ ██      ██
+		 *    ██ ████ ██ ███████ ██      ███████ ██ ██ ██  ██ █████   ███████
+		 *    ██  ██  ██ ██   ██ ██      ██   ██ ██ ██  ██ ██ ██           ██
+		 *    ██      ██ ██   ██  ██████ ██   ██ ██ ██   ████ ███████ ███████
+		 */
+		breastMilker: {
+			srcfn(options) {
+				const size = Math.clamp(options.breastSize, 1, 4);
+				return `${options.root}machine/milker/${options.position}/breasts-${size}.png`;
+			},
+			showfn(options) {
+				return !!options.machines.breastMilker.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				if (options.position === "doggy") {
+					return zi.base + 10;
+				}
+				return zi.base + 12;
+			},
+		},
+		breastMilkerVolume: {
+			srcfn(options) {
+				const size = Math.clamp(options.breastSize, 1, 4);
+				return `${options.root}machine/milker/${options.position}/breasts-${size}-milk.png`;
+			},
+			showfn(options) {
+				return !!options.machines.breastMilker.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				if (options.position === "doggy") {
+					return zi.base + 9;
+				}
+				return zi.base + 11;
+			},
+		},
+		penisMilker: {
+			srcfn(options) {
+				return `${options.root}machine/milker/${options.position}/penis.png`;
+			},
+			showfn(options) {
+				return !!options.machines.penisMilker.show;
+			},
+			animationfn(options) {
+				return options.machineAnimKey;
+			},
+			z: zi.base + 7,
+		},
+		penisMilkerVolume: {
+			srcfn(options) {
+				return `${options.root}machine/milker/${options.position}/penis-semen.png`;
+			},
+			showfn(options) {
+				return !!options.machines.penisMilker.show;
+			},
+			animationfn(options) {
+				return options.machineAnimKey;
+			},
+			z: zi.base + 4,
+		},
+		/*
+		 *    ████████ ███████ ███    ██ ████████  █████   ██████ ██      ███████ ███████
+		 *       ██    ██      ████   ██    ██    ██   ██ ██      ██      ██      ██
+		 *       ██    █████   ██ ██  ██    ██    ███████ ██      ██      █████   ███████
+		 *       ██    ██      ██  ██ ██    ██    ██   ██ ██      ██      ██           ██
+		 *       ██    ███████ ██   ████    ██    ██   ██  ██████ ███████ ███████ ███████
+		 */
+		tentacleAnal: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.anus.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.anus.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleBreasts: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.breasts.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.breasts.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleFeet: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.feet.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.feet.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleLeftArm: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.backArm.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.backArm.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleRightArm: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.frontArm.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.frontArm.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleLeftLeg: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.backLeg.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.backLeg.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleRightLeg: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.frontLeg.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.frontLeg.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleOral: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.mouth.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.mouth.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentaclePenis: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.penis.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.penis.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		tentacleVagina: {
+			srcfn(options) {
+				return `${options.src}tentacles/${options.tentacles.vagina.state}.png`;
+			},
+			showfn(options) {
+				return options.tentacles.vagina.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: 49,
+		},
+		/*
 		 *	██████   █████  ███████ ███████
 		 *	██   ██ ██   ██ ██      ██
 		 *	██████  ███████ ███████ █████
@@ -141,6 +528,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				if (!options.showPlayer) return false;
+				if (options.position === "missionary" && options.armBackPosition === "default") return false;
 				if (options.armBackPosition === "bound2") return false;
 				return true;
 			},
@@ -220,7 +608,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 11,
+			z: zi.base + 14,
 		},
 		frontbreast: {
 			srcfn(options) {
@@ -238,12 +626,11 @@ const combatMainPc = {
 		},
 		penetrator: {
 			srcfn(options) {
-				const penetrator = options.penetrator;
-				return `${options.src}body/penetrator/${penetrator.position}-${penetrator.state}.png`;
+				return `${options.src}body/penetrator/default-default.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
-				const result = options.showPlayer && penetrator.show;
+				const result = options.showPlayer && penetrator?.show;
 				return !!result;
 			},
 			animationfn(options) {
@@ -254,12 +641,13 @@ const combatMainPc = {
 		penetratorEjaculate: {
 			srcfn(options) {
 				const penetrator = options.penetrator;
-				return `${options.src}body/penetrator/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
+				return `${options.src}body/penetrator/default-default-${penetrator?.ejaculate.type}.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
 				console.log("ejac penetrator", JSON.parse(JSON.stringify(penetrator)));
-				const result = options.showPlayer && penetrator.show && penetrator.isEjaculating;
+				if (options.machines.penisMilker.show) return false;
+				const result = options.showPlayer && penetrator?.show && penetrator?.isEjaculating;
 				return !!result;
 			},
 			animationfn(options) {
@@ -308,7 +696,7 @@ const combatMainPc = {
 				return !!result;
 			},
 			animationfn(options) {
-				return options.animKeyStill;
+				return options.animKey;
 			},
 			z: zi.base + 2,
 		},
@@ -320,7 +708,7 @@ const combatMainPc = {
 				return !!options.showPlayer;
 			},
 			animationfn(options) {
-				return options.animKeyStill;
+				return options.animKey;
 			},
 			filters: ["phair"],
 			z: zi.base + 3,
@@ -372,7 +760,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["hair"],
-			z: zi.hair,
+			z: 81 /* zi.hair */,
 		},
 		/*
 		 *	 ██████ ██       ██████  ████████ ██   ██ ██ ███    ██  ██████
@@ -451,7 +839,7 @@ const combatMainPc = {
 			},
 			z: zi.backThigh + 1,
 		}),
-		legwearAccBack: genClothingLayer("legs", {
+		legwearAccBack: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes == null || clothes.name == null) return "";
@@ -471,7 +859,7 @@ const combatMainPc = {
 			},
 			z: zi.frontThigh + 1,
 		}),
-		legwearAccFront: genClothingLayer("legs", {
+		legwearAccFront: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes == null || clothes.name == null) return "";
@@ -485,24 +873,10 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/${options.legFrontPosition}-${clothes.state}.png`;
+				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}.png`;
 				console.log("Lower", "Path:", path);
 				return path;
 			},
-			/*
-			dxfn(options) {
-				if (options.legFrontPosition === "footjob") {
-					return -10;
-				}
-				return 0;
-			},
-			dyfn(options) {
-				if (options.legFrontPosition === "footjob") {
-					return 4;
-				}
-				return 0;
-			},
-			*/
 			z: zi.frontThigh + 3,
 		}),
 		neckWear: genClothingLayer("neck", {
@@ -526,17 +900,7 @@ const combatMainPc = {
 		upper: genClothingLayer("upper", {
 			z: zi.base + 11,
 		}),
-		upperAcc: genClothingLayer("upper", {
-			srcfn(options) {
-				const clothes = options.clothes.upper;
-				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/acc.png`;
-				console.log("Path:", path);
-				return path;
-			},
-			filtersfn(options) {
-				return ["worn_upper_acc"];
-			},
+		upperAcc: genClothingAccLayer("upper", {
 			z: zi.base + 12,
 		}),
 		upperBreasts: genClothingLayer("upper", {
@@ -549,7 +913,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasBreasts;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasBreasts;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -565,7 +929,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
@@ -584,7 +948,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.hasSleeves;
+				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -597,12 +961,12 @@ Renderer.CanvasModels.combatMainPc = combatMainPc;
 /**
  *
  * @param {string} slot
- * @param {CanvasModelLayer} overrideOptions
- * @returns {CanvasModelLayer}
+ * @param {CanvasModelLayerPc} overrideOptions
+ * @returns {CanvasModelLayerPc}
  */
 function genClothingLayer(slot, overrideOptions = {}) {
 	/**
-	 * @type {CanvasModelLayer}
+	 * @type {CanvasModelLayerPc}
 	 */
 	const defaults = {
 		srcfn(options) {
@@ -614,7 +978,7 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const clothes = options.clothes[slot];
-			const show = options.showClothing && clothes != null;
+			const show = options.showClothing && clothes != null && clothes.show;
 			console.log(slot, "Show?:", show);
 			return !!show;
 		},
@@ -629,6 +993,49 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		filtersfn(options) {
 			const filter = `worn_${slot}_main`;
+			console.log(slot, "Filters:", filter, options.filters[filter]);
+			return [filter];
+		},
+		z: zi[slot],
+	};
+	return Object.assign(defaults, overrideOptions);
+}
+
+/**
+ *
+ * @param {string} slot
+ * @param {CanvasModelLayerPc} overrideOptions
+ * @returns {CanvasModelLayerPc}
+ */
+function genClothingAccLayer(slot, overrideOptions = {}) {
+	/**
+	 * @type {CanvasModelLayerPc}
+	 */
+	const defaults = {
+		srcfn(options) {
+			const clothes = options.clothes[slot];
+			if (clothes == null || clothes.name == null) return "";
+			const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
+			console.log(slot, "Path:", path);
+			return path;
+		},
+		showfn(options) {
+			const clothes = options.clothes[slot];
+			const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
+			console.log(slot, "Show?:", show);
+			return !!show;
+		},
+		alphafn(options) {
+			const clothes = options.clothes[slot];
+			const alpha = clothes.alpha;
+			console.log(slot, "Alpha:", alpha);
+			return alpha;
+		},
+		animationfn(options) {
+			return options.animKey;
+		},
+		filtersfn(options) {
+			const filter = `worn_${slot}_acc`;
 			console.log(slot, "Filters:", filter, options.filters[filter]);
 			return [filter];
 		},
