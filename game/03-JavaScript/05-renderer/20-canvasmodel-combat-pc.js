@@ -873,14 +873,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes == null || clothes.name == null) return "";
-
-				let state = `${options.legFrontPosition}-${clothes.state}`;
-
-				if (options.legFrontPosition === "footjob" && ["waist", "thighs"].includes(clothes.state)) {
-					state = `up-${clothes.state}`;
-				}
-
-				const path = `${options.src}clothing/lower/${clothes.name}/${state}.png`;
+				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}.png`;
 				console.log("Lower", "Path:", path);
 				return path;
 			},
@@ -968,12 +961,12 @@ Renderer.CanvasModels.combatMainPc = combatMainPc;
 /**
  *
  * @param {string} slot
- * @param {CanvasModelLayer} overrideOptions
- * @returns {CanvasModelLayer}
+ * @param {CanvasModelLayerPc} overrideOptions
+ * @returns {CanvasModelLayerPc}
  */
 function genClothingLayer(slot, overrideOptions = {}) {
 	/**
-	 * @type {CanvasModelLayer}
+	 * @type {CanvasModelLayerPc}
 	 */
 	const defaults = {
 		srcfn(options) {
@@ -1011,12 +1004,12 @@ function genClothingLayer(slot, overrideOptions = {}) {
 /**
  *
  * @param {string} slot
- * @param {CanvasModelLayer} overrideOptions
- * @returns {CanvasModelLayer}
+ * @param {CanvasModelLayerPc} overrideOptions
+ * @returns {CanvasModelLayerPc}
  */
 function genClothingAccLayer(slot, overrideOptions = {}) {
 	/**
-	 * @type {CanvasModelLayer}
+	 * @type {CanvasModelLayerPc}
 	 */
 	const defaults = {
 		srcfn(options) {

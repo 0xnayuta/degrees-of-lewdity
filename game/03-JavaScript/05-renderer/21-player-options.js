@@ -92,6 +92,7 @@
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string?} name The name of the clothing directory.
+ * @property {"up" | "down" | "footjob"} position Part of the file name for certain clothing, such as lowerwear.
  * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob"} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
@@ -224,11 +225,11 @@ function getPcAnimationSpeed(options) {
 	if (options.props.semenTank.show || options.props.milkTank.show) {
 		return "sex-2f-idle";
 	}
-	if (combat.isPenetrated()) {
+	if (combat.isRapid()) {
 		return "sex-4f-vfast";
 	}
 	if (combat.isActive()) {
-		return "sex-4f-slow";
+		return "sex-4f-mid";
 	}
 	return "sex-2f-idle";
 }
@@ -419,7 +420,13 @@ function mapToTentacleOptions(options) {
 	tentacles.backLeg = getState();
 	tentacles.frontLeg = getState({ feet: "footjob" }, { leftlegentrance: "footjob" });
 	tentacles.mouth = getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" });
-	tentacles.penis = getState({ penisentrance: "penis-entrance-0" }, { penisimminent: "penis-imminent" }, { penis: "penis" }, { penisdeep: "penis" });
+	tentacles.penis = getState(
+		{ penisentrance: "penis-entrance-0" },
+		{ penisimminent: "penis-imminent" },
+		{ penis: "penis" },
+		{ penisdeep: "penis" },
+		{ penisrub: "penis" }
+	);
 	tentacles.vagina = getState({ vaginaentrance: "vagina-entrance" }, { vaginaimminent: "vagina-imminent" }, { vagina: "vagina" }, { vaginadeep: "vagina" });
 	if (V.anusstate === "tentacledeep") {
 		tentacles.anus = getState({ finished: "anal" });
@@ -510,10 +517,17 @@ function mapPcToLegPosition(options) {
 		options.legBackPosition = "footjob";
 		return options;
 	}
-	if (options.position === "missionary" && V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
-		options.legFrontPosition = "down";
-		options.legBackPosition = "up";
-		return options;
+	if (options.position === "missionary") {
+		if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
+			options.legFrontPosition = "down";
+			options.legBackPosition = "up";
+			return options;
+		}
+		if (V.NPCList.some(a => ["dog"].includes(a.type))) {
+			options.legFrontPosition = "up";
+			options.legBackPosition = "up";
+			return options;
+		}
 	}
 	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
 		options.legFrontPosition = "up";
@@ -548,9 +562,9 @@ window.mapPcToLegPosition = mapPcToLegPosition;
  */
 function isPenisExposed(options) {
 	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles"];
-	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state);
-	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state);
-	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state);
+	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state) || !options.clothes.lower.show;
+	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state) || !options.clothes.under_lower.show;
+	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state) || !options.clothes.over_lower.show;
 	const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
 
 	if (clothingExposed) {
@@ -726,20 +740,31 @@ function mapPcToClothingOptions(pc, options) {
 
 		let state = clothing.state;
 		let show = true;
+		// Any up legs are enough to force the up position.
+		/** @type {"down" | "up" | "footjob"} */
+		let position = "down";
 
-		// Lower clothing states
-		const isSkirtDown = clothing.skirt_down === 0;
-		const areLegsUp = ["footjob", "up"].includes(options.legBackPosition) || ["footjob", "up"].includes(options.legFrontPosition);
-		// Replace slot === "lower" with all lower slots? In case we need this logic for all lower layers that could be skirts.
-		if (slot === "lower" && ["thighs", "waist"].includes(clothing.state.toString()) && (isSkirtDown || areLegsUp)) {
-			options.genitalsExposed = true;
+		if (options.legBackPosition === "up" || options.legFrontPosition === "up") {
+			position = "up";
+		}
+
+		if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
+			position = "footjob";
+		}
+
+		if (clothing.index === 0) {
+			// Clothing is naked.
+			show = false;
 		}
 
 		if (slot === "upper" && state === 0) {
 			show = false;
 		}
 
-		// Feet clothing states
+		if (slot === "lower") {
+			position = position === "down" ? "down" : "up";
+		}
+
 		if (slot === "feet") {
 			state = options.legFrontPosition;
 			// state = options.legBackPosition;
@@ -758,6 +783,7 @@ function mapPcToClothingOptions(pc, options) {
 		const clothes = {
 			item: clothing,
 			name: clothing.combatImg,
+			position,
 			state: state || "full",
 			alpha,
 			hasAccessory: clothing.accessory === 1,

@@ -121,7 +121,7 @@ const combatMainNpc = {
 			showfn(options) {
 				if (options.penetrators.length <= 0) return false;
 				const penetrator = options.penetrators[0];
-				if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
+				// if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
 				return !!penetrator.show;
 			},
 			animationfn(options) {

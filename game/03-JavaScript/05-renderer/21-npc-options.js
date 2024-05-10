@@ -84,7 +84,7 @@ window.mapNpcToOptions = mapNpcToOptions;
  * @returns {string}
  */
 function getNpcAnimationSpeed(options) {
-	if (combat.isPenetrated()) {
+	if (combat.isRapid()) {
 		return "sex-4f-vfast";
 	}
 	if (combat.isActive()) {
@@ -118,7 +118,7 @@ function mapNpcToBodyOptions(npc, options) {
 			}
 			if (npc.stance === "top") {
 				options.state = "over-default";
-				options.show = ["vagina", "anus"].includes(penetrator.position);
+				options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
 				return options;
 			}
 		}
@@ -183,7 +183,7 @@ function mapNpcToPenetratorOptions(npc, options) {
 	 */
 	function getPenetratorType(npc) {
 		if (["dog", "wolf", "fox"].includes(npc.type)) {
-			return "equine";
+			return "knotted";
 		}
 		if (["horse", "centaur"].includes(npc.type)) {
 			return "equine";

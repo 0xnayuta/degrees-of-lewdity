@@ -39,11 +39,14 @@ class CombatSystem {
 		this.positions.mouth = 0;
 	}
 
-	isPenetrated() {
+	isRapid() {
 		return this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
 	}
 
 	isActive() {
+		if (V.NPCList.some(a => ["horse"].includes(a.type))) {
+			return true;
+		}
 		return (
 			this.isVaginaActive() ||
 			this.isAnusActive() ||
