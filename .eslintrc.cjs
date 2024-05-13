@@ -297,6 +297,7 @@ module.exports = {
 			1,
 			{
 				definedTypes: [
+					"EventNpc",
 					"ClothesItem",
 					"Penetrator",
 					"TentacleState",
