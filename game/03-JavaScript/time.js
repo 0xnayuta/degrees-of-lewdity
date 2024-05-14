@@ -50,7 +50,6 @@
 
 */
 
-/* eslint-disable jsdoc/require-description-complete-sentence */
 const Time = (() => {
 	const moonPhases = {
 		new: {
@@ -484,7 +483,7 @@ function weekPassed() {
 		if (V.photo.silly === "paid") V.photo.silly = 0;
 		V.photo.shoot = 0;
 	}
-	if (V.nightmareTimer > 0) {
+	if (V.nightmareTimer && V.nightmareTimer > 0) {
 		V.nightmareTimer--;
 		if (V.nightmareTimer <= 0) delete V.nightmareTimer;
 	}
@@ -496,7 +495,6 @@ function weekPassed() {
 
 	statChange.worldCorruption("soft", V.world_corruption_hard);
 
-	delete V.weekly;
 	V.weekly = clone(setup.weeklyObject);
 
 	return fragment;
