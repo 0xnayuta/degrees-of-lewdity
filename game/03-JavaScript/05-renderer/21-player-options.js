@@ -1,4 +1,6 @@
 // @ts-check
+/* global FilterMap */
+
 /**
  * @typedef Options
  * @type {object}
