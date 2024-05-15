@@ -58,15 +58,44 @@ declare global {
 		eyeColour: string;
 		hairColour: string;
 
+		stance: "top";
 		ballssize: number;
 		bottomsize: number;
 		breastdesc: string;
 		breastsdesc: string;
 		breastsize: number;
-		penis: "clothed" | "none" | 0;
+		penis:
+			| "anusentrance"
+			| "anusimminent"
+			| "anus"
+			| "anusentrancedouble"
+			| "anusdouble"
+			| "penisentrance"
+			| "penisimminent"
+			| "penis"
+			| "vaginaentrance"
+			| "vaginaimminent"
+			| "vagina"
+			| "vaginaentrancedouble"
+			| "vaginaimminentdouble"
+			| "vaginadouble"
+			| "mouthentrance"
+			| "mouthimminent"
+			| "mouth"
+			| "othermouth"
+			| "feet"
+			| "footjob"
+			| "leftarm"
+			| "rightarm"
+			| "thighs"
+			| "cheeks"
+			| "chest"
+			| "clothed"
+			| "none"
+			| 0;
 		penisdesc: string;
 		penissize: number;
-		vagina: "clothed" | "none";
+		vagina: "penisentrance" | "penisimminent" | "penis" | "clothed" | "none";
 
 		chastity: {
 			penis: string;

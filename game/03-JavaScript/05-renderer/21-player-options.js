@@ -851,7 +851,7 @@ window.mapPcToBodyOptions = mapPcToBodyOptions;
  * For colour name, lookup its canvas filter and merge with sprite prefilter.
  *
  * @param {object} options Options
- * @param {Object<string, object>} dict map in setup.colours to lookup in
+ * @param {Object<string, FilterMap>} dict map in setup.colours to lookup in
  * @param {string} key colour name.
  * @param {string} debugName used when reporting errors
  * @param {string} customFilterName key in options.filters

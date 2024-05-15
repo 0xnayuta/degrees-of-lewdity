@@ -48,6 +48,37 @@ declare module "twine-sugarcube" {
 		trackedArousal: int[];
 		timeSinceArousal: number;
 
+		skinColor: {
+			natural: "custom" | "light" | "medium" | "dark" | "gyaru";
+			range: number;
+			sunBlock: boolean;
+			tanValues: number[];
+			init: boolean;
+			current: {
+				[x: string]: string;
+			};
+			overwrite: {
+				bEnd: number;
+				bStart: number;
+				hEnd: number;
+				hStart: number;
+				sEnd: number;
+				sStart: number;
+			}[];
+			overwriteEnable: boolean;
+			overwriteValues: {
+				bEnd: number;
+				bStart: number;
+				hEnd: number;
+				hStart: number;
+				sEnd: number;
+				sStart: number;
+			};
+		};
+		haircolour: string;
+		eyeselect: string;
+		hairlengthstage: string;
+
 		/**
 		 * Wtf is this
 		 */
@@ -159,6 +190,7 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface Player {
+		perceived_breastsize: number;
 		penisExist: boolean;
 		vaginaExist: boolean;
 		penissize: number;

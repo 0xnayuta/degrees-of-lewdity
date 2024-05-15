@@ -141,7 +141,7 @@ function mapNpcToBodyOptions(npc, options) {
 	}
 	// Since no penetrator exists on the NPC, check for their other states
 	// WHY IS ANAL LIKE THIS
-	if (["otheranusfrot", "otheranusentrance", "otheranusimminent", "otheranus"].includes(npc.penis)) {
+	if (typeof npc.penis === "string" && ["otheranusfrot", "otheranusentrance", "otheranusimminent", "otheranus"].includes(npc.penis)) {
 		options.state = options.category === "shadow" ? "default" : "under-default";
 		options.show = true;
 		return options;

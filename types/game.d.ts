@@ -138,10 +138,42 @@ declare module "twine-sugarcube" {
 
 	export interface SugarCubeSetupObject {
 		feats: FeatsSetupVariables;
+		colours: {
+			clothes: FilterMap[];
+			clothes_map: {
+				[x: string]: FilterMap;
+			};
+			eyes_map: {
+				[x: string]: FilterMap;
+			};
+			hair_map: {
+				[x: string]: FilterMap;
+			};
+			sprite_prefilters: {
+				[x: string]: PrefilterMap;
+			};
+		};
 	}
 }
 
 declare global {
+	export interface FilterMap {
+		canvasfilter: {
+			blend: string;
+			blendMode: string;
+		};
+		csstext: string;
+		name: string;
+		name_cap: string;
+		variable: string;
+	}
+
+	export interface PrefilterMap {
+		brightness: number;
+		contrast: number;
+		desaturate: boolean;
+	}
+
 	export interface FeatsSetupVariables {
 		[x: string]: FeatObject;
 	}

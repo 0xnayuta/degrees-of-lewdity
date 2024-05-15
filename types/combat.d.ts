@@ -1,8 +1,14 @@
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		combat: boolean;
+		position: "doggy" | "missionary";
 
 		arousalmax: number;
+		enemyarousal: number;
+		enemyarousalmax: number;
+
+		orgasmdown: number;
+		orgasmcount: number;
 
 		vaginause: number | string;
 		anususe: number | string;
@@ -24,7 +30,7 @@ declare module "twine-sugarcube" {
 		chestuse: number;
 		cheststate: string | 0;
 		feettarget: number;
-		feetuse: number;
+		feetuse: string | 0;
 		feetstate: string | 0;
 		handtarget: number;
 		handuse: number;
@@ -36,7 +42,7 @@ declare module "twine-sugarcube" {
 		mouthuse: number;
 		mouthstate: string | 0;
 		penistarget: number;
-		penisuse: number;
+		penisuse: string | 1 | 0;
 		penisstate: string | 0;
 		righttarget: number;
 		rightuse: number;
@@ -71,9 +77,45 @@ declare module "twine-sugarcube" {
 		currentToyRight: any;
 		currentToyVagina: any;
 		currentToyAnus: any;
+
+		prop: string[];
+		machine?: {
+			tattoo: {
+				use: string;
+			};
+		};
+		tentacles: {
+			0?: TentacleState;
+			1?: TentacleState;
+			2?: TentacleState;
+			3?: TentacleState;
+			4?: TentacleState;
+			5?: TentacleState;
+			6?: TentacleState;
+			7?: TentacleState;
+			8?: TentacleState;
+			9?: TentacleState;
+			10?: TentacleState;
+			11?: TentacleState;
+			12?: TentacleState;
+			13?: TentacleState;
+			14?: TentacleState;
+			15?: TentacleState;
+			16?: TentacleState;
+			17?: TentacleState;
+			18?: TentacleState;
+			19?: TentacleState;
+			20?: TentacleState;
+			active: number;
+			max: number;
+		};
 	}
 }
 
-declare global {}
+declare global {
+	export interface TentacleState {
+		head: string;
+	}
+}
 
 export {};
