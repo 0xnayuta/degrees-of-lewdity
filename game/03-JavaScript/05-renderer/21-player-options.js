@@ -385,12 +385,18 @@ function mapToTentacleOptions(options) {
 		const count = V.tentacles.max;
 		// const count = V.tentacles.active;
 		for (let i = 0; i < count; i++) {
+			/** @type {TentacleState?} */
 			const tentacle = V.tentacles[i];
+
+			if (tentacle == null) {
+				continue;
+			}
+
 			if (tentacle.tentaclehealth <= 0) {
 				continue;
 			}
 
-			const part = parts.find(a => tentacle.head in a);
+			const part = parts.find(part => tentacle.head in part);
 			if (part) {
 				console.log("Tentacle", i, tentacle, "selected for:", parts);
 				return part[tentacle.head];
@@ -398,8 +404,6 @@ function mapToTentacleOptions(options) {
 		}
 		return null;
 	}
-
-	console.log(getTentacles().map(t => t.head));
 
 	/**
 	 * @param {...Object<string, string>} parts
@@ -413,23 +417,25 @@ function mapToTentacleOptions(options) {
 		};
 	}
 
-	console.log(V.tentacles);
+	const tentacles = {
+		mouth: getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" }),
+		breasts: getState(),
+		backArm: getState({ leftarm: "handjob-left" }),
+		frontArm: getState({ rightarm: "handjob-right" }),
+		penis: getState(
+			{ penisentrance: "penis-entrance-0" },
+			{ penisimminent: "penis-imminent" },
+			{ penis: "penis" },
+			{ penisdeep: "penis" },
+			{ penisrub: "penis" }
+		),
+		vagina: getState({ vaginaentrance: "vagina-entrance" }, { vaginaimminent: "vagina-imminent" }, { vagina: "vagina" }, { vaginadeep: "vagina" }),
+		anus: getState({ anusentrance: "anal-entrance" }, { anusimminent: "anal-imminent" }, { anus: "anal" }, { anusrub: "anal-rub" }),
+		backLeg: getState(),
+		frontLeg: getState({ feet: "footjob" }, { leftlegentrance: "footjob" }),
+		feet: getState(),
+	};
 
-	const tentacles = {};
-	tentacles.anus = getState({ anusentrance: "anal-entrance" }, { anusimminent: "anal-imminent" }, { anus: "anal" }, { anusrub: "anal-rub" });
-	tentacles.breasts = getState();
-	tentacles.feet = getState();
-	tentacles.backLeg = getState();
-	tentacles.frontLeg = getState({ feet: "footjob" }, { leftlegentrance: "footjob" });
-	tentacles.mouth = getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" });
-	tentacles.penis = getState(
-		{ penisentrance: "penis-entrance-0" },
-		{ penisimminent: "penis-imminent" },
-		{ penis: "penis" },
-		{ penisdeep: "penis" },
-		{ penisrub: "penis" }
-	);
-	tentacles.vagina = getState({ vaginaentrance: "vagina-entrance" }, { vaginaimminent: "vagina-imminent" }, { vagina: "vagina" }, { vaginadeep: "vagina" });
 	if (V.anusstate === "tentacledeep") {
 		tentacles.anus = getState({ finished: "anal" });
 	}

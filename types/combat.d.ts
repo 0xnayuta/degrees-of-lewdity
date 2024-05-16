@@ -115,6 +115,7 @@ declare module "twine-sugarcube" {
 declare global {
 	export interface TentacleState {
 		head: string;
+		tentaclehealth: number;
 	}
 }
 
