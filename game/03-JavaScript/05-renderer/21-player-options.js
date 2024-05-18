@@ -95,7 +95,7 @@
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string?} name The name of the clothing directory.
  * @property {"up" | "down" | "footjob"} position Part of the file name for certain clothing, such as lowerwear.
- * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob"} state The state of the clothing, the file name.
+ * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob" | "totheside"} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
@@ -786,7 +786,7 @@ function mapPcToClothingOptions(pc, options) {
 
 		if (slot === "under_lower") {
 			// Slot for under lower configurations
-			show = state !== 0 && ["ankles", "waist"].includes(state);
+			show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
 		}
 
 		if (slot === "feet") {

@@ -107,7 +107,7 @@ declare global {
 		 * - an: An outfit.
 		 */
 		word: "a" | "n" | "an";
-		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn";
+		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
 		state_base: string;
 		state_top: string;
 		state_top_base: string;
