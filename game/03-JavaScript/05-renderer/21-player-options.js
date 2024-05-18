@@ -27,8 +27,8 @@
  * @property {string} hairFringeColour
  * @property {string} leftEye
  * @property {string} rightEye
- * @property {"up"|"down"|"footjob"} legBackPosition The position the back leg is in.
- * @property {"up"|"down"|"footjob"} legFrontPosition The position the front leg is in.
+ * @property {"up" | "down" | "footjob"} legBackPosition The position the back leg is in.
+ * @property {"up" | "down" | "footjob"} legFrontPosition The position the front leg is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
  * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
@@ -520,12 +520,12 @@ window.getArmState = getArmState;
  * @returns {Options}
  */
 function mapPcToLegPosition(options) {
-	if (V.feetuse === "penis" || V.feetstate === "tentacle") {
-		options.legFrontPosition = "footjob";
-		options.legBackPosition = "footjob";
-		return options;
-	}
 	if (options.position === "missionary") {
+		if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+			options.legFrontPosition = "footjob";
+			options.legBackPosition = "up";
+			return options;
+		}
 		if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
 			options.legFrontPosition = "down";
 			options.legBackPosition = "up";
@@ -536,6 +536,11 @@ function mapPcToLegPosition(options) {
 			options.legBackPosition = "up";
 			return options;
 		}
+	}
+	if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+		options.legFrontPosition = "footjob";
+		options.legBackPosition = "footjob";
+		return options;
 	}
 	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
 		options.legFrontPosition = "up";
@@ -569,7 +574,10 @@ window.mapPcToLegPosition = mapPcToLegPosition;
  * @returns {boolean}
  */
 function isPenisExposed(options) {
-	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles"];
+	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
+	if (options.position === "missionary") {
+		skirtExposedStates.push("waist");
+	}
 	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state) || !options.clothes.lower.show;
 	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state) || !options.clothes.under_lower.show;
 	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state) || !options.clothes.over_lower.show;
@@ -774,6 +782,11 @@ function mapPcToClothingOptions(pc, options) {
 
 		if (slot === "lower") {
 			position = position === "down" ? "down" : "up";
+		}
+
+		if (slot === "under_lower") {
+			// Slot for under lower configurations
+			show = state !== 0 && ["ankles", "waist"].includes(state);
 		}
 
 		if (slot === "feet") {

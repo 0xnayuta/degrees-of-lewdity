@@ -845,7 +845,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legFrontPosition}-${clothes.state}.png`;
+				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legBackPosition}-${clothes.state}.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
@@ -855,7 +855,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legFrontPosition}-${clothes.state}-acc.png`;
+				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legBackPosition}-${clothes.state}-acc.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
