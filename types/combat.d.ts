@@ -114,8 +114,18 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface TentacleState {
+		baby: number;
+		babychance: number;
+		desc: string;
+		fullDesc: string;
 		head: string;
+		id: string;
+		shaft: string;
+		size: number;
 		tentaclehealth: number;
+		tentaclehealthstart: number;
+		traits: string[];
+		type: "tentacle";
 	}
 }
 

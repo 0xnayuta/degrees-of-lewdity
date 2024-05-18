@@ -37,6 +37,7 @@ declare global {
 	const V: SugarCubeStoryVariables;
 	const T: SugarCubeTemporaryVariables;
 	const C: {
+		crime: any;
 		npc: {
 			[key in NpcNames]: Npc;
 		};

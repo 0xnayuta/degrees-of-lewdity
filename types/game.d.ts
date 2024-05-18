@@ -72,6 +72,7 @@ declare module "twine-sugarcube" {
 		edenshopping: number;
 
 		sydney: {
+			rank: string;
 			glasses: "broken" | "glasses" | "playerbroken";
 		};
 		sydneyGlassesNotice: undefined | 1;
@@ -83,6 +84,11 @@ declare module "twine-sugarcube" {
 		wolfcavepatrol: 1;
 
 		brothelVending: {
+			condomsSold: number;
+			condomsToRefill: number;
+			total: any;
+			lubeSold: number;
+			lubeToRefill: number;
 			products: number;
 			condoms: number;
 			lube: number;
@@ -108,11 +114,24 @@ declare module "twine-sugarcube" {
 		museumduck?: 1;
 
 		pound: {
+			sneak: number;
 			compete: number;
 			tasks: any[];
 		};
 
 		farm: {
+			milking: {
+				alexNightEvent: boolean;
+				catchChance: string /* Why tf is this a string */;
+				caught: boolean;
+				dayMilking: boolean;
+			};
+			stock?: {};
+			woodland: number;
+			barn: number;
+			coop: number;
+			kennel: number;
+			still_timer: {};
 			tower_guard: boolean;
 			tower_guard_unpaid: number;
 			tower_guard_patience: number;

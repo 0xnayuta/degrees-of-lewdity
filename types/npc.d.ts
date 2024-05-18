@@ -6,6 +6,8 @@ declare module "twine-sugarcube" {
 
 		kylarwatched: boolean;
 		kylar: {
+			timer: any;
+			riddle: number;
 			fountain: 0 | 1;
 		};
 	}
@@ -13,6 +15,8 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface Npc {
+		virginity: any;
+		outfits: any;
 		/**
 		 * The name... NaM
 		 */
@@ -58,7 +62,7 @@ declare global {
 		eyeColour: string;
 		hairColour: string;
 
-		stance: "top";
+		stance: "top" | "topface";
 		ballssize: number;
 		bottomsize: number;
 		breastdesc: string;

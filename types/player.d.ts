@@ -174,6 +174,9 @@ declare module "twine-sugarcube" {
 		earSlime: EarSlimeState;
 
 		parasite: {
+			nipples: any;
+			bottom: any;
+			breasts: any;
 			penis: ParasiteState;
 			clit: ParasiteState;
 			parasite: ParasiteState;
@@ -190,6 +193,9 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface Player {
+		gender_appearance: string;
+		ballsExist: any;
+		breastsize: number;
 		perceived_breastsize: number;
 		penisExist: boolean;
 		vaginaExist: boolean;
@@ -209,6 +215,14 @@ declare global {
 	}
 
 	export interface EarSlimeState {
+		focus: string;
+		vibration: any;
+		event: any;
+		lastVibration: any;
+		days: any;
+		eventTimer: number;
+		forcedDressing: boolean;
+		forcedCommando: boolean;
 		corruption: number;
 		growth: number;
 		startedThreats: boolean;
