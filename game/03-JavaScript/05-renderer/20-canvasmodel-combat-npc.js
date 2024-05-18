@@ -109,7 +109,7 @@ const combatMainNpc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 80,
+			z: 85,
 		},
 		penetrator: {
 			srcfn(options) {
