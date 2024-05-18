@@ -101,7 +101,12 @@ declare global {
 		one_piece: number;
 		strap: number;
 		open: number;
-		word: "a";
+		/**
+		 * - a: A skirt.
+		 * - n: Pyjamas.
+		 * - an: An outfit.
+		 */
+		word: "a" | "n" | "an";
 		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn";
 		state_base: string;
 		state_top: string;
