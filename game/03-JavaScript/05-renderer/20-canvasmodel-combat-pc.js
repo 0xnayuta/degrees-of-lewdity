@@ -836,7 +836,7 @@ const combatMainPc = {
 				console.log("Headwear [back]", "Path:", path);
 				return path;
 			},
-			z: 81 + 1 /* hair Z plus one */,
+			z: zi.base - 1 /* At least behind head (50) */,
 		}),
 		headwear: genClothingLayer("head", {
 			z: 81 + 1 /* hair Z plus one */,
