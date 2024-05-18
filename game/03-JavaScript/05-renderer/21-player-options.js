@@ -1,5 +1,5 @@
 // @ts-check
-/* global FilterMap */
+/* global FilterMap, Player, Bodywriting */
 
 /**
  * @typedef Options
@@ -40,6 +40,31 @@
  * @property {Props} props
  * @property {Machines} machines
  * @property {Tentacles} tentacles
+ * @property {BodywritingOptions} bodywriting
+ */
+
+/**
+ * @typedef {object} BodywritingOptions
+ * @property {boolean} isEnabled
+ * @property {BodywritingOption} forehead
+ * @property {BodywritingOption} backCheek
+ * @property {BodywritingOption} frontCheek
+ * @property {BodywritingOption} backShoulder
+ * @property {BodywritingOption} frontShoulder
+ * @property {BodywritingOption} breasts
+ * @property {BodywritingOption} back
+ * @property {BodywritingOption} backBottom
+ * @property {BodywritingOption} frontBottom
+ * @property {BodywritingOption} pubic
+ * @property {BodywritingOption} backThigh
+ * @property {BodywritingOption} frontThigh
+ */
+
+/**
+ * @typedef {object} BodywritingOption
+ * @property {boolean} show
+ * @property {string} area
+ * @property {string} type
  */
 
 /**
@@ -596,7 +621,7 @@ window.isPenisExposed = isPenisExposed;
 
 /**
  *
- * @param {object} pc
+ * @param {Player} pc
  * @param {Options} options
  * @returns {Penetrator?}
  */
@@ -745,7 +770,7 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 
 /**
  *
- * @param {object} pc
+ * @param {Player} pc
  * @param {Options} options
  * @returns {Options}
  */
@@ -864,16 +889,263 @@ function mapPcToClothingOptions(pc, options) {
 window.mapPcToClothingOptions = mapPcToClothingOptions;
 
 /**
- *
- * @param {object} pc
+ * @param {Player} pc
  * @param {Options} options
  * @returns {Options}
  */
 function mapPcToBodyOptions(pc, options) {
 	mapPcToArmPosition(options);
+	mapPcToBodywritingOptions(pc, options);
 	return options;
 }
 window.mapPcToBodyOptions = mapPcToBodyOptions;
+
+/**
+ * @param {Player} pc
+ * @param {Options} options
+ */
+function mapPcToBodywritingOptions(pc, options) {
+	/**
+	 * @param {string} id
+	 * @param {function(string, Bodywriting): BodywritingOption?} mapper
+	 * @returns {BodywritingOption}
+	 */
+	function getState(id, mapper) {
+		/** @type {Bodywriting=} */
+		const bodywriting = V.skin[id];
+
+		const defaultState = {
+			show: false,
+			area: "text",
+			type: id,
+		};
+
+		if (bodywriting == null || !bodywriting.writing) {
+			return defaultState;
+		}
+
+		const options = mapper(id, bodywriting);
+		return options || defaultState;
+	}
+
+	/**
+	 * @param {string} id
+	 * @param {Bodywriting} bodywriting
+	 * @returns {BodywritingOption?}
+	 */
+	function simpleText(id, bodywriting) {
+		if (bodywriting.type !== "text") {
+			return null;
+		}
+		return {
+			show: true,
+			area: "text",
+			type: id,
+		};
+	}
+
+	if (options.position === "missionary") {
+		options.bodywriting = options.bodywriting || {
+			isEnabled: V.options.bodywritingImages === true,
+			forehead: {
+				show: false,
+				type: "forehead",
+			},
+			backCheek: getState("right_cheek", (id, bodywriting) => {
+				if (bodywriting.type === "text" || bodywriting.special === "islander") {
+					return {
+						show: true,
+						area: "text",
+						type: id,
+					};
+				}
+				if (bodywriting.type === "object") {
+					return {
+						show: true,
+						area: bodywriting.writing,
+						type: id,
+					};
+				}
+				return null;
+			}),
+			frontCheek: {
+				show: false,
+				type: "left_cheek",
+			},
+			backShoulder: getState("right_shoulder", (id, bodywriting) => {
+				if (bodywriting.type === "text" || bodywriting.special === "islander") {
+					return {
+						show: true,
+						area: "text",
+						type: id,
+					};
+				}
+				if (bodywriting.type !== "object") {
+					return null;
+				}
+				if (V.leftarm === "bound" || V.rightarm === "grappled" || V.leftarm === "behind") {
+					return {
+						show: true,
+						area: bodywriting.writing,
+						type: "left_shoulder_bound",
+					};
+				}
+				return {
+					show: true,
+					area: bodywriting.writing,
+					type: id,
+				};
+			}),
+			frontShoulder: {
+				show: false,
+				type: "left_shoulder",
+			},
+			breasts: getState("breasts", simpleText),
+			back: getState("back", simpleText),
+			backBottom: getState("right_bottom", simpleText),
+			frontBottom: {
+				show: false,
+				type: "left_bottom",
+			},
+			pubic: getState("pubic", (id, bodywriting) => {
+				if (bodywriting.type === "text") {
+					return {
+						show: true,
+						area: "text",
+						type: id,
+					};
+				}
+				if (bodywriting.type === "object" && bodywriting.special !== "islander") {
+					return {
+						show: true,
+						area: bodywriting.writing,
+						type: id,
+					};
+				}
+				return null;
+			}),
+			backThigh: getState("right_thigh", simpleText),
+			frontThigh: getState("left_thigh", (id, bodywriting) => {
+				if (bodywriting.type === "text" || bodywriting.special === "islander") {
+					return {
+						show: true,
+						area: "text",
+						type: bodywriting.arrow === 1 ? id + "_arrow" : id,
+					};
+				}
+				if (bodywriting.type === "object") {
+					return {
+						show: true,
+						area: bodywriting.writing,
+						type: id,
+					};
+				}
+				return null;
+			}),
+		};
+		return options;
+	}
+
+	options.bodywriting = options.bodywriting || {
+		isEnabled: V.options.bodywritingImages === true,
+		forehead: {
+			show: false,
+			type: "forehead",
+		},
+		backCheek: getState("left_cheek", (id, bodywriting) => {
+			if (bodywriting.type === "text" || bodywriting.special === "islander") {
+				return {
+					show: true,
+					area: "text",
+					type: id,
+				};
+			}
+			if (bodywriting.type === "object") {
+				return {
+					show: true,
+					area: bodywriting.writing,
+					type: id,
+				};
+			}
+			return null;
+		}),
+		frontCheek: {
+			show: false,
+			type: "right_cheek",
+		},
+		backShoulder: getState("left_shoulder", (id, bodywriting) => {
+			if (bodywriting.type === "text" || bodywriting.special === "islander") {
+				return {
+					show: true,
+					area: "text",
+					type: id,
+				};
+			}
+			if (bodywriting.type !== "object") {
+				return null;
+			}
+			if (V.leftarm === "bound" || V.rightarm === "grappled" || V.leftarm === "behind") {
+				return {
+					show: true,
+					area: bodywriting.writing,
+					type: "left_shoulder_bound",
+				};
+			}
+			return {
+				show: true,
+				area: bodywriting.writing,
+				type: id,
+			};
+		}),
+		frontShoulder: {
+			show: false,
+			type: "right_shoulder",
+		},
+		breasts: getState("breasts", simpleText),
+		back: getState("back", simpleText),
+		backBottom: getState("left_bottom", simpleText),
+		frontBottom: {
+			show: false,
+			type: "right_bottom",
+		},
+		pubic: getState("pubic", (id, bodywriting) => {
+			if (bodywriting.type === "text") {
+				return {
+					show: true,
+					area: "text",
+					type: id,
+				};
+			}
+			if (bodywriting.type === "object" && bodywriting.special !== "islander") {
+				return {
+					show: true,
+					area: bodywriting.writing,
+					type: id,
+				};
+			}
+			return null;
+		}),
+		backThigh: getState("left_thigh", simpleText),
+		frontThigh: getState("right_thigh", (id, bodywriting) => {
+			if (bodywriting.type === "text" || bodywriting.special === "islander") {
+				return {
+					show: true,
+					area: "text",
+					type: bodywriting.arrow === 1 ? id + "_arrow" : id,
+				};
+			}
+			if (bodywriting.type === "object") {
+				return {
+					show: true,
+					area: bodywriting.writing,
+					type: id,
+				};
+			}
+			return null;
+		}),
+	};
+}
+window.mapPcToBodywritingOptions = mapPcToBodywritingOptions;
 
 /**
  * For colour name, lookup its canvas filter and merge with sprite prefilter.

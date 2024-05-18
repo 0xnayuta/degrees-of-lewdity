@@ -1,5 +1,5 @@
 // @ts-check
-/* global ClothingState */
+/* global ClothingState, BodywritingOption */
 
 /**
  * @typedef CombatZIndices
@@ -777,6 +777,49 @@ const combatMainPc = {
 			z: 81 /* zi.hair */,
 		},
 		/*
+		 *    ██████   ██████  ██████  ██    ██ ██     ██ ██████  ██ ████████ ██ ███    ██  ██████
+		 *    ██   ██ ██    ██ ██   ██  ██  ██  ██     ██ ██   ██ ██    ██    ██ ████   ██ ██
+		 *    ██████  ██    ██ ██   ██   ████   ██  █  ██ ██████  ██    ██    ██ ██ ██  ██ ██   ███
+		 *    ██   ██ ██    ██ ██   ██    ██    ██ ███ ██ ██   ██ ██    ██    ██ ██  ██ ██ ██    ██
+		 *    ██████   ██████  ██████     ██     ███ ███  ██   ██ ██    ██    ██ ██   ████  ██████
+		 */
+		bodywritingForehead: genBodywritingLayer("forehead", {
+			z: zi.base + 1,
+		}),
+		bodywritingBackCheek: genBodywritingLayer("backCheek", {
+			z: zi.base - 1,
+		}),
+		bodywritingFrontCheek: genBodywritingLayer("frontCheek", {
+			z: zi.base + 1,
+		}),
+		bodywritingBackShoulder: genBodywritingLayer("backShoulder", {
+			z: zi.base - 1,
+		}),
+		bodywritingFrontShoulder: genBodywritingLayer("frontShoulder", {
+			z: zi.base + 1,
+		}),
+		bodywritingBreasts: genBodywritingLayer("breasts", {
+			z: zi.base + 11,
+		}),
+		bodywritingBack: genBodywritingLayer("back", {
+			z: zi.base + 1,
+		}),
+		bodywritingBackBottom: genBodywritingLayer("backBottom", {
+			z: zi.base - 1,
+		}),
+		bodywritingFrontBottom: genBodywritingLayer("frontBottom", {
+			z: zi.base + 1,
+		}),
+		bodywritingPubic: genBodywritingLayer("pubic", {
+			z: zi.base + 1,
+		}),
+		bodywritingBackThigh: genBodywritingLayer("backThigh", {
+			z: zi.backThigh + 1,
+		}),
+		bodywritingFrontThigh: genBodywritingLayer("frontThigh", {
+			z: zi.frontThigh + 1,
+		}),
+		/*
 		 *	 ██████ ██       ██████  ████████ ██   ██ ██ ███    ██  ██████
 		 *	██      ██      ██    ██    ██    ██   ██ ██ ████   ██ ██
 		 *	██      ██      ██    ██    ██    ███████ ██ ██ ██  ██ ██   ███
@@ -983,6 +1026,35 @@ const combatMainPc = {
 Renderer.CanvasModels.combatMainPc = combatMainPc;
 
 /**
+ * @param {string} id
+ * @param {CanvasModelLayerPc} overrideOptions
+ * @returns {CanvasModelLayerPc}
+ */
+function genBodywritingLayer(id, overrideOptions = {}) {
+	/**
+	 * @type {CanvasModelLayerPc}
+	 */
+	const defaults = {
+		srcfn(options) {
+			/** @type {BodywritingOption} */
+			const bodywriting = options.bodywriting[id];
+			const path = `${options.src}bodywriting/${bodywriting.area}/${bodywriting.type}.png`;
+			return path;
+		},
+		showfn(options) {
+			/** @type {BodywritingOption} */
+			const bodywriting = options.bodywriting[id];
+			return !!bodywriting.show;
+		},
+		animationfn(options) {
+			return options.animKey;
+		},
+		z: zi.base,
+	};
+	return Object.assign(defaults, overrideOptions);
+}
+
+/**
  * @param {Options} options
  * @param {ClothingState} clothing
  */
@@ -996,7 +1068,6 @@ function isClothingShown(options, clothing) {
 }
 
 /**
- *
  * @param {string} slot
  * @param {CanvasModelLayerPc} overrideOptions
  * @returns {CanvasModelLayerPc}

@@ -188,6 +188,21 @@ declare module "twine-sugarcube" {
 			left_arm: ParasiteState;
 			right_arm: ParasiteState;
 		};
+
+		skin: {
+			forehead: Bodywriting;
+			left_cheek: Bodywriting;
+			right_cheek: Bodywriting;
+			left_shoulder: Bodywriting;
+			right_shoulder: Bodywriting;
+			breasts: Bodywriting;
+			back: Bodywriting;
+			left_bottom: Bodywriting;
+			right_bottom: Bodywriting;
+			pubic: Bodywriting;
+			left_thigh: Bodywriting;
+			right_thigh: Bodywriting;
+		};
 	}
 }
 
@@ -212,6 +227,18 @@ declare global {
 			handholding: boolean;
 			kiss: boolean;
 		};
+	}
+
+	export interface Bodywriting {
+		arrow: 0 | 1;
+		degree: 0 | 1;
+		gender: "m" | "f" | "n";
+		index: number;
+		lewd: 0 | 1;
+		pen: string;
+		special: "none" | "islander";
+		type: "text" | "object";
+		writing: string;
 	}
 
 	export interface EarSlimeState {
