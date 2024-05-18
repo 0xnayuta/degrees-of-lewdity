@@ -323,6 +323,18 @@ const combatMainPc = {
 			},
 			z: 5,
 		},
+		leash: {
+			srcfn(options) {
+				return `${options.root}prop/leash/${options.position}.png`;
+			},
+			showfn(options) {
+				return !!options.props.leash.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.base,
+		},
 		/*
 		 *    ███    ███  █████   ██████ ██   ██ ██ ███    ██ ███████ ███████
 		 *    ████  ████ ██   ██ ██      ██   ██ ██ ████   ██ ██      ██

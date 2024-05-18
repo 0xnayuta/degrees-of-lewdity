@@ -56,6 +56,7 @@
  * @property {Prop} shakles
  * @property {Prop} table
  * @property {Prop} web
+ * @property {Prop} leash
  */
 
 /**
@@ -321,6 +322,9 @@ function mapToPropsOptions(options) {
 		shakles: createProp("arm_shackle"), // Neck and leg shackle?
 		table: createProp("table"),
 		web: createProp("web"),
+		leash: {
+			show: V.worn.neck.collared === 1,
+		},
 	};
 
 	return options;

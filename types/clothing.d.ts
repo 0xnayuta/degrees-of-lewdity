@@ -201,6 +201,7 @@ declare global {
 		 * if 1, this item has mask.png image to cut out hair & animal ears layers
 		 */
 		mask_img?: number;
+		collared?: 1;
 		// TODO list and document other options
 	}
 
