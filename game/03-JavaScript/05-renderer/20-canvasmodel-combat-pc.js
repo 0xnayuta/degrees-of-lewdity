@@ -1,4 +1,6 @@
 // @ts-check
+/* global ClothingState */
+
 /**
  * @typedef CombatZIndices
  * @type {object}
@@ -775,7 +777,7 @@ const combatMainPc = {
 		footwearBack: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.state}.png`;
 				console.log("Path:", path);
 				return path;
@@ -785,7 +787,7 @@ const combatMainPc = {
 		footwearFront: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.state}.png`;
 				console.log("Path:", path);
 				return path;
@@ -798,13 +800,13 @@ const combatMainPc = {
 		handsBack: genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes == null || clothes.name == null) return false;
+				if (!isClothingShown(options, clothes)) return false;
 				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
 				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
 				return true;
@@ -814,25 +816,35 @@ const combatMainPc = {
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (clothes == null || clothes.name == null) return false;
+				if (!isClothingShown(options, clothes)) return false;
 				if (options.armFrontPosition === "bound2") return false;
 				return true;
 			},
 			z: zi.base + 14,
 		}),
+		headwearBack: genClothingLayer("head", {
+			srcfn(options) {
+				const clothes = options.clothes.head;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/head/${clothes.name}/back.png`;
+				console.log("Headwear [back]", "Path:", path);
+				return path;
+			},
+			z: 81 + 1 /* hair Z plus one */,
+		}),
 		headwear: genClothingLayer("head", {
-			z: zi.base + 10,
+			z: 81 + 1 /* hair Z plus one */,
 		}),
 		legwearBack: genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legFrontPosition}-${clothes.state}.png`;
 				console.log("legs", "Path:", path);
 				return path;
@@ -842,7 +854,7 @@ const combatMainPc = {
 		legwearAccBack: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legFrontPosition}-${clothes.state}-acc.png`;
 				console.log("legs", "Path:", path);
 				return path;
@@ -852,7 +864,7 @@ const combatMainPc = {
 		legwearFront: genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/legs/${clothes.name}/front-${options.legFrontPosition}-${clothes.state}.png`;
 				console.log("legs", "Path:", path);
 				return path;
@@ -862,7 +874,7 @@ const combatMainPc = {
 		legwearAccFront: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/legs/${clothes.name}/front-${options.legFrontPosition}-${clothes.state}-acc.png`;
 				console.log("legs", "Path:", path);
 				return path;
@@ -872,7 +884,7 @@ const combatMainPc = {
 		lower: genClothingLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}.png`;
 				console.log("Lower", "Path:", path);
 				return path;
@@ -906,14 +918,14 @@ const combatMainPc = {
 		upperBreasts: genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/breasts/${clothes.breasts}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasBreasts;
+				const show = isClothingShown(options, clothes) && clothes.hasBreasts;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -922,14 +934,14 @@ const combatMainPc = {
 		upperBackSleeves: genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${options.armBackPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
+				const show = isClothingShown(options, clothes) && clothes.hasSleeves;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
@@ -941,14 +953,14 @@ const combatMainPc = {
 		upperFrontSleeves: genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
-				if (clothes == null || clothes.name == null) return "";
+				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${options.armFrontPosition}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = options.showClothing && clothes != null && clothes.name != null && clothes.show && clothes.hasSleeves;
+				const show = isClothingShown(options, clothes) && clothes.hasSleeves;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -957,6 +969,19 @@ const combatMainPc = {
 	},
 };
 Renderer.CanvasModels.combatMainPc = combatMainPc;
+
+/**
+ * @param {Options} options
+ * @param {ClothingState} clothing
+ */
+function isClothingShown(options, clothing) {
+	// Global clothing visibility
+	if (!options.showClothing) return false;
+	// Name is the identifier for clothing sprites, if null, problem occurred.
+	if (clothing?.name == null) return false;
+	// Per clothing show flag.
+	return clothing.show;
+}
 
 /**
  *
@@ -978,7 +1003,7 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const clothes = options.clothes[slot];
-			const show = options.showClothing && clothes != null && clothes.show;
+			const show = isClothingShown(options, clothes);
 			console.log(slot, "Show?:", show);
 			return !!show;
 		},
