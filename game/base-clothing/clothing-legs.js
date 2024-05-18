@@ -130,6 +130,7 @@ function initLegs() {
 			name: "stockings",
 			name_cap: "Stockings",
 			variable: "stockings",
+			combatImg: "stockings",
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,

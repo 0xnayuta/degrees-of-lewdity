@@ -790,6 +790,7 @@ function initUnderLower() {
 			name_cap: "Crotchless panties",
 			name_simple: "panties",
 			variable: "crotchlesspanties",
+			combatImg: "thong",
 			integrity: 50,
 			integrity_max: 50,
 			fabric_strength: 20,

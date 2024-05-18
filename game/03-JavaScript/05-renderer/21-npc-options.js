@@ -12,6 +12,14 @@
  * @property {Penetrator[]} penetrators
  * @property {string} animKey
  * @property {string} animKeyStill
+ * @property {Balls} balls
+ */
+
+/**
+ * @typedef Balls
+ * @property {boolean} hasBalls
+ * @property {string=} type
+ * @property {number=} size
  */
 
 /**
@@ -100,6 +108,9 @@ function getNpcAnimationSpeed(options) {
  * @returns {NpcOptions}
  */
 function mapNpcToBodyOptions(npc, options) {
+	options.balls = {
+		hasBalls: false,
+	};
 	options.penetrators = options.penetrators = [];
 	const penetrator = mapNpcToPenetratorOptions(npc, options);
 	if (penetrator != null) {
@@ -116,9 +127,16 @@ function mapNpcToBodyOptions(npc, options) {
 				options.show = true;
 				return options;
 			}
+
 			if (npc.stance === "top") {
 				options.state = "over-default";
 				options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
+				return options;
+			}
+
+			if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
+				options.state = "front-default";
+				options.show = true;
 				return options;
 			}
 		}
@@ -212,6 +230,14 @@ function mapNpcToPenetratorOptions(npc, options) {
 		state: "default",
 		hasCondom: false,
 	};
+
+	// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
+	if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
+		penetrator.position = "mouth";
+		penetrator.state = "entrance";
+		return penetrator;
+	}
+
 	if (["horse", "centaur"].includes(npc.type)) {
 		if (options.position === "missionary") {
 			return null;
@@ -220,6 +246,7 @@ function mapNpcToPenetratorOptions(npc, options) {
 		penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrated" : "entrance";
 		return penetrator;
 	}
+
 	switch (npc.penis) {
 		case "anusentrance":
 			penetrator.position = "anus";

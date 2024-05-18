@@ -217,6 +217,7 @@ function initNeck() {
 			name: "cat bell collar",
 			name_cap: "Cat bell collar",
 			variable: "cat",
+			combatImg: "cow",
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,

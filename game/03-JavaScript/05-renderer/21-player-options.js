@@ -740,14 +740,17 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 function mapPcToClothingOptions(pc, options) {
 	// Clothing filters and options
 	for (const slot of setup.clothes_all_slots) {
+		/** @type {ClothesItem} */
 		const wornObj = V.worn[slot];
 
+		/** @type {ClothesItem} */
 		const setupObj = setup.clothes[slot][wornObj.index];
 
 		const clothing = Object.assign({}, setupObj, wornObj);
 
+		const name = clothing.combatImg ?? clothing.variable;
 		let state = clothing.state;
-		let show = true;
+		let show = name != null;
 		// Any up legs are enough to force the up position.
 		/** @type {"down" | "up" | "footjob"} */
 		let position = "down";
@@ -765,7 +768,7 @@ function mapPcToClothingOptions(pc, options) {
 			show = false;
 		}
 
-		if (slot === "upper" && state === 0) {
+		if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
 			show = false;
 		}
 
@@ -790,7 +793,7 @@ function mapPcToClothingOptions(pc, options) {
 		 */
 		const clothes = {
 			item: clothing,
-			name: clothing.combatImg,
+			name,
 			position,
 			state: state || "full",
 			alpha,
