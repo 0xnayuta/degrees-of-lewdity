@@ -180,3 +180,43 @@ Renderer.Animations["prop-4f-tank"] = {
 	frames: 4,
 	duration: 60,
 };
+
+Renderer.Animations["sex-6f-slow"] = {
+	frames: 6,
+	duration: 330,
+};
+
+Renderer.Animations["sex-6f-mid"] = {
+	frames: 6,
+	duration: 170,
+};
+
+Renderer.Animations["sex-6f-fast"] = {
+	frames: 6,
+	duration: 110,
+};
+
+Renderer.Animations["sex-6f-vfast"] = {
+	frames: 6,
+	duration: 80,
+};
+
+Renderer.Animations["sex-10f-slow"] = {
+	frames: 10,
+	duration: 330,
+};
+
+Renderer.Animations["sex-10f-mid"] = {
+	frames: 10,
+	duration: 170,
+};
+
+Renderer.Animations["sex-10f-fast"] = {
+	frames: 10,
+	duration: 110,
+};
+
+Renderer.Animations["sex-10f-vfast"] = {
+	frames: 10,
+	duration: 80,
+};
