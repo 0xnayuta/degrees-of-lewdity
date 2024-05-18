@@ -89,6 +89,10 @@ declare global {
 		 * Folder name
 		 */
 		variable: string;
+		/**
+		 * The folder ID for combat sprites, if not specified, uses variable
+		 */
+		combatImg?: string;
 		integrity: number;
 		integrity_max: number;
 		fabric_strength: number;
@@ -98,7 +102,7 @@ declare global {
 		strap: number;
 		open: number;
 		word: "a";
-		state: string;
+		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn";
 		state_base: string;
 		state_top: string;
 		state_top_base: string;
@@ -108,9 +112,10 @@ declare global {
 		 * default is "clothes"
 		 */
 		prefilter?: string;
-		colour: string | 0;
+		colour: 0 | string;
 		colour_options: string[];
 		colour_sidebar: 0 | 1;
+		colour_combat: 0 | string;
 		exposed: number;
 		exposed_base: number;
 		vagina_exposed: number;
@@ -126,9 +131,10 @@ declare global {
 		description: string;
 		shop: string[];
 		accessory: number;
-		accessory_colour: string | 0;
+		accessory_colour: 0 | string;
 		accessory_colour_options: string[];
 		accessory_colour_sidebar: number;
+		accessory_colour_combat: 0 | string;
 		/**
 		 * if 1, then accessory files are integrity-dependent "acc_(tattered|torn|frayed|full).png"
 		 */
