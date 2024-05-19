@@ -14,6 +14,7 @@
  * @property {"beast"|"beast-oral"|"horse"|"machine"|"npc"|"tentacle"} anusNpc Type of npc penetrating player anus.
  * @property {"beast"|"beast-oral"|"horse"|"npc"|"tentacle"} vaginaNpc Type of npc penetrating player vagina.
  * @property {"beast"|"penis"|"tentacle"} breastsNpc Type of npc giving boobjob.
+ * @property {object} filters The filters for layers.
  */
 
 /**
@@ -24,6 +25,15 @@
 function getCloseOptions(options = {}) {
 	// Source directory
 	options.src = "img/newsex/close/";
+
+	// Colours TODO
+	options.filters = {};
+	options.skinType = V.skinColor.natural;
+	options.skinTone = V.skinColor.range / 100;
+	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
+
+	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+	options.filters.pbhair = lookupColour(options, setup.colours.hair_map, options.pbhairColour || options.pbHairColour, "pbhair", "pbhair_custom", "pbhair");
 
 	// Show Conditions
 	options.showPenis = (V.player.penisExist || playerHasStrapon()) && V.worn.under_lower.vagina_exposed === 1 && V.worn.lower.vagina_exposed === 1;
@@ -62,6 +72,15 @@ function getCloseOptions(options = {}) {
 		} else {
 			options.herm = "herm-base";
 		}
+	}
+
+	// Worn Items TODO
+
+	if (!isNaN(V.anustarget) && V.NPCList[V.anustarget] && V.NPCList[V.anustarget].condom) {
+		options.npc_condom_colour = V.NPCList[V.anustarget].condom.colour;
+	}
+	if (!isNaN(V.anusdoubletarget) && V.NPCList[V.anusdoubletarget] && V.NPCList[V.anusdoubletarget].condom) {
+		options.dp_condom_colour = V.NPCList[V.anusdoubletarget].condom.colour;
 	}
 
 	// Set animation speed
@@ -191,3 +210,39 @@ Macro.add("mapcloseoptions", {
 		T.options[slot] = getCloseOptions(options);
 	},
 });
+
+/**
+ * For colour name, lookup its canvas filter and merge with sprite prefilter.
+ *
+ * @param {object} options Options
+ * @param {Object<string, object>} dict map in setup.colours to lookup in
+ * @param {string} key colour name.
+ * @param {string} debugName used when reporting errors
+ * @param {string} customFilterName key in options.filters
+ * @param {string | undefined} prefilterName name of prefilter to apply
+ * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
+ */
+function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
+	console.log("lookupColour", dict, key, debugName, customFilterName, prefilterName);
+	let filter;
+	if (key === "custom") {
+		filter = clone(options.filters[customFilterName]);
+		if (!filter) {
+			console.error("custom " + debugName + " colour not configured");
+			return {};
+		}
+	} else {
+		const record = dict[key];
+		if (!record) {
+			console.error("unknown " + debugName + " colour: " + key);
+			return {};
+		}
+		filter = clone(record.canvasfilter);
+	}
+
+	if (prefilterName) {
+		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
+	}
+	return filter;
+}
+window.lookupColour = lookupColour;
