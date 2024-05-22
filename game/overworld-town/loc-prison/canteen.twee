@@ -77,6 +77,8 @@ You are in the canteen. Rows of tables fill the large room. The ceiling hangs lo
 	<</if>>
 	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
 	<br>
+<<elseif !$daily.tattoo_effect and setup.bodyparts.find(p => $skin[p].special is "conceal") and random(1,6) is 6>>
+	<<link[[Look for a seat|Prison Canteen Seat]]>><</link>>
 <<else>>
 	You queue with the other prisoners, and receive a bowl full of sloppy porridge.
 	<<if $worn.face.type.includes("gag")>>
@@ -426,6 +428,8 @@ You're too hurt to resist as <<methodical_guard 0>> cuffs you, and drags you fro
 	<</if>>
 	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
 	<br>
+<<elseif !$daily.tattoo_effect and setup.bodyparts.find(p => $skin[p].special is "conceal") and random(1,6) is 6>>
+	<<link[[Look for a seat|Prison Canteen Seat]]>><</link>>
 <<else>>
 	You queue with the other prisoners, and receive a bowl of potato soup.
 	<<if $worn.face.type.includes("gag")>>
@@ -508,6 +512,8 @@ You find somewhere to sit, and eat your soup.
 	<</if>>
 	<<link [[Carefully find a seat|Prison Breakfast Careful]]>><</link>><<dancedifficulty 1 600>>
 	<br>
+<<elseif !$daily.tattoo_effect and setup.bodyparts.find(p => $skin[p].special is "conceal") and random(1,6) is 6>>
+	<<link[[Look for a seat|Prison Canteen Seat]]>><</link>>
 <<else>>
 	You queue with the other prisoners, and receive a slab of meat and a ladle-full of mixed vegetable soup.
 	<<if $worn.face.type.includes("gag")>>
@@ -716,3 +722,39 @@ You decide to find another seat. The inmates were hoping for drama, but that's n
 
 <<link [[Next|Prison Breakfast Prayer]]>><</link>>
 <br>
+
+:: Prison Canteen Seat
+<<effects>>
+<<set _willLower to (Object.values(V.skin).filter(tat => tat.special === "conceal").length * 100)>>
+<<set _willHigher to (Object.values(V.skin).filter(tat => tat.special === "conceal").length * 200)>>
+
+You find a spot to sit, but it's covered in water. You glance around and notice that there are no more open seats. 
+<br>
+You have the impulse to sit on the chair anyway.
+<br><br>
+
+<<link [[Resist|Prison Canteen Seat Wet]]>><<set $phase to 1>><</link>><<willpowerdifficulty _willLower _willHigher>>
+<br>
+<<link [[Sit down|Prison Canteen Seat Wet]]>><</link>>
+
+:: Prison Canteen Seat Wet
+<<if $phase is 1>>
+	<<set $prison.tattoo_effect to true>>
+	<<if $willpowerSuccess>>
+		You resist the urge to sit on the wet spot. 
+		<br>
+		You decide to just stand against the wall and eat your meal 'til a spot opens up.
+		<br><br>
+		<<link [[Next|Prison Breakfast Prayer]]>><<endevent>><</link>>
+	<<else>>
+		You can't resist the urge to sit!
+		<br>
+		You sit on the bench. Your bottom becomes wet and uncomfortable to sit in. Some of the prisoners chuckle at you. <<stress 12>><<ggstress>><<lrespect>><<prison_inmates -1>><<wet_lower>>
+		<br><br>
+		<<link [[Next|Prison Breakfast Prayer]]>><<endevent>><</link>>
+	<</if>>
+<<else>>
+	You sit on the bench. Your bottom becomes wet and uncomfortable to sit in. Some of the prisoners chuckle at you. <<stress 12>><<ggstress>><<lrespect>><<prison_inmates -1>><<wet_lower>>
+<</if>>	
+<br><br>
+<<link [[Next|Prison Breakfast Prayer]]>><<endevent>><</link>>
