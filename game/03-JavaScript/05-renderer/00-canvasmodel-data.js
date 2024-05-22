@@ -107,6 +107,13 @@ const ZIndices = {
 	frontBreast: 26,
 	frontArm: 28,
 
+	closeBase: 10,
+	closeWornUnder: 12,
+	closeGenitals: 14,
+	closeWorn: 16,
+	closeCum: 18,
+	closeNpc: 20,
+
 	old_over_upper: 171,
 };
 window.ZIndices = ZIndices;
@@ -218,5 +225,20 @@ Renderer.Animations["sex-10f-fast"] = {
 
 Renderer.Animations["sex-10f-vfast"] = {
 	frames: 10,
+	duration: 80,
+};
+
+Renderer.Animations["sex-17f-slow"] = {
+	frames: 17,
+	duration: 330,
+};
+
+Renderer.Animations["sex-17f-mid"] = {
+	frames: 17,
+	duration: 110,
+};
+
+Renderer.Animations["sex-17f-fast"] = {
+	frames: 17,
 	duration: 80,
 };

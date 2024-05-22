@@ -64,11 +64,12 @@ class CombatSystem {
 		return activeState;
 	}
 
-	isVaginaActive() {
+	isVaginaActive(canvas) {
 		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.vaginastate
 		);
 		const activeUse = ["tentaclerub"].includes(V.vaginause);
+		if (canvas === "close" && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
 	}
 
@@ -77,7 +78,7 @@ class CombatSystem {
 		return activeState;
 	}
 
-	isAnusActive() {
+	isAnusActive(canvas) {
 		const activeState = [
 			"penetrated",
 			"doublepenetrated",
@@ -88,6 +89,9 @@ class CombatSystem {
 			"tentacle",
 			"tentacledeep",
 		].includes(V.anusstate);
+		if (canvas === "close" && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
+			return true;
+		}
 		const activeUse = ["tentaclerub"].includes(V.anususe);
 		return activeState || activeUse;
 	}
@@ -107,11 +111,25 @@ class CombatSystem {
 		return activeState;
 	}
 
-	isPenisActive() {
+	isPenisActive(canvas) {
 		const activeState = ["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.penisstate
 		);
 		const activeUse = ["tentaclerub"].includes(V.penisuse);
+		if (
+			canvas === "close" &&
+			[
+				"entrance",
+				"imminent",
+				"otheranusimminent",
+				"otheranusentrance",
+				"othermouthentrance",
+				"othermouthimminent",
+				"otherpenisentrance",
+				"otherpenisimminent",
+			].includes(V.penisstate)
+		)
+			return true;
 		return activeState || activeUse;
 	}
 
