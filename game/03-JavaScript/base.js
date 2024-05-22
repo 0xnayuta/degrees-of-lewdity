@@ -94,8 +94,8 @@ window.rangeIterate = rangeIterate;
  *
  * @param {string} macroName
  * @param {Function} macroFunction
- * @param {object} tags
- * @param {boolean} skipArgs
+ * @param {object=} tags
+ * @param {boolean=} skipArgs
  */
 function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 	Macro.add(macroName, {
@@ -127,9 +127,9 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
  *
  * @param {string} macroName
  * @param {Function} macroFunction
- * @param {object} tags
- * @param {boolean} skipArgs
- * @param {boolean} maintainContext
+ * @param {object=} tags
+ * @param {boolean=} skipArgs
+ * @param {boolean=} maintainContext
  */
 function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext) {
 	DefineMacro(
@@ -331,7 +331,7 @@ function outfitChecks() {
 	const topLayers = [V.worn.over_upper, V.worn.upper, V.worn.under_upper];
 	const bottomLayers = ["over_lower", "lower", "under_lower"];
 	T.top = topLayers.find(item => item.name !== "naked" && (!V.worn.lower || item !== V.worn.lower || item.type.includes("covered"))) || null;
-	T.topUnder = topLayers.slice(topLayers.indexOf(T.top) - 1).find(item => V.worn[item] && V.worn[item].name !== "naked") || null;
+	T.topUnder = topLayers.slice(topLayers.indexOf(T.top) + 1).find(item => item.name !== "naked") || null;
 	T.bottom =
 		V.worn[
 			bottomLayers.find(item => {
@@ -340,7 +340,7 @@ function outfitChecks() {
 		];
 	T.bottomUnder =
 		V.worn[
-			bottomLayers.slice(bottomLayers.indexOf(T.bottom) - 1).find(item => {
+			bottomLayers.slice(bottomLayers.indexOf(T.bottom)).find(item => {
 				return V.worn[item].name !== "naked" && ((T.bottomUnderIsSkirt = setup.clothes[item][clothesIndex(item, V.worn[item])].skirt), true);
 			})
 		];
@@ -348,6 +348,9 @@ function outfitChecks() {
 		((V.worn.under_lower.type.includes("swim") && V.worn.lower.type.includes("naked")) || V.worn.lower.type.includes("swim")) &&
 		(V.worn.under_upper.type.includes("swim") || V.worn.under_upper.type.includes("naked")) &&
 		(V.worn.upper.type.includes("swim") || V.worn.upper.type.includes("naked"));
+	T.outfit = (T.bottom?.outfitSecondary && T.bottom?.outfitSecondary[1] === T.top?.name) || null;
+	if (!T.top && !T.shirtless) T.top = T.bottom;
+	if (T.outfit) T.bottom = T.top;
 }
 window.outfitChecks = outfitChecks;
 DefineMacro("outfitChecks", outfitChecks);

@@ -140,6 +140,16 @@
 	<</if>>
 <</silently>>_text_output<</widget>>
 
+<<widget "is">><<silently>>
+	<<outfitChecks>>
+	<<if _args[0].plural is 1>>
+		<<set _text_output to "are">>
+	<<else>>
+		<<set _text_output to "is">>
+	<</if>>
+<</silently>>_text_output
+<</widget>>
+
 <<widget "overupperplural">>
 	<<plural "over_upper">>
 <</widget>>
@@ -204,18 +214,10 @@
 	<<it "over_lower">>
 <</widget>>
 <<widget "upperit">>
-	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>>
-		<<it "under_upper">>
-	<<else>>
-		<<it "upper">>
-	<</if>>
+	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>><<it "under_upper">><<else>><<it "upper">><</if>>
 <</widget>>
 <<widget "lowerit">>
-	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>>
-		<<it "under_lower">>
-	<<else>>
-		<<it "lower">>
-	<</if>>
+	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>><<it "under_lower">><<else>><<it "lower">><</if>>
 <</widget>>
 <<widget "underupperit">>
 	<<it "under_upper">>
@@ -248,10 +250,17 @@
 	<<has "over_lower">>
 <</widget>>
 <<widget "upperhas">>
-	<<has "upper">>
-<</widget>>
+	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>>
+		<<has "under_upper">>
+	<<else>>
+		<<has "upper">>
+	<</if>><</widget>>
 <<widget "lowerhas">>
-	<<has "lower">>
+	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>>
+		<<has "under_lower">>
+	<<else>>
+		<<has "lower">>
+	<</if>>
 <</widget>>
 <<widget "underupperhas">>
 	<<has "under_upper">>
@@ -1236,7 +1245,7 @@
 		<<genitalsensitivity>>
 	<</if>>
 	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
-	<<set _text_output += _genital_state_text + ["pussy","pussy","pussy","quim"].pluck(_args[1])>>
+	<<set _text_output += _genital_state_text + pussyNames().pluck(_args[1])>>
 <</silently>><<print _text_output>><</widget>>
 
 <!-- [0] - if truthy, genital sensitivity is omitted -->
@@ -1263,7 +1272,8 @@
 	<<if !_args[0]>>
 		<<genitalsensitivity>>
 	<</if>>
-	<<set _text_output += _penissize_text + _genital_state_text + "penis">>
+	/* _args[1] is a flag to prevent .pluck() from altering state random when calling from overlays */
+	<<set _text_output += _penissize_text + _genital_state_text + penisNames().pluck(_args[1])>>
 
 	<<if playerHasStrapon()>>
 		<<if _args[0] isnot undefined and _args[0] is "strap-on" and $player.penisExist>>
@@ -1718,7 +1728,8 @@
 			<<if $player.gender is "f" and $parasite.clit.name is "parasite" and _args[0] isnot 2>>
 				<<set _text_output += "parasitic ">>
 			<</if>>
-			<<set _text_output += "penis">>
+			/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
+			<<set _text_output += penisNames().pluck(_args[0])>>
 		<</if>>
 		<<if $player.vaginaExist>>
 			<<if $player.penisExist>>
@@ -1737,7 +1748,7 @@
 				<</if>>
 			<</if>>
 			/* _args[0] is a flag to prevent .pluck() from altering state random when calling from overlays */
-			<<set _text_output += ["pussy", "pussy", "pussy", "quim"].pluck(_args[0])>>
+			<<set _text_output += pussyNames().pluck(_args[0])>>
 		<</if>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
@@ -2298,7 +2309,8 @@
 	2 - display simple name of undies or simple genital description
  -->
 <<widget "undies">><<silently>>
-	<<if !$worn.under_lower.type.includes("naked")>>
+	<<outfitChecks>>
+	<<if !$worn.under_lower.type.includes("naked") and _bottom isnot $worn.under_lower>>
 		<<if _args[0] and _args[0] gte 1>>
 			<<set _text_output to $worn.under_lower.name_simple>>
 		<<else>>
@@ -2313,7 +2325,7 @@
 
 <<widget "bottoms">><<silently>>
 	<<outfitChecks>>
-	<<set _text_output to (_middleOutfit ? $worn.upper.name : _underBottoms ? $worn.under_lower.name : $worn.lower.name)>>
+	<<set _text_output to _bottom.name>>
 <</silently>>_text_output<</widget>>
 
 <<widget "underbottoms">><<silently>>
@@ -2412,15 +2424,8 @@
 <</silently>>_text_output<</widget>>
 
 <<widget "breastsaside">><<silently>>
-	<<if $worn.over_upper.exposed lte 2>>
-		<<set _text_output to $worn.over_upper.name>>
-	<<elseif $worn.upper.exposed lte 1>>
-		<<set _text_output to $worn.upper.name>>
-	<<elseif $worn.under_upper.exposed is 0>>
-		<<set _text_output to $worn.under_upper.name>>
-	<<else>>
-		<<breasts>>
-	<</if>>
+	<<outfitChecks>>
+	<<set _text_output to _topUnder?.name || "<<breasts>>">>
 <</silently>>_text_output<</widget>>
 
 <<widget "bottomaside">><<silently>>
@@ -2522,7 +2527,6 @@
 <<widget "stripobject">>
 	<<outfitChecks>>
 	<<set $_torn = []>>
-	<<set $_outfit = (_bottom?.outfitSecondary && _bottom?.outfitSecondary[1] === _top?.name) || false>>
 	<<set $_topIntegrity = _top ? _top.integrity -= $stripintegrity : 1>>
 	<<set $_bottomIntegrity = _bottom ? _bottom.integrity -= $stripintegrity : 1>>
 	<<set $_bottomUnderIntegrity = _bottomUnder ? _bottomUnder.integrity -= $stripintegrity : 1>>
@@ -2531,11 +2535,11 @@
 		<<set $_plural = _top.plural || 0>>
 	<</if>>
 	<<if $_bottomIntegrity lte 0>>
-		<<if !$_outfit>><<run $_torn.push(_bottom.name)>><</if>>
+		<<if !_outfit>><<run $_torn.push(_bottom.name)>><</if>>
 		<<set $_plural = $_plural || _bottom.plural || 0>>
 	<</if>>
 	<<if $_bottomUnderIntegrity lte 0>>
-		<<run $_torn.push(_bottomUnder.name)>>
+		<<run $_torn.push(_bottomUnder?.name)>>
 		<<set $_plural = $_plural || _bottomUnder.plural || 0>>
 	<</if>>
 	<<set $_plural = $_torn.length gt 1 ? 1 : $_plural || 0>>

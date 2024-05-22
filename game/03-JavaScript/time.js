@@ -50,7 +50,6 @@
 
 */
 
-/* eslint-disable jsdoc/require-description-complete-sentence */
 const Time = (() => {
 	const moonPhases = {
 		new: {
@@ -463,7 +462,7 @@ function weekPassed() {
 		fragment.append(wikifier("robinPunishment", "docks"));
 		V.robineventnote = 1;
 	}
-	V.robinmoney += 300 + V.robin.moneyModifier;
+	V.robinmoney += (V.robin.stayup >= 1 ? 250 : 300) + V.robin.moneyModifier;
 	V.compoundcentre = 0;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 	if (V.loft_kylar) V.loft_spray = 0;
@@ -484,7 +483,7 @@ function weekPassed() {
 		if (V.photo.silly === "paid") V.photo.silly = 0;
 		V.photo.shoot = 0;
 	}
-	if (V.nightmareTimer > 0) {
+	if (V.nightmareTimer && V.nightmareTimer > 0) {
 		V.nightmareTimer--;
 		if (V.nightmareTimer <= 0) delete V.nightmareTimer;
 	}
@@ -496,7 +495,6 @@ function weekPassed() {
 
 	statChange.worldCorruption("soft", V.world_corruption_hard);
 
-	delete V.weekly;
 	V.weekly = clone(setup.weeklyObject);
 
 	return fragment;
@@ -598,6 +596,8 @@ function dayPassed() {
 	if (V.robin.timer.customer >= 1) V.robin.timer.customer--;
 	if (V.robin.timer.hurt >= 1) V.robin.timer.hurt--;
 	if (V.robin.timer.hurt === 0) V.robin.hurtReason = "nothing";
+
+	V.robin.stayup = V.robin.stayup === 1 ? 2 : 0;
 
 	if (numberOfEarSlime()) {
 		// Daily Corruption
@@ -1556,6 +1556,7 @@ function dailySchoolEffects() {
 		V.schoolLessonsMissed.history += !Number(V.daily.school.attended.history);
 		V.schoolLessonsMissed.swimming += !Number(V.daily.school.attended.swimming);
 		V.lessonmissed += 5 - attended * 2; // Reduce lessonmissed if lessons are attended
+		V.lessonmissed = Math.max(0, V.lessonmissed);
 		V.lessonmissedtext = 5 - attended;
 	}
 
