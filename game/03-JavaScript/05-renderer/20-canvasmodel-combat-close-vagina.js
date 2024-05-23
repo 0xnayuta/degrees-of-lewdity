@@ -11,15 +11,21 @@ const combatCloseVagina = {
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions");
-		return {};
+		console.log(this.name, "closePenis defaultOptions");
+		return {
+			root: "img/newsex/close/",
+			position: "missionary",
+			showVagina: false,
+			penis: {},
+			filters: {
+				worn: {},
+			},
+		};
 	},
 	preprocess(options) {
-		if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
-			options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
-		} else {
-			options.vaginaSilhouette = null;
-		}
+		options.hirsute =
+			!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes);
+		options.cumState = ["entrance", "doubleentrance"].includes(V.vaginastate) ? "entrance" : options.vagina === "penetrated" ? "penetrated" : "vagina";
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -31,12 +37,12 @@ const combatCloseVagina = {
 				return !!options.showVagina;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["body"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
-		vagina_aroused: {
+		vaginaAroused: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/${options.vagina}-aroused.png`;
 			},
@@ -44,39 +50,43 @@ const combatCloseVagina = {
 				return !!options.showVagina && options.vagina === "entrance" && V.vaginaWetness >= 75;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["pbhair"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
 		penis: {
 			srcfn(options) {
-				const penetrated = V.position === "missionary" && options.vagina === "penetrated";
-				return `${options.src}vagina/${options.position}/herm-${options.herm}${penetrated ? "-penetrated" : ""}.png`;
+				if (V.position === "missionary" && options.vagina === "penetrated" && V.player.ballsExist) {
+					options.pcPenis = options.penis.size + "-" + options.penis.type + "-penetrated";
+				} else {
+					options.pcPenis = options.penis.size + "-" + options.penis.type;
+				}
+				return `${options.src}vagina/${options.position}/${options.pcPenis}.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && V.player.penisExist && V.worn.genitals.name !== "chastity parasite";
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["body"],
-			z: 51,
+			z: 55,
 		},
-		vagina_cum: {
+		vaginaCum: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/cum.png`;
+				return `${options.src}vagina/${options.position}/${options.cumState}-cum.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && setup.bodyliquid.combined("vagina") >= 1;
 			},
 			animationfn(options) {
-				return "sex-17f-slow";
+				return options.vagina === "entrance" ? "sex-17f-slow" : options.animKeyVagina;
 			},
 			filters: ["body"],
-			z: 51,
+			z: ZIndices.closeCum,
 		},
-		pubic_strip: {
+		pubicStrip: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/hair/${options.vagina}-pbstrip${V.pbstrip}.png`;
 			},
@@ -84,12 +94,12 @@ const combatCloseVagina = {
 				return !!options.showVagina && V.pbdisable === "f" && V.pbstrip >= 1;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["pbhair"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
-		pubic_hair: {
+		pubicHair: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/hair/${options.vagina}-pb${V.pblevel}.png`;
 			},
@@ -97,28 +107,25 @@ const combatCloseVagina = {
 				return !!options.showVagina && V.pbdisable === "f" && V.pblevel >= 2;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["pbhair"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
 		hirsute: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/hair/hirsute.png`;
 			},
 			showfn(options) {
-				return (
-					!!options.showVagina &&
-					(!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes))
-				);
+				return !!options.showVagina && options.hirsute;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
 			filters: ["pbhair"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
-		npc_penetrator: {
+		npcPenetrator: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc}-${options.vagina}.png`;
 			},
@@ -128,10 +135,10 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["body"],
-			z: 51,
+			filters: ["npcBody"],
+			z: ZIndices.closeNpc,
 		},
-		npc2_penetrator: {
+		npc2Penetrator: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc2}-${options.vagina}.png`;
 			},
@@ -141,10 +148,10 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["body"],
-			z: 51,
+			filters: ["npcBody"],
+			z: ZIndices.closeNpc,
 		},
-		npc_condom: {
+		npcCondom: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc}-condom-${options.vagina}.png`;
 			},
@@ -157,10 +164,10 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["npc_condom"],
-			z: 51,
+			filters: ["npcVaginaCondomColour"],
+			z: ZIndices.closeNpc + 1,
 		},
-		npc2_condom: {
+		npc2Condom: {
 			srcfn(options) {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc2}-condom-${options.vagina}.png`;
 			},
@@ -173,32 +180,36 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["dp_condom"],
-			z: 51,
+			filters: ["npcVaginaCondom2"],
+			z: ZIndices.closeNpc + 1,
 		},
 		silhouette: {
 			srcfn(options) {
+				if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
+					options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
+				}
 				return `${options.src}vagina/${options.position}/npc/shadow-${options.vaginaSilhouette}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && options.vaginaSilhouette;
+				return !!options.showVagina && !!options.vaginaSilhouette;
 			},
 			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
+				return options.animKeyVagina;
 			},
-			z: 51,
+			z: ZIndices.closeNpc + 3,
 		},
 		parasite: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/parasite${V.earSlime.focus === "impregnation" ? "shorts" : "panties"}.png`;
+				return `${options.src}vagina/${options.position}/parasite-${V.earSlime.focus === "impregnation" ? "shorts" : "panties"}.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && (V.parasite.clit.name === "parasite" || V.parasite.penis.name === "parasite");
 			},
 			animationfn(options) {
-				return options.vaginaNpc ? options.animKeyVagina : "sex-1f-idle";
+				return options.animKeyVagina;
 			},
-			z: 51,
+			filters: ["parasitePanties"],
+			z: ZIndices.closeWorn,
 		},
 		panties: {
 			srcfn(options) {
@@ -208,39 +219,50 @@ const combatCloseVagina = {
 				return !!options.showVagina && V.worn.under_lower.state === "totheside";
 			},
 			animationfn(options) {
-				return options.vaginaNpc ? options.animKeyVagina : "sex-1f-idle";
+				return options.animKeyVagina;
 			},
-			z: 51,
+			filtersfn(options) {
+				return ["worn_under_lower_main"];
+			},
+			z: ZIndices.closeWorn,
 		},
 		chastity: {
-			/* KirstyTODO */
 			srcfn(options) {
-				return `${options.src}worn/${options.position}/hirsute.png`;
+				return `${options.src}vagina/${options.position}/${options.chastityDevice}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && playerChastity("vagina");
-			},
-			animationfn(options) {
-				return !options.vaginaNpc ? "sex-1f-idle" : options.animKeyVagina;
-			},
-			z: 51,
-		},
-		/* npc_cum: {KirstyTODO
-			srcfn(options) {
-				return `${options.src}vagina/${options.position}/${options.vaginaNpc}-condom-${options.vagina}.png`;
-			},
-			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc;
-			},
-			alphafn(options) {
-				return 0.4;
+				return !!options.showVagina && playerChastity();
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["npc_condom"],
-			z: 51,
-		}, */
+			filtersfn(options) {
+				if (options.chastityDevice.includes("parasite")) {
+					return ["parasitePanties"];
+				} else {
+					return null;
+				}
+			},
+			z: ZIndices.closeWorn,
+		},
+		npcCum: {
+			srcfn(options) {
+				return `${options.src}vagina/${options.position}/npc/npc-cum.png`;
+			},
+			showfn(options) {
+				return (
+					!!options.showVagina &&
+					!!options.vaginaNpc &&
+					V.enemyarousal >= V.enemyarousalmax &&
+					wearingCondom(V.vaginatarget) !== "worn" &&
+					!npcHasStrapon(V.vaginatarget)
+				);
+			},
+			animationfn(options) {
+				return options.animKeyVagina;
+			},
+			z: ZIndices.closeCum,
+		},
 	},
 };
 Renderer.CanvasModels.combatCloseVagina = combatCloseVagina;

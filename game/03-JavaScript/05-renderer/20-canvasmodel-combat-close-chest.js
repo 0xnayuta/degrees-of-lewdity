@@ -11,7 +11,15 @@ const combatCloseChest = {
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions"); /* default options kirstyTODO */
+		console.log(this.name, "closeChest defaultOptions");
+		return {
+			root: "img/newsex/close/",
+			position: "missionary",
+			showChest: false,
+			filters: {
+				worn: {},
+			},
+		};
 	},
 	preprocess() {
 		console.log(this.name, "preprocess");
@@ -20,7 +28,7 @@ const combatCloseChest = {
 	layers: {
 		chest: {
 			srcfn(options) {
-				return `${options.src}${options.breasts}.png`;
+				return `${options.src}chest/${options.breasts}.png`;
 			},
 			showfn(options) {
 				return !!options.showChest;
@@ -29,7 +37,7 @@ const combatCloseChest = {
 				return options.animKeyChest;
 			},
 			filters: ["body"],
-			z: 50,
+			z: ZIndices.closeBase,
 		},
 		chest_nipple: {
 			srcfn(options) {
@@ -42,7 +50,7 @@ const combatCloseChest = {
 				return options.animKeyChest;
 			},
 			filters: ["body"],
-			z: 50,
+			z: ZIndices.closeBase,
 		},
 		npc: {
 			srcfn(options) {
@@ -55,7 +63,7 @@ const combatCloseChest = {
 				return options.animKeyChest;
 			},
 			filters: ["body"],
-			z: 51,
+			z: ZIndices.closeNpc,
 		},
 	},
 };

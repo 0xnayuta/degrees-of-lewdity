@@ -52,7 +52,14 @@ const combatCloseArse = {
 	},
 	defaultOptions() {
 		console.log(this.name, "defaultOptions");
-		return {};
+		return {
+			root: "img/newsex/close/",
+			position: "missionary",
+			showArse: false,
+			filters: {
+				worn: {},
+			},
+		};
 	},
 	preprocess(options) {
 		if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && options.anus === "penetrated") {
@@ -71,12 +78,12 @@ const combatCloseArse = {
 				return !!options.showArse;
 			},
 			animationfn(options) {
-				return options.anusNpc ? options.animKeyArse : "sex-1f-idle";
+				return options.animKeyArse;
 			},
 			filters: ["body"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
-		npc_penetrator: {
+		npcPenetrator: {
 			srcfn(options) {
 				return `${options.src}arse/npc/${options.anusNpc}-${options.anus}.png`;
 			},
@@ -86,10 +93,10 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			filters: ["body"],
-			z: 51,
+			filters: ["npcBody"],
+			z: ZIndices.closeNpc,
 		},
-		npc2_penetrator: {
+		npcPenetrator2: {
 			srcfn(options) {
 				return `${options.src}arse/npc/${options.anusNpc2}-${options.anus}.png`;
 			},
@@ -99,10 +106,10 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			filters: ["body"],
-			z: 51,
+			filters: ["npcBody2"],
+			z: ZIndices.closeNpc,
 		},
-		npc_condom: {
+		npcCondom: {
 			srcfn(options) {
 				return `${options.src}arse/npc/${options.anusNpc}-condom-${options.anus}.png`;
 			},
@@ -115,10 +122,10 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			filters: ["npc_condom"],
-			z: 51,
+			filters: ["npcAnusCondom"],
+			z: ZIndices.closeNpc + 1,
 		},
-		npc2_condom: {
+		npcCondom2: {
 			srcfn(options) {
 				return `${options.src}arse/npc/${options.anusNpc2}-condom-${options.anus}.png`;
 			},
@@ -131,10 +138,10 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			filters: ["dp_condom"],
-			z: 51,
+			filters: ["npcAnusCondom2"],
+			z: ZIndices.closeNpc + 1,
 		},
-		npc_silhouette: {
+		npcSilhouette: {
 			srcfn(options) {
 				return `${options.src}arse/npc/shadow-${V.anusstate === "doublepenetrated" ? "dp" : "solo"}.png`;
 			},
@@ -144,7 +151,7 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			z: 51,
+			z: ZIndices.closeNpc + 3,
 		},
 		panties: {
 			srcfn(options) {
@@ -154,9 +161,12 @@ const combatCloseArse = {
 				return !!options.showArse && V.worn.under_lower.state === "totheside";
 			},
 			animationfn(options) {
-				return options.anusNpc ? options.animKeyArse : "sex-1f-idle";
+				return options.animKeyArse;
 			},
-			z: 51,
+			filtersfn(options) {
+				return ["worn_under_lower_main"];
+			},
+			z: ZIndices.closeWorn,
 		},
 	},
 };

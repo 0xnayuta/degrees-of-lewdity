@@ -6,13 +6,13 @@
  * @property {boolean} showArse
  * @property {string} src Source directory for closeup images.
  * @property {"doggy"|"missionary"} position Doggy or missionary position.
- * @property {1|2|3|4|5|6|7|8|9|10|11|12|"topdown"} breasts Breast size, or topdown sprites if size >= 8. (May want to add ability to toggle views.)
+ * @property {number|"topdown"} breasts Breast size, or topdown sprites if size >= 8. (May want to add ability to toggle views.)
  * @property {"parasite"|"herm-balls"|"herm-base"} herm Player penis, used in vagina closeup.
  * @property {penis} penis Player penis, used in penis closeup.
  * @property {"entrance"|"penetrated"} anus Player arse state. Penetrated or entrance.
  * @property {"entrance"|"penetrated"} vagina Player vagina state. Penetrated or entrance.
  * @property {"beast"|"beast-oral"|"horse"|"machine"|"npc"|"tentacle"} anusNpc Type of npc penetrating player anus.
- * @property {"beast"|"beast-oral"|"horse"|"npc"|"tentacle"} vaginaNpc Type of npc penetrating player vagina.
+ * @property {"beast"|"beast-oral"|"horse"|"machine"|"npc"|"tentacle"} vaginaNpc Type of npc penetrating player vagina.
  * @property {"beast"|"penis"|"tentacle"} breastsNpc Type of npc giving boobjob.
  * @property {object} filters The filters for layers.
  */
@@ -25,15 +25,6 @@
 function getCloseOptions(options = {}) {
 	// Source directory
 	options.src = "img/newsex/close/";
-
-	// Colours TODO
-	options.filters = {};
-	options.skinType = V.skinColor.natural;
-	options.skinTone = V.skinColor.range / 100;
-	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
-
-	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
-	options.filters.pbhair = lookupColour(options, setup.colours.hair_map, options.pbhairColour || options.pbHairColour, "pbhair", "pbhair_custom", "pbhair");
 
 	// Show Conditions
 	options.showPenis = (V.player.penisExist || playerHasStrapon()) && V.worn.under_lower.vagina_exposed === 1 && V.worn.lower.vagina_exposed === 1;
@@ -63,24 +54,31 @@ function getCloseOptions(options = {}) {
 		mapClosePenis(options);
 	}
 
-	// Hermaphrodite
-	if (V.player.penisExist && V.player.vaginaExist && V.worn.genitals.name !== "chastity parasite") {
-		if (V.player.gender === "f" && !["none", "pregnancy"].includes(V.earSlime.focus)) {
-			options.herm = "parasite";
-		} else if (V.player.ballsExist) {
-			options.herm = `herm-balls`;
-		} else {
-			options.herm = "herm-base";
-		}
-	}
+	// Colours
+	options.skinType = V.skinColor.natural;
+	options.skinTone = V.skinColor.range / 100;
+	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
+	options.condomColour = V.player.condom.colour || "red";
+	options.clitParasite = options.clitParasite || "red";
+	options.tentacleColour = V.tentacleColour || "tentacles-purple";
+	options.filters = options.filters || {
+		worn: {},
+	};
+	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+	options.filters.pbhair = window.lookupColour(
+		options,
+		setup.colours.hair_map,
+		options.pbhairColour || options.pbHairColour,
+		"pbhair",
+		"pbhair_custom",
+		"pbhair"
+	);
+	options.filters.condom = window.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
+	options.filters.tentacle = window.lookupColour(options, setup.colours.clothes_map, options.tentacleColour, "tentacle", "tentacle_custom", "tentacle");
+	window.mapPcToClothingOptions(V.player, options);
 
-	// Worn Items TODO
-
-	if (!isNaN(V.anustarget) && V.NPCList[V.anustarget] && V.NPCList[V.anustarget].condom) {
-		options.npc_condom_colour = V.NPCList[V.anustarget].condom.colour;
-	}
-	if (!isNaN(V.anusdoubletarget) && V.NPCList[V.anusdoubletarget] && V.NPCList[V.anusdoubletarget].condom) {
-		options.dp_condom_colour = V.NPCList[V.anusdoubletarget].condom.colour;
+	if (["parasite", "parasitem"].includes(V.parasite.clit.name) || ["parasite"].includes(V.parasite.penis.name)) {
+		options.filters.parasitePanties = window.lookupColour(options, setup.colours.clothes_map, "red", "parasitePanties");
 	}
 
 	// Set animation speed
@@ -88,9 +86,9 @@ function getCloseOptions(options = {}) {
 	const framesChest = V.player.breastsize >= 8 ? 10 : 6;
 	options.animKeyChest = `sex-${framesChest}f-${speedChest}`;
 
-	options.animKeyVagina = `sex-6f-${combat.isVaginaActive() ? "vfast" : "mid"}`;
-	options.animKeyArse = `sex-6f-${combat.isAnusActive() ? "vfast" : "mid"}`;
-	options.animKeyPenis = `sex-6f-${combat.isPenisActive() ? "vfast" : "mid"}`;
+	options.animKeyVagina = `sex-${combat.isRapid() ? "6f-vfast" : combat.isVaginaActive("close") ? "6f-mid" : "1f-idle"}`;
+	options.animKeyArse = `sex-${combat.isRapid() ? "6f-vfast" : combat.isAnusActive("close") ? "6f-mid" : "1f-idle"}`;
+	options.animKeyPenis = `sex-${combat.isRapid() ? "6f-vfast" : combat.isPenisActive("close") ? "6f-mid" : "1f-idle"}`;
 
 	return options;
 }
@@ -98,7 +96,7 @@ window.getCloseOptions = getCloseOptions;
 
 function mapClosePenetrators(slot, options) {
 	const activeEnemy = V.NPCList[V.active_enemy].type;
-	const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && !playerHasStrapon() && slot === "vagina";
+	const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !playerHasStrapon();
 	const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine"].includes(V.enemytype) ? V.enemytype : "npc";
 	/* check $anusstate or $vaginastate */
 	switch (V[slot + "state"]) {
@@ -140,22 +138,30 @@ function mapClosePenetrators(slot, options) {
 			options[slot] = "entrance";
 			options[slot + "Npc"] = null;
 	}
-
-	if (!isNaN(V[slot + "target"]) && V.NPCList[V[slot + "target"]] && V.NPCList[V[slot + "target"]].condom) {
-		options[slot + "NpcCondom"] = V.NPCList[V[slot + "target"]].condom.colour;
-	}
-	if (!isNaN(V[slot + "doubletarget"]) && V.NPCList[slot + "doubletarget"] && V.NPCList[slot + "doubletarget"].condom) {
-		options[slot + "NpcCondom"] = V.NPCList[V.anusdoubletarget].condom.colour;
+	const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
+	if (chastity && slot === "vagina") {
+		options.chastityDevice = V.worn.genitals.name === "chastity parasite" ? `chastity-parasite-${V.player.penissize}` : `chastity-${belt}`;
 	}
 }
 window.mapClosePenetrators = mapClosePenetrators;
 
 function mapClosePenis(options) {
-	/* player penis type */
+	const chastityTypes = {
+		"chastity belt": "belt",
+		"gold chastity belt": "belt-gold",
+		"chastity parasite": `parasite-${V.player.penissize + 2}`,
+		"flat chastity cage": "flat",
+		"small chastity cage": "small",
+	};
+	const chastityDevice = chastityTypes[V.worn.genitals.name] || "base";
+	const penisType = V.player.gender === "f" ? "parasite" : V.player.ballsExist ? "penis" : "herm";
+	/* V.showPenisSize is a placeholder, in case we ever get visual representation of other penis sizes in the closeups */
 	options.penis = {
-		type: V.player.gender === "f" ? "parasite" : V.player.ballsExist === "false" ? "herm" : "penis",
-		isChastity: V.worn.genitals.name.includes("cage") && !playerHasStrapon(),
-		chastity: "chastity-" + V.worn.genitals.name === "flat chastity cage" ? "flat" : V.worn.genitals.name === "small chastity cage" ? "small" : "base",
+		type: penisType,
+		size: V.showPenisSize ? V.player.penissize : 1,
+		condom: V.player.condom && !playerChastity(),
+		chastityDevice: `chastity-${V.worn.genitals.name.includes("cage") ? "cage-" + chastityDevice : chastityDevice}`,
+		chastityPenis: `chastity-${penisType + "-"}${chastityDevice}`,
 	};
 
 	/* npc targeting player penis */
@@ -165,7 +171,7 @@ function mapClosePenis(options) {
 		case "tentacleentrance":
 		case "tentacleimminent":
 			/* penis penetrating, or preparing to penetrate, tentussy */
-			options.penis.state = ["tentacle", "tentacledeep"].includes(V.penisstate) ? "penetrated" : "entrance";
+			options.penis.state = playerChastity() ? "chastity" : ["tentacle", "tentacledeep"].includes(V.penisstate) ? "penetrated" : "entrance";
 			options.penis.npc = "tentacle";
 			break;
 		case "entrance":
@@ -200,49 +206,6 @@ function mapClosePenis(options) {
 			options.penis.state = "entrance";
 			options.penis.npc = null;
 	}
+	return options.penis;
 }
 window.mapClosePenis = mapClosePenis;
-
-Macro.add("mapcloseoptions", {
-	handler() {
-		const slot = this.args[0];
-		const options = T.options[slot] || {};
-		T.options[slot] = getCloseOptions(options);
-	},
-});
-
-/**
- * For colour name, lookup its canvas filter and merge with sprite prefilter.
- *
- * @param {object} options Options
- * @param {Object<string, object>} dict map in setup.colours to lookup in
- * @param {string} key colour name.
- * @param {string} debugName used when reporting errors
- * @param {string} customFilterName key in options.filters
- * @param {string | undefined} prefilterName name of prefilter to apply
- * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
- */
-function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
-	console.log("lookupColour", dict, key, debugName, customFilterName, prefilterName);
-	let filter;
-	if (key === "custom") {
-		filter = clone(options.filters[customFilterName]);
-		if (!filter) {
-			console.error("custom " + debugName + " colour not configured");
-			return {};
-		}
-	} else {
-		const record = dict[key];
-		if (!record) {
-			console.error("unknown " + debugName + " colour: " + key);
-			return {};
-		}
-		filter = clone(record.canvasfilter);
-	}
-
-	if (prefilterName) {
-		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
-	}
-	return filter;
-}
-window.lookupColour = lookupColour;

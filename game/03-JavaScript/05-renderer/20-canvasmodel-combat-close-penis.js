@@ -11,43 +11,41 @@ const combatClosePenis = {
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions");
-		return {};
+		console.log(this.name, "closePenis defaultOptions");
+		return {
+			root: "img/newsex/close/",
+			position: "missionary",
+			showPenis: false,
+			penis: {},
+			filters: {
+				worn: {},
+			},
+		};
 	},
 	preprocess(options) {
+		console.log(this.name, "preprocess");
 		if (window.playerHasStrapon()) {
 			options.pcPenis = V.worn.under_lower.name === "strap-on knotted cock" ? "strapon-knotted" : "strapon-dick";
-		} else if (V.player.penisExist) {
-			options.pcPenis = options.penis.type;
+		} else if (playerChastity("cage")) {
+			options.pcPenis = options.penis.chastityPenis;
+		} else {
+			options.pcPenis = options.penis.size + "-" + options.penis.type;
 		}
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
 		base: {
 			srcfn(options) {
-				return `${options.src}penis/${options.position}/${V.player.vaginaExist ? "herm" : "penis"}-base.png`;
+				return `${options.src}penis/${options.position}/base-${V.player.vaginaExist ? "herm" : "penis"}.png`;
 			},
 			showfn(options) {
 				return !!options.showPenis;
 			},
 			animationfn(options) {
-				return !options.penis.npc ? "sex-1f-idle" : options.animKeyPenis;
+				return options.animKeyPenis;
 			},
 			filters: ["body"],
-			z: 51,
-		},
-		penis: {
-			srcfn(options) {
-				return `${options.src}penis/${options.position}/${options.pcPenis}.png`;
-			},
-			showfn(options) {
-				return !!options.showPenis;
-			},
-			animationfn(options) {
-				return !options.penis.npc ? "sex-1f-idle" : options.animKeyPenis;
-			},
-			filters: ["body"],
-			z: 51,
+			z: ZIndices.closeBase,
 		},
 		panties: {
 			srcfn(options) {
@@ -57,9 +55,113 @@ const combatClosePenis = {
 				return !!options.showPenis && V.worn.under_lower.state === "totheside";
 			},
 			animationfn(options) {
-				return options.penis.npc ? options.animKeyArse : "sex-1f-idle";
+				return options.animKeyPenis;
 			},
-			z: 51,
+			filters: ["worn_under_lower_main"],
+			z: ZIndices.closeWorn,
+		},
+		penis: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/${options.pcPenis}.png`;
+			},
+			showfn(options) {
+				const concealed = V.worn.genitals.type.includes("hidden") || V.worn.genitals.name === "chastity parasite";
+				return !!options.showPenis && !concealed;
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filters: ["body"],
+			z: ZIndices.closeGenitals,
+		},
+		condom: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/${options.penis.size}-condom-${V.player.condom.type}.png`;
+			},
+			showfn(options) {
+				return !!options.showPenis && !!options.penis.condom;
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			alpha: 0.4,
+			filters: ["condom"],
+			z: ZIndices.closeGenitals + 1,
+		},
+		parasite: {
+			srcfn(options) {
+				const panties = V.earSlime.focus === "impregnation" ? "shorts" : "panties";
+				const herm = V.player.vaginaExist ? "-herm" : "";
+				return `${options.src}penis/${options.position}/parasite-${panties}${herm}.png`;
+			},
+			showfn(options) {
+				return !!options.showPenis && (V.parasite.clit.name === "parasite" || V.parasite.penis.name === "parasite");
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filters: ["parasitePanties"],
+			z: ZIndices.closeWornUnder,
+		},
+		parasiteBalls: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/parasite-balls.png`;
+			},
+			showfn(options) {
+				return (
+					!!options.showPenis &&
+					!!V.player.ballsExist &&
+					V.player.gender === "m" &&
+					(V.parasite.clit.name === "parasite" || V.parasite.penis.name === "parasite") &&
+					["mixed", "impregnation"].includes(V.earSlime.focus)
+				);
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filters: ["parasitePanties"],
+			z: ZIndices.closeWornUnder,
+		},
+		chastity: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/${options.penis.chastityDevice}.png`;
+			},
+			showfn(options) {
+				return !!options.showPenis && !!playerChastity("penis");
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filtersfn(options) {
+				if (options.penis.chastityDevice.includes("parasite")) {
+					return ["parasitePanties"];
+				} else {
+					return null;
+				}
+			},
+			z: ZIndices.closeWorn,
+		},
+		penetratedNpc: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/npc/${options.penis.npc}-${options.penis.state}.png`;
+			},
+			showfn(options) {
+				return !!options.showPenis && !!options.penis.npc;
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filtersfn(options) {
+				switch (options.penis.npc) {
+					case "tentacle":
+						return ["tentacle"];
+					case "npc":
+						return ["npcBody"];
+					default:
+						return null;
+				}
+			},
+			z: ZIndices.closeNpc,
 		},
 	},
 };
