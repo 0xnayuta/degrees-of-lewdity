@@ -107,7 +107,7 @@ class CombatSystem {
 	}
 
 	isPenisPenetrated() {
-		const activeState = ["penetrated", "tentacledeep"].includes(V.penisstate);
+		const activeState = ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
 		return activeState;
 	}
 

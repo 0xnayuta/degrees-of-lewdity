@@ -7,7 +7,7 @@ const combatCloseChest = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
+		console.log(this.name, "closeChest generatedOptions");
 		return [];
 	},
 	defaultOptions() {
@@ -22,7 +22,7 @@ const combatCloseChest = {
 		};
 	},
 	preprocess() {
-		console.log(this.name, "preprocess");
+		console.log(this.name, "closeChest preprocess");
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {

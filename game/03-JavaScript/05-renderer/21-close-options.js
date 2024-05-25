@@ -47,10 +47,10 @@ function getCloseOptions(options = {}) {
 	if (options.showArse) {
 		mapClosePenetrators("anus", options);
 	}
-	if (options.showVagina) {
+	if (V.player.vaginaExist) {
 		mapClosePenetrators("vagina", options);
 	}
-	if (options.showPenis) {
+	if (V.player.penisExist) {
 		mapClosePenis(options);
 	}
 
@@ -86,9 +86,9 @@ function getCloseOptions(options = {}) {
 	const framesChest = V.player.breastsize >= 8 ? 10 : 6;
 	options.animKeyChest = `sex-${framesChest}f-${speedChest}`;
 
-	options.animKeyVagina = `sex-${combat.isRapid() ? "6f-vfast" : combat.isVaginaActive("close") ? "6f-mid" : "1f-idle"}`;
-	options.animKeyArse = `sex-${combat.isRapid() ? "6f-vfast" : combat.isAnusActive("close") ? "6f-mid" : "1f-idle"}`;
-	options.animKeyPenis = `sex-${combat.isRapid() ? "6f-vfast" : combat.isPenisActive("close") ? "6f-mid" : "1f-idle"}`;
+	options.animKeyVagina = `sex-${combat.isVaginaActive("close") ? (combat.isRapid() ? "6f-vfast" : "6f-mid") : "1f-idle"}`;
+	options.animKeyArse = `sex-${combat.isAnusActive("close") ? (combat.isRapid() ? "6f-vfast" : "6f-mid") : "1f-idle"}`;
+	options.animKeyPenis = `sex-${combat.isPenisActive("close") ? (combat.isRapid() ? "6f-vfast" : "6f-mid") : "1f-idle"}`;
 
 	return options;
 }

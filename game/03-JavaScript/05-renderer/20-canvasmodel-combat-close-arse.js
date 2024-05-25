@@ -47,11 +47,11 @@ const combatCloseArse = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
+		console.log(this.name, "closeArse generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions");
+		console.log(this.name, "closeArse defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -61,12 +61,8 @@ const combatCloseArse = {
 			},
 		};
 	},
-	preprocess(options) {
-		if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && options.anus === "penetrated") {
-			options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
-		} else {
-			options.anusSilhouette = null;
-		}
+	preprocess() {
+		console.log(this.name, "closeArse preprocess");
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -143,6 +139,9 @@ const combatCloseArse = {
 		},
 		npcSilhouette: {
 			srcfn(options) {
+				if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && options.anus === "penetrated") {
+					options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
+				}
 				return `${options.src}arse/npc/shadow-${V.anusstate === "doublepenetrated" ? "dp" : "solo"}.png`;
 			},
 			showfn(options) {

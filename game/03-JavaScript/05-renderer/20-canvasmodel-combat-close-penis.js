@@ -7,7 +7,7 @@ const combatClosePenis = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
+		console.log(this.name, "closePenis generatedOptions");
 		return [];
 	},
 	defaultOptions() {
@@ -23,14 +23,7 @@ const combatClosePenis = {
 		};
 	},
 	preprocess(options) {
-		console.log(this.name, "preprocess");
-		if (window.playerHasStrapon()) {
-			options.pcPenis = V.worn.under_lower.name === "strap-on knotted cock" ? "strapon-knotted" : "strapon-dick";
-		} else if (playerChastity("cage")) {
-			options.pcPenis = options.penis.chastityPenis;
-		} else {
-			options.pcPenis = options.penis.size + "-" + options.penis.type;
-		}
+		console.log(this.name, "closePenis preprocess");
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -62,6 +55,15 @@ const combatClosePenis = {
 		},
 		penis: {
 			srcfn(options) {
+				if (window.playerHasStrapon()) {
+					options.pcPenis = V.worn.under_lower.name === "strap-on knotted cock" ? "strapon-knotted" : "strapon-dick";
+				} else if (playerChastity("cage")) {
+					options.pcPenis = options.penis.chastityPenis;
+				} else if (["beast", "beast-oral"].includes(options.penis.npc)) {
+					options.pcPenis = `${options.penis.size}-${options.penis.type}-${options.penis.state}`;
+				} else {
+					options.pcPenis = `${options.penis.size}-${options.penis.type}`;
+				}
 				return `${options.src}penis/${options.position}/${options.pcPenis}.png`;
 			},
 			showfn(options) {
@@ -72,7 +74,7 @@ const combatClosePenis = {
 				return options.animKeyPenis;
 			},
 			filters: ["body"],
-			z: ZIndices.closeGenitals,
+			z: ZIndices.closeGenitals + 4,
 		},
 		condom: {
 			srcfn(options) {
@@ -86,7 +88,7 @@ const combatClosePenis = {
 			},
 			alpha: 0.4,
 			filters: ["condom"],
-			z: ZIndices.closeGenitals + 1,
+			z: ZIndices.closeGenitals + 4,
 		},
 		parasite: {
 			srcfn(options) {
@@ -162,6 +164,19 @@ const combatClosePenis = {
 				}
 			},
 			z: ZIndices.closeNpc,
+		},
+		cum: {
+			srcfn(options) {
+				return `${options.src}penis/${options.position}/npc/${options.penis.npc}-cum.png`;
+			},
+			showfn(options) {
+				return !!options.showPenis && options.penis.npc === "beast-oral" && V.orgasmdown >= 1;
+			},
+			animationfn(options) {
+				return options.animKeyPenis;
+			},
+			filters: ["parasitePanties"],
+			z: ZIndices.closeCum,
 		},
 	},
 };

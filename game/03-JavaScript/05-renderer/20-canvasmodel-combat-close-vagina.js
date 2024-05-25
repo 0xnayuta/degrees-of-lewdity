@@ -7,11 +7,11 @@ const combatCloseVagina = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
+		console.log(this.name, "closeVagina generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "closePenis defaultOptions");
+		console.log(this.name, "closeVagina defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -23,9 +23,9 @@ const combatCloseVagina = {
 		};
 	},
 	preprocess(options) {
+		console.log(this.name, "closeVagina preprocess");
 		options.hirsute =
 			!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes);
-		options.cumState = ["entrance", "doubleentrance"].includes(V.vaginastate) ? "entrance" : options.vagina === "penetrated" ? "penetrated" : "vagina";
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -52,7 +52,7 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			filters: ["pbhair"],
+			filters: ["body"],
 			z: ZIndices.closeBase,
 		},
 		penis: {
@@ -71,19 +71,20 @@ const combatCloseVagina = {
 				return options.animKeyVagina;
 			},
 			filters: ["body"],
-			z: 55,
+			z: ZIndices.closeGenitals + 2,
 		},
 		vaginaCum: {
 			srcfn(options) {
+				options.cumState =
+					options.vagina === "penetrated" ? "penetrated" : ["entrance", "doubleentrance"].includes(V.vaginastate) ? "entrance" : "vagina";
 				return `${options.src}vagina/${options.position}/${options.cumState}-cum.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && setup.bodyliquid.combined("vagina") >= 1;
 			},
 			animationfn(options) {
-				return options.vagina === "entrance" ? "sex-17f-slow" : options.animKeyVagina;
+				return options.cumState === "vagina" ? "sex-17f-slow" : options.animKeyVagina;
 			},
-			filters: ["body"],
 			z: ZIndices.closeCum,
 		},
 		pubicStrip: {
@@ -187,7 +188,7 @@ const combatCloseVagina = {
 			srcfn(options) {
 				if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
 					options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
-				}
+				} else options.vaginaSilhouette = "null";
 				return `${options.src}vagina/${options.position}/npc/shadow-${options.vaginaSilhouette}.png`;
 			},
 			showfn(options) {
@@ -261,7 +262,7 @@ const combatCloseVagina = {
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
-			z: ZIndices.closeCum,
+			z: ZIndices.closeNpc,
 		},
 	},
 };
