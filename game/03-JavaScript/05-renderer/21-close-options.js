@@ -117,8 +117,9 @@ function mapClosePenetrators(slot, options) {
 			break;
 		case "doublepenetrated":
 			options[slot] = chastity ? "chastity" : "penetrated";
-			options[slot + "Npc"] = "top";
-			options[slot + "Npc2"] = "bottom";
+			/* futureproofing, in case we ever add the ability to get dped by non-humans */
+			options[slot + "Npc"] = `dp-top-${npc}`;
+			options[slot + "Npc2"] = `dp-bottom-${npc}`;
 			break;
 		case "othermouth":
 		case "othermouthentrance":

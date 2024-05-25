@@ -61,8 +61,13 @@ const combatCloseArse = {
 			},
 		};
 	},
-	preprocess() {
+	preprocess(options) {
 		console.log(this.name, "closeArse preprocess");
+		if (options.anusNpc) {
+			if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && (options.anus === "penetrated" || V.anususe === "othervagina")) {
+				options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
+			} else options.anusSilhouetet = "null";
+		}
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -110,14 +115,12 @@ const combatCloseArse = {
 				return `${options.src}arse/npc/${options.anusNpc}-condom-${options.anus}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc && !!options.anusNpcCondom;
-			},
-			alphafn(options) {
-				return 0.4;
+				return !!options.showArse && !!options.anusNpc && !!V.NPCList[V.anustarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
 			},
+			alpha: 0.4,
 			filters: ["npcAnusCondom"],
 			z: ZIndices.closeNpc + 1,
 		},
@@ -126,14 +129,12 @@ const combatCloseArse = {
 				return `${options.src}arse/npc/${options.anusNpc2}-condom-${options.anus}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc && !!options.anusDpCondom;
-			},
-			alphafn(options) {
-				return 0.4;
+				return !!options.showArse && !!options.anusNpc && !!V.NPCList[V.anusdoubletarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
 			},
+			alpha: 0.4,
 			filters: ["npcAnusCondom2"],
 			z: ZIndices.closeNpc + 1,
 		},
@@ -162,9 +163,7 @@ const combatCloseArse = {
 			animationfn(options) {
 				return options.animKeyArse;
 			},
-			filtersfn(options) {
-				return ["worn_under_lower_main"];
-			},
+			filters: ["worn_under_lower_main"],
 			z: ZIndices.closeWorn,
 		},
 	},

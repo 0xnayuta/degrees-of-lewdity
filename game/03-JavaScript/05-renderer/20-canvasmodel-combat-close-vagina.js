@@ -26,6 +26,11 @@ const combatCloseVagina = {
 		console.log(this.name, "closeVagina preprocess");
 		options.hirsute =
 			!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes);
+		if (options.vaginaNpc) {
+			if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
+				options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
+			} else options.vaginaSilhouette = null;
+		}
 	},
 	/** @type {Object<string, CanvasModelLayerClose>} */
 	layers: {
@@ -157,14 +162,12 @@ const combatCloseVagina = {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc}-condom-${options.vagina}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc && !!options.vaginaNpcCondom;
-			},
-			alphafn(options) {
-				return 0.4;
+				return !!options.showVagina && !!options.vaginaNpc && !!V.NPCList[V.vaginatarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
+			alpha: 0.4,
 			filters: ["npcVaginaCondomColour"],
 			z: ZIndices.closeNpc + 1,
 		},
@@ -173,22 +176,17 @@ const combatCloseVagina = {
 				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc2}-condom-${options.vagina}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc2 && !!options.vaginaNpc2Condom;
-			},
-			alphafn(options) {
-				return 0.4;
+				return !!options.showVagina && !!options.vaginaNpc2 && !!V.NPCList[V.vaginadoubletarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
 			},
+			alpha: 0.4,
 			filters: ["npcVaginaCondom2"],
 			z: ZIndices.closeNpc + 1,
 		},
 		silhouette: {
 			srcfn(options) {
-				if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
-					options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
-				} else options.vaginaSilhouette = "null";
 				return `${options.src}vagina/${options.position}/npc/shadow-${options.vaginaSilhouette}.png`;
 			},
 			showfn(options) {
