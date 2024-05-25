@@ -68,7 +68,7 @@ class CombatSystem {
 		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.vaginastate
 		);
-		const activeUse = ["tentaclerub"].includes(V.vaginause);
+		const activeUse = ["tentaclerub"].includes(V.vaginause) && canvas !== "close";
 		if (canvas === "close" && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
 	}
@@ -92,7 +92,7 @@ class CombatSystem {
 		if (canvas === "close" && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
 			return true;
 		}
-		const activeUse = ["tentaclerub"].includes(V.anususe);
+		const activeUse = ["tentaclerub"].includes(V.anususe) && canvas !== "close";
 		return activeState || activeUse;
 	}
 
