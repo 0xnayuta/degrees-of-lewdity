@@ -472,7 +472,7 @@ function playerHeatMinArousal() {
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
-	if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy" && minArousal < 2000) minArousal = 2000;
+	if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy" && minArousal < 2000) minArousal += 2000;
 
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
