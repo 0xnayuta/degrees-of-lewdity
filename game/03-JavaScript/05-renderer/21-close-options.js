@@ -98,6 +98,9 @@ function mapClosePenetrators(slot, options) {
 	const activeEnemy = V.NPCList[V.active_enemy].type;
 	const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !playerHasStrapon();
 	const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine"].includes(V.enemytype) ? V.enemytype : "npc";
+
+	options[slot] = {};
+
 	/* check $anusstate or $vaginastate */
 	switch (V[slot + "state"]) {
 		case "tentacle":
@@ -105,39 +108,39 @@ function mapClosePenetrators(slot, options) {
 		case "tentacleentrance":
 		case "tentacleimminent":
 			/* tentacle penetrating, or preparing to penetrate, anus/vagina */
-			options[slot] = chastity ? "chastity" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
-			options[slot + "Npc"] = "tentacle";
+			options[slot].state = chastity ? "chastity" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
+			options[slot].npc = "tentacle";
 			break;
 		case "entrance":
 		case "imminent":
 		case "penetrated":
 			/* other enemy types penetrating, or preparing to penetrate, anus/vagina */
-			options[slot] = chastity ? "chastity" : ["penetrated", "doublepenetrated"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
-			options[slot + "Npc"] = npc;
+			options[slot].state = chastity ? "chastity" : ["penetrated", "doublepenetrated"].includes(V[slot + "state"]) ? "penetrated" : "entrance";
+			options[slot].npc = npc;
 			break;
 		case "doublepenetrated":
-			options[slot] = chastity ? "chastity" : "penetrated";
+			options[slot].state = chastity ? "chastity" : "penetrated";
 			/* futureproofing, in case we ever add the ability to get dped by non-humans */
-			options[slot + "Npc"] = `dp-top-${npc}`;
-			options[slot + "Npc2"] = `dp-bottom-${npc}`;
+			options[slot].npc = `dp-top-${npc}`;
+			options[slot].npc2 = `dp-bottom-${npc}`;
 			break;
 		case "othermouth":
 		case "othermouthentrance":
 		case "othermouthimminent":
 			/* beast oral. worst naming convention ever. */
 			if (V.enemytype === "beast" && V.monster !== 1) {
-				options[slot] = V[slot + "state"] === "othermouth" ? "penetrated" : "entrance";
-				options[slot + "Npc"] = "beast-oral";
+				options[slot].state = V[slot + "state"] === "othermouth" ? "penetrated" : "entrance";
+				options[slot].npc = "beast-oral";
 			} else {
 				/* if monsterperson, no beast sprites; anus or vagina is not actively in use */
-				options[slot] = "entrance";
-				options[slot + "Npc"] = null;
+				options[slot].state = "entrance";
+				options[slot].npc = null;
 			}
 			break;
 		default:
 			/* anus or vagina is not actively in use */
-			options[slot] = "entrance";
-			options[slot + "Npc"] = null;
+			options[slot].state = "entrance";
+			options[slot].npc = null;
 	}
 	const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
 	if (chastity && slot === "vagina") {

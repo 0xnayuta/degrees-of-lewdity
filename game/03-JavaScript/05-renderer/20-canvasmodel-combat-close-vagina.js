@@ -26,8 +26,8 @@ const combatCloseVagina = {
 		console.log(this.name, "closeVagina preprocess");
 		options.hirsute =
 			!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes);
-		if (options.vaginaNpc) {
-			if (!["horse", "beast-oral", "machine"].includes(options.vaginaNpc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
+		if (options.vagina.npc) {
+			if (!["horse", "beast-oral", "machine"].includes(options.vagina.npc) && (options.vagina === "penetrated" || V.vaginause === "othervagina")) {
 				options.vaginaSilhouette = V.vaginause === "othervagina" ? "trib" : V.vaginastate === "doublepenetrated" ? "dp" : "solo";
 			} else options.vaginaSilhouette = null;
 		}
@@ -36,7 +36,7 @@ const combatCloseVagina = {
 	layers: {
 		vagina: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/${options.vagina}-base.png`;
+				return `${options.src}vagina/${options.position}/${options.vagina.state}-base.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina;
@@ -49,7 +49,7 @@ const combatCloseVagina = {
 		},
 		vaginaAroused: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/${options.vagina}-aroused.png`;
+				return `${options.src}vagina/${options.position}/${options.vagina.state}-aroused.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && options.vagina === "entrance" && V.vaginaWetness >= 75;
@@ -94,7 +94,7 @@ const combatCloseVagina = {
 		},
 		pubicStrip: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/hair/${options.vagina}-pbstrip${V.pbstrip}.png`;
+				return `${options.src}vagina/${options.position}/hair/${options.vagina.state}-pbstrip${V.pbstrip}.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && V.pbdisable === "f" && V.pbstrip >= 1;
@@ -107,7 +107,7 @@ const combatCloseVagina = {
 		},
 		pubicHair: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/hair/${options.vagina}-pb${V.pblevel}.png`;
+				return `${options.src}vagina/${options.position}/hair/${options.vagina.state}-pb${V.pblevel}.png`;
 			},
 			showfn(options) {
 				return !!options.showVagina && V.pbdisable === "f" && V.pblevel >= 2;
@@ -133,10 +133,10 @@ const combatCloseVagina = {
 		},
 		npcPenetrator: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc}-${options.vagina}.png`;
+				return `${options.src}vagina/${options.position}/npc/${options.vagina.npc}-${options.vagina.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc;
+				return !!options.showVagina && !!options.vagina.npc;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
@@ -146,10 +146,10 @@ const combatCloseVagina = {
 		},
 		npc2Penetrator: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc2}-${options.vagina}.png`;
+				return `${options.src}vagina/${options.position}/npc/${options.vagina.npc2}-${options.vagina.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc2;
+				return !!options.showVagina && !!options.vagina.npc2;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
@@ -159,10 +159,10 @@ const combatCloseVagina = {
 		},
 		npcCondom: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc}-condom-${options.vagina}.png`;
+				return `${options.src}vagina/${options.position}/npc/${options.vagina.npc}-condom-${options.vagina.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc && !!V.NPCList[V.vaginatarget].condom.worn;
+				return !!options.showVagina && !!options.vagina.npc && !!V.NPCList[V.vaginatarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
@@ -173,10 +173,10 @@ const combatCloseVagina = {
 		},
 		npc2Condom: {
 			srcfn(options) {
-				return `${options.src}vagina/${options.position}/npc/${options.vaginaNpc2}-condom-${options.vagina}.png`;
+				return `${options.src}vagina/${options.position}/npc/${options.vagina.npc2}-condom-${options.vagina.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && !!options.vaginaNpc2 && !!V.NPCList[V.vaginadoubletarget].condom.worn;
+				return !!options.showVagina && !!options.vagina.npc2 && !!V.NPCList[V.vaginadoubletarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyVagina;
@@ -251,7 +251,7 @@ const combatCloseVagina = {
 			showfn(options) {
 				return (
 					!!options.showVagina &&
-					!!options.vaginaNpc &&
+					!!options.vagina.npc &&
 					V.enemyarousal >= V.enemyarousalmax &&
 					wearingCondom(V.vaginatarget) !== "worn" &&
 					!npcHasStrapon(V.vaginatarget)

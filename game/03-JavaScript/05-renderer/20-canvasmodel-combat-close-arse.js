@@ -63,8 +63,8 @@ const combatCloseArse = {
 	},
 	preprocess(options) {
 		console.log(this.name, "closeArse preprocess");
-		if (options.anusNpc) {
-			if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && (options.anus === "penetrated" || V.anususe === "othervagina")) {
+		if (options.anus.npc) {
+			if (!["horse", "beast-oral", "machine"].includes(options.anus.npc) && (options.anus === "penetrated" || V.anususe === "othervagina")) {
 				options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
 			} else options.anusSilhouetet = "null";
 		}
@@ -73,7 +73,7 @@ const combatCloseArse = {
 	layers: {
 		arse: {
 			srcfn(options) {
-				return `${options.src}arse/${options.anus}-base.png`;
+				return `${options.src}arse/${options.anus.state}-base.png`;
 			},
 			showfn(options) {
 				return !!options.showArse;
@@ -86,10 +86,10 @@ const combatCloseArse = {
 		},
 		npcPenetrator: {
 			srcfn(options) {
-				return `${options.src}arse/npc/${options.anusNpc}-${options.anus}.png`;
+				return `${options.src}arse/npc/${options.anus.npc}-${options.anus.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc;
+				return !!options.showArse && !!options.anus.npc;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
@@ -99,10 +99,10 @@ const combatCloseArse = {
 		},
 		npcPenetrator2: {
 			srcfn(options) {
-				return `${options.src}arse/npc/${options.anusNpc2}-${options.anus}.png`;
+				return `${options.src}arse/npc/${options.anus.npc2}-${options.anus.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc2;
+				return !!options.showArse && !!options.anus.npc2;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
@@ -112,10 +112,10 @@ const combatCloseArse = {
 		},
 		npcCondom: {
 			srcfn(options) {
-				return `${options.src}arse/npc/${options.anusNpc}-condom-${options.anus}.png`;
+				return `${options.src}arse/npc/${options.anus.npc}-condom-${options.anus.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc && !!V.NPCList[V.anustarget].condom.worn;
+				return !!options.showArse && !!options.anus.npc && !!V.NPCList[V.anustarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
@@ -126,10 +126,10 @@ const combatCloseArse = {
 		},
 		npcCondom2: {
 			srcfn(options) {
-				return `${options.src}arse/npc/${options.anusNpc2}-condom-${options.anus}.png`;
+				return `${options.src}arse/npc/${options.anus.npc2}-condom-${options.anus.state}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && !!options.anusNpc && !!V.NPCList[V.anusdoubletarget].condom.worn;
+				return !!options.showArse && !!options.anus.npc && !!V.NPCList[V.anusdoubletarget].condom.worn;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
@@ -140,7 +140,7 @@ const combatCloseArse = {
 		},
 		npcSilhouette: {
 			srcfn(options) {
-				if (!["horse", "beast-oral", "machine"].includes(options.anusNpc) && options.anus === "penetrated") {
+				if (!["horse", "beast-oral", "machine"].includes(options.anus.npc) && options.anus === "penetrated") {
 					options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
 				}
 				return `${options.src}arse/npc/shadow-${V.anusstate === "doublepenetrated" ? "dp" : "solo"}.png`;
@@ -155,7 +155,7 @@ const combatCloseArse = {
 		},
 		panties: {
 			srcfn(options) {
-				return `${options.src}arse/${options.anus}-panties.png`;
+				return `${options.src}arse/${options.anus.state}-panties.png`;
 			},
 			showfn(options) {
 				return !!options.showArse && V.worn.under_lower.state === "totheside";
