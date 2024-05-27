@@ -974,13 +974,13 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/upper/${clothes.name}/breasts/${clothes.breasts}.png`;
+				const path = `${options.src}clothing/upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
 				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.hasBreasts;
+				const show = isClothingShown(options, clothes) && clothes.breasts.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -996,10 +996,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.hasSleeves;
+				const show = isClothingShown(options, clothes) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
-				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves)) return false;
+				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -1015,7 +1015,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.hasSleeves;
+				const show = isClothingShown(options, clothes) && clothes.sleeves.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},

@@ -125,10 +125,20 @@
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
- * @property {boolean} hasBreasts Whether the clothing uses breast sprites.
- * @property {string} breasts Breast state.
- * @property {boolean} hasSleeves Whether the clothing uses sleeve sprites.
- * @property {string} sleeves Sleeve state.
+ * @property {PlayerBreastState} breasts Breast state.
+ * @property {PlayerSleeveState} sleeves Sleeve state.
+ */
+
+/**
+ * @typedef PlayerBreastState
+ * @property {boolean} show
+ * @property {number} size
+ */
+
+/**
+ * @typedef PlayerSleeveState
+ * @property {boolean} show
+ * @property {string} state
  */
 
 /**
@@ -185,7 +195,8 @@ function mapPlayerToOptions(options) {
 	options.tears = painToTearsLvl(V.pain);
 
 	// Ensure breast size is calculated before clothing options.
-	options.breastSize = Math.clamp(V.player.perceived_breastsize / 3, 0, 4);
+	const breastSize = Math.round(V.player.perceived_breastsize / 3);
+	options.breastSize = Math.clamp(breastSize, 0, 4);
 
 	// Clothing options
 	mapPcToClothingOptions(V.player, options);
@@ -809,6 +820,10 @@ function mapPcToClothingOptions(pc, options) {
 			show = false;
 		}
 
+		if (slot === "under_upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
+			show = false;
+		}
+
 		if (slot === "lower") {
 			position = position === "down" ? "down" : "up";
 		}
@@ -838,23 +853,27 @@ function mapPcToClothingOptions(pc, options) {
 			name,
 			position,
 			state: state || "full",
+			show,
 			alpha,
 			hasAccessory: clothing.accessory === 1,
-			show,
-			hasBreasts: false,
-			breasts: "0",
-			hasSleeves: false,
-			sleeves: "default",
+			breasts: {
+				show: false,
+				size: 0,
+			},
+			sleeves: {
+				show: false,
+				state: "default",
+			},
 		};
 
 		if (["upper", "under_upper", "over_upper"].includes(slot)) {
 			if (clothing.sleeve_img === 1) {
-				clothes.hasSleeves = true;
-				clothes.sleeves = "default";
+				clothes.sleeves.show = true;
+				clothes.sleeves.state = "default";
 			}
 			if (clothing.breast_img !== 0) {
-				clothes.hasBreasts = true;
-				clothes.breasts = Math.trunc(options.breastSize).toString();
+				clothes.breasts.show = true;
+				clothes.breasts.size = options.breastSize;
 			}
 		}
 
