@@ -934,7 +934,7 @@ function effects() {
 						? ` and clit. It ${looks} like you have your own penis now`
 						: `A new parasite forms around the base of your clit, it ${looks} similar to a penis`;
 				}
-				sWikifier(`<span class="blue">A satisfied warmth fills you. ${parasiteMessage}</span>`);
+				sWikifier(`<span class="blue">A satisfied warmth fills you. ${parasiteMessage}.</span>`);
 				element("span", `You can tell that ${parasiteCount > 1 ? "they are" : "it's"} from the slimes in your ears.`);
 				if (V.earSlimePenisParasite && V.earSlimePenisParasite !== 1) {
 					element("span", `The previous ${V.earSlimePenisParasite} falls off shortly after it finishes growing.`, "red");
@@ -951,7 +951,7 @@ function effects() {
 		if (V.penisslimebrokenchastitymessage) {
 			element(
 				"span",
-				`The parasite at the base of your genitals frees you from the${
+				`The parasite at the base of your genitals frees you from the ${V.penisslimebrokenchastitymessage}${
 					V.penisslimecagemessage === 1 ? ", and almost just as quickly, a new chastity parasite forms around your penis" : ""
 				}.`,
 				"purple"
