@@ -80,7 +80,7 @@ const combatCloseChest = {
 	layers: {
 		chest: {
 			srcfn(options) {
-				return `${options.src}chest/${options.breasts}.png`;
+				return `${options.src}chest/${options.chest.base}.png`;
 			},
 			showfn(options) {
 				return !!options.showChest;
@@ -91,9 +91,22 @@ const combatCloseChest = {
 			filters: ["body"],
 			z: ZIndices.closeBase,
 		},
+		breasts: {
+			srcfn(options) {
+				return `${options.src}chest/${options.chest.breasts}-job.png`;
+			},
+			showfn(options) {
+				return !!options.showChest && options.chest.base === "base-job" && V.player.breastsize > 0;
+			},
+			animationfn(options) {
+				return options.animKeyChest;
+			},
+			filters: ["body"],
+			z: ZIndices.closeNpc + 1,
+		},
 		npc: {
 			srcfn(options) {
-				return `${options.src}chest/npc/${options.breastsNpc}${options.breasts === "topdown" ? "-topdown" : ""}.png`;
+				return `${options.src}chest/npc/${options.chest.npc}.png`;
 			},
 			showfn(options) {
 				return !!options.showChest && ["penis", "tentacle"].includes(V.chestuse);
@@ -106,8 +119,26 @@ const combatCloseChest = {
 			},
 			alphafn(options) {
 				const isWraith = ["tentacles-wraith", "tentacles-wraith-penetrated"].includes(V.tentacleColour);
-				return options.chest.npc === "tentacle" && isWraith ? 0.4 : 1;
+				return options.chest.npc === "tentacle" && isWraith ? 0.8 : 1;
 			},
+			brightnessfn(options) {
+				const isWraith = ["tentacles-wraith", "tentacles-wraith-penetrated"].includes(V.tentacleColour);
+				return options.chest.npc === "tentacle" && isWraith ? 0.2 : 0;
+			},
+			z: ZIndices.closeNpc,
+		},
+		npcCondom: {
+			srcfn(options) {
+				return `${options.src}chest/npc/penis-condom.png`;
+			},
+			showfn(options) {
+				return !!options.showChest && options.chest.npc === "penis" && !!options.chest.condom;
+			},
+			animationfn(options) {
+				return options.animKeyChest;
+			},
+			filters: ["chestCondom"],
+			alpha: 0.4,
 			z: ZIndices.closeNpc,
 		},
 	},

@@ -137,8 +137,11 @@ class CombatSystem {
 		return ["penis"].includes(V.rightarm) || ["penis"].includes(V.leftarm);
 	}
 
-	isChestActive() {
+	isChestActive(canvas) {
 		const activeUse = ["penis"].includes(V.chestuse);
+		if (canvas === "close" && ["penis", "tentacle"].includes(V.chestuse)) {
+			return true;
+		}
 		return activeUse;
 	}
 

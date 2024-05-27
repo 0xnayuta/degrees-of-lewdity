@@ -225,7 +225,7 @@ Renderer.Animations["sex-10f-fast"] = {
 
 Renderer.Animations["sex-10f-vfast"] = {
 	frames: 10,
-	duration: 80,
+	duration: 70,
 };
 
 Renderer.Animations["sex-17f-slow"] = {

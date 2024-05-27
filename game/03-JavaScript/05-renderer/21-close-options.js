@@ -42,14 +42,6 @@ function getCloseOptions(options = {}) {
 	// Position
 	options.position = V.position === "wall" ? "doggy" : V.position;
 
-	// Breasts
-	if (["penis", "tentacle"].includes(V.chestuse)) {
-		options.breasts = `${V.player.breastsize >= 8 ? "topdown-job" : V.player.breastsize}-job`;
-	} else {
-		options.breasts = V.player.breastsize;
-	}
-	options.breastsNpc = options.breasts === "topdown-job" ? "penis-topdown" : V.enemytype === "beast" ? "beast" : V.chestuse;
-
 	// Genitals
 	if (options.showArse) {
 		mapClosePenetrators("anus", options);
@@ -89,7 +81,7 @@ function getCloseOptions(options = {}) {
 	}
 
 	// Set animation speed
-	const speedChest = combat.isChestActive() ? "mid" : "slow";
+	const speedChest = combat.isRapid() ? "vfast" : combat.isChestActive("close") ? "mid" : "slow";
 	const framesChest = V.player.breastsize >= 8 ? 10 : 6;
 	options.animKeyChest = `sex-${framesChest}f-${speedChest}`;
 
@@ -319,17 +311,25 @@ function mapClosePenis(options) {
 window.mapClosePenis = mapClosePenis;
 
 function mapCloseChest(options) {
+	const breastsNpc = V.NPCList[V.chesttarget];
+	const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse);
 	options.chest = {
-		npc: V.chestuse === "tentacle" ? "tentacle" : "penis",
+		base: ["penis", "tentacle"].includes(V.chestuse) ? (V.player.breastsize >= 8 ? "topdown-job" : "base-job") : V.player.breastsize,
+		breasts: V.player.breastsize,
+		npc: topdown ? "penis-topdown" : V.enemytype === "beast" ? "beast" : V.chestuse,
 	};
 
 	if (options.chest.npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
 		options.filters.chestTentacle = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "chestTentacle");
 	}
-	if (V.NPCList[V.chesttarget]) {
-		options.chest.npcTone = V.NPCList[V.chesttarget].skincolour === "black" ? "dark" : "light";
+	if (breastsNpc) {
+		options.chest.npcTone = breastsNpc.skincolour === "black" ? "dark" : "light";
 		options.filters.chestNpc = setup.colours.getSkinFilter(options.chest.npcTone, 0);
+		if (breastsNpc.condom?.worn) {
+			options.chest.condom = breastsNpc.condom.colour || "red";
+			options.filters.breastsCondom = window.lookupColour(options, setup.colours.condom_map, options.breasts.condom, "condom", "condom_custom", "condom");
+		}
 	}
 }
 window.mapCloseChest = mapCloseChest;
