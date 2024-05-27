@@ -1,5 +1,6 @@
+// @ts-check
 /**
- * @typedef {object} CanvasModelLayerClose
+ * @typedef {object} CanvasModelLayerCloseArse
  * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
  * @property {string} [src] Image path. Either `src` or `srcfn` is required.
  * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
@@ -19,27 +20,38 @@
  * @property {number} [height] Layer subsprite width, default = model height.
  *
  * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(CloseOptions): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(CloseOptions): string} [srcfn] (options)=>string.
- * @property {function(CloseOptions): number} [zfn] (options)=>number.
- * @property {function(CloseOptions): number} [alphafn] (options)=>number.
- * @property {function(CloseOptions): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(CloseOptions): number} [brightnessfn] (options)=>number.
- * @property {function(CloseOptions): number} [contrastftn] (options)=>number.
- * @property {function(CloseOptions): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(CloseOptions): string} [blendfn] (options)=>string.
- * @property {function(CloseOptions): string} [masksrcfn] (options)=>string.
- * @property {function(CloseOptions): string} [animationfn] (options)=>string.
- * @property {function(CloseOptions): number[]} [framesfn] (options)=>number[].
- * @property {function(CloseOptions): string[]} [filtersfn] (options)=>string[].
- * @property {function(CloseOptions): number} [dxfn] (options)=>number.
- * @property {function(CloseOptions): number} [dyfn] (options)=>number.
- * @property {function(CloseOptions): number} [widthfn] (options)=>number.
- * @property {function(CloseOptions): number} [heightfn] (options)=>number.
+ * @property {function(object): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
+ * @property {function(object): string} [srcfn] (options)=>string.
+ * @property {function(object): number} [zfn] (options)=>number.
+ * @property {function(object): number} [alphafn] (options)=>number.
+ * @property {function(object): boolean} [desaturatefn] (options)=>boolean.
+ * @property {function(object): number} [brightnessfn] (options)=>number.
+ * @property {function(object): number} [contrastftn] (options)=>number.
+ * @property {function(object): (string|object)} [blendModefn] (options)=>(string|object).
+ * @property {function(object): string} [blendfn] (options)=>string.
+ * @property {function(object): string} [masksrcfn] (options)=>string.
+ * @property {function(object): string} [animationfn] (options)=>string.
+ * @property {function(object): number[]} [framesfn] (options)=>number[].
+ * @property {function(object): string[]} [filtersfn] (options)=>string[].
+ * @property {function(object): number} [dxfn] (options)=>number.
+ * @property {function(object): number} [dyfn] (options)=>number.
+ * @property {function(object): number} [widthfn] (options)=>number.
+ * @property {function(object): number} [heightfn] (options)=>number.
+ */
+/**
+ * @typedef {object} CanvasModelCloseArseOptions
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {Object<string, CanvasModelLayerCloseArse>} layers Layers (by name).
+ * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
+ * @property {Function} [defaultOptions] Function ()=>object returning default options.
+ * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
  */
 
 /**
- * @type {CanvasModelOptions}
+ * @type {CanvasModelCloseArseOptions}
  */
 const combatCloseArse = {
 	name: "combatCloseArse",
@@ -61,15 +73,10 @@ const combatCloseArse = {
 			},
 		};
 	},
-	preprocess(options) {
+	preprocess() {
 		console.log(this.name, "closeArse preprocess");
-		if (options.anus.npc) {
-			if (!["horse", "beast-oral", "machine"].includes(options.anus.npc) && (options.anus === "penetrated" || V.anususe === "othervagina")) {
-				options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
-			} else options.anusSilhouetet = "null";
-		}
 	},
-	/** @type {Object<string, CanvasModelLayerClose>} */
+	/** @type {Object<string, CanvasModelLayerCloseArse>} */
 	layers: {
 		arse: {
 			srcfn(options) {
@@ -84,69 +91,12 @@ const combatCloseArse = {
 			filters: ["body"],
 			z: ZIndices.closeBase,
 		},
-		npcPenetrator: {
-			srcfn(options) {
-				return `${options.src}arse/npc/${options.anus.npc}-${options.anus.state}.png`;
-			},
-			showfn(options) {
-				return !!options.showArse && !!options.anus.npc;
-			},
-			animationfn(options) {
-				return options.animKeyArse;
-			},
-			filters: ["npcBody"],
-			z: ZIndices.closeNpc,
-		},
-		npcPenetrator2: {
-			srcfn(options) {
-				return `${options.src}arse/npc/${options.anus.npc2}-${options.anus.state}.png`;
-			},
-			showfn(options) {
-				return !!options.showArse && !!options.anus.npc2;
-			},
-			animationfn(options) {
-				return options.animKeyArse;
-			},
-			filters: ["npcBody2"],
-			z: ZIndices.closeNpc,
-		},
-		npcCondom: {
-			srcfn(options) {
-				return `${options.src}arse/npc/${options.anus.npc}-condom-${options.anus.state}.png`;
-			},
-			showfn(options) {
-				return !!options.showArse && !!options.anus.npc && !!V.NPCList[V.anustarget].condom.worn;
-			},
-			animationfn(options) {
-				return options.animKeyArse;
-			},
-			alpha: 0.4,
-			filters: ["npcAnusCondom"],
-			z: ZIndices.closeNpc + 1,
-		},
-		npcCondom2: {
-			srcfn(options) {
-				return `${options.src}arse/npc/${options.anus.npc2}-condom-${options.anus.state}.png`;
-			},
-			showfn(options) {
-				return !!options.showArse && !!options.anus.npc && !!V.NPCList[V.anusdoubletarget].condom.worn;
-			},
-			animationfn(options) {
-				return options.animKeyArse;
-			},
-			alpha: 0.4,
-			filters: ["npcAnusCondom2"],
-			z: ZIndices.closeNpc + 1,
-		},
 		npcSilhouette: {
 			srcfn(options) {
-				if (!["horse", "beast-oral", "machine"].includes(options.anus.npc) && options.anus === "penetrated") {
-					options.anusSilhouette = V.anusstate === "doublepenetrated" ? "dp" : "solo";
-				}
-				return `${options.src}arse/npc/shadow-${V.anusstate === "doublepenetrated" ? "dp" : "solo"}.png`;
+				return `${options.src}arse/npc/shadow-${options.anus.silhouette}.png`;
 			},
 			showfn(options) {
-				return !!options.showArse && options.anus === "penetrated";
+				return !!options.showArse && !!options.anus.silhouette;
 			},
 			animationfn(options) {
 				return options.animKeyArse;
@@ -166,6 +116,78 @@ const combatCloseArse = {
 			filters: ["worn_under_lower_main"],
 			z: ZIndices.closeWorn,
 		},
+		npcPenetrator: arsePenetrator("npc", "strapon"),
+		npcPenetrator2: arsePenetrator("npc2", "dpStrapon"),
+		npcCondom: arsePenetratorCondom("npc"),
+		npcCondom2: arsePenetratorCondom("npc2"),
 	},
 };
+
+/**
+ *
+ * @param {string} npc
+ * @param {string} strapon
+ * @param {CanvasModelLayerCloseArse} overrideOptions
+ * @returns {CanvasModelLayerCloseArse}
+ */
+function arsePenetrator(npc, strapon, overrideOptions = {}) {
+	/**
+	 * @type {CanvasModelLayerCloseArse}
+	 */
+	const defaults = {
+		srcfn(options) {
+			return `${options.src}arse/npc/${options.anus[npc]}-${options.anus.state}.png`;
+		},
+		showfn(options) {
+			return !!options.showArse && !!options.anus[npc];
+		},
+		animationfn(options) {
+			return options.animKeyArse;
+		},
+		filtersfn(options) {
+			const filter = npc === "npc2" ? ["anusNpc2"] : ["anusNpc"];
+			return options.anus[npc] === "tentacle" ? ["anusTentacle"] : filter;
+		},
+		desaturatefn(options) {
+			return !!options.anus[strapon];
+		},
+		brightnessfn(options) {
+			return options.anus[strapon] ? -0.25 : 0;
+		},
+		alphafn(options) {
+			const isWraith = options.anus[npc] === "tentacle" && ["tentacles-wraith", "tentacles-wraith-penetrated"].includes(V.tentacleColour);
+			return isWraith ? (V.tentacleColour === "tentacles-wraith" ? 0.4 : 0.8) : 1;
+		},
+		z: ZIndices.closeNpc,
+	};
+	return Object.assign(defaults, overrideOptions);
+}
+
+/**
+ *
+ * @param {string} npc
+ * @param {CanvasModelLayerCloseArse} overrideOptions
+ * @returns {CanvasModelLayerCloseArse}
+ */
+function arsePenetratorCondom(npc, overrideOptions = {}) {
+	/**
+	 * @type {CanvasModelLayerCloseArse}
+	 */
+	const defaults = {
+		srcfn(options) {
+			return `${options.src}arse/npc/${options.anus[npc]}-condom-${options.anus.state}.png`;
+		},
+		showfn(options) {
+			const target = npc === "npc2" ? V.anusdoubletarget : V.anustarget;
+			return !!options.showArse && !!options.anus[npc] && !!V.NPCList[target].condom.worn;
+		},
+		animationfn(options) {
+			return options.animKeyArse;
+		},
+		alpha: 0.4,
+		filters: npc === "npc2" ? ["anusCondom2"] : ["anusCondom"],
+		z: ZIndices.closeNpc + 1,
+	};
+	return Object.assign(defaults, overrideOptions);
+}
 Renderer.CanvasModels.combatCloseArse = combatCloseArse;

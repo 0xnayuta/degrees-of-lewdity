@@ -1,20 +1,25 @@
 /**
  * @typedef {object} CloseOptions
+ * @property {"img/newsex"} root
+ * @property {string} src Source directory for closeup images.
  * @property {boolean} showChest
  * @property {boolean} showPenis
  * @property {boolean} showVagina
  * @property {boolean} showArse
- * @property {string} src Source directory for closeup images.
  * @property {"doggy"|"missionary"} position Doggy or missionary position.
  * @property {number|"topdown"} breasts Breast size, or topdown sprites if size >= 8. (May want to add ability to toggle views.)
  * @property {"parasite"|"herm-balls"|"herm-base"} herm Player penis, used in vagina closeup.
- * @property {penis} penis Player penis, used in penis closeup.
- * @property {"entrance"|"penetrated"} anus Player arse state. Penetrated or entrance.
- * @property {"entrance"|"penetrated"} vagina Player vagina state. Penetrated or entrance.
- * @property {"beast"|"beast-oral"|"horse"|"machine"|"npc"|"tentacle"} anusNpc Type of npc penetrating player anus.
- * @property {"beast"|"beast-oral"|"horse"|"machine"|"npc"|"tentacle"} vaginaNpc Type of npc penetrating player vagina.
+ * @property {vagina} vagina Player vagina and penetrators, used in vagina closeup.
+ * @property {penis} penis Player penis and penetrated, used in penis closeup.
+ * @property {anus} anus Player anus and penetrators, used in arse closeup.
+ * @property {chest} chest Player chest and titjob.
+ * @property {pcPenis} pcPenis Computed sprite for player penis, taking size/chastity/type into account.
  * @property {"beast"|"penis"|"tentacle"} breastsNpc Type of npc giving boobjob.
  * @property {object} filters The filters for layers.
+ * @property {string} animKeyVagina
+ * @property {string} animKeyPenis
+ * @property {string} animKeyArse
+ * @property {string} animKeyChest
  */
 
 /**
@@ -23,8 +28,10 @@
  */
 
 function getCloseOptions(options = {}) {
-	// Source directory
 	options.src = "img/newsex/close/";
+	options.filters = options.filters || {
+		worn: {},
+	};
 
 	// Show Conditions
 	options.showPenis = (V.player.penisExist || playerHasStrapon()) && V.worn.under_lower.vagina_exposed === 1 && V.worn.lower.vagina_exposed === 1;
@@ -53,18 +60,16 @@ function getCloseOptions(options = {}) {
 	if (V.player.penisExist) {
 		mapClosePenis(options);
 	}
+	if (options.showChest) {
+		mapCloseChest(options);
+	}
 
 	// Colours
 	options.skinType = V.skinColor.natural;
 	options.skinTone = V.skinColor.range / 100;
-	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
-	options.condomColour = V.player.condom.colour || "red";
-	options.clitParasite = options.clitParasite || "red";
-	options.tentacleColour = V.tentacleColour || "tentacles-purple";
-	options.filters = options.filters || {
-		worn: {},
-	};
 	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+
+	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
 	options.filters.pbhair = window.lookupColour(
 		options,
 		setup.colours.hair_map,
@@ -73,12 +78,14 @@ function getCloseOptions(options = {}) {
 		"pbhair_custom",
 		"pbhair"
 	);
-	options.filters.condom = window.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
-	options.filters.tentacle = window.lookupColour(options, setup.colours.clothes_map, options.tentacleColour, "tentacle", "tentacle_custom", "tentacle");
-	window.mapPcToClothingOptions(V.player, options);
 
+	options.condomColour = V.player.condom.colour || "red";
+	options.filters.condom = window.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
+
+	window.mapPcToClothingOptions(V.player, options);
+	options.parasitePanties = options.parasitePanties || "red";
 	if (["parasite", "parasitem"].includes(V.parasite.clit.name) || ["parasite"].includes(V.parasite.penis.name)) {
-		options.filters.parasitePanties = window.lookupColour(options, setup.colours.clothes_map, "red", "parasitePanties");
+		options.filters.parasitePanties = window.lookupColour(options, setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
 	}
 
 	// Set animation speed
@@ -94,9 +101,20 @@ function getCloseOptions(options = {}) {
 }
 window.getCloseOptions = getCloseOptions;
 
+/**
+ * @param {slot} slot
+ * @param {CloseOptions} options
+ * @returns {CloseOptions}
+ */
+
 function mapClosePenetrators(slot, options) {
+	/**
+	 * @param {slot} slot
+	 * @returns {"anus" | "vagina"}
+	 */
 	const activeEnemy = V.NPCList[V.active_enemy].type;
 	const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !playerHasStrapon();
+	const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
 	const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine"].includes(V.enemytype) ? V.enemytype : "npc";
 
 	options[slot] = {};
@@ -142,9 +160,84 @@ function mapClosePenetrators(slot, options) {
 			options[slot].state = "entrance";
 			options[slot].npc = null;
 	}
-	const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
-	if (chastity && slot === "vagina") {
-		options.chastityDevice = V.worn.genitals.name === "chastity parasite" ? `chastity-parasite-${V.player.penissize}` : `chastity-${belt}`;
+
+	if (slot === "vagina") {
+		/* match drippy cum sprites to corresponding vagina state */
+		const entrance = ["entrance", "doubleentrance", "tentacleentrance"].includes(V.vaginastate) ? "entrance" : "vagina";
+		options[slot].cumState = options.vagina.state === "penetrated" ? "penetrated" : entrance;
+		/* select appropriate chastity sprite */
+		if (chastity) {
+			options[slot].chastityDevice = V.worn.genitals.name === "chastity parasite" ? `chastity-parasite-${V.player.penissize + 2}` : `chastity-${belt}`;
+		}
+		/* hirsute pubes */
+		options[slot].hirsute =
+			!["hidden", "disabled"].includes(V.transformationParts.wolf.pubes) || !["hidden", "disabled"].includes(V.transformationParts.bird.pubes);
+	}
+
+	/* colour filters and silhouettes for enemies interacting with vagina/anus */
+	if (!["horse", "beast-oral", "machine", "tentacle"].includes(options[slot].npc)) {
+		if (options[slot].state === "penetrated" || V[`${slot}use`] === "othervagina") {
+			options[slot].silhouette = V[`${slot}use`] === "othervagina" ? "trib" : V[`${slot}state`] === "doublepenetrated" ? "dp" : "solo";
+		}
+	}
+	/* tentacle colour could theoretically be outside of these functions, as tentacles are incompatible with other enemy types and can only have one colour, which applies to all tentacles interacting with vagina, anus, and penis slots. combat rework should allow for tentacles to be incorporated into other encounters and multiple tentacle colours (vines and roots, for example) */
+	if (options[slot].npc === "tentacle") {
+		const tentacleColour = V.tentacleColour || "tentacles-purple";
+		options.filters[`${slot}Tentacle`] = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "tentacle");
+	}
+	if (V.NPCList[V[`${slot}target`]]) {
+		const targetNpc = V.NPCList[V[`${slot}target`]];
+
+		/* skin colour of npc targeting vagina/anus */
+		if (targetNpc?.penis !== "none" && targetNpc?.penisdesc.includes("strap-on") && !targetNpc?.penisdesc.includes("fleshy")) {
+			const straponColours = ["black", "red", "pink", "purple", "blue", "green"];
+			options.npcTone = straponColours.find(color => targetNpc?.penisdesc.includes(color));
+			options.filters[`${slot}Npc`] = window.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
+			options[slot].strapon = true;
+		} else {
+			options.npcTone = targetNpc.skincolour === "black" ? "dark" : "light";
+			options.filters[`${slot}Npc`] = setup.colours.getSkinFilter(options.npcTone, 0);
+		}
+
+		/* condom colour of npc targeting vagina/anus */
+		if (targetNpc?.condom?.worn) {
+			options[slot].npcCondom = targetNpc.condom.colour || "red";
+			options.filters[`${slot}Condom`] = window.lookupColour(
+				options,
+				setup.colours.condom_map,
+				options[slot].npcCondom,
+				"condom",
+				"condom_custom",
+				"condom"
+			);
+		}
+	}
+	if (V.NPCList[V[`${slot}doubletarget`]]) {
+		const targetNpc2 = V.NPCList[V[`${slot}doubletarget`]];
+
+		/* skin colour of npc double-penetrating vagina/anus */
+		if (targetNpc2?.penisdesc.includes("strap-on")) {
+			const straponColours = ["black", "dark red", "red", "pink", "purple", "fleshy", "blue", "green"];
+			options.npcTone = straponColours.find(color => targetNpc2?.penisdesc.includes(color));
+			options.filters[`${slot}Npc`] = window.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
+			options[slot].dpStrapon = true;
+		} else {
+			options.npc2Tone = targetNpc2.skincolour === "black" ? "dark" : "light";
+			options.filters[`${slot}Npc2`] = setup.colours.getSkinFilter(options.npc2Tone, 0);
+		}
+
+		/* condom colour of npc double-penetrating vagina/anus */
+		if (targetNpc2?.condom?.worn) {
+			options[slot].npc2Condom = targetNpc2.condom.colour || "red";
+			options.filters[`${slot}Condom2`] = window.lookupColour(
+				options,
+				setup.colours.condom_map,
+				options[slot].npc2Condom,
+				"condom",
+				"condom_custom",
+				"condom"
+			);
+		}
 	}
 }
 window.mapClosePenetrators = mapClosePenetrators;
@@ -210,6 +303,33 @@ function mapClosePenis(options) {
 			options.penis.state = "entrance";
 			options.penis.npc = null;
 	}
+
+	if (options.penis.npc === "tentacle") {
+		const tentacleColour = V.tentacleColour || "tentacles-purple";
+		options.filters.penisTentacle = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "penisTentacle");
+	}
+	if (V.NPCList[V.penistarget]) {
+		/* skin colour of npc targeting penis */
+		options.penis.npcTone = V.NPCList[V.penistarget].skincolour === "black" ? "dark" : "light";
+		options.filters.penisNpc = setup.colours.getSkinFilter(options.penis.npcTone, 0);
+	}
+
 	return options.penis;
 }
 window.mapClosePenis = mapClosePenis;
+
+function mapCloseChest(options) {
+	options.chest = {
+		npc: V.chestuse === "tentacle" ? "tentacle" : "penis",
+	};
+
+	if (options.chest.npc === "tentacle") {
+		const tentacleColour = V.tentacleColour || "tentacles-purple";
+		options.filters.chestTentacle = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "chestTentacle");
+	}
+	if (V.NPCList[V.chesttarget]) {
+		options.chest.npcTone = V.NPCList[V.chesttarget].skincolour === "black" ? "dark" : "light";
+		options.filters.chestNpc = setup.colours.getSkinFilter(options.chest.npcTone, 0);
+	}
+}
+window.mapCloseChest = mapCloseChest;
