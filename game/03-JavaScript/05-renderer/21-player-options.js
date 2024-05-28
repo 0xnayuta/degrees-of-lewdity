@@ -616,7 +616,8 @@ window.mapPcToLegPosition = mapPcToLegPosition;
  */
 function isPenisExposed(options) {
 	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
-	if (options.position === "missionary") {
+	const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
+	if (options.position === "missionary" && areLegsUp) {
 		skirtExposedStates.push("waist");
 	}
 	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state) || !options.clothes.lower.show;
@@ -624,10 +625,7 @@ function isPenisExposed(options) {
 	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state) || !options.clothes.over_lower.show;
 	const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
 
-	if (clothingExposed) {
-		return true;
-	}
-	return false;
+	return clothingExposed;
 }
 window.isPenisExposed = isPenisExposed;
 
