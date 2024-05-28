@@ -168,7 +168,7 @@ declare global {
 		 */
 		accessory_layer_under?: 0 | 1;
 		high_img: 0 | 1;
-		back_img: 0 | 1;
+		back_img: 0 | 1 | "combat";
 		/**
 		 * Recolouring of back image
 		 * * "" (default) - depending on colour_sidebar

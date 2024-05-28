@@ -891,6 +891,11 @@ const combatMainPc = {
 				console.log("Headwear [back]", "Path:", path);
 				return path;
 			},
+			showfn(options) {
+				const clothes = options.clothes.head;
+				if (!isClothingShown(options, clothes)) return false;
+				return !!clothes.hasBackImg;
+			},
 			z: zi.base - 1 /* At least behind head (50) */,
 		}),
 		headwear: genClothingLayer("head", {

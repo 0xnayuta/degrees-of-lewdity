@@ -125,6 +125,7 @@
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
+ * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {PlayerBreastState} breasts Breast state.
  * @property {PlayerSleeveState} sleeves Sleeve state.
  */
@@ -856,6 +857,7 @@ function mapPcToClothingOptions(pc, options) {
 			show,
 			alpha,
 			hasAccessory: clothing.accessory === 1,
+			hasBackImg: [1, "combat"].includes(clothing.back_img),
 			breasts: {
 				show: false,
 				size: 0,
