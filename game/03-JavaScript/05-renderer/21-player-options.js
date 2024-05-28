@@ -124,6 +124,8 @@
  * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob" | "totheside"} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
+ * @property {boolean} isExposed Whether the clothing layer exposes beneath.
+ * @property {boolean} isSkirt Whether the clothing layer is a skirt.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {PlayerBreastState} breasts Breast state.
@@ -612,17 +614,44 @@ window.mapPcToLegPosition = mapPcToLegPosition;
 
 /**
  * @param {Options} options
+ * @param {ClothingState} clothing
+ * @returns {string[]}
+ */
+function getExposedStates(options, clothing) {
+	const exposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
+	const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
+	if (clothing.isSkirt) {
+		// Add states that are for skirts.
+	}
+	if (options.position === "missionary" && areLegsUp) {
+		exposedStates.pushUnique("waist");
+	}
+	return exposedStates;
+}
+window.getExposedStates = getExposedStates;
+
+/**
+ * @param {Options} options
+ * @param {ClothingState} clothing
+ * @returns {boolean}
+ */
+function isClothingExposed(options, clothing) {
+	return clothing.isExposed || getExposedStates(options, clothing).includes(clothing.state);
+}
+
+/**
+ * @param {Options} options
  * @returns {boolean}
  */
 function isPenisExposed(options) {
-	const skirtExposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
-	const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
-	if (options.position === "missionary" && areLegsUp) {
-		skirtExposedStates.push("waist");
-	}
-	const lowerExposed = skirtExposedStates.includes(options.clothes.lower.state) || !options.clothes.lower.show;
-	const underLowerExposed = skirtExposedStates.includes(options.clothes.under_lower.state) || !options.clothes.under_lower.show;
-	const overLowerExposed = skirtExposedStates.includes(options.clothes.over_lower.state) || !options.clothes.over_lower.show;
+	const lower = options.clothes.lower;
+	const lowerExposed = !lower.show || isClothingExposed(options, lower);
+
+	const underLower = options.clothes.under_lower;
+	const underLowerExposed = !underLower.show || isClothingExposed(options, underLower);
+
+	const overLower = options.clothes.over_lower;
+	const overLowerExposed = !overLower.show || isClothingExposed(options, overLower);
 	const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
 
 	return clothingExposed;
@@ -825,6 +854,9 @@ function mapPcToClothingOptions(pc, options) {
 
 		if (slot === "lower") {
 			position = position === "down" ? "down" : "up";
+			if (clothing.skirt_down === 0 && state === "waist") {
+				state = "thighs";
+			}
 		}
 
 		if (slot === "under_lower") {
@@ -854,6 +886,8 @@ function mapPcToClothingOptions(pc, options) {
 			state: state || "full",
 			show,
 			alpha,
+			isSkirt: clothing.skirt === 1,
+			isExposed: !!clothing.exposed,
 			hasAccessory: clothing.accessory === 1,
 			hasBackImg: [1, "combat"].includes(clothing.back_img),
 			breasts: {

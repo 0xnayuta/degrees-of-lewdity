@@ -121,15 +121,27 @@ declare global {
 		strap: number;
 		open: number;
 		/**
-		 * - a: A skirt.
-		 * - n: Pyjamas.
-		 * - an: An outfit.
+		 * a: A skirt.
+		 * 
+		 * n: Pyjamas.
+		 * 
+		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
 		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
 		state_base: string;
 		state_top: string;
 		state_top_base: string;
+		skirt?: 0 | 1;
+		skirt_down?: 0 | 1;
+		/**
+		 * 0 - Not exposed.
+		 * 
+		 * 1 - For under_lower, this is fully exposed genitals. For under_upper, this is fully exposed breasts.
+		 * 
+		 * 2 - Fully exposed for all else.
+		 */
+		exposed?: 0 | 1 | 2;
 		plural: number;
 		/**
 		 * key in setup.colours.prefilters identifying preprocessing required for canvas renderer.
