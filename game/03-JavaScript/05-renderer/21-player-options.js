@@ -888,7 +888,7 @@ function mapPcToClothingOptions(pc, options) {
 			alpha,
 			isSkirt: clothing.skirt === 1,
 			isExposed: !!clothing.exposed,
-			hasAccessory: clothing.accessory === 1,
+			hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
 			hasBackImg: [1, "combat"].includes(clothing.back_img),
 			breasts: {
 				show: false,

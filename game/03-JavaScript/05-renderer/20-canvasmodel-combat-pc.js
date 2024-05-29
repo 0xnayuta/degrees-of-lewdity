@@ -839,6 +839,16 @@ const combatMainPc = {
 			},
 			z: zi.backFootwear,
 		}),
+		footwearAccBack: genClothingAccLayer("feet", {
+			srcfn(options) {
+				const clothes = options.clothes.feet;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.state}-acc.png`;
+				console.log("Feet Acc Back Path:", path);
+				return path;
+			},
+			z: zi.backFootwear,
+		}),
 		footwearFront: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
@@ -848,6 +858,16 @@ const combatMainPc = {
 				return path;
 			},
 			z: zi.frontFootwear,
+		}),
+		footwearAccFront: genClothingAccLayer("feet", {
+			srcfn(options) {
+				const clothes = options.clothes.feet;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.state}-acc.png`;
+				console.log("Feet Acc Front Path:", path);
+				return path;
+			},
+			z: zi.backFootwear,
 		}),
 		genitals: genClothingLayer("genitals", {
 			z: zi.base + 6,

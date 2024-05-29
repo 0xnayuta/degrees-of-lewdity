@@ -112,6 +112,7 @@ declare global {
 		 * The folder ID for combat sprites, if not specified, uses variable
 		 */
 		combatImg?: string;
+		combatAccessoryOverride?: 0 | 1;
 		integrity: number;
 		integrity_max: number;
 		fabric_strength: number;
