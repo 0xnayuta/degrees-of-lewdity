@@ -1000,6 +1000,22 @@ const combatMainPc = {
 		underUpper: genClothingLayer("under_upper", {
 			z: zi.frontArm - 4,
 		}),
+		underUpperBreasts: genClothingLayer("under_upper", {
+			srcfn(options) {
+				const clothes = options.clothes.under_upper;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/under_upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
+				console.log("upper", "Path:", path);
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.under_upper;
+				const show = isClothingShown(options, clothes) && clothes.breasts.show;
+				console.log("Show under upper breasts:", show);
+				return !!show;
+			},
+			z: zi.frontArm - 4,
+		}),
 		upper: genClothingLayer("upper", {
 			z: zi.frontArm - 3,
 		}),

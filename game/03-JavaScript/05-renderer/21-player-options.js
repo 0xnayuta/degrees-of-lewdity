@@ -872,7 +872,7 @@ function mapPcToClothingOptions(pc, options) {
 		// Wetness
 		let alpha = 1;
 		const stage = V[slot + "wetstage"];
-		if (stage != null) {
+		if (typeof stage === "number") {
 			alpha = Math.clamp(1 - stage / 4, 0, 1);
 		}
 
@@ -891,25 +891,14 @@ function mapPcToClothingOptions(pc, options) {
 			hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
 			hasBackImg: [1, "combat"].includes(clothing.back_img),
 			breasts: {
-				show: false,
-				size: 0,
+				show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.breast_img !== 0,
+				size: options.breastSize,
 			},
 			sleeves: {
-				show: false,
+				show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.sleeve_img === 1,
 				state: "default",
 			},
 		};
-
-		if (["upper", "under_upper", "over_upper"].includes(slot)) {
-			if (clothing.sleeve_img === 1) {
-				clothes.sleeves.show = true;
-				clothes.sleeves.state = "default";
-			}
-			if (clothing.breast_img !== 0) {
-				clothes.breasts.show = true;
-				clothes.breasts.size = options.breastSize;
-			}
-		}
 
 		options.clothes = options.clothes || {};
 		options.clothes[slot] = clothes;
