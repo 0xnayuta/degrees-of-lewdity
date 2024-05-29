@@ -696,7 +696,7 @@ const combatMainPc = {
 			},
 			z: zi.base,
 		},
-		lefteye: {
+		frontEye: {
 			srcfn(options) {
 				return `${options.src}body/head/eyes.png`;
 			},
@@ -706,7 +706,9 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			filters: ["leftEye"],
+			filtersfn(options) {
+				return [options.position === "missionary" ? "rightEye" : "leftEye"];
+			},
 			z: zi.base + 1,
 		},
 		eyelid: {

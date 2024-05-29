@@ -75,7 +75,12 @@ declare module "twine-sugarcube" {
 				sStart: number;
 			};
 		};
+		/**
+		 * Only used within settings, try to use leftEyeColour or rightEyeColour.
+		 */
 		haircolour: string;
+		leftEyeColour: string;
+		rightEyeColour: string;
 		eyeselect: string;
 		hairlengthstage: string;
 

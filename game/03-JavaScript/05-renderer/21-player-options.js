@@ -213,11 +213,11 @@ function mapPlayerToOptions(options) {
 	options.skinTone = V.skinColor.range / 100;
 
 	options.hairColour = V.haircolour || "red";
-	options.leftEye = V.eyeselect || "red";
-	options.rightEye = V.eyeselect || "red";
+	options.leftEye = V.leftEyeColour || "blue";
+	options.rightEye = V.rightEyeColour || "blue";
 
-	options.filters.leftEye = lookupColour(options, setup.colours.eyes_map, options.leftEye, "eyes", "eyes_custom", "eyes");
-	options.filters.rightEye = lookupColour(options, setup.colours.eyes_map, options.rightEye, "eyes", "eyes_custom", "eyes");
+	options.filters.leftEye = lookupColour(options, setup.colours.eyes_map, options.leftEye, "leftEye", "leftEye", "leftEye");
+	options.filters.rightEye = lookupColour(options, setup.colours.eyes_map, options.rightEye, "rightEye", "rightEye", "rightEye");
 	options.filters.hair = lookupColour(options, setup.colours.hair_map, options.hairColour, "hair", "hair_custom", "hair");
 	options.filters.hairFringe = lookupColour(
 		options,
