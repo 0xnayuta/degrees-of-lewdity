@@ -1044,11 +1044,11 @@ function mapPcToBodywritingOptions(pc, options) {
 			},
 			breasts: getState("breasts", simpleText),
 			back: getState("back", simpleText),
-			backBottom: getState("right_bottom", simpleText),
-			frontBottom: {
+			backBottom: {
 				show: false,
-				type: "left_bottom",
+				type: "right_bottom",
 			},
+			frontBottom: getState("left_bottom", simpleText),
 			pubic: getState("pubic", (id, bodywriting) => {
 				if (bodywriting.type === "text") {
 					return {
@@ -1186,6 +1186,7 @@ function mapPcToBodywritingOptions(pc, options) {
 			return null;
 		}),
 	};
+	return options;
 }
 window.mapPcToBodywritingOptions = mapPcToBodywritingOptions;
 
