@@ -22,7 +22,7 @@
  * @property {33} backThighWear
  * @property {34} backCalfOverwear
  * @property {35} backThighOverwear
- * Front Legs:
+ * Front legs:
  * @property {65} frontCalf
  * @property {66} frontFoot
  * @property {67} frontThigh
@@ -33,6 +33,10 @@
  * @property {72} frontThighWear
  * @property {73} frontCalfOverwear
  * @property {74} frontThighOverwear
+ * Back arms:
+ * @property {30} backArm
+ * Front arms:
+ * @property {75} frontArm
  */
 
 /**
@@ -54,6 +58,8 @@ const zi = {
 	backCalfOverwear: 34,
 	backThighOverwear: 35,
 
+	backArm: 30,
+
 	base: 50,
 
 	hair: 55,
@@ -68,6 +74,8 @@ const zi = {
 	frontThighWear: 72,
 	frontCalfOverwear: 73,
 	frontThighOverwear: 74,
+
+	frontArm: 75,
 
 	near: 100,
 };
@@ -549,7 +557,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base - 3,
+			z: zi.backArm,
 		},
 		backthigh: {
 			srcfn(options) {
@@ -622,7 +630,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 14,
+			z: zi.frontArm,
 		},
 		frontbreast: {
 			srcfn(options) {
@@ -734,6 +742,9 @@ const combatMainPc = {
 			showfn(options) {
 				const result = options.showFace && options.blush > 0;
 				return !!result;
+			},
+			animationfn(options) {
+				return options.animKey;
 			},
 			filters: ["body"],
 			z: zi.base + 1,
@@ -886,7 +897,7 @@ const combatMainPc = {
 				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
 				return true;
 			},
-			z: zi.base - 2,
+			z: zi.backArm + 2,
 		}),
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
@@ -901,7 +912,7 @@ const combatMainPc = {
 				if (options.armFrontPosition === "bound2") return false;
 				return true;
 			},
-			z: zi.base + 14,
+			z: zi.frontArm + 2,
 		}),
 		headwearBack: genClothingLayer("head", {
 			srcfn(options) {
@@ -972,7 +983,7 @@ const combatMainPc = {
 			z: zi.frontThigh + 3,
 		}),
 		neckWear: genClothingLayer("neck", {
-			z: zi.base + 10,
+			z: zi.frontArm - 1,
 		}),
 		overHead: genClothingLayer("over_head", {
 			z: zi.base + 10,
@@ -981,19 +992,19 @@ const combatMainPc = {
 			z: zi.frontThigh + 4,
 		}),
 		overUpper: genClothingLayer("over_upper", {
-			z: zi.base + 10,
+			z: zi.frontArm - 1,
 		}),
 		underLower: genClothingLayer("under_lower", {
 			z: zi.frontThigh + 2,
 		}),
 		underUpper: genClothingLayer("under_upper", {
-			z: zi.base + 10,
+			z: zi.frontArm - 4,
 		}),
 		upper: genClothingLayer("upper", {
-			z: zi.base + 11,
+			z: zi.frontArm - 3,
 		}),
 		upperAcc: genClothingAccLayer("upper", {
-			z: zi.base + 12,
+			z: zi.frontArm - 3,
 		}),
 		upperBreasts: genClothingLayer("upper", {
 			srcfn(options) {
@@ -1009,7 +1020,7 @@ const combatMainPc = {
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 13,
+			z: zi.frontArm - 3,
 		}),
 		upperBackSleeves: genClothingLayer("upper", {
 			srcfn(options) {
@@ -1028,7 +1039,7 @@ const combatMainPc = {
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base - 1,
+			z: zi.backArm + 1,
 		}),
 		upperFrontSleeves: genClothingLayer("upper", {
 			srcfn(options) {
@@ -1044,7 +1055,7 @@ const combatMainPc = {
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.base + 14,
+			z: zi.frontArm + 1,
 		}),
 	},
 };
