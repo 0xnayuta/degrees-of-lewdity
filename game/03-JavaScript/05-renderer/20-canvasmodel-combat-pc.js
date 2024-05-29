@@ -958,7 +958,7 @@ const combatMainPc = {
 			z: zi.base + 10,
 		}),
 		overLower: genClothingLayer("over_lower", {
-			z: zi.frontThigh + 3,
+			z: zi.frontThigh + 4,
 		}),
 		overUpper: genClothingLayer("over_upper", {
 			z: zi.base + 10,

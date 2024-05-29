@@ -3637,6 +3637,7 @@ function initLower() {
 			name: "keyhole skirt",
 			name_cap: "Keyhole skirt",
 			variable: "keyhole",
+			combatImg: "skirt",
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 1,

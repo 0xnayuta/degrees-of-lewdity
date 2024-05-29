@@ -154,6 +154,7 @@ function initFeet() {
 			name: "dress sandals",
 			name_cap: "Dress sandals",
 			variable: "dresssandals",
+			combatImg: "wedgesandals",
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
