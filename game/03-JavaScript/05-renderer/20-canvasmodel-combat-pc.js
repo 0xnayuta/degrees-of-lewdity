@@ -880,7 +880,7 @@ const combatMainPc = {
 				console.log("Feet Acc Front Path:", path);
 				return path;
 			},
-			z: zi.backFootwear,
+			z: zi.frontFootwear,
 		}),
 		genitals: genClothingLayer("genitals", {
 			z: zi.base + 6,
