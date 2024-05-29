@@ -216,8 +216,8 @@ function mapPlayerToOptions(options) {
 	options.leftEye = V.leftEyeColour || "blue";
 	options.rightEye = V.rightEyeColour || "blue";
 
-	options.filters.leftEye = lookupColour(options, setup.colours.eyes_map, options.leftEye, "leftEye", "leftEye", "leftEye");
-	options.filters.rightEye = lookupColour(options, setup.colours.eyes_map, options.rightEye, "rightEye", "rightEye", "rightEye");
+	options.filters.leftEye = lookupColour(options, setup.colours.eyes_map, options.leftEye, "leftEye", "leftEye", "eyes");
+	options.filters.rightEye = lookupColour(options, setup.colours.eyes_map, options.rightEye, "rightEye", "rightEye", "eyes");
 	options.filters.hair = lookupColour(options, setup.colours.hair_map, options.hairColour, "hair", "hair_custom", "hair");
 	options.filters.hairFringe = lookupColour(
 		options,
@@ -582,7 +582,7 @@ function mapPcToLegPosition(options) {
 	}
 	if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 		options.legFrontPosition = "footjob";
-		options.legBackPosition = "footjob";
+		options.legBackPosition = "up";
 		return options;
 	}
 	if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
