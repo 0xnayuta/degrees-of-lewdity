@@ -64,11 +64,12 @@ class CombatSystem {
 		return activeState;
 	}
 
-	isVaginaActive() {
+	isVaginaActive(canvas) {
 		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.vaginastate
 		);
-		const activeUse = ["tentaclerub"].includes(V.vaginause);
+		const activeUse = ["tentaclerub"].includes(V.vaginause) && canvas !== "close";
+		if (canvas === "close" && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
 	}
 
@@ -77,7 +78,7 @@ class CombatSystem {
 		return activeState;
 	}
 
-	isAnusActive() {
+	isAnusActive(canvas) {
 		const activeState = [
 			"penetrated",
 			"doublepenetrated",
@@ -88,7 +89,10 @@ class CombatSystem {
 			"tentacle",
 			"tentacledeep",
 		].includes(V.anusstate);
-		const activeUse = ["tentaclerub"].includes(V.anususe);
+		if (canvas === "close" && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
+			return true;
+		}
+		const activeUse = ["tentaclerub"].includes(V.anususe) && canvas !== "close";
 		return activeState || activeUse;
 	}
 
@@ -103,15 +107,29 @@ class CombatSystem {
 	}
 
 	isPenisPenetrated() {
-		const activeState = ["penetrated", "tentacledeep"].includes(V.penisstate);
+		const activeState = ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
 		return activeState;
 	}
 
-	isPenisActive() {
+	isPenisActive(canvas) {
 		const activeState = ["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
 			V.penisstate
 		);
 		const activeUse = ["tentaclerub"].includes(V.penisuse);
+		if (
+			canvas === "close" &&
+			[
+				"entrance",
+				"imminent",
+				"otheranusimminent",
+				"otheranusentrance",
+				"othermouthentrance",
+				"othermouthimminent",
+				"otherpenisentrance",
+				"otherpenisimminent",
+			].includes(V.penisstate)
+		)
+			return true;
 		return activeState || activeUse;
 	}
 
@@ -119,8 +137,11 @@ class CombatSystem {
 		return ["penis"].includes(V.rightarm) || ["penis"].includes(V.leftarm);
 	}
 
-	isChestActive() {
+	isChestActive(canvas) {
 		const activeUse = ["penis"].includes(V.chestuse);
+		if (canvas === "close" && ["penis", "tentacle"].includes(V.chestuse)) {
+			return true;
+		}
 		return activeUse;
 	}
 
