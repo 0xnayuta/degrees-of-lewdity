@@ -55,9 +55,28 @@ declare global {
 
 	const L10n: any;
 
+	const random: any;
+
 	let throwError: Function;
 
 	let DefineMacro: Function;
+
+	interface ObjectConstructor {
+		hasOwn(object: any, property: any): boolean;
+		deepMerge(objects: any): object;
+		find(objects: any): object;
+	}
+
+	interface NumberConstructor {
+		shuffle();
+		select(index: number): any;
+		except(): any;
+		formatList(options: any): any;
+	}
+
+	interface ArrayConstructor {
+		between(min: number, max: number): boolean;
+	}
 }
 
 export {};
