@@ -116,6 +116,17 @@ declare global {
 		 * If your clothing item has accessory colours, but the sprites aren't finished, set to 0 to override the accessory colour code.
 		 */
 		combatAccessoryOverride?: 0 | 1;
+		/**
+		 * Determines whether there are state combat sprites for clothing.
+		 */
+		combatStates?: {
+			chest?: boolean;
+			midriff?: boolean;
+			waist?: boolean;
+			thighs?: boolean;
+			knees?: boolean;
+			ankles?: boolean;
+		};
 		integrity: number;
 		integrity_max: number;
 		fabric_strength: number;
