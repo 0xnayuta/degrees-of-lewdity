@@ -120,6 +120,7 @@ declare global {
 		 * Determines whether there are state combat sprites for clothing.
 		 */
 		combatStates?: {
+			neck?: boolean;
 			chest?: boolean;
 			midriff?: boolean;
 			waist?: boolean;
