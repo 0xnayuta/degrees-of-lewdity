@@ -112,6 +112,9 @@ declare global {
 		 * The folder ID for combat sprites, if not specified, uses variable
 		 */
 		combatImg?: string;
+		/**
+		 * If your clothing item has accessory colours, but the sprites aren't finished, set to 0 to override the accessory colour code.
+		 */
 		combatAccessoryOverride?: 0 | 1;
 		integrity: number;
 		integrity_max: number;
