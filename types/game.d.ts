@@ -172,6 +172,8 @@ declare module "twine-sugarcube" {
 				[x: string]: PrefilterMap;
 			};
 		};
+		LocationImages: LocationImages;
+		Locations: any;
 	}
 }
 
