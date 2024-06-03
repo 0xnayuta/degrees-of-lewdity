@@ -75,7 +75,7 @@ declare module "twine-sugarcube" {
 		clothes: {
 			[x in ClothesSlots]: ClothesItem[];
 		};
-		clothes_all_slots: ClothedSlots;
+		clothes_all_slots: ClothedSlots[];
 	}
 }
 

@@ -1,5 +1,5 @@
 // @ts-check
-/* global FilterMap, Player, Bodywriting */
+/* global FilterMap, Player, Bodywriting, ClothedSlots */
 
 /**
  * @typedef Options
@@ -808,6 +808,26 @@ function mapPcToPenetratorOptions(pc, options) {
 window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 
 /**
+ * @param {ClothesItem} clothing
+ * @returns {boolean}
+ */
+function isClothingStateEnabled(clothing) {
+	return !!clothing.combatStates && !!clothing.combatStates[clothing.state];
+}
+window.isClothingStateEnabled = isClothingStateEnabled;
+
+/**
+ * @param {ClothedSlots} slot
+ * @returns {ClothesItem}
+ */
+function getClothingBySlot(slot) {
+	const active = V.worn[slot];
+	const defaults = setup.clothes[slot][active.index];
+	return Object.assign({}, defaults, active);
+}
+window.getClothingBySlot = getClothingBySlot;
+
+/**
  *
  * @param {Player} pc
  * @param {Options} options
@@ -816,119 +836,145 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 function mapPcToClothingOptions(pc, options) {
 	// Clothing filters and options
 	for (const slot of setup.clothes_all_slots) {
-		/** @type {ClothesItem} */
-		const wornObj = V.worn[slot];
-
-		/** @type {ClothesItem} */
-		const setupObj = setup.clothes[slot][wornObj.index];
-
-		const clothing = Object.assign({}, setupObj, wornObj);
-
-		const name = clothing.combatImg ?? clothing.variable;
-		let state = clothing.state;
-		let show = name != null;
-		// Any up legs are enough to force the up position.
-		/** @type {"down" | "up" | "footjob"} */
-		let position = "down";
-
-		if (options.legBackPosition === "up" || options.legFrontPosition === "up") {
-			position = "up";
-		}
-
-		if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
-			position = "footjob";
-		}
-
-		if (clothing.index === 0) {
-			// Clothing is naked.
-			show = false;
-		}
-
-		if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
-			show = false;
-		}
-
-		if (slot === "under_upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
-			show = false;
-		}
-
-		if (slot === "lower") {
-			position = position === "down" ? "down" : "up";
-			if (clothing.skirt_down === 0 && state === "waist") {
-				state = "thighs";
-			}
-		}
-
-		if (slot === "under_lower") {
-			// Slot for under lower configurations
-			show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
-		}
-
-		if (slot === "feet") {
-			state = options.legFrontPosition;
-			// state = options.legBackPosition;
-		}
-
-		// Wetness
-		let alpha = 1;
-		const stage = V[slot + "wetstage"];
-		if (typeof stage === "number") {
-			alpha = Math.clamp(1 - stage / 4, 0, 1);
-		}
-
-		/**
-		 * @type {ClothingState}
-		 */
-		const clothes = {
-			item: clothing,
-			name,
-			position,
-			state: state || "full",
-			show,
-			alpha,
-			isSkirt: clothing.skirt === 1,
-			isExposed: !!clothing.exposed,
-			hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
-			hasBackImg: [1, "combat"].includes(clothing.back_img),
-			breasts: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.breast_img !== 0,
-				size: options.breastSize,
-			},
-			sleeves: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.sleeve_img === 1,
-				state: "default",
-			},
-		};
-
+		const clothes = mapPcToClothingOption(slot, pc, options);
 		options.clothes = options.clothes || {};
 		options.clothes[slot] = clothes;
-
-		const mainFilterKey = `worn_${slot}_main`;
-		const accFilterKey = `worn_${slot}_acc`;
-
-		options.filters = options.filters || {
-			worn: {},
-		};
-		options.filters.worn[slot] = {};
-
-		const colour = clothing.colour || clothing.colour_combat;
-		const debugName = slot + " clothing";
-		const filterName = "worn_" + slot + "_custom";
-		console.log("Clothing colour:", slot, colour);
-		options.filters[mainFilterKey] = colour
-			? lookupColour(options, setup.colours.clothes_map, colour, debugName, filterName, clothing.prefilter)
-			: Renderer.emptyLayerFilter();
-
-		const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
-		const accDebugName = slot + " accessory";
-		const accFilterName = "worn_" + slot + "_acc_custom";
-		options.filters[accFilterKey] = accColour
-			? lookupColour(options, setup.colours.clothes_map, accColour, accDebugName, accFilterName, clothing.prefilter)
-			: Renderer.emptyLayerFilter();
 	}
 	return options;
 }
 window.mapPcToClothingOptions = mapPcToClothingOptions;
+
+/**
+ * @param {ClothedSlots} slot
+ * @returns {number}
+ */
+function getAlpha(slot) {
+	// Wetness
+	let alpha = 1;
+	const stage = V[slot + "wetstage"];
+	if (typeof stage === "number") {
+		alpha = Math.clamp(1 - stage / 4, 0, 1);
+	}
+	return alpha;
+}
+
+/**
+ * @param {ClothedSlots} slot
+ * @param {Player} pc
+ * @param {Options} options
+ * @returns {ClothingState}
+ */
+function mapPcToClothingOption(slot, pc, options) {
+	const clothing = getClothingBySlot(slot);
+
+	const name = clothing.combatImg ?? clothing.variable;
+	let state = clothing.state;
+	let show = name != null;
+	// Any up legs are enough to force the up position.
+	/** @type {"down" | "up" | "footjob"} */
+	let position = "down";
+
+	if (options.legBackPosition === "up" || options.legFrontPosition === "up") {
+		position = "up";
+	}
+
+	if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
+		position = "footjob";
+	}
+
+	if (clothing.index === 0) {
+		// Clothing is naked.
+		show = false;
+	}
+
+	if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
+		show = false;
+	}
+
+	if (slot === "under_upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
+		show = false;
+	}
+
+	if (slot === "lower") {
+		position = position === "down" ? "down" : "up";
+		if (clothing.skirt_down === 0 && state === "waist") {
+			state = "thighs";
+		}
+	}
+
+	if (slot === "under_lower") {
+		// Slot for under lower configurations
+		show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
+	}
+
+	if (slot === "feet") {
+		state = options.legFrontPosition;
+		// state = options.legBackPosition;
+	}
+
+	if (clothing.combatStates) {
+		show = isClothingStateEnabled(clothing);
+	}
+
+	generateClothingFilter(slot, clothing, options);
+
+	/**
+	 * @type {ClothingState}
+	 */
+	const clothes = {
+		item: clothing,
+		name,
+		position,
+		state: state || "full",
+		show,
+		alpha: getAlpha(slot),
+		isSkirt: clothing.skirt === 1,
+		isExposed: !!clothing.exposed,
+		hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
+		hasBackImg: [1, "combat"].includes(clothing.back_img),
+		breasts: {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.breast_img !== 0,
+			size: options.breastSize,
+		},
+		sleeves: {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.sleeve_img === 1,
+			state: "default",
+		},
+	};
+
+	return clothes;
+}
+
+/**
+ * @param {ClothedSlots} slot
+ * @param {ClothesItem} clothing
+ * @param {Options} options
+ */
+function generateClothingFilter(slot, clothing, options) {
+	const mainFilterKey = `worn_${slot}_main`;
+	const accFilterKey = `worn_${slot}_acc`;
+
+	options.filters = options.filters || {
+		worn: {},
+	};
+	options.filters.worn[slot] = {};
+
+	const colour = clothing.colour || clothing.colour_combat;
+	const debugName = slot + " clothing";
+	const filterName = "worn_" + slot + "_custom";
+	console.log("Clothing colour:", slot, colour);
+	options.filters[mainFilterKey] = colour
+		? lookupColour(options, setup.colours.clothes_map, colour, debugName, filterName, clothing.prefilter)
+		: Renderer.emptyLayerFilter();
+
+	const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
+	const accDebugName = slot + " accessory";
+	const accFilterName = "worn_" + slot + "_acc_custom";
+	options.filters[accFilterKey] = accColour
+		? lookupColour(options, setup.colours.clothes_map, accColour, accDebugName, accFilterName, clothing.prefilter)
+		: Renderer.emptyLayerFilter();
+}
+window.generateClothingFilter = generateClothingFilter;
 
 /**
  * @param {Player} pc
