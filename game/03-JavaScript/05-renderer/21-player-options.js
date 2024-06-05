@@ -812,7 +812,7 @@ window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
  * @returns {boolean}
  */
 function isClothingStateEnabled(clothing) {
-	return !!clothing.combatStates && !!clothing.combatStates[clothing.state];
+	return clothing.combatStates != null ? clothing.combatStates[clothing.state] : true;
 }
 window.isClothingStateEnabled = isClothingStateEnabled;
 
@@ -931,7 +931,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		isSkirt: clothing.skirt === 1,
 		isExposed: !!clothing.exposed,
 		hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
-		hasBackImg: [1, "combat"].includes(clothing.back_img),
+		hasBackImg: !!clothing.back_img && [1, "combat"].includes(clothing.back_img),
 		breasts: {
 			show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.breast_img !== 0,
 			size: options.breastSize,

@@ -75,14 +75,17 @@ declare module "twine-sugarcube" {
 		clothes: {
 			[x in ClothesSlots]: ClothesItem[];
 		};
+		moddedClothes: {
+			[x in ClothesSlots]: ClothesItem[];
+		};
 		clothes_all_slots: ClothedSlots[];
 	}
 }
 
 declare global {
-		export type ClothesSlots = "clothes_all_slots" | ClothedSlots;
+	export type ClothesSlots = "clothes_all_slots" | ClothedSlots;
 
-		export type ClothedSlots =
+	export type ClothedSlots =
 		| "over_upper"
 		| "over_lower"
 		| "upper"
@@ -98,12 +101,12 @@ declare global {
 		| "legs"
 		| "feet"
 		| "genitals";
-		
+
 	export interface ClothesItem {
 		index: number;
 		name: string;
 		name_cap: string;
-		name_simple: string;
+		name_simple?: string;
 		/**
 		 * Folder name
 		 */
@@ -120,22 +123,69 @@ declare global {
 		 * Determines whether there are state combat sprites for clothing.
 		 */
 		combatStates?: {
-			neck?: boolean;
-			chest?: boolean;
-			midriff?: boolean;
-			waist?: boolean;
-			thighs?: boolean;
-			knees?: boolean;
-			ankles?: boolean;
+			missionary: {
+				neck?: {
+					show: boolean;
+				};
+				chest?: {
+					show: boolean;
+				};
+				midriff?: {
+					show: boolean;
+				};
+				waist?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				thighs?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				knees?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				ankles?: {
+					show: boolean;
+					singular?: boolean;
+				};
+			},
+			doggy: {
+				neck?: {
+					show: boolean;
+				};
+				chest?: {
+					show: boolean;
+				};
+				midriff?: {
+					show: boolean;
+				};
+				waist?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				thighs?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				knees?: {
+					show: boolean;
+					singular?: boolean;
+				};
+				ankles?: {
+					show: boolean;
+					singular?: boolean;
+				};
+			},
 		};
-		integrity: number;
-		integrity_max: number;
-		fabric_strength: number;
-		reveal: number;
-		bustresize: number;
-		one_piece: number;
-		strap: number;
-		open: number;
+		integrity?: number;
+		integrity_max?: number;
+		fabric_strength?: number;
+		reveal?: number;
+		bustresize?: number;
+		one_piece?: number;
+		strap?: number;
+		open?: number;
 		/**
 		 * a: A skirt.
 		 * 
@@ -145,9 +195,9 @@ declare global {
 		 */
 		word: "a" | "n" | "an";
 		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
-		state_base: string;
-		state_top: string;
-		state_top_base: string;
+		state_base: 0 | string;
+		state_top?: 0 | string;
+		state_top_base?: 0 | string;
 		skirt?: 0 | 1;
 		skirt_down?: 0 | 1;
 		/**
@@ -165,28 +215,28 @@ declare global {
 		 */
 		prefilter?: string;
 		colour: 0 | string;
-		colour_options: string[];
-		colour_sidebar: 0 | 1;
-		colour_combat: 0 | string;
+		colour_options?: string[];
+		colour_sidebar?: 0 | 1;
+		colour_combat?: 0 | string;
 		exposed: number;
-		exposed_base: number;
+		exposed_base?: number;
 		vagina_exposed: number;
-		vagina_exposed_base: number;
+		vagina_exposed_base?: number;
 		anus_exposed: number;
-		anus_exposed_base: number;
+		anus_exposed_base?: number;
 		type: string[];
-		set: string;
-		gender: string;
-		femininity: number;
+		set?: string;
+		gender?: string;
+		femininity?: number;
 		warmth: number;
-		cost: number;
+		cost?: number;
 		description: string;
-		shop: string[];
+		shop?: string[];
 		accessory: number;
-		accessory_colour: 0 | string;
-		accessory_colour_options: string[];
-		accessory_colour_sidebar: number;
-		accessory_colour_combat: 0 | string;
+		accessory_colour?: 0 | string;
+		accessory_colour_options?: string[];
+		accessory_colour_sidebar?: 0 | 1 | string;
+		accessory_colour_combat?: 0 | string;
 		/**
 		 * if 1, then accessory files are integrity-dependent "acc_(tattered|torn|frayed|full).png"
 		 */
@@ -195,8 +245,8 @@ declare global {
 		 * if 1, then accessory files layer under breast sprites
 		 */
 		accessory_layer_under?: 0 | 1;
-		high_img: 0 | 1;
-		back_img: 0 | 1 | "combat";
+		high_img?: 0 | 1;
+		back_img?: 0 | 1 | "combat";
 		/**
 		 * Recolouring of back image
 		 * * "" (default) - depending on colour_sidebar
@@ -210,14 +260,14 @@ declare global {
 		 * 1 if has sleeve images, named (left|right)[_cover].png".
 		 * Colouring depends on sleeve_colour property.
 		 */
-		sleeve_img: number;
+		sleeve_img?: number;
 		/**
 		 * (For upper, over_upper, under_upper slots)
 		 * 1 if has sleeve accessory images, named (left|right)[_cover]_acc.png".
 		 * These images are not colored.
 		 * Requires sleeve_img: 1.
 		 */
-		sleeve_acc_img: number;
+		sleeve_acc_img?: number;
 		/**
 		 * (For upper, over_upper, under_upper slots)
 		 * Recolouring of sleeves images:
@@ -235,20 +285,25 @@ declare global {
 		 *     - null if no clothed breast image exists for that breast size.
 		 *     - 0..6 for clothed breast image used for that breast size.
 		 */
-		breast_img: object | 1 | 0;
-		cursed: number;
-		location: number;
-		iconFile: string;
-		accIcon: number;
-		outfitPrimary: object;
-		outfitSecondary: string[];
-		notuck: number;
+		breast_img?: object | 1 | 0;
+		cursed?: number;
+		location?: number;
+		iconFile?: 0 | string;
+		accIcon?: 0 | string;
+		outfitPrimary?: object;
+		outfitSecondary?: string[];
+		notuck?: number;
 		/**
 		 * (For head slots)
 		 * if 1, this item has mask.png image to cut out hair & animal ears layers
 		 */
 		mask_img?: number;
 		collared?: 1;
+		rearresize?: number;
+		short?: 0 | 1;
+		mainImage?: 0 | string;
+		shopGroup?: string;
+		pregType?: string;
 		// TODO list and document other options
 	}
 
@@ -277,4 +332,4 @@ declare global {
 	}
 }
 
-export {};
+export { };
