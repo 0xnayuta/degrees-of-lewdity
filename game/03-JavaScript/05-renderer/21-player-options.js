@@ -865,9 +865,10 @@ function getAlpha(slot) {
  * @returns {ClothingState}
  */
 function mapPcToClothingOption(slot, pc, options) {
+	const defaults = setup.clothes[slot][V.worn[slot].index];
 	const clothing = getClothingBySlot(slot);
 
-	const name = clothing.combatImg ?? clothing.variable;
+	const name = defaults.combatImg ?? clothing.variable;
 	let state = clothing.state;
 	let show = name != null;
 	// Any up legs are enough to force the up position.
@@ -882,7 +883,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		position = "footjob";
 	}
 
-	if (clothing.index === 0) {
+	if (defaults.index === 0) {
 		// Clothing is naked.
 		show = false;
 	}
@@ -897,7 +898,7 @@ function mapPcToClothingOption(slot, pc, options) {
 
 	if (slot === "lower") {
 		position = position === "down" ? "down" : "up";
-		if (clothing.skirt_down === 0 && state === "waist") {
+		if (defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist") {
 			state = "thighs";
 		}
 	}
@@ -912,7 +913,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		// state = options.legBackPosition;
 	}
 
-	if (clothing.combatStates) {
+	if (defaults.combatStates) {
 		show = isClothingStateEnabled(clothing);
 	}
 
@@ -928,16 +929,16 @@ function mapPcToClothingOption(slot, pc, options) {
 		state: state || "full",
 		show,
 		alpha: getAlpha(slot),
-		isSkirt: clothing.skirt === 1,
+		isSkirt: defaults.skirt === 1,
 		isExposed: !!clothing.exposed,
-		hasAccessory: clothing.combatAccessoryOverride === 1 || clothing.accessory === 1,
-		hasBackImg: !!clothing.back_img && [1, "combat"].includes(clothing.back_img),
+		hasAccessory: defaults.combatAccessoryOverride === 1 || defaults.accessory === 1,
+		hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 		breasts: {
-			show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.breast_img !== 0,
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,
 			size: options.breastSize,
 		},
 		sleeves: {
-			show: ["upper", "under_upper", "over_upper"].includes(slot) && clothing.sleeve_img === 1,
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.sleeve_img === 1,
 			state: "default",
 		},
 	};
