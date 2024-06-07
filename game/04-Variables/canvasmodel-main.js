@@ -913,6 +913,7 @@ Renderer.CanvasModels["main"] = {
 		} else {
 			options.alt_sleeve_state = true;
 		}
+		T.mainCanvasOptions = options;
 	},
 	layers: {
 		// banner comments generated in http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=base
