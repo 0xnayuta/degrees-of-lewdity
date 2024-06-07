@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
 
 Warmth checklist:
@@ -206,7 +207,7 @@ function initUnderLower() {
 			name_simple: "undies",
 			variable: "briefs",
 			combatImg: "panties",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -958,7 +959,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "stripedpanties",
 			combatImg: "panties",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -1333,7 +1334,7 @@ function initUnderLower() {
 			name_simple: "jockstrap",
 			variable: "jockstrap",
 			combatImg: "thong",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 120,
 			integrity_max: 120,
 			fabric_strength: 20,
@@ -2030,7 +2031,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "janties",
 			combatImg: "panties",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 15,
@@ -2077,7 +2078,7 @@ function initUnderLower() {
 			name_simple: "thong",
 			variable: "jhong",
 			combatImg: "thong",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 20,

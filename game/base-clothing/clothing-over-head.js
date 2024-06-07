@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 function initOverHead() {
 	/** @type {ClothesItem[]} */
@@ -7,6 +8,8 @@ function initOverHead() {
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			state: 0,
+			state_base: 0,
 			integrity: 0,
 			integrity_max: 0,
 			fabric_strength: 0,
@@ -37,6 +40,8 @@ function initOverHead() {
 			name: "froggy hood",
 			name_cap: "Froggy hood",
 			variable: "froggy",
+			state: 0,
+			state_base: 0,
 			integrity: 300,
 			integrity_max: 300,
 			fabric_strength: 20,

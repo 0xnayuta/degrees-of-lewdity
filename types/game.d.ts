@@ -171,6 +171,7 @@ declare module "twine-sugarcube" {
 			sprite_prefilters: {
 				[x: string]: PrefilterMap;
 			};
+			getSkinFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
 		};
 		LocationImages: LocationImages;
 		Locations: any;
@@ -179,10 +180,7 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface FilterMap {
-		canvasfilter: {
-			blend: string;
-			blendMode: string;
-		};
+		canvasfilter: CompositeLayerSpec;
 		csstext: string;
 		name: string;
 		name_cap: string;
@@ -212,4 +210,4 @@ declare global {
 	}
 }
 
-export {};
+export { };

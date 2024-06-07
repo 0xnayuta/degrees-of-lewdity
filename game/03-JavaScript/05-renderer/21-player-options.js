@@ -10,6 +10,7 @@
  * @property {boolean} showFace
  * @property {boolean} showClothing Flag to show the clothing layers.
  * @property {boolean} showNPCs Flag to show the NPC model(s).
+ * @property {boolean} showTan Flag to show the player model's tan.
  * @property {number} animSpeed The global speed to play animations.
  * Computed
  * @property {string} src The computed directory path for the position.
@@ -209,24 +210,16 @@ function mapPlayerToOptions(options) {
 
 	options.penetrator = mapPcToPenetratorOptions(V.player, options);
 
-	options.skinType = V.skinColor.natural;
-	options.skinTone = V.skinColor.range / 100;
+	generateBodyFilters(options);
 
 	options.hairColour = V.haircolour || "red";
 	options.leftEye = V.leftEyeColour || "blue";
 	options.rightEye = V.rightEyeColour || "blue";
 
-	options.filters.leftEye = lookupColour(options, setup.colours.eyes_map, options.leftEye, "leftEye", "leftEye", "eyes");
-	options.filters.rightEye = lookupColour(options, setup.colours.eyes_map, options.rightEye, "rightEye", "rightEye", "eyes");
-	options.filters.hair = lookupColour(options, setup.colours.hair_map, options.hairColour, "hair", "hair_custom", "hair");
-	options.filters.hairFringe = lookupColour(
-		options,
-		setup.colours.hair_map,
-		options.hairFringeColour || options.hairColour,
-		"hair_fringe",
-		"hair_fringe_custom",
-		"hair_fringe"
-	);
+	options.filters.leftEye = lookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
+	options.filters.rightEye = lookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
+	options.filters.hair = lookupColour(setup.colours.hair_map, options.hairColour, "hair", undefined, "hair");
+	options.filters.hairFringe = lookupColour(setup.colours.hair_map, options.hairFringeColour || options.hairColour, "hair_fringe", undefined, "hair_fringe");
 
 	// Set props
 	mapToPropsOptions(options);
@@ -859,6 +852,17 @@ function getAlpha(slot) {
 }
 
 /**
+ * @param {ClothesItem} defaults
+ * @returns {boolean}
+ */
+function getAccessoryState(defaults) {
+	if (defaults.combatAccessoryOverride !== undefined) {
+		return !!defaults.combatAccessoryOverride;
+	}
+	return defaults.accessory !== 0;
+}
+
+/**
  * @param {ClothedSlots} slot
  * @param {Player} pc
  * @param {Options} options
@@ -881,11 +885,6 @@ function mapPcToClothingOption(slot, pc, options) {
 
 	if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
 		position = "footjob";
-	}
-
-	if (defaults.index === 0) {
-		// Clothing is naked.
-		show = false;
 	}
 
 	if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
@@ -919,6 +918,11 @@ function mapPcToClothingOption(slot, pc, options) {
 
 	generateClothingFilter(slot, clothing, options);
 
+	if (defaults.index === 0 || name === "naked") {
+		// Clothing is naked.
+		show = false;
+	}
+
 	/**
 	 * @type {ClothingState}
 	 */
@@ -931,7 +935,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		alpha: getAlpha(slot),
 		isSkirt: defaults.skirt === 1,
 		isExposed: !!clothing.exposed,
-		hasAccessory: defaults.combatAccessoryOverride === 1 || defaults.accessory === 1,
+		hasAccessory: getAccessoryState(defaults),
 		hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 		breasts: {
 			show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,
@@ -962,17 +966,17 @@ function generateClothingFilter(slot, clothing, options) {
 
 	const colour = clothing.colour || clothing.colour_combat;
 	const debugName = slot + " clothing";
-	const filterName = "worn_" + slot + "_custom";
+	const customFilter = clothing.colourCustom;
 	console.log("Clothing colour:", slot, colour);
 	options.filters[mainFilterKey] = colour
-		? lookupColour(options, setup.colours.clothes_map, colour, debugName, filterName, clothing.prefilter)
+		? lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 		: Renderer.emptyLayerFilter();
 
 	const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
 	const accDebugName = slot + " accessory";
-	const accFilterName = "worn_" + slot + "_acc_custom";
+	const accCustomFilter = clothing.accessory_colourCustom;
 	options.filters[accFilterKey] = accColour
-		? lookupColour(options, setup.colours.clothes_map, accColour, accDebugName, accFilterName, clothing.prefilter)
+		? lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 		: Renderer.emptyLayerFilter();
 }
 window.generateClothingFilter = generateClothingFilter;
@@ -1240,35 +1244,84 @@ window.mapPcToBodywritingOptions = mapPcToBodywritingOptions;
 /**
  * For colour name, lookup its canvas filter and merge with sprite prefilter.
  *
- * @param {object} options Options
  * @param {Object<string, FilterMap>} dict map in setup.colours to lookup in
  * @param {string} key colour name.
  * @param {string} debugName used when reporting errors
- * @param {string} customFilterName key in options.filters
+ * @param {string | undefined} customFilter key in options.filters
  * @param {string | undefined} prefilterName name of prefilter to apply
- * @returns {CompositeLayerParams} CompositeLayerParams - Check TS docs for model.d.ts
+ * @returns {CompositeLayerSpec?} CompositeLayerParams - Check TS docs for model.d.ts
  */
-function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
-	console.log("lookupColour", dict, key, debugName, customFilterName, prefilterName);
-	let filter;
-	if (key === "custom") {
-		filter = clone(options.filters[customFilterName]);
-		if (!filter) {
-			console.error("custom " + debugName + " colour not configured");
-			return {};
-		}
-	} else {
-		const record = dict[key];
-		if (!record) {
-			console.error("unknown " + debugName + " colour: " + key);
-			return {};
-		}
-		filter = clone(record.canvasfilter);
+function lookupColour(dict, key, debugName, customFilter, prefilterName) {
+	console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
+
+	const filter = key === "custom" ? getCustomFilterColour(customFilter, debugName) : getFilterColour(key, dict, debugName);
+
+	if (filter == null) {
+		console.error("Lookup colour failed:", debugName);
+		return filter;
 	}
 
 	if (prefilterName) {
 		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
 	}
+
 	return filter;
 }
 window.lookupColour = lookupColour;
+
+/**
+ * @param {string} key
+ * @param {Object<string, FilterMap>} dict
+ * @param {string} debugName
+ * @returns {CompositeLayerSpec?}
+ */
+function getFilterColour(key, dict, debugName) {
+	const record = dict[key];
+	if (!record) {
+		console.error("unknown", debugName, "colour:", key);
+		return null;
+	}
+	const filter = clone(record.canvasfilter);
+	return filter;
+}
+window.getFilterColour = getFilterColour;
+
+/**
+ * @param {string | undefined} customFilter
+ * @param {string} debugName
+ * @returns {CompositeLayerSpec?}
+ */
+function getCustomFilterColour(customFilter, debugName) {
+	if (!customFilter) return null;
+
+	const filter = getCustomClothesColourCanvasFilter(customFilter);
+	if (!filter) {
+		console.error("Custom colour", debugName, "not configured");
+		return null;
+	}
+	return filter;
+}
+window.getCustomFilterColour = getCustomFilterColour;
+
+/**
+ * @param {Options} options
+ */
+function generateBodyFilters(options) {
+	options.skinType = V.skinColor.natural;
+	options.skinTone = V.skinColor.range / 100;
+	const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+	options.filters.body = skinFilter;
+	options.filters.breasts = skinFilter;
+	options.filters.penis = skinFilter;
+	if (options.showTan) {
+		const tanslots = ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]
+			.map(slotname => [slotname, options["skin_tone_" + slotname]])
+			.filter(slot => slot[1] >= 0);
+		// Brightest on top
+		tanslots.sort((a, b) => b[1] - a[1]);
+		tanslots.forEach((slot, i) => {
+			options.filters[slot[0]] = setup.colours.getSkinFilter(options.skinType, slot[1]);
+			options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
+		});
+	}
+}

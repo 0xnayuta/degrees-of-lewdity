@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites.
 
 Warmth checklist:
@@ -295,7 +296,7 @@ function initUnderUpper() {
 			name_cap: "Foreign school swimsuit",
 			variable: "schoolswimsuitj",
 			combatImg: "straplessbra",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 40,
 			integrity_max: 40,
 			fabric_strength: 30,
@@ -747,7 +748,7 @@ function initUnderUpper() {
 			name_cap: "Striped bra",
 			variable: "stripedbra",
 			combatImg: "bra",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 15,
@@ -975,7 +976,7 @@ function initUnderUpper() {
 			name: "swim shirt",
 			name_cap: "Swim shirt",
 			variable: "swimshirt",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1153,6 +1154,7 @@ function initUnderUpper() {
 			name: "tape",
 			name_cap: "Tape",
 			variable: "tape",
+			combatHasMainImg: false,
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 30,
@@ -1286,7 +1288,7 @@ function initUnderUpper() {
 			name_cap: "Undershirt",
 			variable: "undershirt",
 			combatImg: "swimshirt",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
@@ -1512,7 +1514,7 @@ function initUnderUpper() {
 			name_cap: "Camisole",
 			variable: "camisole",
 			combatImg: "bra",
-			combatAccessoryOverride: 0,
+			combatAccessoryOverride: false,
 			integrity: 150,
 			integrity_max: 150,
 			fabric_strength: 20,

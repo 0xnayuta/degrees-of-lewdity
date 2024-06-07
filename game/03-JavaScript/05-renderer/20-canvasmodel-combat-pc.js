@@ -934,6 +934,9 @@ const combatMainPc = {
 		headwear: genClothingLayer("head", {
 			z: 81 + 1 /* hair Z plus one */,
 		}),
+		headwearAcc: genClothingAccLayer("head", {
+			z: 81 + 1 /* hair Z plus one */,
+		}),
 		legwearBack: genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;

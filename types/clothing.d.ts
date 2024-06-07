@@ -118,7 +118,11 @@ declare global {
 		/**
 		 * If your clothing item has accessory colours, but the sprites aren't finished, set to 0 to override the accessory colour code.
 		 */
-		combatAccessoryOverride?: 0 | 1;
+		combatAccessoryOverride?: boolean;
+		/**
+		 * 
+		 */
+		combatHasMainImg?: boolean;
 		/**
 		 * Determines whether there are state combat sprites for clothing.
 		 */
@@ -209,20 +213,11 @@ declare global {
 		 */
 		exposed?: 0 | 1 | 2;
 		plural: number;
-		/**
-		 * key in setup.colours.prefilters identifying preprocessing required for canvas renderer.
-		 * default is "clothes"
-		 */
-		prefilter?: string;
-		colour: 0 | string;
-		colour_options?: string[];
-		colour_sidebar?: 0 | 1;
-		colour_combat?: 0 | string;
 		exposed: number;
 		exposed_base?: number;
-		vagina_exposed: number;
+		vagina_exposed?: number;
 		vagina_exposed_base?: number;
-		anus_exposed: number;
+		anus_exposed?: number;
 		anus_exposed_base?: number;
 		type: string[];
 		set?: string;
@@ -232,11 +227,22 @@ declare global {
 		cost?: number;
 		description: string;
 		shop?: string[];
+		/**
+		 * key in setup.colours.prefilters identifying preprocessing required for canvas renderer.
+		 * default is "clothes"
+		 */
+		prefilter?: string;
+		colour: 0 | string;
+		colour_options?: string[];
+		colour_sidebar?: 0 | 1 | "primary";
+		colour_combat?: 0 | string;
+		colourCustom?: string;
 		accessory: number;
 		accessory_colour?: 0 | string;
 		accessory_colour_options?: string[];
 		accessory_colour_sidebar?: 0 | 1 | string;
 		accessory_colour_combat?: 0 | string;
+		accessory_colourCustom?: string;
 		/**
 		 * if 1, then accessory files are integrity-dependent "acc_(tattered|torn|frayed|full).png"
 		 */
@@ -247,6 +253,8 @@ declare global {
 		accessory_layer_under?: 0 | 1;
 		high_img?: 0 | 1;
 		back_img?: 0 | 1 | "combat";
+		back_img_acc?: 0 | 1;
+		back_img_acc_colour?: string;
 		/**
 		 * Recolouring of back image
 		 * * "" (default) - depending on colour_sidebar
@@ -276,7 +284,7 @@ declare global {
 		 * * "primary" - use primary/main colour
 		 * * "secondary" - use secondary/accessory colour
 		 */
-		sleeve_colour?: "" | "no" | "primary" | "secondary";
+		sleeve_colour?: "" | "none" | "no" | "primary" | "secondary";
 		/**
 		 * * 1 if has breast sprites and a unique image for every breast sprite
 		 * * 0 if no breast sprites
@@ -292,18 +300,47 @@ declare global {
 		accIcon?: 0 | string;
 		outfitPrimary?: object;
 		outfitSecondary?: string[];
-		notuck?: number;
+		notuck?: number | "tie";
+		has_collar?: 0 | 1;
 		/**
 		 * (For head slots)
 		 * if 1, this item has mask.png image to cut out hair & animal ears layers
 		 */
 		mask_img?: number;
-		collared?: 1;
+		collared?: 0 | 1;
 		rearresize?: number;
 		short?: 0 | 1;
 		mainImage?: 0 | string;
 		shopGroup?: string;
-		pregType?: string;
+		pregType?: 0 | string;
+		formfitting?: 1;
+		oldVariable?: {
+			name: string,
+			variable: string,
+		}[];
+		breast_acc_img?: 0 | 1;
+		accImage?: 0 | 1;
+		breast_combat?: 0 | 1;
+		anal_shield?: 0 | 1 | null;
+		penis_img?: 0 | 1;
+		no_aside?: 0 | 1;
+		hideUnderLower?: string[];
+		size?: number;
+		altsleeve?: string;
+		altposition?: string;
+		altdisabled?: string[];
+		zip?: 0 | 1;
+		integrity_mask_img?: 0 | 1;
+		hoodposition?: "down" | "up";
+		altDamage?: "metal" | "plastic" | "parasite";
+		penisSize?: boolean;
+		hood?: 0 | 1;
+		coverBackImage?: 0 | 1;
+		coverImage?: 0 | 1;
+		leftImage?: 0 | 1;
+		rightImage?: 0 | 1;
+		mask_img_ponytail?: 0 | 1;
+		head_type?: "veil" | "hat";
 		// TODO list and document other options
 	}
 
@@ -330,6 +367,10 @@ declare global {
 		transfer: boolean;
 		unlocked: boolean;
 	}
+
+	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia = 0): CompositeLayerSpec;
+
+	function getCustomClothesColourCanvasFilter(filter: string): CompositeLayerSpec;
 }
 
 export { };
