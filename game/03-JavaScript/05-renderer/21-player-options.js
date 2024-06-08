@@ -1308,7 +1308,7 @@ window.getCustomFilterColour = getCustomFilterColour;
  */
 function generateBodyFilters(options) {
 	options.skinType = V.skinColor.natural;
-	options.skinTone = V.skinColor.range / 100;
+	options.skinTone = getTanValues().body;
 	const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
 	options.filters.body = skinFilter;
 	options.filters.breasts = skinFilter;
@@ -1324,4 +1324,22 @@ function generateBodyFilters(options) {
 			options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
 		});
 	}
+}
+
+function getTanValues() {
+	const tanValByName = {
+		body: 0,
+		breasts: -0.01,
+		penis: -0.01,
+		swimshorts: -0.01,
+		swimsuitTop: -0.01,
+		swimsuitBottom: -0.01,
+		bikiniTop: -0.01,
+		bikiniBottom: -0.01,
+		tshirt: -0.01 /* No sprites yet? */
+	};
+	for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
+		tanValByName[setup.skinColor.tanLoc[i]] = V.skinColor.tanValues[i] / 100;
+	}
+	return tanValByName;
 }
