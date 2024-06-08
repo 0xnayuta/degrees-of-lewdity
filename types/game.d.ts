@@ -159,7 +159,32 @@ declare module "twine-sugarcube" {
 		feats: FeatsSetupVariables;
 		colours: {
 			clothes: FilterMap[];
+			lipstick: FilterMap[];
+			condom: FilterMap[];
+			mascara: FilterMap[];
+			eyeshadow: FilterMap[];
+			eyes: FilterMap[];
+			hair: FilterMap[];
+			clothes_default: Partial<CompositeLayerSpec>;
+			lipstick_default: Partial<CompositeLayerSpec>;
+			condom_default: Partial<CompositeLayerSpec>;
+			mascara_default: Partial<CompositeLayerSpec>;
+			eyeshadow_default: Partial<CompositeLayerSpec>;
+			eyes_default: Partial<CompositeLayerSpec>;
+			hair_default: Partial<CompositeLayerSpec>;
 			clothes_map: {
+				[x: string]: FilterMap;
+			};
+			lipstick_map: {
+				[x: string]: FilterMap;
+			};
+			condom_map: {
+				[x: string]: FilterMap;
+			};
+			mascara_map: {
+				[x: string]: FilterMap;
+			};
+			eyeshadow_map: {
 				[x: string]: FilterMap;
 			};
 			eyes_map: {
@@ -171,7 +196,15 @@ declare module "twine-sugarcube" {
 			sprite_prefilters: {
 				[x: string]: PrefilterMap;
 			};
-			getSkinFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
+			skin_gradients: {
+				[x: string]: string[];
+			};
+			getSkinFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): {
+				blend: any;
+				blendMode: string;
+			};
+			getSkinRgb(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
+			getSkinCSSFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
 		};
 		LocationImages: LocationImages;
 		Locations: any;
@@ -180,11 +213,14 @@ declare module "twine-sugarcube" {
 
 declare global {
 	export interface FilterMap {
-		canvasfilter: CompositeLayerSpec;
+		canvasfilter: Partial<CompositeLayerSpec>;
 		csstext: string;
 		name: string;
 		name_cap: string;
 		variable: string;
+		natural?: boolean;
+		lens?: boolean;
+		dye?: boolean;
 	}
 
 	export interface PrefilterMap {
