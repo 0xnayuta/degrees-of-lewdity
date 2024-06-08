@@ -557,6 +557,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.backArm,
 		},
 		backthigh: {
@@ -569,6 +570,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.backThigh,
 		},
 		backleg: {
@@ -581,6 +583,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.backCalf,
 		},
 		base: {
@@ -593,6 +596,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.base,
 		},
 		frontthigh: {
@@ -606,6 +610,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.frontThigh,
 		},
 		frontleg: {
@@ -618,6 +623,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.frontCalf,
 		},
 		frontarm: {
@@ -630,6 +636,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.frontArm,
 		},
 		frontbreast: {
@@ -644,6 +651,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.base + 10,
 		},
 		penetrator: {
@@ -658,6 +666,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.base + 5,
 		},
 		penetratorEjaculate: {
@@ -694,6 +703,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.base,
 		},
 		frontEye: {
@@ -722,6 +732,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["body"],
 			z: zi.base + 2,
 		},
 		eyelashes: {
@@ -842,6 +853,9 @@ const combatMainPc = {
 		facewear: genClothingLayer("face", {
 			z: zi.base + 4,
 		}),
+		facewearAcc: genClothingAccLayer("face", {
+			z: zi.base + 4,
+		}),
 		footwearBack: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
@@ -899,7 +913,7 @@ const combatMainPc = {
 				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
 				return true;
 			},
-			z: zi.backArm + 2,
+			z: zi.backArm + 1,
 		}),
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
@@ -914,7 +928,7 @@ const combatMainPc = {
 				if (options.armFrontPosition === "bound2") return false;
 				return true;
 			},
-			z: zi.frontArm + 2,
+			z: zi.frontArm + 1,
 		}),
 		headwearBack: genClothingLayer("head", {
 			srcfn(options) {
