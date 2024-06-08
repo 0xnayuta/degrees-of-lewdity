@@ -1,5 +1,5 @@
 // @ts-check
-/* global FilterMap, Player, Bodywriting, ClothedSlots */
+/* global FilterMap, Player, Bodywriting, ClothedSlots, Partial */
 
 /**
  * @typedef Options
@@ -1249,7 +1249,7 @@ window.mapPcToBodywritingOptions = mapPcToBodywritingOptions;
  * @param {string} debugName used when reporting errors
  * @param {string | undefined} customFilter key in options.filters
  * @param {string | undefined} prefilterName name of prefilter to apply
- * @returns {CompositeLayerSpec?} CompositeLayerParams - Check TS docs for model.d.ts
+ * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
  */
 function lookupColour(dict, key, debugName, customFilter, prefilterName) {
 	console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
@@ -1273,7 +1273,7 @@ window.lookupColour = lookupColour;
  * @param {string} key
  * @param {Object<string, FilterMap>} dict
  * @param {string} debugName
- * @returns {CompositeLayerSpec?}
+ * @returns {Partial<CompositeLayerSpec>?}
  */
 function getFilterColour(key, dict, debugName) {
 	const record = dict[key];
