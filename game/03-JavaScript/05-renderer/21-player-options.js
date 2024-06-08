@@ -852,15 +852,54 @@ function getAlpha(slot) {
 }
 
 /**
+ * @param {ClothedSlots} slot
  * @param {ClothesItem} defaults
  * @returns {boolean}
  */
-function getAccessoryState(defaults) {
-	if (defaults.combatAccessoryOverride !== undefined) {
-		return !!defaults.combatAccessoryOverride;
+function getAccessoryState(slot, defaults) {
+	const source = getSourceClothing(slot, defaults);
+	if (source.combatAccessoryOverride !== undefined) {
+		return !!source.combatAccessoryOverride;
 	}
-	return defaults.accessory !== 0;
+	return source.accessory !== 0;
 }
+window.getAccessoryState = getAccessoryState;
+
+/**
+ * If combatImg is used to override the sprite images, this function aims to follow the redirects until
+ * reaching the clothing item that correctly matches the sprite configuration.
+ *
+ * For example, our current item uses accessory layers, but uses a redirected sprite key which doesn't use accessory layers,
+ * we want to use the accessory configuration of the redirected item, otherwise the renderer will try to display -acc files.
+ *
+ * @param {ClothedSlots} slot
+ * @param {ClothesItem} item
+ * @param {string[]} failsafe
+ * @returns {ClothesItem}
+ */
+function getSourceClothing(slot, item, failsafe = []) {
+	// Check to ensure no loops
+	if (failsafe.includes(item.variable)) {
+		console.error("getSourceClothing ran into a potential infinite loop:", item.variable, failsafe);
+		return item;
+	}
+	failsafe.push(item.variable);
+	// Main code
+	if (!item.combatImg) {
+		return item;
+	}
+	// Check combatImg's redirect for a possible clothing item:
+	const source = setup.clothes[slot]?.find(c => c.variable === item.combatImg);
+	if (source == null) {
+		return item;
+	}
+	// If this redirect item has combatImg, we'll want to look again:
+	if (source.combatImg) {
+		return getSourceClothing(slot, source, failsafe);
+	}
+	return source;
+}
+window.getSourceClothing = getSourceClothing;
 
 /**
  * @param {ClothedSlots} slot
@@ -935,7 +974,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		alpha: getAlpha(slot),
 		isSkirt: defaults.skirt === 1,
 		isExposed: !!clothing.exposed,
-		hasAccessory: getAccessoryState(defaults),
+		hasAccessory: getAccessoryState(slot, defaults),
 		hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 		breasts: {
 			show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,
