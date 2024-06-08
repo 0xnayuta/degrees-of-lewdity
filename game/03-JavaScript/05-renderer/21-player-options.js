@@ -1,5 +1,5 @@
 // @ts-check
-/* global FilterMap, Player, Bodywriting, ClothedSlots, Partial */
+/* global FilterMap, Player, Bodywriting, ClothedSlots, Partial, SkinColoursSimple */
 
 /**
  * @typedef Options
@@ -20,7 +20,7 @@
  * @property {number} breastSize The size of the player breasts.
  * @property {boolean} breastsExposed Whether the breasts are shown.
  * @property {Penetrator?} penetrator Typically the PC's penis, or strapon etc.
- * @property {"custom"|"light"|"medium"|"dark"|"gyaru"} skinType
+ * @property {SkinColoursSimple} skinType
  * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.
@@ -1336,7 +1336,8 @@ function getTanValues() {
 		swimsuitBottom: -0.01,
 		bikiniTop: -0.01,
 		bikiniBottom: -0.01,
-		tshirt: -0.01 /* No sprites yet? */
+		/* No sprites yet? */
+		tshirt: -0.01,
 	};
 	for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
 		tanValByName[setup.skinColor.tanLoc[i]] = V.skinColor.tanValues[i] / 100;

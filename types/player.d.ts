@@ -49,7 +49,7 @@ declare module "twine-sugarcube" {
 		timeSinceArousal: number;
 
 		skinColor: {
-			natural: "custom" | "light" | "medium" | "dark" | "gyaru";
+			natural: SkinColoursSimple;
 			range: number;
 			sunBlock: boolean;
 			tanValues: number[];
@@ -57,23 +57,9 @@ declare module "twine-sugarcube" {
 			current: {
 				[x: string]: string;
 			};
-			overwrite: {
-				bEnd: number;
-				bStart: number;
-				hEnd: number;
-				hStart: number;
-				sEnd: number;
-				sStart: number;
-			}[];
+			overwrite: SkinColourConfig[];
 			overwriteEnable: boolean;
-			overwriteValues: {
-				bEnd: number;
-				bStart: number;
-				hEnd: number;
-				hStart: number;
-				sEnd: number;
-				sStart: number;
-			};
+			overwriteValues: SkinColourConfig;
 		};
 		/**
 		 * Only used within settings, try to use leftEyeColour or rightEyeColour.

@@ -1,22 +1,3 @@
-type ClothesSlots = "all" | ClothedSlots;
-
-type ClothedSlots =
-	| "over_upper"
-	| "over_lower"
-	| "upper"
-	| "lower"
-	| "under_upper"
-	| "under_lower"
-	| "over_head"
-	| "head"
-	| "face"
-	| "neck"
-	| "hands"
-	| "handheld"
-	| "legs"
-	| "feet"
-	| "genitals";
-
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		worn: {

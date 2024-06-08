@@ -199,12 +199,24 @@ declare module "twine-sugarcube" {
 			skin_gradients: {
 				[x: string]: string[];
 			};
-			getSkinFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): {
+			getSkinFilter(type: SkinColoursSimple, tone: number): {
 				blend: any;
 				blendMode: string;
 			};
-			getSkinRgb(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
-			getSkinCSSFilter(type: "custom" | "light" | "medium" | "dark" | "gyaru", tone: number): string;
+			getSkinRgb(type: SkinColoursSimple, tone: number): string;
+			getSkinCSSFilter(type: SkinColoursSimple, tone: number): string;
+		}
+		skinColor: {
+			tanLoc: string[];
+			light: SkinColourConfig;
+			medium: SkinColourConfig;
+			dark: SkinColourConfig;
+			gyaru: SkinColourConfig;
+			ylight: SkinColourConfig;
+			ymedium: SkinColourConfig;
+			ydark: SkinColourConfig;
+			ygyaru: SkinColourConfig;
+			slime: SkinColourConfig;
 		};
 		LocationImages: LocationImages;
 		Locations: any;
@@ -212,6 +224,18 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export type SkinColoursSimple = "custom" | "light" | "medium" | "dark" | "gyaru";
+	export type SkinColours = SkinColoursSimple | "ylight" | "ymedium" | "ydark" | "ygyaru" | "slime";
+
+	export interface SkinColourConfig {
+		hStart: number;
+		hEnd: number;
+		sStart: number;
+		sEnd: number;
+		bStart: number;
+		bEnd: number;
+	}
+
 	export interface FilterMap {
 		canvasfilter: Partial<CompositeLayerSpec>;
 		csstext: string;
