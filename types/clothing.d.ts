@@ -64,6 +64,8 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export type ClothingStates = 0 | "default" | "bound" | "handjob" | "up" | "down" | "footjob" | "neck" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
+
 	export type ClothesSlots = "clothes_all_slots" | ClothedSlots;
 
 	export type ClothedSlots =
@@ -97,6 +99,11 @@ declare global {
 		 */
 		combatImg?: string;
 		/**
+		 * Overrides the combat sprite colour. For when sprites are grey-scale, but were intended to be a specific colour.
+		 */
+		combatColourOverride?: string;
+		combatAccessoryColourOverride?: string;
+		/**
 		 * If your clothing item has accessory colours, but the sprites aren't finished, set to 0 to override the accessory colour code.
 		 */
 		combatAccessoryOverride?: boolean;
@@ -104,6 +111,10 @@ declare global {
 		 * 
 		 */
 		combatHasMainImg?: boolean;
+		/**
+		 * 
+		 */
+		combatBoundable?: boolean;
 		/**
 		 * Determines whether there are state combat sprites for clothing.
 		 */
@@ -179,7 +190,7 @@ declare global {
 		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
-		state: 0 | "up" | "down" | "footjob" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
+		state: ClothingStates;
 		state_base: 0 | string;
 		state_top?: 0 | string;
 		state_top_base?: 0 | string;

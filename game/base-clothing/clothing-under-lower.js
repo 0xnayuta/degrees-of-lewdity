@@ -112,7 +112,6 @@ function initUnderLower() {
 			name_cap: "Bikini bottoms",
 			name_simple: "bikini bottoms",
 			variable: "bikini",
-			combatImg: "highmicrokini",
 			integrity: 20,
 			integrity_max: 20,
 			fabric_strength: 20,

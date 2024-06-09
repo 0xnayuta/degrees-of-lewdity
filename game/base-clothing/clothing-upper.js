@@ -413,7 +413,6 @@ function initUpper() {
 			name: "tank top",
 			name_cap: "Tank top",
 			variable: "tanktop",
-			combatImg: "tanktop",
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,

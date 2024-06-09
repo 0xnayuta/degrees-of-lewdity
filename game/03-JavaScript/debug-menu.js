@@ -118,10 +118,9 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Roll Over`, stayOnPassageFn],
-			widgets: [() => `<<set $position to ` + (V.position === "doggy" ? "doggy" : "missionary") + `>>`],
-			condition() {
-				return V.position === "doggy" || V.position === "missionary" ? 1 : 0;
-			},
+			widgets: [() => {
+				V.position = V.position === "doggy" ? "missionary" : "doggy";
+			}],
 		},
 		{
 			link: [`Replay current passage with new RNG`, ""],

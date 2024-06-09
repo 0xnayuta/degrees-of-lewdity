@@ -551,7 +551,7 @@ const combatMainPc = {
 			showfn(options) {
 				if (!options.showPlayer) return false;
 				if (options.position === "missionary" && options.armBackPosition === "default") return false;
-				if (options.armBackPosition === "bound2") return false;
+				if (options.armBackPosition === "bound") return false;
 				return true;
 			},
 			animationfn(options) {
@@ -909,9 +909,14 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (!isClothingShown(options, clothes)) return false;
-				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
-				if (options.position === "missionary" && options.armBackPosition !== "handjob") return false;
-				return true;
+				if (options.position === "doggy") {
+					const states = ["default", "handjob"];
+					if (clothes.isBoundable) {
+						states.push("bound");
+					}
+					return states.includes(options.armBackPosition);
+				}
+				return ["handjob"].includes(options.armBackPosition);
 			},
 			z: zi.backArm + 1,
 		}),
@@ -925,8 +930,10 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (!isClothingShown(options, clothes)) return false;
-				if (options.armFrontPosition === "bound2") return false;
-				return true;
+				if (options.position === "doggy") {
+					return ["default", "handjob"].includes(options.armFrontPosition);
+				}
+				return ["default", "handjob", "stroke"].includes(options.armFrontPosition);
 			},
 			z: zi.frontArm + 1,
 		}),
@@ -1014,6 +1021,14 @@ const combatMainPc = {
 			z: zi.frontArm - 1,
 		}),
 		underLower: genClothingLayer("under_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.under_lower;
+				if (clothes?.name == null) return "";
+				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
+				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}.png`;
+				console.log("Under lower path:", path);
+				return path;
+			},
 			z: zi.frontThigh + 2,
 		}),
 		underUpper: genClothingLayer("under_upper", {
@@ -1069,7 +1084,7 @@ const combatMainPc = {
 				const clothes = options.clothes.upper;
 				const show = isClothingShown(options, clothes) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
-				if (options.position === "doggy" && options.armBackPosition === "bound2") return false;
+				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;

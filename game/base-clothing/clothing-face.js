@@ -117,7 +117,6 @@ function initFace() {
 			name: "surgical mask",
 			name_cap: "Surgical mask",
 			variable: "surgicalmask",
-			combatImg: "surgicalmask",
 			state: 0,
 			state_base: 0,
 			integrity: 20,

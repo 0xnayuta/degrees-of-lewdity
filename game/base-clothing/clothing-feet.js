@@ -412,7 +412,6 @@ function initFeet() {
 			name: "court heels",
 			name_cap: "Court heels",
 			variable: "courtheels",
-			combatImg: "courtheels",
 			state: 0,
 			state_base: 0,
 			integrity: 200,

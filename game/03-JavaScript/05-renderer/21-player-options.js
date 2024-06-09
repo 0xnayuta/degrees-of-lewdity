@@ -1,5 +1,5 @@
 // @ts-check
-/* global FilterMap, Player, Bodywriting, ClothedSlots, Partial, SkinColoursSimple */
+/* global FilterMap, Player, Bodywriting, ClothedSlots, Partial, SkinColoursSimple, ClothingStates */
 
 /**
  * @typedef Options
@@ -30,8 +30,8 @@
  * @property {string} rightEye
  * @property {"up" | "down" | "footjob"} legBackPosition The position the back leg is in.
  * @property {"up" | "down" | "footjob"} legFrontPosition The position the front leg is in.
- * @property {"default"|"bound"|"bound2"|"handjob"} armBackPosition The position the back arm is in.
- * @property {"default"|"bound"|"bound2"|"handjob"} armFrontPosition The position the front arm is in.
+ * @property {"default"|"bound"|"handjob"} armBackPosition The position the back arm is in.
+ * @property {"default"|"bound"|"handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
  * @property {boolean} inOral
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
@@ -122,11 +122,12 @@
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string?} name The name of the clothing directory.
  * @property {"up" | "down" | "footjob"} position Part of the file name for certain clothing, such as lowerwear.
- * @property {"full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "up" | "down" | "footjob" | "totheside"} state The state of the clothing, the file name.
+ * @property {ClothingStates} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} isExposed Whether the clothing layer exposes beneath.
  * @property {boolean} isSkirt Whether the clothing layer is a skirt.
+ * @property {boolean} isBoundable Whether the clothing layer has a bound state.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {PlayerBreastState} breasts Breast state.
@@ -512,11 +513,11 @@ window.mapPcToArmPosition = mapPcToArmPosition;
 
 /**
  * @param {object} arm
- * @returns {"bound2" | "handjob" | "default"}
+ * @returns {"bound" | "handjob" | "default"}
  */
 function getArmState(arm) {
 	if (["bound", "grappled", "behind"].includes(arm)) {
-		return "bound2";
+		return "bound";
 	}
 	if (
 		[
@@ -608,9 +609,10 @@ window.mapPcToLegPosition = mapPcToLegPosition;
 /**
  * @param {Options} options
  * @param {ClothingState} clothing
- * @returns {string[]}
+ * @returns {ClothingStates[]}
  */
 function getExposedStates(options, clothing) {
+	/** @type {ClothingStates[]} */
 	const exposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
 	const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
 	if (clothing.isSkirt) {
@@ -974,6 +976,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		alpha: getAlpha(slot),
 		isSkirt: defaults.skirt === 1,
 		isExposed: !!clothing.exposed,
+		isBoundable: !!clothing.combatBoundable,
 		hasAccessory: getAccessoryState(slot, defaults),
 		hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 		breasts: {
@@ -1003,7 +1006,7 @@ function generateClothingFilter(slot, clothing, options) {
 	};
 	options.filters.worn[slot] = {};
 
-	const colour = clothing.colour || clothing.colour_combat;
+	const colour = clothing.combatColourOverride || clothing.colour_combat || clothing.colour;
 	const debugName = slot + " clothing";
 	const customFilter = clothing.colourCustom;
 	console.log("Clothing colour:", slot, colour);
@@ -1011,7 +1014,7 @@ function generateClothingFilter(slot, clothing, options) {
 		? lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 		: Renderer.emptyLayerFilter();
 
-	const accColour = clothing.accessory_colour || clothing.accessory_colour_combat;
+	const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour_combat || clothing.accessory_colour;
 	const accDebugName = slot + " accessory";
 	const accCustomFilter = clothing.accessory_colourCustom;
 	options.filters[accFilterKey] = accColour
