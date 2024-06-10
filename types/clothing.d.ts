@@ -104,7 +104,7 @@ declare global {
 		combatColourOverride?: string;
 		combatAccessoryColourOverride?: string;
 		/**
-		 * If your clothing item has accessory colours, but the sprites aren't finished, set to 0 to override the accessory colour code.
+		 * If your clothing item has accessory colours, but the sprites aren't finished, set to false to override the accessory colour code.
 		 */
 		combatAccessoryOverride?: boolean;
 		/**

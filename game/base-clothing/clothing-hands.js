@@ -248,6 +248,7 @@ function initHands() {
 			name: "cheerleader gloves",
 			name_cap: "Cheerleader gloves",
 			variable: "pompoms",
+			combatAccessoryOverride: false,
 			state: 0,
 			state_base: 0,
 			integrity: 200,

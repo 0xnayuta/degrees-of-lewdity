@@ -899,6 +899,9 @@ const combatMainPc = {
 		genitals: genClothingLayer("genitals", {
 			z: zi.base + 6,
 		}),
+		genitalsAcc: genClothingAccLayer("genitals", {
+			z: zi.base + 6,
+		}),
 		handsBack: genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
@@ -920,6 +923,28 @@ const combatMainPc = {
 			},
 			z: zi.backArm + 1,
 		}),
+		handsBackAcc: genClothingAccLayer("hands", {
+			srcfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}-acc.png`;
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				if (!isClothingShown(options, clothes)) return false;
+				if (!clothes.hasAccessory) return false;
+				if (options.position === "doggy") {
+					const states = ["default", "handjob"];
+					if (clothes.isBoundable) {
+						states.push("bound");
+					}
+					return states.includes(options.armBackPosition);
+				}
+				return ["handjob"].includes(options.armBackPosition);
+			},
+			z: zi.backArm + 1,
+		}),
 		handsFront: genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
@@ -930,10 +955,26 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (!isClothingShown(options, clothes)) return false;
-				if (options.position === "doggy") {
-					return ["default", "handjob"].includes(options.armFrontPosition);
-				}
-				return ["default", "handjob", "stroke"].includes(options.armFrontPosition);
+				return options.position === "doggy"
+					? ["default", "handjob"].includes(options.armFrontPosition)
+					: ["default", "handjob", "stroke"].includes(options.armFrontPosition);
+			},
+			z: zi.frontArm + 1,
+		}),
+		handsFrontAcc: genClothingAccLayer("hands", {
+			srcfn(options) {
+				const clothes = options.clothes.hands;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}-acc.png`;
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes.hands;
+				const show = options.showClothing && !isClothingShown(options, clothes) && clothes.hasAccessory;
+				const available = options.position === "doggy"
+					? ["default", "handjob"].includes(options.armFrontPosition)
+					: ["default", "handjob", "stroke"].includes(options.armFrontPosition);
+				return !!show && !!available;
 			},
 			z: zi.frontArm + 1,
 		}),
@@ -1008,16 +1049,38 @@ const combatMainPc = {
 			},
 			z: zi.frontThigh + 3,
 		}),
+		lowerAcc: genClothingAccLayer("lower", {
+			srcfn(options) {
+				const clothes = options.clothes.lower;
+				if (clothes?.name == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}-acc.png`;
+				console.log("Lower", "Path:", path);
+				return path;
+			},
+			z: zi.frontThigh + 3,
+		}),
 		neckWear: genClothingLayer("neck", {
+			z: zi.frontArm - 1,
+		}),
+		neckWearAcc: genClothingAccLayer("neck", {
 			z: zi.frontArm - 1,
 		}),
 		overHead: genClothingLayer("over_head", {
 			z: zi.base + 10,
 		}),
+		overHeadAcc: genClothingAccLayer("over_head", {
+			z: zi.base + 10,
+		}),
 		overLower: genClothingLayer("over_lower", {
 			z: zi.frontThigh + 4,
 		}),
+		overLowerAcc: genClothingAccLayer("over_lower", {
+			z: zi.frontThigh + 4,
+		}),
 		overUpper: genClothingLayer("over_upper", {
+			z: zi.frontArm - 1,
+		}),
+		overUpperAcc: genClothingAccLayer("over_upper", {
 			z: zi.frontArm - 1,
 		}),
 		underLower: genClothingLayer("under_lower", {
@@ -1031,7 +1094,21 @@ const combatMainPc = {
 			},
 			z: zi.frontThigh + 2,
 		}),
+		underLowerAcc: genClothingAccLayer("under_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.under_lower;
+				if (clothes?.name == null) return "";
+				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
+				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}-acc.png`;
+				console.log("Under lower path:", path);
+				return path;
+			},
+			z: zi.frontThigh + 2,
+		}),
 		underUpper: genClothingLayer("under_upper", {
+			z: zi.frontArm - 4,
+		}),
+		underUpperAcc: genClothingAccLayer("under_upper", {
 			z: zi.frontArm - 4,
 		}),
 		underUpperBreasts: genClothingLayer("under_upper", {
