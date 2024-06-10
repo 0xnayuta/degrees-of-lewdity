@@ -64,11 +64,19 @@ declare module "twine-sugarcube" {
 		/**
 		 * Only used within settings, try to use leftEyeColour or rightEyeColour.
 		 */
-		haircolour: string;
+		eyeselect: string;
 		leftEyeColour: string;
 		rightEyeColour: string;
-		eyeselect: string;
+		haircolour: string;
+		hairfringecolour: string;
 		hairlengthstage: string;
+		fringelengthstage: string;
+		hairtype: string;
+		fringetype: string;
+		hairColourStyle: "simple" | "gradient";
+		hairFringeColourStyle: "simple" | "gradient";
+		hairColourGradient: Gradient;
+		hairFringeColourGradient: Gradient;
 
 		/**
 		 * Wtf is this

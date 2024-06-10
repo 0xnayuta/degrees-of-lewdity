@@ -193,6 +193,18 @@ declare module "twine-sugarcube" {
 			hair_map: {
 				[x: string]: FilterMap;
 			};
+			hairgradients_prototypes: {
+				fringe: {
+					[x: string]: {
+						[x: string]: HairGradient;
+					};
+				};
+				sides: {
+					[x: string]: {
+						[x: string]: HairGradient;
+					};
+				};
+			}
 			sprite_prefilters: {
 				[x: string]: PrefilterMap;
 			};
@@ -206,6 +218,10 @@ declare module "twine-sugarcube" {
 			getSkinRgb(type: SkinColoursSimple, tone: number): string;
 			getSkinCSSFilter(type: SkinColoursSimple, tone: number): string;
 		}
+		hairstyles: {
+			fringe: any[];
+			sides: any[];
+		};
 		skinColor: {
 			tanLoc: string[];
 			light: SkinColourConfig;
@@ -234,6 +250,13 @@ declare global {
 		sEnd: number;
 		bStart: number;
 		bEnd: number;
+	}
+
+	export interface HairGradient {
+		gradient: string;
+		values: number[];
+		lengthFunctions: ((length: number, value: string) => string)[];
+		colors: (string | number)[][];
 	}
 
 	export interface FilterMap {

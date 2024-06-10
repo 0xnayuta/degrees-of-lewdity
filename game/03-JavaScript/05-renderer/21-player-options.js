@@ -24,8 +24,6 @@
  * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.
- * @property {string} hairColour
- * @property {string} hairFringeColour
  * @property {string} leftEye
  * @property {string} rightEye
  * @property {"up" | "down" | "footjob"} legBackPosition The position the back leg is in.
@@ -187,8 +185,7 @@ function mapPlayerToOptions(options) {
 	options.src = options.root + options.position + "/";
 
 	// Set hair properties
-	options.hairLength = V.hairlengthstage;
-	options.hairType = "default";
+	generateHairFilters(options);
 
 	// Set breast exposed, for example, an NPC had pushed clothing aside to make tits fall out
 	options.breastsExposed = true;
@@ -214,14 +211,11 @@ function mapPlayerToOptions(options) {
 
 	generateBodyFilters(options);
 
-	options.hairColour = V.haircolour || "red";
 	options.leftEye = V.leftEyeColour || "blue";
 	options.rightEye = V.rightEyeColour || "blue";
 
-	options.filters.leftEye = lookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
-	options.filters.rightEye = lookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
-	options.filters.hair = lookupColour(setup.colours.hair_map, options.hairColour, "hair", undefined, "hair");
-	options.filters.hairFringe = lookupColour(setup.colours.hair_map, options.hairFringeColour || options.hairColour, "hair_fringe", undefined, "hair_fringe");
+	options.filters.leftEye = combatLookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
+	options.filters.rightEye = combatLookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
 
 	// Set props
 	mapToPropsOptions(options);
@@ -1013,14 +1007,14 @@ function generateClothingFilter(slot, clothing, options) {
 	const customFilter = clothing.colourCustom;
 	console.log("Clothing colour:", slot, colour);
 	options.filters[mainFilterKey] = colour
-		? lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
+		? combatLookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 		: Renderer.emptyLayerFilter();
 
 	const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour_combat || clothing.accessory_colour;
 	const accDebugName = slot + " accessory";
 	const accCustomFilter = clothing.accessory_colourCustom;
 	options.filters[accFilterKey] = accColour
-		? lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
+		? combatLookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 		: Renderer.emptyLayerFilter();
 }
 window.generateClothingFilter = generateClothingFilter;
@@ -1295,7 +1289,7 @@ window.mapPcToBodywritingOptions = mapPcToBodywritingOptions;
  * @param {string | undefined} prefilterName name of prefilter to apply
  * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
  */
-function lookupColour(dict, key, debugName, customFilter, prefilterName) {
+function combatLookupColour(dict, key, debugName, customFilter, prefilterName) {
 	console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
 
 	const filter = key === "custom" ? getCustomFilterColour(customFilter, debugName) : getFilterColour(key, dict, debugName);
@@ -1311,7 +1305,7 @@ function lookupColour(dict, key, debugName, customFilter, prefilterName) {
 
 	return filter;
 }
-window.lookupColour = lookupColour;
+window.combatLookupColour = combatLookupColour;
 
 /**
  * @param {string} key
@@ -1346,6 +1340,100 @@ function getCustomFilterColour(customFilter, debugName) {
 	return filter;
 }
 window.getCustomFilterColour = getCustomFilterColour;
+
+/**
+ * @typedef Gradient
+ * @property {string} style
+ * @property {string[]} colours
+ */
+
+/**
+ * @param {"fringe" | "sides"} hairPart
+ * @param {Gradient} gradient
+ * @param {string} hairType
+ * @param {number} hairLength
+ * @param {string} prefilterName
+ * @returns {Partial<CompositeLayerSpec> | null}
+ */
+function createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
+	const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
+	const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
+	/** @type {Partial<CompositeLayerSpec>} */
+	const filter = {
+		// @ts-ignore
+		blend: clone(filterPrototype),
+		brightness: {
+			// @ts-ignore
+			gradient: filterPrototype.gradient,
+			values: filterPrototype.values,
+			// @ts-ignore
+			adjustments: [[], []],
+		},
+		blendMode: "hard-light",
+	};
+	// @ts-ignore
+	for (const colorIndex in filter.blend.colors) {
+		// @ts-ignore
+		filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
+		// @ts-ignore
+		filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
+
+		// @ts-ignore
+		filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
+		// @ts-ignore
+		filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
+	}
+	Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
+
+	return filter;
+}
+window.createHairColourGradient = createHairColourGradient;
+
+/**
+ * @param {Options} options
+ */
+function generateHairFilters(options) {
+	if (V.hairColourStyle === "simple") {
+		options.filters.hair = combatLookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+	} else {
+		options.filters.hair = createHairColourGradient("sides", V.hairColourGradient, getHairSideType(), hairLengthStringToNumber(V.hairlengthstage), "hair");
+	}
+
+	if (V.hairFringeColourStyle === "simple") {
+		options.filters.fringe = combatLookupColour(
+			setup.colours.hair_map,
+			V.hairfringecolour || V.haircolour,
+			"hair_fringe",
+			"hair_fringe_custom",
+			"hair_fringe"
+		);
+	} else {
+		options.filters.fringe = createHairColourGradient(
+			"fringe",
+			V.hairFringeColourGradient || V.hairColourGradient,
+			getHairFringeType(),
+			hairLengthStringToNumber(V.fringelengthstage),
+			"fringe"
+		);
+	}
+
+	options.hairLength = V.hairlengthstage;
+	options.hairType = "default";
+}
+
+/** @returns {string} */
+function getHairSideType() {
+	const style = setup.hairstyles.sides.find(hs => hs.variable === V.hairtype);
+	const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
+	return isAlt ? style.alt : V.hairtype;
+}
+
+/** @returns {string} */
+function getHairFringeType() {
+	const style = setup.hairstyles.fringe.find(hs => hs.variable === V.hairtype);
+	const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
+	return isAlt ? style.alt : V.fringetype;
+}
 
 /**
  * @param {Options} options
