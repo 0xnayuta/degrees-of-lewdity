@@ -1172,7 +1172,7 @@ function genClothingLayer(slot, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const clothes = options.clothes[slot];
-			const show = isClothingShown(options, clothes);
+			const show = isClothingShown(options, clothes) && clothes.hasMainImg;
 			console.log(slot, "Show?:", show);
 			return !!show;
 		},

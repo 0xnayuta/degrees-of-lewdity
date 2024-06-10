@@ -129,6 +129,7 @@
  * @property {boolean} isSkirt Whether the clothing layer is a skirt.
  * @property {boolean} isBoundable Whether the clothing layer has a bound state.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
+ * @property {boolean} hasMainImg Whether the clothing has a main img layer, tape for example.
  * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {PlayerBreastState} breasts Breast state.
  * @property {PlayerSleeveState} sleeves Sleeve state.
@@ -978,6 +979,7 @@ function mapPcToClothingOption(slot, pc, options) {
 		isExposed: !!clothing.exposed,
 		isBoundable: !!clothing.combatBoundable,
 		hasAccessory: getAccessoryState(slot, defaults),
+		hasMainImg: clothing.combatHasMainImg !== false,
 		hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 		breasts: {
 			show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,

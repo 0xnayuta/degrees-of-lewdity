@@ -6595,7 +6595,8 @@ function initLower() {
 			name: "oversized button-down bottom",
 			name_cap: "Oversized button-down bottom",
 			variable: "oversizedbuttondown",
-			combatImg: "trousers",
+			/* Intentionally naked */
+			combatImg: "naked",
 			integrity: 60,
 			integrity_max: 60,
 			fabric_strength: 30,
