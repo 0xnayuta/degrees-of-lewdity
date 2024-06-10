@@ -4065,7 +4065,7 @@ function initUpper() {
 			name: "keyhole dress",
 			name_cap: "Keyhole dress",
 			variable: "keyhole",
-			combatImg: "dress",
+			combatImg: "sundress",
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
