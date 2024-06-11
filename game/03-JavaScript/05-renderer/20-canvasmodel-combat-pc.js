@@ -955,9 +955,8 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				if (!isClothingShown(options, clothes)) return false;
-				return options.position === "doggy"
-					? ["default", "handjob"].includes(options.armFrontPosition)
-					: ["default", "handjob", "stroke"].includes(options.armFrontPosition);
+				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
+				return available.includes(options.armFrontPosition);
 			},
 			z: zi.frontArm + 1,
 		}),
@@ -971,10 +970,9 @@ const combatMainPc = {
 			showfn(options) {
 				const clothes = options.clothes.hands;
 				const show = options.showClothing && !isClothingShown(options, clothes) && clothes.hasAccessory;
-				const available = options.position === "doggy"
-					? ["default", "handjob"].includes(options.armFrontPosition)
-					: ["default", "handjob", "stroke"].includes(options.armFrontPosition);
-				return !!show && !!available;
+				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
+				const found = available.includes(options.armFrontPosition);
+				return !!show && !!found;
 			},
 			z: zi.frontArm + 1,
 		}),
