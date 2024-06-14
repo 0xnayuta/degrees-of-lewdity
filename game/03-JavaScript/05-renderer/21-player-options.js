@@ -1037,6 +1037,14 @@ window.mapPcToBodyOptions = mapPcToBodyOptions;
  */
 function mapPcToBodywritingOptions(pc, options) {
 	/**
+	 * @param {string} path
+	 * @returns {string}
+	 */
+	function sanitise(path) {
+		return path.replace("_", "-");
+	}
+
+	/**
 	 * @param {string} id
 	 * @param {function(string, Bodywriting): BodywritingOption?} mapper
 	 * @returns {BodywritingOption}
@@ -1048,7 +1056,7 @@ function mapPcToBodywritingOptions(pc, options) {
 		const defaultState = {
 			show: false,
 			area: "text",
-			type: id,
+			type: sanitise(id),
 		};
 
 		if (bodywriting == null || !bodywriting.writing) {
@@ -1071,7 +1079,7 @@ function mapPcToBodywritingOptions(pc, options) {
 		return {
 			show: true,
 			area: "text",
-			type: id,
+			type: sanitise(id),
 		};
 	}
 
@@ -1087,28 +1095,28 @@ function mapPcToBodywritingOptions(pc, options) {
 					return {
 						show: true,
 						area: "text",
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				if (bodywriting.type === "object") {
 					return {
 						show: true,
 						area: bodywriting.writing,
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				return null;
 			}),
 			frontCheek: {
 				show: false,
-				type: "left_cheek",
+				type: "left-cheek",
 			},
 			backShoulder: getState("right_shoulder", (id, bodywriting) => {
 				if (bodywriting.type === "text" || bodywriting.special === "islander") {
 					return {
 						show: true,
 						area: "text",
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				if (bodywriting.type !== "object") {
@@ -1118,24 +1126,24 @@ function mapPcToBodywritingOptions(pc, options) {
 					return {
 						show: true,
 						area: bodywriting.writing,
-						type: "left_shoulder_bound",
+						type: "left-shoulder-bound",
 					};
 				}
 				return {
 					show: true,
 					area: bodywriting.writing,
-					type: id,
+					type: sanitise(id),
 				};
 			}),
 			frontShoulder: {
 				show: false,
-				type: "left_shoulder",
+				type: "left-shoulder",
 			},
 			breasts: getState("breasts", simpleText),
 			back: getState("back", simpleText),
 			backBottom: {
 				show: false,
-				type: "right_bottom",
+				type: "right-bottom",
 			},
 			frontBottom: getState("left_bottom", simpleText),
 			pubic: getState("pubic", (id, bodywriting) => {
@@ -1143,14 +1151,14 @@ function mapPcToBodywritingOptions(pc, options) {
 					return {
 						show: true,
 						area: "text",
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				if (bodywriting.type === "object" && bodywriting.special !== "islander") {
 					return {
 						show: true,
 						area: bodywriting.writing,
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				return null;
@@ -1161,14 +1169,14 @@ function mapPcToBodywritingOptions(pc, options) {
 					return {
 						show: true,
 						area: "text",
-						type: bodywriting.arrow === 1 ? id + "_arrow" : id,
+						type: sanitise(bodywriting.arrow === 1 ? id + "-arrow" : id),
 					};
 				}
 				if (bodywriting.type === "object") {
 					return {
 						show: true,
 						area: bodywriting.writing,
-						type: id,
+						type: sanitise(id),
 					};
 				}
 				return null;
@@ -1188,28 +1196,28 @@ function mapPcToBodywritingOptions(pc, options) {
 				return {
 					show: true,
 					area: "text",
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			if (bodywriting.type === "object") {
 				return {
 					show: true,
 					area: bodywriting.writing,
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			return null;
 		}),
 		frontCheek: {
 			show: false,
-			type: "right_cheek",
+			type: "right-cheek",
 		},
 		backShoulder: getState("left_shoulder", (id, bodywriting) => {
 			if (bodywriting.type === "text" || bodywriting.special === "islander") {
 				return {
 					show: true,
 					area: "text",
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			if (bodywriting.type !== "object") {
@@ -1219,39 +1227,39 @@ function mapPcToBodywritingOptions(pc, options) {
 				return {
 					show: true,
 					area: bodywriting.writing,
-					type: "left_shoulder_bound",
+					type: "left-shoulder-bound",
 				};
 			}
 			return {
 				show: true,
 				area: bodywriting.writing,
-				type: id,
+				type: sanitise(id),
 			};
 		}),
 		frontShoulder: {
 			show: false,
-			type: "right_shoulder",
+			type: "right-shoulder",
 		},
 		breasts: getState("breasts", simpleText),
 		back: getState("back", simpleText),
 		backBottom: getState("left_bottom", simpleText),
 		frontBottom: {
 			show: false,
-			type: "right_bottom",
+			type: "right-bottom",
 		},
 		pubic: getState("pubic", (id, bodywriting) => {
 			if (bodywriting.type === "text") {
 				return {
 					show: true,
 					area: "text",
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			if (bodywriting.type === "object" && bodywriting.special !== "islander") {
 				return {
 					show: true,
 					area: bodywriting.writing,
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			return null;
@@ -1262,14 +1270,14 @@ function mapPcToBodywritingOptions(pc, options) {
 				return {
 					show: true,
 					area: "text",
-					type: bodywriting.arrow === 1 ? id + "_arrow" : id,
+					type: sanitise(bodywriting.arrow === 1 ? id + "-arrow" : id),
 				};
 			}
 			if (bodywriting.type === "object") {
 				return {
 					show: true,
 					area: bodywriting.writing,
-					type: id,
+					type: sanitise(id),
 				};
 			}
 			return null;
