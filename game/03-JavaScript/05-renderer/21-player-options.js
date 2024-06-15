@@ -74,7 +74,7 @@
  * @property {Prop} hospitalBed
  * @property {Prop} ivBag
  * @property {TankProp} milkTank
- * @property {Prop} pillory
+ * @property {PilloryProp} pillory
  * @property {TankProp} semenTank
  * @property {Prop} rail
  * @property {Prop} shakles
@@ -93,6 +93,14 @@
  * @property {boolean} show
  * @property {boolean} isFull
  * @property {1|2|3|4|5|6|7} volume
+ */
+
+/**
+ * @typedef {object} PilloryProp
+ * @property {boolean} show
+ * @property {boolean} isDirty
+ * @property {boolean} hasHorse
+ * @property {number} tomatoes
  */
 
 /**
@@ -225,12 +233,7 @@ class PlayerCombatMapper {
 		}
 
 		// Set position
-		if (!["doggy", "missionary"].includes(V.position)) {
-			Errors.report("Position not set to any valid values", V.position);
-			options.position = "missionary";
-		} else {
-			options.position = V.position;
-		}
+		options.position = CombatRenderer.getPosition(V.position);
 
 		// Set directory for images
 		options.src = options.root + options.position + "/";
@@ -377,6 +380,20 @@ class PlayerCombatMapper {
 			};
 		}
 
+		/**
+		 * @returns {PilloryProp}
+		 */
+		function createPillory() {
+			const audience = V.pilloryaudience || 0;
+			const tomatoes = V.walltype === "pillory" ? Math.clamp(audience - 1, 1, 4) : 0;
+			return {
+				show: !!V.walltype,
+				isDirty: V.walltype === "pillory",
+				hasHorse: V.walltype === "horse_pillory",
+				tomatoes,
+			};
+		}
+
 		options.props = {
 			bench: createProp("bench"),
 			examTable: createProp("examtable"),
@@ -384,7 +401,7 @@ class PlayerCombatMapper {
 			hospitalBed: createProp("hospitalbed"),
 			ivBag: createProp("ivbag"),
 			milkTank: createTank("milk", T.barn_milk),
-			pillory: createProp("pillory"),
+			pillory: createPillory(),
 			semenTank: createTank("semen", T.barn_semen),
 			rail: createProp("rails"),
 			shakles: createProp("arm_shackle"), // Neck and leg shackle?

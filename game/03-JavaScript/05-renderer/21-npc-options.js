@@ -1,4 +1,6 @@
 // @ts-check
+/* globals CombatRenderer */
+
 /**
  * @typedef NpcOptions
  * @property {"img/newsex"} root
@@ -58,12 +60,7 @@ function mapNpcToOptions(index, options) {
 	console.log("mapNpcToOptions", index, JSON.parse(JSON.stringify(options)));
 
 	// Set position
-	if (!["doggy", "missionary"].includes(V.position)) {
-		Errors.report("Position not set to any valid values", V.position);
-		options.position = "missionary";
-	} else {
-		options.position = V.position;
-	}
+	options.position = CombatRenderer.getPosition(V.position);
 
 	// Set directory for images
 	options.root = "img/newsex";

@@ -1,6 +1,27 @@
 // @ts-check
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, PositionStates */
 
 class CombatRenderer {
+	/**
+	 * @param {0 | "doggy" | "missionary" | "wall" | "stalk"} position
+	 */
+	static getPosition(position) {
+		switch (position) {
+			case "doggy":
+				return "doggy";
+			case "missionary":
+				return "missionary";
+			case "wall":
+				return "doggy";
+			case "stalk":
+				Errors.report("Position was set to stalk, and the combat renderer doesn't support it yet.");
+				return "missionary";
+			default:
+				Errors.report("Position not set to any valid values", V.position);
+				return "missionary";
+		}
+	}
+
 	/**
 	 * For colour name, lookup its canvas filter and merge with sprite prefilter.
 	 *

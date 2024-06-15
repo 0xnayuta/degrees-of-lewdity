@@ -43,7 +43,7 @@ function getCloseOptions(options = {}) {
 	options.showArse = V.worn.under_lower.anus_exposed === 1 && V.worn.lower.anus_exposed === 1;
 
 	// Position
-	options.position = V.position === "wall" ? "doggy" : V.position;
+	options.position = CombatRenderer.getPosition(V.position);
 
 	// Genitals
 	if (options.showArse) {

@@ -10,7 +10,8 @@
  * @property {100} near
  * Hair:
  * @property {20} backHair
- * @property {55} hair
+ * @property {81} hair
+ * @property {70} head
  * Back legs:
  * @property {26} backCalf
  * @property {27} backFoot
@@ -62,8 +63,6 @@ const zi = {
 
 	base: 50,
 
-	hair: 55,
-
 	frontCalf: 65,
 	frontFoot: 66,
 	frontThigh: 67,
@@ -75,7 +74,11 @@ const zi = {
 	frontCalfOverwear: 73,
 	frontThighOverwear: 74,
 
+	head: 70,
+
 	frontArm: 75,
+
+	hair: 81,
 
 	near: 100,
 };
@@ -328,6 +331,56 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			z: zi.base,
+		},
+		pilloryBack: {
+			srcfn(options) {
+				const pillory = options.props.pillory;
+				if (pillory.isDirty) {
+					return `${options.root}prop/pillory/back-dirty.png`;
+				}
+				return `${options.root}prop/pillory/back-clean.png`;
+			},
+			showfn(options) {
+				const pillory = options.props.pillory;
+				return pillory.show && !pillory.hasHorse;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.head - 1,
+		},
+		pilloryFront: {
+			srcfn(options) {
+				const pillory = options.props.pillory;
+				if (pillory.hasHorse) {
+					return `${options.root}prop/pillory/front-horse.png`;
+				}
+				if (pillory.isDirty) {
+					return `${options.root}prop/pillory/front-dirty.png`;
+				}
+				return `${options.root}prop/pillory/front-clean.png`;
+			},
+			showfn(options) {
+				return options.props.pillory.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.head + 1,
+		},
+		pilloryTomatoes: {
+			srcfn(options) {
+				const pillory = options.props.pillory;
+				return `${options.root}prop/pillory/tomato/${pillory.tomatoes}.png`;
+			},
+			showfn(options) {
+				const pillory = options.props.pillory;
+				return pillory.show && pillory.isDirty && [1, 2, 3, 4].includes(pillory.tomatoes);
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: zi.head + 1,
 		},
 		/*
 		 *    ███    ███  █████   ██████ ██   ██ ██ ███    ██ ███████ ███████
@@ -690,7 +743,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base,
+			z: zi.head,
 		},
 		frontEye: {
 			srcfn(options) {
@@ -705,7 +758,7 @@ const combatMainPc = {
 			filtersfn(options) {
 				return [options.position === "missionary" ? "rightEye" : "leftEye"];
 			},
-			z: zi.base + 1,
+			z: zi.head + 1,
 		},
 		eyelid: {
 			srcfn(options) {
@@ -719,7 +772,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base + 2,
+			z: zi.head + 2,
 		},
 		eyelashes: {
 			srcfn(options) {
@@ -732,7 +785,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["phair"],
-			z: zi.base + 3,
+			z: zi.head + 3,
 		},
 		blush: {
 			srcfn(options) {
@@ -746,7 +799,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base + 1,
+			z: zi.head + 1,
 		},
 		/* This creates a weird effect on the face, tbi */
 		tears: {
@@ -757,7 +810,7 @@ const combatMainPc = {
 				const result = options.showFace && options.tears > 0;
 				return !!result;
 			},
-			z: zi.base + 2,
+			z: zi.head + 2,
 		},
 		mouth: {
 			srcfn(options) {
@@ -771,7 +824,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base + 1,
+			z: zi.head + 1,
 		},
 		hair: {
 			srcfn(options) {
@@ -784,7 +837,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["hair"],
-			z: 81 /* zi.hair */,
+			z: zi.hair,
 		},
 		/*
 		 *    ██████   ██████  ██████  ██    ██ ██     ██ ██████  ██ ████████ ██ ███    ██  ██████
