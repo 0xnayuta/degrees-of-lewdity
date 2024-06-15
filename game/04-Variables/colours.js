@@ -103,6 +103,11 @@ setup.colours = {
 	condom_default: {
 		blendMode: "hard-light",
 	},
+	tentacle: [],
+	tentacle_map: {},
+	tentacle_default: {
+		blendMode: "hard-light",
+	},
 
 	skin_gradients: {
 		light: ["#ffffff", "#ffd2ac"],
@@ -1516,7 +1521,67 @@ setup.colours.condom = [
 		},
 	},
 ];
-
+setup.colours.tentacle = [
+	{
+		variable: "tentacles-blue",
+		canvasfilter: {
+			blend: "#1431dc",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-vines",
+		canvasfilter: {
+			blend: "#18a058",
+			brightness: 0.1,
+			contrast: 0.9,
+		},
+	},
+	{
+		variable: "tentacles-roots",
+		canvasfilter: {
+			blend: "#8d4d19",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-red",
+		canvasfilter: {
+			blend: "#d80e04",
+			brightness: 0.1,
+		},
+	},
+	{
+		variable: "tentacles-purple",
+		canvasfilter: {
+			blend: "#b509a8",
+			brightness: 0.15,
+		},
+	},
+	{
+		variable: "tentacles-peach",
+		canvasfilter: {
+			blend: "#e67056",
+			contrast: 0.6,
+		},
+	},
+	{
+		variable: "tentacles-wraith",
+		canvasfilter: {
+			blend: "#BBBBBB",
+			brightness: 0.25,
+			contrast: 0.9,
+		},
+	},
+	{
+		variable: "tentacles-wraith-penetrated",
+		canvasfilter: {
+			blend: "#BBBBBB",
+			brightness: -0.5,
+			contrast: 0.7,
+		},
+	},
+];
 /*
  * Maps to easily access colour record by its variable code, ex. setup.colours.hair_map[$haircolour]
  */
@@ -1545,6 +1610,7 @@ buildColourMap("lipstick");
 buildColourMap("mascara");
 buildColourMap("eyeshadow");
 buildColourMap("condom");
+buildColourMap("tentacle");
 
 /**
  * Tries to guess colour in the map by removing spaces or replacing them with '-' and checking against name.
@@ -1582,6 +1648,7 @@ setup.colourName = function (colour) {
 		setup.colours.lipstick_map,
 		setup.colours.eyeshadow_map,
 		setup.colours.condom_map,
+		setup.colours.tentacle_map,
 	]) {
 		if (colour in map) return map[colour].name;
 	}
