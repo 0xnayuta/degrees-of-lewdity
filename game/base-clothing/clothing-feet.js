@@ -117,7 +117,6 @@ function initFeet() {
 			name: "ankle cuffs",
 			name_cap: "Ankle cuffs",
 			variable: "anklecuffs",
-			combatImg: "ballchain",
 			state: 0,
 			state_base: 0,
 			integrity: 400,
