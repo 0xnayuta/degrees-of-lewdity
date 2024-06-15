@@ -12,9 +12,12 @@ window.StartConfig = {
 	enableImages: true,
 	enableLinkNumberify: true,
 	version: "0.5.0.5",
-	versionName: "",
+	versionName: `"Head in the Clouds" edition`,
 	sneaky: false,
+	socialMediaEnabled: true,
+	sourceLinkEnabled: false,
 };
+window.StartConfig = StartConfig;
 
 State.prng.init();
 
