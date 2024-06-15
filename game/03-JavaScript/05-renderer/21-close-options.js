@@ -1,3 +1,6 @@
+// @ts-check
+/* global CanvasCombatRenderer */
+
 /**
  * @typedef {object} CloseOptions
  * @property {"img/newsex"} root
@@ -62,7 +65,7 @@ function getCloseOptions(options = {}) {
 	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
 
 	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
-	options.filters.pbhair = window.lookupColour(
+	options.filters.pbhair = CanvasCombatRenderer.lookupColour(
 		options,
 		setup.colours.hair_map,
 		options.pbhairColour || options.pbHairColour,
@@ -72,12 +75,12 @@ function getCloseOptions(options = {}) {
 	);
 
 	options.condomColour = V.player.condom.colour || "red";
-	options.filters.condom = window.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
+	options.filters.condom = CanvasCombatRenderer.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
 
 	window.mapPcToClothingOptions(V.player, options);
 	options.parasitePanties = options.parasitePanties || "red";
 	if (["parasite", "parasitem"].includes(V.parasite.clit.name) || ["parasite"].includes(V.parasite.penis.name)) {
-		options.filters.parasitePanties = window.lookupColour(options, setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
+		options.filters.parasitePanties = CanvasCombatRenderer.lookupColour(options, setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
 	}
 
 	// Set animation speed
@@ -175,7 +178,7 @@ function mapClosePenetrators(slot, options) {
 	/* tentacle colour could theoretically be outside of these functions, as tentacles are incompatible with other enemy types and can only have one colour, which applies to all tentacles interacting with vagina, anus, and penis slots. combat rework should allow for tentacles to be incorporated into other encounters and multiple tentacle colours (vines and roots, for example) */
 	if (options[slot].npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters[`${slot}Tentacle`] = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "tentacle");
+		options.filters[`${slot}Tentacle`] = CanvasCombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "tentacle");
 	}
 	if (V.NPCList[V[`${slot}target`]]) {
 		const targetNpc = V.NPCList[V[`${slot}target`]];
@@ -184,7 +187,7 @@ function mapClosePenetrators(slot, options) {
 		if (targetNpc?.penis !== "none" && targetNpc?.penisdesc.includes("strap-on") && !targetNpc?.penisdesc.includes("fleshy")) {
 			const straponColours = ["black", "red", "pink", "purple", "blue", "green"];
 			options.npcTone = straponColours.find(color => targetNpc?.penisdesc.includes(color));
-			options.filters[`${slot}Npc`] = window.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
+			options.filters[`${slot}Npc`] = CanvasCombatRenderer.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
 			options[slot].strapon = true;
 		} else {
 			options.npcTone = targetNpc.skincolour === "black" ? "dark" : "light";
@@ -194,7 +197,7 @@ function mapClosePenetrators(slot, options) {
 		/* condom colour of npc targeting vagina/anus */
 		if (targetNpc?.condom?.worn) {
 			options[slot].npcCondom = targetNpc.condom.colour || "red";
-			options.filters[`${slot}Condom`] = window.lookupColour(
+			options.filters[`${slot}Condom`] = CanvasCombatRenderer.lookupColour(
 				options,
 				setup.colours.condom_map,
 				options[slot].npcCondom,
@@ -211,7 +214,7 @@ function mapClosePenetrators(slot, options) {
 		if (targetNpc2?.penisdesc.includes("strap-on")) {
 			const straponColours = ["black", "dark red", "red", "pink", "purple", "fleshy", "blue", "green"];
 			options.npcTone = straponColours.find(color => targetNpc2?.penisdesc.includes(color));
-			options.filters[`${slot}Npc`] = window.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
+			options.filters[`${slot}Npc`] = CanvasCombatRenderer.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
 			options[slot].dpStrapon = true;
 		} else {
 			options.npc2Tone = targetNpc2.skincolour === "black" ? "dark" : "light";
@@ -221,7 +224,7 @@ function mapClosePenetrators(slot, options) {
 		/* condom colour of npc double-penetrating vagina/anus */
 		if (targetNpc2?.condom?.worn) {
 			options[slot].npc2Condom = targetNpc2.condom.colour || "red";
-			options.filters[`${slot}Condom2`] = window.lookupColour(
+			options.filters[`${slot}Condom2`] = CanvasCombatRenderer.lookupColour(
 				options,
 				setup.colours.condom_map,
 				options[slot].npc2Condom,
@@ -298,7 +301,7 @@ function mapClosePenis(options) {
 
 	if (options.penis.npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters.penisTentacle = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "penisTentacle");
+		options.filters.penisTentacle = CanvasCombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "penisTentacle");
 	}
 	if (V.NPCList[V.penistarget]) {
 		/* skin colour of npc targeting penis */
@@ -321,14 +324,21 @@ function mapCloseChest(options) {
 
 	if (options.chest.npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters.chestTentacle = window.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "chestTentacle");
+		options.filters.chestTentacle = CanvasCombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "chestTentacle");
 	}
 	if (breastsNpc) {
 		options.chest.npcTone = breastsNpc.skincolour === "black" ? "dark" : "light";
 		options.filters.chestNpc = setup.colours.getSkinFilter(options.chest.npcTone, 0);
 		if (breastsNpc.condom?.worn) {
 			options.chest.condom = breastsNpc.condom.colour || "red";
-			options.filters.breastsCondom = window.lookupColour(options, setup.colours.condom_map, options.breasts.condom, "condom", "condom_custom", "condom");
+			options.filters.breastsCondom = CanvasCombatRenderer.lookupColour(
+				options,
+				setup.colours.condom_map,
+				options.breasts.condom,
+				"condom",
+				"condom_custom",
+				"condom"
+			);
 		}
 	}
 }
