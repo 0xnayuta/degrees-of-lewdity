@@ -171,15 +171,250 @@
  * @property {string?} state
  */
 
-class CanvasCombatRenderer {}
-const CombatRenderer = new CanvasCombatRenderer();
-window.CombatRenderer = CombatRenderer;
+class CanvasCombatRenderer {
+	/**
+	 * For colour name, lookup its canvas filter and merge with sprite prefilter.
+	 *
+	 * @param {Object<string, FilterMap>} dict map in setup.colours to lookup in
+	 * @param {string} key colour name.
+	 * @param {string} debugName used when reporting errors
+	 * @param {string | undefined} customFilter key in options.filters
+	 * @param {string | undefined} prefilterName name of prefilter to apply
+	 * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
+	 */
+	static lookupColour(dict, key, debugName, customFilter, prefilterName) {
+		console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
+
+		const filter = key === "custom" ? this.getCustomFilterColour(customFilter, debugName) : this.getFilterColour(key, dict, debugName);
+
+		if (filter == null) {
+			console.error("Lookup colour failed:", debugName);
+			return filter;
+		}
+
+		if (prefilterName) {
+			Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
+		}
+
+		return filter;
+	}
+
+	/**
+	 * @param {string} key
+	 * @param {Object<string, FilterMap>} dict
+	 * @param {string} debugName
+	 * @returns {Partial<CompositeLayerSpec>?}
+	 */
+	static getFilterColour(key, dict, debugName) {
+		const record = dict[key];
+		if (!record) {
+			console.error("unknown", debugName, "colour:", key);
+			return null;
+		}
+		const filter = clone(record.canvasfilter);
+		return filter;
+	}
+
+	/**
+	 * @param {string | undefined} customFilter
+	 * @param {string} debugName
+	 * @returns {CompositeLayerSpec?}
+	 */
+	static getCustomFilterColour(customFilter, debugName) {
+		if (!customFilter) return null;
+
+		const filter = getCustomClothesColourCanvasFilter(customFilter);
+		if (!filter) {
+			console.error("Custom colour", debugName, "not configured");
+			return null;
+		}
+		return filter;
+	}
+
+	/**
+	 * @typedef Gradient
+	 * @property {string} style
+	 * @property {string[]} colours
+	 */
+
+	/**
+	 * @param {"fringe" | "sides"} hairPart
+	 * @param {Gradient} gradient
+	 * @param {string} hairType
+	 * @param {number} hairLength
+	 * @param {string} prefilterName
+	 * @returns {Partial<CompositeLayerSpec> | null}
+	 */
+	static createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
+		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
+		const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
+		/** @type {Partial<CompositeLayerSpec>} */
+		const filter = {
+			// @ts-ignore
+			blend: clone(filterPrototype),
+			brightness: {
+				// @ts-ignore
+				gradient: filterPrototype.gradient,
+				values: filterPrototype.values,
+				// @ts-ignore
+				adjustments: [[], []],
+			},
+			blendMode: "hard-light",
+		};
+		// @ts-ignore
+		for (const colorIndex in filter.blend.colors) {
+			// @ts-ignore
+			filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
+			// @ts-ignore
+			filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
+
+			// @ts-ignore
+			filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
+			// @ts-ignore
+			filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
+		}
+		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
+
+		return filter;
+	}
+
+	static getTanValues() {
+		const tanValByName = {
+			body: 0,
+			breasts: -0.01,
+			penis: -0.01,
+			swimshorts: -0.01,
+			swimsuitTop: -0.01,
+			swimsuitBottom: -0.01,
+			bikiniTop: -0.01,
+			bikiniBottom: -0.01,
+			/* No sprites yet? */
+			tshirt: -0.01,
+		};
+		for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
+			tanValByName[setup.skinColor.tanLoc[i]] = V.skinColor.tanValues[i] / 100;
+		}
+		return tanValByName;
+	}
+
+	/** @returns {string} */
+	static getHairSideType() {
+		const style = setup.hairstyles.sides.find(hs => hs.variable === V.hairtype);
+		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
+		return isAlt ? style.alt : V.hairtype;
+	}
+
+	/** @returns {string} */
+	static getHairFringeType() {
+		const style = setup.hairstyles.fringe.find(hs => hs.variable === V.hairtype);
+		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
+		return isAlt ? style.alt : V.fringetype;
+	}
+
+	/**
+	 * @param {string} frontPosition
+	 * @param {string} backPosition
+	 * @param {ClothedSlots} slot
+	 * @param {ClothesItem} defaults
+	 * @returns {PositionStates?}
+	 */
+	static getPositionStates(frontPosition, backPosition, slot, defaults) {
+		if (!["lower", "under_lower", "over_lower", "legs", "feet"].includes(slot)) {
+			return null;
+		}
+		if (["lower", "under_lower", "over_lower"].includes(slot)) {
+			if (defaults.skirt === 1 && frontPosition === "footjob") {
+				frontPosition = "up";
+			}
+			if (backPosition === "footjob") {
+				backPosition = "up";
+			}
+		}
+		return {
+			front: frontPosition,
+			back: backPosition,
+		};
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @returns {ClothesItem}
+	 */
+	static getClothingBySlot(slot) {
+		const active = V.worn[slot];
+		const defaults = setup.clothes[slot][active.index];
+		return Object.assign({}, defaults, active);
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @returns {number}
+	 */
+	static getAlpha(slot) {
+		// Wetness
+		let alpha = 1;
+		const stage = V[slot + "wetstage"];
+		if (typeof stage === "number") {
+			alpha = Math.clamp(1 - stage / 4, 0, 1);
+		}
+		return alpha;
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @param {ClothesItem} defaults
+	 * @returns {boolean}
+	 */
+	static getAccessoryState(slot, defaults) {
+		const source = this.getSourceClothing(slot, defaults);
+		if (source.combatAccessoryOverride !== undefined) {
+			return !!source.combatAccessoryOverride;
+		}
+		return source.accessory !== 0;
+	}
+
+	/**
+	 * If combatImg is used to override the sprite images, this function aims to follow the redirects until
+	 * reaching the clothing item that correctly matches the sprite configuration.
+	 *
+	 * For example, our current item uses accessory layers, but uses a redirected sprite key which doesn't use accessory layers,
+	 * we want to use the accessory configuration of the redirected item, otherwise the renderer will try to display -acc files.
+	 *
+	 * @param {ClothedSlots} slot
+	 * @param {ClothesItem} item
+	 * @param {string[]} failsafe
+	 * @returns {ClothesItem}
+	 */
+	static getSourceClothing(slot, item, failsafe = []) {
+		// Check to ensure no loops
+		if (failsafe.includes(item.variable)) {
+			console.error("getSourceClothing ran into a potential infinite loop:", item.variable, failsafe);
+			return item;
+		}
+		failsafe.push(item.variable);
+		// Main code
+		if (!item.combatImg) {
+			return item;
+		}
+		// Check combatImg's redirect for a possible clothing item:
+		const source = setup.clothes[slot]?.find(c => c.variable === item.combatImg);
+		if (source == null) {
+			return item;
+		}
+		// If this redirect item has combatImg, we'll want to look again:
+		if (source.combatImg) {
+			return this.getSourceClothing(slot, source, failsafe);
+		}
+		return source;
+	}
+}
+window.CombatRenderer = CanvasCombatRenderer;
 
 class PlayerCanvasCombatMapper {
 	/**
 	 * @returns {Options}
 	 */
-	generateOptions() {
+	static generateOptions() {
 		// @ts-ignore
 		return {
 			root: "img/newsex/",
@@ -221,7 +456,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options=} options
 	 * @returns {Options}
 	 */
-	mapPlayerToOptions(options) {
+	static mapPlayerToOptions(options) {
 		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
 
 		if (options == null) {
@@ -269,8 +504,8 @@ class PlayerCanvasCombatMapper {
 		options.leftEye = V.leftEyeColour || "blue";
 		options.rightEye = V.rightEyeColour || "blue";
 
-		options.filters.leftEye = this.combatLookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
-		options.filters.rightEye = this.combatLookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
+		options.filters.leftEye = CanvasCombatRenderer.lookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
+		options.filters.rightEye = CanvasCombatRenderer.lookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
 
 		// Set props
 		this.mapToPropsOptions(options);
@@ -298,7 +533,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {string}
 	 */
-	getPcAnimationSpeed(options) {
+	static getPcAnimationSpeed(options) {
 		if (options.props.semenTank.show || options.props.milkTank.show) {
 			return "sex-2f-idle";
 		}
@@ -315,7 +550,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {string}
 	 */
-	getMachineAnimationSpeed(options) {
+	static getMachineAnimationSpeed(options) {
 		if (options.machines.penisMilker.show || options.machines.breastMilker.show) {
 			return "machine-2f-slow";
 		}
@@ -330,7 +565,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapToPropsOptions(options) {
+	static mapToPropsOptions(options) {
 		/**
 		 * @param {number} source
 		 * @returns {1 | 2 | 3 | 4 | 5 | 6 | 7}
@@ -407,7 +642,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapToMachineOptions(options) {
+	static mapToMachineOptions(options) {
 		/**
 		 * @param {string} id
 		 * @returns {Prop}
@@ -434,7 +669,7 @@ class PlayerCanvasCombatMapper {
 	/**
 	 * @returns {TentacleState[]}
 	 */
-	getTentacles() {
+	static getTentacles() {
 		const count = V.tentacles.active;
 		const tentacles = [];
 		for (let i = 0; i < count; i++) {
@@ -449,7 +684,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapToTentacleOptions(options) {
+	static mapToTentacleOptions(options) {
 		/**
 		 * @param {...Object<string, string>} parts
 		 * @returns {string?}
@@ -534,7 +769,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapPcToArmPosition(options) {
+	static mapPcToArmPosition(options) {
 		if (options.position === "missionary") {
 			options.armBackPosition = this.getArmState(V.leftarm);
 			options.armFrontPosition = this.getArmState(V.rightarm);
@@ -549,7 +784,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {object} arm
 	 * @returns {"bound" | "handjob" | "default"}
 	 */
-	getArmState(arm) {
+	static getArmState(arm) {
 		if (["bound", "grappled", "behind"].includes(arm)) {
 			return "bound";
 		}
@@ -589,7 +824,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapPcToLegPosition(options) {
+	static mapPcToLegPosition(options) {
 		if (options.position === "missionary") {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 				options.legFrontPosition = "footjob";
@@ -643,7 +878,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {ClothingState} clothing
 	 * @returns {ClothingStates[]}
 	 */
-	getExposedStates(options, clothing) {
+	static getExposedStates(options, clothing) {
 		/** @type {ClothingStates[]} */
 		const exposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
 		const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
@@ -661,7 +896,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {ClothingState} clothing
 	 * @returns {boolean}
 	 */
-	isClothingExposed(options, clothing) {
+	static isClothingExposed(options, clothing) {
 		return clothing.isExposed || this.getExposedStates(options, clothing).includes(clothing.state);
 	}
 
@@ -669,7 +904,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {boolean}
 	 */
-	isPenisExposed(options) {
+	static isPenisExposed(options) {
 		const lower = options.clothes.lower;
 		const lowerExposed = !lower.show || this.isClothingExposed(options, lower);
 
@@ -689,7 +924,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Penetrator?}
 	 */
-	mapPcToPenetratorOptions(pc, options) {
+	static mapPcToPenetratorOptions(pc, options) {
 		const hasPenetrator = pc.penisExist || playerHasStrapon();
 		const isExposed = this.isPenisExposed(options);
 		const hasChastityBelt = V.worn.genitals.name.includes("chastity belt");
@@ -832,22 +1067,12 @@ class PlayerCanvasCombatMapper {
 	}
 
 	/**
-	 * @param {ClothedSlots} slot
-	 * @returns {ClothesItem}
-	 */
-	getClothingBySlot(slot) {
-		const active = V.worn[slot];
-		const defaults = setup.clothes[slot][active.index];
-		return Object.assign({}, defaults, active);
-	}
-
-	/**
 	 *
 	 * @param {Player} pc
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapPcToClothingOptions(pc, options) {
+	static mapPcToClothingOptions(pc, options) {
 		// Clothing filters and options
 		for (const slot of setup.clothes_all_slots) {
 			const clothes = this.mapPcToClothingOption(slot, pc, options);
@@ -859,101 +1084,13 @@ class PlayerCanvasCombatMapper {
 
 	/**
 	 * @param {ClothedSlots} slot
-	 * @returns {number}
-	 */
-	getAlpha(slot) {
-		// Wetness
-		let alpha = 1;
-		const stage = V[slot + "wetstage"];
-		if (typeof stage === "number") {
-			alpha = Math.clamp(1 - stage / 4, 0, 1);
-		}
-		return alpha;
-	}
-
-	/**
-	 * @param {ClothedSlots} slot
-	 * @param {ClothesItem} defaults
-	 * @returns {boolean}
-	 */
-	getAccessoryState(slot, defaults) {
-		const source = this.getSourceClothing(slot, defaults);
-		if (source.combatAccessoryOverride !== undefined) {
-			return !!source.combatAccessoryOverride;
-		}
-		return source.accessory !== 0;
-	}
-
-	/**
-	 * @param {Options} options
-	 * @param {ClothedSlots} slot
-	 * @param {ClothesItem} defaults
-	 * @returns {PositionStates?}
-	 */
-	getPositionStates(options, slot, defaults) {
-		if (!["lower", "under_lower", "over_lower", "legs", "feet"].includes(slot)) {
-			return null;
-		}
-		let frontPosition = options.legFrontPosition;
-		let backPosition = options.legBackPosition;
-		if (["lower", "under_lower", "over_lower"].includes(slot)) {
-			if (defaults.skirt === 1 && options.legFrontPosition === "footjob") {
-				frontPosition = "up";
-			}
-			if (options.legBackPosition === "footjob") {
-				backPosition = "up";
-			}
-		}
-		return {
-			front: frontPosition,
-			back: backPosition,
-		};
-	}
-
-	/**
-	 * If combatImg is used to override the sprite images, this function aims to follow the redirects until
-	 * reaching the clothing item that correctly matches the sprite configuration.
-	 *
-	 * For example, our current item uses accessory layers, but uses a redirected sprite key which doesn't use accessory layers,
-	 * we want to use the accessory configuration of the redirected item, otherwise the renderer will try to display -acc files.
-	 *
-	 * @param {ClothedSlots} slot
-	 * @param {ClothesItem} item
-	 * @param {string[]} failsafe
-	 * @returns {ClothesItem}
-	 */
-	getSourceClothing(slot, item, failsafe = []) {
-		// Check to ensure no loops
-		if (failsafe.includes(item.variable)) {
-			console.error("getSourceClothing ran into a potential infinite loop:", item.variable, failsafe);
-			return item;
-		}
-		failsafe.push(item.variable);
-		// Main code
-		if (!item.combatImg) {
-			return item;
-		}
-		// Check combatImg's redirect for a possible clothing item:
-		const source = setup.clothes[slot]?.find(c => c.variable === item.combatImg);
-		if (source == null) {
-			return item;
-		}
-		// If this redirect item has combatImg, we'll want to look again:
-		if (source.combatImg) {
-			return this.getSourceClothing(slot, source, failsafe);
-		}
-		return source;
-	}
-
-	/**
-	 * @param {ClothedSlots} slot
 	 * @param {Player} pc
 	 * @param {Options} options
 	 * @returns {ClothingState}
 	 */
-	mapPcToClothingOption(slot, pc, options) {
+	static mapPcToClothingOption(slot, pc, options) {
 		const defaults = setup.clothes[slot][V.worn[slot].index];
-		const clothing = this.getClothingBySlot(slot);
+		const clothing = CanvasCombatRenderer.getClothingBySlot(slot);
 
 		const name = defaults.combatImg ?? clothing.variable;
 		let state = clothing.state;
@@ -997,14 +1134,14 @@ class PlayerCanvasCombatMapper {
 		const clothes = {
 			item: clothing,
 			name,
-			positions: this.getPositionStates(options, slot, defaults),
+			positions: CanvasCombatRenderer.getPositionStates(options.legFrontPosition, options.legBackPosition, slot, defaults),
 			state: state || "full",
 			show,
-			alpha: this.getAlpha(slot),
+			alpha: CanvasCombatRenderer.getAlpha(slot),
 			isSkirt: defaults.skirt === 1,
 			isExposed: !!clothing.exposed,
 			isBoundable: !!clothing.combatBoundable,
-			hasAccessory: this.getAccessoryState(slot, defaults),
+			hasAccessory: CanvasCombatRenderer.getAccessoryState(slot, defaults),
 			hasMainImg: clothing.combatHasMainImg !== false,
 			hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 			breasts: {
@@ -1025,7 +1162,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {ClothesItem} clothing
 	 * @param {Options} options
 	 */
-	generateClothingFilter(slot, clothing, options) {
+	static generateClothingFilter(slot, clothing, options) {
 		const mainFilterKey = `worn_${slot}_main`;
 		const accFilterKey = `worn_${slot}_acc`;
 
@@ -1039,14 +1176,14 @@ class PlayerCanvasCombatMapper {
 		const customFilter = clothing.colourCustom;
 		console.log("Clothing colour:", slot, colour);
 		options.filters[mainFilterKey] = colour
-			? this.combatLookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
+			? CanvasCombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
 		const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour_combat || clothing.accessory_colour;
 		const accDebugName = slot + " accessory";
 		const accCustomFilter = clothing.accessory_colourCustom;
 		options.filters[accFilterKey] = accColour
-			? this.combatLookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
+			? CanvasCombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 	}
 
@@ -1055,7 +1192,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Options} options
 	 * @returns {Options}
 	 */
-	mapPcToBodyOptions(pc, options) {
+	static mapPcToBodyOptions(pc, options) {
 		this.mapPcToArmPosition(options);
 		this.mapPcToBodywritingOptions(pc, options);
 		return options;
@@ -1065,7 +1202,7 @@ class PlayerCanvasCombatMapper {
 	 * @param {Player} pc
 	 * @param {Options} options
 	 */
-	mapPcToBodywritingOptions(pc, options) {
+	static mapPcToBodywritingOptions(pc, options) {
 		/**
 		 * @param {string} path
 		 * @returns {string}
@@ -1366,129 +1503,23 @@ class PlayerCanvasCombatMapper {
 	}
 
 	/**
-	 * For colour name, lookup its canvas filter and merge with sprite prefilter.
-	 *
-	 * @param {Object<string, FilterMap>} dict map in setup.colours to lookup in
-	 * @param {string} key colour name.
-	 * @param {string} debugName used when reporting errors
-	 * @param {string | undefined} customFilter key in options.filters
-	 * @param {string | undefined} prefilterName name of prefilter to apply
-	 * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
-	 */
-	combatLookupColour(dict, key, debugName, customFilter, prefilterName) {
-		console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
-
-		const filter = key === "custom" ? this.getCustomFilterColour(customFilter, debugName) : this.getFilterColour(key, dict, debugName);
-
-		if (filter == null) {
-			console.error("Lookup colour failed:", debugName);
-			return filter;
-		}
-
-		if (prefilterName) {
-			Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
-		}
-
-		return filter;
-	}
-
-	/**
-	 * @param {string} key
-	 * @param {Object<string, FilterMap>} dict
-	 * @param {string} debugName
-	 * @returns {Partial<CompositeLayerSpec>?}
-	 */
-	getFilterColour(key, dict, debugName) {
-		const record = dict[key];
-		if (!record) {
-			console.error("unknown", debugName, "colour:", key);
-			return null;
-		}
-		const filter = clone(record.canvasfilter);
-		return filter;
-	}
-
-	/**
-	 * @param {string | undefined} customFilter
-	 * @param {string} debugName
-	 * @returns {CompositeLayerSpec?}
-	 */
-	getCustomFilterColour(customFilter, debugName) {
-		if (!customFilter) return null;
-
-		const filter = getCustomClothesColourCanvasFilter(customFilter);
-		if (!filter) {
-			console.error("Custom colour", debugName, "not configured");
-			return null;
-		}
-		return filter;
-	}
-
-	/**
-	 * @typedef Gradient
-	 * @property {string} style
-	 * @property {string[]} colours
-	 */
-
-	/**
-	 * @param {"fringe" | "sides"} hairPart
-	 * @param {Gradient} gradient
-	 * @param {string} hairType
-	 * @param {number} hairLength
-	 * @param {string} prefilterName
-	 * @returns {Partial<CompositeLayerSpec> | null}
-	 */
-	createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
-		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
-		const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
-		/** @type {Partial<CompositeLayerSpec>} */
-		const filter = {
-			// @ts-ignore
-			blend: clone(filterPrototype),
-			brightness: {
-				// @ts-ignore
-				gradient: filterPrototype.gradient,
-				values: filterPrototype.values,
-				// @ts-ignore
-				adjustments: [[], []],
-			},
-			blendMode: "hard-light",
-		};
-		// @ts-ignore
-		for (const colorIndex in filter.blend.colors) {
-			// @ts-ignore
-			filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
-			// @ts-ignore
-			filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
-
-			// @ts-ignore
-			filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
-			// @ts-ignore
-			filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
-		}
-		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
-
-		return filter;
-	}
-
-	/**
 	 * @param {Options} options
 	 */
-	generateHairFilters(options) {
+	static generateHairFilters(options) {
 		if (V.hairColourStyle === "simple") {
-			options.filters.hair = this.combatLookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+			options.filters.hair = CanvasCombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
 		} else {
-			options.filters.hair = this.createHairColourGradient(
+			options.filters.hair = CanvasCombatRenderer.createHairColourGradient(
 				"sides",
 				V.hairColourGradient,
-				this.getHairSideType(),
+				CanvasCombatRenderer.getHairSideType(),
 				hairLengthStringToNumber(V.hairlengthstage),
 				"hair"
 			);
 		}
 
 		if (V.hairFringeColourStyle === "simple") {
-			options.filters.fringe = this.combatLookupColour(
+			options.filters.fringe = CanvasCombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				V.hairfringecolour || V.haircolour,
 				"hair_fringe",
@@ -1496,10 +1527,10 @@ class PlayerCanvasCombatMapper {
 				"hair_fringe"
 			);
 		} else {
-			options.filters.fringe = this.createHairColourGradient(
+			options.filters.fringe = CanvasCombatRenderer.createHairColourGradient(
 				"fringe",
 				V.hairFringeColourGradient || V.hairColourGradient,
-				this.getHairFringeType(),
+				CanvasCombatRenderer.getHairFringeType(),
 				hairLengthStringToNumber(V.fringelengthstage),
 				"fringe"
 			);
@@ -1509,26 +1540,12 @@ class PlayerCanvasCombatMapper {
 		options.hairType = "default";
 	}
 
-	/** @returns {string} */
-	getHairSideType() {
-		const style = setup.hairstyles.sides.find(hs => hs.variable === V.hairtype);
-		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
-		return isAlt ? style.alt : V.hairtype;
-	}
-
-	/** @returns {string} */
-	getHairFringeType() {
-		const style = setup.hairstyles.fringe.find(hs => hs.variable === V.hairtype);
-		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
-		return isAlt ? style.alt : V.fringetype;
-	}
-
 	/**
 	 * @param {Options} options
 	 */
-	generateBodyFilters(options) {
+	static generateBodyFilters(options) {
 		options.skinType = V.skinColor.natural;
-		options.skinTone = this.getTanValues().body;
+		options.skinTone = CanvasCombatRenderer.getTanValues().body;
 		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
 		options.filters.body = skinFilter;
 		options.filters.breasts = skinFilter;
@@ -1545,33 +1562,13 @@ class PlayerCanvasCombatMapper {
 			});
 		}
 	}
-
-	getTanValues() {
-		const tanValByName = {
-			body: 0,
-			breasts: -0.01,
-			penis: -0.01,
-			swimshorts: -0.01,
-			swimsuitTop: -0.01,
-			swimsuitBottom: -0.01,
-			bikiniTop: -0.01,
-			bikiniBottom: -0.01,
-			/* No sprites yet? */
-			tshirt: -0.01,
-		};
-		for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
-			tanValByName[setup.skinColor.tanLoc[i]] = V.skinColor.tanValues[i] / 100;
-		}
-		return tanValByName;
-	}
 }
-const PlayerCombatMapper = new PlayerCanvasCombatMapper();
-window.PlayerCombatMapper = PlayerCombatMapper;
+window.PlayerCombatMapper = PlayerCanvasCombatMapper;
 
 Macro.add("mapplayertooptions", {
 	handler() {
 		const slot = this.args[0];
 		const options = T.options[slot] || {};
-		T.options[slot] = PlayerCombatMapper.mapPlayerToOptions(options);
+		T.options[slot] = PlayerCanvasCombatMapper.mapPlayerToOptions(options);
 	},
 });
