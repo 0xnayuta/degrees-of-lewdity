@@ -119,7 +119,7 @@
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {string?} name The name of the clothing directory.
- * @property {"up" | "down" | "footjob"} position Part of the file name for certain clothing, such as lowerwear.
+ * @property {PositionStates?} positions The position related state, typically holding leg state information for legwear/lowerwear.
  * @property {ClothingStates} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
@@ -131,6 +131,12 @@
  * @property {boolean} hasBackImg Whether the clothing has a back img layer, typically for headwear or handhelds.
  * @property {PlayerBreastState} breasts Breast state.
  * @property {PlayerSleeveState} sleeves Sleeve state.
+ */
+
+/**
+ * @typedef PositionStates
+ * @property {string} front
+ * @property {string} back
  */
 
 /**
@@ -798,15 +804,6 @@ function mapPcToPenetratorOptions(pc, options) {
 window.mapPcToPenetratorOptions = mapPcToPenetratorOptions;
 
 /**
- * @param {ClothesItem} clothing
- * @returns {boolean}
- */
-function isClothingStateEnabled(clothing) {
-	return clothing.combatStates != null ? clothing.combatStates[clothing.state] : true;
-}
-window.isClothingStateEnabled = isClothingStateEnabled;
-
-/**
  * @param {ClothedSlots} slot
  * @returns {ClothesItem}
  */
@@ -863,6 +860,33 @@ function getAccessoryState(slot, defaults) {
 window.getAccessoryState = getAccessoryState;
 
 /**
+ * @param {Options} options
+ * @param {ClothedSlots} slot
+ * @param {ClothesItem} defaults
+ * @returns {PositionStates?}
+ */
+function getPositionStates(options, slot, defaults) {
+	if (!["lower", "under_lower", "over_lower", "legs", "feet"].includes(slot)) {
+		return null;
+	}
+	let frontPosition = options.legFrontPosition;
+	let backPosition = options.legBackPosition;
+	if (["lower", "under_lower", "over_lower"].includes(slot)) {
+		if (defaults.skirt === 1 && options.legFrontPosition === "footjob") {
+			frontPosition = "up";
+		}
+		if (options.legBackPosition === "footjob") {
+			backPosition = "up";
+		}
+	}
+	return {
+		front: frontPosition,
+		back: backPosition,
+	};
+}
+window.getPositionStates = getPositionStates;
+
+/**
  * If combatImg is used to override the sprite images, this function aims to follow the redirects until
  * reaching the clothing item that correctly matches the sprite configuration.
  *
@@ -911,17 +935,6 @@ function mapPcToClothingOption(slot, pc, options) {
 	const name = defaults.combatImg ?? clothing.variable;
 	let state = clothing.state;
 	let show = name != null;
-	// Any up legs are enough to force the up position.
-	/** @type {"down" | "up" | "footjob"} */
-	let position = "down";
-
-	if (options.legBackPosition === "up" || options.legFrontPosition === "up") {
-		position = "up";
-	}
-
-	if (options.legBackPosition === "footjob" || options.legFrontPosition === "footjob") {
-		position = "footjob";
-	}
 
 	if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
 		show = false;
@@ -932,7 +945,7 @@ function mapPcToClothingOption(slot, pc, options) {
 	}
 
 	if (slot === "lower") {
-		position = position === "down" ? "down" : "up";
+		// Move skirt to thighs if skirt_down is 0
 		if (defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist") {
 			state = "thighs";
 		}
@@ -948,10 +961,6 @@ function mapPcToClothingOption(slot, pc, options) {
 		// state = options.legBackPosition;
 	}
 
-	if (defaults.combatStates) {
-		show = isClothingStateEnabled(clothing);
-	}
-
 	generateClothingFilter(slot, clothing, options);
 
 	if (defaults.index === 0 || name === "naked") {
@@ -965,7 +974,7 @@ function mapPcToClothingOption(slot, pc, options) {
 	const clothes = {
 		item: clothing,
 		name,
-		position,
+		positions: getPositionStates(options, slot, defaults),
 		state: state || "full",
 		show,
 		alpha: getAlpha(slot),

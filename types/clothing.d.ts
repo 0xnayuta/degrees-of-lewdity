@@ -64,7 +64,24 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
-	export type ClothingStates = 0 | "default" | "bound" | "handjob" | "up" | "down" | "footjob" | "neck" | "full" | "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "worn" | "totheside";
+	export type ClothingStates =
+		| 0
+		| "default"
+		| "bound"
+		| "handjob"
+		| "up"
+		| "down"
+		| "footjob"
+		| "neck"
+		| "full"
+		| "chest"
+		| "midriff"
+		| "waist"
+		| "thighs"
+		| "knees"
+		| "ankles"
+		| "worn"
+		| "totheside";
 
 	export type ClothesSlots = "clothes_all_slots" | ClothedSlots;
 
@@ -108,72 +125,13 @@ declare global {
 		 */
 		combatAccessoryOverride?: boolean;
 		/**
-		 * 
+		 *
 		 */
 		combatHasMainImg?: boolean;
 		/**
-		 * 
+		 *
 		 */
 		combatBoundable?: boolean;
-		/**
-		 * Determines whether there are state combat sprites for clothing.
-		 */
-		combatStates?: {
-			missionary: {
-				neck?: {
-					show: boolean;
-				};
-				chest?: {
-					show: boolean;
-				};
-				midriff?: {
-					show: boolean;
-				};
-				waist?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				thighs?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				knees?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				ankles?: {
-					show: boolean;
-					singular?: boolean;
-				};
-			},
-			doggy: {
-				neck?: {
-					show: boolean;
-				};
-				chest?: {
-					show: boolean;
-				};
-				midriff?: {
-					show: boolean;
-				};
-				waist?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				thighs?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				knees?: {
-					show: boolean;
-					singular?: boolean;
-				};
-				ankles?: {
-					show: boolean;
-					singular?: boolean;
-				};
-			},
-		};
 		integrity?: number;
 		integrity_max?: number;
 		fabric_strength?: number;
@@ -184,9 +142,9 @@ declare global {
 		open?: number;
 		/**
 		 * a: A skirt.
-		 * 
+		 *
 		 * n: Pyjamas.
-		 * 
+		 *
 		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
@@ -198,9 +156,9 @@ declare global {
 		skirt_down?: 0 | 1;
 		/**
 		 * 0 - Not exposed.
-		 * 
+		 *
 		 * 1 - For under_lower, this is fully exposed genitals. For under_upper, this is fully exposed breasts.
-		 * 
+		 *
 		 * 2 - Fully exposed for all else.
 		 */
 		exposed?: 0 | 1 | 2;
@@ -307,8 +265,8 @@ declare global {
 		pregType?: 0 | string;
 		formfitting?: 1;
 		oldVariable?: {
-			name: string,
-			variable: string,
+			name: string;
+			variable: string;
 		}[];
 		breast_acc_img?: 0 | 1;
 		accImage?: 0 | 1;
@@ -365,4 +323,4 @@ declare global {
 	function getCustomClothesColourCanvasFilter(filter: string): CompositeLayerSpec;
 }
 
-export { };
+export {};

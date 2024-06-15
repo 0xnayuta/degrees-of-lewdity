@@ -859,8 +859,8 @@ const combatMainPc = {
 		footwearBack: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/feet/${clothes.name}/back-${options.legBackPosition}.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}.png`;
 				console.log("Path:", path);
 				return path;
 			},
@@ -869,8 +869,8 @@ const combatMainPc = {
 		footwearAccBack: genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/feet/${clothes.name}/back-${options.legBackPosition}-acc.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}-acc.png`;
 				console.log("Feet Acc Back Path:", path);
 				return path;
 			},
@@ -879,8 +879,8 @@ const combatMainPc = {
 		footwearFront: genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/feet/${clothes.name}/front-${options.legFrontPosition}.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}.png`;
 				console.log("Path:", path);
 				return path;
 			},
@@ -889,8 +889,8 @@ const combatMainPc = {
 		footwearAccFront: genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/feet/${clothes.name}/front-${options.legFrontPosition}-acc.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}-acc.png`;
 				console.log("Feet Acc Front Path:", path);
 				return path;
 			},
@@ -1000,8 +1000,8 @@ const combatMainPc = {
 		legwearBack: genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legBackPosition}-${clothes.state}.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
@@ -1010,8 +1010,8 @@ const combatMainPc = {
 		legwearAccBack: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${options.legBackPosition}-${clothes.state}-acc.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
@@ -1020,8 +1020,8 @@ const combatMainPc = {
 		legwearFront: genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${options.legFrontPosition}-${clothes.state}.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
@@ -1030,29 +1030,49 @@ const combatMainPc = {
 		legwearAccFront: genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${options.legFrontPosition}-${clothes.state}-acc.png`;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
 				console.log("legs", "Path:", path);
 				return path;
 			},
 			z: zi.frontThigh + 2,
 		}),
-		lower: genClothingLayer("lower", {
+		backLower: genClothingLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}.png`;
-				console.log("Lower", "Path:", path);
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
+				console.log("Lower back path:", path);
+				return path;
+			},
+			z: zi.backThigh + 3,
+		}),
+		backLowerAcc: genClothingAccLayer("lower", {
+			srcfn(options) {
+				const clothes = options.clothes.lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
+				console.log("Lower back acc path:", path);
+				return path;
+			},
+			z: zi.backThigh + 3,
+		}),
+		frontLower: genClothingLayer("lower", {
+			srcfn(options) {
+				const clothes = options.clothes.lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
+				console.log("Lower front path:", path);
 				return path;
 			},
 			z: zi.frontThigh + 3,
 		}),
-		lowerAcc: genClothingAccLayer("lower", {
+		frontLowerAcc: genClothingAccLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
-				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/${clothes.position}-${clothes.state}-acc.png`;
-				console.log("Lower", "Path:", path);
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
+				console.log("Lower front acc path:", path);
 				return path;
 			},
 			z: zi.frontThigh + 3,
@@ -1185,6 +1205,14 @@ const combatMainPc = {
 	},
 };
 Renderer.CanvasModels.combatMainPc = combatMainPc;
+
+/*
+ *    ███████ ██    ██ ███    ██  ██████ ████████ ██  ██████  ███    ██ ███████
+ *    ██      ██    ██ ████   ██ ██         ██    ██ ██    ██ ████   ██ ██
+ *    █████   ██    ██ ██ ██  ██ ██         ██    ██ ██    ██ ██ ██  ██ ███████
+ *    ██      ██    ██ ██  ██ ██ ██         ██    ██ ██    ██ ██  ██ ██      ██
+ *    ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
+ */
 
 /**
  * @param {string} id
