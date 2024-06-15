@@ -1,5 +1,5 @@
 // @ts-check
-/* global CanvasCombatRenderer */
+/* global CanvasCombatRenderer, PlayerCanvasCombatMapper */
 
 /**
  * @typedef {object} CloseOptions
@@ -77,7 +77,7 @@ function getCloseOptions(options = {}) {
 	options.condomColour = V.player.condom.colour || "red";
 	options.filters.condom = CanvasCombatRenderer.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
 
-	window.mapPcToClothingOptions(V.player, options);
+	PlayerCanvasCombatMapper.mapPcToClothingOptions(V.player, options);
 	options.parasitePanties = options.parasitePanties || "red";
 	if (["parasite", "parasitem"].includes(V.parasite.clit.name) || ["parasite"].includes(V.parasite.penis.name)) {
 		options.filters.parasitePanties = CanvasCombatRenderer.lookupColour(options, setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
