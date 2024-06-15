@@ -171,11 +171,11 @@
  * @property {string?} state
  */
 
-class CombatRenderer {}
-const combatRenderer = new CombatRenderer();
-window.combatRenderer = combatRenderer;
+class CanvasCombatRenderer {}
+const CombatRenderer = new CanvasCombatRenderer();
+window.CombatRenderer = CombatRenderer;
 
-class PlayerCombatMapper {
+class PlayerCanvasCombatMapper {
 	/**
 	 *
 	 * @param {Options} options
@@ -1521,13 +1521,13 @@ class PlayerCombatMapper {
 		return tanValByName;
 	}
 }
-const playerCombatMapper = new PlayerCombatMapper();
-window.playerCombatMapper = playerCombatMapper;
+const PlayerCombatMapper = new PlayerCanvasCombatMapper();
+window.PlayerCombatMapper = PlayerCombatMapper;
 
 Macro.add("mapplayertooptions", {
 	handler() {
 		const slot = this.args[0];
 		const options = T.options[slot] || {};
-		T.options[slot] = playerCombatMapper.mapPlayerToOptions(options);
+		T.options[slot] = PlayerCombatMapper.mapPlayerToOptions(options);
 	},
 });

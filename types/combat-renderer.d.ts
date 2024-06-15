@@ -1,7 +1,7 @@
 declare global {
 	interface Window {
-		combatRenderer?: CombatRenderer;
-		playerCombatMapper?: PlayerCombatMapper;
+		CombatRenderer?: CanvasCombatRenderer;
+		PlayerCombatMapper?: PlayerCanvasCombatMapper;
 	}
 }
 
