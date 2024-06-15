@@ -4,7 +4,7 @@
 /**
  * @typedef Options
  * @type {object}
- * @property {"img/sex/"} root The root directory.
+ * @property {"img/sex/" | "img/newsex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
  * @property {boolean} showPlayer Flag to show the player model.
  * @property {boolean} showFace
@@ -177,16 +177,56 @@ window.CombatRenderer = CombatRenderer;
 
 class PlayerCanvasCombatMapper {
 	/**
-	 *
-	 * @param {Options} options
+	 * @returns {Options}
+	 */
+	generateOptions() {
+		// @ts-ignore
+		return {
+			root: "img/newsex/",
+			position: "missionary",
+			showPlayer: true,
+			showFace: true,
+			showClothing: true,
+			showNPCs: true,
+			inOral: false,
+			animSpeed: 1,
+			hairType: "default",
+			filters: {
+				worn: {},
+			},
+			clothes: {},
+			showTan: true,
+			src: "",
+			legBackPosition: "down",
+			legFrontPosition: "down",
+			armBackPosition: "default",
+			armFrontPosition: "default",
+			animKey: "",
+			animKeyStill: "",
+			machineAnimKey: "",
+			blush: 0,
+			breastsExposed: false,
+			breastSize: 0,
+			genitalsExposed: false,
+			hairLength: "short",
+			leftEye: "blue",
+			rightEye: "blue",
+			skinTone: 0,
+			skinType: "light",
+			tears: 0,
+		};
+	}
+
+	/**
+	 * @param {Options=} options
 	 * @returns {Options}
 	 */
 	mapPlayerToOptions(options) {
 		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
 
-		options.filters = options.filters || {
-			worn: {},
-		};
+		if (options == null) {
+			options = this.generateOptions();
+		}
 
 		// Set position
 		if (!["doggy", "missionary"].includes(V.position)) {

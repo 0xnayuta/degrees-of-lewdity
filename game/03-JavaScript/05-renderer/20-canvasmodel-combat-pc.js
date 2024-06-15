@@ -1,5 +1,5 @@
 // @ts-check
-/* global ClothingState, BodywritingOption */
+/* global ClothingState, BodywritingOption, PlayerCombatMapper */
 
 /**
  * @typedef CombatZIndices
@@ -161,21 +161,7 @@ const combatMainPc = {
 	 */
 	defaultOptions() {
 		console.log("Combat-model defaultOptions");
-		return {
-			root: "img/newsex/",
-			position: "missionary",
-			showPlayer: true,
-			showFace: true,
-			showClothing: true,
-			showNPCs: true,
-			inOral: false,
-			animSpeed: 1,
-			hairType: "default",
-			filters: {
-				worn: {},
-			},
-			clothes: {},
-		};
+		return PlayerCombatMapper.generateOptions();
 	},
 	/*
 	 *	██████  ██████  ███████ ██████  ██████   ██████   ██████ ███████ ███████ ███████
