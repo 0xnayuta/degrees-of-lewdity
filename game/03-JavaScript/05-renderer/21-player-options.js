@@ -184,6 +184,10 @@ class PlayerCanvasCombatMapper {
 	mapPlayerToOptions(options) {
 		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
 
+		options.filters = options.filters || {
+			worn: {},
+		};
+
 		// Set position
 		if (!["doggy", "missionary"].includes(V.position)) {
 			Errors.report("Position not set to any valid values", V.position);
