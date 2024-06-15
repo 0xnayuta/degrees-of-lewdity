@@ -1,5 +1,5 @@
 // @ts-check
-/* global ClothingState, BodywritingOption, PlayerCombatMapper */
+/* global CombatRenderer, PlayerCombatMapper */
 
 /**
  * @typedef CombatZIndices
@@ -39,49 +39,6 @@
  * Front arms:
  * @property {75} frontArm
  */
-
-/**
- * @type {CombatZIndices}
- */
-const zi = {
-	far: 0,
-
-	backHair: 20,
-
-	backCalf: 26,
-	backFoot: 27,
-	backThigh: 28,
-	backCalfUnderwear: 29,
-	backThighUnderwear: 30,
-	backFootwear: 31,
-	backCalfWear: 32,
-	backThighWear: 33,
-	backCalfOverwear: 34,
-	backThighOverwear: 35,
-
-	backArm: 30,
-
-	base: 50,
-
-	frontCalf: 65,
-	frontFoot: 66,
-	frontThigh: 67,
-	frontCalfUnderwear: 68,
-	frontThighUnderwear: 69,
-	frontFootwear: 70,
-	frontCalfWear: 71,
-	frontThighWear: 72,
-	frontCalfOverwear: 73,
-	frontThighOverwear: 74,
-
-	head: 70,
-
-	frontArm: 75,
-
-	hair: 81,
-
-	near: 100,
-};
 
 /**
  * @typedef {object} CanvasModelLayerPc
@@ -330,7 +287,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.base,
+			z: CombatRenderer.indices.base,
 		},
 		pilloryBack: {
 			srcfn(options) {
@@ -347,7 +304,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.head - 1,
+			z: CombatRenderer.indices.head - 1,
 		},
 		pilloryFront: {
 			srcfn(options) {
@@ -366,7 +323,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.head + 1,
+			z: CombatRenderer.indices.head + 1,
 		},
 		pilloryTomatoes: {
 			srcfn(options) {
@@ -380,7 +337,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.head + 1,
+			z: CombatRenderer.indices.head + 1,
 		},
 		/*
 		 *    ███    ███  █████   ██████ ██   ██ ██ ███    ██ ███████ ███████
@@ -402,9 +359,9 @@ const combatMainPc = {
 			},
 			zfn(options) {
 				if (options.position === "doggy") {
-					return zi.base + 10;
+					return CombatRenderer.indices.base + 10;
 				}
-				return zi.base + 12;
+				return CombatRenderer.indices.base + 12;
 			},
 		},
 		breastMilkerVolume: {
@@ -420,9 +377,9 @@ const combatMainPc = {
 			},
 			zfn(options) {
 				if (options.position === "doggy") {
-					return zi.base + 9;
+					return CombatRenderer.indices.base + 9;
 				}
-				return zi.base + 11;
+				return CombatRenderer.indices.base + 11;
 			},
 		},
 		penisMilker: {
@@ -435,7 +392,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.machineAnimKey;
 			},
-			z: zi.base + 7,
+			z: CombatRenderer.indices.base + 7,
 		},
 		penisMilkerVolume: {
 			srcfn(options) {
@@ -447,7 +404,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.machineAnimKey;
 			},
-			z: zi.base + 4,
+			z: CombatRenderer.indices.base + 4,
 		},
 		/*
 		 *    ████████ ███████ ███    ██ ████████  █████   ██████ ██      ███████ ███████
@@ -597,7 +554,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.backArm,
+			z: CombatRenderer.indices.backArm,
 		},
 		backthigh: {
 			srcfn(options) {
@@ -610,7 +567,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.backThigh,
+			z: CombatRenderer.indices.backThigh,
 		},
 		backleg: {
 			srcfn(options) {
@@ -623,7 +580,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.backCalf,
+			z: CombatRenderer.indices.backCalf,
 		},
 		base: {
 			srcfn(options) {
@@ -636,7 +593,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base,
+			z: CombatRenderer.indices.base,
 		},
 		frontthigh: {
 			srcfn(options) {
@@ -650,7 +607,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.frontThigh,
+			z: CombatRenderer.indices.frontThigh,
 		},
 		frontleg: {
 			srcfn(options) {
@@ -663,7 +620,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.frontCalf,
+			z: CombatRenderer.indices.frontCalf,
 		},
 		frontarm: {
 			srcfn(options) {
@@ -676,7 +633,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.frontArm,
+			z: CombatRenderer.indices.frontArm,
 		},
 		frontbreast: {
 			srcfn(options) {
@@ -691,7 +648,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base + 10,
+			z: CombatRenderer.indices.base + 10,
 		},
 		penetrator: {
 			srcfn(options) {
@@ -706,7 +663,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.base + 5,
+			z: CombatRenderer.indices.base + 5,
 		},
 		penetratorEjaculate: {
 			srcfn(options) {
@@ -723,7 +680,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return "sex-4f-vfast";
 			},
-			z: zi.base + 6,
+			z: CombatRenderer.indices.base + 6,
 		},
 		/*
 		 *	██   ██ ███████  █████  ██████
@@ -743,7 +700,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.head,
+			z: CombatRenderer.indices.head,
 		},
 		frontEye: {
 			srcfn(options) {
@@ -758,7 +715,7 @@ const combatMainPc = {
 			filtersfn(options) {
 				return [options.position === "missionary" ? "rightEye" : "leftEye"];
 			},
-			z: zi.head + 1,
+			z: CombatRenderer.indices.head + 1,
 		},
 		eyelid: {
 			srcfn(options) {
@@ -772,7 +729,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.head + 2,
+			z: CombatRenderer.indices.head + 2,
 		},
 		eyelashes: {
 			srcfn(options) {
@@ -785,7 +742,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["phair"],
-			z: zi.head + 3,
+			z: CombatRenderer.indices.head + 3,
 		},
 		blush: {
 			srcfn(options) {
@@ -799,7 +756,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: zi.head + 1,
+			z: CombatRenderer.indices.head + 1,
 		},
 		/* This creates a weird effect on the face, tbi */
 		tears: {
@@ -810,7 +767,7 @@ const combatMainPc = {
 				const result = options.showFace && options.tears > 0;
 				return !!result;
 			},
-			z: zi.head + 2,
+			z: CombatRenderer.indices.head + 2,
 		},
 		mouth: {
 			srcfn(options) {
@@ -824,7 +781,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: zi.head + 1,
+			z: CombatRenderer.indices.head + 1,
 		},
 		hair: {
 			srcfn(options) {
@@ -837,7 +794,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["hair"],
-			z: zi.hair,
+			z: CombatRenderer.indices.hair,
 		},
 		/*
 		 *    ██████   ██████  ██████  ██    ██ ██     ██ ██████  ██ ████████ ██ ███    ██  ██████
@@ -846,41 +803,41 @@ const combatMainPc = {
 		 *    ██   ██ ██    ██ ██   ██    ██    ██ ███ ██ ██   ██ ██    ██    ██ ██  ██ ██ ██    ██
 		 *    ██████   ██████  ██████     ██     ███ ███  ██   ██ ██    ██    ██ ██   ████  ██████
 		 */
-		bodywritingForehead: genBodywritingLayer("forehead", {
-			z: zi.base + 1,
+		bodywritingForehead: CombatRenderer.genBodywritingLayer("forehead", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackCheek: genBodywritingLayer("backCheek", {
-			z: zi.base - 1,
+		bodywritingBackCheek: CombatRenderer.genBodywritingLayer("backCheek", {
+			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontCheek: genBodywritingLayer("frontCheek", {
-			z: zi.base + 1,
+		bodywritingFrontCheek: CombatRenderer.genBodywritingLayer("frontCheek", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackShoulder: genBodywritingLayer("backShoulder", {
-			z: zi.base - 1,
+		bodywritingBackShoulder: CombatRenderer.genBodywritingLayer("backShoulder", {
+			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontShoulder: genBodywritingLayer("frontShoulder", {
-			z: zi.base + 1,
+		bodywritingFrontShoulder: CombatRenderer.genBodywritingLayer("frontShoulder", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBreasts: genBodywritingLayer("breasts", {
-			z: zi.base + 11,
+		bodywritingBreasts: CombatRenderer.genBodywritingLayer("breasts", {
+			z: CombatRenderer.indices.base + 11,
 		}),
-		bodywritingBack: genBodywritingLayer("back", {
-			z: zi.base + 1,
+		bodywritingBack: CombatRenderer.genBodywritingLayer("back", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackBottom: genBodywritingLayer("backBottom", {
-			z: zi.base - 1,
+		bodywritingBackBottom: CombatRenderer.genBodywritingLayer("backBottom", {
+			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontBottom: genBodywritingLayer("frontBottom", {
-			z: zi.base + 1,
+		bodywritingFrontBottom: CombatRenderer.genBodywritingLayer("frontBottom", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingPubic: genBodywritingLayer("pubic", {
-			z: zi.base + 1,
+		bodywritingPubic: CombatRenderer.genBodywritingLayer("pubic", {
+			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackThigh: genBodywritingLayer("backThigh", {
-			z: zi.backThigh + 1,
+		bodywritingBackThigh: CombatRenderer.genBodywritingLayer("backThigh", {
+			z: CombatRenderer.indices.backThigh + 1,
 		}),
-		bodywritingFrontThigh: genBodywritingLayer("frontThigh", {
-			z: zi.frontThigh + 1,
+		bodywritingFrontThigh: CombatRenderer.genBodywritingLayer("frontThigh", {
+			z: CombatRenderer.indices.frontThigh + 1,
 		}),
 		/*
 		 *	 ██████ ██       ██████  ████████ ██   ██ ██ ███    ██  ██████
@@ -889,13 +846,13 @@ const combatMainPc = {
 		 *	██      ██      ██    ██    ██    ██   ██ ██ ██  ██ ██ ██    ██
 		 *	 ██████ ███████  ██████     ██    ██   ██ ██ ██   ████  ██████
 		 */
-		facewear: genClothingLayer("face", {
-			z: zi.base + 4,
+		facewear: CombatRenderer.genClothingLayer("face", {
+			z: CombatRenderer.indices.base + 4,
 		}),
-		facewearAcc: genClothingAccLayer("face", {
-			z: zi.base + 4,
+		facewearAcc: CombatRenderer.genClothingAccLayer("face", {
+			z: CombatRenderer.indices.base + 4,
 		}),
-		footwearBack: genClothingLayer("feet", {
+		footwearBack: CombatRenderer.genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -903,9 +860,9 @@ const combatMainPc = {
 				console.log("Path:", path);
 				return path;
 			},
-			z: zi.backFootwear,
+			z: CombatRenderer.indices.backFootwear,
 		}),
-		footwearAccBack: genClothingAccLayer("feet", {
+		footwearAccBack: CombatRenderer.genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -913,9 +870,9 @@ const combatMainPc = {
 				console.log("Feet Acc Back Path:", path);
 				return path;
 			},
-			z: zi.backFootwear,
+			z: CombatRenderer.indices.backFootwear,
 		}),
-		footwearFront: genClothingLayer("feet", {
+		footwearFront: CombatRenderer.genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -923,9 +880,9 @@ const combatMainPc = {
 				console.log("Path:", path);
 				return path;
 			},
-			z: zi.frontFootwear,
+			z: CombatRenderer.indices.frontFootwear,
 		}),
-		footwearAccFront: genClothingAccLayer("feet", {
+		footwearAccFront: CombatRenderer.genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -933,15 +890,15 @@ const combatMainPc = {
 				console.log("Feet Acc Front Path:", path);
 				return path;
 			},
-			z: zi.frontFootwear,
+			z: CombatRenderer.indices.frontFootwear,
 		}),
-		genitals: genClothingLayer("genitals", {
-			z: zi.base + 6,
+		genitals: CombatRenderer.genClothingLayer("genitals", {
+			z: CombatRenderer.indices.base + 6,
 		}),
-		genitalsAcc: genClothingAccLayer("genitals", {
-			z: zi.base + 6,
+		genitalsAcc: CombatRenderer.genClothingAccLayer("genitals", {
+			z: CombatRenderer.indices.base + 6,
 		}),
-		handsBack: genClothingLayer("hands", {
+		handsBack: CombatRenderer.genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
@@ -950,7 +907,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
 					if (clothes.isBoundable) {
@@ -960,9 +917,9 @@ const combatMainPc = {
 				}
 				return ["handjob"].includes(options.armBackPosition);
 			},
-			z: zi.backArm + 1,
+			z: CombatRenderer.indices.backArm + 1,
 		}),
-		handsBackAcc: genClothingAccLayer("hands", {
+		handsBackAcc: CombatRenderer.genClothingAccLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
@@ -971,7 +928,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
 				if (!clothes.hasAccessory) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
@@ -982,9 +939,9 @@ const combatMainPc = {
 				}
 				return ["handjob"].includes(options.armBackPosition);
 			},
-			z: zi.backArm + 1,
+			z: CombatRenderer.indices.backArm + 1,
 		}),
-		handsFront: genClothingLayer("hands", {
+		handsFront: CombatRenderer.genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
@@ -993,13 +950,13 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				return available.includes(options.armFrontPosition);
 			},
-			z: zi.frontArm + 1,
+			z: CombatRenderer.indices.frontArm + 1,
 		}),
-		handsFrontAcc: genClothingAccLayer("hands", {
+		handsFrontAcc: CombatRenderer.genClothingAccLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
@@ -1008,14 +965,14 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				const show = options.showClothing && !isClothingShown(options, clothes) && clothes.hasAccessory;
+				const show = options.showClothing && !CombatRenderer.isClothingShown(options, clothes) && clothes.hasAccessory;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				const found = available.includes(options.armFrontPosition);
 				return !!show && !!found;
 			},
-			z: zi.frontArm + 1,
+			z: CombatRenderer.indices.frontArm + 1,
 		}),
-		headwearBack: genClothingLayer("head", {
+		headwearBack: CombatRenderer.genClothingLayer("head", {
 			srcfn(options) {
 				const clothes = options.clothes.head;
 				if (clothes?.name == null) return "";
@@ -1025,18 +982,18 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.head;
-				if (!isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
 				return !!clothes.hasBackImg;
 			},
-			z: zi.base - 1 /* At least behind head (50) */,
+			z: CombatRenderer.indices.base - 1 /* At least behind head (50) */,
 		}),
-		headwear: genClothingLayer("head", {
+		headwear: CombatRenderer.genClothingLayer("head", {
 			z: 81 + 1 /* hair Z plus one */,
 		}),
-		headwearAcc: genClothingAccLayer("head", {
+		headwearAcc: CombatRenderer.genClothingAccLayer("head", {
 			z: 81 + 1 /* hair Z plus one */,
 		}),
-		legwearBack: genClothingLayer("legs", {
+		legwearBack: CombatRenderer.genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1044,9 +1001,9 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: zi.backThigh + 1,
+			z: CombatRenderer.indices.backThigh + 1,
 		}),
-		legwearAccBack: genClothingAccLayer("legs", {
+		legwearAccBack: CombatRenderer.genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1054,9 +1011,9 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: zi.backThigh + 2,
+			z: CombatRenderer.indices.backThigh + 2,
 		}),
-		legwearFront: genClothingLayer("legs", {
+		legwearFront: CombatRenderer.genClothingLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1064,9 +1021,9 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 1,
+			z: CombatRenderer.indices.frontThigh + 1,
 		}),
-		legwearAccFront: genClothingAccLayer("legs", {
+		legwearAccFront: CombatRenderer.genClothingAccLayer("legs", {
 			srcfn(options) {
 				const clothes = options.clothes.legs;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1074,9 +1031,9 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 2,
+			z: CombatRenderer.indices.frontThigh + 2,
 		}),
-		backLower: genClothingLayer("lower", {
+		backLower: CombatRenderer.genClothingLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1084,9 +1041,9 @@ const combatMainPc = {
 				console.log("Lower back path:", path);
 				return path;
 			},
-			z: zi.backThigh + 3,
+			z: CombatRenderer.indices.backThigh + 3,
 		}),
-		backLowerAcc: genClothingAccLayer("lower", {
+		backLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1094,9 +1051,9 @@ const combatMainPc = {
 				console.log("Lower back acc path:", path);
 				return path;
 			},
-			z: zi.backThigh + 3,
+			z: CombatRenderer.indices.backThigh + 3,
 		}),
-		frontLower: genClothingLayer("lower", {
+		frontLower: CombatRenderer.genClothingLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1104,9 +1061,9 @@ const combatMainPc = {
 				console.log("Lower front path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 3,
+			z: CombatRenderer.indices.frontThigh + 3,
 		}),
-		frontLowerAcc: genClothingAccLayer("lower", {
+		frontLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
 			srcfn(options) {
 				const clothes = options.clothes.lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
@@ -1114,33 +1071,33 @@ const combatMainPc = {
 				console.log("Lower front acc path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 3,
+			z: CombatRenderer.indices.frontThigh + 3,
 		}),
-		neckWear: genClothingLayer("neck", {
-			z: zi.frontArm - 1,
+		neckWear: CombatRenderer.genClothingLayer("neck", {
+			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		neckWearAcc: genClothingAccLayer("neck", {
-			z: zi.frontArm - 1,
+		neckWearAcc: CombatRenderer.genClothingAccLayer("neck", {
+			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		overHead: genClothingLayer("over_head", {
-			z: zi.base + 10,
+		overHead: CombatRenderer.genClothingLayer("over_head", {
+			z: CombatRenderer.indices.base + 10,
 		}),
-		overHeadAcc: genClothingAccLayer("over_head", {
-			z: zi.base + 10,
+		overHeadAcc: CombatRenderer.genClothingAccLayer("over_head", {
+			z: CombatRenderer.indices.base + 10,
 		}),
-		overLower: genClothingLayer("over_lower", {
-			z: zi.frontThigh + 4,
+		overLower: CombatRenderer.genClothingLayer("over_lower", {
+			z: CombatRenderer.indices.frontThigh + 4,
 		}),
-		overLowerAcc: genClothingAccLayer("over_lower", {
-			z: zi.frontThigh + 4,
+		overLowerAcc: CombatRenderer.genClothingAccLayer("over_lower", {
+			z: CombatRenderer.indices.frontThigh + 4,
 		}),
-		overUpper: genClothingLayer("over_upper", {
-			z: zi.frontArm - 1,
+		overUpper: CombatRenderer.genClothingLayer("over_upper", {
+			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		overUpperAcc: genClothingAccLayer("over_upper", {
-			z: zi.frontArm - 1,
+		overUpperAcc: CombatRenderer.genClothingAccLayer("over_upper", {
+			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		underLower: genClothingLayer("under_lower", {
+		underLower: CombatRenderer.genClothingLayer("under_lower", {
 			srcfn(options) {
 				const clothes = options.clothes.under_lower;
 				if (clothes?.name == null) return "";
@@ -1149,9 +1106,9 @@ const combatMainPc = {
 				console.log("Under lower path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 2,
+			z: CombatRenderer.indices.frontThigh + 2,
 		}),
-		underLowerAcc: genClothingAccLayer("under_lower", {
+		underLowerAcc: CombatRenderer.genClothingAccLayer("under_lower", {
 			srcfn(options) {
 				const clothes = options.clothes.under_lower;
 				if (clothes?.name == null) return "";
@@ -1160,15 +1117,15 @@ const combatMainPc = {
 				console.log("Under lower path:", path);
 				return path;
 			},
-			z: zi.frontThigh + 2,
+			z: CombatRenderer.indices.frontThigh + 2,
 		}),
-		underUpper: genClothingLayer("under_upper", {
-			z: zi.frontArm - 4,
+		underUpper: CombatRenderer.genClothingLayer("under_upper", {
+			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		underUpperAcc: genClothingAccLayer("under_upper", {
-			z: zi.frontArm - 4,
+		underUpperAcc: CombatRenderer.genClothingAccLayer("under_upper", {
+			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		underUpperBreasts: genClothingLayer("under_upper", {
+		underUpperBreasts: CombatRenderer.genClothingLayer("under_upper", {
 			srcfn(options) {
 				const clothes = options.clothes.under_upper;
 				if (clothes?.name == null) return "";
@@ -1178,19 +1135,19 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.under_upper;
-				const show = isClothingShown(options, clothes) && clothes.breasts.show;
+				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
 				console.log("Show under upper breasts:", show);
 				return !!show;
 			},
-			z: zi.frontArm - 4,
+			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		upper: genClothingLayer("upper", {
-			z: zi.frontArm - 3,
+		upper: CombatRenderer.genClothingLayer("upper", {
+			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperAcc: genClothingAccLayer("upper", {
-			z: zi.frontArm - 3,
+		upperAcc: CombatRenderer.genClothingAccLayer("upper", {
+			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperBreasts: genClothingLayer("upper", {
+		upperBreasts: CombatRenderer.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
@@ -1200,13 +1157,13 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.breasts.show;
+				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.frontArm - 3,
+			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperBackSleeves: genClothingLayer("upper", {
+		upperBackSleeves: CombatRenderer.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
@@ -1216,16 +1173,16 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.sleeves.show;
+				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.backArm + 1,
+			z: CombatRenderer.indices.backArm + 1,
 		}),
-		upperFrontSleeves: genClothingLayer("upper", {
+		upperFrontSleeves: CombatRenderer.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
@@ -1235,147 +1192,12 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = isClothingShown(options, clothes) && clothes.sleeves.show;
+				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
-			z: zi.frontArm + 1,
+			z: CombatRenderer.indices.frontArm + 1,
 		}),
 	},
 };
 Renderer.CanvasModels.combatMainPc = combatMainPc;
-
-/*
- *    ███████ ██    ██ ███    ██  ██████ ████████ ██  ██████  ███    ██ ███████
- *    ██      ██    ██ ████   ██ ██         ██    ██ ██    ██ ████   ██ ██
- *    █████   ██    ██ ██ ██  ██ ██         ██    ██ ██    ██ ██ ██  ██ ███████
- *    ██      ██    ██ ██  ██ ██ ██         ██    ██ ██    ██ ██  ██ ██      ██
- *    ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
- */
-
-/**
- * @param {string} id
- * @param {CanvasModelLayerPc} overrideOptions
- * @returns {CanvasModelLayerPc}
- */
-function genBodywritingLayer(id, overrideOptions = {}) {
-	/**
-	 * @type {CanvasModelLayerPc}
-	 */
-	const defaults = {
-		srcfn(options) {
-			/** @type {BodywritingOption} */
-			const bodywriting = options.bodywriting[id];
-			const path = `${options.src}bodywriting/${bodywriting.area}/${bodywriting.type}.png`;
-			return path;
-		},
-		showfn(options) {
-			/** @type {BodywritingOption} */
-			const bodywriting = options.bodywriting[id];
-			return !!bodywriting.show;
-		},
-		animationfn(options) {
-			return options.animKey;
-		},
-		z: zi.base,
-	};
-	return Object.assign(defaults, overrideOptions);
-}
-
-/**
- * @param {Options} options
- * @param {ClothingState} clothing
- */
-function isClothingShown(options, clothing) {
-	// Global clothing visibility
-	if (!options.showClothing) return false;
-	// Name is the identifier for clothing sprites, if null, problem occurred.
-	if (clothing?.name == null) return false;
-	// Per clothing show flag.
-	return clothing.show;
-}
-
-/**
- * @param {string} slot
- * @param {CanvasModelLayerPc} overrideOptions
- * @returns {CanvasModelLayerPc}
- */
-function genClothingLayer(slot, overrideOptions = {}) {
-	/**
-	 * @type {CanvasModelLayerPc}
-	 */
-	const defaults = {
-		srcfn(options) {
-			const clothes = options.clothes[slot];
-			if (clothes == null || clothes.name == null) return "";
-			const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}.png`;
-			console.log(slot, "Path:", path);
-			return path;
-		},
-		showfn(options) {
-			const clothes = options.clothes[slot];
-			const show = isClothingShown(options, clothes) && clothes.hasMainImg;
-			console.log(slot, "Show?:", show);
-			return !!show;
-		},
-		alphafn(options) {
-			const clothes = options.clothes[slot];
-			const alpha = clothes.alpha;
-			console.log(slot, "Alpha:", alpha);
-			return alpha;
-		},
-		animationfn(options) {
-			return options.animKey;
-		},
-		filtersfn(options) {
-			const filter = `worn_${slot}_main`;
-			console.log(slot, "Filters:", filter, options.filters[filter]);
-			return [filter];
-		},
-		z: zi[slot],
-	};
-	return Object.assign(defaults, overrideOptions);
-}
-
-/**
- *
- * @param {string} slot
- * @param {CanvasModelLayerPc} overrideOptions
- * @returns {CanvasModelLayerPc}
- */
-function genClothingAccLayer(slot, overrideOptions = {}) {
-	/**
-	 * @type {CanvasModelLayerPc}
-	 */
-	const defaults = {
-		srcfn(options) {
-			const clothes = options.clothes[slot];
-			if (clothes == null || clothes.name == null) return "";
-			const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
-			console.log(slot, "Path:", path);
-			return path;
-		},
-		showfn(options) {
-			const clothes = options.clothes[slot];
-			const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
-			console.log(slot, "Show?:", show);
-			return !!show;
-		},
-		alphafn(options) {
-			const clothes = options.clothes[slot];
-			const alpha = clothes.alpha;
-			console.log(slot, "Alpha:", alpha);
-			return alpha;
-		},
-		animationfn(options) {
-			return options.animKey;
-		},
-		filtersfn(options) {
-			const filter = `worn_${slot}_acc`;
-			console.log(slot, "Filters:", filter, options.filters[filter]);
-			return [filter];
-		},
-		z: zi[slot],
-	};
-	return Object.assign(defaults, overrideOptions);
-}

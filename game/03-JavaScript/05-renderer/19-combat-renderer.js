@@ -1,7 +1,52 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, PositionStates */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, CanvasModelLayerPc, BodywritingOption */
 
 class CombatRenderer {
+	/**
+	 * @returns {CombatZIndices}
+	 */
+	static get indices() {
+		return {
+			far: 0,
+
+			backHair: 20,
+
+			backCalf: 26,
+			backFoot: 27,
+			backThigh: 28,
+			backCalfUnderwear: 29,
+			backThighUnderwear: 30,
+			backFootwear: 31,
+			backCalfWear: 32,
+			backThighWear: 33,
+			backCalfOverwear: 34,
+			backThighOverwear: 35,
+
+			backArm: 30,
+
+			base: 50,
+
+			frontCalf: 65,
+			frontFoot: 66,
+			frontThigh: 67,
+			frontCalfUnderwear: 68,
+			frontThighUnderwear: 69,
+			frontFootwear: 70,
+			frontCalfWear: 71,
+			frontThighWear: 72,
+			frontCalfOverwear: 73,
+			frontThighOverwear: 74,
+
+			head: 70,
+
+			frontArm: 75,
+
+			hair: 81,
+
+			near: 100,
+		};
+	}
+
 	/**
 	 * @param {0 | "doggy" | "missionary" | "wall" | "stalk"} position
 	 */
@@ -256,6 +301,133 @@ class CombatRenderer {
 			return this.getSourceClothing(slot, source, failsafe);
 		}
 		return source;
+	}
+
+	/**
+	 * @param {string} id
+	 * @param {CanvasModelLayerPc} overrideOptions
+	 * @returns {CanvasModelLayerPc}
+	 */
+	static genBodywritingLayer(id, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayerPc}
+		 */
+		const defaults = {
+			srcfn(options) {
+				/** @type {BodywritingOption} */
+				const bodywriting = options.bodywriting[id];
+				const path = `${options.src}bodywriting/${bodywriting.area}/${bodywriting.type}.png`;
+				return path;
+			},
+			showfn(options) {
+				/** @type {BodywritingOption} */
+				const bodywriting = options.bodywriting[id];
+				return !!bodywriting.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: this.indices.base,
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 * @param {Options} options
+	 * @param {ClothingState} clothing
+	 */
+	static isClothingShown(options, clothing) {
+		// Global clothing visibility
+		if (!options.showClothing) return false;
+		// Name is the identifier for clothing sprites, if null, problem occurred.
+		if (clothing?.name == null) return false;
+		// Per clothing show flag.
+		return clothing.show;
+	}
+
+	/**
+	 * @param {string} slot
+	 * @param {CanvasModelLayerPc} overrideOptions
+	 * @returns {CanvasModelLayerPc}
+	 */
+	static genClothingLayer(slot, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayerPc}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null || clothes.name == null) return "";
+				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}.png`;
+				console.log(slot, "Path:", path);
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes[slot];
+				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.hasMainImg;
+				console.log(slot, "Show?:", show);
+				return !!show;
+			},
+			alphafn(options) {
+				const clothes = options.clothes[slot];
+				const alpha = clothes.alpha;
+				console.log(slot, "Alpha:", alpha);
+				return alpha;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			filtersfn(options) {
+				const filter = `worn_${slot}_main`;
+				console.log(slot, "Filters:", filter, options.filters[filter]);
+				return [filter];
+			},
+			z: this.indices[slot],
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 *
+	 * @param {string} slot
+	 * @param {CanvasModelLayerPc} overrideOptions
+	 * @returns {CanvasModelLayerPc}
+	 */
+	static genClothingAccLayer(slot, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayerPc}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null || clothes.name == null) return "";
+				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
+				console.log(slot, "Path:", path);
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes[slot];
+				const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
+				console.log(slot, "Show?:", show);
+				return !!show;
+			},
+			alphafn(options) {
+				const clothes = options.clothes[slot];
+				const alpha = clothes.alpha;
+				console.log(slot, "Alpha:", alpha);
+				return alpha;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			filtersfn(options) {
+				const filter = `worn_${slot}_acc`;
+				console.log(slot, "Filters:", filter, options.filters[filter]);
+				return [filter];
+			},
+			z: this.indices[slot],
+		};
+		return Object.assign(defaults, overrideOptions);
 	}
 }
 window.CombatRenderer = CombatRenderer;
