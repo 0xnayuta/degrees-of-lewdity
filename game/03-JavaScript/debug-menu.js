@@ -12,6 +12,28 @@ setup.debugMenu = {
 setup.debugMenu.eventList = {
 	Main: [
 		{
+			link: [`Give All Seeds`, stayOnPassageFn],
+			widgets: [
+				`<<set $plants_known.push("red_rose")>>`,
+				`<<set $plants_known.push("white_rose")>>`,
+				`<<set $plants_known.push("orchid")>>`,
+				`<<set $plants_known.push("daisy")>>`,
+				`<<set $plants_known.push("tulip")>>`,
+				`<<set $plants_known.push("lotus")>>`,
+				`<<set $plants_known.push("lily")>>`,
+				`<<set $plants_known.push("poppy")>>`,
+				`<<set $plants_known.push("wild_carrot")>>`,
+				`<<set $plants_known.push("onion")>>`,
+				`<<set $plants_known.push("garlic_bulb")>>`,
+				`<<set $plants_known.push("potato")>>`,
+				`<<set $plants_known.push("strange_flower")>>`,
+				`<<set $plants_known.push("cabbage")>>`,
+				`<<set $plants_known.push("turnip")>>`,
+				`<<set $plants_known.push("broccoli")>>`,
+				`<<set $plants_known.push("carnation")>>`,
+				`<<set $plants_known.push("plumeria")>>`],
+		},
+		{
 			link: [`Home`, `Bedroom`],
 			widgets: [`<<endcombat>>`],
 		},
