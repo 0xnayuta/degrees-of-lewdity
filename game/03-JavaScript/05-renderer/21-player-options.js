@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, ClothingStates */
+/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, ClothingStates, TransformationKeys */
 
 /**
  * @typedef Options
@@ -40,6 +40,7 @@
  * @property {Machines} machines
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
+ * @property {Object<string, TransformationOptions>} transformations
  */
 
 /**
@@ -179,6 +180,42 @@
  * @property {string?} state
  */
 
+/**
+ * @typedef TransformationOptions
+ * @property {WingOptions} wings
+ * @property {HaloOptions} halo
+ * @property {HornOptions} horns
+ * @property {TailOptions} tail
+ */
+
+/**
+ * @typedef WingOptions
+ * @property {boolean} show
+ * @property {string} type
+ * @property {string} style
+ */
+
+/**
+ * @typedef HaloOptions
+ * @property {boolean} show
+ * @property {string} type
+ * @property {string} style
+ */
+
+/**
+ * @typedef HornOptions
+ * @property {boolean} show
+ * @property {string} type
+ * @property {string} style
+ */
+
+/**
+ * @typedef TailOptions
+ * @property {boolean} show
+ * @property {string} type
+ * @property {string} style
+ */
+
 class PlayerCombatMapper {
 	/**
 	 * @returns {Options}
@@ -218,6 +255,7 @@ class PlayerCombatMapper {
 			skinTone: 0,
 			skinType: "light",
 			tears: 0,
+			transformations: {},
 		};
 	}
 
@@ -260,6 +298,8 @@ class PlayerCombatMapper {
 
 		// Ensure body options comes after clothing options
 		this.mapPcToBodyOptions(V.player, options);
+
+		this.mapToTransformationOptions(options);
 
 		options.penetrator = this.mapPcToPenetratorOptions(V.player, options);
 
@@ -974,6 +1014,120 @@ class PlayerCombatMapper {
 		this.mapPcToArmPosition(options);
 		this.mapPcToBodywritingOptions(pc, options);
 		return options;
+	}
+
+	/**
+	 * @param {Options} options
+	 * @returns {Options}
+	 */
+	static mapToTransformationOptions(options) {
+		/**
+		 * @param {TransformationKeys} type
+		 * @param {"wings" | "halo" | "horns" | "tail"} part
+		 */
+		function generateTransformationFilter(type, part) {
+			const parts = V.transformationParts[type];
+			if (part in parts) {
+				options.filters[type + part.toUpperFirst()] = CombatRenderer.getTransformationFilter(type, part);
+			}
+		}
+
+		/** @type {TransformationKeys[]} */
+		const transformations = ["angel", "bird", "cat", "cow", "demon", "fallenAngel", "fox", "wolf"];
+		options.transformations = options.transformations || {};
+		transformations.forEach(transformation => {
+			options.transformations[transformation] = {
+				wings: this.mapToTransformationWingOptions(transformation),
+				halo: this.mapToTransformationHaloOptions(transformation),
+				horns: this.mapToTransformationHornOptions(transformation),
+				tail: this.mapToTransformationTailOptions(transformation),
+			};
+			generateTransformationFilter(transformation, "wings");
+			generateTransformationFilter(transformation, "halo");
+			generateTransformationFilter(transformation, "horns");
+			generateTransformationFilter(transformation, "tail");
+		});
+		return options;
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {WingOptions}
+	 */
+	static mapToTransformationWingOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("wings" in parts) || parts.wings === "disabled") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.wings,
+		};
+	}
+
+	/**
+	 * @param {string} type
+	 * @returns {HaloOptions}
+	 */
+	static mapToTransformationHaloOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("halo" in parts) || parts.halo === "disabled") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.halo,
+		};
+	}
+
+	/**
+	 * @param {string} type
+	 * @returns {HornOptions}
+	 */
+	static mapToTransformationHornOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("horns" in parts) || parts.horns === "disabled") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.horns,
+		};
+	}
+
+	/**
+	 * @param {string} type
+	 * @returns {TailOptions}
+	 */
+	static mapToTransformationTailOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("tail" in parts) || parts.tail === "disabled") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.tail,
+		};
 	}
 
 	/**

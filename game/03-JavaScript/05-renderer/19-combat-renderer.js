@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, CanvasModelLayerPc, BodywritingOption */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, CanvasModelLayerPc, BodywritingOption, TransformationKeys, Transformations */
 
 class CombatRenderer {
 	/**
@@ -25,6 +25,15 @@ class CombatRenderer {
 			backArm: 30,
 
 			base: 50,
+
+			backWings: 40,
+			backHalo: 40,
+			backHorns: 40,
+			backTail: 40,
+			frontWings: 40,
+			frontHalo: 84,
+			frontHorns: 83,
+			frontTail: 40,
 
 			frontCalf: 65,
 			frontFoot: 66,
@@ -428,6 +437,58 @@ class CombatRenderer {
 			z: this.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 * @param {TransformationKeys} transformation
+	 * @param {"wings" | "halo" | "horns" | "tail"} part
+	 * @param {"front" | "back"} layer
+	 * @param {CanvasModelLayerPc} overrideOptions
+	 * @returns {CanvasModelLayerPc}
+	 */
+	static genTransformationLayer(transformation, part, layer, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayerPc}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const value = options.transformations[transformation][part];
+				const path = `${options.src}body/transformations/${value.type}/${part}/${layer}-${value.style}.png`;
+				console.log("Transformation", transformation, "part", part, layer, "src:", path);
+				return path;
+			},
+			showfn(options) {
+				const value = options.transformations[transformation][part];
+				const show = value.show;
+				console.log("Transformation", transformation, "part", part, layer, "show:", show);
+				return show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			filters: [transformation + part.toUpperFirst()],
+			z: this.indices[layer + part.toUpperFirst()],
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 * @param {TransformationKeys} transformation
+	 * @param {"wings" | "halo" | "horns" | "tail"} part
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getTransformationFilter(transformation, part) {
+		const active = V.transformationParts[transformation];
+		const defaults = Transformations.defaults[transformation] || {
+			colour: { h: 0, s: 100, l: 30 },
+		};
+		return {
+			blend: ColourUtils.toHslString(active[part + "_colour"], ColourUtils.toHslString(defaults.colour)),
+			blendMode: "hard-light",
+			brightness: 0,
+			contrast: 1,
+			desaturate: false,
+		};
 	}
 }
 window.CombatRenderer = CombatRenderer;

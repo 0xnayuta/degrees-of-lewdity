@@ -38,6 +38,15 @@
  * @property {30} backArm
  * Front arms:
  * @property {75} frontArm
+ * Transformation parts
+ * @property {40} backWings
+ * @property {40} backHalo
+ * @property {40} backHorns
+ * @property {40} backTail
+ * @property {40} frontWings
+ * @property {84} frontHalo
+ * @property {83} frontHorns
+ * @property {40} frontTail
  */
 
 /**
@@ -796,6 +805,48 @@ const combatMainPc = {
 			filters: ["hair"],
 			z: CombatRenderer.indices.hair,
 		},
+		/*
+		 *    ████████ ██████   █████  ███    ██ ███████ ███████  ██████  ██████  ███    ███  █████  ████████ ██  ██████  ███    ██
+		 *       ██    ██   ██ ██   ██ ████   ██ ██      ██      ██    ██ ██   ██ ████  ████ ██   ██    ██    ██ ██    ██ ████   ██
+		 *       ██    ██████  ███████ ██ ██  ██ ███████ █████   ██    ██ ██████  ██ ████ ██ ███████    ██    ██ ██    ██ ██ ██  ██
+		 *       ██    ██   ██ ██   ██ ██  ██ ██      ██ ██      ██    ██ ██   ██ ██  ██  ██ ██   ██    ██    ██ ██    ██ ██  ██ ██
+		 *       ██    ██   ██ ██   ██ ██   ████ ███████ ██       ██████  ██   ██ ██      ██ ██   ██    ██    ██  ██████  ██   ████
+		 */
+		angelWingsBack: CombatRenderer.genTransformationLayer("angel", "wings", "back"),
+		angelWingsFront: CombatRenderer.genTransformationLayer("angel", "wings", "front"),
+		angelHaloBack: CombatRenderer.genTransformationLayer("angel", "halo", "back"),
+		angelHaloFront: CombatRenderer.genTransformationLayer("angel", "halo", "front"),
+
+		birdTailBack: CombatRenderer.genTransformationLayer("bird", "tail", "back"),
+		birdTailFront: CombatRenderer.genTransformationLayer("bird", "tail", "front"),
+		birdWingsBack: CombatRenderer.genTransformationLayer("bird", "wings", "back"),
+		birdWingsFront: CombatRenderer.genTransformationLayer("bird", "wings", "front"),
+
+		catTailBack: CombatRenderer.genTransformationLayer("cat", "tail", "back"),
+		catTailFront: CombatRenderer.genTransformationLayer("cat", "tail", "front"),
+
+		cowHornsBack: CombatRenderer.genTransformationLayer("cow", "horns", "back"),
+		cowHornsFront: CombatRenderer.genTransformationLayer("cow", "horns", "front"),
+		cowTailBack: CombatRenderer.genTransformationLayer("cow", "tail", "back"),
+		cowTailFront: CombatRenderer.genTransformationLayer("cow", "tail", "front"),
+
+		demonHornsBack: CombatRenderer.genTransformationLayer("demon", "horns", "back"),
+		demonHornsFront: CombatRenderer.genTransformationLayer("demon", "horns", "front"),
+		demonTailBack: CombatRenderer.genTransformationLayer("demon", "tail", "back"),
+		demonTailFront: CombatRenderer.genTransformationLayer("demon", "tail", "front"),
+		demonWingsBack: CombatRenderer.genTransformationLayer("demon", "wings", "back"),
+		demonWingsFront: CombatRenderer.genTransformationLayer("demon", "wings", "front"),
+
+		fallenAngelWingsBack: CombatRenderer.genTransformationLayer("fallenAngel", "wings", "back"),
+		fallenAngelWingsFront: CombatRenderer.genTransformationLayer("fallenAngel", "wings", "front"),
+		fallenAngelHaloBack: CombatRenderer.genTransformationLayer("fallenAngel", "halo", "back"),
+		fallenAngelHaloFront: CombatRenderer.genTransformationLayer("fallenAngel", "halo", "front"),
+
+		foxTailBack: CombatRenderer.genTransformationLayer("fox", "tail", "back"),
+		foxTailFront: CombatRenderer.genTransformationLayer("fox", "tail", "front"),
+
+		wolfTailBack: CombatRenderer.genTransformationLayer("wolf", "tail", "back"),
+		wolfTailFront: CombatRenderer.genTransformationLayer("wolf", "tail", "front"),
 		/*
 		 *    ██████   ██████  ██████  ██    ██ ██     ██ ██████  ██ ████████ ██ ███    ██  ██████
 		 *    ██   ██ ██    ██ ██   ██  ██  ██  ██     ██ ██   ██ ██    ██    ██ ████   ██ ██

@@ -2,6 +2,23 @@ declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		player: Player;
 
+		transformationParts: {
+			angel: AngelTransformationParts;
+			bird: BirdTransformationParts;
+			cat: CatTransformationParts;
+			cow: CowTransformationParts;
+			demon: DemonTransformationParts;
+			fallenAngel: DemonTransformationParts;
+			fox: FoxTransformationParts;
+			wolf: WolfTransformationParts;
+			traits: {
+				fangs: string;
+				flaunting: string;
+				mateForLife: string;
+				sharpEyes: string;
+			};
+		};
+
 		pain: number;
 		arousal: number;
 		tiredness: number;
@@ -206,6 +223,60 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf";
+
+	export interface AngelTransformationParts {
+		halo: string;
+		wings: string;
+	}
+
+	export interface BirdTransformationParts {
+		eyes: string;
+		malar: string;
+		plumage: string;
+		pubes: string;
+		tail: string;
+		wings: string;
+	}
+
+	export interface CatTransformationParts {
+		eyes: string;
+		heterochromia: string;
+		tail: string;
+	}
+
+	export interface CowTransformationParts {
+		eyes: string;
+		horns: string;
+		tail: string;
+	}
+
+	export interface DemonTransformationParts {
+		horns: string;
+		tail: string;
+		wings: string;
+		wings_colour: string;
+	}
+
+	export interface FallenAngelTransformationParts {
+		horns: string;
+		wings: string;
+	}
+
+	export interface FoxTransformationParts {
+		cheeks: string;
+		ears: string;
+		tail: string;
+	}
+
+	export interface WolfTransformationParts {
+		cheeks: string;
+		ears: string;
+		pits: string;
+		pubes: string;
+		tail: string;
+	}
+
 	export interface Player {
 		gender_appearance: string;
 		ballsExist: any;
