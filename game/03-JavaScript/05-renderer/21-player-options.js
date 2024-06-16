@@ -427,7 +427,7 @@ class PlayerCombatMapper {
 			const audience = V.pilloryaudience || 0;
 			const tomatoes = V.walltype === "pillory" ? Math.clamp(audience - 1, 1, 4) : 0;
 			return {
-				show: !!V.walltype,
+				show: V.position === "wall" && !!V.walltype,
 				isDirty: V.walltype === "pillory",
 				hasHorse: V.walltype === "horse_pillory",
 				tomatoes,

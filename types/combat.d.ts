@@ -1,7 +1,7 @@
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		combat: boolean;
-		position: 0 | "doggy" | "missionary" | "wall" | "stalk";
+		position: 0 | "doggy" | "missionary" | "wall" | "stalk" | "wall";
 
 		walltype?: "pillory" | "cleanpillory" | "horse_pillory";
 		pilloryaudience?: number;
