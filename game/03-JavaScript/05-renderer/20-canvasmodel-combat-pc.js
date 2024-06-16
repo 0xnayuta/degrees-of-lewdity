@@ -898,10 +898,10 @@ const combatMainPc = {
 		 *	 ██████ ███████  ██████     ██    ██   ██ ██ ██   ████  ██████
 		 */
 		facewear: CombatRenderer.genClothingLayer("face", {
-			z: CombatRenderer.indices.base + 4,
+			z: CombatRenderer.indices.head + 4,
 		}),
 		facewearAcc: CombatRenderer.genClothingAccLayer("face", {
-			z: CombatRenderer.indices.base + 4,
+			z: CombatRenderer.indices.head + 4,
 		}),
 		footwearBack: CombatRenderer.genClothingLayer("feet", {
 			srcfn(options) {

@@ -989,7 +989,7 @@ class PlayerCombatMapper {
 		};
 		options.filters.worn[slot] = {};
 
-		const colour = clothing.combatColourOverride || clothing.colour_combat || clothing.colour;
+		const colour = clothing.combatColourOverride || clothing.colour;
 		const debugName = slot + " clothing";
 		const customFilter = clothing.colourCustom;
 		console.log("Clothing colour:", slot, colour);
@@ -997,7 +997,7 @@ class PlayerCombatMapper {
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour_combat || clothing.accessory_colour;
+		const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour;
 		const accDebugName = slot + " accessory";
 		const accCustomFilter = clothing.accessory_colourCustom;
 		options.filters[accFilterKey] = accColour
