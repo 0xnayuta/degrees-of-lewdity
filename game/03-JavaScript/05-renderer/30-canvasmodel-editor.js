@@ -5,8 +5,6 @@ function createCanvasCombatEditor() {
 
 	const para = document.createElement("div");
 	para.classList.add("mytest");
-	const text = document.createTextNode("Hello");
-	para.append(text);
 	fragment.append(para);
 
 	console.warn("createCanvasCombatEditor finished", fragment);

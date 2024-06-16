@@ -2,6 +2,23 @@ declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		player: Player;
 
+		transformationParts: {
+			angel: AngelTransformationParts;
+			bird: BirdTransformationParts;
+			cat: CatTransformationParts;
+			cow: CowTransformationParts;
+			demon: DemonTransformationParts;
+			fallenAngel: DemonTransformationParts;
+			fox: FoxTransformationParts;
+			wolf: WolfTransformationParts;
+			traits: {
+				fangs: string;
+				flaunting: string;
+				mateForLife: string;
+				sharpEyes: string;
+			};
+		};
+
 		pain: number;
 		arousal: number;
 		tiredness: number;
@@ -47,6 +64,36 @@ declare module "twine-sugarcube" {
 		arousalmasochism: number;
 		trackedArousal: int[];
 		timeSinceArousal: number;
+
+		skinColor: {
+			natural: SkinColoursSimple;
+			range: number;
+			sunBlock: boolean;
+			tanValues: number[];
+			init: boolean;
+			current: {
+				[x: string]: string;
+			};
+			overwrite: SkinColourConfig[];
+			overwriteEnable: boolean;
+			overwriteValues: SkinColourConfig;
+		};
+		/**
+		 * Only used within settings, try to use leftEyeColour or rightEyeColour.
+		 */
+		eyeselect: string;
+		leftEyeColour: string;
+		rightEyeColour: string;
+		haircolour: string;
+		hairfringecolour: string;
+		hairlengthstage: string;
+		fringelengthstage: string;
+		hairtype: string;
+		fringetype: string;
+		hairColourStyle: "simple" | "gradient";
+		hairFringeColourStyle: "simple" | "gradient";
+		hairColourGradient: Gradient;
+		hairFringeColourGradient: Gradient;
 
 		/**
 		 * Wtf is this
@@ -143,6 +190,9 @@ declare module "twine-sugarcube" {
 		earSlime: EarSlimeState;
 
 		parasite: {
+			nipples: any;
+			bottom: any;
+			breasts: any;
 			penis: ParasiteState;
 			clit: ParasiteState;
 			parasite: ParasiteState;
@@ -154,11 +204,84 @@ declare module "twine-sugarcube" {
 			left_arm: ParasiteState;
 			right_arm: ParasiteState;
 		};
+
+		skin: {
+			forehead: Bodywriting;
+			left_cheek: Bodywriting;
+			right_cheek: Bodywriting;
+			left_shoulder: Bodywriting;
+			right_shoulder: Bodywriting;
+			breasts: Bodywriting;
+			back: Bodywriting;
+			left_bottom: Bodywriting;
+			right_bottom: Bodywriting;
+			pubic: Bodywriting;
+			left_thigh: Bodywriting;
+			right_thigh: Bodywriting;
+		};
 	}
 }
 
 declare global {
+	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf";
+
+	export interface AngelTransformationParts {
+		halo: string;
+		wings: string;
+	}
+
+	export interface BirdTransformationParts {
+		eyes: string;
+		malar: string;
+		plumage: string;
+		pubes: string;
+		tail: string;
+		wings: string;
+	}
+
+	export interface CatTransformationParts {
+		eyes: string;
+		heterochromia: string;
+		tail: string;
+	}
+
+	export interface CowTransformationParts {
+		eyes: string;
+		horns: string;
+		tail: string;
+	}
+
+	export interface DemonTransformationParts {
+		horns: string;
+		tail: string;
+		wings: string;
+		wings_colour: string;
+	}
+
+	export interface FallenAngelTransformationParts {
+		horns: string;
+		wings: string;
+	}
+
+	export interface FoxTransformationParts {
+		cheeks: string;
+		ears: string;
+		tail: string;
+	}
+
+	export interface WolfTransformationParts {
+		cheeks: string;
+		ears: string;
+		pits: string;
+		pubes: string;
+		tail: string;
+	}
+
 	export interface Player {
+		gender_appearance: string;
+		ballsExist: any;
+		breastsize: number;
+		perceived_breastsize: number;
 		penisExist: boolean;
 		vaginaExist: boolean;
 		penissize: number;
@@ -176,7 +299,27 @@ declare global {
 		};
 	}
 
+	export interface Bodywriting {
+		arrow: 0 | 1;
+		degree: 0 | 1;
+		gender: "m" | "f" | "n";
+		index: number;
+		lewd: 0 | 1;
+		pen: string;
+		special: "none" | "islander";
+		type: "text" | "object";
+		writing: string;
+	}
+
 	export interface EarSlimeState {
+		focus: string;
+		vibration: any;
+		event: any;
+		lastVibration: any;
+		days: any;
+		eventTimer: number;
+		forcedDressing: boolean;
+		forcedCommando: boolean;
 		corruption: number;
 		growth: number;
 		startedThreats: boolean;

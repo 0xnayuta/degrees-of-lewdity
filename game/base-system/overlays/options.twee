@@ -8,6 +8,7 @@ IMPORTANT:
 <<widget "setupOptions">>
 	<<set _optionsRefresh to false>>
 	<<script>>
+		initializeTooltips();
 		settingsDisableElement();
 		window.Theme.initControl();
 		onInputChanged(() => {
@@ -45,8 +46,8 @@ IMPORTANT:
 		<div class="settingsToggle">
 			<label data-disabledif="!StartConfig.enableLinkNumberify">
 				<<checkbox "$options.numberify_enabled" 0 1 autocheck>> Enable numbered link navigation
-				<mouse class="tooltip linkBlue">(?)<span>Allows navigation with keyboard</span></mouse>
 			</label>
+			<span class="tooltip-anchor linkBlue" tooltip="Allows navigation with keyboard">(?)</span>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
@@ -77,22 +78,42 @@ IMPORTANT:
 			<label><<radiobutton "$options.timestyle" "ampm" autocheck>> 12-hour</label>
 		</div>
 		<div class="settingsToggle">
+			Temperature format:
+			<label><<radiobutton "$options.fahrenheit" false autocheck>> Celsius</label> |
+			<label><<radiobutton "$options.fahrenheit" true autocheck>> Fahrenheit</label>
+		</div>
+		<div class="settingsToggle">
+			Date format:
+			<label><<radiobutton "$options.dateFormat" "en-GB" autocheck>> dd/mm/yyyy</label> |
+			<label><<radiobutton "$options.dateFormat" "en-US" autocheck>> mm/dd/yyyy</label> |
+			<label><<radiobutton "$options.dateFormat" "zh-CN" autocheck>> yyyy/mm/dd</label>
+		</div>
+		<div class="settingsToggle">
+			<<if !$options.genderBody>><<set $options.genderBody to "default">><</if>>
+			<label><<radiobutton "$options.genderBody" "default" autocheck>> Default</label> |
+			<label><<radiobutton "$options.genderBody" "m" autocheck>> Masculine</label> |
+			<label><<radiobutton "$options.genderBody" "a" autocheck>> Androgynous</label> |
+			<label><<radiobutton "$options.genderBody" "f" autocheck>> Feminine</label>
+		</div>
+		<div class="settingsToggle">
 			<label><<checkbox "$options.oldclock" false true autocheck>> Use old clock style in the sidebar</label>
 		</div>
 		<div class="settingsToggle">
 			<label><<checkbox "$options.showCaptionText" false true autocheck>> Show Caption Text in Sidebar</label>
 		</div>
-		<!-- Old renderer should stop being supported very soon.
-		Sidebar character renderer:
-		<label><<radiovar "$options.sidebarRenderer" "img">><<updatesidebarimg>><</radiovar>> Old</label> |
-		<label><<radiovar "$options.sidebarRenderer" "canvas">><<updatesidebarimg>><</radiovar>> New</label> |
-		<label><<radiovar "$options.sidebarRenderer" "both">><<updatesidebarimg>><</radiovar>> Both</label>
-		<br>
-		-->
 		<div class="settingsToggle">
 			Condoms display:
 			<label><<radiovar "$options.condomsDisplay" "standard">><<updatesidebarimg>><</radiovar>> Standard</label> |
 			<label><<radiovar "$options.condomsDisplay" "none">><<updatesidebarimg>><</radiovar>> Hidden</label>
+		</div>
+		<div class="settingsToggle">
+			<label><<checkbox "$options.tipdisable" "t" "f" autocheck>> Enable sidebar hints and tips</label>
+		</div>
+		<div class="settingsToggle">
+			<label><<checkbox "$options.debugdisable" "t" "f" autocheck>> Enable additional error messages</label>
+		</div>
+		<div class="settingsToggle">
+			<label><<checkbox "$options.clothingCaption" false true autocheck>> Show clothing descriptions in sidebar <span class="tooltip-anchor linkBlue" tooltip="Still displays the description as a tooltip when hovering over the avatar when disabled.">(?)</span></label>
 		</div>
 		<div class="settingsToggle">
 			Pepper sprays display:
@@ -101,21 +122,6 @@ IMPORTANT:
 				<<option "Compact (dots)" "compact">>
 				<<option "None" "none">>
 			<</listbox>>
-		</div>
-		<div class="settingsToggle">
-			Player image override: <mouse class="tooltip linkBlue">(?)<span>No in-game effect.</span></mouse>
-			<br>
-			<<if !$options.genderBody>><<set $options.genderBody to "default">><</if>>
-			<label><<radiobutton "$options.genderBody" "default" autocheck>> Default</label> |
-			<label><<radiobutton "$options.genderBody" "m" autocheck>> Masculine</label> |
-			<label><<radiobutton "$options.genderBody" "a" autocheck>> Androgynous</label> |
-			<label><<radiobutton "$options.genderBody" "f" autocheck>> Feminine</label>
-		</div>
-		<div class="settingsToggle">
-			<label><<checkbox "$options.tipdisable" "t" "f" autocheck>> Enable sidebar hints and tips</label>
-		</div>
-		<div class="settingsToggle">
-			<label><<checkbox "$options.debugdisable" "t" "f" autocheck>> Enable additional error messages</label>
 		</div>
 		<div style="clear:both;">/*Keep at end of toggles*/</div>
 	</div>
@@ -250,13 +256,6 @@ IMPORTANT:
 	<label><input type="radio" name="theme" value="frappe" /> Catppuccin Frappé</label> |
 	<label><input type="radio" name="theme" value="macchiato" /> Catppuccin Macchiato</label> |
 	<label><input type="radio" name="theme" value="mocha" /> Catppuccin Mocha</label> |
-	<br><br>
-
-	<span class="gold">Date Format</span><<optionsThemeDefault "dateFormat">>
-	<br>
-	<label><<radiobutton "$options.dateFormat" "en-GB" autocheck>> dd/mm/yyyy</label>
-	<label><<radiobutton "$options.dateFormat" "en-US" autocheck>> mm/dd/yyyy</label>
-	<label><<radiobutton "$options.dateFormat" "zh-CN" autocheck>> yyyy/mm/dd</label>
 	<br><br>
 
 	<<if $debug is 1>>
@@ -401,16 +400,20 @@ IMPORTANT:
 
 <<widget "optionsperformance">>
 	<<setupOptions>>
-	<span class="gold">Images</span>
-	<br>
 	<<if StartConfig.enableImages is true>>
+		<span class="gold">Images</span>
+		<br>
 		<div>
 			<div class="settingsToggle">
-				<label><<checkbox "$options.images" 0 1 autocheck>> Enable images</label>
+				<label>
+					<<checkbox "$options.images" 0 1 autocheck>> Enable images
+				</label>
 				<mouse class="tooltip-small linkBlue">(?)<span>Images may not load properly on older Androids</span></mouse>
 			</div>
 			<div class="settingsToggle">
-				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.combatImages" 0 1 autocheck>> Enable combat images</label>
+				<label data-target="options.images" data-disabledif="V.options.images===0">
+					<<checkbox "$options.combatImages" 0 1 autocheck>> Enable combat images
+				</label>
 			</div>
 
 			<div class="settingsToggle">
@@ -437,13 +440,42 @@ IMPORTANT:
 			<div style="clear:both;">/*Keep at end of toggles*/</div>
 		</div>
 		<br>
+		<span class="gold">Rendering</span>
+		<br>
+		<div class="description">Close the options menu for the change to apply.</div>
+		<div>
+			<div class="settingsToggle">
+				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.weatherUpdate" false true autocheck>> Use new weather renderer for sidebar</label>
+			</div>
+		</div>
+		<div>
+			<div class="settingsToggle">
+				<label data-target='["options.images", "weatherupdate"]' data-disabledif="V.options.images===0||V.options.weatherUpdate===false">
+					<<checkbox "$options.reflections" false true autocheck>> Render water reflections
+					<span class="linkBlue" tooltip="Could cause performance issues on old devices.">(?)</span>
+				</label>
+			</div>
+		</div>
+		<div>
+			<div class="settingsToggle">
+				Combat renderer:
+				<label><<radiobutton "$options.combatRendererMode" 1 autocheck>> Both</label> |
+				<label><<radiobutton "$options.combatRendererMode" 2 autocheck>> New</label> |
+				<label><<radiobutton "$options.combatRendererMode" 3 autocheck>> Old</label>
+			</div>
+		</div>
+		<br><br><br>
 		<span class="gold">Animations</span>
 		<div>
 			<div class="settingsToggle">
-				<label data-target="options.images" data-disabledif="V.options.images===0"><<checkbox "$options.sidebarAnimations" false true autocheck>> Sidebar animations</label>
+				<label data-target="options.images" data-disabledif="V.options.images===0">
+					<<checkbox "$options.sidebarAnimations" false true autocheck>> Sidebar character animations
+				</label>
 			</div>
 			<div class="settingsToggle">
-				<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.blinkingEnabled" false true autocheck>> Animate eyes blinking</label>
+				<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false">
+					<<checkbox "$options.blinkingEnabled" false true autocheck>> Animate eyes blinking
+				</label>
 			</div>
 			<div class="settingsToggle">
 				<label data-target="images" data-disabledif="V.options.images===0||V.options.combatImages===0">
@@ -453,8 +485,12 @@ IMPORTANT:
 			</div>
 			<<if $eyelidTEST is true>>
 				<div class="settingsToggle">
-					<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false"><<checkbox "$options.halfClosedEnabled" false true autocheck>> Enable half-closed eyes graphics</label></div>
-					<div class="description">Draw eyelids in sidebar as half-closed when highly aroused.
+					<label data-target='["options.images", "sidebaranimations"]' data-disabledif="V.options.images===0||V.options.sidebarAnimations===false">
+						<<checkbox "$options.halfClosedEnabled" false true autocheck>> Enable half-closed eyes graphics
+					</label>
+				</div>
+				<div class="description">
+					Draw eyelids in sidebar as half-closed when highly aroused.
 				</div>
 			<</if>>
 			<div style="clear:both;">/*Keep at end of toggles*/</div>
@@ -585,6 +621,30 @@ IMPORTANT:
 	<<numberslider "$options.zoom" $options.zoom 50 200 1>>
 	<input type="button" value="Set" onclick='zoom()'/>
 	<input type="button" value="Reset" onclick='zoom(100)'/>
+<</widget>>
+
+<<widget "optionsinformation">>
+	<div class="p-2 text-align-center">
+		<h3>People of interest</h3>
+
+		<div class="m-2">
+			<span class="gold">Creator: </span><span>Vrelnir</span>
+		</div>
+		<div class="m-2">
+			<span class="gold">Developer: </span><span>PurityGuy</span>
+		</div>
+	</div>
+
+	<div class="p-2 text-align-center">
+		<h3>Useful resources</h3>
+
+		<<linkinformation>>
+
+		<div class="m-2">
+			<p class="gold m-0">Unofficial Wiki</p>
+			[[degreesoflewdity.miraheze.org|"https://degreesoflewdity.miraheze.org/wiki/Main_Page"]]
+		</div>
+	</div>
 <</widget>>
 
 <<widget "setFont">>

@@ -400,7 +400,7 @@ namespace Renderer {
 	 * In both cases, brightness is added, contrast is multiplied.
 	 * Returns target
 	 */
-	export function mergeLayerData(target: CompositeLayerSpec, source: CompositeLayerParams, overwrite: boolean = false): CompositeLayerSpec {
+	export function mergeLayerData(target: Partial<CompositeLayerSpec>, source: CompositeLayerParams, overwrite: boolean = false): Partial<CompositeLayerSpec> {
 		for (let k of Object.keys(source)) {
 			if (k === 'brightness' && 'brightness' in target) {
 				if (typeof target.brightness === 'object' && typeof source.brightness === 'number') {

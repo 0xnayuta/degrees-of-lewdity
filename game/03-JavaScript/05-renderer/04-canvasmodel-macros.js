@@ -68,7 +68,11 @@ Macro.add("newcanvascompile", {
 Macro.add("newcanvasanimate", {
 	handler() {
 		console.warn(this.name, T.canvas, T.layers);
-		Renderer.animateLayers(T.canvas, T.layers, Renderer.defaultListener, true);
+		if (V.options.combatAnimations) {
+			Renderer.animateLayers(T.canvas, T.layers, Renderer.defaultListener, true);
+		} else {
+			Renderer.composeLayers(T.canvas, T.layers, 1, Renderer.defaultListener);
+		}
 		T.canvas.canvas.className = this.args[0];
 		this.output.append(T.canvas.canvas);
 	},

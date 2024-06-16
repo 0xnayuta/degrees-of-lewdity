@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 /* word - widget will output "a" if "a", and nothing if "n". eg - You are wearing <<a>> hat. You are wearing <<a>> shorts.
 plural - widget will output "are" if 1, and "is" if 0. eg - Your hat <<upperplural>> wet. Your shorts <<upperplural>> wet. */
@@ -73,7 +74,7 @@ function initOverUpper() {
 			set: "froggy",
 			gender: "n",
 			femininity: 0,
-			warmth: 70,
+			warmth: 7,
 			cost: 4500,
 			description: "Protects you from the rain.",
 			shop: ["clothing"],
@@ -116,7 +117,7 @@ function initOverUpper() {
 			type: ["naked"],
 			set: "over_upper",
 			gender: "n",
-			warmth: 5,
+			warmth: 0,
 			cost: 0,
 			description: "It won't last long.",
 			shop: [],

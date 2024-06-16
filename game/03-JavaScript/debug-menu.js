@@ -12,41 +12,8 @@ setup.debugMenu = {
 setup.debugMenu.eventList = {
 	Main: [
 		{
-			link: [`test`, `Test`],
-			widgets: [`<<set $molestationstart to 0>>`],
-		},
-		{
-			link: [`CanvasModel Example`, `CanvasModel Example`],
-			widgets: [``],
-		},
-		{
-			link: ["New combat", "Combat Demo"],
-			widgets: ["<<set $sexstart to 1>>"],
-		},
-		{
 			link: [`Home`, `Bedroom`],
 			widgets: [`<<endcombat>>`],
-		},
-		{
-			link: [`Wardrobe`, `Wardrobe`],
-			widgets: [``],
-		},
-		{
-			link: [`Strip`, stayOnPassageFn],
-			widgets: [`<<undressclothes "wardrobe">>`],
-		},
-		{
-			link: [`Strip to undies`, stayOnPassageFn],
-			widgets: [
-				`<<generalUndress wardrobe over_upper>>`,
-				`<<generalUndress wardrobe over_lower>>`,
-				`<<generalUndress wardrobe upper>>`,
-				`<<generalUndress wardrobe lower>>`,
-			],
-		},
-		{
-			link: [`Strip all`, stayOnPassageFn],
-			widgets: [`<<undress "wardrobe">>`],
 		},
 		{
 			link: [`Pass 1 minute`, stayOnPassageFn],
@@ -89,6 +56,31 @@ setup.debugMenu.eventList = {
 			widgets: [`<<pass 24 hours>>`],
 		},
 		{
+			link: [`Wardrobe`, `Wardrobe`],
+			widgets: [``],
+		},
+		{
+			link: [`Strip`, stayOnPassageFn],
+			widgets: [`<<undressclothes "wardrobe">>`],
+		},
+		{
+			link: [`Strip to undies`, stayOnPassageFn],
+			widgets: [
+				`<<generalUndress wardrobe over_upper>>`,
+				`<<generalUndress wardrobe over_lower>>`,
+				`<<generalUndress wardrobe upper>>`,
+				`<<generalUndress wardrobe lower>>`,
+			],
+		},
+		{
+			link: [`Strip all`, stayOnPassageFn],
+			widgets: [`<<undress "wardrobe">>`],
+		},
+		{
+			link: [`CanvasModel Example`, `CanvasModel Example`],
+			widgets: [``],
+		},
+		{
 			link: [`Enemy Trust +++`, stayOnPassageFn],
 			widgets: [`<<set $enemytrust += 2000>>`, `<<set $enemyanger -= 1000>>`],
 		},
@@ -126,10 +118,9 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Roll Over`, stayOnPassageFn],
-			widgets: [() => `<<set $position to ` + (V.position === "doggy" ? "doggy" : "missionary") + `>>`],
-			condition() {
-				return V.position === "doggy" || V.position === "missionary" ? 1 : 0;
-			},
+			widgets: [() => {
+				V.position = V.position === "doggy" ? "missionary" : "doggy";
+			}],
 		},
 		{
 			link: [`Replay current passage with new RNG`, ""],
@@ -673,6 +664,15 @@ setup.debugMenu.eventList = {
 			],
 		},
 		{
+			link: [`Great Hawk Hunt Capture`, `Moor`],
+			widgets: [
+				`<<set $moor to 50>>`,
+				`<<set $eventskip to 1>>`,
+				`<<moor_hunt_start>>`,
+				`<<set $moor_hunt to 10>>`,
+			],
+		},
+		{
 			link: [`Police Pillory Start`, `Police Pillory Start`],
 			widgets: [`<<crimeUpFlat 5000 "thievery">>`, `<<generate1>>`, `<<person1>>`],
 		},
@@ -1154,10 +1154,6 @@ setup.debugMenu.eventList = {
 		},
 		{
 			text_only: "\n\n",
-		},
-		{
-			link: [`Sunlight`, stayOnPassageFn],
-			widgets: [`<<set $weather to "clear">>`],
 		},
 		{
 			link: [`Wash`, stayOnPassageFn],

@@ -138,3 +138,19 @@ Renderer.defaultListener = {
 		}
 	},
 };
+
+/**
+ * @param {"new" | "old"} type
+ */
+function isCombatRendererEnabled(type) {
+	switch (type) {
+		case "new":
+			return [1, 2].includes(V.options.combatRendererMode);
+		case "old":
+			return [1, 3].includes(V.options.combatRendererMode);
+		default:
+			console.error("isCombatRendererEnabled given incorrect parameter:", type, "should be ['new' or 'old']");
+			return false;
+	}
+}
+window.isCombatRendererEnabled = isCombatRendererEnabled;

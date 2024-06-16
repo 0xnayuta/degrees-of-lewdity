@@ -1,3 +1,4 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 function initOverLower() {
 	/** @type {ClothesItem[]} */
@@ -75,7 +76,7 @@ function initOverLower() {
 			set: "froggy",
 			gender: "n",
 			femininity: 0,
-			warmth: 65,
+			warmth: 4,
 			cost: 0,
 			description: "Protects you from rain.",
 			shop: ["clothing"],
@@ -101,6 +102,7 @@ function initOverLower() {
 			fabric_strength: 30,
 			reveal: 1000,
 			rearresize: 0,
+			warmth: 0,
 			word: "n",
 			one_piece: 0,
 			skirt: 0,

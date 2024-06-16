@@ -50,7 +50,7 @@ module.exports = {
 		visited: "readonly",
 		visitedTags: "readonly",
 		throwError: "writeable",
-		// Dol shortcuts
+		// DoL shortcuts
 		C: "readonly",
 		DeserializeGame: "readonly",
 		globals: "readonly",
@@ -68,9 +68,10 @@ module.exports = {
 		// DoL other namespaces/objects
 		Constants: "readonly",
 		ConstantsLoader: "readonly",
+		Cooker: "readonly",
 		currentlyLoadingMap: "readonly",
+		ColourUtils: "readonly",
 		DateTime: "readonly",
-		DoLHouse: "readonly",
 		DolSettingsExport: "readonly",
 		Dynamic: "readonly",
 		EventSystem: "readonly",
@@ -79,6 +80,7 @@ module.exports = {
 		IronMan: "readonly",
 		Links: "readonly",
 		playerDoll: "readonly",
+		statDisplay: "readonly",
 		Renderer: "readonly",
 		SexTypes: "readonly",
 		StartConfig: "readonly",
@@ -86,6 +88,11 @@ module.exports = {
 		TimeConstants: "readonly",
 		Utils: "readonly",
 		ZIndices: "readonly",
+		Packer: "readonly",
+		Weather: "readonly",
+		BaseCanvas: "readonly",
+		Orbital: "readonly",
+		Fadable: "readonly",
 		// DoL SC2 functions
 		compressionVerifier: "readonly",
 		DefineMacro: "readonly",
@@ -115,6 +122,7 @@ module.exports = {
 		eSelect: "readonly",
 		getTimeString: "readonly",
 		generateBabyName: "readonly",
+		getBirdBurnTime: "readonly",
 		getCustomClothesColourCanvasFilter: "readonly",
 		getCustomColourRGB: "readonly",
 		getCustomColourStyle: "readonly",
@@ -194,9 +202,11 @@ module.exports = {
 		updateSavesCount: "readonly",
 		validateValue: "readonly",
 		waterproofCheck: "readonly",
+		initializeTooltips: "readonly",
 		// DoL math functions
 		round: "readonly",
 		normalise: "readonly",
+		categorise: "readonly",
 		randomExp: "readonly",
 		expCurve: "readonly",
 		between: "readonly",
@@ -206,15 +216,17 @@ module.exports = {
 		lerp: "readonly",
 		interpolate: "readonly",
 		interpolateObject: "readonly",
+		boundedRandom: "readonly",
+		calculateBinomial: "readonly",
+		weightedRandom: "readonly",
 		// DoL object functions
 		formatList: "readonly",
 		stringFrom: "readonly",
 		toTitleCase: "readonly",
+		resolveValue: "readonly",
 		// DoL classes
 		ObservableValue: "readonly",
 		CanvasModel: "readonly",
-		DollHouse: "readonly",
-		FDoll: "readonly",
 		// Third-party
 		define: "readonly",
 		iro: "readonly",
@@ -280,6 +292,12 @@ module.exports = {
 
 		// SugarCube extends native objects and we follow it
 		"no-extend-native": "off",
+
+		/* hasOwn */
+		// No need for this, since we're overriding hasOwn for older browers (01-compatibility.js)
+		// Warn for the hasOwnProperty instead
+		"es-x/no-object-hasown": "off", // eslint-disable-line
+		"prefer-object-has-own": "warn",
 
 		/* eslint-plugin-jsdoc */
 

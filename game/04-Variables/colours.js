@@ -119,11 +119,8 @@ setup.colours = {
 		ydark: ["#8e7f68", "#483f35"],
 		ygyaru: ["#f0ffe6", "#f0e4bc", "#8e7f68", "#483f35"],
 	},
-	/**
+	/*
 	 * Get canvas filter for skin of given type and tan progression (0..1).
-	 *
-	 * @param {any} type
-	 * @param {any} tan
 	 */
 	getSkinFilter(type, tan) {
 		return {
@@ -132,7 +129,7 @@ setup.colours = {
 		};
 	},
 	getSkinRgb(type, tan) {
-		tan = Math.clamp(0, tan, 1);
+		tan = Math.clamp(tan, 0, 1);
 		const gradient = setup.colours.skin_gradients[type];
 		if (!gradient) {
 			Errors.report("Unknown skin gradient " + type);

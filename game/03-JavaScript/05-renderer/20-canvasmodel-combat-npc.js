@@ -78,7 +78,7 @@ const combatMainNpc = {
 				return path;
 			},
 			showfn(options) {
-				const show = options.show && V.options.silhouetteEnabled;
+				const show = options.show;
 				console.warn("NPC showing:", show);
 				return !!show;
 			},
@@ -102,14 +102,14 @@ const combatMainNpc = {
 				return path;
 			},
 			showfn(options) {
-				const show = options.show && V.options.silhouetteEnabled && options.category === "beast";
+				const show = options.show && options.category === "beast";
 				console.warn("NPC showing:", show);
 				return !!show;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 80,
+			z: 85,
 		},
 		penetrator: {
 			srcfn(options) {
