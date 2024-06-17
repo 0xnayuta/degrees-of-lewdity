@@ -431,8 +431,8 @@ setup.debugMenu.eventList = {
 			widgets: [`<<set $awareness to 801>>`],
 		},
 		{
-			link: [`Set Awareness to 401`, stayOnPassageFn],
-			widgets: [`<<set $awareness to 401>>`],
+			link: [`Set Awareness to 201`, stayOnPassageFn],
+			widgets: [`<<set $awareness to 201>>`],
 		},
 		{
 			link: [`Set Awareness to 0`, stayOnPassageFn],
@@ -1681,7 +1681,7 @@ setup.debugMenu.eventList = {
 			widgets: [`<<run window.getAllPills()>>`],
 		},
 	],
-	Favourites: [],
+	Favourites: [ ],
 };
 
 function returnEventList() {
