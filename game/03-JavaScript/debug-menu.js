@@ -12,28 +12,6 @@ setup.debugMenu = {
 setup.debugMenu.eventList = {
 	Main: [
 		{
-			link: [`Give All Seeds`, stayOnPassageFn],
-			widgets: [
-				`<<set $plants_known.push("red_rose")>>`,
-				`<<set $plants_known.push("white_rose")>>`,
-				`<<set $plants_known.push("orchid")>>`,
-				`<<set $plants_known.push("daisy")>>`,
-				`<<set $plants_known.push("tulip")>>`,
-				`<<set $plants_known.push("lotus")>>`,
-				`<<set $plants_known.push("lily")>>`,
-				`<<set $plants_known.push("poppy")>>`,
-				`<<set $plants_known.push("wild_carrot")>>`,
-				`<<set $plants_known.push("onion")>>`,
-				`<<set $plants_known.push("garlic_bulb")>>`,
-				`<<set $plants_known.push("potato")>>`,
-				`<<set $plants_known.push("strange_flower")>>`,
-				`<<set $plants_known.push("cabbage")>>`,
-				`<<set $plants_known.push("turnip")>>`,
-				`<<set $plants_known.push("broccoli")>>`,
-				`<<set $plants_known.push("carnation")>>`,
-				`<<set $plants_known.push("plumeria")>>`],
-		},
-		{
 			link: [`Home`, `Bedroom`],
 			widgets: [`<<endcombat>>`],
 		},
@@ -447,6 +425,38 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Disable Debug Lines`, stayOnPassageFn],
 			widgets: [`<<set $debugLines to false>>`],
+		},
+		{
+			link: [`Set Awareness to 801`, stayOnPassageFn],
+			widgets: [`<<set $awareness to 801>>`],
+		},
+		{
+			link: [`Set Awareness to 401`, stayOnPassageFn],
+			widgets: [`<<set $awareness to 401>>`],
+		},
+		{
+			link: [`Set Awareness to 0`, stayOnPassageFn],
+			widgets: [`<<set $awareness to 0>>`],
+		},
+		{
+			link: [`Set Grace to 0`, stayOnPassageFn],
+			widgets: [`<<set $grace to 0>>`],
+		},
+		{
+			link: [`Set Grace to 100`, stayOnPassageFn],
+			widgets: [`<<set $grace to 100>>`],
+		},
+		{
+			link: [`Set Speech to Meek`, stayOnPassageFn],
+			widgets: [`<<set $speech_attitude to "meek">>`],
+		},
+		{
+			link: [`Set Speech to Neutral`, stayOnPassageFn],
+			widgets: [`<<set $speech_attitude to "neutral">>`],
+		},
+		{
+			link: [`Set Speech to Bratty`, stayOnPassageFn],
+			widgets: [`<<set $speech_attitude to "Bratty">>`],
 		},
 		{
 			text_only: `\n`,
