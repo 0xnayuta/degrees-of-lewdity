@@ -427,38 +427,6 @@ setup.debugMenu.eventList = {
 			widgets: [`<<set $debugLines to false>>`],
 		},
 		{
-			link: [`Set Awareness to 801`, stayOnPassageFn],
-			widgets: [`<<set $awareness to 801>>`],
-		},
-		{
-			link: [`Set Awareness to 201`, stayOnPassageFn],
-			widgets: [`<<set $awareness to 201>>`],
-		},
-		{
-			link: [`Set Awareness to 0`, stayOnPassageFn],
-			widgets: [`<<set $awareness to 0>>`],
-		},
-		{
-			link: [`Set Grace to 0`, stayOnPassageFn],
-			widgets: [`<<set $grace to 0>>`],
-		},
-		{
-			link: [`Set Grace to 100`, stayOnPassageFn],
-			widgets: [`<<set $grace to 100>>`],
-		},
-		{
-			link: [`Set Speech to Meek`, stayOnPassageFn],
-			widgets: [`<<set $speech_attitude to "meek">>`],
-		},
-		{
-			link: [`Set Speech to Neutral`, stayOnPassageFn],
-			widgets: [`<<set $speech_attitude to "neutral">>`],
-		},
-		{
-			link: [`Set Speech to Bratty`, stayOnPassageFn],
-			widgets: [`<<set $speech_attitude to "Bratty">>`],
-		},
-		{
 			text_only: `\n`,
 		},
 	],
