@@ -1681,7 +1681,7 @@ setup.debugMenu.eventList = {
 			widgets: [`<<run window.getAllPills()>>`],
 		},
 	],
-	Favourites: [ ],
+	Favourites: [],
 };
 
 function returnEventList() {
