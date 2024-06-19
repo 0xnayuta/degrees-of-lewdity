@@ -7,7 +7,7 @@ Config.history.maxStates = 5;
 /* debug will enable or disable the feature only for new games */
 /* sneaky will enable the Sneaky notice banner on the opening screen and save display */
 /* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
-window.StartConfig = {
+const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
