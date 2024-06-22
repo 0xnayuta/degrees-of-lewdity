@@ -2,7 +2,7 @@
 /* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, ClothingStates, TransformationKeys */
 
 /**
- * @typedef Options
+ * @typedef CombatPlayerOptions
  * @type {object}
  * @property {"img/sex/" | "img/newsex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
@@ -216,10 +216,9 @@
  * @property {string} style
  */
 
+/** @type {CanvasModelOptions<CombatPlayerOptions>} */
 class PlayerCombatMapper {
-	/**
-	 * @returns {Options}
-	 */
+	/** @returns {CombatPlayerOptions} */
 	static generateOptions() {
 		// @ts-ignore
 		return {
@@ -260,8 +259,8 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options=} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions=} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPlayerToOptions(options) {
 		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
@@ -334,7 +333,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {string}
 	 */
 	static getPcAnimationSpeed(options) {
@@ -351,7 +350,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {string}
 	 */
 	static getMachineAnimationSpeed(options) {
@@ -366,8 +365,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToPropsOptions(options) {
 		/**
@@ -457,8 +456,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToMachineOptions(options) {
 		/**
@@ -499,8 +498,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToTentacleOptions(options) {
 		/**
@@ -584,8 +583,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToArmPosition(options) {
 		if (options.position === "missionary") {
@@ -639,8 +638,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToLegPosition(options) {
 		if (options.position === "missionary") {
@@ -692,7 +691,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @param {ClothingState} clothing
 	 * @returns {ClothingStates[]}
 	 */
@@ -710,7 +709,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @param {ClothingState} clothing
 	 * @returns {boolean}
 	 */
@@ -719,7 +718,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {boolean}
 	 */
 	static isPenisExposed(options) {
@@ -739,7 +738,7 @@ class PlayerCombatMapper {
 	/**
 	 *
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {Penetrator?}
 	 */
 	static mapPcToPenetratorOptions(pc, options) {
@@ -887,8 +886,8 @@ class PlayerCombatMapper {
 	/**
 	 *
 	 * @param {Player} pc
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToClothingOptions(pc, options) {
 		// Clothing filters and options
@@ -903,7 +902,7 @@ class PlayerCombatMapper {
 	/**
 	 * @param {ClothedSlots} slot
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {ClothingState}
 	 */
 	static mapPcToClothingOption(slot, pc, options) {
@@ -978,7 +977,7 @@ class PlayerCombatMapper {
 	/**
 	 * @param {ClothedSlots} slot
 	 * @param {ClothesItem} clothing
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static generateClothingFilter(slot, clothing, options) {
 		const mainFilterKey = `worn_${slot}_main`;
@@ -1007,8 +1006,8 @@ class PlayerCombatMapper {
 
 	/**
 	 * @param {Player} pc
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToBodyOptions(pc, options) {
 		this.mapPcToArmPosition(options);
@@ -1017,8 +1016,8 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToTransformationOptions(options) {
 		/**
@@ -1132,7 +1131,7 @@ class PlayerCombatMapper {
 
 	/**
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static mapPcToBodywritingOptions(pc, options) {
 		/**
@@ -1435,7 +1434,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static generateHairFilters(options) {
 		if (V.hairColourStyle === "simple") {
@@ -1473,7 +1472,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static generateBodyFilters(options) {
 		options.skinType = V.skinColor.natural;
@@ -1496,11 +1495,3 @@ class PlayerCombatMapper {
 	}
 }
 window.PlayerCombatMapper = PlayerCombatMapper;
-
-Macro.add("mapplayertooptions", {
-	handler() {
-		const slot = this.args[0];
-		const options = T.options[slot] || {};
-		T.options[slot] = PlayerCombatMapper.mapPlayerToOptions(options);
-	},
-});

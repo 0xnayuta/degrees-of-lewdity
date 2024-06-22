@@ -38,20 +38,9 @@
  * @property {function(object): number} [widthfn] (options)=>number.
  * @property {function(object): number} [heightfn] (options)=>number.
  */
-/**
- * @typedef {object} CanvasModelCloseVaginaOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayerCloseVagina>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
 
 /**
- * @type {CanvasModelCloseVaginaOptions}
+ * @type {CanvasModelOptions}
  */
 const combatCloseVagina = {
 	name: "combatCloseVagina",

@@ -201,74 +201,35 @@ Debugging:
 		<div class="combat-grid">
 			<!-- Top row - Contains miniture viewports -->
 			<div class="combat-close d-flex flex-row justify-content-center">
-				<<set $_closeOptions to getCloseOptions()>>
 				<div class="combat-close-chest">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseChest" "combatCloseChest">>
-					<<newcanvascompile "combatCloseChest" "combatCloseChest" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showChest ? "border-primary" : "border-dark")`>>
+				
 				</div>
 				<div class="combat-close-penis">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatClosePenis" "combatClosePenis">>
-					<<newcanvascompile "combatClosePenis" "combatClosePenis" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showPenis ? "border-primary" : "border-dark")`>>
+				
 				</div>
 				<div class="combat-close-vagina">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseVagina" "combatCloseVagina">>
-					<<newcanvascompile "combatCloseVagina" "combatCloseVagina" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showVagina ? "border-primary" : "border-dark")`>>
+				
 				</div>
 				<div class="combat-close-arse">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseArse" "combatCloseArse">>
-					<<newcanvascompile "combatCloseArse" "combatCloseArse" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showArse ? "border-primary" : "border-dark")`>>
+				
 				</div>
 			</div>
 			<!-- Main canvas container. -->
 			<div class="combat-main d-flex justify-content-center">
-				<<newcanvasstart 256 256>>
+			
+				<<setup-multi-canvas "combatMain" "combatMainPc" "combatMainPc0">>
 
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================= NPC canvas ==================")>>
-				<<run console.warn("===============================================")>>
-				<<for _iHateTempVariables, _iReallyHateTempVariables range $NPCList>>
-					<<run console.log("compile npc:", _iReallyHateTempVariables)>>
-					<<if _iReallyHateTempVariables.type is "human">>
-						<<set $_slot to "combatMainNpc" + _iHateTempVariables>>
-						<<newcanvasselect "combatMainNpc" $_slot>>
-						<<mapnpctooptions $_slot _iHateTempVariables>>
-						<<run console.warn("===============================================")>>
-						<<run console.warn(`======== Human NPC ${_iHateTempVariables} compile ==========`)>>
-						<<run console.warn("===============================================")>>
-						<<newcanvascompile "combatMainNpc" $_slot>>
-					<<elseif $BeastList.includes(_iReallyHateTempVariables.type)>>
-						<<set $_slot to "combatMainNpc" + _iHateTempVariables>>
-						<<newcanvasselect "combatMainNpc" $_slot>>
-						<<mapnpctooptions $_slot _iHateTempVariables>>
-						<<run console.warn("===============================================")>>
-						<<run console.warn(`======== ${_iReallyHateTempVariables.type} NPC ${_iHateTempVariables} compile ==========`)>>
-						<<run console.warn("===============================================")>>
-						<<newcanvascompile "combatMainNpc" $_slot>>
+				<<for $_npcIndex, $_npc range $NPCList>>
+					<<run console.warn($_npcIndex, $_npc)>>
+					<<set _types to [...V.BeastList, "human"]>>
+					<<if _types.includes($_npc.type)>>
+						<<set _metadata to { index: $_npcIndex }>>
+						<<add-multi-canvas "combatMain" "combatMainNpc" `"combatMainNpc" + $_npcIndex` _metadata>>
 					<</if>>
 				<</for>>
 
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================== PC canvas ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC layers. -->
-				<<newcanvasselect "combatMainPc" "combatMainPc">>
-				<!-- Load T.options[slot] from PC data. -->
-				<<mapplayertooptions "combatMainPc">>
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================= PC compile ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC model and push to layer pipeline. -->
-				<<newcanvascompile "combatMainPc" "combatMainPc">>
+				<<start-multi-canvas-rendering "combatMain">>
 
-				<<newcanvasanimate "border border-primary">>
 			</div>
 		</div>
 	</div>

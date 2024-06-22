@@ -370,3 +370,8 @@ Renderer.Animations["sex-6f-vfast"] = {
 	frames: 6,
 	duration: 80,
 };
+
+Renderer.Animations["sex-2f-vfast"] = {
+	frames: 2,
+	duration: 80,
+};

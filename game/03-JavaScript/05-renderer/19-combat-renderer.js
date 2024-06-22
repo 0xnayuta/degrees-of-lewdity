@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, CanvasModelLayerPc, BodywritingOption, TransformationKeys, Transformations */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, BodywritingOption, TransformationKeys, Transformations */
 
 class CombatRenderer {
 	/**
@@ -11,20 +11,24 @@ class CombatRenderer {
 
 			backHair: 20,
 
-			backCalf: 26,
-			backFoot: 27,
-			backThigh: 28,
-			backCalfUnderwear: 29,
-			backThighUnderwear: 30,
-			backFootwear: 31,
-			backCalfWear: 32,
-			backThighWear: 33,
-			backCalfOverwear: 34,
-			backThighOverwear: 35,
+			backThigh: 48,
+			backFootwear: 53,
 
 			backArm: 30,
 
 			base: 50,
+
+			backLeg: 49,
+			backLowerUnderwear: 51,
+			backLegwear: 52,
+			backLowerWear: 54,
+			backLowerOverwear: 55,
+
+			frontLeg: 66,
+			frontLowerUnderwear: 68,
+			frontLegwear: 69,
+			frontLowerWear: 71,
+			frontLowerOverwear: 72,
 
 			backWings: 40,
 			backHalo: 40,
@@ -35,16 +39,8 @@ class CombatRenderer {
 			frontHorns: 83,
 			frontTail: 40,
 
-			frontCalf: 65,
-			frontFoot: 66,
-			frontThigh: 67,
-			frontCalfUnderwear: 68,
-			frontThighUnderwear: 69,
+			frontThigh: 65,
 			frontFootwear: 70,
-			frontCalfWear: 71,
-			frontThighWear: 72,
-			frontCalfOverwear: 73,
-			frontThighOverwear: 74,
 
 			head: 70,
 
@@ -314,12 +310,12 @@ class CombatRenderer {
 
 	/**
 	 * @param {string} id
-	 * @param {CanvasModelLayerPc} overrideOptions
-	 * @returns {CanvasModelLayerPc}
+	 * @param {CanvasModelLayers} overrideOptions
+	 * @returns {CanvasModelLayers}
 	 */
 	static genBodywritingLayer(id, overrideOptions = {}) {
 		/**
-		 * @type {CanvasModelLayerPc}
+		 * @type {CanvasModelLayers}
 		 */
 		const defaults = {
 			srcfn(options) {
@@ -356,12 +352,12 @@ class CombatRenderer {
 
 	/**
 	 * @param {string} slot
-	 * @param {CanvasModelLayerPc} overrideOptions
-	 * @returns {CanvasModelLayerPc}
+	 * @param {CanvasModelLayers} overrideOptions
+	 * @returns {CanvasModelLayers}
 	 */
 	static genClothingLayer(slot, overrideOptions = {}) {
 		/**
-		 * @type {CanvasModelLayerPc}
+		 * @type {CanvasModelLayers}
 		 */
 		const defaults = {
 			srcfn(options) {
@@ -399,12 +395,12 @@ class CombatRenderer {
 	/**
 	 *
 	 * @param {string} slot
-	 * @param {CanvasModelLayerPc} overrideOptions
-	 * @returns {CanvasModelLayerPc}
+	 * @param {CanvasModelLayers} overrideOptions
+	 * @returns {CanvasModelLayers}
 	 */
 	static genClothingAccLayer(slot, overrideOptions = {}) {
 		/**
-		 * @type {CanvasModelLayerPc}
+		 * @type {CanvasModelLayers}
 		 */
 		const defaults = {
 			srcfn(options) {
@@ -443,12 +439,12 @@ class CombatRenderer {
 	 * @param {TransformationKeys} transformation
 	 * @param {"wings" | "halo" | "horns" | "tail"} part
 	 * @param {"front" | "back"} layer
-	 * @param {CanvasModelLayerPc} overrideOptions
-	 * @returns {CanvasModelLayerPc}
+	 * @param {CanvasModelLayers} overrideOptions
+	 * @returns {CanvasModelLayers}
 	 */
 	static genTransformationLayer(transformation, part, layer, overrideOptions = {}) {
 		/**
-		 * @type {CanvasModelLayerPc}
+		 * @type {CanvasModelLayers}
 		 */
 		const defaults = {
 			srcfn(options) {

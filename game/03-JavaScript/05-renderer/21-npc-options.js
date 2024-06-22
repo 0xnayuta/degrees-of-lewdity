@@ -362,13 +362,3 @@ function mapNpcToPenetratorOptions(npc, options) {
 	return null;
 }
 window.mapNpcToPenetratorOptions = mapNpcToPenetratorOptions;
-
-Macro.add("mapnpctooptions", {
-	handler() {
-		const slot = this.args[0];
-		const index = this.args[1];
-		const options = T.options[slot] || {};
-		T.options[slot] = mapNpcToOptions(index, options);
-		console.log(T.options[slot]);
-	},
-});

@@ -60,6 +60,8 @@ Renderer.Stats = {
 	nlayers: 0,
 	ncached: 0,
 };
+
+/** @type {Renderer.RendererListener} */
 Renderer.defaultListener = {
 	error(error) {
 		// strip source data

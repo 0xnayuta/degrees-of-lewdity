@@ -111,7 +111,7 @@ declare namespace Renderer {
      * In both cases, brightness is added, contrast is multiplied.
      * Returns target
      */
-    export function mergeLayerData(target: CompositeLayerSpec, source: CompositeLayerParams, overwrite?: boolean): CompositeLayerSpec;
+    export function mergeLayerData(target: Partial<CompositeLayerSpec>, source: CompositeLayerParams, overwrite?: boolean): Partial<CompositeLayerSpec>;
     export function encodeProcessing(spec: CompositeLayerSpec): string;
     export function composeLayersAgain(): void;
     export function desaturateImage(image: CanvasImageSource, resultCanvas?: CanvasRenderingContext2D, doCutout?: boolean): HTMLCanvasElement;
@@ -218,6 +218,7 @@ declare namespace Renderer {
     }
     export function invalidateLayerCaches(layers: CompositeLayer[]): void;
     export function animateLayersAgain(): any;
+    export function getAnimatedCanvases(): WeakMap<CanvasRenderingContext2D, AnimatingCanvas>;
     export let Animations: Dict<AnimationSpec>;
     /**
      * Animation spec provider; default implementation is look up in Renderer.Animations by layer's `animation` property.

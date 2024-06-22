@@ -78,6 +78,7 @@ declare global {
 		debugdisable: "f" | "t";
 		silhouetteEnabled: boolean;
 		bodywritingImages: boolean;
+		combatAnimations: boolean;
 	}
 }
 

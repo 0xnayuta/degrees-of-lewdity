@@ -13,27 +13,21 @@
  * @property {81} hair
  * @property {70} head
  * Back legs:
- * @property {26} backCalf
- * @property {27} backFoot
- * @property {28} backThigh
- * @property {29} backCalfUnderwear
- * @property {30} backThighUnderwear
- * @property {31} backFootwear
- * @property {32} backCalfWear
- * @property {33} backThighWear
- * @property {34} backCalfOverwear
- * @property {35} backThighOverwear
+ * @property {48} backThigh
+ * @property {49} backLeg
+ * @property {51} backLowerUnderwear
+ * @property {52} backLegwear
+ * @property {53} backFootwear
+ * @property {54} backLowerWear
+ * @property {55} backLowerOverwear
  * Front legs:
- * @property {65} frontCalf
- * @property {66} frontFoot
- * @property {67} frontThigh
- * @property {68} frontCalfUnderwear
- * @property {69} frontThighUnderwear
+ * @property {65} frontThigh
+ * @property {66} frontLeg
+ * @property {68} frontLowerUnderwear
+ * @property {69} frontLegwear
  * @property {70} frontFootwear
- * @property {71} frontCalfWear
- * @property {72} frontThighWear
- * @property {73} frontCalfOverwear
- * @property {74} frontThighOverwear
+ * @property {71} frontLowerWear
+ * @property {72} frontLowerOverwear
  * Back arms:
  * @property {30} backArm
  * Front arms:
@@ -50,65 +44,14 @@
  */
 
 /**
- * @typedef {object} CanvasModelLayerPc
- * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
- * @property {string} [src] Image path. Either `src` or `srcfn` is required.
- * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
- * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
- * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
- * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
- * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
- * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
- * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
- * @property {string} [animation] Name of animation to apply, default none.
- * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
- * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
- * @property {number} [dx] Layer X position on the image, default 0.
- * @property {number} [dy] Layer Y position on the image, default 0.
- * @property {number} [width] Layer subsprite width, default = model width.
- * @property {number} [height] Layer subsprite width, default = model height.
- *
- * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(Options): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(Options): string} [srcfn] (options)=>string.
- * @property {function(Options): number} [zfn] (options)=>number.
- * @property {function(Options): number} [alphafn] (options)=>number.
- * @property {function(Options): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(Options): number} [brightnessfn] (options)=>number.
- * @property {function(Options): number} [contrastftn] (options)=>number.
- * @property {function(Options): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(Options): string} [blendfn] (options)=>string.
- * @property {function(Options): string} [masksrcfn] (options)=>string.
- * @property {function(Options): string} [animationfn] (options)=>string.
- * @property {function(Options): number[]} [framesfn] (options)=>number[].
- * @property {function(Options): string[]} [filtersfn] (options)=>string[].
- * @property {function(Options): number} [dxfn] (options)=>number.
- * @property {function(Options): number} [dyfn] (options)=>number.
- * @property {function(Options): number} [widthfn] (options)=>number.
- * @property {function(Options): number} [heightfn] (options)=>number.
- */
-
-/**
- * @typedef {object} CanvasModelPcOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayerPc>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
-
-/**
- * @type {CanvasModelPcOptions}
+ * @type {CanvasModelOptions}
  */
 const combatMainPc = {
 	name: "combatMainPc",
 	width: 256,
 	height: 256,
 	frames: 4,
+	metadata: {},
 	/*
 	 * http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=generated
 	 *	 ██████  ███████ ███    ██ ███████ ██████   █████  ████████ ███████ ██████
@@ -130,7 +73,7 @@ const combatMainPc = {
 	 */
 	defaultOptions() {
 		console.log("Combat-model defaultOptions");
-		return PlayerCombatMapper.generateOptions();
+		return { ...PlayerCombatMapper.generateOptions(), ...this.metadata };
 	},
 	/*
 	 *	██████  ██████  ███████ ██████  ██████   ██████   ██████ ███████ ███████ ███████
@@ -144,6 +87,7 @@ const combatMainPc = {
 	 */
 	preprocess(options) {
 		console.log("combatMainPc-Preprocess:", JSON.parse(JSON.stringify(options)));
+		PlayerCombatMapper.mapPlayerToOptions(options);
 	},
 	layers: {
 		/*
@@ -589,7 +533,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.backCalf,
+			z: CombatRenderer.indices.backLeg,
 		},
 		base: {
 			srcfn(options) {
@@ -629,7 +573,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.frontCalf,
+			z: CombatRenderer.indices.frontLeg,
 		},
 		frontarm: {
 			srcfn(options) {
@@ -855,7 +799,7 @@ const combatMainPc = {
 		 *    ██████   ██████  ██████     ██     ███ ███  ██   ██ ██    ██    ██ ██   ████  ██████
 		 */
 		bodywritingForehead: CombatRenderer.genBodywritingLayer("forehead", {
-			z: CombatRenderer.indices.base + 1,
+			z: CombatRenderer.indices.head + 3,
 		}),
 		bodywritingBackCheek: CombatRenderer.genBodywritingLayer("backCheek", {
 			z: CombatRenderer.indices.base - 1,
@@ -1036,13 +980,13 @@ const combatMainPc = {
 				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
 				return !!clothes.hasBackImg;
 			},
-			z: CombatRenderer.indices.base - 1 /* At least behind head (50) */,
+			z: CombatRenderer.indices.head - 1,
 		}),
 		headwear: CombatRenderer.genClothingLayer("head", {
-			z: 81 + 1 /* hair Z plus one */,
+			z: CombatRenderer.indices.hair + 1,
 		}),
 		headwearAcc: CombatRenderer.genClothingAccLayer("head", {
-			z: 81 + 1 /* hair Z plus one */,
+			z: CombatRenderer.indices.hair + 1,
 		}),
 		legwearBack: CombatRenderer.genClothingLayer("legs", {
 			srcfn(options) {
@@ -1052,7 +996,7 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 1,
+			z: CombatRenderer.indices.backLegwear,
 		}),
 		legwearAccBack: CombatRenderer.genClothingAccLayer("legs", {
 			srcfn(options) {
@@ -1062,7 +1006,7 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 2,
+			z: CombatRenderer.indices.backLegwear,
 		}),
 		legwearFront: CombatRenderer.genClothingLayer("legs", {
 			srcfn(options) {
@@ -1072,7 +1016,7 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 1,
+			z: CombatRenderer.indices.frontLegwear,
 		}),
 		legwearAccFront: CombatRenderer.genClothingAccLayer("legs", {
 			srcfn(options) {
@@ -1082,7 +1026,7 @@ const combatMainPc = {
 				console.log("legs", "Path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 2,
+			z: CombatRenderer.indices.frontLegwear,
 		}),
 		backLower: CombatRenderer.genClothingLayer("lower", {
 			srcfn(options) {
@@ -1092,7 +1036,7 @@ const combatMainPc = {
 				console.log("Lower back path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 3,
+			z: CombatRenderer.indices.backLowerWear,
 		}),
 		backLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
 			srcfn(options) {
@@ -1102,7 +1046,7 @@ const combatMainPc = {
 				console.log("Lower back acc path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 3,
+			z: CombatRenderer.indices.backLowerWear,
 		}),
 		frontLower: CombatRenderer.genClothingLayer("lower", {
 			srcfn(options) {
@@ -1112,7 +1056,7 @@ const combatMainPc = {
 				console.log("Lower front path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 3,
+			z: CombatRenderer.indices.frontLowerWear,
 		}),
 		frontLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
 			srcfn(options) {
@@ -1122,25 +1066,47 @@ const combatMainPc = {
 				console.log("Lower front acc path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 3,
+			z: CombatRenderer.indices.frontLowerWear,
 		}),
 		neckWear: CombatRenderer.genClothingLayer("neck", {
-			z: CombatRenderer.indices.frontArm - 1,
+			z: CombatRenderer.indices.head - 1,
 		}),
 		neckWearAcc: CombatRenderer.genClothingAccLayer("neck", {
-			z: CombatRenderer.indices.frontArm - 1,
+			z: CombatRenderer.indices.head - 1,
 		}),
 		overHead: CombatRenderer.genClothingLayer("over_head", {
-			z: CombatRenderer.indices.base + 10,
+			z: CombatRenderer.indices.head + 2,
 		}),
 		overHeadAcc: CombatRenderer.genClothingAccLayer("over_head", {
-			z: CombatRenderer.indices.base + 10,
+			z: CombatRenderer.indices.head + 2,
 		}),
-		overLower: CombatRenderer.genClothingLayer("over_lower", {
-			z: CombatRenderer.indices.frontThigh + 4,
+		backOverLower: CombatRenderer.genClothingLayer("over_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.over_lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
+				console.log("Over lower back path:", path);
+				return path;
+			},
+			show: false,
+			z: CombatRenderer.indices.backLowerOverwear,
 		}),
-		overLowerAcc: CombatRenderer.genClothingAccLayer("over_lower", {
-			z: CombatRenderer.indices.frontThigh + 4,
+		backOverLowerAcc: CombatRenderer.genClothingAccLayer("over_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.over_lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
+				console.log("Over lower back acc path:", path);
+				return path;
+			},
+			show: false,
+			z: CombatRenderer.indices.backLowerOverwear,
+		}),
+		frontOverLower: CombatRenderer.genClothingLayer("over_lower", {
+			z: CombatRenderer.indices.frontLowerOverwear,
+		}),
+		frontOverLowerAcc: CombatRenderer.genClothingAccLayer("over_lower", {
+			z: CombatRenderer.indices.frontLowerOverwear,
 		}),
 		overUpper: CombatRenderer.genClothingLayer("over_upper", {
 			z: CombatRenderer.indices.frontArm - 1,
@@ -1148,27 +1114,47 @@ const combatMainPc = {
 		overUpperAcc: CombatRenderer.genClothingAccLayer("over_upper", {
 			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		underLower: CombatRenderer.genClothingLayer("under_lower", {
+		backUnderLower: CombatRenderer.genClothingLayer("under_lower", {
 			srcfn(options) {
 				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null) return "";
-				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
-				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}.png`;
-				console.log("Under lower path:", path);
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/under_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
+				console.log("Under lower back path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 2,
+			show: false,
+			z: CombatRenderer.indices.backLowerUnderwear,
 		}),
-		underLowerAcc: CombatRenderer.genClothingAccLayer("under_lower", {
+		backUnderLowerAcc: CombatRenderer.genClothingAccLayer("under_lower", {
 			srcfn(options) {
 				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null) return "";
-				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
-				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}-acc.png`;
-				console.log("Under lower path:", path);
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/under_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
+				console.log("Under lower back acc path:", path);
 				return path;
 			},
-			z: CombatRenderer.indices.frontThigh + 2,
+			show: false,
+			z: CombatRenderer.indices.backLowerUnderwear,
+		}),
+		frontUnderLower: CombatRenderer.genClothingLayer("under_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.under_lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/under_lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
+				console.log("Under lower front path:", path);
+				return path;
+			},
+			z: CombatRenderer.indices.frontLowerUnderwear,
+		}),
+		frontUnderLowerAcc: CombatRenderer.genClothingAccLayer("under_lower", {
+			srcfn(options) {
+				const clothes = options.clothes.under_lower;
+				if (clothes?.name == null || clothes.positions == null) return "";
+				const path = `${options.src}clothing/under_lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
+				console.log("Under lower front acc path:", path);
+				return path;
+			},
+			z: CombatRenderer.indices.frontLowerUnderwear,
 		}),
 		underUpper: CombatRenderer.genClothingLayer("under_upper", {
 			z: CombatRenderer.indices.frontArm - 4,

@@ -30,83 +30,62 @@
  * are re-composed. (Source images are still cached globally under their url)
  */
 
-/**
- * @typedef {object} CanvasModelLayer
- * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
- * @property {string} [src] Image path. Either `src` or `srcfn` is required.
- * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
- * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
- * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
- * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
- * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
- * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
- * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
- * @property {string} [animation] Name of animation to apply, default none.
- * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
- * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
- * @property {number} [dx] Layer X position on the image, default 0.
- * @property {number} [dy] Layer Y position on the image, default 0.
- * @property {number} [width] Layer subsprite width, default = model width.
- * @property {number} [height] Layer subsprite width, default = model height.
- *
- * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(object): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(object): string} [srcfn] (options)=>string.
- * @property {function(object): number} [zfn] (options)=>number.
- * @property {function(object): number} [alphafn] (options)=>number.
- * @property {function(object): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(object): number} [brightnessfn] (options)=>number.
- * @property {function(object): number} [contrastftn] (options)=>number.
- * @property {function(object): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(object): string} [blendfn] (options)=>string.
- * @property {function(object): string} [masksrcfn] (options)=>string.
- * @property {function(object): string} [animationfn] (options)=>string.
- * @property {function(object): number[]} [framesfn] (options)=>number[].
- * @property {function(object): string[]} [filtersfn] (options)=>string[].
- * @property {function(object): number} [dxfn] (options)=>number.
- * @property {function(object): number} [dyfn] (options)=>number.
- * @property {function(object): number} [widthfn] (options)=>number.
- * @property {function(object): number} [heightfn] (options)=>number.
- */
-
-/**
- * @typedef {object} CanvasModelOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
-
-// Consider doing proper class inheritance
-/**
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Function} defaultOptions Function ()=>object returning default options.
- * @property {string[]} generatedOptions Names of generated options.
- * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
- * @property {CanvasModelLayer[]} layerList Layers.
- * @property {CanvasRenderingContext2D} canvas
- */
-window.CanvasModel = class CanvasModel {
+class CanvasModel {
 	/**
-	 * @param {CanvasModelOptions} options
+	 * Static factory method to create/fetch a stored model.
+	 * 
+	 * @param {string} id
+	 * @param {string} slot
+	 * @returns {CanvasModel}
 	 */
-	constructor(options) {
-		this.name = options.name;
-		this.width = options.width;
-		this.height = options.height;
-		this.frames = options.frames || 1;
-		if ("generatedOptions" in options) this.generatedOptions = options.generatedOptions;
-		if ("defaultOptions" in options) this.defaultOptions = options.defaultOptions;
-		if ("preprocess" in options) this.preprocess = options.preprocess;
-		this.layers = clone(options.layers);
+	static create(id, slot) {
+		const template = Renderer.CanvasModels[id];
+		if (!template) {
+			Errors.report("Requested non-existing model " + id);
+			return new CanvasModel({
+				name: "empty",
+				width: 1,
+				height: 1,
+				layers: {},
+				frames: 1,
+				metadata: {},
+				defaultOptions() { },
+				generatedOptions() {
+					return [];
+				},
+				preprocess(options) { },
+			});
+		}
+		if (!slot) {
+			return new CanvasModel(template);
+		}
+		let cache = Renderer.CanvasModelCaches[id];
+		if (!cache) {
+			cache = {};
+			Renderer.CanvasModelCaches[id] = cache;
+		}
+		let model = cache[slot];
+		if (model) {
+			return model;
+		}
+		model = new CanvasModel(template);
+		cache[slot] = model;
+		return model;
+	}
+
+	/**
+	 * @param {CanvasModelOptions} template
+	 */
+	constructor(template) {
+		this.name = template.name;
+		this.width = template.width;
+		this.height = template.height;
+		this.frames = template.frames || 1;
+		this.metadata = template.metadata;
+		if ("generatedOptions" in template) this.generatedOptions = template.generatedOptions;
+		if ("defaultOptions" in template) this.defaultOptions = template.defaultOptions;
+		if ("preprocess" in template) this.preprocess = template.preprocess;
+		this.layers = clone(template.layers);
 		for (const name in this.layers) {
 			if (!Object.hasOwn(this.layers, name)) continue;
 			const layer = this.layers[name];
@@ -201,7 +180,7 @@ window.CanvasModel = class CanvasModel {
 	 * @param {CanvasRenderingContext2D} canvas Canvas to render on (can be created with {@link createCanvas}).
 	 * @param {object} options Options to use when rendering model.
 	 * @param {listener} listener For Renderer events.
-	 * @returns {AnimatingCanvas} AnimatingCanvas object.
+	 * @returns {Renderer.AnimatingCanvas} AnimatingCanvas object.
 	 */
 	animate(canvas, options, listener) {
 		this.canvas = canvas;
@@ -231,14 +210,14 @@ window.CanvasModel = class CanvasModel {
 	 * Pre-process options. Typically you calculate some expression here and store them as generated options
 	 * Override in subclass.
 	 *
-	 * @param {options} options Model options.
+	 * @param {Options} options Model options.
 	 */
 	preprocess(options) {}
 
 	/**
 	 * Compile list of layers according to options.
 	 *
-	 * @param {options} options Model options.
+	 * @param {Options} options Model options.
 	 * @returns {CompositeLayerSpec[]} Layers.
 	 */
 	compile(options) {
@@ -319,22 +298,20 @@ window.CanvasModel = class CanvasModel {
 		}
 		return this.layerList;
 	}
-};
+}
 
-/**
- * @type {Object<string, CanvasModelOptions}
- */
+window.CanvasModel = CanvasModel;
+
 Renderer.CanvasModels = {};
-/**
- * @type {Object<string, Object<string, CanvasModel>>}
- */
+
 Renderer.CanvasModelCaches = {};
+
 /**
  * Find or create new CanvasModel.
  *
  * @param {string} modelName CanvasModel name in Renderer.CanvasModels.
  * @param {string} [slot] Cache id to speed up rendering between passages.
- * @returns {CanvasModel}
+ * @returns {CanvasModel<Options>}
  */
 Renderer.locateModel = function (modelName, slot) {
 	const options = Renderer.CanvasModels[modelName];

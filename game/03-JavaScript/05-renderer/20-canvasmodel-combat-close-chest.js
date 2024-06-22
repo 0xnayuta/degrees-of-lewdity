@@ -38,20 +38,9 @@
  * @property {function(object): number} [widthfn] (options)=>number.
  * @property {function(object): number} [heightfn] (options)=>number.
  */
-/**
- * @typedef {object} CanvasModelCloseChestOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayerCloseChest>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
 
 /**
- * @type {CanvasModelCloseChestOptions}
+ * @type {CanvasModelOptions}
  */
 const combatCloseChest = {
 	name: "combatCloseChest",
