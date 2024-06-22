@@ -10,7 +10,6 @@ const combatMainNpc = {
 	width: 256,
 	height: 256,
 	frames: 4,
-	metadata: {},
 	generatedOptions() {
 		console.log(this.name, "generatedOptions");
 		return [];

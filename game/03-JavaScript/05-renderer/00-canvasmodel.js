@@ -48,7 +48,6 @@ class CanvasModel {
 				height: 1,
 				layers: {},
 				frames: 1,
-				metadata: {},
 				defaultOptions() {
 					console.debug("CanvasModel-defaultOptions not set.");
 				},
@@ -85,7 +84,7 @@ class CanvasModel {
 		this.width = template.width;
 		this.height = template.height;
 		this.frames = template.frames || 1;
-		this.metadata = template.metadata;
+		this.metadata = template.metadata || {};
 		if ("generatedOptions" in template) this.generatedOptions = template.generatedOptions;
 		if ("defaultOptions" in template) this.defaultOptions = template.defaultOptions;
 		if ("preprocess" in template) this.preprocess = template.preprocess;

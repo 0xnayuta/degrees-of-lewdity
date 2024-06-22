@@ -159,7 +159,6 @@ const combatMainPc = {
 	width: 256,
 	height: 256,
 	frames: 4,
-	metadata: {},
 	/*
 	 * http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=generated
 	 *	 ██████  ███████ ███    ██ ███████ ██████   █████  ████████ ███████ ██████
@@ -180,7 +179,7 @@ const combatMainPc = {
 	 *	██████  ███████ ██      ██   ██  ██████  ███████    ██    ███████
 	 */
 	defaultOptions() {
-		console.log("Combat-model defaultOptions");
+		console.debug("combatMainPc-defaultOptions");
 		return { ...PlayerCombatMapper.generateOptions(), ...this.metadata };
 	},
 	/*
@@ -190,11 +189,8 @@ const combatMainPc = {
 	 *	██      ██   ██ ██      ██      ██   ██ ██    ██ ██      ██           ██      ██
 	 *	██      ██   ██ ███████ ██      ██   ██  ██████   ██████ ███████ ███████ ███████
 	 */
-	/**
-	 * @param {any} options
-	 */
 	preprocess(options) {
-		console.log("combatMainPc-Preprocess:", JSON.parse(JSON.stringify(options)));
+		console.debug("combatMainPc-preprocess", JSON.parse(JSON.stringify(options)));
 		PlayerCombatMapper.mapPlayerToOptions(options);
 	},
 	layers: {

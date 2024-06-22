@@ -58,7 +58,7 @@ declare global {
 		width: number;
 		height: number;
 		frames: number;
-		metadata: object;
+		metadata?: object;
 		layers: {
 			[x: string]: CanvasModelLayers<T>;
 		};
