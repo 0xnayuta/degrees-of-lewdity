@@ -351,12 +351,12 @@ class CombatRenderer {
 	}
 
 	/**
-	 * @param {Options} options
 	 * @param {ClothingState} clothing
+	 * @param {boolean=} globalShow
 	 */
-	static isClothingShown(options, clothing) {
+	static isClothingShown(clothing, globalShow = false) {
 		// Global clothing visibility
-		if (!options.showClothing) return false;
+		if (!globalShow) return false;
 		// Name is the identifier for clothing sprites, if null, problem occurred.
 		if (clothing?.name == null) return false;
 		// Per clothing show flag.

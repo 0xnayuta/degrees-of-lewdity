@@ -50,7 +50,7 @@ class PlayerCanvasHelper {
 			},
 			showfn(options) {
 				const clothes = options.clothes[slot];
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.hasMainImg;
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasMainImg;
 				console.log(slot, "Show?:", show);
 				return !!show;
 			},
@@ -1010,7 +1010,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
 					if (clothes.isBoundable) {
@@ -1031,7 +1031,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				if (!clothes.hasAccessory) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
@@ -1053,7 +1053,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				return available.includes(options.armFrontPosition);
 			},
@@ -1068,7 +1068,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				const show = options.showClothing && !CombatRenderer.isClothingShown(options, clothes) && clothes.hasAccessory;
+				const show = options.showClothing && !CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasAccessory;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				const found = available.includes(options.armFrontPosition);
 				return !!show && !!found;
@@ -1085,7 +1085,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.head;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				return !!clothes.hasBackImg;
 			},
 			z: CombatRenderer.indices.head - 1,
@@ -1280,7 +1280,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.under_upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				console.log("Show under upper breasts:", show);
 				return !!show;
 			},
@@ -1302,7 +1302,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
@@ -1318,7 +1318,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
@@ -1337,7 +1337,7 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
 			},
