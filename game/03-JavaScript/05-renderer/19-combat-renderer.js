@@ -1,5 +1,47 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, CombatZIndices, BodywritingOption, TransformationKeys, Transformations */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations */
+
+/**
+ * @typedef CombatZIndices
+ * @type {object}
+ * Combat layers
+ * @property {0} far
+ * @property {50} base
+ * @property {100} near
+ * Hair:
+ * @property {20} backHair
+ * @property {81} hair
+ * @property {70} head
+ * Back legs:
+ * @property {48} backThigh
+ * @property {49} backLeg
+ * @property {51} backLowerUnderwear
+ * @property {52} backLegwear
+ * @property {53} backFootwear
+ * @property {54} backLowerWear
+ * @property {55} backLowerOverwear
+ * Front legs:
+ * @property {65} frontThigh
+ * @property {66} frontLeg
+ * @property {68} frontLowerUnderwear
+ * @property {69} frontLegwear
+ * @property {70} frontFootwear
+ * @property {71} frontLowerWear
+ * @property {72} frontLowerOverwear
+ * Back arms:
+ * @property {30} backArm
+ * Front arms:
+ * @property {75} frontArm
+ * Transformation parts
+ * @property {40} backWings
+ * @property {40} backHalo
+ * @property {40} backHorns
+ * @property {40} backTail
+ * @property {40} frontWings
+ * @property {84} frontHalo
+ * @property {83} frontHorns
+ * @property {40} frontTail
+ */
 
 class CombatRenderer {
 	/**
@@ -309,35 +351,6 @@ class CombatRenderer {
 	}
 
 	/**
-	 * @param {string} id
-	 * @param {CanvasModelLayers} overrideOptions
-	 * @returns {CanvasModelLayers}
-	 */
-	static genBodywritingLayer(id, overrideOptions = {}) {
-		/**
-		 * @type {CanvasModelLayers}
-		 */
-		const defaults = {
-			srcfn(options) {
-				/** @type {BodywritingOption} */
-				const bodywriting = options.bodywriting[id];
-				const path = `${options.src}bodywriting/${bodywriting.area}/${bodywriting.type}.png`;
-				return path;
-			},
-			showfn(options) {
-				/** @type {BodywritingOption} */
-				const bodywriting = options.bodywriting[id];
-				return !!bodywriting.show;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			z: this.indices.base,
-		};
-		return Object.assign(defaults, overrideOptions);
-	}
-
-	/**
 	 * @param {Options} options
 	 * @param {ClothingState} clothing
 	 */
@@ -348,124 +361,6 @@ class CombatRenderer {
 		if (clothing?.name == null) return false;
 		// Per clothing show flag.
 		return clothing.show;
-	}
-
-	/**
-	 * @param {string} slot
-	 * @param {CanvasModelLayers} overrideOptions
-	 * @returns {CanvasModelLayers}
-	 */
-	static genClothingLayer(slot, overrideOptions = {}) {
-		/**
-		 * @type {CanvasModelLayers}
-		 */
-		const defaults = {
-			srcfn(options) {
-				const clothes = options.clothes[slot];
-				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}.png`;
-				console.log(slot, "Path:", path);
-				return path;
-			},
-			showfn(options) {
-				const clothes = options.clothes[slot];
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.hasMainImg;
-				console.log(slot, "Show?:", show);
-				return !!show;
-			},
-			alphafn(options) {
-				const clothes = options.clothes[slot];
-				const alpha = clothes.alpha;
-				console.log(slot, "Alpha:", alpha);
-				return alpha;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			filtersfn(options) {
-				const filter = `worn_${slot}_main`;
-				console.log(slot, "Filters:", filter, options.filters[filter]);
-				return [filter];
-			},
-			z: this.indices[slot],
-		};
-		return Object.assign(defaults, overrideOptions);
-	}
-
-	/**
-	 *
-	 * @param {string} slot
-	 * @param {CanvasModelLayers} overrideOptions
-	 * @returns {CanvasModelLayers}
-	 */
-	static genClothingAccLayer(slot, overrideOptions = {}) {
-		/**
-		 * @type {CanvasModelLayers}
-		 */
-		const defaults = {
-			srcfn(options) {
-				const clothes = options.clothes[slot];
-				if (clothes == null || clothes.name == null) return "";
-				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
-				console.log(slot, "Path:", path);
-				return path;
-			},
-			showfn(options) {
-				const clothes = options.clothes[slot];
-				const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
-				console.log(slot, "Show?:", show);
-				return !!show;
-			},
-			alphafn(options) {
-				const clothes = options.clothes[slot];
-				const alpha = clothes.alpha;
-				console.log(slot, "Alpha:", alpha);
-				return alpha;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			filtersfn(options) {
-				const filter = `worn_${slot}_acc`;
-				console.log(slot, "Filters:", filter, options.filters[filter]);
-				return [filter];
-			},
-			z: this.indices[slot],
-		};
-		return Object.assign(defaults, overrideOptions);
-	}
-
-	/**
-	 * @param {TransformationKeys} transformation
-	 * @param {"wings" | "halo" | "horns" | "tail"} part
-	 * @param {"front" | "back"} layer
-	 * @param {CanvasModelLayers} overrideOptions
-	 * @returns {CanvasModelLayers}
-	 */
-	static genTransformationLayer(transformation, part, layer, overrideOptions = {}) {
-		/**
-		 * @type {CanvasModelLayers}
-		 */
-		const defaults = {
-			srcfn(options) {
-				const value = options.transformations[transformation][part];
-				const path = `${options.src}body/transformations/${value.type}/${part}/${layer}-${value.style}.png`;
-				console.log("Transformation", transformation, "part", part, layer, "src:", path);
-				return path;
-			},
-			showfn(options) {
-				const value = options.transformations[transformation][part];
-				const show = value.show;
-				console.log("Transformation", transformation, "part", part, layer, "show:", show);
-				return show;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			filters: [transformation + part.toUpperFirst()],
-			z: this.indices[layer + part.toUpperFirst()],
-		};
-		return Object.assign(defaults, overrideOptions);
 	}
 
 	/**

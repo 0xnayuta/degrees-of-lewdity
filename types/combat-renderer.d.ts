@@ -2,7 +2,7 @@ declare module "twine-sugarcube" {
 	export interface SugarCubeTemporaryVariables {
 		multiCombatModels: {
 			[x: string]: MultiCanvasModel;
-		}
+		};
 	}
 }
 
@@ -13,6 +13,7 @@ declare global {
 		CanvasHelper?: typeof CanvasHelper;
 		canvasHelper?: CanvasHelper;
 		CombatEditor?: typeof CombatEditor;
+		PlayerCanvasHelper?: typeof PlayerCanvasHelper;
 	}
 
 	interface CanvasModelLayers<T extends Options> {
@@ -60,7 +61,7 @@ declare global {
 		metadata: object;
 		layers: {
 			[x: string]: CanvasModelLayers<T>;
-		}
+		};
 		generatedOptions(): string[];
 		defaultOptions(): T;
 		preprocess(options: T): void;
@@ -80,4 +81,4 @@ declare global {
 	}
 }
 
-export { };
+export {};
