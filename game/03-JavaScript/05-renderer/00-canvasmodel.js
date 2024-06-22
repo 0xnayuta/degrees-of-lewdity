@@ -33,7 +33,7 @@
 class CanvasModel {
 	/**
 	 * Static factory method to create/fetch a stored model.
-	 * 
+	 *
 	 * @param {string} id
 	 * @param {string} slot
 	 * @returns {CanvasModel}
@@ -49,11 +49,15 @@ class CanvasModel {
 				layers: {},
 				frames: 1,
 				metadata: {},
-				defaultOptions() { },
+				defaultOptions() {
+					console.debug("CanvasModel-defaultOptions not set.");
+				},
 				generatedOptions() {
 					return [];
 				},
-				preprocess(options) { },
+				preprocess(options) {
+					console.debug("CanvasModel-preprocess not set.");
+				},
 			});
 		}
 		if (!slot) {
@@ -212,7 +216,9 @@ class CanvasModel {
 	 *
 	 * @param {Options} options Model options.
 	 */
-	preprocess(options) {}
+	preprocess(options) {
+		console.debug("CanvasModel-preprocess not set");
+	}
 
 	/**
 	 * Compile list of layers according to options.
