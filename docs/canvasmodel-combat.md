@@ -18,17 +18,6 @@ A reminder for the different states clothing can be in.
 
 ## Clothes
 
-Supported clothing from preliminary testing:
-
-Upper:
-
--   gymshirt
--   top
-
-Lower:
-
--   skirt
-
 ### Structure
 
 #### Lowerwear
