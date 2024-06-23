@@ -1,7 +1,8 @@
 // @ts-check
+/* globals CloseOptions */
 
 /**
- * @type {CanvasModelOptions}
+ * @type {CanvasModelOptions<CloseOptions>}
  */
 const combatCloseChest = {
 	name: "combatCloseChest",
