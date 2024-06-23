@@ -75,8 +75,7 @@ class MultiCanvasModel {
 				continue;
 			}
 			const model = models[slot];
-			const options = model.options;
-			const layers = model.compile(options);
+			const layers = model.compile(Object.assign(model.options, model.metadata));
 			this.layers.push(...layers);
 		}
 		console.log(this.layers);

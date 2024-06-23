@@ -12,7 +12,6 @@ class CombatEditor {
 		para.append(
 			this.createButton("Refresh Combat", () => {
 				console.warn("Button callback called: Recompiling, and refreshing.");
-				combat.resetNpcStates();
 				this.recompileCombatCanvas();
 			})
 		);

@@ -1,9 +1,9 @@
 // @ts-check
 
-/* globals mapNpcToOptions */
+/* globals NpcCombatMapper */
 
 /**
- * @type {CanvasModelOptions}
+ * @type {CanvasModelOptions<NpcOptions>}
  */
 const combatMainNpc = {
 	name: "combatMainNpc",
@@ -16,11 +16,11 @@ const combatMainNpc = {
 	},
 	defaultOptions() {
 		console.log(this.name, "defaultOptions");
-		return this.metadata;
+		return Object.assign(NpcCombatMapper.generateOptions(), this.metadata);
 	},
 	preprocess(options) {
 		console.log("combatMainNpc-Preprocess:", JSON.parse(JSON.stringify(options)));
-		mapNpcToOptions(options.index || 0, options);
+		NpcCombatMapper.mapNpcToOptions(options.index || 0, options);
 	},
 	layers: {
 		body: {

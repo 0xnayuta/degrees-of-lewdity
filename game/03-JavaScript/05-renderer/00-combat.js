@@ -1,19 +1,4 @@
-/**
- * @typedef {object} Targets
- * @property {-1} pc
- * @property {0} npc0
- * @property {1} npc1
- * @property {2} npc2
- * @property {3} npc3
- * @property {4} npc4
- * @property {5} npc5
- */
-/**
- * @typedef {object} Positions
- * @property {number} vagina
- * @property {number} anus
- * @property {number} mouth
- */
+// @ts-check
 
 class CombatSystem {
 	constructor() {
@@ -28,17 +13,59 @@ class CombatSystem {
 			npc4: 4,
 			npc5: 5,
 		};
-		this.positions = {
-			vagina: 0,
-			anus: 0,
-			mouth: 0,
-		};
+		this.vaginaStates = ["vaginaentrance", "vaginaentrancedouble", "vaginaimminent", "vaginaimminentdouble", "vagina", "vaginadouble"];
+		this.anusStates = ["anusentrance", "anusentrancedouble", "anus", "anusdouble"];
+		this.mouthStates = ["mouthentrance", "mouthimminent", "mouth"];
 	}
 
-	resetNpcStates() {
-		this.positions.vagina = 0;
-		this.positions.anus = 0;
-		this.positions.mouth = 0;
+	get vaginaCount() {
+		const states = this.vaginaStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	get anusCount() {
+		const states = this.anusStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	get mouthCount() {
+		const states = this.mouthStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	/**
+	 * @param {number} index
+	 * @param {string} position
+	 */
+	penetratorCountBefore(index, position) {
+		let count = 0;
+		for (let i = 0; i < V.NPCList.length; i++) {
+			const npc = V.NPCList[i];
+			if (i >= index) {
+				break;
+			}
+			switch (position) {
+				case "vagina":
+					if (npc.penis && this.vaginaStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+				case "anus":
+					if (npc.penis && this.anusStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+				case "mouth":
+					if (npc.penis && this.mouthStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+			}
+		}
+		return count;
 	}
 
 	isRapid() {
@@ -46,7 +73,7 @@ class CombatSystem {
 	}
 
 	isActive() {
-		if (V.NPCList.some(a => ["horse"].includes(a.type))) {
+		if (V.NPCList.some(a => a.type === "horse")) {
 			return true;
 		}
 		return (
@@ -62,64 +89,66 @@ class CombatSystem {
 	}
 
 	isVaginaPenetrated() {
-		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
+		const activeState = V.vaginastate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
 		return activeState;
 	}
 
+	/**
+	 * @param {string | undefined} [canvas]
+	 */
 	isVaginaActive(canvas) {
-		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
-			V.vaginastate
-		);
-		const activeUse = ["tentaclerub"].includes(V.vaginause) && canvas !== "close";
-		if (canvas === "close" && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
+		const activeState =
+			V.vaginastate &&
+			["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.vaginastate);
+		const activeUse = V.vaginause === "tentaclerub" && canvas !== "close";
+		if (canvas === "close" && V.vaginastate && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
 	}
 
 	isAnusPenetrated() {
-		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
+		const activeState = V.anusstate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
 		return activeState;
 	}
 
+	/**
+	 * @param {string | undefined} [canvas]
+	 */
 	isAnusActive(canvas) {
-		const activeState = [
-			"penetrated",
-			"doublepenetrated",
-			"cheeks",
-			"othermouth",
-			"tentacleentrance",
-			"tentacleimminent",
-			"tentacle",
-			"tentacledeep",
-		].includes(V.anusstate);
-		if (canvas === "close" && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
+		const activeState =
+			V.anusstate &&
+			["penetrated", "doublepenetrated", "cheeks", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
+				V.anusstate
+			);
+		if (canvas === "close" && V.anusstate && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
 			return true;
 		}
-		const activeUse = ["tentaclerub"].includes(V.anususe) && canvas !== "close";
+		const activeUse = V.anususe === "tentaclerub" && canvas !== "close";
 		return activeState || activeUse;
 	}
 
 	isMouthPenetrated() {
-		const activeState = ["penetrated", "tentacledeep"].includes(V.mouthstate);
+		const activeState = V.mouthstate && ["penetrated", "tentacledeep"].includes(V.mouthstate);
 		return activeState;
 	}
 
 	isMouthActive() {
-		const activeState = ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
+		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
 		return activeState;
 	}
 
 	isPenisPenetrated() {
-		const activeState = ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
+		const activeState = V.penisstate && ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
 		return activeState;
 	}
 
 	isPenisActive(canvas) {
-		const activeState = ["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
-			V.penisstate
-		);
-		const activeUse = ["tentaclerub"].includes(V.penisuse);
+		const activeState =
+			V.penisstate &&
+			["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.penisstate);
+		const activeUse = V.penisuse === "tentaclerub";
 		if (
 			canvas === "close" &&
+			V.penisstate &&
 			[
 				"entrance",
 				"imminent",
@@ -136,32 +165,27 @@ class CombatSystem {
 	}
 
 	isArmActive() {
-		return ["penis"].includes(V.rightarm) || ["penis"].includes(V.leftarm);
+		return V.rightarm === "penis" || V.leftarm === "penis";
 	}
 
 	isChestActive(canvas) {
-		const activeUse = ["penis"].includes(V.chestuse);
-		if (canvas === "close" && ["penis", "tentacle"].includes(V.chestuse)) {
+		const activeUse = V.cheststate && ["penis"].includes(V.cheststate);
+		if (canvas === "close" && V.cheststate && ["penis", "tentacle"].includes(V.cheststate)) {
 			return true;
 		}
 		return activeUse;
 	}
 
 	isThighActive() {
-		const activeUse = ["penis"].includes(V.thighuse);
+		const activeUse = V.thighstate && ["penis"].includes(V.thighstate);
 		return activeUse;
 	}
 
 	isFeetActive() {
-		const activeUse = ["penis"].includes(V.feetuse);
+		const activeUse = V.feetstate && ["penis"].includes(V.feetstate);
 		return activeUse;
 	}
 }
 const combat = new CombatSystem();
+// @ts-ignore
 window.combat = combat;
-
-Macro.add("resetNpcStates", {
-	handler() {
-		combat.resetNpcStates();
-	},
-});

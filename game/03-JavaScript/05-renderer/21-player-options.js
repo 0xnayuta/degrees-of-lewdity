@@ -680,7 +680,7 @@ class PlayerCombatMapper {
 			options.legBackPosition = "up";
 			return options;
 		}
-		if (combat.positions.vagina >= 2 || combat.positions.anus >= 2) {
+		if (combat.vaginaCount >= 2 || combat.anusCount >= 2) {
 			options.legFrontPosition = "up";
 			options.legBackPosition = "up";
 			return options;

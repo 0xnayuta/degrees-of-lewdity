@@ -10,8 +10,7 @@ declare global {
 	interface Window {
 		CombatRenderer?: typeof CombatRenderer;
 		PlayerCombatMapper?: typeof PlayerCombatMapper;
-		CanvasHelper?: typeof CanvasHelper;
-		canvasHelper?: CanvasHelper;
+		NpcCombatMapper?: typeof NpcCombatMapper;
 		CombatEditor?: typeof CombatEditor;
 		PlayerCanvasHelper?: typeof PlayerCanvasHelper;
 	}
