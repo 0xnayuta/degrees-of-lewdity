@@ -85,6 +85,7 @@ class CanvasModel {
 		this.height = template.height;
 		this.frames = template.frames || 1;
 		this.metadata = template.metadata || {};
+		this.scale = template.scale || false;
 		if ("generatedOptions" in template) this.generatedOptions = template.generatedOptions;
 		if ("defaultOptions" in template) this.defaultOptions = template.defaultOptions;
 		if ("preprocess" in template) this.preprocess = template.preprocess;
@@ -269,6 +270,7 @@ class CanvasModel {
 		}
 
 		for (const layer of this.layerList) {
+			layer.model = this;
 			layer.show || propeval(layer, "show");
 			propeval(layer, "src");
 			if (!layer.src) {
@@ -290,6 +292,8 @@ class CanvasModel {
 			propeval(layer, "dy");
 			propeval(layer, "width");
 			propeval(layer, "height");
+			propeval(layer, "scale");
+			if (!layer.scale) layer.scale = this.scale;
 			if (layer.show !== false && layer.filters) {
 				for (const filterName of layer.filters) {
 					const filter = options.filters[filterName];
