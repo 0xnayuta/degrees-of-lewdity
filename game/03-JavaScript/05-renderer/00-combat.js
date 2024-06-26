@@ -1,9 +1,11 @@
 // @ts-check
 
+setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles"];
+setup.positions = [0, "doggy", "missionary", "wall", "stalk", "wall"];
+setup.legPositions = ["up", "down", "footjob"];
+
 class CombatSystem {
 	constructor() {
-		this.availablePositions = [0, "doggy", "missionary", "wall", "stalk", "wall"];
-		this.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles"];
 		this.target = {
 			pc: -1,
 			npc0: 0,

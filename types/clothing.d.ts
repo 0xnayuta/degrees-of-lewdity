@@ -60,11 +60,16 @@ declare module "twine-sugarcube" {
 			[x in ClothesSlots]: ClothesItem[];
 		};
 		clothes_all_slots: ClothedSlots[];
+		clothingStates: ZeroedClothingStates[];
 	}
 }
 
 declare global {
-	export type ClothingStates =
+	export type ClothingStates = "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles";
+
+	export type ZeroedClothingStates = 0 | ClothingStates;
+
+	export type TotalClothingStates =
 		| 0
 		| "default"
 		| "bound"
@@ -116,6 +121,10 @@ declare global {
 		 */
 		combatImg?: string;
 		/**
+		 * Used primarily by the combat renderer to select the logic for clothing. Logic found in ClothingRendererStep.
+		 */
+		combatType?: string;
+		/**
 		 * Overrides the combat sprite colour. For when sprites are grey-scale, but were intended to be a specific colour.
 		 */
 		combatColourOverride?: string;
@@ -148,7 +157,7 @@ declare global {
 		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
-		state: ClothingStates;
+		state: ZeroedClothingStates;
 		state_base: 0 | string;
 		state_top?: 0 | string;
 		state_top_base?: 0 | string;

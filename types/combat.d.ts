@@ -113,9 +113,27 @@ declare module "twine-sugarcube" {
 			max: number;
 		};
 	}
+
+	export interface SugarCubeTemporaryVariables {
+		crOverrides?: CombatRendererOverrides;
+	}
+
+	export interface SugarCubeSetupObject {
+		positions: Positions[];
+		legPositions: LegPositions[];
+	}
 }
 
 declare global {
+	export type Positions = 0 | "doggy" | "missionary" | "wall" | "stalk" | "wall";
+
+	export type LegPositions = "up" | "down" | "footjob";
+
+	export interface CombatRendererOverrides {
+		legBackPosition?: LegPositions;
+		legFrontPosition?: LegPositions;
+	}
+
 	export interface TentacleState {
 		baby: number;
 		babychance: number;

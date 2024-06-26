@@ -102,8 +102,8 @@ declare module "twine-sugarcube" {
 
 		/* Player states */
 
-		lactating: boolean;
-		possessed: boolean;
+		lactating: 0 | 1;
+		possessed?: boolean;
 		virginityProtected: boolean;
 
 		anxiety: 0 | 1 | 2;

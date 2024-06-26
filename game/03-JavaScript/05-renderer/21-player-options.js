@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, ClothingStates, TransformationKeys */
+/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, Record */
 
 /**
  * @typedef CombatPlayerOptions
@@ -40,7 +40,7 @@
  * @property {Machines} machines
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
- * @property {Object<string, TransformationOptions>} transformations
+ * @property {Record<string, TransformationOptions>} transformations
  */
 
 /**
@@ -127,9 +127,10 @@
  * @typedef ClothingState
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
+ * @property {ClothedSlots} slot
  * @property {string?} name The name of the clothing directory.
  * @property {PositionStates?} positions The position related state, typically holding leg state information for legwear/lowerwear.
- * @property {ClothingStates} state The state of the clothing, the file name.
+ * @property {TotalClothingStates} state The state of the clothing, the file name.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} isExposed Whether the clothing layer exposes beneath.
@@ -282,7 +283,8 @@ class PlayerCombatMapper {
 		options.breastsExposed = true;
 
 		// Copied from <<leg_position>> - Centralise usage later. Added footjob state
-		this.mapPcToLegPosition(options);
+		options.legBackPosition = this.mapPcToLegBackPosition(options);
+		options.legFrontPosition = this.mapPcToLegFrontPosition(options);
 
 		// Set values for blush and tears
 		options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
@@ -637,66 +639,92 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 *
 	 * @param {CombatPlayerOptions} options
-	 * @returns {CombatPlayerOptions}
+	 * @returns {"up" | "down" | "footjob"}
 	 */
-	static mapPcToLegPosition(options) {
+	static mapPcToLegFrontPosition(options) {
+		// Overrides
+		if (T.crOverrides?.legFrontPosition) {
+			return T.crOverrides.legFrontPosition;
+		}
+		// General
 		if (options.position === "missionary") {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
-				options.legFrontPosition = "footjob";
-				options.legBackPosition = "up";
-				return options;
+				return "footjob";
 			}
 			if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
-				options.legFrontPosition = "down";
-				options.legBackPosition = "up";
-				return options;
+				return "down";
 			}
 			if (V.NPCList.some(a => ["dog"].includes(a.type))) {
-				options.legFrontPosition = "up";
-				options.legBackPosition = "up";
-				return options;
+				return "up";
 			}
 		}
 		if (V.feetuse === "penis" || V.feetstate === "tentacle") {
-			options.legFrontPosition = "footjob";
-			options.legBackPosition = "up";
-			return options;
+			return "footjob";
 		}
 		if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+			return "up";
 		}
 		if (options.position === "doggy") {
-			options.legFrontPosition = "down";
-			options.legBackPosition = "down";
-			return options;
+			return "down";
 		}
 		const parts = [V.anususe, V.vaginause, V.thighuse];
 		if (parts.includes("penis") || parts.includes(1)) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+			return "up";
 		}
 		if (combat.vaginaCount >= 2 || combat.anusCount >= 2) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+			return "up";
 		}
-		options.legFrontPosition = "down";
-		options.legBackPosition = "down";
-		return options;
+		return "down";
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
+	 * @returns {"up" | "down" | "footjob"}
+	 */
+	static mapPcToLegBackPosition(options) {
+		// Overrides
+		if (T.crOverrides?.legBackPosition) {
+			return T.crOverrides.legBackPosition;
+		}
+		// General
+		if (options.position === "missionary") {
+			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+				return "up";
+			}
+			if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
+				return "up";
+			}
+			if (V.NPCList.some(a => ["dog"].includes(a.type))) {
+				return "up";
+			}
+		}
+		if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+			return "up";
+		}
+		if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
+			return "up";
+		}
+		if (options.position === "doggy") {
+			return "down";
+		}
+		const parts = [V.anususe, V.vaginause, V.thighuse];
+		if (parts.includes("penis") || parts.includes(1)) {
+			return "up";
+		}
+		if (combat.vaginaCount >= 2 || combat.anusCount >= 2) {
+			return "up";
+		}
+		return "down";
 	}
 
 	/**
 	 * @param {CombatPlayerOptions} options
 	 * @param {ClothingState} clothing
-	 * @returns {ClothingStates[]}
+	 * @returns {TotalClothingStates[]}
 	 */
 	static getExposedStates(options, clothing) {
-		/** @type {ClothingStates[]} */
+		/** @type {TotalClothingStates[]} */
 		const exposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
 		const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
 		if (clothing.isSkirt) {
@@ -910,6 +938,7 @@ class PlayerCombatMapper {
 		const clothing = CombatRenderer.getClothingBySlot(slot);
 
 		const name = defaults.combatImg ?? clothing.variable;
+		/** @type {TotalClothingStates} */
 		let state = clothing.state;
 		let show = name != null;
 
@@ -950,6 +979,7 @@ class PlayerCombatMapper {
 		 */
 		const clothes = {
 			item: clothing,
+			slot,
 			name,
 			positions: CombatRenderer.getPositionStates(options.legFrontPosition, options.legBackPosition, slot, defaults),
 			state: state || "full",

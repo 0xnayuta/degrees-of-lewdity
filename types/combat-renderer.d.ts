@@ -7,6 +7,18 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export type CombatClothingTypes = "skirt" | "longskirt" | "trousers" | "shorts";
+
+	export interface ClothingRendererStepState {
+		layered?: boolean;
+		legged?: boolean;
+	}
+
+	export interface CombatOverrides {
+		legBackPosition?: "up" | "down" | "footjob";
+		legFrontPosition?: "up" | "down" | "footjob";
+	}
+
 	interface Window {
 		CombatRenderer?: typeof CombatRenderer;
 		PlayerCombatMapper?: typeof PlayerCombatMapper;
