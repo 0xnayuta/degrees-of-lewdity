@@ -145,6 +145,9 @@ Renderer.defaultListener = {
  * @param {"new" | "old"} type
  */
 function isCombatRendererEnabled(type) {
+	if (V.options.combatRendererMode == null) {
+		return true;
+	}
 	switch (type) {
 		case "new":
 			return [1, 2].includes(V.options.combatRendererMode);
