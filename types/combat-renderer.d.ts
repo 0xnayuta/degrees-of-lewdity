@@ -7,6 +7,8 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
+	export type SpritePositions = "doggy" | "missionary";
+
 	export type CombatClothingTypes = "skirt" | "longskirt" | "trousers" | "shorts";
 
 	export interface ClothingRendererStepState {

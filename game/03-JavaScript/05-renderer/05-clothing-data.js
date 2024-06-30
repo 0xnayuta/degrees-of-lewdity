@@ -1,10 +1,14 @@
 // @ts-check
-/* globals CombatClothingTypes, ClothingStates, ZeroedClothingStates, ClothingRendererStepState, Partial, Record */
+/* globals CombatClothingTypes, ClothingStates, ZeroedClothingStates, ClothingRendererStepState, SpritePositions, Partial, Record */
+
+/**
+ * @typedef {Partial<Record<SpritePositions, Partial<Record<ClothingStates, ClothingRendererStepState>>>>} RendererStepOptions
+ */
 
 class ClothingRendererStep {
 	/**
 	 * @param {CombatClothingTypes} type
-	 * @param {Partial<Record<ClothingStates, ClothingRendererStepState>>} states
+	 * @param {RendererStepOptions} states
 	 */
 	static create(type, states) {
 		if (!(type in ClothingRendererStep.instances)) {
@@ -15,7 +19,7 @@ class ClothingRendererStep {
 
 	/**
 	 * @param {CombatClothingTypes} type
-	 * @param {Partial<Record<ClothingStates, ClothingRendererStepState>>} states
+	 * @param {RendererStepOptions} states
 	 */
 	constructor(type, states) {
 		this.type = type;
@@ -73,93 +77,62 @@ class LowerwearRendererStep extends ClothingRendererStep {}
 window.LowerwearRendererStep = LowerwearRendererStep;
 
 ClothingRendererStep.create("skirt", {
-	chest: {
-		layered: false,
-		legged: false,
+	missionary: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
 	},
-	midriff: {
-		layered: false,
-		legged: false,
-	},
-	waist: {
-		layered: true,
-		legged: true,
-	},
-	thighs: {
-		layered: true,
-		legged: true,
-	},
-	knees: {
-		layered: true,
-		legged: true,
-	},
-	ankles: {
-		layered: true,
-		legged: true,
-	},
-});
-
-ClothingRendererStep.create("longskirt", {
-	chest: {
-		layered: false,
-		legged: false,
-	},
-	midriff: {
-		layered: false,
-		legged: false,
-	},
-	waist: {
-		layered: true,
-		legged: true,
-	},
-	thighs: {
-		layered: true,
-		legged: true,
-	},
-	knees: {
-		layered: true,
-		legged: true,
-	},
-	ankles: {
-		layered: true,
-		legged: true,
-	},
-});
-
-ClothingRendererStep.create("trousers", {
-	waist: {
-		layered: true,
-		legged: true,
-	},
-	thighs: {
-		layered: true,
-		legged: true,
-	},
-	knees: {
-		layered: true,
-		legged: true,
-	},
-	ankles: {
-		layered: true,
-		legged: true,
+	doggy: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
 	},
 });
 
-ClothingRendererStep.create("shorts", {
-	waist: {
-		layered: true,
-		legged: true,
-	},
-	thighs: {
-		layered: true,
-		legged: true,
-	},
-	knees: {
-		layered: true,
-		legged: true,
-	},
-	ankles: {
-		layered: true,
-		legged: true,
-	},
-});
+ClothingRendererStep.create("longskirt", {});
+
+ClothingRendererStep.create("trousers", {});
+
+ClothingRendererStep.create("shorts", {});
