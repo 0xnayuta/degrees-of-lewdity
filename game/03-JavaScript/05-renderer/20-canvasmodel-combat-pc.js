@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, PlayerCombatMapper, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption */
+/* global CombatRenderer, PlayerCombatMapper, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots */
 
 class PlayerCanvasHelper {
 	/**
@@ -27,6 +27,117 @@ class PlayerCanvasHelper {
 				return options.animKey;
 			},
 			z: CombatRenderer.indices.base,
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @param {"front" | "back"} layer
+	 * @param {boolean} isAccessory
+	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
+	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
+	 */
+	static genClothingLayerLowerStep(slot, layer, isAccessory, overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayers<CombatPlayerOptions>}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined", {
+						slot,
+						layer,
+						isAccessory,
+					});
+					return "";
+				}
+				if (clothes?.name == null || clothes.renderStep == null) return "";
+				const step = ClothingRendererStep.instances[clothes.renderStep];
+				if (step == null) {
+					// Fallback
+					Errors.report("Step key not found in ClothingRendererStep", {
+						slot,
+						layer,
+						isAccessory,
+						name: clothes.name,
+					});
+					return "";
+				}
+				const states = [];
+				if (step.isStateLayered(options.position, clothes.state)) {
+					states.push(layer);
+				}
+				if (clothes.positions != null && step.isStateLegged(options.position, clothes.state)) {
+					states.push(clothes.positions[layer]);
+				}
+				states.push(clothes.state);
+				if (isAccessory) {
+					states.push("acc");
+				}
+				const state = states.join("-");
+				const path = `${options.src}clothing/${slot}/${clothes.name}/${state}.png`;
+				console.log(slot, "Path:", path);
+				return path;
+			},
+			showfn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined", {
+						slot,
+						layer,
+						isAccessory,
+					});
+					return false;
+				}
+				if (clothes.renderStep == null) {
+					Errors.report("No step provided in clothing object", {
+						slot,
+						layer,
+						isAccessory,
+						name: clothes.name,
+					});
+					return false;
+				}
+				const step = ClothingRendererStep.instances[clothes.renderStep];
+				if (step == null) {
+					// Fallback
+					Errors.report("Step key not found in ClothingRendererStep", {
+						slot,
+						layer,
+						isAccessory,
+						name: clothes.name,
+					});
+					return false;
+				}
+				if (isAccessory && !clothes.hasAccessory) {
+					return false;
+				}
+				const stepShow = step.shouldShow(options.position, clothes.state);
+				const isClothingShown = CombatRenderer.isClothingShown(clothes, options.showClothing);
+				const hasMainImg = clothes.hasMainImg;
+				return !!stepShow && !!isClothingShown && !!hasMainImg;
+			},
+			alphafn(options) {
+				const clothes = options.clothes[slot];
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return 1;
+				}
+				const alpha = clothes.alpha;
+				console.log(slot, "Alpha:", alpha);
+				return alpha;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			filtersfn(options) {
+				const filter = `worn_${slot}_main`;
+				console.log(slot, "Filters:", filter, options.filters[filter]);
+				return [filter];
+			},
+			z: CombatRenderer.indices[slot],
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
@@ -1024,6 +1135,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
@@ -1045,6 +1160,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				if (!clothes.hasAccessory) return false;
 				if (options.position === "doggy") {
@@ -1067,6 +1186,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				return available.includes(options.armFrontPosition);
@@ -1082,6 +1205,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				const show = options.showClothing && !CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasAccessory;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				const found = available.includes(options.armFrontPosition);
@@ -1099,6 +1226,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.head;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				return !!clothes.hasBackImg;
 			},
@@ -1110,84 +1241,28 @@ const combatMainPc = {
 		headwearAcc: PlayerCanvasHelper.genClothingAccLayer("head", {
 			z: CombatRenderer.indices.hair + 1,
 		}),
-		legwearBack: PlayerCanvasHelper.genClothingLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
+		legwearBack: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "back", false, {
 			z: CombatRenderer.indices.backLegwear,
 		}),
-		legwearAccBack: PlayerCanvasHelper.genClothingAccLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
+		legwearAccBack: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "back", true, {
 			z: CombatRenderer.indices.backLegwear,
 		}),
-		legwearFront: PlayerCanvasHelper.genClothingLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
+		legwearFront: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "front", false, {
 			z: CombatRenderer.indices.frontLegwear,
 		}),
-		legwearAccFront: PlayerCanvasHelper.genClothingAccLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
+		legwearAccFront: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "front", true, {
 			z: CombatRenderer.indices.frontLegwear,
 		}),
-		backLower: PlayerCanvasHelper.genClothingLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("Lower back path:", path);
-				return path;
-			},
+		backLower: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "back", false, {
 			z: CombatRenderer.indices.backLowerWear,
 		}),
-		backLowerAcc: PlayerCanvasHelper.genClothingAccLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("Lower back acc path:", path);
-				return path;
-			},
+		backLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "back", true, {
 			z: CombatRenderer.indices.backLowerWear,
 		}),
-		frontLower: PlayerCanvasHelper.genClothingLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
-				console.log("Lower front path:", path);
-				return path;
-			},
+		frontLower: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "front", false, {
 			z: CombatRenderer.indices.frontLowerWear,
 		}),
-		frontLowerAcc: PlayerCanvasHelper.genClothingAccLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
-				console.log("Lower front acc path:", path);
-				return path;
-			},
+		frontLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "front", true, {
 			z: CombatRenderer.indices.frontLowerWear,
 		}),
 		neckWear: PlayerCanvasHelper.genClothingLayer("neck", {
@@ -1294,6 +1369,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.under_upper;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				console.log("Show under upper breasts:", show);
 				return !!show;
@@ -1316,6 +1395,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				console.log("Show upper breasts:", show);
 				return !!show;
@@ -1332,6 +1415,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
@@ -1351,6 +1438,10 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				console.log("Show upper breasts:", show);
 				return !!show;

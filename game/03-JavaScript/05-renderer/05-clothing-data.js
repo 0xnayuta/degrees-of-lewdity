@@ -27,14 +27,19 @@ class ClothingRendererStep {
 	}
 
 	/**
+	 * @param {SpritePositions} position
 	 * @param {ZeroedClothingStates} state
 	 * @returns {boolean}
 	 */
-	isStateLayered(state) {
+	isStateLayered(position, state) {
 		if (state === 0) {
 			return false;
 		}
-		const selected = this.states[state];
+		const states = this.states[position];
+		if (states == null) {
+			return false;
+		}
+		const selected = states[state];
 		if (selected == null) {
 			return false;
 		}
@@ -42,14 +47,19 @@ class ClothingRendererStep {
 	}
 
 	/**
+	 * @param {SpritePositions} position
 	 * @param {ZeroedClothingStates} state
 	 * @returns {boolean}
 	 */
-	isStateLegged(state) {
+	isStateLegged(position, state) {
 		if (state === 0) {
 			return false;
 		}
-		const selected = this.states[state];
+		const states = this.states[position];
+		if (states == null) {
+			return false;
+		}
+		const selected = states[state];
 		if (selected == null) {
 			return false;
 		}
@@ -57,14 +67,20 @@ class ClothingRendererStep {
 	}
 
 	/**
+	 * @param {SpritePositions} position
 	 * @param {ZeroedClothingStates} state
 	 * @returns {boolean}
 	 */
-	shouldShow(state) {
+	shouldShow(position, state) {
 		if (state === 0) {
 			return false;
 		}
-		return Object.keys(this.states).includes(state);
+		const states = this.states[position];
+		if (states == null) {
+			return false;
+		}
+		const keys = Object.keys(states);
+		return keys.includes(state);
 	}
 }
 /** @type {Partial<Record<CombatClothingTypes, ClothingRendererStep>>} */
@@ -72,11 +88,62 @@ ClothingRendererStep.instances = {};
 // @ts-ignore
 window.ClothingRendererStep = ClothingRendererStep;
 
-class LowerwearRendererStep extends ClothingRendererStep {}
-// @ts-ignore
-window.LowerwearRendererStep = LowerwearRendererStep;
-
 ClothingRendererStep.create("skirt", {
+	missionary: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: false,
+		},
+		thighs: {
+			layered: true,
+			legged: false,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
+
+ClothingRendererStep.create("longskirt", {
 	missionary: {
 		chest: {
 			layered: false,
@@ -131,8 +198,166 @@ ClothingRendererStep.create("skirt", {
 	},
 });
 
-ClothingRendererStep.create("longskirt", {});
+ClothingRendererStep.create("trousers", {
+	missionary: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
 
-ClothingRendererStep.create("trousers", {});
+ClothingRendererStep.create("shorts", {
+	missionary: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: true,
+		},
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		chest: {
+			layered: false,
+			legged: false,
+		},
+		midriff: {
+			layered: false,
+			legged: false,
+		},
+		waist: {
+			layered: true,
+			legged: false,
+		},
+		thighs: {
+			layered: true,
+			legged: false,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
 
-ClothingRendererStep.create("shorts", {});
+ClothingRendererStep.create("thighhighs", {
+	missionary: {
+		thighs: {
+			layered: true,
+			legged: false,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		thighs: {
+			layered: true,
+			legged: false,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
+
+ClothingRendererStep.create("socks", {
+	missionary: {
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});

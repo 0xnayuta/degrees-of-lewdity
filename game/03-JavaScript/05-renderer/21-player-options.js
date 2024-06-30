@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, Record */
+/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, CombatClothingTypes, Partial, Record */
 
 /**
  * @typedef CombatPlayerOptions
@@ -34,7 +34,7 @@
  * @property {MouthOptions} mouth
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
  * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
- * @property {Object<string, ClothingState>} clothes Template.
+ * @property {Partial<Record<ClothedSlots, ClothingState>>} clothes Template.
  * @property {object} filters The filters for layers.
  * @property {Props} props
  * @property {Machines} machines
@@ -137,6 +137,7 @@
  * @property {string?} name The name of the clothing directory.
  * @property {PositionStates?} positions The position related state, typically holding leg state information for legwear/lowerwear.
  * @property {TotalClothingStates} state The state of the clothing, the file name.
+ * @property {CombatClothingTypes=} renderStep The renderer step processor used for the combat renderer.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} isExposed Whether the clothing layer exposes beneath.
@@ -767,13 +768,13 @@ class PlayerCombatMapper {
 	 */
 	static isPenisExposed(options) {
 		const lower = options.clothes.lower;
-		const lowerExposed = !lower.show || this.isClothingExposed(options, lower);
+		const lowerExposed = !lower?.show || this.isClothingExposed(options, lower);
 
 		const underLower = options.clothes.under_lower;
-		const underLowerExposed = !underLower.show || this.isClothingExposed(options, underLower);
+		const underLowerExposed = !underLower?.show || this.isClothingExposed(options, underLower);
 
 		const overLower = options.clothes.over_lower;
-		const overLowerExposed = !overLower.show || this.isClothingExposed(options, overLower);
+		const overLowerExposed = !overLower?.show || this.isClothingExposed(options, overLower);
 
 		console.debug("Exposed values: lower:", lowerExposed, "under_lower:", underLowerExposed, "over_lower", overLowerExposed);
 		const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
@@ -1021,6 +1022,7 @@ class PlayerCombatMapper {
 				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.sleeve_img === 1,
 				state: "default",
 			},
+			renderStep: defaults.combatType,
 		};
 
 		return clothes;

@@ -123,7 +123,7 @@ declare global {
 		/**
 		 * Used primarily by the combat renderer to select the logic for clothing. Logic found in ClothingRendererStep.
 		 */
-		combatType?: string;
+		combatType?: CombatClothingTypes;
 		/**
 		 * Overrides the combat sprite colour. For when sprites are grey-scale, but were intended to be a specific colour.
 		 */
