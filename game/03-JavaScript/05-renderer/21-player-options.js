@@ -297,7 +297,7 @@ class PlayerCombatMapper {
 
 		// Mouth configuration
 		options.mouth.inOral = combat.isMouthActive();
-		options.mouth.open = combat.isActive();
+		options.mouth.open = combat.isActive() && V.arousalmax / V.arousal > 0.6;
 
 		// Set values for blush and tears
 		options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
