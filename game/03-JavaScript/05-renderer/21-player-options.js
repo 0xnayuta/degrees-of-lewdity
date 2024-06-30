@@ -31,7 +31,7 @@
  * @property {"default" | "bound" | "handjob"} armBackPosition The position the back arm is in.
  * @property {"default" | "bound" | "handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
- * @property {boolean} inOral
+ * @property {MouthOptions} mouth
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
  * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
  * @property {Object<string, ClothingState>} clothes Template.
@@ -41,6 +41,12 @@
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
  * @property {Record<string, TransformationOptions>} transformations
+ */
+
+/**
+ * @typedef MouthOptions
+ * @property {boolean} inOral
+ * @property {boolean} open
  */
 
 /**
@@ -229,7 +235,10 @@ class PlayerCombatMapper {
 			showFace: true,
 			showClothing: true,
 			showNPCs: true,
-			inOral: false,
+			mouth: {
+				inOral: false,
+				open: false,
+			},
 			animSpeed: 1,
 			hairType: "default",
 			filters: {
@@ -285,6 +294,10 @@ class PlayerCombatMapper {
 		// Copied from <<leg_position>> - Centralise usage later. Added footjob state
 		options.legBackPosition = this.mapPcToLegBackPosition(options);
 		options.legFrontPosition = this.mapPcToLegFrontPosition(options);
+
+		// Mouth configuration
+		options.mouth.inOral = combat.isMouthActive();
+		options.mouth.open = combat.isActive();
 
 		// Set values for blush and tears
 		options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));

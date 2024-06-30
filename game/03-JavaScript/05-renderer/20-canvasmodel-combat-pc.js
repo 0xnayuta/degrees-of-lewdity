@@ -720,7 +720,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.base + 5,
+			z: CombatRenderer.indices.backLowerOverwear + 1,
 		},
 		penetratorEjaculate: {
 			srcfn(options) {
@@ -737,7 +737,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return "sex-4f-vfast";
 			},
-			z: CombatRenderer.indices.base + 6,
+			z: CombatRenderer.indices.backLowerOverwear + 1,
 		},
 		/*
 		 *	██   ██ ███████  █████  ██████
@@ -764,7 +764,7 @@ const combatMainPc = {
 				return `${options.src}body/head/eyes.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -779,7 +779,7 @@ const combatMainPc = {
 				return `${options.src}body/head/eyelids.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer;
+				const result = options.showPlayer && !!options.showFace;
 				return !!result;
 			},
 			animationfn(options) {
@@ -793,7 +793,7 @@ const combatMainPc = {
 				return `${options.src}body/head/lashes.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -806,7 +806,7 @@ const combatMainPc = {
 				return `${options.src}body/head/blush/${options.blush}.png`;
 			},
 			showfn(options) {
-				const result = options.showFace && options.blush > 0;
+				const result = options.showPlayer && !!options.showFace && options.blush > 0;
 				return !!result;
 			},
 			animationfn(options) {
@@ -821,7 +821,7 @@ const combatMainPc = {
 				return `${options.src}body/head/tear/${options.tears}.png`;
 			},
 			showfn(options) {
-				const result = options.showFace && options.tears > 0;
+				const result = options.showPlayer && options.showFace && options.tears > 0;
 				return !!result;
 			},
 			animationfn(options) {
@@ -831,12 +831,27 @@ const combatMainPc = {
 		},
 		mouth: {
 			srcfn(options) {
-				let state = "closedmouth";
-				if (options.inOral) state = "mouth";
-				return `${options.src}body/oral/${state}.png`;
+				const mouth = options.mouth;
+				if (mouth.inOral || mouth.open) {
+					return `${options.src}body/oral/mouth.png`;
+				}
+				return `${options.src}body/oral/closedmouth.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			z: CombatRenderer.indices.head + 1,
+		},
+		tongue: {
+			srcfn(options) {
+				return `${options.src}body/oral/openmouth.png`;
+			},
+			showfn(options) {
+				const mouth = options.mouth;
+				return !!options.showPlayer && !!options.showFace && mouth.inOral;
 			},
 			animationfn(options) {
 				return options.animKey;

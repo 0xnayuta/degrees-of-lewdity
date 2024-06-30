@@ -92,7 +92,7 @@ class CombatSystem {
 
 	isVaginaPenetrated() {
 		const activeState = V.vaginastate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
-		return activeState;
+		return !!activeState;
 	}
 
 	/**
@@ -109,7 +109,7 @@ class CombatSystem {
 
 	isAnusPenetrated() {
 		const activeState = V.anusstate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
-		return activeState;
+		return !!activeState;
 	}
 
 	/**
@@ -130,17 +130,17 @@ class CombatSystem {
 
 	isMouthPenetrated() {
 		const activeState = V.mouthstate && ["penetrated", "tentacledeep"].includes(V.mouthstate);
-		return activeState;
+		return !!activeState;
 	}
 
 	isMouthActive() {
 		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
-		return activeState;
+		return !!activeState;
 	}
 
 	isPenisPenetrated() {
 		const activeState = V.penisstate && ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
-		return activeState;
+		return !!activeState;
 	}
 
 	isPenisActive(canvas) {
@@ -175,17 +175,17 @@ class CombatSystem {
 		if (canvas === "close" && V.cheststate && ["penis", "tentacle"].includes(V.cheststate)) {
 			return true;
 		}
-		return activeUse;
+		return !!activeUse;
 	}
 
 	isThighActive() {
 		const activeUse = V.thighstate && ["penis"].includes(V.thighstate);
-		return activeUse;
+		return !!activeUse;
 	}
 
 	isFeetActive() {
 		const activeUse = V.feetstate && ["penis"].includes(V.feetstate);
-		return activeUse;
+		return !!activeUse;
 	}
 }
 const combat = new CombatSystem();
