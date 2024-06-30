@@ -273,7 +273,7 @@ class PlayerCombatMapper {
 	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPlayerToOptions(options) {
-		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
+		console.debug("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
 
 		if (options == null) {
 			options = this.generateOptions();
@@ -339,10 +339,10 @@ class PlayerCombatMapper {
 		options.animKeyStill = this.getPcAnimationSpeed(options);
 		options.machineAnimKey = this.getMachineAnimationSpeed(options);
 
-		console.warn("===============================================");
-		console.warn("=============== Player Options: ===============");
-		console.warn("===============================================");
-		console.log("Options:", JSON.parse(JSON.stringify(options)));
+		console.debug("===============================================");
+		console.debug("=============== Player Options: ===============");
+		console.debug("===============================================");
+		console.debug("Options:", JSON.parse(JSON.stringify(options)));
 
 		return options;
 	}
@@ -541,7 +541,7 @@ class PlayerCombatMapper {
 
 				const part = parts.find(part => tentacle.head in part);
 				if (part) {
-					console.log("Tentacle", i, tentacle, "selected for:", parts);
+					console.debug("Tentacle", i, tentacle, "selected for:", parts);
 					return part[tentacle.head];
 				}
 			}
@@ -774,6 +774,8 @@ class PlayerCombatMapper {
 
 		const overLower = options.clothes.over_lower;
 		const overLowerExposed = !overLower.show || this.isClothingExposed(options, overLower);
+
+		console.debug("Exposed values: lower:", lowerExposed, "under_lower:", underLowerExposed, "over_lower", overLowerExposed);
 		const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
 
 		return clothingExposed;
@@ -915,6 +917,10 @@ class PlayerCombatMapper {
 				penetrator.position = "chest";
 				penetrator.state = "titjob";
 				return penetrator;
+			case "tentacle":
+				penetrator.position = "tentacle";
+				penetrator.state = "tentacle";
+				return penetrator;
 			// case "leftDildoAnus":
 			// case "rightDildoAnus":
 			// case "leftStroker":
@@ -1037,7 +1043,7 @@ class PlayerCombatMapper {
 		const colour = clothing.combatColourOverride || clothing.colour;
 		const debugName = slot + " clothing";
 		const customFilter = clothing.colourCustom;
-		console.log("Clothing colour:", slot, colour);
+		console.debug("Clothing colour:", slot, colour);
 		options.filters[mainFilterKey] = colour
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();

@@ -576,7 +576,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 49,
+			z: CombatRenderer.indices.frontLowerOverwear + 1,
 		},
 		tentacleVagina: {
 			srcfn(options) {
