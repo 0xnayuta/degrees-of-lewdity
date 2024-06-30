@@ -2218,7 +2218,6 @@ function initLower() {
 			name: "micro pleated skirt",
 			name_cap: "Micro pleated skirt",
 			variable: "micropleatedskirt",
-			combatImg: "sundress",
 			integrity: 90,
 			integrity_max: 90,
 			fabric_strength: 30,
