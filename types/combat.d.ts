@@ -132,6 +132,7 @@ declare global {
 	export interface CombatRendererOverrides {
 		legBackPosition?: LegPositions;
 		legFrontPosition?: LegPositions;
+		animSpeed?: string;
 	}
 
 	export interface TentacleState {

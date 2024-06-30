@@ -339,6 +339,9 @@ class PlayerCombatMapper {
 	 * @returns {string}
 	 */
 	static getPcAnimationSpeed(options) {
+		if (T.crOverrides?.animSpeed) {
+			return T.crOverrides.animSpeed;
+		}
 		if (options.props.semenTank.show || options.props.milkTank.show) {
 			return "sex-2f-idle";
 		}

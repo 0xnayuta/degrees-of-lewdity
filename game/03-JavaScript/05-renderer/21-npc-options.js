@@ -101,6 +101,9 @@ class NpcCombatMapper {
 	 * @returns {string}
 	 */
 	static getNpcAnimationSpeed(options) {
+		if (T.crOverrides?.animSpeed) {
+			return T.crOverrides.animSpeed;
+		}
 		if (combat.isRapid()) {
 			return "sex-4f-vfast";
 		}
