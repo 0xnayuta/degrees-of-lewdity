@@ -824,6 +824,9 @@ const combatMainPc = {
 				const result = options.showFace && options.tears > 0;
 				return !!result;
 			},
+			animationfn(options) {
+				return options.animKey;
+			},
 			z: CombatRenderer.indices.head + 2,
 		},
 		mouth: {
