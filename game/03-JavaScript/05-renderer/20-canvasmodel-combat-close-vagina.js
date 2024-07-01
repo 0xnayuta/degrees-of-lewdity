@@ -6,9 +6,9 @@
  */
 const combatCloseVagina = {
 	name: "combatCloseVagina",
-	width: 256,
-	height: 256,
-	frames: 4,
+	width: 64,
+	height: 64,
+	frames: 6,
 	generatedOptions() {
 		console.log(this.name, "closeVagina generatedOptions");
 		return [];
@@ -25,7 +25,8 @@ const combatCloseVagina = {
 			},
 		};
 	},
-	preprocess() {
+	preprocess(options) {
+		getCloseOptions(options);
 		console.log(this.name, "closeVagina preprocess");
 	},
 	layers: {

@@ -6,9 +6,9 @@
  */
 const combatCloseChest = {
 	name: "combatCloseChest",
-	width: 256,
-	height: 256,
-	frames: 4,
+	width: 64,
+	height: 64,
+	frames: 6,
 	generatedOptions() {
 		console.log(this.name, "closeChest generatedOptions");
 		return [];
@@ -24,7 +24,8 @@ const combatCloseChest = {
 			},
 		};
 	},
-	preprocess() {
+	preprocess(options) {
+		getCloseOptions(options);
 		console.log(this.name, "closeChest preprocess");
 	},
 	layers: {
