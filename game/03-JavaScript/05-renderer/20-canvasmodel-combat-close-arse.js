@@ -6,9 +6,9 @@
  */
 const combatCloseArse = {
 	name: "combatCloseArse",
-	width: 256,
-	height: 256,
-	frames: 4,
+	width: 64,
+	height: 64,
+	frames: 6,
 	generatedOptions() {
 		console.log(this.name, "closeArse generatedOptions");
 		return [];
@@ -24,7 +24,8 @@ const combatCloseArse = {
 			},
 		};
 	},
-	preprocess() {
+	preprocess(options) {
+		getCloseOptions(options);
 		console.log(this.name, "closeArse preprocess");
 	},
 	layers: {

@@ -6,9 +6,9 @@
  */
 const combatClosePenis = {
 	name: "combatClosePenis",
-	width: 256,
-	height: 256,
-	frames: 4,
+	width: 64,
+	height: 64,
+	frames: 6,
 	generatedOptions() {
 		console.log(this.name, "closePenis generatedOptions");
 		return [];
@@ -26,6 +26,7 @@ const combatClosePenis = {
 		};
 	},
 	preprocess(options) {
+		getCloseOptions(options);
 		console.log(this.name, "closePenis preprocess");
 	},
 	layers: {
