@@ -601,6 +601,9 @@ Config.navigation.override = function (dest) {
 			case "Beach Cave Rope Over Top":
 				return "Beach Cave Rope Top";
 
+			case "Prison Wren Intro Met":
+				return "Prison Wren Intro";
+
 			default:
 				return false;
 		}
