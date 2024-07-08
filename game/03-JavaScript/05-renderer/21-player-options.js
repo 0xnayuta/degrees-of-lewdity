@@ -1022,7 +1022,7 @@ class PlayerCombatMapper {
 				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.sleeve_img === 1,
 				state: "default",
 			},
-			renderStep: defaults.combatType,
+			renderStep: CombatRenderer.getClothingRenderType(slot, defaults),
 		};
 
 		return clothes;

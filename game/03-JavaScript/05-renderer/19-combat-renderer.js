@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes */
 
 /**
  * @typedef CombatZIndices
@@ -313,6 +313,16 @@ class CombatRenderer {
 			return !!source.combatAccessoryOverride;
 		}
 		return source.accessory !== 0;
+	}
+
+	/**
+	 * @param {ClothedSlots} slot
+	 * @param {ClothesItem} defaults
+	 * @returns {CombatClothingTypes | undefined}
+	 */
+	static getClothingRenderType(slot, defaults) {
+		const source = this.getSourceClothing(slot, defaults);
+		return source.combatType;
 	}
 
 	/**
