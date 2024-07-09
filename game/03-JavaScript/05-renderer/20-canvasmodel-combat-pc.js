@@ -92,12 +92,6 @@ class PlayerCanvasHelper {
 					return false;
 				}
 				if (clothes.renderStep == null) {
-					Errors.report("No step provided in clothing object", {
-						slot,
-						layer,
-						isAccessory,
-						name: clothes.name,
-					});
 					return false;
 				}
 				const step = ClothingRendererStep.instances[clothes.renderStep];

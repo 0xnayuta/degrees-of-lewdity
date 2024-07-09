@@ -3854,7 +3854,7 @@ function initUpper() {
 			accessory_colour: 0,
 			accessory_colour_options: [],
 			sleeve_img: 0,
-			breast_img: 0,
+			breast_img: 1,
 			cursed: 0,
 			location: 0,
 			iconFile: "rag_top.png",
