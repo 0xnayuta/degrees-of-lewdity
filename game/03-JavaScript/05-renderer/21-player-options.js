@@ -959,8 +959,12 @@ class PlayerCombatMapper {
 	static mapPcToClothingOption(slot, pc, options) {
 		const defaults = setup.clothes[slot][V.worn[slot].index];
 		const clothing = CombatRenderer.getClothingBySlot(slot);
+		const source = CombatRenderer.getSourceClothing(slot, defaults);
 
-		const name = defaults.combatImg ?? clothing.variable;
+		const name = source.variable;
+
+		console.log("Reference:", defaults.variable, "=>", source.variable);
+
 		/** @type {TotalClothingStates} */
 		let state = clothing.state;
 		let show = name != null;
@@ -1010,19 +1014,19 @@ class PlayerCombatMapper {
 			alpha: CombatRenderer.getAlpha(slot),
 			isSkirt: defaults.skirt === 1,
 			isExposed: !!clothing.exposed,
-			isBoundable: !!clothing.combatBoundable,
+			isBoundable: !!clothing.combat?.boundable,
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
-			hasMainImg: clothing.combatHasMainImg !== false,
+			hasMainImg: clothing.combat?.hasMainImg !== false,
 			hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
 			breasts: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,
+				show: ["upper", "under_upper", "over_upper"].includes(slot) && !!defaults.combat?.hasBreasts,
 				size: options.breastSize,
 			},
 			sleeves: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.sleeve_img === 1,
+				show: ["upper", "under_upper", "over_upper"].includes(slot) && !!defaults.combat?.hasSleeves,
 				state: "default",
 			},
-			renderStep: CombatRenderer.getClothingRenderType(slot, defaults),
+			renderStep: source.combat?.renderType,
 		};
 
 		return clothes;
@@ -1042,7 +1046,7 @@ class PlayerCombatMapper {
 		};
 		options.filters.worn[slot] = {};
 
-		const colour = clothing.combatColourOverride || clothing.colour;
+		const colour = clothing.combat?.mainColour || clothing.colour;
 		const debugName = slot + " clothing";
 		const customFilter = clothing.colourCustom;
 		console.debug("Clothing colour:", slot, colour);
@@ -1050,7 +1054,7 @@ class PlayerCombatMapper {
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
 
-		const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour;
+		const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 		const accDebugName = slot + " accessory";
 		const accCustomFilter = clothing.accessory_colourCustom;
 		options.filters[accFilterKey] = accColour

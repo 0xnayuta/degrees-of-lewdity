@@ -117,30 +117,19 @@ declare global {
 		 */
 		variable: string;
 		/**
-		 * The folder ID for combat sprites, if not specified, uses variable
-		 */
-		combatImg?: string;
-		/**
-		 * Used primarily by the combat renderer to select the logic for clothing. Logic found in ClothingRendererStep.
-		 */
-		combatType?: CombatClothingTypes;
-		/**
-		 * Overrides the combat sprite colour. For when sprites are grey-scale, but were intended to be a specific colour.
-		 */
-		combatColourOverride?: string;
-		combatAccessoryColourOverride?: string;
-		/**
-		 * If your clothing item has accessory colours, but the sprites aren't finished, set to false to override the accessory colour code.
-		 */
-		combatAccessoryOverride?: boolean;
-		/**
 		 *
 		 */
-		combatHasMainImg?: boolean;
-		/**
-		 *
-		 */
-		combatBoundable?: boolean;
+		combat?: {
+			reference?: string;
+			renderType?: CombatClothingTypes;
+			hasMainImg?: boolean;
+			hasSleeves?: boolean;
+			hasBreasts?: boolean;
+			accessory?: boolean;
+			mainColour?: string;
+			accColour?: string;
+			boundable?: boolean;
+		};
 		integrity?: number;
 		integrity_max?: number;
 		fabric_strength?: number;

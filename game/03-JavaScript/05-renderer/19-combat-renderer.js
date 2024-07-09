@@ -309,8 +309,8 @@ class CombatRenderer {
 	 */
 	static getAccessoryState(slot, defaults) {
 		const source = this.getSourceClothing(slot, defaults);
-		if (source.combatAccessoryOverride !== undefined) {
-			return !!source.combatAccessoryOverride;
+		if (source.combat?.accessory !== undefined) {
+			return !!source.combat.accessory;
 		}
 		return source.accessory !== 0;
 	}
@@ -322,7 +322,7 @@ class CombatRenderer {
 	 */
 	static getClothingRenderType(slot, defaults) {
 		const source = this.getSourceClothing(slot, defaults);
-		return source.combatType;
+		return source.combat?.renderType;
 	}
 
 	/**
@@ -345,16 +345,16 @@ class CombatRenderer {
 		}
 		failsafe.push(item.variable);
 		// Main code
-		if (!item.combatImg) {
+		if (!item.combat?.reference) {
 			return item;
 		}
 		// Check combatImg's redirect for a possible clothing item:
-		const source = setup.clothes[slot]?.find(c => c.variable === item.combatImg);
+		const source = setup.clothes[slot]?.find(c => c.variable === item.combat?.reference);
 		if (source == null) {
 			return item;
 		}
 		// If this redirect item has combatImg, we'll want to look again:
-		if (source.combatImg) {
+		if (source.combat?.reference) {
 			return this.getSourceClothing(slot, source, failsafe);
 		}
 		return source;

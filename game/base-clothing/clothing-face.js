@@ -207,7 +207,9 @@ function initFace() {
 			name: "gag and blindfold",
 			name_cap: "Gag and blindfold",
 			variable: "gagblindfold",
-			combatImg: "blindfold",
+			combat: {
+				reference: "blindfold",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 30,
@@ -690,7 +692,9 @@ function initFace() {
 			name: "muzzle",
 			name_cap: "Muzzle",
 			variable: "muzzlefetish",
-			combatImg: "muzzle",
+			combat: {
+				reference: "muzzle",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 30,
@@ -722,7 +726,9 @@ function initFace() {
 			name: "gag",
 			name_cap: "Gag",
 			variable: "gagfetish",
-			combatImg: "gag",
+			combat: {
+				reference: "gag",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 20,
