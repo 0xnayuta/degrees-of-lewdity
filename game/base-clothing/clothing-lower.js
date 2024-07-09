@@ -3680,7 +3680,7 @@ function initLower() {
 			name_cap: "Rag skirt",
 			variable: "rag",
 			combat: {
-				renderType: "trousers",
+				renderType: "skirt",
 			},
 			integrity: 10,
 			integrity_max: 10,
