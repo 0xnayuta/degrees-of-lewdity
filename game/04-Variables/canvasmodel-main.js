@@ -242,7 +242,7 @@ Renderer.CanvasModels["main"] = {
 	scale: true, // Can be overriden for each layer
 	generatedOptions() {
 		return [
-			"blink_animation",	
+			"blink_animation",
 			"genitals_chastity",
 			"handheld_position",
 			"handheld_overhead",
@@ -781,6 +781,9 @@ Renderer.CanvasModels["main"] = {
 		if (options.worn_upper_setup.name === "cocoon") options.hideAll = true;
 
 		// Generate mask images
+		options.lowerMask = [];
+		options.lowerBellyMask = [];
+		options.lowerShadowMask = [];
 		const hairTails = ["curly pigtails", "fluffy ponytail", "thick sidetail", "thick twintails", "ribbon tail", "thick sidetail", "thick ponytail", "half-up"];
 		const thickTails = ["scorpion tails", "thick pigtails", "thick twintails"];
 		const furCap = ["furcap f", "furcap m"];
@@ -792,7 +795,7 @@ Renderer.CanvasModels["main"] = {
 		) {
 			options.head_mask_src = `img/clothes/head/${options.worn_over_head_setup.variable}/mask.png`;
 		} else if (
-			options.worn_head_setup.mask_img === 1 
+			options.worn_head_setup.mask_img === 1
 				&& !(options.hood_down && options.worn_head_setup.hood && options.worn_head_setup.outfitSecondary !== undefined)
 		) {
 			if (
@@ -826,17 +829,20 @@ Renderer.CanvasModels["main"] = {
 		const bellyDir =  "img/clothes/belly"
 		if (between(options.belly, 8, 24)) {
 			options.belly_mask_lower_shadow_src = `${bellyDir}/shadow_${options.belly}.png`;
+			options.lowerShadowMask.push(options.belly_mask_lower_shadow_src);
 			options.belly_mask_upper_shadow_src = `${bellyDir}/shadow_${options.belly}.png`;
 		}
 
 		if (between(options.belly, 15, 24)) {
 			options.belly_mask_src = options.worn_upper_setup.pregType == "min" ?
 				`${bellyDir}/mask_min_${options.belly}.png` : `${bellyDir}/mask_${options.belly}.png`;
-		
+				options.lowerBellyMask.push(options.belly_mask_src);
+
 			if (V.worn.upper.outfitPrimary == undefined && options.worn_lower_setup.pregType !== "cover") {
 				if (options.belly >= 19) {
 					options.belly_hides_lower = true;
 					options.belly_mask_clip_src = `${bellyDir}/mask_clip_${options.belly}.png`;
+					options.lowerMask.push(options.belly_mask_clip_src);
 
 					const check = options.worn_upper_setup.pregType == "split";
 					const suffix = options.belly >= 22 ? "_big.png" : ".png";
@@ -861,15 +867,15 @@ Renderer.CanvasModels["main"] = {
 			}
 		}
 
-		const notMale = ["f", "a"].includes(options.body_type);
-		if (notMale && options.breasts === "cleavage") {
+		const notMasc = ["f", "a"].includes(options.body_type);
+		if (notMasc && options.breasts === "cleavage") {
 			const suffix = between(options.breast_size, 3, 4) ? "-mid.png" : ".png";
 			options.breasts_mask_src = `img/body/breasts/breasts-${options.body_type}${suffix}`
 		} else {
 			options.breasts_mask_src = null;
 		}
 
-		if (notMale) {
+		if (notMasc) {
 			const check = (options.worn_upper_setup.formfitting || options.worn_under_upper_setup.formfitting);
 			options.shirt_fitted_clip_src = check ? `img/clothes/masks/formfitting_${options.body_type}.png` : null;
 			options.shirt_fitted_right_move_src = check ? "img/clothes/masks/formfitting_right_move.png" : null;
@@ -878,6 +884,9 @@ Renderer.CanvasModels["main"] = {
 
 		if (options.lower_tucked && !options.worn_lower_setup.notuck && !options.worn_feet_setup.notuck) {
 			options.feet_clip_src = `img/clothes/feet/${options.worn_feet_setup.variable}/mask.png`;
+			options.lowerMask.push(options.feet_clip_src);
+			options.lowerBellyMask.push(options.feet_clip_src);
+			options.lowerShadowMask.push(options.feet_clip_src);
 		} else {
 			options.feet_clip_src = null;
 		}
@@ -929,7 +938,7 @@ Renderer.CanvasModels["main"] = {
 		}
 
 		if (
-			options.worn_head_setup.mask_img === 1 
+			options.worn_head_setup.mask_img === 1
 				&& !(options.hood_down && options.worn_head_setup.hood && options.worn_head_setup.outfitSecondary !== undefined)
 		) {
 			options.hood_mask = true;
@@ -1630,7 +1639,7 @@ Renderer.CanvasModels["main"] = {
 			filters: ["pbhair"],
 			z: ZIndices.pbhair,
 			animation: "idle",
-	
+
 			srcfn(options) {
 				return `img/hair/phair/pbstrip${options.pbhair_strip}.png`;
 			},
@@ -3339,12 +3348,12 @@ Renderer.CanvasModels["main"] = {
 				return options.worn_lower_setup.high_img ? ZIndices.lower_high : secondary;
 			},
 			masksrcfn(options) {
-				return between(options.belly, 15, 24) ? options.belly_mask_clip_src : options.feet_clip_src;
+				return options.lowerMask;
 			},
 		}),
 		"lower_belly_2": genlayer_clothing_belly_2("lower", {
 			masksrcfn(options) {
-				return options.belly_mask_src;
+				return options.lowerBellyMask;
 			},
 			zfn(options) {
 				return options.worn_lower_setup.high_img ? ZIndices.lower_high : ZIndices.lower_belly;
@@ -3352,7 +3361,7 @@ Renderer.CanvasModels["main"] = {
 		}),
 		"lower_belly": genlayer_clothing_belly("lower", {
 			masksrcfn(options) {
-				return options.belly_mask_src;
+				return options.lowerBellyMask;
 			},
 			zfn(options) {
 				return options.worn_lower_setup.high_img ? ZIndices.lower_high : ZIndices.lower_belly;
@@ -3360,7 +3369,7 @@ Renderer.CanvasModels["main"] = {
 		}),
 		"lower_belly_shadow": genlayer_clothing_belly_shadow("lower", {
 			masksrcfn(options) {
-				return options.belly_mask_lower_shadow_src;
+				return options.lowerShadowMask;
 			},
 			zfn(options) {
 				return options.worn_lower_setup.high_img ? ZIndices.lower_high : ZIndices.lower_belly;
@@ -3368,7 +3377,7 @@ Renderer.CanvasModels["main"] = {
 		}),
 		"lower_belly_acc": genlayer_clothing_belly_acc("lower", {
 			masksrcfn(options) {
-				return options.belly_mask_src;
+				return options.lowerBellyMask;
 			},
 			zfn(options) {
 				return options.worn_lower_setup.high_img ? ZIndices.lower_high : ZIndices.lower_belly;
@@ -3389,7 +3398,7 @@ Renderer.CanvasModels["main"] = {
 				return ZIndices.lower;
 			},
 			masksrcfn(options) {
-				return between(options.belly, 15, 24) ? options.belly_mask_clip_src : options.feet_clip_src;
+				return options.lowerMask;
 			},
 		}),
 		"lower_penis": {
@@ -4030,27 +4039,27 @@ Renderer.CanvasModels["main"] = {
 		 *
 		 */
 		"legs": genlayer_clothing_main('legs', {
-			masksrcfn(options) {
-				return between(options.belly, 15, 24) ? options.belly_mask_clip_src : options.feet_clip_src;
-			},
 			zfn(options) {
 				const check = options.worn_under_lower_setup.set === options.worn_under_upper_setup.set
 					|| options.worn_under_lower_setup.high_img === 1;
 
 				if (check) return ZIndices.legs;
 				return ZIndices.legs_high;
+			},
+			masksrcfn(options) {
+				return options.lowerMask;
 			},
 		}),
 		"legs_acc": genlayer_clothing_accessory('legs', {
-			masksrcfn(options) {
-				return between(options.belly, 15, 24) ? options.belly_mask_clip_src : options.feet_clip_src;
-			},
 			zfn(options) {
 				const check = options.worn_under_lower_setup.set === options.worn_under_upper_setup.set
 					|| options.worn_under_lower_setup.high_img === 1;
 
 				if (check) return ZIndices.legs;
 				return ZIndices.legs_high;
+			},
+			masksrcfn(options) {
+				return options.lowerMask;
 			},
 		}),
 		"legs_back_acc": genlayer_clothing_back_img_acc('legs'),
@@ -4269,10 +4278,10 @@ function genlayer_clothing_main(slot, overrideOptions) {
 			const isAltPosition = !options.alt_override && setup.altposition !== undefined
 				&& V.worn[slot]?.altposition === "alt"
 				&& !setup?.altdisabled.includes("full");
-		
+
 			const end = isHoodDown ? '_down' : isAltPosition ? '_alt' : '';
 			const path = `img/clothes/${slot}/${setup.variable}/${options[`worn_${slot}_integrity`]}${end}.png`;
-		
+
 			return gray_suffix(path, options.filters[`worn_${slot}`]);
 		},
 	}, overrideOptions));
@@ -4567,8 +4576,8 @@ function genlayer_clothing_belly_acc(slot, overrideOptions) {
 				&& options.show_clothes;
 
 			if (slot.includes("lower")) return commonChecks && !options.belly_hides_lower;
-			if (slot.includes("upper")) return commonChecks 
-				&& options.worn_upper_setup.pregType != "min" 
+			if (slot.includes("upper")) return commonChecks
+				&& options.worn_upper_setup.pregType != "min"
 				&& !options.shirt_mask_clip_src;
 			return commonChecks;
 		},
@@ -4644,7 +4653,7 @@ function genlayer_clothing_back_img(slot, overrideOptions) {
 			return options[`worn_${slot}`] > 0 && options[setup].back_img === 1 && !isHoodDown;
 		},
 		srcfn(options) {
-			const isAltPosition = !options.alt_override 
+			const isAltPosition = !options.alt_override
 				&& options[setup].altposition !== undefined
 				&& V.worn[slot]?.altposition === "alt"
 				&& !options[setup]?.altdisabled.includes("back");
