@@ -108,7 +108,7 @@ class MultiCanvasModel {
 		}
 	}
 
-	refresh() {
+	reset() {
 		const models = this.models;
 		for (const slot in models) {
 			if (!Object.hasOwn(models, slot)) {
@@ -119,6 +119,10 @@ class MultiCanvasModel {
 			model.options = model.defaultOptions();
 			model.preprocess(model.options);
 		}
+	}
+
+	refresh() {
+		this.reset();
 		this.redraw();
 	}
 }
@@ -172,6 +176,21 @@ Macro.add("start-multi-canvas-rendering", {
 			return;
 		}
 		model.animate();
+	},
+});
+
+Macro.add("reset-multi-canvas", {
+	handler() {
+		const key = this.args[0];
+		MultiCanvasModel.ensureStorage();
+		const model = T.multiCombatModels[key];
+		if (model == null) {
+			Errors.report("No MultiCanvasModel found with given key.", {
+				key,
+			});
+			return;
+		}
+		model.reset();
 	},
 });
 
