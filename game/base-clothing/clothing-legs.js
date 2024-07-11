@@ -582,7 +582,7 @@ function initLegs() {
 			variable: "nursesocks",
 			combat: {
 				renderType: "thighhighs",
-				mainColour: "red",
+				mainColour: "#f00",
 			},
 			integrity: 100,
 			integrity_max: 100,

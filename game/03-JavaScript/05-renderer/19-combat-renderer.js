@@ -338,6 +338,7 @@ class CombatRenderer {
 	 * @returns {ClothesItem}
 	 */
 	static getSourceClothing(slot, item, failsafe = []) {
+		const reference = item.combat?.reference;
 		// Check to ensure no loops
 		if (failsafe.includes(item.variable)) {
 			console.error("getSourceClothing ran into a potential infinite loop:", item.variable, failsafe);
@@ -345,16 +346,16 @@ class CombatRenderer {
 		}
 		failsafe.push(item.variable);
 		// Main code
-		if (!item.combat?.reference) {
+		if (reference == null) {
 			return item;
 		}
 		// Check combatImg's redirect for a possible clothing item:
-		const source = setup.clothes[slot]?.find(c => c.variable === item.combat?.reference);
+		const source = setup.clothes[slot].find(c => c.variable === reference);
 		if (source == null) {
 			return item;
 		}
 		// If this redirect item has combatImg, we'll want to look again:
-		if (source.combat?.reference) {
+		if (source.combat != null && source.combat.reference != null) {
 			return this.getSourceClothing(slot, source, failsafe);
 		}
 		return source;

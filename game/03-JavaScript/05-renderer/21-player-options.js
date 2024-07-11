@@ -1018,18 +1018,59 @@ class PlayerCombatMapper {
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
 			hasMainImg: clothing.combat?.hasMainImg !== false,
 			hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
-			breasts: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && !!defaults.combat?.hasBreasts,
-				size: options.breastSize,
-			},
-			sleeves: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && !!defaults.combat?.hasSleeves,
-				state: "default",
-			},
+			breasts: this.genClothingBreastOptions(slot, source, options.breastSize),
+			sleeves: this.genClothingSleeveOptions(slot, source),
 			renderStep: source.combat?.renderType,
 		};
 
 		return clothes;
+	}
+
+	/**
+	 * @param {string} slot
+	 * @param {ClothesItem} source
+	 */
+	static genClothingSleeveOptions(slot, source) {
+		return {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && this.hasSleeves(source),
+			state: "default",
+		};
+	}
+
+	/**
+	 * @param {ClothesItem} source
+	 * @returns {boolean}
+	 */
+	static hasSleeves(source) {
+		// Has combat.hasSleeves property
+		if (source.combat == null || source.combat.hasSleeves == null) {
+			return !!source.sleeve_img;
+		}
+		return source.combat.hasSleeves;
+	}
+
+	/**
+	 * @param {string} slot
+	 * @param {ClothesItem} source
+	 * @param {number} breastSize
+	 */
+	static genClothingBreastOptions(slot, source, breastSize) {
+		return {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && this.hasBreasts(source),
+			size: breastSize,
+		};
+	}
+
+	/**
+	 * @param {ClothesItem} source
+	 * @returns {boolean}
+	 */
+	static hasBreasts(source) {
+		// Has combat.hasSleeves property
+		if (source.combat == null || source.combat.hasBreasts == null) {
+			return !!source.sleeve_img;
+		}
+		return source.combat.hasBreasts;
 	}
 
 	/**
@@ -1046,13 +1087,18 @@ class PlayerCombatMapper {
 		};
 		options.filters.worn[slot] = {};
 
-		const colour = clothing.combat?.mainColour || clothing.colour;
-		const debugName = slot + " clothing";
-		const customFilter = clothing.colourCustom;
-		console.debug("Clothing colour:", slot, colour);
-		options.filters[mainFilterKey] = colour
-			? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
-			: Renderer.emptyLayerFilter();
+		if (clothing.combat?.mainColour) {
+			console.debug("Clothing colour:", slot, clothing.combat.mainColour);
+			options.filters[mainFilterKey] = this.genFilterWithHex(clothing.combat.mainColour);
+		} else {
+			const colour = clothing.colour;
+			const debugName = slot + " clothing";
+			const customFilter = clothing.colourCustom;
+			console.debug("Clothing colour:", slot, colour, customFilter);
+			options.filters[mainFilterKey] = colour
+				? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
+				: Renderer.emptyLayerFilter();
+		}
 
 		const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 		const accDebugName = slot + " accessory";
@@ -1060,6 +1106,21 @@ class PlayerCombatMapper {
 		options.filters[accFilterKey] = accColour
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
+	}
+
+	/**
+	 * @param {string} hex
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static genFilterWithHex(hex) {
+		return Renderer.mergeLayerData(
+			{
+				blend: hex,
+				contrast: 1,
+				brightness: 0,
+			},
+			setup.colours.clothes_default
+		);
 	}
 
 	/**

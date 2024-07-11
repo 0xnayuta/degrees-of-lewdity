@@ -903,7 +903,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			filters: ["phair"],
+			filters: ["hair"],
 			z: CombatRenderer.indices.head + 3,
 		},
 		blush: {
