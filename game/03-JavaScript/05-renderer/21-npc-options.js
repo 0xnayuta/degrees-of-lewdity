@@ -90,17 +90,16 @@ class NpcCombatMapper {
 		this.mapNpcToBodyOptions(index, npc, options);
 
 		// Set animation speed
-		options.animKey = this.getNpcAnimationSpeed(options);
-		options.animKeyStill = this.getNpcAnimationSpeed(options);
+		options.animKey = this.getNpcAnimationSpeed();
+		options.animKeyStill = this.getNpcAnimationSpeed();
 
 		return options;
 	}
 
 	/**
-	 * @param {NpcOptions} options
 	 * @returns {string}
 	 */
-	static getNpcAnimationSpeed(options) {
+	static getNpcAnimationSpeed() {
 		if (T.crOverrides?.animSpeed) {
 			return T.crOverrides.animSpeed;
 		}
