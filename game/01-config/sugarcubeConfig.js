@@ -31,21 +31,7 @@ Config.saves.isAllowed = () => {
 	return true;
 };
 
-idb.footerHTML = `
-	<div class="savesListRow">
-		<div class="saveGroup">
-			<span style="margin: 0;">
-				Special thanks to all those who <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Support Degrees of Lewdity</a>
-			</span>
-			<div class="saveId"></div>
-			<div class="saveButton"></div>
-			<div class="saveName"></div>
-			<div class="saveDetails"></div>
-		</div>
-		<div class="saveButton">
-			<input type="button" class="saveMenuButton right" value="Delete All" onclick="idb.saveList('confirm clear')">
-		</div>
-	</div>`;
+idb.footerHTML = `Special thanks to all those who <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Support Degrees of Lewdity</a>`;
 
 function onLoad(save) {
 	$.event.trigger(":onloadsave", { save });
@@ -153,13 +139,6 @@ const tmpver = StartConfig.version.replace(/[^0-9.]+/g, "").split(".");
 window.StartConfig.version_numeric = tmpver[0] * 1000000 + tmpver[1] * 10000 + tmpver[2] * 100 + tmpver[3] * 1;
 
 Config.saves.autosave = "autosave";
-
-Config.saves.isAllowed = function () {
-	if (tags().includes("nosave")) {
-		return false;
-	}
-	return true;
-};
 
 importStyles("style.css")
 	.then(function () {
@@ -600,6 +579,9 @@ Config.navigation.override = function (dest) {
 			case "Beach Cave Rope Under Top":
 			case "Beach Cave Rope Over Top":
 				return "Beach Cave Rope Top";
+
+			case "Prison Wren Intro Met":
+				return "Prison Wren Intro";
 
 			case "Museum Box":
 				return "Museum Waterlogged Ivory Box";
