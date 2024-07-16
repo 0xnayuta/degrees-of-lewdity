@@ -883,7 +883,7 @@ function initLegs() {
 			name_cap: "Striped kneehighs",
 			variable: "striped kneehighs",
 			combat: {
-				reference: "stripedthighhighs",
+				reference: "striped socks long",
 			},
 			integrity: 100,
 			integrity_max: 100,
