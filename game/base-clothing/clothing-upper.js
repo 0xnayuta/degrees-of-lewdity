@@ -66,6 +66,9 @@ function initUpper() {
 			name: "sundress",
 			name_cap: "Sundress",
 			variable: "sundress",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
