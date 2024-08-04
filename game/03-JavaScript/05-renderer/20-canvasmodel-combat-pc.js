@@ -311,7 +311,7 @@ const combatMainPc = {
 				return `${options.root}${options.animKey.includes("4f") ? "4f" : "2f"}.png`;
 			},
 			showfn(options) {
-				return true;
+				return options.isDebugging;
 			},
 			animationfn(options) {
 				return options.animKey;

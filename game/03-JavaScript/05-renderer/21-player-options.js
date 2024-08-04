@@ -6,6 +6,7 @@
  * @type {object}
  * @property {"img/sex/" | "img/newsex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
+ * @property {boolean} isDebugging Flag for debugging mode. E.G. Shows frame number.
  * @property {boolean} showPlayer Flag to show the player model.
  * @property {boolean} showFace
  * @property {boolean} showClothing Flag to show the clothing layers.
@@ -232,6 +233,7 @@ class PlayerCombatMapper {
 		return {
 			root: "img/newsex/",
 			position: "missionary",
+			isDebugging: false,
 			showPlayer: true,
 			showFace: true,
 			showClothing: true,
@@ -279,6 +281,8 @@ class PlayerCombatMapper {
 		if (options == null) {
 			options = this.generateOptions();
 		}
+
+		options.isDebugging = !!V.debug;
 
 		// Set position
 		options.position = CombatRenderer.getPosition(V.position);
