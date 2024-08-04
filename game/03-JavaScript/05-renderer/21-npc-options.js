@@ -5,7 +5,7 @@
  * @typedef NpcOptions
  * @property {number} index
  * @property {"img/newsex"} root
- * @property {string} src Typically "img/newsex/missionary/"
+ * @property {string} src Typically "img/newsex/missionary"
  * @property {"missionary" | "doggy"} position
  * @property {"shadow" | "beast"} category
  * @property {CharacterTypes} type
@@ -57,7 +57,7 @@ class NpcCombatMapper {
 		// @ts-ignore
 		return {
 			position: "missionary",
-			src: "img/newsex/missionary/",
+			src: "img/newsex/missionary",
 			animKey: "sex-2f-idle",
 			animKeyStill: "sex-2f-idle",
 		};
@@ -77,7 +77,7 @@ class NpcCombatMapper {
 
 		// Set directory for images
 		options.root = "img/newsex";
-		options.src = `${options.root}/${options.position}/`;
+		options.src = `${options.root}/${options.position}`;
 
 		// Configure state
 		// Maybe use active_enemy? const index = V.active_enemy.

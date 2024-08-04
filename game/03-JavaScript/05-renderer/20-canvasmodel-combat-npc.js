@@ -1,5 +1,5 @@
 // @ts-check
-/* globals NpcCombatMapper */
+/* global NpcCombatMapper */
 
 /**
  * @type {CanvasModelOptions<NpcOptions>}
@@ -24,7 +24,7 @@ const combatMainNpc = {
 	layers: {
 		body: {
 			srcfn(options) {
-				const path = `${options.src}${options.category}/${options.type}/${options.state}.png`;
+				const path = `${options.src}/${options.category}/${options.type}/${options.state}.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
@@ -48,7 +48,7 @@ const combatMainNpc = {
 		},
 		frontleg: {
 			srcfn(options) {
-				const path = `${options.src}${options.category}/${options.type}/${options.state}-leg.png`;
+				const path = `${options.src}/${options.category}/${options.type}/${options.state}-leg.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
@@ -66,7 +66,7 @@ const combatMainNpc = {
 			srcfn(options) {
 				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
-				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}.png`;
+				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}.png`;
 				return path;
 			},
 			showfn(options) {
@@ -94,7 +94,7 @@ const combatMainNpc = {
 			srcfn(options) {
 				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
-				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
+				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
 				return path;
 			},
 			showfn(options) {

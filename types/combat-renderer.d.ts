@@ -24,9 +24,10 @@ declare global {
 	interface Window {
 		CombatRenderer?: typeof CombatRenderer;
 		PlayerCombatMapper?: typeof PlayerCombatMapper;
-		NpcCombatMapper?: typeof NpcCombatMapper;
-		CombatEditor?: typeof CombatEditor;
 		PlayerCanvasHelper?: typeof PlayerCanvasHelper;
+		NpcCombatMapper?: typeof NpcCombatMapper;
+		NpcCanvasHelper?: typeof NpcCanvasHelper;
+		CombatEditor?: typeof CombatEditor;
 	}
 
 	interface CanvasModelLayers<T extends Options> {
