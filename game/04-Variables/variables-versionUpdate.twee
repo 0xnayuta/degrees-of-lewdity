@@ -3530,7 +3530,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 57 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 58 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3549,13 +3549,13 @@
 		<<if $objectVersion.updateClothes lt 56>>
 			<<run fixIntegrityUpdater()>>
 		<</if>>
-		<<set $objectVersion.updateClothes to 57>>
+		<<set $objectVersion.updateClothes to 58>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 15 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 16 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<set $objectVersion.specialClothes to 15>>
+		<<set $objectVersion.specialClothes to 16>>
 	<</if>>
 
 	<<if $objectVersion.wardrobes lt 12 or $objectVersion.wardrobes is undefined>>
@@ -5179,6 +5179,39 @@
 		<<unset $pillory_tenant.duration>>
 	<</if>>
 
+	<!-- 5.0.6 -->
+	<<if $pillory is undefined>>
+		<<set $pillory to {}>>
+	<</if>>
+	<<if $pillorytime isnot undefined>>
+		<<set _pilloryStartTime to new DateTime(Time.date)>>
+		<<set _pilloryEndTime to new DateTime(Time.date).addMinutes(60 - Time.date.minute)>>
+		<<if !isNaN($pillorytime) and $pillorytime gte 0>>
+			<<set _pilloryEndTime.addHours($pillortime)>>
+		<</if>>
+		<<set $pillory.time to {
+			start: _pilloryStartTime.timeStamp,
+			end: _pilloryEndTime.timeStamp,
+		}>>
+		<<unset $pillorytime>>
+	<</if>>
+	<<if $pilloryaudience isnot undefined>>
+		<<if !isNaN($pilloryaudience) and $pilloryaudience gte 0>>
+			<<set $pillory.audience to $pilloryaudience>>
+		<</if>>
+		<<unset $pilloryaudience>>
+	<</if>>
+	<<if $pillory_tenant isnot undefined>>
+		<<set $pillory.tenant to $pillory_tenant>>
+		<<unset $pillory_tenant>>
+	<</if>>
+	<<if $options.oldclock isnot undefined>>
+		<<run delete $options.oldclock>>
+	<</if>>
+	<<if $options.newWardrobeStyle isnot undefined>>
+		<<run delete $options.newWardrobeStyle>>
+	<</if>>
+
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
 		<<set $location to "old_temple">>
@@ -5297,6 +5330,14 @@
 	<</if>>
 	<<if $options.newWardrobeStyle isnot undefined>>
 		<<run delete $options.newWardrobeStyle>>
+	<</if>>
+
+	<!-- Fix for not having an island home set, should only be run once -->
+	<<if !$objectVersion.islandHomeFix>>
+		<<if $passage.startsWith("Island") and $island and $island.home is undefined>>
+			<<set $island.home to "rocky_hillock">>
+		<</if>>
+		<<set $objectVersion.islandHomeFix to 1>>
 	<</if>>
 
 	<<if ![1, 2, 3].includes($options.combatRendererMode)>>

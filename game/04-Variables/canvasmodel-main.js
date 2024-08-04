@@ -3437,7 +3437,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_clothes
 					&& !options.belly_hides_lower
 					&& options.worn_lower > 0
-					&& options.worn_lower_setup.penis_img === 1
+					&& options.worn_lower_setup.penis_acc_img === 1
 					&& options.worn_lower_setup.accessory === 1
 					&& calculatePenisBulge() - 6 > 0;
 			},
@@ -3575,7 +3575,7 @@ Renderer.CanvasModels["main"] = {
 				return options.show_clothes
 					&& !options.belly_hides_under_lower
 					&& options.worn_under_lower > 0
-					&& options.worn_under_lower_setup.penis_img === 1
+					&& options.worn_under_lower_setup.penis_acc_img === 1
 					&& options.worn_under_lower_setup.accessory === 1
 					&& calculatePenisBulge() > 0;
 			},
@@ -3790,11 +3790,15 @@ Renderer.CanvasModels["main"] = {
 		"handheld": genlayer_clothing_main('handheld', {
 			srcfn(options) {
 				const torchLevels = [100, 80, 60, 40, 20, 1, 0];
-				const num = torchLevels.findIndex(x => V.catacombs_torch >= x) + 1;
+				const torchNum = torchLevels.findIndex(x => V.catacombs_torch >= x) + 1;
+				const torch = options.worn_handheld_setup.variable === "torch" && V.catacombs_torch >= 0 ? torchNum : '';
+
+				const cardNum = Math.clamp(V.blackjack.playersCards.length, 1, 5);
+				const cards = options.worn_handheld_setup.variable === "cards" ? cardNum : '';
 
 				const cover = options.arm_right === "cover" ? "right_cover" : "right";
-				const torch = options.worn_handheld_setup.name === "torch" && V.catacombs_torch >= 0 ? num : '';
-				const path = `img/clothes/handheld/${options.worn_handheld_setup.variable}/${cover}${torch}.png`;
+				const extra = torch || cards || '';
+				const path = `img/clothes/handheld/${options.worn_handheld_setup.variable}/${cover}${extra}.png`;
 				return gray_suffix(path, options.filters['worn_handheld']);
 			},
 			showfn(options) {
@@ -3810,8 +3814,12 @@ Renderer.CanvasModels["main"] = {
 		}),
 		"handheld_acc": genlayer_clothing_accessory('handheld', {
 			srcfn(options) {
+				const cardNum = Math.clamp(V.blackjack.playersCards.length, 1, 5);
+				const cards = options.worn_handheld_setup.variable === "cards" ? cardNum : '';
+
 				const cover = options.arm_right === "cover" ? "right_cover" : "right";
-				const path = `img/clothes/handheld/${options.worn_handheld_setup.variable}/${cover}_acc.png`;
+				const extra = cards || '';
+				const path = `img/clothes/handheld/${options.worn_handheld_setup.variable}/${cover}${extra}_acc.png`;
 				return gray_suffix(path, options.filters['worn_handheld_acc']);
 			},
 			showfn(options) {
@@ -4216,7 +4224,8 @@ function getClothingPathBreastsAcc(slot, options) {
 	const worn = `worn_${slot}`;
 
 	const breastImg = options[`${worn}_setup`].breast_img;
-	const breastSize = typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
+	const breastAccImg = options[`${worn}_setup`].breast_acc_img;
+	const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
 	const path = `img/clothes/${slot}/${options[`${worn}_setup`].variable}/${breastSize}_acc.png`;
 	return gray_suffix(path, options.filters[`${worn}_acc`]);
 }
@@ -4612,13 +4621,18 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 			return getClothingPathBreastsAcc(slot, options);
 		},
 		showfn(options) {
-			let breastImg = options[`${worn}_setup`].breast_img;
-			if (typeof breastImg === 'object' && breastImg[options.breast_size] !== null)
-				breastImg = 1;
+			const breastAccImg = options[`${worn}_setup`].breast_acc_img;
+			const breastImg = options[`${worn}_setup`].breast_img;
+			let breastAcc = 0;
+
+			if (breastAccImg === 1 && typeof breastImg === 'object' && breastImg[options.breast_size] !== null)
+				breastAcc = 1;
+			else if (typeof breastAccImg === 'object' && options[`${worn}_setup`].breast_acc_img[options.breast_size] !== null)
+				breastAcc = 1;
+
 			return options.show_clothes
 				&& options[worn] > 0
-				&& options[`${worn}_setup`].breast_acc_img === 1
-				&& breastImg === 1;
+				&& breastAcc === 1
 		},
 	}, overrideOptions));
 }
