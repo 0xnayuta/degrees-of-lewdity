@@ -796,10 +796,10 @@ namespace Renderer {
 				combinedCtx.fillRect(0, 0, combinedCtx.canvas.width, combinedCtx.canvas.height);
 				combinedCtx.globalCompositeOperation = 'destination-in';
 				layer.mask.forEach(mask => {
-					if(!mask) return Renderer.ensureCanvas(image).getContext('2d').canvas;
+					if (!mask) return Renderer.ensureCanvas(image).getContext('2d').canvas;
 					combinedCtx.drawImage(mask as CanvasImageSource, 0, 0);
 				});
-	
+
 				return Renderer.cutoutFrom(Renderer.ensureCanvas(image).getContext('2d'), combinedCtx.canvas).canvas;
 			} else {
 				return Renderer.cutoutFrom(Renderer.ensureCanvas(image).getContext('2d'), layer.mask as CanvasImageSource).canvas;
@@ -878,8 +878,8 @@ namespace Renderer {
 		const frameWidth = targetWidth / frameCount;
 		const subspriteWidth = layer.width || frameWidth;
 		const subspriteHeight = layer.height || targetHeight;
-		const dx = layer.dx || 0;
-		const dy = layer.dy || 0;
+		const dx = (layer.dx || 0) + (layer.frameDx || 0);
+		const dy = (layer.dy || 0) + (layer.frameDy || 0);
 		const subspriteFrameCount = layerImageWidth / subspriteWidth;
 		return {
 			width: targetWidth,
@@ -993,7 +993,7 @@ namespace Renderer {
 			for (const layer of layers) {
 				if (layer.show !== false && !layer.image) return;
 				if (layer.masksrc && !layer.mask) return;
-				if((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
+				if ((Array.isArray(layer.masksrc) && layer.masksrc.length < 1) && !layer.mask) return;
 			}
 			if (listener && listener.loadingDone) listener.loadingDone(millitime() - t0, layersLoaded);
 			try {
@@ -1037,10 +1037,10 @@ namespace Renderer {
 				if (layer.masksrc == null) return;
 				layer.masksrc = [layer.masksrc];
 			}
-		
+
 			const masksLoaded: (HTMLImageElement | HTMLCanvasElement)[] = [];
 			let masksToLoad = layer.masksrc.length;
-		
+
 			layer.masksrc.forEach((src, index) => {
 				ImageLoader.loadImage(
 					src,
@@ -1048,11 +1048,11 @@ namespace Renderer {
 					(src, layer, image) => {
 						masksLoaded[index] = image;
 						masksToLoad--;
-		
+
 						if (!(src instanceof HTMLCanvasElement)) {
 							ImageCaches[src] = image as HTMLImageElement;
 						}
-		
+
 						if (masksToLoad === 0) {
 							layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
 							layer.cachedMaskSrc = layer.masksrc;
@@ -1366,8 +1366,18 @@ namespace Renderer {
 
 		function applyKeyframe(keyframe: KeyframeSpec, layer: CompositeLayer) {
 			layer.frames = [keyframe.frame];
-			for (let ap of AnimatableProps) {
-				if (ap in keyframe) layer[ap] = keyframe[ap];
+			for (const ap of AnimatableProps) {
+				if (ap in keyframe) {
+					if (ap === "dx") {
+						layer.frameDx = keyframe.dx;
+						continue;
+					}
+					if (ap === "dy") {
+						layer.frameDy = keyframe.dy;
+						continue;
+					}
+					layer[ap] = keyframe[ap];
+				}
 			}
 		}
 
