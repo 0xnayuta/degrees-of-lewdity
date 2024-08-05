@@ -120,6 +120,9 @@ class NpcCanvasHelper {
 				if (penetrator.position === "chest") {
 					return `boobjob-${speed}`;
 				}
+				if (penetrator.position === "feet") {
+					return `footjob-${speed}`;
+				}
 				return options.animKey;
 			},
 			dxfn(options) {
@@ -568,3 +571,83 @@ const boobjobVeryFast = {
 	],
 };
 Renderer.Animations["boobjob-vfast"] = boobjobVeryFast;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const footjobIdle = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 1000,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 1000,
+			dx: 4,
+		},
+	],
+};
+Renderer.Animations["footjob-idle"] = footjobIdle;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const footjobMid = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 170,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 2,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 4,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["footjob-mid"] = footjobMid;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const footjobVeryFast = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 80,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 2,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 4,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["footjob-vfast"] = footjobVeryFast;
