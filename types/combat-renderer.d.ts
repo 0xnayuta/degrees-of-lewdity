@@ -11,6 +11,27 @@ declare global {
 
 	export type CombatClothingTypes = "skirt" | "longskirt" | "trousers" | "shorts" | "thighhighs" | "socks";
 
+	export type PenetratorTypes = "human" | "strapon" | "knotted" | "equine" | "feline" | "sus";
+
+	export type PenetratorPositions = "vagina" | "anus" | "butt" | "thighs" | "chest" | "chest" | "mouth" | "leftarm" | "rightarm" | "feet" | "penis";
+
+	export type NpcStates = PenetratorPositions;
+
+	export type PenetratorStates = "penetrating" | "imminent" | "entrance" | "rubbing";
+
+	export interface Penetrator {
+		type: PenetratorTypes;
+		size: number;
+		colour: string;
+		target: number;
+		position: PenetratorPositions?;
+		state: PenetratorStates?;
+		isEjaculating: boolean;
+		ejaculate: Ejaculate;
+		hasCondom: boolean;
+		show: boolean;
+	}
+
 	export interface ClothingRendererStepState {
 		layered?: boolean;
 		legged?: boolean;

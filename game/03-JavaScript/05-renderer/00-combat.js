@@ -1,4 +1,5 @@
 // @ts-check
+/* globals Partial, PenetratorPositions */
 
 setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles"];
 setup.positions = [0, "doggy", "missionary", "wall", "stalk", "wall"];
@@ -40,7 +41,7 @@ class CombatSystem {
 
 	/**
 	 * @param {number} index
-	 * @param {string} position
+	 * @param {PenetratorPositions?} position
 	 */
 	penetratorCountBefore(index, position) {
 		let count = 0;
@@ -186,6 +187,317 @@ class CombatSystem {
 	isFeetActive() {
 		const activeUse = V.feetstate && ["penis"].includes(V.feetstate);
 		return !!activeUse;
+	}
+
+	/**
+	 * @returns {Partial<Penetrator>}
+	 */
+	getPlayerPenetratorState() {
+		switch (V.penisuse) {
+			case 1:
+			case 0:
+				return {};
+			case "anusentrance":
+				return {
+					position: "anus",
+					state: "entrance",
+				};
+			case "anusentrancedouble":
+				return {
+					position: "anus",
+					state: "entrance",
+				};
+			case "anus":
+				return {
+					position: "anus",
+					state: "penetrating",
+				};
+			case "anusdouble":
+				return {
+					position: "anus",
+					state: "penetrating",
+				};
+			case "penisentrance":
+				return {
+					position: "penis",
+					state: "entrance",
+				};
+			case "penisimminent":
+				return {
+					position: "penis",
+					state: "imminent",
+				};
+			case "penis":
+				return {
+					position: "penis",
+					state: "rubbing",
+				};
+			case "othervagina":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrance":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrancedouble":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaimminent":
+				return {
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vaginaimminentdouble":
+				return {
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vagina":
+				return {
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "vaginadouble":
+				return {
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "mouthentrance":
+				return {
+					position: "mouth",
+					state: "entrance",
+				};
+			case "mouthimminent":
+				return {
+					position: "mouth",
+					state: "imminent",
+				};
+			case "mouth":
+				return {
+					position: "mouth",
+					state: "penetrating",
+				};
+			case "othermouth": // "Wraps its tongue around your penis"
+				return {
+					position: "mouth",
+					state: "entrance",
+				};
+			case "feet":
+				return {
+					position: "feet",
+					state: "rubbing",
+				};
+			case "footjob": // Duplicate of feet
+				return {
+					position: "feet",
+					state: "rubbing",
+				};
+			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
+				return {};
+			case "leftarm":
+				return {
+					position: "leftarm",
+					state: "rubbing",
+				};
+			case "rightarm":
+				return {
+					position: "rightarm",
+					state: "rubbing",
+				};
+			case "thighs":
+				return {
+					position: "thighs",
+					state: "rubbing",
+				};
+			case "cheeks":
+				return {
+					position: "butt",
+					state: "rubbing",
+				};
+			case "chest":
+				return {
+					position: "chest",
+					state: "rubbing",
+				};
+			case "tentacle":
+				return {
+					position: "penis", // May want to have tentacle as a position??
+					state: "rubbing", // Tentacles could be penetratable??
+				};
+			// case "leftDildoAnus":
+			// case "rightDildoAnus":
+			// case "leftStroker":
+			// case "rightStroker":
+			// case "strap-on":
+			// case "mouthotheranus": (wtf is this?)
+			// case "idle": (Pointless to account for this)
+			// case "none": (No pp)
+		}
+		return {};
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {Partial<Penetrator>}
+	 */
+	getNpcPenetratorState(npc) {
+		switch (npc.penis) {
+			case "anusentrance":
+				return {
+					show: true,
+					position: "anus",
+					state: "entrance",
+				};
+			case "anusentrancedouble":
+				return {
+					show: true,
+					position: "anus",
+					state: "entrance",
+				};
+			case "anus":
+				return {
+					show: true,
+					position: "anus",
+					state: "penetrating",
+				};
+			case "anusdouble":
+				return {
+					show: true,
+					position: "anus",
+					state: "penetrating",
+				};
+			case "penisentrance":
+				return {
+					show: true,
+					state: "entrance",
+				};
+			case "penisimminent":
+				return {
+					show: true,
+					state: "imminent",
+				};
+			case "penis":
+				return {};
+			case "vaginaentrance":
+				return {
+					show: true,
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrancedouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaimminent":
+				return {
+					show: true,
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vaginaimminentdouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vagina":
+				return {
+					show: true,
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "vaginadouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "mouthentrance":
+				return {
+					show: true,
+					position: "mouth",
+					state: "entrance",
+				};
+			case "mouthimminent":
+				return {
+					show: true,
+					position: "mouth",
+					state: "imminent",
+				};
+			case "mouth":
+				return {
+					show: true,
+					position: "mouth",
+					state: "penetrating",
+				};
+			case "othermouth":
+				// Not sure of the usage?
+				// Maybe it shouldn't be part of npc.penis
+				return {};
+			case "feet":
+				return {
+					show: true,
+					position: "feet",
+					state: "rubbing",
+				};
+			case "footjob": // Duplicate of feet
+				return {
+					show: true,
+					position: "feet",
+					state: "rubbing",
+				};
+			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
+				return {
+					// For position, we may need to iterate every player position to figure this out.
+					state: "entrance",
+				};
+			case "leftarm":
+				return {
+					show: true,
+					position: "leftarm",
+					state: "rubbing",
+				};
+			case "rightarm":
+				return {
+					show: true,
+					position: "rightarm",
+					state: "rubbing",
+				};
+			case "thighs":
+				return {
+					show: true,
+					position: "thighs",
+					state: "rubbing",
+				};
+			case "cheeks":
+				return {
+					show: true,
+					position: "butt",
+					state: "rubbing",
+				};
+			case "chest":
+				return {
+					show: true,
+					position: "chest",
+					state: "rubbing",
+				};
+			// case "leftDildoAnus":
+			// case "rightDildoAnus":
+			// case "leftStroker":
+			// case "rightStroker":
+			// case "strap-on":
+			// case "mouthotheranus": (wtf is this?)
+			// case "idle": (Pointless to account for this)
+			// case "none": (No pp)
+		}
+		return {};
 	}
 }
 const combat = new CombatSystem();

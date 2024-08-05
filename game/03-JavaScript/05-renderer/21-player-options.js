@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, CombatClothingTypes, Partial, Record */
+/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, CombatClothingTypes, AnimationSpeed, LegPositions */
 
 /**
  * @typedef CombatPlayerOptions
@@ -15,6 +15,7 @@
  * @property {number} animSpeed The global speed to play animations.
  * Computed
  * @property {string} src The computed directory path for the position.
+ * @property {string} speed The speed used for animation keyframes.
  * @property {string} animKey The key used for fetching the animation configuration.
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
  * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
@@ -27,8 +28,8 @@
  * @property {string} hairLength The named stage of the hair length.
  * @property {string} leftEye
  * @property {string} rightEye
- * @property {"up" | "down" | "footjob"} legBackPosition The position the back leg is in.
- * @property {"up" | "down" | "footjob"} legFrontPosition The position the front leg is in.
+ * @property {LegPositions} legBackPosition The position the back leg is in.
+ * @property {LegPositions} legFrontPosition The position the front leg is in.
  * @property {"default" | "bound" | "handjob"} armBackPosition The position the back arm is in.
  * @property {"default" | "bound" | "handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
@@ -41,7 +42,7 @@
  * @property {Machines} machines
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
- * @property {Record<string, TransformationOptions>} transformations
+ * @property {Dict<TransformationOptions>} transformations
  */
 
 /**
@@ -320,7 +321,9 @@ class PlayerCombatMapper {
 
 		this.mapToTransformationOptions(options);
 
-		options.penetrator = this.mapPcToPenetratorOptions(V.player, options);
+		if (V.player.penisExist) {
+			options.penetrator = this.mapPcToPenetratorOptions(V.player, options);
+		}
 
 		this.generateBodyFilters(options);
 
@@ -340,9 +343,10 @@ class PlayerCombatMapper {
 		this.mapToTentacleOptions(options);
 
 		// Set animation speed
-		options.animKey = this.getPcAnimationSpeed(options);
-		options.animKeyStill = this.getPcAnimationSpeed(options);
+		options.animKey = this.getPcAnimation(options);
+		options.animKeyStill = this.getPcAnimation(options);
 		options.machineAnimKey = this.getMachineAnimationSpeed(options);
+		options.speed = this.getPcAnimationSpeed(options);
 
 		console.debug("===============================================");
 		console.debug("=============== Player Options: ===============");
@@ -356,20 +360,53 @@ class PlayerCombatMapper {
 	 * @param {CombatPlayerOptions} options
 	 * @returns {string}
 	 */
+	static getPcAnimation(options) {
+		const speed = this.getPcAnimationSpeed(options);
+		const frames = this.getPcAnimationFrameCount(options);
+		if (options.props.semenTank.show || options.props.milkTank.show) {
+			return `sex-${frames}f-${speed}`;
+		}
+		if (combat.isActive()) {
+			return `sex-${frames}f-${speed}`;
+		}
+		return `sex-${frames}f-${speed}`;
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
+	 * @returns {number}
+	 */
+	static getPcAnimationFrameCount(options) {
+		if (T.crOverrides?.animFrames) {
+			return T.crOverrides.animFrames;
+		}
+		if (options.props.semenTank.show || options.props.milkTank.show) {
+			return 2;
+		}
+		if (combat.isActive()) {
+			return 4;
+		}
+		return 2;
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
+	 * @returns {AnimationSpeed}
+	 */
 	static getPcAnimationSpeed(options) {
 		if (T.crOverrides?.animSpeed) {
 			return T.crOverrides.animSpeed;
 		}
 		if (options.props.semenTank.show || options.props.milkTank.show) {
-			return "sex-2f-idle";
+			return "idle";
 		}
 		if (combat.isRapid()) {
-			return "sex-4f-vfast";
+			return "vfast";
 		}
 		if (combat.isActive()) {
-			return "sex-4f-mid";
+			return "mid";
 		}
-		return "sex-2f-idle";
+		return "idle";
 	}
 
 	/**
@@ -814,128 +851,14 @@ class PlayerCombatMapper {
 			ejaculate: {
 				type: "sperm",
 			},
-			position: "default",
-			state: "default",
+			position: null,
+			state: null,
 			hasCondom: false,
 		};
-		switch (V.penisuse) {
-			case 1:
-			case 0:
-				penetrator.position = "default";
-				penetrator.state = "default";
-				return penetrator;
-			case "anusentrance":
-				penetrator.position = "anus";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "anusentrancedouble":
-				penetrator.position = "anus";
-				penetrator.state = "entrancedouble";
-				return penetrator;
-			case "anus":
-				penetrator.position = "anus";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "anusdouble":
-				penetrator.position = "anus";
-				penetrator.state = "penetrateddouble";
-				return penetrator;
-			case "penisentrance":
-				return null;
-			case "penisimminent":
-				return null;
-			case "penis":
-				return null;
-			case "othervagina":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaentrance":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaentrancedouble":
-				penetrator.position = "vagina";
-				penetrator.state = "entrancedouble";
-				return penetrator;
-			case "vaginaimminent":
-				penetrator.position = "vagina";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "vaginaimminentdouble":
-				penetrator.position = "vagina";
-				penetrator.state = "imminentdouble";
-				return penetrator;
-			case "vagina":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "vaginadouble":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrateddouble";
-				return penetrator;
-			case "mouthentrance":
-				penetrator.position = "mouth";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "mouthimminent":
-				penetrator.position = "mouth";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "mouth":
-				penetrator.position = "mouth";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "othermouth": // "Wraps its tongue around your penis"
-				penetrator.position = "mouth";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "feet":
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "footjob": // Duplicate of feet
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "leftarm":
-				penetrator.position = "leftarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "rightarm":
-				penetrator.position = "rightarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "thighs":
-				penetrator.position = "thighs";
-				penetrator.state = "thighjob";
-				return penetrator;
-			case "cheeks":
-				penetrator.position = "butt";
-				penetrator.state = "buttjob";
-				return penetrator;
-			case "chest":
-				penetrator.position = "chest";
-				penetrator.state = "titjob";
-				return penetrator;
-			case "tentacle":
-				penetrator.position = "tentacle";
-				penetrator.state = "tentacle";
-				return penetrator;
-			// case "leftDildoAnus":
-			// case "rightDildoAnus":
-			// case "leftStroker":
-			// case "rightStroker":
-			// case "strap-on":
-			// case "mouthotheranus": (wtf is this?)
-			// case "idle": (Pointless to account for this)
-			// case "none": (No pp)
-		}
-		return null;
+
+		Object.assign(penetrator, combat.getPlayerPenetratorState());
+
+		return penetrator;
 	}
 
 	/**
@@ -1403,11 +1326,11 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.backThigh = getState("right_thigh", (id, bodywriting) => {
+				options.bodywriting.backThigh = getState("left_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						let type = id;
-						if (["up", "down"].includes(options.legFrontPosition)) {
-							type += "-" + options.legFrontPosition;
+						if (["up", "down"].includes(options.legBackPosition)) {
+							type += "-" + options.legBackPosition;
 						}
 						if (bodywriting.arrow === 1) {
 							type += "-arrow";
@@ -1427,11 +1350,14 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.frontThigh = getState("left_thigh", (id, bodywriting) => {
+				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						let type = id;
-						if (["up", "down"].includes(options.legFrontPosition)) {
+						if (options.legFrontPosition === "down") {
 							type += "-" + options.legFrontPosition;
+						}
+						if (options.legFrontPosition === "footjob") {
+							type += "-" + "up";
 						}
 						if (bodywriting.arrow === 1) {
 							type += "-arrow";

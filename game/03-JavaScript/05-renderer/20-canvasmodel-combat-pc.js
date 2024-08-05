@@ -53,7 +53,8 @@ const combatMainPc = {
 		 */
 		frameCount: {
 			srcfn(options) {
-				return `${options.root}${options.animKey.includes("4f") ? "4f" : "2f"}.png`;
+				const frames = PlayerCombatMapper.getPcAnimationFrameCount(options);
+				return `${options.root}${frames}f.png`;
 			},
 			showfn(options) {
 				return options.isDebugging;

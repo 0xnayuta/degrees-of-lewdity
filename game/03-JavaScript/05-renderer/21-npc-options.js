@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CharacterTypes */
+/* globals CombatRenderer, CharacterTypes, NpcStates, AnimationSpeed */
 
 /**
  * @typedef NpcOptions
@@ -9,13 +9,14 @@
  * @property {"missionary" | "doggy"} position
  * @property {"shadow" | "beast"} category
  * @property {CharacterTypes} type
- * @property {Colour} colour
- * @property {string} state
- * @property {boolean} show
  * @property {Penetrator[]} penetrators
+ * @property {Balls} balls
+ * @property {boolean} show
+ * @property {NpcStates?} state
+ * @property {Colour} colour
+ * @property {AnimationSpeed} speed
  * @property {string} animKey
  * @property {string} animKeyStill
- * @property {Balls} balls
  */
 
 /**
@@ -23,20 +24,6 @@
  * @property {boolean} hasBalls
  * @property {string=} type
  * @property {number=} size
- */
-
-/**
- * @typedef Penetrator
- * @property {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"} type
- * @property {number} size
- * @property {string} colour
- * @property {number} target PC is -1. NPCs are 0 to 5.
- * @property {string} position Area that the penetrator is in.
- * @property {string} state What it is doing in the position.
- * @property {boolean} isEjaculating Whether the penetrator is ejaculating.
- * @property {Ejaculate} ejaculate The type of ejaculate.
- * @property {boolean} hasCondom Whether the penetrator is wrapped in a condom.
- * @property {boolean} show Whether to render the penetrator.
  */
 
 /**
@@ -84,14 +71,15 @@ class NpcCombatMapper {
 		const npc = V.NPCList[index];
 		options.category = beastModels.includes(npc.type) ? "beast" : "shadow";
 		options.type = npc.type;
-		options.state = "default";
+		options.state = null;
 		options.show = false;
 
 		this.mapNpcToBodyOptions(index, npc, options);
 
 		// Set animation speed
-		options.animKey = this.getNpcAnimationSpeed();
-		options.animKeyStill = this.getNpcAnimationSpeed();
+		options.animKey = this.getNpcAnimation();
+		options.animKeyStill = this.getNpcAnimation();
+		options.speed = this.getNpcAnimationSpeed();
 
 		return options;
 	}
@@ -99,17 +87,42 @@ class NpcCombatMapper {
 	/**
 	 * @returns {string}
 	 */
+	static getNpcAnimation() {
+		const speed = this.getNpcAnimationSpeed();
+		const frames = this.getNpcAnimationFrameCount();
+		if (combat.isActive()) {
+			return `sex-${frames}f-${speed}`;
+		}
+		return `sex-${frames}f-${speed}`;
+	}
+
+	/**
+	 * @returns {number}
+	 */
+	static getNpcAnimationFrameCount() {
+		if (T.crOverrides?.animFrames) {
+			return T.crOverrides.animFrames;
+		}
+		if (combat.isActive()) {
+			return 4;
+		}
+		return 2;
+	}
+
+	/**
+	 * @returns {AnimationSpeed}
+	 */
 	static getNpcAnimationSpeed() {
 		if (T.crOverrides?.animSpeed) {
 			return T.crOverrides.animSpeed;
 		}
 		if (combat.isRapid()) {
-			return "sex-4f-vfast";
+			return "vfast";
 		}
 		if (combat.isActive()) {
-			return "sex-4f-mid";
+			return "mid";
 		}
-		return "sex-2f-idle";
+		return "idle";
 	}
 
 	/**
@@ -133,20 +146,16 @@ class NpcCombatMapper {
 
 			if (options.category === "beast") {
 				if (["horse", "centaur"].includes(npc.type)) {
-					const isPenetrating = [V.anusstate, V.vaginastate].includes("penetrated");
-					options.state = isPenetrating ? "over-penetrated" : "over-default";
 					options.show = true;
 					return options;
 				}
 
 				if (npc.stance === "top") {
-					options.state = "over-default";
-					options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
+					options.show = penetrator.position != null && ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
 					return options;
 				}
 
 				if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
-					options.state = "front-default";
 					options.show = true;
 					return options;
 				}
@@ -163,15 +172,17 @@ class NpcCombatMapper {
 				options.state += "-double";
 				penetrator.state += "-double";
 			}
+
 			// Figure out whether to show the shadow man or not:
-			options.show = ["vagina", "anus", "mouth"].includes(penetrator.position);
+			options.show = penetrator.position != null && ["vagina", "anus", "mouth"].includes(penetrator.position);
 
 			return options;
 		}
+
 		// Since no penetrator exists on the NPC, check for their other states
 		// WHY IS ANAL LIKE THIS
 		if (typeof npc.penis === "string" && ["otheranusfrot", "otheranusentrance", "otheranusimminent", "otheranus"].includes(npc.penis)) {
-			options.state = options.category === "shadow" ? "default" : "under-default";
+			// options.state = options.category === "shadow" ? "default" : "under-default";
 			options.show = true;
 			return options;
 		}
@@ -189,9 +200,10 @@ class NpcCombatMapper {
 					break;
 			}
 		}
+
 		// Primary for being pinned:
 		if (npc.stance === "top") {
-			options.state = options.category === "shadow" ? "default" : "over-default";
+			// options.state = options.category === "shadow" ? "default" : "over-default";
 			options.show = true;
 			return options;
 		}
@@ -227,7 +239,7 @@ class NpcCombatMapper {
 
 		/** @type {Penetrator} */
 		const penetrator = {
-			show: true,
+			show: false,
 			type: getPenetratorType(npc),
 			colour: npc.skincolour,
 			target: combat.target.pc,
@@ -236,10 +248,12 @@ class NpcCombatMapper {
 				type: "sperm",
 			},
 			size: 0,
-			position: "default",
-			state: "default",
+			position: null,
+			state: null,
 			hasCondom: false,
 		};
+
+		Object.assign(penetrator, combat.getNpcPenetratorState(npc));
 
 		// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
 		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
@@ -252,114 +266,15 @@ class NpcCombatMapper {
 			if (options.position === "missionary") {
 				return null;
 			}
-			penetrator.position = "default";
-			penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrated" : "entrance";
+			penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrating" : "entrance";
 			return penetrator;
 		}
 
-		switch (npc.penis) {
-			case "anusentrance":
-				penetrator.position = "anus";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "anusentrancedouble":
-				penetrator.position = "anus";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "anus":
-				penetrator.position = "anus";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "anusdouble":
-				penetrator.position = "anus";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "penisentrance":
-				return null;
-			case "penisimminent":
-				return null;
-			case "penis":
-				return null;
-			case "vaginaentrance":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaentrancedouble":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaimminent":
-				penetrator.position = "vagina";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "vaginaimminentdouble":
-				penetrator.position = "vagina";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "vagina":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "vaginadouble":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "mouthentrance":
-				penetrator.position = "mouth";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "mouthimminent":
-				penetrator.position = "mouth";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "mouth":
-				penetrator.position = "mouth";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "othermouth":
-				// Not sure of the usage?
-				// Maybe it shouldn't be part of npc.penis
-				return null;
-			case "feet":
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "footjob": // Duplicate of feet
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-				return null;
-			case "leftarm":
-				penetrator.position = "leftarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "rightarm":
-				penetrator.position = "rightarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "thighs":
-				penetrator.position = "thighs";
-				penetrator.state = "thighjob";
-				return penetrator;
-			case "cheeks":
-				penetrator.position = "butt";
-				penetrator.state = "buttjob";
-				return penetrator;
-			case "chest":
-				penetrator.position = "chest";
-				penetrator.state = "titjob";
-				return penetrator;
-			// case "leftDildoAnus":
-			// case "rightDildoAnus":
-			// case "leftStroker":
-			// case "rightStroker":
-			// case "strap-on":
-			// case "mouthotheranus": (wtf is this?)
-			// case "idle": (Pointless to account for this)
-			// case "none": (No pp)
+		if (!penetrator.show) {
+			return null;
 		}
-		return null;
+
+		return penetrator;
 	}
 }
 window.NpcCombatMapper = NpcCombatMapper;

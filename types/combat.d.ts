@@ -129,10 +129,13 @@ declare global {
 
 	export type LegPositions = "up" | "down" | "footjob";
 
+	export type AnimationSpeed = "vfast" | "fast" | "mid" | "slow" | "idle";
+
 	export interface CombatRendererOverrides {
 		legBackPosition?: LegPositions;
 		legFrontPosition?: LegPositions;
-		animSpeed?: string;
+		animSpeed?: AnimationSpeed;
+		animFrames?: number;
 	}
 
 	export interface TentacleState {
