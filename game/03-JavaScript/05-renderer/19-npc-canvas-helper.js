@@ -91,8 +91,11 @@ class NpcCanvasHelper {
 				if (penetrator.position === "thighs") {
 					return 30;
 				}
-				if (penetrator.position === "leftarm") {
-					return 46; // Behind the Z index of PC's "backarm"
+				if (options.position === "doggy" && penetrator.position === "rightarm") {
+					return CombatRenderer.indices.backArm - 1;
+				}
+				if (options.position === "missionary" && penetrator.position === "leftarm") {
+					return CombatRenderer.indices.backArm - 1;
 				}
 				if (penetrator.position === "mouth" && penetrator.state !== "penetrating") {
 					return CombatRenderer.indices.head + 1; // Put in front of head
