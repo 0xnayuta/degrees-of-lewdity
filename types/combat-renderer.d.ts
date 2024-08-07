@@ -82,6 +82,14 @@ declare global {
 		dxfn?(options: T): number;
 		dy?: number;
 		dyfn?(options: T): number;
+		/**
+		 * Set in the renderer by each keyframe. Used in conjunction with dx to calculate position of the layer per frame.
+		 */
+		frameDx?: number;
+		/**
+		 * Set in the renderer by each keyframe. Used in conjunction with dx to calculate position of the layer per frame.
+		 */
+		frameDy?: number;
 		width?: number;
 		widthfn?(options: T): number;
 		height?: number;

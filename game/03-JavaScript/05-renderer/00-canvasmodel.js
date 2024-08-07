@@ -240,6 +240,8 @@ class CanvasModel {
 			// Reset some options
 			layer.brightness = layer.defaultOptions.brightness;
 			layer.contrast = layer.defaultOptions.contrast;
+			layer.frameDx = 0;
+			layer.frameDy = 0;
 		}
 
 		function propeval(layer, propname) {

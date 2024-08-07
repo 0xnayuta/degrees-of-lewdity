@@ -33,7 +33,7 @@ declare module "twine-sugarcube" {
 		chestuse: number;
 		cheststate: string | 0;
 		feettarget: number;
-		feetuse: string | 0;
+		feetuse: "penis" | 0;
 		feetstate: string | 0;
 		handtarget: number;
 		handuse: number;
@@ -54,7 +54,7 @@ declare module "twine-sugarcube" {
 		stealuse: number;
 		stealstate: string | 0;
 		thightarget: number;
-		thighuse: number;
+		thighuse: "penis" | 0;
 		thighstate: string | 0;
 		tooltarget: number;
 		tooluse: number;
