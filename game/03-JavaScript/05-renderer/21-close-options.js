@@ -1,4 +1,5 @@
 // @ts-check
+// Someone needs to fix the close options code, it is shit.
 /* global CombatRenderer, PlayerCombatMapper */
 
 /**
