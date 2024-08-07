@@ -173,6 +173,7 @@ class CombatSystem {
 
 	isChestActive(canvas) {
 		const activeUse = V.cheststate && ["penis"].includes(V.cheststate);
+		// Why is this canvas argument here?
 		if (canvas === "close" && V.cheststate && ["penis", "tentacle"].includes(V.cheststate)) {
 			return true;
 		}
@@ -180,12 +181,12 @@ class CombatSystem {
 	}
 
 	isThighActive() {
-		const activeUse = V.thighstate && ["penis"].includes(V.thighstate);
+		const activeUse = V.thighuse === "penis";
 		return !!activeUse;
 	}
 
 	isFeetActive() {
-		const activeUse = V.feetstate && ["penis"].includes(V.feetstate);
+		const activeUse = V.feetuse === "penis";
 		return !!activeUse;
 	}
 
