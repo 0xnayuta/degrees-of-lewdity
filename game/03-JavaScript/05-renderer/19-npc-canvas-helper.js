@@ -111,6 +111,9 @@ class NpcCanvasHelper {
 				if (penetrator == null) {
 					return options.animKey;
 				}
+				if (options.position === "missionary" && penetrator.position === "vagina") {
+					return `vagina-doggy-${speed}`;
+				}
 				if (penetrator.position != null && ["vagina", "anus", "thighs"].includes(penetrator.position)) {
 					return `equal-oscillation-${speed}`;
 				}
@@ -729,3 +732,83 @@ const backHandjobVeryFast = {
 	],
 };
 Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const vaginaDoggyIdle = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 2000,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 2000,
+			dx: 4,
+		},
+	],
+};
+Renderer.Animations["vagina-doggy-idle"] = vaginaDoggyIdle;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const vaginaDoggyMid = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 170,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 2,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 4,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["vagina-doggy-mid"] = vaginaDoggyMid;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const vaginaDoggyVeryFast = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 80,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 2,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 4,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["vagina-doggy-vfast"] = vaginaDoggyVeryFast;
