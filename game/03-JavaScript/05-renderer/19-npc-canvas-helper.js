@@ -126,6 +126,9 @@ class NpcCanvasHelper {
 				if (penetrator.position === "feet") {
 					return `footjob-${speed}`;
 				}
+				if (penetrator.position === "rightarm") {
+					return `back-handjob-${speed}`;
+				}
 				return options.animKey;
 			},
 			dxfn(options) {
@@ -654,3 +657,75 @@ const footjobVeryFast = {
 	],
 };
 Renderer.Animations["footjob-vfast"] = footjobVeryFast;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const backHandjobIdle = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 1000,
+		},
+		{
+			frame: 0,
+			duration: 1000,
+		},
+	],
+};
+Renderer.Animations["back-handjob-idle"] = backHandjobIdle;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const backHandjobMid = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 170,
+		},
+		{
+			frame: 0,
+			duration: 170,
+		},
+		{
+			frame: 0,
+			duration: 170,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["back-handjob-mid"] = backHandjobMid;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const backHandjobVeryFast = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 80,
+		},
+		{
+			frame: 0,
+			duration: 80,
+		},
+		{
+			frame: 0,
+			duration: 80,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 2,
+		},
+	],
+};
+Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
