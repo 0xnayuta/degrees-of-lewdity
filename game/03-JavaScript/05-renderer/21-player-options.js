@@ -363,12 +363,6 @@ class PlayerCombatMapper {
 	static getPcAnimation(options) {
 		const speed = this.getPcAnimationSpeed(options);
 		const frames = this.getPcAnimationFrameCount(options);
-		if (options.props.semenTank.show || options.props.milkTank.show) {
-			return `sex-${frames}f-${speed}`;
-		}
-		if (combat.isActive()) {
-			return `sex-${frames}f-${speed}`;
-		}
 		return `sex-${frames}f-${speed}`;
 	}
 
