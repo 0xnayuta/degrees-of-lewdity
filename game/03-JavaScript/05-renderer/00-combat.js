@@ -360,6 +360,12 @@ class CombatSystem {
 					position: "anus",
 					state: "entrance",
 				};
+			case "anusimminent":
+				return {
+					show: true,
+					position: "anus",
+					state: "imminent",
+				};
 			case "anus":
 				return {
 					show: true,
