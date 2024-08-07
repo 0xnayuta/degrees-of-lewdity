@@ -172,7 +172,7 @@ class CombatSystem {
 	}
 
 	isChestActive(canvas) {
-		const activeUse = V.cheststate && ["penis"].includes(V.cheststate);
+		const activeUse = V.chestuse === "penis";
 		// Why is this canvas argument here?
 		if (canvas === "close" && V.cheststate && ["penis", "tentacle"].includes(V.cheststate)) {
 			return true;
@@ -379,15 +379,9 @@ class CombatSystem {
 					state: "penetrating",
 				};
 			case "penisentrance":
-				return {
-					show: true,
-					state: "entrance",
-				};
+				return {};
 			case "penisimminent":
-				return {
-					show: true,
-					state: "imminent",
-				};
+				return {};
 			case "penis":
 				return {};
 			case "vaginaentrance":
@@ -461,10 +455,7 @@ class CombatSystem {
 					state: "rubbing",
 				};
 			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-				return {
-					// For position, we may need to iterate every player position to figure this out.
-					state: "entrance",
-				};
+				return {};
 			case "leftarm":
 				return {
 					show: true,

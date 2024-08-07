@@ -74,20 +74,26 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
-				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
+				if (penetrator == null || !penetrator.show) {
+					return "";
+				}
 				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}.png`;
 				return path;
 			},
 			showfn(options) {
-				if (options.penetrators.length <= 0) return false;
 				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return false;
+				}
 				// if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
 				return !!penetrator.show;
 			},
 			zfn(options) {
-				if (options.penetrators.length <= 0) return 0;
 				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return 0;
+				}
 				if (penetrator.position === "thighs") {
 					return 30;
 				}
@@ -112,7 +118,7 @@ class NpcCanvasHelper {
 					return options.animKey;
 				}
 				if (options.position === "missionary" && penetrator.position === "vagina") {
-					return `vagina-doggy-${speed}`;
+					return `vagina-missionary-${speed}`;
 				}
 				if (penetrator.position != null && ["vagina", "anus", "thighs"].includes(penetrator.position)) {
 					return `equal-oscillation-${speed}`;
@@ -194,14 +200,18 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
-				if (options.penetrators.length <= 0) return "";
 				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return "";
+				}
 				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-${penetrator.ejaculate.type}.png`;
 				return path;
 			},
 			showfn(options) {
-				if (options.penetrators.length <= 0) return false;
 				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return false;
+				}
 				const result = penetrator.show && penetrator.isEjaculating;
 				return !!result;
 			},
@@ -209,8 +219,10 @@ class NpcCanvasHelper {
 				return options.animKey;
 			},
 			zfn(options) {
-				if (options.penetrators.length <= 0) return 0;
 				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return 0;
+				}
 				if (penetrator.position === "thighs") {
 					return 32;
 				}
@@ -736,7 +748,7 @@ Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
 /**
  * @type {KeyframeAnimationSpec}
  */
-const vaginaDoggyIdle = {
+const vaginaMissionaryIdle = {
 	frameCount: 4,
 	keyframes: [
 		{
@@ -751,12 +763,12 @@ const vaginaDoggyIdle = {
 		},
 	],
 };
-Renderer.Animations["vagina-doggy-idle"] = vaginaDoggyIdle;
+Renderer.Animations["vagina-missionary-idle"] = vaginaMissionaryIdle;
 
 /**
  * @type {KeyframeAnimationSpec}
  */
-const vaginaDoggyMid = {
+const vaginaMissionaryMid = {
 	frameCount: 4,
 	keyframes: [
 		{
@@ -781,12 +793,12 @@ const vaginaDoggyMid = {
 		},
 	],
 };
-Renderer.Animations["vagina-doggy-mid"] = vaginaDoggyMid;
+Renderer.Animations["vagina-missionary-mid"] = vaginaMissionaryMid;
 
 /**
  * @type {KeyframeAnimationSpec}
  */
-const vaginaDoggyVeryFast = {
+const vaginaMissionaryVeryFast = {
 	frameCount: 4,
 	keyframes: [
 		{
@@ -811,4 +823,4 @@ const vaginaDoggyVeryFast = {
 		},
 	],
 };
-Renderer.Animations["vagina-doggy-vfast"] = vaginaDoggyVeryFast;
+Renderer.Animations["vagina-missionary-vfast"] = vaginaMissionaryVeryFast;

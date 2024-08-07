@@ -142,7 +142,9 @@ class NpcCombatMapper {
 			options.penetrators.push(penetrator);
 
 			// Figure out which shadow base to use from penetrator:
-			options.state = penetrator.position;
+			if (penetrator.position != null) {
+				options.state = penetrator.position;
+			}
 
 			if (options.category === "beast") {
 				if (["horse", "centaur"].includes(npc.type)) {
@@ -175,8 +177,20 @@ class NpcCombatMapper {
 
 			// Figure out whether to show the shadow man or not:
 			options.show = penetrator.position != null && ["vagina", "anus", "mouth"].includes(penetrator.position);
+		}
 
-			return options;
+		// Figure out whether the NPC is riding the PC, prepare for combat retardation
+		if (V.penisuse === "otheranus" && V.penistarget === index) {
+			options.show = false;
+			options.state = "penis";
+		}
+		if (V.penisuse === "otherpenis" && V.penistarget === index) {
+			options.show = false;
+			options.state = "penis";
+		}
+		if (V.penisuse === "othervagina" && V.penistarget === index) {
+			options.show = false;
+			options.state = "penis";
 		}
 
 		// Since no penetrator exists on the NPC, check for their other states
@@ -255,8 +269,11 @@ class NpcCombatMapper {
 
 		Object.assign(penetrator, combat.getNpcPenetratorState(npc));
 
+		console.log("npc-penetrator:", penetrator);
+
 		// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
 		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
+			penetrator.show = true;
 			penetrator.position = "mouth";
 			penetrator.state = "entrance";
 			return penetrator;
@@ -266,6 +283,7 @@ class NpcCombatMapper {
 			if (options.position === "missionary") {
 				return null;
 			}
+			penetrator.show = true;
 			penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrating" : "entrance";
 			return penetrator;
 		}

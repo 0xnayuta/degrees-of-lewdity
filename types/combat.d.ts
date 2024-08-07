@@ -30,7 +30,7 @@ declare module "twine-sugarcube" {
 		bottomuse: number;
 		bottomstate: string | 0;
 		chesttarget: number;
-		chestuse: number;
+		chestuse: "penis" | 0;
 		cheststate: string | 0;
 		feettarget: number;
 		feetuse: "penis" | 0;
