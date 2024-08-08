@@ -1,5 +1,5 @@
 // @ts-check
-/* global CanvasModelLayers, KeyframeAnimationSpec, CombatRenderer */
+/* global CanvasModelLayers, KeyframeAnimationSpec, CombatRenderer, KeyframeSpec */
 
 class NpcCanvasHelper {
 	/**
@@ -242,133 +242,116 @@ class NpcCanvasHelper {
 }
 window.NpcCanvasHelper = NpcCanvasHelper;
 
-/*
--idle
-[
-	{
-		frame: 0,
-		duration: 2000,
-	},
-	{
-		frame: 2,
-		duration: 2000,
+/**
+ * @param {number} count
+ * @param {number} duration
+ * @param {number} minX
+ * @param {number} maxX
+ * @param {number} minY
+ * @param {number} maxY
+ * @returns {KeyframeAnimationSpec}
+ */
+function genLinearKeyFrames(count, duration, minX, maxX, minY, maxY) {
+	/** @type {KeyframeAnimationSpec} */
+	const spec = {
+		frameCount: count,
+		keyframes: [],
+	};
+
+	const diffX = maxX - minX;
+	const diffY = maxY - minY;
+
+	for (let i = 0; i < count; i++) {
+		const dX = (i * diffX) / (count - 1);
+		const dY = (i * diffY) / (count - 1);
+		const frame = genKeyFrame(duration, dX, dY);
+		spec.keyframes.push(frame);
 	}
-],
 
--mid
-{
-	frames: 4,
-	duration: 170,
+	return spec;
+}
+window.genLinearKeyFrames = genLinearKeyFrames;
+
+/**
+ * @param {number} duration
+ * @param {number} minX
+ * @param {number} maxX
+ * @param {number} minY
+ * @param {number} maxY
+ * @returns {KeyframeAnimationSpec}
+ */
+function genOffsetFourKeyFrames(duration, minX, maxX, minY, maxY) {
+	const count = 4;
+	/** @type {KeyframeAnimationSpec} */
+	const spec = {
+		frameCount: count,
+		keyframes: [],
+	};
+
+	const diffX = maxX - minX;
+	const dX = diffX / 2;
+	const diffY = maxY - minY;
+	const dY = diffY / 2;
+
+	spec.keyframes.push(genKeyFrame(duration, 0 * dX, 0 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 1 * dX, 1 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 2 * dX, 2 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 1 * dX, 1 * dY));
+
+	return spec;
+}
+window.genOffsetFourKeyFrames = genOffsetFourKeyFrames;
+
+/**
+ * @param {number} duration
+ * @param {number} minX
+ * @param {number} maxX
+ * @param {number} minY
+ * @param {number} maxY
+ * @returns {KeyframeAnimationSpec}
+ */
+function genSkewedFourKeyFrames(duration, minX, maxX, minY, maxY) {
+	const count = 4;
+	/** @type {KeyframeAnimationSpec} */
+	const spec = {
+		frameCount: count,
+		keyframes: [],
+	};
+
+	const diffX = maxX - minX;
+	const dX = diffX / 3;
+	const diffY = maxY - minY;
+	const dY = diffY / 3;
+
+	spec.keyframes.push(genKeyFrame(duration, 0 * dX, 0 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 1 * dX, 1 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 3 * dX, 3 * dY));
+	spec.keyframes.push(genKeyFrame(duration, 2 * dX, 2 * dY));
+
+	return spec;
+}
+window.genSkewedFourKeyFrames = genSkewedFourKeyFrames;
+
+/**
+ * @param {number} duration
+ * @param {number} dx
+ * @param {number} dy
+ * @returns {KeyframeSpec}
+ */
+function genKeyFrame(duration, dx, dy) {
+	return {
+		frame: 0,
+		duration,
+		dx,
+		dy,
+	};
 }
 
--vfast
-{
-	frames: 4,
-	duration: 80,
-}
-*/
+Renderer.Animations["equal-oscillation-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, 0);
+Renderer.Animations["equal-oscillation-mid"] = genOffsetFourKeyFrames(170, 0, 12, 0, 0);
+Renderer.Animations["equal-oscillation-vfast"] = genOffsetFourKeyFrames(80, 0, 12, 0, 0);
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const oscillationIdle = {
-	frameCount: 2,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 12,
-		},
-	],
-};
-Renderer.Animations["equal-oscillation-idle"] = oscillationIdle;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const oscillationMid = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 170,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 6,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 12,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 6,
-		},
-	],
-};
-Renderer.Animations["equal-oscillation-mid"] = oscillationMid;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const oscillationVeryFast = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 80,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 6,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 12,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 6,
-		},
-	],
-};
-Renderer.Animations["equal-oscillation-vfast"] = oscillationVeryFast;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const buttRubbingIdle = {
-	frameCount: 2,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 0,
-			dy: 0,
-		},
-		{
-			frame: 0,
-			duration: 2000,
-			dx: -1,
-			dy: 0,
-		},
-	],
-};
-Renderer.Animations["butt-rubbing-idle"] = buttRubbingIdle;
+Renderer.Animations["butt-rubbing-idle"] = genLinearKeyFrames(2, 2000, 0, -1, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -438,25 +421,7 @@ const buttRubbingVeryFast = {
 };
 Renderer.Animations["butt-rubbing-vfast"] = buttRubbingVeryFast;
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const blowjobIdle = {
-	frameCount: 2,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 12,
-		},
-	],
-};
-Renderer.Animations["blowjob-idle"] = blowjobIdle;
+Renderer.Animations["blowjob-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -518,55 +483,8 @@ const blowjobVeryFast = {
 };
 Renderer.Animations["blowjob-vfast"] = blowjobVeryFast;
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const boobjobIdle = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 1000,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 1000,
-			dx: 4,
-		},
-	],
-};
-Renderer.Animations["boobjob-idle"] = boobjobIdle;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const boobjobMid = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 170,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 8,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 4,
-		},
-	],
-};
-Renderer.Animations["boobjob-mid"] = boobjobMid;
+Renderer.Animations["boobjob-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
+Renderer.Animations["boobjob-mid"] = genOffsetFourKeyFrames(170, 0, 8, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -598,103 +516,11 @@ const boobjobVeryFast = {
 };
 Renderer.Animations["boobjob-vfast"] = boobjobVeryFast;
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const footjobIdle = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 1000,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 1000,
-			dx: 4,
-		},
-	],
-};
-Renderer.Animations["footjob-idle"] = footjobIdle;
+Renderer.Animations["footjob-idle"] = genLinearKeyFrames(2, 1000, 0, 4, 0, 0);
+Renderer.Animations["footjob-mid"] = genOffsetFourKeyFrames(170, 0, 4, 0, 0);
+Renderer.Animations["footjob-vfast"] = genOffsetFourKeyFrames(80, 0, 4, 0, 0);
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const footjobMid = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 170,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 2,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 2,
-		},
-	],
-};
-Renderer.Animations["footjob-mid"] = footjobMid;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const footjobVeryFast = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 80,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 2,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 2,
-		},
-	],
-};
-Renderer.Animations["footjob-vfast"] = footjobVeryFast;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const backHandjobIdle = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 1000,
-		},
-		{
-			frame: 0,
-			duration: 1000,
-		},
-	],
-};
-Renderer.Animations["back-handjob-idle"] = backHandjobIdle;
+Renderer.Animations["back-handjob-idle"] = genLinearKeyFrames(2, 1000, 0, 0, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -750,168 +576,10 @@ const backHandjobVeryFast = {
 };
 Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const vaginaMissionaryIdle = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 4,
-		},
-	],
-};
-Renderer.Animations["vagina-missionary-idle"] = vaginaMissionaryIdle;
+Renderer.Animations["vagina-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
+Renderer.Animations["vagina-missionary-mid"] = genOffsetFourKeyFrames(170, 0, 4, 0, 0);
+Renderer.Animations["vagina-missionary-vfast"] = genOffsetFourKeyFrames(80, 0, 4, 0, 0);
 
-/**
- * @type {KeyframeAnimationSpec}
- */
-const vaginaMissionaryMid = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 170,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 2,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 2,
-		},
-	],
-};
-Renderer.Animations["vagina-missionary-mid"] = vaginaMissionaryMid;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const vaginaMissionaryVeryFast = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 80,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 2,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 2,
-		},
-	],
-};
-Renderer.Animations["vagina-missionary-vfast"] = vaginaMissionaryVeryFast;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const blowjobMissionaryIdle = {
-	frameCount: 2,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 0,
-			dy: 0,
-		},
-		{
-			frame: 0,
-			duration: 2000,
-			dx: 12,
-			dy: -6,
-		},
-	],
-};
-Renderer.Animations["blowjob-missionary-idle"] = blowjobMissionaryIdle;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const blowjobMissionaryMid = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 170,
-			dx: 0,
-			dy: 0,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 4,
-			dy: -2,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 12,
-			dy: -6,
-		},
-		{
-			frame: 0,
-			duration: 170,
-			dx: 8,
-			dy: -4,
-		},
-	],
-};
-Renderer.Animations["blowjob-missionary-mid"] = blowjobMissionaryMid;
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const blowjobMissionaryVeryFast = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 80,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 16,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 6,
-		},
-	],
-};
-Renderer.Animations["blowjob-missionary-vfast"] = blowjobMissionaryVeryFast;
+Renderer.Animations["blowjob-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, -6);
+Renderer.Animations["blowjob-missionary-mid"] = genSkewedFourKeyFrames(170, 0, 12, 0, -6);
+Renderer.Animations["blowjob-missionary-vfast"] = genSkewedFourKeyFrames(80, 0, 12, 0, -6);
