@@ -484,37 +484,8 @@ const blowjobVeryFast = {
 Renderer.Animations["blowjob-vfast"] = blowjobVeryFast;
 
 Renderer.Animations["boobjob-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
-Renderer.Animations["boobjob-mid"] = genOffsetFourKeyFrames(170, 0, 8, 0, 0);
-
-/**
- * @type {KeyframeAnimationSpec}
- */
-const boobjobVeryFast = {
-	frameCount: 4,
-	keyframes: [
-		{
-			frame: 0,
-			duration: 80,
-			dx: 0,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 4,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 16,
-		},
-		{
-			frame: 0,
-			duration: 80,
-			dx: 6,
-		},
-	],
-};
-Renderer.Animations["boobjob-vfast"] = boobjobVeryFast;
+Renderer.Animations["boobjob-mid"] = genSkewedFourKeyFrames(170, 0, 12, 0, 0);
+Renderer.Animations["boobjob-vfast"] = genSkewedFourKeyFrames(80, 0, 12, 0, 0);
 
 Renderer.Animations["footjob-idle"] = genLinearKeyFrames(2, 1000, 0, 4, 0, 0);
 Renderer.Animations["footjob-mid"] = genOffsetFourKeyFrames(170, 0, 4, 0, 0);
