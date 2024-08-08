@@ -1453,8 +1453,8 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.backThigh = getState("left_thigh", simpleText);
-				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
+				options.bodywriting.backThigh = getState("right_thigh", simpleText);
+				options.bodywriting.frontThigh = getState("left_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
