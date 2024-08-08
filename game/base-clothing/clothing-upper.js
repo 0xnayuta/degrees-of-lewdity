@@ -68,6 +68,7 @@ function initUpper() {
 			variable: "sundress",
 			combat: {
 				hasBreasts: true,
+				hasSleeves: true,
 			},
 			integrity: 100,
 			integrity_max: 100,

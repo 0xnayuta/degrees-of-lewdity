@@ -266,7 +266,7 @@ declare global {
 			name: string;
 			variable: string;
 		}[];
-		breast_acc_img?: 0 | 1;
+		breast_acc_img?: object | 1 | 0;
 		accImage?: 0 | 1;
 		breast_combat?: 0 | 1;
 		anal_shield?: 0 | 1 | null;
