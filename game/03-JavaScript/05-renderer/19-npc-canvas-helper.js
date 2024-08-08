@@ -117,8 +117,13 @@ class NpcCanvasHelper {
 				if (penetrator == null) {
 					return options.animKey;
 				}
-				if (options.position === "missionary" && penetrator.position === "vagina") {
-					return `vagina-missionary-${speed}`;
+				if (options.position === "missionary") {
+					switch (penetrator.position) {
+						case "vagina":
+							return `vagina-missionary-${speed}`;
+						case "mouth":
+							return `blowjob-missionary-${speed}`;
+					}
 				}
 				if (penetrator.position != null && ["vagina", "anus", "thighs"].includes(penetrator.position)) {
 					return `equal-oscillation-${speed}`;
@@ -824,3 +829,89 @@ const vaginaMissionaryVeryFast = {
 	],
 };
 Renderer.Animations["vagina-missionary-vfast"] = vaginaMissionaryVeryFast;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const blowjobMissionaryIdle = {
+	frameCount: 2,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 2000,
+			dx: 0,
+			dy: 0,
+		},
+		{
+			frame: 0,
+			duration: 2000,
+			dx: 12,
+			dy: -6,
+		},
+	],
+};
+Renderer.Animations["blowjob-missionary-idle"] = blowjobMissionaryIdle;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const blowjobMissionaryMid = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 170,
+			dx: 0,
+			dy: 0,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 4,
+			dy: -2,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 12,
+			dy: -6,
+		},
+		{
+			frame: 0,
+			duration: 170,
+			dx: 8,
+			dy: -4,
+		},
+	],
+};
+Renderer.Animations["blowjob-missionary-mid"] = blowjobMissionaryMid;
+
+/**
+ * @type {KeyframeAnimationSpec}
+ */
+const blowjobMissionaryVeryFast = {
+	frameCount: 4,
+	keyframes: [
+		{
+			frame: 0,
+			duration: 80,
+			dx: 0,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 4,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 16,
+		},
+		{
+			frame: 0,
+			duration: 80,
+			dx: 6,
+		},
+	],
+};
+Renderer.Animations["blowjob-missionary-vfast"] = blowjobMissionaryVeryFast;
