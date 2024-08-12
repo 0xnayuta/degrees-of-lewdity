@@ -280,7 +280,7 @@ window.genLinearKeyFrames = genLinearKeyFrames;
  * @param {number} maxY
  * @returns {KeyframeAnimationSpec}
  */
-function genOffsetFourKeyFrames(duration, minX, maxX, minY, maxY) {
+function genFourOffsetKeyFrames(duration, minX, maxX, minY, maxY) {
 	const count = 4;
 	/** @type {KeyframeAnimationSpec} */
 	const spec = {
@@ -300,7 +300,7 @@ function genOffsetFourKeyFrames(duration, minX, maxX, minY, maxY) {
 
 	return spec;
 }
-window.genOffsetFourKeyFrames = genOffsetFourKeyFrames;
+window.genFourOffsetKeyFrames = genFourOffsetKeyFrames;
 
 /**
  * @param {number} duration
@@ -310,7 +310,7 @@ window.genOffsetFourKeyFrames = genOffsetFourKeyFrames;
  * @param {number} maxY
  * @returns {KeyframeAnimationSpec}
  */
-function genSkewedFourKeyFrames(duration, minX, maxX, minY, maxY) {
+function genFourSkewedKeyFrames(duration, minX, maxX, minY, maxY) {
 	const count = 4;
 	/** @type {KeyframeAnimationSpec} */
 	const spec = {
@@ -330,7 +330,7 @@ function genSkewedFourKeyFrames(duration, minX, maxX, minY, maxY) {
 
 	return spec;
 }
-window.genSkewedFourKeyFrames = genSkewedFourKeyFrames;
+window.genFourSkewedKeyFrames = genFourSkewedKeyFrames;
 
 /**
  * @param {number} duration
@@ -348,8 +348,8 @@ function genKeyFrame(duration, dx, dy) {
 }
 
 Renderer.Animations["equal-oscillation-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, 0);
-Renderer.Animations["equal-oscillation-mid"] = genOffsetFourKeyFrames(170, 0, 12, 0, 0);
-Renderer.Animations["equal-oscillation-vfast"] = genOffsetFourKeyFrames(80, 0, 12, 0, 0);
+Renderer.Animations["equal-oscillation-mid"] = genFourOffsetKeyFrames(170, 0, 12, 0, 0);
+Renderer.Animations["equal-oscillation-vfast"] = genFourOffsetKeyFrames(80, 0, 12, 0, 0);
 
 Renderer.Animations["butt-rubbing-idle"] = genLinearKeyFrames(2, 2000, 0, -1, 0, 0);
 
@@ -484,12 +484,12 @@ const blowjobVeryFast = {
 Renderer.Animations["blowjob-vfast"] = blowjobVeryFast;
 
 Renderer.Animations["boobjob-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
-Renderer.Animations["boobjob-mid"] = genSkewedFourKeyFrames(170, 0, 12, 0, 0);
-Renderer.Animations["boobjob-vfast"] = genSkewedFourKeyFrames(80, 0, 12, 0, 0);
+Renderer.Animations["boobjob-mid"] = genFourSkewedKeyFrames(170, 0, 12, 0, 0);
+Renderer.Animations["boobjob-vfast"] = genFourSkewedKeyFrames(80, 0, 12, 0, 0);
 
 Renderer.Animations["footjob-idle"] = genLinearKeyFrames(2, 1000, 0, 4, 0, 0);
-Renderer.Animations["footjob-mid"] = genOffsetFourKeyFrames(170, 0, 4, 0, 0);
-Renderer.Animations["footjob-vfast"] = genOffsetFourKeyFrames(80, 0, 4, 0, 0);
+Renderer.Animations["footjob-mid"] = genFourOffsetKeyFrames(170, 0, 4, 0, 0);
+Renderer.Animations["footjob-vfast"] = genFourOffsetKeyFrames(80, 0, 4, 0, 0);
 
 Renderer.Animations["back-handjob-idle"] = genLinearKeyFrames(2, 1000, 0, 0, 0, 0);
 
@@ -548,9 +548,9 @@ const backHandjobVeryFast = {
 Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
 
 Renderer.Animations["vagina-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
-Renderer.Animations["vagina-missionary-mid"] = genOffsetFourKeyFrames(170, 0, 4, 0, 0);
-Renderer.Animations["vagina-missionary-vfast"] = genOffsetFourKeyFrames(80, 0, 4, 0, 0);
+Renderer.Animations["vagina-missionary-mid"] = genFourOffsetKeyFrames(170, 0, 4, 0, 0);
+Renderer.Animations["vagina-missionary-vfast"] = genFourOffsetKeyFrames(80, 0, 4, 0, 0);
 
 Renderer.Animations["blowjob-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, -6);
-Renderer.Animations["blowjob-missionary-mid"] = genSkewedFourKeyFrames(170, 0, 12, 0, -6);
-Renderer.Animations["blowjob-missionary-vfast"] = genSkewedFourKeyFrames(80, 0, 12, 0, -6);
+Renderer.Animations["blowjob-missionary-mid"] = genFourSkewedKeyFrames(170, 0, 12, 0, -6);
+Renderer.Animations["blowjob-missionary-vfast"] = genFourSkewedKeyFrames(80, 0, 12, 0, -6);
