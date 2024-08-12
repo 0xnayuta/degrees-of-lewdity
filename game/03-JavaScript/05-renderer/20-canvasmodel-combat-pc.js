@@ -415,7 +415,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 49,
+			z: 72,
 		},
 		tentaclePenis: {
 			srcfn(options) {
@@ -693,6 +693,10 @@ const combatMainPc = {
 			},
 			animationfn(options) {
 				return options.animKey;
+			},
+			filtersfn(options) {
+				const mouth = options.mouth;
+				return mouth.inOral || mouth.open ? [""] : ["body"];
 			},
 			z: CombatRenderer.indices.head + 1,
 		},
