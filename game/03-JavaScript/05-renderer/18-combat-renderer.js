@@ -220,6 +220,29 @@ class CombatRenderer {
 		return filter;
 	}
 
+	/**
+	 * @param {CombatPlayerOptions} options
+	 */
+	static generateBodyFilters(options) {
+		options.skinType = V.skinColor.natural;
+		options.skinTone = CombatRenderer.getTanValues().body;
+		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+		options.filters.body = skinFilter;
+		options.filters.breasts = skinFilter;
+		options.filters.penis = skinFilter;
+		if (options.showTan) {
+			const tanslots = ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]
+				.map(slotname => [slotname, options["skin_tone_" + slotname]])
+				.filter(slot => slot[1] >= 0);
+			// Brightest on top
+			tanslots.sort((a, b) => b[1] - a[1]);
+			tanslots.forEach((slot, i) => {
+				options.filters[slot[0]] = setup.colours.getSkinFilter(options.skinType, slot[1]);
+				options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
+			});
+		}
+	}
+
 	static getTanValues() {
 		const tanValByName = {
 			body: 0,
