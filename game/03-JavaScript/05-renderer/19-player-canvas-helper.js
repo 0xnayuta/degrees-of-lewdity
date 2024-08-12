@@ -73,6 +73,9 @@ class PlayerCanvasHelper {
 					states.push(clothes.positions[layer]);
 				}
 				states.push(clothes.state);
+				if (options.position === "doggy" && clothes.isRaised) {
+					states.push("raised");
+				}
 				if (isAccessory) {
 					states.push("acc");
 				}

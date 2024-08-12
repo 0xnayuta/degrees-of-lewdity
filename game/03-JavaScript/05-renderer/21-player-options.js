@@ -144,6 +144,7 @@
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} isExposed Whether the clothing layer exposes beneath.
  * @property {boolean} isSkirt Whether the clothing layer is a skirt.
+ * @property {boolean} isRaised Whether the clothing layer (skirt) is displaced/raised.
  * @property {boolean} isBoundable Whether the clothing layer has a bound state.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasMainImg Whether the clothing has a main img layer, tape for example.
@@ -898,13 +899,6 @@ class PlayerCombatMapper {
 			show = false;
 		}
 
-		if (slot === "lower") {
-			// Move skirt to thighs if skirt_down is 0
-			if (defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist") {
-				state = "thighs";
-			}
-		}
-
 		if (slot === "under_lower") {
 			// Slot for under lower configurations
 			show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
@@ -934,6 +928,7 @@ class PlayerCombatMapper {
 			show,
 			alpha: CombatRenderer.getAlpha(slot),
 			isSkirt: defaults.skirt === 1,
+			isRaised: defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist",
 			isExposed: !!clothing.exposed,
 			isBoundable: !!clothing.combat?.boundable,
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
