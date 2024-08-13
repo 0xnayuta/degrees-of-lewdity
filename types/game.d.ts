@@ -204,20 +204,17 @@ declare module "twine-sugarcube" {
 						[x: string]: HairGradient;
 					};
 				};
-			}
+			};
 			sprite_prefilters: {
 				[x: string]: PrefilterMap;
 			};
 			skin_gradients: {
 				[x: string]: string[];
 			};
-			getSkinFilter(type: SkinColoursSimple, tone: number): {
-				blend: any;
-				blendMode: string;
-			};
+			getSkinFilter(type: SkinColoursSimple, tone: number): Partial<CompositeLayerSpec>;
 			getSkinRgb(type: SkinColoursSimple, tone: number): string;
 			getSkinCSSFilter(type: SkinColoursSimple, tone: number): string;
-		}
+		};
 		hairstyles: {
 			fringe: any[];
 			sides: any[];
@@ -293,4 +290,4 @@ declare global {
 	}
 }
 
-export { };
+export {};

@@ -120,6 +120,13 @@ declare global {
 		penissize: number;
 		vagina: "penisentrance" | "penisimminent" | "penis" | "clothed" | "none";
 
+		strapon?: {
+			state: "worn";
+			color: "black" | "red" | "pink" | "purple" | "fleshy" | "blue" | "green";
+			description: string;
+			size: number;
+		};
+
 		chastity: {
 			penis: string;
 			vagina: string;

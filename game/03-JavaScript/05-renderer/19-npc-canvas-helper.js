@@ -191,6 +191,9 @@ class NpcCanvasHelper {
 			widthfn(options) {
 				return 256;
 			},
+			filtersfn(options) {
+				return ["penetrator"];
+			},
 		};
 		return Object.assign(defaults, overrideOptions);
 	}

@@ -1,12 +1,13 @@
 // @ts-check
-/* globals CombatRenderer, CharacterTypes, NpcStates, AnimationSpeed */
+/* globals CombatRenderer, CharacterTypes, NpcStates, AnimationSpeed, PenetratorTypes, SpritePositions, Partial, Dict */
 
 /**
  * @typedef NpcOptions
  * @property {number} index
  * @property {"img/newsex"} root
  * @property {string} src Typically "img/newsex/missionary"
- * @property {"missionary" | "doggy"} position
+ * @property {Dict<Partial<CompositeLayerSpec>>} filters
+ * @property {SpritePositions} position
  * @property {"shadow" | "beast"} category
  * @property {CharacterTypes} type
  * @property {Penetrator[]} penetrators
@@ -47,6 +48,7 @@ class NpcCombatMapper {
 			src: "img/newsex/missionary",
 			animKey: "sex-2f-idle",
 			animKeyStill: "sex-2f-idle",
+			filters: {},
 		};
 	}
 
@@ -136,6 +138,9 @@ class NpcCombatMapper {
 			hasBalls: false,
 		};
 		options.penetrators = options.penetrators = [];
+
+		options.filters.skin = this.getNpcSkinFilter(npc);
+
 		const penetrator = this.mapNpcToPenetratorOptions(npc, options);
 		if (penetrator != null) {
 			console.log("Pushing penetrator to list:", penetrator);
@@ -227,13 +232,73 @@ class NpcCombatMapper {
 
 	/**
 	 * @param {Npc} npc
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getNpcSkinFilter(npc) {
+		return setup.colours.getSkinFilter(npc.skincolour === "white" ? "light" : "dark", 0);
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getNpcPenetratorFilter(npc) {
+		// Get any special colours, strapon, etc.
+		if (npc.strapon) {
+			// Figure out a filter for each strapon colour:
+			switch (npc.strapon.color) {
+				case "fleshy":
+					return this.getNpcSkinFilter(npc);
+				case "black":
+					return {
+						blend: "#000",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "blue":
+					return {
+						blend: "#00f",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "green":
+					return {
+						blend: "#00ff00",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "pink":
+					return {
+						blend: "#ff00ff",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "purple":
+					return {
+						blend: "#a0f",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+				case "red":
+					return {
+						blend: "#f00",
+						blendMode: "multiply",
+						desaturate: true,
+					};
+			}
+		}
+		return this.getNpcSkinFilter(npc);
+	}
+
+	/**
+	 * @param {Npc} npc
 	 * @param {NpcOptions} options
 	 * @returns {Penetrator?}
 	 */
 	static mapNpcToPenetratorOptions(npc, options) {
 		/**
 		 * @param {Npc} npc
-		 * @returns {"human" | "strapon" | "knotted" | "equine" | "feline" | "sus"}
+		 * @returns {PenetratorTypes}
 		 */
 		function getPenetratorType(npc) {
 			if (["dog", "wolf", "fox"].includes(npc.type)) {
@@ -268,6 +333,8 @@ class NpcCombatMapper {
 		};
 
 		Object.assign(penetrator, combat.getNpcPenetratorState(npc));
+
+		options.filters.penetrator = this.getNpcPenetratorFilter(npc);
 
 		console.log("npc-penetrator:", penetrator);
 
