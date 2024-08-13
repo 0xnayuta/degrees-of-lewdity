@@ -1589,7 +1589,10 @@ Renderer.CanvasModels["main"] = {
 					"thick ponytail",
 					"all down",
 					"half-up",
-					"messy ponytail"
+					"messy ponytail",
+					"ruffled",
+					"half up twintail",
+					"princess wave",
 				];
 
 				const path = `img/hair/back/${options.hair_sides_type}`;
@@ -1599,8 +1602,6 @@ Renderer.CanvasModels["main"] = {
 					return `${path}/thighs.png`;
 				if (options.hair_sides_length === "navel" && options.hair_sides_type === "messy ponytail")
 					return `${path}/navel.png`;
-				if (options.hair_sides_type === "ruffled")
-					return `${path}/${options.hair_sides_length}.png`;
 				return "";
 			},
 			masksrcfn(options) {
@@ -3208,7 +3209,8 @@ Renderer.CanvasModels["main"] = {
 			},
 			masksrcfn(options) {
 				return options.belly >= 19 && options.worn_upper_setup.pregType == "split" ?
-					options.shirt_mask_clip_src : options.shirt_fitted_clip_src;
+					options.shirt_mask_clip_src :
+					options.worn_upper_setup.formfitting && options.shirt_fitted_clip_src;
 			},
 		}),
 		"upper_breasts_acc": genlayer_clothing_breasts_acc("upper", {

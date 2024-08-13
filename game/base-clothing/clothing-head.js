@@ -2134,7 +2134,7 @@ function initHead() {
 			head_type: "veil",
 			cursed: 0,
 			location: 0,
-			iconFile: "sexy_nuns_veil.png",
+			iconFile: "sexy_nuns_ornate_veil.png",
 			accIcon: 0,
 		},
 		{
