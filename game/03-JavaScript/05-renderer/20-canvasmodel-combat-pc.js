@@ -702,7 +702,7 @@ const combatMainPc = {
 		},
 		tongue: {
 			srcfn(options) {
-				return `${options.src}body/oral/openmouth.png`;
+				return `${options.src}body/oral/tongue.png`;
 			},
 			showfn(options) {
 				const mouth = options.mouth;
