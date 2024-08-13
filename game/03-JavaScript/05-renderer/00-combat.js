@@ -75,6 +75,13 @@ class CombatSystem {
 		return this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
 	}
 
+	anyEjaculating() {
+		if (V.orgasmdown > 0) {
+			return true;
+		}
+		return V.enemyarousal > V.enemyarousalmax;
+	}
+
 	isActive() {
 		if (V.NPCList.some(a => a.type === "horse")) {
 			return true;
