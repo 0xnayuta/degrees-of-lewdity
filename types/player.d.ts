@@ -65,19 +65,6 @@ declare module "twine-sugarcube" {
 		trackedArousal: int[];
 		timeSinceArousal: number;
 
-		skinColor: {
-			natural: SkinColoursSimple;
-			range: number;
-			sunBlock: boolean;
-			tanValues: number[];
-			init: boolean;
-			current: {
-				[x: string]: string;
-			};
-			overwrite: SkinColourConfig[];
-			overwriteEnable: boolean;
-			overwriteValues: SkinColourConfig;
-		};
 		/**
 		 * Only used within settings, try to use leftEyeColour or rightEyeColour.
 		 */
@@ -297,6 +284,10 @@ declare global {
 			handholding: boolean;
 			kiss: boolean;
 		};
+
+		skin: {
+			color: SkinColours;
+		};
 	}
 
 	export interface Bodywriting {
@@ -331,4 +322,4 @@ declare global {
 	}
 }
 
-export {};
+export { };

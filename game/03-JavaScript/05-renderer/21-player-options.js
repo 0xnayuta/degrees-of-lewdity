@@ -1,5 +1,5 @@
 // @ts-check
-/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, TotalClothingStates, TransformationKeys, CombatClothingTypes, AnimationSpeed, LegPositions */
+/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, TotalClothingStates, TransformationKeys, CombatClothingTypes, AnimationSpeed, LegPositions */
 
 /**
  * @typedef CombatPlayerOptions
@@ -22,7 +22,7 @@
  * @property {number} breastSize The size of the player breasts.
  * @property {boolean} breastsExposed Whether the breasts are shown.
  * @property {Penetrator?} penetrator Typically the PC's penis, or strapon etc.
- * @property {SkinColoursSimple} skinType
+ * @property {SkinColours} skinType
  * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.

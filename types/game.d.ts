@@ -211,9 +211,9 @@ declare module "twine-sugarcube" {
 			skin_gradients: {
 				[x: string]: string[];
 			};
-			getSkinFilter(type: SkinColoursSimple, tone: number): Partial<CompositeLayerSpec>;
-			getSkinRgb(type: SkinColoursSimple, tone: number): string;
-			getSkinCSSFilter(type: SkinColoursSimple, tone: number): string;
+			getSkinFilter(type: SkinColours, tone: number): Partial<CompositeLayerSpec>;
+			getSkinRgb(type: SkinColours, tone: number): string;
+			getSkinCSSFilter(type: SkinColours, tone: number): string;
 		};
 		hairstyles: {
 			fringe: any[];
