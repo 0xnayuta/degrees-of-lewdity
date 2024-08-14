@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/no-undefined-types */
 /*
  * On caching.
  *
@@ -30,6 +31,81 @@
  * are re-composed. (Source images are still cached globally under their url)
  */
 
+/**
+ * @typedef {object} CanvasModelLayer
+ * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit <<showlayer>>). Do not use undefined/null/0/"" to hide layer!
+ * @property {string} [src] Image path. Either `src` or `srcfn` is required.
+ * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
+ * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
+ * @property {number} [maskAlpha] Mask opacity, from 0 (invisible) to 1 (opaque, default).
+ * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
+ * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
+ * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
+ * @property {string} [compositeOperation] compositeOperation for the entire layer.
+ * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
+ * @property {string} [maskBlendMode] Recoloring mode for the mask. (default is "destination-in")
+ * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
+ * @property {string|string[]} [masksrc] Single mask image path or array of mask image paths. If present, only parts where mask(s) are opaque will be displayed.
+ * @property {string} [animation] Name of animation to apply, default none.
+ * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
+ * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
+ * @property {number} [dx] Layer X position on the image, default 0.
+ * @property {number} [dy] Layer Y position on the image, default 0.
+ * @property {number} [width] Layer subsprite width, default = model width.
+ * @property {number} [height] Layer subsprite width, default = model height.
+ * @property {object} [worn] Worn object (for clothing)
+ *
+ * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
+ * @property {Function} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
+ * @property {Function} [srcfn] (options)=>string.
+ * @property {Function} [zfn] (options)=>number.
+ * @property {Function} [alphafn] (options)=>number.
+ * @property {Function} [maskAlphafn] (options)=>number.
+ * @property {Function} [desaturatefn] (options)=>boolean.
+ * @property {Function} [brightnessfn] (options)=>number.
+ * @property {Function} [contrastftn] (options)=>number.
+ * @property {Function} [compositeOperationfn] (options)=>(string).
+ * @property {Function} [blendModefn] (options)=>(string|object).
+ * @property {Function} [maskBlendModefn] (options)=>(string|object).
+ * @property {Function} [blendfn] (options)=>string.
+ * @property {Function} [masksrcfn] (options)=>string|string[].
+ * @property {Function} [animationfn] (options)=>string.
+ * @property {Function} [framesfn] (options)=>number[].
+ * @property {Function} [filtersfn] (options)=>string[].
+ * @property {Function} [dxfn] (options)=>number.
+ * @property {Function} [dyfn] (options)=>number.
+ * @property {Function} [widthfn] (options)=>number.
+ * @property {Function} [heightfn] (options)=>number.
+ * @property {Function} [wornfn] (options)=>object.
+ */
+
+/**
+ * @typedef {object} CanvasModelOptions
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {boolean} scale Set to true to scale layers to the canvas size, if smaller.
+ * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
+ * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
+ * @property {Function} [defaultOptions] Function ()=>object returning default options.
+ * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
+ * @property {Function} [postprocess] Postprocessing function (options)=>void to generate temp options.
+ */
+
+// Consider doing proper class inheritance
+/**
+ * @property {string} name Model name, for debugging.
+ * @property {number} width Frame width.
+ * @property {number} height Frame height.
+ * @property {number} frames Number of frames for CSS animation.
+ * @property {boolean} scale Set to true to scale layers to the canvas size, if smaller.
+ * @property {Function} defaultOptions Function ()=>object returning default options.
+ * @property {string[]} generatedOptions Names of generated options.
+ * @property {Object<string, CanvasModelLayer>} layers Layers (by name).
+ * @property {CanvasModelLayer[]} layerList Layers.
+ * @property {CanvasRenderingContext2D} canvas
+ */
 class CanvasModel {
 	/**
 	 * Static factory method to create/fetch a stored model.
@@ -77,19 +153,20 @@ class CanvasModel {
 	}
 
 	/**
-	 * @param {CanvasModelOptions} template
+	 * @param {CanvasModelOptions} options
 	 */
-	constructor(template) {
-		this.name = template.name;
-		this.width = template.width;
-		this.height = template.height;
-		this.frames = template.frames || 1;
-		this.metadata = template.metadata || {};
-		this.scale = template.scale || false;
-		if ("generatedOptions" in template) this.generatedOptions = template.generatedOptions;
-		if ("defaultOptions" in template) this.defaultOptions = template.defaultOptions;
-		if ("preprocess" in template) this.preprocess = template.preprocess;
-		this.layers = clone(template.layers);
+	constructor(options) {
+		this.name = options.name;
+		this.width = options.width;
+		this.height = options.height;
+		this.frames = options.frames || 1;
+		this.metadata = options.metadata || {};
+		this.scale = options.scale || false;
+		if ("generatedOptions" in options) this.generatedOptions = options.generatedOptions;
+		if ("defaultOptions" in options) this.defaultOptions = options.defaultOptions;
+		if ("preprocess" in options) this.preprocess = options.preprocess;
+		if ("postprocess" in options) this.postprocess = options.postprocess;
+		this.layers = clone(options.layers);
 		for (const name in this.layers) {
 			if (!Object.hasOwn(this.layers, name)) continue;
 			const layer = this.layers[name];
@@ -100,6 +177,7 @@ class CanvasModel {
 				contrast: 1.0,
 				blend: "",
 				blendMode: "",
+				maskBlendMode: "destination-in",
 				alpha: 1.0,
 				desaturate: false,
 			});
@@ -184,7 +262,7 @@ class CanvasModel {
 	 * @param {CanvasRenderingContext2D} canvas Canvas to render on (can be created with {@link createCanvas}).
 	 * @param {object} options Options to use when rendering model.
 	 * @param {listener} listener For Renderer events.
-	 * @returns {Renderer.AnimatingCanvas} AnimatingCanvas object.
+	 * @returns {AnimatingCanvas} AnimatingCanvas object.
 	 */
 	animate(canvas, options, listener) {
 		this.canvas = canvas;
@@ -203,6 +281,12 @@ class CanvasModel {
 			return;
 		}
 		Renderer.lastModel = this;
+
+		// Refresh layers after going back in history
+		if (State.current !== State.top) {
+			Renderer.clearCaches(this);
+		}
+
 		if (this.animated) {
 			return Renderer.animateLayers(this.canvas, this.compile(this.options), this.listener, true);
 		} else {
@@ -214,16 +298,19 @@ class CanvasModel {
 	 * Pre-process options. Typically you calculate some expression here and store them as generated options
 	 * Override in subclass.
 	 *
-	 * @param {Options} options Model options.
+	 * @param {options} options Model options.
 	 */
-	preprocess(options) {
-		console.debug("CanvasModel-preprocess not set");
-	}
+	preprocess(options) {}
+
+	/**
+	 * @param {options} options Model options.
+	 */
+	postprocess(options) {}
 
 	/**
 	 * Compile list of layers according to options.
 	 *
-	 * @param {Options} options Model options.
+	 * @param {options} options Model options.
 	 * @returns {CompositeLayerSpec[]} Layers.
 	 */
 	compile(options) {
@@ -271,7 +358,7 @@ class CanvasModel {
 			}
 		}
 
-		for (const layer of this.layerList) {
+		const processLayer = layer => {
 			layer.model = this;
 			layer.show || propeval(layer, "show");
 			propeval(layer, "src");
@@ -280,9 +367,14 @@ class CanvasModel {
 				layer.show = false;
 			}
 			propeval(layer, "z");
-			if (typeof layer.z !== "number" && layer.show !== false) console.error("Layer " + layer.name + " missing property z");
+			if (typeof layer.z !== "number" && layer.show !== false) {
+				console.error("Layer " + layer.name + " missing property z");
+			}
 			propeval(layer, "alpha");
+			propeval(layer, "maskAlpha");
+			propeval(layer, "compositeOperation");
 			propeval(layer, "blendMode");
+			propeval(layer, "maskBlendMode");
 			propeval(layer, "blend");
 			propeval(layer, "desaturate");
 			propeval(layer, "brightness");
@@ -294,35 +386,57 @@ class CanvasModel {
 			propeval(layer, "dy");
 			propeval(layer, "width");
 			propeval(layer, "height");
+			propeval(layer, "worn");
 			propeval(layer, "scale");
 			if (!layer.scale) layer.scale = this.scale;
 			if (layer.show !== false && layer.filters) {
-				for (const filterName of layer.filters) {
-					const filter = options.filters[filterName];
-					if (!filter) {
-						// console.warn("Layer " + layer.name + " needs filter " + filterName + " but it is not provided");
-						continue;
+				for (let filter of layer.filters) {
+					if (typeof filter !== "object") {
+						filter = options.filters[filter];
+						if (!filter) {
+							continue;
+						}
 					}
+					if (!filter.blend) continue;
 					Renderer.mergeLayerData(layer, filter, true);
 				}
 			}
+		};
+
+		for (const layer of this.layerList) {
+			processLayer(layer);
 		}
-		return this.layerList;
+
+		this.postprocess(options);
+
+		// Process generated layers after post-process
+		const layers = [];
+		if (options.generatedLayers) {
+			for (const layer in options.generatedLayers) {
+				processLayer(options.generatedLayers[layer]);
+				layers.push(options.generatedLayers[layer]);
+			}
+		}
+
+		return [...this.layerList, ...layers];
 	}
 }
-
 window.CanvasModel = CanvasModel;
 
+/**
+ * @type {Object<string, CanvasModelOptions>}
+ */
 Renderer.CanvasModels = {};
-
+/**
+ * @type {Object<string, Object<string, CanvasModel>>}
+ */
 Renderer.CanvasModelCaches = {};
-
 /**
  * Find or create new CanvasModel.
  *
  * @param {string} modelName CanvasModel name in Renderer.CanvasModels.
  * @param {string} [slot] Cache id to speed up rendering between passages.
- * @returns {CanvasModel<Options>}
+ * @returns {CanvasModel}
  */
 Renderer.locateModel = function (modelName, slot) {
 	const options = Renderer.CanvasModels[modelName];

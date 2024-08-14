@@ -93,6 +93,7 @@ module.exports = {
 		BaseCanvas: "readonly",
 		Orbital: "readonly",
 		Fadable: "readonly",
+		Skin: "readonly",
 		// DoL SC2 functions
 		compressionVerifier: "readonly",
 		DefineMacro: "readonly",

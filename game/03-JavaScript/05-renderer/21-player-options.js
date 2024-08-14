@@ -833,7 +833,7 @@ class PlayerCombatMapper {
 			show: hasPenetrator && isExposed && !hasChastityBelt,
 			type: playerHasStrapon() ? "strapon" : "human",
 			size: pc.penissize,
-			colour: V.skinColor.current.penis,
+			colour: pc.skin.color,
 			target: V.penistarget,
 			isEjaculating:
 				V.orgasmdown > 0 &&

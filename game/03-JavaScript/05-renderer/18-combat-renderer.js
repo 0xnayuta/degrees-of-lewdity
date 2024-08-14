@@ -224,8 +224,8 @@ class CombatRenderer {
 	 * @param {CombatPlayerOptions} options
 	 */
 	static generateBodyFilters(options) {
-		options.skinType = V.skinColor.natural;
-		options.skinTone = CombatRenderer.getTanValues().body;
+		options.skinType = V.player.skin.color;
+		options.skinTone = 0;
 		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
 		options.filters.body = skinFilter;
 		options.filters.breasts = skinFilter;
@@ -241,25 +241,6 @@ class CombatRenderer {
 				options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
 			});
 		}
-	}
-
-	static getTanValues() {
-		const tanValByName = {
-			body: 0,
-			breasts: -0.01,
-			penis: -0.01,
-			swimshorts: -0.01,
-			swimsuitTop: -0.01,
-			swimsuitBottom: -0.01,
-			bikiniTop: -0.01,
-			bikiniBottom: -0.01,
-			/* No sprites yet? */
-			tshirt: -0.01,
-		};
-		for (let i = 0; i < setup.skinColor.tanLoc.length; i++) {
-			tanValByName[setup.skinColor.tanLoc[i]] = V.skinColor.tanValues[i] / 100;
-		}
-		return tanValByName;
 	}
 
 	/** @returns {string} */

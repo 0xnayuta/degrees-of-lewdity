@@ -620,11 +620,11 @@ window.onInputChanged = onInputChanged;
 function closeOverlay() {
 	wikifier("journalNotesTextareaSave");
 	updateOptions();
-	delete T.currentOverlay;
-	delete V.tempDisable;
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
-	$.event.trigger(":oncloseoverlay");
+	$.event.trigger(":oncloseoverlay", [T.currentOverlay]);
+	delete T.currentOverlay;
+	delete V.tempDisable;
 }
 window.closeOverlay = closeOverlay;
 
@@ -669,7 +669,6 @@ function updateOptions() {
 
 		if (!State.restore(true)) return; // don't do anything if state couldn't be restored
 		V.options = optionsData;
-		tanned(0, "ignoreCoverage");
 		State.show();
 
 		T.key = tmpKey;
