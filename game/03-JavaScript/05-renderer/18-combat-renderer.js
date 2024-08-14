@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes */
+/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
 
 /**
  * @typedef CombatZIndices
