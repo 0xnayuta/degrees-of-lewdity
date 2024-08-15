@@ -70,21 +70,15 @@ declare global {
 	export type ZeroedClothingStates = 0 | ClothingStates;
 
 	export type TotalClothingStates =
-		| 0
+		| ZeroedClothingStates
 		| "default"
+		| "full"
 		| "bound"
 		| "handjob"
 		| "up"
 		| "down"
 		| "footjob"
 		| "neck"
-		| "full"
-		| "chest"
-		| "midriff"
-		| "waist"
-		| "thighs"
-		| "knees"
-		| "ankles"
 		| "worn"
 		| "totheside";
 
