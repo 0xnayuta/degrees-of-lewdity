@@ -997,6 +997,18 @@ const combatMainPc = {
 		legwearAccFront: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "front", true, {
 			z: CombatRenderer.indices.frontLegwear,
 		}),
+		backUnderLower: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "back", false, {
+			z: CombatRenderer.indices.backLowerUnderwear,
+		}),
+		backUnderLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "back", true, {
+			z: CombatRenderer.indices.backLowerUnderwear,
+		}),
+		frontUnderLower: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "front", false, {
+			z: CombatRenderer.indices.frontLowerUnderwear,
+		}),
+		frontUnderLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "front", true, {
+			z: CombatRenderer.indices.frontLowerUnderwear,
+		}),
 		backLower: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "back", false, {
 			z: CombatRenderer.indices.backLowerWear,
 		}),
@@ -1054,48 +1066,6 @@ const combatMainPc = {
 		}),
 		overUpperAcc: PlayerCanvasHelper.genClothingAccLayer("over_upper", {
 			z: CombatRenderer.indices.frontArm - 1,
-		}),
-		backUnderLower: PlayerCanvasHelper.genClothingLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/under_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("Under lower back path:", path);
-				return path;
-			},
-			show: false,
-			z: CombatRenderer.indices.backLowerUnderwear,
-		}),
-		backUnderLowerAcc: PlayerCanvasHelper.genClothingAccLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/under_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("Under lower back acc path:", path);
-				return path;
-			},
-			show: false,
-			z: CombatRenderer.indices.backLowerUnderwear,
-		}),
-		frontUnderLower: PlayerCanvasHelper.genClothingLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/under_lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
-				console.log("Under lower front path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontLowerUnderwear,
-		}),
-		frontUnderLowerAcc: PlayerCanvasHelper.genClothingAccLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/under_lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
-				console.log("Under lower front acc path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontLowerUnderwear,
 		}),
 		underUpper: PlayerCanvasHelper.genClothingLayer("under_upper", {
 			z: CombatRenderer.indices.frontArm - 4,
