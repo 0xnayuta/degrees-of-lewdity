@@ -109,7 +109,18 @@ class CombatSystem {
 	isVaginaActive(canvas) {
 		const activeState =
 			V.vaginastate &&
-			["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.vaginastate);
+			[
+				"penetrated",
+				"doublepenetrated",
+				"othervaginaentrance",
+				"othervaginaimminent",
+				"othervagina",
+				"othermouth",
+				"tentacleentrance",
+				"tentacleimminent",
+				"tentacle",
+				"tentacledeep",
+			].includes(V.vaginastate);
 		const activeUse = V.vaginause === "tentaclerub" && canvas !== "close";
 		if (canvas === "close" && V.vaginastate && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
