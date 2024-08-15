@@ -888,7 +888,7 @@ class PlayerCombatMapper {
 		console.log("Reference:", defaults.variable, "=>", source.variable);
 
 		/** @type {TotalClothingStates} */
-		let state = clothing.state;
+		const state = clothing.state;
 		let show = name != null;
 
 		if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
@@ -897,11 +897,6 @@ class PlayerCombatMapper {
 
 		if (slot === "under_upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
 			show = false;
-		}
-
-		if (slot === "feet") {
-			state = options.legFrontPosition;
-			// state = options.legBackPosition;
 		}
 
 		this.generateClothingFilter(slot, clothing, options);

@@ -269,7 +269,7 @@ class CombatRenderer {
 			return null;
 		}
 		if (["lower", "under_lower", "over_lower"].includes(slot)) {
-			if (defaults.skirt === 1 && frontPosition === "footjob") {
+			if (frontPosition === "footjob") {
 				frontPosition = "up";
 			}
 			if (backPosition === "footjob") {
