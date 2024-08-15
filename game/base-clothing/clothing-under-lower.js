@@ -66,7 +66,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "plainpanties",
 			combat: {
-				reference: "panties",
+				renderType: "shorts",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -164,7 +164,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "lacepanties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 60,
 			integrity_max: 60,
@@ -213,7 +213,7 @@ function initUnderLower() {
 			name_simple: "undies",
 			variable: "briefs",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 				accessory: false,
 			},
 			integrity: 100,
@@ -313,7 +313,7 @@ function initUnderLower() {
 			name_simple: "swimsuit",
 			variable: "schoolswimsuit",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 40,
 			integrity_max: 40,
@@ -362,7 +362,7 @@ function initUnderLower() {
 			name_simple: "swim shorts",
 			variable: "schoolswimshorts",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 40,
 			integrity_max: 40,
@@ -413,7 +413,7 @@ function initUnderLower() {
 			name_simple: "leotard",
 			variable: "leotard",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -464,7 +464,7 @@ function initUnderLower() {
 			variable: "unitard",
 			oldVariable: [{ name: "full body leotard bottom", variable: "leotardfull" }],
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 140,
 			integrity_max: 140,
@@ -563,7 +563,7 @@ function initUnderLower() {
 			name_simple: "swimsuit",
 			variable: "schoolswimsuitj",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 40,
 			integrity_max: 40,
@@ -612,7 +612,7 @@ function initUnderLower() {
 			name_simple: "swimsuit",
 			variable: "swimsuit",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 60,
 			integrity_max: 60,
@@ -661,7 +661,7 @@ function initUnderLower() {
 			name_simple: "leotard",
 			variable: "leotardbunny",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 120,
 			integrity_max: 120,
@@ -711,7 +711,7 @@ function initUnderLower() {
 			name_simple: "undies",
 			variable: "boyshorts",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 120,
 			integrity_max: 120,
@@ -760,7 +760,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "catgirlpanties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -999,7 +999,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "stripedpanties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 				accessory: false,
 			},
 			integrity: 100,
@@ -1098,7 +1098,7 @@ function initUnderLower() {
 			name_simple: "thong",
 			variable: "thong",
 			combat: {
-				renderType: "skirt",
+				renderType: "shorts",
 			},
 			integrity: 40,
 			integrity_max: 40,
@@ -1146,7 +1146,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "classicplainpanties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -1244,7 +1244,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "classiclacepanties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 60,
 			integrity_max: 60,
@@ -1293,7 +1293,7 @@ function initUnderLower() {
 			name_simple: "undies",
 			variable: "classicbriefs",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -1343,7 +1343,7 @@ function initUnderLower() {
 			name_simple: "swimsuit",
 			variable: "classicschoolswimsuit",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 40,
 			integrity_max: 40,
@@ -1442,7 +1442,7 @@ function initUnderLower() {
 			name_simple: "boxers",
 			variable: "boxers",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -1491,7 +1491,7 @@ function initUnderLower() {
 			name_simple: "long johns",
 			variable: "longjohns",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 150,
 			integrity_max: 150,
@@ -1540,7 +1540,7 @@ function initUnderLower() {
 			name_simple: "swimsuit bottoms",
 			variable: "schoolswimbottoms",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 70,
 			integrity_max: 70,
@@ -1831,7 +1831,7 @@ function initUnderLower() {
 			name_simple: "swimsuit bottoms",
 			variable: "seethroughswimsuit",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 60,
 			integrity_max: 60,
@@ -1930,7 +1930,7 @@ function initUnderLower() {
 			name_simple: "swimsuit",
 			variable: "highmicrokini",
 			combat: {
-				renderType: "trousers",
+				renderType: "shorts",
 			},
 			integrity: 30,
 			integrity_max: 30,
@@ -1979,7 +1979,7 @@ function initUnderLower() {
 			name_simple: "leotard",
 			variable: "leotardturtleneck",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -2077,7 +2077,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "lacepantiesold",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 60,
 			integrity_max: 60,
@@ -2125,7 +2125,7 @@ function initUnderLower() {
 			name_simple: "panties",
 			variable: "janties",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 				accessory: false,
 			},
 			integrity: 60,
@@ -2223,7 +2223,7 @@ function initUnderLower() {
 			name_simple: "leotard",
 			variable: "latexleotard",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -2272,7 +2272,7 @@ function initUnderLower() {
 			name_simple: "leggings",
 			variable: "leatherleggings",
 			combat: {
-				reference: "panties",
+				reference: "plainpanties",
 			},
 			integrity: 100,
 			integrity_max: 100,
