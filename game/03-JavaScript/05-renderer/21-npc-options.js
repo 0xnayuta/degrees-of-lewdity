@@ -83,6 +83,11 @@ class NpcCombatMapper {
 		options.animKeyStill = this.getNpcAnimation();
 		options.speed = this.getNpcAnimationSpeed();
 
+		// Prevent showing if state is not set.
+		if (options.state == null) {
+			options.show = false;
+		}
+
 		return options;
 	}
 
@@ -221,8 +226,9 @@ class NpcCombatMapper {
 		}
 
 		// Primary for being pinned:
-		if (npc.stance === "top") {
+		if (npc.stance === "top" && options.state == null) {
 			// options.state = options.category === "shadow" ? "default" : "over-default";
+			options.state = "vagina";
 			options.show = true;
 			return options;
 		}
