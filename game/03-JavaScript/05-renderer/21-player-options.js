@@ -899,11 +899,6 @@ class PlayerCombatMapper {
 			show = false;
 		}
 
-		if (slot === "under_lower") {
-			// Slot for under lower configurations
-			show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
-		}
-
 		if (slot === "feet") {
 			state = options.legFrontPosition;
 			// state = options.legBackPosition;
