@@ -207,11 +207,6 @@ class CanvasModel {
 		}
 		Renderer.lastModel = this;
 
-		// Refresh layers after going back in history
-		if (State.current !== State.top) {
-			Renderer.clearCaches(this);
-		}
-
 		if (this.animated) {
 			return Renderer.animateLayers(this.canvas, this.compile(this.options), this.listener, true);
 		} else {

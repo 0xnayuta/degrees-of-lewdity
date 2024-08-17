@@ -613,25 +613,8 @@ Renderer.CanvasModels.main = {
 				clothingObject[slot].setup = setupObj
 			}
 
-			// Filters still use worn_ for clothing
-			// Might need to convert to an object eventually
-			options.filters[`worn_${slot}`] = (setupObj.colour_sidebar) ? lookupColour(
-				options, 
-				setup.colours.clothes_map,
-				clothingObject[slot].colour,
-				`${slot} clothing`,
-				`worn_${slot}_custom`,
-				setupObj.prefilter
-			) : empty;
-
-			options.filters[`worn_${slot}_acc`] = (setupObj.accessory_colour_sidebar) ? lookupColour(
-				options, 
-				setup.colours.clothes_map,
-				clothingObject[slot].accColour,
-				slot + " accessory",
-				`worn_${slot}_acc_custom`,
-				setupObj.prefilter
-			) : empty;
+			setClothingFilter(options, slot, clothingObject[slot], setupObj, '', 'colour_sidebar', 'colour');
+			setClothingFilter(options, slot, clothingObject[slot], setupObj, '_acc', 'accessory_colour_sidebar', 'accColour');
 		}
 		options.worn = clothingObject;
 
@@ -869,33 +852,44 @@ Renderer.CanvasModels.main = {
 
 			// Don't modify the original options object
 			const newOptions = canvasModel.options.deepCopy();
+
+			// Highest tanning values are added first
 			const tanningGroups = [...Skin.tanningLayers].sort((a, b) => a.value - b.value);
 
 			for (let i = 0; i < tanningGroups.length; i++) {
 				const layerGroup = tanningGroups[i];
 				if (layerGroup.layers.length === 0) continue;
 
+				// For every item in tanning layers, create a new entry in options.worn, and setup the filters
 				for (const [slot, props] of Object.entries(layerGroup.slots)) {
 					const item = {
 						index: Number(props.index),
 						integrity: props.integrity ?? "full",
 						alt: props.alt,
+						colour: props.colour || "black",
+						accColour: props.accColour || "black",
 						setup: setup.clothes[slot][props.index],
 					};
 					newOptions.worn[slot] = { ...newOptions.worn[slot], ...item };
+					// Set up the filters for the tanning layer in order to choose the correct sprites
+					// Uses default "black" colour since undefined will try to load the incorrect path
+					setClothingFilter(newOptions, slot, item, item.setup, '', 'colour_sidebar', 'colour');
+					setClothingFilter(newOptions, slot, item, item.setup, '_acc', 'accessory_colour_sidebar', 'accColour');
 				}
 
+				// Get the source paths for the tanning layer
 				const layers = { arms: [], body: [] };
 				for (const layerName of layerGroup.layers) {
 					const layer = canvasModel.layers[layerName];
+
 					if (!layer.showfn(newOptions)) continue;
-				
 					const src = layer.srcfn(newOptions);
 					const target = layerName.includes("rightarm") || layerName.includes("leftarm") ? layers.arms : layers.body;
 					target.push(src);
 				}
 
-				// Generate tan layers
+				// Generate final tanning layers
+				// Separate the base with the arms, since they can overlap
 				const alpha = layerGroup.value;
 				if (layers.body.length) {
 					options.generatedLayers[`tan_base${i}`] = (genlayer_tanning("base", i, layers.body, alpha, null));
@@ -908,28 +902,26 @@ Renderer.CanvasModels.main = {
 				}
 			}
 			
-			// Tanning
 			// Only use necessary data for tanning layers. Filter out the rest.
-			// Only clothing items that aren't handheld will be used
-			if (options.tanningEnabled) {
-				const skippedSlots = ["handheld", "head"];
-				this.tanningLayers = this.layerList
-					.filter(obj => obj.show === true
-						&& obj.worn
-						&& !skippedSlots.some(prefix => obj.name.startsWith(prefix))
-					).reduce((acc, obj) => {
-						if (!acc.layers.includes(obj.name)) {
-							acc.layers.push(obj.name);
-						}
-						
-						acc.slots[obj.worn.slot] = {
-							index: obj.worn.index,
-							...(obj.worn.integrity !== "full" && { integrity: obj.worn.integrity }),
-							...(obj.worn.alt !== undefined && { alt: obj.worn.alt }),
-						};
-						return acc;
-					}, { layers: [], slots: {} });
-			}
+			// Only clothing items that aren't handheld or headwear will be used
+			// Only use the base pregnancy layers
+			const skippedSlots = ["handheld", "head", "neck", "face", "upper_belly_", "lower_belly_"];
+			this.tanningLayers = this.layerList
+				.filter(obj => obj.show === true
+					&& obj.worn
+					&& !skippedSlots.some(prefix => obj.name.startsWith(prefix))
+				).reduce((acc, obj) => {
+					if (!acc.layers.includes(obj.name)) {
+						acc.layers.push(obj.name);
+					}
+					
+					acc.slots[obj.worn.slot] = {
+						index: obj.worn.index,
+						...(obj.worn.integrity !== "full" && { integrity: obj.worn.integrity }),
+						...(obj.worn.alt !== undefined && { alt: obj.worn.alt }),
+					};
+					return acc;
+				}, { layers: [], slots: {} });
 		}
 	},
 	layers: {
@@ -943,7 +935,6 @@ Renderer.CanvasModels.main = {
 		 *
 		 *
 		 */
-		// IF SRC, SHOW, OR Z IS CHANGED HERE - ALSO CHANGE THE TANNING LAYER
 		"base": {
 			show: true,
 			filters: ["tan"],
@@ -964,7 +955,6 @@ Renderer.CanvasModels.main = {
 				return options.mannequin ? "img/body/mannequin/basehead.png" : "img/body/basehead.png";
 			},
 		},
-		// IF SRC, SHOW, OR Z IS CHANGED HERE - ALSO CHANGE THE TANNING LAYER
 		"breasts": {
 			show: true,
 			filters: ["tan"],
@@ -981,7 +971,6 @@ Renderer.CanvasModels.main = {
 				return `${prefix}breasts/breasts${options.breast_size}${suffix}`;
 			},
 		},
-		// IF SRC, SHOW, OR Z IS CHANGED HERE - ALSO CHANGE THE TANNING LAYER
 		"belly": {
 			filters: ["tan"],
 			z: ZIndices.bellyBase,
@@ -1024,7 +1013,6 @@ Renderer.CanvasModels.main = {
 				return options.breasts_parasite === 'parasite' ? `img/body/breasts/breastsparasite${options.breast_size}.png` : "";
 			},
 		},
-		// IF SRC, SHOW, OR Z IS CHANGED HERE - ALSO CHANGE THE TANNING LAYER
 		"leftarm": {
 			filters: ["tan"],
 			animation: "idle",
@@ -1041,7 +1029,6 @@ Renderer.CanvasModels.main = {
 				return `img/body/leftarmidle-${options.body_type}.png`
 			},
 		},
-		// IF SRC, SHOW, OR Z IS CHANGED HERE - ALSO CHANGE THE TANNING LAYER
 		"rightarm": {
 			filters: ["tan"],
 			animation: "idle",
@@ -3156,8 +3143,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const secondary = options.worn.upper.setup.name === "school blouse" && options.worn.lower.setup.name.includes("pinafore") ? '_under' : '';
 				const suffix = options.worn.lower.setup.accessory_integrity_img ? `_${options.worn.lower.integrity}` : secondary;
-				const filter = generateClothingAccFilter(options, "lower", options.worn["lower"])
-				return gray_suffix(`img/clothes/lower/${options.worn.lower.setup.variable}/acc${suffix}.png`, filter)
+				return gray_suffix(`img/clothes/lower/${options.worn.lower.setup.variable}/acc${suffix}.png`, options.filters['worn_lower_acc']);
 			},
 			zfn(options) {
 				if (options.worn.lower.setup.name.includes("ballgown") || options.worn.lower.setup.name.includes("pinafore"))
@@ -4198,7 +4184,7 @@ function genlayer_clothing_fitted_right_acc(slot, overrideOptions) {
 
 function genlayer_clothing_accessory(slot, overrideOptions) {
 	return genlayer_clothing_main(slot, Object.assign({
-		filtersfn: [`worn_${slot}_acc`],
+		filtersfn: () => [`worn_${slot}_acc`],
 
 		showfn(options) {
 			return options.show_clothes
@@ -4698,7 +4684,7 @@ function genlayer_clothing_arm_acc_fitted(arm, slot, overrideOptions) {
 
 function genlayer_tanning(slot, index, tanningLayer, value, animation = "idle") {
 	return {
-		alphafn(options) {
+		alphafn() {
 			return value / 100;
 		},
 		animation,
@@ -4724,4 +4710,20 @@ function genlayer_tanning(slot, index, tanningLayer, value, animation = "idle") 
 			return this.model.layers[slot].z;
 		},
 	};
+}
+
+function setClothingFilter(options, slot, clothingObject, setupObj, filterSuffix, colourProp, customProp) {
+	const filterType = `worn_${slot}${filterSuffix}`;
+	const colour = clothingObject[customProp];
+	
+	options.filters[filterType] = (setupObj[colourProp]) 
+		? lookupColour(
+			options, 
+			setup.colours.clothes_map,
+			colour,
+			`${slot} ${filterSuffix.includes('_acc') ? 'accessory' : 'clothing'}`,
+			`${filterType}_custom`,
+			setupObj.prefilter
+		) 
+		: Renderer.emptyLayerFilter();
 }
