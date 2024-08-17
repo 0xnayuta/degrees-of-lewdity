@@ -309,6 +309,9 @@ function mapClosePenis(options) {
 }
 window.mapClosePenis = mapClosePenis;
 
+/**
+ * @param {CloseOptions} options
+ */
 function mapCloseChest(options) {
 	const breastsNpc = V.NPCList[V.chesttarget];
 	const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse);
@@ -327,13 +330,7 @@ function mapCloseChest(options) {
 		options.filters.chestNpc = setup.colours.getSkinFilter(options.chest.npcTone, 0);
 		if (breastsNpc.condom?.worn) {
 			options.chest.condom = breastsNpc.condom.colour || "red";
-			options.filters.breastsCondom = CombatRenderer.lookupColour(
-				setup.colours.condom_map,
-				options.breasts.condom,
-				"condom",
-				"condom_custom",
-				"condom"
-			);
+			options.filters.breastsCondom = CombatRenderer.lookupColour(setup.colours.condom_map, options.chest.condom, "condom", "condom_custom", "condom");
 		}
 	}
 }
