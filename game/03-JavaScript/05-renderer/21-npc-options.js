@@ -273,7 +273,7 @@ class NpcCombatMapper {
 				options.show = false;
 				if (penetrator?.position != null) {
 					options.state = penetrator.position;
-					options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
+					options.show = ["vagina", "anus", "thighs"].includes(penetrator.position);
 				}
 				break;
 		}
