@@ -1335,7 +1335,7 @@ class PlayerCombatMapper {
 						if (options.legFrontPosition === "down") {
 							type += "-" + options.legFrontPosition;
 						}
-						if (options.legFrontPosition === "footjob") {
+						if (["footjob", "up"].includes(options.legFrontPosition)) {
 							type += "-" + "up";
 						}
 						if (bodywriting.arrow === 1) {

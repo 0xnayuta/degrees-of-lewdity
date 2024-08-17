@@ -9,7 +9,7 @@ declare module "twine-sugarcube" {
 declare global {
 	export type SpritePositions = "doggy" | "missionary";
 
-	export type CombatClothingTypes = "skirt" | "longskirt" | "trousers" | "shorts" | "thighhighs" | "socks";
+	export type CombatClothingTypes = "skirt" | "longskirt" | "trousers" | "shorts" | "waisthighs" | "thighhighs" | "kneehighs" | "ankled";
 
 	export type PenetratorTypes = "human" | "strapon" | "knotted" | "equine" | "feline" | "sus";
 

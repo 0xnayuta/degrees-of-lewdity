@@ -301,7 +301,7 @@ class CombatRenderer {
 		let alpha = 1;
 		const stage = V[slot + "wetstage"];
 		if (typeof stage === "number") {
-			alpha = Math.clamp(1 - stage / 4, 0, 1);
+			alpha = Math.clamp(1 - stage / 4, 0.25, 1);
 		}
 		return alpha;
 	}

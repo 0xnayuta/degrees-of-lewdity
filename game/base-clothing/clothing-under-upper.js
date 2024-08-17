@@ -1104,6 +1104,9 @@ function initUnderUpper() {
 			name: "strapless bra",
 			name_cap: "Strapless bra",
 			variable: "straplessbra",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,

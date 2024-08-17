@@ -532,6 +532,11 @@ const combatMainPc = {
 		},
 		frontarm: {
 			srcfn(options) {
+				// Find target of hand if any, if bestial (pig) swap out sprite.
+				if (PlayerCanvasHelper.isBestialHandjob(options)) {
+					return `${options.src}body/arms/front-${options.armFrontPosition}-bestial.png`;
+				}
+				// Generic position.
 				return `${options.src}body/arms/front-${options.armFrontPosition}.png`;
 			},
 			showfn(options) {
@@ -934,7 +939,12 @@ const combatMainPc = {
 					Errors.report("Clothing object was undefined");
 					return false;
 				}
-				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
+				if (PlayerCanvasHelper.isBestialHandjob(options)) {
+					return false;
+				}
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				return available.includes(options.armFrontPosition);
 			},

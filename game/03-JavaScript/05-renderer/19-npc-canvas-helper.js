@@ -12,12 +12,15 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
+				if (options.state == null) {
+					return "";
+				}
 				const path = `${options.src}/${options.category}/${options.type}/${options.state}.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				const show = options.show;
+				const show = options.show || options.state == null;
 				console.warn("NPC showing:", show);
 				return !!show;
 			},
@@ -34,6 +37,9 @@ class NpcCanvasHelper {
 				return 60;
 			},
 			dxfn(options) {
+				if (options.category !== "shadow") {
+					return 0;
+				}
 				const penetrator = options.penetrators[0];
 				if (penetrator == null) {
 					return 0;
@@ -78,8 +84,10 @@ class NpcCanvasHelper {
 				if (penetrator == null || !penetrator.show) {
 					return "";
 				}
-				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}.png`;
-				return path;
+				if (["horse", "centaur"].includes(options.type)) {
+					return `${options.src}/penetrators/${penetrator.type}/${penetrator.state}.png`;
+				}
+				return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrators[0];
@@ -97,8 +105,17 @@ class NpcCanvasHelper {
 				if (penetrator.position === "thighs") {
 					return 30;
 				}
+				if (penetrator.position === "feet") {
+					return CombatRenderer.indices.backFootwear + 1;
+				}
 				if (options.position === "doggy" && penetrator.position === "rightarm") {
 					return CombatRenderer.indices.backArm - 1;
+				}
+				if (options.position === "missionary" && penetrator.position === "rightarm") {
+					return CombatRenderer.indices.frontArm - 1;
+				}
+				if (options.position === "doggy" && penetrator.position === "leftarm") {
+					return CombatRenderer.indices.frontArm - 1;
 				}
 				if (options.position === "missionary" && penetrator.position === "leftarm") {
 					return CombatRenderer.indices.backArm - 1;
@@ -192,6 +209,9 @@ class NpcCanvasHelper {
 				return 256;
 			},
 			filtersfn(options) {
+				if (options.category !== "shadow") {
+					return [];
+				}
 				return ["penetrator"];
 			},
 		};
@@ -212,8 +232,10 @@ class NpcCanvasHelper {
 				if (penetrator == null) {
 					return "";
 				}
-				const path = `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-${penetrator.ejaculate.type}.png`;
-				return path;
+				if (["horse", "centaur"].includes(options.type)) {
+					return `${options.src}/penetrators/${penetrator.type}/${penetrator.state}-${penetrator.ejaculate.type}.png`;
+				}
+				return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-${penetrator.ejaculate.type}.png`;
 			},
 			showfn(options) {
 				const penetrator = options.penetrators[0];

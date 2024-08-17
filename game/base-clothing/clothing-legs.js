@@ -53,7 +53,7 @@ function initLegs() {
 			name_cap: "Tights",
 			variable: "tights",
 			combat: {
-				renderType: "trousers",
+				renderType: "waisthighs",
 			},
 			integrity: 30,
 			integrity_max: 30,
@@ -87,14 +87,14 @@ function initLegs() {
 			name_cap: "Boy's gym socks",
 			variable: "boysgymsocks",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
 			reveal: 1,
 			word: "n",
-			state: "thighs",
+			state: "thighs", // Thighs?
 			state_base: "thighs",
 			plural: 1,
 			colour: 0,
@@ -121,14 +121,14 @@ function initLegs() {
 			name_cap: "Girl's gym socks",
 			variable: "girlsgymsocks",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
 			reveal: 1,
 			word: "n",
-			state: "thighs",
+			state: "thighs", // Thighs?
 			state_base: "thighs",
 			plural: 1,
 			colour: 0,
@@ -223,7 +223,7 @@ function initLegs() {
 			name_cap: "Fishnet tights",
 			variable: "fishnettights",
 			combat: {
-				renderType: "trousers",
+				renderType: "waisthighs",
 			},
 			integrity: 25,
 			integrity_max: 25,
@@ -378,7 +378,7 @@ function initLegs() {
 			name_cap: "Gold anklets",
 			variable: "goldanklets",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -477,7 +477,7 @@ function initLegs() {
 			name_cap: "Ankle socks",
 			variable: "anklesocks",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -811,7 +811,7 @@ function initLegs() {
 			name_cap: "Rib-knit socks",
 			variable: "striped socks long",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -919,7 +919,7 @@ function initLegs() {
 			name_cap: "Sheer leggings",
 			variable: "sheerleggings",
 			combat: {
-				reference: "tights",
+				renderType: "waisthighs",
 			},
 			integrity: 30,
 			integrity_max: 30,
@@ -1291,7 +1291,7 @@ function initLegs() {
 			name_cap: "Gold shackles",
 			variable: "goldshackles",
 			combat: {
-				renderType: "socks",
+				renderType: "ankled",
 			},
 			integrity: 100,
 			integrity_max: 100,

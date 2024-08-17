@@ -14,11 +14,30 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
-	export type HumanoidTypes = "human";
+	export type HumanoidTypes =
+		| "human"
+		| "wolfboy"
+		| "wolfgirl"
+		| "bearboy"
+		| "beargirl"
+		| "pigboy"
+		| "piggirl"
+		| "catboy"
+		| "catgirl"
+		| "dolphinboy"
+		| "dolphingirl"
+		| "lizardboy"
+		| "lizardgirl"
+		| "cowgirl"
+		| "bullboy"
+		| "foxboy"
+		| "foxgirl";
+
 	export type BestialTypes =
 		| "dog"
 		| "cat"
 		| "pig"
+		| "bull"
 		| "wolf"
 		| "dolphin"
 		| "lizard"
@@ -26,11 +45,15 @@ declare global {
 		| "boar"
 		| "creature"
 		| "horse"
+		| "centaur"
 		| "fox"
 		| "hawk"
+		| "harpy"
 		| "cow"
 		| "spider";
+
 	export type PlantTypes = "plant";
+
 	export type CharacterTypes = HumanoidTypes | BestialTypes | PlantTypes;
 
 	export interface Npc {

@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CharacterTypes, NpcStates, AnimationSpeed, PenetratorTypes, SpritePositions, Partial, Dict */
+/* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, SpritePositions, Partial, Dict */
 
 /**
  * @typedef NpcOptions
@@ -13,7 +13,7 @@
  * @property {Penetrator[]} penetrators
  * @property {Balls} balls
  * @property {boolean} show
- * @property {NpcStates?} state
+ * @property {string?} state
  * @property {Colour} colour
  * @property {AnimationSpeed} speed
  * @property {string} animKey
@@ -156,21 +156,8 @@ class NpcCombatMapper {
 				options.state = penetrator.position;
 			}
 
-			if (options.category === "beast") {
-				if (["horse", "centaur"].includes(npc.type)) {
-					options.show = true;
-					return options;
-				}
-
-				if (npc.stance === "top") {
-					options.show = penetrator.position != null && ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
-					return options;
-				}
-
-				if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
-					options.show = true;
-					return options;
-				}
+			if (npc.stance === "top") {
+				options.show = penetrator?.position != null && ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
 			}
 
 			// Add penetrator states to NPC state so the shadows can be staggered for oral.
@@ -187,6 +174,13 @@ class NpcCombatMapper {
 
 			// Figure out whether to show the shadow man or not:
 			options.show = penetrator.position != null && ["vagina", "anus", "mouth"].includes(penetrator.position);
+		}
+
+		this.mapNpcTypeToOptions(options, npc, penetrator);
+
+		// If beast, return for now.
+		if (options.category === "beast") {
+			return options;
 		}
 
 		// Figure out whether the NPC is riding the PC, prepare for combat retardation
@@ -233,6 +227,57 @@ class NpcCombatMapper {
 			return options;
 		}
 
+		return options;
+	}
+
+	/**
+	 * @param {NpcOptions} options
+	 * @param {Npc} npc
+	 * @param {Penetrator?} penetrator
+	 */
+	static mapNpcTypeToOptions(options, npc, penetrator) {
+		switch (npc.type) {
+			case "dog":
+			case "wolf":
+			case "fox":
+			case "cow":
+			case "bull":
+			case "cat":
+			case "bear":
+			case "dolphin":
+			case "hawk":
+			case "harpy":
+			case "lizard":
+			case "spider":
+			case "creature":
+				options.show = false;
+				break;
+			case "pig":
+			case "boar":
+				if (options.position === "missionary") {
+					options.show = false;
+					break;
+				}
+				options.show = true;
+				options.state = npc.stance === "top" ? "over" : "front";
+				break;
+			case "horse":
+			case "centaur":
+				options.state = "over";
+				options.show = true;
+				if (penetrator?.state === "penetrating") {
+					options.state += "-penetrated";
+				}
+				break;
+			default: // Humanoid
+				options.show = false;
+				if (penetrator?.position != null) {
+					options.state = penetrator.position;
+					options.show = ["vagina", "anus", "thighs", "butt"].includes(penetrator.position);
+				}
+				break;
+		}
+		console.log("NPC-Type states: type =", npc.type, "state =", options.state, "position =", options.position);
 		return options;
 	}
 
@@ -302,30 +347,10 @@ class NpcCombatMapper {
 	 * @returns {Penetrator?}
 	 */
 	static mapNpcToPenetratorOptions(npc, options) {
-		/**
-		 * @param {Npc} npc
-		 * @returns {PenetratorTypes}
-		 */
-		function getPenetratorType(npc) {
-			if (["dog", "wolf", "fox"].includes(npc.type)) {
-				return "knotted";
-			}
-			if (["horse", "centaur"].includes(npc.type)) {
-				return "equine";
-			}
-			if (["cat", "cougar"].includes(npc.type)) {
-				return "feline";
-			}
-			if (["pig"].includes(npc.type)) {
-				return "sus";
-			}
-			return "human";
-		}
-
 		/** @type {Penetrator} */
 		const penetrator = {
 			show: false,
-			type: getPenetratorType(npc),
+			type: this.getPenetratorType(npc),
 			colour: npc.skincolour,
 			target: combat.target.pc,
 			isEjaculating: V.enemyarousal >= V.enemyarousalmax && wearingCondom(V.vaginatarget) !== "worn" && !npcHasStrapon(V.vaginatarget),
@@ -366,6 +391,26 @@ class NpcCombatMapper {
 		}
 
 		return penetrator;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {PenetratorTypes}
+	 */
+	static getPenetratorType(npc) {
+		if (["dog", "wolf", "fox"].includes(npc.type)) {
+			return "knotted";
+		}
+		if (["horse", "centaur"].includes(npc.type)) {
+			return "equine";
+		}
+		if (["cat"].includes(npc.type)) {
+			return "feline";
+		}
+		if (["pig", "boar"].includes(npc.type)) {
+			return "sus";
+		}
+		return "human";
 	}
 }
 window.NpcCombatMapper = NpcCombatMapper;

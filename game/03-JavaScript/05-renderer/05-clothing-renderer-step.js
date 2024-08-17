@@ -308,11 +308,15 @@ ClothingRendererStep.create("shorts", {
 	},
 });
 
-ClothingRendererStep.create("thighhighs", {
+ClothingRendererStep.create("waisthighs", {
 	missionary: {
+		waist: {
+			layered: true,
+			legged: true,
+		},
 		thighs: {
 			layered: true,
-			legged: false,
+			legged: true,
 		},
 		knees: {
 			layered: true,
@@ -324,9 +328,13 @@ ClothingRendererStep.create("thighhighs", {
 		},
 	},
 	doggy: {
+		waist: {
+			layered: true,
+			legged: true,
+		},
 		thighs: {
 			layered: true,
-			legged: false,
+			legged: true,
 		},
 		knees: {
 			layered: true,
@@ -339,7 +347,38 @@ ClothingRendererStep.create("thighhighs", {
 	},
 });
 
-ClothingRendererStep.create("socks", {
+ClothingRendererStep.create("thighhighs", {
+	missionary: {
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
+		thighs: {
+			layered: true,
+			legged: true,
+		},
+		knees: {
+			layered: true,
+			legged: true,
+		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
+
+ClothingRendererStep.create("kneehighs", {
 	missionary: {
 		knees: {
 			layered: true,
@@ -355,6 +394,21 @@ ClothingRendererStep.create("socks", {
 			layered: true,
 			legged: true,
 		},
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+});
+
+ClothingRendererStep.create("ankled", {
+	missionary: {
+		ankles: {
+			layered: true,
+			legged: true,
+		},
+	},
+	doggy: {
 		ankles: {
 			layered: true,
 			legged: true,

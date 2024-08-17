@@ -140,7 +140,7 @@ class PlayerCanvasHelper {
 	}
 
 	/**
-	 * @param {string} slot
+	 * @param {ClothedSlots} slot
 	 * @param {CanvasModelLayers<CombatPlayerOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<CombatPlayerOptions>}
 	 */
@@ -158,12 +158,18 @@ class PlayerCanvasHelper {
 			},
 			showfn(options) {
 				const clothes = options.clothes[slot];
+				if (clothes == null) {
+					return false;
+				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasMainImg;
 				console.log(slot, "Show?:", show);
 				return !!show;
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
+				if (clothes == null) {
+					return 1;
+				}
 				const alpha = clothes.alpha;
 				console.log(slot, "Alpha:", alpha);
 				return alpha;
@@ -255,6 +261,20 @@ class PlayerCanvasHelper {
 			z: CombatRenderer.indices[layer + part.toUpperFirst()],
 		};
 		return Object.assign(defaults, overrideOptions);
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
+	 * @returns {boolean}
+	 */
+	static isBestialHandjob(options) {
+		const arm = options.position === "doggy" ? V.leftarm : V.rightarm;
+		const target = options.position === "doggy" ? V.lefttarget : V.righttarget;
+		if (arm !== "penis") {
+			return false;
+		}
+		const npc = V.NPCList[target];
+		return ["pig", "boar"].includes(npc.type);
 	}
 }
 window.PlayerCanvasHelper = PlayerCanvasHelper;
