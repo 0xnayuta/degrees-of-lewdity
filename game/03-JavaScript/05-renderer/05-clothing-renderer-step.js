@@ -145,14 +145,6 @@ ClothingRendererStep.create("skirt", {
 
 ClothingRendererStep.create("longskirt", {
 	missionary: {
-		chest: {
-			layered: false,
-			legged: false,
-		},
-		midriff: {
-			layered: false,
-			legged: false,
-		},
 		waist: {
 			layered: true,
 			legged: true,
@@ -171,14 +163,6 @@ ClothingRendererStep.create("longskirt", {
 		},
 	},
 	doggy: {
-		chest: {
-			layered: false,
-			legged: false,
-		},
-		midriff: {
-			layered: false,
-			legged: false,
-		},
 		waist: {
 			layered: true,
 			legged: true,
