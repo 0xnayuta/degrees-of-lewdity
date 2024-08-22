@@ -261,6 +261,7 @@ module.exports = {
 		"devTools",
 		"dist",
 		"game/03-JavaScript/external",
+		"game/03-JavaScript/00-libs/renderer.js",
 	],
 
 	parserOptions: {
