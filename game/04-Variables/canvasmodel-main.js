@@ -254,7 +254,7 @@ Renderer.CanvasModels.main = {
 			"body_type": "m",
 			// Skin & tan
 			"skin_type": "light",
-			"skin_scars":false,
+			"skin_scars": false,
 			// Hair
 			"hair_colour": "red",
 			"hair_colour_gradient": {
@@ -658,7 +658,7 @@ Renderer.CanvasModels.main = {
 		options.zupperleft = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 		options.zupperright = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms_tucked;
 
-		if (options.arm_right === "cover" || options.arm_right === "hold" ) options.zupperright = ZIndices.upper_arms_cover;
+		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.upper_arms_cover;
 		if (options.arm_left === "cover") options.zupperleft = ZIndices.upper_arms_cover;
 		if (options.worn.upper.setup.name === "cocoon") options.hideAll = true;
 
@@ -673,18 +673,18 @@ Renderer.CanvasModels.main = {
 			options.head_mask_src = "img/clothes/upper/cocoon/mask.png";
 		} else if (
 			options.worn.over_head.setup.mask_img === 1
-				&& !(options.hood_down && options.worn.over_head.setup.hood && options.worn.over_head.setup.outfitSecondary !== undefined)
+			&& !(options.hood_down && options.worn.over_head.setup.hood && options.worn.over_head.setup.outfitSecondary !== undefined)
 		) {
 			options.head_mask_src = `img/clothes/head/${options.worn.over_head.setup.variable}/mask.png`;
 		} else if (
 			options.worn.head.setup.mask_img === 1
-				&& !(options.hood_down && options.worn.head.setup.hood && options.worn.head.setup.outfitSecondary !== undefined)
+			&& !(options.hood_down && options.worn.head.setup.hood && options.worn.head.setup.outfitSecondary !== undefined)
 		) {
 			if (
 				options.worn.head.setup.mask_img_ponytail === 1
-					&& hairTails.includes(options.hair_sides_type)
-					|| thickTails.includes(options.hair_sides_type)
-					&& furCap.includes(options.worn.head.setup.variable)
+				&& hairTails.includes(options.hair_sides_type)
+				|| thickTails.includes(options.hair_sides_type)
+				&& furCap.includes(options.worn.head.setup.variable)
 			) {
 				options.head_mask_src = `img/clothes/head/${options.worn.head.setup.variable}/mask_ponytail.png`;
 			} else {
@@ -702,13 +702,13 @@ Renderer.CanvasModels.main = {
 
 		if (
 			options.worn.upper.setup.type.includes("bellyHide")
-				|| options.worn.lower.setup.type.includes("bellyHide")
-				|| !V.worn.over_upper.type.includes("naked")
+			|| options.worn.lower.setup.type.includes("bellyHide")
+			|| !V.worn.over_upper.type.includes("naked")
 		) {
 			options.belly -= 3;
 		}
 
-		const bellyDir =  "img/clothes/belly"
+		const bellyDir = "img/clothes/belly"
 		if (between(options.belly, 8, 24)) {
 			options.belly_mask_lower_shadow_src = `${bellyDir}/shadow_${options.belly}.png`;
 			options.lowerShadowMask.push(options.belly_mask_lower_shadow_src);
@@ -718,7 +718,7 @@ Renderer.CanvasModels.main = {
 		if (between(options.belly, 15, 24)) {
 			options.belly_mask_src = options.worn.upper.setup.pregType == "min" ?
 				`${bellyDir}/mask_min_${options.belly}.png` : `${bellyDir}/mask_${options.belly}.png`;
-				options.lowerBellyMask.push(options.belly_mask_src);
+			options.lowerBellyMask.push(options.belly_mask_src);
 
 			if (V.worn.upper.outfitPrimary == undefined && options.worn.lower.setup.pregType !== "cover") {
 				if (options.belly >= 19) {
@@ -788,8 +788,8 @@ Renderer.CanvasModels.main = {
 
 		if (
 			options.worn.handheld.setup.name != "pom poms"
-				&& options.worn.handheld.setup.name != "naked"
-				&& options.arm_right === "hold"
+			&& options.worn.handheld.setup.name != "naked"
+			&& options.arm_right === "hold"
 		) {
 			options.handheld_position = true;
 		} else {
@@ -806,7 +806,7 @@ Renderer.CanvasModels.main = {
 
 		if (
 			options.worn.head.setup.mask_img === 1
-				&& !(options.hood_down && options.worn.head.setup.hood && options.worn.head.setup.outfitSecondary !== undefined)
+			&& !(options.hood_down && options.worn.head.setup.hood && options.worn.head.setup.outfitSecondary !== undefined)
 		) {
 			options.hood_mask = true;
 		} else {
@@ -815,8 +815,8 @@ Renderer.CanvasModels.main = {
 
 		if (
 			options.worn.neck.setup.name === "suspenders"
-				&& options.worn.neck.setup.altposition != "alt"
-				&& ["retro shorts", "retro trousers", "baseball shorts", "wide leg trousers"].includes(options.worn.lower.setup.name)
+			&& options.worn.neck.setup.altposition != "alt"
+			&& ["retro shorts", "retro trousers", "baseball shorts", "wide leg trousers"].includes(options.worn.lower.setup.name)
 		) {
 			options.high_waist_suspenders = true;
 		} else {
@@ -835,20 +835,20 @@ Renderer.CanvasModels.main = {
 		options.generatedLayers = {};
 
 		if (options.tanningEnabled) {
-			if (V.options.tanLines){
+			if (V.options.tanLines) {
 				if (!Skin.cachedLayers) {
 					const canvasModel = this;
-	
+
 					// Don't modify the original options object
 					const newOptions = canvasModel.options.deepCopy();
-	
+
 					// Highest tanning values are added first
 					const tanningGroups = [...Skin.tanningLayers].sort((a, b) => a.value - b.value);
-	
+
 					for (let i = 0; i < tanningGroups.length; i++) {
 						const layerGroup = tanningGroups[i];
 						if (layerGroup.layers.length === 0) continue;
-	
+
 						// For every item in tanning layers, create a new entry in options.worn, and setup the filters
 						for (const [slot, props] of Object.entries(layerGroup.slots)) {
 							const item = {
@@ -865,13 +865,13 @@ Renderer.CanvasModels.main = {
 							setClothingFilter(newOptions, slot, item, item.setup, '', 'colour_sidebar', 'colour');
 							setClothingFilter(newOptions, slot, item, item.setup, '_acc', 'accessory_colour_sidebar', 'accColour');
 						}
-	
+
 						// Get the source paths for the tanning layer
 						// Filter out non-unique rows
 						const layers = { arms: [], body: [] };
 						for (const layerName of layerGroup.layers) {
 							const layer = canvasModel.layers[layerName];
-	
+
 							// Set offsets (mostly for preg belly)
 							const srcObject = {
 								path: layer.srcfn(newOptions),
@@ -884,7 +884,7 @@ Renderer.CanvasModels.main = {
 								target.push(srcObject);
 							}
 						}
-	
+
 						// Generate final tanning layers
 						// Separate the base with the arms, since they can overlap
 						// Base layer has disabled animations
@@ -985,7 +985,7 @@ Renderer.CanvasModels.main = {
 				return !!options.belly
 			},
 			srcfn(options) {
-				return between(options.belly,1,24) ? `img/body/preggyBelly/pregnancy_belly_${options.belly}.png` : "";
+				return between(options.belly, 1, 24) ? `img/body/preggyBelly/pregnancy_belly_${options.belly}.png` : "";
 			},
 		},
 		"nipples_parasite": {
@@ -1234,7 +1234,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/makeup/mascara${half}.png`;
 			},
 			animationfn(options) {
-				return  options.blink_animation;
+				return options.blink_animation;
 			},
 			showfn(options) {
 				return options.show_face && !!options.mascara_colour;
@@ -2500,7 +2500,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const writing = setup.bodywriting[options.writing_breasts];
 				if ((!writing.sprites || writing.sprites.length == 0)
-						&& writing.type === "text" && options.breast_size >= 2) {
+					&& writing.type === "text" && options.breast_size >= 2) {
 					return `img/bodywriting/text/default/breasts${options.breast_size}.png`;
 				}
 				return '';
@@ -3117,7 +3117,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				let size = "";
 				if (options.worn.genitals.setup.penisSize) {
-					switch(options.penis_size) {
+					switch (options.penis_size) {
 						case -2: case -1:
 							size = -1;
 							break;
@@ -3681,7 +3681,7 @@ Renderer.CanvasModels.main = {
 				return ["worn_handheld_acc"];
 			},
 		},
-		"handheld_back": genlayer_clothing_back_img('handheld',{
+		"handheld_back": genlayer_clothing_back_img('handheld', {
 			z: ZIndices.over_head_back
 		}),
 		"handheld_back_acc": genlayer_clothing_back_img_acc('handheld', {
@@ -3755,7 +3755,7 @@ Renderer.CanvasModels.main = {
 					&& options.worn.face.alt === "alt";
 				const check = isAltPosition
 					&& (options.worn.face.setup.type.includes("cool")
-					|| options.worn.face.setup.type.includes("glasses"));
+						|| options.worn.face.setup.type.includes("glasses"));
 
 				if (check) return ZIndices.over_head;
 				return options.facewear_layer === "front" ? ZIndices.face - 12.5 : ZIndices.face;
@@ -3765,10 +3765,10 @@ Renderer.CanvasModels.main = {
 			zfn(options) {
 				const isAltPosition = !options.alt_override
 					&& options.worn.face.setup.altposition !== undefined
-						&& options.worn.face.alt === "alt";
+					&& options.worn.face.alt === "alt";
 				const check = isAltPosition
 					&& (options.worn.face.setup.type.includes("cool")
-					|| options.worn.face.setup.type.includes("glasses"));
+						|| options.worn.face.setup.type.includes("glasses"));
 
 				if (check) return ZIndices.over_head;
 				return options.facewear_layer === "front" ? ZIndices.face - 12.5 : ZIndices.face;
@@ -3838,7 +3838,7 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				const check = options.worn.head.setup.mask_img === 1
-					&&!(options.hood_down
+					&& !(options.hood_down
 						&& options.worn.head.setup.hood
 						&& options.worn.head.setup.outfitSecondary !== undefined);
 				return check ? ZIndices.collar : ZIndices.neck;
@@ -3934,7 +3934,7 @@ Renderer.CanvasModels.main = {
  * @param {string} prefilterName name of prefilter to apply
  * @return {CompositeLayerParams}
  */
-function lookupColour (options, dict, key, debugName, customFilterName, prefilterName) {
+function lookupColour(options, dict, key, debugName, customFilterName, prefilterName) {
 	let filter;
 	if (key === "custom") {
 		filter = clone(options.filters[customFilterName]);
@@ -4057,6 +4057,8 @@ function generateClothingFilter(options, slot, item) {
 
 	return filter;
 }
+window.generateClothingFilter = generateClothingFilter;
+
 function generateClothingAccFilter(options, slot, item) {
 	const filter = (item.setup.accessory_colour_sidebar) ? lookupColour(
 		options,
@@ -4069,6 +4071,7 @@ function generateClothingAccFilter(options, slot, item) {
 
 	return filter;
 }
+window.generateClothingAccFilter = generateClothingAccFilter;
 
 // Layer generating functions.
 function getClothingPathBreastsAcc(slot, options) {
@@ -4225,9 +4228,9 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 
 		showfn(options) {
 			return options.show_clothes
-			&& options.worn[slot].index > 0
-			&& options.worn[slot].setup.accImage !== 0
-			&& options.worn[slot].setup.accessory === 1;
+				&& options.worn[slot].index > 0
+				&& options.worn[slot].setup.accImage !== 0
+				&& options.worn[slot].setup.accessory === 1;
 		},
 		srcfn(options) {
 			const setup = options.worn[slot].setup;
@@ -4577,7 +4580,7 @@ function genlayer_clothing_arm(arm, slot, overrideOptions) {
 			const cover = options[`arm_${arm}`] === 'cover' ? `${arm}_cover` : held;
 			const alt = isAltPosition ? "_alt" : '';
 			const sleeve = isAltSleeve ? '_rolled' : '';
-			const path =  `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
+			const path = `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -4620,7 +4623,7 @@ function genlayer_clothing_arm_fitted(arm, slot, overrideOptions) {
 			const alt = isAltPosition ? "_alt" : '';
 			const sleeve = isAltSleeve ? '_rolled' : '';
 
-			const path =  `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
+			const path = `img/clothes/${slot}/${setup.variable}/${cover}${alt}${sleeve}.png`;
 			return gray_suffix(path, options.filters[this.filtersfn(options)[0]]);
 		},
 	}, overrideOptions));
@@ -4718,7 +4721,7 @@ function genlayer_tanning(slot, index, tanningLayer, value, maskdx, animation = 
 		srcfn(options) {
 			// Clear from cache and reload if src has been changed
 			if (this.model.layers[slot].src !== options.generatedLayers[`tan_${slot}${index}`].src) {
-			  	delete Renderer.ImageCaches[this.model.layers[slot].src];
+				delete Renderer.ImageCaches[this.model.layers[slot].src];
 			}
 			return this.model.layers[slot].src;
 		},
