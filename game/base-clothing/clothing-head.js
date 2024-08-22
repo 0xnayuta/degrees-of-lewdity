@@ -1984,6 +1984,7 @@ function initHead() {
 			iconFile: "star_hairpin.png",
 			accIcon: "star_hairpin_acc.png",
 		},
+
 		{
 			index: 57,
 			name: "durag",
@@ -2022,6 +2023,7 @@ function initHead() {
 			iconFile: "bandanna.png",
 			accIcon: 0,
 		},
+
 		{
 			index: 58,
 			name: "kittycat hat",
@@ -2061,6 +2063,7 @@ function initHead() {
 			iconFile: "cat_hat.png",
 			accIcon: "cat_hat_acc.png",
 		},
+
 		{
 			index: 59,
 			name: "sexy nun's veil",
@@ -2099,6 +2102,7 @@ function initHead() {
 			iconFile: "sexy_nuns_veil.png",
 			accIcon: 0,
 		},
+
 		{
 			index: 60,
 			name: "sexy nun's ornate veil",
@@ -2137,6 +2141,7 @@ function initHead() {
 			iconFile: "sexy_nuns_ornate_veil.png",
 			accIcon: 0,
 		},
+
 		{
 			index: 61,
 			name: "newsboy cap",
@@ -2192,6 +2197,7 @@ function initHead() {
 			location: 0,
 			iconFile: "newsboy_cap.png",
 		},
+
 		{
 			index: 62,
 			name: "visor",
@@ -2230,6 +2236,7 @@ function initHead() {
 			iconFile: "visor.png",
 			accIcon: "visor_acc.png",
 		},
+
 		{
 			index: 63,
 			name: "lolita headband",
@@ -2271,6 +2278,7 @@ function initHead() {
 			cost: 3100,
 			description: "Holds your hair back.",
 			shop: ["clothing", "adult"],
+			shopGroup: "lolitaheadband",
 			accessory: 1,
 			accessory_colour: 0,
 			accessory_colour_options: [
@@ -2328,6 +2336,69 @@ function initHead() {
 			location: 0,
 			iconFile: "hairpin.png",
 			accIcon: 0,
+		},
+
+		{
+			index: 65,
+			name: "classic lolita headband",
+			name_cap: "Classic lolita headband",
+			variable: "lolitaold",
+			integrity: 50,
+			integrity_max: 50,
+			fabric_strength: 20,
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: [
+				"light pink",
+				"lilac",
+				"black",
+				"blue",
+				"brown",
+				"green",
+				"pink",
+				"purple",
+				"red",
+				"tangerine",
+				"teal",
+				"white",
+				"yellow",
+				"custom",
+			],
+			colour_sidebar: 1,
+			type: ["costume"],
+			gender: "f",
+			femininity: 200,
+			warmth: 0,
+			cost: 3100,
+			description: "Holds your hair back.",
+			shop: ["clothing", "adult"],
+			shopGroup: "lolitaheadband",
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: [
+				"light pink",
+				"lilac",
+				"black",
+				"blue",
+				"brown",
+				"green",
+				"pink",
+				"purple",
+				"red",
+				"tangerine",
+				"teal",
+				"white",
+				"yellow",
+				"custom",
+			],
+			accessory_colour_sidebar: 1,
+			back_img: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "lolita_headband.png",
+			accIcon: "lolita_headband_acc.png",
 		},
 	];
 	setup.clothes.head = clothing;

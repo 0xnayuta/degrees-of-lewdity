@@ -157,7 +157,18 @@ function refreshModels(e, overlay) {
 }
 
 /* Events */
-$(document).on(":onloadsave", () => refreshCanvas("lighting"));
+$(document).on(":passagestart", () => {
+	if (State.current !== State.top) {
+		Skin.recache();
+	}
+});
+$(document).on(":onloadsave", () => {
+	Skin.recache();
+	refreshCanvas("lighting");
+});
+$(document).on(":enginerestart", () => {
+	Skin.recache();
+});
 $(document).on(":oncloseoverlay", refreshModels);
 
 /**
