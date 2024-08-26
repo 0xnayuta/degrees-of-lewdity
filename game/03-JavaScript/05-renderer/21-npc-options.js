@@ -425,6 +425,53 @@ class NpcCombatMapper {
 	}
 
 	/**
+	 * @param {Npc} npc
+	 * @param {Penetrator?} penetrator
+	 * @returns {boolean}
+	 */
+	static isOverPositioned(npc, penetrator) {
+		if (penetrator?.position === "feet") {
+			return false;
+		}
+		if (npc.stance === "top") {
+			return true;
+		}
+		if (penetrator?.position && ["vagina", "butt", "anus", "thighs"].includes(penetrator.position)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	static isUnderPositioned(npc) {
+		if (V.penisuse === "othervagina" && V.penistarget === npc.index) {
+			return true;
+		}
+		if (V.penisuse === "otheranus" && V.penistarget === npc.index) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @param {Penetrator?} penetrator
+	 * @returns {boolean}
+	 */
+	static isFrontPositioned(npc, penetrator) {
+		if (npc.stance === "topface") {
+			return true;
+		}
+		if (penetrator?.position && ["mouth"].includes(penetrator.position)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * @param {NpcOptions} options
 	 * @param {Npc} npc
 	 * @param {Penetrator?} penetrator
@@ -448,19 +495,19 @@ class NpcCombatMapper {
 			return options;
 		}
 
-		if (npc.stance === "top" && this.hasOverSprite(options.position, configuration)) {
+		if (this.hasOverSprite(options.position, configuration) && this.isOverPositioned(npc, penetrator)) {
 			options.show = true;
 			options.state = "over";
 			return options;
 		}
 
-		if (npc.stance === "topface" && this.hasUnderSprite(options.position, configuration)) {
+		if (this.hasUnderSprite(options.position, configuration) && this.isUnderPositioned(npc)) {
 			options.show = true;
-			options.state = "front";
+			options.state = "under";
 			return options;
 		}
 
-		if (npc.stance === "topface" && this.hasFrontSprite(options.position, configuration)) {
+		if (this.hasFrontSprite(options.position, configuration) && this.isFrontPositioned(npc, penetrator)) {
 			options.show = true;
 			options.state = "front";
 			return options;
