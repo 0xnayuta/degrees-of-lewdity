@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, SpritePositions, Partial, Dict */
+/* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, SpritePositions, Partial, Dict, Record */
 
 /**
  * @typedef NpcOptions
@@ -231,52 +231,241 @@ class NpcCombatMapper {
 	}
 
 	/**
+	 * @typedef {object} NpcTypeConfiguration
+	 * @property {boolean} show
+	 * @property {boolean=} hasOverSprite
+	 * @property {boolean=} hasFrontSprite
+	 * @property {boolean=} hasUnderSprite
+	 * @property {Partial<Record<SpritePositions, NpcTypePositionConfiguration>>=} positions
+	 */
+
+	/**
+	 * @typedef NpcTypePositionConfiguration
+	 * @property {boolean=} show
+	 * @property {boolean=} hasOverSprite
+	 * @property {boolean=} hasFrontSprite
+	 * @property {boolean=} hasUnderSprite
+	 */
+
+	/**
+	 * @returns {Partial<Record<CharacterTypes, NpcTypeConfiguration>>}
+	 */
+	static getNpcBeastTypeConfigurations() {
+		return {
+			bear: {
+				show: true,
+				hasFrontSprite: true,
+				hasOverSprite: true,
+				hasUnderSprite: true,
+			},
+			boar: {
+				show: true,
+				hasFrontSprite: true,
+				hasOverSprite: true,
+			},
+			bull: {
+				show: false,
+			},
+			cat: {
+				show: true,
+				hasOverSprite: true,
+				hasUnderSprite: true,
+			},
+			centaur: {
+				show: true,
+				hasOverSprite: true,
+			},
+			cow: {
+				show: false,
+			},
+			creature: {
+				show: true,
+				positions: {
+					doggy: {
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			dog: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			dolphin: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			fox: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			harpy: {
+				show: false,
+			},
+			hawk: {
+				show: true,
+				positions: {
+					doggy: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			horse: {
+				show: true,
+				hasOverSprite: true,
+			},
+			lizard: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			pig: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+			spider: {
+				show: false,
+			},
+			wolf: {
+				show: true,
+				positions: {
+					doggy: {
+						hasFrontSprite: true,
+						hasOverSprite: true,
+						hasUnderSprite: true,
+					},
+					missionary: {
+						hasOverSprite: true,
+					},
+				},
+			},
+		};
+	}
+
+	/**
+	 * @param {SpritePositions} position
+	 * @param {NpcTypeConfiguration} configuration
+	 * @returns {boolean}
+	 */
+	static hasOverSprite(position, configuration) {
+		if (configuration.positions && configuration.positions[position]?.hasOverSprite === true) {
+			return true;
+		}
+		return !!configuration.hasOverSprite;
+	}
+
+	/**
+	 * @param {SpritePositions} position
+	 * @param {NpcTypeConfiguration} configuration
+	 * @returns {boolean}
+	 */
+	static hasUnderSprite(position, configuration) {
+		if (configuration.positions && configuration.positions[position]?.hasUnderSprite === true) {
+			return true;
+		}
+		return !!configuration.hasUnderSprite;
+	}
+
+	/**
+	 * @param {SpritePositions} position
+	 * @param {NpcTypeConfiguration} configuration
+	 * @returns {boolean}
+	 */
+	static hasFrontSprite(position, configuration) {
+		if (configuration.positions && configuration.positions[position]?.hasFrontSprite === true) {
+			return true;
+		}
+		return !!configuration.hasFrontSprite;
+	}
+
+	/**
 	 * @param {NpcOptions} options
 	 * @param {Npc} npc
 	 * @param {Penetrator?} penetrator
+	 * @returns {NpcOptions}
 	 */
 	static mapNpcTypeToOptions(options, npc, penetrator) {
-		switch (npc.type) {
-			case "dog":
-			case "wolf":
-			case "fox":
-			case "cow":
-			case "bull":
-			case "cat":
-			case "bear":
-			case "dolphin":
-			case "hawk":
-			case "harpy":
-			case "lizard":
-			case "spider":
-			case "creature":
-				options.show = false;
-				break;
-			case "pig":
-			case "boar":
-				if (options.position === "missionary") {
-					options.show = false;
-					break;
-				}
-				options.show = true;
-				options.state = npc.stance === "top" ? "over" : "front";
-				break;
-			case "horse":
-			case "centaur":
-				options.state = "over";
-				options.show = true;
-				if (penetrator?.state === "penetrating") {
-					options.state += "-penetrated";
-				}
-				break;
-			default: // Humanoid
-				options.show = false;
-				if (penetrator?.position != null) {
-					options.state = penetrator.position;
-					options.show = ["vagina", "anus", "thighs"].includes(penetrator.position);
-				}
-				break;
+		const configurations = this.getNpcBeastTypeConfigurations();
+		const configuration = configurations[npc.type];
+
+		// Humanoid
+		if (configuration == null) {
+			options.show = true;
+			options.state = penetrator?.position ?? null;
+			return options;
 		}
+
+		// Beast
+		if (!configuration.show) {
+			options.show = false;
+			options.state = null;
+			return options;
+		}
+
+		if (npc.stance === "top" && this.hasOverSprite(options.position, configuration)) {
+			options.show = true;
+			options.state = "over";
+			return options;
+		}
+
+		if (npc.stance === "topface" && this.hasUnderSprite(options.position, configuration)) {
+			options.show = true;
+			options.state = "front";
+			return options;
+		}
+
+		if (npc.stance === "topface" && this.hasFrontSprite(options.position, configuration)) {
+			options.show = true;
+			options.state = "front";
+			return options;
+		}
+
 		console.log("NPC-Type states: type =", npc.type, "state =", options.state, "position =", options.position);
 		return options;
 	}

@@ -3,10 +3,11 @@
 
 class NpcCanvasHelper {
 	/**
+	 * @param {"front" | "back"} layer
 	 * @param {CanvasModelLayers<NpcOptions>} overrideOptions
 	 * @returns {CanvasModelLayers<NpcOptions>}
 	 */
-	static genBodyLayer(overrideOptions = {}) {
+	static genBodyLayer(layer, overrideOptions = {}) {
 		/**
 		 * @type {CanvasModelLayers<NpcOptions>}
 		 */
@@ -15,19 +16,32 @@ class NpcCanvasHelper {
 				if (options.state == null) {
 					return "";
 				}
-				const path = `${options.src}/${options.category}/${options.type}/${options.state}.png`;
+				const path = `${options.src}/${options.category}/${options.type}/${layer}-${options.state}.png`;
 				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {
-				const show = options.show || options.state == null;
-				console.warn("NPC showing:", show);
-				return !!show;
+				if (!options.show) {
+					return false;
+				}
+				if (options.state == null) {
+					return false;
+				}
+				if (layer === "front" && options.category !== "beast") {
+					return false;
+				}
+				return true;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
 			zfn(options) {
+				if (layer === "front") {
+					if (options.state === "penis") {
+						return 91;
+					}
+					return 85;
+				}
 				if (options.position === "doggy") {
 					return 20;
 				}

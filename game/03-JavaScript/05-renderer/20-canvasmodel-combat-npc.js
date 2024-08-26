@@ -22,23 +22,8 @@ const combatMainNpc = {
 		NpcCombatMapper.mapNpcToOptions(options.index || 0, options);
 	},
 	layers: {
-		npcBody: NpcCanvasHelper.genBodyLayer(),
-		npcFrontleg: {
-			srcfn(options) {
-				const path = `${options.src}/${options.category}/${options.type}/${options.state}-leg.png`;
-				console.warn("NPC path:", path);
-				return path;
-			},
-			showfn(options) {
-				const show = options.show && options.category === "beast";
-				console.warn("NPC showing:", show);
-				return !!show;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			z: 85,
-		},
+		npcBodyBack: NpcCanvasHelper.genBodyLayer("back"),
+		npcBodyFront: NpcCanvasHelper.genBodyLayer("front"),
 		npcPenetrator: NpcCanvasHelper.genPenetratorLayer(),
 		npcPenetratorEjaculate: NpcCanvasHelper.genPenetratorEjaculationLayer(),
 	},
