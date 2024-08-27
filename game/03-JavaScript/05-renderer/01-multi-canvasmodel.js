@@ -20,7 +20,6 @@ class MultiCanvasModel {
 		if (T.multiCombatModels != null && typeof T.multiCombatModels === "object") {
 			return;
 		}
-		console.warn("T.multiCombatModels was not setup, assigning object.");
 		T.multiCombatModels = {};
 	}
 

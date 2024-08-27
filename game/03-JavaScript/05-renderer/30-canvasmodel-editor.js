@@ -3,21 +3,17 @@
 
 class CombatEditor {
 	static createCanvasCombatEditor() {
-		console.warn("createCanvasCombatEditor initiated");
-
 		const fragment = document.createDocumentFragment();
 
 		const para = document.createElement("div");
 		para.classList.add("mytest");
 		para.append(
 			this.createButton("Refresh Combat", () => {
-				console.warn("Button callback called: Recompiling, and refreshing.");
 				this.recompileCombatCanvas();
 			})
 		);
 		fragment.append(para);
 
-		console.warn("createCanvasCombatEditor finished", fragment);
 		return fragment;
 	}
 
