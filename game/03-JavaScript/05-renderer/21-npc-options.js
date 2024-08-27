@@ -241,7 +241,6 @@ class NpcCombatMapper {
 
 	/**
 	 * @typedef NpcTypePositionConfiguration
-	 * @property {boolean=} show
 	 * @property {boolean=} hasOverSprite
 	 * @property {boolean=} hasFrontSprite
 	 * @property {boolean=} hasUnderSprite
