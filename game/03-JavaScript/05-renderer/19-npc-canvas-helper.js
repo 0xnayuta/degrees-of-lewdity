@@ -17,7 +17,6 @@ class NpcCanvasHelper {
 					return "";
 				}
 				const path = `${options.src}/${options.category}/${options.type}/${layer}-${options.state}.png`;
-				console.warn("NPC path:", path);
 				return path;
 			},
 			showfn(options) {

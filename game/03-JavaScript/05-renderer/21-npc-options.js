@@ -214,7 +214,6 @@ class NpcCombatMapper {
 		}
 
 		if (npc.vagina && npc.vagina !== "none") {
-			console.warn("NPC's Vagina:", npc.vagina);
 			switch (npc.vagina) {
 				case "penisentrance":
 				case "penisimminent":
