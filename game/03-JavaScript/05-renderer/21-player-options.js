@@ -885,8 +885,6 @@ class PlayerCombatMapper {
 
 		const name = source.variable;
 
-		console.log("Reference:", defaults.variable, "=>", source.variable);
-
 		/** @type {TotalClothingStates} */
 		const state = clothing.state;
 		let show = name != null;

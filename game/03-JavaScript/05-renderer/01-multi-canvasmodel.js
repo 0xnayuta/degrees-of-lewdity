@@ -65,7 +65,6 @@ class MultiCanvasModel {
 	}
 
 	compile() {
-		console.log("MultiCanvasModel compile called.");
 		this.layers = [];
 		// Compile all models
 		// At end, compile layers into central variable.
@@ -78,7 +77,6 @@ class MultiCanvasModel {
 			const layers = model.compile(Object.assign(model.options, model.metadata));
 			this.layers.push(...layers);
 		}
-		console.log(this.layers);
 		return this.layers;
 	}
 
@@ -86,7 +84,6 @@ class MultiCanvasModel {
 	 * @param {Renderer.RendererListener=} listener
 	 */
 	animate(listener) {
-		console.log("MultiCanvasModel animate called.");
 		this.animated = true;
 		if (listener != null) this.listener = listener;
 		this.redraw();
@@ -96,7 +93,6 @@ class MultiCanvasModel {
 	 * Recompiles the canvas models' layers, and schedules them on the renderer system.
 	 */
 	redraw() {
-		console.log("MultiCanvasModel redraw called.");
 		if (!this.canvas) {
 			Errors.report("MultiCanvasModel.redraw() called but model was never rendered!");
 			return;

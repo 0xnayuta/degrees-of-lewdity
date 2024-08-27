@@ -66,8 +66,6 @@ class NpcCombatMapper {
 	 * @returns {NpcOptions}
 	 */
 	static mapNpcToOptions(index, options) {
-		console.log("mapNpcToOptions", index, JSON.parse(JSON.stringify(options)));
-
 		// Set position
 		options.position = CombatRenderer.getPosition(V.position);
 
@@ -159,7 +157,6 @@ class NpcCombatMapper {
 
 		const penetrator = this.mapNpcToPenetratorOptions(npc, options);
 		if (penetrator != null) {
-			console.log("Pushing penetrator to list:", penetrator);
 			options.penetrators.push(penetrator);
 
 			// Figure out which shadow base to use from penetrator:
@@ -523,7 +520,6 @@ class NpcCombatMapper {
 			return options;
 		}
 
-		console.log("NPC-Type states: type =", npc.type, "state =", options.state, "position =", options.position);
 		return options;
 	}
 
@@ -612,8 +608,6 @@ class NpcCombatMapper {
 		Object.assign(penetrator, combat.getNpcPenetratorState(npc));
 
 		options.filters.penetrator = this.getNpcPenetratorFilter(npc);
-
-		console.log("npc-penetrator:", penetrator);
 
 		// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
 		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {

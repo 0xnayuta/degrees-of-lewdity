@@ -10,11 +10,9 @@ const combatClosePenis = {
 	height: 64,
 	frames: 6,
 	generatedOptions() {
-		console.log(this.name, "closePenis generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "closePenis defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -27,7 +25,6 @@ const combatClosePenis = {
 	},
 	preprocess(options) {
 		getCloseOptions(options);
-		console.log(this.name, "closePenis preprocess");
 	},
 	layers: {
 		base: {

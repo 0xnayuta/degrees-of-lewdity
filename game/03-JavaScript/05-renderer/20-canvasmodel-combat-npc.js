@@ -10,15 +10,12 @@ const combatMainNpc = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions");
 		return Object.assign(NpcCombatMapper.generateOptions(), this.metadata);
 	},
 	preprocess(options) {
-		console.log("combatMainNpc-Preprocess:", JSON.parse(JSON.stringify(options)));
 		NpcCombatMapper.mapNpcToOptions(options.index || 0, options);
 	},
 	layers: {

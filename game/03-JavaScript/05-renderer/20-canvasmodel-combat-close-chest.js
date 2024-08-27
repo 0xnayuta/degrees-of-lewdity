@@ -10,11 +10,9 @@ const combatCloseChest = {
 	height: 64,
 	frames: 6,
 	generatedOptions() {
-		console.log(this.name, "closeChest generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "closeChest defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -26,7 +24,6 @@ const combatCloseChest = {
 	},
 	preprocess(options) {
 		getCloseOptions(options);
-		console.log(this.name, "closeChest preprocess");
 	},
 	layers: {
 		chest: {

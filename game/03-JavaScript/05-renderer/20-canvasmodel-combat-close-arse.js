@@ -10,11 +10,9 @@ const combatCloseArse = {
 	height: 64,
 	frames: 6,
 	generatedOptions() {
-		console.log(this.name, "closeArse generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "closeArse defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -26,7 +24,6 @@ const combatCloseArse = {
 	},
 	preprocess(options) {
 		getCloseOptions(options);
-		console.log(this.name, "closeArse preprocess");
 	},
 	layers: {
 		arse: {

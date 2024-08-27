@@ -125,8 +125,6 @@ class CombatRenderer {
 	 * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
 	 */
 	static lookupColour(dict, key, debugName, customFilter, prefilterName) {
-		console.log("lookupColour", dict, key, debugName, customFilter, prefilterName);
-
 		const filter = key === "custom" ? this.getCustomFilterColour(customFilter, debugName) : this.getFilterColour(key, dict, debugName);
 
 		if (filter == null) {

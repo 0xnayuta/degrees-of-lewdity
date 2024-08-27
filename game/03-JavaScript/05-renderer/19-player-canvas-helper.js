@@ -81,7 +81,6 @@ class PlayerCanvasHelper {
 				}
 				const state = states.join("-");
 				const path = `${options.src}clothing/${slot}/${clothes.name}/${state}.png`;
-				console.log(slot, "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -123,7 +122,6 @@ class PlayerCanvasHelper {
 					return 1;
 				}
 				const alpha = clothes.alpha;
-				console.log(slot, "Alpha:", alpha);
 				return alpha;
 			},
 			animationfn(options) {
@@ -131,7 +129,6 @@ class PlayerCanvasHelper {
 			},
 			filtersfn(options) {
 				const filter = `worn_${slot}_main`;
-				console.log(slot, "Filters:", filter, options.filters[filter]);
 				return [filter];
 			},
 			z: CombatRenderer.indices[slot],
@@ -153,7 +150,6 @@ class PlayerCanvasHelper {
 				const clothes = options.clothes[slot];
 				if (clothes == null || clothes.name == null) return "";
 				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}.png`;
-				console.log(slot, "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -162,7 +158,6 @@ class PlayerCanvasHelper {
 					return false;
 				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasMainImg;
-				console.log(slot, "Show?:", show);
 				return !!show;
 			},
 			alphafn(options) {
@@ -171,7 +166,6 @@ class PlayerCanvasHelper {
 					return 1;
 				}
 				const alpha = clothes.alpha;
-				console.log(slot, "Alpha:", alpha);
 				return alpha;
 			},
 			animationfn(options) {
@@ -179,7 +173,6 @@ class PlayerCanvasHelper {
 			},
 			filtersfn(options) {
 				const filter = `worn_${slot}_main`;
-				console.log(slot, "Filters:", filter, options.filters[filter]);
 				return [filter];
 			},
 			z: CombatRenderer.indices[slot],
@@ -202,19 +195,16 @@ class PlayerCanvasHelper {
 				const clothes = options.clothes[slot];
 				if (clothes == null || clothes.name == null) return "";
 				const path = `${options.src}clothing/${slot}/${clothes.name}/${clothes.state}-acc.png`;
-				console.log(slot, "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes[slot];
 				const show = options.showClothing && clothes != null && clothes.show && clothes.hasAccessory;
-				console.log(slot, "Show?:", show);
 				return !!show;
 			},
 			alphafn(options) {
 				const clothes = options.clothes[slot];
 				const alpha = clothes.alpha;
-				console.log(slot, "Alpha:", alpha);
 				return alpha;
 			},
 			animationfn(options) {
@@ -222,7 +212,6 @@ class PlayerCanvasHelper {
 			},
 			filtersfn(options) {
 				const filter = `worn_${slot}_acc`;
-				console.log(slot, "Filters:", filter, options.filters[filter]);
 				return [filter];
 			},
 			z: CombatRenderer.indices[slot],
@@ -245,13 +234,11 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const value = options.transformations[transformation][part];
 				const path = `${options.src}body/transformations/${value.type}/${part}/${layer}-${value.style}.png`;
-				console.log("Transformation", transformation, "part", part, layer, "src:", path);
 				return path;
 			},
 			showfn(options) {
 				const value = options.transformations[transformation][part];
 				const show = value.show;
-				console.log("Transformation", transformation, "part", part, layer, "show:", show);
 				return show;
 			},
 			animationfn(options) {

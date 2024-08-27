@@ -585,7 +585,6 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
-				console.log("ejac penetrator", JSON.parse(JSON.stringify(penetrator)));
 				if (options.machines.penisMilker.show) return false;
 				const result = options.showPlayer && penetrator?.show && penetrator?.isEjaculating;
 				return !!result;
@@ -834,7 +833,6 @@ const combatMainPc = {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}.png`;
-				console.log("Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.backFootwear,
@@ -844,7 +842,6 @@ const combatMainPc = {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}-acc.png`;
-				console.log("Feet Acc Back Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.backFootwear,
@@ -854,7 +851,6 @@ const combatMainPc = {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}.png`;
-				console.log("Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.frontFootwear,
@@ -864,7 +860,6 @@ const combatMainPc = {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}-acc.png`;
-				console.log("Feet Acc Front Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.frontFootwear,
@@ -975,7 +970,6 @@ const combatMainPc = {
 				const clothes = options.clothes.head;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/head/${clothes.name}/back.png`;
-				console.log("Headwear [back]", "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -1048,7 +1042,6 @@ const combatMainPc = {
 				const clothes = options.clothes.over_lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("Over lower back path:", path);
 				return path;
 			},
 			show: false,
@@ -1059,7 +1052,6 @@ const combatMainPc = {
 				const clothes = options.clothes.over_lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("Over lower back acc path:", path);
 				return path;
 			},
 			show: false,
@@ -1088,7 +1080,6 @@ const combatMainPc = {
 				const clothes = options.clothes.under_upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/under_upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -1098,7 +1089,6 @@ const combatMainPc = {
 					return false;
 				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
-				console.log("Show under upper breasts:", show);
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm - 4,
@@ -1114,7 +1104,6 @@ const combatMainPc = {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -1124,7 +1113,6 @@ const combatMainPc = {
 					return false;
 				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
-				console.log("Show upper breasts:", show);
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm - 3,
@@ -1134,7 +1122,6 @@ const combatMainPc = {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${options.armBackPosition}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -1147,7 +1134,6 @@ const combatMainPc = {
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
-				console.log("Show upper breasts:", show);
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 1,
@@ -1157,7 +1143,6 @@ const combatMainPc = {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${options.armFrontPosition}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
@@ -1167,7 +1152,6 @@ const combatMainPc = {
 					return false;
 				}
 				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
-				console.log("Show upper breasts:", show);
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm + 1,

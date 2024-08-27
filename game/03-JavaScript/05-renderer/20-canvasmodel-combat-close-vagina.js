@@ -10,11 +10,9 @@ const combatCloseVagina = {
 	height: 64,
 	frames: 6,
 	generatedOptions() {
-		console.log(this.name, "closeVagina generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "closeVagina defaultOptions");
 		return {
 			root: "img/newsex/close/",
 			position: "missionary",
@@ -27,7 +25,6 @@ const combatCloseVagina = {
 	},
 	preprocess(options) {
 		getCloseOptions(options);
-		console.log(this.name, "closeVagina preprocess");
 	},
 	layers: {
 		vagina: {
