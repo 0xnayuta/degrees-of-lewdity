@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
+/* globals FilterMap, CompositeLayerSpec, SpritePositions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
 
 /**
  * @typedef CombatZIndices
@@ -258,22 +258,33 @@ class CombatRenderer {
 	}
 
 	/**
+	 * @param {SpritePositions} position
 	 * @param {string} frontPosition
 	 * @param {string} backPosition
 	 * @param {ClothedSlots} slot
 	 * @param {ClothesItem} defaults
 	 * @returns {PositionStates?}
 	 */
-	static getPositionStates(frontPosition, backPosition, slot, defaults) {
+	static getPositionStates(position, frontPosition, backPosition, slot, defaults) {
 		if (!["lower", "under_lower", "over_lower", "legs", "feet"].includes(slot)) {
 			return null;
 		}
+
+		// For lowerwear, we want to normalise leg positions into either [ Up | Down ]
+		// Except for missionary, where the front leg can be [ Up | Down | Footjob ]
 		if (["lower", "under_lower", "over_lower"].includes(slot)) {
-			if (frontPosition === "footjob") {
-				frontPosition = "up";
+			if (position === "doggy") {
+				if (frontPosition === "footjob") {
+					frontPosition = "up";
+				}
+				if (backPosition === "footjob") {
+					backPosition = "up";
+				}
 			}
-			if (backPosition === "footjob") {
-				backPosition = "up";
+			if (position === "missionary") {
+				if (backPosition === "footjob") {
+					backPosition = "up";
+				}
 			}
 		}
 		return {

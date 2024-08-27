@@ -3926,7 +3926,7 @@ Renderer.CanvasModels.main = {
 // Generate filters for colour-by-name properties
 /**
  * For colour name, lookup its canvas filter and merge with sprite prefilter.
- * @param options
+ * @param {object} options
  * @param {object} dict map in setup.colours to lookup in
  * @param {string} key colour name
  * @param {string} debugName used when reporting errors

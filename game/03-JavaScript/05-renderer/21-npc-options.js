@@ -436,7 +436,7 @@ class NpcCombatMapper {
 	 * @returns {boolean}
 	 */
 	static isOverPositioned(npc, penetrator) {
-		if (penetrator?.position === "feet") {
+		if (penetrator?.position != null && ["feet", "leftarm", "rightarm"].includes(penetrator.position)) {
 			return false;
 		}
 		if (npc.stance === "top") {

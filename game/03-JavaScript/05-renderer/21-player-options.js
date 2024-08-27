@@ -902,7 +902,7 @@ class PlayerCombatMapper {
 			item: clothing,
 			slot,
 			name,
-			positions: CombatRenderer.getPositionStates(options.legFrontPosition, options.legBackPosition, slot, defaults),
+			positions: CombatRenderer.getPositionStates(options.position, options.legFrontPosition, options.legBackPosition, slot, defaults),
 			state: state || "full",
 			show,
 			alpha: CombatRenderer.getAlpha(slot),
@@ -1316,33 +1316,7 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
-					if (bodywriting.type === "text" || bodywriting.special === "islander") {
-						let type = id;
-						if (options.legFrontPosition === "down") {
-							type += "-" + options.legFrontPosition;
-						}
-						if (["footjob", "up"].includes(options.legFrontPosition)) {
-							type += "-" + "up";
-						}
-						if (bodywriting.arrow === 1) {
-							type += "-arrow";
-						}
-						return {
-							show: true,
-							area: "text",
-							type: sanitise(type),
-						};
-					}
-					if (bodywriting.type === "object") {
-						return {
-							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
-						};
-					}
-					return null;
-				});
+				options.bodywriting.frontThigh = getState("right_thigh", simpleText);
 				break;
 			case "doggy":
 				options.bodywriting.frontCheek = getState("right_cheek", (id, bodywriting) => {
@@ -1425,8 +1399,7 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.backThigh = getState("right_thigh", simpleText);
-				options.bodywriting.frontThigh = getState("left_thigh", (id, bodywriting) => {
+				options.bodywriting.backThigh = getState("right_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
@@ -1443,6 +1416,7 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
+				options.bodywriting.frontThigh = getState("left_thigh", simpleText);
 				break;
 		}
 		return options;
