@@ -4006,11 +4006,9 @@ function isChimeraEnabled(type, part) {
 		return false;
 	}
 	if (typeof V.chimera[type] !== 'object') {
-		console.debug(`$chimera.${type} not found.`);
 		return false;
 	}
 	if (V.chimera[type][part] == null) {
-		console.debug(`$chimera.${type}.${part} not found.`);
 		return false;
 	}
 	return !!V.chimera[type][part];

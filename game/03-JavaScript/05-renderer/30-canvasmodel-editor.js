@@ -36,8 +36,6 @@ class CombatEditor {
 	}
 
 	static recompileCombatCanvas() {
-		console.debug("refreshCanvas");
-
 		MultiCanvasModel.ensureStorage();
 		const model = T.multiCombatModels.combatMain;
 		if (model != null) {

@@ -29,7 +29,6 @@ const combatMainPc = {
 	 *	██████  ███████ ██      ██   ██  ██████  ███████    ██    ███████
 	 */
 	defaultOptions() {
-		console.debug("combatMainPc-defaultOptions");
 		return { ...PlayerCombatMapper.generateOptions(), ...this.metadata };
 	},
 	/*
@@ -40,7 +39,6 @@ const combatMainPc = {
 	 *	██      ██   ██ ███████ ██      ██   ██  ██████   ██████ ███████ ███████ ███████
 	 */
 	preprocess(options) {
-		console.debug("combatMainPc-preprocess", JSON.parse(JSON.stringify(options)));
 		PlayerCombatMapper.mapPlayerToOptions(options);
 	},
 	layers: {
