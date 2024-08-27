@@ -12,6 +12,7 @@
  * @property {CharacterTypes} type
  * @property {Penetrator[]} penetrators
  * @property {Balls} balls
+ * @property {Drool} drool
  * @property {boolean} show
  * @property {string?} state
  * @property {Colour} colour
@@ -25,6 +26,12 @@
  * @property {boolean} hasBalls
  * @property {string=} type
  * @property {number=} size
+ */
+
+/**
+ * @typedef Drool
+ * @property {boolean} show
+ * @property {number} amount
  */
 
 /**
@@ -140,7 +147,11 @@ class NpcCombatMapper {
 	 */
 	static mapNpcToBodyOptions(index, npc, options) {
 		options.balls = {
-			hasBalls: false,
+			hasBalls: ["pig", "boar"].includes(npc.type),
+		};
+		options.drool = {
+			show: ["pig", "boar"].includes(npc.type),
+			amount: V.enemyarousal >= (V.enemyarousalmax / 5) * 3 ? 2 : 1,
 		};
 		options.penetrators = options.penetrators = [];
 
