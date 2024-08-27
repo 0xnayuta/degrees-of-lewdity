@@ -223,11 +223,13 @@ class CombatRenderer {
 	 */
 	static generateBodyFilters(options) {
 		options.skinType = V.player.skin.color;
-		options.skinTone = 0;
+		options.skinTone = options.skinType !== "custom" ? Skin.color.tan : 0;
+
 		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
 		options.filters.body = skinFilter;
 		options.filters.breasts = skinFilter;
 		options.filters.penis = skinFilter;
+
 		if (options.showTan) {
 			const tanslots = ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]
 				.map(slotname => [slotname, options["skin_tone_" + slotname]])
