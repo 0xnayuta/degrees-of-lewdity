@@ -13,9 +13,6 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
-				if (options.state == null) {
-					return "";
-				}
 				const path = `${options.src}/${options.category}/${options.type}/${layer}-${options.state}.png`;
 				return path;
 			},
@@ -26,7 +23,7 @@ class NpcCanvasHelper {
 				if (options.state == null) {
 					return false;
 				}
-				if (layer === "front" && options.category !== "beast") {
+				if (layer === "back" && options.category !== "beast") {
 					return false;
 				}
 				return true;
