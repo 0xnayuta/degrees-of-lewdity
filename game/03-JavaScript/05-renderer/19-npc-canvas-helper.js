@@ -13,7 +13,7 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
-				if (layer === "front") {
+				if (layer === "front" && options.category === "shadow") {
 					const path = `${options.src}/${options.category}/${options.type}/${options.state}.png`;
 					return path;
 				}
