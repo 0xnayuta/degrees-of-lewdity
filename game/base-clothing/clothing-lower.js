@@ -3931,7 +3931,7 @@ function initLower() {
 			name_cap: "Booty jorts",
 			variable: "bootyjorts",
 			combat: {
-				renderType: "trousers",
+				renderType: "shorts",
 			},
 			integrity: 100,
 			integrity_max: 100,
