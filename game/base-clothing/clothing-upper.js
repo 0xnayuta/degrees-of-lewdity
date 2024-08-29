@@ -1180,6 +1180,9 @@ function initUpper() {
 			name: "sweater",
 			name_cap: "Sweater",
 			variable: "sweater",
+			combat: {
+				mainColour: "#fff",
+			},
 			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
