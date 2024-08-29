@@ -1158,7 +1158,6 @@ function initFace() {
 			iconFile: "doggymuzzle.png",
 			accIcon: 0,
 		},
-
 		{
 			index: 36,
 			name: "bamboo muzzle",
@@ -1374,6 +1373,8 @@ function initFace() {
 			name: "fox mask",
 			name_cap: "Fox mask",
 			variable: "foxmask",
+			state: 0,
+			state_base: 0,
 			integrity: 30,
 			integrity_max: 30,
 			fabric_strength: 20,
