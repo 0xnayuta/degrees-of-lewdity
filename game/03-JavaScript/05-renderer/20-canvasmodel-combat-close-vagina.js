@@ -228,14 +228,14 @@ function vaginaPenetratorCondom(npc, overrideOptions = {}) {
 	 */
 	const defaults = {
 		srcfn(options) {
-			return `${options.src}arse/npc/${options.vagina[npc]}-condom-${options.vagina.state}.png`;
+			return `${options.src}vagina/${options.position}/npc/${options.vagina[npc]}-condom-${options.vagina.state}.png`;
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.vaginadoubletarget : V.vaginatarget;
 			return !!options.showArse && !!options.vagina[npc] && !!V.NPCList[target].condom.worn;
 		},
 		animationfn(options) {
-			return options.animKeyArse;
+			return options.animKeyVagina;
 		},
 		alpha: 0.4,
 		filters: npc === "npc2" ? ["vaginaCondom2"] : ["vaginaCondom"],
