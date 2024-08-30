@@ -108,11 +108,11 @@ Renderer.Animations["sex-2f-idle"] = {
 	keyframes: [
 		{
 			frame: 0,
-			duration: 2000,
+			duration: 1000,
 		},
 		{
 			frame: 2,
-			duration: 2000,
+			duration: 1000,
 		},
 	],
 };
@@ -121,6 +121,15 @@ Renderer.Animations["sex-1f-idle"] = {
 	keyframes: [
 		{
 			frame: 1,
+			duration: 1000,
+		},
+	],
+};
+
+Renderer.Animations["sex-1f2-idle"] = {
+	keyframes: [
+		{
+			frame: 2,
 			duration: 1000,
 		},
 	],

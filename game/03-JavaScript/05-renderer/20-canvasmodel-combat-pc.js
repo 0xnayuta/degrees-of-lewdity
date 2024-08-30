@@ -636,7 +636,10 @@ const combatMainPc = {
 				return !!result;
 			},
 			animationfn(options) {
-				return options.animKey;
+				if (combat.isActive()) {
+					return options.animKey;
+				}
+				return "sex-1f2-idle";
 			},
 			filters: ["body"],
 			z: CombatRenderer.indices.head + 2,
@@ -649,7 +652,10 @@ const combatMainPc = {
 				return !!options.showPlayer && !!options.showFace;
 			},
 			animationfn(options) {
-				return options.animKey;
+				if (combat.isActive()) {
+					return options.animKey;
+				}
+				return "sex-1f2-idle";
 			},
 			filters: ["hair"],
 			z: CombatRenderer.indices.head + 3,
