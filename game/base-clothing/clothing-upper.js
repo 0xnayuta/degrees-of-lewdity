@@ -163,9 +163,6 @@ function initUpper() {
 			name: "towel top",
 			name_cap: "Towel top",
 			variable: "towel",
-			combat: {
-				reference: "largetowel",
-			},
 			integrity: 10,
 			integrity_max: 10,
 			fabric_strength: 20,
