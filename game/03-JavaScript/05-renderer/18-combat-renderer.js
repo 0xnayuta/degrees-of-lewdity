@@ -36,11 +36,18 @@
  * @property {40} backWings
  * @property {40} backHalo
  * @property {40} backHorns
+ * @property {40} backEars
  * @property {40} backTail
  * @property {40} frontWings
  * @property {84} frontHalo
  * @property {83} frontHorns
+ * @property {82} frontEars
  * @property {40} frontTail
+ * @property {80} frontEyes
+ * @property {80} frontCheeks
+ * @property {80} frontMalar
+ * @property {40} frontPubes
+ * @property {40} frontPlumage
  */
 
 class CombatRenderer {
@@ -75,11 +82,19 @@ class CombatRenderer {
 			backWings: 40,
 			backHalo: 40,
 			backHorns: 40,
+			backEars: 40,
 			backTail: 40,
 			frontWings: 40,
 			frontHalo: 84,
 			frontHorns: 83,
+			frontEars: 82,
 			frontTail: 40,
+
+			frontEyes: 80,
+			frontCheeks: 80,
+			frontMalar: 80,
+			frontPubes: 40,
+			frontPlumage: 40,
 
 			frontThigh: 65,
 			frontFootwear: 70,
@@ -391,7 +406,7 @@ class CombatRenderer {
 
 	/**
 	 * @param {TransformationKeys} transformation
-	 * @param {"wings" | "halo" | "horns" | "tail"} part
+	 * @param {"wings" | "halo" | "horns" | "ears" | "tail" | "eyes" | "cheeks" | "malar" | "pubes" | "plumage"} part
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static getTransformationFilter(transformation, part) {

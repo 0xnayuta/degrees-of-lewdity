@@ -196,7 +196,13 @@
  * @property {WingOptions} wings
  * @property {HaloOptions} halo
  * @property {HornOptions} horns
+ * @property {HornOptions} ears
  * @property {TailOptions} tail
+ * @property {TailOptions} eyes
+ * @property {TailOptions} cheeks
+ * @property {TailOptions} malar
+ * @property {TailOptions} pubes
+ * @property {TailOptions} plumage
  */
 
 /**
@@ -1034,7 +1040,7 @@ class PlayerCombatMapper {
 	static mapToTransformationOptions(options) {
 		/**
 		 * @param {TransformationKeys} type
-		 * @param {"wings" | "halo" | "horns" | "tail"} part
+		 * @param {"wings" | "halo" | "horns" | "ears" | "tail" | "eyes" | "cheeks" | "malar" | "pubes" | "plumage"} part
 		 */
 		function generateTransformationFilter(type, part) {
 			const parts = V.transformationParts[type];
@@ -1051,12 +1057,24 @@ class PlayerCombatMapper {
 				wings: this.mapToTransformationWingOptions(transformation),
 				halo: this.mapToTransformationHaloOptions(transformation),
 				horns: this.mapToTransformationHornOptions(transformation),
+				ears: this.mapToTransformationEarOptions(transformation),
 				tail: this.mapToTransformationTailOptions(transformation),
+				eyes: this.mapToTransformationEyeOptions(transformation),
+				cheeks: this.mapToTransformationCheekOptions(transformation),
+				malar: this.mapToTransformationMalarOptions(transformation),
+				pubes: this.mapToTransformationPubeOptions(transformation),
+				plumage: this.mapToTransformationPlumageOptions(transformation),
 			};
 			generateTransformationFilter(transformation, "wings");
 			generateTransformationFilter(transformation, "halo");
 			generateTransformationFilter(transformation, "horns");
+			generateTransformationFilter(transformation, "ears");
 			generateTransformationFilter(transformation, "tail");
+			generateTransformationFilter(transformation, "eyes");
+			generateTransformationFilter(transformation, "cheeks");
+			generateTransformationFilter(transformation, "malar");
+			generateTransformationFilter(transformation, "pubes");
+			generateTransformationFilter(transformation, "plumage");
 		});
 		return options;
 	}
@@ -1067,7 +1085,7 @@ class PlayerCombatMapper {
 	 */
 	static mapToTransformationWingOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("wings" in parts) || parts.wings === "disabled") {
+		if (!("wings" in parts) || parts.wings === "disabled" || parts.wings === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1087,7 +1105,7 @@ class PlayerCombatMapper {
 	 */
 	static mapToTransformationHaloOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("halo" in parts) || parts.halo === "disabled") {
+		if (!("halo" in parts) || parts.halo === "disabled" || parts.halo === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1107,7 +1125,7 @@ class PlayerCombatMapper {
 	 */
 	static mapToTransformationHornOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("horns" in parts) || parts.horns === "disabled") {
+		if (!("horns" in parts) || parts.horns === "disabled" || parts.horns === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1121,13 +1139,29 @@ class PlayerCombatMapper {
 		};
 	}
 
+	static mapToTransformationEarOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("ears" in parts) || parts.ears === "disabled" || parts.ears === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.ears,
+		};
+	}
+
 	/**
 	 * @param {string} type
 	 * @returns {TailOptions}
 	 */
 	static mapToTransformationTailOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("tail" in parts) || parts.tail === "disabled") {
+		if (!("tail" in parts) || parts.tail === "disabled" || parts.tail === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1138,6 +1172,86 @@ class PlayerCombatMapper {
 			show: true,
 			type,
 			style: parts.tail,
+		};
+	}
+
+	static mapToTransformationEyeOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("eyes" in parts) || parts.eyes === "disabled" || parts.eyes === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.eyes,
+		};
+	}
+
+	static mapToTransformationCheekOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("cheeks" in parts) || parts.cheeks === "disabled" || parts.cheeks === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.cheeks,
+		};
+	}
+
+	static mapToTransformationMalarOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("malar" in parts) || parts.malar === "disabled" || parts.malar === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.malar,
+		};
+	}
+
+	static mapToTransformationPubeOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("pubes" in parts) || parts.pubes === "disabled" || parts.pubes === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.pubes,
+		};
+	}
+
+	static mapToTransformationPlumageOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("plumage" in parts) || parts.plumage === "disabled" || parts.plumage === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.plumage,
 		};
 	}
 
