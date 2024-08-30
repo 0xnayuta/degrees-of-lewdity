@@ -489,7 +489,7 @@ class NpcCombatMapper {
 
 		// Humanoid
 		if (configuration == null) {
-			options.show = true;
+			options.show = penetrator?.position != null && ["thighs", "vagina", "anus", "mouth"].includes(penetrator.position);
 			options.state = penetrator?.position ?? null;
 			return options;
 		}
