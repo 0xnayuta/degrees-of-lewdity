@@ -2345,6 +2345,8 @@ function initHead() {
 			name: "classic lolita headband",
 			name_cap: "Classic lolita headband",
 			variable: "lolitaold",
+			state: 0,
+			state_base: 0,
 			integrity: 50,
 			integrity_max: 50,
 			fabric_strength: 20,
