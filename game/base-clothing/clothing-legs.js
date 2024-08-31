@@ -813,7 +813,7 @@ function initLegs() {
 			name_cap: "Rib-knit socks",
 			variable: "striped socks long",
 			combat: {
-				renderType: "ankled",
+				renderType: "kneehighs",
 			},
 			integrity: 100,
 			integrity_max: 100,
