@@ -315,7 +315,10 @@ class CombatRenderer {
 	static getClothingBySlot(slot) {
 		const active = V.worn[slot];
 		const defaults = setup.clothes[slot][active.index];
-		return Object.assign({}, defaults, active);
+		const combat = Object.assign({}, defaults.combat, active.combat);
+		const result = Object.assign({}, defaults, active);
+		result.combat = combat;
+		return result;
 	}
 
 	/**

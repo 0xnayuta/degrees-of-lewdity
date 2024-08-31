@@ -962,10 +962,7 @@ class PlayerCombatMapper {
 		const mainFilterKey = `worn_${slot}_main`;
 		const accFilterKey = `worn_${slot}_acc`;
 
-		options.filters = options.filters || {
-			worn: {},
-		};
-		options.filters.worn[slot] = {};
+		options.filters ||= {};
 
 		if (clothing.combat?.mainColour) {
 			options.filters[mainFilterKey] = this.genFilterWithHex(clothing.combat.mainColour);
@@ -984,6 +981,8 @@ class PlayerCombatMapper {
 		options.filters[accFilterKey] = accColour
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
+
+		return options;
 	}
 
 	/**
