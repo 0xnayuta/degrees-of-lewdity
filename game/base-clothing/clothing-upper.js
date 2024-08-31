@@ -7381,6 +7381,7 @@ function initUpper() {
 			variable: "nunlewd",
 			combat: {
 				reference: "sundress",
+				mainColour: "#312737",
 			},
 			integrity: 100,
 			integrity_max: 100,

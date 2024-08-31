@@ -2071,6 +2071,7 @@ function initHead() {
 			variable: "nunlewd",
 			combat: {
 				reference: "nun",
+				mainColour: "#312737",
 			},
 			state: 0,
 			state_base: 0,
@@ -2110,6 +2111,7 @@ function initHead() {
 			variable: "nunlewdornate",
 			combat: {
 				reference: "nun",
+				mainColour: "#312737",
 			},
 			state: 0,
 			state_base: 0,
