@@ -193,41 +193,20 @@
 
 /**
  * @typedef TransformationOptions
- * @property {WingOptions} wings
- * @property {HaloOptions} halo
- * @property {HornOptions} horns
- * @property {HornOptions} ears
- * @property {TailOptions} tail
- * @property {TailOptions} eyes
- * @property {TailOptions} cheeks
- * @property {TailOptions} malar
- * @property {TailOptions} pubes
- * @property {TailOptions} plumage
+ * @property {TransformationPartOptions} wings
+ * @property {TransformationPartOptions} halo
+ * @property {TransformationPartOptions} horns
+ * @property {TransformationPartOptions} ears
+ * @property {TransformationPartOptions} tail
+ * @property {TransformationPartOptions} eyes
+ * @property {TransformationPartOptions} cheeks
+ * @property {TransformationPartOptions} malar
+ * @property {TransformationPartOptions} pubes
+ * @property {TransformationPartOptions} plumage
  */
 
 /**
- * @typedef WingOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
-/**
- * @typedef HaloOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
-/**
- * @typedef HornOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
-/**
- * @typedef TailOptions
+ * @typedef TransformationPartOptions
  * @property {boolean} show
  * @property {string} type
  * @property {string} style
@@ -1081,7 +1060,7 @@ class PlayerCombatMapper {
 
 	/**
 	 * @param {TransformationKeys} type
-	 * @returns {WingOptions}
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationWingOptions(type) {
 		const parts = V.transformationParts[type];
@@ -1100,8 +1079,8 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {HaloOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationHaloOptions(type) {
 		const parts = V.transformationParts[type];
@@ -1120,8 +1099,8 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {HornOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationHornOptions(type) {
 		const parts = V.transformationParts[type];
@@ -1139,6 +1118,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationEarOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("ears" in parts) || parts.ears === "disabled" || parts.ears === "hidden") {
@@ -1156,8 +1139,8 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {TailOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationTailOptions(type) {
 		const parts = V.transformationParts[type];
@@ -1175,6 +1158,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationEyeOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("eyes" in parts) || parts.eyes === "disabled" || parts.eyes === "hidden") {
@@ -1191,6 +1178,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationCheekOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("cheeks" in parts) || parts.cheeks === "disabled" || parts.cheeks === "hidden") {
@@ -1207,6 +1198,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationMalarOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("malar" in parts) || parts.malar === "disabled" || parts.malar === "hidden") {
@@ -1223,6 +1218,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationPubeOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("pubes" in parts) || parts.pubes === "disabled" || parts.pubes === "hidden") {
@@ -1239,6 +1238,10 @@ class PlayerCombatMapper {
 		};
 	}
 
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
 	static mapToTransformationPlumageOptions(type) {
 		const parts = V.transformationParts[type];
 		if (!("plumage" in parts) || parts.plumage === "disabled" || parts.plumage === "hidden") {
