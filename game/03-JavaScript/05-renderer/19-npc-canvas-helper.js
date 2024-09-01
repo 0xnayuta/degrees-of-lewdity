@@ -386,11 +386,11 @@ function genKeyFrame(duration, dx, dy) {
 	};
 }
 
-Renderer.Animations["equal-oscillation-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, 0);
+Renderer.Animations["equal-oscillation-idle"] = genLinearKeyFrames(2, 1000, 0, 12, 0, 0);
 Renderer.Animations["equal-oscillation-mid"] = genFourOffsetKeyFrames(170, 0, 12, 0, 0);
 Renderer.Animations["equal-oscillation-vfast"] = genFourOffsetKeyFrames(80, 0, 12, 0, 0);
 
-Renderer.Animations["butt-rubbing-idle"] = genLinearKeyFrames(2, 2000, 0, -1, 0, 0);
+Renderer.Animations["butt-rubbing-idle"] = genLinearKeyFrames(2, 1000, 0, -1, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -460,7 +460,7 @@ const buttRubbingVeryFast = {
 };
 Renderer.Animations["butt-rubbing-vfast"] = buttRubbingVeryFast;
 
-Renderer.Animations["blowjob-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, 0);
+Renderer.Animations["blowjob-idle"] = genLinearKeyFrames(2, 1000, 0, 12, 0, 0);
 
 /**
  * @type {KeyframeAnimationSpec}
@@ -522,7 +522,7 @@ const blowjobVeryFast = {
 };
 Renderer.Animations["blowjob-vfast"] = blowjobVeryFast;
 
-Renderer.Animations["boobjob-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
+Renderer.Animations["boobjob-idle"] = genLinearKeyFrames(2, 1000, 0, 4, 0, 0);
 Renderer.Animations["boobjob-mid"] = genFourSkewedKeyFrames(170, 0, 12, 0, 0);
 Renderer.Animations["boobjob-vfast"] = genFourSkewedKeyFrames(80, 0, 12, 0, 0);
 
@@ -586,10 +586,10 @@ const backHandjobVeryFast = {
 };
 Renderer.Animations["back-handjob-vfast"] = backHandjobVeryFast;
 
-Renderer.Animations["vagina-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 4, 0, 0);
+Renderer.Animations["vagina-missionary-idle"] = genLinearKeyFrames(2, 1000, 0, 4, 0, 0);
 Renderer.Animations["vagina-missionary-mid"] = genFourOffsetKeyFrames(170, 0, 4, 0, 0);
 Renderer.Animations["vagina-missionary-vfast"] = genFourOffsetKeyFrames(80, 0, 4, 0, 0);
 
-Renderer.Animations["blowjob-missionary-idle"] = genLinearKeyFrames(2, 2000, 0, 12, 0, -6);
+Renderer.Animations["blowjob-missionary-idle"] = genLinearKeyFrames(2, 1000, 0, 12, 0, -6);
 Renderer.Animations["blowjob-missionary-mid"] = genFourSkewedKeyFrames(170, 0, 12, 0, -6);
 Renderer.Animations["blowjob-missionary-vfast"] = genFourSkewedKeyFrames(80, 0, 12, 0, -6);
