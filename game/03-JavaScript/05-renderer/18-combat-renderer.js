@@ -328,9 +328,11 @@ class CombatRenderer {
 	static getAlpha(slot) {
 		// Wetness
 		let alpha = 1;
-		const stage = V[slot + "wetstage"];
+		// Stage could be 0 to 200.
+		const stage = V[slot + "wet"];
 		if (typeof stage === "number") {
-			alpha = Math.clamp(1 - stage / 4, 0.25, 1);
+			const normalised = normalise(200 - stage, 200, 0);
+			alpha = normalised / 2 + 0.5;
 		}
 		return alpha;
 	}
@@ -448,7 +450,7 @@ class CombatRenderer {
 	}
 
 	/**
-	 * @param {Condom?} condom
+	 * @param {Condom | false | undefined} condom
 	 * @returns {CondomOptions}
 	 */
 	static getCondomOptions(condom) {
