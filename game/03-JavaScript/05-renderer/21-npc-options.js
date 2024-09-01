@@ -602,12 +602,13 @@ class NpcCombatMapper {
 			size: 0,
 			position: null,
 			state: null,
-			hasCondom: false,
+			condom: CombatRenderer.getCondomOptions(npc.condom),
 		};
 
 		Object.assign(penetrator, combat.getNpcPenetratorState(npc));
 
 		options.filters.penetrator = this.getNpcPenetratorFilter(npc);
+		options.filters.condom = penetrator.condom.colour;
 
 		// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
 		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {

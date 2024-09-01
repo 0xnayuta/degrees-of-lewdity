@@ -28,8 +28,23 @@ declare global {
 		state: PenetratorStates?;
 		isEjaculating: boolean;
 		ejaculate: Ejaculate;
-		hasCondom: boolean;
+		condom: CondomOptions;
 		show: boolean;
+	}
+
+	export interface Condom {
+		colour: string;
+		state: string;
+		type: string;
+		willUse: boolean;
+		worn: boolean;
+	}
+
+	export interface CondomOptions {
+		show: boolean;
+		isDefective: boolean;
+		volume: number;
+		colour: Partial<CompositeLayerSpec>;
 	}
 
 	export interface ClothingRendererStepState {

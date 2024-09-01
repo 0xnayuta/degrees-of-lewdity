@@ -278,6 +278,134 @@ class NpcCanvasHelper {
 		};
 		return Object.assign(defaults, overrideOptions);
 	}
+
+	static genCondomLayer(overrideOptions = {}) {
+		/**
+		 * @type {CanvasModelLayers<NpcOptions>}
+		 */
+		const defaults = {
+			srcfn(options) {
+				const penetrator = options.penetrators[0];
+				if (penetrator == null || !penetrator.show) {
+					return "";
+				}
+				// Use penetrator.condom.isDefective for alternative sprites?
+				return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-condom.png`;
+			},
+			showfn(options) {
+				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return false;
+				}
+				const condom = penetrator.condom;
+				return options.category === "shadow" && penetrator.show && condom.show;
+			},
+			animationfn(options) {
+				if (options.category !== "shadow") {
+					return options.animKey;
+				}
+				const speed = options.speed;
+				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return options.animKey;
+				}
+				if (options.position === "missionary") {
+					switch (penetrator.position) {
+						case "vagina":
+							return `vagina-missionary-${speed}`;
+						case "mouth":
+							return `blowjob-missionary-${speed}`;
+					}
+				}
+				if (penetrator.position != null && ["vagina", "anus", "thighs"].includes(penetrator.position)) {
+					return `equal-oscillation-${speed}`;
+				}
+				if (penetrator.position === "butt") {
+					return `butt-rubbing-${speed}`;
+				}
+				if (penetrator.position === "mouth") {
+					return `blowjob-${speed}`;
+				}
+				if (penetrator.position === "chest") {
+					return `boobjob-${speed}`;
+				}
+				if (penetrator.position === "feet") {
+					return `footjob-${speed}`;
+				}
+				if (penetrator.position === "rightarm") {
+					return `back-handjob-${speed}`;
+				}
+				return options.animKey;
+			},
+			filtersfn(options) {
+				if (options.category !== "shadow") {
+					return [];
+				}
+				return ["condom"];
+			},
+			dxfn(options) {
+				if (options.category !== "shadow") {
+					return 0;
+				}
+				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return 0;
+				}
+				if (penetrator.position != null && ["vagina", "anus", "thighs"].includes(penetrator.position)) {
+					switch (penetrator.state) {
+						case "penetrating":
+							return 0;
+						case "imminent":
+							return 10;
+						case "entrance":
+							return 20;
+					}
+				}
+				if (penetrator.position === "mouth") {
+					switch (penetrator.state) {
+						case "penetrating":
+							return 0;
+						case "imminent":
+							return -10;
+						case "entrance":
+							return -20;
+					}
+				}
+				return 0;
+			},
+			zfn(options) {
+				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return 0;
+				}
+				if (penetrator.position === "thighs") {
+					return 30;
+				}
+				if (penetrator.position === "feet") {
+					return CombatRenderer.indices.backFootwear + 1;
+				}
+				if (options.position === "doggy" && penetrator.position === "rightarm") {
+					return CombatRenderer.indices.backArm - 1;
+				}
+				if (options.position === "missionary" && penetrator.position === "rightarm") {
+					return CombatRenderer.indices.frontArm - 1;
+				}
+				if (options.position === "doggy" && penetrator.position === "leftarm") {
+					return CombatRenderer.indices.frontArm - 1;
+				}
+				if (options.position === "missionary" && penetrator.position === "leftarm") {
+					return CombatRenderer.indices.backArm - 1;
+				}
+				if (penetrator.position === "mouth" && penetrator.state !== "penetrating") {
+					return CombatRenderer.indices.head + 1; // Put in front of head
+				}
+				return 49;
+			},
+			height: 256,
+			width: 256,
+		};
+		return Object.assign(defaults, overrideOptions);
+	}
 }
 window.NpcCanvasHelper = NpcCanvasHelper;
 

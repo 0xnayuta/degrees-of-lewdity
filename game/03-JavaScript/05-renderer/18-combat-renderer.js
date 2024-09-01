@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, SpritePositions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
+/* globals FilterMap, CompositeLayerSpec, SpritePositions, Condom, CondomOptions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
 
 /**
  * @typedef CombatZIndices
@@ -445,6 +445,38 @@ class CombatRenderer {
 			return false;
 		}
 		return V.orgasmdown >= 1 && V.orgasmcount <= 24 && V.femaleclimax !== 1 && wearingCondom("player") !== "worn" && !playerHasStrapon();
+	}
+
+	/**
+	 * @param {Condom?} condom
+	 * @returns {CondomOptions}
+	 */
+	static getCondomOptions(condom) {
+		if (!condom) {
+			return {
+				show: false,
+				isDefective: false,
+				volume: 0,
+				colour: {},
+			};
+		}
+		return {
+			show: condom.worn,
+			isDefective: ["defective", "sabotaged"].includes(condom.state),
+			volume: 0,
+			colour: {
+				blend: this.getCondomColour(condom.colour),
+				blendMode: "multiply",
+			},
+		};
+	}
+
+	/**
+	 * @param {string} colour
+	 */
+	static getCondomColour(colour) {
+		const data = setup.colours.condom_map[colour];
+		return data.canvasfilter.blend;
 	}
 }
 window.CombatRenderer = CombatRenderer;

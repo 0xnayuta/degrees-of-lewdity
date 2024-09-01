@@ -89,6 +89,7 @@ const combatMainNpc = {
 		},
 		npcPenetrator: NpcCanvasHelper.genPenetratorLayer(),
 		npcPenetratorEjaculate: NpcCanvasHelper.genPenetratorEjaculationLayer(),
+		npcCondom: NpcCanvasHelper.genCondomLayer(),
 	},
 };
 Renderer.CanvasModels.combatMainNpc = combatMainNpc;

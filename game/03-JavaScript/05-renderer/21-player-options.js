@@ -12,10 +12,9 @@
  * @property {boolean} showClothing Flag to show the clothing layers.
  * @property {boolean} showNPCs Flag to show the NPC model(s).
  * @property {boolean} showTan Flag to show the player model's tan.
- * @property {number} animSpeed The global speed to play animations.
  * Computed
  * @property {string} src The computed directory path for the position.
- * @property {string} speed The speed used for animation keyframes.
+ * @property {AnimationSpeed} speed The speed used for animation keyframes.
  * @property {string} animKey The key used for fetching the animation configuration.
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
  * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
@@ -229,7 +228,7 @@ class PlayerCombatMapper {
 				inOral: false,
 				open: false,
 			},
-			animSpeed: 1,
+			speed: "idle",
 			hairType: "default",
 			filters: {
 				worn: {},

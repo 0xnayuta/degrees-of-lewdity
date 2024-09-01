@@ -521,14 +521,31 @@ class CombatSystem {
 	 * @returns {boolean}
 	 */
 	isNpcPenetratorEjaculating(npc) {
-		if (wearingCondom(npc.index)) {
+		if (wearingCondom(npc.index || 0)) {
 			return false;
 		}
-		if (npcHasStrapon(npc.index)) {
+		if (npcHasStrapon(npc.index || 0)) {
 			return false;
 		}
 		const arousalMaxed = V.enemyarousal >= V.enemyarousalmax;
 		return arousalMaxed;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcWearingCondom(npc) {
+		return wearingCondom(npc.index || 0) !== false;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcCondomDefective(npc) {
+		const state = wearingCondom(npc.index);
+		return state && ["defective", "sabotaged"].includes(state);
 	}
 }
 const combat = new CombatSystem();
