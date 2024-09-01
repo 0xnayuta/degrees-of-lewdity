@@ -448,6 +448,9 @@ const combatMainPc = {
 		 */
 		backarm: {
 			srcfn(options) {
+				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					return `${options.src}body/arms/back-default.png`;
+				}
 				return `${options.src}body/arms/back-${options.armBackPosition}.png`;
 			},
 			showfn(options) {
@@ -531,7 +534,7 @@ const combatMainPc = {
 		frontarm: {
 			srcfn(options) {
 				// Find target of hand if any, if bestial (pig) swap out sprite.
-				if (PlayerCanvasHelper.isBestialHandjob(options)) {
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
 					return `${options.src}body/arms/front-${options.armFrontPosition}-bestial.png`;
 				}
 				// Generic position.
@@ -892,6 +895,10 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
+					return `${options.src}clothing/hands/${clothes.name}/back-default.png`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}.png`;
 				return path;
 			},
@@ -901,7 +908,9 @@ const combatMainPc = {
 					Errors.report("Clothing object was undefined");
 					return false;
 				}
-				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
 					if (clothes.isBoundable) {
@@ -917,6 +926,10 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
+					return `${options.src}clothing/hands/${clothes.name}/back-default.png-acc`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}-acc.png`;
 				return path;
 			},
@@ -926,7 +939,9 @@ const combatMainPc = {
 					Errors.report("Clothing object was undefined");
 					return false;
 				}
-				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
 				if (!clothes.hasAccessory) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
@@ -943,8 +958,10 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
-				return path;
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial.png`;
+				}
+				return `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
@@ -953,9 +970,6 @@ const combatMainPc = {
 					return false;
 				}
 				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
-					return false;
-				}
-				if (PlayerCanvasHelper.isBestialHandjob(options)) {
 					return false;
 				}
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
@@ -967,6 +981,9 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial-acc.png`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}-acc.png`;
 				return path;
 			},

@@ -397,6 +397,7 @@ function initHands() {
 			variable: "nunlewd",
 			combat: {
 				reference: "longleathergloves",
+				mainColour: "#2f2534",
 			},
 			state: 0,
 			state_base: 0,

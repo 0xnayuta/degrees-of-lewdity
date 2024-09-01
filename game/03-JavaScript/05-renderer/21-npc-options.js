@@ -148,7 +148,7 @@ class NpcCombatMapper {
 			hasBalls: ["pig", "boar"].includes(npc.type),
 		};
 		options.drool = {
-			show: ["pig", "boar"].includes(npc.type),
+			show: false,
 			amount: V.enemyarousal >= (V.enemyarousalmax / 5) * 3 ? 2 : 1,
 		};
 		options.penetrators = options.penetrators = [];
@@ -502,6 +502,7 @@ class NpcCombatMapper {
 		}
 
 		if (this.hasOverSprite(options.position, configuration) && this.isOverPositioned(npc, penetrator)) {
+			options.drool.show = ["pig", "boar"].includes(npc.type) && this.isOverPositioned(npc, penetrator);
 			options.show = true;
 			options.state = npc.type === "horse" && penetrator?.state === "penetrating" ? "over-penetrated" : "over";
 			return options;

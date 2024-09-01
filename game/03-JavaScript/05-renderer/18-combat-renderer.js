@@ -425,5 +425,26 @@ class CombatRenderer {
 			desaturate: false,
 		};
 	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	static isPenileReceptorActive() {
+		if (V.penisstate === "othermouth") {
+			return true;
+		}
+		if (V.enemytype === "beast") {
+			return false;
+		}
+		const result = V.penisstate && ["penetrated", "otheranus"].includes(V.penisstate);
+		return !!result;
+	}
+
+	static isPenileReceptorEjaculationActive() {
+		if (!this.isPenileReceptorActive()) {
+			return false;
+		}
+		return V.orgasmdown >= 1 && V.orgasmcount <= 24 && V.femaleclimax !== 1 && wearingCondom("player") !== "worn" && !playerHasStrapon();
+	}
 }
 window.CombatRenderer = CombatRenderer;

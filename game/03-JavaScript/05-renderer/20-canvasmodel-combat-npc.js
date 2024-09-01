@@ -1,5 +1,5 @@
 // @ts-check
-/* global NpcCombatMapper, NpcCanvasHelper */
+/* global CombatRenderer, NpcCombatMapper, NpcCanvasHelper */
 
 /**
  * @type {CanvasModelOptions<NpcOptions>}
@@ -49,6 +49,36 @@ const combatMainNpc = {
 					return false;
 				}
 				return options.balls.hasBalls;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				return 49;
+			},
+		},
+		npcHole: {
+			srcfn(options) {
+				const path = `${options.src}/body/penetrator/penile.png`;
+				return path;
+			},
+			showfn(options) {
+				return CombatRenderer.isPenileReceptorActive();
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				return 49;
+			},
+		},
+		npcHoleEjaculate: {
+			srcfn(options) {
+				const path = `${options.src}/body/penetrator/penile-sperm.png`;
+				return path;
+			},
+			showfn(options) {
+				return CombatRenderer.isPenileReceptorEjaculationActive();
 			},
 			animationfn(options) {
 				return options.animKey;

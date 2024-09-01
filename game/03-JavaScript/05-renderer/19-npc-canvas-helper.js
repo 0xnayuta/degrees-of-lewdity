@@ -40,7 +40,7 @@ class NpcCanvasHelper {
 					if (options.state === "penis") {
 						return 91;
 					}
-					return 85;
+					return CombatRenderer.indices.frontLowerOverwear + 1;
 				}
 				if (options.position === "doggy") {
 					return 20;

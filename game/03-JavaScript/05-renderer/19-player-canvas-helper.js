@@ -252,14 +252,42 @@ class PlayerCanvasHelper {
 
 	/**
 	 * @param {CombatPlayerOptions} options
+	 * @param {"front" | "back"} side
 	 * @returns {boolean}
 	 */
-	static isBestialHandjob(options) {
-		const arm = options.position === "doggy" ? V.leftarm : V.rightarm;
-		const target = options.position === "doggy" ? V.lefttarget : V.righttarget;
+	static isBestialHandjob(options, side) {
+		switch (side) {
+			case "front":
+				return options.position === "missionary" ? this.isRightBestialHandjob() : this.isLeftBestialHandjob();
+			case "back":
+				return options.position === "missionary" ? this.isLeftBestialHandjob() : this.isRightBestialHandjob();
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	static isLeftBestialHandjob() {
+		const arm = V.leftarm;
 		if (arm !== "penis") {
 			return false;
 		}
+		const target = V.lefttarget;
+		const npc = V.NPCList[target];
+		return ["pig", "boar"].includes(npc.type);
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	static isRightBestialHandjob() {
+		const arm = V.rightarm;
+		if (arm !== "penis") {
+			return false;
+		}
+		const target = V.righttarget;
 		const npc = V.NPCList[target];
 		return ["pig", "boar"].includes(npc.type);
 	}
