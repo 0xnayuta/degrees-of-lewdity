@@ -544,7 +544,7 @@ class NpcCombatMapper {
 					return this.getNpcSkinFilter(npc);
 				case "black":
 					return {
-						blend: "#000",
+						blend: "#b27052",
 						blendMode: "multiply",
 						desaturate: true,
 					};
@@ -556,13 +556,13 @@ class NpcCombatMapper {
 					};
 				case "green":
 					return {
-						blend: "#00ff00",
+						blend: "#0f0",
 						blendMode: "multiply",
 						desaturate: true,
 					};
 				case "pink":
 					return {
-						blend: "#ff00ff",
+						blend: "#f0f",
 						blendMode: "multiply",
 						desaturate: true,
 					};
@@ -595,7 +595,7 @@ class NpcCombatMapper {
 			type: this.getPenetratorType(npc),
 			colour: npc.skincolour,
 			target: combat.target.pc,
-			isEjaculating: V.enemyarousal >= V.enemyarousalmax && wearingCondom(V.vaginatarget) !== "worn" && !npcHasStrapon(V.vaginatarget),
+			isEjaculating: combat.isNpcPenetratorEjaculating(npc),
 			ejaculate: {
 				type: "sperm",
 			},

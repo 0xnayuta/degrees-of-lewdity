@@ -515,6 +515,21 @@ class CombatSystem {
 		}
 		return {};
 	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcPenetratorEjaculating(npc) {
+		if (wearingCondom(npc.index)) {
+			return false;
+		}
+		if (npcHasStrapon(npc.index)) {
+			return false;
+		}
+		const arousalMaxed = V.enemyarousal >= V.enemyarousalmax;
+		return arousalMaxed;
+	}
 }
 const combat = new CombatSystem();
 // @ts-ignore
