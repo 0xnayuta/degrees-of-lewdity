@@ -274,6 +274,8 @@ declare global {
 		penissize: number;
 		penis: string;
 		vagina: string;
+		condom: Condom | false;
+
 		gender: "m" | "f";
 
 		virginity: {
@@ -322,4 +324,4 @@ declare global {
 	}
 }
 
-export { };
+export {};

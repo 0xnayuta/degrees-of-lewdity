@@ -436,13 +436,16 @@ class NpcCombatMapper {
 	 * @returns {boolean}
 	 */
 	static isOverPositioned(npc, penetrator) {
-		if (penetrator?.position != null && ["feet", "leftarm", "rightarm"].includes(penetrator.position)) {
-			return false;
-		}
-		if (npc.stance === "top") {
+		if (npc.type === "horse") {
 			return true;
 		}
 		if (penetrator?.position && ["vagina", "butt", "anus", "thighs"].includes(penetrator.position)) {
+			return true;
+		}
+		if (penetrator?.position && ["feet", "leftarm", "rightarm"].includes(penetrator.position)) {
+			return false;
+		}
+		if (npc.stance === "top") {
 			return true;
 		}
 		return false;

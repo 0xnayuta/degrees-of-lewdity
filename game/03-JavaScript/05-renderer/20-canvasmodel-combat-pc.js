@@ -448,7 +448,7 @@ const combatMainPc = {
 		 */
 		backarm: {
 			srcfn(options) {
-				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
 					return `${options.src}body/arms/back-default.png`;
 				}
 				return `${options.src}body/arms/back-${options.armBackPosition}.png`;
@@ -895,7 +895,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
 					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
 					return `${options.src}clothing/hands/${clothes.name}/back-default.png`;
 				}
@@ -926,7 +926,7 @@ const combatMainPc = {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				if (PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
 					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
 					return `${options.src}clothing/hands/${clothes.name}/back-default.png-acc`;
 				}

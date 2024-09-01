@@ -681,10 +681,10 @@ class PlayerCombatMapper {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 				return "footjob";
 			}
-			if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
+			if (V.NPCList.some(a => ["horse", "centaur"].includes(a.type))) {
 				return "down";
 			}
-			if (V.NPCList.some(a => ["dog"].includes(a.type))) {
+			if (V.NPCList.some(a => ["dog", "pig", "boar"].includes(a.type))) {
 				return "up";
 			}
 		}
@@ -721,10 +721,7 @@ class PlayerCombatMapper {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
 				return "up";
 			}
-			if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
-				return "up";
-			}
-			if (V.NPCList.some(a => ["dog"].includes(a.type))) {
+			if (V.NPCList.some(a => ["horse", "centaur", "dog", "pig", "boar"].includes(a.type))) {
 				return "up";
 			}
 		}
@@ -823,7 +820,7 @@ class PlayerCombatMapper {
 			},
 			position: null,
 			state: null,
-			hasCondom: false,
+			condom: CombatRenderer.getCondomOptions(V.player.condom),
 		};
 
 		Object.assign(penetrator, combat.getPlayerPenetratorState());
