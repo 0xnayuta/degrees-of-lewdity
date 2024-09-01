@@ -1199,6 +1199,7 @@ function initUnderUpper() {
 			name_cap: "Tape",
 			variable: "tape",
 			combat: {
+				hasBreasts: true,
 				accessory: false,
 			},
 			integrity: 10,
