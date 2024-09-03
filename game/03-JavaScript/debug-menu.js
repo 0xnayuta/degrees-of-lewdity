@@ -16,6 +16,10 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`],
 		},
 		{
+			link: [`Test`, `Test`],
+			widgets: [`<<endcombat>>`],
+		},
+		{
 			link: [`Pass 1 minute`, stayOnPassageFn],
 			widgets: [`<<pass 1>>`],
 		},
@@ -118,9 +122,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Roll Over`, stayOnPassageFn],
-			widgets: [() => {
-				V.position = V.position === "doggy" ? "missionary" : "doggy";
-			}],
+			widgets: [
+				() => {
+					V.position = V.position === "doggy" ? "missionary" : "doggy";
+				},
+			],
 		},
 		{
 			link: [`Replay current passage with new RNG`, ""],
@@ -665,12 +671,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Great Hawk Hunt Capture`, `Moor`],
-			widgets: [
-				`<<set $moor to 50>>`,
-				`<<set $eventskip to 1>>`,
-				`<<moor_hunt_start>>`,
-				`<<set $moor_hunt to 10>>`,
-			],
+			widgets: [`<<set $moor to 50>>`, `<<set $eventskip to 1>>`, `<<moor_hunt_start>>`, `<<set $moor_hunt to 10>>`],
 		},
 		{
 			link: [`Police Pillory Start`, `Police Pillory Start`],

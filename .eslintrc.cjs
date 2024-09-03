@@ -229,6 +229,7 @@ module.exports = {
 		// DoL classes
 		ObservableValue: "readonly",
 		CanvasModel: "readonly",
+		PRNG: "readonly",
 		// Third-party
 		define: "readonly",
 		iro: "readonly",

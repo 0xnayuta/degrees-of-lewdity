@@ -151,7 +151,7 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
  */
 
 function wetnessKeyword(slot) {
-	const i = V[`${slot}wet`];
+	const i = V[`${slot.replace("_", "")}wet`];
 	if (i >= 100) {
 		return "drenched";
 	} else if (i >= 80) {
@@ -172,6 +172,7 @@ window.wetnessKeyword = wetnessKeyword;
  */
 function wetnessWord(slot) {
 	const kw = wetnessKeyword(slot);
+	if (!kw) return "";
 	let colorClass;
 	switch (kw) {
 		case "dry":
@@ -189,10 +190,7 @@ function wetnessWord(slot) {
 		default:
 			colorClass = ""; // default without color
 	}
-	if (kw) {
-		T.text_output = `<span class="${colorClass}">${kw.trim()}</span> `;
-	}
-	return T.text_output;
+	return `<span class="${colorClass}">${kw.trim()}</span> `;
 }
 window.wetnessWord = wetnessWord;
 DefineMacroS("wetnessWord", wetnessWord);
@@ -336,27 +334,38 @@ function faceintegrity() {
 }
 DefineMacroS("faceintegrity", faceintegrity);
 
-function cheatsWord(id, slot, worn) {
-	const updateText = () => {
-		let text = worn ? integrityWord(worn, slot) : wetnessWord(slot);
-		if (!T.text_output) text = "<span class='green'>full</span>";
-
-		jQuery("#numberslider-value-" + id)
-			.text("")
-			.append(text);
-	};
-
-	$(() => {
-		updateText();
-		$("#numberslider-input-" + id)
-			.on("input change", function (e) {
-				updateText();
-				wikifier("<<updatesidebarimg>>");
-			})
-			.trigger("change");
-	});
+/**
+ * @param {number} wetnessValue
+ */
+function getWetStage(wetnessValue) {
+	if (wetnessValue >= 100) return 3;
+	if (wetnessValue >= 80) return 2;
+	if (wetnessValue >= 40) return 1;
+	return 0;
 }
-window.cheatsWord = cheatsWord;
+
+/**
+ * Updates the wetstage for the given "wet" variable and the sidebar image to reflect the changes
+ *
+ * @param {string} wetVar
+ * @param {number} wetnessValue
+ */
+function cheatsShowWetness(wetVar, wetnessValue) {
+	V[wetVar + "stage"] = getWetStage(wetnessValue);
+	wikifier("<<updatesidebarimg>>");
+}
+window.cheatsShowWetness = cheatsShowWetness;
+
+/**
+ * @param {string} id the slider's full id
+ * @param {number} value
+ */
+function cheatsUpdateSlider(id, value) {
+	const slider = $(id);
+	if (!slider.length) return;
+	slider.val(value).trigger("change");
+}
+window.cheatsUpdateSlider = cheatsUpdateSlider;
 
 /**
  * @param {object} worn clothing article, State.variables.worn.XXXX
