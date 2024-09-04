@@ -615,6 +615,10 @@ class NpcCombatMapper {
 
 		// Pig is in top/top-face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
 		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type)) {
+			// If penetrator position is set, try to avoid fallbacks
+			if (penetrator.position != null) {
+				return penetrator;
+			}
 			if (npc.stance === "topface") {
 				penetrator.show = true;
 				penetrator.position = "mouth";
