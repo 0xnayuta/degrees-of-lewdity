@@ -83,7 +83,7 @@ class CombatSystem {
 	}
 
 	isActive() {
-		if (V.NPCList.some(a => a.type === "horse")) {
+		if (V.NPCList.some(a => ["horse", "centaur", "pig", "boar"].includes(a.type) && a.active)) {
 			return true;
 		}
 		return (
