@@ -40,8 +40,13 @@ class NpcCanvasHelper {
 					if (options.state === "penis") {
 						return 91;
 					}
+					if (options.category === "beast" && options.state?.includes("over")) {
+						// Sufficiently in front in case of hair accessories/transformation parts
+						return CombatRenderer.indices.frontHalo + 5;
+					}
 					return CombatRenderer.indices.frontLowerOverwear + 1;
 				}
+				// Back layer
 				if (options.position === "doggy") {
 					return 20;
 				}
