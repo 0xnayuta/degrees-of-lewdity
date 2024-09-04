@@ -613,12 +613,21 @@ class NpcCombatMapper {
 		options.filters.penetrator = this.getNpcPenetratorFilter(npc);
 		options.filters.condom = penetrator.condom.colour;
 
-		// Pig is in top face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
-		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type) && npc.stance === "topface") {
-			penetrator.show = true;
-			penetrator.position = "mouth";
-			penetrator.state = "entrance";
-			return penetrator;
+		// Pig is in top/top-face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
+		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type)) {
+			if (npc.stance === "topface") {
+				penetrator.show = true;
+				penetrator.position = "mouth";
+				penetrator.state = "entrance";
+				return penetrator;
+			}
+			if (npc.stance === "top") {
+				penetrator.show = true;
+				penetrator.position = "vagina";
+				// Pigs/boars have a layer adjustment, entrance doesn't cut it.
+				penetrator.state = null;
+				return penetrator;
+			}
 		}
 
 		if (["horse", "centaur"].includes(npc.type)) {

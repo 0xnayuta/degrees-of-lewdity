@@ -142,6 +142,9 @@ class NpcCanvasHelper {
 				if (penetrator.position === "mouth" && penetrator.state !== "penetrating") {
 					return CombatRenderer.indices.head + 1; // Put in front of head
 				}
+				if (penetrator.position === "vagina" && penetrator.state === null) {
+					return CombatRenderer.indices.frontLowerOverwear + 1;
+				}
 				return 49;
 			},
 			animationfn(options) {
