@@ -145,7 +145,7 @@ class NpcCombatMapper {
 	 */
 	static mapNpcToBodyOptions(index, npc, options) {
 		options.balls = {
-			hasBalls: ["pig", "boar"].includes(npc.type),
+			hasBalls: ["pig", "boar"].includes(npc.type) && npc.penis !== "none", // Assuming balls have to be paired with penises?
 		};
 		options.drool = {
 			show: false,
@@ -498,6 +498,8 @@ class NpcCombatMapper {
 		}
 
 		// Beast
+		options.show = false;
+
 		if (!configuration.show) {
 			options.show = false;
 			options.state = null;
@@ -614,19 +616,19 @@ class NpcCombatMapper {
 		options.filters.condom = penetrator.condom.colour;
 
 		// Pig is in top/top-face position, but combat doesn't say the penis is at the mouth explicitly. This clause forces this state.
-		if (options.position === "doggy" && ["pig", "boar"].includes(npc.type)) {
+		if (["pig", "boar"].includes(npc.type)) {
 			// If penetrator position is set, try to avoid fallbacks
 			if (penetrator.position != null) {
 				return penetrator;
 			}
 			if (npc.stance === "topface") {
-				penetrator.show = true;
+				penetrator.show = npc.penis !== "none";
 				penetrator.position = "mouth";
 				penetrator.state = "entrance";
 				return penetrator;
 			}
 			if (npc.stance === "top") {
-				penetrator.show = true;
+				penetrator.show = npc.penis !== "none";
 				penetrator.position = "vagina";
 				// Pigs/boars have a layer adjustment, entrance doesn't cut it.
 				penetrator.state = null;
@@ -638,7 +640,7 @@ class NpcCombatMapper {
 			if (options.position === "missionary") {
 				return null;
 			}
-			penetrator.show = true;
+			penetrator.show = npc.penis !== "none";
 			penetrator.state = [V.anusstate, V.vaginastate].includes("penetrated") ? "penetrating" : "entrance";
 			return penetrator;
 		}
