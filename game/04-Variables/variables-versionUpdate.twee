@@ -5231,6 +5231,7 @@
     <<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
 		<<script>>
 			const fixChild = (child) => {
+				if (!child.features) return;
 				if (!child.features.skinColour) child.features.skinColour = Skin.color.natural;
 				if (child.features.skinColour === "black") child.features.skinColour = "dark";
 				if (child.features.skinColour === "white") child.features.skinColour = "light";
@@ -5239,7 +5240,7 @@
 			getPregnancyObject().fetus.forEach(child => fixChild(child));
 			Object.values(V.NPCName).forEach(npc => {
 				if (npc.pregnancy.fetus) {
-					npc.pregnancy.fetus.forEach(child => child => fixChild(child));
+					npc.pregnancy.fetus.forEach(child => fixChild(child));
 				}
 			});
 			Object.values(V.storedNPCs).forEach(npc => {
@@ -5361,7 +5362,9 @@
 
 	<!-- Fix for older instance of 'cat_tf_stage_' not being cleared, leading to exceeded loop iterations -->
 	<<if $custom_eyecolours.filter(obj => obj.variable.includes("cat_tf_stage_")).length gt 8>>
-		<<run determineCatEyeStages()>>
+		<!-- filter out cat_tf_stages, then append only the first instances of them found in the original array -->
+		<<set _newEyecolours to V.custom_eyecolours.filter(i => !i.variable.startsWith("cat_tf_stage_")).concat(["cat_tf_stage_0_left", "cat_tf_stage_0_right", "cat_tf_stage_1_left", "cat_tf_stage_1_right", "cat_tf_stage_2_left", "cat_tf_stage_2_right", "cat_tf_stage_3_left", "cat_tf_stage_3_right"].map(o => V.custom_eyecolours.find(c => c.variable === o)));>>
+		<<set $custom_eyecolours to _newEyecolours>>
 	<</if>>
 
 	<!-- 0.5.2.0, converting NPC seen variables to arrays -->
@@ -5465,5 +5468,16 @@
 		<<else>>
 			<<set $mobileZoomFix to 1>>
 		<</if>>
+	<</if>>
+
+	<!-- Fix for named npcs whose gender could be changed by the randomizer -->
+	<<if !$objectVersion.npcPregnancyGenderChange>>
+		<<initnpcgender>>
+		<<set $objectVersion.npcPregnancyGenderChange to 1>>
+	<</if>>
+
+	<!-- 0.5.2.5 Temporarily disabling the toggle to fix bleached PCs in combat -->
+	<<if $options?.tanImgEnabled is false>>
+		<<set $options.tanImgEnabled to true>>
 	<</if>>
 <</widget>>

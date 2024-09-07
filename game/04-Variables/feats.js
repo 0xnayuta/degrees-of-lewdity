@@ -41,7 +41,7 @@ setup.feats = {
 	},
 	"It Belongs in a Museum": {
 		title: "It Belongs in a Museum!",
-		desc: "Find all the artefacts",
+		desc: "Find all the artefacts.",
 		difficulty: 3,
 		series: "",
 		filter: ["All", "General"],
