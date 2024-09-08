@@ -37,6 +37,10 @@ class SwarmCombatMapper {
 	 * @returns {SwarmOptions}
 	 */
 	static getOptions(options) {
+		const active = Object.keys(V.swarm.amount).length > 0;
+		if (!active) {
+			return options;
+		}
 		options.src = options.root + options.position + "/";
 		options.animKey = "sex-4f-mid";
 		options.animKeyImminent = "swarm-4f-imminent";
@@ -52,38 +56,35 @@ class SwarmCombatMapper {
 
 	/** @returns {SwarmPenetrationOptions} */
 	static isVaginalActive() {
-		const active = Object.keys(V.swarm.amount).length > 0;
 		const hasImminent = V.swarm.amount.genital[0] >= 1;
 		const hasPenetrating = V.swarm.amount.genital[1] >= 1;
 		const hasVagina = V.player.vaginaExist;
 		const hasChastity = V.worn.genitals.name === "chastity belt";
 		return {
-			imminent: active && (hasVagina || hasChastity) && hasImminent,
-			penetrating: active && (hasVagina || hasChastity) && hasPenetrating,
+			imminent: (hasVagina || hasChastity) && hasImminent,
+			penetrating: (hasVagina || hasChastity) && hasPenetrating,
 		};
 	}
 
 	/** @returns {SwarmPenetrationOptions} */
 	static isPenileActive() {
-		const active = Object.keys(V.swarm.amount).length > 0;
 		const hasImminent = V.swarm.amount.genital[0] >= 1;
 		const hasPenetrating = V.swarm.amount.genital[1] >= 1;
 		const hasPenis = V.player.penisExist;
 		const hasChastity = V.worn.genitals.name === "chastity belt";
 		return {
-			imminent: active && hasPenis && !hasChastity && hasImminent,
-			penetrating: active && hasPenis && !hasChastity && hasPenetrating,
+			imminent: hasPenis && !hasChastity && hasImminent,
+			penetrating: hasPenis && !hasChastity && hasPenetrating,
 		};
 	}
 
 	/** @returns {SwarmPenetrationOptions} */
 	static isAnalActive() {
-		const active = Object.keys(V.swarm.amount).length > 0;
 		const hasImminent = V.swarm.amount.butt[0] >= 1;
 		const hasPenetrating = V.swarm.amount.butt[1] >= 1;
 		return {
-			imminent: active && hasImminent,
-			penetrating: active && hasPenetrating,
+			imminent: hasImminent,
+			penetrating: hasPenetrating,
 		};
 	}
 
