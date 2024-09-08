@@ -1,46 +1,53 @@
 // @ts-check
-/* global CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColoursSimple, ClothingStates, TransformationKeys */
+/* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, TotalClothingStates, TransformationKeys, CombatClothingTypes, AnimationSpeed, LegPositions */
 
 /**
- * @typedef Options
+ * @typedef CombatPlayerOptions
  * @type {object}
  * @property {"img/sex/" | "img/newsex/"} root The root directory.
  * @property {"doggy"|"missionary"} position The position.
+ * @property {boolean} isDebugging Flag for debugging mode. E.G. Shows frame number.
  * @property {boolean} showPlayer Flag to show the player model.
  * @property {boolean} showFace
  * @property {boolean} showClothing Flag to show the clothing layers.
  * @property {boolean} showNPCs Flag to show the NPC model(s).
  * @property {boolean} showTan Flag to show the player model's tan.
- * @property {number} animSpeed The global speed to play animations.
  * Computed
  * @property {string} src The computed directory path for the position.
+ * @property {AnimationSpeed} speed The speed used for animation keyframes.
  * @property {string} animKey The key used for fetching the animation configuration.
  * @property {string} animKeyStill The key used for fetching the animation configuration for true still sprites.
  * @property {string} machineAnimKey The key used for fetching the animation configuration for machine sprites like milkers/dildos.
  * @property {number} breastSize The size of the player breasts.
  * @property {boolean} breastsExposed Whether the breasts are shown.
  * @property {Penetrator?} penetrator Typically the PC's penis, or strapon etc.
- * @property {SkinColoursSimple} skinType
+ * @property {SkinColours} skinType
  * @property {number} skinTone
  * @property {string} hairType The type of hair.
  * @property {string} hairLength The named stage of the hair length.
  * @property {string} leftEye
  * @property {string} rightEye
- * @property {"up" | "down" | "footjob"} legBackPosition The position the back leg is in.
- * @property {"up" | "down" | "footjob"} legFrontPosition The position the front leg is in.
+ * @property {LegPositions} legBackPosition The position the back leg is in.
+ * @property {LegPositions} legFrontPosition The position the front leg is in.
  * @property {"default" | "bound" | "handjob"} armBackPosition The position the back arm is in.
  * @property {"default" | "bound" | "handjob"} armFrontPosition The position the front arm is in.
  * @property {boolean} genitalsExposed
- * @property {boolean} inOral
+ * @property {MouthOptions} mouth
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
  * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
- * @property {Object<string, ClothingState>} clothes Template.
+ * @property {Partial<Record<ClothedSlots, ClothingState>>} clothes Template.
  * @property {object} filters The filters for layers.
  * @property {Props} props
  * @property {Machines} machines
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
- * @property {Object<string, TransformationOptions>} transformations
+ * @property {Dict<TransformationOptions>} transformations
+ */
+
+/**
+ * @typedef MouthOptions
+ * @property {boolean} inOral
+ * @property {boolean} open
  */
 
 /**
@@ -127,13 +134,16 @@
  * @typedef ClothingState
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
+ * @property {ClothedSlots} slot
  * @property {string?} name The name of the clothing directory.
  * @property {PositionStates?} positions The position related state, typically holding leg state information for legwear/lowerwear.
- * @property {ClothingStates} state The state of the clothing, the file name.
+ * @property {TotalClothingStates} state The state of the clothing, the file name.
+ * @property {CombatClothingTypes=} renderStep The renderer step processor used for the combat renderer.
  * @property {boolean} show Whether to show the clothing layer.
  * @property {number} alpha The percent of the alpha channel. 1 is 100%, 0 is 0%.
  * @property {boolean} isExposed Whether the clothing layer exposes beneath.
  * @property {boolean} isSkirt Whether the clothing layer is a skirt.
+ * @property {boolean} isRaised Whether the clothing layer (skirt) is displaced/raised.
  * @property {boolean} isBoundable Whether the clothing layer has a bound state.
  * @property {boolean} hasAccessory Whether the clothing uses accessory layer.
  * @property {boolean} hasMainImg Whether the clothing has a main img layer, tape for example.
@@ -182,55 +192,43 @@
 
 /**
  * @typedef TransformationOptions
- * @property {WingOptions} wings
- * @property {HaloOptions} halo
- * @property {HornOptions} horns
- * @property {TailOptions} tail
+ * @property {TransformationPartOptions} wings
+ * @property {TransformationPartOptions} halo
+ * @property {TransformationPartOptions} horns
+ * @property {TransformationPartOptions} ears
+ * @property {TransformationPartOptions} tail
+ * @property {TransformationPartOptions} eyes
+ * @property {TransformationPartOptions} cheeks
+ * @property {TransformationPartOptions} malar
+ * @property {TransformationPartOptions} pubes
+ * @property {TransformationPartOptions} plumage
  */
 
 /**
- * @typedef WingOptions
+ * @typedef TransformationPartOptions
  * @property {boolean} show
  * @property {string} type
  * @property {string} style
  */
 
-/**
- * @typedef HaloOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
-/**
- * @typedef HornOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
-/**
- * @typedef TailOptions
- * @property {boolean} show
- * @property {string} type
- * @property {string} style
- */
-
+/** @type {CanvasModelOptions<CombatPlayerOptions>} */
 class PlayerCombatMapper {
-	/**
-	 * @returns {Options}
-	 */
+	/** @returns {CombatPlayerOptions} */
 	static generateOptions() {
 		// @ts-ignore
 		return {
 			root: "img/newsex/",
 			position: "missionary",
+			isDebugging: false,
 			showPlayer: true,
 			showFace: true,
 			showClothing: true,
 			showNPCs: true,
-			inOral: false,
-			animSpeed: 1,
+			mouth: {
+				inOral: false,
+				open: false,
+			},
+			speed: "idle",
 			hairType: "default",
 			filters: {
 				worn: {},
@@ -260,15 +258,15 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options=} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions=} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPlayerToOptions(options) {
-		console.log("mapPlayerToOptions", JSON.parse(JSON.stringify(options)));
-
 		if (options == null) {
 			options = this.generateOptions();
 		}
+
+		options.isDebugging = !!V.debug;
 
 		// Set position
 		options.position = CombatRenderer.getPosition(V.position);
@@ -283,7 +281,12 @@ class PlayerCombatMapper {
 		options.breastsExposed = true;
 
 		// Copied from <<leg_position>> - Centralise usage later. Added footjob state
-		this.mapPcToLegPosition(options);
+		options.legBackPosition = this.mapPcToLegBackPosition(options);
+		options.legFrontPosition = this.mapPcToLegFrontPosition(options);
+
+		// Mouth configuration
+		options.mouth.inOral = combat.isMouthActive();
+		options.mouth.open = combat.isActive() && V.arousalmax / V.arousal > 0.6;
 
 		// Set values for blush and tears
 		options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
@@ -301,9 +304,11 @@ class PlayerCombatMapper {
 
 		this.mapToTransformationOptions(options);
 
-		options.penetrator = this.mapPcToPenetratorOptions(V.player, options);
+		if (V.player.penisExist) {
+			options.penetrator = this.mapPcToPenetratorOptions(V.player, options);
+		}
 
-		this.generateBodyFilters(options);
+		CombatRenderer.generateBodyFilters(options);
 
 		options.leftEye = V.leftEyeColour || "blue";
 		options.rightEye = V.rightEyeColour || "blue";
@@ -321,37 +326,63 @@ class PlayerCombatMapper {
 		this.mapToTentacleOptions(options);
 
 		// Set animation speed
-		options.animKey = this.getPcAnimationSpeed(options);
-		options.animKeyStill = this.getPcAnimationSpeed(options);
+		options.animKey = this.getPcAnimation(options);
+		options.animKeyStill = this.getPcAnimation(options);
 		options.machineAnimKey = this.getMachineAnimationSpeed(options);
-
-		console.warn("===============================================");
-		console.warn("=============== Player Options: ===============");
-		console.warn("===============================================");
-		console.log("Options:", JSON.parse(JSON.stringify(options)));
+		options.speed = this.getPcAnimationSpeed(options);
 
 		return options;
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {string}
 	 */
-	static getPcAnimationSpeed(options) {
-		if (options.props.semenTank.show || options.props.milkTank.show) {
-			return "sex-2f-idle";
-		}
-		if (combat.isRapid()) {
-			return "sex-4f-vfast";
-		}
-		if (combat.isActive()) {
-			return "sex-4f-mid";
-		}
-		return "sex-2f-idle";
+	static getPcAnimation(options) {
+		const speed = this.getPcAnimationSpeed(options);
+		const frames = this.getPcAnimationFrameCount(options);
+		return `sex-${frames}f-${speed}`;
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
+	 * @returns {number}
+	 */
+	static getPcAnimationFrameCount(options) {
+		if (T.crOverrides?.animFrames) {
+			return T.crOverrides.animFrames;
+		}
+		if (options.props.semenTank.show || options.props.milkTank.show) {
+			return 2;
+		}
+		if (combat.isActive()) {
+			return 4;
+		}
+		return 2;
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
+	 * @returns {AnimationSpeed}
+	 */
+	static getPcAnimationSpeed(options) {
+		if (T.crOverrides?.animSpeed) {
+			return T.crOverrides.animSpeed;
+		}
+		if (options.props.semenTank.show || options.props.milkTank.show) {
+			return "idle";
+		}
+		if (combat.isRapid()) {
+			return "vfast";
+		}
+		if (combat.isActive()) {
+			return "mid";
+		}
+		return "idle";
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
 	 * @returns {string}
 	 */
 	static getMachineAnimationSpeed(options) {
@@ -366,8 +397,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToPropsOptions(options) {
 		/**
@@ -427,7 +458,7 @@ class PlayerCombatMapper {
 			const audience = V.pilloryaudience || 0;
 			const tomatoes = V.walltype === "pillory" ? Math.clamp(audience - 1, 1, 4) : 0;
 			return {
-				show: !!V.walltype,
+				show: V.position === "wall" && !!V.walltype,
 				isDirty: V.walltype === "pillory",
 				hasHorse: V.walltype === "horse_pillory",
 				tomatoes,
@@ -457,8 +488,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToMachineOptions(options) {
 		/**
@@ -499,8 +530,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToTentacleOptions(options) {
 		/**
@@ -524,7 +555,6 @@ class PlayerCombatMapper {
 
 				const part = parts.find(part => tentacle.head in part);
 				if (part) {
-					console.log("Tentacle", i, tentacle, "selected for:", parts);
 					return part[tentacle.head];
 				}
 			}
@@ -584,8 +614,8 @@ class PlayerCombatMapper {
 
 	/**
 	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToArmPosition(options) {
 		if (options.position === "missionary") {
@@ -638,66 +668,89 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 *
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {"up" | "down" | "footjob"}
 	 */
-	static mapPcToLegPosition(options) {
+	static mapPcToLegFrontPosition(options) {
+		// Overrides
+		if (T.crOverrides?.legFrontPosition) {
+			return T.crOverrides.legFrontPosition;
+		}
+		// General
 		if (options.position === "missionary") {
 			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
-				options.legFrontPosition = "footjob";
-				options.legBackPosition = "up";
-				return options;
+				return "footjob";
 			}
-			if (V.NPCList.find(a => ["horse", "centaur"].includes(a.type))) {
-				options.legFrontPosition = "down";
-				options.legBackPosition = "up";
-				return options;
+			if (V.NPCList.some(a => ["horse", "centaur"].includes(a.type))) {
+				return "down";
 			}
-			if (V.NPCList.some(a => ["dog"].includes(a.type))) {
-				options.legFrontPosition = "up";
-				options.legBackPosition = "up";
-				return options;
+			if (V.NPCList.some(a => ["dog", "pig", "boar"].includes(a.type))) {
+				return "up";
 			}
 		}
 		if (V.feetuse === "penis" || V.feetstate === "tentacle") {
-			options.legFrontPosition = "footjob";
-			options.legBackPosition = "up";
-			return options;
+			return "footjob";
 		}
 		if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+			return "up";
 		}
 		if (options.position === "doggy") {
-			options.legFrontPosition = "down";
-			options.legBackPosition = "down";
-			return options;
+			return "down";
 		}
 		const parts = [V.anususe, V.vaginause, V.thighuse];
 		if (parts.includes("penis") || parts.includes(1)) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+			return "up";
 		}
-		if (combat.positions.vagina >= 2 || combat.positions.anus >= 2) {
-			options.legFrontPosition = "up";
-			options.legBackPosition = "up";
-			return options;
+		if (combat.vaginaCount >= 2 || combat.anusCount >= 2) {
+			return "up";
 		}
-		options.legFrontPosition = "down";
-		options.legBackPosition = "down";
-		return options;
+		return "down";
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
+	 * @returns {"up" | "down" | "footjob"}
+	 */
+	static mapPcToLegBackPosition(options) {
+		// Overrides
+		if (T.crOverrides?.legBackPosition) {
+			return T.crOverrides.legBackPosition;
+		}
+		// General
+		if (options.position === "missionary") {
+			if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+				return "up";
+			}
+			if (V.NPCList.some(a => ["horse", "centaur", "dog", "pig", "boar"].includes(a.type))) {
+				return "up";
+			}
+		}
+		if (V.feetuse === "penis" || V.feetstate === "tentacle") {
+			return "up";
+		}
+		if (V.machine && V.machine.tattoo && ["left_thigh", "right_thigh"].includes(V.machine.tattoo.use)) {
+			return "up";
+		}
+		if (options.position === "doggy") {
+			return "down";
+		}
+		const parts = [V.anususe, V.vaginause, V.thighuse];
+		if (parts.includes("penis") || parts.includes(1)) {
+			return "up";
+		}
+		if (combat.vaginaCount >= 2 || combat.anusCount >= 2) {
+			return "up";
+		}
+		return "down";
+	}
+
+	/**
+	 * @param {CombatPlayerOptions} options
 	 * @param {ClothingState} clothing
-	 * @returns {ClothingStates[]}
+	 * @returns {TotalClothingStates[]}
 	 */
 	static getExposedStates(options, clothing) {
-		/** @type {ClothingStates[]} */
+		/** @type {TotalClothingStates[]} */
 		const exposedStates = ["neck", "midriff", "thighs", "knees", "ankles", "totheside"];
 		const areLegsUp = ["up", "footjob"].includes(options.legBackPosition) || ["up", "footjob"].includes(options.legFrontPosition);
 		if (clothing.isSkirt) {
@@ -710,7 +763,7 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @param {ClothingState} clothing
 	 * @returns {boolean}
 	 */
@@ -719,18 +772,19 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {boolean}
 	 */
 	static isPenisExposed(options) {
 		const lower = options.clothes.lower;
-		const lowerExposed = !lower.show || this.isClothingExposed(options, lower);
+		const lowerExposed = !lower?.show || this.isClothingExposed(options, lower);
 
 		const underLower = options.clothes.under_lower;
-		const underLowerExposed = !underLower.show || this.isClothingExposed(options, underLower);
+		const underLowerExposed = !underLower?.show || this.isClothingExposed(options, underLower);
 
 		const overLower = options.clothes.over_lower;
-		const overLowerExposed = !overLower.show || this.isClothingExposed(options, overLower);
+		const overLowerExposed = !overLower?.show || this.isClothingExposed(options, overLower);
+
 		const clothingExposed = lowerExposed && underLowerExposed && overLowerExposed;
 
 		return clothingExposed;
@@ -739,7 +793,7 @@ class PlayerCombatMapper {
 	/**
 	 *
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {Penetrator?}
 	 */
 	static mapPcToPenetratorOptions(pc, options) {
@@ -751,7 +805,7 @@ class PlayerCombatMapper {
 			show: hasPenetrator && isExposed && !hasChastityBelt,
 			type: playerHasStrapon() ? "strapon" : "human",
 			size: pc.penissize,
-			colour: V.skinColor.current.penis,
+			colour: pc.skin.color,
 			target: V.penistarget,
 			isEjaculating:
 				V.orgasmdown > 0 &&
@@ -764,131 +818,21 @@ class PlayerCombatMapper {
 			ejaculate: {
 				type: "sperm",
 			},
-			position: "default",
-			state: "default",
-			hasCondom: false,
+			position: null,
+			state: null,
+			condom: CombatRenderer.getCondomOptions(V.player.condom),
 		};
-		switch (V.penisuse) {
-			case 1:
-			case 0:
-				penetrator.position = "default";
-				penetrator.state = "default";
-				return penetrator;
-			case "anusentrance":
-				penetrator.position = "anus";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "anusentrancedouble":
-				penetrator.position = "anus";
-				penetrator.state = "entrancedouble";
-				return penetrator;
-			case "anus":
-				penetrator.position = "anus";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "anusdouble":
-				penetrator.position = "anus";
-				penetrator.state = "penetrateddouble";
-				return penetrator;
-			case "penisentrance":
-				return null;
-			case "penisimminent":
-				return null;
-			case "penis":
-				return null;
-			case "othervagina":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaentrance":
-				penetrator.position = "vagina";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "vaginaentrancedouble":
-				penetrator.position = "vagina";
-				penetrator.state = "entrancedouble";
-				return penetrator;
-			case "vaginaimminent":
-				penetrator.position = "vagina";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "vaginaimminentdouble":
-				penetrator.position = "vagina";
-				penetrator.state = "imminentdouble";
-				return penetrator;
-			case "vagina":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "vaginadouble":
-				penetrator.position = "vagina";
-				penetrator.state = "penetrateddouble";
-				return penetrator;
-			case "mouthentrance":
-				penetrator.position = "mouth";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "mouthimminent":
-				penetrator.position = "mouth";
-				penetrator.state = "imminent";
-				return penetrator;
-			case "mouth":
-				penetrator.position = "mouth";
-				penetrator.state = "penetrated";
-				return penetrator;
-			case "othermouth": // "Wraps its tongue around your penis"
-				penetrator.position = "mouth";
-				penetrator.state = "entrance";
-				return penetrator;
-			case "feet":
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "footjob": // Duplicate of feet
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
-				penetrator.position = "feet";
-				penetrator.state = "footjob";
-				return penetrator;
-			case "leftarm":
-				penetrator.position = "leftarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "rightarm":
-				penetrator.position = "rightarm";
-				penetrator.state = "handjob";
-				return penetrator;
-			case "thighs":
-				penetrator.position = "thighs";
-				penetrator.state = "thighjob";
-				return penetrator;
-			case "cheeks":
-				penetrator.position = "butt";
-				penetrator.state = "buttjob";
-				return penetrator;
-			case "chest":
-				penetrator.position = "chest";
-				penetrator.state = "titjob";
-				return penetrator;
-			// case "leftDildoAnus":
-			// case "rightDildoAnus":
-			// case "leftStroker":
-			// case "rightStroker":
-			// case "strap-on":
-			// case "mouthotheranus": (wtf is this?)
-			// case "idle": (Pointless to account for this)
-			// case "none": (No pp)
-		}
-		return null;
+
+		Object.assign(penetrator, combat.getPlayerPenetratorState());
+
+		return penetrator;
 	}
 
 	/**
 	 *
 	 * @param {Player} pc
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToClothingOptions(pc, options) {
 		// Clothing filters and options
@@ -903,15 +847,18 @@ class PlayerCombatMapper {
 	/**
 	 * @param {ClothedSlots} slot
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 * @returns {ClothingState}
 	 */
 	static mapPcToClothingOption(slot, pc, options) {
 		const defaults = setup.clothes[slot][V.worn[slot].index];
 		const clothing = CombatRenderer.getClothingBySlot(slot);
+		const source = CombatRenderer.getSourceClothing(slot, defaults);
 
-		const name = defaults.combatImg ?? clothing.variable;
-		let state = clothing.state;
+		const name = source.variable;
+
+		/** @type {TotalClothingStates} */
+		const state = clothing.state;
 		let show = name != null;
 
 		if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
@@ -920,23 +867,6 @@ class PlayerCombatMapper {
 
 		if (slot === "under_upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
 			show = false;
-		}
-
-		if (slot === "lower") {
-			// Move skirt to thighs if skirt_down is 0
-			if (defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist") {
-				state = "thighs";
-			}
-		}
-
-		if (slot === "under_lower") {
-			// Slot for under lower configurations
-			show = state !== 0 && ["ankles", "waist", "totheside"].includes(state);
-		}
-
-		if (slot === "feet") {
-			state = options.legFrontPosition;
-			// state = options.legBackPosition;
 		}
 
 		this.generateClothingFilter(slot, clothing, options);
@@ -951,64 +881,125 @@ class PlayerCombatMapper {
 		 */
 		const clothes = {
 			item: clothing,
+			slot,
 			name,
-			positions: CombatRenderer.getPositionStates(options.legFrontPosition, options.legBackPosition, slot, defaults),
+			positions: CombatRenderer.getPositionStates(options.position, options.legFrontPosition, options.legBackPosition, slot, defaults),
 			state: state || "full",
 			show,
 			alpha: CombatRenderer.getAlpha(slot),
 			isSkirt: defaults.skirt === 1,
+			isRaised: defaults.skirt === 1 && clothing.skirt_down === 0 && state === "waist",
 			isExposed: !!clothing.exposed,
-			isBoundable: !!clothing.combatBoundable,
+			isBoundable: !!clothing.combat?.boundable,
 			hasAccessory: CombatRenderer.getAccessoryState(slot, defaults),
-			hasMainImg: clothing.combatHasMainImg !== false,
+			hasMainImg: clothing.combat?.hasMainImg !== false,
 			hasBackImg: !!defaults.back_img && [1, "combat"].includes(defaults.back_img),
-			breasts: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.breast_img !== 0,
-				size: options.breastSize,
-			},
-			sleeves: {
-				show: ["upper", "under_upper", "over_upper"].includes(slot) && defaults.sleeve_img === 1,
-				state: "default",
-			},
+			breasts: this.genClothingBreastOptions(slot, source, options.breastSize),
+			sleeves: this.genClothingSleeveOptions(slot, source),
+			renderStep: source.combat?.renderType,
 		};
 
 		return clothes;
 	}
 
 	/**
+	 * @param {string} slot
+	 * @param {ClothesItem} source
+	 */
+	static genClothingSleeveOptions(slot, source) {
+		return {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && this.hasSleeves(source),
+			state: "default",
+		};
+	}
+
+	/**
+	 * @param {ClothesItem} source
+	 * @returns {boolean}
+	 */
+	static hasSleeves(source) {
+		// Has combat.hasSleeves property
+		if (source.combat == null || source.combat.hasSleeves == null) {
+			return !!source.sleeve_img;
+		}
+		return source.combat.hasSleeves;
+	}
+
+	/**
+	 * @param {string} slot
+	 * @param {ClothesItem} source
+	 * @param {number} breastSize
+	 */
+	static genClothingBreastOptions(slot, source, breastSize) {
+		return {
+			show: ["upper", "under_upper", "over_upper"].includes(slot) && this.hasBreasts(source),
+			size: breastSize,
+		};
+	}
+
+	/**
+	 * @param {ClothesItem} source
+	 * @returns {boolean}
+	 */
+	static hasBreasts(source) {
+		// Has combat.hasSleeves property
+		if (source.combat == null || source.combat.hasBreasts == null) {
+			return !!source.sleeve_img;
+		}
+		return source.combat.hasBreasts;
+	}
+
+	/**
 	 * @param {ClothedSlots} slot
 	 * @param {ClothesItem} clothing
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static generateClothingFilter(slot, clothing, options) {
 		const mainFilterKey = `worn_${slot}_main`;
 		const accFilterKey = `worn_${slot}_acc`;
 
-		options.filters = options.filters || {
-			worn: {},
-		};
-		options.filters.worn[slot] = {};
+		options.filters ||= {};
 
-		const colour = clothing.combatColourOverride || clothing.colour_combat || clothing.colour;
-		const debugName = slot + " clothing";
-		const customFilter = clothing.colourCustom;
-		console.log("Clothing colour:", slot, colour);
-		options.filters[mainFilterKey] = colour
-			? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
-			: Renderer.emptyLayerFilter();
+		if (clothing.combat?.mainColour) {
+			options.filters[mainFilterKey] = this.genFilterWithHex(clothing.combat.mainColour);
+		} else {
+			const colour = clothing.colour;
+			const debugName = slot + " clothing";
+			const customFilter = clothing.colourCustom;
+			options.filters[mainFilterKey] = colour
+				? CombatRenderer.lookupColour(setup.colours.clothes_map, colour, debugName, customFilter, clothing.prefilter)
+				: Renderer.emptyLayerFilter();
+		}
 
-		const accColour = clothing.combatAccessoryColourOverride || clothing.accessory_colour_combat || clothing.accessory_colour;
+		const accColour = clothing.combat?.accColour || clothing.accessory_colour;
 		const accDebugName = slot + " accessory";
 		const accCustomFilter = clothing.accessory_colourCustom;
 		options.filters[accFilterKey] = accColour
 			? CombatRenderer.lookupColour(setup.colours.clothes_map, accColour, accDebugName, accCustomFilter, clothing.prefilter)
 			: Renderer.emptyLayerFilter();
+
+		return options;
+	}
+
+	/**
+	 * @param {string} hex
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static genFilterWithHex(hex) {
+		return Renderer.mergeLayerData(
+			{
+				blend: hex,
+				contrast: 1,
+				brightness: 0,
+			},
+			setup.colours.clothes_default
+		);
 	}
 
 	/**
 	 * @param {Player} pc
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapPcToBodyOptions(pc, options) {
 		this.mapPcToArmPosition(options);
@@ -1017,13 +1008,13 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {Options} options
-	 * @returns {Options}
+	 * @param {CombatPlayerOptions} options
+	 * @returns {CombatPlayerOptions}
 	 */
 	static mapToTransformationOptions(options) {
 		/**
 		 * @param {TransformationKeys} type
-		 * @param {"wings" | "halo" | "horns" | "tail"} part
+		 * @param {"wings" | "halo" | "horns" | "ears" | "tail" | "eyes" | "cheeks" | "malar" | "pubes" | "plumage"} part
 		 */
 		function generateTransformationFilter(type, part) {
 			const parts = V.transformationParts[type];
@@ -1040,23 +1031,35 @@ class PlayerCombatMapper {
 				wings: this.mapToTransformationWingOptions(transformation),
 				halo: this.mapToTransformationHaloOptions(transformation),
 				horns: this.mapToTransformationHornOptions(transformation),
+				ears: this.mapToTransformationEarOptions(transformation),
 				tail: this.mapToTransformationTailOptions(transformation),
+				eyes: this.mapToTransformationEyeOptions(transformation),
+				cheeks: this.mapToTransformationCheekOptions(transformation),
+				malar: this.mapToTransformationMalarOptions(transformation),
+				pubes: this.mapToTransformationPubeOptions(transformation),
+				plumage: this.mapToTransformationPlumageOptions(transformation),
 			};
 			generateTransformationFilter(transformation, "wings");
 			generateTransformationFilter(transformation, "halo");
 			generateTransformationFilter(transformation, "horns");
+			generateTransformationFilter(transformation, "ears");
 			generateTransformationFilter(transformation, "tail");
+			generateTransformationFilter(transformation, "eyes");
+			generateTransformationFilter(transformation, "cheeks");
+			generateTransformationFilter(transformation, "malar");
+			generateTransformationFilter(transformation, "pubes");
+			generateTransformationFilter(transformation, "plumage");
 		});
 		return options;
 	}
 
 	/**
 	 * @param {TransformationKeys} type
-	 * @returns {WingOptions}
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationWingOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("wings" in parts) || parts.wings === "disabled") {
+		if (!("wings" in parts) || parts.wings === "disabled" || parts.wings === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1071,12 +1074,12 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {HaloOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationHaloOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("halo" in parts) || parts.halo === "disabled") {
+		if (!("halo" in parts) || parts.halo === "disabled" || parts.halo === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1091,12 +1094,12 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {HornOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationHornOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("horns" in parts) || parts.horns === "disabled") {
+		if (!("horns" in parts) || parts.horns === "disabled" || parts.horns === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1111,12 +1114,32 @@ class PlayerCombatMapper {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {TailOptions}
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationEarOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("ears" in parts) || parts.ears === "disabled" || parts.ears === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.ears,
+		};
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
 	 */
 	static mapToTransformationTailOptions(type) {
 		const parts = V.transformationParts[type];
-		if (!("tail" in parts) || parts.tail === "disabled") {
+		if (!("tail" in parts) || parts.tail === "disabled" || parts.tail === "hidden") {
 			return {
 				show: false,
 				type,
@@ -1131,8 +1154,108 @@ class PlayerCombatMapper {
 	}
 
 	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationEyeOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("eyes" in parts) || parts.eyes === "disabled" || parts.eyes === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.eyes,
+		};
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationCheekOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("cheeks" in parts) || parts.cheeks === "disabled" || parts.cheeks === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.cheeks,
+		};
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationMalarOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("malar" in parts) || parts.malar === "disabled" || parts.malar === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.malar,
+		};
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationPubeOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("pubes" in parts) || parts.pubes === "disabled" || parts.pubes === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.pubes,
+		};
+	}
+
+	/**
+	 * @param {TransformationKeys} type
+	 * @returns {TransformationPartOptions}
+	 */
+	static mapToTransformationPlumageOptions(type) {
+		const parts = V.transformationParts[type];
+		if (!("plumage" in parts) || parts.plumage === "disabled" || parts.plumage === "hidden") {
+			return {
+				show: false,
+				type,
+				style: "disabled",
+			};
+		}
+		return {
+			show: true,
+			type,
+			style: parts.plumage,
+		};
+	}
+
+	/**
 	 * @param {Player} pc
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static mapPcToBodywritingOptions(pc, options) {
 		/**
@@ -1281,11 +1404,11 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.backThigh = getState("right_thigh", (id, bodywriting) => {
+				options.bodywriting.backThigh = getState("left_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						let type = id;
-						if (["up", "down"].includes(options.legFrontPosition)) {
-							type += "-" + options.legFrontPosition;
+						if (["up", "down"].includes(options.legBackPosition)) {
+							type += "-" + options.legBackPosition;
 						}
 						if (bodywriting.arrow === 1) {
 							type += "-arrow";
@@ -1305,30 +1428,7 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.frontThigh = getState("left_thigh", (id, bodywriting) => {
-					if (bodywriting.type === "text" || bodywriting.special === "islander") {
-						let type = id;
-						if (["up", "down"].includes(options.legFrontPosition)) {
-							type += "-" + options.legFrontPosition;
-						}
-						if (bodywriting.arrow === 1) {
-							type += "-arrow";
-						}
-						return {
-							show: true,
-							area: "text",
-							type: sanitise(type),
-						};
-					}
-					if (bodywriting.type === "object") {
-						return {
-							show: true,
-							area: bodywriting.writing,
-							type: sanitise(id),
-						};
-					}
-					return null;
-				});
+				options.bodywriting.frontThigh = getState("right_thigh", simpleText);
 				break;
 			case "doggy":
 				options.bodywriting.frontCheek = getState("right_cheek", (id, bodywriting) => {
@@ -1411,8 +1511,7 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.backThigh = getState("left_thigh", simpleText);
-				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
+				options.bodywriting.backThigh = getState("right_thigh", (id, bodywriting) => {
 					if (bodywriting.type === "text" || bodywriting.special === "islander") {
 						return {
 							show: true,
@@ -1429,13 +1528,14 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
+				options.bodywriting.frontThigh = getState("left_thigh", simpleText);
 				break;
 		}
 		return options;
 	}
 
 	/**
-	 * @param {Options} options
+	 * @param {CombatPlayerOptions} options
 	 */
 	static generateHairFilters(options) {
 		if (V.hairColourStyle === "simple") {
@@ -1471,36 +1571,5 @@ class PlayerCombatMapper {
 		options.hairLength = V.hairlengthstage;
 		options.hairType = "default";
 	}
-
-	/**
-	 * @param {Options} options
-	 */
-	static generateBodyFilters(options) {
-		options.skinType = V.skinColor.natural;
-		options.skinTone = CombatRenderer.getTanValues().body;
-		const skinFilter = setup.colours.getSkinFilter(options.skinType, options.skinTone);
-		options.filters.body = skinFilter;
-		options.filters.breasts = skinFilter;
-		options.filters.penis = skinFilter;
-		if (options.showTan) {
-			const tanslots = ["breasts", "penis", "swimshorts", "swimsuitTop", "swimsuitBottom", "bikiniTop", "bikiniBottom"]
-				.map(slotname => [slotname, options["skin_tone_" + slotname]])
-				.filter(slot => slot[1] >= 0);
-			// Brightest on top
-			tanslots.sort((a, b) => b[1] - a[1]);
-			tanslots.forEach((slot, i) => {
-				options.filters[slot[0]] = setup.colours.getSkinFilter(options.skinType, slot[1]);
-				options["ztan_" + slot[0]] = options["ztan_" + slot[0]] + 0.01 * i;
-			});
-		}
-	}
 }
 window.PlayerCombatMapper = PlayerCombatMapper;
-
-Macro.add("mapplayertooptions", {
-	handler() {
-		const slot = this.args[0];
-		const options = T.options[slot] || {};
-		T.options[slot] = PlayerCombatMapper.mapPlayerToOptions(options);
-	},
-});

@@ -50,6 +50,9 @@ function initOverLower() {
 			name: "froggy skirt",
 			name_cap: "Froggy skirt",
 			variable: "froggy",
+			combat: {
+				renderType: "skirt",
+			},
 			integrity: 300,
 			integrity_max: 300,
 			fabric_strength: 30,
@@ -97,6 +100,9 @@ function initOverLower() {
 			name: "cream",
 			name_cap: "Cream",
 			variable: "cream",
+			combat: {
+				renderType: "skirt",
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,

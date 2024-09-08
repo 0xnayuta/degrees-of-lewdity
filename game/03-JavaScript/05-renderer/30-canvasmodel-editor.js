@@ -1,41 +1,61 @@
-function createCanvasCombatEditor() {
-	console.warn("createCanvasCombatEditor initiated");
+// @ts-check
+/* globals MultiCanvasModel */
 
-	const fragment = document.createDocumentFragment();
+class CombatEditor {
+	static createCanvasCombatEditor() {
+		const fragment = document.createDocumentFragment();
 
-	const para = document.createElement("div");
-	para.classList.add("mytest");
-	fragment.append(para);
+		const para = document.createElement("div");
+		para.classList.add("mytest");
+		para.append(
+			this.createButton("Refresh Combat", () => {
+				this.recompileCombatCanvas();
+			})
+		);
+		fragment.append(para);
 
-	console.warn("createCanvasCombatEditor finished", fragment);
-	return fragment;
+		return fragment;
+	}
+
+	/**
+	 * @param {string} text
+	 * @param {function():void} callback
+	 */
+	static createButton(text, callback) {
+		const button = document.createElement("button");
+		button.classList.add("btn", "btn-info");
+		button.textContent = text;
+		button.addEventListener("click", function () {
+			callback();
+		});
+		return button;
+	}
+
+	static recompileCombatCanvas() {
+		MultiCanvasModel.ensureStorage();
+		const model = T.multiCombatModels.combatMain;
+		if (model != null) {
+			model.refresh();
+		}
+	}
+
+	static addLayerElements(layer) {
+		const fragment = document.createDocumentFragment();
+
+		return fragment;
+	}
 }
+window.CombatEditor = CombatEditor;
 
 Macro.add("canvasCombatEditor", {
 	handler() {
-		const fragment = createCanvasCombatEditor();
+		const fragment = CombatEditor.createCanvasCombatEditor();
 		this.output.append(fragment);
 	},
 });
 
-function refreshCanvas() {
-	console.debug("refreshCanvas");
-}
-
-Macro.add("refreshCanvas", {
-	handler() {
-		refreshCanvas();
-	},
-});
-
-function addLayerElements(layer) {
-	const fragment = document.createDocumentFragment();
-
-	return fragment;
-}
-
 Macro.add("addLayerElements", {
 	handler() {
-		addLayerElements();
+		CombatEditor.addLayerElements();
 	},
 });

@@ -1,19 +1,9 @@
-/**
- * @typedef {object} Targets
- * @property {-1} pc
- * @property {0} npc0
- * @property {1} npc1
- * @property {2} npc2
- * @property {3} npc3
- * @property {4} npc4
- * @property {5} npc5
- */
-/**
- * @typedef {object} Positions
- * @property {number} vagina
- * @property {number} anus
- * @property {number} mouth
- */
+// @ts-check
+/* globals Partial, PenetratorPositions */
+
+setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles"];
+setup.positions = [0, "doggy", "missionary", "wall", "stalk", "wall"];
+setup.legPositions = ["up", "down", "footjob"];
 
 class CombatSystem {
 	constructor() {
@@ -26,25 +16,74 @@ class CombatSystem {
 			npc4: 4,
 			npc5: 5,
 		};
-		this.positions = {
-			vagina: 0,
-			anus: 0,
-			mouth: 0,
-		};
+		this.vaginaStates = ["vaginaentrance", "vaginaentrancedouble", "vaginaimminent", "vaginaimminentdouble", "vagina", "vaginadouble"];
+		this.anusStates = ["anusentrance", "anusentrancedouble", "anus", "anusdouble"];
+		this.mouthStates = ["mouthentrance", "mouthimminent", "mouth"];
 	}
 
-	resetNpcStates() {
-		this.positions.vagina = 0;
-		this.positions.anus = 0;
-		this.positions.mouth = 0;
+	get vaginaCount() {
+		const states = this.vaginaStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	get anusCount() {
+		const states = this.anusStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	get mouthCount() {
+		const states = this.mouthStates;
+		const count = V.NPCList.reduce((i, npc) => i + (npc.penis && states.includes(npc.penis) ? 1 : 0), 0);
+		return count;
+	}
+
+	/**
+	 * @param {number} index
+	 * @param {PenetratorPositions?} position
+	 */
+	penetratorCountBefore(index, position) {
+		let count = 0;
+		for (let i = 0; i < V.NPCList.length; i++) {
+			const npc = V.NPCList[i];
+			if (i >= index) {
+				break;
+			}
+			switch (position) {
+				case "vagina":
+					if (npc.penis && this.vaginaStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+				case "anus":
+					if (npc.penis && this.anusStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+				case "mouth":
+					if (npc.penis && this.mouthStates.includes(npc.penis)) {
+						count++;
+					}
+					break;
+			}
+		}
+		return count;
 	}
 
 	isRapid() {
 		return this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
 	}
 
+	anyEjaculating() {
+		if (V.orgasmdown > 0) {
+			return true;
+		}
+		return V.enemyarousal > V.enemyarousalmax;
+	}
+
 	isActive() {
-		if (V.NPCList.some(a => ["horse"].includes(a.type))) {
+		if (V.NPCList.some(a => ["horse", "centaur", "pig", "boar"].includes(a.type) && a.active)) {
 			return true;
 		}
 		return (
@@ -60,64 +99,77 @@ class CombatSystem {
 	}
 
 	isVaginaPenetrated() {
-		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
-		return activeState;
+		const activeState = V.vaginastate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.vaginastate);
+		return !!activeState;
 	}
 
+	/**
+	 * @param {string | undefined} [canvas]
+	 */
 	isVaginaActive(canvas) {
-		const activeState = ["penetrated", "doublepenetrated", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
-			V.vaginastate
-		);
-		const activeUse = ["tentaclerub"].includes(V.vaginause) && canvas !== "close";
-		if (canvas === "close" && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
+		const activeState =
+			V.vaginastate &&
+			[
+				"penetrated",
+				"doublepenetrated",
+				"othervaginaentrance",
+				"othervaginaimminent",
+				"othervagina",
+				"othermouth",
+				"tentacleentrance",
+				"tentacleimminent",
+				"tentacle",
+				"tentacledeep",
+			].includes(V.vaginastate);
+		const activeUse = V.vaginause === "tentaclerub" && canvas !== "close";
+		if (canvas === "close" && V.vaginastate && ["othervaginaentrance", "othervagina", "entrance", "imminent"].includes(V.vaginastate)) return true;
 		return activeState || activeUse;
 	}
 
 	isAnusPenetrated() {
-		const activeState = ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
-		return activeState;
+		const activeState = V.anusstate && ["penetrated", "doublepenetrated", "tentacledeep"].includes(V.anusstate);
+		return !!activeState;
 	}
 
+	/**
+	 * @param {string | undefined} [canvas]
+	 */
 	isAnusActive(canvas) {
-		const activeState = [
-			"penetrated",
-			"doublepenetrated",
-			"cheeks",
-			"othermouth",
-			"tentacleentrance",
-			"tentacleimminent",
-			"tentacle",
-			"tentacledeep",
-		].includes(V.anusstate);
-		if (canvas === "close" && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
+		const activeState =
+			V.anusstate &&
+			["penetrated", "doublepenetrated", "cheeks", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
+				V.anusstate
+			);
+		if (canvas === "close" && V.anusstate && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
 			return true;
 		}
-		const activeUse = ["tentaclerub"].includes(V.anususe) && canvas !== "close";
+		const activeUse = V.anususe === "tentaclerub" && canvas !== "close";
 		return activeState || activeUse;
 	}
 
 	isMouthPenetrated() {
-		const activeState = ["penetrated", "tentacledeep"].includes(V.mouthstate);
-		return activeState;
+		const activeState = V.mouthstate && ["penetrated", "tentacledeep"].includes(V.mouthstate);
+		return !!activeState;
 	}
 
 	isMouthActive() {
-		const activeState = ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
-		return activeState;
+		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
+		return !!activeState;
 	}
 
 	isPenisPenetrated() {
-		const activeState = ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
-		return activeState;
+		const activeState = V.penisstate && ["penetrated", "tentacledeep", "othermouth"].includes(V.penisstate);
+		return !!activeState;
 	}
 
 	isPenisActive(canvas) {
-		const activeState = ["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
-			V.penisstate
-		);
-		const activeUse = ["tentaclerub"].includes(V.penisuse);
+		const activeState =
+			V.penisstate &&
+			["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.penisstate);
+		const activeUse = V.penisuse === "tentaclerub";
 		if (
 			canvas === "close" &&
+			V.penisstate &&
 			[
 				"entrance",
 				"imminent",
@@ -134,32 +186,368 @@ class CombatSystem {
 	}
 
 	isArmActive() {
-		return ["penis"].includes(V.rightarm) || ["penis"].includes(V.leftarm);
+		return V.rightarm === "penis" || V.leftarm === "penis";
 	}
 
 	isChestActive(canvas) {
-		const activeUse = ["penis"].includes(V.chestuse);
-		if (canvas === "close" && ["penis", "tentacle"].includes(V.chestuse)) {
+		const activeUse = V.chestuse === "penis";
+		// Why is this canvas argument here?
+		if (canvas === "close" && V.cheststate && ["penis", "tentacle"].includes(V.cheststate)) {
 			return true;
 		}
-		return activeUse;
+		return !!activeUse;
 	}
 
 	isThighActive() {
-		const activeUse = ["penis"].includes(V.thighuse);
-		return activeUse;
+		const activeUse = V.thighuse === "penis";
+		return !!activeUse;
 	}
 
 	isFeetActive() {
-		const activeUse = ["penis"].includes(V.feetuse);
-		return activeUse;
+		const activeUse = V.feetuse === "penis";
+		return !!activeUse;
+	}
+
+	/**
+	 * @returns {Partial<Penetrator>}
+	 */
+	getPlayerPenetratorState() {
+		switch (V.penisuse) {
+			case 1:
+			case 0:
+				return {};
+			case "anusentrance":
+				return {
+					position: "anus",
+					state: "entrance",
+				};
+			case "anusentrancedouble":
+				return {
+					position: "anus",
+					state: "entrance",
+				};
+			case "anus":
+				return {
+					position: "anus",
+					state: "penetrating",
+				};
+			case "anusdouble":
+				return {
+					position: "anus",
+					state: "penetrating",
+				};
+			case "penisentrance":
+				return {
+					position: "penis",
+					state: "entrance",
+				};
+			case "penisimminent":
+				return {
+					position: "penis",
+					state: "imminent",
+				};
+			case "penis":
+				return {
+					position: "penis",
+					state: "rubbing",
+				};
+			case "othervagina":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrance":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrancedouble":
+				return {
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaimminent":
+				return {
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vaginaimminentdouble":
+				return {
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vagina":
+				return {
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "vaginadouble":
+				return {
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "mouthentrance":
+				return {
+					position: "mouth",
+					state: "entrance",
+				};
+			case "mouthimminent":
+				return {
+					position: "mouth",
+					state: "imminent",
+				};
+			case "mouth":
+				return {
+					position: "mouth",
+					state: "penetrating",
+				};
+			case "othermouth": // "Wraps its tongue around your penis"
+				return {
+					position: "mouth",
+					state: "entrance",
+				};
+			case "feet":
+				return {
+					position: "feet",
+					state: "rubbing",
+				};
+			case "footjob": // Duplicate of feet
+				return {
+					position: "feet",
+					state: "rubbing",
+				};
+			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
+				return {};
+			case "leftarm":
+				return {
+					position: "leftarm",
+					state: "rubbing",
+				};
+			case "rightarm":
+				return {
+					position: "rightarm",
+					state: "rubbing",
+				};
+			case "thighs":
+				return {
+					position: "thighs",
+					state: "rubbing",
+				};
+			case "cheeks":
+				return {
+					position: "butt",
+					state: "rubbing",
+				};
+			case "chest":
+				return {
+					position: "chest",
+					state: "rubbing",
+				};
+			case "tentacle":
+				return {
+					position: "penis", // May want to have tentacle as a position??
+					state: "rubbing", // Tentacles could be penetratable??
+				};
+			// case "leftDildoAnus":
+			// case "rightDildoAnus":
+			// case "leftStroker":
+			// case "rightStroker":
+			// case "strap-on":
+			// case "mouthotheranus": (wtf is this?)
+			// case "idle": (Pointless to account for this)
+			// case "none": (No pp)
+		}
+		return {};
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {Partial<Penetrator>}
+	 */
+	getNpcPenetratorState(npc) {
+		switch (npc.penis) {
+			case "anusentrance":
+				return {
+					show: true,
+					position: "anus",
+					state: "entrance",
+				};
+			case "anusentrancedouble":
+				return {
+					show: true,
+					position: "anus",
+					state: "entrance",
+				};
+			case "anusimminent":
+				return {
+					show: true,
+					position: "anus",
+					state: "imminent",
+				};
+			case "anus":
+				return {
+					show: true,
+					position: "anus",
+					state: "penetrating",
+				};
+			case "anusdouble":
+				return {
+					show: true,
+					position: "anus",
+					state: "penetrating",
+				};
+			case "penisentrance":
+				return {};
+			case "penisimminent":
+				return {};
+			case "penis":
+				return {};
+			case "vaginaentrance":
+				return {
+					show: true,
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaentrancedouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "entrance",
+				};
+			case "vaginaimminent":
+				return {
+					show: true,
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vaginaimminentdouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "imminent",
+				};
+			case "vagina":
+				return {
+					show: true,
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "vaginadouble":
+				return {
+					show: true,
+					position: "vagina",
+					state: "penetrating",
+				};
+			case "mouthentrance":
+				return {
+					show: true,
+					position: "mouth",
+					state: "entrance",
+				};
+			case "mouthimminent":
+				return {
+					show: true,
+					position: "mouth",
+					state: "imminent",
+				};
+			case "mouth":
+				return {
+					show: true,
+					position: "mouth",
+					state: "penetrating",
+				};
+			case "othermouth":
+				// Not sure of the usage?
+				// Maybe it shouldn't be part of npc.penis
+				return {};
+			case "feet":
+				return {
+					show: true,
+					position: "feet",
+					state: "rubbing",
+				};
+			case "footjob": // Duplicate of feet
+				return {
+					show: true,
+					position: "feet",
+					state: "rubbing",
+				};
+			case "clothed": // Huh? Asking Puri - For when you need to undress NPCs before using the part.
+				return {};
+			case "leftarm":
+				return {
+					show: true,
+					position: "leftarm",
+					state: "rubbing",
+				};
+			case "rightarm":
+				return {
+					show: true,
+					position: "rightarm",
+					state: "rubbing",
+				};
+			case "thighs":
+				return {
+					show: true,
+					position: "thighs",
+					state: "rubbing",
+				};
+			case "cheeks":
+				return {
+					show: true,
+					position: "butt",
+					state: "rubbing",
+				};
+			case "chest":
+				return {
+					show: true,
+					position: "chest",
+					state: "rubbing",
+				};
+			// case "leftDildoAnus":
+			// case "rightDildoAnus":
+			// case "leftStroker":
+			// case "rightStroker":
+			// case "strap-on":
+			// case "mouthotheranus": (wtf is this?)
+			// case "idle": (Pointless to account for this)
+			// case "none": (No pp)
+		}
+		return {};
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcPenetratorEjaculating(npc) {
+		if (wearingCondom(npc.index || 0)) {
+			return false;
+		}
+		if (npcHasStrapon(npc.index || 0)) {
+			return false;
+		}
+		const arousalMaxed = V.enemyarousal >= V.enemyarousalmax;
+		return arousalMaxed;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcWearingCondom(npc) {
+		return wearingCondom(npc.index || 0) !== false;
+	}
+
+	/**
+	 * @param {Npc} npc
+	 * @returns {boolean}
+	 */
+	isNpcCondomDefective(npc) {
+		const state = wearingCondom(npc.index);
+		return state && ["defective", "sabotaged"].includes(state);
 	}
 }
 const combat = new CombatSystem();
+// @ts-ignore
 window.combat = combat;
-
-Macro.add("resetNpcStates", {
-	handler() {
-		combat.resetNpcStates();
-	},
-});

@@ -1,7 +1,7 @@
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		combat: boolean;
-		position: 0 | "doggy" | "missionary" | "wall" | "stalk";
+		position: 0 | "doggy" | "missionary" | "wall" | "stalk" | "wall";
 
 		walltype?: "pillory" | "cleanpillory" | "horse_pillory";
 		pilloryaudience?: number;
@@ -30,10 +30,10 @@ declare module "twine-sugarcube" {
 		bottomuse: number;
 		bottomstate: string | 0;
 		chesttarget: number;
-		chestuse: number;
+		chestuse: "penis" | 0;
 		cheststate: string | 0;
 		feettarget: number;
-		feetuse: string | 0;
+		feetuse: "penis" | 0;
 		feetstate: string | 0;
 		handtarget: number;
 		handuse: number;
@@ -54,7 +54,7 @@ declare module "twine-sugarcube" {
 		stealuse: number;
 		stealstate: string | 0;
 		thightarget: number;
-		thighuse: number;
+		thighuse: "penis" | 0;
 		thighstate: string | 0;
 		tooltarget: number;
 		tooluse: number;
@@ -113,9 +113,31 @@ declare module "twine-sugarcube" {
 			max: number;
 		};
 	}
+
+	export interface SugarCubeTemporaryVariables {
+		crOverrides?: CombatRendererOverrides;
+	}
+
+	export interface SugarCubeSetupObject {
+		positions: Positions[];
+		legPositions: LegPositions[];
+	}
 }
 
 declare global {
+	export type Positions = 0 | "doggy" | "missionary" | "wall" | "stalk" | "wall";
+
+	export type LegPositions = "up" | "down" | "footjob";
+
+	export type AnimationSpeed = "vfast" | "fast" | "mid" | "slow" | "idle";
+
+	export interface CombatRendererOverrides {
+		legBackPosition?: LegPositions;
+		legFrontPosition?: LegPositions;
+		animSpeed?: AnimationSpeed;
+		animFrames?: number;
+	}
+
 	export interface TentacleState {
 		baby: number;
 		babychance: number;

@@ -1,4 +1,5 @@
 // @ts-check
+// Someone needs to fix the close options code, it is shit.
 /* global CombatRenderer, PlayerCombatMapper */
 
 /**
@@ -60,13 +61,10 @@ function getCloseOptions(options = {}) {
 	}
 
 	// Colours
-	options.skinType = V.skinColor.natural;
-	options.skinTone = V.skinColor.range / 100;
-	options.filters.body = setup.colours.getSkinFilter(options.skinType, options.skinTone);
+	CombatRenderer.generateBodyFilters(options);
 
 	options.pbhairColour = V.makeup.pbcolour || V.naturalhaircolour;
 	options.filters.pbhair = CombatRenderer.lookupColour(
-		options,
 		setup.colours.hair_map,
 		options.pbhairColour || options.pbHairColour,
 		"pbhair",
@@ -75,12 +73,12 @@ function getCloseOptions(options = {}) {
 	);
 
 	options.condomColour = V.player.condom.colour || "red";
-	options.filters.condom = CombatRenderer.lookupColour(options, setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
+	options.filters.condom = CombatRenderer.lookupColour(setup.colours.condom_map, options.condomColour, "condom", "condom_custom", "condom");
 
 	PlayerCombatMapper.mapPcToClothingOptions(V.player, options);
 	options.parasitePanties = options.parasitePanties || "red";
 	if (["parasite", "parasitem"].includes(V.parasite.clit.name) || ["parasite"].includes(V.parasite.penis.name)) {
-		options.filters.parasitePanties = CombatRenderer.lookupColour(options, setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
+		options.filters.parasitePanties = CombatRenderer.lookupColour(setup.colours.clothes_map, options.parasitePanties, "parasitePanties");
 	}
 
 	// Set animation speed
@@ -110,8 +108,7 @@ function mapClosePenetrators(slot, options) {
 	const activeEnemy = V.NPCList[V.active_enemy].type;
 	const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !playerHasStrapon();
 	const belt = V.worn.genitals.name === "gold chastity belt" ? "gold-belt" : "belt";
-	const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine"].includes(V.enemytype) ? V.enemytype : "npc";
-
+	const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine", "tentacles"].includes(V.enemytype) ? V.enemytype : "npc";
 	options[slot] = {};
 
 	/* check $anusstate or $vaginastate */
@@ -178,16 +175,17 @@ function mapClosePenetrators(slot, options) {
 	/* tentacle colour could theoretically be outside of these functions, as tentacles are incompatible with other enemy types and can only have one colour, which applies to all tentacles interacting with vagina, anus, and penis slots. combat rework should allow for tentacles to be incorporated into other encounters and multiple tentacle colours (vines and roots, for example) */
 	if (options[slot].npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters[`${slot}Tentacle`] = CombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "tentacle");
+		options.filters[`${slot}Tentacle`] = CombatRenderer.lookupColour(setup.colours.tentacle_map, tentacleColour, "tentacle");
 	}
-	if (V.NPCList[V[`${slot}target`]]) {
+	/* enemyno check exists only to enable tentacle encounters to work, this check checks NPCList 0 by default which always returns true */
+	if (V.NPCList[V[`${slot}target`]] && V.enemyno !== 0) {
 		const targetNpc = V.NPCList[V[`${slot}target`]];
 
 		/* skin colour of npc targeting vagina/anus */
 		if (targetNpc?.penis !== "none" && targetNpc?.penisdesc.includes("strap-on") && !targetNpc?.penisdesc.includes("fleshy")) {
 			const straponColours = ["black", "red", "pink", "purple", "blue", "green"];
 			options.npcTone = straponColours.find(color => targetNpc?.penisdesc.includes(color));
-			options.filters[`${slot}Npc`] = CombatRenderer.lookupColour(options, setup.colours.clothes_map, options.npcTone, "strapon");
+			options.filters[`${slot}Npc`] = CombatRenderer.lookupColour(setup.colours.clothes_map, options.npcTone, "strapon");
 			options[slot].strapon = true;
 		} else {
 			options.npcTone = targetNpc.skincolour === "black" ? "dark" : "light";
@@ -198,7 +196,6 @@ function mapClosePenetrators(slot, options) {
 		if (targetNpc?.condom?.worn) {
 			options[slot].npcCondom = targetNpc.condom.colour || "red";
 			options.filters[`${slot}Condom`] = CombatRenderer.lookupColour(
-				options,
 				setup.colours.condom_map,
 				options[slot].npcCondom,
 				"condom",
@@ -207,7 +204,7 @@ function mapClosePenetrators(slot, options) {
 			);
 		}
 	}
-	if (V.NPCList[V[`${slot}doubletarget`]]) {
+	if (V.NPCList[V[`${slot}doubletarget`]] && V.enemyno !== 0) {
 		const targetNpc2 = V.NPCList[V[`${slot}doubletarget`]];
 
 		/* skin colour of npc double-penetrating vagina/anus */
@@ -225,7 +222,6 @@ function mapClosePenetrators(slot, options) {
 		if (targetNpc2?.condom?.worn) {
 			options[slot].npc2Condom = targetNpc2.condom.colour || "red";
 			options.filters[`${slot}Condom2`] = CombatRenderer.lookupColour(
-				options,
 				setup.colours.condom_map,
 				options[slot].npc2Condom,
 				"condom",
@@ -301,7 +297,7 @@ function mapClosePenis(options) {
 
 	if (options.penis.npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters.penisTentacle = CombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "penisTentacle");
+		options.filters.penisTentacle = CombatRenderer.lookupColour(setup.colours.tentacle_map, tentacleColour, "penisTentacle");
 	}
 	if (V.NPCList[V.penistarget]) {
 		/* skin colour of npc targeting penis */
@@ -313,6 +309,9 @@ function mapClosePenis(options) {
 }
 window.mapClosePenis = mapClosePenis;
 
+/**
+ * @param {CloseOptions} options
+ */
 function mapCloseChest(options) {
 	const breastsNpc = V.NPCList[V.chesttarget];
 	const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse);
@@ -324,21 +323,14 @@ function mapCloseChest(options) {
 
 	if (options.chest.npc === "tentacle") {
 		const tentacleColour = V.tentacleColour || "tentacles-purple";
-		options.filters.chestTentacle = CombatRenderer.lookupColour(options, setup.colours.tentacle_map, tentacleColour, "chestTentacle");
+		options.filters.chestTentacle = CombatRenderer.lookupColour(setup.colours.tentacle_map, tentacleColour, "chestTentacle");
 	}
 	if (breastsNpc) {
 		options.chest.npcTone = breastsNpc.skincolour === "black" ? "dark" : "light";
 		options.filters.chestNpc = setup.colours.getSkinFilter(options.chest.npcTone, 0);
 		if (breastsNpc.condom?.worn) {
 			options.chest.condom = breastsNpc.condom.colour || "red";
-			options.filters.breastsCondom = CombatRenderer.lookupColour(
-				options,
-				setup.colours.condom_map,
-				options.breasts.condom,
-				"condom",
-				"condom_custom",
-				"condom"
-			);
+			options.filters.breastsCondom = CombatRenderer.lookupColour(setup.colours.condom_map, options.chest.condom, "condom", "condom_custom", "condom");
 		}
 	}
 }

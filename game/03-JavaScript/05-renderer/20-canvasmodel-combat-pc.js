@@ -1,108 +1,8 @@
 // @ts-check
-/* global CombatRenderer, PlayerCombatMapper */
+/* global CombatRenderer, CombatPlayerOptions, PlayerCombatMapper, PlayerCanvasHelper */
 
 /**
- * @typedef CombatZIndices
- * @type {object}
- * Combat layers
- * @property {0} far
- * @property {50} base
- * @property {100} near
- * Hair:
- * @property {20} backHair
- * @property {81} hair
- * @property {70} head
- * Back legs:
- * @property {26} backCalf
- * @property {27} backFoot
- * @property {28} backThigh
- * @property {29} backCalfUnderwear
- * @property {30} backThighUnderwear
- * @property {31} backFootwear
- * @property {32} backCalfWear
- * @property {33} backThighWear
- * @property {34} backCalfOverwear
- * @property {35} backThighOverwear
- * Front legs:
- * @property {65} frontCalf
- * @property {66} frontFoot
- * @property {67} frontThigh
- * @property {68} frontCalfUnderwear
- * @property {69} frontThighUnderwear
- * @property {70} frontFootwear
- * @property {71} frontCalfWear
- * @property {72} frontThighWear
- * @property {73} frontCalfOverwear
- * @property {74} frontThighOverwear
- * Back arms:
- * @property {30} backArm
- * Front arms:
- * @property {75} frontArm
- * Transformation parts
- * @property {40} backWings
- * @property {40} backHalo
- * @property {40} backHorns
- * @property {40} backTail
- * @property {40} frontWings
- * @property {84} frontHalo
- * @property {83} frontHorns
- * @property {40} frontTail
- */
-
-/**
- * @typedef {object} CanvasModelLayerPc
- * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
- * @property {string} [src] Image path. Either `src` or `srcfn` is required.
- * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
- * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
- * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
- * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
- * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
- * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
- * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
- * @property {string} [animation] Name of animation to apply, default none.
- * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
- * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
- * @property {number} [dx] Layer X position on the image, default 0.
- * @property {number} [dy] Layer Y position on the image, default 0.
- * @property {number} [width] Layer subsprite width, default = model width.
- * @property {number} [height] Layer subsprite width, default = model height.
- *
- * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(Options): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(Options): string} [srcfn] (options)=>string.
- * @property {function(Options): number} [zfn] (options)=>number.
- * @property {function(Options): number} [alphafn] (options)=>number.
- * @property {function(Options): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(Options): number} [brightnessfn] (options)=>number.
- * @property {function(Options): number} [contrastftn] (options)=>number.
- * @property {function(Options): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(Options): string} [blendfn] (options)=>string.
- * @property {function(Options): string} [masksrcfn] (options)=>string.
- * @property {function(Options): string} [animationfn] (options)=>string.
- * @property {function(Options): number[]} [framesfn] (options)=>number[].
- * @property {function(Options): string[]} [filtersfn] (options)=>string[].
- * @property {function(Options): number} [dxfn] (options)=>number.
- * @property {function(Options): number} [dyfn] (options)=>number.
- * @property {function(Options): number} [widthfn] (options)=>number.
- * @property {function(Options): number} [heightfn] (options)=>number.
- */
-
-/**
- * @typedef {object} CanvasModelPcOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayerPc>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
-
-/**
- * @type {CanvasModelPcOptions}
+ * @type {CanvasModelOptions<CombatPlayerOptions>}
  */
 const combatMainPc = {
 	name: "combatMainPc",
@@ -129,8 +29,7 @@ const combatMainPc = {
 	 *	██████  ███████ ██      ██   ██  ██████  ███████    ██    ███████
 	 */
 	defaultOptions() {
-		console.log("Combat-model defaultOptions");
-		return PlayerCombatMapper.generateOptions();
+		return { ...PlayerCombatMapper.generateOptions(), ...this.metadata };
 	},
 	/*
 	 *	██████  ██████  ███████ ██████  ██████   ██████   ██████ ███████ ███████ ███████
@@ -139,11 +38,8 @@ const combatMainPc = {
 	 *	██      ██   ██ ██      ██      ██   ██ ██    ██ ██      ██           ██      ██
 	 *	██      ██   ██ ███████ ██      ██   ██  ██████   ██████ ███████ ███████ ███████
 	 */
-	/**
-	 * @param {any} options
-	 */
 	preprocess(options) {
-		console.log("combatMainPc-Preprocess:", JSON.parse(JSON.stringify(options)));
+		PlayerCombatMapper.mapPlayerToOptions(options);
 	},
 	layers: {
 		/*
@@ -155,10 +51,11 @@ const combatMainPc = {
 		 */
 		frameCount: {
 			srcfn(options) {
-				return `${options.root}${options.animKey.includes("4f") ? "4f" : "2f"}.png`;
+				const frames = PlayerCombatMapper.getPcAnimationFrameCount(options);
+				return `${options.root}${frames}f.png`;
 			},
 			showfn(options) {
-				return true;
+				return options.isDebugging;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -516,7 +413,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 49,
+			z: 72,
 		},
 		tentaclePenis: {
 			srcfn(options) {
@@ -528,7 +425,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 49,
+			z: CombatRenderer.indices.frontLowerOverwear + 1,
 		},
 		tentacleVagina: {
 			srcfn(options) {
@@ -551,6 +448,9 @@ const combatMainPc = {
 		 */
 		backarm: {
 			srcfn(options) {
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					return `${options.src}body/arms/back-default.png`;
+				}
 				return `${options.src}body/arms/back-${options.armBackPosition}.png`;
 			},
 			showfn(options) {
@@ -589,7 +489,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.backCalf,
+			z: CombatRenderer.indices.backLeg,
 		},
 		base: {
 			srcfn(options) {
@@ -629,10 +529,15 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.frontCalf,
+			z: CombatRenderer.indices.frontLeg,
 		},
 		frontarm: {
 			srcfn(options) {
+				// Find target of hand if any, if bestial (pig) swap out sprite.
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+					return `${options.src}body/arms/front-${options.armFrontPosition}-bestial.png`;
+				}
+				// Generic position.
 				return `${options.src}body/arms/front-${options.armFrontPosition}.png`;
 			},
 			showfn(options) {
@@ -672,7 +577,7 @@ const combatMainPc = {
 				return options.animKey;
 			},
 			filters: ["body"],
-			z: CombatRenderer.indices.base + 5,
+			z: CombatRenderer.indices.backLowerOverwear + 1,
 		},
 		penetratorEjaculate: {
 			srcfn(options) {
@@ -681,7 +586,6 @@ const combatMainPc = {
 			},
 			showfn(options) {
 				const penetrator = options.penetrator;
-				console.log("ejac penetrator", JSON.parse(JSON.stringify(penetrator)));
 				if (options.machines.penisMilker.show) return false;
 				const result = options.showPlayer && penetrator?.show && penetrator?.isEjaculating;
 				return !!result;
@@ -689,7 +593,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return "sex-4f-vfast";
 			},
-			z: CombatRenderer.indices.base + 6,
+			z: CombatRenderer.indices.backLowerOverwear + 1,
 		},
 		/*
 		 *	██   ██ ███████  █████  ██████
@@ -716,7 +620,7 @@ const combatMainPc = {
 				return `${options.src}body/head/eyes.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -731,11 +635,14 @@ const combatMainPc = {
 				return `${options.src}body/head/eyelids.png`;
 			},
 			showfn(options) {
-				const result = options.showPlayer;
+				const result = options.showPlayer && !!options.showFace;
 				return !!result;
 			},
 			animationfn(options) {
-				return options.animKey;
+				if (combat.isActive()) {
+					return options.animKey;
+				}
+				return "sex-1f2-idle";
 			},
 			filters: ["body"],
 			z: CombatRenderer.indices.head + 2,
@@ -745,12 +652,15 @@ const combatMainPc = {
 				return `${options.src}body/head/lashes.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
 			},
 			animationfn(options) {
-				return options.animKey;
+				if (combat.isActive()) {
+					return options.animKey;
+				}
+				return "sex-1f2-idle";
 			},
-			filters: ["phair"],
+			filters: ["hair"],
 			z: CombatRenderer.indices.head + 3,
 		},
 		blush: {
@@ -758,7 +668,7 @@ const combatMainPc = {
 				return `${options.src}body/head/blush/${options.blush}.png`;
 			},
 			showfn(options) {
-				const result = options.showFace && options.blush > 0;
+				const result = options.showPlayer && !!options.showFace && options.blush > 0;
 				return !!result;
 			},
 			animationfn(options) {
@@ -773,19 +683,41 @@ const combatMainPc = {
 				return `${options.src}body/head/tear/${options.tears}.png`;
 			},
 			showfn(options) {
-				const result = options.showFace && options.tears > 0;
+				const result = options.showPlayer && options.showFace && options.tears > 0;
 				return !!result;
+			},
+			animationfn(options) {
+				return options.animKey;
 			},
 			z: CombatRenderer.indices.head + 2,
 		},
 		mouth: {
 			srcfn(options) {
-				let state = "closedmouth";
-				if (options.inOral) state = "mouth";
-				return `${options.src}body/oral/${state}.png`;
+				const mouth = options.mouth;
+				if (mouth.inOral || mouth.open) {
+					return `${options.src}body/oral/mouth.png`;
+				}
+				return `${options.src}body/oral/closedmouth.png`;
 			},
 			showfn(options) {
-				return !!options.showPlayer;
+				return !!options.showPlayer && !!options.showFace;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			filtersfn(options) {
+				const mouth = options.mouth;
+				return mouth.inOral || mouth.open ? [""] : ["body"];
+			},
+			z: CombatRenderer.indices.head + 1,
+		},
+		tongue: {
+			srcfn(options) {
+				return `${options.src}body/oral/tongue.png`;
+			},
+			showfn(options) {
+				const mouth = options.mouth;
+				return !!options.showPlayer && !!options.showFace && mouth.inOral;
 			},
 			animationfn(options) {
 				return options.animKey;
@@ -812,41 +744,55 @@ const combatMainPc = {
 		 *       ██    ██   ██ ██   ██ ██  ██ ██      ██ ██      ██    ██ ██   ██ ██  ██  ██ ██   ██    ██    ██ ██    ██ ██  ██ ██
 		 *       ██    ██   ██ ██   ██ ██   ████ ███████ ██       ██████  ██   ██ ██      ██ ██   ██    ██    ██  ██████  ██   ████
 		 */
-		angelWingsBack: CombatRenderer.genTransformationLayer("angel", "wings", "back"),
-		angelWingsFront: CombatRenderer.genTransformationLayer("angel", "wings", "front"),
-		angelHaloBack: CombatRenderer.genTransformationLayer("angel", "halo", "back"),
-		angelHaloFront: CombatRenderer.genTransformationLayer("angel", "halo", "front"),
+		angelWingsBack: PlayerCanvasHelper.genTransformationLayer("angel", "wings", "back"),
+		angelWingsFront: PlayerCanvasHelper.genTransformationLayer("angel", "wings", "front"),
+		angelHaloBack: PlayerCanvasHelper.genTransformationLayer("angel", "halo", "back"),
+		angelHaloFront: PlayerCanvasHelper.genTransformationLayer("angel", "halo", "front"),
 
-		birdTailBack: CombatRenderer.genTransformationLayer("bird", "tail", "back"),
-		birdTailFront: CombatRenderer.genTransformationLayer("bird", "tail", "front"),
-		birdWingsBack: CombatRenderer.genTransformationLayer("bird", "wings", "back"),
-		birdWingsFront: CombatRenderer.genTransformationLayer("bird", "wings", "front"),
+		birdTailBack: PlayerCanvasHelper.genTransformationLayer("bird", "tail", "back"),
+		birdTailFront: PlayerCanvasHelper.genTransformationLayer("bird", "tail", "front"),
+		birdWingsBack: PlayerCanvasHelper.genTransformationLayer("bird", "wings", "back"),
+		birdWingsFront: PlayerCanvasHelper.genTransformationLayer("bird", "wings", "front"),
+		birdEyes: PlayerCanvasHelper.genTransformationLayer("bird", "eyes", "front"),
+		birdMalar: PlayerCanvasHelper.genTransformationLayer("bird", "malar", "front"),
+		birdPubes: PlayerCanvasHelper.genTransformationLayer("bird", "pubes", "front"),
+		birdPlumage: PlayerCanvasHelper.genTransformationLayer("bird", "plumage", "front"),
 
-		catTailBack: CombatRenderer.genTransformationLayer("cat", "tail", "back"),
-		catTailFront: CombatRenderer.genTransformationLayer("cat", "tail", "front"),
+		catEarsFront: PlayerCanvasHelper.genTransformationLayer("cat", "ears", "front"),
+		catEarsBack: PlayerCanvasHelper.genTransformationLayer("cat", "ears", "back"),
+		catTailBack: PlayerCanvasHelper.genTransformationLayer("cat", "tail", "back"),
+		catTailFront: PlayerCanvasHelper.genTransformationLayer("cat", "tail", "front"),
 
-		cowHornsBack: CombatRenderer.genTransformationLayer("cow", "horns", "back"),
-		cowHornsFront: CombatRenderer.genTransformationLayer("cow", "horns", "front"),
-		cowTailBack: CombatRenderer.genTransformationLayer("cow", "tail", "back"),
-		cowTailFront: CombatRenderer.genTransformationLayer("cow", "tail", "front"),
+		cowHornsBack: PlayerCanvasHelper.genTransformationLayer("cow", "horns", "back"),
+		cowHornsFront: PlayerCanvasHelper.genTransformationLayer("cow", "horns", "front"),
+		cowEarsFront: PlayerCanvasHelper.genTransformationLayer("cow", "ears", "front"),
+		cowEarsBack: PlayerCanvasHelper.genTransformationLayer("cow", "ears", "back"),
+		cowTailBack: PlayerCanvasHelper.genTransformationLayer("cow", "tail", "back"),
+		cowTailFront: PlayerCanvasHelper.genTransformationLayer("cow", "tail", "front"),
 
-		demonHornsBack: CombatRenderer.genTransformationLayer("demon", "horns", "back"),
-		demonHornsFront: CombatRenderer.genTransformationLayer("demon", "horns", "front"),
-		demonTailBack: CombatRenderer.genTransformationLayer("demon", "tail", "back"),
-		demonTailFront: CombatRenderer.genTransformationLayer("demon", "tail", "front"),
-		demonWingsBack: CombatRenderer.genTransformationLayer("demon", "wings", "back"),
-		demonWingsFront: CombatRenderer.genTransformationLayer("demon", "wings", "front"),
+		demonHornsBack: PlayerCanvasHelper.genTransformationLayer("demon", "horns", "back"),
+		demonHornsFront: PlayerCanvasHelper.genTransformationLayer("demon", "horns", "front"),
+		demonTailBack: PlayerCanvasHelper.genTransformationLayer("demon", "tail", "back"),
+		demonTailFront: PlayerCanvasHelper.genTransformationLayer("demon", "tail", "front"),
+		demonWingsBack: PlayerCanvasHelper.genTransformationLayer("demon", "wings", "back"),
+		demonWingsFront: PlayerCanvasHelper.genTransformationLayer("demon", "wings", "front"),
 
-		fallenAngelWingsBack: CombatRenderer.genTransformationLayer("fallenAngel", "wings", "back"),
-		fallenAngelWingsFront: CombatRenderer.genTransformationLayer("fallenAngel", "wings", "front"),
-		fallenAngelHaloBack: CombatRenderer.genTransformationLayer("fallenAngel", "halo", "back"),
-		fallenAngelHaloFront: CombatRenderer.genTransformationLayer("fallenAngel", "halo", "front"),
+		fallenAngelWingsBack: PlayerCanvasHelper.genTransformationLayer("fallenAngel", "wings", "back"),
+		fallenAngelWingsFront: PlayerCanvasHelper.genTransformationLayer("fallenAngel", "wings", "front"),
+		fallenAngelHaloBack: PlayerCanvasHelper.genTransformationLayer("fallenAngel", "halo", "back"),
+		fallenAngelHaloFront: PlayerCanvasHelper.genTransformationLayer("fallenAngel", "halo", "front"),
 
-		foxTailBack: CombatRenderer.genTransformationLayer("fox", "tail", "back"),
-		foxTailFront: CombatRenderer.genTransformationLayer("fox", "tail", "front"),
+		foxEarsFront: PlayerCanvasHelper.genTransformationLayer("fox", "ears", "front"),
+		foxEarsBack: PlayerCanvasHelper.genTransformationLayer("fox", "ears", "back"),
+		foxTailBack: PlayerCanvasHelper.genTransformationLayer("fox", "tail", "back"),
+		foxTailFront: PlayerCanvasHelper.genTransformationLayer("fox", "tail", "front"),
+		foxCheeks: PlayerCanvasHelper.genTransformationLayer("fox", "cheeks", "front"),
 
-		wolfTailBack: CombatRenderer.genTransformationLayer("wolf", "tail", "back"),
-		wolfTailFront: CombatRenderer.genTransformationLayer("wolf", "tail", "front"),
+		wolfEarsFront: PlayerCanvasHelper.genTransformationLayer("wolf", "ears", "front"),
+		wolfEarsBack: PlayerCanvasHelper.genTransformationLayer("wolf", "ears", "back"),
+		wolfTailBack: PlayerCanvasHelper.genTransformationLayer("wolf", "tail", "back"),
+		wolfTailFront: PlayerCanvasHelper.genTransformationLayer("wolf", "tail", "front"),
+		wolfCheeks: PlayerCanvasHelper.genTransformationLayer("wolf", "cheeks", "front"),
 		/*
 		 *    ██████   ██████  ██████  ██    ██ ██     ██ ██████  ██ ████████ ██ ███    ██  ██████
 		 *    ██   ██ ██    ██ ██   ██  ██  ██  ██     ██ ██   ██ ██    ██    ██ ████   ██ ██
@@ -854,40 +800,40 @@ const combatMainPc = {
 		 *    ██   ██ ██    ██ ██   ██    ██    ██ ███ ██ ██   ██ ██    ██    ██ ██  ██ ██ ██    ██
 		 *    ██████   ██████  ██████     ██     ███ ███  ██   ██ ██    ██    ██ ██   ████  ██████
 		 */
-		bodywritingForehead: CombatRenderer.genBodywritingLayer("forehead", {
-			z: CombatRenderer.indices.base + 1,
+		bodywritingForehead: PlayerCanvasHelper.genBodywritingLayer("forehead", {
+			z: CombatRenderer.indices.head + 3,
 		}),
-		bodywritingBackCheek: CombatRenderer.genBodywritingLayer("backCheek", {
+		bodywritingBackCheek: PlayerCanvasHelper.genBodywritingLayer("backCheek", {
 			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontCheek: CombatRenderer.genBodywritingLayer("frontCheek", {
+		bodywritingFrontCheek: PlayerCanvasHelper.genBodywritingLayer("frontCheek", {
 			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackShoulder: CombatRenderer.genBodywritingLayer("backShoulder", {
+		bodywritingBackShoulder: PlayerCanvasHelper.genBodywritingLayer("backShoulder", {
 			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontShoulder: CombatRenderer.genBodywritingLayer("frontShoulder", {
+		bodywritingFrontShoulder: PlayerCanvasHelper.genBodywritingLayer("frontShoulder", {
 			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBreasts: CombatRenderer.genBodywritingLayer("breasts", {
+		bodywritingBreasts: PlayerCanvasHelper.genBodywritingLayer("breasts", {
 			z: CombatRenderer.indices.base + 11,
 		}),
-		bodywritingBack: CombatRenderer.genBodywritingLayer("back", {
+		bodywritingBack: PlayerCanvasHelper.genBodywritingLayer("back", {
 			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackBottom: CombatRenderer.genBodywritingLayer("backBottom", {
+		bodywritingBackBottom: PlayerCanvasHelper.genBodywritingLayer("backBottom", {
 			z: CombatRenderer.indices.base - 1,
 		}),
-		bodywritingFrontBottom: CombatRenderer.genBodywritingLayer("frontBottom", {
+		bodywritingFrontBottom: PlayerCanvasHelper.genBodywritingLayer("frontBottom", {
 			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingPubic: CombatRenderer.genBodywritingLayer("pubic", {
+		bodywritingPubic: PlayerCanvasHelper.genBodywritingLayer("pubic", {
 			z: CombatRenderer.indices.base + 1,
 		}),
-		bodywritingBackThigh: CombatRenderer.genBodywritingLayer("backThigh", {
+		bodywritingBackThigh: PlayerCanvasHelper.genBodywritingLayer("backThigh", {
 			z: CombatRenderer.indices.backThigh + 1,
 		}),
-		bodywritingFrontThigh: CombatRenderer.genBodywritingLayer("frontThigh", {
+		bodywritingFrontThigh: PlayerCanvasHelper.genBodywritingLayer("frontThigh", {
 			z: CombatRenderer.indices.frontThigh + 1,
 		}),
 		/*
@@ -897,68 +843,74 @@ const combatMainPc = {
 		 *	██      ██      ██    ██    ██    ██   ██ ██ ██  ██ ██ ██    ██
 		 *	 ██████ ███████  ██████     ██    ██   ██ ██ ██   ████  ██████
 		 */
-		facewear: CombatRenderer.genClothingLayer("face", {
-			z: CombatRenderer.indices.base + 4,
+		facewear: PlayerCanvasHelper.genClothingLayer("face", {
+			z: CombatRenderer.indices.head + 4,
 		}),
-		facewearAcc: CombatRenderer.genClothingAccLayer("face", {
-			z: CombatRenderer.indices.base + 4,
+		facewearAcc: PlayerCanvasHelper.genClothingAccLayer("face", {
+			z: CombatRenderer.indices.head + 4,
 		}),
-		footwearBack: CombatRenderer.genClothingLayer("feet", {
+		footwearBack: PlayerCanvasHelper.genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}.png`;
-				console.log("Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.backFootwear,
 		}),
-		footwearAccBack: CombatRenderer.genClothingAccLayer("feet", {
+		footwearAccBack: PlayerCanvasHelper.genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/back-${clothes.positions.back}-acc.png`;
-				console.log("Feet Acc Back Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.backFootwear,
 		}),
-		footwearFront: CombatRenderer.genClothingLayer("feet", {
+		footwearFront: PlayerCanvasHelper.genClothingLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}.png`;
-				console.log("Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.frontFootwear,
 		}),
-		footwearAccFront: CombatRenderer.genClothingAccLayer("feet", {
+		footwearAccFront: PlayerCanvasHelper.genClothingAccLayer("feet", {
 			srcfn(options) {
 				const clothes = options.clothes.feet;
 				if (clothes?.name == null || clothes.positions == null) return "";
 				const path = `${options.src}clothing/feet/${clothes.name}/front-${clothes.positions.front}-acc.png`;
-				console.log("Feet Acc Front Path:", path);
 				return path;
 			},
 			z: CombatRenderer.indices.frontFootwear,
 		}),
-		genitals: CombatRenderer.genClothingLayer("genitals", {
+		genitals: PlayerCanvasHelper.genClothingLayer("genitals", {
 			z: CombatRenderer.indices.base + 6,
 		}),
-		genitalsAcc: CombatRenderer.genClothingAccLayer("genitals", {
+		genitalsAcc: PlayerCanvasHelper.genClothingAccLayer("genitals", {
 			z: CombatRenderer.indices.base + 6,
 		}),
-		handsBack: CombatRenderer.genClothingLayer("hands", {
+		handsBack: PlayerCanvasHelper.genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
+					return `${options.src}clothing/hands/${clothes.name}/back-default.png`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
 					if (clothes.isBoundable) {
@@ -970,16 +922,26 @@ const combatMainPc = {
 			},
 			z: CombatRenderer.indices.backArm + 1,
 		}),
-		handsBackAcc: CombatRenderer.genClothingAccLayer("hands", {
+		handsBackAcc: PlayerCanvasHelper.genClothingAccLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "back")) {
+					// return `${options.src}clothing/hands/${clothes.name}/back-handjob-bestial-acc.png`;
+					return `${options.src}clothing/hands/${clothes.name}/back-default.png-acc`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/back-${options.armBackPosition}-acc.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
 				if (!clothes.hasAccessory) return false;
 				if (options.position === "doggy") {
 					const states = ["default", "handjob"];
@@ -992,259 +954,239 @@ const combatMainPc = {
 			},
 			z: CombatRenderer.indices.backArm + 1,
 		}),
-		handsFront: CombatRenderer.genClothingLayer("hands", {
+		handsFront: PlayerCanvasHelper.genClothingLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
-				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
-				return path;
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial.png`;
+				}
+				return `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}.png`;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) {
+					return false;
+				}
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				return available.includes(options.armFrontPosition);
 			},
 			z: CombatRenderer.indices.frontArm + 1,
 		}),
-		handsFrontAcc: CombatRenderer.genClothingAccLayer("hands", {
+		handsFrontAcc: PlayerCanvasHelper.genClothingAccLayer("hands", {
 			srcfn(options) {
 				const clothes = options.clothes.hands;
 				if (clothes?.name == null) return "";
+				if (PlayerCanvasHelper.isBestialHandjob(options, "front")) {
+					return `${options.src}clothing/hands/${clothes.name}/front-handjob-bestial-acc.png`;
+				}
 				const path = `${options.src}clothing/hands/${clothes.name}/front-${options.armFrontPosition}-acc.png`;
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.hands;
-				const show = options.showClothing && !CombatRenderer.isClothingShown(options, clothes) && clothes.hasAccessory;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				const show = options.showClothing && !CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.hasAccessory;
 				const available = options.position === "doggy" ? ["default", "handjob"] : ["default", "handjob", "stroke"];
 				const found = available.includes(options.armFrontPosition);
 				return !!show && !!found;
 			},
 			z: CombatRenderer.indices.frontArm + 1,
 		}),
-		headwearBack: CombatRenderer.genClothingLayer("head", {
+		headwearBack: PlayerCanvasHelper.genClothingLayer("head", {
 			srcfn(options) {
 				const clothes = options.clothes.head;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/head/${clothes.name}/back.png`;
-				console.log("Headwear [back]", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.head;
-				if (!CombatRenderer.isClothingShown(options, clothes)) return false;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				if (!CombatRenderer.isClothingShown(clothes, options.showClothing)) return false;
 				return !!clothes.hasBackImg;
 			},
-			z: CombatRenderer.indices.base - 1 /* At least behind head (50) */,
+			z: CombatRenderer.indices.head - 1,
 		}),
-		headwear: CombatRenderer.genClothingLayer("head", {
-			z: 81 + 1 /* hair Z plus one */,
+		headwear: PlayerCanvasHelper.genClothingLayer("head", {
+			z: CombatRenderer.indices.hair + 1,
 		}),
-		headwearAcc: CombatRenderer.genClothingAccLayer("head", {
-			z: 81 + 1 /* hair Z plus one */,
+		headwearAcc: PlayerCanvasHelper.genClothingAccLayer("head", {
+			z: CombatRenderer.indices.hair + 1,
 		}),
-		legwearBack: CombatRenderer.genClothingLayer("legs", {
+		legwearBack: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "back", false, {
+			z: CombatRenderer.indices.backLegwear,
+		}),
+		legwearAccBack: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "back", true, {
+			z: CombatRenderer.indices.backLegwear,
+		}),
+		legwearFront: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "front", false, {
+			z: CombatRenderer.indices.frontLegwear,
+		}),
+		legwearAccFront: PlayerCanvasHelper.genClothingLayerLowerStep("legs", "front", true, {
+			z: CombatRenderer.indices.frontLegwear,
+		}),
+		backUnderLower: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "back", false, {
+			z: CombatRenderer.indices.backLowerUnderwear,
+		}),
+		backUnderLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "back", true, {
+			z: CombatRenderer.indices.backLowerUnderwear,
+		}),
+		frontUnderLower: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "front", false, {
+			z: CombatRenderer.indices.frontLowerUnderwear,
+		}),
+		frontUnderLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("under_lower", "front", true, {
+			z: CombatRenderer.indices.frontLowerUnderwear,
+		}),
+		backLower: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "back", false, {
+			z: CombatRenderer.indices.backLowerWear,
+		}),
+		backLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "back", true, {
+			z: CombatRenderer.indices.backLowerWear,
+		}),
+		frontLower: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "front", false, {
+			z: CombatRenderer.indices.frontLowerWear,
+		}),
+		frontLowerAcc: PlayerCanvasHelper.genClothingLayerLowerStep("lower", "front", true, {
+			z: CombatRenderer.indices.frontLowerWear,
+		}),
+		neckWear: PlayerCanvasHelper.genClothingLayer("neck", {
+			z: CombatRenderer.indices.head - 1,
+		}),
+		neckWearAcc: PlayerCanvasHelper.genClothingAccLayer("neck", {
+			z: CombatRenderer.indices.head - 1,
+		}),
+		overHead: PlayerCanvasHelper.genClothingLayer("over_head", {
+			z: CombatRenderer.indices.head + 2,
+		}),
+		overHeadAcc: PlayerCanvasHelper.genClothingAccLayer("over_head", {
+			z: CombatRenderer.indices.head + 2,
+		}),
+		backOverLower: PlayerCanvasHelper.genClothingLayer("over_lower", {
 			srcfn(options) {
-				const clothes = options.clothes.legs;
+				const clothes = options.clothes.over_lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("legs", "Path:", path);
+				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 1,
+			show: false,
+			z: CombatRenderer.indices.backLowerOverwear,
 		}),
-		legwearAccBack: CombatRenderer.genClothingAccLayer("legs", {
+		backOverLowerAcc: PlayerCanvasHelper.genClothingAccLayer("over_lower", {
 			srcfn(options) {
-				const clothes = options.clothes.legs;
+				const clothes = options.clothes.over_lower;
 				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("legs", "Path:", path);
+				const path = `${options.src}clothing/over_lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
 				return path;
 			},
-			z: CombatRenderer.indices.backThigh + 2,
+			show: false,
+			z: CombatRenderer.indices.backLowerOverwear,
 		}),
-		legwearFront: CombatRenderer.genClothingLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 1,
+		frontOverLower: PlayerCanvasHelper.genClothingLayer("over_lower", {
+			z: CombatRenderer.indices.frontLowerOverwear,
 		}),
-		legwearAccFront: CombatRenderer.genClothingAccLayer("legs", {
-			srcfn(options) {
-				const clothes = options.clothes.legs;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/legs/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
-				console.log("legs", "Path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 2,
+		frontOverLowerAcc: PlayerCanvasHelper.genClothingAccLayer("over_lower", {
+			z: CombatRenderer.indices.frontLowerOverwear,
 		}),
-		backLower: CombatRenderer.genClothingLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}.png`;
-				console.log("Lower back path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.backThigh + 3,
-		}),
-		backLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/back-${clothes.positions.back}-${clothes.state}-acc.png`;
-				console.log("Lower back acc path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.backThigh + 3,
-		}),
-		frontLower: CombatRenderer.genClothingLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}.png`;
-				console.log("Lower front path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 3,
-		}),
-		frontLowerAcc: CombatRenderer.genClothingAccLayer("lower", {
-			srcfn(options) {
-				const clothes = options.clothes.lower;
-				if (clothes?.name == null || clothes.positions == null) return "";
-				const path = `${options.src}clothing/lower/${clothes.name}/front-${clothes.positions.front}-${clothes.state}-acc.png`;
-				console.log("Lower front acc path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 3,
-		}),
-		neckWear: CombatRenderer.genClothingLayer("neck", {
+		overUpper: PlayerCanvasHelper.genClothingLayer("over_upper", {
 			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		neckWearAcc: CombatRenderer.genClothingAccLayer("neck", {
+		overUpperAcc: PlayerCanvasHelper.genClothingAccLayer("over_upper", {
 			z: CombatRenderer.indices.frontArm - 1,
 		}),
-		overHead: CombatRenderer.genClothingLayer("over_head", {
-			z: CombatRenderer.indices.base + 10,
-		}),
-		overHeadAcc: CombatRenderer.genClothingAccLayer("over_head", {
-			z: CombatRenderer.indices.base + 10,
-		}),
-		overLower: CombatRenderer.genClothingLayer("over_lower", {
-			z: CombatRenderer.indices.frontThigh + 4,
-		}),
-		overLowerAcc: CombatRenderer.genClothingAccLayer("over_lower", {
-			z: CombatRenderer.indices.frontThigh + 4,
-		}),
-		overUpper: CombatRenderer.genClothingLayer("over_upper", {
-			z: CombatRenderer.indices.frontArm - 1,
-		}),
-		overUpperAcc: CombatRenderer.genClothingAccLayer("over_upper", {
-			z: CombatRenderer.indices.frontArm - 1,
-		}),
-		underLower: CombatRenderer.genClothingLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null) return "";
-				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
-				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}.png`;
-				console.log("Under lower path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 2,
-		}),
-		underLowerAcc: CombatRenderer.genClothingAccLayer("under_lower", {
-			srcfn(options) {
-				const clothes = options.clothes.under_lower;
-				if (clothes?.name == null) return "";
-				const state = options.position === "missionary" ? `${clothes.state}-${options.legFrontPosition}` : clothes.state;
-				const path = `${options.src}clothing/under_lower/${clothes.name}/${state}-acc.png`;
-				console.log("Under lower path:", path);
-				return path;
-			},
-			z: CombatRenderer.indices.frontThigh + 2,
-		}),
-		underUpper: CombatRenderer.genClothingLayer("under_upper", {
+		underUpper: PlayerCanvasHelper.genClothingLayer("under_upper", {
 			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		underUpperAcc: CombatRenderer.genClothingAccLayer("under_upper", {
+		underUpperAcc: PlayerCanvasHelper.genClothingAccLayer("under_upper", {
 			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		underUpperBreasts: CombatRenderer.genClothingLayer("under_upper", {
+		underUpperBreasts: PlayerCanvasHelper.genClothingLayer("under_upper", {
 			srcfn(options) {
 				const clothes = options.clothes.under_upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/under_upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.under_upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
-				console.log("Show under upper breasts:", show);
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm - 4,
 		}),
-		upper: CombatRenderer.genClothingLayer("upper", {
+		upper: PlayerCanvasHelper.genClothingLayer("upper", {
 			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperAcc: CombatRenderer.genClothingAccLayer("upper", {
+		upperAcc: PlayerCanvasHelper.genClothingAccLayer("upper", {
 			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperBreasts: CombatRenderer.genClothingLayer("upper", {
+		upperBreasts: PlayerCanvasHelper.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/breasts/${clothes.breasts.size}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.breasts.show;
-				console.log("Show upper breasts:", show);
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.breasts.show;
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm - 3,
 		}),
-		upperBackSleeves: CombatRenderer.genClothingLayer("upper", {
+		upperBackSleeves: PlayerCanvasHelper.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/back-${options.armBackPosition}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				// If missionary: Sleeves on the side behind are never shown, except for handjobs.
 				if (options.position === "doggy" && options.armBackPosition === "bound") return false;
 				if (options.position === "missionary" && !["handjob"].includes(clothes.sleeves.state)) return false;
-				console.log("Show upper breasts:", show);
 				return !!show;
 			},
 			z: CombatRenderer.indices.backArm + 1,
 		}),
-		upperFrontSleeves: CombatRenderer.genClothingLayer("upper", {
+		upperFrontSleeves: PlayerCanvasHelper.genClothingLayer("upper", {
 			srcfn(options) {
 				const clothes = options.clothes.upper;
 				if (clothes?.name == null) return "";
 				const path = `${options.src}clothing/upper/${clothes.name}/sleeves/front-${options.armFrontPosition}.png`;
-				console.log("upper", "Path:", path);
 				return path;
 			},
 			showfn(options) {
 				const clothes = options.clothes.upper;
-				const show = CombatRenderer.isClothingShown(options, clothes) && clothes.sleeves.show;
-				console.log("Show upper breasts:", show);
+				if (clothes == null) {
+					Errors.report("Clothing object was undefined");
+					return false;
+				}
+				const show = CombatRenderer.isClothingShown(clothes, options.showClothing) && clothes.sleeves.show;
 				return !!show;
 			},
 			z: CombatRenderer.indices.frontArm + 1,

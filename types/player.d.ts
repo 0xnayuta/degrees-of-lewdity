@@ -65,19 +65,6 @@ declare module "twine-sugarcube" {
 		trackedArousal: int[];
 		timeSinceArousal: number;
 
-		skinColor: {
-			natural: SkinColoursSimple;
-			range: number;
-			sunBlock: boolean;
-			tanValues: number[];
-			init: boolean;
-			current: {
-				[x: string]: string;
-			};
-			overwrite: SkinColourConfig[];
-			overwriteEnable: boolean;
-			overwriteValues: SkinColourConfig;
-		};
 		/**
 		 * Only used within settings, try to use leftEyeColour or rightEyeColour.
 		 */
@@ -102,8 +89,8 @@ declare module "twine-sugarcube" {
 
 		/* Player states */
 
-		lactating: boolean;
-		possessed: boolean;
+		lactating: 0 | 1;
+		possessed?: boolean;
 		virginityProtected: boolean;
 
 		anxiety: 0 | 1 | 2;
@@ -287,6 +274,8 @@ declare global {
 		penissize: number;
 		penis: string;
 		vagina: string;
+		condom: Condom | false;
+
 		gender: "m" | "f";
 
 		virginity: {
@@ -296,6 +285,10 @@ declare global {
 			temple: boolean;
 			handholding: boolean;
 			kiss: boolean;
+		};
+
+		skin: {
+			color: SkinColours;
 		};
 	}
 

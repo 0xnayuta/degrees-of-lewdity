@@ -166,19 +166,19 @@ Debugging:
 
 <!-- "divsex" is cache slot id to preserve layer caches between passages -->
 <<selectmodel "sexdemo" "divsex">>
-<<set _modeloptions.animation_speed to "fast">>
-<<set _modeloptions.position to "doggy">>
-<<set _modeloptions.penis to "default">>
-<<set _modeloptions.vagina to true>>
-<<set _modeloptions.worn_under_lower to 1>>
-<<set _modeloptions.worn_under_lower_state to "totheside">>
-<<set _modeloptions.worn_under_lower_colour to "blue">>
-<<set _modeloptions.xray_vaginal_show to true>>
-<<set _modeloptions.close_vagina_show to true>>
-<<set _modeloptions.vagina_state to "penetrated">>
-<<set _modeloptions.vagina_penetrator to "tentacle">>
-<<set _modeloptions.vagina_penetrator_size to 5>>
-<<set _modeloptions.vagina_cumming to true>>
+	<<set _modeloptions.animation_speed to "fast">>
+	<<set _modeloptions.position to "doggy">>
+	<<set _modeloptions.penis to "default">>
+	<<set _modeloptions.vagina to true>>
+	<<set _modeloptions.worn.under_lower.index to 1>>
+	<<set _modeloptions.worn.under_lower.state to "totheside">>
+	<<set _modeloptions.worn.under_lower.colour to "blue">>
+	<<set _modeloptions.xray_vaginal_show to true>>
+	<<set _modeloptions.close_vagina_show to true>>
+	<<set _modeloptions.vagina_state to "penetrated">>
+	<<set _modeloptions.vagina_penetrator to "tentacle">>
+	<<set _modeloptions.vagina_penetrator_size to 5>>
+	<<set _modeloptions.vagina_cumming to true>>
 <<animatemodel "">>
 
 <!-- Editor hooks to "last model" -->
@@ -194,86 +194,126 @@ Debugging:
 		<<exit>>
 	<</if>>
 
-	<<resetNpcStates>>
 	<!-- Centres the inner grid -->
 	<div class="flex-row flex-centre">
 		<!-- Organises canvas windows into a grid -->
 		<div class="combat-grid">
 			<!-- Top row - Contains miniture viewports -->
 			<div class="combat-close d-flex flex-row justify-content-center">
-				<<set $_closeOptions to getCloseOptions()>>
 				<div class="combat-close-chest">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseChest" "combatCloseChest">>
-					<<newcanvascompile "combatCloseChest" "combatCloseChest" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showChest ? "border-primary" : "border-dark")`>>
+					<<selectmodel "combatCloseChest" "divCloseChest">>
+					<<animatemodel "">>
 				</div>
 				<div class="combat-close-penis">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatClosePenis" "combatClosePenis">>
-					<<newcanvascompile "combatClosePenis" "combatClosePenis" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showPenis ? "border-primary" : "border-dark")`>>
+					<<selectmodel "combatClosePenis" "divClosePenis">>
+					<<animatemodel "">>
 				</div>
 				<div class="combat-close-vagina">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseVagina" "combatCloseVagina">>
-					<<newcanvascompile "combatCloseVagina" "combatCloseVagina" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showVagina ? "border-primary" : "border-dark")`>>
+					<<selectmodel "combatCloseVagina" "divCloseVagina">>
+					<<animatemodel "">>
 				</div>
 				<div class="combat-close-arse">
-					<<newcanvasstart 64 64>>
-					<<newcanvasselect "combatCloseArse" "combatCloseArse">>
-					<<newcanvascompile "combatCloseArse" "combatCloseArse" $_closeOptions>>
-					<<newcanvasanimate `"border " + ($_closeOptions.showArse ? "border-primary" : "border-dark")`>>
+					<<selectmodel "combatCloseArse" "divCloseArse">>
+					<<animatemodel "">>
 				</div>
 			</div>
 			<!-- Main canvas container. -->
 			<div class="combat-main d-flex justify-content-center">
-				<<newcanvasstart 256 256>>
+			
+				<<setup-multi-canvas "combatMain" "combatMainPc" "combatMainPc0">>
 
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================= NPC canvas ==================")>>
-				<<run console.warn("===============================================")>>
-				<<for _iHateTempVariables, _iReallyHateTempVariables range $NPCList>>
-					<<run console.log("compile npc:", _iReallyHateTempVariables)>>
-					<<if _iReallyHateTempVariables.type is "human">>
-						<<set $_slot to "combatMainNpc" + _iHateTempVariables>>
-						<<newcanvasselect "combatMainNpc" $_slot>>
-						<<mapnpctooptions $_slot _iHateTempVariables>>
-						<<run console.warn("===============================================")>>
-						<<run console.warn(`======== Human NPC ${_iHateTempVariables} compile ==========`)>>
-						<<run console.warn("===============================================")>>
-						<<newcanvascompile "combatMainNpc" $_slot>>
-					<<elseif $BeastList.includes(_iReallyHateTempVariables.type)>>
-						<<set $_slot to "combatMainNpc" + _iHateTempVariables>>
-						<<newcanvasselect "combatMainNpc" $_slot>>
-						<<mapnpctooptions $_slot _iHateTempVariables>>
-						<<run console.warn("===============================================")>>
-						<<run console.warn(`======== ${_iReallyHateTempVariables.type} NPC ${_iHateTempVariables} compile ==========`)>>
-						<<run console.warn("===============================================")>>
-						<<newcanvascompile "combatMainNpc" $_slot>>
+				<<for $_npcIndex, $_npc range $NPCList>>
+					<<set _types to [...V.BeastList, "human"]>>
+					<<if _types.includes($_npc.type)>>
+						<<set _metadata to { index: $_npcIndex }>>
+						<<add-multi-canvas "combatMain" "combatMainNpc" `"combatMainNpc" + $_npcIndex` _metadata>>
 					<</if>>
 				<</for>>
 
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================== PC canvas ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC layers. -->
-				<<newcanvasselect "combatMainPc" "combatMainPc">>
-				<!-- Load T.options[slot] from PC data. -->
-				<<mapplayertooptions "combatMainPc">>
-				<<run console.warn("===============================================")>>
-				<<run console.warn("================= PC compile ==================")>>
-				<<run console.warn("===============================================")>>
-				<!-- Compile PC model and push to layer pipeline. -->
-				<<newcanvascompile "combatMainPc" "combatMainPc">>
+				<<reset-multi-canvas "combatMain">>
+				<<start-multi-canvas-rendering "combatMain">>
 
-				<<newcanvasanimate "border border-primary">>
 			</div>
 		</div>
 	</div>
 	<<if $debug>>
+		<<set _crOverrides to {}>>
+		<<set _options to T.multiCombatModels.combatMain.models.combatMainPc0.options>>
 		<<canvasCombatEditor>>
+		<div>
+			<details>
+				<summary>Main options</summary>
+				<label class="d-inline-flex flex-column">
+					Position:
+					<<listbox "$position" autoselect>>
+						<<optionsfrom setup.positions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.legFrontPosition to PlayerCombatMapper.mapPcToLegFrontPosition(_options)>>
+				<label class="d-inline-flex flex-column">
+					Front leg:
+					<<listbox "_crOverrides.legFrontPosition" autoselect>>
+						<<optionsfrom setup.legPositions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.legBackPosition to PlayerCombatMapper.mapPcToLegBackPosition(_options)>>
+				<label class="d-inline-flex flex-column">
+					Back leg:
+					<<listbox "_crOverrides.legBackPosition" autoselect>>
+						<<optionsfrom setup.legPositions>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.animFrames to PlayerCombatMapper.getPcAnimationFrameCount(_options)>>
+				<label class="d-inline-flex flex-column">
+					Frames:
+					<<listbox "_crOverrides.animFrames" autoselect>>
+						<<option "4" 4>>
+						<<option "2" 2>>
+					<</listbox>>
+				</label>
+
+				<<set _crOverrides.animSpeed to PlayerCombatMapper.getPcAnimationSpeed(_options)>>
+				<label class="d-inline-flex flex-column">
+					Speed:
+					<<listbox "_crOverrides.animSpeed" autoselect>>
+						<<option "VFast" "vfast">>
+						<<option "Fast" "fast">>
+						<<option "Mid" "mid">>
+						<<option "Slow" "slow">>
+						<<option "Idle" "idle">>
+					<</listbox>>
+				</label>
+			</details>
+
+			<details>
+				<summary>Clothing options</summary>
+				<div class="d-grid grid-auto-2 gap-1">
+					<<for _slot range Object.keys($worn)>>
+						<<set _wornSetup to CombatRenderer.getClothingBySlot(_slot)>>
+						<<set _worn to $worn[_slot]>>
+						<<capture _worn, _wornSetup>>
+							<div class="d-flex flex-column border rounded justify-content-space-between p-1">
+								<label class="d-flex flex-row justify-content-space-between">
+									<<= _slot>>
+								</label>
+								<label class="d-flex flex-row justify-content-space-between">
+									<<= _wornSetup.name_cap>>
+								</label>
+								<label class="d-flex flex-row justify-content-space-between">
+									State:
+									<<listbox "_worn.state" autoselect>>
+										<<optionsfrom setup.clothingStates>>
+									<</listbox>>
+								</label>
+							</div>
+						<</capture>>
+					<</for>>
+				</div>
+			</details>
+		</div>
 	<</if>>
 <</widget>>
 

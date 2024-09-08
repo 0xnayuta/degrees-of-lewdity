@@ -60,26 +60,25 @@ declare module "twine-sugarcube" {
 			[x in ClothesSlots]: ClothesItem[];
 		};
 		clothes_all_slots: ClothedSlots[];
+		clothingStates: ZeroedClothingStates[];
 	}
 }
 
 declare global {
-	export type ClothingStates =
-		| 0
+	export type ClothingStates = "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles";
+
+	export type ZeroedClothingStates = 0 | ClothingStates;
+
+	export type TotalClothingStates =
+		| ZeroedClothingStates
 		| "default"
+		| "full"
 		| "bound"
 		| "handjob"
 		| "up"
 		| "down"
 		| "footjob"
 		| "neck"
-		| "full"
-		| "chest"
-		| "midriff"
-		| "waist"
-		| "thighs"
-		| "knees"
-		| "ankles"
 		| "worn"
 		| "totheside";
 
@@ -112,26 +111,19 @@ declare global {
 		 */
 		variable: string;
 		/**
-		 * The folder ID for combat sprites, if not specified, uses variable
-		 */
-		combatImg?: string;
-		/**
-		 * Overrides the combat sprite colour. For when sprites are grey-scale, but were intended to be a specific colour.
-		 */
-		combatColourOverride?: string;
-		combatAccessoryColourOverride?: string;
-		/**
-		 * If your clothing item has accessory colours, but the sprites aren't finished, set to false to override the accessory colour code.
-		 */
-		combatAccessoryOverride?: boolean;
-		/**
 		 *
 		 */
-		combatHasMainImg?: boolean;
-		/**
-		 *
-		 */
-		combatBoundable?: boolean;
+		combat?: {
+			reference?: string;
+			renderType?: CombatClothingTypes;
+			hasMainImg?: boolean;
+			hasSleeves?: boolean;
+			hasBreasts?: boolean;
+			accessory?: boolean;
+			mainColour?: string;
+			accColour?: string;
+			boundable?: boolean;
+		};
 		integrity?: number;
 		integrity_max?: number;
 		fabric_strength?: number;
@@ -148,7 +140,7 @@ declare global {
 		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
-		state: ClothingStates;
+		state: ZeroedClothingStates;
 		state_base: 0 | string;
 		state_top?: 0 | string;
 		state_top_base?: 0 | string;
@@ -268,7 +260,7 @@ declare global {
 			name: string;
 			variable: string;
 		}[];
-		breast_acc_img?: 0 | 1;
+		breast_acc_img?: object | 1 | 0;
 		accImage?: 0 | 1;
 		breast_combat?: 0 | 1;
 		anal_shield?: 0 | 1 | null;

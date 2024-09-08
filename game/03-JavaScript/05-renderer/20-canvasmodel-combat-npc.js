@@ -1,58 +1,8 @@
 // @ts-check
-/**
- * @typedef {object} CanvasModelLayerNpc
- * @property {boolean} [show] Show this layer, default false (if no show:true or showfn present, needs explicit `<<showlayer>>`). Do not use undefined/null/0/"" to hide layer!
- * @property {string} [src] Image path. Either `src` or `srcfn` is required.
- * @property {number} [z] Z-index (rendering order), higher=above, lower=below. Either `z` of `zfn` is required.
- * @property {number} [alpha] Layer opacity, from 0 (invisible) to 1 (opaque, default).
- * @property {boolean} [desaturate] Convert image to grayscale (before recoloring), default false.
- * @property {number} [brightness] Adjust brightness, from -1 to +1 (before recoloring), default 0.
- * @property {number} [contrast] Adjust contrast (before recoloring), default 1.
- * @property {string} [blendMode] Recoloring mode (see docs for globalCompositeOperation; "hard-light", "multiply" and "screen" ), default none.
- * @property {string|object} [blend] Color for recoloring, CSS color string or gradient spec (see model.d.ts).
- * @property {string} [masksrc] Mask image path. If present, only parts where mask is opaque will be displayed.
- * @property {string} [animation] Name of animation to apply, default none.
- * @property {number} [frames] Frame numbers used to display static images, array of subsprite indices. For example, if model frame count is 6 but layer has only 3 subsprites, default frames would be [0, 0, 1, 1, 2, 2].
- * @property {string[]} [filters] Names of filters that should be applied to the layer; filters themselves are taken from model options.
- * @property {number} [dx] Layer X position on the image, default 0.
- * @property {number} [dy] Layer Y position on the image, default 0.
- * @property {number} [width] Layer subsprite width, default = model width.
- * @property {number} [height] Layer subsprite width, default = model height.
- *
- * The following functions can be used instead of constant properties. Their arguments are (options) where options are model options provided in render call (from _modeloptions variable for <<rendermodel>>/<<animatemodel>> widget).
- * @property {function(NpcOptions): boolean} [showfn] (options)=>boolean Function generating `show` property. Should return boolean, do not use undefined/null/0/"" to hide layer, use of !! (double not) operator recommended.
- * @property {function(NpcOptions): string} [srcfn] (options)=>string.
- * @property {function(NpcOptions): number} [zfn] (options)=>number.
- * @property {function(NpcOptions): number} [alphafn] (options)=>number.
- * @property {function(NpcOptions): boolean} [desaturatefn] (options)=>boolean.
- * @property {function(NpcOptions): number} [brightnessfn] (options)=>number.
- * @property {function(NpcOptions): number} [contrastftn] (options)=>number.
- * @property {function(NpcOptions): (string|object)} [blendModefn] (options)=>(string|object).
- * @property {function(NpcOptions): string} [blendfn] (options)=>string.
- * @property {function(NpcOptions): string} [masksrcfn] (options)=>string.
- * @property {function(NpcOptions): string} [animationfn] (options)=>string.
- * @property {function(NpcOptions): number[]} [framesfn] (options)=>number[].
- * @property {function(NpcOptions): string[]} [filtersfn] (options)=>string[].
- * @property {function(NpcOptions): number} [dxfn] (options)=>number.
- * @property {function(NpcOptions): number} [dyfn] (options)=>number.
- * @property {function(NpcOptions): number} [widthfn] (options)=>number.
- * @property {function(NpcOptions): number} [heightfn] (options)=>number.
- */
+/* global CombatRenderer, NpcCombatMapper, NpcCanvasHelper */
 
 /**
- * @typedef {object} CanvasModelNpcOptions
- * @property {string} name Model name, for debugging.
- * @property {number} width Frame width.
- * @property {number} height Frame height.
- * @property {number} frames Number of frames for CSS animation.
- * @property {Object<string, CanvasModelLayerNpc>} layers Layers (by name).
- * @property {Function} [generatedOptions] Function ()=>string[] names of generated options.
- * @property {Function} [defaultOptions] Function ()=>object returning default options.
- * @property {Function} [preprocess] Preprocessing function (options)=>void to generate temp options.
- */
-
-/**
- * @type {CanvasModelNpcOptions}
+ * @type {CanvasModelOptions<NpcOptions>}
  */
 const combatMainNpc = {
 	name: "combatMainNpc",
@@ -60,113 +10,86 @@ const combatMainNpc = {
 	height: 256,
 	frames: 4,
 	generatedOptions() {
-		console.log(this.name, "generatedOptions");
 		return [];
 	},
 	defaultOptions() {
-		console.log(this.name, "defaultOptions");
-		return {};
+		return Object.assign(NpcCombatMapper.generateOptions(), this.metadata);
 	},
-	preprocess() {
-		console.log(this.name, "preprocess");
+	preprocess(options) {
+		NpcCombatMapper.mapNpcToOptions(options.index || 0, options);
 	},
 	layers: {
-		body: {
+		npcBodyBack: NpcCanvasHelper.genBodyLayer("back"),
+		npcBodyFront: NpcCanvasHelper.genBodyLayer("front"),
+		npcDrool: {
 			srcfn(options) {
-				const path = `${options.src}${options.category}/${options.type}/${options.state}.png`;
-				console.warn("NPC path:", path);
+				const path = `${options.src}/${options.category}/${options.type}/drool/${options.drool.amount}.png`;
 				return path;
 			},
 			showfn(options) {
-				const show = options.show;
-				console.warn("NPC showing:", show);
-				return !!show;
+				if (!options.show) {
+					return false;
+				}
+				return options.drool.show;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
 			zfn(options) {
-				if (options.position === "doggy") {
-					return 20;
-				}
-				if (options.state === "penis") {
-					return 90;
-				}
-				return 60;
+				return 90;
 			},
 		},
-		frontleg: {
+		npcBalls: {
 			srcfn(options) {
-				const path = `${options.src}${options.category}/${options.type}/${options.state}-leg.png`;
-				console.warn("NPC path:", path);
+				const path = `${options.src}/${options.category}/${options.type}/${options.state}-balls.png`;
 				return path;
 			},
 			showfn(options) {
-				const show = options.show && options.category === "beast";
-				console.warn("NPC showing:", show);
-				return !!show;
-			},
-			animationfn(options) {
-				return options.animKey;
-			},
-			z: 85,
-		},
-		penetrator: {
-			srcfn(options) {
-				if (options.penetrators.length <= 0) return "";
-				const penetrator = options.penetrators[0];
-				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}.png`;
-				return path;
-			},
-			showfn(options) {
-				if (options.penetrators.length <= 0) return false;
-				const penetrator = options.penetrators[0];
-				// if (penetrator.position === "vagina" && penetrator.state === "penetrated") return false;
-				return !!penetrator.show;
+				if (!options.show) {
+					return false;
+				}
+				return options.balls.hasBalls;
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
 			zfn(options) {
-				if (options.penetrators.length <= 0) return 0;
-				const penetrator = options.penetrators[0];
-				if (penetrator.position === "thighs") {
-					return 30;
-				}
-				if (penetrator.position === "leftarm") {
-					return 46; // Behind the Z index of PC's "backarm"
-				}
-				return 59;
+				return 49;
 			},
 		},
-		penetratorEjaculate: {
+		npcHole: {
 			srcfn(options) {
-				if (options.penetrators.length <= 0) return "";
-				const penetrator = options.penetrators[0];
-				const path = `${options.src}penetrators/${penetrator.type}/${penetrator.position}-${penetrator.state}-${penetrator.ejaculate.type}.png`;
+				const path = `${options.src}/body/penetrator/penile.png`;
 				return path;
 			},
 			showfn(options) {
-				if (options.penetrators.length <= 0) return false;
-				const penetrator = options.penetrators[0];
-				const result = penetrator.show && penetrator.isEjaculating;
-				return !!result;
+				return CombatRenderer.isPenileReceptorActive();
 			},
 			animationfn(options) {
 				return options.animKey;
 			},
 			zfn(options) {
-				if (options.penetrators.length <= 0) return 0;
-				const penetrator = options.penetrators[0];
-				if (penetrator.position === "thighs") {
-					return 32;
-				}
-				if (penetrator.position === "leftarm") {
-					return 48; // Behind the Z index of PC's "backarm"
-				}
-				return 61;
+				return 49;
 			},
 		},
+		npcHoleEjaculate: {
+			srcfn(options) {
+				const path = `${options.src}/body/penetrator/penile-sperm.png`;
+				return path;
+			},
+			showfn(options) {
+				return CombatRenderer.isPenileReceptorEjaculationActive();
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				return 49;
+			},
+		},
+		npcPenetrator: NpcCanvasHelper.genPenetratorLayer(),
+		npcPenetratorEjaculate: NpcCanvasHelper.genPenetratorEjaculationLayer(),
+		npcCondom: NpcCanvasHelper.genCondomLayer(),
 	},
 };
 Renderer.CanvasModels.combatMainNpc = combatMainNpc;

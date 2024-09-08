@@ -1,6 +1,9 @@
 const ZIndices = {
+	flatlight: -4,
+	gradientlight: -3,
+	glowlight: -2,
+	spotlight: -1,
 	bg: 0,
-
 	over_head_back: 0,
 	head_back: 1,
 	basehead: 5,
@@ -70,11 +73,16 @@ const ZIndices = {
 	collar: 103,
 	neck: 103,
 
+	over_lower: 103.3,
+	over_upper: 103.6,
+	over_upper_arms: 103.9,
+
 	handheld: 104,
 	arms_cover: 105,
 	under_upper_arms_cover: 109,
 	hands: 110,
 	upper_arms_cover: 112,
+	over_upper_arms_cover: 113,
 	lower_high: 115,
 	lower_top_high: 117,
 
@@ -92,28 +100,6 @@ const ZIndices = {
 	tailPenisCover: 165,
 	tailPenisCoverOverlay: 166,
 
-	over_lower: 170,
-	over_upper: 171,
-	over_upper_arm: 170,
-	over_upper_arms_cover: 174,
-
-	/* Combat */
-	backThigh: 12,
-	backLeg: 14,
-	backBreast: 16,
-	backArm: 18,
-	frontThigh: 22,
-	frontLeg: 24,
-	frontBreast: 26,
-	frontArm: 28,
-
-	closeBase: 10,
-	closeWornUnder: 12,
-	closeGenitals: 14,
-	closeWorn: 16,
-	closeCum: 18,
-	closeNpc: 20,
-
 	old_over_upper: 171,
 };
 window.ZIndices = ZIndices;
@@ -122,11 +108,11 @@ Renderer.Animations["sex-2f-idle"] = {
 	keyframes: [
 		{
 			frame: 0,
-			duration: 2000,
+			duration: 1000,
 		},
 		{
 			frame: 2,
-			duration: 2000,
+			duration: 1000,
 		},
 	],
 };
@@ -135,6 +121,15 @@ Renderer.Animations["sex-1f-idle"] = {
 	keyframes: [
 		{
 			frame: 1,
+			duration: 1000,
+		},
+	],
+};
+
+Renderer.Animations["sex-1f2-idle"] = {
+	keyframes: [
+		{
+			frame: 2,
 			duration: 1000,
 		},
 	],
