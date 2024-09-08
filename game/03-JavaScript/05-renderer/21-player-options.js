@@ -1428,7 +1428,30 @@ class PlayerCombatMapper {
 					}
 					return null;
 				});
-				options.bodywriting.frontThigh = getState("right_thigh", simpleText);
+				options.bodywriting.frontThigh = getState("right_thigh", (id, bodywriting) => {
+					if (bodywriting.type === "text" || bodywriting.special === "islander") {
+						let type = id;
+						if (["up", "down"].includes(options.legBackPosition)) {
+							type += "-" + options.legBackPosition;
+						}
+						if (bodywriting.arrow === 1) {
+							type += "-arrow";
+						}
+						return {
+							show: true,
+							area: "text",
+							type: sanitise(type),
+						};
+					}
+					if (bodywriting.type === "object") {
+						return {
+							show: true,
+							area: bodywriting.writing,
+							type: sanitise(id),
+						};
+					}
+					return null;
+				});
 				break;
 			case "doggy":
 				options.bodywriting.frontCheek = getState("right_cheek", (id, bodywriting) => {
