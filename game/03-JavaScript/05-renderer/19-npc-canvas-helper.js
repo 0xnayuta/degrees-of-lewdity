@@ -140,7 +140,7 @@ class NpcCanvasHelper {
 				if (options.position === "missionary" && penetrator.position === "leftarm") {
 					return CombatRenderer.indices.backArm - 1;
 				}
-				if (penetrator.position === "mouth") {
+				if (penetrator.position === "mouth" && penetrator.state !== "penetrating") {
 					return CombatRenderer.indices.head + 1; // Put in front of head
 				}
 				if (penetrator.position === "vagina" && penetrator.state === null) {
@@ -236,16 +236,6 @@ class NpcCanvasHelper {
 					return [];
 				}
 				return ["penetrator"];
-			},
-			masksrcfn(options) {
-				const penetrator = options.penetrators[0];
-				if (penetrator == null) {
-					return null;
-				}
-				if (penetrator.position === "mouth" && penetrator.state === "penetrating") {
-					return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-mask.png`;
-				}
-				return null;
 			},
 		};
 		return Object.assign(defaults, overrideOptions);
