@@ -74,6 +74,16 @@ class NpcCanvasHelper {
 					}
 				}
 				if (penetrator.position === "mouth") {
+					if (options.position === "doggy") {
+						switch (penetrator.state) {
+							case "penetrating":
+								return 0;
+							case "imminent":
+								return -10;
+							case "entrance":
+								return -20;
+						}
+					}
 					switch (penetrator.state) {
 						case "penetrating":
 							return 0;
@@ -204,6 +214,16 @@ class NpcCanvasHelper {
 					}
 				}
 				if (penetrator.position === "mouth") {
+					if (options.position === "doggy") {
+						switch (penetrator.state) {
+							case "penetrating":
+								return 0;
+							case "imminent":
+								return -10;
+							case "entrance":
+								return -20;
+						}
+					}
 					switch (penetrator.state) {
 						case "penetrating":
 							return 0;
