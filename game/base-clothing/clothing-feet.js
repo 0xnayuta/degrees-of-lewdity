@@ -121,6 +121,9 @@ function initFeet() {
 			name: "ankle cuffs",
 			name_cap: "Ankle cuffs",
 			variable: "anklecuffs",
+			combat: {
+				accessory: true,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 400,
