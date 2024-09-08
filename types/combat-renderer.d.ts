@@ -19,6 +19,8 @@ declare global {
 
 	export type PenetratorStates = "penetrating" | "imminent" | "entrance" | "rubbing";
 
+	export type SwarmTypes = "fish" | "eels" | "spiders" | "worms" | "snakes" | "maggots" | "slime";
+
 	export interface Penetrator {
 		type: PenetratorTypes;
 		size: number;
@@ -47,6 +49,26 @@ declare global {
 		colour: Partial<CompositeLayerSpec>;
 	}
 
+	export interface SwarmPenetrationOptions {
+		imminent: boolean;
+		penetrating: boolean;
+	}
+
+	export interface SwarmOptions {
+		show: boolean;
+		src: string;
+		root: string;
+		position: SpritePositions;
+		animKey: string;
+		animKeyImminent: string;
+		animKeyPenetrating: string;
+		type: SwarmTypes;
+		amount: number;
+		vaginal: SwarmPenetrationOptions;
+		penile: SwarmPenetrationOptions;
+		anal: SwarmPenetrationOptions;
+	}
+
 	export interface ClothingRendererStepState {
 		layered?: boolean;
 		legged?: boolean;
@@ -63,6 +85,7 @@ declare global {
 		PlayerCanvasHelper?: typeof PlayerCanvasHelper;
 		NpcCombatMapper?: typeof NpcCombatMapper;
 		NpcCanvasHelper?: typeof NpcCanvasHelper;
+		SwarmCombatMapper?: typeof SwarmCombatMapper;
 		CombatEditor?: typeof CombatEditor;
 	}
 

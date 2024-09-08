@@ -112,6 +112,7 @@ declare module "twine-sugarcube" {
 			active: number;
 			max: number;
 		};
+		swarm: Swarm;
 	}
 
 	export interface SugarCubeTemporaryVariables {
@@ -151,6 +152,14 @@ declare global {
 		tentaclehealthstart: number;
 		traits: string[];
 		type: "tentacle";
+	}
+
+	export interface Swarm {
+		amount: {
+			active: number[];
+			genital: number[];
+			butt: number[];
+		};
 	}
 }
 
