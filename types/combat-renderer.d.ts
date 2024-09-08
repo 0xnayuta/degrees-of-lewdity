@@ -86,7 +86,7 @@ declare global {
 		blend?: string;
 		blendfn?(options: T): string;
 		masksrc?: string;
-		masksrcfn?(options: T): string;
+		masksrcfn?(options: T): string?;
 		animation?: string;
 		animationfn?(options: T): string;
 		frames?: number;

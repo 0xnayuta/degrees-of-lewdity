@@ -78,9 +78,9 @@ class NpcCanvasHelper {
 						case "penetrating":
 							return 0;
 						case "imminent":
-							return -10;
+							return 12;
 						case "entrance":
-							return -20;
+							return 16;
 					}
 				}
 				return 0;
@@ -103,6 +103,7 @@ class NpcCanvasHelper {
 				if (penetrator == null || !penetrator.show) {
 					return "";
 				}
+				// return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-mask.png`;
 				if (["horse", "centaur"].includes(options.type)) {
 					return `${options.src}/penetrators/${penetrator.type}/${penetrator.state}.png`;
 				}
@@ -139,7 +140,7 @@ class NpcCanvasHelper {
 				if (options.position === "missionary" && penetrator.position === "leftarm") {
 					return CombatRenderer.indices.backArm - 1;
 				}
-				if (penetrator.position === "mouth" && penetrator.state !== "penetrating") {
+				if (penetrator.position === "mouth") {
 					return CombatRenderer.indices.head + 1; // Put in front of head
 				}
 				if (penetrator.position === "vagina" && penetrator.state === null) {
@@ -207,9 +208,9 @@ class NpcCanvasHelper {
 						case "penetrating":
 							return 0;
 						case "imminent":
-							return -10;
+							return 12;
 						case "entrance":
-							return -20;
+							return 16;
 					}
 				}
 				return 0;
@@ -235,6 +236,16 @@ class NpcCanvasHelper {
 					return [];
 				}
 				return ["penetrator"];
+			},
+			masksrcfn(options) {
+				const penetrator = options.penetrators[0];
+				if (penetrator == null) {
+					return null;
+				}
+				if (penetrator.position === "mouth" && penetrator.state === "penetrating") {
+					return `${options.src}/penetrators/${penetrator.type}/${penetrator.position}-mask.png`;
+				}
+				return null;
 			},
 		};
 		return Object.assign(defaults, overrideOptions);
