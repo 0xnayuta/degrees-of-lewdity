@@ -265,6 +265,7 @@ declare global {
 		breast_combat?: 0 | 1;
 		anal_shield?: 0 | 1 | null;
 		penis_img?: 0 | 1;
+		penis_acc_img?: 0 | 1;
 		no_aside?: 0 | 1;
 		hideUnderLower?: string[];
 		size?: number;

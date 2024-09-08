@@ -51,6 +51,61 @@
  */
 
 class CombatRenderer {
+	/** @returns {ClothedSlots[]} */
+	static get clothedSlots() {
+		return [
+			"over_upper",
+			"over_lower",
+			"upper",
+			"lower",
+			"under_upper",
+			"under_lower",
+			"over_head",
+			"head",
+			"face",
+			"neck",
+			"hands",
+			"handheld",
+			"legs",
+			"feet",
+			"genitals",
+		];
+	}
+
+	/** @type {ClothesItem} */
+	static get emptyClothing() {
+		return {
+			index: 0,
+			name: "naked",
+			name_cap: "Naked",
+			variable: "naked",
+			state: 0,
+			state_base: 0,
+			integrity: 10,
+			integrity_max: 10,
+			fabric_strength: 20,
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: [],
+			type: ["naked"],
+			gender: "n",
+			warmth: 0,
+			cost: 0,
+			description: "naked",
+			shop: [],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			cursed: 0,
+			location: 0,
+			iconFile: 0,
+			accIcon: 0,
+			mainImage: 0,
+		};
+	}
+
 	/**
 	 * @returns {CombatZIndices}
 	 */
@@ -137,14 +192,14 @@ class CombatRenderer {
 	 * @param {string} debugName used when reporting errors
 	 * @param {string | undefined} customFilter key in options.filters
 	 * @param {string | undefined} prefilterName name of prefilter to apply
-	 * @returns {Partial<CompositeLayerSpec>?} CompositeLayerParams - Check TS docs for model.d.ts
+	 * @returns {Partial<CompositeLayerSpec>} CompositeLayerParams - Check TS docs for model.d.ts
 	 */
 	static lookupColour(dict, key, debugName, customFilter, prefilterName) {
 		const filter = key === "custom" ? this.getCustomFilterColour(customFilter, debugName) : this.getFilterColour(key, dict, debugName);
 
 		if (filter == null) {
 			console.error("Lookup colour failed:", debugName);
-			return filter;
+			return Renderer.emptyLayerFilter();
 		}
 
 		if (prefilterName) {
@@ -198,7 +253,7 @@ class CombatRenderer {
 	 * @param {string} hairType
 	 * @param {number} hairLength
 	 * @param {string} prefilterName
-	 * @returns {Partial<CompositeLayerSpec> | null}
+	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
 		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
@@ -314,7 +369,11 @@ class CombatRenderer {
 	 */
 	static getClothingBySlot(slot) {
 		const active = V.worn[slot];
-		const defaults = setup.clothes[slot][active.index];
+		if (active == null) {
+			return CombatRenderer.emptyClothing;
+		}
+		const setupCategory = setup.clothes[slot];
+		const defaults = setupCategory == null ? CombatRenderer.emptyClothing : setupCategory[active.index];
 		const combat = Object.assign({}, defaults.combat, active.combat);
 		const result = Object.assign({}, defaults, active);
 		result.combat = combat;

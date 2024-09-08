@@ -1635,7 +1635,8 @@ function initUnderLower() {
 			name_simple: "strap-on",
 			variable: "straponlower",
 			combat: {
-				renderType: "skirt",
+				accessory: false,
+				renderType: "strapon",
 			},
 			integrity: 2000,
 			integrity_max: 2000,
@@ -1684,7 +1685,7 @@ function initUnderLower() {
 			name_simple: "strap-on",
 			variable: "straponhorse",
 			combat: {
-				renderType: "trousers",
+				reference: "straponlower",
 			},
 			integrity: 2000,
 			integrity_max: 2000,
@@ -1733,7 +1734,7 @@ function initUnderLower() {
 			name_simple: "strap-on",
 			variable: "straponknotted",
 			combat: {
-				renderType: "trousers",
+				reference: "straponlower",
 			},
 			integrity: 2000,
 			integrity_max: 2000,
@@ -1782,7 +1783,7 @@ function initUnderLower() {
 			name_simple: "strap-on",
 			variable: "straponstudded",
 			combat: {
-				renderType: "trousers",
+				reference: "straponlower",
 			},
 			integrity: 2000,
 			integrity_max: 2000,
@@ -1823,7 +1824,6 @@ function initUnderLower() {
 			accIcon: 0,
 			size: 3,
 		},
-
 		{
 			index: 37,
 			name: "see-through swim bottoms",

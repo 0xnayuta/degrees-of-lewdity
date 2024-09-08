@@ -399,3 +399,42 @@ ClothingRendererStep.create("ankled", {
 		},
 	},
 });
+
+ClothingRendererStep.create("strapon", {
+	missionary: {
+		waist: {
+			layered: false,
+			legged: true,
+		},
+		thighs: {
+			layered: false,
+			legged: true,
+		},
+		knees: {
+			layered: false,
+			legged: true,
+		},
+		ankles: {
+			layered: false,
+			legged: true,
+		},
+	},
+	doggy: {
+		waist: {
+			layered: false,
+			legged: false,
+		},
+		thighs: {
+			layered: false,
+			legged: false,
+		},
+		knees: {
+			layered: false,
+			legged: false,
+		},
+		ankles: {
+			layered: false,
+			legged: true,
+		},
+	},
+});

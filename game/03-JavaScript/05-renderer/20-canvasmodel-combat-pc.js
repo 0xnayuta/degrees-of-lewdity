@@ -329,6 +329,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleBreasts: {
@@ -341,6 +342,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleFeet: {
@@ -353,6 +355,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleLeftArm: {
@@ -365,6 +368,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleRightArm: {
@@ -377,6 +381,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleLeftLeg: {
@@ -389,6 +394,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleRightLeg: {
@@ -401,6 +407,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		tentacleOral: {
@@ -413,6 +420,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 72,
 		},
 		tentaclePenis: {
@@ -425,6 +433,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: CombatRenderer.indices.frontLowerOverwear + 1,
 		},
 		tentacleVagina: {
@@ -437,6 +446,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
+			filters: ["tentacles"],
 			z: 49,
 		},
 		/*

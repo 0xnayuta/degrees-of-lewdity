@@ -36,7 +36,7 @@
  * @property {number} blush The volume of blush on the player, higher is more. (1 to 5, usually)
  * @property {number} tears The volume of tears the player displays, higher is more. (1 to 5, usually)
  * @property {Partial<Record<ClothedSlots, ClothingState>>} clothes Template.
- * @property {object} filters The filters for layers.
+ * @property {Dict<Partial<CompositeLayerSpec>>} filters The filters for layers.
  * @property {Props} props
  * @property {Machines} machines
  * @property {Tentacles} tentacles
@@ -573,6 +573,11 @@ class PlayerCombatMapper {
 			};
 		}
 
+		options.filters.tentacles = {
+			blend: "#67006d",
+			blendMode: "hard-light",
+		};
+
 		const tentacles = {
 			mouth: getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" }),
 			breasts: getState(),
@@ -851,6 +856,32 @@ class PlayerCombatMapper {
 	 * @returns {ClothingState}
 	 */
 	static mapPcToClothingOption(slot, pc, options) {
+		if (!CombatRenderer.clothedSlots.includes(slot)) {
+			return {
+				item: CombatRenderer.emptyClothing,
+				slot,
+				name: "invalid",
+				positions: null,
+				state: "default",
+				show: false,
+				alpha: CombatRenderer.getAlpha(slot),
+				isSkirt: false,
+				isRaised: false,
+				isExposed: false,
+				isBoundable: false,
+				hasAccessory: false,
+				hasMainImg: false,
+				hasBackImg: false,
+				breasts: {
+					show: false,
+					size: 0,
+				},
+				sleeves: {
+					show: false,
+					state: "default",
+				},
+			};
+		}
 		const defaults = setup.clothes[slot][V.worn[slot].index];
 		const clothing = CombatRenderer.getClothingBySlot(slot);
 		const source = CombatRenderer.getSourceClothing(slot, defaults);
