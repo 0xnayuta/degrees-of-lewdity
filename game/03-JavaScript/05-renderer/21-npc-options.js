@@ -555,31 +555,31 @@ class NpcCombatMapper {
 					};
 				case "blue":
 					return {
-						blend: "#00f",
+						blend: "#4372ff",
 						blendMode: "multiply",
 						desaturate: true,
 					};
 				case "green":
 					return {
-						blend: "#0f0",
+						blend: "#38b20a",
 						blendMode: "multiply",
 						desaturate: true,
 					};
 				case "pink":
 					return {
-						blend: "#f0f",
+						blend: "#e40081",
 						blendMode: "multiply",
 						desaturate: true,
 					};
 				case "purple":
 					return {
-						blend: "#a0f",
+						blend: "#aa4bc8",
 						blendMode: "multiply",
 						desaturate: true,
 					};
 				case "red":
 					return {
-						blend: "#f00",
+						blend: "#ec3535",
 						blendMode: "multiply",
 						desaturate: true,
 					};
