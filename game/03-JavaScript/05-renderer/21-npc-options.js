@@ -44,7 +44,7 @@
  * @property {string} hex
  */
 
-const beastModels = ["bear", "boar", "cat", "creature", "dog", "dolphin", "fox", "horse", "lizard", "pig", "wolf"];
+const beastModels = ["bear", "boar", "cat", "creature", "dog", "dolphin", "fox", "horse", "centaur", "lizard", "pig", "wolf"];
 
 class NpcCombatMapper {
 	/** @returns {NpcOptions} */
@@ -77,7 +77,7 @@ class NpcCombatMapper {
 		// Maybe use active_enemy? const index = V.active_enemy.
 		const npc = V.NPCList[index];
 		options.category = beastModels.includes(npc.type) ? "beast" : "shadow";
-		options.type = npc.type;
+		options.type = npc.type === "centaur" ? "horse" : npc.type;
 		options.state = null;
 		options.show = false;
 
@@ -436,7 +436,7 @@ class NpcCombatMapper {
 	 * @returns {boolean}
 	 */
 	static isOverPositioned(npc, penetrator) {
-		if (npc.type === "horse") {
+		if (["horse", "centaur"].includes(npc.type)) {
 			return true;
 		}
 		if (penetrator?.position && ["vagina", "butt", "anus", "thighs"].includes(penetrator.position)) {
@@ -509,7 +509,7 @@ class NpcCombatMapper {
 		if (this.hasOverSprite(options.position, configuration) && this.isOverPositioned(npc, penetrator)) {
 			options.drool.show = ["pig", "boar"].includes(npc.type) && this.isOverPositioned(npc, penetrator);
 			options.show = true;
-			options.state = npc.type === "horse" && penetrator?.state === "penetrating" ? "over-penetrated" : "over";
+			options.state = ["horse", "centaur"].includes(npc.type) && penetrator?.state === "penetrating" ? "over-penetrated" : "over";
 			return options;
 		}
 

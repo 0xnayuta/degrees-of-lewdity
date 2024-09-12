@@ -1,5 +1,5 @@
 // @ts-check
-/* globals FilterMap, CompositeLayerSpec, SpritePositions, Condom, CondomOptions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions */
+/* globals FilterMap, CompositeLayerSpec, SpritePositions, Condom, CondomOptions, Partial, ClothedSlots, ClothingState, PositionStates, TransformationKeys, Transformations, CombatClothingTypes, CombatPlayerOptions, CharacterTypes */
 
 /**
  * @typedef CombatZIndices
@@ -51,6 +51,46 @@
  */
 
 class CombatRenderer {
+	/** @returns {CharacterTypes[]} */
+	static get npcTypes() {
+		return [
+			"human",
+			"wolfboy",
+			"wolfgirl",
+			"bearboy",
+			"beargirl",
+			"pigboy",
+			"piggirl",
+			"catboy",
+			"catgirl",
+			"dolphinboy",
+			"dolphingirl",
+			"lizardboy",
+			"lizardgirl",
+			"cowgirl",
+			"bullboy",
+			"foxboy",
+			"foxgirl",
+			"dog",
+			"cat",
+			"pig",
+			"bull",
+			"wolf",
+			"dolphin",
+			"lizard",
+			"bear",
+			"boar",
+			"creature",
+			"horse",
+			"centaur",
+			"fox",
+			"hawk",
+			"harpy",
+			"cow",
+			"spider",
+		];
+	}
+
 	/** @returns {ClothedSlots[]} */
 	static get clothedSlots() {
 		return [
