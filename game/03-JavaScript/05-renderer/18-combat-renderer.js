@@ -283,9 +283,13 @@ class CombatRenderer {
 			// @ts-ignore
 			filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
 		}
-		Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
 
-		return filter;
+		const prefilter = setup.colours.sprite_prefilters[prefilterName];
+		if (prefilter == null) {
+			return filter;
+		}
+
+		return Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
 	}
 
 	/**
@@ -316,13 +320,19 @@ class CombatRenderer {
 	/** @returns {string} */
 	static getHairSideType() {
 		const style = setup.hairstyles.sides.find(hs => hs.variable === V.hairtype);
+		if (style == null) {
+			return V.hairtype;
+		}
 		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
 		return isAlt ? style.alt : V.hairtype;
 	}
 
 	/** @returns {string} */
 	static getHairFringeType() {
-		const style = setup.hairstyles.fringe.find(hs => hs.variable === V.hairtype);
+		const style = setup.hairstyles.fringe.find(hs => hs.variable === V.fringetype);
+		if (style == null) {
+			return V.fringetype;
+		}
 		const isAlt = style.alt_head_type?.includes(setup.clothes.head[clothesIndex("head", V.worn.head)].head_type);
 		return isAlt ? style.alt : V.fringetype;
 	}
