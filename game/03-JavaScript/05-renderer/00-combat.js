@@ -72,7 +72,7 @@ class CombatSystem {
 	}
 
 	isRapid() {
-		return this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
+		return this.anyEjaculating() || this.isVaginaPenetrated() || this.isAnusPenetrated() || this.isMouthPenetrated() || this.isPenisPenetrated();
 	}
 
 	anyEjaculating() {
