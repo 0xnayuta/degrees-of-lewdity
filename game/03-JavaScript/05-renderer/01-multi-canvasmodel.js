@@ -35,6 +35,7 @@ class MultiCanvasModel {
 		};
 		this.layers = [];
 		this.canvas = model.createCanvas(!isAnimated);
+		this.animatingCanvas = null;
 		this.width = model.width;
 		this.height = model.height;
 		this.animated = isAnimated;
@@ -97,10 +98,10 @@ class MultiCanvasModel {
 			return;
 		}
 		if (this.animated) {
-			return Renderer.animateLayers(this.canvas, this.compile(), this.listener, true);
-		} else {
-			return Renderer.composeLayers(this.canvas, this.compile(), this.canvas.canvas.width / this.width, this.listener);
+			this.animatingCanvas = Renderer.animateLayers(this.canvas, this.compile(), this.listener, true);
+			return;
 		}
+		return Renderer.composeLayers(this.canvas, this.compile(), this.canvas.canvas.width / this.width, this.listener);
 	}
 
 	reset() {
@@ -119,6 +120,14 @@ class MultiCanvasModel {
 	refresh() {
 		this.reset();
 		this.redraw();
+	}
+
+	refreshAnimation() {
+		if (this.animatingCanvas == null) {
+			return;
+		}
+		this.animatingCanvas.invalidateCaches();
+		this.animatingCanvas.redraw();
 	}
 }
 // @ts-ignore
