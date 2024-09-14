@@ -793,7 +793,7 @@ Renderer.CanvasModels.main = {
 		if (options.worn.handheld.setup.type.includes("rainproof")) {
 			options.handheld_overhead = true;
 			if (options.angel_halo_type === "default") options.angel_halo_lower = true;
-		} else if (["balloon", "heart balloon", "paper fan", "torch"].includes(options.worn.handheld.setup.name)) {
+		} else if (["balloon", "heart balloon", "paper fan", "torch", "forearm crutch", "cane"].includes(options.worn.handheld.setup.name)) {
 			options.handheld_overhead = true;
 			options.angel_halo_lower = false;
 		} else {
@@ -2546,7 +2546,7 @@ Renderer.CanvasModels.main = {
 			dxfn(options) {
 				if (options.arm_right === "cover" || options.handheld_position === "right_cover") return 4;
 				return 0;
-			},			
+			},
 			zfn(options) {
 				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover + 0.1 : ZIndices.armsidle + 0.1;
 			},
@@ -3370,7 +3370,11 @@ Renderer.CanvasModels.main = {
 					&& options.worn.under_lower.setup.accessory === 1;
 			},
 		}),
-		"under_lower_acc": genlayer_clothing_accessory('under_lower'),
+		"under_lower_acc": genlayer_clothing_accessory("under_lower", {
+			masksrcfn(options) {
+				return options.belly_mask_under_clip_src;
+			},
+		}),
 		"under_lower_penis": {
 			z: ZIndices.under_lower_top,
 			filters: ["worn_under_lower"],
