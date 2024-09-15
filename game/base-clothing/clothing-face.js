@@ -302,6 +302,9 @@ function initFace() {
 			name: "half moon glasses",
 			name_cap: "Half moon glasses",
 			variable: "halfmoon",
+			combat: {
+				accessory: false,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 20,
