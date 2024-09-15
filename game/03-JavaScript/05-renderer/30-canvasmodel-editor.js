@@ -6,7 +6,7 @@ class CombatEditor {
 		const fragment = document.createDocumentFragment();
 
 		const para = document.createElement("div");
-		para.classList.add("mytest");
+		para.classList.add("d-flex", "flex-row", "p-1", "gap-1");
 		para.append(
 			this.createButton("Refresh Combat", () => {
 				CombatEditor.recompileCombatCanvas();
