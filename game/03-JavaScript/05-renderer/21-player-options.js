@@ -1595,7 +1595,7 @@ class PlayerCombatMapper {
 		options.filters.hair = CombatRenderer.getHairFilter();
 		options.filters.fringe = CombatRenderer.getFringeFilter();
 		options.hairLength = V.hairlengthstage;
-		options.hairType = CombatRenderer.getHairFringeType();
+		options.hairType = CombatRenderer.getFringeType();
 	}
 }
 window.PlayerCombatMapper = PlayerCombatMapper;

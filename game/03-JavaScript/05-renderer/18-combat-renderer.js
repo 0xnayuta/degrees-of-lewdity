@@ -602,7 +602,16 @@ class CombatRenderer {
 		if (V.fringetype === "mohawk" && V.worn.head.mask_img === 1) {
 			return "short";
 		}
-		return V.fringetype;
+		if (V.fringetype === "buzzcut") {
+			return "buzzcut";
+		}
+		if (V.hairtype === "short") {
+			return "short";
+		}
+		if (V.hairtype === "layered bob") {
+			return V.hairtype;
+		}
+		return "default";
 	}
 
 	/**
