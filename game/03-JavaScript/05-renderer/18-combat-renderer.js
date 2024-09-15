@@ -215,7 +215,7 @@ class CombatRenderer {
 			case "catgirl":
 				return "cat";
 			case "pigboy":
-				return "pig";
+				return "boar";
 			case "piggirl":
 				return "pig";
 			case "wolfboy":
