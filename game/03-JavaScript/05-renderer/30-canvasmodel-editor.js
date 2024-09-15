@@ -6,14 +6,15 @@ class CombatEditor {
 		const fragment = document.createDocumentFragment();
 
 		const para = document.createElement("div");
-		para.classList.add("d-flex", "flex-row", "p-1", "gap-1");
+		para.classList.add("d-flex", "flex-row", "p-1", "gap-1", "justify-content-end");
 		para.append(
-			this.createButton("Refresh Combat", () => {
+			CombatEditor.createButtonAsIcon("./img/ui/reload.png", "Reload", () => {
 				CombatEditor.recompileCombatCanvas();
 			})
 		);
+
 		para.append(
-			this.createButton("Refresh Animation", () => {
+			CombatEditor.createButtonAsIcon("./img/ui/refresh.png", "Refresh", () => {
 				CombatEditor.refreshCombatCanvas();
 			})
 		);
@@ -111,6 +112,24 @@ class CombatEditor {
 		}
 		fragment.append(dialog);
 		return fragment;
+	}
+
+	/**
+	 * @param {string} src
+	 * @param {string} title
+	 * @param {function():void} callback
+	 */
+	static createButtonAsIcon(src, title, callback) {
+		const button = document.createElement("button");
+		button.classList.add("btn", "btn-info", "btn-icon");
+		button.title = title;
+		const icon = document.createElement("img");
+		icon.src = src;
+		button.append(icon);
+		button.addEventListener("click", function () {
+			callback();
+		});
+		return button;
 	}
 
 	/**
