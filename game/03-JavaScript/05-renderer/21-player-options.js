@@ -1593,27 +1593,9 @@ class PlayerCombatMapper {
 	 */
 	static generateHairFilters(options) {
 		options.filters.hair = CombatRenderer.getHairFilter();
-
-		if (V.hairFringeColourStyle === "simple") {
-			options.filters.fringe = CombatRenderer.lookupColour(
-				setup.colours.hair_map,
-				V.hairfringecolour || V.haircolour,
-				"hair_fringe",
-				"hair_fringe_custom",
-				"hair_fringe"
-			);
-		} else {
-			options.filters.fringe = CombatRenderer.createHairColourGradient(
-				"fringe",
-				V.hairFringeColourGradient || V.hairColourGradient,
-				CombatRenderer.getHairFringeType(),
-				hairLengthStringToNumber(V.fringelengthstage),
-				"fringe"
-			);
-		}
-
+		options.filters.fringe = CombatRenderer.getFringeFilter();
 		options.hairLength = V.hairlengthstage;
-		options.hairType = "default";
+		options.hairType = CombatRenderer.getHairFringeType();
 	}
 }
 window.PlayerCombatMapper = PlayerCombatMapper;

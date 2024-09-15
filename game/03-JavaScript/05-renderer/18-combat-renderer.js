@@ -580,6 +580,32 @@ class CombatRenderer {
 	}
 
 	/**
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getFringeFilter() {
+		if (V.hairFringeColourStyle === "simple") {
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.hairfringecolour || V.haircolour, "hair_fringe", "hair_fringe_custom", "hair_fringe");
+		}
+		return CombatRenderer.createHairColourGradient(
+			"fringe",
+			V.hairFringeColourGradient || V.hairColourGradient,
+			CombatRenderer.getHairFringeType(),
+			hairLengthStringToNumber(V.fringelengthstage),
+			"fringe"
+		);
+	}
+
+	static getFringeType() {
+		if (V.fringetype === "wide flaps") {
+			return "wide_flaps";
+		}
+		if (V.fringetype === "mohawk" && V.worn.head.mask_img === 1) {
+			return "short";
+		}
+		return V.fringetype;
+	}
+
+	/**
 	 * @param {TransformationKeys} transformation
 	 * @param {"wings" | "halo" | "horns" | "ears" | "tail" | "eyes" | "cheeks" | "malar" | "pubes" | "plumage"} part
 	 * @returns {Partial<CompositeLayerSpec>}
