@@ -206,9 +206,6 @@ function initUpper() {
 			name: "t-shirt",
 			name_cap: "T-shirt",
 			variable: "tshirt",
-			combat: {
-				reference: "sundress",
-			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 20,
