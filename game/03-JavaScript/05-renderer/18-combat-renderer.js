@@ -205,6 +205,51 @@ class CombatRenderer {
 	}
 
 	/**
+	 * @param {Npc} npc
+	 * @returns {CharacterTypes}
+	 */
+	static getUnderlyingNpcType(npc) {
+		switch (npc.type) {
+			case "catboy":
+				return "cat";
+			case "catgirl":
+				return "cat";
+			case "pigboy":
+				return "pig";
+			case "piggirl":
+				return "pig";
+			case "wolfboy":
+				return "wolf";
+			case "wolfgirl":
+				return "wolf";
+			case "bearboy":
+				return "bear";
+			case "beargirl":
+				return "bear";
+			case "dolphinboy":
+				return "dolphin";
+			case "dolphingirl":
+				return "dolphin";
+			case "lizardboy":
+				return "lizard";
+			case "lizardgirl":
+				return "lizard";
+			case "cowgirl":
+				return "human";
+			case "bullboy":
+				return "human";
+			case "foxboy":
+				return "fox";
+			case "foxgirl":
+				return "fox";
+			case "centaur":
+				return "horse";
+			default:
+				return npc.type;
+		}
+	}
+
+	/**
 	 * @param {0 | "doggy" | "missionary" | "wall" | "stalk"} position
 	 */
 	static getPosition(position) {

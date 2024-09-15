@@ -77,7 +77,7 @@ class NpcCombatMapper {
 		// Maybe use active_enemy? const index = V.active_enemy.
 		const npc = V.NPCList[index];
 		options.category = beastModels.includes(npc.type) ? "beast" : "shadow";
-		options.type = npc.type === "centaur" ? "horse" : npc.type;
+		options.type = CombatRenderer.getUnderlyingNpcType(npc);
 		options.state = null;
 		options.show = false;
 
