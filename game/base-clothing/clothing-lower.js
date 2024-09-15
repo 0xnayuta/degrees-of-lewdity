@@ -4724,6 +4724,7 @@ function initLower() {
 			variable: "plasticnurse",
 			combat: {
 				reference: "sundress",
+				mainColour: "#ff8c91",
 			},
 			integrity: 120,
 			integrity_max: 120,

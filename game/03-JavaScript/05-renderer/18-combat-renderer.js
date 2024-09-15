@@ -564,6 +564,22 @@ class CombatRenderer {
 	}
 
 	/**
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getHairFilter() {
+		if (V.hairColourStyle === "simple") {
+			return CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
+		}
+		return CombatRenderer.createHairColourGradient(
+			"sides",
+			V.hairColourGradient,
+			CombatRenderer.getHairSideType(),
+			hairLengthStringToNumber(V.hairlengthstage),
+			"hair"
+		);
+	}
+
+	/**
 	 * @param {TransformationKeys} transformation
 	 * @param {"wings" | "halo" | "horns" | "ears" | "tail" | "eyes" | "cheeks" | "malar" | "pubes" | "plumage"} part
 	 * @returns {Partial<CompositeLayerSpec>}
@@ -573,6 +589,9 @@ class CombatRenderer {
 		const defaults = Transformations.defaults[transformation] || {
 			colour: { h: 0, s: 100, l: 30 },
 		};
+		if (transformation === "wolf" && ["ears", "tail"].includes(part)) {
+			return CombatRenderer.getHairFilter();
+		}
 		return {
 			blend: ColourUtils.toHslString(active[part + "_colour"], ColourUtils.toHslString(defaults.colour)),
 			blendMode: "hard-light",

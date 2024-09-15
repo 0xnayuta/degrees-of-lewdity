@@ -1592,17 +1592,7 @@ class PlayerCombatMapper {
 	 * @param {CombatPlayerOptions} options
 	 */
 	static generateHairFilters(options) {
-		if (V.hairColourStyle === "simple") {
-			options.filters.hair = CombatRenderer.lookupColour(setup.colours.hair_map, V.haircolour, "hair", "hair_custom", "hair");
-		} else {
-			options.filters.hair = CombatRenderer.createHairColourGradient(
-				"sides",
-				V.hairColourGradient,
-				CombatRenderer.getHairSideType(),
-				hairLengthStringToNumber(V.hairlengthstage),
-				"hair"
-			);
-		}
+		options.filters.hair = CombatRenderer.getHairFilter();
 
 		if (V.hairFringeColourStyle === "simple") {
 			options.filters.fringe = CombatRenderer.lookupColour(
