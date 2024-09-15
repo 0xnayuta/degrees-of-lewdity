@@ -1534,6 +1534,9 @@ function initHead() {
 			name: "plastic nurse hat",
 			name_cap: "Plastic nurse hat",
 			variable: "plasticnurse",
+			combat: {
+				mainColour: "#ff8c91",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 50,
