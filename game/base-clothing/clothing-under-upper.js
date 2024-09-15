@@ -593,6 +593,9 @@ function initUnderUpper() {
 			name: "plain bra",
 			name_cap: "Plain bra",
 			variable: "plainbra",
+			combat: {
+				hasBreasts: true,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
