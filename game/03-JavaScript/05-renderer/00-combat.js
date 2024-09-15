@@ -83,6 +83,9 @@ class CombatSystem {
 	}
 
 	isActive() {
+		if (this.isRapid()) {
+			return true;
+		}
 		if (V.NPCList.some(a => ["horse", "centaur", "pig", "boar"].includes(a.type) && a.active)) {
 			return true;
 		}
