@@ -60,7 +60,7 @@ const combatMainPc = {
 			animationfn(options) {
 				return options.animKey;
 			},
-			z: 100,
+			z: CombatRenderer.indices.near,
 		},
 		/*
 		 *    ██████  ██████   ██████  ██████  ███████

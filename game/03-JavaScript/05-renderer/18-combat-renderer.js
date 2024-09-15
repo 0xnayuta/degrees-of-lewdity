@@ -624,7 +624,10 @@ class CombatRenderer {
 		const defaults = Transformations.defaults[transformation] || {
 			colour: { h: 0, s: 100, l: 30 },
 		};
-		if (transformation === "wolf" && ["ears", "tail"].includes(part)) {
+		if (transformation === "bird" && ["tail", "wings", "malar", "plumage", "pubes"].includes(part)) {
+			return CombatRenderer.getHairFilter();
+		}
+		if (["cat", "wolf"].includes(transformation) && ["ears", "tail"].includes(part)) {
 			return CombatRenderer.getHairFilter();
 		}
 		return {
