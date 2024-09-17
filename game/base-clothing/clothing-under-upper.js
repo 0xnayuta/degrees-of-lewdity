@@ -65,7 +65,7 @@ function initUnderUpper() {
 			name_cap: "Bikini top",
 			variable: "bikini",
 			combat: {
-				reference: "plainbra",
+				hasBreasts: true,
 			},
 			integrity: 30,
 			integrity_max: 30,
@@ -1155,7 +1155,7 @@ function initUnderUpper() {
 			name_cap: "School swim top",
 			variable: "schoolswimtop",
 			combat: {
-				reference: "swimshirt",
+				reference: "bikini",
 			},
 			integrity: 50,
 			integrity_max: 50,

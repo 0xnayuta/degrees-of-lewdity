@@ -87,7 +87,7 @@ function initLegs() {
 			name_cap: "Boy's gym socks",
 			variable: "boysgymsocks",
 			combat: {
-				renderType: "ankled",
+				renderType: "thighhighs",
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -121,7 +121,7 @@ function initLegs() {
 			name_cap: "Girl's gym socks",
 			variable: "girlsgymsocks",
 			combat: {
-				renderType: "ankled",
+				renderType: "thighhighs",
 			},
 			integrity: 100,
 			integrity_max: 100,

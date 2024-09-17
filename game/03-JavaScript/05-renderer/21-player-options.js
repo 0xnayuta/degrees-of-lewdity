@@ -975,7 +975,7 @@ class PlayerCombatMapper {
 	static hasBreasts(source) {
 		// Has combat.hasSleeves property
 		if (source.combat == null || source.combat.hasBreasts == null) {
-			return !!source.sleeve_img;
+			return !!source.breast_img;
 		}
 		return source.combat.hasBreasts;
 	}
