@@ -63,6 +63,31 @@ const combatMainPc = {
 			z: CombatRenderer.indices.near,
 		},
 		/*
+		 *    ██    ██  ██████  ██████  ███████
+		 *    ██    ██ ██    ██ ██   ██ ██
+		 *    ██    ██ ██    ██ ██████  █████
+		 *     ██  ██  ██    ██ ██   ██ ██
+		 *      ████    ██████  ██   ██ ███████
+		 */
+		voreBack: {
+			srcfn(options) {
+				return `${options.src}vore/back-${options.vore.stage}.png`;
+			},
+			showfn(options) {
+				return !!options.vore.show;
+			},
+			z: CombatRenderer.indices.far,
+		},
+		voreFront: {
+			srcfn(options) {
+				return `${options.src}vore/front-${options.vore.stage}.png`;
+			},
+			showfn(options) {
+				return !!options.vore.show;
+			},
+			z: CombatRenderer.indices.near,
+		},
+		/*
 		 *    ██████  ██████   ██████  ██████  ███████
 		 *    ██   ██ ██   ██ ██    ██ ██   ██ ██
 		 *    ██████  ██████  ██    ██ ██████  ███████

@@ -87,6 +87,9 @@ declare module "twine-sugarcube" {
 		 */
 		masturbation_bowl: string;
 
+		/* Vore stuff */
+		vorestage: number;
+
 		/* Player states */
 
 		lactating: 0 | 1;

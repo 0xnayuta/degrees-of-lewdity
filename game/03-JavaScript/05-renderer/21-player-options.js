@@ -42,6 +42,13 @@
  * @property {Tentacles} tentacles
  * @property {BodywritingOptions} bodywriting
  * @property {Dict<TransformationOptions>} transformations
+ * @property {Vore} vore
+ */
+
+/**
+ * @typedef Vore
+ * @property {number} stage
+ * @property {boolean} show
  */
 
 /**
@@ -254,6 +261,10 @@ class PlayerCombatMapper {
 			skinType: "light",
 			tears: 0,
 			transformations: {},
+			vore: {
+				stage: 0,
+				show: false,
+			},
 		};
 	}
 
@@ -324,6 +335,10 @@ class PlayerCombatMapper {
 
 		// Set tentacles
 		this.mapToTentacleOptions(options);
+
+		// Vore stuff
+		options.vore.show = options.position === "doggy" && V.vorestage > 0 && V.vorestage <= 7;
+		options.vore.stage = V.vorestage || 0;
 
 		// Set animation speed
 		options.animKey = this.getPcAnimation(options);
