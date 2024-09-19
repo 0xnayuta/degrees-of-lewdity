@@ -87,6 +87,15 @@ declare module "twine-sugarcube" {
 				use: string;
 			};
 		};
+		tentacleColour:
+			| "tentacles-blue"
+			| "tentacles-vines"
+			| "tentacles-roots"
+			| "tentacles-red"
+			| "tentacles-purple"
+			| "tentacles-peach"
+			| "tentacles-wraith"
+			| "tentacles-wraith-penetrated";
 		tentacles: {
 			0?: TentacleState;
 			1?: TentacleState;

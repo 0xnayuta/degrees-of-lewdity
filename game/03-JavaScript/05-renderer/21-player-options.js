@@ -588,10 +588,7 @@ class PlayerCombatMapper {
 			};
 		}
 
-		options.filters.tentacles = {
-			blend: "#67006d",
-			blendMode: "hard-light",
-		};
+		options.filters.tentacles = PlayerCombatMapper.getTentacleFilter();
 
 		const tentacles = {
 			mouth: getState({ mouthentrance: "oral-entrance" }, { mouthimminent: "oral-imminent" }, { mouth: "oral" }),
@@ -630,6 +627,61 @@ class PlayerCombatMapper {
 		}
 		options.tentacles = tentacles;
 		return options;
+	}
+
+	/**
+	 * @returns {Partial<CompositeLayerSpec>}
+	 */
+	static getTentacleFilter() {
+		switch (V.tentacleColour) {
+			case "tentacles-blue":
+				return {
+					blend: "#1431dc",
+					blendMode: "hard-light",
+				};
+			case "tentacles-vines":
+				return {
+					blend: "#18a058",
+					blendMode: "hard-light",
+				};
+			case "tentacles-roots":
+				return {
+					blend: "#8d4d19",
+					blendMode: "hard-light",
+				};
+			case "tentacles-red":
+				return {
+					blend: "#d80e04",
+					blendMode: "hard-light",
+				};
+			case "tentacles-purple":
+				return {
+					blend: "#b509a8",
+					blendMode: "hard-light",
+				};
+			case "tentacles-peach":
+				return {
+					blend: "#e67056",
+					blendMode: "hard-light",
+				};
+			case "tentacles-wraith":
+				return {
+					blend: "#bbb",
+					blendMode: "hard-light",
+					alpha: 0.6,
+				};
+			case "tentacles-wraith-penetrated":
+				return {
+					blend: "#bbb",
+					blendMode: "hard-light",
+					alpha: 0.6,
+				};
+			default:
+				return {
+					blend: "#67006d",
+					blendMode: "hard-light",
+				};
+		}
 	}
 
 	/**
