@@ -1090,6 +1090,34 @@ function effects() {
 		}
 	}
 
+	if (V.slimeVibrationStarted) {
+		sWikifier(`<span class="pink">With a sudden buzz, the parasite <<if $earSlime.focus isnot "pregnancy">> penis<</if>> around your ${V.parasite.penis.name ? "penis" : "clit"} starts vibrating.</span> <<arousal 1000 "genitals">><<ggarousal>><br>`);
+		V.slimeVibrationStarted = false;
+	}
+	if (!V.masturbating) {
+		if (V.earSlime.vibration > 0 && random(1, Math.max(20 - V.lastStimulationPulse, 0)) == 1 && V.lastStimulationPulse > 3) {
+			sWikifier(`<span class="pink">The vibrations coursing through your ${V.parasite.penis.name ? "penis" : "clit"} suddenly intensify, sending a jolt of pleasure coursing through your body.</span> <<arousal 1000 "genitals">><<ggarousal>><br>`);
+			V.lastStimulationPulse = 0;
+		}
+		if (playerHasButtPlug() && random(1, Math.max(40 - V.lastStimulationPulse), 0) == 1 && V.lastStimulationPulse > 5) {
+			sWikifier(`<span class="pink">Your butt plug suddenly shifts inside you as you move!</span> <<arousal 500>><<garousal>><br>`);
+			V.lastStimulationPulse = 0;
+		}
+		if (V.parasite.nipples.name && random(1, Math.max(40 - V.lastStimulationPulse), 0) == 1 && V.lastStimulationPulse > 5) {
+			sWikifier(`<span class="pink">The ${V.parasite.nipples.name} parasites around your nipples suddenly clamp down and tweaks them.</span> <<arousal 500 "breasts">><<garousal>><br>`);
+			V.lastStimulationPulse = 0;
+		}
+		if (V.parasite.penis.name && random(1, Math.max(40 - V.lastStimulationPulse), 0) == 1 && V.lastStimulationPulse > 5) {
+			sWikifier(`<span class="pink">The ${V.parasite.penis.name} parasite around your penis sucks down intensely without warning.</span> <<arousal 500 "genitals">><<garousal>><br>`);
+			V.lastStimulationPulse = 0;
+		}
+		if (V.parasite.clit.name && random(1, Math.max(40 - V.lastStimulationPulse), 0) == 1 && V.lastStimulationPulse > 5) {
+			sWikifier(`<span class="pink">The ${V.parasite.clit.name} parasite around your clit massages it strongly without warning.</span> <<arousal 500 "genitals">><<garousal>><br>`);
+			V.lastStimulationPulse = 0;
+		}
+		V.lastStimulationPulse += 1;
+	}
+
 	sWikifier("<<integritycheck>><<exposure>>");
 
 	V.orgasmdown -= 1;
