@@ -1896,25 +1896,41 @@ function getArousal(passMinutes) {
 	const minuteMultiplier = passMinutes * 10;
 	let addedArousal = 0;
 
-	if (V.penilechastityparasite) addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
-	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
-	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
-	if (V.analchastityparasite) addedArousal += minuteMultiplier;
-	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;
-	if (V.parasite.left_arm.name) addedArousal += minuteMultiplier;
-	if (V.parasite.right_arm.name) addedArousal += minuteMultiplier;
-	if (V.parasite.left_thigh.name) addedArousal += minuteMultiplier;
-	if (V.parasite.right_thigh.name) addedArousal += minuteMultiplier;
-	if (V.drugged > 1) addedArousal += minuteMultiplier;
-	if (playerHasButtPlug()) addedArousal += minuteMultiplier;
+	// We do this in Javascript instead of Twee because it's a fairly complicated procedure.
+	let passiveArousalSources = [];
+	let passiveArousalSourceTier = 10000;
+	function addPassiveArousal(source, tier, multiplier, total) {
+		if (tier < passiveArousalSourceTier) {
+			passiveArousalSources = [source];
+			passiveArousalSourceTier = tier;
+		} else {
+			passiveArousalSources.push(source);
+		}
+
+		if (multiplier === undefined) multiplier = 1.0;
+		if (total === undefined) total = minuteMultiplier;
+		addedArousal += total;
+	}
+
+	if (V.penilechastityparasite) addPassiveArousal("chastityparasite", 1, V.genitalsensitivity);
+	if (V.vaginalchastityparasite) addPassiveArousal("chastityparasite", 1, V.genitalsensitivity);
+	if (V.parasite.nipples.name) addPassiveArousal("nipplesparasite", 2, V.breastsensitivity);
+	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addPassiveArousal("penisparasite", 2, V.genitalsensitivity);
+	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addPassiveArousal("clitparasite", 2, V.genitalsensitivity);
+	if (V.parasite.bottom.name) addPassiveArousal("parasite", 4, V.bottomsensitivity);
+	if (V.analchastityparasite) addPassiveArousal("chastityparasite", 1);
+	if (V.parasite.tummy.name) addPassiveArousal("parasite", 4, 1.25);
+	if (V.parasite.left_arm.name) addPassiveArousal("parasite", 4);
+	if (V.parasite.right_arm.name) addPassiveArousal("parasite", 4);
+	if (V.parasite.left_thigh.name) addPassiveArousal("parasite", 4);
+	if (V.parasite.right_thigh.name) addPassiveArousal("parasite", 4);
+	if (V.drugged > 1) addPassiveArousal("drugs", 3);
+	if (playerHasButtPlug()) addPassiveArousal("buttPlug", 3);
 	if (V.parasite.left_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
 	if (V.parasite.right_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
 	if (V.earSlime.growth > 100 && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
 
+	V.slimeVibrationStarted = false;
 	if (
 		V.worn.genitals.name === "chastity parasite" ||
 		(V.parasite.penis.name && V.parasite.penis.name === "parasite") ||
@@ -1926,6 +1942,7 @@ function getArousal(passMinutes) {
 				if (V.earSlime.lastVibration > random(240, 720)) {
 					V.earSlime.vibration = random(60, 120);
 					V.earSlime.lastVibration = 0;
+					V.slimeVibrationStarted = true;
 				}
 			}
 			if (V.earSlime.defyCooldown) {
@@ -1935,7 +1952,7 @@ function getArousal(passMinutes) {
 					V.penisgrowthtimer += Math.floor(Math.clamp(passMinutes / 8, 0, (passMinutes * 60) / V.earSlime.defyCooldown));
 				}
 			} else if (V.earSlime.vibration > 0) {
-				addedArousal += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * V.genitalsensitivity;
+				addPassiveArousal("slimeVibration", 0, V.genitalsensitivity, Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40));
 				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
 				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
 			}
@@ -1944,6 +1961,9 @@ function getArousal(passMinutes) {
 		V.earSlime.vibration = 0;
 		V.earSlime.lastVibration = 0;
 	}
+
+	if (passiveArousalSources.length == 0) V.passiveStimulationSource = "spontaneous";
+	else V.passiveStimulationSource = passiveArousalSources[random(0, passiveArousalSources.length - 1)];
 
 	return addedArousal;
 }
