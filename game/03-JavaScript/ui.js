@@ -368,7 +368,7 @@ function settingsGenericGenders(id) {
 					text = `<span class='gold inline-colour'>No</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>all</span> <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 				case 0:
-					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be  ${attraction}.`;
+					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 				default:
 					text = `<span class='gold inline-colour'>${
@@ -929,3 +929,49 @@ function moneyStatsProcess(stats) {
 	return [keys, stats, total];
 }
 window.moneyStatsProcess = moneyStatsProcess;
+
+// Adds the drunk/jitter css effects to the first link behind the element with the drunk/jitter effect.
+$(document).on(':passagedisplay', function () {
+	// Get all elements with .drunk-text or .jitter-text
+    let modifiedTexts = document.querySelectorAll('.drunk-text, .jitter-text');
+	console.log(modifiedTexts)
+
+	if (modifiedTexts) {
+		modifiedTexts.forEach((modifiedText) => {
+
+			// Don't waste any time checking if the element is on the characteristics page
+			if (modifiedText.classList.contains('characteristic-modifier')) {
+				return;
+			}
+			
+			// Find the class that matches the pattern, eg 'drunk-3' or 'jitter-2'
+			let classMatch = Array.from(modifiedText.classList).find(className => {
+				return className.match(/(drunk|jitter)-\d+/);
+			});
+
+			if (classMatch) {
+				let level = classMatch.split('-')[1];  // Get the number part of 'drunk-#' or 'jitter-#'
+
+				let previousElement = modifiedText.previousElementSibling;
+				let i = 0; 
+
+				// Finds the first link element and adds the class to it.
+				// For performance reasons, arbitrarily say that we only want to look 7 elements deep.
+				while (previousElement && i < 7) {
+					if (previousElement.hasAttribute('data-passage')) {
+						if (modifiedText.classList.contains('drunk-text')) {
+							previousElement.classList.add('drunk-text', `drunk-${level}`);
+						} else if (modifiedText.classList.contains('jitter-text')) {
+							previousElement.classList.add('jitter-text', `jitter-${level}`);
+						}
+
+						break;
+					}
+
+					previousElement = previousElement.previousElementSibling;
+					i++;
+				}
+			}
+		})
+	}
+});
