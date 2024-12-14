@@ -1,6 +1,9 @@
 export default {
-	"*.{js,cjs}": filenames => `eslint --cache --fix "${filenames.join('" "')}"`,
-	"*.css": "stylelint --fix",
+	"*.{js,cjs,mjs}": "eslint --cache --fix",
+	"*.css": [
+		"postcss --replace --no-map",
+		"stylelint --fix",
+	],
 	// Format other files with Prettier
-	"!(*.{js,cjs,css,yml})": "prettier --ignore-unknown --write",
+	"!(*.{js,cjs,mjs,css,yml})": "prettier --ignore-unknown --write",
 };
