@@ -253,28 +253,16 @@ module.exports = {
 		npcHasStrapon: "readonly",
 	},
 
-	ignorePatterns: [
-		"**/*.*",
-		"!**/*.js",
-		"!**/*.cjs",
-		// Format config file
-		"!.eslintrc.cjs",
-		"node_modules",
-		"devTools",
-		"dist",
-		"game/03-JavaScript/external",
-		"game/03-JavaScript/00-libs/renderer.js",
-	],
-
-	parserOptions: {
-		// Support back to ES2020 to cover old mobile devices with outdated WebView versions that fail on 2020 and up functions
-		sourceType: "module",
-	},
+	ignorePatterns: ["*.min.js", "node_modules", "devTools", "dist", "game/03-JavaScript/external", "game/03-JavaScript/00-libs/renderer.js"],
 
 	env: {
 		browser: true,
 		es2021: true,
 		jquery: true,
+	},
+
+	parserOptions: {
+		sourceType: "module",
 	},
 
 	plugins: ["es-x"],
