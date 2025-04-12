@@ -1,5 +1,6 @@
 :: Spa Work Start
 <<effects>><<timeTrackingStart "spa">>
+<<bindingValuesCheck>>
 
 You walk down a corridor behind reception, past thin windows opening onto the spa proper.
 <<if $daily.spaEvent is "party">>
@@ -9,10 +10,35 @@ You walk down a corridor behind reception, past thin windows opening onto the sp
 <</if>>
 <br><br>
 
-<<if $leftarm is "bound" or $rightarm is "bound">>
-	<<generate1>><<person1>>"You can't work like that," a passing member of staff laughs when <<he>> seems your arm bindings. "Here." <<He>> frees you.
+<<if _armbinds>>
+	<<generate1>><<person1>>
+		<<if $comfyBinding.includes("spa job")>>
+			<<if random(1, 10) gte 8>>
+				A member of staff passes by you. <<He>> smiles upon seeing you, then continues on <<his>> work.
+			<<elseif random(1, 10) gte 5>>
+				A member of staff passes by you. <<He>> blushes upon seeing you.
+			<<elseif random(1, 10) gte 2>>
+				A member of staff passes by you. <<He>> ignores you and continues on <<his>> work.
+			<<else>>
+				<<if random(1, 2) is 2>>
+					"Are you really going to work like that?" A passing member of staff laughs when <<he>> sees your arm bindings. "What a weirdo." <<gstress>><<stress 6>>
+					<br><br>
+					"Well, good luck anyway." <<He>> turns away and continues on <<his>> work.
+				<<else>>
+					"You can't work like that," a passing member of staff laughs when <<he>> sees your arm bindings. "Here, let me help you."
+					<br><br>
+					"No, you don't have to." Another member of staff stops <<him>>. "<<pShe>> can work just fine. Just leave <<phim>> be."
+					<br><br>
+					"But..." <<He>> tries to say more, but decides not to and leaves.
+					<br><br>
+					"Sorry about that, <<he>>'s new." The other staff says. "Can't be helped, though. Who would think someone would be working tied-up like you, after all."
+				<</if>>
+			<</if>>
+		<<else>>
+			"You can't work like that," a passing member of staff laughs when <<he>> sees your arm bindings. "Here." <<He>> frees you.
+			<<unbind>>
+		<</if>>
 	<br><br>
-	<<unbind>>
 	<<endevent>>
 <</if>>
 
@@ -32,35 +58,48 @@ You push a button under the table, informing reception that you're ready for the
 
 
 :: Spa Work Cute
-<<effects>>
+<<effects>><<bindingValuesCheck>>
 
 <<switch $spa.personality>>
 <<case hesitant>>
 	"That's right!" you say. "Just lie down, and I'll take care of the rest."
-	<<body_tip hand 0.3>>
+	<<if _armbinds>><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
 	<br><br>
 
-	The <<person>> lies down as instructed, while you rub oil on your hands. You get to work, <<handtext>> kneading <<his>> back.<<ghandskill>><<handskill 5>>
-	<br><br>
+	<<if _armbinds>>
+		The <<person>> lies down as instructed, while you rub oil on <<his>> body. You get to work, <<feettext>> kneading <<his>> back.<<gfeetskill>><<feetskill 5>>
+		<br><br>
+	<<else>>
+		The <<person>> lies down as instructed, while you rub oil on your feet. You get to work, <<handtext>> kneading <<his>> back.<<ghandskill>><<handskill 5>>
+		<br><br>
+	<</if>>
 
-	<<Hes>> tense, but that soon changes. <<Hes>> thankful at the end of the session. <<tipreceive>><<pass 50>>
+	<<Hes>> tense, but that soon changes. <<Hes>> thankful at the end of the session.<<tipreceive>><<pass 50>>
 	<br><br>
 
 	<<spa_end>>
 <<case tired>>
 	"You just relax," you say, rubbing oil between your hands. "I'll have-"
-	<<body_tip hand 0.1>>
+	<<if _armbinds>><<body_tip feet 0.1>><<else>><<body_tip hand 0.1>>	<</if>>
 	<br><br>
 	"Quiet," the <<person>> says. "I'm not paying you to talk."<<gstress>><<stress 6>>
 	<br><br>
 	<<spa_rob_options>>
 <<case rude>>
 	<<if $beauty gte 8000>>
-		"It's kind of you to say so," you say. "I hope you like what my hands can do too." <<body_tip hand 0.5>>
+		<<if _armbinds>>
+			"It's kind of you to say so," you say. "I hope you like what my feet can do too." <<body_tip feet 0.5>>
+			<br><br>
+			"A barefoot massage?" <<He>> seems intrigued. "Is that why you're like this? Interesting."
+			<br><br>
+		<<else>>
+			"It's kind of you to say so," you say. "I hope you like what my hands can do too." <<body_tip hand 0.5>>
+		<</if>>
 	<<else>>
-		"Hey!" you say. "Mind my feelings." <<body_tip hand 0.3>>
+		"Hey!" you say. "Mind my feelings." <<if _armbinds>><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
 	<</if>>
-	You get to work, your hands <<handtext>> rubbing oil onto <<his>> body.<<ghandskill>><<handskill 5>>
+	You get to work, your <<if _armbinds>>feet <<feettext>><<else>>hands <<handtext>><</if>> rubbing oil onto <<his>> body.
+	<<if _armbinds>><<gfeetskill>><<feetskill 5>><<else>><<ghandskill>><<handskill 5>><</if>>
 	<br><br>
 
 	<<He>> grumbles and complains about <<his>> job, <<his>> home life, and just about everything. <<He>> seems calmer by the time you're done.
@@ -124,7 +163,12 @@ You push a button under the table, informing reception that you're ready for the
 	<</if>>
 	<br><br>
 	<<if random(1, 2) is 2>>
-		<<He>> moans while you work, your hands <<handtext>> rubbing oil onto <<his>> back.<<ghandskill>><<handskill 5>>
+		<<He>> moans while you work, your <<if _armbinds>>feet <<feettext>><<else>>hands <<handtext>><</if>> rubbing oil onto <<his>> back.
+		<<if _armbinds>>
+			<<gfeetskill>><<feetskill 5>>
+		<<else>>
+			<<ghandskill>><<handskill 5>>
+		<</if>>
 		<br><br>
 		<<He>> rolls to face the ceiling toward the end of the session, resting <<his>> head in <<his>> hands. You avert your eyes.
 		<br><br>
@@ -141,57 +185,73 @@ You push a button under the table, informing reception that you're ready for the
 			<br>
 		<</if>>
 	<<else>>
-		<<body_tip hand 0.3>>
-		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.<<tipreceive>><<pass 50>><<ghandskill>><<handskill 5>>
+		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.
+		<<if _armbinds>>
+			<<gfeetskill>><<feetskill 5>><<body_tip feet 0.3>>
+		<<else>>
+			<<ghandskill>><<handskill 5>><<body_tip hand 0.3>>
+		<</if>>
+		<br>
+		<<tipreceive>><<pass 50>>
 		<br><br>
 		<<spa_end>>
 	<</if>>
 <<case polite>>
 	"I'm your masseur today," you say. "I hope I can make you comfy."
-	<<body_tip hand 0.5>>
 	<br><br>
 
-	You get the oil ready, and <<handtext>> knead the <<persons>> back. <<He>> seems happy to chat while you work.<<lstress>><<stress -6>><<ghandskill>><<handskill 5>>
+	You get the oil ready, and <<if _armbinds>><<feettext>><<else>><<handtext>><</if>> knead the <<persons>> back. <<He>> seems happy to chat while you work.<<lstress>><<stress -6>>
+		<<if _armbinds>>
+			<<gfeetskill>><<feetskill 5>><<body_tip feet 0.5>>
+		<<else>>
+			<<ghandskill>><<handskill 5>><<body_tip hand 0.5>>
+		<</if>>
 	<br><br>
 
 	<<He>> thanks you at the end of the session, and leaves a tip. <<tipreceive>><<pass 50>>
 	<br><br>
 
 	<<spa_end>>
-
 <</switch>>
 
 
 :: Spa Work Sophisticated
-<<effects>>
-
+<<effects>><<bindingValuesCheck>>
 
 <<switch $spa.personality>>
 <<case hesitant>>
 	"That's right <<sir>>," you say. "When you're ready."
-	<<body_tip hand 0.1>>
 	<br><br>
 
-	The <<person>> lies on <<his>> front, and you get to work, your hands <<handtext>> rubbing oil onto <<his>> back.<<ghandskill>><<handskill 5>>
+	The <<person>> lies on <<his>> front, and you get to work, your <<if _armbinds>>feet <<feettext>><<else>>hands <<handtext>><</if>> rubbing oil onto <<his>> back.
+		<<if _armbinds>>
+			<<gfeetskill>><<feetskill 5>><<body_tip feet 0.1>>
+		<<else>>
+			<<ghandskill>><<handskill 5>><<body_tip hand 0.1>>
+		<</if>>
 	<br><br>
 
 	<<He>> remains silent throughout the session, making it difficult to gauge how you're doing, but <<he>> does leave a tip. <<tipreceive>><<pass 50>>
 	<br><br>
 
 	<<spa_end>>
-
 <<case tired>>
-	<<Hes>> in no mood to talk, so you just get to work, <<handtext>> rubbing oil onto <<his>> body.
-	<<body_tip hand 0.3>>
+	<<Hes>> in no mood to talk, so you just get to work, <<if _armbinds>><<feettext>><<else>><<handtext>><</if>> rubbing oil onto <<his>> body.
+	<<if _armbinds>><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
 	<br><br>
 	<<spa_rob_options>>
 <<case rude>>
 	<<if $beauty gte 8000>>
-		"I'm glad you approve," you say. "Please relax." <<body_tip hand 0.5>>
+		"I'm glad you approve," you say. "Please relax." <<if _armbinds>><<body_tip feet 0.5>><<else>><<body_tip hand 0.5>><</if>>
 	<<else>>
-		"I'm sorry to disappoint," you say. "Please relax." <<body_tip hand 0.1>>
+		"I'm sorry to disappoint," you say. "Please relax." <<if _armbinds>><<body_tip feet 0.1>><<else>><<body_tip hand 0.1>><</if>>
 	<</if>>
-	You get to work, your hands <<handtext>> rubbing oil onto <<his>> body.<<ghandskill>><<handskill 5>>
+	You get to work, your <<if _armbinds>>feet <<feettext>><<else>>hands <<handtext>><</if>> rubbing oil onto <<his>> body.
+	<<if _armbinds>>
+		<<gfeetskill>><<feetskill 5>>
+	<<else>>
+		<<ghandskill>><<handskill 5>>
+	<</if>>
 	<br><br>
 
 	<<He>> grumbles and complains about <<his>> job, <<his>> home life, and just about everything. <<He>> seems calmer by the time you're done.
@@ -255,7 +315,7 @@ You push a button under the table, informing reception that you're ready for the
 	<br><br>
 
 	<<if random(1, 2) is 2>>
-		<<He>> moans while you work, your hands <<handtext>> rubbing oil onto <<his>> back. <<He>> rolls onto <<his>> side mid-way through the session. You avert your eyes.
+		<<He>> moans while you work, your <<if _armbinds>>feet <<feettext>><<else>>hands <<handtext>><</if>> rubbing oil onto <<his>> back. <<He>> rolls onto <<his>> side mid-way through the session. You avert your eyes.
 		<br><br>
 
 		"You seem stiff," <<he>> says. "How about I give you a massage? Don't worry. I won't charge."
@@ -266,14 +326,25 @@ You push a button under the table, informing reception that you're ready for the
 		<<link [[Refuse|Spa Lewd Refuse]]>><<handskill 5>><</link>><<ghandskill>>
 		<br>
 	<<else>>
-		<<body_tip hand 0.3>>
-		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.<<tipreceive>><<pass 50>><<ghandskill>><<handskill 5>>
+		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.
+		<<if _armbinds>>
+			<<gfeetskill>><<feetskill 5>><<body_tip feet 0.3>>
+		<<else>>
+			<<ghandskill>><<handskill 5>><<body_tip hand 0.3>>
+		<</if>>
+		<br>
+		<<tipreceive>><<pass 50>>
 		<br><br>
 		<<spa_end>>
 	<</if>>
 <<case polite>>
-	<<body_tip hand 0.5>>
-	"Please relax," you say as you rub oil over your hands. <<He>> seems happy to oblige as you get to work, your hands <<handtext>> kneading <<his>> back.<<ghandskill>><<handskill 5>>
+	<<if _armbinds>>
+		"Please relax," you say as you rub oil over <<his>> body. <<He>> seems happy to oblige as you get to work, your feet <<feettext>> kneading <<his>> back.
+		<<gfeetskill>><<feetskill 5>><<body_tip feet 0.5>>
+	<<else>>
+		"Please relax," you say as you rub oil over your hands. <<He>> seems happy to oblige as you get to work, your hands <<handtext>> kneading <<his>> back.
+		<<ghandskill>><<handskill 5>><<body_tip hand 0.5>>
+	<</if>>
 	<br><br>
 
 	<<He>> thanks you at the end of the session.<<tipreceive>><<pass 50>>
@@ -283,8 +354,7 @@ You push a button under the table, informing reception that you're ready for the
 <</switch>>
 
 :: Spa Work Alluring
-<<effects>>
-
+<<effects>><<bindingValuesCheck>>
 
 <<switch $spa.personality>>
 <<case hesitant>>
@@ -299,26 +369,34 @@ You push a button under the table, informing reception that you're ready for the
 		<<link [[Strip your client|Spa Hesitant Strip]]>><</link>><<promiscuous2>>
 	<</if>>
 	<br>
-
 <<case tired>>
-	You cover your hands in oil, and <<handtext>> knead <<his>> back. You work your way down <<his>> body, until your hands reach <<his>> ass.
+	<<if _armbinds>>
+		You cover <<his>> body in oil, and <<feettext>> knead <<his>> back. You work your way down <<his>> body, until your feet reach <<his>> ass.
+	<<else>>
+		You cover your hands in oil, and <<handtext>> knead <<his>> back. You work your way down <<his>> body, until your hands reach <<his>> ass.
+	<</if>>
 	<<promiscuity1>>
 
 	<<link [[Keep working|Spa Tired Work]]>><</link>>
 	<br>
-	<<if hasSexStat("promiscuity", 3)>>
+	<<if hasSexStat("promiscuity", 3) and !_armbinds>>
 		<<link [[Grope|Spa Tired Grope]]>><</link>><<promiscuous3>>
 		<br>
 	<</if>>
 <<case rude>>
 	<<if $beauty gte 8000>>
-		"You don't look so bad yourself," you whisper.<<body_tip hand 0.5>><<set $tip_add to ($tip + random(100, 1000))>>
+		"You don't look so bad yourself," you whisper.<<if _armbinds>><<body_tip feet 0.5>><<else>><<body_tip hand 0.5>><</if>><<set $tip_add to ($tip + random(100, 1000))>>
 	<<else>>
-		"I'm better than good," you say.<<body_tip hand 0.3>><<set $tip_add to ($tip + random(100, 1000))>>
+		"I'm better than good," you say.<<if _armbinds>><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>><<set $tip_add to ($tip + random(100, 1000))>>
 	<</if>>
 	<<promiscuity1>>
 
-	The <<person>> chuckles, and closes <<his>> eyes. You oil up your hands, and <<handtext>> knead the <<persons>> back.<<ghandskill>><<handskill 5>>
+	The <<person>> chuckles, and closes <<his>> eyes.
+	<<if _armbinds>>
+		You oil up <<his>> body, and <<feettext>> knead the <<persons>> back.<<gfeetskill>><<feetskill 5>>
+	<<else>>
+		You oil up your hands, and <<handtext>> knead the <<persons>> back.<<ghandskill>><<handskill 5>>
+	<</if>>
 	<br><br>
 
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
@@ -336,7 +414,7 @@ You push a button under the table, informing reception that you're ready for the
 			<</if>>
 		<</if>>
 		<br><br>
-		<<body_tip hand 1>>
+		<<if _armbinds>><<body_tip feet 1>><<else>><<body_tip hand 1>><</if>>
 		"How about you use that mouth of yours?" <<he>> asks. "I'll give you <<printmoney $tip>>."
 		<br><br>
 		<<pass 50>>
@@ -359,13 +437,16 @@ You push a button under the table, informing reception that you're ready for the
 
 		<<spa_end>>
 	<</if>>
-
 <<case lewd>>
-
 	"You'll be a real treat to work with," you say.
 	<<promiscuity1>>
 
-	"I bet," the <<person>> says. "Be rough with me." You oil up your hands, and <<handtext>> knead the <<persons>> back.<<ghandskill>><<handskill 5>>
+	"I bet," the <<person>> says. "Be rough with me."
+	<<if _armbinds>>
+		You oil up <<his>> body, and <<feettext>> knead the <<persons>> back.<<gfeetskill>><<feetskill 5>>
+	<<else>>
+		You oil up your hands, and <<handtext>> knead the <<persons>> back.<<ghandskill>><<handskill 5>>
+	<</if>>
 	<br><br>
 
 	<<if random(1, 2) is 2>>
@@ -383,16 +464,19 @@ You push a button under the table, informing reception that you're ready for the
 		<br>
 		<<link [[Refuse|Spa Lewd Naked Refuse]]>><</link>>
 	<<else>>
-		<<body_tip hand 0.3>>
-		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.<<tipreceive>><<pass 50>>
+		<<He>> moans while you work, but doesn't try anything, and seems satisfied at the end of the session.
+		<<if _armbinds>><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
+		<br>
+		<<tipreceive>><<pass 50>>
 		<br><br>
 		<<spa_end>>
 	<</if>>
-
-
 <<case polite>>
-	<<body_tip hand 0.1>>
-	"I'm going to enjoy working on you," you say as you oil up your hands. "Just relax." You <<handtext>> knead <<his>> back.<<ghandskill>><<handskill 5>>
+	<<if _armbinds>>
+		"I'm going to enjoy working on you," you say as you oil up <<his>> body. "Just relax." You <<feettext>> knead <<his>> back.<<feetskill 5>><<gfeetskill>><<body_tip feet 0.1>>
+	<<else>>
+		"I'm going to enjoy working on you," you say as you oil up your hands. "Just relax." You <<handtext>> knead <<his>> back.<<handskill 5>><<ghandskill>><<body_tip hand 0.1>>
+	<</if>>
 	<br><br>
 	<<promiscuity1>>
 
@@ -410,7 +494,6 @@ You push a button under the table, informing reception that you're ready for the
 		<<link [[Seduce for more|Spa Polite Seduce]]>><<set $desperateaction to 1>><</link>><<promiscuous3>>
 		<br>
 	<</if>>
-
 <</switch>>
 
 
@@ -486,9 +569,7 @@ You sit on the stool in the corner, and lean against the wall to rest your eyes.
 	<br><br>
 
 	<<spa_end>>
-
 <<else>>
-
 	<<switch $phase>>
 	<<case 0>>
 		Your fingers have barely brushed against the <<persons>> neck <span class="red">when <<he>> stirs.</span>
@@ -497,7 +578,8 @@ You sit on the stool in the corner, and lean against the wall to rest your eyes.
 	<<case 2>>
 		Your fingers have barely brushed against the <<persons>> wrist <span class="red">when <<he>> stirs.</span>
 	<</switch>>
-	<<He>> casts a suspicious glance back at you, and doesn't doze again.<<body_tip hand 0.1>>
+	<<He>> casts a suspicious glance back at you, and doesn't doze again.
+	<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.1>><<else>><<body_tip hand 0.1>><</if>>
 	<br><br>
 
 	<<skulduggeryuse>>
@@ -513,7 +595,6 @@ You sit on the stool in the corner, and lean against the wall to rest your eyes.
 	<br><br>
 
 	<<spa_end>>
-
 <</if>>
 
 
@@ -556,7 +637,6 @@ You sit on the stool in the corner, and lean against the wall to rest your eyes.
 
 :: Spa Rude Refuse 2
 <<effects>>
-
 
 <<if $rng gte 61>>
 	<<if $phase2 is 1>>
@@ -609,7 +689,7 @@ You sit on the stool in the corner, and lean against the wall to rest your eyes.
 :: Spa Rude Slap
 <<effects>>
 
-The <<person>> approaches again, so you smack <<him>> across the face.
+The <<person>> approaches again, so you <<if $leftarm is "bound" and $rightarm is "bound">>kick <<him>> away.<<else>>smack <<him>> across the face<</if>>.
 <br><br>
 
 <<He>> staggers away from you, just as someone knocks on the door. "Is everything okay in there?"
@@ -657,9 +737,7 @@ The <<person>> leers all the while. "Nice," <<he>> says, satisfied. <<He>> gives
 <</if>>
 <br><br>
 
-
 <<spa_end>>
-
 
 
 :: Spa Rude Money
@@ -793,7 +871,9 @@ You nod. The <<person>> smiles and stands.
 The <<person>> shrugs, and lies back down. "Suit yourself."
 <br><br>
 
-<<Hes>> a bit quieter for the rest of the session, but seems satisfied at the end.<<body_tip hand 0.1>><<tipreceive>><<pass 50>>
+<<Hes>> a bit quieter for the rest of the session, but seems satisfied at the end.
+<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.1>><<else>><<body_tip hand 0.1>><</if>>
+<<tipreceive>><<pass 50>>
 <br><br>
 
 <<spa_end>>
@@ -997,7 +1077,9 @@ The <<person>> rubs oil over your back, and continues to hump you.
 You shake your head. "That's too lewd for me," you say. "Sorry."
 <br><br>
 
-"That's a shame," the <<person>> says as <<he>> rises to <<his>> feet. <<He>> throws <<his>> towel over <<his>> shoulder, and strides outside.<<body_tip hand 0.3>><<tipreceive>><<pass 50>>
+"That's a shame," the <<person>> says as <<he>> rises to <<his>> feet. <<He>> throws <<his>> towel over <<his>> shoulder, and strides outside.
+<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
+<<tipreceive>><<pass 50>>
 <br><br>
 
 <<spa_end>>
@@ -1005,7 +1087,8 @@ You shake your head. "That's too lewd for me," you say. "Sorry."
 :: Spa Lewd Hand Negotiate
 <<effects>>
 
-<<body_tip hand 0.5>><<tip_neg>><<set $tip_add to ($tip + random(100, 1000))>>
+<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.5>><<else>><<body_tip hand 0.5>><</if>>
+<<tip_neg>><<set $tip_add to ($tip + random(100, 1000))>>
 <br><br>
 
 The <<person>> rests on <<his>> elbow, watching you.
@@ -1033,17 +1116,30 @@ The <<person>> sighs. "Alright. Thanks for the massage." <<He>> rises to <<his>>
 <<effects>>
 
 <<set $prostitutionstat += 1>>
-
-<<if $NPCList[0].penis isnot "none">>
-	<<if $NPCList[0].penissize gte 4>>
-		You grasp <<his>> <<print $NPCList[0].penisdesc>> with both hands to accommodate its size. You <<handtext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
-	<<elseif $NPCList[0].penissize gte 1>>
-		You grasp <<his>> <<print $NPCList[0].penisdesc>> with both hands, and <<handtext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	<<if $NPCList[0].penis isnot "none">>
+		<<if $NPCList[0].penissize gte 4>>
+			You grasp <<his>> <<print $NPCList[0].penisdesc>> with both feet to accommodate its size. You <<feettext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
+		<<elseif $NPCList[0].penissize gte 1>>
+			You grasp <<his>> <<print $NPCList[0].penisdesc>> between your feet, and <<feettext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
+		<<else>>
+			You rub your foot on <<his>> <<print $NPCList[0].penisdesc>>, and <<feettext>> pump it up and down. You rub <<his>> glans with your other foot.
+		<</if>>
 	<<else>>
-		You grasp <<his>> <<print $NPCList[0].penisdesc>> between a forefinger and thumb, and <<handtext>> pump it up and down. You rub <<his>> glans with your other hand.
+		You press your feet against <<his>> pelvis, and fondle <<his>> clit with your toes. You <<feettext>> begin to tease.
 	<</if>>
 <<else>>
-	You grasp <<his>> clit between a forefinger and thumb, and press a finger between <<his>> lips. You <<handtext>> begin to tease.
+	<<if $NPCList[0].penis isnot "none">>
+		<<if $NPCList[0].penissize gte 4>>
+			You grasp <<his>> <<print $NPCList[0].penisdesc>> with both hands to accommodate its size. You <<handtext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
+		<<elseif $NPCList[0].penissize gte 1>>
+			You grasp <<his>> <<print $NPCList[0].penisdesc>> with both hands, and <<handtext>> pump it up and down. It was erect already, but it becomes even more engorged as you work.
+		<<else>>
+			You grasp <<his>> <<print $NPCList[0].penisdesc>> between a forefinger and thumb, and <<handtext>> pump it up and down. You rub <<his>> glans with your other hand.
+		<</if>>
+	<<else>>
+		You grasp <<his>> clit between a forefinger and thumb, and press a finger between <<his>> lips. You <<handtext>> begin to tease.
+	<</if>>
 <</if>>
 <<promiscuity3>>
 
@@ -1053,19 +1149,31 @@ The <<person>> lies back and shuts <<his>> eyes.
 
 <<link [[Finish your client|Spa Lewd Hand Finish]]>><</link>>
 <br>
-<<link [[Demand more money|Spa Lewd Hand 2]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 600>>
+<<if _armbinds>>
+	<<link [[Demand more money|Spa Lewd Hand 2]]>><</link>><<skill_difficulty `currentSkillValue("feetskill")` "Feet Skill" 1 600>>
+<<else>>
+	<<link [[Demand more money|Spa Lewd Hand 2]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 600>>
+<</if>>
 <br>
 
 :: Spa Lewd Hand Finish
 <<effects>>
 
-
-<<if $NPCList[0].penis isnot "none">>
-	<<handejacstat>><<ejacstat>><<bodyliquid "leftarm" "semen">><<bodyliquid "rightarm" "semen">>
-	You accelerate the pace, until <<his>> <<print $NPCList[0].penisdesc>> erupts over your hands while <<his>> body spasms and jerks.
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	<<if $NPCList[0].penis isnot "none">>
+		<<feetejacstat>><<ejacstat>><<bodyliquid "feet" "semen">>
+		You accelerate the pace, until <<his>> <<print $NPCList[0].penisdesc>> erupts over your feet while <<his>> body spasms and jerks.
+	<<else>>
+		You accelerate the pace, until <<his>> body spasms and jerks. You feel <<his>> juices on your toes.
+	<</if>>
 <<else>>
+	<<if $NPCList[0].penis isnot "none">>
+		<<handejacstat>><<ejacstat>><<bodyliquid "leftarm" "semen">><<bodyliquid "rightarm" "semen">>
+		You accelerate the pace, until <<his>> <<print $NPCList[0].penisdesc>> erupts over your hands while <<his>> body spasms and jerks.
+	<<else>>
 	<<if random(0,1) is 1>><<bodyliquid "rightarm" "goo">><<else>><<bodyliquid "leftarm" "goo">><</if>>
-	You accelerate the pace, until <<his>> body spasms and jerks. You feel <<his>> juices on your fingers.
+		You accelerate the pace, until <<his>> body spasms and jerks. You feel <<his>> juices on your fingers.
+	<</if>>
 <</if>>
 <br><br>
 
@@ -1080,28 +1188,33 @@ The <<person>> lies back and shuts <<his>> eyes.
 
 :: Spa Lewd Hand 2
 <<effects>>
+<<bindingValuesCheck>>
+<<if _armbinds>><<set _bodyskill to "feetskill">><<else>><<set _bodyskill to "handskill">><</if>>
 
-
-<<if currentSkillValue("handskill") gte random(1, 600)>>
-
+<<if currentSkillValue(_bodyskill) gte random(1, 600)>>
 	You slow the pace, <span class="green">keeping <<him>> on the edge.</span>
 
 	<<if $spa.behaviour is "cute">>
 		"This is fun," you say. "I could do this all day."
 	<<else>>
-		"I like having you in my hand like this," you say. "I could go on all day."
+		"I like having you in my <<if _armbinds>>grasp<<else>>hand<</if>> like this," you say. "I could go on all day."
 	<</if>>
 	<br><br>
-	"I-I'll pay more," the <<person>> stammers. "Just go a bit faster."<<body_tip hand add>><<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
+	"I-I'll pay more," the <<person>> stammers. "Just go a bit faster."<<if _armbinds>><<body_tip feet add>><<else>><<body_tip hand add>><</if>>
+	<<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
 	<br><br>
 
 	<<link [[Finish|Spa Lewd Hand Finish]]>><</link>>
 	<br>
-	<<link [[Demand more money|Spa Lewd Hand 3]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 800>>
+	<<if _armbinds>>
+		<<link [[Demand more money|Spa Lewd Hand 3]]>><</link>><<skill_difficulty `currentSkillValue("feetskill")` "Feet Skill" 1 800>>
+	<<else>>
+		<<link [[Demand more money|Spa Lewd Hand 3]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 800>>
+	<</if>>
 	<br>
 <<else>>
 	<<if random(1, 10) gte 4>>
-		You slow the pace, but the <<person>> humps against your fingers, <span class="red">and brings <<himself>> to completion.</span>
+		You slow the pace, but the <<person>> humps against your <<if _armbinds>>feet<<else>>fingers<</if>>, <span class="red">and brings <<himself>> to completion.</span>
 		<<spa_hand_failed>>
 	<<else>>
 		You slow the pace, <span class="red">and the <<person>> loses control.</span> <<He>> grasps your arms, and pulls you onto the table.
@@ -1115,11 +1228,11 @@ The <<person>> lies back and shuts <<his>> eyes.
 
 :: Spa Lewd Hand 3
 <<effects>>
+<<bindingValuesCheck>>
+<<if _armbinds>><<set _bodyskill to "feetskill">><<else>><<set _bodyskill to "handskill">><</if>>
 
-
-<<if currentSkillValue("handskill") gte random(1, 800)>>
-
-	<<He>> humps against your fingers, but you pull away just enough that <span class="green"><<he>> can't quite reach orgasm.</span>
+<<if currentSkillValue(_bodyskill) gte random(1, 800)>>
+	<<He>> humps against your <<if _armbinds>>feet<<else>>fingers<</if>>, but you pull away just enough that <span class="green"><<he>> can't quite reach orgasm.</span>
 	<<He>> humps even harder, desperate to finish.
 	<br><br>
 
@@ -1131,17 +1244,22 @@ The <<person>> lies back and shuts <<his>> eyes.
 	<br><br>
 
 
-	The <<person>> falls back. "P-please," <<he>> says. "J-just finish me off!"<<body_tip hand add>><<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
+	The <<person>> falls back. "P-please," <<he>> says. "J-just finish me off!"<<if _armbinds>><<body_tip feet add>><<else>><<body_tip hand add>><</if>>
+	<<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
 	<br><br>
 
 	<<link [[Finish|Spa Lewd Hand Finish]]>><</link>>
 	<br>
-	<<link [[Demand more money|Spa Lewd Hand 4]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 1100>>
+	<<if _armbinds>>
+		<<link [[Demand more money|Spa Lewd Hand 4]]>><</link>><<skill_difficulty `currentSkillValue("feetskill")` "Feet Skill" 1 1100>>
+	<<else>>
+		<<link [[Demand more money|Spa Lewd Hand 4]]>><</link>><<skill_difficulty `currentSkillValue("handskill")` "Hand Skill" 1 1100>>
+	<</if>>
 	<br>
 
 <<else>>
 	<<if random(1, 10) gte 4>>
-		You slow the pace, but the <<person>> humps against your fingers, <span class="red">and brings <<himself>> to completion.</span>
+		You slow the pace, but the <<person>> humps against your <<if _armbinds>>feet<<else>>fingers<</if>>, <span class="red">and brings <<himself>> to completion.</span>
 		<<spa_hand_failed>>
 	<<else>>
 		You slow the pace, <span class="red">and the <<person>> loses control.</span> <<He>> grasps your arms, and pulls you onto the table.
@@ -1154,10 +1272,11 @@ The <<person>> lies back and shuts <<his>> eyes.
 
 :: Spa Lewd Hand 4
 <<effects>>
+<<bindingValuesCheck>>
+<<if _armbinds>><<set _bodyskill to "feetskill">><<else>><<set _bodyskill to "handskill">><</if>>
 
-
-<<if currentSkillValue("handskill") gte random(1, 1100)>>
-	You reach forward again, and brush your fingers against <<his>> genitals, not allowing <<him>> to calm down, <span class="green">or to cum.</span>
+<<if currentSkillValue(_bodyskill) gte random(1, 1100)>>
+	You reach forward again, and brush your <<if _armbinds>>toes<<else>>fingers<</if>> against <<his>> genitals, not allowing <<him>> to calm down, <span class="green">or to cum.</span>
 
 	<<if $spa.behaviour is "cute">>
 		"I would," you say. "But I really need the money."
@@ -1165,7 +1284,8 @@ The <<person>> lies back and shuts <<his>> eyes.
 		"You'll have to do better," you say.
 	<</if>>
 	<br><br>
-	"Y-yes," the <<person>> stammers. "A-anything. I can't take this any longer."<<body_tip hand add>><<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
+	"Y-yes," the <<person>> stammers. "A-anything. I can't take this any longer."<<if _armbinds>><<body_tip feet add>><<else>><<body_tip hand add>><</if>>
+	<<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
 	<br><br>
 
 	Before you can consider your next move, the <<person>> loses control. <<He>> grasps <<his>>
@@ -1183,7 +1303,7 @@ The <<person>> lies back and shuts <<his>> eyes.
 	<br>
 <<else>>
 	<<if random(1, 10) gte 4>>
-		You slow the pace, but the <<person>> humps against your fingers, <span class="red">and brings <<himself>> to completion.</span>
+		You slow the pace, but the <<person>> humps against your <<if _armbinds>>feet<<else>>fingers<</if>>, <span class="red">and brings <<himself>> to completion.</span>
 		<<spa_hand_failed>>
 	<<else>>
 		You slow the pace, <span class="red">and the <<person>> loses control.</span> <<He>> grasps your arms, and pulls you onto the table.
@@ -1199,7 +1319,6 @@ The <<person>> lies back and shuts <<his>> eyes.
 <<effects>>
 
 The <<person>>
-
 <<if $NPCList[0].penis isnot "none">>
 	ejaculates at once, <<his>> <<print $NPCList[0].penisdesc>> erupting on <<his>> own chest.
 <<else>>
@@ -1217,11 +1336,15 @@ The <<person>>
 <<spa_end>>
 
 
-
 :: Spa Lewd Hold
-<<effects>>
+<<effects>><<bindingValuesCheck>>
 
-You grasp <<his>> wrists with your hands, and force them against the table, either side of <<his>> head. <<He>> resists, but you sit on <<his>> stomach and push <<him>> back down with your weight.
+<<if _armbinds>>
+	You jump at <<him>> and hold <<his>> arms against the table with your legs, either side of <<his>> body.
+<<else>>
+	You grasp <<his>> wrists with your hands, and force them against the table, either side of <<his>> head.
+<</if>>
+<<He>> resists, but you sit on <<his>> stomach and push <<him>> back down with your weight.
 <br><br>
 
 <<if $angel gte 6>>
@@ -1235,14 +1358,178 @@ You grasp <<his>> wrists with your hands, and force them against the table, eith
 You bounce as <<he>> thrusts <<his>> pelvis into the air.
 <br><br>
 
-Your hands are occupied. You need to use something else.
+<<if _armbinds>>Your legs are occupied, and your arms are tied<<else>>Your hands are occupied<</if>>. You need to use something else.
 <br><br>
 
+<<if _armbinds>>
+	<<link [[Use your mouth|Spa Lewd Mouth]]>><<oralskill 5>><</link>><<skill_difficulty `currentSkillValue("oralskill")` "Oral Skill" 1 400>><<goralskill>>
+<<else>>
+	<<link [[Use your thighs|Spa Lewd Thigh]]>><<thighskill 5>><</link>><<skill_difficulty `currentSkillValue("thighskill")` "Thigh Skill" 1 400>><<gthighskill>>
+	<br>
+	<<link [[Use your ass|Spa Lewd Bottom]]>><<bottomskill 5>><</link>><<skill_difficulty `currentSkillValue("bottomskill")` "Ass Skill" 1 400>><<gbottomskill>>
+<</if>>
+<br>
 
-<<link [[Use your thighs|Spa Lewd Thigh]]>><<thighskill 5>><</link>><<skill_difficulty `currentSkillValue("thighskill")` "Thigh Skill" 1 400>><<gthighskill>>
-<br>
-<<link [[Use your ass|Spa Lewd Bottom]]>><<bottomskill 5>><</link>><<skill_difficulty `currentSkillValue("bottomskill")` "Ass Skill" 1 400>><<gbottomskill>>
-<br>
+
+:: Spa Lewd Mouth Finish
+<<effects>>
+
+<<if $NPCList[0].penis isnot "none">>
+	<<bodyliquid "face" "semen">><<faceejacstat>><<ejacstat>>
+	You <<oraltext>> tease <<his>> <<print $NPCList[0].penisdesc>> hard with your mouth. <<His>> body trembles, and <<he>> ejaculates, splattering you with semen.
+<<else>>
+	You <<oraltext>> push your tongue hard against <<his>> pussy. <<His>> body trembles and spasms beneath you as <<he>> cums.
+<</if>>
+<br><br>
+
+<<He>> lies back as the jerking subsides, one arm over <<his>> face. "Th-thanks," <<he>> manages. "Here." <<tipreceive>><<pass 50>>
+<br><br>
+
+<<He>> sits up and wraps a towel around <<his>> waist before leaving the room.
+<br><br>
+<<spa_end>>
+
+:: Spa Lewd Mouth
+
+<<effects>>
+<<if currentSkillValue("oralskill") gte random(1, 400)>>
+	You move your face to <<his>> crotch,
+	<<if $NPCList[0].penis isnot "none">>
+		and <<oraltext>> lick <<his>> <<print $NPCList[0].penisdesc>>. You wrap your tongue around <<his>> length as <<he>> half-heartedly strains against your grasp. You're careful not to stimulate <<his>> cock too much, <span class="green">making sure <<he>> can't cum.</span>
+	<<else>>
+		and <<oraltext>> lick <<his>> pussy. You tease <<him>> with your tongue as <<he>> half-heartedly strains against your grasp. <span class="green">You're careful not to finish <<him>> too soon.</span>
+	<</if>>
+	<br><br>
+	<<if $player.breastsize gte 1>>
+		You press your <<breasts>> against <<him>>.
+	<</if>>
+	<<if $spa.behaviour is "cute">>
+		"Does this feel good?" you ask, keeping <<him>> on a torturous edge. "I might finish you soon. I'm not sure."
+	<<else>>
+		"How does this feel?" you ask, keeping <<him>> on a torturous edge. "I can keep you like this as long as I want."
+	<</if>>
+	<br><br>
+
+	"P-please," the <<person>> begs. "Whatever you want! J-just let me cum!"<<body_tip oral add>><<set $tip_add to ($tip + random(500, 1500))>><<tip_up>>
+	<br><br>
+
+	<<link [[Finish|Spa Lewd Mouth Finish]]>><</link>>
+	<br>
+	<<link [[Demand more money|Spa Lewd Mouth 2]]>><<set $phase to 0>><</link>><<skill_difficulty `currentSkillValue("oralskill")` "Oral Skill" 300 700>>
+	<br>
+	<<if $NPCList[0].penis isnot "none">>
+		<<link [[Offer oral finisher|Spa Lewd Mouth 2]]>><<set $phase to 1>><</link>><<skill_difficulty `currentSkillValue("oralskill")` "Oral Skill" 1 400>>
+		<<if $player.virginity.oral is true>>
+			| <span class="red">This action will take your oral virginity.</span>
+		<</if>>
+	<</if>>
+	<br>
+
+<<else>>
+	<<if random(1, 10) gte 4>>
+		You move your face to <<his>> crotch,
+		<<if $NPCList[0].penis isnot "none">>
+			<<bodyliquid "face" "semen">><<thighejacstat>><<ejacstat>>
+			and <<oraltext>> lick <<his>> <<print $NPCList[0].penisdesc>>. You wrap your tongue around <<his>> length as <<he>> half-heartedly strains against your grasp, <span class="red">and manages to finish <<himself>>,</span> erupting over your face.
+		<<else>>
+			and <<oraltext>> lick <<his>> pussy. You tease <<him>> with your tongue as <<he>> half-heartedly strains against your grasp, <span class="red">and manages to finish <<himself>>,</span> <<his>> body convulsing.
+		<</if>>
+
+		<<He>> lies back as the jerking subsides, one arm over <<his>> face. "Th-thanks," <<he>> manages. "Here." <<tipreceive>><<pass 50>>
+		<br><br>
+
+		<<He>> sits up and wraps a towel around <<his>> waist before leaving the room.
+		<br><br>
+
+		<<spa_end>>
+	<<else>>
+		You move your face to <<his>> crotch,
+		<<if $NPCList[0].penis isnot "none">>
+			and <<oraltext>> wrap your tongue around <<his>> <<print $NPCList[0].penisdesc>>.
+		<<else>>
+			and <<oraltext>> lick <<his>> pussy.
+		<</if>>
+		<span class="red"><<He>> loses control,</span> and pushes you off.
+		<<spa_rape_failed>>
+		<br><br>
+
+		<<link [[Next|Spa Lewd Rape]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
+	<</if>>
+<</if>>
+
+:: Spa Lewd Mouth 2
+<<effects>>
+<<if $phase is 1>>
+	<<set _randomoral to random(1, 400)>><<set _randomoraltip to random(1000, 1500)>>
+<<else>>
+	<<set _randomoral to random(300, 700)>><<set _randomoraltip to random(500, 1500)>>
+<</if>>
+
+<<if currentSkillValue("oralskill") gte _randomoral>>
+	<<if $spa.behaviour is "cute">>
+		"Just a little more money," you say. "I promise."
+	<<else>>
+		"Just a little more money," you purr. "And I'll release you."
+	<</if>>
+	<br><br>
+
+	<span class="green">The <<person>> trembles as <<he>> nods.</span> "Y-y-yes," <<he>> says. "A-anything."
+	<<body_tip oral add>><<set $tip_add to ($tip + _randomoraltip)>><<tip_up>>
+	<br><br>
+
+	You'd worry for <<his>> health if you kept this up,
+	<<if $NPCList[0].penis isnot "none">>
+		<<if $phase is 1>>
+			so you <<oraltext>> swallow <<his>> <<print $NPCList[0].penisdesc>> in your mouth, and pump as hard as you can. <<if $player.virginity.oral is true>><span class="red">It tastes strange.</span><</if>>
+			<<takeVirginity $NPCList[0].fullDescription "oral">><<bodyliquid "mouth" "semen" 2>><<oralejacstat>><<ejacstat>>
+		<<else>>
+			<<bodyliquid "face" "semen" 2>><<faceejacstat>><<ejacstat>>
+			so you <<oraltext>> stimulate <<his>> <<print $NPCList[0].penisdesc>> with your tongue as hard as you can.
+		<</if>>
+	<<else>>
+		so you <<oraltext>> press your tongue against <<his>> pussy, and tease as hard as you can.
+	<</if>>
+	<br><br>
+
+	The effect is immediate.
+	<<if $NPCList[0].penis isnot "none">>
+		<<His>> back arcs as <<his>> whole body convulses, <<if $phase is 1>>filling your mouth with<<else>>covering your face in<</if>> a deluge of cum.
+	<<else>>
+		<<His>> back arcs as <<his>> whole body convulses.
+	<</if>>
+	<<He>> moans loud enough that you worry someone will investigate. It takes half a minute for <<him>> to come down to just the occasional twitch. <<Hes>> still out of breath.
+	<br><br>
+	<<link [[Next|Spa Lewd Torment End]]>><</link>>
+	<br>
+<<else>>
+	<<if random(1, 10) gte 4>>
+		<<if $NPCList[0].penis isnot "none">>
+			<<if $phase is 1>>
+				You take <<his>> <<print $NPCList[0].penisdesc>> into your mouth. <<if $player.virginity.oral is true>><span class="red">It tastes strange.</span><</if>> <span class="red">This sends <<him>> over the edge.</span> <<He>> spasms, and <<his>> semen erupts into your mouth.
+				<<takeVirginity $NPCList[0].fullDescription "oral">><<bodyliquid "mouth" "semen">><<oralejacstat>><<ejacstat>>
+			<<else>>
+				<<bodyliquid "face" "semen">><<faceejacstat>><<ejacstat>>
+				You wrap your tongue around <<his>> length as <<he>> half-heartedly strains against your grasp, <span class="red">and manages to finish <<himself>>,</span> erupting over your face.
+			<</if>>
+		<<else>>
+			You tease <<him>> with your tongue as <<he>> half-heartedly strains against your grasp, <span class="red">and manages to finish <<himself>>,</span> <<his>> body convulsing.
+		<</if>>
+
+		<<He>> lies back as the jerking subsides, one arm over <<his>> face. "Th-thanks," <<he>> manages. "Here." <<tipreceive>><<pass 50>>
+		<br><br>
+
+		<<He>> sits up and wraps a towel around <<his>> waist before leaving the room.
+		<br><br>
+
+		<<spa_end>>
+	<<else>>
+		You try to keep the <<person>> on the edge a bit longer, <span class="red">but <<he>> loses control</span>, and pushes you off.
+		<<spa_rape_failed>>
+		<br><br>
+
+		<<link [[Next|Spa Lewd Rape]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
+	<</if>>
+<</if>>
 
 
 :: Spa Lewd Thigh Finish
@@ -1328,8 +1615,6 @@ Your hands are occupied. You need to use something else.
 <<effects>>
 
 <<if currentSkillValue("thighskill") gte random(300, 700)>>
-
-
 	<<if $spa.behaviour is "cute">>
 		"Just a little more money," you say. "I promise."
 	<<else>>
@@ -1360,9 +1645,7 @@ Your hands are occupied. You need to use something else.
 	<br><br>
 	<<link [[Next|Spa Lewd Torment End]]>><</link>>
 	<br>
-
 <<else>>
-
 	<<if random(1, 10) gte 4>>
 		<<if $NPCList[0].penis isnot "none">>
 			<<bodyliquid "thigh" "semen">><<thighejacstat>><<ejacstat>>
@@ -1657,7 +1940,6 @@ You climb off the <<person>>, and <<he>> struggles to a sitting position.
 :: Spa Hesitant Strip
 
 <<effects>>
-
 <<body_tip hand 1>>
 "Let me help," you say, reaching for <<his>> towel. <<He>> tries to step away from you, but you manage to grasp the fabric. The towel comes free as <<he>> moves,
 <<if $pronoun is "f">>
@@ -1678,7 +1960,14 @@ You climb off the <<person>>, and <<he>> struggles to a sitting position.
 <<He>> gasps and covers <<himself>> with <<his>> hands. "Just lie on the table," you say. "I'll take care of you."
 <br><br>
 
-<<He>> hesitates again, then does so. You oil up your hands, and <<handtext>> get to work.<<ghandskill>><<handskill 5>>
+<<He>> hesitates again, then does so. 
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	You oil up <<his>> body, and <<feettext>> get to work.<<gfeetskill>><<feetskill 5>>
+	<<body_tip feet 1>>
+<<else>>
+	You oil up your hands, and <<handtext>> get to work.<<ghandskill>><<handskill 5>>
+	<<body_tip hand 1>>
+<</if>>
 <br><br>
 
 <<Hes>> much more comfortable by the end of the session, and leaves a tip. <<tipreceive>><<pass 50>>
@@ -1689,7 +1978,6 @@ You climb off the <<person>>, and <<he>> struggles to a sitting position.
 
 :: Spa Hesitant Wait
 <<effects>>
-
 
 <<if $rng gte 51>>
 	<<body_tip hand 1>>
@@ -1709,7 +1997,14 @@ You climb off the <<person>>, and <<he>> struggles to a sitting position.
 	<</if>>
 	<br><br>
 
-	<<He>> covers <<himself>> with <<his>> hands, and lies face down on the table. You oil up your hands, and <<handtext>> get to work.<<ghandskill>><<handskill 5>>
+	<<He>> covers <<himself>> with <<his>> hands, and lies face down on the table.
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		You oil up <<his>> body, and <<feettext>> get to work.<<gfeetskill>><<feetskill 5>>
+		<<body_tip feet 1>>
+	<<else>>
+		You oil up your hands, and <<handtext>> get to work.<<ghandskill>><<handskill 5>>
+		<<body_tip hand 1>>
+	<</if>>
 	<br><br>
 	
 	<<Hes>> much more comfortable by the end of the session, and leaves a tip. <<tipreceive>><<pass 50>>
@@ -1729,8 +2024,7 @@ You climb off the <<person>>, and <<he>> struggles to a sitting position.
 :: Spa Tired Work
 <<effects>>
 
-
-<<body_tip hand 0.3>>
+<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.3>><<else>><<body_tip hand 0.3>><</if>>
 <<spa_rob_options>>
 
 
@@ -1748,7 +2042,6 @@ You grasp the <<persons>> cheeks in both hands, and squeeze.
 <<promiscuity3>>
 
 <<if $seductionrating gte $seductionrequired>>
-
 	<<He>> glances over <<his>> shoulder, <span class="green">but doesn't stop you.</span> You incorporate your groping into the session, eliciting the occasional moan.
 	<br><br>
 	<<He>> pushes <<himself>> onto <<his>> back towards the end of the session, and points at <<his>>
@@ -1775,7 +2068,6 @@ You grasp the <<persons>> cheeks in both hands, and squeeze.
 	<br><br>
 
 	<<spa_rob_options>>
-
 <</if>>
 
 
@@ -1983,7 +2275,7 @@ onto your face.
 The <<person>> laughs, and rolls onto <<his>> back.
 <br><br>
 <<set $tipmod to 0>><<unset $tip_add>>
-<<body_tip hand 0.1>>
+<<if $leftarm is "bound" or $rightarm is "bound">><<body_tip feet 0.1>><<else>><<body_tip hand 0.1>><</if>>
 <<He>> seems satisfied at the end of the session, despite your refusal, and leaves a tip.<<tipreceive>><<pass 50>>
 <br><br>
 <<spa_end>>
@@ -1997,7 +2289,7 @@ The <<person>> laughs, and rolls onto <<his>> back.
 "Okay," you say. <<passagestrip>>
 <<exhibitionism5>>
 
-The <<person>> watches all the while. "Nice," <<he>> says. "There are other forms of massage, you know. Why don't you have a go without hands? I'll make it worth your while."
+The <<person>> watches all the while. "Nice," <<he>> says. "There are other forms of massage, you know. Why don't you have a go<<if !($leftarm is "bound" or $rightarm is "bound")>> without hands<</if>>? I'll make it worth your while."
 <br><br>
 
 <<if hasSexStat("promiscuity", 3)>>
@@ -2013,7 +2305,7 @@ The <<person>> watches all the while. "Nice," <<he>> says. "There are other form
 :: Spa Lewd Breasts Refuse
 <<effects>>
 
-"I'll stick to my hands," you say. "You can look, but don't touch."
+"I'll stick to my <<if $leftarm is "bound" or $rightarm is "bound">>feet<<else>>hands<</if>>," you say. "You can look, but don't touch."
 <br><br>
 
 The <<person>> nods, disappointed but not upset. <<He>> seems satisfied by the end of the session. <<tipreceive>><<pass 50>>

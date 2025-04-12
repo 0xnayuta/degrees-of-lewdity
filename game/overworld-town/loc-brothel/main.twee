@@ -160,8 +160,13 @@ You are in the brothel's dressing room. There are a few mirrors, currently occup
 	<<unbind>>
 <</if>>
 
-<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
+<<if $leftarm is "bound" or $rightarm is "bound" or ($feetuse is "bound" and !$worn.feet.type.includes("shackle"))>>
 	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Brothel Dressing Room]]>><<set $unbind to 1>><<pass 10>><</link>>
+	<br><br>
+<</if>>
+<<if $leftarm is "cuffed" or $rightarm is "cuffed" or ($feetuse is "bound" and $worn.feet.type.includes("shackle"))>>
+	<<set $skulduggerydifficulty to 700>>
+	<<link [[Try to remove your shackles|Brothel Dressing Room Uncuffing]]>><</link>><<skulduggerydifficulty>>
 	<br><br>
 <</if>>
 
@@ -278,6 +283,30 @@ You are in the brothel's dressing room. There are a few mirrors, currently occup
 <<mirror>>
 <br><br>
 
+:: Brothel Dressing Room Uncuffing
+<<effects>>
+
+You attempt to remove the shackles by yourself. 
+
+<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+		<<set _uncufftime to 11 - Math.ceil(Math.clamp(currentSkillValue('skulduggery'), 0, 1000) / 100)>>
+		<<if _uncufftime lte 3>>
+			<span class="green">You swiftly unlock the cuffs,</span> letting them come loose and freeing your limbs.
+		<<else>>
+			It takes some effort, <span class="green">but you eventually succeed</span> and the shackles come loose, freeing your limbs.
+		<</if>>
+		<<remove_shackle>>
+		<<skulduggeryuse>>
+		<<pass _uncufftime>>
+	<<else>>
+		Despite your best effort, <span class="red">the cuffs still remain intact.</span> After struggling for a while, you give up.
+		<<pass 10>>
+	<</if>>
+<br><br>
+
+<<link [[Next|Brothel Dressing Room]]>><</link>>
+<br>
 
 
 :: Brothel Leave Naked Day
@@ -341,10 +370,16 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 <br>
 
 :: Brothel Intro
-<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<bindingValuesCheck>>
 
 <<if $phase is 1>>
-	<<generate1>>You enter the building, not sure what to expect. <<person1>>A <<person>> stands at the end of an antechamber, guarding another set of doors. <<He>> smiles when <<he>> sees you. "You look lost, <<girl>>. What brings you here?"
+	<<generate1>>You enter the building, not sure what to expect. <<person1>>A <<person>> stands at the end of an antechamber, guarding another set of doors. 
+<<if _bondagecheck>>
+	<<He>> looks surprised for a moment when <<he>> sees you, but quickly changes to a smile and lets out a snigger.
+<<else>>
+	<<He>> smiles when <<he>> sees you. 
+<</if>>
+"You look lost, <<girl>>. What brings you here?"
 	<br><br>
 	"I was told to come here," you reply sheepishly. <<His>> smile broadens.
 	<br><br>
@@ -679,7 +714,6 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 :: Briar Machine Ask 2
 <<effects>>
 
-
 Briar walks across the room and leans beside the window, looking over the building opposite, at the industrial smokestacks beyond. <span class="gold">"They dump their waste in the landfill,"</span> <<he>> says. "I wouldn't be surprised if some gel found its way there."
 <br><br>
 
@@ -701,7 +735,6 @@ Briar walks across the room and leans beside the window, looking over the buildi
 	<<link [[Brothel]]>><<endevent>><</link>>
 	<br>
 <</if>>
-
 
 
 :: Briar Machine Ask 3
@@ -2083,16 +2116,25 @@ Due to the high police presence, you have a to wait for things to calm down befo
 	<<set $enemytrust += 100>><<promiscuity5>>
 	You smile at them seductively.
 	<br><br>
-	"If you're nice to me and let me go," you say. "I can be very nice to you."
+	<<if $speech_attitude is "meek">>
+		"C-Can you be nice to me and let me go?" you ask. "I can be nice to you in return."
+	<<else>>
+		"If you're nice to me and let me go," you say. "I can be very nice to you."
+	<</if>>
 	<br><br>
 
 	<<person1>>"Okay," the <<person>> says.
 	<br><br>
 	<<if crimeSumCurrent() gte 4500>>
-		<<person2>>"This one's slippery," says the <<person>>. "<<print $worn.handheld.name isnot "naked" ? "Take <<pher>> $worn.handheld.name and cuff <<phim>>" : "Cuff <<phim>> first">> so <<pshe>> doesn't try anything."
-		<br><br>
-		"Okay."
-		<<set $leftarm to "bound">><<set $rightarm to "bound">><<handheldruined>>
+		<<person2>>"This one's slippery," says the <<person>>
+		<<if $leftarm isnot "bound" and $rightarm isnot "bound" and !$worn.hands.type.includes("shackle")>>
+			. "<<print $worn.handheld.name isnot "naked" ? "Take <<pher>> $worn.handheld.name and cuff <<phim>>" : "Cuff <<phim>> first">> so <<pshe>> doesn't try anything."
+			<br><br>
+			"Okay."
+			<<shackle_hands>><<handheldruined>>
+		<<else>>
+			as <<he>> looks at your arms. "Though looks like <<pshe>>'s done the work for us <<phim>>self already."
+		<</if>>
 	<</if>>
 <</if>>
 
@@ -2156,7 +2198,7 @@ Due to the high police presence, you have a to wait for things to calm down befo
 
 :: Brothel Raid Arrest 2
 <<set $outside to 0>><<set $location to "town">><<effects>>
-<<set $leftarm to "bound">><<set $rightarm to "bound">><<handheldruined>>
+<<if !$worn.hands.type.includes("shackle")>><<shackle_hands>><</if>><<handheldruined>>
 <<pass 45>>
 You are led out front where brothel staff are being cuffed and lined up against a wall. A crowd of passers-by gawk.
 <br><br>
@@ -2747,23 +2789,55 @@ You notice ropes and chains lying on the floor, giving you an anxious feeling.
 <<link [[Try to escape|Brothel Escort Job Escape]]>><</link>><<athleticsdifficulty 1 600>>
 
 :: Brothel Escort Job Undress
-<<effects>><<undress "escort_job">>
-
-<<set $leftarm to "bound">><<set $rightarm to "bound">><<shackle_feet>>
+<<effects>><<undress "escort_job">><<bindingValuesCheck>>
 
 <<if $phase is 1>>
 	The <<person1>><<person>> and the <<person2>><<person>> give you lustful looks as you take off your clothing. They shove you to the middle of the room.
 	<br><br>
 <</if>>
 
-"Get on your knees," the <<person1>><<person>> demands.
-<br><br>
+<<if _armbinds and _legshackles>>
+	<<set $brothel_escortjob.bondage to 3>>
+	"Didn't know you'd come prepared," the <<person2>><<person>> sneers while looking at you, then points to the ropes and chains. "You made most of our preparations gone wasted, but at least you've cut us some slack."
+	<br><br>
 
-They start to wrap the ropes around your body, tying your arms to your back and wrapping rope around your chest like a harness. They attach chains to your legs and neck as well, taking care to spread your legs apart.
-<br><br>
+	"Still need one last step," the <<person1>><<person>> says.
+	<br><br>
 
-It doesn't take long until you are bound and unable to move. They hook up the chains and lift you up to waist height with a winch. Your private parts are completely exposed.
-<br><br>
+	They wrap you up a little bit more, taking care to spread your legs apart. They hook up your bindings and lift you up to waist height with a winch. Your private parts are completely exposed.
+	<br><br>
+<<else>>
+	<<if _armbinds>>
+		<<set $brothel_escortjob.bondage to 2>>
+	<<elseif _legshackles>>
+		<<set $brothel_escortjob.bondage to 1>>
+	<<else>>
+		<<set $brothel_escortjob.bondage to 0>>
+	<</if>>
+
+	<<if _armbinds or _legshackles>>
+		"Didn't know you'd come prepared," the <<person2>><<person>> sneers while looking at you. "Not that you prepared enough, though, but at least you've cut us some slack."
+		<br><br>
+	<</if>>
+
+	"Get on your knees," the <<person1>><<person>> demands.
+	<br><br>
+
+	<<if !_armbinds>>
+		They start to wrap the ropes around your body, tying your arms to your back and wrapping rope around your chest like a harness. 
+		<<set $leftarm to "bound">><<set $rightarm to "bound">>
+	<</if>>
+	<<if !_legshackles>>
+		They attach chains to your legs and neck as well, taking care to spread your legs apart.
+		<<shackle_feet>>
+	<<else>>
+		They take care to spread your legs apart.
+	<</if>>
+	<br><br>
+
+	It doesn't take long until you are bound and unable to move. They hook up the chains and lift you up to waist height with a winch. Your private parts are completely exposed.
+	<br><br>
+<</if>>
 
 "Splendid," the <<person1>><<person>> exclaims with a beaming smile. "I'm sure you'll be the star of the party!"
 <br><br>
@@ -2771,14 +2845,12 @@ It doesn't take long until you are bound and unable to move. They hook up the ch
 <<if $phase is 1>>
 	The <<person1>><<person>> puts a bed sheet over you while the <<person2>><<person>> leaves the room, presumably to get the partying guests.
 	<br><br>
-
 <<else>>
 	The <<person2>><<person>> gives you one more slap to the face before the <<person1>><<person>> puts a bed sheet over you.<<gpain>><<violence 3>>
 	<br><br>
 
 	Finally the <<person1>><<person>> leaves to fetch the partying guests.
 	<br><br>
-
 <</if>>
 
 <<link [[Next|Brothel Escort Job]]>><</link>>
@@ -2986,7 +3058,17 @@ The <<person1>><<person>> grabs you by the chin and lifts your head to get a goo
 :: Brothel Escort Job End 3
 <<effects>><<generate4>>
 
-Finally you are let down and are unbound by the <<person4>><<person>>.
+<<switch $brothel_escortjob.bondage>>
+	<<case 0>>
+		Finally you are let down and are unbound by the <<person4>><<person>>.<<unbind>><<remove_shackle>>
+	<<case 1>>
+		Finally you are let down and are unbound by the <<person4>><<person>>.<<unbind>>
+	<<case 2>>
+		Finally you are let down and the chains are removed by the <<person4>><<person>>.<<remove_shackle>>
+	<<case 3>>
+		Finally you are let down by the <<person4>><<person>>.
+<</switch>>
+
 You get on your feet but are still shaky. It takes a while for all your limbs to regain proper feeling.
 <br><br>
 
@@ -2999,7 +3081,6 @@ You get on your feet but are still shaky. It takes a while for all your limbs to
 
 	"You better stay away from our <<if $NPCList[0].pronoun is "f">>girl<<else>>boy<</if>>. We don't want <<person1>><<him>> to fall for a whore," <<he>> says in a condescending tone. <<He>> throws you <<moneyGain 2000>>.
 	<br><br>
-
 <<else>>
 	"That was wonderful," the <<person2>><<person>> says. "You really made this party a success."
 	<br><br>
@@ -3009,13 +3090,17 @@ You get on your feet but are still shaky. It takes a while for all your limbs to
 
 	"We will ask for you again in the future," <<he>> promises with a smile. <<He>> hands you <<moneyGain 2000>>.
 	<br><br>
+<</if>>
 
+<<if $brothel_escortjob.bondage isnot 0>>
+	"Since you arrived like this, I suppose you wouldn't mind leaving in the same state, wouldn't you?" <<He>> laughs as <<he>> returns inside.
+	<br><br>
 <</if>>
 
 Relieved that it's finally over, you leave the house.
 <br><br>
 
-<<link [[Next|Brothel Escort Job End 4]]>><<unbind>><<remove_shackle>><<storeon "escort_job">><</link>>
+<<link [[Next|Brothel Escort Job End 4]]>><<storeon "escort_job">><</link>>
 
 :: Brothel Escort Job End 4
 <<effects>>

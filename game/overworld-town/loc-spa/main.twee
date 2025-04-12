@@ -1,5 +1,6 @@
 :: Spa
 <<set $outside to 0>><<set $location to "spa">><<effects>>
+<<bindingValuesCheck>>
 <<if !$daily.spaEvent>>
 	<<spa_event_select>>
 <</if>>
@@ -51,11 +52,31 @@ A sign reads: "Tanning beds available. <<printmoney _price>> per session. Price 
 	<<if $openinghours is 1 and $exposed lt 1>>
 		<<generate1>><<person1>>
 		<<if $spa_job gte 1>>
+			<<if _bondagecheck>>
+				The receptionist, a <<person>>, briefly looks up from <<his>> desk. <<He>> doesn't seem to care about your state<<if !$comfyBinding.includes("spa job")>> for whatever reason<</if>>.
+				<br><br>
+			<</if>>
+			<<if _armbinds and $awareness gte 500 and $promiscuity gte 75>>
+				<<if !$comfyBinding.includes("spa job")>>
+					<span class="lewd">A lewd idea strikes you.</span> Perhaps you can stay bound and work in another way.
+					<br><br>
+					<<link [[Ask a staff to undo your bindings|Spa Work Unbind]]>><</link>>
+					<br>
+					<<link [[Ask to work in bindings|Spa Work Bound Ask]]>><</link>>
+				<<else>>
+					<<link [[Ask a staff to undo your bindings|Spa Work Unbind]]>><</link>>
+				<</if>>
+				<br><br>
+			<</if>>
 			<<spaicon "massage">><<link [[Work as a masseur (0:50)|Spa Work Start]]>><<endevent>><<money 1000 "spa">><</link>>
 			<br>
 		<<else>>
 			The receptionist, a <<person>>, looks up from <<his>> desk, and curls <<his>> nose. "Make it quick," <<he>> says. "Our clientele don't mix with riff-raff off the street."
 			<br><br>
+			<<if _bondagecheck>>
+				<<He>> doesn't seem to care about your state for whatever reason.
+				<br><br>
+			<</if>>
 			<<socialiseicon "ask">><<link [[Ask for work|Spa Work Ask]]>><</link>>
 			<br>
 		<</if>>
@@ -75,6 +96,39 @@ A sign reads: "Tanning beds available. <<printmoney _price>> per session. Price 
 	<<danubeicon>><<link [[Leave|Danube Street]]>><<endevent>><</link>>
 	<br>
 <</if>>
+
+:: Spa Work Unbind
+<<effects>><<generate2>><<person2>><<bindingValuesCheck>>
+
+You ask a passing member of staff to help you undo your bindings. <<He>> laughs a bit, then comes and frees you.<<unbind>>
+<br><br>
+
+<<if _armshackles or _legshackles>>
+	<<He>> takes a look at your shackles, then shakes <<his>> head. "I'm afraid I can't do anything about these. But I suppose they won't be getting in the way much anyway."
+	<br><br>
+<</if>>
+
+<<He>> then returns to <<his>> work.
+<br><br>
+
+<<link [[Next|Spa]]>><</link>>
+
+
+:: Spa Work Bound Ask
+<<effects>>
+
+"You're serious?" The <<person>> scoffs. "Wanting to work like this... You're either insane or overconfident."
+<br><br>
+
+<<He>> looks at you and thinks for a moment, then continues. "Since you asked, I suppose you can substitute with something else. Your feet, for example, we do have that kind of massage here.<<if $player.gender_appearance is "f" and $player.breastsize gte 5>> Or..." <<He>> leers at your breasts. "Even that works, too. But it's not like such thing is really allowed here.<</if>>"
+<br><br>
+
+"Whatever," <<He>> shrugs. "Work however you like, but working like a normal person is obviously more encouraged. I'll tell the other staffs about you just in case."
+<br><br>
+<<set $comfyBinding.pushUnique("spa job")>>
+
+<<link [[Next|Spa]]>><</link>>
+
 
 :: Spa Tan
 <<effects>>
@@ -240,9 +294,9 @@ The <<person>> scoffs. "Let me make this clear," <<he>> says, pushing <<his>> sp
 	<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips. You can work when you like. Any questions?"
 	<br><br>
 
-	<<link [[Ask for advice|Spa Work Advice]]>><</link>>
+	<<link [[Ask for advice|Spa Work Advice]]>><<set $phase to 0>><</link>>
 	<br>
-	<<link [[No|Spa Work No]]>><</link>>
+	<<link [[No|Spa Work No]]>><<set $phase to 0>><</link>>
 	<br>
 <<else>>
 	"Our clientele expect a certain..." <<He>> pauses. "Standard. <span class="red">You don't meet them.</span> Good day."
@@ -271,6 +325,12 @@ The <<person>> scoffs. "Let me make this clear," <<he>> says, pushing <<his>> sp
 The <<person>> laughs. "No. As I said, just do as the client asks. You can start when you like." <<He>> turns back to <<his>> desk.
 <br><br>
 
+<<if $phase is 1>>
+	<<set $comfyBinding.pushUnique("spa job")>>
+	"Oh, and also," <<He>> says. "I'll tell the other staffs about you beforehand, just in case you actually think of working here like this." <<He>> then returns to <<his>> work.
+	<br><br>
+<</if>>
+
 <<link [[Next|Spa]]>><<endevent>><</link>>
 
 :: Spa Work No
@@ -279,36 +339,109 @@ The <<person>> laughs. "No. As I said, just do as the client asks. You can start
 You shake your head. "Good," the <<person>> says. "You can start when you like." <<He>> turns back to <<his>> desk.
 <br><br>
 
+<<if $phase is 1>>
+	<<set $comfyBinding.pushUnique("spa job")>>
+	"Oh, and also," <<He>> says. "I'll tell the other staffs about you beforehand, just in case you actually think of working here like this." <<He>> then returns to <<his>> work.
+	<br><br>
+<</if>>
+
 <<link [[Next|Spa]]>><<endevent>><</link>>
 <br>
 
 
 :: Spa Work Hands
-<<effects>>
+<<effects>><<bindingValuesCheck>>
 
-"Skilled hands?" the <<person>> asks. "We'll see." <<He>> reaches over the desk, grasps your hands in <<his>> own, and leans forward to observe them.
+<<if _armbinds>>
+	"Skilled hands?" the <<person>> sneers. "What use of "skilled hands" if they're tied up like that?"
+	<br><br>
+	"Whatever. We'll see." <<He>> reaches over the desk, grasps your hands in <<his>> own, and leans forward to observe them.
+<<else>>
+	"Skilled hands?" the <<person>> asks. "We'll see." <<He>> reaches over the desk, grasps your hands in <<his>> own, and leans forward to observe them.
+<</if>>
 
 <<if currentSkillValue("handskill") gte 400>>
 	<<spa_job_init>>
-	<<He>> frowns. "Unexpected. <span class="green">Maybe there is a place for you.</span>" <<He>> pulls away.
-	<br><br>
+		<<if _armbinds>>
+			<<He>> frowns. "Unexpected. Can't understand why you have to tie yourself up like this." <<He>> says.
+			<br><br>
 
-	<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips. You can work when you like. Any questions?"
-	<br><br>
+			<<He>> looks at you and thinks for a moment, then continues. "Since you were so confident despite being all tied up, maybe you can substitute with something else. Your feet, for example, we do have that kind of massage here."
+			<br><br>
 
-	<<link [[Ask for advice|Spa Work Advice]]>><</link>>
-	<br>
-	<<link [[No|Spa Work No]]>><</link>>
+			<<if $player.gender_appearance is "f" and $player.breastsize gte 5>>
+				<<He>> leers at your breasts. "Or... even that works, too. Though, it's not like such thing is really allowed here".
+				<br><br>
+			<</if>>
+		
+			"Whatever. <span class="green">You're qualified enough.</span>" <<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips.
+			You can work when you like. And, um... however you like, but working like a normal person is obviously more encouraged. Any questions?"
+			<br><br>
+
+			<<link [[Ask for advice|Spa Work Advice]]>><<set $phase to 1>><</link>>
+			<br>
+			<<link [[No|Spa Work No]]>><<set $phase to 1>><</link>>
+		<<else>>
+			<<He>> frowns. "Unexpected. <span class="green">Maybe there is a place for you.</span>" <<He>> pulls away.
+			<br><br>
+
+			<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips. You can work when you like. Any questions?"
+			<br><br>
+
+			<<link [[Ask for advice|Spa Work Advice]]>><<set $phase to 0>><</link>>
+			<br>
+			<<link [[No|Spa Work No]]>><<set $phase to 0>><</link>>
+		<</if>>
 	<br>
 <<else>>
-	<<He>> releases <<his>> grasp with a disdainful sneer. "You're not suitable. Good day." <<He>> turns back to <<his>> desk.
-	<br><br>
+	<<if _armbinds>>
+		<<He>> releases <<his>> grasp with a disdainful sneer. "Doesn't look like you have "skilled hands" at all."
+		<br><br>
 
-	<i><span class="blue">C</span> Hand Skill or higher required.</i>
-	<br><br>
+		<<He>> looks at you and thinks for a moment, then continues. "Since you were so confident despite being all tied up, maybe you can substitute with something else. Your feet, for example, we do have that kind of massage here."
+		<br><br>
 
-	<<link [[Next|Spa]]>><<endevent>><</link>>
-	<br>
+		<<if $player.gender_appearance is "f" and $player.breastsize gte 5>>
+			<<He>> leers at your breasts. "Or... even that works, too. Though, it's not like such thing is really allowed here. I'll just check your feet only.".
+			<br><br>
+		<</if>>
+		
+		<<He>> leaves <<his>> desk to come to you, then grabs your feet.
+		<br><br>
+
+		<<if currentSkillValue("feetskill") gte 400>>
+			<<spa_job_init>>
+			<<He>> frowns. "Unexpected. <span class="green">Maybe there is a place for you.</span>" <<He>> pulls away.
+			<br><br>
+
+			<<He>> clears <<his>> throat. "Just do as the clients tell you. It's 50 minutes per session, but allow an hour. Pay is <span class="gold">£10</span> per hour. Plus tips.
+			You can work when you like. And, um... however you like, but working like a normal person is obviously more encouraged. Any questions?"
+			<br><br>
+			
+			<<link [[Ask for advice|Spa Work Advice]]>><<set $phase to 1>><</link>>
+			<br>
+			<<link [[No|Spa Work No]]>><<set $phase to 1>><</link>>
+			<br>
+		<<else>>
+			<<He>> takes a look for a while, then sigh. "You're indeed not suitable in anyway, after all. Good day." <<He>> turns back to <<his>> desk.
+			<br><br>
+
+			<i><span class="blue">C</span> Hand Skill or Feet Skill or higher required.</i>
+			<br><br>
+
+			<<link [[Next|Spa]]>><<endevent>><</link>>
+		<</if>>
+		<br>
+	<<else>>
+		<<He>> releases <<his>> grasp with a disdainful sneer. "You're not suitable. Good day." <<He>> turns back to <<his>> desk.
+		<br><br>
+
+		<i><span class="blue">C</span> Hand Skill or higher required.</i>
+		<br><br>
+
+		<<link [[Next|Spa]]>><<endevent>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 
@@ -434,7 +567,7 @@ The wall is too high to climb from this side. You walk around the perimeter. The
 	You run toward the <<person>>, and jump. <span class="green">You grasp <<his>> limp arm just before the monster pulls it out of reach.</span> The monster pulls you and the thief closer, and higher, until you're right above.
 	<br><br>
 
-	You use your legs and one arm for purchase as you try to prise the <<person>> free. The tentacle's grip is firm, but not unyielding. You hear a rip. A maw tears open below. The monster means to eat you.
+	You use your legs<<if !($leftarm is "bound" and $rightarm is "bound")>> and one arm<</if>> for purchase as you try to prise the <<person>> free. The tentacle's grip is firm, but not unyielding. You hear a rip. A maw tears open below. The monster means to eat you.
 	<br><br>
 
 	<<link [[Next|Spa Tan Monks Success]]>><</link>>
@@ -562,7 +695,7 @@ You get dressed, and return to the spa. The wall is too high to climb from this 
 :: Spa Tan Slap
 <<effects>>
 
-You wipe away the <<persons>> smirk with a firm slap, then return to your room, covering your <<bottom>> with a hand.
+You wipe away the <<persons>> smirk with a firm slap, then return to your room<<if !($leftarm is "bound" and $rightarm is "bound")>>, covering your <<bottom>> with a hand<</if>>.
 <br><br>
 
 <<clotheson>>
@@ -573,7 +706,7 @@ You wipe away the <<persons>> smirk with a firm slap, then return to your room, 
 :: Spa Tan Turn
 <<effects>>
 
-You leave the <<person>> to <<his>> mirth, and return to your room, covering your <<bottom>> with a hand.
+You leave the <<person>> to <<his>> mirth, and return to your room<<if !($leftarm is "bound" and $rightarm is "bound")>>, covering your <<bottom>> with a hand<</if>>.
 <br><br>
 
 <<clotheson>>

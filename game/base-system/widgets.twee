@@ -2259,11 +2259,21 @@
 	<</if>>
 <</widget>>
 
+<<widget "bindingValuesCheck">>
+	<<set _armbinds to ($leftarm is "bound" or $rightarm is "bound")>>
+	<<set _legbinds to ($feetuse is "bound" and !$worn.feet.type.includes("shackle"))>>
+	<<set _armshackles to ($leftarm is "cuffed" or $rightarm is "cuffed" or $worn.hands.type.includes("shackle"))>>
+	<<set _legshackles to ($feetuse is "bound" and $worn.feet.type.includes("shackle"))>>
+	<<set _gagsoft to $worn.face.type.includes("gag")>>
+	<<set _gag to ($worn.face.type.includes("gag") and $worn.face.cursed is 1)>>
+	<<set _bondagecheck to (_armbinds or _legbinds or _armshackles or _legshackles or _gagsoft or _gag)>>
+	<<set _bindscheck to (_armbinds or _legbinds or _armshackles or _legshackles)>>
+<</widget>>
+
 <<widget "arm_unbind">>
-	<<set $rightboundcarry to 0>>
-	<<set $leftboundcarry to 0>>
-	<<set $leftarm to 0>>
-	<<set $rightarm to 0>>
+	<<if !$worn.hands.type.includes("shackle")>>
+		<<hand_unbind>>
+	<</if>>
 	<<if $worn.upper.type.includes("binding")>>
 		<<set _unbind_check to 1>>
 		<<if $worn.upper.set is $worn.lower.set>>
@@ -2275,16 +2285,13 @@
 	<</if>>
 <</widget>>
 
-<<widget "unbind">>
-	/*<<unbind>> is only used for the player unbinding their arms after they've been tied with rope. it will destroy handheld items. do not use it for unbinding arms after they've been temporarily restrained; use <<unbindtemp>> instead*/
+<<widget "full_unbind">>
+	/*<<full_unbind>> is only used for the player fully freeing themselves from all bindings and shackles. It will destroy handheld items. Do not use it for unbinding temporarily restrained arms (that would still keep shackles afterward); use <<full_unbindtemp>> instead*/
 	<<if $rightarm is "bound" and $worn.handheld.name isnot "naked">>
 		<<handheldruined>>
 	<</if>>
-	<<set $rightboundcarry to 0>>
-	<<set $leftboundcarry to 0>>
-	<<set $leftarm to 0>>
-	<<set $rightarm to 0>>
 	<<remove_shackle>>
+	<<hand_unbind>>
 	<<leg_unbind>>
 	<<if $head is "bound">>
 		<<set $head to 0>>
@@ -2300,13 +2307,50 @@
 	<</if>>
 <</widget>>
 
-<<widget "unbindtemp">>
-	<<set $rightboundcarry to 0>>
-	<<set $leftboundcarry to 0>>
-	<<set $leftarm to 0>>
-	<<set $rightarm to 0>>
+<<widget "unbind">>
+	/*<<unbind>> is only used for the player unbinding rope ties and not shackles. it will destroy handheld items, but will keep any shackles previously have. do not use it for unbinding arms after they've been temporarily restrained; use <<unbindtemp>> instead*/
+	<<if !$worn.hands.type.includes("shackle")>>
+		<<hand_unbind>>
+	<<else>>
+		<<set $leftarm to "cuffed">>
+		<<set $rightarm to "cuffed">>
+	<</if>>
+	<<if !$worn.feet.type.includes("shackle")>>
+		<<leg_unbind>>
+	<</if>>
+	<<if $head is "bound">>
+		<<set $head to 0>>
+	<</if>>
+	<<if $worn.upper.type.includes("binding")>>
+		<<set _unbind_check to 1>>
+		<<if $worn.upper.set is $worn.lower.set>>
+			<<set $worn.lower.type.push("broken")>>
+			<<lowerruined>>
+		<</if>>
+		<<set $worn.upper.type.push("broken")>>
+		<<upperruined>>
+	<</if>>
+<</widget>>
+
+<<widget "full_unbindtemp">>
+	<<hand_unbind>>
 	<<remove_shackle>>
 	<<leg_unbind>>
+	<<if $head is "bound">>
+		<<set $head to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "unbindtemp">>
+	<<if !$worn.hands.type.includes("shackle")>>
+		<<hand_unbind>>
+	<<else>>
+		<<set $leftarm to "cuffed">>
+		<<set $rightarm to "cuffed">>
+	<</if>>
+	<<if !$worn.feet.type.includes("shackle")>>
+		<<leg_unbind>>
+	<</if>>
 	<<if $head is "bound">>
 		<<set $head to 0>>
 	<</if>>
@@ -2333,6 +2377,18 @@
 	<<set $rightarm to "bound">>
 <</widget>>
 
+<<widget "arm_cuff">>
+	<<set $leftarm to "cuffed">>
+	<<set $rightarm to "cuffed">>
+<</widget>>
+
+<<widget "hand_unbind">>
+	<<set $rightboundcarry to 0>>
+	<<set $leftboundcarry to 0>>
+	<<set $leftarm to 0>>
+	<<set $rightarm to 0>>
+<</widget>>
+
 <<widget "legbind">>
 	<<set $leftleg to "bound">>
 	<<set $rightleg to "bound">>
@@ -2346,11 +2402,21 @@
 <</widget>>
 
 <<widget "remove_shackle">>
+	<<if $worn.hands.type.includes("shackle")>>
+		<<set $worn.hands.type.push("broken")>>
+		<<handsruined>>
+		<<hand_unbind>>
+	<</if>>
 	<<if $worn.feet.type.includes("shackle")>>
 		<<set $worn.feet.type.push("broken")>>
 		<<feetruined>>
 		<<leg_unbind>>
 	<</if>>
+<</widget>>
+
+<<widget "shackle_hands">>
+	<<handswear 12>>
+	<<arm_cuff>>
 <</widget>>
 
 <<widget "shackle_feet">>
@@ -2363,13 +2429,21 @@
 <</widget>>
 
 <<widget "bindings">>
-	<<if $leftarm is "bound" and $position isnot "wall">><<set $leftboundcarry to 1>><</if>>
-	<<if $rightarm is "bound" and $position isnot "wall">><<set $rightboundcarry to 1>><</if>>
+	<<if ($leftarm is "bound" or $leftarm is "cuffed") and $position isnot "wall">><<set $leftboundcarry to 1>><</if>>
+	<<if ($rightarm is "bound" or $rightarm is "cuffed") and $position isnot "wall">><<set $rightboundcarry to 1>><</if>>
 	<<if $rightboundcarry is 1 and $rightarm isnot "bound">>
-		<<set $rightarm to "bound">>
+		<<if $worn.hands.type.includes("shackle") and $rightarm isnot "cuffed">>
+			<<set $rightarm to "cuffed">>
+		<<else>>
+			<<set $rightarm to "bound">>
+		<</if>>
 	<</if>>
 	<<if $leftboundcarry is 1 and $leftarm isnot "bound">>
-		<<set $leftarm to "bound">>
+		<<if $worn.hands.type.includes("shackle") and $leftarm isnot "cuffed">>
+			<<set $leftarm to "cuffed">>
+		<<else>>
+			<<set $leftarm to "bound">>
+		<</if>>
 	<</if>>
 <</widget>>
 

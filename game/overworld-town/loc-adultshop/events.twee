@@ -174,7 +174,7 @@
 <</widget>>
 
 <<widget "sydneyEvent4Backrooms">>
-	<<npc Sydney>><<set $adultshopclerkworking to 1>><<set $daily.sydney.adultshop to true>><<effects>><<run statusCheck("Sydney")>>
+	<<npc Sydney>><<set $adultshopclerkworking to 1>><<set $daily.sydney.adultshop to true>><<effects>><<run statusCheck("Sydney")>><<bindingValuesCheck>>
 	Sydney approaches you.
 	<br>
 	<<if _sydneyStatus.includes("corrupt")>>
@@ -182,10 +182,19 @@
 	<<else>>
 		"I need your help restocking. I need to reach the top of a storage rack, but it's too high."
 	<</if>>
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		<<He>> pauses for a second, looking at your bound arms. "It's okay if you don't want to, though."
+	<</if>>
 	<br><br>
-	<<link [[Follow Sydney|Sydney Backroom Intro]]>><<npcincr Sydney love 1>><</link>><<glove>>
-	<br>
-	<<link [[Refuse|Sydney Backroom Refuse Work]]>><<npcincr Sydney love -5>><</link>><<lllove>>
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		<<link [[Follow Sydney|Sydney Backroom Intro]]>><<npcincr Sydney love 2>><<set $phase to 1>><</link>><<glove>>
+		<br>
+		<<link [[Refuse|Sydney Backroom Refuse Work]]>><<npcincr Sydney love -1>><<set $phase to 1>><</link>><<llove>>
+	<<else>>
+		<<link [[Follow Sydney|Sydney Backroom Intro]]>><<npcincr Sydney love 1>><<set $phase to 0>><</link>><<glove>>
+		<br>
+		<<link [[Refuse|Sydney Backroom Refuse Work]]>><<npcincr Sydney love -5>><<set $phase to 0>><</link>><<lllove>>
+	<</if>>
 <</widget>>
 
 :: Whitney Dildo Thief
@@ -211,8 +220,12 @@
 	"I'm sorry, but I can't help right now. Maybe later?"
 <</if>>
 <br>
-<<if _sydneyStatus.includes("corrupt")>>
+<<if _sydneyStatus.includes("corrupt") and $phase is 1>>
+	Sydney pouts but lets go of your arm. "Alright. I suppose you really can't help..."
+<<elseif _sydneyStatus.includes("corrupt")>>
 	Sydney pouts but lets go of your arm. "Alright. I suppose if you prefer to sit here doing nothing..."
+<<elseif $phase is 1>>
+	Sydney sighs. "Okay, then. Sorry to bother you."
 <<else>>
 	Sydney frowns. "Oh... Okay, then. Sorry to bother you."
 <</if>>
@@ -231,7 +244,14 @@ The rest of the shift is uneventful. You earn <<adultShopWage>><<moneyGain _wage
 You enter the store. Sydney looks up from stocking shelves, beaming when <<he>> sees you.
 <br>
 <<if _sydneyStatus.includes("corrupt")>>
-	"Hey, I need your help with replenishing stock." <<He>> playfully tugs on your arm. "Shouldn't take much time, let's go."
+	"Hey, I need your help with replenishing stock." <<He>> playfully tugs on your arm
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		, but then notices your bound arms. "Well... It's fine if you don't want to, but this shouldn't take much time."
+	<<else>>
+		. "Shouldn't take much time, let's go."
+	<</if>>
+<<elseif $leftarm is "bound" or $rightarm is "bound">>
+	"Welcome," Sydney says as <<he>> approaches you, but then notices your bound arms. "Uh... I needed help with grabbing some stock at the top of a storage rack. It's too high for me to reach, and <<sydneyMum>> is busy. It's okay if you don't want to, though."
 <<else>>
 	"Welcome," Sydney says as <<he>> approaches you. "You're just in time. I need your help with grabbing some stock at the top of a storage rack. It's too high for me to reach, and <<sydneyMum>> is busy."
 <</if>>
@@ -239,9 +259,15 @@ You enter the store. Sydney looks up from stocking shelves, beaming when <<he>> 
 Sirris winks at you, watching the exchange with a glint in <<nnpc_his Sirris>> eye.
 <br><br>
 <<set $adultshopintro to 1>>
-<<link [[Follow Sydney (0:10)|Sydney Backroom Intro]]>><<pass 10>><<npcincr Sydney love 1>><</link>><<glove>>
-<br>
-<<link [[Refuse|Sydney Backroom Enter Refuse]]>><<npcincr Sydney love -5>><</link>><<lllove>>
+<<if $leftarm is "bound" or $rightarm is "bound">>
+	<<link [[Follow Sydney (0:10)|Sydney Backroom Intro]]>><<pass 10>><<npcincr Sydney love 2>><<set $phase to 1>><</link>><<glove>>
+	<br>
+	<<link [[Refuse|Sydney Backroom Enter Refuse]]>><<npcincr Sydney love -1>><<set $phase to 1>><</link>><<llove>>
+<<else>>
+	<<link [[Follow Sydney (0:10)|Sydney Backroom Intro]]>><<pass 10>><<npcincr Sydney love 1>><<set $phase to 0>><</link>><<glove>>
+	<br>
+	<<link [[Refuse|Sydney Backroom Enter Refuse]]>><<npcincr Sydney love -5>><<set $phase to 0>><</link>><<lllove>>
+<</if>>
 
 
 :: Sydney Backroom Enter Refuse
@@ -257,6 +283,8 @@ Sirris winks at you, watching the exchange with a glint in <<nnpc_his Sirris>> e
 <br>
 <<if _sydneyStatus.includes("corrupt")>>
 	Sydney pouts but lets go of your arm. "Alright. See you around, then."
+<<elseif $phase is 1>>
+	Sydney sighs. "Okay, then. Sorry to bother you."
 <<else>>
 	Sydney frowns. "Oh... Okay, then. Sorry to bother you."
 <</if>>
@@ -281,11 +309,22 @@ Sydney smiles and nods, before leading you to the backrooms.
 <br><br>
 Boxes of various sizes occupy most of the room, as well as storage equipment here and there. You don't see a ladder, though there is a sofa in a far corner.
 <br><br>
-"There." <<He>> points at the box at the top of a tall rack. "It's high, but I think if you stand on my shoulders you'll easily reach it."
+"There." <<He>> points at the box at the top of a tall rack. 
+<<if $phase is 1>>
+	"It's high, but I think if I stand on your shoulders I'll easily reach it."
+<<else>>
+	"It's high, but I think if you stand on my shoulders you'll easily reach it."
+<</if>>
 <br><br>
-<<link [[Lift Sydney|Sydney Backroom Lifting]]>><<npcincr Sydney love 1>><<npcincr Sydney lust 1>><</link>><<glove>><<glust>><<physiquedifficulty 8000 16000>>
-<br>
-<<link [[Vault Sydney|Sydney Backroom Lifted]]>><</link>>
+<<if $phase is 1>>
+	<span class="red">You can't hold the box by yourself with your arms bound.</span>
+	<br>
+	<<link [[Lift Sydney|Sydney Backroom Lifting]]>><<npcincr Sydney lust 1>><</link>><<glust>><<physiquedifficulty 8000 16000>>
+<<else>>
+	<<link [[Lift Sydney|Sydney Backroom Lifting]]>><<npcincr Sydney love 1>><<npcincr Sydney lust 1>><</link>><<glove>><<glust>><<physiquedifficulty 8000 16000>>
+	<br>
+	<<link [[Vault Sydney|Sydney Backroom Lifted]]>><</link>>
+<</if>>
 
 :: Sydney Backroom Lifted
 <<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
@@ -513,14 +552,25 @@ You ignore Sydney's <<if _sydneyStatus.includes("corrupt")>>goading<<else>>gawki
 :: Sydney Backroom Lifting
 <<set $outside to 0>><<set $location to "adult_shop">><<effects>><<run statusCheck("Sydney")>>
 
-<<if $speech_attitude is "meek">>
-	You get down on hands and knees. "I... I think I can lift you instead. May I?"
-<<elseif $speech_attitude is "bratty">>
-	You squat down and pat your back. "C'mon. I'll give you a lift."
+<<if $phase is 1>>
+	<<if $speech_attitude is "meek">>
+		You get down on your knees. "M-May I?"
+	<<elseif $speech_attitude is "bratty">>
+		You squat down. "C'here. I'll give you a lift."
+	<<else>>
+		You kneel down. "Here. Let me lift you."
+	<</if>>
+	<br><br>
 <<else>>
-	You kneel down and wave over your shoulder. "I can lift you instead."
+	<<if $speech_attitude is "meek">>
+		You get down on hands and knees. "I... I think I can lift you instead. May I?"
+	<<elseif $speech_attitude is "bratty">>
+		You squat down and pat your back. "C'mon. I'll give you a lift."
+	<<else>>
+		You kneel down and wave over your shoulder. "I can lift you instead."
+	<</if>>
+	<br><br>
 <</if>>
-<br><br>
 
 <<if $bodysize lte 0>>
 	<<if _sydneyStatus.includes("corrupt")>>
@@ -555,8 +605,12 @@ You ignore Sydney's <<if _sydneyStatus.includes("corrupt")>>goading<<else>>gawki
 <</if>>
 <br><br>
 
-<<if $sydney.glasses is "glasses" or $sydney.glasses is "playerbought">>
+<<if ($sydney.glasses is "glasses" or $sydney.glasses is "playerbought") and $phase is 1>>
+	Sydney sets <<his>> glasses on a shelf and holds onto the rack to balance both <<him>> and you as you
+<<elseif $sydney.glasses is "glasses" or $sydney.glasses is "playerbought">>
 	Sydney sets <<his>> glasses on a shelf as you
+<<elseif $phase is 1>>
+	Sydney holds onto the rack to balance both <<him>> and you as you
 <<else>>
 	You
 <</if>>
@@ -618,7 +672,7 @@ rise from the ground.
 Sydney comes to <<his>> senses.
 <<if $sydneyromance is 1>>
 	<<if _sydneyStatus.includes("corrupt")>>
-		<<He>> grins when <<he>> sees you beneath <<him>>. "Bad <<girl>>," <<he>> tuts. "Look at the mess you've made."
+		<<He>> grins when <<he>> sees you beneath <<him>>. "Bad <<girl>>," <<he>> tuts. "Look at the mess you've made.<<if $phase is 1>> Can't be helped when you're like this but still...<</if>>"
 		<br><br>
 
 		<<He>> flips you onto your back and
@@ -703,17 +757,23 @@ You push up with all your might, throwing Sydney off your head. <<He>> yelps as 
 
 You flip onto your back, without disturbing Sydney's position. <<He>> jerks away on instinct.
 <<if $speech_attitude is "meek">>
-	You stroke <<his>> thigh.
+	<<if $phase is 1>>
+		You stroke <<his>> thigh.
+	<</if>>
 	<br><br>
 
 	"You look tired," you coo. "Why don't you have a seat?"
 <<elseif $speech_attitude is "bratty">>
-	You grab <<his>> thighs, holding <<him>> still.
+	<<if $phase is 1>>
+		You grab <<his>> thighs, holding <<him>> still.
+	<</if>>
 	<br><br>
 
 	"Not so fast," you say. "I'm not done with you."
 <<else>>
-	You rest your hands on <<his>> hips.
+	<<if $phase is 1>>
+		You rest your hands on <<his>> hips.
+	<</if>>
 	<br><br>
 
 	"Going somewhere?" you say. "But I was just getting comfy."
@@ -1793,7 +1853,7 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 <</if>>
 
 :: Adult Shop Sydney Cuffs Free
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<bindingValuesCheck>>
 <<run statusCheck("Sydney")>>
 
 <<if $phase is 1>>
@@ -1801,9 +1861,12 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 	<br><br>
 
 	<<if _sydneyStatus is "corruptLust">>
-		<<bindtemp>>
-		You turn to leave, but Sydney grabs your wrists and pulls you back. Before you can react, <<he>> pulls them over your head, just like <<his>> were. <span class="lewd">You hear a click.</span> You're stuck.<<stress 2>><<gstress>>
+		You turn to leave, but Sydney grabs your wrists and pulls you back.
+		<<if !_armbinds>>
+			Before you can react, <<he>> pulls them over your head, just like <<his>> were.<<if !_armshackles>> <span class="lewd">You hear a click.</span> You're stuck.<</if>><<stress 2>><<gstress>>
+		<</if>>
 		<br><br>
+		<<if !_armbinds and !_armshackles>><<bindtemp>><<set $phase to 0>><</if>>
 
 		"You wanna do things the hard way?" <<He>> licks <<his>> lips. "Fine by me."
 		<br><br>
@@ -1852,10 +1915,10 @@ Glancing over <<his>> shoulder, <<he>> grasps the back of your head and brings y
 <</if>>
 
 :: Adult Shop Sydney Cuffs Tease
-<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>><<bindingValuesCheck>>
 <<run statusCheck("Sydney")>>
 
-You tap your chin in mock thought.
+You <<if _armbinds>>cock your head<<else>>tap your chin<</if>> in mock thought.
 <<if $speech_attitude is "meek">>
 	"Gosh, I don't know." You smile coyly. "I kind of like seeing you like this."
 <<elseif $speech_attitude is "bratty">>
@@ -1869,7 +1932,7 @@ You tap your chin in mock thought.
 	Sydney opens <<his>> mouth to retort, looking indignant, but stops <<himself>>. <<His>> pout morphs into a smirk.
 	<br><br>
 
-	"Tough talk. Shame you're too much of a wuss to go through with it." <<He>> wiggles <<his>> rear in your direction, taunting you.
+	"Tough talk<<if _armbinds or _armshackles>> for someone who's in no better condition<</if>>. Shame you're too much of a wuss to go through with it." <<He>> wiggles <<his>> rear in your direction, taunting you.
 	<br><br>
 
 	<<link [[Give in|Adult Shop Sydney Cuffed Sex]]>><<set $sexstart to 1>><<npcincr Sydney purity -1>><</link>><<promiscuous1>><<lspurity>>
@@ -1900,8 +1963,14 @@ You thrash against your restraints. Sydney throws <<his>> arms up. "Hey, take it
 <br><br>
 
 <<npc Sirris 2>><<person2>>
-The door swings open. "Everything alright?" It's Sirris. "Thought I heard..." <<He>> trails off, taking in the scene before <<him>>. <<He>> hurries over to free you, before making <<his>> way to Sydney.
-<<unbindtemp>>
+The door swings open. "Everything alright?" It's Sirris. "Thought I heard..." <<He>> trails off, taking in the scene before <<him>>. 
+<<if $phase is 1 and $comfyBinding.includes("adult shop Sirris")>>
+	<<He>> makes <<his>> way to Sydney.
+<<else>>
+	<<He>> hurries over to free you, before making <<his>> way to Sydney.
+	<<unbindtemp>>
+	<<if $worn.hands.type.includes("shackle")>><<set $worn.hands.type.push("broken")>><<handsruined>><</if>>
+<</if>>
 <br><br>
 
 "We need to talk," <<he>> says, a troubled look on <<his>> face. Sydney tries to explain, but <<person1>><<his>> stammering fades as <<hes>> dragged outside. Once you've regained your bearings, you follow them out.
@@ -2106,11 +2175,15 @@ The rest of the shift is uneventful. You earn <<adultShopWage>><<moneyGain _wage
 	<</if>>
 	<<npcincr Sydney purity -2>><<lspurity>>
 	<br>
-	<<He>> reaches over your head and unlocks your cuffs. Your arms fall to your sides.
-	<br><br>
+	<<if $phase is 0 or !$comfyBinding.includes("adult shop Sydney")>>
+		<<He>> reaches over your head and unlocks your cuffs. Your arms fall to your sides.
+		<br><br>
+		<<unbindtemp>>
+		<<if $worn.hands.type.includes("shackle")>><<set $worn.hands.type.push("broken")>><<handsruined>><</if>>
+	<</if>>
 
 	<<if _sydneyStatus.includes("corrupt")>>
-		"So, you like being all tied up?" <<He>> hums in thought. "Good to know."
+		"So, you like being all tied up<<if $comfyBinding.includes("adult shop Sydney")>> after all.<<else>>?<</if>>" <<He>> hums in thought. "Good to know."
 	<<else>>
 		"I would've liked being on the other end, but..." <<He>> giggles. "This felt pretty good, too."
 	<</if>>
@@ -2121,26 +2194,41 @@ The rest of the shift is uneventful. You earn <<adultShopWage>><<moneyGain _wage
 	Sydney yelps and stumbles back. "Okay, okay! You could've just said no."
 	<br><br>
 
-	<<He>> steps towards you. You brace yourself, but <<he>> reaches above your head. "This is your fault, you know. Should've just played along," <<he>> mutters while fiddling with your cuffs. "And after all the effort it took getting myself in those cuffs. Honest!"
-	<br><br>
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		<<He>> steps towards you. You brace yourself, but <<he>> reaches your arms. "This is your fault, you know. Should've just played along," <<he>> mutters while cutting your bindings and fiddling with your cuffs. "And after all the effort it took getting myself in those cuffs. Honest!"
+		<br><br>
+	<<else>>
+		<<He>> steps towards you. You brace yourself, but <<he>> reaches above your head. "This is your fault, you know. Should've just played along," <<he>> mutters while fiddling with your cuffs. "And after all the effort it took getting myself in those cuffs. Honest!"
+		<br><br>
+	<</if>>
+	<<unbindtemp>>
+	<<if $worn.hands.type.includes("shackle")>><<set $worn.hands.type.push("broken")>><<handsruined>><</if>>
 
 	The handcuffs click open, and your arms fall free. Sydney pokes your chest. "Next time, we're doing this my way."<<npcincr Sydney lust 1>><<glust>>
 	<br><br>
 
 	<<He>> leaves the storeroom with a wink over <<his>> shoulder. <<tearful>> you follow after <<him>>.
 <<else>>
-	Sydney shrugs. "Okay. I'll leave you alone." <<He>> exits the back room without another word, leaving you locked up.<<stress 2>><<gstress>>
-	<br><br>
+	<<if $phase is 1>>
+		Sydney shrugs. "Okay. I'll leave you alone." <<He>> exits the back room without another word.
+		<br><br>
 
-	<<npc Sirris 2>><<person2>>
-	You struggle in vain to free yourself. After a while, Sirris comes in to investigate the noise. <<He>> gasps when <<he>> sees you, and soon has you free.
-	<br><br>
+		<<tearful>> you hasten back to work. You pass by Sydney, who smiles and waves.<<npcincr Sydney lust 1>><<gslust>>
+	<<else>>
+		Sydney shrugs. "Okay. I'll leave you alone." <<He>> exits the back room without another word, leaving you locked up.<<stress 2>><<gstress>>
+		<br><br>
 
-	<<tearful>> you dodge Sirris' questions and hasten back to work. You pass by Sydney, who smiles and waves.<<npcincr Sydney lust 1>><<gslust>>
+		<<npc Sirris 2>><<person2>>
+		You struggle in vain to free yourself. After a while, Sirris comes in to investigate the noise. <<He>> gasps when <<he>> sees you, and soon has you free.
+		<br><br>
+		<<unbindtemp>>
+		<<if $worn.hands.type.includes("shackle")>><<set $worn.hands.type.push("broken")>><<handsruined>><</if>>
+
+		<<tearful>> you dodge Sirris' questions and hasten back to work. You pass by Sydney, who smiles and waves.<<npcincr Sydney lust 1>><<gslust>>
+	<</if>>
 <</if>>
 <br><br>
 
-<<unbindtemp>>
 <<clotheson>>
 <<endcombat>>
 
@@ -2641,7 +2729,9 @@ You lean closer to the <<person>>.
 /* Oyea passout */
 :: Adult Shop Passout Bondage
 <<set $outside to 0>><<set $location to "adult_shop">><<effects>>
-<<bind>><<leash 21>><<facewear 29>>
+<<bind>>
+<<if !$worn.neck.type.includes("leash")>><<leash 21>><</if>>
+<<if !$worn.face.type.includes("gag")>><<facewear 29>><</if>>
 <<generate1>><<person1>>
 
 You wake up on your knees, your hands behind your back. Your mouth is filled with a leathery mass. It's stuffy. Something tight is clamped around your neck.
@@ -2724,9 +2814,13 @@ You're powerless to resist as the <<person1>><<person>> drags you out the store.
 
 		<<destinationbondage>>
 	<<else>>
-		<<He>> undoes your bondage. "That was fun," <<he>> laughs. "Thanks for the test run, slut."
-		<<unbind>><<set $worn.face.type.push("broken")>><<faceruined>>
-		<br><br>
+		<<if $phase is 1>>
+			"That was fun," <<he>> laughs. "Thanks for the test run, slut. You can keep the rest, too."
+		<<else>>
+			<<He>> undoes your bondage. "That was fun," <<he>> laughs. "Thanks for the test run, slut."
+			<<unbind>><<set $worn.face.type.push("broken")>><<faceruined>>
+			<br><br>
+		<</if>>
 
 		<<He>> leaves you lying in the alley. <<tearful>> you rise to your feet.
 		<br><br>
@@ -2878,6 +2972,16 @@ Suddenly, the door flies open. Sydney tenses up, pulling you close, but <<he>> r
 
 Once <<nnpc_hes "Sirris">> sure you're okay, Sirris shuts the door, leaving you alone with Sydney. You lie with <<him>> for a while longer.
 <br><br>
+
+<<if $phase is 1 and $comfyBinding.includes("adult shop Sydney")>>
+	<<if _sydneyStatus.includes("corrupt")>>
+		"You should've been more careful," <<He>> nags at you. "Especially with that hobby you have."
+	<<else>>
+		"That's why I told you to be careful!" <<He>> nags at you.
+	<</if>>
+	<<He>> continues for a while longer.
+	<br><br>
+<</if>>
 
 After some time, you decide to head back to the shop. <<He>> seems reluctant to leave you, but you assure <<him>> you'll be fine. <<tearful>> you make your way back outside.
 <br><br>
@@ -3040,7 +3144,6 @@ Before you formulate a reply, Sydney appears.<<person2>>
 		<br><br>
 		The rest of the shift passes uneventfully. You earn <<adultShopWage>><<moneyGain _wage>>.
 		<br><br>
-		<<link [[Return|Adult Shop]]>><</link>>
 	<<else>>
 		<<if hasSexStat("promiscuity", 4) and $sydneyromance gte 1>>
 			<span class="lewd">You suppress a giggle as you look at the _toy.</span> "It sure is. Would you like to try it out later? I wouldn't mind helping if you like."
@@ -3050,7 +3153,6 @@ Before you formulate a reply, Sydney appears.<<person2>>
 			<<adultShopWage>><<set _tip to _wage+random(1,5)*(random(1,10)+($mathstrait / 4)+($allure/4000))>>
 			<<He>> leaves you a tip. You earn <<moneyGain _tip>>.
 			<br><br>
-			<<link [[Return|Adult Shop]]>><</link>>
 		<<else>>
 			<<person2>>
 			You look at the package, <span class="lewd">smiling while examining the content.</span> You whisper in Sydney's ear. "You've got it right. That's what it's for."
@@ -3059,7 +3161,6 @@ Before you formulate a reply, Sydney appears.<<person2>>
 			<br><br>
 			The rest of the shift passes uneventfully. You earn <<adultShopWage>><<moneyGain _wage>>.
 			<br><br>
-			<<link [[Return|Adult Shop]]>><</link>>
 		<</if>>
 	<</if>>
 
@@ -3078,7 +3179,6 @@ Before you formulate a reply, Sydney appears.<<person2>>
 	<br><br>
 	The rest of the shift passes uneventfully. You earn <<adultShopWage>><<moneyGain _wage>>.
 	<br><br>
-	<<link [[Return|Adult Shop]]>><</link>>
 
 <<else>>
 	<<if $awareness lt 200>>
@@ -3089,8 +3189,6 @@ Before you formulate a reply, Sydney appears.<<person2>>
 		<br><br>
 		The rest of the shift passes uneventfully. You earn <<adultShopWage>><<moneyGain _wage>>.
 		<br><br>
-		<<link [[Return|Adult Shop]]>><</link>>
-
 	<<else>>
 		You look at the package, <span class="lewd">smiling while examining the content.</span> You whisper in <<his>> ear, "It is. One of the newer ones too."
 		<br><br>
@@ -3099,8 +3197,7 @@ Before you formulate a reply, Sydney appears.<<person2>>
 		<br><br>
 		The rest of the shift passes uneventfully. You earn <<adultShopWage>><<moneyGain _wage>>.
 		<br><br>
-		<<link [[Return|Adult Shop]]>><</link>>
-
 	<</if>>
 
 <</if>>
+<<link [[Return|Adult Shop]]>><</link>> /*They all end with this so it would be simpler to just put this at the end*/

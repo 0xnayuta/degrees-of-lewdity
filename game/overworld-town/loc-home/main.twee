@@ -140,10 +140,13 @@ You are in your bedroom.
 <<if $unbind is 1>>
 	<<unset $unbind>>
 	<<if $possessed>>
-		You stare down at your bindings. You pull, and they fall apart, unable to hold against you. <<unbind>>
+		You stare down at your bindings. You pull, and they all fall apart, unable to hold against you. <<full_unbind>>
 		<br><br>
 	<<else>>
 		<span class="green">You rub your bindings against your <span style="position:relative;top:-5px"><<furnitureicon _desk.iconFile>></span> desk.</span> It takes some effort, but eventually the material yields, freeing your limbs.
+		<<if $worn.hands.type.includes("shackle") or $worn.feet.type.includes("shackle")>>
+			The cuffs still remain, however, since you can't break them the same way.
+		<</if>>
 		<br><br>
 	<</if>>
 <</if>>
@@ -185,10 +188,18 @@ You are in your bedroom.
 	<<rngWraith 1>>
 <</if>>
 
-<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
-	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
-	<br><br>
-<</if>>
+	<<set _roombound to ($leftarm is "bound" or $rightarm is "bound" or ($feetuse is "bound" or $worn.feet.name is "ankle cuffs" and !$worn.feet.type.includes("shackle")))>>
+	<<set _roomcuffed to ($leftarm is "cuffed" or $rightarm is "cuffed" or ($feetuse is "bound" and $worn.feet.type.includes("shackle")))>>
+	<<if _roombound>>
+		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>><br>
+	<</if>>
+	<<if _roomcuffed>>
+		<<set $skulduggerydifficulty to 700>>
+		<<link [[Try to remove your shackles|Bedroom Uncuffing]]>><</link>><<skulduggerydifficulty>><br>
+	<</if>>
+	<<if _roombound or _roomcuffed>>
+		<br>
+	<</if>>
 
 <<if $robinpaid is 1 and $robinmissing is 0 and $robinnote isnot 1 and C.npc.Robin.lust gte 10 and C.npc.Robin.love gte 60 and C.npc.Robin.trauma lt 10>>
 	<span class="gold">There's a note by the window.</span>
@@ -460,6 +471,31 @@ The hallway outside connects to the rest of the orphanage.
 <<else>>
 	<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 <</if>>
+
+:: Bedroom Uncuffing
+<<effects>>
+
+You attempt to remove the shackles by yourself. 
+
+<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+		<<set _uncufftime to 11 - Math.ceil(Math.clamp(currentSkillValue('skulduggery'), 0, 1000) / 100)>>
+		<<if _uncufftime lte 3>>
+			<span class="green">You swiftly unlock the cuffs,</span> letting them come loose and freeing your limbs.
+		<<else>>
+			It takes some effort, <span class="green">but you eventually succeed</span> and the shackles come loose, freeing your limbs.
+		<</if>>
+		<<remove_shackle>>
+		<<skulduggeryuse>>
+		<<pass _uncufftime>>
+	<<else>>
+		Despite your best effort, <span class="red">the cuffs still remain intact.</span> After struggling for a while, you give up.
+		<br><br>
+		<<pass 10>>
+	<</if>>
+
+<<link [[Next|Bedroom]]>><</link>>
+<br>
 
 :: Bedroom Kylar Gift Open
 <<effects>><<wearProp "kylar owl">>
@@ -843,7 +879,7 @@ You squirt a dollop of toothpaste on your toothbrush and brush your teeth. When 
 	<<set $robindebtwake to 0>><<set $robindebtknown to 1>>
 	<<npc Robin>><<person1>>You're awoken by your door opening. You freeze in fear, until you see Robin peek through the gap. "Can I come in?" <<he>> asks.
 	<br><br>
-	<<if $exposed gte 1>>
+	<<if $exposed gte 1 and $exhibitionism lt 90>>
 		You pull your covers up to keep your <<lewdness>> concealed as you nod.
 	<<else>>
 		You nod.
@@ -1592,6 +1628,8 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 		<<else>>
 			<<if $leftarm is "bound" and $rightarm is "bound">>
 				You want to cover your <<lewdness>>, but with <span class="red">your arms bound</span> you can't. You feel deep embarrassement and your face reddens.<<stress 6>> They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
+			<<elseif $worn.hands.type.includes("shackle")>>
+				You want to cover your <<lewdness>>, but with <span class="red">your arms cuffed</span> you can't cover everything. You feel embarrassed and your face reddens.<<stress 3>> They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
 			<<else>>
 				You cover your <<lewdness>>. They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
 			<</if>>
@@ -1618,6 +1656,8 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 		<<else>>
 			<<if $leftarm is "bound" and $rightarm is "bound">>
 				You want to cover your <<lewdness>>, but with <span class="red">your arms bound</span> you can't. You feel deep embarrassement and your face reddens.<<stress 6>> They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
+			<<elseif $worn.hands.type.includes("shackle")>>
+				You want to cover your <<lewdness>>, but with <span class="red">your arms cuffed</span> you can't cover everything. You feel embarrassed and your face reddens.<<stress 3>> They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
 			<<else>>
 				You cover your <<lewdness>>. They stare at you with wide eyes. The <<person1>><<person>> grins and closes the door.
 			<</if>>
@@ -3781,8 +3821,9 @@ You open the locket around your neck.
 
 :: Sold
 <<set $location to "town">><<set $outside to 0>><<effects>>
-<<generate1>><<generate2>><<person1>><<facewear 26>><<bind>>
-You're shaken awake, and find yourself lying in the back of a car. Coils of rope hold your arms to your back, and your body to the chairs. A gag has been stuffed in your mouth.
+<<generate1>><<generate2>><<person1>><<facewear 26>>
+<<if !$worn.hands.type.includes("shackle")>><<bind>><</if>>
+You're shaken awake, and find yourself lying in the back of a car. Coils of rope hold your arms to your <<if $worn.hands.type.includes("shackle")>>body<<else>>back<</if>>, and your body to the chairs. A gag has been stuffed in your mouth.
 <br><br>
 "<<pShes>> awake," says a <<person>> in the front passenger seat.
 <br>
@@ -3794,7 +3835,7 @@ You can't see much beyond the windows. Not from your position. Only the sky and 
 
 :: Sold 2
 <<effects>>
-Some of the ropes are cut loose, though your arms are still bound. You're led into what looks like a regular kitchen, and into a living room. You're shoved onto the sofa.
+Some of the ropes are cut loose, <<if $worn.hands.type.includes("shackle")>>leaving your arms only cuffed<<else>>though your arms are still bound<</if>>. You're led into what looks like a regular kitchen, and into a living room. You're shoved onto the sofa.
 <br><br>
 "Well now," the <<person1>><<person>> says. "All that trouble getting you, and now that you're here I can't decide what to do."
 <br>
@@ -3969,8 +4010,7 @@ The <<person2>><<person>> takes the tub and pours it over your face. <<He>> lean
 	The <<person1>><<persons>> work on your <<breasts>> is too much. <<orgasm>> You can't help but open your mouth. The <<person2>><<person>> takes advantage, and slides <<his>> tongue past your lips and over yours. <<takeKissVirginity $NPCList[1] "rape">>
 <<else>>
 <</if>>
-At last, the pair grow bored. Or perhaps they just ran out of cream. "That wasn't so bad, was it?" the <<person2>><<person>> says as <<he>> cuts through the rope binding your arms.
-<<unbind>>
+At last, the pair grow bored. Or perhaps they just ran out of cream. "That wasn't so bad, was it?" the <<person2>><<person>> says<<if !$worn.hands.type.includes("shackle")>> as <<he>> cuts through the rope binding your arms<<unbind>><</if>>.
 <br><br>
 <<if $exposed gte 1>>
 	<<towelup>>
@@ -4131,7 +4171,7 @@ The pair blame each other for the mishap, and spend a few moments arguing before
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	"Not bad for the price," the <<person1>><<person>> says while reclining on the sofa. Meanwhile the <<person2>><<person>> unties your <<unbind>>arms, and drags you to your feet.
+	"Not bad for the price," the <<person1>><<person>> says while reclining on the sofa. Meanwhile the <<person2>><<person>><<if !$worn.hands.type.includes("shackle")>> unties your <<unbind>>arms, and<</if>> drags you to your feet.
 	<br><br>
 	You're pushed through the house, through the back door and a gate beyond, onto a path running behind the garden. "Tell Bailey we're satisfied." The gate slams shut behind you.
 	<br><br>
