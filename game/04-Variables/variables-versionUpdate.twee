@@ -3511,7 +3511,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 67 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 68 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3535,8 +3535,22 @@
 			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
 		<</if>>
 
+		<!-- 0.5.4.3 console error fixes -->
+		<<if $objectVersion.updateClothes lt 68>>
+			<<script>>
+			for (const layer of Skin.tanningLayers) {
+				for (const [key, value] of Object.entries(layer.slots)) {
+					const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
+					if (patterns) {
+						value.pattern = patterns[0];
+					}
+				}
+			}
+			<</script>>
+		<</if>>
+
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
-		<<set $objectVersion.updateClothes to 67>>
+		<<set $objectVersion.updateClothes to 68>>
 	<</if>>
 
 	<<if $objectVersion.specialClothesEffectsSetup lt 1 or $objectVersion.specialClothesEffectsSetup is undefined>>
@@ -3544,16 +3558,23 @@
 		<<set $objectVersion.specialClothesEffectsSetup to 1>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 18 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 19 or $objectVersion.specialClothes is undefined>>
 		<<specialClothesSetup>>
 		<<specialClothesUpdate>>
-		<<if $objectVersion.specialClothes lt 18>>
+		<<if !$specialClothesEffects.pimp>>
 			<<set $specialClothesEffects to {
 				bimbo: { progress: $specialClothesEffects.bimbo, total: $specialClothesEffects.bimboTotal, message: $specialClothesEffects.bimboMessage },
 				pimp: { progress: 0, total: 0, message: 0 }
 			}>>
 		<</if>>
-		<<set $objectVersion.specialClothes to 18>>
+
+		<<if $specialClothesEffects.bimbo.total is undefined>>
+			<!-- Fix broken objects caused by running above code twice in old version -->
+			<<set $specialClothesEffects.bimbo to { progress: 0, total: 0, message: 0 }>>
+		<</if>>
+
+		<!-- do NOT forget to bump this version in variables-start.twee, too -->
+		<<set $objectVersion.specialClothes to 19>>
 	<</if>>
 
 	<<if $objectVersion.wardrobes lt 13 or $objectVersion.wardrobes is undefined>>
@@ -5268,7 +5289,7 @@
 	<<if $skinColor isnot undefined>>
 		<<set $player.skin.color to $skinColor.natural>>
 		<<script>>
-			const colorValue = Math.max(...V.skinColor.tanValues);
+			const colorValue = V.skinColor.tanValues ? Math.max(...V.skinColor.tanValues) : 0;
 			V.player.skin.layers = [
 				{
 					layers: [],
@@ -5886,7 +5907,7 @@
 
 	<!-- 0.5.4.0 -->
 	<!-- Fix for child toy typos -->
-	<<if !$objectVersion.toyFix lt 1 or $objectVersion.toyFix is undefined>>
+	<<if !$objectVersion.toyFix lt 2 or $objectVersion.toyFix is undefined>>
 		<<set _nameChanges to {
 			"Mrs Teddy": "Mrs. Teddy",
 			"Mr Teddy": "Mr. Teddy",
@@ -5940,8 +5961,9 @@
 				<<set _toy.name_lower to _nameLowerChanges[_toy.name]>>
 				<<set _toy.name to _nameChanges[_toy.name]>>
 			<</if>>
+			<<if !_toy.name_lower>><<set _toy.name_lower to _toy.name.toLowerCase()>><</if>>
 		<</for>>
-		<<set $objectVersion.toyFix to 1>>
+		<<set $objectVersion.toyFix to 2>>
 	<</if>>
 
 	<!-- Avery's seen and tracking the number of rejections of Avery -->
@@ -5952,6 +5974,13 @@
 		<<if $averyRejected is undefined>>
 			<<set $averyRejected to {}>>
 			<<set $weekly.averyRejected to {}>>
+		<</if>>
+		<!-- Fix NaN values -->
+		<<if isNaN($averyRejected.dropOff)>>
+			<<set $averyRejected.dropOff to 0>>
+		<</if>>
+		<<if isNaN(C.npc.Avery.rage)>>
+			<<set C.npc.Avery.rage to 0>>
 		<</if>>
 	<</if>>
 
@@ -5976,6 +6005,7 @@
 	<<if $weekly.maze is undefined>>
 		<<set $weekly.maze to {}>>
 	<</if>>
+
 	
 	<!-- V0.idk.x.x Set up variables for comfortable binding and related -->
 	<<if $comfyBinding is undefined>>

@@ -7752,7 +7752,7 @@ function initLower() {
 			anus_exposed: 0,
 			anus_exposed_base: 0,
 			type: ["normal"],
-			set: "jumpsuit",
+			set: "jumpsuitstylish",
 			gender: "n",
 			warmth: 5,
 			cost: 0,
@@ -8162,7 +8162,7 @@ function initLower() {
 			location: 0,
 			iconFile: "short_cheongsam_keyhole.png",
 			accIcon: "short_cheongsam_keyhole_acc.png",
-			outfitSecondary: ["upper", "short cheongsam"],
+			outfitSecondary: ["upper", "short keyhole cheongsam"],
 		},
 
 		{
