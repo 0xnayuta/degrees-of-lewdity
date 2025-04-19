@@ -1684,6 +1684,7 @@ function initFeet() {
 			name_cap: "Roleplay ankle cuffs",
 			variable: "anklecuffsfetish",
 			combat: {
+				reference: "anklecuffs",
 				accessory: true,
 				hasJoinedLimbsAcc: true,
 			},

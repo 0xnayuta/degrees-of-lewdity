@@ -1461,6 +1461,9 @@ function initFace() {
 			name: "open-mouth gag",
 			name_cap: "Open-mouth gag",
 			variable: "opengag",
+			combat: {
+				reference: "gag",
+			},
 			integrity: 20,
 			state: 0,
 			state_base: 0,
@@ -1493,6 +1496,10 @@ function initFace() {
 			name: "penis-plug open-mouth gag",
 			name_cap: "Penis-plug open-mouth gag",
 			variable: "opengagfetish",
+			combat: {
+				reference: "penisgag",
+				mainColour: "#ff0000",
+			},
 			integrity: 20,
 			state: 0,
 			state_base: 0,
