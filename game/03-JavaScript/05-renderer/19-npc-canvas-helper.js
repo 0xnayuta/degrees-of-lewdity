@@ -13,14 +13,17 @@ class NpcCanvasHelper {
 		 */
 		const defaults = {
 			srcfn(options) {
+				if (options.isBlackWolf) {
+					if (options.category === "shadow") {
+						return `${options.src}/${options.category}/blackwolf/${options.state}.png`;
+					}
+					return `${options.src}/${options.category}/blackwolf/${layer}-${options.state}.png`;
+				}
 				if (layer === "front" && options.category === "shadow") {
 					return `${options.src}/${options.category}/${options.type}/${options.state}.png`;
 				}
 				if (layer === "outline" && options.category === "shadow" && ["human", "plant"].includes(options.type)) {
 					return `${options.src}/${options.category}/${options.type}/${options.state}-outline.png`;
-				}
-				if (options.isBlackWolf) {
-					return `${options.src}/${options.category}/blackwolf/${layer}-${options.state}.png`;
 				}
 				return `${options.src}/${options.category}/${options.type}/${layer}-${options.state}.png`;
 			},
@@ -91,7 +94,7 @@ class NpcCanvasHelper {
 					return 0;
 				}
 				const penetrator = options.penetrators[0];
-				if (penetrator == null) {
+				if (penetrator == null || penetrator.show === false) {
 					return 0;
 				}
 				if (penetrator.position != null && ["vagina", "anus", "butt", "thighs"].includes(penetrator.position)) {
@@ -128,7 +131,8 @@ class NpcCanvasHelper {
 				if (tongue.position === "mouth") positionAlias = "kiss";
 				if (options.position === "missionary") {
 					if (["anus", "anusentrance", "anusimminent"].includes(tongue.position)) positionAlias = "anus";
-					if (["penis", "penisentrance", "penisimminent"].includes(tongue.position)) positionAlias = "penis";
+					if (["penis"].includes(tongue.position)) positionAlias = "penis";
+					if (["penisentrance", "penisimminent"].includes(tongue.position)) positionAlias = "penisentrance";
 					if (["vagina", "vaginaentrance", "vaginaimminent"].includes(tongue.position)) positionAlias = "vagina";
 					if (["kiss", "kissentrance", "kissimminent"].includes(tongue.position)) positionAlias = "kiss";
 				}
