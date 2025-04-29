@@ -293,14 +293,22 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 	<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 3>><</link>>
 	<br>
 <<else>>
-	<<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
+	<<set _roombound to ($leftarm is "bound" or $rightarm is "bound" or ($feetuse is "bound" or $worn.feet.name is "ankle cuffs" and !$worn.feet.type.includes("shackle")))>>
+	<<set _roomcuffed to ($leftarm is "cuffed" or $rightarm is "cuffed" or ($feetuse is "bound" and $worn.feet.type.includes("shackle")))>>
+	<<if _roombound or _roomcuffed>>
 		<<if $possessed>>
 			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
 			<br><br>
-			<<unbind>>
+			<<full_unbind>>
 		<<else>>
-			<<undobindingsicon>><<link [[Undo your bindings (0:10)|Farm Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>>
-			<br><br>
+			<<if _roombound>>
+				<<undobindingsicon>><<link [[Undo your bindings (0:10)|Farm Bedroom]]>><<set $unbind to 1>><<pass 10>><<unbind>><</link>><br>
+			<</if>>
+			<<if _roomcuffed>>
+				<<set $skulduggerydifficulty to 700>>
+				<<link [[Try to remove your shackles|Farm Bedroom Uncuffing]]>><</link>><<skulduggerydifficulty>><br>
+			<</if>>
+			<br>
 		<</if>>
 	<</if>>
 	<<if !($earSlime.event and $earSlime.noSleep)>>
@@ -332,7 +340,7 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 	<</if>>
 	<br>
 	<br>
-	<<farmicon "alexbed">><<link [[Alex's room (0:01)|Farm Alex Bedroom]]>><<pass 1>><</link>>
+	<<farmicon "alexbed">><<link [["Alex's room (0:01)"|Farm Alex Bedroom]]>><<pass 1>><</link>>
 	<br>
 	<<main_hall_icon>><<link [[Go downstairs (0:01)|Farm Cottage]]>><<pass 1>><</link>>
 	<br>
@@ -347,6 +355,31 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 	<</if>>
 	<br>
 <</if>>
+
+:: Farm Bedroom Uncuffing
+<<effects>>
+
+You attempt to remove the shackles by yourself. 
+
+<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+		<<set _uncufftime to 11 - Math.ceil(Math.clamp(currentSkillValue('skulduggery'), 0, 1000) / 100)>>
+		<<if _uncufftime lte 3>>
+			<span class="green">You swiftly unlock the cuffs,</span> letting them come loose and freeing your limbs.
+		<<else>>
+			It takes some effort, <span class="green">but you eventually succeed</span> and the shackles come loose, freeing your limbs.
+		<</if>>
+		<<remove_shackle>>
+		<<skulduggeryuse>>
+		<<pass _uncufftime>>
+	<<else>>
+		Despite your best effort, <span class="red">the cuffs still remain intact.</span> After struggling for a while, you give up.
+		<br><br>
+		<<pass 10>>
+	<</if>>
+
+<<link [[Next|Farm Bedroom]]>><</link>>
+<br>
 
 :: Farm Mirror
 <<effects>>

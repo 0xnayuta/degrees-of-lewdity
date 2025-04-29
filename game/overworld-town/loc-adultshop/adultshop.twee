@@ -53,11 +53,7 @@
 	]>>
 <<set _shopmusic to ["Smooth jazz","Salsa","Tango","Reggae","R&B","Romantic lounge","Classic rock","Classic pop"]>>
 
-<<set _binds to ($leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound")>>
-<<set _gag to ($worn.face.type.includes("gag") and $worn.face.cursed is 1)>>
-<<set _both to (_binds and _gag)>>
-<<set _gagname to $worn.face.name>>
-<<set _predicament to ( (_binds ? "bindings" : "") + (_both ? " and " : "") + (_gag ? _gagname : "") )>>
+<<adultShopBoundValues>>
 
 /* Shop text */
 <<if $adultshopintro is 0 and $rng is 100>>
@@ -91,6 +87,8 @@
 	You've pushed yourself too far.
 	<br><br>
 	<<passoutadultshop>>
+	<<bindingValuesCheck>>
+	<<if _bondagecheck>><<set $phase to 1>><<else>><<set $phase to 0>><</if>>
 	<<pass 1 hour>>
 	<<trauma 6>><<set $stress -= 2000>>
 <<elseif Time.hour is 21>>
@@ -139,24 +137,46 @@
 				<br><br>
 				<<set $adultshopintro to 1>>
 			<</if>>
-			<<if _binds or _gag>> <!-- Remove bindings and forced gags, dynamically -->
-				<<set _oblige to ( (_gag ? "looking at <<him>> quizzically" : "but ask Sirris to elaborate") + (_binds ? " as <<he>> helps you up on the counter" : " as you hop up on the counter") )>>
-				Sirris sniggers, taking notice of your _predicament. You <<if _gag>>wheeze through your gag,<<else>>open your mouth to say something,<</if>> but <<he>> raises <<his>> hand. "Happens about as much as you'd expect here. Up on the counter, please."
+			<<if _binds or _shackles or _gag>> <!-- Remove bindings and forced gags, dynamically -->
+				<<set _oblige to ( (_gag ? "looking at <<him>> quizzically" : "but ask Sirris to elaborate") + ((_binds or _shackles) ? " as <<he>> helps you up on the counter" : " as you hop up on the counter") )>>
+				<<if !$comfyBinding.includes("adult shop Sirris")>>
+					Sirris sniggers, taking notice of your _predicament. You <<if _gag>>wheeze through your gag,<<else>>open your mouth to say something,<</if>> but <<he>> raises <<his>> hand. "Happens about as much as you'd expect here. Up on the counter, please."
+				<<else>>
+					Sirris sniggers, taking notice of your _predicament, but doesn't question any further. <<He>> points toward the counter. "Just get up there and tell me if you want to get yourself free."
+				<</if>>
 				<br><br>
-				You oblige, _oblige. <<He>> ducks down, searching for something. "Customers trying out the equipment, mostly. Without permission. There were times I didn't let them out as a punishment, but I realised most of them probably wanted that to begin with."
-				<<He>> stands back up, holding a pair of snips. "Hold still."
-				<br><br>
-				<<He>> uses the snips to cut through your
-				<<if _binds>>bindings<</if>>
-				<<if _both>>and your<</if>>
-				<<if _gag>>_gagname<</if>>
-				with professional precision.
-				<<if _binds>>They clatter<<else>>It clatters<</if>> to the ground in an instant. <<He>> helps you down, and continues <<his>> work.
-				<br><br>
-				<<if _binds>><<unbind>><</if>>
-				<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
+				<<if $awareness gte 500 and hasSexStat("promiscuity", 5)>>
+					<<if !$comfyBinding.includes("adult shop Sirris")>>
+						<span class="lewd">A lewd idea strikes you.</span> Perhaps it would be okay for you to stay bound like this.
+						<br><br>
+						<<link [[Let Sirris undo your bindings|Adult Shop Sirris Unbinding]]>><</link>>
+						<br>
+						<<link [[Tell Sirris you're okay with this|Adult Shop Sirris Comfy Bound]]>><</link>> <!--'-->
+						<br><br>
+					<<else>>
+						<<link [[Ask Sirris to undo your bindings|Adult Shop Sirris Unbinding]]>><</link>>
+						<br><br>
+					<</if>>
+				<<else>>
+					You oblige, _oblige. <<He>> ducks down, searching for something. "Customers trying out the equipment, mostly. Without permission. There were times I didn't let them out as a punishment, but I realised most of them probably wanted that to begin with."
+					<<He>> stands back up, holding a pair of snips. "Hold still."
+					<br><br>
+					<<He>> uses the snips to cut through your
+					<<if _binds>>bindings<</if>>
+					<<if _both1>>and your<</if>>
+					<<if _gag>>_gagname<</if>>
+					with professional precision.
+					<<if _shackles>> <<He>> then uses the lockpick to swiftly unlock your cuffs.<</if>>
+					<<if _binds or _shackles>>They clatter<<else>>It clatters<</if>> to the ground in an instant. <<He>> helps you down, and continues <<his>> work.
+					<br><br>
+					<<if _binds>><<unbind>><</if>>
+					<<if _shackles>><<remove_shackle>><</if>>
+					<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
+				<</if>>
 			<</if>>
-			<<adultShopEvents>>
+			<<if _comfybindcheck>>
+				<<adultShopEvents>>
+			<</if>>
 			<br><br>
 
 		<<case "sydney">>
@@ -214,30 +234,59 @@
 				<<set $adultshopintro to 1>>
 			<</if>>
 
-			<<if _binds or _gag>> <!-- Remove bindings and forced gags, dynamically -->
-				Sydney's eyes widen as <<he>> notices your _predicament.
-				<<if _sydneyStatus.includes("corrupt")>>
-					"You could just... ask, you know." Your face flushes<<if !_gag>>, and you try to explain yourself<</if>>. Sydney giggles<<if !_gag>>, waving away your explanation<</if>> as <<he>> searches for something under the counter.
+			<<if _binds or _shackles or _gag>> <!-- Remove bindings and forced gags, dynamically -->
+				<<if !$comfyBinding.includes("adult shop Sydney")>>
+					Sydney's eyes widen as <<he>> notices your _predicament.
+					<<if _sydneyStatus.includes("corrupt")>>
+						"You could just... ask, you know." Your face flushes<<if !_gag>>, and you try to explain yourself<</if>>. Sydney giggles<<if !_gag>>, waving away your explanation<</if>> as <<he>> searches for something under the counter.
+					<<else>>
+						"Are you alright? Who did that to you? Or did you just... have an accident while trying out the props?" Sydney disappears under the counter as you explain.
+					<</if>>
+					<br><br>
 				<<else>>
-					"Are you alright? Who did that to you? Or did you just... have an accident while trying out the props?" Sydney disappears under the counter as you explain.
+					Sydney seems slightly surprised as <<he>> notices your _predicament, but <<he>> quickly calms down.
+					<<if _sydneyStatus.includes("corrupt")>>
+						"Enjoy yourself there," Sydney giggles. "Tell me when you don't like it anymore."
+					<<elseif _sydneyStatus.includes("pure")>>
+						"Just... tell me if you feel uncomfortable, I'll help you right away." Sydney says, trying to look away.
+					<<else>>
+						"Just tell me if you feel uncomfortable, I'll help you right away." Sydney says.
+					<</if>>
+					<br><br>
 				<</if>>
-				<br><br>
-				<<He>> emerges with a pair of snips, and motions for you to come behind the counter. <<He>> snips off your
-				<<if _binds>>bindings<</if>>
-				<<if _both>>and your<</if>>
-				<<if _gag>>_gagname<</if>>
-				with precision, and
-				<<if _binds>>they clatter<<else>>it clatters<</if>>
-				to the ground quickly enough.
-				<<if $sydneyromance gte 1>>
-					Before you can thank <<him>>, <<he>> kisses you on the cheek. "Be more careful, please."
+				<<if $awareness gte 500 and hasSexStat("promiscuity", 5)>>
+					<<if !$comfyBinding.includes("adult shop Sydney")>>
+						<span class="lewd">A lewd idea strikes you.</span> Perhaps it would be okay for you to stay bound like this.
+						<br><br>
+						<<link [[Let Sydney undo your bindings|Adult Shop Sydney Unbinding]]>><</link>>
+						<br>
+						<<link [[Tell Sydney you're okay with this|Adult Shop Sydney Comfy Bound]]>><</link>> <!--'-->
+						<br><br>
+					<<else>>
+						<<link [[Ask Sydney to undo your bindings|Adult Shop Sydney Unbinding]]>><</link>>
+						<br><br>
+					<</if>>
+				<<else>>
+					<<He>> emerges with a pair of snips, and motions for you to come behind the counter. <<He>> snips off your
+					<<if _binds>>bindings<</if>>
+					<<if _both1>>and your<</if>>
+					<<if _gag>>_gagname<</if>>
+					with precision.
+					<<if _shackles>> <<He>> then uses a lockpick to unlock your cuffs.<</if>>
+					<<if _binds or _shackles>>They clatter<<else>>It clatters<</if>> to the ground quickly enough.
+					<<if $sydneyromance gte 1>>
+						Before you can thank <<him>>, <<he>> kisses you on the cheek. "Be more careful, please."
+					<</if>>
+					<<He>> returns to work after making sure that you're alright.
+					<br><br>
+					<<if _binds>><<unbind>><</if>>
+					<<if _shackles>><<remove_shackle>><</if>>
+					<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
 				<</if>>
-				<<He>> returns to work after making sure that you're alright.
-				<br><br>
-				<<if _binds>><<unbind>><</if>>
-				<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
 			<</if>>
-			<<adultShopEvents>>
+			<<if _comfybindcheck>>
+				<<adultShopEvents>>
+			<</if>>
 			<br><br>
 
 		<<default>> /* I.E. closed */
@@ -251,7 +300,7 @@
 	<</switch>>
 
 	/* Links */
-	<<if $adultshopclerk and $adultshopstate isnot "closed">>
+	<<if $adultshopclerk and $adultshopstate isnot "closed" and _comfybindcheck>>
 		/* work in this shop */
 		<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><<timeTrackingManual "adultShop" 1>><</link>>
 		<br>
@@ -260,7 +309,7 @@
 		<<link [[Debug unlock clerk job|$passage]]>><<set $adultshopclerk to true>><</link>>
 		<br>
 	<</if>>
-	<<if $adultshopstate isnot "closed">>
+	<<if $adultshopstate isnot "closed" and _comfybindcheck>>
 		<<ind>><<link [[Approach Sirris (0:01)|Adult Shop Approach Sirris]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
@@ -268,15 +317,115 @@
 		<<ind>><<link [[Approach Sydney (0:01)|Adult Shop Approach Sydney]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
-	<<icon "adultclothing.png">><<link [[Browse clothing (0:01)|Adult Shop Store]]>><<pass 1>><</link>>
-	<<if $adultshopstate isnot "closed" or $debug is 1>>
+	<<if _comfybindcheck>>
+		<<icon "adultclothing.png">><<link [[Browse clothing (0:01)|Adult Shop Store]]>><<pass 1>><</link>>
+	<</if>>
+	<<if ($adultshopstate isnot "closed" and _comfybindcheck) or $debug is 1>>
 		<br>
 		<<sextoysicon "strap-on">><<link [[Browse toys (0:01)|Adult Shop Menu]]>><<pass 1>><</link>>
 	<</if>>
-	<br><br>
+	<<if _comfybindcheck>>
+		<br><br>
+	<</if>>
 	<<exiticon>><<link [[Exit (0:01)|Elk Street]]>><<pass 1>><<adultShopClear>><</link>>
 
 <</if>>
+
+:: Adult Shop Sirris Unbinding
+<<effects>>
+<<npc "Sirris">>
+<<adultShopBoundValues>>
+<<set _oblige to ( (_gag ? "looking at him quizzically" : "but ask Sirris to elaborate") + ((_binds or _shackles) ? " as <<he>> helps you up on the counter" : " as you hop up on the counter") )>>
+<<set _oblige2 to ((_binds or _shackles) ? "Sirris helps you get up on the counter" : "You hop up on the counter as Sirris approaches")>>
+<<if !$comfyBinding.includes("adult shop Sirris")>>
+	You oblige, _oblige. <<He>> ducks down, searching for something. "Customers trying out the equipment, mostly. Without permission. There were times I didn't let them out as a punishment, but I realised most of them probably wanted that to begin with."
+<<else>>
+	_oblige2. <<He>> ducks down, searching for something. "I guess you're uncomfortable with that after all. Just wait a moment."
+<</if>>
+<<He>> stands back up, holding a pair of snips. "Hold still."
+<br><br>
+<<He>> uses the snips to cut through your
+<<if _binds>>bindings<</if>>
+<<if _both1>>and your<</if>>
+<<if _gag>>_gagname<</if>>
+with professional precision.
+<<if _shackles>> <<He>> then uses the lockpick to swiftly unlock your cuffs.<</if>>
+<<if _binds or _shackles>>They clatter<<else>>It clatters<</if>> to the ground in an instant. <<He>> helps you down, and continues <<his>> work.
+<br><br>
+<<if _binds>><<unbind>><</if>>
+<<if _shackles>><<remove_shackle>><</if>>
+<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
+<<link [[Next|Adult Shop]]>><</link>>
+
+:: Adult Shop Sirris Comfy Bound
+<<effects>>
+<<if _gag>>
+	You shake your head, gesturing to Sirris that you prefer staying like this.
+<<elseif $speech_attitude is "meek">>
+	"N-no," you say. "I should stay like this."
+<<elseif $speech_attitude is "bratty">>
+	"I don't need your help." you say, glaring at Sirris.
+<<else>>
+	"Thanks, but I'm fine being like this," you say.
+<</if>>
+<br><br>
+
+Sirris look at you silently for a moment. "Well, if you insist. This could serve as advertisement, I guess. Just be careful, okay?"
+<br><br>
+<<set $comfyBinding.pushUnique("adult shop Sirris")>>
+<<link [[Next|Adult Shop]]>><</link>>
+
+:: Adult Shop Sydney Unbinding
+<<effects>>
+<<npc "Sydney">>
+<<run statusCheck("Sydney")>>
+<<adultShopBoundValues>>
+<<if !$comfyBinding.includes("adult shop Sydney")>>
+	Sydney emerges with a pair of snips, and motions for you to come behind the counter.
+<<else>>
+	You go to behind the counter while Sydney gets a pair of snips.
+<</if>>
+<<He>> snips off your
+<<if _binds>>bindings<</if>>
+<<if _both1>>and your<</if>>
+<<if _gag>>_gagname<</if>>
+with precision.
+<<if _shackles>> <<He>> then uses a lockpick to unlock your cuffs.<</if>>
+<<if _binds or _shackles>>They clatter<<else>>It clatters<</if>> to the ground quickly enough.
+<<if $sydneyromance gte 1>>
+	Before you can thank <<him>>, <<he>> kisses you on the cheek.
+<</if>>
+<<He>> returns to work after making sure that you're alright.
+<br><br>
+<<if _binds>><<unbind>><</if>>
+<<if _shackles>><<remove_shackle>><</if>>
+<<if _gag>><<set $worn.face.type.push("broken")>><<faceruined>><</if>>
+<<link [[Next|Adult Shop]]>><</link>>
+
+:: Adult Shop Sydney Comfy Bound
+<<effects>>
+<<npc "Sydney">>
+<<run statusCheck("Sydney")>>
+<<if _gag>>
+	You shake your head, gesturing to Sydney that you prefer staying like this.
+<<elseif $speech_attitude is "meek">>
+	"I-It's okay," you say. "I like to stay like this."
+<<elseif $speech_attitude is "bratty">>
+	"No need to help me." you say. "Just leave me like this."
+<<else>>
+	"Thanks, but I'm fine being like this," you say.
+<</if>>
+<br><br>
+
+<<if _sydneyStatus.includes("corrupt")>>
+	"If you insist," Sydney smirks. "I guess you do enjoy it, don't you?"
+<<else>>
+	Sydney look at you silently for a moment. "Well, if you insist. Just be careful, okay?"
+<</if>>
+<br><br>
+<<set $comfyBinding.pushUnique("adult shop Sydney")>>
+<<link [[Next|Adult Shop]]>><</link>>
+
 
 :: Adult Shop Store
 /*<<exiticon>><<link [[Exit (0:01)|Adult Shop]]>><<pass 1>><</link>>*/
@@ -313,12 +462,18 @@ Sirris smiles as you approach.
 
 :: Adult Shop Approach Sirris Ask
 <<effects>>
+<<adultShopBoundValues>>
 
 "We could use the help!" Sirris says. "Shelves need stocking, and customers need servicing." <<nnpc_He Sirris>> pauses. "At the counter, that is."
 <br><br>
 
 "You can work whenever we're open, and I'll pay you <span class="gold">£15</span> per hour," <<nnpc_he Sirris>> adds. "Sydney helps out a lot too."
 <br><br>
+
+<<if (_binds or _shackles or _gag) and $comfyBinding.includes("adult shop Sirris")>>
+	"I wouldn't recommend working in such a state, though..." <<nnpc_He Sirris>> pauses again while looking at you. "You'll only be making it harder for yourself, and it's not like I'd pay any bonus for that anyway. But well, it's your choice, I won't stop you."
+	<br><br>
+<</if>>
 
 <<link [[Accept|Adult Shop Approach Sirris Accept]]>><<set $adultshopclerk to 1>><</link>>
 <br>
@@ -386,6 +541,11 @@ You approach Sydney.
 :: Adult Shop Clerk Job
 
 You work behind the counter, selling adult products and stocking shelves.
+<<if $leftarm is "bound" and $rightarm is "bound">>
+	With your arms bound, the work becomes harder than usual.
+<<elseif $worn.hands.type.includes("shackle")>>
+	It's a bit difficult with your hands cuffed, but you managed somehow.
+<</if>>
 <br><br>
 <<adultshopclerkevents>>
 <<if $debug is 1>>

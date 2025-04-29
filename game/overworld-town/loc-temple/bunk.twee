@@ -23,6 +23,9 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 		<br><br>
 	<<else>>
 		<span class="green">You rub your bindings against the corner of a table.</span> It takes some effort, but eventually the material yields, freeing your limbs.
+		<<if $worn.hands.type.includes("shackle") or $worn.feet.type.includes("shackle")>>
+			The cuffs still remain, however, since you can't break them the same way.
+		<</if>>
 		<br><br>
 	<</if>>
 	<<unbind>>
@@ -30,6 +33,11 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 
 <<if $leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound">>
 	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Temple Bunk]]>><<set $unbind to 1>><<pass 10>><</link>>
+	<br><br>
+<</if>>
+<<if $leftarm is "cuffed" or $rightarm is "cuffed" or ($feetuse is "bound" and $worn.feet.type.includes("shackle"))>>
+	<<set $skulduggerydifficulty to 700>>
+	<<link [[Try to remove your shackles|Temple Bunk Uncuffing]]>><</link>><<skulduggerydifficulty>>
 	<br><br>
 <</if>>
 
@@ -62,6 +70,31 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 <<else>>
 	<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 <</if>>
+<br>
+
+:: Temple Bunk Uncuffing
+<<effects>>
+
+You attempt to remove the shackles by yourself. 
+
+<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+		<<set _uncufftime to 11 - Math.ceil(Math.clamp(currentSkillValue('skulduggery'), 0, 1000) / 100)>>
+		<<if _uncufftime lte 3>>
+			<span class="green">You swiftly unlock the cuffs,</span> letting them come loose and freeing your limbs.
+		<<else>>
+			It takes some effort, <span class="green">but you eventually succeed</span> and the shackles come loose, freeing your limbs.
+		<</if>>
+		<<remove_shackle>>
+		<<skulduggeryuse>>
+		<<pass _uncufftime>>
+	<<else>>
+		Despite your best effort, <span class="red">the cuffs still remain intact.</span> After struggling for a while, you give up.
+		<<pass 10>>
+	<</if>>
+<br><br>
+
+<<link [[Next|Temple Bunk]]>><</link>>
 <br>
 
 
