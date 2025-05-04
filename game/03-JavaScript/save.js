@@ -228,7 +228,7 @@ const DoLSave = ((Story, Save) => {
 		}
 
 		const link = document.createElement("a");
-		link.download = `degrees-of-lewdity-${Utils.getDatestamp()}.json`;
+		link.download = `degrees-of-lewdity-${Utils.GetDatestamp()}.json`;
 		link.href = URL.createObjectURL(new Blob([JSON.stringify(dataToExport)], { type: "application/json" }));
 		link.click();
 		URL.revokeObjectURL(link.href);

@@ -190,38 +190,11 @@ var IronMan = (Save => {
 		});
 	}
 
-	function getDatestamp() {
-		const now = new Date();
-		let MM = now.getMonth() + 1;
-		let DD = now.getDate();
-		let hh = now.getHours();
-		let mm = now.getMinutes();
-		let ss = now.getSeconds();
-
-		if (MM < 10) {
-			MM = `0${MM}`;
-		}
-		if (DD < 10) {
-			DD = `0${DD}`;
-		}
-		if (hh < 10) {
-			hh = `0${hh}`;
-		}
-		if (mm < 10) {
-			mm = `0${mm}`;
-		}
-		if (ss < 10) {
-			ss = `0${ss}`;
-		}
-
-		return `${now.getFullYear()}${MM}${DD}-${hh}${mm}${ss}`;
-	}
-
 	function exportSlot(slot = 8) {
 		const data = Save.slots.get(slot);
 		const saveId = data.metadata.saveId;
 		const saveName = data.metadata.saveName;
-		const exportName = `${data.id}-${saveName === "" ? saveId : saveName}-${getDatestamp()}.save`;
+		const exportName = `${data.id}-${saveName === "" ? saveId : saveName}-${Utils.GetDatestamp()}.save`;
 		const saveObj = LZString.compressToBase64(JSON.stringify(data));
 		saveAs(new Blob([saveObj], { type: "text/plain;charset=UTF-8" }), exportName);
 	}
@@ -284,7 +257,7 @@ var IronMan = (Save => {
 	function exportFile(saveData) {
 		const saveId = saveData.metadata.saveId;
 		const saveName = saveData.metadata.saveName;
-		const exportName = `${saveData.id}-${saveName === "" ? saveId : saveName}-${getDatestamp()}.save`;
+		const exportName = `${saveData.id}-${saveName === "" ? saveId : saveName}-${Utils.GetDatestamp()}.save`;
 		const saveObj = LZString.compressToBase64(JSON.stringify(saveData));
 		saveAs(new Blob([saveObj], { type: "text/plain;charset=UTF-8" }), exportName);
 	}
