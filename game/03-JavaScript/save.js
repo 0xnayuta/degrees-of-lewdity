@@ -200,6 +200,75 @@ const DoLSave = ((Story, Save) => {
 		reader.readAsText(saveFile[0]);
 	}
 
+	async function exportLocalStorageAndIndexedDB() {
+		const saveDetails = await idb.getSaveDetails();
+		if (saveDetails.length > 11) {
+			alert(`This feature is not enabled for more than 11 saves to avoid running out of memory. You have ${saveDetails.length} saves.`);
+			return;
+		}
+
+		const dataToExport = {
+			localStorage,
+			indexedDB: {},
+		};
+
+		/** @type {IDBDatabase} */
+		const db = await new Promise((resolve, reject) => {
+			const request = indexedDB.open("degrees-of-lewdity");
+			request.onerror = _ => reject(request.error);
+			request.onsuccess = _ => resolve(request.result);
+		});
+
+		for (const storeName of db.objectStoreNames) {
+			dataToExport.indexedDB[storeName] = await new Promise((resolve, reject) => {
+				const transaction = db.transaction(storeName, "readonly").objectStore(storeName).getAll();
+				transaction.onerror = _ => reject(transaction.error);
+				transaction.onsuccess = _ => resolve(transaction.result);
+			});
+		}
+
+		const link = document.createElement("a");
+		link.download = `degrees-of-lewdity-${Utils.getDatestamp()}.json`;
+		link.href = URL.createObjectURL(new Blob([JSON.stringify(dataToExport)], { type: "application/json" }));
+		link.click();
+		URL.revokeObjectURL(link.href);
+	}
+
+	async function importLocalStorageAndIndexedDB(localStorageAndIndexedDBFile) {
+		const dataToImport = await new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onloadend = _ => resolve(JSON.parse(reader.result));
+			reader.onerror = _ => reject(reader.error);
+			reader.readAsText(localStorageAndIndexedDBFile[0]);
+		});
+
+		for (const [key, value] in Object.entries(dataToImport.localStorage)) {
+			localStorage.setItem(key, value);
+		}
+
+		/** @type {IDBDatabase} */
+		const db = await new Promise((resolve, reject) => {
+			const request = indexedDB.open("degrees-of-lewdity");
+			request.onerror = _ => reject(request.error);
+			request.onsuccess = _ => resolve(request.result);
+		});
+
+		for (const [storeName, storeData] of Object.entries(dataToImport.indexedDB)) {
+			await new Promise((resolve, reject) => {
+				const transaction = db.transaction(storeName, "readwrite");
+				const objectStore = transaction.objectStore(storeName);
+
+				transaction.onerror = () => reject(transaction.error);
+				transaction.oncomplete = () => resolve();
+
+				for (const item of storeData) {
+					const request = objectStore.put(item);
+					request.onerror = () => reject(request.error);
+				}
+			});
+		}
+	}
+
 	function prepareSaveDetails(forceRun) {
 		const saveDetails = getSaveDetails();
 		if (saveDetails == null || saveDetails.id !== Story.domId || forceRun) {
@@ -452,6 +521,8 @@ const DoLSave = ((Story, Save) => {
 		load,
 		delete: deleteSave,
 		import: importSave,
+		importLocalStorageAndIndexedDB,
+		exportLocalStorageAndIndexedDB,
 		getSaves: returnSaveData,
 		resetMenu: resetSaveMenu,
 		getVersion: getSaveVersion,
@@ -493,6 +564,8 @@ window.loadSave = DoLSave.load;
 window.save = DoLSave.save;
 window.deleteSave = DoLSave.delete;
 window.importSave = DoLSave.import;
+window.exportLocalStorageAndIndexedDB = DoLSave.exportLocalStorageAndIndexedDB;
+window.importLocalStorageAndIndexedDB = DoLSave.importLocalStorageAndIndexedDB;
 window.SerializeGame = Save.serialize;
 window.DeserializeGame = Save.deserialize;
 
