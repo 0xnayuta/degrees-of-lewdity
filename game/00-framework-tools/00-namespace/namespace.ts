@@ -43,7 +43,7 @@ window.defineGlobalNamespaces = namespaces => {
 				);
 			} else {
 				// Make it more difficult to shadow/overwrite things (users can still Object.defineProperty if they really mean it
-				Object.defineProperty(window, name, { value: namespaceObject, writeable: false });
+				Object.defineProperty(window, name, { value: namespaceObject, writable: false });
 			}
 		} catch (e) {
 			if (window[name] !== namespaceObject) {

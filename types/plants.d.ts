@@ -6,9 +6,7 @@ declare module "twine-sugarcube" {
 		tending: {
 			plot_base: Plot;
 			plot_sizes: string[];
-			wateringTimes: {
-				[key: PlotSize]: number;
-			};
+			wateringTimes: Record<PlotSize, number>;
 		};
 	}
 }

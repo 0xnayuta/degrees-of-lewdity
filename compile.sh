@@ -64,6 +64,9 @@ function compile() {
 		esac
 	fi
 
+	npx tsc
+	node rename-ts-output.js
+
 	$TWEEGO_EXE "$@" -o  "$TARGET" --head "devTools/head.html" --module "modules" game/ || build_failed="true"
 
 	if [ "$build_failed" = "true" ]; then

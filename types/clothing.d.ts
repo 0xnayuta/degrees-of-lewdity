@@ -9,10 +9,10 @@ declare module "twine-sugarcube" {
 		tryOn: {
 			autoReset: boolean;
 			ownedStored: {
-				[x in ClothedSlots]: ClothesItem?;
+				[x in ClothedSlots]?: ClothesItem;
 			};
 			tryingOn: {
-				[x in ClothedSlots]: ClothesItem?;
+				[x in ClothedSlots]?: ClothesItem;
 			};
 			showEquip: {
 				[x: string]: any;
@@ -321,7 +321,7 @@ declare global {
 		unlocked: boolean;
 	}
 
-	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia = 0): CompositeLayerSpec;
+	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia: number): CompositeLayerSpec;
 
 	function getCustomClothesColourCanvasFilter(filter: string): CompositeLayerSpec;
 }

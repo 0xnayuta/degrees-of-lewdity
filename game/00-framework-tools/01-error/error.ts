@@ -1,3 +1,32 @@
+type Err = {
+	message: string;
+	copyData: any;
+};
+
+const Errors: {
+	config: {
+		debug: boolean;
+		maxLogs: number;
+		showReporterSelector: string;
+	};
+	log: Array<Err>;
+	registerMessage: (message: string, copyData: any, noClone: boolean) => Err | undefined;
+	report: (message: string, copyData: any, noClone?: boolean) => void;
+	Reporter: {
+		visible: () => boolean;
+		reporterContainer: () => HTMLElement;
+		messagesContainer: () => HTMLElement;
+		paneContainer: () => HTMLElement;
+		copyArea: () => HTMLTextAreaElement;
+		toggle: () => void;
+		show: () => void;
+		update: () => void;
+		hide: (andClear?: boolean) => void;
+		createEntry: (error: Err) => HTMLElement;
+		copyAll: () => void;
+	};
+} = window["Errors"] || {};
+
 /**
  * Error reporter utility that provides enriched error messages to the user as a simple sugarcube plugin app.
  */
@@ -11,7 +40,7 @@ Errors.config = {
 
 Errors.log = [];
 
-Errors.registerMessage = (message, copyData, noClone) => {
+Errors.registerMessage = (message: string, copyData: any, noClone: boolean): Err | undefined => {
 	while (Errors.log.length >= Errors.config.maxLogs) Errors.log.shift();
 	const error = { message, copyData };
 	if (noClone) Errors.log.push(error);
@@ -19,15 +48,21 @@ Errors.registerMessage = (message, copyData, noClone) => {
 	return error;
 };
 
-Errors.report = (message, copyData, noClone) => {
-	let error;
+Errors.report = (message: string, copyData: any, noClone: boolean = false) => {
+	let error: Err | undefined;
 	try {
 		error = Errors.registerMessage(message, copyData, noClone);
+		if (error === undefined) {
+			console.error(`Failed to register an error log. Something went really wrong: `, message, copyData);
+			alert(`A critical error occurred. Please report this issue to the devs. [Errors.report/registerMessage]`);
+			return;
+		}
 	} catch (e) {
 		console.error(`Failed to append an error log. Something went really wrong: `, message, copyData, e);
 		alert(`A critical error occurred. Please report this issue to the devs. [Errors.report/registerMessage]`);
 		return;
 	}
+
 	try {
 		const showBtn = document.querySelector(Errors.config.showReporterSelector);
 		if (showBtn) showBtn.classList.remove("hidden");
@@ -50,7 +85,7 @@ Errors.report = (message, copyData, noClone) => {
 	 * These are utilities for making a plain old javascript "app" that displays and manages errors.
 	 */
 	// making an additional namespace for this app. Note the scoping
-	const Reporter = (Errors.Reporter = {});
+	const Reporter = (Errors.Reporter = Errors.Reporter || {});
 
 	Reporter.visible = function () {
 		return !Reporter.reporterContainer().classList.contains("hidden");
@@ -73,21 +108,21 @@ Errors.report = (message, copyData, noClone) => {
 						<textarea class="copy-area hidden" spellcheck="false"></textarea>
 					</div>
 				</div>`;
-			document.querySelector("#story").insertAdjacentElement("afterbegin", reporterContainer);
+			document.querySelector("#story")?.insertAdjacentElement("afterbegin", reporterContainer);
 		}
 		return reporterContainer;
 	};
 
 	Reporter.messagesContainer = () => {
-		return Reporter.reporterContainer().querySelector(`.messages`);
+		return Reporter.reporterContainer().querySelector(`.messages`)!;
 	};
 
 	Reporter.paneContainer = () => {
-		return Reporter.reporterContainer().querySelector(`.pane`);
+		return Reporter.reporterContainer().querySelector(`.pane`)!;
 	};
 
 	Reporter.copyArea = () => {
-		return Reporter.reporterContainer().querySelector(".copy-area");
+		return Reporter.reporterContainer().querySelector(".copy-area")!;
 	};
 
 	Reporter.toggle = () => {
@@ -132,7 +167,7 @@ Errors.report = (message, copyData, noClone) => {
 	};
 
 	Reporter.copyAll = function () {
-		const copyButton = Reporter.reporterContainer().querySelector(".button.copy");
+		const copyButton = Reporter.reporterContainer().querySelector(".button.copy")!;
 		const copyArea = Reporter.copyArea();
 		try {
 			let copyResult = "";

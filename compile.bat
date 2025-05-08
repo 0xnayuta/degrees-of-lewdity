@@ -1,5 +1,9 @@
 @echo off
 
+:: Run the TypeScript compiler first
+npx tsc
+node rename-ts-output.js
+
 :: Set working directory
 pushd %~dp0
 @set TWEEGO_PATH="%~dp0devTools\tweego\StoryFormats"

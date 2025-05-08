@@ -39,7 +39,7 @@ interface EmissiveSetting {
 
 interface ReflectiveSetting {
     mask?: MaskSetting;
-    [key: string]: ReflectiveProperty;
+    [key: string]: ReflectiveProperty | MaskSetting | undefined;
 }
 
 interface MaskSetting {

@@ -62,13 +62,17 @@ declare global {
 		drool?: boolean;
 	}
 
+	interface Ejaculate {
+		type: "sperm" | "pee" | "girlcum" | "sriracha";
+	}
+
 	export interface Penetrator {
 		type: PenetratorTypes;
 		size: number;
 		colour: string;
 		target: number;
-		position: PenetratorPositions?;
-		state: PenetratorStates?;
+		position?: PenetratorPositions;
+		state?: PenetratorStates;
 		isEjaculating: boolean;
 		ejaculate: Ejaculate;
 		condom: CondomOptions;
@@ -199,11 +203,31 @@ declare global {
 		showLayer(name: string, filters: object): void;
 		hideLayer(name: string): void;
 		render(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): void;
-		animate(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): AnimatingCanvas;
+		animate(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): Renderer.AnimatingCanvas;
 		redraw(): void | Renderer.AnimatingCanvas;
 		preprocess(options: T): void;
 		compile(options: T): CompositeLayerSpec[];
 	}
+
+	interface Gradient {
+		style: string;
+		colours: string[];
+	}
+
+	// TODO: Fill out these stubs
+	interface CanvasListener {}
+	interface Options {}
+
+	class MultiCanvasModel {}
+	class CombatEditor {}
+	class SwarmCombatMapper {}
+	class NpcCanvasHelper {}
+	class NpcCombatMapper {}
+	class PlayerCanvasHelper {}
+	class PlayerCombatMapper {}
+	class XrayCombatMapper {}
+	class CombatRenderer {}
+	class CloseCombatMapper {}
 }
 
 export {};

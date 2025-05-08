@@ -64,7 +64,7 @@ declare module "twine-sugarcube" {
 		vaginaWetness: number;
 		vaginaArousalWetness: number;
 		arousalmasochism: number;
-		trackedArousal: int[];
+		trackedArousal: number[];
 		timeSinceArousal: number;
 
 		/**
