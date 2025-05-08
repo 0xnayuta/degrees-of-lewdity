@@ -89,12 +89,6 @@ declare global {
 	interface EventData {
 	}
 
-	const idb: {
-		getItem(slot: string): Promise<{data: any}>;
-	}
-
-	function saveAs(blob: Blob, filename: string): void;
-
 	function defineGlobalNamespaces(dol: typeof DOL): void;
 
 	interface Window {
