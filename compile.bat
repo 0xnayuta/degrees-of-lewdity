@@ -1,6 +1,7 @@
 @echo off
 
 :: Run the TypeScript compiler first
+npm i
 npx tsc
 node rename-ts-output.js
 

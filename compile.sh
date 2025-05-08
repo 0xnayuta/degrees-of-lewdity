@@ -64,6 +64,7 @@ function compile() {
 		esac
 	fi
 
+	npm i
 	npx tsc
 	node rename-ts-output.js
 
