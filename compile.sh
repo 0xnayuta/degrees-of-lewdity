@@ -66,7 +66,7 @@ function compile() {
 
 	npx tsc
 
-	$TWEEGO_EXE "$@" -o  "$TARGET" --head "devTools/head.html" --module "modules" game/ || build_failed="true"
+	$TWEEGO_EXE "$@" -o  "$TARGET" --head "devTools/head.html" --module "modules" tsc-out/ || build_failed="true"
 
 	if [ "$build_failed" = "true" ]; then
 		echoError "Build failed."

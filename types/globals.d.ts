@@ -67,8 +67,6 @@ declare global {
 
 	let throwError: Function;
 
-	let DefineMacro: Function;
-
 	interface ObjectConstructor {
 		hasOwn(object: any, property: any): boolean;
 		deepMerge(objects: any): object;

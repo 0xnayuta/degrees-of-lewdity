@@ -5,17 +5,6 @@ const parentList = {
 	fathers: [{ name: "pc", npc: false, kids: 0, id: 0 }],
 };
 
-// basic constructor for the parent list.
-const parent = ({ name = null, npc = false, kids = 0, id = null, births = undefined }) => {
-	return {
-		name,
-		npc,
-		kids,
-		id,
-		births,
-	};
-};
-
 /**
  * @description Finds the highest id within the passed parent type (mother or father).
  * @param {number} parentType The part of the parent list that is being looked in. Use 0 for mothers or 1 for fathers.
@@ -166,7 +155,6 @@ function increaseBirths(parentId, parentType = 0) {
 
 window.parentFunction = {
 	parentList,
-	parent,
 	findMaxParentId,
 	findParent,
 	totalKids,

@@ -62,17 +62,13 @@ declare global {
 		drool?: boolean;
 	}
 
-	interface Ejaculate {
-		type: "sperm" | "pee" | "girlcum" | "sriracha";
-	}
-
 	export interface Penetrator {
 		type: PenetratorTypes;
 		size: number;
 		colour: string;
 		target: number;
-		position?: PenetratorPositions;
-		state?: PenetratorStates;
+		position: PenetratorPositions | null;
+		state: PenetratorStates | null;
 		isEjaculating: boolean;
 		ejaculate: Ejaculate;
 		condom: CondomOptions;
@@ -220,14 +216,6 @@ declare global {
 
 	class MultiCanvasModel {}
 	class CombatEditor {}
-	class SwarmCombatMapper {}
-	class NpcCanvasHelper {}
-	class NpcCombatMapper {}
-	class PlayerCanvasHelper {}
-	class PlayerCombatMapper {}
-	class XrayCombatMapper {}
-	class CombatRenderer {}
-	class CloseCombatMapper {}
 }
 
 export {};

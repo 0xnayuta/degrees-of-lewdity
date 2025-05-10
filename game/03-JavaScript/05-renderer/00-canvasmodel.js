@@ -31,6 +31,9 @@
  * are re-composed. (Source images are still cached globally under their url)
  */
 
+/**
+ * @template {Options} T
+ */
 class CanvasModel {
 	/**
 	 * Static factory method to create/fetch a stored model.
@@ -121,6 +124,9 @@ class CanvasModel {
 		return [];
 	}
 
+	/**
+	 * @returns {T extends Options} Default options for the model.
+	 */
 	defaultOptions() {
 		return {
 			filters: {},

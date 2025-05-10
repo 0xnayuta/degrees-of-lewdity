@@ -11,7 +11,7 @@ const Errors: {
 	};
 	log: Array<Err>;
 	registerMessage: (message: string, copyData: any, noClone: boolean) => Err | undefined;
-	report: (message: string, copyData: any, noClone?: boolean) => void;
+	report: (message: string, copyData?: any, noClone?: boolean) => void;
 	Reporter: {
 		visible: () => boolean;
 		reporterContainer: () => HTMLElement;

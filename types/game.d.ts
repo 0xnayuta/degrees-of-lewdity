@@ -132,6 +132,7 @@ declare module "twine-sugarcube" {
 			coop: number;
 			kennel: number;
 			still_timer: {};
+			tower: number;
 			tower_guard: boolean;
 			tower_guard_unpaid: number;
 			tower_guard_patience: number;
@@ -162,6 +163,12 @@ declare module "twine-sugarcube" {
 		chimera: ChimeraState;
 
 		facelayer: "back" | "front";
+
+		bus: string;
+
+		chef_state: number;
+
+		adultshopstate: "open" | "closed";
 	}
 
 	export interface SugarCubeSetupObject {
@@ -321,6 +328,8 @@ declare global {
 			wings?: boolean;
 		};
 	}
+
+	function random(from: number, to: number, _: boolean): number;
 }
 
 export {};
