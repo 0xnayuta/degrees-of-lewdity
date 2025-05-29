@@ -1,9 +1,9 @@
-:: Stall Rent [nobr]
-<<set $outside to 0>><<effects>>
+:: Stall Rent
+<<set $outside to 0>><<set $location to "market">><<effects>>
 
 You enter the small office responsible for the Connudatus market. A <<generate1>><<person1>><<person>> greets you.
 <br><br>
-"<span class="gold">£15</span> for the day," <<he>> says. "We close at Nine o'clock. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
+"<<printmoney 1500>> for the day," <<he>> says. "We close at <<ampm 21>>. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
 <br><br>
 
 <<set _plant_keys to Object.keys($plants)>>
@@ -12,28 +12,50 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
 	<</if>>
 <</for>>
-<<if _plant_temp is undefined>><<pass 5>>
+<<if _plant_temp is undefined>>
+	<<pass 5>>
 	<span class="purple">You don't have anything appropriate to sell.</span>
-
-	<br><br>
-	<<link [[Leave|Connudatus Street]]>><<endstall>><<endevent>><<clotheson>><</link>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endstall>><<endevent>><<clotheson>><</link>>
 	<br>
 <<else>>
-	<<set $money -= 1500>><<set $stall_rented to 1>>
+	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<if !$stall_stats>><<set $stall_stats to {}>><</if>>
 	You show <<him>> one of your _plant_temp. It seems to satisfy. You sign the paperwork, hand over the money, and leave to find your stall.
 	<br><br>
 	<<endevent>>
-	You lay your goods over the table, trying to arrange them in a pleasing way. There's a little roof to protect you from any rain, and a stool should you legs get tired. Other traders are setting up either side of you.
-	<br><br>
 
-	You finish up just as the first customers trickle onto the street.
-	<br><br>
 
-	<<stall_actions>>
+	/*Would let PC choose which items to display initially, but it's not functional
+	What goods do you want to present for sale?
+
+	<br><br><<stall_setup>> */
+
+	<<link [[Open|Stall Rent 2]]>><</link>>
+	<br>
+
 <</if>>
 
-:: Stall [nobr]
-<<set $outside to 0>><<effects>>
+:: Stall Rent 2
+<<set $outside to 0>><<set $location to "market">><<effects>>
+
+You lay your goods over the table, trying to arrange them in a pleasing way. There's a little roof to protect you from any rain, and a stool should your legs get tired. Other traders are setting up either side of you.
+<br><br>
+
+You finish just as the first customers trickle onto the street.
+<br><br>
+
+<<stall_actions>>
+
+:: Stall Rent Return
+<<set $outside to 0>><<set $location to "market">><<effects>>
+
+What goods do you want to present for sale?
+<br><br>
+
+<<stall_setup>>
+
+:: Stall
+<<set $outside to 0>><<set $location to "market">><<effects>>
 
 <<stall_inventory>>
 <br><br>
@@ -42,25 +64,41 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 <br><br>
 
 <<for _r to 0; _r lt 4; _r++>>
-	<<if $attractiveness + $famebusiness + $tending + ($plant_inventory.length * 100) + ($stall_rejected * 10) gte random(1, 10000)>>
+	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($plant_inventory.length * 100) + ($stall_rejected * 10) gte random(1, 10000)>>
 		<<set _stall_attention to 1>>
 	<</if>>
 <</for>>
+<<set _plant_keys to Object.keys($plants)>>
+<<for _t to 0; _t lt _plant_keys.length; _t++>>
+	<<if $plants[_plant_keys[_t]].amount gte 1>>
+		<<set _plant_temp to clone($plants[_plant_keys[_t]].plural)>>
+	<</if>>
+<</for>>
 
-<<if $daystate is "night">>
+<<if Time.dayState is "night">>
 	An official arrives to announce that the market's business hours are over.
 	<br><br>
 
 	You pack up your goods as neon lights flicker on up and down the street, signalling the shift in the street's business.
 	<br><br>
 
-	<<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
 	<br>
 <<elseif _inventory_found isnot 1>>
 	With nothing to sell, there's little reason to attend your stall.
 	<br><br>
-
-	<<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<<if _plant_temp isnot undefined>>
+		<<ind>><<link [[Display new produce|Stall Rent Return]]>><</link>>
+	<</if>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<elseif _inventory_in_stall isnot 1>>
+	With nothing on display, there's little reason to attend your stall.
+	<br><br>
+	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
 	<br>
 <<elseif _stall_attention is 1>>
 	<<eventsstall>>
@@ -80,32 +118,82 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<<stall_actions>>
 <</if>>
 
-:: Stall Bottoms Strip [nobr]
+:: Stall Manage
 <<effects>>
 
-<<if $worn.under_lower.name is "naked">>
-	<<flaunting>> you peel your $worn.lower.name down your legs, leaving you naked below the waist. You feel the breeze against your <<genitalsstop 1>> There are so many people around, but no one noticed.
-	<<if $ex_stall isnot 1>><<if $exhibitionism lte 80>><<set $ex_stall to 1>><</if>><<exhibitionism4>><<else>><br><br><</if>>
+You review the products you're selling.
+<br><br>
+
+<<marketStockDisplay>>
+
+<<link [[Back|Stall Manage Exit]]>><</link>>
+
+:: Stall Manage Exit
+<<effects>>
+
+<<silently>><<stall_inventory>><</silently>>
+
+<<if _inventory_in_stall isnot 1>>
+	With nothing on display, there's little reason to attend your stall.
+	<br><br>
+	<<icon "projectMaths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<elseif _inventory_found isnot 1>>
+	With nothing to sell, there's little reason to attend your stall.
+	<br><br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
 <<else>>
-	<<flaunting>> you peel your $worn.lower.name down your legs, exposing your $worn.under_lower.name. There are so many people around, but no one noticed.
-	<<if $ex_stall isnot 1>><<if $exhibitionism lte 40>><<set $ex_stall to 1>><</if>><<exhibitionism2>><<else>><br><br><</if>>
+	You finish looking over your stall and wait for potential customers.
+	<br><br>
+	<<stall_actions>>
 <</if>>
 
-<<lowerstrip>>
+:: Stall Bottoms Strip
 
-<<stall_actions>>
-
-:: Stall Undies Strip [nobr]
 <<effects>>
-
-<<flaunting>> you peel your $worn.under_lower.name down your legs, leaving you naked below the waist. You feel the breeze against your <<genitalsstop 1>> There are so many people around, but no one noticed.
-<<if $ex_stall isnot 1>><<if $exhibitionism lte 80>><<set $ex_stall to 1>><</if>><<exhibitionism4>><<else>><br><br><</if>>
-
-<<underlowerstrip>>
-
+<<if $worn.under_lower.name is "naked">>
+	<<flaunting>> you peel your $worn.lower.name down your legs, leaving you naked below the waist. You feel the breeze against your <<genitals 1>>. There are so many people around, but no one noticed.
+	<<if $daily.ex.stall isnot 1>>
+		<<if $exhibitionism lte 80>>
+			<<set $daily.ex.stall to 1>>
+		<</if>>
+		<<exhibitionism4>>
+	<<else>>
+		<br><br>
+	<</if>>
+<<else>>
+	<<flaunting>> you peel your $worn.lower.name down your legs, exposing your $worn.under_lower.name. There are so many people around, but no one noticed.
+	<<if $daily.ex.stall isnot 1>>
+		<<if $exhibitionism lte 40>>
+			<<set $daily.ex.stall to 1>>
+		<</if>>
+		<<exhibitionism2>>
+	<<else>>
+		<br><br>
+	<</if>>
+<</if>>
+<<lowerstrip>>
 <<stall_actions>>
 
-:: Stall Masturbation [nobr]
+:: Stall Undies Strip
+
+<<effects>>
+<<flaunting>> you peel your $worn.under_lower.name down your legs, leaving you naked below the waist. You feel the breeze against your <<genitals 1>>. There are so many people around, but no one noticed.
+<<if $daily.ex.stall isnot 1>>
+	<<if $exhibitionism lte 80>>
+		<<set $daily.ex.stall to 1>>
+	<</if>>
+	<<exhibitionism4>>
+<<else>>
+	<br><br>
+<</if>>
+<<underlowerstrip>>
+<<stall_actions>>
+
+:: Stall Masturbation
 
 <<effects>>
 <<if $masturbationstart is 1>>
@@ -113,22 +201,34 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<<set $masturbationstat += 1>>
 	<<masturbationstart>>
 	<<set $mouth to "disabled">>
-	You crouch behind your stall. You're in a busy public place, with movement all around, yet you're hidden from view. Just about. You start touching yourself.<<if $ex_stall isnot 1>><<set $ex_stall to 1>><<if $exhibitionism lte 60>><<set $ex_stall to 1>><</if>><<exhibitionism3>><<else>><br><br><</if>>
+	You crouch behind your stall. You're in a busy public place, with movement all around, yet you're hidden from view. Just about. You start touching yourself.
+	<<if $daily.ex.stall isnot 1>>
+		<<set $daily.ex.stall to 1>>
+		<<if $exhibitionism lte 60>>
+			<<set $daily.ex.stall to 1>>
+		<</if>>
+		<<exhibitionism3>>
+	<<else>>
+		<br><br>
+	<</if>>
 <</if>>
 <<masturbationeffects>>
 <<masturbationactions>>
 
-<<if $attractiveness + $famebusiness + $tending + ($stall_rejected * 10) gte random(1, 300000)>>
-	<<link [[Continue|Stall Masturbation Finish]]>><<set $phase to 1>><</link>><<nexttext>>
-	<br>
-<<else>>
-	<<link [[Continue|Stall Masturbation]]>><</link>><<nexttext>>
-	<br>
+<<if $corruptionMasturbation>>
+	<span class="red">The slime in your ear will not allow you to stop.</span>
 <</if>>
-<<link [[Stop|Stall Masturbation Finish]]>><<set $finish to 1>><</link>>
-<br>
+<div id="masturbationButtons">
+	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($stall_rejected * 10) gte random(1, 300000)>>
+		<div id="next"><<link [[Continue|$passage + " Finish"]]>><<set $phase to 1>><</link>><<nexttext>></div>
+	<<else>>
+		<div id="next"><<link [[Continue|$passage]]>><</link>><<nexttext>></div>
+	<</if>>
+	<<masturbationStopControls>>
+</div>
+<br><br><br><br><br>
 
-:: Stall Masturbation Finish [nobr]
+:: Stall Masturbation Finish
 
 <<effects>>
 
@@ -154,9 +254,14 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 			"Damn <<girl>>," <<he>> says. "What were you up to down there?" <<He>> glances around the market. "How about I finish what you started, eh?"
 			<br><br>
 
-			<<link [[Accept|Stall Masturbation Accept]]>><</link>><<promiscuous2>>
-			<br>
-			<<link [[Refuse|Stall Masturbation Refuse]]>><</link>>
+			<<if hasSexStat("promiscuity", 2)>>
+				<<link [[Accept|Stall Masturbation Accept]]>><</link>><<promiscuous2>>
+				<br>
+			<<else>>
+				<<insufficientStat "promiscuity" "to accept">>
+				<br>
+			<</if>>
+			<<refuseicon>><<link [[Refuse|Stall Masturbation Refuse]]>><</link>>
 			<br>
 		<</if>>
 	<<else>>
@@ -181,7 +286,7 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<br>
 <</if>>
 
-:: Stall Masturbation Accept [nobr]
+:: Stall Masturbation Accept
 <<effects>>
 
 You nod. The <<person>> glances around, then disappears beneath the table. You follow suit.
@@ -190,12 +295,12 @@ You nod. The <<person>> glances around, then disappears beneath the table. You f
 <<link [[Next|Stall Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
-:: Stall Masturbation Refuse [nobr]
+:: Stall Masturbation Refuse
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Y-you're wrong," you say. "Please don't imply such awful things."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"I don't like what you're implying," you manage. "Buy something or fuck off."
 <<else>>
 	"You're mistaken," you say. "Can I interest you in some local produce?"
@@ -208,12 +313,12 @@ You nod. The <<person>> glances around, then disappears beneath the table. You f
 
 <<stall_actions>>
 
-:: Stall Shuffle Talk [nobr]
+:: Stall Shuffle Talk
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"W-Would you like to buy anything?" you ask.
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Hurry up," you say. "You're getting in the way of my customers."
 <<else>>
 	"Does anything interest you?" you ask.
@@ -225,10 +330,10 @@ You nod. The <<person>> glances around, then disappears beneath the table. You f
 
 <<stall_actions>>
 
-:: Stall Shuffle Silent [nobr]
+:: Stall Shuffle Silent
 <<effects>>
 
-The <<person>> stops in front of the <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount of these?"
+The <<person>> stops in front of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -236,19 +341,19 @@ The <<person>> stops in front of the <<print setup.plants[$stall_plant].plural>>
 
 <<stall_sell_actions>>
 
-:: Stall Walk Talk [nobr]
+:: Stall Walk Talk
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"W-Would you like to buy anything?" you ask.
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Hurry up," you say. "You're getting in the way of my customers."
 <<else>>
 	"Does anything interest you?" you ask.
 <</if>>
 <br><br>
 
-The <<person>> stops in front of the <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount of these?"
+The <<person>> stops in front of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -256,7 +361,7 @@ The <<person>> stops in front of the <<print setup.plants[$stall_plant].plural>>
 
 <<stall_sell_actions>>
 
-:: Stall Walk Silent [nobr]
+:: Stall Walk Silent
 <<effects>>
 
 You remain silent. The <<person1>><<person>> doesn't stop.
@@ -264,18 +369,18 @@ You remain silent. The <<person1>><<person>> doesn't stop.
 
 <<stall_actions>>
 
-:: Stall Sell [nobr]
+:: Stall Sell
 <<effects>>
 
 <<stall_sell_man>>
 
-:: Stall Listen [nobr]
+:: Stall Listen
 <<effects>>
 
 You listen to the <<person1>><<person>> drone on. You struggle to pay attention, though you nod along and that seems to satisfy.
 <br><br>
 
-At last, the <<person>> picks up one of the <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount of these?"
+At last, the <<person>> <<stall_check_text>>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -283,19 +388,19 @@ At last, the <<person>> picks up one of the <<print setup.plants[$stall_plant].p
 
 <<stall_sell_actions>>
 
-:: Stall Hurry [nobr]
+:: Stall Hurry
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"I-I'm sorry to interrupt," you say. "But would you like to buy something?"
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"I don't have all day," you say. "Hurry up and buy something."
 <<else>>
 	"Sorry to interrupt," you say. "But would you like to buy something?"
 <</if>>
 <br><br>
 
-The <<person1>><<person>> frowns. "Yes," <<he>> says. "Kids these days. No respect." <<He>> points at the <<print setup.plants[$stall_plant].plural>>. "How about $stall_amount of these?"
+The <<person1>><<person>> frowns. "Yes," <<he>> says. "Kids these days. No respect." <<He>> points at the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How about <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 
 <<stall_trust>>
@@ -303,15 +408,15 @@ The <<person1>><<person>> frowns. "Yes," <<he>> says. "Kids these days. No respe
 
 <<stall_sell_actions>>
 
-:: Stall Converse [nobr]
+:: Stall Converse
 <<effects>>
 
-You try to keep up with the <<person1>><<personstop>>
-<<if $tending gte random(1, 400)>>
+You try to keep up with the <<person1>><<person>>.
+<<if $tendingSuccess>>
 	<span class="green">You know a thing or two yourself.</span> <<gtrust>><<set $enemytrust += 20>>
 	<br><br>
 
-	"Not every day I meet someone worth talking to," <<he>> says, looking at the <<print setup.plants[$stall_plant].plural>> in front of <<himstop>> "How much for $stall_amount of these?"
+	"Not every day I meet someone worth talking to," <<he>> says, looking at the <span class="green"><<print setup.plants[$stall_plant].plural>></span> in front of <<him>>. "How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 
 	<<stall_trust>>
@@ -326,47 +431,63 @@ You try to keep up with the <<person1>><<personstop>>
 	<<stall_actions>>
 <</if>>
 
-:: Stall Honest [nobr]
+:: Stall Honest
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"Everything is made by me," you say.
-<<elseif $submissive lte 850>>
-	"Yeah," you say.
-<<else>>
-	"Yes I do," you say.
-<</if>>
-<br><br>
+<<set _supermarketItem to (V.plants[V.stall_plant]?.supermarket >= 0)>>
 
-"That's amazing," the <<person1>><<person>> says. "I wish I had such skill." <<He>> picks up one of the <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount of these?"
+<<if _supermarketItem>>
+	<<if $speech_attitude is "meek">>
+		"No, <<sir>>," you say. "This is from the supermarket. I hope you don't mind."
+	<<elseif $speech_attitude is "bratty">>
+		"I sure do," you say with a cheeky grin. "Getting it from the supermarket counts as producing it myself, right?"
+	<<else>>
+		"Sorry to say, but I got it from the supermarket," you admit.
+	<</if>>
+	<br><br>
+
+	The <<person1>><<person>> chuckles. "No shame in that game, <<girl>>. I can admire an entrepreneurial spirit."
+<<else>>
+	<<if $speech_attitude is "meek">>
+		"Everything is made by me," you say.
+	<<elseif $speech_attitude is "bratty">>
+		"Yeah," you say.
+	<<else>>
+		"Yes I do," you say.
+	<</if>>
+	<br><br>
+
+	"That's amazing," the <<person1>><<person>> says. "I wish I had such skill."
+<</if>>
+<<He>> <<stall_check_text>>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 <<stall_trust>>
 <br><br>
 <<stall_sell_actions>>
 
-:: Stall Evasive [nobr]
+:: Stall Evasive
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"I'm sorry," you say. "I don't want to tell anyone."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"None of your business," you say.
 <<else>>
 	"That's for me to know," you say.
 <</if>>
 <br><br>
-"I didn't mean to pry," the <<person1>><<person>> says, lifting one of the <<print setup.plants[$stall_plant].plural>>. "How much for $stall_amount of these?"
+"I didn't mean to pry," the <<person1>><<person>> says, lifting one of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 <br><br>
 <<stall_trust>>
 <br><br>
 <<stall_sell_actions>>
 
-:: Stall Encourage [nobr]
+:: Stall Encourage
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"W-would you like to buy something?" you ask, pointing at your display.
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"I'm not for sale," you say, pointing at your display. "Those are."
 <<else>>
 	"Can I interest you in my produce?" you ask, pointing at your display.
@@ -376,7 +497,7 @@ You try to keep up with the <<person1>><<personstop>>
 <<He>> glances down, as if seeing them for the first time.
 
 <<if $rng gte 51>>
-	<<He>> points at the <<print setup.plants[$stall_plant].name>>. "How much for $stall_amount of these?"
+	<<He>> points at the <span class="green"><<print setup.plants[$stall_plant].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 	<<stall_trust>>
 	<br><br>
@@ -388,31 +509,31 @@ You try to keep up with the <<person1>><<personstop>>
 	<<stall_actions>>
 <</if>>
 
-:: Stall Flirt [nobr]
+:: Stall Flirt
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"I-I'm here to sell these," you say, gesturing at your display. "I don't sell me. Usually."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"If you can't afford these," you say, gesturing at your display. "Then you can't afford me."
 <<else>>
-	"I'm not normally for sale," you say, leaning on the table yourself. "But maybe I could be pursuaded to give you a deal."
+	"I'm not normally for sale," you say, leaning on the table yourself. "But maybe I could be persuaded to give you a deal."
 <</if>>
 <br><br>
 
-The <<person1>><<person>> leans closer. "That so?" <<he>> says. <<He>> looks down at the <<print setup.plants[$stall_plant].name>>. "How much for $stall_amount of these?"
+The <<person1>><<person>> leans closer. "That so?" <<he>> says. <<He>> looks down at the <span class="green"><<print setup.plants[$stall_plant].name.replace(/_/g," ")>></span>. "How much for <span class="green"><<stall_amount>></span> of these?"
 
 <br><br>
 <<stall_trust>>
 <br><br>
 <<stall_sell_actions>>
 
-:: Stall Leave [nobr]
+:: Stall Leave
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"P-please leave me alone," you say. "This isn't that kind of establishment."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"You've mistaken my stall for a brothel," you say. "I'll forgive you once."
 <<else>>
 	"I don't wish to do business with you," you say. "Please leave."
@@ -424,13 +545,13 @@ The <<person1>><<person>> stands upright, hands above <<his>> shoulders. "I mean
 
 <<stall_actions>>
 
-:: Stall Chase Undies [nobr]
+:: Stall Chase Undies
 <<effects>>
 
 <<flaunting>> you chase the <<person1>><<person>> through the market with just your $worn.under_lower.name on display. You feel more than a few eyes on you.
 <<exhibitionism3>>
 
-<<if $athletics gte random(1, 1200)>>
+<<if $athleticsSuccess>>
 
 	<span class="green">You gain on your quarry,</span> and chase <<him>> into an alley. It's a dead end. <<He>> turns around, and the fear in <<his>> eyes is replaced by confusion at the sight of your underwear. Confusion and lust. <<covered>>
 	<br><br>
@@ -438,7 +559,7 @@ The <<person1>><<person>> stands upright, hands above <<his>> shoulders. "I mean
 	You hear voices behind you. A crowd's gathering, drawn by your exhibitionist spectacle.
 	<br><br>
 
-	Coming to <<his>> senses and seeing no other way out, the <<person>> throws the <<print $stall_plant.replace(/_/g," ")>> in the air. <<He>> struggles up and over the wall as you catch it.
+	Coming to <<his>> senses and seeing no other way out, the <<person>> throws the <<print $stall_expensive.replace(/_/g," ")>> in the air. <<He>> struggles up and over the wall as you catch it.
 	<br><br>
 
 	You walk past the leering crowd and return to your stall as if nothing were amiss.
@@ -448,7 +569,7 @@ The <<person1>><<person>> stands upright, hands above <<his>> shoulders. "I mean
 <<else>>
 
 <span class="red"><<Hes>> too fast for you,</span> and you lose <<him>> in the maze of stalls.
-<<set $plants[$stall_plant].amount -= 1>>
+<<set $plants[$stall_expensive].amount -= 1>>
 <br><br>
 
 Panting, you look around. People from all over stare in your direction. The ones who aren't are still blushing. <<covered>>
@@ -461,30 +582,33 @@ Panting, you look around. People from all over stare in your direction. The ones
 	<<else>>
 		<<endevent>>
 		<<generate1>><<generate2>><<generate3>>
-		You turn back in the direction of your stall, and almost walk straight into a <<person1>><<personstop>> There are two others with <<himstop>> "Where you going, lewd <<girl>>?" <<he>> says, stepping forward and into you, pushing you back. "Walking around like that's just asking for trouble. But don't worry. Me and my friends are here to look after you."
+		You turn back in the direction of your stall, and almost walk straight into a <<person1>><<person>>. There are two others with <<him>>. "Where you going, lewd <<girl>>?" <<he>> says, stepping forward and into you, pushing you back. "Walking around like that's just asking for trouble. But don't worry. Me and my friends are here to look after you."
 		<br><br>
 
 		<<He>> wraps a hand around your waist and tries to pull you closer.
 		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<br><br>
 
-		<<if $promiscuity gte 4>>
+		<<if hasSexStat("promiscuity", 4)>>
 			<<link [[Allow|Stall Gang Sex]]>><<set $sexstart to 1>><</link>><<promiscuous4>>
 			<br>
+		<<else>>
+			<<insufficientStat "promiscuity" "to accept">>
+			<br>
 		<</if>>
-		<<link [[Shove|Stall Gang Shove]]>><<trauma -6>><</link>><<ltrauma>>
+		<<refuseicon>><<link [[Shove|Stall Gang Shove]]>><<trauma -6>><</link>><<ltrauma>>
 		<br>
 	<</if>>
 
 <</if>>
 
-:: Stall Chase Naked [nobr]
+:: Stall Chase Naked
 <<effects>>
 
 <<flaunting>> you chase the <<person1>><<person>> through the market with your <<genitals>> and <<bottom>> on display. You feel more than a few eyes on you.
 <<exhibitionism5>>
 
-<<if $athletics gte random(1, 1200)>>
+<<if $athleticsSuccess>>
 
 	<span class="green">You gain on your quarry,</span> and chase <<him>> into an alley. It's a dead end. <<He>> turns around, and the fear in <<his>> eyes is replaced by confusion at the sight of your nudity. Confusion and lust. <<covered>>
 	<br><br>
@@ -492,7 +616,7 @@ Panting, you look around. People from all over stare in your direction. The ones
 	You hear voices behind you. A crowd's gathering, drawn by your exhibitionist spectacle.
 	<br><br>
 
-	Coming to <<his>> senses and seeing no other way out, the <<person>> throws the <<print $stall_plant.replace(/_/g," ")>> in the air. <<He>> struggles up and over the wall as you catch it.
+	Coming to <<his>> senses and seeing no other way out, the <<person>> throws the <<print $stall_expensive.replace(/_/g," ")>> in the air. <<He>> struggles up and over the wall as you catch it.
 	<br><br>
 
 	You walk past the leering crowd and return to your stall as if nothing were amiss.
@@ -502,10 +626,10 @@ Panting, you look around. People from all over stare in your direction. The ones
 <<else>>
 
 <span class="red"><<Hes>> too fast for you,</span> and you lose <<him>> in the maze of stalls.
-<<set $plants[$stall_plant].amount -= 1>>
+<<set $plants[$stall_expensive].amount -= 1>>
 <br><br>
 
-Panting, you look around. People from all over stare in your direction. Those are aren't are blushing. <<covered>>
+Panting, you look around. People from all over stare in your direction. Those who aren't are blushing. <<covered>>
 <br><br>
 
 	<<if $rng gte 61>>
@@ -515,24 +639,27 @@ Panting, you look around. People from all over stare in your direction. Those ar
 	<<else>>
 		<<endevent>>
 		<<generate1>><<generate2>><<generate3>>
-		You turn back in the direction of your stall, and almost walk straight into a <<person1>><<personstop>> There are two others with <<himstop>> "Where you going, lewd <<girl>>?" <<he>> says, stepping forward and into you, pushing you back. "Walking around like that's just asking for trouble. But don't worry. Me and my friends are here to look after you."
+		You turn back in the direction of your stall, and almost walk straight into a <<person1>><<person>>. There are two others with <<him>>. "Where you going, lewd <<girl>>?" <<he>> says, stepping forward and into you, pushing you back. "Walking around like that's just asking for trouble. But don't worry. Me and my friends are here to look after you."
 		<br><br>
 
 		<<He>> wraps a hand around your waist and tries to pull you closer.
 		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<br><br>
 
-		<<if $promiscuity gte 4>>
+		<<if hasSexStat("promiscuity", 4)>>
 			<<link [[Allow|Stall Gang Sex]]>><<set $sexstart to 1>><</link>><<promiscuous4>>
 			<br>
+		<<else>>
+			<<insufficientStat "promiscuity" "to accept">>
+			<br>
 		<</if>>
-		<<link [[Shove|Stall Gang Shove]]>><<trauma -6>><</link>><<ltrauma>>
+		<<refuseicon>><<link [[Shove|Stall Gang Shove]]>><<trauma -6>><</link>><<ltrauma>>
 		<br>
 	<</if>>
 
 <</if>>
 
-:: Stall Gang Shove [nobr]
+:: Stall Gang Shove
 <<effects>>
 
 You shove the <<person1>><<person>> away from you. <<His>> friends laugh. "Playing hard to get? Fine, but we'll be watching you."
@@ -544,42 +671,38 @@ You return to your stall as if nothing were amiss.
 
 <<stall_actions>>
 
-:: Stall Gang Sex [nobr]
+:: Stall Gang Sex
 
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>><<promiscuity5>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<audience>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Stall Gang Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Gang Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Gang Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+
+<<if _combatend>>
 	<span id="next"><<link [[Next|Stall Gang Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Gang Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Gang Sex Finish [nobr]
+:: Stall Gang Sex Finish
 
 <<set $outside to 0>><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-
 	<br><br>
 	<<tearful>> you return to your stall.
 	<br><br>
@@ -587,7 +710,7 @@ You return to your stall as if nothing were amiss.
 	<<endcombat>>
 	<<stall_actions>>
 <<elseif $enemyhealth lte 0>>
-	You shove the <<person1>> into the road, where <<he>> trips and falls. You seize the opportunity and escape through the crowd.
+	You shove the <<person1>><<person>> into the road, where <<he>> trips and falls. You seize the opportunity and escape through the crowd.
 	<<glewdity>><<set $stall_rejected += 1>>
 	<br><br>
 	<<tearful>> you return to your stall.
@@ -621,11 +744,11 @@ You return to your stall as if nothing were amiss.
 	<<stall_actions>>
 <</if>>
 
-:: Stall Chase [nobr]
+:: Stall Chase
 <<effects>>
 
 You chase the <<person1>><<person>> through the market.
-<<if $athletics gte random(1, 1200)>>
+<<if $athleticsSuccess>>
 	<<if $rng gte 81>>
 		<span class="green">You gain on your quarry,</span> and chase <<him>> into an alley. It's a dead end.
 		<br><br>
@@ -639,7 +762,7 @@ You chase the <<person1>><<person>> through the market.
 		<span class="green">You gain on your quarry,</span> and chase <<him>> into an alley. It's a dead end.
 		<br><br>
 
-		<<He>> turns to face you, eyes darting this way and that, looking for a way out. <<He>> throws the <<print $stall_plant.replace(/_/g," ")>> into the air, then turns and climbs the wall while you catch it.
+		<<He>> turns to face you, eyes darting this way and that, looking for a way out. <<He>> throws the <<print $stall_expensive.replace(/_/g," ")>> into the air, then turns and climbs the wall while you catch it.
 		<br><br>
 
 		You return to your stall.
@@ -647,19 +770,20 @@ You chase the <<person1>><<person>> through the market.
 
 		<<stall_actions>>
 	<<else>>
+		<<set $stallThiefPartner to maleChance($pronoun) gte random(1, 100) ? "boyfriend" : "girlfriend">>
 		<span class="green">You gain on your quarry,</span> and chase <<him>> into an alley. It's a dead end.
 		<br><br>
 
-		"S-sorry," <<he>> says, holding out the <<print $stall_plant.replace(/_/g," ")>> and avoiding your gaze. "I wanted it for my <<if $pronoun is "m">>girlfriend<<else>>boyfriend<</if>>, but I couldn't afford it. It was wrong."
+		"S-sorry," <<he>> says, holding out the <<print $stall_expensive.replace(/_/g," ")>> and avoiding your gaze. "I wanted it for my <<print $stallThiefPartner>>, but I couldn't afford it. It was wrong."
 		<br><br>
 
-		<<link [[Let them keep it|Stall Keep]]>><</link>>
+		<<link [[Let <<him>> keep it|Stall Keep]]>><<famegood 4>><</link>>
 		<br>
-		<<link [[Scold|Stall Scold]]>><</link>>
+		<<socialiseicon "angry">><<link [[Scold|Stall Scold]]>><</link>>
 		<br>
 		<<link [[Remain silent|Stall Silent]]>><</link>>
 		<br>
-		<<if $skulduggery gte 300>>
+		<<if currentSkillValue('skulduggery') gte 300>>
 			<<link [[Give pointers|Stall Pointers]]>><<trauma -6>><</link>><<ltrauma>>
 			<br>
 		<</if>>
@@ -670,16 +794,14 @@ You chase the <<person1>><<person>> through the market.
 
 	You return to your stall empty-handed.
 	<br><br>
-
+	<<set $plants[$stall_expensive].amount -= 1>>
 	<<stall_actions>>
 <</if>>
 
-:: Stall Fight [nobr]
+:: Stall Fight
 <<if $fightstart is 1>>
 <<set $fightstart to 0>>
-
 <<neutral 1>>
-
 <<maninit>>
 <<set $enemytrust -= 100>>
 <<set $enemyanger += 200>>
@@ -688,65 +810,61 @@ You chase the <<person1>><<person>> through the market.
 <</if>>
 
 <<effects>>
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Fight Finish]]>><</link>></span><<nexttext>>
-<<elseif $pain gte 100 and $willpowerpain is 0>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
 	<span id="next"><<link [[Next|Stall Fight Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Fight]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Fight Finish [nobr]
+:: Stall Fight Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
-The <<person1>><<person>> lies on the ground, spent and panting. The <<print $stall_plant.replace(/_/g," ")>> lies beside <<himstop>>
-<br><br>
-<<tearful>> you pick it up and return to your stall.
-<br><br>
-<<clotheson>>
-<<endcombat>>
+	<<ejaculation "short">>
+	The <<person1>><<person>> lies on the ground, spent and panting. The <<print $stall_expensive.replace(/_/g," ")>> lies beside <<him>>.
+	<br><br>
+	<<tearful>> you pick it up and return to your stall.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
 
-<<stall_actions>>
+	<<stall_actions>>
 
 <<elseif $enemyhealth lte 0>>
-The <<person1>><<person>> drops the <<print $stall_plant.replace(/_/g," ")>> and runs.
-<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
-<br><br>
-<<tearful>> you pick it up and return to your stall.
-<br><br>
-<<clotheson>>
-<<endcombat>>
+	The <<person1>><<person>> drops the <<print $stall_expensive.replace(/_/g," ")>> and runs.
+	<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+	<br><br>
+	<<tearful>> you pick it up and return to your stall.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
 
-<<stall_actions>>
+	<<stall_actions>>
 
 <<else>>
-You fall back, too hurt to continue fighting. The <<person1>><<person>> flees the ally, your <<print $stall_plant.replace(/_/g," ")>> in hand.
-<<set $plants[$stall_plant].amount -= 1>>
-<br><br>
-<<tearful>> you return to your stall.
-<br><br>
-<<clotheson>>
-<<endcombat>>
+	You fall back, too hurt to continue fighting. The <<person1>><<person>> flees the alley, your <<print $stall_expensive.replace(/_/g," ")>> in hand.
+	<<set $plants[$stall_expensive].amount -= 1>>
+	<br><br>
+	<<tearful>> you return to your stall.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
 
-<<stall_actions>>
+	<<stall_actions>>
 
 <</if>>
 
-:: Stall Attention [nobr]
+:: Stall Attention
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"<<if $pronoun is "m">>S-Sir<<else>>M-maam<</if>>!" you call. "Would you take a look at my produce?"
-<<elseif $submissive lte 850>>
+<<if $speech_attitude is "meek">>
+	"<<if $pronoun is "m">>S-Sir<<else>>M-ma'am<</if>>!" you call. "Would you take a look at my produce?"
+<<elseif $speech_attitude is "bratty">>
 	"Oi," you say. "Loiterer. Buy something or clear off."
 <<else>>
 	"Can I interest you in my wares?" you say. "They're produced locally."
@@ -759,7 +877,9 @@ You fall back, too hurt to continue fighting. The <<person1>><<person>> flees th
 
 	<<stall_actions>>
 <<else>>
-	The <<person>> walks over, and examines your <<print setup.plants[$stall_expensive].plural>>. "How much for $stall_amount of these?" <<he>> asks.
+	<<set $stall_plant to $stall_expensive>>
+	<<stall_update>>
+	The <<person>> walks over, and examines your <span class="green"><<print setup.plants[$stall_expensive].plural>></span>. "How much for <span class="green"><<stall_amount>></span> of these?" <<he>> asks.
 	<br><br>
 
 	<<stall_trust>>
@@ -768,23 +888,23 @@ You fall back, too hurt to continue fighting. The <<person1>><<person>> flees th
 	<<stall_sell_actions>>
 <</if>>
 
-:: Stall Ignore [nobr]
+:: Stall Ignore
 <<effects>>
 
-You decide not to bother the <<personstop>>
+You decide not to bother the <<person>>.
 <br><br>
 
 <<stall_actions>>
 
-:: Stall Pointers [nobr]
+:: Stall Pointers
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"You did okay," you say, taking the <<print $stall_plant.replace(/_/g," ")>>. "But you could be better."
-<<elseif $submissive lte 850>>
-	"You fucked up," you say, snatching the <<print $stall_plant.replace(/_/g," ")>>. "I should never have noticed you."
+<<if $speech_attitude is "meek">>
+	"You did okay," you say, taking the <<print $stall_expensive.replace(/_/g," ")>>. "But you could be better."
+<<elseif $speech_attitude is "bratty">>
+	"You fucked up," you say, snatching the <<print $stall_expensive.replace(/_/g," ")>>. "I should never have noticed you."
 <<else>>
-	"You botched it," you say, snatching the <<print $stall_plant.replace(/_/g," ")>>. "I should never have noticed you."
+	"You botched it," you say, snatching the <<print $stall_expensive.replace(/_/g," ")>>. "I should never have noticed you."
 <</if>>
 <br><br>
 
@@ -793,18 +913,18 @@ You give the <<person>> some skulduggerous pointers. <<Hes>> shocked that you wo
 
 At that, you laugh. You return to your stall.
 <br><br>
-
+<<unset $stallThiefPartner>>
 <<stall_actions>>
 
-:: Stall Keep [nobr]
+:: Stall Keep
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"I-It's okay," you say. "You can give it to your <<if $pronoun is "m">>girlfriend<<else>>boyfriend<</if>>."
-<<elseif $submissive lte 850>>
+<<if $speech_attitude is "meek">>
+	"I-it's okay," you say. "You can give it to your <<print $stallThiefPartner>>."
+<<elseif $speech_attitude is "bratty">>
 	"Maybe you should think of cheaper ways to show your affection," you say. "But I'll overlook it this time. Keep it."
 <<else>>
-	"Give it to your <<if $pronoun is "m">>girlfriend<<else>>boyfriend<</if>>," you say.
+	"Give it to your <<print $stallThiefPartner>>," you say.
 <</if>>
 <br><br>
 
@@ -813,18 +933,19 @@ At that, you laugh. You return to your stall.
 
 You return to your stall.
 <br><br>
-<<set $plants[$stall_plant].amount -= 1>>
+<<unset $stallThiefPartner>>
+<<set $plants[$stall_expensive].amount -= 1>>
 <<stall_actions>>
 
-:: Stall Scold [nobr]
+:: Stall Scold
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"Stealing is wrong," you say, taking the <<print $stall_plant.replace(/_/g," ")>>. "You should be ashamed."
-<<elseif $submissive lte 850>>
-	"You're lucky," you say, snatching the <<print $stall_plant.replace(/_/g," ")>>. "I'm not gonna punish you. This time."
+<<if $speech_attitude is "meek">>
+	"Stealing is wrong," you say, taking the <<print $stall_expensive.replace(/_/g," ")>>. "You should be ashamed."
+<<elseif $speech_attitude is "bratty">>
+	"You're lucky," you say, snatching the <<print $stall_expensive.replace(/_/g," ")>>. "I'm not gonna punish you. This time."
 <<else>>
-	"You need to be careful," you say, snatching the <<print $stall_plant.replace(/_/g," ")>>. "Not everyone is as forgiving as me."
+	"You need to be careful," you say, snatching the <<print $stall_expensive.replace(/_/g," ")>>. "Not everyone is as forgiving as me."
 <</if>>
 <br><br>
 
@@ -833,47 +954,44 @@ You return to your stall.
 
 You return to your stall.
 <br><br>
-
+<<unset $stallThiefPartner>>
 <<stall_actions>>
 
-:: Stall Silent [nobr]
+:: Stall Silent
 <<effects>>
 
-You take the <<print $stall_plant.replace(/_/g," ")>> and return to your stall.
+You take the <<print $stall_expensive.replace(/_/g," ")>> and return to your stall.
 <br><br>
 
 <<stall_actions>>
 
-:: Stall Go [nobr]
+:: Stall Go
 <<effects>>
 
 You decide <<he>> isn't worth leaving your stall unattended for.
-<<set $plants[$stall_plant].amount -= 1>>
+
+<<set $plants[$stall_expensive].amount -= 1>>
 <br><br>
 
 <<stall_actions>>
 
-:: Stall Sell Push [nobr]
+:: Stall Sell Push
 <<effects>>
 
-<<if $submissive gte 1150>>
-	"Do you like my <<print setup.plants[$stall_expensive].plural>>," you ask, holding one up.
-<<elseif $submissive lte 850>>
-	"Don't overlook my <<print setup.plants[$stall_expensive].plural>>," you say, holding one up.
+<<if $speech_attitude is "meek">>
+	"Do you like my <span class="green"><<print setup.plants[$stall_expensive].plural>></span>," you ask, holding one up.
+<<elseif $speech_attitude is "bratty">>
+	"Don't overlook my <span class="green"><<print setup.plants[$stall_expensive].plural>></span>," you say, holding one up.
 <<else>>
-	"Can I interest you in some <<print setup.plants[$stall_expensive].plural>>?" you ask, holding one up.
+	"Can I interest you in some <span class="green"><<print setup.plants[$stall_expensive].plural>></span>?" you ask, holding one up.
 <</if>>
 <br><br>
 
 <<if $enemytrust gte -50>>
+	<<stall_update>>
 
-	<<if $stall_amount gte $plants[$stall_plant].amount>>
-		<<set $stall_amount to clone($plants[$stall_plant].amount)>>
-	<</if>>
-
-	<<He>> examines your produce. "They do look nice. How much for $stall_amount of them?"
+	<<He>> examines your produce. "They do look nice. How much for <span class="green"><<stall_amount>></span> of them?"
 	<br><br>
-	<<set $stall_plant to $stall_expensive>>
 	<<stall_trust>>
 	<br><br>
 
@@ -885,7 +1003,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 	<<stall_actions>>
 <</if>>
 
-:: Stall Seduce [nobr]
+:: Stall Seduce
 <<effects>>
 
 <<if $stall_seduced is 0>><<set $seductiondifficulty to 2000>>
@@ -894,7 +1012,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 <<elseif $stall_seduced is 1>><<set $seductiondifficulty to 4000>>
 	"I think you forgot your change," you say. That gets <<his>> attention.
 	<<if $worn.upper.type.includes("naked")>>
-		<<He>> turns to find your back to <<himcomma>> bent over and wiggling your <<bottom>> in the air. You peek over your shoulder to see if it's having the desired effect.
+		<<He>> turns to find your back to <<him>>, bent over and wiggling your <<bottom>> in the air. You peek over your shoulder to see if it's having the desired effect.
 	<<else>>
 		<<He>> turns to find you leaning forward, your top hanging loose. <<He>> can see right down it.
 		<<if $player.gender_appearance is "f" and $worn.under_upper.type.includes("naked")>>
@@ -920,10 +1038,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 
 <<seductioncheck>>
 <br><br>
-<<if $seductionskill lt 1000>>
-<span class="gold">You feel more confident in your powers of seduction.</span>
-<br><br>
-<</if>>
+<<seductionskilluptext>>
 <<seductionskilluse>>
 
 <<if $seductionrating gte $seductionrequired>>
@@ -933,13 +1048,9 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 	<br><br>
 
 	<<set $stall_plant to $plant_inventory.random()>>
-	<<set $stall_amount to random(11, 30)>>
-	<<if $stall_amount gte $plants[$stall_plant].amount>>
-		<<set $stall_amount to clone($plants[$stall_plant].amount)>>
-	<</if>>
-	<<set $stall_cost to Math.round(clone(setup.plants[$stall_plant].plant_cost))>>
+	<<stall_update>>
 
-	<<He>> walks back to your stand and stops in front of the <<print setup.plants[$stall_plant].plural>>. H-how much for $stall_amount of these?
+	<<He>> walks back to your stand and stops in front of the <span class="green"><<print setup.plants[$stall_plant].plural>></span>. "H-How much for <span class="green"><<stall_amount>></span> of these?"
 	<br><br>
 
 	<<stall_trust>>
@@ -956,7 +1067,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 
 <</if>>
 
-:: Stall Oral [nobr]
+:: Stall Oral
 <<effects>>
 
 You glance around to make sure no one's watching, then slip beneath the table.
@@ -982,13 +1093,18 @@ You glance around to make sure no one's watching, then slip beneath the table.
 	The <<person1>><<person>> slips under it too. "I know what you're planning, but oral won't cut it," <<he>> says. <<threaten>>
 	<br><br>
 
-	<<link [[Accept|Stall Oral Accept]]>><</link>><<promiscuous5>>
-	<br>
+	<<if hasSexStat("promiscuity", 5)>>
+		<<link [[Accept|Stall Oral Accept]]>><</link>><<promiscuous5>>
+		<br>
+	<<else>>
+		<<insufficientStat "promiscuity" "to agree">>
+		<br>
+	<</if>>
 	<<link [[Refuse|Stall Oral Refuse]]>><</link>>
 	<br>
 <</if>>
 
-:: Stall Oral Accept [nobr]
+:: Stall Oral Accept
 <<effects>>
 
 You nod, but you're not sure the <<person1>><<person>> even notices. <<Hes>> already groping at you.
@@ -997,12 +1113,12 @@ You nod, but you're not sure the <<person1>><<person>> even notices. <<Hes>> alr
 <<link [[Next|Stall Sex]]>><<set $sexstart to 1>><</link>>
 <br>
 
-:: Stall Oral Refuse [nobr]
+:: Stall Oral Refuse
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"N-no," you say. "I didn't agree to this."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Get the fuck off me," you say. "I didn't consent to this."
 <<else>>
 	"Get off," you say. "I didn't agree to this."
@@ -1017,39 +1133,35 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 
 <<stall_actions>>
 
-:: Stall Sex [nobr]
+:: Stall Sex
 
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Stall Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+
+<<if _combatend>>
 	<span id="next"><<link [[Next|Stall Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Sex Finish [nobr]
+:: Stall Sex Finish
 
 <<set $outside to 0>><<effects>>
-<<if $enemyarousal gte $enemyarousalmax>><<set $fameprostitution += 1>>
+<<if $enemyarousal gte $enemyarousalmax>><<fameprostitution 1>>
 	<<ejaculation>>
 	<<tearful>> you return to your side of the table. The <<person>> emerges from the other side then leans against it, panting. You look around at the busy market. Everyone's minding their own business, and you don't think anyone noticed.
 	<br><br>
@@ -1068,7 +1180,7 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<endcombat>>
 	<<stall_actions>>
 <<elseif $alarm is 1 and $rescue is 1>><<set $rescued += 1>><<set $stall_rejected += 1>>
-	Too nervous to continue, the <<person>> crawls away from you. The table cover falls behind <<himcomma>> blocking your view.
+	Too nervous to continue, the <<person>> crawls away from you. The table cover falls behind <<him>>, blocking your view.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet. People up and down the market look over, concerned about the source of the scream.
 	<<glewdity>>
@@ -1077,7 +1189,7 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<endcombat>>
 	<<stall_actions>>
 <<else>><<set $stall_rejected += 1>>
-	The <<person>> crawls away from you. The table cover falls behind <<himcomma>> blocking your view.
+	The <<person>> crawls away from you. The table cover falls behind <<him>>, blocking your view.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet.
 	<<glewdity>>
@@ -1087,41 +1199,38 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<stall_actions>>
 <</if>>
 
-:: Stall Oral Sex [nobr]
+:: Stall Oral Sex
 
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
-
 	<<maninit>>
 	<<set $enemytrust += 100>><<promiscuity5>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 	<<npcoral>>
 <</if>>
+
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Stall Oral Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Oral Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Oral Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+
+<<if _combatend>>
 	<span id="next"><<link [[Next|Stall Oral Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Oral Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Oral Sex Finish [nobr]
+:: Stall Oral Sex Finish
 
 <<set $outside to 0>><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-	<<set $fameprostitution += 1>>
+	<<fameprostitution 1>>
 	<<ejaculation>>
 	<<tearful>> you return to your side of the table. The <<person>> leans against it, panting. You look around at the busy market. Everyone's minding their own business, but you don't think anyone noticed.
 	<br><br>
@@ -1134,7 +1243,7 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<set $stall_rejected += 1>>
 	You shove the <<person1>><<person>> away from you. <<He>> stumbles and crashes through a stall opposite, sending fruit rolling down the street.
 	<br><br>
-	<<tearful>> you return to your side of the table. The <<person1>><<person>> is busy struggling to <<if $pronoun is "f">>lower <<his>> skirt<<else>>zip <<his>> fly<</if>>, while the fruit stall owner admonishes <<himstop>>
+	<<tearful>> you return to your side of the table. The <<person1>><<person>> is busy struggling to <<if $pronoun is "f">>lower <<his>> skirt<<else>>zip <<his>> fly<</if>>, while the fruit stall owner admonishes <<him>>.
 	<<glewdity>>
 	<br><br>
 	<<clotheson>>
@@ -1162,14 +1271,14 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<stall_actions>>
 <</if>>
 
-:: Stall Pull [nobr]
+:: Stall Pull
 <<effects>>
 
-You pull away from the <<personstop>>
+You pull away from the <<person>>.
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Th-there's been a mistake," you say. "This isn't what I sell here."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"Keep your hands off me," you say. "Or I'll call security."
 <<else>>
 	"I'm sorry for the misunderstanding," you say. "But I only sell produce here."
@@ -1181,7 +1290,7 @@ The <<person>> glares at you, then glances around. "You led me on," <<he>> whisp
 
 <<stall_actions>>
 
-:: Stall Shove [nobr]
+:: Stall Shove
 <<effects>>
 
 You twist around and shove the <<person1>><<person>> away from you. <<He>> grasps the stall's support and almost brings the roof down as <<he>> tumbles. <<He>> shoots you a glare before climbing to <<his>> feet and walking away.
@@ -1192,7 +1301,7 @@ You twist around and shove the <<person1>><<person>> away from you. <<He>> grasp
 
 <<stall_actions>>
 
-:: Stall Endure [nobr]
+:: Stall Endure
 <<effects>>
 
 <<if $rng gte 51>>
@@ -1220,17 +1329,17 @@ You endure the <<person1>><<persons>> invasive groping. It continues for several
 
 	<<link [[Protest|Stall Protest]]>><</link>>
 	<br>
-	<<link [[Remain Silent|Stall Wait]]>><</link>>
+	<<link [[Remain silent|Stall Wait]]>><</link>>
 	<br>
 
 <</if>>
 
-:: Stall Protest [nobr]
+:: Stall Protest
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"P-please no," you say. "I'm not in stock."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"I've had enough," you say. "Get your fucking hands off me."
 <<else>>
 	"I'm not for sale," you say.
@@ -1251,19 +1360,19 @@ The <<person1>><<person>> grasps your mouth with <<his>> free hand. "Fucking <<b
 <<link [[Next|Stall Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
-:: Stall Wait [nobr]
+:: Stall Wait
 <<effects>>
 
-You wait until the pair agree on the price. The <<person2>><<person>> gets you cheap, but there's a caveat. <<He>> has to share you with the <<person1>><<personstop>>
+You wait until the pair agree on the price. The <<person2>><<person>> gets you cheap, but there's a caveat. <<He>> has to share you with the <<person1>><<person>>.
 <br><br>
 
-The <<person>> shoves you beneath the table, while the <<person2>><<person>> lifts the cover on <<his>> side. The <<person1>><<person>> climbs under behind you, then on top of you, as <<he>> forces your mouth against the <<person2>><<persons>><<if $NPCList[_n].penis isnot "none">> erect <<print $NPCList[_n].penisdesc>><<else>>moistening pussy<</if>>.
+The <<person>> shoves you beneath the table, while the <<person2>><<person>> lifts the cover on <<his>> side. The <<person1>><<person>> climbs under behind you, then on top of you, as <<he>> forces your mouth against the <<person2>><<persons>><<if $NPCList[_n].penis isnot "none">> erect <<print $NPCList[_n].penisdesc>><<else>> moistening pussy<</if>>.
 <br><br>
 
 <<link [[Next|Stall Double Rape]]>><<set $molestationstart to 1>><</link>>
 <br>
 
-:: Stall Double Rape [nobr]
+:: Stall Double Rape
 
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -1271,77 +1380,72 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 	<<npcoral>>
 	<<set $enemyanger += 20>>
 	<<set $enemytrust -= 20>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Double Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Double Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+<<if _combatend>>
 	<span id="next"><<link [[Next|Stall Double Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Double Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Double Rape Finish [nobr]
+:: Stall Double Rape Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>><<set $forcedprostitutionstat += 1>>
-<<ejaculation>>
-You're left lying on the ground beneath your stall.
-<br><br>
-<<tearful>> you climb to your feet.
-<br><br>
-<<clotheson>>
-<<endcombat>>
+	<<ejaculation>>
+	You're left lying on the ground beneath your stall.
+	<br><br>
+	<<tearful>> you climb to your feet.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
 
-<<stall_actions>>
+	<<stall_actions>>
 
 <<elseif $enemyhealth lte 0>>
-You shove the <<person1>><<person>> to the side, where <<he>> collides with a neighbouring stall. The stall's owner isn't the only one to notice.
-<br><br>
-<<He>> staggers to <<his>> feet and glares at you, but thinks better than to try anything. <<He>> stomps away as the <<person2>><<person>> pretends <<hes>> not involved.
-<br><br>
-<<tearful>> you take your place behind your stall.
-<br><br>
-<<clotheson>>
-<<endcombat>>
-<<stall_actions>>
+	You shove the <<person1>><<person>> to the side, where <<he>> collides with a neighbouring stall. The stall's owner isn't the only one to notice.
+	<br><br>
+	<<He>> staggers to <<his>> feet and glares at you, but thinks better than to try anything. <<He>> stomps away as the <<person2>><<person>> pretends <<hes>> not involved.
+	<br><br>
+	<<tearful>> you take your place behind your stall.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<stall_actions>>
 
 <<else>>
-<<set $rescued += 1>>
-"Did you hear that scream?"
-<br>
-"What's going on over there?"
-<br>
-"Someone should take a look."
-<br><br>
-The <<person2>><<person>> steps away from the table, letting the cover fall and struggling to <<if $pronoun is "m">>zip <<his>> fly<<else>>pull down <<his>> skirt.<</if>>
-<br><br>
-The <<person1>><<person>> peeks outside. Fear crosses <<his>> face. <<He>> shoots you one last glare, then flees.
-<br><br>
-<<tearful>> you return to your place behind the display.
-<br><br>
-<<clotheson>>
-<<endcombat>>
-<<stall_actions>>
+	<<set $rescued += 1>>
+	"Did you hear that scream?"
+	<br>
+	"What's going on over there?"
+	<br>
+	"Someone should take a look."
+	<br><br>
+	The <<person2>><<person>> steps away from the table, letting the cover fall and struggling to <<if $pronoun is "m">>zip <<his>> fly<<else>>pull down <<his>> skirt.<</if>>
+	<br><br>
+	The <<person1>><<person>> peeks outside. Fear crosses <<his>> face. <<He>> shoots you one last glare, then flees.
+	<br><br>
+	<<tearful>> you return to your place behind the display.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<stall_actions>>
 
 <</if>>
 
-:: Stall Rape [nobr]
+:: Stall Rape
 
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -1349,33 +1453,28 @@ The <<person1>><<person>> peeks outside. Fear crosses <<his>> face. <<He>> shoot
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 	<<hand_gag 0 left>>
 	<<set $enemyanger += 20>>
 	<<set $enemytrust -= 20>>
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Stall Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Stall Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+<<if _combatend>>
 	<span id="next"><<link [[Next|Stall Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Stall Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Stall Rape Finish [nobr]
+:: Stall Rape Finish
 
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
@@ -1413,3 +1512,123 @@ The <<person1>><<person>> peeks outside. Fear crosses <<his>> face. <<He>> shoot
 	<<endcombat>>
 	<<stall_actions>>
 <</if>>
+
+:: Market Street Urchin Help
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+<<set $urchin_debt to random(500,2000)>>
+It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<else>>items from the stall<</if>> worth <<printmoney $urchin_debt>>, and the market stall owner wants to call the police.
+<br><br>
+<<if $phase is 0>>
+	<<link [[Try to explain the orphan's desperate hunger|Market Street Urchin Help Persuade]]>><</link>>
+	<br>
+<<else>>
+	<<link [[Persuade the market stall owner to drop it|Market Street Urchin Help Persuade]]>><</link>>
+	<br>
+<</if>>
+<<if $money gte $urchin_debt>>
+	<<link [[Offer to pay|Market Street Urchin Help Pay]]>><<set $phase += 1>><</link>> /* incr $phase to indicate price not agreed. */
+	<br>
+<</if>>
+<<if $submissive lte 1100 and (($phase is 0) or ($phase is 10 and ($delinquency gte 400 or $cool gte 40)))>>
+	<<link [[Attack the market stall owner|Market Street Urchin Help Hit]]>><<crimeUp 200 "assault">><</link>><<gcrime "assault">>
+	<br>
+<</if>>
+<<link [[Walk away|Connudatus Street]]>><<unset $urchin_debt>><<endevent>><</link>>
+<br>
+
+:: Market Street Urchin Help Persuade
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+<<if $phase is 0>>
+	You explain to the market stall owner the horrors of life in the orphanage, and what the <<person1>><<person>> has to live through.<br>
+	<<if $chef_speech is "bailey">>
+		The market stall owner looks away <<print either("sadly","darkly","with a pained expression")>>. "I've heard the rumours about that place." <<set _bar to random(0,400)>>
+	<<else>>
+		The market stall owner looks sceptical about your claims. <<set _bar to random(0,1000)>>
+	<</if>>
+<<else>>
+	You tell the market stall owner about how hard the <<person>> works at school and how calling the police could destroy <<his>> whole future.<<set _bar to random(0,800)>>
+<</if>><br><br>
+<<if currentSkillValue('english') gte _bar>>
+	Hearing the passion in your words, the market stall owner relents.
+	<br>
+	<<if $phase is 0>>
+		The market stall owner sighs and waves away the concerned onlookers, calling you both in.<br>
+		"I'm not a monster. If you're hungry, ask me any time I'm open. Just please don't steal my stuff. Okay?"<br>
+		The <<person>> smiles, hesitates, and starts to hand back the food.<br>
+		"Keep it. It's yours. Now, get outta here. Both of you." <<lstress>><<stress -3>>
+		<br><br>
+		"Thanks," the <<person>> says, as you walk away. "I owe you one." <<ghope>><<hope 1>>
+		<br><br>
+		<<link [[Leave|Connudatus Street]]>><<famegood 20>><<unset $urchin_debt>><<endevent>><</link>>
+		<br>
+	<<else>>
+		"Okay, okay! Cut it out!" The market stall owner laughs. "Who am I to derail a future of such grand and world-changing potential!?
+		I'll let <<him>> off this time. But give that back and get outta here, and don't make me regret this. If I see you near my stall again you better be buying something.
+		And you... You, get out of here before I hire you as a sales clerk!"<br>
+		The <<person>> hands back the stolen item. And the stall owner goes back to work.
+		<br><br>
+		"Thanks," the <<person>> says, as you walk away. "I owe you one." <<gcool>><<status 1>>
+		<br><br>
+		<<link [[Next|Connudatus Street]]>><<famegood 20>><<unset $urchin_debt>><<endevent>><</link>>
+		<br>
+	<</if>>
+<<elseif currentSkillValue('english') gte (_bar/2)>>
+	Hearing the conviction in your words, the market stall owner relents.
+	<br><br>
+	"Okay, but someone has to pay me for it."<br><br>
+	<<if $money gte $urchin_debt>>
+		<<link [[Offer to pay|Market Street Urchin Help Pay]]>><</link>>
+		<br>
+		<<link [[Refuse to pay|Market Street Urchin Not Pay]]>><</link>>
+		<br>
+	<<else>>
+		<span class="red">You can't afford it.</span>
+		<br><br>
+		<<link [[Explain that you can't afford to pay|Market Street Urchin Not Pay]]>><<famegood 2>><</link>>
+		<br>
+	<</if>>
+<<else>>
+	The market stall owner is not convinced, and drags the <<person>> off toward the police station.
+	<br><br>
+	<<link [[Next|Connudatus Street]]>><<unset $urchin_debt>><<endevent>><</link>>
+<</if>>
+
+:: Market Street Urchin Help Pay
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+<<if $phase % 10 is 1 and $rng % 3 is 0>> /* price not yet agreed? 1 in 3 chance of a price hike */
+	<<set $urchin_debt *= 2>>
+	"Okay," the market stall owner says. "But since <<person1>><<he>> tried to steal from me, the price has gone up to <<printmoney $urchin_debt>>."
+<<else>>
+	"Okay," the market stall owner says. "Just pay <<printmoney $urchin_debt>> for it, and get out of here. You're lucky it's been a busy day."
+<</if>>
+<br><br>
+<<if $money gte $urchin_debt>>
+	You pay the market stall owner. <<ghope>><<hope 1>><<money `-$urchin_debt` "marketStall">>
+	<br><br>
+	The owner counts it carefully and then waves you both away. "Get out of here."
+	<br><br>
+	<<link [[Next|Connudatus Street]]>><<famegood 20>><<unset $urchin_debt>><<endevent>><</link>>
+	<br>
+<<else>>
+	<span class="red">You can't afford it.</span>
+	<br><br>
+	<<link [[Explain that you can't afford to pay|Market Street Urchin Not Pay]]>><<famegood 2>><</link>><br>
+<</if>>
+
+:: Market Street Urchin Not Pay
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+The market stall owner shrugs, and drags the <<person>> off toward the police station.
+<br><br>
+<<link [[Next|Connudatus Street]]>><<unset $urchin_debt>><<endevent>><</link>>
+
+:: Market Street Urchin Help Hit
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
+Without warning, you lunge at the market stall owner and shove them into their stall. Wares crash in every direction.
+<br><br>
+In the chaos that ensues, you both get away.
+<<if $phase is 0>>The orphan is grateful for your help.<<greb>><<ghope>><<reb 1>><<hope 1>>
+<<else>>The student is grateful for your help.<<gcool>><<status 1>><<famescrap 5>>
+<</if>>
+<br><br>
+<<link [[Next|Connudatus Street]]>><<unset $urchin_debt>><<endevent>><</link>>
+<br>

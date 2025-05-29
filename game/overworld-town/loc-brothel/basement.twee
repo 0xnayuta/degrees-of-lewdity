@@ -1,4 +1,4 @@
-:: Brothel Basement [nobr]
+:: Brothel Basement
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<if $brothel_basement_intro is undefined>>
@@ -6,7 +6,7 @@
 	<<generate1>><<person1>>
 	A <<person>> emerges from a nearby door. <<He>> wears a black mask that covers the top half of <<his>> face.
 	<br><br>
-	"You look lost," <<he>> chuckles. "These rooms are for employees." <<He>> points at a sign near the stairs. It reads <span class="gold">£<<print ($brothel_basement_price / 100)>></span>.
+	"You look lost," <<he>> chuckles. "These rooms are for employees." <<He>> points at a sign near the stairs. It reads <<printmoney $brothel_basement_price>>.
 	<<if $brothel_basement_price gte 2000>>
 		"Expensive today.
 	<<else>>
@@ -19,20 +19,20 @@
 <<else>>
 	You are in the brothel basement. A row of small rooms lines one wall. Inside each is a single <<if $awareness gte 200>>gloryhole<<else>>hole<</if>>.
 	<br><br>
-	A sign by the stairs reads <span class="gold">£<<print ($brothel_basement_price / 100)>></span>.
+	A sign by the stairs reads <<printmoney $brothel_basement_price>>.
 	<br><br>
-	<<if $promiscuity gte 55>>
-		<<link [[Occupy a room (0:10)|Brothel Gloryhole]]>><<pass 10>><<set $phase to 1>><</link>><<promiscuous4>>
+	<<if hasSexStat("promiscuity", 4)>>
+		<<brothelicon "gloryhole">><<link [[Occupy a room (0:10)|Brothel Gloryhole]]>><<pass 10>><<set $phase to 1>><</link>><<promiscuous4>>
 		<br>
 	<<else>>
-		You aren't promiscuous enough to work at the gloryholes.
-		<br>
+		<<insufficientStat "promiscuity" "to work at the gloryholes">>
+		<br><br>
 	<</if>>
-	<<link [[Leave|Brothel]]>><</link>>
+	<<getouticon>><<link [[Leave|Brothel]]>><</link>>
 	<br>
 <</if>>
 
-:: Brothel Gloryhole [nobr]
+:: Brothel Gloryhole
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 
@@ -51,12 +51,12 @@ $NPCList[0].penisdesc pokes through the hole.
 pussy appears at the hole.
 <</if>>
 <br><br>
-<<link [[Engage|Brothel Basement Sex]]>><<set $sexstart to 1>><<tiredness 3>><</link>><<gtiredness>>
+<<ind>><<link [[Engage|Brothel Basement Sex]]>><<set $sexstart to 1>><<tiredness 3>><</link>><<gtiredness>>
 <br>
-<<link [[Leave|Brothel Basement]]>><<endevent>><</link>>
+<<getouticon>><<link [[Leave|Brothel Basement]]>><<endevent>><<unset $desperateaction>><</link>>
 <br>
 
-:: Brothel Basement Sex [nobr]
+:: Brothel Basement Sex
 
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
@@ -66,30 +66,29 @@ pussy appears at the hole.
 	<<maninit>>
 	<<npcgloryhole>>
 <</if>>
+
 <<set $enemyarousal += 10>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Brothel Basement Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Brothel Basement Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
+
+<<if _combatend>>
 	<span id="next"><<link [[Next|Brothel Basement Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Brothel Basement Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Brothel Basement Sex Finish [nobr]
+:: Brothel Basement Sex Finish
 
 <<set $outside to 0>><<effects>>
 <<set $punishmentposition to 0>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>><<set $gloryholestat += 1>><<set $prostitutionstat += 1>>
-	<<tearful>> you count the money <<he>> pushes through the hole. You've gained <span class="gold">£<<print ($brothel_basement_price / 100)>></span>.
-	<<set $money += $brothel_basement_price>>
+	<<tearful>> you count the money <<he>> pushes through the hole. You've gained <<printmoney $brothel_basement_price>>.
+	<<money $brothel_basement_price "brothelGloryhole">>
 	<br><br>
 
 	<<clotheson>>
@@ -98,10 +97,11 @@ pussy appears at the hole.
 <<elseif $enemyhealth lte 0>>
 	You hear a shout of pain from behind the wall, and the
 	<<if $NPCList[0].penis isnot "none">>
-	$NPCList[0].penisdesc disappears.
+		$NPCList[0].penisdesc
 	<<else>>
-	pussy disappears.
+		pussy
 	<</if>>
+	disappears.
 	<br><br>
 	<<tearful>> you rise to your feet.
 	<br><br>
@@ -118,7 +118,7 @@ pussy appears at the hole.
 
 <</if>>
 
-<<link [[Wait for another customer (0:10)|Brothel Gloryhole]]>><<pass 10>><</link>>
+<<ind>><<link [[Wait for another customer (0:10)|Brothel Gloryhole]]>><<pass 10>><</link>>
 <br>
-<<link [[Leave|Brothel Basement]]>><</link>>
+<<getouticon>><<link [[Leave|Brothel Basement]]>><</link>>
 <br>

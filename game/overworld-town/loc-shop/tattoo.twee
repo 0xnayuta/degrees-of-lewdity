@@ -1,133 +1,143 @@
-:: Tattoo Parlour Lock [nobr]
+:: Tattoo Parlour Lock
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-
-	<<link [[Pick it (0:10)|Tattoo Parlour]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Tattoo Parlour]]>><<handheldon>><<pass 10>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
 
-<<link [[Leave|Shopping Centre]]>><</link>>
+<<getouticon>><<link [[Leave|Shopping Centre]]>><<handheldon>><</link>>
 <br>
 
-:: Tattoo Parlour [nobr]
+:: Tattoo Parlour
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
-You are in the tattoo parlour. The artists here can turn anything drawn on you into a tattoo. They also have a selection of tattoo designs available. Costs £500.
+You are in the tattoo parlour. The artists here can turn anything drawn on you into a tattoo. They also have a selection of tattoo designs available. Costs <<printmoney 50000>>.
 <br><br>
 
-<<if $daystate is "night">>
+<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
 	You are alone in the darkness.
+	<br><br>
 <<elseif $exposed gte 1>>
 	You hide in a cupboard to protect your dignity.
-<<else>>
-
+	<br><br>
 <</if>>
-<br><br>
 
-<<if $stress gte 10000>>
+<<if $stress gte $stressmax>>
 	<<passoutshop>>
 <<else>>
-	<<if $hour is 21>>
-		It's closing time. Security is herding everyone outside.<<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
+	<<if Time.hour is 21>>
+		It's closing time. Security is herding everyone outside. <<if $exposed gte 1>>Panic swells within you as you realise how exposed you'll be should security find you in this state of dress.<</if>>
 		<br><br>
 
 		<<if $exposed lte 0>>
-			<<link [[Go Outside|High Street]]>><</link>>
+			<<highicon>><<link [[Go outside|High Street]]>><</link>>
 			<br>
 		<<else>>
-			<<link [[Hide until it's over (1:00)|Tattoo Parlour]]>><<pass 1 hour>><</link>>
+			<<ind>><<link [["Hide until it's over (1:00)"|Tattoo Parlour]]>><<pass 1 hour>><</link>>
 		<</if>>
 	<<else>>
-
-		<<if $daystate is "night" and $hour isnot $closinghour and $tattooparlourtheft isnot 1>>
-			<<link [[Examine the cash register|Tattoo Parlour Register]]>><</link>>
-			<br>
-		<</if>>
-
-		<<if $exposed lte 1 and $daystate isnot "night" and $hour isnot 21>>
+		<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.tattooParlour>>
+			<<shopicon "register">><<link [[Examine the cash register|Tattoo Parlour Register]]>><</link>>
+			<br><br>
+		<<elseif $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
 			<<if $money lt 50000>>
 				You cannot afford a tattoo.
-				<br>
+				<br><br>
 			<<else>>
-				<<link [[Get a tattoo|Tattoo Choice]]>><</link>>
+				<<shopicon "tattoo">><<link [[Get a tattoo|Tattoo Choice]]>><</link>>
 				<br>
-				<<link [[Turn bodywriting into tattoo|Tattoo Bodywriting Choice]]>><</link>>
-				<br>
+				<<shopicon "tattoo">><<link [[Turn bodywriting into tattoo|Tattoo Bodywriting Choice]]>><</link>>
+				<br><br>
 			<</if>>
 		<</if>>
-		<br>
-		<<link [[Leave|Shopping Centre]]>><</link>>
+		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
 
-:: Tattoo Bodywriting Choice [nobr]
+:: Tattoo Bodywriting Choice
 <<effects>>
 
-<<for _e to 0; _e lt $bodypart_number; _e++>>
-	<<activebodypart>>
-	<<if $skin[_active_bodypart].pen is "pen" or $skin[_active_bodypart].pen is "marker">>
-		<<if $money gte 50000>>
-		You have <<if $skin[_active_bodypart].type is "text">><span class="pink">"<<print $skin[_active_bodypart].writing>>"</span> written<<else>>a $skin[_active_bodypart].writing drawn<</if>> on your <<bodypart _active_bodypart>>.
-			<<if $skin[_active_bodypart].special is "bestiality" and $deviancy lte 34>>
-				<<if (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-					<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist, and you're not deviant enough to have such a thing made into a tattoo anyway.</span>
-				<<else>>
-					<span class="blue">You're not deviant enough to have such a thing made into a tattoo.</span>
-				<</if>>
-			<<elseif $skin[_active_bodypart].lewd is 1 and $skin[_active_bodypart].special isnot "bestiality" and $promiscuity lte 34>>
-				<<if (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-					<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist, and you're not lewd enough to have such a thing made into a tattoo anyway.</span>
-				<<else>>
-					<span class="blue">You're not lewd enough to have such a thing made into a tattoo.</span>
-				<</if>>
-			<<elseif (_active_bodypart is "left_bottom" or _active_bodypart is "right_bottom" or _active_bodypart is "pubic" or _active_bodypart is "breasts") and $exhibitionism lte 34>>
-				<span class="blue">You can't bare to show your <<bodypart _active_bodypart>> to the tattoo artist.</span>
+<<for _active_bodypart range setup.bodyparts>>
+	<<set _part to $skin[_active_bodypart]>>
+	<<switch _part.pen>>
+		<<case "pen" "marker" "lipstick" "mud">>
+			You have
+			<<if _part.type is "text">>
+				<span class="pink">"<<print _part.writing>>"</span> written
 			<<else>>
-			<<capture _active_bodypart>> | <<link [[Turn into tattoo (£500 1:00)|Tattoo Bodywriting]]>><<pass 60>><<set $money -= 50000>><<set $tattoo_bodypart to _active_bodypart>><<set $tattoo_parlour to clone($skin[_active_bodypart])>><<if $skin[_active_bodypart].lewd is 1 or $skin[_active_bodypart].special is "bestiality">><<control 50>><<else>><<control 25>><</if>><<set $skin[_active_bodypart].pen to "tattoo">><<pain 6>><</link>><</capture>> <<if $skin[_active_bodypart].lewd is 1 or $skin[_active_bodypart].special is "bestiality">><<gggcontrol>><<else>><<ggcontrol>><</if>>
-			<</if>><<gpain>>
-		<br>
-		<</if>>
-	<<elseif $skin[_active_bodypart].pen is "tattoo">>
-		Your <<bodypart _active_bodypart>> is already tattooed.
-		<br>
-	<<elseif $skin[_active_bodypart].pen is "brand">>
-		Your <<bodypart _active_bodypart>> is <span class="red">branded</span>.
-		<br>
-	<<elseif $skin[_active_bodypart].pen is "magic">>
-		Your <<bodypart _active_bodypart>> has a magical <span class="pink">seal</span>.
-		<br>
-	<<elseif !$skin[_active_bodypart].pen>>
-		Nothing is written on your <<bodypart _active_bodypart>>.
-		<br>
-	<</if>>
+				<span class="pink">a _part.writing</span> drawn
+			<</if>>
+			on your <<bodypart _active_bodypart>>.
+			<<set _tooShy to (["left_bottom","right_bottom","pubic","breasts"].includes(_active_bodypart) and $exhibitionism lte 34)>>
+			<<set _deviant to ["bestiality", "Black Wolf", "Great Hawk"].includes(_part.special)>>
+			<<set _lewd to _part.lewd is 1>>
+			<<if $money lte 50000>>
+				<span class="red">You cannot afford to turn it into a tattoo.</span>
+			<<elseif (_deviant and !hasSexStat("deviancy", 3)) or (_lewd and !hasSexStat("promiscuity", 3))>>
+				<<set _lewdOrDeviant to (_deviant and !hasSexStat("deviancy", 3) ? "deviant" : "lewd")>>
+				<<if _tooShy>>
+					<span class="blue">You can't bear to show your <<bodypart _active_bodypart>> to the tattoo artist, and you're not _lewdOrDeviant enough to have such a thing made into a tattoo anyway.</span>
+				<<else>>
+					<span class="blue">You are not _lewdOrDeviant enough to have such a thing made into a tattoo.</span>
+				<</if>>
+				<<unset _lewdOrDeviant>>
+			<<elseif _tooShy>>
+				<span class="blue">You can't bear to show your <<bodypart _active_bodypart>> to the tattoo artist.</span>
+			<<else>>
+				<<capture _active_bodypart _part _deviant _lewd>>
+					| <<link [[Turn into tattoo (£500 1:00)|Tattoo Bodywriting]]>>
+						<<pass 60>><<money -50000 "tattoo">><<set $tattoo_bodypart to _active_bodypart>><<set $tattoo_parlour to clone(_part)>>
+						<<if _lewd or _deviant>><<control 50>><<else>><<control 25>><</if>>
+						<<set _part.pen to "tattoo">><<pain 6>>
+					<</link>><<if _lewd or _deviant>><<gggcontrol>><<else>><<ggcontrol>><</if>><<gpain>>
+				<</capture>>
+			<</if>>
+			<<unset _tooShy>><<unset _deviant>><<unset _lewd>>
+		<<case "tattoo">>
+			Your <<bodypart _active_bodypart>> is already tattooed.
+		<<case "brand">>
+			Your <<bodypart _active_bodypart>> is <span class="red">branded</span>.
+		<<case "magic">>
+			Your <<bodypart _active_bodypart>> has a magical <span class="pink">seal</span>.
+		<<default>>
+			Nothing is written on your <<bodypart _active_bodypart>>.
+	<</switch>>
+	<br>
 <</for>>
 <br>
+<<if hasSexStat("promiscuity", 3)>>
+	<<link [[Think of a sentence to tattoo|Tattoo Bodywriting Write]]>><</link>>
+	<br>
+<</if>>
 <<link [[Back|Tattoo Parlour]]>><</link>>
 <br>
 
-:: Tattoo Choice [nobr]
+:: Tattoo Choice
 <<effects>>
 
 They have a board displaying a number of tattoo designs.
 <br><br>
 
 Location:<br>
-<<for _e to 0; _e lt $bodypart_number; _e++>>
-	<<activebodypart>>
-
-	<<if $skin[_active_bodypart].writing>>
-
-	<<else>><<set _bodypart_detected to 1>>
+<<for _active_bodypart range setup.bodyparts>>
+	<<if !$skin[_active_bodypart].writing>>
+		<<set _bodypart_detected to 1>>
 		<label>Your <<bodypart _active_bodypart>> <<capture _active_bodypart>><<radiobutton "$tattoo_bodypart" _active_bodypart>><</capture>></label>
 		<br>
 	<</if>>
@@ -162,7 +172,7 @@ Location:<br>
 
 <span class="lewd">Deviant</span> tattoos:
 <br>
-<<if $deviancy gte 35>>
+<<if hasSexStat("deviancy", 3)>>
 	<label>Paw print <<radiobutton "$tattoo_choice" "paw_print">></label> |
 <<else>>
 	You're not deviant enough.
@@ -174,12 +184,12 @@ Location:<br>
 <<link [[Back|Tattoo Parlour]]>><<unset $tattoo_bodypart>><<unset $writebodyaction>><</link>>
 <br>
 
-:: Tattoo Get [nobr]
+:: Tattoo Get
 
 <<effects>>
 <<if $tattoo_bodypart and $tattoo_choice>>
 	<<set $tattoo_parlour to clone(setup.bodywriting[$tattoo_choice])>>
-	<<add_bodywriting $tattoo_bodypart $tattoo_choice tattoo>><<pass 60>><<set $money -= 50000>>
+	<<add_bodywriting $tattoo_bodypart $tattoo_choice tattoo>><<pass 60>><<money -50000 "tattoo">>
 	<<pain 6>>
 
 	<<tattoo_parlour>>
@@ -210,9 +220,78 @@ Location:<br>
 	<br>
 <</if>>
 
-:: Tattoo Bodywriting [nobr]
+:: Tattoo Bodywriting
 
 <<effects>>
 <<tattoo_parlour>>
 <<link [[Next|Tattoo Parlour]]>><</link>>
 <br>
+
+:: Tattoo Bodywriting Write
+
+<<effects>>
+
+<<if $bodyWritingSelected is null>>
+	<<unset $bodyWritingSelected>>
+<</if>>
+<<if $bodyWritingSelected isnot undefined>>
+	You tell the tattoo artist to write
+	<<if isLoveInterest($skin[$bodyPartSelected].special)>>
+		"<span class="lewd"><<print $bodyWritingSelected>></span>"
+	<<elseif $skin[$bodyPartSelected].special isnot "none">>
+		"<span class="red"><<print $bodyWritingSelected>></span>"
+	<<elseif $skin[$bodyPartSelected].lewd is 1>>
+		"<span class="pink"><<print $bodyWritingSelected>></span>"
+	<<else>>
+		"<span class="purple"><<print $bodyWritingSelected>></span>"
+	<</if>>
+	on your <<bodypart $bodyPartSelected>>, and examine the result.
+
+	<<set _part to $skin[$bodyPartSelected]>>
+	<<set _lewd to _part.lewd is 1>>
+	<<set _deviant to ["bestiality", "Black Wolf", "Great Hawk"].includes(_part.special)>>
+
+	<br><br>
+	<<link [[Turn into tattoo (£500 1:00)|Tattoo Bodywriting]]>>
+		<<pass 60>>
+		<<money -50000 "tattoo">>
+		<<pain 6>>
+		<<if _lewd or _deviant>>
+			<<control 50>>
+		<<else>>
+			<<control 25>>
+		<</if>>
+		<<set $tattoo_bodypart to $bodyPartSelected>>
+		<<set $tattoo_parlour to clone(_part)>>
+		<<set _part.pen to "tattoo">>
+		<<unset $bodyWritingSelected>>
+		<<unset $bodyPartSelected>>
+		<<unset $bodywritingSet>>
+	<</link>><<gpain>><<if _lewd or _deviant>><<gggcontrol>><<else>><<ggcontrol>><</if>>
+
+	<br>
+	<<link [[Write something else|Tattoo Bodywriting Write]]>>
+		<<bodywriting_clear $bodyPartSelected>>
+		<<unset $bodyWritingSelected>>
+		<<unset $bodyPartSelected>>
+		<<unset $bodywritingSet>>
+	<</link>>
+<<else>>
+	<<link [[Back|Tattoo Bodywriting Choice]]>><<unset $bodywritingSet>><</link>>
+	<br><br>
+
+	You think about what you'd like your tattoo to say.
+	<br><br>
+	__Body Writing__<br>
+
+	<<bodywriting>><br>
+
+	<<bodywritingOptions>>
+
+	<<set _bodyPartOptionsSkip to []>>
+	<<if !hasSexStat("exhibitionism", 3)>>
+		<<set _bodyPartOptionsSkip to _bodyPartOptionsSkip.concat(["left_bottom","right_bottom","pubic","breasts"])>>
+	<</if>>
+
+	<<bodywritingMenuLinks _bodyPartOptionsSkip>>
+<</if>>

@@ -1,11 +1,11 @@
-:: Garden [nobr]
+:: Garden
 
 <<set $outside to 1>><<set $location to "home">><<home_effects>><<effects>>
 You are in the garden behind the orphanage.
 <br><br>
 <<if $mason_pond is 3>>
 	A portion of the garden has been cordoned off.
-	<<if $daystate is "night">>
+	<<if Time.dayState is "night">>
 		<<if $mason_pond_timer gte 7>>
 			The hole they plan to dig beyond might be dangerous in the dark.
 		<<elseif $mason_pond_timer gte 4>>
@@ -16,13 +16,21 @@ You are in the garden behind the orphanage.
 			It's hard to tell in the dark, but the spring is finished.
 		<</if>>
 	<<else>>
-		<<if $weather is "rain">>
+		<<if Weather.precipitation is "rain">>
 			<<if $mason_pond_timer gte 7>>
 				The rain prevents work from commencing.
 			<<elseif $mason_pond_timer gte 4>>
 				The hole in the ground is abandoned for the time being, waiting for the rain to pass.
 			<<elseif $mason_pond_timer gte 1>>
 				The pond is taking shape. The workers must be getting close to breaching the spring. For now, it fills with rainwater.
+			<</if>>
+		<<elseif Weather.precipitation is "snow">>
+			<<if $mason_pond_timer gte 7>>
+				The snow prevents work from commencing.
+			<<elseif $mason_pond_timer gte 4>>
+				The hole in the ground is abandoned for the time being, waiting for the snow to pass.
+			<<elseif $mason_pond_timer gte 1>>
+				The pond is taking shape. The workers must be getting close to breaching the spring. For now, it fills with snow.
 			<</if>>
 		<<else>>
 			<<if $mason_pond_timer gte 6>>
@@ -35,7 +43,7 @@ You are in the garden behind the orphanage.
 		<</if>>
 	<</if>>
 	<br><br>
-<<elseif $mason_pond is 4 and $daystate isnot "night">>
+<<elseif $mason_pond is 4 and Time.dayState isnot "night">>
 	<<set $mason_pond to 5>>
 	You hear laughter amidst a splashing of water. The workers have finished the spring, and some orphans are taking advantage. They sit along its edge, bathing their feet and splashing each other.
 	<br><br>
@@ -50,136 +58,366 @@ You are in the garden behind the orphanage.
 	Some of the water laps over neighbouring soil, near the flower beds. <span class="gold">You could grow crops there. Some plants like lots of water.</span>
 	<br><br>
 <</if>>
-<<if $stress gte 10000>>
+<<if $alex_greenhouse is 1>>
+	<<if Time.dayState is "night">>
+		<<if $alex_greenhouse_timer gte 6>>
+			The earth has been dug, ready for the greenhouse foundations.
+		<<elseif $alex_greenhouse_timer gte 3>>
+			The greenhouse foundations have been put in place.
+		<<elseif $alex_greenhouse_timer gte 1>>
+			The greenhouse is taking shape, but some panes are missing.
+		<<else>>
+			The greenhouse looks finished.
+		<</if>>
+	<<else>>
+		<<if Weather.precipitation is "rain">>
+			<<if $alex_greenhouse_timer gte 6>>
+				The earth has been dug, but workers wait for the rain to pass before continuing.
+			<<elseif $alex_greenhouse_timer gte 3>>
+				The greenhouse foundations are in place, but workers wait for the rain to pass before continuing.
+			<<elseif $alex_greenhouse_timer gte 1>>
+				The greenhouse is missing some panes, and the workers wait for the rain to pass before continuing.
+			<<else>>
+				The greenhouse looks finished.
+			<</if>>
+		<<elseif Weather.precipitation is "snow">>
+			<<if $alex_greenhouse_timer gte 6>>
+				The earth has been dug, but workers wait for the snow to stop falling before continuing.
+			<<elseif $alex_greenhouse_timer gte 3>>
+				The earth has been dug, but workers wait for the snow to stop falling before continuing.
+			<<elseif $alex_greenhouse_timer gte 1>>
+				The greenhouse is missing some panes, and the workers wait for the snow to stop falling before continuing.
+			<<else>>
+				The greenhouse looks finished.
+			<</if>>
+		<<else>>
+			<<if $alex_greenhouse_timer gte 6>>
+				Workers are digging space for the greenhouse foundations.
+			<<elseif $alex_greenhouse_timer gte 3>>
+				Workers are laying the greenhouse foundations.
+			<<elseif $alex_greenhouse_timer gte 1>>
+				Workers are installing glass panes in the greenhouse.
+			<<else>>
+				The greenhouse looks finished.
+			<</if>>
+		<</if>>
+	<</if>>
+<br><br>
+<<elseif $alex_greenhouse is 2>>
+	<<set $alex_greenhouse to 3>>
+	Light gleams off glass. The greenhouse is ready, sheltering the flower patches beneath.
+	<br><br>
+	<span class="gold">Plants can now be grown here at any time of year.</span>
+	<br><br>
+<</if>>
+<<if $stress gte $stressmax>>
 	<<passouthome>>
-<<elseif $exposed gte 1 and $hour lt 22 and $hour gt 6>>
+<<elseif $exposed gte 1 and Time.hour lt 22 and Time.hour gt 6>>
 	<<exhibitionismgarden>>
 	You can't bear the thought of someone catching you like this. You hasten to your bedroom.
 	<br><br>
-	[[Next|Bedroom]]
+	<<link [[Next|Bedroom]]>><</link>>
+<<elseif !$weekly.gardenBirdRobin and Weather.precipitation is "none" and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lte 25 and C.npc.Robin.dom lte 60 and $rng gte 81>>
+	<<set $weekly.gardenBirdRobin to true>>
+
+	<<npc Robin>><<person1>>
+	Stepping into the fenced garden, your eyes land on someone. <span class="gold">It's Robin.</span>
+	<br><br>
+	<<He>> sits cross-legged, <<his>> hand held out in front of <<him>>. A small brown and orange bird stands on <<his>> finger, looking around. <<His>> eyes are locked onto the bird. You think <<he>> hasn't yet noticed you.
+	<br><br>
+
+	<<link [[Stay put|Robin Bird Visit]]>><<set $phase to 0>><</link>>
+	<br>
+	<<link [[Sneak closer|Robin Bird Visit]]>><<set $phase to 1>><</link>><<set $skulduggerydifficulty to 400>><<skulduggerydifficulty>>
+	<br>
+	<<link [[Scare the bird|Robin Bird Visit]]>><<set $phase to 2>><</link>>
+	<br>
+	<<if $cat gte 6>>
+		<<link [[Pounce on Robin|Robin Bird Visit]]>><<set $phase to 3>><</link>><<cat>>
+		<br>
+	<</if>>
+<<elseif !$weekly.gardenVoyeur and Time.dayState is "night" and $rng gte 81>>
+
+	<<set $weekly.gardenVoyeur to true>>
+
+	As you sneak through the garden, you hear strange, muffled sounds coming from a dark corner.
+	<br><br>
+
+	<<link [[Investigate|Garden Voyeurism Investigate]]>><</link>>
+	<br>
+	<<link [[Ignore|Garden Voyeurism Ignore]]>><</link>>
 <<else>>
 
-<<if $hour gte 7 and $hour lt 20 and $weather is "rain">>
-Some orphans are playing.
+	<<if Time.hour gte 7 and Time.hour lt 20 and Weather.precipitation is "rain">>
+		Some orphans are playing.
+		<br><br>
+	<</if>>
+
+	<<if $alex_greenhouse gte 3>>
+		<<gardenicon "flower">><<link [[Greenhouse|Garden Flowers]]>><</link>>
+		<br>
+	<<else>>
+		<<gardenicon "flower">><<link [[Flower bed|Garden Flowers]]>><</link>>
+		<br>
+	<</if>>
+
+	<<if !Weather.isOvercast and Time.dayState is "day">>
+		<<set _tanning to Skin.getTanningFactor()>>
+		<<baskicon>><<link [[Bask in the sun (0:10)|Bask]]>><<pass 10>><<set $stress -= 5>><</link>><<lstress>><<tanningGainOutput _tanning.result 10>>
+		<br>
+	<</if>>
+
+	<<if $exposed gte 1>>
+		<<set _ex to ($exposed >= 2 ? (Time.dayState == "night" ? 4 : 5) : (Time.dayState == "night" ? 2 : 3))>>
+		<<if hasSexStat("exhibitionism", _ex)>>
+			<<fenceicon>><<link [[Climb the fence (0:05)|Garden Fence]]>><<pass 5>><</link>>
+			<<if $daily.ex.fence isnot 1>>
+				<<switch _ex>>
+					<<case 2>>
+						<<exhibitionist2>>
+					<<case 3>>
+						<<exhibitionist3>>
+					<<case 4>>
+						<<exhibitionist4>>
+					<<case 5>>
+						<<exhibitionist5>>
+				<</switch>>
+			<</if>>
+		<</if>>
+		<br>
+	<<else>>
+		<<fenceicon>><<link [[Climb the fence (0:01)|Garden Fence]]>><<pass 1>><</link>>
+		<br>
+	<</if>>
+
+	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
+	<br>
+
+<</if>>
+
+:: Garden Voyeurism Investigate
+<<effects>>
+<<generatey1>><<generateyp2>>
+
+You sneak closer to get a better look at things. In the shadows, you see a <<person1>><<person>> and a <<person2>><<person>> having passionate sex. They are lost in the moment and unlikely to notice you anytime soon.
 <br><br>
-<</if>>
 
-<<if $hour gte 7 and $hour lt 20 and $dev is 1>>
-<br>
-<<link [[Join in (0:20)|Garden Play]]>><<trauma -2>><<stress -4>><<pass 20>><</link>><<ltrauma>><<lstress>>
-<br>
-<</if>>
 
-<<link [[Flower Bed|Garden Flowers]]>><</link>>
+<<link [[Watch|Garden Voyeurism Watch]]>><</link>>
+<br>
+<<link [[Sneak away|Garden Voyeurism Sneak]]>><</link>>
+<br>
+<<link [[Reveal yourself|Garden Voyeurism Reveal]]>><</link>>
+
+:: Garden Voyeurism Watch
+<<effects>>
+
+You watch the couple hump away with reckless abandon. Their panting and stifled moaning intensifies. It is clear that they are slowly approaching orgasm.
+<br><br>
+
+<<link [[Keep watching|Garden Voyeurism Keep]]>><</link>>
 <br>
 
-<<if $weather is "clear" and $daystate is "day">>
-<<link [[Bask in the sun (0:10)|Bask]]>><<pass 10>><<tanned 10>><<set $stress -= 20>><</link>><<lstress>><<gtanned>>
-<br>
-<</if>>
-
-<<if $exposed gte 2>>
-	<<if $daystate is "night">>
-		<<if $exhibitionism gte 55>>
-			<<link [[Climb over the fence (0:05)|Garden Fence Naked Night]]>><<pass 5>><</link>><<if $ex_fence isnot 1>><<exhibitionist4>><</if>>
-			<br>
-		<</if>>
-	<<else>>
-		<<if $exhibitionism gte 75>>
-			<<link [[Climb over the fence (0:05)|Garden Fence Naked Day]]>><<pass 5>><</link>><<if $ex_fence isnot 1>><<exhibitionist5>><</if>>
-			<br>
-		<</if>>
+<<if hasSexStat("exhibitionism", 4)>>
+		<<link [[Masturbate|Garden Voyeurism Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+		<br>
 	<</if>>
-<<elseif $exposed gte 1>>
-	<<if $daystate is "night">>
-		<<if $exhibitionism gte 15>>
-			<<link [[Climb over the fence (0:05)|Garden Fence Undies Night]]>><<pass 5>><</link>><<if $ex_fence isnot 1>><<exhibitionist2>><</if>>
-			<br>
-		<</if>>
-	<<else>>
-		<<if $exhibitionism gte 35>>
-			<<link [[Climb over the fence (0:05)|Garden Fence Undies Day]]>><<pass 5>><</link>><<if $ex_fence isnot 1>><<exhibitionist3>><</if>>
-			<br>
-		<</if>>
-	<</if>>
+
+<<link [[Sneak away|Garden Voyeurism Sneak]]>><</link>>
+
+:: Garden Voyeurism Keep
+<<effects>>
+
+<<switch random(1,2)>>
+
+	<<case 1>>
+		<<generatey3>>
+
+		As the orphans approach orgasm, suddenly a <<person3>><<person>> emerges from the bushes with a grin. "Oh. Hey, guys. I kind of figured I'd find you here."
+		<br><br>
+
+		The orphans move apart with a surprised yelp and cover themselves hastily. The <<person1>><<person>> scowls. "What the hell? You did that on purpose, didn't you?"
+		<br><br>
+
+		"Sure did. I need you for something. Besides, your little fucking spot isn't as secret as you think. Someone's going to discover you any day now. So be grateful it was me. Come with me, I need your help."
+		<br><br>
+
+		The orphans rise and fix their clothes.
+		<br><br>
+
+		"Alright," the <<person1>><<person>> snarls. "I'll come with you, and I'll show you exactly how grateful I am."
+		<br><br>
+
+	<<case 2>>
+
+		The couple keeps pounding, caught in blissful oblivion. Finally, their moaning peaks, and their bodies are wracked by spasmic convulsions. They pause for a moment, then move apart. Panting heavily, they smile at each other.
+		<br><br>
+
+		"That was fun," the <<person1>><<person>> says. "We should do this again some time."
+		<br><br>
+
+		The <<person2>><<person>> nods approvingly. "Absolutely. I feel so much better now. Now I need a nice, relaxing bath."
+		<br><br>
+
+<</switch>>
+
+<<link [[Next|Garden]]>><<endevent>><</link>>
+
+:: Garden Voyeurism Masturbate
+<<effects>>
+
+<<if $masturbationstart is 1>>
+	<<set $masturbationstart to 0>>
+	<<set $masturbationstat += 1>>
+
+	You want to touch yourself, here in the middle of the yard. They wouldn't notice you.
+	<<exhibitionism4>>
+	<<masturbationstart>>
+	<<set $timer to 20>>
+<</if>>
+
+<<masturbationeffects>>
+<<masturbationactions>>
+<<masturbationControls "timer">>
+
+:: Garden Voyeurism Masturbate Finish
+<<effects>>
+
+<<set $danger to random(1, 10000)>>
+<<if $danger gte (9900 - $allure) and $orgasmdown gte 1 and $timer gt 0>>
+
+	The orphans start up and scan the surroundings.
+	<br><br>
+
+	"Did you hear something?" the <<person1>><<person>> asks. "I think I did," the <<person2>><<person>> answers. "We'd better dip."
+	<br><br>
+
+	With that, the orphans hastily pull up their clothes and scramble inside.
+	<br><br>
+
+<<elseif $danger gte (9900 - $allure) and $timer lte 0>>
+
+	As you are busy pleasuring yourself, you suddenly feel a hand grabbing you by the shoulder. You turn around in surprise. It's Bailey!<<gstress>><<stress 12>>
+	<br><br>
+
+	Bailey scowls. "I thought I was hearing strange sounds coming from this direction. Should've known I'd find you here. Now if you don't mind, conduct your business inside, before the neighbours get strange ideas about this place."
+	<br><br>
+
+	With that, Bailey huffs off. When you look back over your shoulder, you find the couple gone.
+	<br><br>
+
 <<else>>
-	<<link [[Go outside (0:01)|Domus Street]]>><<pass 1>><</link>>
+
+	With a final sigh, the couple moves apart. They straighten themselves up in contentment before pulling up their clothes. "That was so good," the <<person1>><<person>> comments. "We should do this again when we get the chance."
+	<br><br>
+
+	"Agreed," the <<person2>><<person>> smiles. "But next time, we switch roles!"
+	<br><br>
+
+	With that, they return inside under joyous bantering.<<ghope>><<hope 1>>
+	<br><br>
+
+<</if>>
+
+<<endmasturbation>>
+<<clotheson>>
+<<endcombat>>
+
+<<link [[Next|Garden]]>><<endevent>><</link>>
+
+:: Garden Voyeurism Sneak
+<<effects>>
+
+You decide not to disturb their privacy, and retreat to a different area of the garden.
+<br><br>
+
+<<link [[Next|Garden]]>><<endevent>><</link>>
+
+:: Garden Voyeurism Reveal
+<<effects>>
+
+You emerge from your hideout. The couple splits apart in surprise. They look at you in wide-eyed shock, still panting heavily. Though they make an effort covering themselves, they can't possibly conceal the copious amount of lewd fluid running down their thighs.
+<br><br>
+
+After a moment of shock, the <<person1>><<person>> runs through a bush out of sight. The <<person2>><<person>> quickly follows.
+<br><br>
+
+<<link [[Next|Garden]]>><<endevent>><</link>>
+
+:: Garden Voyeurism Ignore
+<<effects>>
+
+You decide not to investigate the source of the noise; you have your own things to worry about.
+<br><br>
+
+<<link [[Next|Garden]]>><<endevent>><</link>>
+
+:: Garden Fence
+<<effects>>
+
+<<if $exposed gte 1>>
+	<<if Time.dayState is "night">>
+		You doubt anyone could see you in the dark, but you keep low between the bushes regardless. You creep up to the fence, and peek over.
+	<<else>>
+		You dash between bushes, making sure there's no one ahead before moving on.
+	<</if>>
+	An alley runs behind the orphanage. It's <<if Time.dayState is "night">>dark and<</if>> deserted, but the thought of climbing over makes you quiver regardless.
+	<br><br>
+	Sneaking around the orphanage with your <<lewdness>> displayed is one thing, but there's a semblance of safety here. There's nothing of the sort outside.
+	<br><br>
+	You look over your shoulder to make sure you aren't being watched, then hoist your self over. You land on the other side. Your heart pounds in your chest.
+
+	<<if $daily.ex.fence isnot 1>>
+		<<set $daily.ex.fence to 1>>
+		<<if $exposed gte 2>>
+			<<if Time.dayState is "night">>
+				<<exhibitionism4>>
+			<<else>>
+				<<exhibitionism5>>
+			<</if>>
+		<<else>>
+			<<if Time.dayState is "night">>
+				<<exhibitionism2>>
+			<<else>>
+				<<exhibitionism3>>
+			<</if>>
+		<</if>>
+	<<else>>
+		<br><br>
+	<</if>>
+<<elseif $cat gte 6>>
+	You hop over the fence with unmatched elegance, landing on all fours in the alley behind the orphanage.
+	<br><br>
+<<else>>
+	You climb over the fence into the alley behind the orphanage.
+	<br><br>
+<</if>>
+
+<<if $tutorial is 0 and $debug is 0>>
+	<<generate1>><<person1>><<= $exposed gte 1 ? "Despite being so careful, you" : "You">> bump into a <<person>> passing by. <<He>> staggers back and looks at you with anger, but <<his>> rage turns to lechery as <<he>> beholds you. "You're the cutest thing I've seen all week! Come 'ere."
+	<br><br>
+
+	<<link [[Next|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Residential alleyways">><</link>>
+	<br>
+<<else>>
+	<<link [[Next|Residential alleyways]]>><</link>>
 	<br>
 <</if>>
 
-<<link [[Main Hall (0:01)->Orphanage]]>><<pass 1>><</link>>
-<br>
-
-<</if>>
-
-:: Garden Fence Naked Night [nobr]
-<<effects>>
-
-You doubt anyone could see you in the dark, but you keep low between the bushes regardless. You creep up to the fence, and peek over. An alley runs behind the orphanage. It's dark and deserted, but the thought of climbing over makes you quiver regardless.
-<br><br>
-
-Sneaking around the orphanage with your <<lewdness>> displayed is one thing, but there's a semblance of safety here. There's nothing of the sort outside.
-<br><br>
-
-You look over your shoulder to make sure you aren't being watched, then hoist your self over. You land on the other side. Your heart pounds in your chest.
-
-<<if $ex_fence isnot 1>><<set $ex_fence to 1>><<exhibitionism4>><<else>><br><br><</if>>
-
-<<link [[Next|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Fence Undies Night [nobr]
-<<effects>>
-
-You doubt anyone could see you in the dark, but you keep low between the bushes regardless. You creep up to the fence, and peek over. An alley runs behind the orphanage. It's dark and deserted, but the thought of climbing over makes you quiver regardless.
-<br><br>
-
-Sneaking around the orphanage with your <<lewdness>> displayed is one thing, but there's a semblance of safety here. There's nothing of the sort outside.
-<br><br>
-
-You look over your shoulder to make sure you aren't being watched, then hoist your self over. You land on the other side. Your heart pounds in your chest.
-
-<<if $ex_fence isnot 1>><<set $ex_fence to 1>><<exhibitionism2>><<else>><br><br><</if>>
-
-<<link [[Next|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Fence Naked Day [nobr]
-<<effects>>
-
-You dash between bushes, making sure there's no one ahead before moving on. An alley runs behind the orphanage. It's deserted, but the thought of climbing over makes you quiver regardless.
-<br><br>
-
-Sneaking around the orphanage with your <<lewdness>> displayed is one thing, but there's a semblance of safety here. There's nothing of the sort outside.
-<br><br>
-
-You look over your shoulder to make sure you aren't being watched, then hoist your self over. You land on the other side. Your heart pounds in your chest.
-
-<<if $ex_fence isnot 1>><<set $ex_fence to 1>><<exhibitionism5>><<else>><br><br><</if>>
-
-<<link [[Next|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Fence Undies Day [nobr]
-<<effects>>
-
-You dash between bushes, making sure there's no one ahead before moving on. An alley runs behind the orphanage. It's deserted, but the thought of climbing over makes you quiver regardless.
-<br><br>
-
-Sneaking around the orphanage with your <<lewdness>> displayed is one thing, but there's a semblance of safety here. There's nothing of the sort outside.
-<br><br>
-
-You look over your shoulder to make sure you aren't being watched, then hoist your self over. You land on the other side. Your heart pounds in your chest.
-
-<<if $ex_fence isnot 1>><<set $ex_fence to 1>><<exhibitionism3>><<else>><br><br><</if>>
-
-<<link [[Next|Residential alleyways]]>><</link>>
-<br>
-
-:: Garden Flowers [nobr]
+:: Garden Flowers
 
 <<effects>>
 <<plot_effects>>
+
+<<if $alex_greenhouse gte 3>>
+	<<set $outside to 0>>
+	You are in the greenhouse. The sides are lined with shelves, holding pots. The orphans are growing herbs and small flowers.
+	<br><br>
+<<else>>
+	<<set $outside to 1>>
+<</if>>
+
+
 <<if $garden_flowers_intro is 1>>
 	<<unset $garden_flowers_intro>>
 	<<plots_init garden 3 earth 1 small>>
@@ -187,12 +425,13 @@ You look over your shoulder to make sure you aren't being watched, then hoist yo
 	<br><br>
 <</if>>
 
+
 <<if $event_trigger is 1>>
-	<<robin_location>>
-	<<if $rng gte 51 and _robin_location is "orphanage" and $NPCName[$NPCNameList.indexOf("Robin")].trauma lt 80 and $robin_tending isnot 1>>
-		<<set $robin_tending to 1>>
+	<<set _robin to statusCheck("Robin")>>
+	<<if $rng gte 51 and _robin_location is "orphanage" and _robin.trauma lt 80 and $daily.robin.tending isnot 1>>
+		<<set $daily.robin.tending to 1>>
 		<<npc Robin>><<person1>>
-		<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 40>>
+		<<if _robin.trauma gte 40>>
 			You hear a gentle patter of footsteps disturbing the grass. It's Robin.
 			<br><br>
 
@@ -201,7 +440,7 @@ You look over your shoulder to make sure you aren't being watched, then hoist yo
 
 			<<link [[Hug (0:05)|Garden Robin Hug]]>><<pass 5>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<trauma -6>><</link>><<ltrauma>><<glove>><<lrtrauma>>
 			<br>
-			<<link [[Let Robin Help (0:10)|Garden Robin Help]]>><<npcincr Robin love 1>><<trauma -6>><<stress -6>><<pass 10>><</link>><<ltrauma>><<lstress>><<glove>>
+			<<link [[Let Robin help (0:10)|Garden Robin Help]]>><<npcincr Robin love 1>><<trauma -6>><<stress -6>><<pass 10>><</link>><<ltrauma>><<lstress>><<glove>>
 			<br>
 			<<link [[Say you're finished|Garden Robin Finished]]>><</link>>
 			<br>
@@ -209,15 +448,15 @@ You look over your shoulder to make sure you aren't being watched, then hoist yo
 			You hear a gentle patter of footsteps disturbing the grass. It's Robin.
 			<br><br>
 
-			"I thought I heard you out here," <<He>> says, stepping closer. "Can I help?"
+			"I thought I heard you out here," <<he>> says, stepping closer. "Can I help?"
 			<br><br>
 
-			<<link [[Let Robin Help (0:10)|Garden Robin Help]]>><<npcincr Robin love 1>><<trauma -6>><<stress -6>><<pass 10>><</link>><<ltrauma>><<lstress>><<glove>>
+			<<link [[Let Robin help (0:10)|Garden Robin Help]]>><<npcincr Robin love 1>><<trauma -6>><<stress -6>><<pass 10>><</link>><<ltrauma>><<lstress>><<glove>>
 			<br>
 			<<link [[Say you're finished|Garden Robin Finished]]>><</link>>
 			<br>
 		<</if>>
-	<<elseif $rng gte 31 and $hallucinations gte 2>>
+	<<elseif $rng gte 31 and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
 		Something brushes against your leg. You shake it off, assuming it an insect, but it happens again. You look down, and see a stem curling around your ankle.
 		<br><br>
 
@@ -226,8 +465,8 @@ You look over your shoulder to make sure you aren't being watched, then hoist yo
 		<<link [[Look closer|Garden Stem Look]]>><</link>>
 		<br>
 	<<else>>
-		<<set $hallucinogen += 60>>
-		A strange scent rises from the plants as you water. You feel lightheaded.
+		<<hallucinogen 60>>
+		A strange scent rises from the plants as you water. You feel lightheaded. <<ghallucinogens>><<if $backgroundTraits.includes("plantlover")>><<arousal 6>><<garousal>><</if>>
 		<br><br>
 
 		<<link [[Next|Garden Flowers]]>><</link>>
@@ -236,48 +475,54 @@ You look over your shoulder to make sure you aren't being watched, then hoist yo
 <<else>>
 	<<display_plot garden>>
 	<<if !$plants_known.includes("daisy")>>
-		<<link [[Search for seeds (0:30)|Garden Flowers Seeds]]>><<set $plants_known.push("daisy")>><<pass 30>><</link>>
+		<<icon "tending/daisy.png">> <<link [[Search for seeds (0:30)|Garden Flowers Seeds]]>><<set $plants_known.push("daisy")>><<pass 30>><</link>>
 		<br>
 	<</if>>
 	<br>
-	<<link [[Leave|Garden]]>><</link>>
+	<<getouticon>><<link [[Leave|Garden]]>><<handheldon>><</link>>
 	<br>
 <</if>>
 
 <<unset $event_trigger>>
 
-:: Garden Flowers Seeds [nobr]
+:: Garden Flowers Seeds
 
-<<effects>>
+<<effects>><<wearProp "daisy">>
 
 You search among the grass, beneath bushes and beside tree trunks for anything you might cultivate.
 <br><br>
 You find some seeding daisies growing within a tuft of wild grass near the back fence.
 <br><br>
 
-<span class="gold">You can now grow daisies.</span>
+<span class="gold">You can now grow <<icon "tending/daisy.png">> daisies.</span>
 <br><br>
 
-<<link [[Next|Garden Flowers]]>><</link>>
+<<if $worn.head.name is "naked">>
+	You pull away from the grass, and find a daisy stuck in your hair.
+	<br><br>
+	<<headwear 47>>
+<</if>>
+
+<<link [[Next|Garden Flowers]]>><<handheldon>><</link>>
 <br>
 
-:: Bask Call [nobr]
+:: Bask Call
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 <<covered>>
 
-<<if $submissive gte 1150>>
-"H-hello?" you say. "I'm sorry if I offended you. Please give me my clothes."
-<<elseif $submissive lte 850>>
-"I know you're there." You say. "Show yourself."
-<br><br>
+<<if $speech_attitude is "meek">>
+	"H-hello?" you say. "I'm sorry if I offended you. Please give me my clothes."
+<<elseif $speech_attitude is "bratty">>
+	"I know you're there," you say. "Show yourself."
+	<br><br>
 <<else>>
-"This isn't funny." You say. "Give my clothes back."
+	"This isn't funny," you say. "Give my clothes back."
 <</if>>
 
 <br><br>
 
-<<generatec1>><<person1>>A <<person>> steps out from behind a bush, grinning ear to ear. "Alright, but first let me see you properly."
+<<generatey1>><<person1>>A <<person>> steps out from behind a bush, grinning ear to ear. "Alright, but first let me see you properly."
 <br><br>
 
 <<link [[Do as asked|Bask Call Move]]>><<stress 6>><<trauma 6>><</link>><<gtrauma>><<gstress>>
@@ -285,7 +530,7 @@ You find some seeding daisies growing within a tuft of wild grass near the back 
 <<link [[Refuse|Bask Call Refuse]]>><</link>>
 <br>
 
-:: Bask Sneak [nobr]
+:: Bask Sneak
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 You crawl beneath a bush and look out towards your bedroom window. Orphans relax on the grass between you and the orphanage. You won't be able to cross without being seen.
@@ -296,38 +541,29 @@ You crawl beneath a bush and look out towards your bedroom window. Orphans relax
 <<link [[Wait for them to leave (1:00)|Bask Sneak Wait]]>><<pass 1 hour>><</link>>
 <br>
 
-:: Bask Call Move [nobr]
+:: Bask Call Move
 <<set $outside to 1>><<set $location to "home">><<effects>>
 <<fameexhibitionism 1>>
 <<if $leftarm isnot "bound" and $rightarm isnot "bound">>
-
-You <<nervously>> move your hands, displaying yourself to the <<personstop>>
-
+	You <<nervously>> move your hands, displaying yourself to the <<person>>.
 <<else>>
-
-You <<nervously>> turn your body, displaying yourself to the <<personstop>>
-
+	You <<nervously>> turn your body, displaying yourself to the <<person>>.
 <</if>>
 
 You feel exposed and humiliated as you look at the clothes held in <<his>> hand, but <<he>> makes no move to give them back.
 <br><br>
 
-<<if $submissive gte 1150>>
-
-"P-please..." you plead. <<He>> takes pity on you and throws you the clothing. You run behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
-<br><br>
-<<elseif $submissive lte 850>>
-
-Realising how entranced <<he>> is by your body, you snatch the clothing from <<him>> and march behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
-<br><br>
-
+<<if $speech_attitude is "meek">>
+	"P-please..." you plead. <<He>> takes pity on you and throws you the clothing. You run behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
+	<br><br>
+<<elseif $speech_attitude is "bratty">>
+	Realising how entranced <<he>> is by your body, you snatch the clothing from <<him>> and march behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
+	<br><br>
 <<else>>
-
-"I did what you asked." You say, hoping the ordeal is near over.
-<br><br>
-<<He>> looks at you thoughtfully for a moment, then throws the clothing at you. You run behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
-<br><br>
-
+	"I did what you asked," you say, hoping the ordeal is near over.
+	<br><br>
+	<<He>> looks at you thoughtfully for a moment, then throws the clothing at you. You run behind a bush to get dressed. You hope <<he>> doesn't tell anyone about this, but you know better.
+	<br><br>
 <</if>>
 <br><br>
 
@@ -335,43 +571,39 @@ Realising how entranced <<he>> is by your body, you snatch the clothing from <<h
 <<link [[Next|Garden]]>><<endevent>><</link>>
 <br>
 
-:: Bask Call Refuse [nobr]
+:: Bask Call Refuse
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
-	<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	You look at your feet and shake your head. You've had quite enough.
-	<<elseif $submissive lte 850>>
-	You glare at the <<personstop>> "I'm not doing what you want. Give me back my clothes this instant!" you demand, sounding more assured than you feel.
-	<<else>>
+<<elseif $speech_attitude is "bratty">>
+	You glare at the <<person>>. "I'm not doing what you want. Give me back my clothes this instant!" you demand, sounding more assured than you feel.
+<<else>>
 	"No," you say. "I'm not going to."
-	<</if>>
+<</if>>
 <br><br>
 
 "Worth a try," <<he>> says, shrugging. <<He>> hurls your clothing into the air and giggles as <<he>> runs away.
 <br><br>
 
 <<if $rng gte 81>>
+	Your clothes snag on a tree branch, high above you.
+	<br><br>
 
-Your clothes snag on a tree branch, high above you.
-<br><br>
-
-<<link [[Climb|Bask Climb]]>><<endevent>><</link>>
-<br>
-<<link [[Leave them|Bask Sneak]]>><<set $upperoff to 0>><<set $loweroff to 0>><<endevent>><</link>>
-<br>
-
+	<<link [[Climb|Bask Climb]]>><<endevent>><</link>>
+	<br>
+	<<link [[Leave them|Bask Sneak]]>><<set $upperoff to 0>><<set $loweroff to 0>><<endevent>><</link>>
+	<br>
 <<else>>
+	Your clothes land beside you. You hide behind a bush before dressing, afraid you're still being watched.
+	<br><br>
+	<<clotheson>>
 
-Your clothes land beside you. You hide behind a bush before dressing, afraid you're still being watched.
-<br><br>
-<<clotheson>>
-
-<<link [[Next|Garden]]>><<endevent>><</link>>
-<br>
-
+	<<link [[Next|Garden]]>><<endevent>><</link>>
+	<br>
 <</if>>
 
-:: Bask Climb [nobr]
+:: Bask Climb
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 You grab hold of a low branch and begin climbing the tree. You feel more exposed as you ascend, and hope the leaves and other trees will provide enough cover.
@@ -379,39 +611,36 @@ You grab hold of a low branch and begin climbing the tree. You feel more exposed
 
 <<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 <<if $danger gte (9900 - $allure) and $eventskip is 0>>
-	<<if $rng gte 51 and $hallucinations gte 2 and $tentacledisable is "f">>
-	You're making sure your legs are secure when the branches jerk to life. They bend towards you, until you're surrounded and trapped.
-	<br><br>
+	<<if $rng gte 51 and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
+		You're making sure your legs are secure when the branches jerk to life. Shoots bend towards you and entangle you, until you're surrounded and trapped.
+		<br><br>
 
-	<<link [[Next|Bask Tentacles]]>><<set $molestationstart to 1>><</link>>
-	<br>
+		<<link [[Next|Bask Tentacles]]>><<set $molestationstart to 1>><</link>>
+		<br>
 	<<else>>
-	You can see over the orphanage fence from here, into the windows of neighbouring homes. One window opens and a <<generate1>><<person1>><<person>> leans out. <<He>> spots you and smiles. "Are you... naked?" <<he>> says, craning <<his>> neck to get a view less obscured by leaves. "Wait there. I'll get my camera." The branch holding your clothes is out in the open, and you don't think you could retrieve them before <<he>> returns.
-	<br><br>
-<<fameexhibitionism 1>>
-<<link [[Continue anyway|Bask Climb Exhibitionism]]>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
-<br><br>
-<<link [[Climb back down|Bask Sneak]]>><<set $upperoff to 0>><<set $loweroff to 0>><<endevent>><</link>>
-<br>
-
+		You can see over the orphanage fence from here, into the windows of neighbouring homes. One window opens and a <<generate1>><<person1>><<person>> leans out. <<He>> spots you and smiles. "Are you... naked?" <<he>> says, craning <<his>> neck to get a view less obscured by leaves. "Wait there. I'll get my camera." The branch holding your clothes is out in the open, and you don't think you could retrieve them before <<he>> returns.
+		<br><br>
+		<<fameexhibitionism 1>>
+		<<link [[Continue anyway|Bask Climb Exhibitionism]]>><<trauma 6>><<stress 6>><<arousal 600>><</link>><<gtrauma>><<gstress>><<garousal>>
+		<br><br>
+		<<link [[Climb back down|Bask Sneak]]>><<set $upperoff to 0>><<set $loweroff to 0>><<endevent>><</link>>
+		<br>
 	<</if>>
 <<else>>
+	You cling to the branch holding your clothes with your hands and knees and crawl across. The branch bends slightly as you reach your goal, but you manage to retrieve your clothing and crawl back to the trunk. You climb down safely.
+	<br><br>
 
-You cling to the branch holding your clothes with your hands and knees and crawl across. The branch bends slightly as you reach your goal, but you manage to retrieve your clothing and crawl back to the trunk. You climb down safely.
-<br><br>
+	<<clotheson>>
 
-<<clotheson>>
-
-<<link [[Next|Garden]]>><</link>>
-<br>
-
+	<<link [[Next|Garden]]>><</link>>
+	<br>
 <</if>>
 
-:: Bask Climb Exhibitionism [nobr]
+:: Bask Climb Exhibitionism
 <<set $outside to 1>><<set $location to "home">><<effects>>
-<<fameexhibitionism 10>>
+<<fameexhibitionism 10 "pic">>
 
-You cling to the branch holding your clothes with your hands and knees and crawl across. The <<person>> returns, and points <<his>> camera straight at you. Now you're clear of the main bulk of leaves, they get a clear shot of your <<bottomstop>> "Damn <<girlcomma>> what I'd do to you if I had you in here."
+You cling to the branch holding your clothes with your hands and knees and crawl across. The <<person>> returns, and points <<his>> camera straight at you. Now you're clear of the main bulk of leaves, they get a clear shot of your <<bottom>>. "Damn <<girl>>, what I'd do to you if I had you in here."
 <br><br>
 
 The branch bends slightly as you reach your goal, but you manage to retrieve your clothing and turn around. You crawl back to the trunk, leaning forward to conceal as much as you can from the <<person>> and <<his>> camera. You enter the safe covering of leaves and climb down.
@@ -422,22 +651,21 @@ The branch bends slightly as you reach your goal, but you manage to retrieve you
 <<link [[Next|Garden]]>><<endevent>><</link>>
 <br>
 
-:: Bask Tentacles [nobr]
+:: Bask Tentacles
 <<set $outside to 1>>
 
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<set $combat to 1>>
-<<set $enemytype to "tentacles">>
-<<molested>>
-<<controlloss>>
+	<<set $molestationstart to 0>>
+	<<set $combat to 1>>
+	<<set $enemytype to "tentacles">>
+	<<molested>>
+	<<controlloss>>
 
-<<tentaclestart 6 15>>
-
+	<<tentaclestart 6 15 "shoot" "vine" true>>
 <</if>>
 
 <<statetentacles>>
-You count $tentacles.active tentacles surrounding you.
+
 
 <<effects>>
 <<effectstentacles>>
@@ -450,10 +678,10 @@ You count $tentacles.active tentacles surrounding you.
 	<span id="next"><<link [[Next|Bask Tentacles]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Bask Tentacles Finish [nobr]
+:: Bask Tentacles Finish
 <<effects>>
 
-The remaining branches return to their original positions and stay there. You wobble for a moment, but manage to keep yourself from falling. <<tearful>> you continue ascending the tree.
+The shoots untangle themselves from you. The remaining branches return to their original positions and stay there. You wobble for a moment, but manage to keep yourself from falling. <<tearful>> you continue ascending the tree.
 <br><br>
 
 You cling to the branch holding your clothes with your hands and knees and crawl across. The branch bends slightly as you reach your goal, but you manage to retrieve your clothing and crawl back to the trunk. You climb down safely.
@@ -465,31 +693,27 @@ You cling to the branch holding your clothes with your hands and knees and crawl
 <<link [[Next|Garden]]>><</link>>
 <br>
 
-:: Bask Sneak Exhibitionism [nobr]
+:: Bask Sneak Exhibitionism
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 You shuffle out from beneath the bush and take cover behind a plant pot. You stand up, lifting the pot as you do so that the flowers continue to protect you. You walk along the side of the garden, hoping no one thinks anything is odd. The orphans don't look twice at you.
 <br><br>
 
 <<if $rng gte 81>>
+	You're halfway there when the bottom of the pot gives way, spilling the contents and causing the rest of the pot to collapse. You find yourself stood out in the open with your <<lewdness>> displayed. One of the orphans averts their eyes, but most stare at you. You run to your bedroom window and climb inside as laughter breaks out behind you.
+	<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+	<br><br>
 
-You're halfway there when the bottom of the pot gives way, spilling the contents and causing the rest of the pot to collapse. You find yourself stood out in the open with your <<lewdness>> displayed. One of the orphans averts their eyes, but most stare at you. You run to your bedroom window and climb inside as laughter breaks out behind you.
-<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
-<br><br>
-
-<<fameexhibitionism 10>>
-
+	<<fameexhibitionism 10>>
 <<else>>
-
-You make it to your bedroom window and climb through without incident.
-<br><br>
-
+	You make it to your bedroom window and climb through without incident.
+	<br><br>
 <</if>>
 
 <<link [[Next|Bedroom]]>><</link>>
 <br>
 
-:: Bask Sneak Wait [nobr]
+:: Bask Sneak Wait
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 You wait, <<lewdness>> displayed but hidden beneath the bush, for the orphans to grow bored and leave. Once vacant, you run across the garden and through your bedroom window to safety.
@@ -498,25 +722,24 @@ You wait, <<lewdness>> displayed but hidden beneath the bush, for the orphans to
 <<link [[Next|Bedroom]]>><</link>>
 <br>
 
-:: Garden Shove [nobr]
+:: Garden Shove
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 <<if $rng gte 81>>
-You push the <<person>> away from you, but <<he>> doesn't relent.
-<br><br>
+	You push the <<person>> away from you, but <<he>> doesn't relent.
+	<br><br>
 
-<<link [[Next|Garden Sex]]>><<set $molestationstart to 1>><</link>>
-<br>
+	<<link [[Next|Garden Sex]]>><<set $molestationstart to 1>><</link>>
+	<br>
 <<else>>
-You push the <<person>> away from you. <<He>> avoids eye contact and makes <<his>> way back to <<his>> friends.
-<br><br>
+	You push the <<person>> away from you. <<He>> avoids eye contact and makes <<his>> way back to <<his>> friends.
+	<br><br>
 
-<<link [[Next|Garden]]>><<endevent>><</link>>
-<br>
+	<<link [[Next|Garden]]>><<endevent>><</link>>
+	<br>
 <</if>>
 
-:: Garden Sex [nobr]
-
+:: Garden Sex
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
@@ -524,7 +747,7 @@ You push the <<person>> away from you. <<He>> avoids eye contact and makes <<his
 	<<neutral 1>>
 	<<maninit>>
 	<<set $enemytrust += 60>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 	<<promiscuity2>>
 <<elseif $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -533,26 +756,23 @@ You push the <<person>> away from you. <<He>> avoids eye contact and makes <<his
 	<<neutral 1>>
 	<<molested>>
 	<<maninit>>
-	<<set $rescue to 1>>
+	<<enable_rescue>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $finish is 1>>
-	<span id="next"><<link [[Next|Garden Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next|Garden Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next|Garden Sex Finish]]>><</link>></span><<nexttext>>
-<<elseif $alarm is 1 and $rescue is 1>>
+
+<<if _combatend>>
 	<span id="next"><<link [[Next|Garden Sex Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Garden Sex]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Garden Sex Finish [nobr]
+:: Garden Sex Finish
 
 <<set $outside to 0>><<set $location to "home">><<schooleffects>><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
@@ -580,29 +800,27 @@ You push the <<person>> away from you. <<He>> avoids eye contact and makes <<his
 <br><br>
 <<link [[Next|Garden]]>><</link>>
 
-:: Garden Flirt [nobr]
+:: Garden Flirt
 
 <<set $outside to 1>><<set $location to "home">><<effects>>
 
 You squeeze <<his>> hips between your thighs for a moment and lean closer. "You're it," you whisper into <<his>> ear. "And right where I want you." <<His>> face has turned red by the time you're back on your feet.
 <<promiscuity1>>
-<br><br>
 
 <<link [[Next|Garden]]>><<endevent>><</link>>
 <br>
 
 
-:: Garden Robin Help [nobr]
+:: Garden Robin Help
 <<effects>>
+<<set _robin to statusCheck("Robin")>><<wearProp "watering can">>
 
-<<set _garden_location to "garden">>
-<<for _i to 0; _i lt $plots[_garden_location].length; _i++>>
-	<<set _tending_temp to _i>>
-	<<set $plots[_garden_location][_tending_temp].water to 1>>
+<<for _plot range $plots["garden"]>>
+	<<set _plot.water to 1>>
 <</for>>
 
 You hand Robin your watering can, and <<he>> gets to work while you find another. Together, you water the flowers around the garden.
-<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 40>>
+<<if _robin.trauma gte 40>>
 	Robin is quiet, but <<he>> seems happier as <<he>> works.
 <<else>>
 	Robin hums as <<he>> works.
@@ -612,16 +830,16 @@ You hand Robin your watering can, and <<he>> gets to work while you find another
 Job well done, Robin sits on the grass and watches the flowers sway in the breeze.
 <br><br>
 
-<<link [[Sit with Robin (0:05)|Garden Robin Sit]]>><<pass 5>><<npcincr Robin love 1>><</link>><<glove>>
+<<link [[Sit with Robin (0:05)|Garden Robin Sit]]>><<handheldon>><<pass 5>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
-<<link [[Make Robin a flower crown (0:10)|Garden Robin Crown]]>><<pass 10>><</link>><<tendingdifficulty 1 200>>
+<<link [[Make Robin a flower crown (0:10)|Garden Robin Crown]]>><<handheldon>><<pass 10>><</link>><<tendingdifficulty 1 200>>
 <br>
 
 
-:: Garden Robin Sit [nobr]
+:: Garden Robin Sit
 <<effects>>
-
-<<if $robinromance is 1 and $NPCName[$NPCNameList.indexOf("Robin")].dom gte 40>>
+<<set _robin to statusCheck('Robin')>>
+<<if $robinromance is 1 and _robin.dom gte 40>>
 	You sit beside Robin. <<He>> rests <<his>> hand on yours, and gives it a little squeeze.
 <<else>>
 	You sit beside Robin, and together watch as bees float between the glistening petals.
@@ -634,20 +852,23 @@ A few minutes pass, until an argument breaks out inside the orphanage. Robin loo
 <<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 <br>
 
-:: Garden Robin Crown [nobr]
+:: Garden Robin Crown
 <<effects>>
+<<if isConnectedToHood("head")>>
+	<<toggleHood>>
+<</if>>
 <<headwear 14>>
 You sit on the grass beside Robin, and rummage among the wild flowers for suitable specimens. Robin watches a moment, then gasps in excitement. <<He>> joins in. "I'm making one for you too."
 <br><br>
 
-Soon, you both have flower crowns ready. <<if $tending lt 200>>Yours looks rougher than Robin's, but <<he>> doesn't seem to mind.<</if>> <<He>> reaches atop your head, and places the crown <<he>> made upon it. You place yours atop <<his>> head in turn.
+Soon, you both have flower crowns ready. <<if currentSkillValue('tending') lt 200>>Yours looks rougher than Robin's, but <<he>> doesn't seem to mind.<</if>> <<He>> reaches atop your head, and places the crown <<he>> made upon it. You place yours atop <<his>> head in turn.
 
 <br><br>
-<<if $tending gte random(1, 200)>>
-	"I love it," Robin says, <span class="green">smiling beneath the wreathe of flowers.</span>
+<<if $tendingSuccess>>
+	"I love it," Robin says, <span class="green">smiling beneath the wreath of flowers.</span><<glove>><<npcincr Robin love 1>>
 	<br><br>
 <<else>>
-	"I love it," Robin says. <<Hes>> barely finished speaking when the <span class="red">the crown on <<his>> head unravels,</span> and it falls to the ground. <<He>> smiles. "It's okay! I still love it. They can be tricky to make, but you'll get it with practice."<<glove>><<npcincr Robin love 1>><<gdom>><<npcincr Robin dom 1>>
+	"I love it," Robin says. <<Hes>> barely finished speaking when <span class="red">the crown on <<his>> head unravels,</span> and it falls to the ground. <<He>> smiles. "It's okay! I still love it. They can be tricky to make, but you'll get it with practice."<<glove>><<npcincr Robin love 1>><<gdom>><<npcincr Robin dom 1>>
 	<br><br>
 <</if>>
 
@@ -657,7 +878,7 @@ You hear shouting within the orphanage. "Those two are at it again," Robin says,
 <<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 <br>
 
-:: Garden Robin Hug [nobr]
+:: Garden Robin Hug
 <<effects>>
 
 You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and sobs.
@@ -669,32 +890,32 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 <<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 <br>
 
-:: Garden Robin Finished [nobr]
+:: Garden Robin Finished
 <<effects>>
 
-<<if $submissive gte 1150>>
+<<if $speech_attitude is "meek">>
 	"Thank you for offering," you say. "But I've just finished."
-<<elseif $submissive lte 850>>
+<<elseif $speech_attitude is "bratty">>
 	"You're a tad too late," you say. "Just finished."
 <<else>>
 	"Thank you for offering," you say. "But I've just finished."
 <</if>>
 <br><br>
-<<if $NPCName[$NPCNameList.indexOf("Robin")].trauma gte 40>>
+<<if C.npc.Robin.trauma gte 40>>
 	Robin nods, and walks back towards the orphanage.
 <<else>>
 	Robin nods. "Okay. I'll be inside if you need me."
 <</if>>
 <br><br>
 
-<<link [[Next|Garden Flowers]]>><</link>>
+<<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 <br>
 
 
-:: Garden Stem Shake [nobr]
+:: Garden Stem Shake
 <<effects>>
 
-<<if $rng gte 21>>
+<<if $rng gte 21 or $tentacledisable is "t">>
 
 	You shake it off again, and move elsewhere.
 	<br><br>
@@ -718,7 +939,7 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 
 <</if>>
 
-:: Garden Stem Look [nobr]
+:: Garden Stem Look
 <<effects>>
 
 <<if $rng gte 71>>
@@ -730,7 +951,7 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 	<br>
 
 
-<<elseif $rng gte 41>>
+<<elseif $rng gte 41 or playerIsPregnant()>>
 	You crouch down, leaning closer to the plant. The thin green tip drips a purple, sweet-smelling fluid. You feel an urge to taste it.
 	<br><br>
 
@@ -749,14 +970,14 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 	<<link [[Shake it off|Garden Stem Shake]]>><</link>>
 	<br>
 
-:: Garden Stem Lick [nobr]
+:: Garden Stem Lick
 <<effects>>
 
 <<if $phase is 0>>
 	You stick out your tongue, and lick the tip. The pink fluid is sticky, and so, so sweet.<<deviancy1>>
 
 	An unnatural warmth spreads from your mouth, journeying to the base of your tongue, down your neck and throughout your body.
-	<<gggarousal>><<arousal 2000>><<set $drugged += 180>>
+	<<gggarousal>><<arousal 2000 "mouth">><<drugs 180>>
 	<br><br>
 
 	<<link [[Next|Garden Flowers]]>><<endevent>><</link>>
@@ -764,18 +985,17 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 <<elseif $phase is 1>>
 	You stick out your tongue, and lick the tip. The purple fluid is sticky, and so, so sweet.<<deviancy1>>
 
-	The colours of the garden shift and blend together, creative an ever-changing patchwork. You shake your head, breaking free of the effect, but are left with the nagging feeling that the world is not as it seems.
-	<<set $hallucinogen += 180>>
+	The colours of the garden shift and blend together, creating an ever-changing patchwork. You shake your head, breaking free of the effect, but are left with the nagging feeling that the world is not as it seems.
+	<<hallucinogen 180>>
 	<br><br>
 
 	<<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	You stick out your tongue, and lick the tip. The red fluid is sticky, and so, so sweet.<<deviancy1>>
-	<br><br>
 
 	The world spins, and you stagger to the ground. You laugh, suddenly giddy, as you rise again to your feet.
-	<<set $drunk += 180>>
+	<<alcohol 180>>
 	<br><br>
 
 	<<link [[Next|Garden Flowers]]>><<endevent>><</link>>
@@ -783,27 +1003,24 @@ You wrap your arms around Robin. <<He>> rests <<his>> head on your shoulder, and
 <</if>>
 
 
-
-
-:: Garden Stem Help [nobr]
+:: Garden Stem Help
 <<effects>>
 
 You call for help as the shoots tighten around you.
 
-<<if $daystate is "night">>
+<<if Time.dayState is "night">>
 	<<generate1>><<person1>>
-	There's no response at first, except the night wind blowing through the branches overhead. But then you hear the garden fence creak, followed but a thump.
+	There's no response at first, except the night wind blowing through the branches overhead. But then you hear the garden fence creak, followed by a thump.
 	<br><br>
 
-	"Well now," says a <<personsimple>>'s voice. "One of the orphan's got <<pherself>> all tangled." A <<person>> crouches in front of you, regarding you with leering eyes. "Not allowed in the orphanage they says, but you're not in the orphanage, are you?" <<He>> tears the restraining shoots away, but only to give better access as <<he>> climbs on top of you.
+	"Well now," says a <<personsimple>>'s voice. "One of the orphans got <<pherself>> all tangled." A <<person>> crouches in front of you, regarding you with leering eyes. "Not allowed in the orphanage they says, but you're not in the orphanage, are you?" <<He>> tears the restraining shoots away, but only to give better access as <<he>> climbs on top of you.
 	<br><br>
 
 	<<link [[Next|Garden Stem Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
-
 <<else>>
-	<<robin_location>>
-	<<if $rng gte 51 and _robin_location is "orphanage" and $NPCName[$NPCNameList.indexOf("Robin")].trauma lt 80 and $robin_tending isnot 1>>
+	<<run statusCheck("Robin")>>
+	<<if $rng gte 51 and _robin_location is "orphanage" and C.npc.Robin.trauma lt 80 and $daily.robin.tending isnot 1>>
 		<<npc Robin>><<person1>>
 		"I'm coming!" shouts a voice in response. It's Robin. <<He>> emerges from the orphanage, and gasps when <<he>> sees you. "You're all tangled. Here." <<He>> drops to <<his>> knees and loosens the entangling shoots. <<Hes>> careful not to damage any.
 		<br><br>
@@ -823,14 +1040,13 @@ You call for help as the shoots tighten around you.
 		With the <<persons>> help, you manage to struggle free. You thank <<him>>, and <<he>> returns to the orphanage proper.
 		<br><br>
 
-		<<link [[Next|Garden Flowers]]>><</link>>
+		<<link [[Next|Garden Flowers]]>><<endevent>><</link>>
 		<br>
 	<</if>>
 <</if>>
 
 
-
-:: Garden Stem Rape [nobr]
+:: Garden Stem Rape
 
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -838,28 +1054,23 @@ You call for help as the shoots tighten around you.
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-
 	<<maninit>>
-
 <</if>>
 
 <<effects>>
-
-<<effectsman>><<man>>
-
+<<effectsman>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
 
-<<if $enemyhealth lte 0>>
-<span id="next"><<link [[Next|Garden Stem Rape Finish]]>><</link>></span><<nexttext>>
-<<elseif $enemyarousal gte $enemyarousalmax>>
+<<if _combatend>>
 <span id="next"><<link [[Next|Garden Stem Rape Finish]]>><</link>></span><<nexttext>>
 <<else>>
 <span id="next"><<link [[Next|Garden Stem Rape]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Garden Stem Rape Finish [nobr]
+:: Garden Stem Rape Finish
 <<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
@@ -872,7 +1083,6 @@ You call for help as the shoots tighten around you.
 	<<endcombat>>
 	<<link [[Next|Garden Flowers]]>><</link>>
 	<br>
-
 <<else>>
 	The <<person>> wasn't expecting resistance. <<He>> rushes for the fence and hauls <<himself>> over, escaping into the night.
 	<br><br>
@@ -881,47 +1091,36 @@ You call for help as the shoots tighten around you.
 	<<clotheson>>
 	<<endcombat>>
 	<<link [[Next|Garden Flowers]]>><</link>>
-
-
 <</if>>
 
-
-:: Garden Stem Struggle [nobr]
+:: Garden Stem Struggle
 <<effects>>
 
-
-<<if $physique gte random(1, $physiquemax)>>
-
+<<if $physiqueSuccess>>
 	<span class="green">You tear yourself free of the shoots binding you,</span> and climb to your feet. The plants fall to the ground, inert, freeing your body.
 	<br><br>
 
 	<<link [[Next|Garden Flowers]]>><</link>>
 	<br>
-
 <<else>>
-
 	You try to tear yourself free of the plants binding you, <span class="red">but they're too tight.</span>
 	<br><br>
 
 	<<link [[Next|Garden Stem Tentacles]]>><<set $molestationstart to 1>><</link>>
 	<br>
-
 <</if>>
 
 
-:: Garden Stem Soothe [nobr]
+:: Garden Stem Soothe
 <<effects>>
 
-<<if $tending gte random(1, 1000)>>
-
+<<if $tendingSuccess>>
 	You sing a gentle hum. The shoots sway to its tune, <span class="green">becoming looser,</span> allowing you to wriggle free.
 	<br><br>
 
 	<<link [[Next|Garden Flowers]]>><</link>>
 	<br>
-
 <<else>>
-
 	You sing a gentle hum. <span class="red">The shoots don't respond,</span> and continue to tighten around you.
 	<br><br>
 
@@ -930,8 +1129,7 @@ You call for help as the shoots tighten around you.
 <</if>>
 
 
-
-:: Garden Stem Brace [nobr]
+:: Garden Stem Brace
 <<effects>>
 
 You brace yourself as the shoots tighten around your limbs.
@@ -940,7 +1138,7 @@ You brace yourself as the shoots tighten around your limbs.
 <<link [[Next|Garden Stem Tentacles]]>><<set $molestationstart to 1>><</link>>
 <br>
 
-:: Garden Stem Tentacles [nobr]
+:: Garden Stem Tentacles
 <<effects>>
 
 <<if $molestationstart is 1>>
@@ -950,12 +1148,12 @@ You brace yourself as the shoots tighten around your limbs.
 	<<molested>>
 	<<controlloss>>
 
-	<<tentaclestart 4 15>>
+	<<tentaclestart 4 15 "shoot" "vine" true>>
 	<<set $timer to 15>>
 <</if>>
 
 <<statetentacles>>
-You count $tentacles.active tentacles surrounding you.
+
 
 <<effects>>
 <<effectstentacles>>
@@ -968,7 +1166,7 @@ You count $tentacles.active tentacles surrounding you.
 	<span id="next"><<link [[Next|Garden Stem Tentacles]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Garden Stem Tentacles Finish [nobr]
+:: Garden Stem Tentacles Finish
 <<effects>>
 
 The shoots fall inert. <<tearful>> you tear them away from your body.
@@ -978,8 +1176,3 @@ The shoots fall inert. <<tearful>> you tear them away from your body.
 <<endcombat>>
 
 <<link [[Next|Garden Flowers]]>><</link>>
-<br>
-
-
-
-

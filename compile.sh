@@ -13,7 +13,7 @@ function echoMessage() {
 }
 
 function compile() {
-	export TWEEGO_PATH=devTools/tweeGo/storyFormats
+	export TWEEGO_PATH=devTools/tweego/storyFormats
 	if [ -z ${FORCE_VERSION+true} ]; then
 		VERSION="$(git describe --tags --always --dirty)"
 	else
@@ -48,6 +48,14 @@ function compile() {
 					TWEEGO_EXE="./devTools/tweego/tweego_linux86"
 				fi
 				;;
+			arm64)
+				echoMessage "arm64 arch"
+				if [ "$(uname -s)" = "Darwin" ]; then
+					TWEEGO_EXE="./devTools/tweego/tweego_m1"  #for mac m1 and m2
+				#else
+				#not linux arm
+				fi
+				;;
 			*)
 				echoError "No system tweego binary found, and no precompiled binary for your platform available."
 				echoError "Please compile tweego and put the executable in PATH."
@@ -56,14 +64,18 @@ function compile() {
 		esac
 	fi
 
-	$TWEEGO_EXE "$@" -o  "$TARGET" --head "devTools/head.html" game/ || build_failed="true"
+	$TWEEGO_EXE "$@" -o  "$TARGET" --head "devTools/head.html" --module "modules" game/ || build_failed="true"
 
 	if [ "$build_failed" = "true" ]; then
 		echoError "Build failed."
 		exit 1
 	else
+		if [ "$TARGET" != "Degrees of Lewdity.html" ]; then
+			# android builder expects to find a file by this name. this is a symbolic link, not a full copy
+			ln -fs "$TARGET" "Degrees of Lewdity.html";
+		fi
 		echo "Done: \"$TARGET\""
-		exit 1
+		exit 0
 	fi
 }
 

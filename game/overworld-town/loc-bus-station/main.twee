@@ -1,24 +1,24 @@
-:: Bus Station [nobr]
+:: Bus Station
 
 <<set $outside to 0>><<set $location to "town">><<effects>>
 You are in the bus station.
-<<if $daystate is "day">>
+<<if Time.dayState is "day">>
 	The main building is mostly empty, with the majority of vehicles in use.
-<<elseif $daystate is "night">>
+<<elseif Time.dayState is "night">>
 	The building is packed with parked vehicles.
 <<else>>
 	The main building is mostly empty, with the majority of vehicles in use.
 <</if>>
 <br><br>
-<<if $smuggler_location is "bus" and $smuggler_timer is 0 and $daystate is "night" and $hour gte 18>>
+<<if $smuggler_location is "bus" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
 	<<smugglerdifficultytext>>
 <</if>>
-<<if $stress gte 10000>>
+<<if $stress gte $stressmax>>
 	<<passoutstreet>>
 <<else>>
 	<<if $exposed gte 1>>
 		<<exhibitionismbuilding>>
-		<<if $daystate is "night">>
+		<<if Time.dayState is "night">>
 			<<set $danger to random(1, 10000)>><<set $dangerindustrial to 0>>
 			<<if $danger gte (9900 - ($allure)) and $eventskip is 0>>
 				<<set $dangerindustrial to random(1, 100)>>
@@ -26,13 +26,12 @@ You are in the bus station.
 					<<busstationex1>>
 				<</if>>
 			<<else>>
-				<<if $smuggler_location is "bus" and $smuggler_timer is 0 and $hour gte 18>>
+				<<if $smuggler_location is "bus" and $smuggler_timer is 0 and Time.hour gte 18>>
 					<<smugglerdifficultyactions>>
 				<</if>>
+				<<alleyicon>><<link [[Industrial alleyways (0:02)|Industrial alleyways]]>><<pass 2>><</link>>
 				<br>
-				<<link [[Harvest Street (0:02)->Bus Station Front Door]]>><<pass 2>><</link>>
-				<br>
-				<<link [[Leave via back door (0:02)|Industrial alleyways]]>><<pass 2>><</link>>
+				<<exiticon "flip">><<link [[Leave via front door (0:02)|Bus Station Front Door]]>><<pass 2>><</link>>
 				<br><br>
 			<</if>>
 		<<else>>
@@ -43,37 +42,39 @@ You are in the bus station.
 					<<busstationex1>>
 				<</if>>
 			<<else>>
-				<<link [[Leave via back door (0:02)|Bus Station Back Door]]>><<pass 2>><</link>>
+				<<exiticon>><<link [[Leave via back door (0:02)|Bus Station Back Door]]>><<pass 2>><</link>>
 				<br><br>
 			<</if>>
 		<</if>>
 	<<else>>
-		A van is parked in the corner. Its back doors are open and the engine is on, but there's no one around.
-		<br><br>
-		<<link [[Investigate the van|Bus Station Livestock]]>><</link>> | <span class="red">Dangerous</span>
-		<br><br>
-		<<if $daystate is "night">>
+		<<if Time.dayState is "night">>
 			<<if $smuggler_location is "bus" and $smuggler_timer is 0>>
 				<<smugglerdifficultyactions>>
 			<</if>>
+			<<alleyicon>><<link [[Industrial alleyways (0:02)|Industrial alleyways]]>><<pass 2>><</link>>
 			<br>
-
-			<<link [[Harvest Street (0:02)->Bus Station Front Door]]>><<pass 2>><</link>>
-			<br>
-			<<link [[Leave via back door (0:02)|Bus Station Back Door]]>><<pass 2>><</link>>
+			<<exiticon "flip">><<link [[Leave via front door (0:02)|Bus Station Front Door]]>><<pass 2>><</link>>
+			<br><br>
 			<br><br>
 		<<else>>
-			<<link [[Harvest Street (0:02)->Harvest Street]]>><<pass 2>><</link>>
+			<<exiticon>><<link [[Leave via back door (0:02)|Bus Station Back Door]]>><<pass 2>><</link>>
 			<br>
-			<<link [[Leave via back door (0:02)|Bus Station Back Door]]>><<pass 2>><</link>>
+			<<harvesticon>><<link [[Harvest Street (0:02)|Harvest Street]]>><<pass 2>><</link>>
+			<br><br>
+		<</if>>
+		<<if $cheatdisable is "f">>
+			A van is parked in the corner. Its back doors are open and the engine is on, but there's no one around.
+			<br><br>
+			<<investigateicon>><<link [[Investigate the van|Bus Station Livestock]]>><</link>><<dangerousText>> | <i>Cheat option. Triggers livestock bad end.</i> <!-- Appears even with blind stats enabled. Intentional -->
 			<br><br>
 		<</if>>
 	<</if>>
 <</if>>
 <<set $eventskip to 0>>
 
-:: Bus Station Livestock [nobr]
+:: Bus Station Livestock
 <<effects>>
+
 <<generate1>><<person1>>
 You approach the van, and peer inside. A rush of footsteps is all the warning you're given. A pair of arms shove you forward.
 <br><br>
@@ -86,77 +87,112 @@ You try to open the doors, but they're locked. You look around, but see no other
 
 <<link [[Next|Street Van Journey]]>><</link>>
 <br>
+/*
+You approach the van. A girl in a white dress tinkers at the engine. She looks up as you approach, and pulls her long brown hair away from her eyes.
+<br><br>
+"Hi there," she says. "No need to take this old thing to cow jail anymore. There are lots of other ways there now, so it's being repurposed. Come back when there's another new area, and it might take you there instead."
+<br><br>
+A tall blonde girl in a crisp black outfit walks around the bonnet, and slashes one of the tires. The other girl looks bemused.
+<br><br>
 
-:: Bus Station Front Door [nobr]
+<<link [[Leave|Bus Station]]>><<endevent>><</link>>
+<br>
+*/
 
+:: Bus Station Front Door
 <<set $outside to 0>><<effects>><<set $lock to 100>>
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<link [[Pick it (0:10)|Harvest Street]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
-	<br>
+
+The front door to the bus station is in front of you. It's locked.
+<br>
+
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Harvest Street]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Leave|Bus Station]]>><</link>>
+<<busstationicon>><<link [[Leave|Bus Station]]>><<handheldon>><</link>>
 <br>
 
-:: Bus Station Back Door [nobr]
-
+:: Bus Station Back Door
 <<set $outside to 0>><<effects>><<set $lock to 0>>
-<<if $skulduggery gte $lock>>
+
+The back door to the bus station is in front of you. It leads out to the industrial alleyways.
+<br><br>
+
+<<if currentSkillValue('skulduggery') gte $lock>>
 	<span class="green">The lock looks easy to pick.</span>
 	<br><br>
-	<<link [[Pick it (0:10)|Industrial alleyways]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<lockicon "pick">><<link [[Pick it (0:10)|Industrial alleyways]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 	<br>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Leave|Bus Station]]>><</link>>
+<<busstationicon>><<link [[Leave|Bus Station]]>><</link>>
 <br>
 
-:: Bus Station Entrance [nobr]
+:: Bus Station Entrance
 
-<<set $outside to 0>><<effects>><<set $lock to 100>>
-<<if $skulduggery gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<link [[Pick it (0:10)|Bus Station]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
-	<br>
-<<else>>
-	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
-	<br><br>
-<</if>>
-<<link [[Leave|Harvest Street]]>><</link>>
+The front door to the bus station is locked.
 <br>
 
-:: Bus Station Back Entrance [nobr]
-
-<<set $outside to 0>><<effects>><<set $lock to 0>>
-<<if $skulduggery gte $lock>>
+<<set $outside to 1>><<effects>><<set $lock to 100>>
+<<if currentSkillValue('skulduggery') gte $lock>>
 	<span class="green">The lock looks easy to pick.</span>
 	<br><br>
-	<<link [[Pick it (0:10)|Bus Station]]>><<pass 10>><<crimeup 1>><</link>><<crime>>
+	<<lockicon "pick">><<link [[Pick it (0:10)|Bus Station]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 	<br>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<link [[Leave|Industrial alleyways]]>><</link>>
+<<harvesticon>><<link [[Leave|Harvest Street]]>><</link>>
+<br>
+
+:: Bus Station Back Entrance
+
+The back door to the bus station is locked.
+<br>
+
+<<set $outside to 1>><<effects>><<set $lock to 0>>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Bus Station]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<alleyicon>><<link [[Leave|Industrial alleyways]]>><<handheldon>><</link>>
 <br>
 
 :: Widgets Bus Station Ex [widget]
 
-<<widget "busstationex1">><<nobr>>
+<<widget "busstationex1">>
 	<<generate1>><<generate2>>
 	<<person1>>You are crouching behind a parked bus when you are accosted from behind!
 	<br><br>
 	<<link [[Next|Molestation Bus Station]]>><<set $molestationstart to 1>><</link>>
-<</nobr>><</widget>>
+<</widget>>
 
-:: Molestation Bus Station [nobr]
+:: Molestation Bus Station
 
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
@@ -167,33 +203,32 @@ You try to open the doors, but they're locked. You look around, but see no other
 	<<maninit>>
 <</if>>
 <<effects>>
-<<effectsman>><<man>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
-<<if $alarm is 1>>
 
-	No one comes to your aid.
+<<if $alarm is 1 and $rescue is 0>>
 	<<set $alarm to 0>>
-	<<if $drugged gte 1>>Intoxicated as you are, you couldn't cry very convincingly.<</if>>
 	<br><br>
 	<<if $enemyarousal gte $enemyarousalmax>>
-		<span id="next"><<link [[Next->Bus Station Ejaculation]]>><</link>></span><<nexttext>>
+		<span id="next"><<link [[Next|Bus Station Ejaculation]]>><</link>></span><<nexttext>>
 	<<elseif $enemyhealth lte 0>>
-		<span id="next"><<link [[Next->Bus Station Escape]]>><</link>></span><<nexttext>>
+		<span id="next"><<link [[Next|Bus Station Escape]]>><</link>></span><<nexttext>>
 	<<else>>
-		<span id="next"><<link [[Next->Molestation Bus Station]]>><</link>></span><<nexttext>>
+		<span id="next"><<link [[Next|Molestation Bus Station]]>><</link>></span><<nexttext>>
 	<</if>>
-
 <<elseif $enemyarousal gte $enemyarousalmax>>
-	<span id="next"><<link [[Next->Bus Station Ejaculation]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Bus Station Ejaculation]]>><</link>></span><<nexttext>>
 <<elseif $enemyhealth lte 0>>
-	<span id="next"><<link [[Next->Bus Station Escape]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Bus Station Escape]]>><</link>></span><<nexttext>>
 <<else>>
-	<span id="next"><<link [[Next->Molestation Bus Station]]>><</link>></span><<nexttext>>
+	<span id="next"><<link [[Next|Molestation Bus Station]]>><</link>></span><<nexttext>>
 <</if>>
 
-:: Bus Station Ejaculation [nobr]
+:: Bus Station Ejaculation
 
 <<ejaculation>>
 <<if $enemyanger gte ($enemyangermax / 5) * 3>>
@@ -204,10 +239,9 @@ You try to open the doors, but they're locked. You look around, but see no other
 	Without a word, they leave you lying broken on the ground.
 	<br><br>
 <<else>>
-	Smiling, <<person>> kisses you on the cheek. "This is for you." They get up and leave you lying broken on the ground.
-	<<set $money += 500>>
+	Smiling, <<he>> kisses you on the cheek. "This is for you." They get up and leave you lying broken on the ground.
 	<br>
-	You've gained £5.
+	You've gained <<printmoney 500>><<money 500 "prostitution">>.
 	<br><br>
 <</if>>
 <<underlowersteal>>
@@ -215,9 +249,9 @@ You try to open the doors, but they're locked. You look around, but see no other
 <<clotheson>>
 <<endcombat>>
 <<set $eventskip to 1>>
-[[Next|Bus Station]]
+<<link [[Next|Bus Station]]>><</link>>
 
-:: Bus Station Escape [nobr]
+:: Bus Station Escape
 
 <<effects>>
 <<He>> recoils in pain, giving you the chance you need to escape. <<tearful>> you escape through the back door, which is fortunately open.

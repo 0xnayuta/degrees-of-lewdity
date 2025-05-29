@@ -1,219 +1,359 @@
-:: School Pool [nobr]
+:: School Pool
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
-<<if $schoolstate is "fifth" and $time lte ($hour * 60 + 51)>>
-
-	<<if $exposed gte 2 and $swimall is 1>>
-
-	<<npc Mason>><<person1>>
-		<<if $swimmingattended is 1>>
-			You rejoin the swimming lesson.
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-			Mason instantly notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "It wouldn't be safe to let you swim like that."
-			<br>
-			<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
+<<unset $previousClothes>>
+<<set _masonCanUnlock to playerChastity() and $worn.genitals.origin is "Winter" and C.npc.Mason.chastityKeyCarried and !$weekly.masonChastityRemovalDeclined and !$daily.masonChastityRemovalDeclined
+	and getVisibleClothesList().find(o => o === V.worn.genitals) and (C.npc.Mason.love gte 10 or C.npc.Mason.lust gte 15)>>
+<<if Time.minute lt 45 and $schoolstate is "fifth">>
+	<<classRoomEarSlime "swimming">>
+<</if>>
+<<if $poolroomstate is "own">>
+	<<if Time.minute gte 45>>
+		<<if $daily.school.attended.swimming>>
+			You enter the swimming pool room.
+			<br><br>
+			The lesson has just ended. A few stragglers are still on their way to the changing rooms. Mason is gathering up towels that have been left behind.
+			<br><br>
+			<<if $exposed lte 0>>
+				<<destinationpoolchangingroom>>
+			<<elseif $exposed gte 1>>
+				<<destinationpoolchangingroom "towels">>
+			<</if>>
+		<<else>>
+			<<include "School Swimming Late">>
+			<<set $daily.school.swimmingLate to true>><!-- still a missed lesson -->
 		<</if>>
-		<br><br>
-		<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
-		<br>
-		<<elseif $time lte ($hour * 60 + 5)>>
+	<<elseif $exposed gte 2 and $swimall is 1>>
+		<<npc Mason>><<person1>>
+		<<if $daily.school.attended.swimming>>
+			You rejoin the swimming lesson.
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				<br><br>
+
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
+			<br>
+		<<elseif Time.minute lt 5>>
 			You enter the swimming pool room.
 			Mason stands by the pool, covering <<his>> body as <<he>> tries to encourage students to stretch while the rest of the class pours in.
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-				<<He>> notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "T-that's a little too much."
-				<br>
-				<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
-			<</if>>
-			<br><br>
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				<br><br>
 
-			<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
 			<br>
 
 		<<else>>
 			You enter the swimming pool room.
-			<<npc Mason>><<person1>>
-			Mason and the class are already in the water. "Glad you could join us!" <<He>> says, beckoning.
-			<<gdelinquency>><<detention 1>>
-			<br><br>
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-				Mason instantly notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "Wait! It wouldn't be safe to let you swim like that."
-				<br>
-				<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
+
+			Mason and the class are already in the water.
+			<<if $daily.school.swimmingExcused>>
+				<<run delete $daily.school.swimmingExcused>>
+				"There you are," <<he>> says, beckoning. "Don't worry, you've been excused. Come on in!"
+			<<else>>
+				"Glad you could join us!" <<he>> says, beckoning.
+				<<gdelinquency>><<detention 1>>
 			<</if>>
-			You climb into the water as Mason continues the lesson.
 			<br><br>
-			<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
-			<br>
-		<</if>>
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				You climb into the water as Mason continues the lesson.
+				<br><br>
 
-	<<elseif $exposed gte 2>>
-		<<schoolpoolexposed>>
-		<<if $exhibitionism gte 75 and $swimall isnot 1>>
-			<<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
 			<br>
 		<</if>>
-		<<if $schoolstate is "fifth" and $swimnudecounter gte 1>>
-			<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-			<br>
-			<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-			<br>
-		<</if>>
-
-	<<elseif $worn.under_lower.type.includes("swim") and ($worn.under_upper.type.includes("swim") or $worn.under_upper.type.includes("naked"))
-	and ($worn.upper.type.includes("swim") or $worn.upper.type.includes("naked")) and ($worn.lower.type.includes("swim") or $worn.lower.type.includes("naked"))>>
+	<<elseif $exposed gte 2 and $swimall isnot 1>>
 		<<npc Mason>><<person1>>
-		<<if $swimmingattended is 1>>
-			You rejoin the swimming lesson.
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-				Mason instantly notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "Well... obviously it wouldn't be safe to let you swim like that."
-				<br>
-				<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
-			<</if>>
-			<br><br>
-			<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+		<<schoolpoolexposed>>
+		<<if hasSexStat("exhibitionism", 5) and $swimall isnot 1>>
+			<<socialiseicon "ask">><<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
 			<br>
-		<<elseif $time lte ($hour * 60 + 5)>>
+		<</if>>
+	<<elseif $swimall is 1>>
+		<<npc Mason>><<person1>>
+		<<if $daily.school.attended.swimming>>
+			You rejoin the swimming lesson.
+			<<schoolpoolmasoncheck>>
+			<br>
+		<<else>>
 			You enter the swimming pool room.
 			Mason stands by the pool, encouraging students to stretch while waiting for the rest of the class.
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-				<<He>> instantly notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "I can't let you swim like that."
-				<br>
-				<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
-			<</if>>
-			<br><br>
+		<</if>>
 
-			<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+		<<if $exposed gte 2>>
 			<br>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				<br><br>
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
+		<<else>>
+			<br><br>
+			<<He>> glares at you. "So, thanks to a certain someone, I'm not allowed to let you in the pool unless you're all nude."
+			<br><br>
+			<<link [[Swim naked|Swimming Lesson]]>><<schoolpoolundress>><<endevent>><</link>>
+		<</if>>
+	<<elseif ($worn.under_lower.type.includes("swim") or $worn.lower.type.includes("swim"))
+	and ($worn.under_upper.type.includes("swim") or $worn.upper.type.includes("swim") or ($worn.under_upper.type.includes("naked") and $worn.upper.type.includes("naked") and ($player.gender_appearance is "m" or $daily.swimCrossdressPermission)))
+	and (($worn.upper.type.includes("naked") or $worn.upper.type.includes("swim")) and ($worn.lower.type.includes("naked") or $worn.lower.type.includes("swim")))>>
+		<<npc Mason>><<person1>>
+		<<if $daily.school.attended.swimming>>
+			You rejoin the swimming lesson.
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				<br><br>
 
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
+			<br>
+		<<elseif Time.minute lt 5>>
+			You enter the swimming pool room.
+			Mason stands by the pool, encouraging students to stretch while waiting for the rest of the class.
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				<br><br>
+
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
+			<br>
 		<<else>>
 			You enter the swimming pool room.
-			<<npc Mason>><<person1>>
-			Mason and the class are already in the water. "Glad you could join us!" <<He>> says, beckoning.
-			<<gdelinquency>><<detention 1>>
-			<br><br>
-			<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
-				Mason instantly notices your bound <<if $rightarm is "bound" or $leftarm is "bound">>arms<</if>><<if ($rightarm is "bound" or $leftarm is "bound") and $feetuse is "bound">> and <</if>><<if $feetuse is "bound">>legs<</if>>. "Wait! It wouldn't be safe to let you swim like that."
-				<br>
-				<<He>> moves behind you and <span class="green">you feel your limbs fall free.</span><<unbind>>
+
+			Mason and the class are already in the water.
+			<<if $daily.school.swimmingExcused>>
+				<<run delete $daily.school.swimmingExcused>>
+				"There you are," <<he>> says, beckoning. "Don't worry, you've been excused. Come on in!"
+			<<else>>
+				"Glad you could join us!" <<he>> says, beckoning.
+				<<gdelinquency>><<detention 1>>
 			<</if>>
-			You climb into the water as Mason continues the lesson.
 			<br><br>
+			<<schoolpoolmasoncheck>>
+			<<if _masonCanUnlock>>
+				<<include "Mason Chastity Prompt">>
+			<<else>>
+				You climb into the water as Mason continues the lesson.
+				<br><br>
 
-			<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+				<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+			<</if>>
 			<br>
-
 		<</if>>
 	<<else>>
 		You enter the swimming pool room.
 		<<npc Mason>><<person1>>
-		Mason looks at your clothing. "You can't swim dressed like that! Go get changed."
-		<br><br>
-
-		<<if $exhibitionism gte 75 and $swimall isnot 1>>
-			<<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
-			<br>
-		<</if>>
-		<<if $player.gender is "f" or ($player.gender is "h" and $breastsize gte 3)>>
-			<<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><</link>>
-			<br>
-			<<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
-			<br>
+		<<if $daily.school.swimmingExcused>>
+			"You've been excused, but you still need to dress out.
 		<<else>>
-			<<link [[Say you only have a girl's swimming costume|School Pool Wrong]]>><</link>>
-			<br>
-			<<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
-			<br>
+			"You can't swim dressed like that!
 		<</if>>
-		<br>
-		<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-		<br>
-		<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-		<br><br>
+		<<if _masonCanUnlock>>
+			<<include "Mason Chastity Prompt">>
+		<<else>>
+			Go get changed."
+			<br><br>
+
+			<<if hasSexStat("exhibitionism", 5) and $swimall isnot 1>>
+				<<socialiseicon "ask">><<link [[Ask to swim naked|School Pool Ask Naked]]>><<fameexhibitionism 15>><<endevent>><<set $swimnudecounter += 1>><</link>><<exhibitionist5>>
+				<br>
+			<</if>>
+			<<if $player.sex is "f" or ($player.sex is "h" and $player.gender_appearance is "f")>>
+				<<if !$daily.swimCrossdressPermission>>
+					<<socialiseicon>><<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><</link>>
+					<br>
+				<</if>>
+			<<else>>
+				<<if !$daily.swimCrossdressPermission>>
+					<<socialiseicon>>
+					<<if ($worn.upper.type.includes("naked") and $worn.under_upper.type.includes("naked")) and
+					($worn.lower.type.includes("swim") or ($worn.lower.type.includes("naked") and $worn.under_lower.type.includes("swim")))>>
+						<<link [[Say you only have a boy's swimming costume|School Pool Wrong]]>><<set $phase to 1>><</link>>
+					<<else>>
+						<<link [[Say you only have a girl's swimming costume|School Pool Wrong]]>><</link>>
+					<</if>>
+					<br>
+				<</if>>
+			<</if>>
+			<<socialiseicon>><<link [[Say you don't have anything to change into|School Pool Spare]]>><</link>>
+			<br><br>
+
+			<<destinationpoolchangingroom>>
+		<</if>>
 	<</if>>
 
-<<elseif $schoollesson is 1>>
+<<elseif $poolroomstate is "other">>
 	<<if $exposed gte 1>>
+		<<npc Mason>><<person1>>
 		<<schoolpoolexposed>>
 	<<else>>
 		You step into the pool room.
-	<</if>>
-	<<if $swimminginterrupted is 1>>
-		<<npc Mason>><<person1>>You enter the pool room. Mason ceases <<his>> activity and looks your way. "I've got a class to teach.
-		Stop bothering us." <<He>> points to the door.
-		<<gdelinquency>>
-		<br><br>
-		<<detention 1>>
+		<<if $daily.school.swimmingInterrupted is 1>>
+			<<npc Mason>><<person1>>Mason ceases <<his>> activity and looks your way. "I've got a class to teach.
+			Stop bothering us." <<He>> points to the door.
+			<<gdelinquency>>
+			<br><br>
+			<<detention 1>>
 
-		<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-		<br>
-		<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-		<br>
-	<<else>>
-		<<npc Mason>><<person1>>
-		You enter the pool room. Mason ceases <<his>> activity and smiles at you. "Are you lost? Or is there something you need to tell me?"
-		It seems you've interrupted the lesson.
-		<br><br>
-		<<set $swimminginterrupted to 1>>
+			<<destinationpoolchangingroom>>
+		<<else>>
+			<<npc Mason>><<person1>>
+			Mason ceases <<his>> activity and smiles at you. "Are you lost? Or is there something you need to tell me?"
+			It seems you've interrupted the lesson.
+			<br><br>
+			<<set $daily.school.swimmingInterrupted to 1>>
 
-		<<link [[Apologise|Swimming Classroom Apology]]>><<trauma 1>><<stress 1>><</link>><<gstress>><<gtrauma>>
-		<br>
-		<<if $trauma gte 1>>
-			<<link [[Mock|Swimming Classroom Mock]]>><<status 1>><<stress -12>><</link>><<lstress>><<gcool>><<gdelinquency>>
+			<<link [[Apologise|Swimming Classroom Apology]]>><<trauma 1>><<stress 1>><</link>><<gstress>><<gtrauma>>
 			<br>
+			<<if $trauma gte 1>>
+				<<link [[Mock|Swimming Classroom Mock]]>><<status 1>><<stress -12>><</link>><<lstress>><<gcool>><<gdelinquency>>
+				<br>
+			<</if>>
 		<</if>>
 	<</if>>
-<<else>>
+<<elseif $weekly.schoolNightPoolParty is "party" and Time.hour is 6>>
+	<<schoolnightpoolpartyend>>
+<<elseif ["changingRoom", "party"].includes($weekly.schoolNightPoolParty) and Time.dayState is "night">>
+	<<if $weekly.schoolNightPoolParty is "changingRoom">>
+		<<generates1>><<generates2>>
+		As you enter the pool room, you are met with a flood of naked bodies. <span class="lewd">All around you, the room is filled with the sounds of moans, kissing, and wet bodies gyrating together.</span>
+		<<ggarousal>><<arousal 1200>>
+		<br><br>
+		You recognise a couple faces in the orgy as <<= $delinquency gte 400 ? "fellow" : "known">> delinquents from your classes. A few others appear to be average students. There are, however, some faces you don't think you have seen before. Are they even from your school?
+		<br><br>
+		Despite being immersed in carnal acts, it doesn't take long for someone to spot you. Someone yelps and points at you, and soon the whole room is staring at you.
+		<br><br>
+		"Wait, who invited <<phim>>?" a <<person1>><<person>> screams.
+		<br><br>
+		"Not me!" a <<person2>><<person>> answers, <<his>> voice strained.
+		<br><br>
+		<<if $speech_attitude is "meek">>
+			"I... I saw you coming in," you say, your timid voice echoing in the pool room. "I saw you jumping the fence and... I got curious, and wanted to know what you were doing."
+		<<elseif $speech_attitude is "bratty">>
+			"I just followed you," you say, your loud voice echoing in the pool room. "You guys are really shitty at sneaking around. Anyway, I came in to see what the fuss was about."
+		<<else>>
+			"I just saw you guys coming in," you say. Your voice echoes in the pool room. "Noticed some of you jumping the fence, and I wanted to know what that was about."
+		<</if>>
+		<br><br>
+
+		<<if hasSexStat("promiscuity", 5) or hasSexStat("exhibitionism", 5)>>
+			<<link [[Ask if you can stay|School Night Pool Party]]>><</link>>
+		<<else>>
+			<<insufficientStat "custom" "to stay" "blue" "promiscuous or exhibitionistic">>
+		<</if>>
+		<br>
+		<<if $changingRoomGender is "boys">>
+			<<link [[Excuse yourself|School Boy Changing Room]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<<else>>
+			<<link [[Excuse yourself|School Girl Changing Room]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<</if>>
+		<br>
+	<<else>>
+		<<outfitChecks>>
+		<<if $drunk gte random(480, 1000) or $stress gte $stressmax>>
+			<<set $weekly.schoolNightPoolParty to false>>
+
+			A sudden wave of dizziness hits you, and soon it's like the whole room is spinning. <<if $stress gte $stressmax>>You've pushed yourself too much, and<<else>>You barely have time to wonder if all the alcohol has finally caught up to you before<</if>> your vision goes black.
+			<br><br>
+			You pass out.
+			<br><br>
+
+			<<link [[Next|School Night Pool Party Drunk]]>><<if $stress gte $stressmax>><<set $stress -= 2000>><</if>><</link>>
+			<br>
+		<<else>>
+			You're at the school pool. The delinquents are throwing a secret party. The chlorinated scent of the pool isn't enough to overpower the smell of alcohol and cum.
+			<br><br>
+			<<if !_fullyNaked>>
+				<<generates1>><<person1>>
+				A <<person>> spots you and staggers over. "What are you doing 'ere dressed like an idiot?" <<He>> laughs, tugging at your clothes, though <<he>> doesn't seem to mean any harm. "No clothes allowed! Come back after you've taken everything o-off."
+				<br><br>
+				<<He>> leaves you alone and drunkenly walks back to <<his>> group of friends by the poolside.
+			<<else>>
+
+				Some students are chatting among themselves.<br>
+				<<socialiseicon>><<link [[Socialise|School Night Pool Party Socialise]]>><</link>>
+				<br><br>
+
+				All over the pool room, scenes of sexual debauchery unravel.<br>
+				<<investigateicon>><<link [[Look around (0:10)|School Night Pool Party Around]]>><<pass 10>><</link>>
+			<</if>>
+			<br><br>
+
+			<<if $exposed lte 0>>
+				<<destinationpoolchangingroom>>
+			<<elseif $exposed gte 1>>
+				<<destinationpoolchangingroom "towels">>
+			<</if>>
+		<</if>>
+	<</if>>
+<<else>><!-- $poolroomstate is "empty" -->
 	You are in the swimming pool room. It's saturated with the smell of chlorine.
 	<br><br>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmLocation "emptySwimClassroom">>
+	<</if>>
 
 	<<exhibitionclassroom>>
 
-	<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-	<br>
-	<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-	<br>
+	<<destinationpoolchangingroom>>
 <</if>>
 
-:: School Pool Ask Naked [nobr]
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>><<undress "school pool">><<exposure>>
+:: School Pool Ask Naked
+<<set $outside to 0>><<set $location to "pool">><<schoolpoolundress>><<schooleffects>><<effects>><<exposure>>
+
+<<set _masonCanUnlock to playerChastity() and $worn.genitals.origin is "Winter" and C.npc.Mason.chastityKeyCarried and !$weekly.masonChastityRemovalDeclined and !$daily.masonChastityRemovalDeclined
+	and getVisibleClothesList().find(o => o === V.worn.genitals) and (C.npc.Mason.love gte 10 or C.npc.Mason.lust gte 15)>>
 
 <<if $swimnudecounter lte 1>>
 	<<npc Mason>>
 
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"May I swim naked?" you ask. "The water feels nice."
-	<<elseif $submissive lte 850>>
-		"I'm swimming naked." you announce.
+	<<elseif $speech_attitude is "bratty">>
+		"I'm swimming naked," you announce.
 	<<else>>
 		"Can I swim naked?" you ask.
 	<</if>>
 	<br><br>
 
+	<<schoolpoolmasoncheck>>
 	<<person1>><<His>> blush deepens as the class breaks into excitement. "F-fine," <<he>> says. <<He>> turns and does <<his>>
 	best to quiet the other students.
-	<br><br>
 <<elseif $swimnudecounter lte 2>>
 	<<npc Mason>><<generatey2>>
 
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"May I swim naked?" you ask. "The water feels nice."
-	<<elseif $submissive lte 850>>
-		"I'm swimming naked." you announce.
+	<<elseif $speech_attitude is "bratty">>
+		"I'm swimming naked," you announce.
 	<<else>>
 		"Can I swim naked?" you ask.
 	<</if>>
 	<br><br>
 
-	<<person1>><<His>> blush deepens as the class breaks into excitement. "A-again?" <<he>> squeaks. Before he can turn around,
+	<<person1>><<His>> blush deepens as the class breaks into excitement. "A-again?" <<he>> squeaks. Before <<he>> can turn around,
 	a <<person2>><<person>> also leaves the changing rooms naked.
 	<br><br>
 
 	<<person2>>"It's unfair if only <<pshe>> gets to swim naked," <<he>> says. Mason is too stunned to respond, and lets you both enter the pool.
-	<br><br>
 <<elseif $swimnudecounter lte 3>>
 	<<npc Mason>><<generatey2>><<generatey3>><<generatey4>>
 
-	You leave, only to see a <<person2>><<personcomma>> a <<person3>><<person>> and a <<person4>><<person>> are already in the room naked,
+	You leave, only to see a <<person2>><<person>>, a <<person3>><<person>> and a <<person4>><<person>> are already in the room naked,
 	much to the enjoyment of the students in the pool and horror of Mason.
 	<br><br>
 
@@ -221,14 +361,13 @@
 	<<he>> says, shaking <<his>> head.
 	<br><br>
 
-	<<if $submissive gte 1150>>
+	<<if $speech_attitude is "meek">>
 		"I guess everyone wanted to join in," you say.
-	<<elseif $submissive lte 850>>
+	<<elseif $speech_attitude is "bratty">>
 		"Looks like you're outnumbered," you say.
 	<<else>>
-		"I'm not the only one who hates these swimsuits" you say.
+		"I'm not the only one who hates these swimsuits," you say.
 	<</if>>
-	<br><br>
 <<elseif $swimnudecounter lte 4>>
 	<<npc Mason>><<generatey2>><<generatey3>><<generatey4>>
 
@@ -238,37 +377,36 @@
 
 	A <<person2>><<person>> waves at you, <<his>> legs kicking in the water at the edge, while <<person1>> Mason tries <<his>>
 	best to distract the clothed students from the gaggle of nude swimmers.
-	<br><br>
 
 	<<if $cool gte 80>>
-		Several of them are doing stretches at the edge of the pool, and a <<person3>><<person>> spots you,
-		and points you out to a <<person4>><<person>>,who both wave at you.
 		<br><br>
+		Several of them are doing stretches at the edge of the pool, and a <<person3>><<person>> spots you,
+		and points you out to a <<person4>><<person>>, who both wave at you.
 	<</if>>
-<<elseif $rng gte 51>>
-	<<npc Mason>><<generatey2>><<generatey3>>
-
-	<<person1>>Almost the entire class is now swimming naked. A few holdouts, including a <<person2>><<person>> and a <<person3>><<personcomma>>
-	struggle to avoid looking as Mason tries to teach.
-	<br><br>
 <<else>>
 	<<npc Mason>><<generatey2>><<generatey3>>
 
-	<<person1>>Almost the entire class is now swimming naked. A few holdouts, including a <<person2>><<person>> and a <<person3>><<personcomma>>
+	<<person1>>Almost the entire class is now swimming naked. A few holdouts, including a <<person2>><<person>> and a <<person3>><<person>>,
 	struggle to avoid looking as Mason tries to teach.
-	<br><br>
+<</if>>
+<br><br>
+
+<<if _masonCanUnlock>>
+	<<include "Mason Chastity Prompt">>
+<<else>>
+	<<person1>><<He>> does little to temper their excitement.
+	<<if $exposed gte 2>>
+		<<flaunting>> you feel their eyes on you as you slip into the water.
+	<<else>>
+		<<flaunting>> you feel their eyes on you as you <<nervously>> strip down to your <<lewdness>>, before slipping into the water. <<covered>>
+	<</if>>
+	<<exhibitionism5>>
+
+	<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 <</if>>
 
-<<person1>><<He>> does little to temper their excitement.
-<<if $exposed gte 2>>
-	<<flaunting>> you feel their eyes on you as you slip into the water.
-<<else>>
-	<<flaunting>> you feel their eyes on you as you <<nervously>> strip down to your <<lewdnesscomma>> before slipping into the water. <<covered>>
-<</if>><<exhibitionism5>>
 
-<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
-
-:: Pool Leighton Nude Punishment [nobr]
+:: Pool Leighton Nude Punishment
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>><<set $swimall to 1>><<underlowerstrip>><<underupperstrip>>
 
 Leighton demands the students strip. They do so. Then <<he>> turns and stares at Mason.
@@ -279,7 +417,7 @@ Leighton demands the students strip. They do so. Then <<he>> turns and stares at
 <br>
 Once done, Leighton takes the swimwear and puts it in a hamper.
 <br>
-"Not a single one of you will swim with clothes, do you understand?" <<he>> turns to Mason. "Including you. Not with this class."
+"Not a single one of you will swim with clothes, do you understand?" <<He>> turns to Mason. "Including you. Not with this class."
 <br>
 "Why?" one of the students asks.
 <br>
@@ -287,16 +425,19 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 <br><br>
 <<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
 
-:: Swimming Lesson [nobr]
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
-<<set $swimmingattended to 1>>
+:: Swimming Lesson
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>><<set $phase to 0>>
+<<set $daily.school.attended.swimming to true>>
+<<if $daily.whitney.whitneyCrossdressSwimwear and Object.values($worn).find(item => item.type.includes("swim") and item.gender is "m")>>
+	<<run $daily.whitney.whitneyCrossdressSwimwear.push("boys swimwear")>>
+<</if>>
 
 <<if $swimnudecounter gte 10 and $swimall isnot 1>>
 	<<npc Leighton>><<person1>> Leighton storms into the pool room, furious. "Mason!" <<he>> shouts. "Explain this! Why is this class swimming naked?"
 	<br><br>
 
 	<<endevent>><<npc Mason>><<person1>>
-	"I-I can't..." Mason turns you, but is lost for words. Leighton follows <<his>> gaze.
+	"I-I can't..." Mason turns to you, but is lost for words. Leighton follows <<his>> gaze.
 	<br><br>
 
 	<<endevent>><<npc Leighton>><<person1>>
@@ -304,89 +445,115 @@ Once done, Leighton takes the swimwear and puts it in a hamper.
 	<br><br>
 
 	<<link [[Next|Pool Leighton Nude Punishment]]>><<pass 5>><</link>>
+<<elseif $stress gte $stressmax>>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "schoolPool">>
+	<<else>>
+		You've pushed yourself too much.
+		<br><br>
+		<<link [[Everything fades to black...|Mason CPR]]>><<passout>><</link>>
+	<</if>>
 <<else>>
-	<<if $time lte ($hour * 60 + 5)>>
-		<<if $exposed gte 1>>
+	<<if Time.minute lt 5>>
+		<<if $swimall is 1 and $exposed gte 2>>
+			You don't bother worrying about your <<lewdness>>, everyone is naked at this point.
+			<br><br>
+		<<elseif $exposed gte 1>>
 			You keep your <<lewdness>> hidden beneath the surface of the water, but you still feel vulnerable and exposed.
 			The rest of the class sneak looks when they think you can't see them.
 			<br><br>
-			The swimming lesson begins, how do you want to conduct yourself?
-			<br><br>
-		<<else>>
-			The swimming lesson begins, how do you want to conduct yourself?
-			<br><br>
 		<</if>>
+		<<if $arousal gte $arousalmax>>
+			<<orgasmLocation "swimClassroom">>
+		<</if>>
+		The swimming lesson begins. How do you want to conduct yourself?
+		<br><br>
 	<<else>>
-		<<if $exposed gte 1>>
+		<<if $swimall is 1 and $exposed gte 2>>
+			You don't bother worrying about your <<lewdness>>, everyone is naked at this point.
+			<br><br>
+		<<elseif $exposed gte 1>>
 			The water helps conceal you, but you still feel exposed. The rest of the class sneak looks when they think you can't see them.
 			<br><br>
-			The swimming lesson continues, how do you want to conduct yourself?
-			<br><br>
-		<<else>>
-			The swimming lesson continues, how do you want to conduct yourself?
-			<br><br>
 		<</if>>
+		<<if $arousal gte $arousalmax>>
+			<<orgasmLocation "swimClassroom">>
+		<</if>>
+		The swimming lesson continues. How do you want to conduct yourself?
+		<br><br>
 	<</if>>
-
-	<<link [[Focus on the lesson|Swimming Lesson Focus]]>><</link>><<gstress>><<gswimming>><<gtiredness>>
+	<<water>>
+	<<swimmingicon>><<link [[Focus on the lesson|Swimming Lesson Focus]]>><</link>><<gstress>><<gswimming>><<gtiredness>>
 	<br>
-	<<link [[Socialise with classmates|Swimming Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
+	<<socialiseicon>><<link [[Socialise with classmates|Swimming Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
 	<br>
-	<<if $exposed gte 2 and $exhibitionism gte 75>>
-		<<link [[Practise your backstroke|Swimming Lesson Naked Backstroke]]>><</link>><<gswimming>><<gtiredness>><<exhibitionist5>>
+	<<if $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
+		<<swimicon "back">><<link [[Practise your backstroke|Swimming Lesson Naked Backstroke]]>><</link>><<gswimming>><<gtiredness>><<exhibitionist5>>
 		<br>
 	<</if>>
-	<<link [[Daydream|Swimming Lesson Daydream]]>><</link>><<lstress>> <<lharass>>
+	<<daydreamicon>><<link [[Daydream|Swimming Lesson Daydream]]>><</link>><<lstress>> <<lharass>>
 	<br>
-	<<if $exhibitionism gte 55>>
-		<<link [[Masturbate|Swimming Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+	<<if hasSexStat("exhibitionism", 4)>>
+		<<skinicon "masturbate">><<link [[Masturbate|Swimming Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
 		<br>
 	<</if>>
 <</if>>
 
-:: School Pool Wrong [nobr]
-<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
+:: School Pool Wrong
+<<set $outside to 0>><<set $location to "pool">><<set $daily.swimCrossdressPermission to true>><<set _alreadyWearing to false>><<schooleffects>><<effects>>
 
 You speak in a low voice, so only the teacher will hear you.
 
-<<if $player.gender is "f" or ($player.gender is "h" and $breastsize gte 3)>>
-	<<if $player.gender_appearance is "f" or $genderknown.includes("Mason")>>
-		"I only have a pair of boy's shorts, <<sirstop>>"
+<<if $player.sex is "f" or ($player.sex is "h" and $player.gender_appearance is "f") or $phase is 1>>
+	<<if $player.gender_appearance is "f" or $genderknown.includes("Mason") or $phase is 1>>
+		<<set $phase to 0>>
+		"I only have a pair of boy's shorts, <<sir>>."
 		<br><br>
-		<<He>> blushes. "Oh. That's better than nothing. Go get changed." <<He>> turns back to <<his>> class.
-		<br><br>
+		<<He>> blushes. "Oh. That's better than nothing.
+		<<if ($worn.upper.type.includes("naked") and $worn.under_upper.type.includes("naked")) and
+			($worn.lower.type.includes("swim") or ($worn.lower.type.includes("naked") and $worn.under_lower.type.includes("swim")))>>
+			Go ahead." You join the rest of the class.<<set _alreadyWearing to true>>
+		<<else>>
+			Go get changed." <<He>> turns back to <<his>> class.
+		<</if>>
 	<<else>>
-		"I only have a pair of boy's shorts, <<sirstop>>"
+		"I only have a pair of boy's shorts, <<sir>>."
 		<br><br>
 		<<He>> looks at you blankly. "I don't see the..." <<He>> blushes as realisation dawns on <<his>> youthful face.
-		"Oh. That's better than nothing, and it's not like you have a problem dressing as a boy. Go get changed." <<He>> turns back to <<his>> class.
+		"Oh. That's better than nothing, and it's not like you have a problem dressing as a boy.
+		<<if ($worn.upper.type.includes("naked") and $worn.under_upper.type.includes("naked")) and
+			($worn.lower.type.includes("swim") or ($worn.lower.type.includes("naked") and $worn.under_lower.type.includes("swim")))>>
+			Go ahead." You join the rest of the class.<<set _alreadyWearing to true>>
+		<<else>>
+			Go get changed." <<He>> turns back to <<his>> class.
+		<</if>>
 		<<set $genderknown.pushUnique("Mason")>>
-		<br><br>
 	<</if>>
+	<br><br>
 <<else>>
 	<<if $player.gender_appearance is "m" or $genderknown.includes("Mason")>>
-		"I only have a girl's suit, <<sirstop>>"
+		"I only have a girl's suit, <<sir>>."
 		<br><br>
 		<<He>> blushes. "Oh. That's better than nothing. Go get changed." <<He>> turns back to <<his>> class.
-		<br><br>
 	<<else>>
-		"I only have a girl's suit, <<sirstop>>"
+		"I only have a girl's suit, <<sir>>."
 		<br><br>
 		<<He>> looks at you blankly. "I don't see the..." <<He>> blushes as realisation dawns on <<his>> youthful face.
 		"Oh. That's better than nothing, and it's not like you have a problem dressing as a girl. Go get changed." <<He>> turns back to <<his>> class.
 		<<set $genderknown.pushUnique("Mason")>>
-		<br><br>
 	<</if>>
+	<br><br>
 <</if>>
 
-<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-<br>
-<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-<br>
+<<if _alreadyWearing>>
+	<<link [[Next|Swimming Lesson]]>><<endevent>><</link>>
+<<else>>
+	<<destinationpoolchangingroom>>
+<</if>>
 
-:: School Pool Spare [nobr]
+:: School Pool Spare
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
-"I don't have a swimming costume, <<sirstop>>"
+"I don't have a swimming costume, <<sir>>."
 <br><br>
 
 <<He>> sighs and climbs out the pool. "Come on, we might have some spares."
@@ -401,71 +568,73 @@ You speak in a low voice, so only the teacher will hear you.
 	No one will be able to see anything once you're in."
 	<br><br>
 
-	<<link [[Accept|School Pool Nude]]>><<undress "school pool">><<endevent>><<exposure>><</link>>
+	<<link [[Accept|School Pool Nude]]>><<schoolpoolundress>><<endevent>><<exposure>><</link>>
 	<br>
-	<<link [[Refuse (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<gdelinquency>>
-<<elseif $rng gte 41>>
-	<<if $player.gender is "f" or ($player.gender is "h" and $breastsize gt 3)>>
-		<<He>> produces a bundle of fabric and passes it to you. "Don't be long!" <<He>> says happily, before leaving you alone in the room.
+	<<link [[Refuse (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<ggdelinquency>>
+<<elseif $rng gte 41 or $forcedcrossdressingdisable is "t">>
+	<<if $player.gender_appearance is "f">>
+		<<He>> produces a bundle of fabric and passes it to you.
+		<br><br>
+		"Don't be long!" <<he>> says, before leaving you alone in the room.
+		<br><br>
+		You unfurl the fabric to reveal a rather tattered swimsuit.
 		<br><br>
 
-		You unfurl the fabric to reveal a rather tattered swimsuit. You slip it on and store your clothes in the cupboard, before heading out for the lesson.
-		<br><br>
-
-		<<link [[Get changed|Swimming Lesson]]>><<endevent>><</link>>
-		<<undress "school pool">><<spareschoolswimsuit>><<exposure>>
+		<<link [[Get changed|School Pool Crossdress]]>><<schoolpoolundress>><<spareschoolswimsuit>><<endevent>><<exposure>><<set $phase to 1>><</link>>
 	<<else>>
-		<<He>> produces a bundle of fabric and passes it to you. "Don't be long!" <<He>> says happily, before leaving you alone in the room.
+		<<He>> produces a bundle of fabric and passes it to you.
+		<br><br>
+		"Don't be long!" <<he>> says, before leaving you alone in the room.
 		<br><br>
 
-		You unfurl the fabric to reveal a rather tattered pair of swim shorts. You slip them on and store your clothes in the cupboard, before heading out for the lesson.
+		You unfurl the fabric to reveal a rather tattered pair of swim shorts.
 		<br><br>
 
-		<<link [[Get changed|Swimming Lesson]]>><<endevent>><</link>>
-		<<undress "school pool">><<spareschoolswimshorts>><<exposure>>
+		<<link [[Get changed|School Pool Crossdress]]>><<schoolpoolundress>><<spareschoolswimshorts>><<endevent>><<exposure>><<set $phase to 0>><</link>>
+		<!-- A crossdressing girl may now have her assets on display, "School Pool Crossdress" will handle that -->
 	<</if>>
 <<elseif $rng gte 1>>
-	<<if $player.gender is "f" or ($player.gender is "h" and $breastsize gt 3)>>
-		<<He>> produces a bundle of fabric and passes it to you. "Don't be long!" <<He>> says happily, before leaving you alone in the room.
+	<<if $player.gender_appearance is "f">>
+		<<He>> produces a bundle of fabric and passes it to you.
+		<br><br>
+		"Don't be long!" <<he>> says, before leaving you alone in the room.
 		<br><br>
 
 		You unfurl the fabric to reveal a rather tattered pair of boy's swim shorts. You rummage in the cupboard yourself, but find not a scrap of clothing.
 		It's the shorts or nothing.
 		<br><br>
 
-		<<link [[Wear the shorts|School Pool Crossdress]]>><<undress "school pool">><<spareschoolswimshorts>><<endevent>><<exposure>><</link>>
+		<<link [[Wear the shorts|School Pool Crossdress]]>><<schoolpoolundress>><<spareschoolswimshorts>><<endevent>><<exposure>><<set $phase to 0>><</link>>
 		<br>
-		<<link [[Skip the lesson (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<gdelinquency>>
+		<<link [[Skip the lesson (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<ggdelinquency>>
 	<<else>>
-
-		<<He>> produces a bundle of fabric and passes it to you. "Don't be long!" <<He>> says happily, before leaving you alone in the room.
+		<<He>> produces a bundle of fabric and passes it to you.
+		<br><br>
+		"Don't be long!" <<he>> says, before leaving you alone in the room.
 		<br><br>
 
 		You unfurl the fabric to reveal a rather tattered girl's swimsuit. You rummage in the cupboard yourself, but find not a scrap of clothing.
 		It's the swimsuit or nothing.
 		<br><br>
 
-		<<link [[Wear the swimsuit|School Pool Crossdress]]>><<undress "school pool">><<spareschoolswimsuit>><<endevent>><<exposure>><</link>>
+		<<link [[Wear the swimsuit|School Pool Crossdress]]>><<schoolpoolundress>><<spareschoolswimsuit>><<endevent>><<exposure>><<set $phase to 1>><</link>>
 		<br>
-		<<link [[Skip the lesson (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<gdelinquency>>
+		<<link [[Skip the lesson (0:05)|School Pool Refuse]]>><<pass 5>><<detention 6>><<endevent>><</link>><<ggdelinquency>>
 	<</if>>
 <</if>>
 
-:: Swimming Classroom Apology [nobr]
+:: Swimming Classroom Apology
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
 Embarrassed, you apologise and leave.
 <br><br>
 
-<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-<br>
-<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-<br>
+<<destinationpoolchangingroom "towels">>
 
-:: Swimming Classroom Mock [nobr]
+:: Swimming Classroom Mock
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
-You mock the teacher. "Sorry for interrupting <<sirstop>> I just wanted to see you in
+You mock the teacher. "Sorry for interrupting <<sir>>. I just wanted to see you in
 <<if $pronoun is "f">>that tight swimsuit<<else>>those tight shorts<</if>>." A few of the students laugh, others start blushing.
 <br><br>
 
@@ -473,12 +642,9 @@ Mason also blushes. "I-I'll pretend I didn't hear that." <<He>> points to the ch
 <<gdelinquency>>
 <br><br>
 <<detention 1>><<npcincr Mason love -1>>
-<<link [[Boy's changing room|School Boy Changing Room]]>><<endevent>><</link>>
-<br>
-<<link [[Girl's changing room|School Girl Changing Room]]>><<endevent>><</link>>
-<br>
+<<destinationpoolchangingroom>>
 
-:: School Pool Nude [nobr]
+:: School Pool Nude
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
 You <<nervously>> undress and tuck your clothes away inside the cupboard. You open the door slightly and peek through the gap.
@@ -489,7 +655,7 @@ Thirty or so students, plus the teacher. You'll get in trouble if you don't join
 <br>
 <<link [[I have no choice|School Pool Nude Entry]]>><</link>>
 
-:: School Pool Refuse [nobr]
+:: School Pool Refuse
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
 There's no way you're doing this. You leave the pool, clothes on and dignity intact, but refusing a teacher will have consequences.
@@ -497,42 +663,52 @@ There's no way you're doing this. You leave the pool, clothes on and dignity int
 
 <<link [[Next|School Pool Entrance]]>><</link>>
 
-:: School Pool Crossdress [nobr]
+:: School Pool Crossdress
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
+<!-- phase 0 is shorts, 1 is a swimsuit, 2 is internal looping -->
 
-<<if $phase is 1>>
-	<<set $phase to 0>>
-	You steel yourself and walk through the door, <<lewdness>> on display. You manage to get beneath the flimsy protection of the water,
-	but not before the rest of the class become aware of your state.
-	<<garousal>><<arousal 600>>
+<!-- Note that the gender_appearance may have changed with the ersatz swimwear and the player may have crossdressed before and isn't anymore -->
+<<if isCrossdressing()>>
+	<<if $phase is 2>>
+		<<set $phase to 0>>
+		You steel yourself and walk through the door, <<lewdness>> on display. You manage to get beneath the flimsy protection of the water,
+		but not before the rest of the class become aware of your state.
+		<<garousal>><<arousal 600>>
+		<br><br>
+
+		<<link [[Next|Swimming Lesson]]>><</link>>
+		<br>
+	<<elseif $exposed gte 1>>
+		You <<nervously>> undress and tuck your clothes away inside the cupboard, before slipping on the tattered <<if $phase is 1>>swimsuit<<else>>swim shorts<</if>>.
+		<<if $player.breastsize gt 0>>You look down at your <<breasts>>; there's no way you'll pass as a boy.<</if>> You open the door slightly and peek through the gap.
+		Thirty or so students, plus the teacher. You'll get in trouble if you don't join them, but can you really expose yourself in front of so many people?
+		<br><br>
+
+		<<link [[This was a mistake!|School Pool Refuse]]>><</link>>
+		<br>
+		<<link [[I have no choice|School Pool Crossdress]]>><<set $phase to 2>><</link>>
+	<<elseif $exposed lte 0>>
+		You <<nervously>> undress and tuck your clothes away inside the cupboard, before slipping on the tattered <<if $phase is 1>>swimsuit<<else>>swim shorts<</if>>.
+		<br><br>
+
+		You enter the pool room proper. A couple of heads turn, but no one gives you a second glance as you climb into the water.
+		<br><br>
+
+		<<link [[Next|Swimming Lesson]]>><</link>>
+		<br>
+	<</if>>
+<<else>>
+	You slip the tattered <<if $phase is 1>>swimsuit<<else>>swim shorts<</if>> on and store your clothes in the cupboard, before heading out for the lesson.
 	<br><br>
 
 	<<link [[Next|Swimming Lesson]]>><</link>>
-	<br>
-<<elseif $exposed gte 1>>
-	You <<nervously>> undress and tuck your clothes away inside the cupboard, before slipping on the <<if $player.gender is "f" or ($player.gender is "h" and $breastsize gte 3)>>shorts<<else>>swimsuit<</if>>.
-	You look down at your <<breastscomma>> there's no way you'll pass as a boy. You open the door slightly and peek through the gap.
-	Thirty or so students, plus the teacher. You'll get in trouble if you don't join them, but can you really expose yourself in front of so many people?
-	<br><br>
-
-	<<link [[This was a mistake!|School Pool Refuse]]>><</link>>
-	<br>
-	<<link [[I have no choice|School Pool Crossdress]]>><<set $phase to 1>><</link>>
-<<elseif $exposed lte 0>>
-	You <<nervously>> undress and tuck your clothes away inside the cupboard, before slipping on the <<if $player.gender is "f" or ($player.gender is "h" and $breastsize gte 3)>>shorts<<else>>swimsuit<</if>>.
-	<br><br>
-
-	You enter the pool room proper. A couple of heads turn, but no one gives you a second glance as you climb into the water.
-	<br><br>
-
-	<<link [[Next|Swimming Lesson]]>><</link>>
-	<br>
 <</if>>
 
-:: School Pool Nude Entry [nobr]
+
+:: School Pool Nude Entry
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
 
-You steel yourself and walk through the door, doing your best to cover your displayed <<nuditystop>>
+You steel yourself and walk through the door, doing your best to cover your displayed <<nudity>>.
 You manage to get beneath the flimsy protection of the water, but not before the rest of the class become aware of your state.
 <<garousal>><<arousal 600>>
 <br><br>
@@ -540,69 +716,54 @@ You manage to get beneath the flimsy protection of the water, but not before the
 <<link [[Next|Swimming Lesson]]>><</link>>
 <br>
 
-:: Swimming Lesson Focus [nobr]
+:: Swimming Lesson Focus
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
 
-<<if $exposed gte 1>>
-	You focus on following Mason's instructions and exerting yourself. Doing so while keeping your body concealed beneath the water proves to be difficult.
-	<<physique 3>><<swimmingskilluse>>
-<<elseif $exposed lte 0>>
+<<if $exposed lte 0 or $swimall is 1>>
 	You focus on following Mason's instructions and exerting yourself. It's hard going, but you think you're making progress.
 	<<physique 3>><<swimmingskilluse>>
+<<elseif $exposed gte 1>>
+	You focus on following Mason's instructions and exerting yourself. Doing so while keeping your body concealed beneath the water proves to be difficult.
+	<<physique 3>><<swimmingskilluse>>
 <</if>>
+<br><br>
 
-<<pass 5>><<stress 1>><<tiredness 1>>
-<<schooleffects>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress 1>><<tiredness 1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress 1>><<tiredness 1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress 1>><<tiredness 1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
+<<advancelesson>>
+<<stress _lesson_progress>>
+<<tiredness _lesson_progress>>
 
 <<if $phase is 1>>
 	<<set $phase to 0>>
-	<<if $exposed gte 1>>
-		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
-		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
-		<br><br>
-	<<elseif $exposed lte 0>>
-		The bell rings, signifying the end of the lesson. You climb out of the pool.
-		<br><br>
-	<</if>>
-	<<if $time is ($hour * 60 + 57)>>
-		<<pass 3>>
-	<<elseif $time is ($hour * 60 + 58)>>
-		<<pass 2>>
-	<<elseif $time is ($hour * 60 + 59)>>
-		<<pass 1>>
-	<</if>>
-	<<if $exposed lte 0>>
-		<<link [[Boy's Changing Room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<link [[Girl's Changing Room|School Girl Changing Room]]>><</link>>
+	<<if $swimall is 1>>
+		The bell rings, signifying the end of the lesson.
+		<<if playerBellyVisible()>>
+			You climb out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you. Despite everyone being naked, no one seems concerned. A <<generatey1>><<person1>><<person>> hands out towels to the other students as they pass, trying to avoid eye contact.<<endevent>>
+		<<else>>
+			You climb out of the pool. Despite everyone being naked, no one seems concerned. Mason hands out towels to each student as they pass, trying to avoid eye contact.
+		<</if>>
 		<br><br>
 	<<elseif $exposed gte 1>>
-		<<link [[Grab some towels and enter the boy's changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<link [[Grab some towels and enter the girl's changing room|School Girl Changing Room]]>><<towelup>><</link>>
+		The bell rings, signifying the end of the lesson.
+		<<if playerBellyVisible()>>
+			You wait as the other students leave, climbing out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you.
+		<<else>>
+			You wait as the other students leave.
+		<</if>>
+		Some students linger, doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
 		<br><br>
+	<<elseif $exposed lte 0>>
+		The bell rings, signifying the end of the lesson.
+		<<if playerBellyVisible()>>
+			You climb out of the pool once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you.
+		<<else>>
+			You climb out of the pool.
+		<</if>>
+		<br><br>
+	<</if>>
+	<<if $exposed lte 0>>
+		<<destinationpoolchangingroom>>
+	<<elseif $exposed gte 1>>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
@@ -621,20 +782,35 @@ You manage to get beneath the flimsy protection of the water, but not before the
 		<</if>>
 	<</if>>
 <</if>>
+	<<if !between(Time.minute, 5, 57)>>
+		<<set _waitTime to (65 - Time.minute) % 60>>
+		<<if $player.gender_appearance is "m">>
+			<<loitericon>><<link [[`Wait for the girls to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
+			<br><br>
+		<</if>>
+		<<if $player.gender_appearance is "f">>
+			<<loitericon>><<link [[`Wait for the boys to leave (0:0${_waitTime})`|School Pool]]>><<pass _waitTime>><</link>>
+			<br><br>
+		<</if>>
+	<</if>>
 
-:: Swimming Lesson Naked Backstroke [nobr]
+
+:: Swimming Lesson Naked Backstroke
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
 
 You pay little attention to the lesson, instead opting to practise your backstroke.
 <<swimmingskilluse>>
-Your classmates gasp as they see you swimming on your back completely naked, your <<genitals>> in the air for everyone to see.
+<br><br>
+Your classmates gasp as they see you swimming on your back completely naked, showing off your <<if playerBellyVisible()>>pregnant belly<<if $player.penisExist and $player.vaginaExist>>,<<else>> and<</if>><</if>> <<genitals>> in the air for everyone to see.
 <<exhibitionism5>>
 
 Mason seems displeased by your choice of activity.
-<<if $penisexist>>
-	<<if $penissize lte 0>>
+<<if $player.penisExist>>
+	<<if $player.vaginaExist>>
+		Some of both the <<peopley>> stare in awe of your unique set of genitals.
+	<<elseif $player.penissize lte 0>>
 		Some of the girls giggle at the sight, a few smirk. <<incgpenisinsecurity>>
-	<<elseif $penissize is 4>>
+	<<elseif $player.penissize is 4>>
 		Some of the girls giggle at the sight, and a few of the boys scowl.
 		<<if random(1,5) gte 4>>
 			A couple of the boys let their eyes linger a little more than the others.
@@ -644,87 +820,62 @@ Mason seems displeased by your choice of activity.
 		Some of the students let their gaze linger a little on your naked body, and a few of the girls giggle a little at the sight.
 	<</if>>
 <<else>>
-		Some of the boys giggle at the sight, and a few of the girls scowl.
-		<<if random(1,5) gte 4>>A couple of the girls let their eyes linger a little more than the others. <</if>>
+	Some of the boys giggle at the sight, and a few of the girls scowl.
+	<<if random(1,5) gte 4>>
+		A couple of the girls let their eyes linger a little more than the others.
+	<</if>>
 <</if>>
 <br><br>
 
-<<pass 5>><<status 1>><<trauma -1>><<stress -1>>
-<<schooleffects>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<trauma -1>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
+<<status 1>>
+
+<<advancelesson>>
+<<set _stress to _lesson_progress * -1>>
+<<stress _stress>>
+<<set _trauma to _lesson_progress * -0.5>>
+<<trauma _trauma>>
 
 <<if $phase is 1>>
 	<<set $phase to 0>>
-	<<if $exposed gte 1>>
-		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
-		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
-		<br><br>
-	<<elseif $exposed lte 0>>
-		The bell rings, signifying the end of the lesson. You climb out of the pool.
-		<br><br>
-	<</if>>
-	<<if $time is ($hour * 60 + 57)>>
-		<<pass 3>>
-	<<elseif $time is ($hour * 60 + 58)>>
-		<<pass 2>>
-	<<elseif $time is ($hour * 60 + 59)>>
-		<<pass 1>>
-	<</if>>
-
-	<<if $exposed lte 0>>
-		<<link [[Boy's Changing Room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<link [[Girl's Changing Room|School Girl Changing Room]]>><</link>>
+	<<if $swimall is 1>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>. Despite everyone being naked, no one seems concerned. Mason hands out towels to each student as they pass, trying to avoid eye contact.
 		<br><br>
 	<<elseif $exposed gte 1>>
-		<<link [[Grab some towels and enter the boy's changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<link [[Grab some towels and enter the girl's changing room|School Girl Changing Room]]>><<towelup>><</link>>
+		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
+		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+		You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 		<br><br>
+	<<elseif $exposed lte 0>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
+		<br><br>
+	<</if>>
+	<<if $exposed lte 0>>
+		<<destinationpoolchangingroom>>
+	<<elseif $exposed gte 1>>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $danger gte (8900 - ($allure / 2))>>
-		<<eventsswimming>>
+			<<eventsswimming>>
 		<<else>>
-		<<eventsswimmingsafe>>
+			<<eventsswimmingsafe>>
 		<</if>>
 	<<elseif $exposed lte 0>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<if $danger gte (8900 - ($allure / 10))>>
-		<<eventsswimming>>
+			<<eventsswimming>>
 		<<else>>
-		<<eventsswimmingsafe>>
+			<<eventsswimmingsafe>>
 		<</if>>
 	<</if>>
 <</if>>
 
-:: Swimming Lesson Socialise [nobr]
+:: Swimming Lesson Socialise
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
 
-<<if $exposed gte 1>>
+<<if $exposed gte 1 and $swimall isnot 1>>
 	You pay little attention to the lesson, instead chatting with your fellow students. Some look away bashfully when you try to engage,
 	but you catch them looking now and then.
 	<br><br>
@@ -733,59 +884,32 @@ Mason seems displeased by your choice of activity.
 	<br><br>
 <</if>>
 
-<<pass 5>><<status 1>><<trauma -1>><<stress -1>>
-<<schooleffects>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<trauma -1>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
+<<status 1>>
+
+<<advancelesson>>
+<<set _stress to _lesson_progress * -1>>
+<<stress _stress>>
+<<set _trauma to _lesson_progress * -0.5>>
+<<trauma _trauma>>
 
 <<if $phase is 1>>
 	<<set $phase to 0>>
-	<<if $exposed gte 1>>
-		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
-		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
-		<br><br>
-	<<elseif $exposed lte 0>>
-		The bell rings, signifying the end of the lesson. You climb out of the pool.
-		<br><br>
-	<</if>>
-	<<if $time is ($hour * 60 + 57)>>
-		<<pass 3>>
-	<<elseif $time is ($hour * 60 + 58)>>
-		<<pass 2>>
-	<<elseif $time is ($hour * 60 + 59)>>
-		<<pass 1>>
-	<</if>>
-
-	<<if $exposed lte 0>>
-		<<link [[Boy's Changing Room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<link [[Girl's Changing Room|School Girl Changing Room]]>><</link>>
+	<<if $swimall is 1>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool. Despite everyone being naked, no one seems concerned. Mason hands out towels to each student as they pass, trying to avoid eye contact.
 		<br><br>
 	<<elseif $exposed gte 1>>
-		<<link [[Grab some towels and enter the boy's changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<link [[Grab some towels and enter the girl's changing room|School Girl Changing Room]]>><<towelup>><</link>>
+		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
+		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+		You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 		<br><br>
+	<<elseif $exposed lte 0>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
+		<br><br>
+	<</if>>
+	<<if $exposed lte 0>>
+		<<destinationpoolchangingroom>>
+	<<elseif $exposed gte 1>>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>
@@ -806,7 +930,7 @@ Mason seems displeased by your choice of activity.
 	<</if>>
 <</if>>
 
-:: Swimming Lesson Daydream [nobr]
+:: Swimming Lesson Daydream
 <<set $outside to 0>><<set $location to "pool">><<schooleffects>><<water>><<effects>>
 
 <<if $trauma gte (($traumamax / 10) * 7)>>
@@ -814,7 +938,9 @@ Mason seems displeased by your choice of activity.
 <<elseif $trauma gte (($traumamax / 10) * 2)>>
 	You focus on your own thoughts, trying to keep the creeping anxiety at bay.
 <<else>>
-	<<if $exposed gte 1>>
+	<<if $swimall is 1>>
+		As vulnerable as everyone is, you don't really pay attention to the lesson, instead idly paddling and showing off your <<lewdness>>. You wonder if anyone cares.
+	<<elseif $exposed gte 1>>
 		Vulnerable as you are you don't really pay attention to the lesson, instead idly paddling and keeping your <<lewdness>> covered.
 	<<elseif $exposed lte 1>>
 		You don't really pay attention to the lesson, instead idly paddling and thinking about what you'll do after school.
@@ -822,58 +948,30 @@ Mason seems displeased by your choice of activity.
 <</if>>
 <br><br>
 
-<<pass 5>><<status 1>><<trauma -1>><<stress -1>>
-<<schooleffects>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<trauma -1>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-	<<pass 5>><<stress -1>>
-	<<schooleffects>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
-<<if $time gte ($hour * 60 + 5) and $time lte ($hour * 60 + 57)>>
-<<else>>
-	<<set $phase to 1>>
-<</if>>
+<<advancelesson>>
+<<set _stress to _lesson_progress * -1>>
+<<stress _stress>>
+<<set _trauma to _lesson_progress * -0.5>>
+<<trauma _trauma>>
 
 <<if $phase is 1>>
 	<<set $phase to 0>>
-	<<if $exposed gte 1>>
-		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
-		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
-		<br><br>
-	<<elseif $exposed lte 0>>
-		The bell rings, signifying the end of the lesson. You climb out of the pool.
-		<br><br>
-	<</if>>
-	<<if $time is ($hour * 60 + 57)>>
-		<<pass 3>>
-	<<elseif $time is ($hour * 60 + 58)>>
-		<<pass 2>>
-	<<elseif $time is ($hour * 60 + 59)>>
-		<<pass 1>>
-	<</if>>
-	<<if $exposed lte 0>>
-		<<link [[Boy's Changing Room|School Boy Changing Room]]>><</link>>
-		<br>
-		<<link [[Girl's Changing Room|School Girl Changing Room]]>><</link>>
+	<<if $swimall is 1>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>. Despite everyone being naked, no one seems concerned. Mason hands out towels to each student as they pass, trying to avoid eye contact.
 		<br><br>
 	<<elseif $exposed gte 1>>
-		<<link [[Grab some towels and enter the boy's changing room|School Boy Changing Room]]>><<towelupm>><</link>>
-		<br>
-		<<link [[Grab some towels and enter the girl's changing room|School Girl Changing Room]]>><<towelup>><</link>>
+		The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger,
+		doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy.
+		You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 		<br><br>
+	<<elseif $exposed lte 0>>
+		The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
+		<br><br>
+	<</if>>
+	<<if $exposed lte 0>>
+		<<destinationpoolchangingroom>>
+	<<elseif $exposed gte 1>>
+		<<destinationpoolchangingroom "towels">>
 	<</if>>
 <<else>>
 	<<if $exposed gte 1>>

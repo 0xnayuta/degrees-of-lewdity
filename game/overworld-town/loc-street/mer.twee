@@ -1,19 +1,39 @@
-:: Mer Street [nobr]
+:: Mer Street
 
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "mer">>
+<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "mer">><<getTarget true>>
 You are on Mer Street. The street is dominated by the docks and shipping industry.
-<<if $daystate is "day">>
-	<<if $weather is "rain">>
+<<if Time.dayState is "day">>
+	<<if Weather.precipitation is "rain">>
 		Part of the road is covered in wet sand.
+	<<elseif Weather.precipitation is "snow">>
+		There's too much salt for snow to collect here.
 	<<else>>
 		There's a lot of noise coming from the dock.
 	<</if>>
-<<elseif $daystate is "dawn">>
-	You can already hear activity from the dock.
-<<elseif $daystate is "dusk">>
-	The dock remains noisy, even at this hour.
-<<elseif $daystate is "night">>
-	You hear nothing but the sea.
+<<elseif Time.dayState is "dawn">>
+	<<if Weather.precipitation is "rain">>
+		Mist from the sea occasionally sprays over the road.
+	<<elseif Weather.isFreezing>>
+		You see movement on the dock, workers braving the morning chill.
+	<<else>>
+		You can already hear activity from the dock.
+	<</if>>
+<<elseif Time.dayState is "dusk">>
+	<<if Weather.precipitation is "rain">>
+		You can hear noise from the dock over the beating rain.
+	<<elseif Weather.precipitation is "snow">>
+		Slurry forms in the gutters.
+	<<else>>
+		The dock remains noisy, even at this hour.
+	<</if>>
+<<elseif Time.dayState is "night">>
+	<<if Weather.precipitation is "rain">>
+		Mist stings your face.
+	<<elseif Weather.precipitation is "snow">>
+		Slurry fills the gutters.
+	<<else>>
+		You hear nothing but the sea.
+	<</if>>
 <</if>>
 <<streeteffects>>
 <br><br>
@@ -24,30 +44,30 @@ You are on Mer Street. The street is dominated by the docks and shipping industr
 		<br><br>
 	<</if>>
 <</if>>
-<<if $arousal gte 10000>>
+<<if $arousal gte $arousalmax>>
 	<<orgasmstreet>>
 <</if>>
-<<if $stress gte 10000>>
+<<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<else>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
-		<<if $map.top is true>>
+		<<if $options.mapTop is true>>
 			<<map "mer">>
 			<br>
 		<</if>>
 		Places of interest
 		<br>
-		<<link [[Docks|Docks]]>><</link>>
+		<<docksicon>><<link [[Docks (0:02)|Docks]]>><<pass 2>><</link>>
 		<br>
 		<<if $historytrait gte 2>>
-			<<link [[Coastal path (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
+			<<coastalpathicon>><<link [[Coastal path (0:30)|Coast Path Mer]]>><<pass 30>><</link>>
 			<br>
 		<</if>>
 		<br>
-		<<if $exposed gte 1 and $daystate isnot "night">>
+		<<if $exposed gte 1 and Time.dayState isnot "night">>
 		<<else>>
 			<<add_link "Travel<br>">><<hideDisplay>>
 			<<starfish>>
@@ -62,7 +82,7 @@ You are on Mer Street. The street is dominated by the docks and shipping industr
 		<<industrial>>
 		<<stormdrain>>
 		<<displayLinks>>
-		<<if $map.top isnot true>>
+		<<if $options.mapTop isnot true>>
 			<br>
 			<<map "mer">>
 		<</if>>

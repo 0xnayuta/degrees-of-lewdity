@@ -1,353 +1,231 @@
 :: Widgets Tentacles [widget]
-<<widget "tentaclestart">><<nobr>>
-<<set $enemyarousalmax to 10000>>
+<<widget "tentaclestart">>
+	<<if $abomination isnot 1>>
+		<<set $enemyarousalmax to 10000>>
+	<</if>>
 
-<<set $tentacles to {
-	"max": $args[0],
-	"active": $args[0],
-}>>
+	<<set $tentacles to {
+		"max": _args[0],
+		"active": _args[0],
+	}>>
 
-<<if $args[0]>>
+	<<if _args[0]>>
 
-	/* Deciding if tentacle templates should be defined somewhere else still */
-	<<set _tentacledescs to [
-		{"desc":"slimy","baby":0,"size":2},
-		{"desc":"sticky","baby":0,"size":2},
-		{"desc":"thick","baby":"tentacle","size":3},
-		{"desc":"throbbing","baby":0,"size":2},
-		{"desc":"slick","baby":0,"size":2},
-		{"desc":"moist","baby":0,"size":2},
-		{"desc":"quivering","baby":0,"size":2},
-		{"desc":"sodden","baby":0,"size":2},
-		{"desc":"shivering","baby":0,"size":2},
-		{"desc":"shuddering","baby":0,"size":2},
-		{"desc":"convulsing","baby":0,"size":2},
-		{"desc":"undulating","baby":0,"size":2},
-		{"desc":"damp","baby":0,"size":2},
-		{"desc":"bulbous","baby":0,"size":3},
-		{"desc":"gyrating","baby":0,"size":2},
-		{"desc":"large","baby":"tentacle","size":3},
-		{"desc":"bumpy","baby":0,"size":2},
-		{"desc":"thin","baby":0,"size":1},
-		{"desc":"narrow","baby":0,"size":1},
-		{"desc":"squishy","baby":0,"size":2},
-	]>>
+		<<if _args[2]>>
+			<<set _tentacleType to _args[2]>>
+		<<else>>
+			<<set _tentacleType to "tentacle">>
+		<</if>>
+		<<if ["root","shoot"].includes(_tentacleType)>>
+			<<set _babyType to "vine">>
+		<<elseif _tentacleType is "tendril">>
+			<<set _babyType to "tentacle">>
+		<<else>>
+			<<set _babyType to _tentacleType>>
+		<</if>>
+		<<if ["root","shoot","vine","metal"].includes(_tentacleType) or _args[3] is "metal">>
+			<<set $banishDisable to true>>
+		<</if>>
 
-	<<set _tentacledescs to _tentacledescs.shuffle()>>
+		/* Deciding if tentacle templates should be defined somewhere else still */
+		/* Argument 0 is the number of tentacles.
+		* Argument 1 is health.
+		* Argument 2 is tentacle type, which can be replaced with "vines", "machines" etc later on. Optional, unless also using Argument 3.
+		* Argument 3 is variant, and will give different offspring as well as allowing different batches of descriptions.
+		* Argument 4 is whether or not the variant impacts the full description and offspring. If Argument 4 is used, Argument 3 will only impact which description batches are part of _tentacledescs. If Argument 4 is "desc", Argument 3 will impact description batches and variant, but not offspring.*/
+		<<set _tentacledescs to [
+			{"desc":"slimy","baby":0,"size":2,"traits":[]},
+			{"desc":"sticky","baby":0,"size":2,"traits":[]},
+			{"desc":"thick","baby":_babyType,"size":3,"traits":[]},
+			{"desc":"throbbing","baby":0,"size":2,"traits":[]},
+			{"desc":"slick","baby":0,"size":2,"traits":[]},
+			{"desc":"moist","baby":0,"size":2,"traits":[]},
+			{"desc":"quivering","baby":0,"size":2,"traits":[]},
+			{"desc":"sodden","baby":0,"size":2,"traits":[]},
+			{"desc":"shivering","baby":0,"size":2,"traits":[]},
+			{"desc":"shuddering","baby":0,"size":2,"traits":[]},
+			{"desc":"convulsing","baby":0,"size":2,"traits":["hypno"]},
+			{"desc":"undulating","baby":0,"size":2,"traits":[]},
+			{"desc":"damp","baby":0,"size":2,"traits":[]},
+			{"desc":"bulbous","baby":0,"size":3,"traits":[]},
+			{"desc":"gyrating","baby":0,"size":2,"traits":[]},
+			{"desc":"large","baby":_babyType,"size":3,"traits":[]},
+			{"desc":"bumpy","baby":0,"size":2,"traits":[]},
+			{"desc":"thin","baby":0,"size":1,"traits":[]},
+			{"desc":"narrow","baby":0,"size":1,"traits":[]},
+			{"desc":"squishy","baby":0,"size":2,"traits":[]},
+			{"desc":"rough","baby":0,"size":2,"traits":["pain"]},
+		]>>
 
-	<<for _i to 0; _i lt $args[0]; _i++>>
-		<<set _tentacledata to _tentacledescs[_i]>>
+		<<if _args[3]>>
+			<<if _args[3] is "pale">>
+				<<set _tentacledescs.push(
+					{"desc":"ghostly","baby":_babyType,"size":2,"traits":[]},
+					{"desc":"translucent","baby":0,"size":1,"traits":["hypno"]},
+					{"desc":"twitching","baby":0,"size":2,"traits":[]},
+					{"desc":"manic","baby":0,"size":3,"traits":[]},
+					{"desc":"cloudy","baby":_babyType,"size":3,"traits":[]},
+					{"desc":"ethereal","baby":0,"size":1,"traits":[]},
+					{"desc":"incandescent","baby":0,"size":3,"traits":["hypno"]},
+					{"desc":"iridescent","baby":_babyType,"size":2,"traits":["hypno"]},
+					{"desc":"searing","baby":0,"size":3,"traits":["pain"]},
+				)>>
+			<<elseif _args[3] is "vine">>
+				<<set _tentacledescs.push(
+					{"desc":"flowering","baby":_babyType,"size":3,"traits":[]},
+					{"desc":"blossoming","baby":0,"size":3,"traits":[]},
+					{"desc":"wooden","baby":0,"size":2,"traits":[]},
+					{"desc":"blooming","baby":_babyType,"size":2,"traits":["hypno"]},
+					{"desc":"climbing","baby":0,"size":2,"traits":[]},
+					{"desc":"mossy","baby":0,"size":2,"traits":[]},
+					{"desc":"grassy","baby":0,"size":2,"traits":[]},
+					{"desc":"thorny","baby":0,"size":2,"traits":["pain"]},
+					{"desc":"pistil","baby":_babyType,"size":1,"traits":[]},
+					{"desc":"leafy","baby":0,"size":1,"traits":[]},
+					{"desc":"sprouting","baby":0,"size":1,"traits":[]},
+					{"desc":"sapling","baby":0,"size":1,"traits":[]},
+				)>>
+			<<elseif _args[3] is "metal">>
+				<<set _tentacledescs.push(
+					{"desc":"jerking","baby":0,"size":3,"traits":[]},
+					{"desc":"plated","baby":0,"size":3,"traits":[]},
+					{"desc":"sparking","baby":0,"size":2,"traits":["pain"]},
+					{"desc":"shiny","baby":0,"size":2,"traits":[]},
+					{"desc":"labelled","baby":_babyType,"size":2,"traits":[]},
+					{"desc":"jolting","baby":0,"size":2,"traits":["pain"]},
+					{"desc":"rusted","baby":0,"size":2,"traits":[]},
+					{"desc":"wired","baby":0,"size":1,"traits":["hypno"]},
+					{"desc":"stainless","baby":0,"size":1,"traits":[]},
+				)>>
+			<</if>>
+		<</if>>
 
-		<<set _tentacle to {
-			"desc": _tentacledata.desc,
-			"fullDesc": _tentacledata.desc + " tentacle",
-			"tentaclehealth": $args[1],
-			"shaft": 0,
-			"head": 0,
-			"id": "tentacle"+_i,
-			"baby": _tentacledata.baby,
-			"babychance": 400,
-			"size": _tentacledata.size
-		}>>
+		<<set _tentacledescs to shuffle(_tentacledescs)>>
 
-		<<set $tentacles[_i] to clone(_tentacle)>>
+		<<for _i to 0; _i lt _args[0]; _i++>>
+			<<set _tentacledata to _tentacledescs[_i]>>
+
+			<<set _tentacle to {
+				"desc": (_args[3] and (!_args[4] or _args[4] is "desc") ? _args[3] + " " : "" ) + _tentacledata.desc,
+				"fullDesc": (_args[3] and (!_args[4] or _args[4] is "desc") ? _args[3] + " " : "" ) + _tentacledata.desc + " " + _tentacleType,
+				"type": _tentacleType,
+				"tentaclehealth": _args[1],
+				"tentaclehealthstart": _args[1],
+				"shaft": 0,
+				"head": 0,
+				"id": "tentacle"+_i,
+				"baby": (_args[3] and (!_args[4] or _args[4] is "baby") and _tentacledata.baby isnot 0 ? _args[3] + " " + _tentacledata.baby : _tentacledata.baby ),
+				"babychance": 400,
+				"size": _tentacledata.size,
+				"traits": _tentacledata.traits
+			}>>
+
+			<<set $tentacles[_i] to clone(_tentacle)>>
+		<</for>>
+
+	<</if>>
+	<<set $combat to 1>>
+
+	<<if $rng gte 51>>
+	<<set $position to "missionary">>
+	<<else>>
+	<<set $position to "doggy">>
+	<</if>>
+	<<wetnessCalculate>>
+	<<resetLastOptions>>
+	<<getCombatDefaultsType>>
+
+	<<if !$tentacleColour>>
+		<<if $tentacles[0].fullDesc.includes("pale")>>
+			<<set $tentacleColour to "tentacles-wraith">>
+		<<elseif $tentacles[0].fullDesc.includes("metal")>>
+			<<set $tentacleColour to "tentacles-red">>
+		<<elseif $tentacles[0].type>>
+			<<switch $tentacles[0].type>>
+				<<case "vine" "shoot">>
+					<<set $tentacleColour to "tentacles-vines">>
+				<<case "root">>
+					<<set $tentacleColour to "tentacles-roots">>
+				<<default>>
+					<<set $tentacleColour to "tentacles-purple">>
+			<</switch>>
+		<<else>>
+			<<set $tentacleColour to "tentacles-purple">>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "tentacles">>
+	<div @class="($debugLines ? 'debugLines-tentacles' : '')">
+	<<for _i to 0; _i lt $tentacles.max; _i++>>
+		<<set _tentacle to $tentacles[_i]>>
+		<<if _tentacle isnot undefined>>
+			<<tentacleadv _tentacle>>
+			<<set _tentacle.tentaclehealth -= 0.2>>
+		<</if>>
 	<</for>>
 
-<</if>>
-<<set $combat to 1>>
-
-<<if $rng gte 51>>
-<<set $position to "missionary">>
-<<else>>
-<<set $position to "doggy">>
-<</if>>
-<<wetnessCalculate>>
-<<resetLastOptions>>
-<</nobr>><</widget>>
-<<widget "tentacles">><<nobr>>
-<div @class="($debugLines ? 'debugLines-tentacles' : '')">
-<<for _i to 0; _i lt $tentacles.max; _i++>>
-	<<set _tentacle to $tentacles[_i]>>
-	<<if _tentacle isnot undefined>>
-		<<tentacleadv _tentacle>>
-		<<set _tentacle.tentaclehealth -= 0.2>>
+	<<if $panicattacks gte 1 and $panicviolence is 0 and $panicparalysis is 0 and $controlled is 0 and _panicchecked isnot true>>
+		<<rng>>
+		<<if $rng is 100>>
+			<<set $panicparalysis to 5>>
+		<</if>>
+		<<set _panicchecked to true>>
 	<</if>>
-<</for>>
-
-<<if $panicattacks gte 1 and $panicviolence is 0 and $panicparalysis is 0 and $controlled is 0>>
-<<set $rng to random(1, 100)>>
-<<if $rng is 100>>
-<<set $panicparalysis to 10>>
-<</if>>
-<</if>>
-<<if $panicattacks gte 2 and $panicviolence is 0 and $panicparalysis is 0 and $controlled is 0>>
-<<set $rng to random(1, 100)>>
-<<if $rng is 100>>
-<<set $panicviolence to 3>>
-<</if>>
-<</if>>
-<<if $arousal gte 10000>>
-<<orgasmpassage>>
-<</if>>
-<<set $seconds += 10>>
-<<if $seconds gte 60>>
-<<set $seconds to 0>>
-<<pass 1>>
-<</if>>
-<br>
-</div>
-<</nobr>><</widget>>
-<<widget "effectstentacles">><<nobr>>
-<<effectspain>>
-<<effectsorgasm>>
-<<effectsdissociation>>
-
-<div @class="($debugLines ? 'debugLines-effectstentacleadv' : '')">
-<<for _i to 0; _i lt $tentacles.max; _i++>>
-	<<if $tentacles[_i] isnot undefined>>
-		<<set _tentacle to $tentacles[_i]>>
-		<<effectstentacleadv _tentacle>>
+	<<if $panicattacks gte 2 and $panicviolence is 0 and $panicparalysis is 0 and $controlled is 0 and _paniccheckedviolence isnot true>>
+		<<rng>>
+		<<if $rng is 100>>
+			<<set $panicviolence to 3>>
+		<</if>>
+		<<set _paniccheckedviolence to true>>
 	<</if>>
-<</for>>
-</div>
+	<<if $arousal gte $arousalmax and $orgasmdown lte 0>>
+		<<orgasm>>
+	<</if>>
+	<br>
+	</div>
+<</widget>>
 
-<br><br>
-<</nobr>><</widget>>
-<<widget "actionstentacles">><<nobr>>
-<div @class="($debugLines ? 'debugLines-actionstentacles' : '')">
-<<set $enemyarousal to $arousal>>
-<<if $vorecreature is 0 and _swarmcreature is undefined>>
-	<<if $images is 1>><<timed 100ms>>
-		<<combatimg>>
-		<br>
-	<</timed>><</if>>
-<</if>>
-<<willpowerpain>>
-<<willpowerorgasm>>
-<<actioncarry>>
-<<actioncarrydrop>>
-<<if $trance lte 0 and $dissociation lte 1 and $panicparalysis is 0 and $panicviolence is 0 and $orgasmdown lte 0 and ($pain lt 100 or $willpowerpain is undefined)>>
+<<widget "effectstentacles">>
+	<<effectspain>>
+	<<effectsorgasm>>
+	<<effectsdissociation>>
 
-	<<generateActionsTentacle>>
-
-	<<if $oldControls is true>>
-		<<if $leftarm is 0>>
-			Your left arm is free.
-			<br>
-		<<elseif $leftarm is "grappled">>
-			<<for _i to 0; _i lt $tentacles.max; _i++>>
-				<<if $tentacles[_i].shaft is "leftarm">>
-					The $tentacles[_i].desc tentacle entangles your left arm.
-					<br>
-				<</if>>
-			<</for>>
-		<<elseif $leftarm is "bound">>
-			Your left arm is bound.
-			<br>
-		<</if>>
-		<<actionstentacleslefthand>>
-
-		<<if $rightarm is 0>>
-			Your right arm is free.
-			<br>
-		<<elseif $rightarm is "grappled">>
-			<<for _i to 0; _i lt $tentacles.max; _i++>>
-				<<if $tentacles[_i].shaft is "rightarm">>
-					The $tentacles[_i].desc tentacle entangles your right arm.
-					<br>
-				<</if>>
-			<</for>>
-		<<elseif $rightarm is "bound">>
-			Your right arm is bound.
-			<br>
-		<</if>>
-			<<actionstentaclesrighthand>>
-
-		<<if $leftleg is 0 and $rightleg is 0>>
-			Your legs are free.
-			<br>
-		<<elseif $leftleg is 0>>
-			Your left leg is free.
-			<br>
-		<<elseif $rightleg is 0>>
-			Your right leg is free.
-			<br>
-		<<elseif $leftleg is "grappled" and $rightleg is "grappled">>
-			Your legs are entangled and forced apart, leaving you less able to protect your <<genitalsstop>>
-			<br>
-		<<elseif $leftleg is "bound" and $rightleg is "bound">>
-			Your legs are bound and forced apart, leaving you less able to protect your <<genitalsstop>>
-			<br>
-		<</if>>
-		<<actionstentacleslegs>>
-		<br>
-
+	<div @class="($debugLines ? 'debugLines-effectstentacleadv' : '')">
 		<<for _i to 0; _i lt $tentacles.max; _i++>>
 			<<if $tentacles[_i] isnot undefined>>
 				<<set _tentacle to $tentacles[_i]>>
-				<<if $mouthstate is "tentacleentrance">>
-					<<if _tentacle.head is "mouthentrance">>
-						The _tentacle.desc tentacle threatens your mouth.
-						<br>
-						<<actionstentacleadvmouth _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $mouthstate is "tentacleimminent">>
-					<<if _tentacle.head is "mouthimminent">>
-						The _tentacle.desc tentacle presses against your mouth.
-						<br>
-						<<actionstentacleadvmouth _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $mouthstate is "tentacle">>
-					<<if _tentacle.head is "mouth">>
-						The _tentacle.desc tentacle thrusts into your mouth.
-						<br>
-						<<actionstentacleadvmouth _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $mouthstate is "tentacledeep">>
-					<<if _tentacle.head is "mouthdeep">>
-						The _tentacle.desc tentacle thrusts into your mouth, ejaculating down your throat.
-						<br>
-						<<actionstentacleadvmouth _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
-
-				<<if $vaginastate is "tentacleentrance">>
-					<<if _tentacle.head is "vaginaentrance">>
-						The _tentacle.desc tentacle threatens your <<pussystop>>
-						<br>
-						<<actionstentacleadvvagina _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $vaginastate is "tentacleimminent">>
-					<<if _tentacle.head is "vaginaimminent">>
-						The _tentacle.desc tentacle presses against your <<pussycomma>> about to penetrate.
-						<br>
-						<<actionstentacleadvvagina _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $vaginastate is "tentacle">>
-					<<if _tentacle.head is "vagina">>
-						The _tentacle.desc tentacle thrusts into your <<pussystop>>
-						<br>
-						<<actionstentacleadvvagina _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $vaginastate is "tentacledeep">>
-					<<if _tentacle.head is "vaginadeep">>
-						The _tentacle.desc tentacle thrusts into your <<pussycomma>> ejaculating deep into your womb.
-						<br>
-						<<actionstentacleadvvagina _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $vaginastate is "tentaclerub">>
-					<<if _tentacle.head is "vaginarub">>
-						The _tentacle.desc tentacle runs between your thighs, pressing against your labia and continuing to your tummy.
-						<br>
-						<<actionstentacleadvthighs _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
-
-				<<if $penisstate is "tentacleentrance">>
-					<<if _tentacle.head is "penisentrance">>
-						The _tentacle.desc tentacle threatens your <<penisstop>>
-						<br>
-						<<actionstentacleadvpenis _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $penisstate is "tentacleimminent">>
-					<<if _tentacle.head is "penisimminent">>
-						The _tentacle.desc tentacle presses against your <<peniscomma>> about to engulf.
-						<br>
-						<<actionstentacleadvpenis _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $penisstate is "tentacle">>
-					<<if _tentacle.head is "penis">>
-						The _tentacle.desc tentacle envelops and pounds your <<penisstop>>
-						<br>
-						<<actionstentacleadvpenis _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $penisstate is "tentacledeep">>
-					<<if _tentacle.head is "penisdeep">>
-						The _tentacle.desc tentacle envelops and pounds your <<penisstop>>
-						<br>
-						<<actionstentacleadvpenis _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $penisstate is "tentaclerub">>
-					<<if _tentacle.head is "penisrub">>
-						The _tentacle.desc tentacle runs between your thighs, coiling around your <<penis>> and pressing against your tummy.
-						<br>
-						<<actionstentacleadvthighs _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
-
-				<<if $anusstate is "tentacleentrance">>
-					<<if _tentacle.head is "anusentrance">>
-						The _tentacle.desc tentacle threatens your <<bottomstop>>
-						<br>
-						<<actionstentacleadvanus _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $anusstate is "tentacleimminent">>
-					<<if _tentacle.head is "anusimminent">>
-						The _tentacle.desc tentacle presses against your <<bottomcomma>> about to penetrate.
-						<br>
-						<<actionstentacleadvanus _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $anusstate is "tentacle">>
-					<<if _tentacle.head is "anus">>
-						The _tentacle.desc tentacle thrusts into your <<bottomstop>>
-						<br>
-						<<actionstentacleadvanus _tentacle>>
-						<br>
-					<</if>>
-				<<elseif $anusstate is "tentacledeep">>
-					<<if _tentacle.head is "anusdeep">>
-						The _tentacle.desc tentacle thrusts into your <<bottomcomma>> ejaculating deep into your bowels.
-						<br>
-						<<actionstentacleadvanus _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
-
-				<<if $bottomuse is "tentaclerub">>
-					<<if _tentacle.head is "bottomrub">>
-						The _tentacle.desc tentacle rubs itself between your butt cheeks.
-						<br>
-						<<actionstentacleadvbottom _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
-
-				<<if $breastuse is "tentacle">>
-					<<if _tentacle.head is "chest">>
-						The _tentacle.desc tentacle rubs itself between your <<breastsstop>>
-						<br>
-						<<actionstentacleadvchest _tentacle>>
-						<br>
-					<</if>>
-				<</if>>
+				<<effectstentacleadv _tentacle>>
 			<</if>>
 		<</for>>
-	<</if>>
-<</if>>
+	</div>
 
-<<combatstate>>
-<<carryblock>>
-</div>
-<br><br>
-<</nobr>><</widget>>
+	<br>
+<</widget>>
 
-<<widget "actionstentaclespenis">><<nobr>>
+<<widget "actionstentacles">>
+	<div @class="($debugLines ? 'debugLines-actionstentacles' : '')">
+		<<set $enemyarousal to $arousal>>
+		<<if $vorecreature is 0 and _swarmcreature is undefined>>
+			<<animateCombat>>
+		<</if>>
+		<<willpowerpain>>
+		<<willpowerorgasm>>
+		<<actioncarry>>
+		<<actioncarrydrop>>
+
+		<<combatstate>>
+		<<carryblock>>
+
+		<<if $trance lte 0 and $panicparalysis is 0 and $panicviolence is 0>>
+			<<generateActionsTentacle>>
+		<</if>>
+
+	</div>
+	<br><br>
+<</widget>>
+
+<<widget "actionstentaclespenis">> /* unused */
 	<<for _i to 0; _i lt $tentacles.max; _i++>>
 		<<if $tentacles[_i] isnot undefined>>
 			<<set _tentacle to $tentacles[_i]>>
@@ -355,74 +233,78 @@
 		<</if>>
 	<</for>>
 	<br>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "actionstentacleslegs">><<nobr>>
+<<widget "actionstentacleslegs">> /* unused */
 	<<for _i to 0; _i lt $tentacles.max; _i++>>
 		<<if $tentacles[_i] isnot undefined>>
 			<<set _tentacle to $tentacles[_i]>>
 			<<actionstentacleadvlegs _tentacle>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "actionstentaclesrighthand">><<nobr>>
+<<widget "actionstentaclesrighthand">> /* unused */
 	<<for _i to 0; _i lt $tentacles.max; _i++>>
 		<<if $tentacles[_i] isnot undefined>>
 			<<set _tentacle to $tentacles[_i]>>
 			<<actionstentacleadvrighthand _tentacle>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "actionstentacleslefthand">><<nobr>>
+<<widget "actionstentacleslefthand">> /* unused */
 	<<for _i to 0; _i lt $tentacles.max; _i++>>
 		<<if $tentacles[_i] isnot undefined>>
 			<<set _tentacle to $tentacles[_i]>>
 			<<actionstentacleadvlefthand _tentacle>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "upperslither">><<nobr>>
-	<<if $worn.upper.name isnot "naked">>
+<<widget "upperslither">>
+	<<if $worn.over_upper.name isnot "naked">>
+		then <<slithers>> beneath your $worn.over_upper.name<<if $worn.upper.name isnot "naked">> and $worn.upper.name<</if>>
+	<<elseif $worn.upper.name isnot "naked">>
 		then <<slithers>> beneath your $worn.upper.name
 	<<else>>
 		then <<slithers>> across your bare skin
 	<</if>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "lowerslither">><<nobr>>
-	<<if $worn.lower.name isnot "naked">>
+<<widget "lowerslither">>
+	<<if $worn.over_lower.name isnot "naked">>
+		then <<slithers>> beneath your $worn.over_lower.name<<if $worn.lower.name isnot "naked">> and $worn.lower.name<</if>>
+	<<elseif $worn.lower.name isnot "naked">>
 		then <<slithers>> beneath your $worn.lower.name
 	<<else>>
 		then <<slithers>> across your bare skin
 	<</if>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "underslither">><<nobr>>
+<<widget "underslither">>
 	<<if $worn.lower.name isnot "naked">>
 		<<if !$worn.under_lower.type.includes("naked")>>
 			then <<slithers>> beneath your $worn.lower.name and $worn.under_lower.name
-		<<elseif $worn.genitals.type.includes("chastity")>>
-			then <<slithers>> beneath your $worn.lower.name against your chastity belt
+		<<elseif playerChastity()>>
+			then <<slithers>> beneath your $worn.lower.name against your <<print $worn.genitals.name>>
 		<<else>>
 		<</if>>
 	<<else>>
 		<<if !$worn.under_lower.type.includes("naked")>>
 			then <<slithers>> beneath your $worn.under_lower.name
-			<<if $worn.genitals.type.includes("chastity")>>
-				against your chastity belt.
+			<<if playerChastity("hidden")>>
+				against your <<print $worn.genitals.name>>.
 			<</if>>
-		<<elseif $worn.under_lower.type.includes("naked") and $worn.genitals.type.includes("chastity")>>
-			then <<slithers>> against your chastity belt
+		<<elseif $worn.under_lower.type.includes("naked") and playerChastity("hidden")>>
+			then <<slithers>> against your <<print $worn.genitals.name>>
 		<<else>>
 			then <<slithers>> across your bare skin
 		<</if>>
 	<</if>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "statetentacles">><<nobr>>
+<<widget "statetentacles">>
 	<<for _j to 0; _j lt $tentacles.max; _j++>>
 		<<if $tentacles[_j] isnot undefined>>
 			<<if $tentacles[_j].shaft is "finished" and $tentacles[_j].name isnot "finished">>
@@ -432,9 +314,13 @@
 		<</if>>
 	<</for>>
 <<sexcheck>>
-<</nobr>><</widget>>
+<<if $ejaculating isnot 1>>
+	You count <<number $tentacles.active>> <<print $tentacles[0].type>><<if $tentacles.active isnot 1>>s<</if>> surrounding you.
+	<br><br><br>
+<</if>>
+<</widget>>
 
-<<widget "leftarmtentacledisable">><<nobr>>
+<<widget "leftarmtentacledisable">>
 	<<for _j to 0; _j lt $tentacles.max; _j++>>
 		<<if $tentacles[_j] isnot undefined>>
 			<<if $tentacles[_j].id is $leftarm>>
@@ -442,9 +328,9 @@
 			<</if>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "rightarmtentacledisable">><<nobr>>
+<<widget "rightarmtentacledisable">>
 	<<for _j to 0; _j lt $tentacles.max; _j++>>
 		<<if $tentacles[_j] isnot undefined>>
 			<<if $tentacles[_j].id is $rightarm>>
@@ -452,9 +338,9 @@
 			<</if>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
 
-<<widget "feettentacledisable">><<nobr>>
+<<widget "feettentacledisable">>
 	<<for _j to 0; _j lt $tentacles.max; _j++>>
 		<<if $tentacles[_j] isnot undefined>>
 			<<if $tentacles[_j].id is $feetuse>>
@@ -462,4 +348,4 @@
 			<</if>>
 		<</if>>
 	<</for>>
-<</nobr>><</widget>>
+<</widget>>
