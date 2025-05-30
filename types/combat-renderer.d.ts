@@ -67,8 +67,8 @@ declare global {
 		size: number;
 		colour: string;
 		target: number;
-		position: PenetratorPositions?;
-		state: PenetratorStates?;
+		position: PenetratorPositions | null;
+		state: PenetratorStates | null;
 		isEjaculating: boolean;
 		ejaculate: Ejaculate;
 		condom: CondomOptions;
@@ -199,11 +199,23 @@ declare global {
 		showLayer(name: string, filters: object): void;
 		hideLayer(name: string): void;
 		render(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): void;
-		animate(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): AnimatingCanvas;
+		animate(canvas: CanvasRenderingContext2D, options: T, listener: CanvasListener): Renderer.AnimatingCanvas;
 		redraw(): void | Renderer.AnimatingCanvas;
 		preprocess(options: T): void;
 		compile(options: T): CompositeLayerSpec[];
 	}
+
+	interface Gradient {
+		style: string;
+		colours: string[];
+	}
+
+	// TODO: Fill out these stubs
+	interface CanvasListener {}
+	interface Options {}
+
+	class MultiCanvasModel {}
+	class CombatEditor {}
 }
 
 export {};

@@ -372,12 +372,6 @@ class CombatRenderer {
 	}
 
 	/**
-	 * @typedef Gradient
-	 * @property {string} style
-	 * @property {string[]} colours
-	 */
-
-	/**
 	 * @param {"fringe" | "sides"} hairPart
 	 * @param {Gradient} gradient
 	 * @param {string} hairType

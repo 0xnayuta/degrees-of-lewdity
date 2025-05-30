@@ -34,7 +34,6 @@ declare module "twine-sugarcube" {
 
 		anustarget: number;
 		anusdoubletarget: number;
-		anususe: number;
 		anusstate: string | 0;
 		bottomtarget: number;
 		bottomuse: number;
@@ -71,7 +70,6 @@ declare module "twine-sugarcube" {
 		toolstate: string | 0;
 		vaginadoubletarget: number;
 		vaginatarget: number;
-		vaginause: number;
 		vaginastate: string | 0;
 
 		fingersInVagina: number;
@@ -81,7 +79,7 @@ declare module "twine-sugarcube" {
 		corruptionMasturbation: boolean;
 		corruptionMasturbationCount: number;
 		masturbationorgasmstat: number;
-		masturbationOrgasmTimeStat: TimeStamp;
+		masturbationOrgasmTimeStat: number;
 		masturbationorgasm: number;
 		masturbationorgasmsemen: number;
 		secondsSpentMasturbating: number;

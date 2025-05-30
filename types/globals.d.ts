@@ -47,6 +47,13 @@ declare global {
 	};
 	const DOL: {
 		Stack: string[];
+		Errors: any;
+		Versions: any;
+		Perflog: any;
+		State: any;
+		setup: any;
+		Wikifier: any;
+		Template: any;
 	};
 	const EventSystem: EventData;
 
@@ -58,11 +65,7 @@ declare global {
 
 	const L10n: any;
 
-	const random: any;
-
 	let throwError: Function;
-
-	let DefineMacro: Function;
 
 	interface ObjectConstructor {
 		hasOwn(object: any, property: any): boolean;
@@ -79,6 +82,16 @@ declare global {
 
 	interface ArrayConstructor {
 		between(min: number, max: number): boolean;
+	}
+
+	interface EventData {
+	}
+
+	function defineGlobalNamespaces(dol: typeof DOL): void;
+
+	interface Window {
+		DOL: typeof DOL;
+		defineGlobalNamespaces: (dol: typeof DOL) => void;
 	}
 }
 

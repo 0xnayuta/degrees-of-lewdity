@@ -39,7 +39,7 @@ interface EmissiveSetting {
 
 interface ReflectiveSetting {
     mask?: MaskSetting;
-    [key: string]: ReflectiveProperty;
+    [key: string]: ReflectiveProperty | MaskSetting | undefined;
 }
 
 interface MaskSetting {
@@ -53,6 +53,9 @@ interface MaskSetting {
 	verticalSpeed?: number | (() => number);
 	amplitude?: number | (() => number);
 	frequency?: number | (() => number);
+	compositeOperation?: string;
+	blur?: number;
+	condition?: () => boolean;
 }
 
 interface ReflectiveProperty {
@@ -64,6 +67,15 @@ interface ReflectiveProperty {
 	compositeOperation?: string | (() => string);
 	animation?: string | AnimationSetting;
 }
+
+declare module "twine-sugarcube" {
+	export interface SugarCubeStoryVariables {
+		weatherObj: {
+			snow: number;
+		}
+	}
+}
+
 declare global {
 	export interface LocationImages {
         [locationKey: string]: ImageLocation;

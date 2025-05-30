@@ -245,5 +245,24 @@ setup.renderer.npc = {
 				},
 			},
 		},
+		snake: {
+			states: {
+				over: {
+					show: true,
+				},
+			},
+			positions: {
+				doggy: {
+					states: {
+						front: {
+							show: true,
+						},
+						under: {
+							show: true,
+						},
+					},
+				},
+			},
+		},
 	},
 };
