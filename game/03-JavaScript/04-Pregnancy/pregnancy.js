@@ -1041,9 +1041,35 @@ function updateRecordedSperm(genital, target, period = 1) {
 DefineMacro("updateRecordedSperm", updateRecordedSperm);
 
 function washRecordedSperm(genital, target) {
-	if (genital !== "vagina" && target !== "pc") return null;
+	if ( (genital !== "vagina" || genital !== "anus") && target !== "pc") return null;
 	if (target === "pc") {
+		// Check if chastity is active for the genital being washed
+		const isChaste = playerChastity(genital);
+
+		if (isChaste) {
+			// Count washable sperm before filtering
+			const washableSpermBefore = V.sexStats[genital].sperm.filter(s => s.tag && s.tag.includes("canWash")).length;
+
+			// With chastity, 80% retention chance (20% removal chance)
+			V.sexStats[genital].sperm = V.sexStats[genital].sperm.filter(s => {
+				if (!s.tag || !s.tag.includes("canWash")) {
+					return true; // Keep sperm that can't be washed
+				}
+				// 80% chance to retain washable sperm when chaste
+				return Math.random() < 0.8;
+			});
+
+			/*
+			// Count washable sperm after filtering
+			const washableSpermAfter = V.sexStats[genital].sperm.filter(s => s.tag && s.tag.includes("canWash")).length;
+
+			// Set retained flag if any sperm remained
+			result.retained = washableSpermAfter > 0 && washableSpermBefore > 0;
+			*/
+		} else {
+		  // Normal washing behavior - remove all washable sperm
 		V.sexStats[genital].sperm = V.sexStats[genital].sperm.filter(s => !s.tag || (s.tag && !s.tag.includes("canWash")));
+		}
 	} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled) {
 		C.npc[target].pregnancy.sperm = C.npc[target].pregnancy.sperm.filter(s => !s.tag || (s.tag && !s.tag.includes("canWash")));
 	}
