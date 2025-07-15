@@ -95,6 +95,7 @@ module.exports = {
 		Fadable: "readonly",
 		Skin: "readonly",
 		Sunscreen: "readonly",
+		Newspaper: "readonly",
 		Theme: "readonly",
 		// DoL SC2 functions
 		compressionVerifier: "readonly",
@@ -212,6 +213,7 @@ module.exports = {
 		validateValue: "readonly",
 		waterproofCheck: "readonly",
 		initializeTooltips: "readonly",
+		sanitizeHtml: "readonly",
 		// DoL math functions
 		round: "readonly",
 		normalise: "readonly",
@@ -228,6 +230,7 @@ module.exports = {
 		boundedRandom: "readonly",
 		calculateBinomial: "readonly",
 		weightedRandom: "readonly",
+		degToRad: "readonly",
 		// DoL object functions
 		formatList: "readonly",
 		stringFrom: "readonly",
@@ -273,19 +276,18 @@ module.exports = {
 	],
 
 	parserOptions: {
-		// Support back to ES2020 to cover old mobile devices with outdated WebView versions that fail on 2020 and up functions
 		sourceType: "module",
 	},
 
 	env: {
 		browser: true,
-		es2021: true,
+		es2022: true,
 		jquery: true,
 	},
 
 	plugins: ["es-x"],
 
-	extends: ["eslint:recommended", "plugin:jsdoc/recommended", "prettier-standard/prettier-file", "plugin:es-x/restrict-to-es2021"],
+	extends: ["eslint:recommended", "plugin:jsdoc/recommended", "prettier-standard/prettier-file", "plugin:es-x/restrict-to-es2022"],
 
 	settings: {
 		jsdoc: {

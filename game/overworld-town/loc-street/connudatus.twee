@@ -155,6 +155,9 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 			<<stallicon "open">><<link [[Explore the markets (0:30)|Connudatus Markets]]>><<pass 30>><</link>>
 			<br>
 		<</if>>
+		<<if $exposed lte 0>>
+			<<ind>><<link [[Newspaper Stall (0:01)|Connudatus Newspaper Stall]]>><<pass 1>><</link>>
+		<</if>>
 		<<if Time.dayState is "night" and $exposed gte 2 and hasSexStat("exhibitionism", 4) and $daily.ex.connudatus isnot 1>>
 			<<ind>><<link [[Streak (0:05)|Streak Naked]]>><<pass 5>><<set $daily.ex.connudatus to 1>><</link>><<exhibitionist4>>
 			<br>
@@ -438,3 +441,108 @@ The <<person1>><<person>> scoffs and removes <<his>> hand.
 <br><br>
 
 <<link [[Next|Connudatus Street]]>><<pass 15>><<endevent>><</link>>
+
+:: Connudatus Newspaper Stall [exitCheckBypass]
+<<effects>>
+<<if Time.hour lt 6 or Time.hour gt 20 or $newspaper is undefined>>
+	The newspaper stand is closed.
+	<br><br>
+	<<link [[Leave the stand|Connudatus Street]]>><<pass 1>><</link>>
+	<<exit>>
+<</if>>
+
+<<generate1>><<person1>>
+<<set _price to setup.NewspaperSettings.price>>
+<<set _cost to _price * 100>>
+
+You approach a small, weathered newspaper stall nestled on the corner.
+<<if Weather.name is "clear" and Weather.temperature gte 20>>
+	The canopy flaps lazily in the warm breeze.
+<<elseif Weather.isSnow is "snow">>
+	A thin layer of snow clings to the canopy and counter.
+<<elseif Weather.precipitation is "rain">>
+	The canopy sags with collected rain, dripping steadily.
+<<elseif Weather.isOvercast>>
+	The grey sky hangs low, dimming the edges of the street.
+<<else>>
+	The canopy flaps in the breeze.
+<</if>>
+
+<<if $newspaper.intro>>
+	<<set delete $newspaper.intro>>
+	An old vendor peers up from behind a stack of papers, eyes sharp behind thick glasses.
+	<br><br>
+	"Ah, fresh face," <<he>> says. "Welcome."
+	<br><br>
+	"The paper's weekly. Comes out every Sunday. If you don't buy it now, you've got until next Sunday to pick it up. After that, it's binned."
+	<br><br>
+	<<He>> leans in slightly.
+	<br><br>
+	"It's not just gossip. You'll find town announcements, shop adverts, and even the weekly weather forecast in there. Handy stuff."
+	<br>
+	"This week's issue is just <<printmoney _cost>>. Want one?"
+<<else>>
+	<<print either(
+		"Behind the counter, the wiry old vendor glances up from a folded tabloid.",
+		"The vendor looks up from a crossword puzzle, squinting against the light.",
+		`The old <<person>> behind the counter peers over <<his>> glasses, brushing ash off a crumpled newspaper.`,
+		"Leaning on the counter with an old magazine in hand, the vendor notices you approaching.",
+		"Behind a cluttered counter, the wiry vendor adjusts <<his>> cap and gives you a nod."
+	)>>
+	<<if V.newspaper.bought>>
+		<<print either(
+			`"Already bought one? No refunds if it ruined your day."`,
+			`"Back again?" <<he>> says dryly. "No refunds, mind you."`,
+			`The vendor chuckles. "Hope you liked the issue. No refunds either way."`,
+			`"Already got yours, didn't you?"`
+		)>>
+		<br><br>
+		<<link "Look at the newspaper">>
+			<<overlayReplace "newspaper">>
+		<</link>>
+		<br>
+		<<link [[Leave the stall|Connudatus Street]]>><<pass 1>><<endevent>><</link>>
+		<<exit>>
+	<</if>>
+	<br><br>
+	<<print either(
+		`"Fresh off the press," <<he>> rasps. "Only <<printmoney _cost>> for this week's issue. Care to take a look?"`,
+		`<<He>> taps the front page. "This week's issue? <<printmoney _cost>>. Worth every pound."`,
+		`"News you won't get anywhere else," <<he>> mutters. "<<printmoney _cost>> for the truth."`,
+		`<<He>> waves the paper. "Hot off the press. <<printmoney _cost>> if you're interested."`,
+	)>>
+<</if>>
+<br><br>
+
+<span id="buylink"><<link `"Buy the newspaper (<<printmoney _cost>>)"`>>
+	<<if $money gte _cost>>
+		<<run Newspaper.buy()>>
+		<<run updateMoment()>>
+		<<set _bought to true>>
+		<<endevent>>
+		<<replace "#buylink">>
+			<span class="teal">You buy the newspaper.</span>
+			<br>
+		<</replace>>
+		<<replace "#leavelink">>
+			<<link "Look at the newspaper">>
+				<<overlayReplace "newspaper">>
+				<<replace "#leavelink">>
+					You bring it with you.
+					<br>
+					<br>
+					<<link [[Leave the stall|Connudatus Street]]>><<pass 1>><<endevent>><</link>>
+				<</replace>>
+			<</link>>
+			<<set Links.throttle to 0>>
+		<</replace>>
+	<<else>>
+		<<replace "#buylink">>"You don't have enough," the vendor says, shaking <<his>> head.<br><span class="red">You need more money.</span><</replace>>
+	<</if>>
+<</link>>
+</span>
+
+<span id="leavelink">
+	<br>
+	<<link [[Leave the stall|Connudatus Street]]>><<pass 1>><<endevent>><</link>>
+</span>

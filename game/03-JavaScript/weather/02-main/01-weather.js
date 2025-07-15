@@ -27,7 +27,7 @@ const Weather = (() => {
 	}
 
 	function setAccumulatedSnow(minutes) {
-		const precipitationIntensity = Weather.type.precipitationIntensity;
+		const precipitationIntensity = resolveValue(Weather.type.precipitationIntensity);
 		// Don't affect snow if override is set
 		const temperature = Weather.temperature - (T.weatherOverride?.outside ?? 0);
 		const snowfallRate = Weather.tempSettings.snow.snowfallRate;
@@ -96,6 +96,11 @@ const Weather = (() => {
 			return V.weatherObj.ice[key] > Weather.tempSettings.ice.minThickness[key];
 		},
 		getBloodMoon,
+		index: date => {
+			const w = Weather.WeatherGeneration.getWeather(date);
+			if (w === null) return null;
+			return setup.WeatherGeneration.weatherTypes.findIndex(type => type.name === w.name);
+		},
 		get genSettings() {
 			return setup.WeatherGeneration;
 		},
@@ -135,7 +140,7 @@ const Weather = (() => {
 			return Weather.isFreezing ? "snow" : "rain";
 		},
 		get precipitationIntensity() {
-			return Weather.WeatherGeneration.getWeather().precipitationIntensity;
+			return resolveValue(Weather.WeatherGeneration.getWeather().precipitationIntensity);
 		},
 		get temperature() {
 			return Weather.Temperature.getCelsius();

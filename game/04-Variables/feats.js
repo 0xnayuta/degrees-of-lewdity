@@ -2021,6 +2021,7 @@ function earnFeat(featName) {
 	V.feats.currentSave[featName] = new Date();
 	displayFeat(featName);
 }
+window.earnFeat = earnFeat;
 DefineMacro("earnFeat", earnFeat);
 
 function displayFeat(featName) {

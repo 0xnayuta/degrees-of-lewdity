@@ -40,6 +40,21 @@
 
 <<forestmove>>
 
+<<if Town.projects.road.isUnderConstruction>>
+	<<script>>
+		const endDate = new DateTime(Town.projects.road.dateFinished);
+		const startDate = new DateTime(endDate).addDays(-14);
+		const totalDuration = startDate.compareWith(endDate, true);
+		const elapsed = startDate.compareWith(Time.date, true);
+		const progress = Math.clamp(elapsed / totalDuration, 0, 1);
+		T.roadLocation = Math.round(progress * 25);
+	<</script>>
+<</if>>
+
+<<if Town.projects.road.isUnderConstruction and Math.abs($forest - _roadLocation) <= 2>>
+	<<set $eventskip to 1>>
+<</if>>
+
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutforest>>
 <<elseif $foresthunt gte 10 and !$possessed>>
@@ -55,8 +70,8 @@
 		<<else>>
 			<<eventforestsafe>>
 		<</if>>
-	<<elseif $town_projects.road is 1>>
-		<<set $town_projects.road to 2>>
+	<<elseif Town.projects.road.stage is 1 and !Town.projects.road.isUnderConstruction>>
+		<<set Town.projects.road.stage to 2>>
 		You are in the forest outskirts. You can make out the town between the trees.
 		<br><br>
 
@@ -67,21 +82,11 @@
 		<br><br>
 
 		<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
-		<br>
-	<<elseif $town_projects.road is 3>>
-		<<set $town_projects.road to 4>>
-		You are in the forest outskirts. You can make out the town between the trees.
-		<br><br>
-
-		The mayor's office acted fast. A road stretches into the forest, swerving out of sight. <span class="green">Getting to and from the lake will be much easier.</span>
-		<br><br>
-
-		<<earnFeat "Safe Trail">>
-		<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
-		<br>
+		<br>	
 	<<elseif $eventskip gte 1>>
 		You are in the forest outskirts. You can make out the town between the trees.
 		<br><br>
+		<<forestRoadConstruction>>
 
 		<<if $exposed lte 1>>
 			<<if $forest_shop_intro is 1>>
@@ -125,7 +130,6 @@
 			<br>
 		<</if>>
 	<</if>>
-
 <<elseif $forest lte 20>>
 	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 	<<if $eventskip is 0>>
@@ -140,6 +144,7 @@
 	<<elseif $eventskip gte 1>>
 		You are in the forest. The trees are quite sparse, you can't be too far from town.
 		<br><br>
+		<<forestRoadConstruction>>
 
 		<<if $forest gte 10 and $forest lte 14>>
 			<<foresticon "churchyard">><<link [[Old churchyard|Churchyard]]>><</link>>
@@ -179,6 +184,7 @@
 	<<elseif $eventskip gte 1>>
 		You are in the forest, surrounded by nature.
 		<br><br>
+		<<forestRoadConstruction>>
 
 		<<if $forest lte 30>>
 			<<if $nextPassageCheck is "Lake Shore">>

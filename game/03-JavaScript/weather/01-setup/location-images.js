@@ -81,6 +81,9 @@ setup.LocationImages = {
 				size: 1,
 			},
 		},
+		splashes: {
+			collisionThreshold: 9,
+		},
 	},
 	alex_cottage: {
 		folder: "alex_cottage",
@@ -97,6 +100,9 @@ setup.LocationImages = {
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
+		},
+		splashes: {
+			collisionThreshold: 6,
 		},
 	},
 	alex_farm: {
@@ -116,6 +122,9 @@ setup.LocationImages = {
 			condition: () => Weather.lightsOn,
 			color: "#deae66",
 			strength: 2,
+		},
+		splashes: {
+			collisionThreshold: 11,
 		},
 	},
 	arcade: {
@@ -179,6 +188,9 @@ setup.LocationImages = {
 				compositeOperation: "overlay",
 				alpha: 0.4,
 			},
+		},
+		splashes: {
+			collisionThreshold: 5,
 		},
 	},
 	asylum: {
@@ -343,6 +355,9 @@ setup.LocationImages = {
 				},
 			},
 		},
+		splashes: {
+			collisionThreshold: 9,
+		},
 	},
 	blitz: {
 		folder: "blitz",
@@ -371,6 +386,9 @@ setup.LocationImages = {
 					cycleDelay: 0,
 				},
 			},
+		},
+		splashes: {
+			collisionThreshold: 18,
 		},
 	},
 	bog: {
@@ -410,6 +428,9 @@ setup.LocationImages = {
 				},
 			},
 		},
+		splashes: {
+			collisionThreshold: 11,
+		},
 	},
 	brothel: {
 		folder: "brothel",
@@ -448,6 +469,9 @@ setup.LocationImages = {
 			color: "#deae66",
 			strength: 2,
 		},
+		splashes: {
+			collisionThreshold: 4,
+		},
 	},
 	cafe: {
 		folder: "cafe",
@@ -478,6 +502,9 @@ setup.LocationImages = {
 				compositeOperation: "overlay",
 				alpha: 0.5,
 			},
+		},
+		splashes: {
+			collisionThreshold: 5,
 		},
 	},
 	cafe_construction: {
@@ -510,6 +537,9 @@ setup.LocationImages = {
 				alpha: 0.5,
 			},
 		},
+		splashes: {
+			collisionThreshold: 5,
+		},
 	},
 	cafe_renovated: {
 		folder: "cafe_renovated",
@@ -534,6 +564,9 @@ setup.LocationImages = {
 				compositeOperation: "overlay",
 				alpha: 0.5,
 			},
+		},
+		splashes: {
+			collisionThreshold: 5,
 		},
 	},
 	canal: {
@@ -621,6 +654,9 @@ setup.LocationImages = {
 			image: "emissive.png",
 			color: "#c26802",
 			size: 1,
+		},
+		splashes: {
+			collisionThreshold: 7,
 		},
 	},
 	churchyard: {
@@ -745,6 +781,9 @@ setup.LocationImages = {
 				},
 			},
 		},
+		splashes: {
+			collisionThreshold: 4,
+		},
 	},
 	dance_studio: {
 		folder: "dance_studio",
@@ -758,6 +797,9 @@ setup.LocationImages = {
 				image: "snow.png",
 			},
 		},
+		splashes: {
+			collisionThreshold: 4,
+		},
 	},
 	dilapidated_shop: {
 		folder: "dilapidated_shop",
@@ -770,6 +812,9 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
+		},
+		splashes: {
+			collisionThreshold: 7,
 		},
 	},
 	docks: {
@@ -841,6 +886,9 @@ setup.LocationImages = {
 				},
 			},
 		},
+		splashes: {
+			collisionThreshold: 3,
+		},
 	},
 	drain: {
 		folder: "drain",
@@ -892,6 +940,9 @@ setup.LocationImages = {
 		emissive: {
 			condition: () => Weather.lightsOn,
 			image: "emissive.png",
+		},
+		splashes: {
+			collisionThreshold: 5,
 		},
 	},
 	factory: {
@@ -973,6 +1024,9 @@ setup.LocationImages = {
 				color: "#e6cc77",
 			},
 		},
+		splashes: {
+			collisionThreshold: 1,
+		},
 	},
 	farm: {
 		folder: "farm",
@@ -1003,6 +1057,9 @@ setup.LocationImages = {
 					frameDelay: 1000,
 				},
 			},
+		},
+		splashes: {
+			collisionThreshold: 15,
 		},
 	},
 	fields: {
@@ -1047,6 +1104,9 @@ setup.LocationImages = {
 			color: "#deae66",
 			blur: 0,
 			intensity: 0.8,
+		},
+		splashes: {
+			collisionThreshold: 11,
 		},
 	},
 	flats: {
@@ -1189,20 +1249,66 @@ setup.LocationImages = {
 				condition: () => Weather.isSnow,
 				image: "snow.png",
 			},
-			smoke: {
-				condition: () => !Weather.bloodMoon,
-				image: "smoke.png",
-				animation: {
-					frameDelay: 200,
-					cycleDelay: () => 3000,
-					startDelay: () => 3000,
-				},
-			},
 		},
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
 		},
+		splashes: {
+			collisionThreshold: 3,
+		},
+		particles: [
+			{
+				condition: () => !Weather.bloodMoon,
+				type: "smoke",
+				origin: [3, 71.5], // Coordinates from the top left
+				rate: 5, // Particles generated per second
+				size: 1.5, // Size of the particle in px
+				riseSpeed: 3.2, //
+				spread: 6,
+				color: "#55555599", // Last 2 numbers are the alpha (99 in hex means 60%)
+				windSpeed: 6, // strength of the wind, will push the particles in a direction
+				windDirection: 0, //degrees - A value of 0 is right (east)
+				minFadeDistance: 1, //minimum fade time of the particles (in distance (px))
+				maxFadeDistance: 25, //maximum fade time
+				fadeTime: 1.2, // In seconds
+				driftAmplitude: 0, //curve - mostly useful if we want the smoke to travel straight up (but in a wobbly curve)
+				driftWavelength: 0, //wavelength of the curve
+			},
+			{
+				condition: () => !Weather.bloodMoon,
+				type: "smoke",
+				origin: [20, 69],
+				rate: 5,
+				size: 1.5,
+				riseSpeed: 3.2,
+				spread: 8,
+				color: "#55555599",
+				windSpeed: 3.5,
+				windDirection: 0,
+				minFadeDistance: 1,
+				maxFadeDistance: 20,
+				fadeTime: 1.2,
+				driftAmplitude: 0,
+				driftWavelength: 0,
+			},
+			{
+				type: "fire",
+				origin: [20, 20],
+				flameRate: 4,
+				sparkRate: 1,
+				baseRadius: 1,
+				riseSpeed: 1,
+				sparkGravity: -5,
+				flameFade: 1.0,
+				sparkFade: 1.2,
+				colorFlame: "#ffddaa",
+				colorSpark: "#ffddaa",
+				glowColor: "rgba(255,180,80,0.7)",
+				glowRadius: 10,
+				glowBlur: 4,
+			},
+		],
 	},
 	hospital: {
 		folder: "hospital",
@@ -1849,6 +1955,9 @@ setup.LocationImages = {
 		emissive: {
 			image: "emissive.png",
 			condition: () => Weather.lightsOn,
+		},
+		splashes: {
+			collisionThreshold: 11,
 		},
 	},
 	pool: {

@@ -403,6 +403,10 @@ window.Time = Time;
 $(document).on(":passageinit", () => {
 	/* Set current time */
 	Time.set();
+	if (V.weatherObj) {
+		Weather.WeatherGeneration.updateWeather();
+		Weather.Temperature.updateTemperature();
+	}
 });
 
 /* Local functions */
@@ -416,6 +420,8 @@ function yearPassed() {
 }
 
 function weekPassed() {
+	Newspaper.reset();
+
 	if (V.science_exam >= 200 && V.sciencetrait < 4) {
 		V.effectsmessage = 1;
 		V.science_up_message = 1;
@@ -512,6 +518,7 @@ function weekPassed() {
 
 function dayPassed() {
 	Weather.sky.initSun();
+	Weather.WeatherGeneration.updateWeather();
 
 	// Lose one day of tanning
 	Skin.applyTanningLoss(1440);
@@ -1036,6 +1043,27 @@ function noonCheck() {
 	delete V.edenbed;
 	delete V.glideScared;
 	if (V.pound) V.pound.sneak = 0;
+
+	if (Town.projects.bridge.isComplete && Town.projects.bridge.stage === 3) {
+		Town.projects.bridge.stage = 4;
+		earnFeat("Bridging the Past");
+	}
+	if (Town.projects.road.isComplete && Town.projects.road.stage === 3) {
+		Town.projects.road.stage = 4;
+		earnFeat("Safe Trail");
+	}
+	if (Town.projects.fieldOffice.isComplete && Town.projects.fieldOffice.stage === 3) {
+		Town.projects.fieldOffice.stage = 4;
+		earnFeat("Field Work");
+	}
+	if (Town.projects.thicket.isComplete && Town.projects.thicket.stage === 3) {
+		Town.projects.thicket.stage = 4;
+		earnFeat("Concrete Woodland");
+	}
+	if (Town.projects.green.isComplete && Town.projects.green.stage === 3) {
+		Town.projects.green.stage = 4;
+		earnFeat("School Green");
+	}
 }
 
 function dawnCheck() {

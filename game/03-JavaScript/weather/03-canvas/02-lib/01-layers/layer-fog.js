@@ -1,5 +1,63 @@
 Weather.Renderer.Layers.add({
 	name: "fog",
+	animation: { updateRate: 50 },
+	zIndex: 15,
+	compositeOperation: "source-over",
+	effects: [
+		{
+			effect: "particleFog",
+			drawCondition() {
+				return !this.renderInstance.skyDisabled && (Weather.fog || Weather.precipitationIntensity >= 0);
+			},
+			params: {
+				groundBias: 3,
+				scale: 0.5,
+				scaleVariance: 1,
+				wanderRadius: 10,
+				minVel: 2, // px/sec
+				maxVel: 4,
+				images: {
+					fog: "img/misc/sky/clouds/fog/smoke3.png",
+				},
+			},
+			bindings: {
+				particleCount() {
+					return Weather.fog * 20 + Weather.precipitationIntensity * 5;
+				},
+			},
+		},
+		{
+			effect: "colorOverlay",
+			drawCondition() {
+				return !this.renderInstance.skyDisabled && (Weather.fog || Weather.precipitationIntensity >= 0);
+			},
+			compositeOperation: "source-atop",
+			params: {
+				color: {
+					nightDark: "#4e305c",
+					nightBright: "#603d70",
+					day: "#fffffc",
+					dawnDusk: "#ba7f49",
+					bloodMoon: "#380101",
+				},
+			},
+			bindings: {
+				sunFactor() {
+					return this.renderInstance.orbitals.sun.factor;
+				},
+				moonFactor() {
+					return this.renderInstance.moonBrightnessFactor;
+				},
+				bloodMoon() {
+					return Weather.bloodMoon;
+				},
+			},
+		},
+	],
+});
+
+Weather.Renderer.Layers.add({
+	name: "fog2",
 	zIndex: 13,
 	blur: false,
 	effects: [

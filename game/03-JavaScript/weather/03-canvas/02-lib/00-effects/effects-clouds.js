@@ -290,3 +290,150 @@ Weather.Renderer.Effects.add({
 		this.canvas.drawImage(this.effects[0].canvas.element);
 	},
 });
+
+Weather.Renderer.Effects.add({
+	name: "particleFog",
+	defaultParameters: {
+		// count & appearance
+		particleCount: 150,
+		minVel: 3, // px/sec
+		maxVel: 6, // px/sec
+		opacity: 1,
+
+		// sprite scaling
+		scale: 2.5,
+		scaleVariance: 0.5,
+
+		// initial spawn
+		margin: 15, // px outside canvas
+		groundBias: 1, // >1 skew spawn Y toward bottom
+
+		// wandering
+		wanderRadius: 80, // px max from original
+		// rotation
+		rotationFactor: 0.015, // base rad/sec per unit speed
+		rotationVariance: 0.7, // ±50% random variation
+	},
+
+	init() {
+		const interval = this.parentLayer.animationGroup.updateRate;
+		const ticker = new Weather.Renderer.Animation({
+			image: new BaseCanvas(1, 1).element,
+			canvas: this.canvas,
+			numFrames: 1,
+			frameDelay: interval,
+			offset: 0,
+			alwaysDisplay: false,
+		});
+		this.parentLayer.animationGroup.add(`${this.id}_ticker`, ticker);
+		ticker.enable();
+
+		this.deltaTime = interval / 1000;
+		const canvasWidth = this.canvas.element.width;
+		const canvasHeight = this.canvas.element.height;
+		const maxX = canvasWidth + 2 * this.margin;
+		const fogImage = this.images.fog;
+		const velocityRange = this.maxVel - this.minVel;
+
+		const particles = [];
+		for (let i = 0; i < this.particleCount; i++) {
+			const scale = this.scale + (Math.random() * 2 - 1) * this.scaleVariance;
+			const particleW = fogImage.width * scale;
+			const particleH = fogImage.height * scale;
+
+			const originX = -this.margin + Math.random() * maxX - particleW / 2;
+			const originY = canvasHeight * (1 - Math.pow(Math.random(), this.groundBias)) - particleH / 2;
+
+			const angle = Math.random() * Math.PI * 2;
+			const distance = Math.random() * this.wanderRadius;
+			const targetX = originX + Math.cos(angle) * distance;
+			const targetY = originY + Math.sin(angle) * distance;
+
+			const speed = this.minVel + Math.random() * velocityRange;
+			const spinDir = Math.random() < 0.5 ? -1 : +1;
+			const spinVar = 1 + (Math.random() * 2 - 1) * this.rotationVariance;
+			const angularSpeed = spinDir * speed * this.rotationFactor * spinVar;
+
+			const startAngle = Math.random() * Math.PI * 2;
+
+			particles.push({
+				origX: originX,
+				origY: originY,
+				x: originX,
+				y: originY,
+				width: particleW,
+				height: particleH,
+				speed,
+				targetX,
+				targetY,
+				spinDir,
+				angle: startAngle,
+				angularSpeed,
+			});
+		}
+
+		this.particles = particles;
+	},
+
+	draw() {
+		const ctx = this.canvas.ctx;
+		const width = this.canvas.element.width;
+		const height = this.canvas.element.height;
+		const img = this.images.fog;
+
+		ctx.save();
+		ctx.globalAlpha = this.opacity;
+
+		for (const particle of this.particles) {
+			// Move toward a point
+			let dx = particle.targetX - particle.x;
+			let dy = particle.targetY - particle.y;
+			let dist = Math.hypot(dx, dy);
+			const step = particle.speed * this.deltaTime;
+
+			if (dist <= step) {
+				// Re-pick a new point to move to
+				const angle = Math.random() * 2 * Math.PI;
+				const radius = Math.random() * this.wanderRadius;
+				particle.targetX = particle.origX + Math.cos(angle) * radius;
+				particle.targetY = particle.origY + Math.sin(angle) * radius;
+				particle.speed = Math.random() * (this.maxVel - this.minVel) + this.minVel;
+
+				const spinVar = 1 + (Math.random() * 2 - 1) * this.rotationVariance;
+				particle.angularSpeed = particle.spinDir * particle.speed * this.rotationFactor * spinVar;
+
+				dx = particle.targetX - particle.x;
+				dy = particle.targetY - particle.y;
+				dist = Math.hypot(dx, dy);
+			}
+
+			if (dist > 1e-6) {
+				const ratio = step / dist;
+				particle.x += dx * ratio;
+				particle.y += dy * ratio;
+			}
+
+			particle.x = Math.clamp(particle.x, -this.margin, width + this.margin);
+			particle.y = Math.clamp(particle.y, -this.margin, height + this.margin);
+
+			// Rotation
+			particle.angle = (particle.angle + particle.angularSpeed * this.deltaTime) % (2 * Math.PI);
+
+			const cos = Math.cos(particle.angle);
+			const sin = Math.sin(particle.angle);
+			ctx.setTransform(cos, sin, -sin, cos, particle.x + particle.width / 2, particle.y + particle.height / 2);
+			ctx.drawImage(img, -particle.width / 2, -particle.height / 2, particle.width, particle.height);
+
+			// ctx.save();
+			// ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform to default
+			// ctx.globalAlpha = 0.8;
+			// ctx.fillStyle = "red";
+			// ctx.beginPath();
+			// ctx.arc(particle.x + particle.width / 2, particle.y + particle.height / 2, 2, 0, 2 * Math.PI);
+			// ctx.fill();
+			// ctx.restore();
+		}
+
+		ctx.restore();
+	},
+});

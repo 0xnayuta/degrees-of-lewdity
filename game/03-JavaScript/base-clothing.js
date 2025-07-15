@@ -1,5 +1,6 @@
-function getClothingCost(item, slot) {
-	let cost = setup.clothes[slot][clothesIndex(slot, item)].cost * V.clothesPrice;
+function getClothingCost(item, slot, noDiscount = false) {
+	const clothingObj = setup.clothes[slot][clothesIndex(slot, item)];
+	let cost = clothingObj.cost * V.clothesPrice;
 
 	if (
 		setup.clothes.under_lower.findIndex(x => x.name === item.name && x.modder === item.modder) >= 0 ||
@@ -15,11 +16,20 @@ function getClothingCost(item, slot) {
 
 	if (V.passage === "School Library Shop") {
 		cost *= 1.4 + ((V.delinquency - 500) / 5000 + (C.npc.Sydney.love - 50) / -500);
+	} else if (!noDiscount && isDiscounted(item, slot)) {
+		cost *= Newspaper.modifiers.discountedClothing.discount;
 	}
 
 	return Math.round(cost);
 }
 window.getClothingCost = getClothingCost;
+
+function isDiscounted(item, slot) {
+	if (V.passage === "School Library Shop") return false;
+	const clothingObj = setup.clothes[slot][clothesIndex(slot, item)];
+	return Newspaper.modifiers.discountedClothing?.variable === clothingObj.variable;
+}
+window.isDiscounted = isDiscounted;
 
 // Returns the price of the clothing item passed.
 // If it's part of an outfit the price is 80% of the full outfit for the primary half

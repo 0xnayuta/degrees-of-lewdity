@@ -201,10 +201,6 @@ Weather.Renderer.Sky = class {
 		return 1 - 2 * Math.abs(Time.date.moonPhaseFraction - 0.5);
 	}
 
-	get blur() {
-		return Weather.fog;
-	}
-
 	get skyDisabled() {
 		return V.location === "tentworld"; // todo move to Weather
 	}
