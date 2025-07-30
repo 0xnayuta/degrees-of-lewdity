@@ -116,6 +116,7 @@ module.exports = {
 		clothingData: "readonly",
 		combatListColor: "readonly",
 		currentSkillValue: "readonly",
+		dangerEvent: "readonly",
 		eCheckbox: "readonly",
 		earnHourlyFeats: "readonly",
 		eInput: "readonly",

@@ -123,9 +123,9 @@
 <</widget>>
 
 <<widget "lessonEvents">>
-	<<set $_mod to _args[1] or 1>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (8900 - ($allure * $_mod))>> <!-- $_mod multiplies the effect that allure has on your odds of getting an unsafe event -->
+	<<set $_mod to _args[1] or 1>> <!-- $_mod multiplies the effect that allure has on your odds of getting an unsafe event -->
+	
+	<<if dangerEvent($_mod, 8900)>>
 		<<switch _args[0]>>
 			<<case "maths">><<eventsmaths>>
 			<<case "science">><<eventsscience>>
@@ -1902,7 +1902,7 @@
 
 					<<link [[Next|English Lesson]]>><<endevent>><</link>>
 				<</if>>
-				<!-- Modified for Beast People -->
+				
 			<</if>>
 
 		<<else>>
@@ -2278,7 +2278,11 @@
 			They mostly clown around, playing for laughs and making the characters sound funny. Doren rolls <<his>> eyes, but laughs along.	It's pretty funny. <<lstress>>
 		<<elseif $rng gte 33>>
 			They act it out excellently, really bringing the scene to life.
-			<<if currentSkillValue('english') lt 700>>You actually learn something from it.<<genglish>><<englishskill>><<else>>You enjoyed it a lot.<</if>>
+			<<if currentSkillValue('english') lt 700>>
+				You actually learn something from it.<<genglish>><<englishskill>>
+			<<else>>
+				You enjoyed it a lot.
+			<</if>>
 		<<else>>
 			They flatly read out lines from the book. Doren tactfully moves the lesson forward before things start to drag.
 		<</if>>
@@ -2314,46 +2318,75 @@
 			Doren hands out worksheets for the class to complete. <<He>> doesn't mind the class talking amongst themselves while they work, resulting in a lively atmosphere.
 		<<else>>
 			Doren gives everyone 10 minutes to write a limerick.
+
+			<<set _lines = [{text: "", lewdness: -1}]>>
 			<<if currentSkillValue('english') gte 400>>
-				<<if hasSexStat("promiscuity", 4)>>
-					You write a shockingly <<print either("filthy","dirty","blue","lewd")>> limerick about a sly <<girl>> from <<print either("Inchbare.","Glenridding.","Knutsford.")>><br>
-					Several students laugh when you read the final line. Doren winces, and quickly moves on to the next student.
-					<<gcool>><<status 1>>
-				<<elseif hasSexStat("promiscuity", 3)>>
-					You write a <<print either("rude","sexy","lewd")>>
+				<<set _lines.push({text: `passable limerick.`, lewdness: 0})>>
+
+				<<if $skulduggery gte 500>>
+					<<set _lines.push({text: `limerick about a thief who stole a gem.`, lewdness: 0})>>
+				<</if>>
+
+				<<if hasSexStat("exhibitionism", 3)>>
+					<<set _lines.push({text: `limerick about a <<pcGender>> who lost <<pcGenderher>> clothes.`, lewdness: 0})>>
+				<</if>>
+
+				<<if $money lte 50000>>
+					<<set _lines.push({text: `limerick about an orphan <<pcGender>> who won lots of money. You wish it was you.`, lewdness: 0})>>
+				<</if>>
+
+				<<if hasSexStat("promiscuity", 3)>>
+					<<set _lines.push({text: `limerick.`, lewdness: 1})>>
+
 					<<if hasSexStat("exhibitionism", 3)>>
-						limerick about a <<girl>> who's allergic to clothes.
-					<<elseif $masochism_level gte 2>>
-						limerick about a mischievous <<girl>> from Bank (who desperately needed a spank).
-					<<elseif $arousal gte (($arousalmax / 5) * 3)>>
-						limerick about a <<girl>> from Wick.
-					<<elseif $skulduggery gte 500>>
-						limerick about a lusty young thief from Kilmarnock.
-					<<else>>
-						limerick.
-					<</if>><br>
-					Several students laugh when you read it out.
-				<<else>>
-					You write a
+						<<set _lines.push({text: `limerick about a <<pcGender>> who's allergic to clothes.`, lewdness: 1})>>
+					<</if>>
+
+					<<if $masochism_level gte 2>>
+						<<set _lines.push({text: `limerick about a mischievous <<pcGender>> from Bank (who desperately needed a spank).`, lewdness: 1})>>
+					<</if>>
+
+					<<if $arousal gte (($arousalmax / 5) * 3)>>
+						<<set _lines.push({text: `limerick about a <<pcGender>> from Wick.`, lewdness: 1})>>
+					<</if>>
+
 					<<if $skulduggery gte 500>>
-						limerick about a thief who stole a gem.
-					<<elseif hasSexStat("exhibitionism", 3)>>
-						limerick about a <<girl>> who lost <<pher>> clothes.
-					<<elseif $money lte 50000>>
-						limerick about an orphan <<girl>> who won lots of money.<br>
-						You wish it was you.
-					<<else>>
-						passable limerick.
-					<</if>><br>
-					<<if currentSkillValue('english') gte 600>>
-						Doren <<print either("smiles","nods")>> approvingly and moves along to the next student.
-					<<else>>
-						Doren nods and moves along to the next student.
+						<<set _lines.push({text: `limerick about a lusty young thief from Kilmarnock.`, lewdness: 1})>>
 					<</if>>
 				<</if>>
+
+				<<if hasSexStat("promiscuity", 4)>>
+					<<set _lines.push({text: `limerick about a sly <<pcGender>> from <<print either("Inchbare","Glenridding","Knutsford")>>.`, lewdness: 2})>>
+				<</if>>
+			<</if>>
+
+			<<set _picked = _lines.pluck()>>
+
+			<<if _picked.lewdness is 1>>
+				<<set _picked_description to either("rude", "sexy", "lewd")>>
+			<<elseif _picked.lewdness is 2>>
+				<<set _picked_description to either("filthy", "dirty", "blue", "lewd")>>
+			<</if>>
+
+			<<if _picked.text>>
+				You write a <<if _picked.lewdness is 2>>shockingly<</if>> <<if _pickedDescription>><<print _pickedDescription>><</if>> <<print _picked.text>>
+				<br>
+				<<switch _picked.lewdness>>
+					<<case 0>>
+						<<if currentSkillValue('english') gte 600>>
+							Doren <<print either("smiles","nods")>> approvingly and moves along to the next student.
+						<<else>>
+							Doren nods and moves along to the next student.
+						<</if>>
+					<<case 1>>
+						Several students laugh when you read it out.
+					<<case 2>>
+						Several students laugh when you read the final line. Doren winces, and quickly moves on to the next student. <<gcool>><<status 1>>
+				<</switch>>
 			<<else>>
-				You struggle and do not manage to finish.<br>
-				Some of the other students made funny limericks.
+				You struggle and do not manage to finish.
+				<br>
+				Some of the other students wrote funny limericks.
 			<</if>>
 		<</if>>
 		<br><br>
@@ -3651,6 +3684,12 @@
 		<<gdelinquency>>
 	<</if>>
 	<br>
+
+	<<if $changingroomstate isnot "empty">>
+		<<set _waitTime to (65 - Time.minute) % 60>>
+		<<loitericon>><<link [[`Wait for the changing rooms to empty (0:0_waitTime)`|School Pool]]>><<pass _waitTime>><</link>>
+		<br>
+	<</if>>
 <</widget>>
 
 :: Lesson Effects Widget [widget]
@@ -3665,37 +3704,28 @@
 		<<if $exposed gte 1 and $swimall isnot 1>>
 			The bell rings, signifying the end of the lesson. You wait as the other students leave. Some students linger, doubtlessly hoping to get a nice view when you climb out, but Mason herds them away, giving you some privacy. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 			<br><br>
-
 		<<elseif $exposed lte 0>>
 			The bell rings, signifying the end of the lesson. You climb out of the pool<<if playerBellyVisible()>> once Mason gives the go ahead, and <<nnpc_he "Mason">> sticks close by to assist you<</if>>.
 			<br><br>
-
 		<</if>>
 
 		<<if $exposed lte 0 or $swimall is 1>>
 			<<destinationpoolchangingroom>>
-
 		<</if>>
 
 		<<if $exposed gte 1>>
 			<<destinationpoolchangingroom "towels">>
-
 		<</if>>
 	<<else>>
+		<<set _mod to 0.2>>
 		<<if $exposed gte 1>>
-			<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-			<<if $danger gte (8900 - $allure)>>
-				<<eventsswimming>>
-			<<else>>
-				<<eventsswimmingsafe>>
-			<</if>>
-		<<elseif $exposed lte 0>>
-			<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-			<<if $danger gte (8900 - ($allure / 5))>>
-				<<eventsswimming>>
-			<<else>>
-				<<eventsswimmingsafe>>
-			<</if>>
+			<<set _mod to 1>>
+		<</if>>
+
+		<<if dangerEvent(_mod, 8900)>>
+			<<eventsswimming>>
+		<<else>>
+			<<eventsswimmingsafe>>
 		<</if>>
 	<</if>>
 <</widget>>

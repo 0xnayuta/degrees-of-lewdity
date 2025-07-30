@@ -4045,7 +4045,7 @@ function filterFnArm(state, slot, options) {
 		case "secondary":
 			return altFilterSwap ? [`worn_${slot}`] : [`worn_${slot}_acc`];
 		case "pattern":
-			switch (options.worn[slot].pattern_layer) {
+			switch (options.worn[slot].setup.pattern_layer) {
 				case "tertiary":
 					return [];
 				case "secondary":
@@ -4116,8 +4116,7 @@ function genlayer_clothing_fitted_left(slot, overrideOptions) {
 			return options.show_clothes
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.mainImage !== 0
-				&& options.worn[slot].setup.formfitting === 1
-				&& ["curvy", "slender"].includes(options.body_type);
+				&& ((options.worn[slot].setup.formfitting === 1 && ["curvy", "slender"].includes(options.body_type)) || options.body_type === "soft");
 		},
 	}, overrideOptions));
 }
