@@ -249,8 +249,6 @@ function updateClothesItem(slot, item, debug) {
 	// transfer new properties from itemRef to the item
 	const itemRef = setup.clothes[slot][clothesIndex(slot, item)];
 	for (const key in itemRef) {
-		// one_piece fix for items that shouldn't have it set
-		if (["school pinafore", "plaid school pinafore"].includes(item.name) && item.one_piece === 1) item.one_piece = 0;
 		if (skip.includes(key)) continue;
 		if (key === "hoodposition" && V.objectVersion.updateClothes >= 31) continue;
 		if (key === "outfitPrimary") {
@@ -291,8 +289,15 @@ function updateClothesItem(slot, item, debug) {
 		((!item.colour || item.colour === 0 || item.colour === "original") && itemRef.colour_options.length > 0) ||
 		((!item.accessory_colour || item.accessory_colour === 0) && itemRef.accessory_colour_options?.length > 0) ||
 		((!item.pattern || item.pattern === 0) && itemRef.pattern_options?.length > 0)
-	)
+	) {
 		updateClothingColours(item, itemRef);
+	}
+
+	// one_piece fix for items that shouldn't have it set
+	if (["school pinafore", "plaid school pinafore"].includes(item.name) && item.one_piece === 1) item.one_piece = 0;
+
+	// one_piece fix for items that should have it set
+	if ((item.outfitPrimary || item.outfitSecondary) && item.one_piece === 0) item.one_piece = 1;
 
 	// Clothing warmth
 	if (item.warmth !== itemRef.warmth) item.warmth = itemRef.warmth;
@@ -302,6 +307,7 @@ function updateClothesItem(slot, item, debug) {
 	if (item.accessory_colour_combat !== undefined && itemRef.colour_options.length === 0) item.accessory_colour = 0;
 	// end of fix
 	if (slot === "genitals") return;
+
 	// put renamed clothes and updated types here
 	switch (item.name) {
 		case "Crop top":
@@ -449,7 +455,69 @@ function updateClothesItem(slot, item, debug) {
 			item.name = "nurse hat";
 			item.name_cap = "Nurse hat";
 			break;
+		case "sexy priest's vestments":
+			item.exposed = 1;
+			item.exposed_base = 1;
+			break;
+		case "leather miniskirt":
+			item.one_piece = 0;
+			item.type.pushUnique("waterproof");
+			break;
+		case "catsuit":
+			item.type.pushUnique("waterproof");
+			break;
+		case "catsuit bottoms":
+			item.type.pushUnique("waterproof");
+			break;
+		case "cropped leather jacket":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather crop top":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather dress":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather jacket":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather leggings":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather pants":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather shorts":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather skirt":
+			item.type.pushUnique("waterproof");
+			break;
+		case "leather top":
+			item.type.pushUnique("waterproof");
+			break;
+		case "lederhosen bottoms":
+			item.type.pushUnique("waterproof");
+			break;
+		case "plastic nurse dress":
+			item.type.pushUnique("waterproof");
+			break;
+		case "plastic nurse skirt":
+			item.type.pushUnique("waterproof");
+			break;
+		case "puffer jacket":
+			item.type.pushUnique("waterproof");
+			break;
+		case "punk leather jacket":
+			item.type.pushUnique("waterproof");
+			break;
+		case "zipped leather crop top":
+			item.type.pushUnique("waterproof");
+			break;
+		case "zipped leather top":
+			item.type.pushUnique("waterproof");
 	}
+
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
 }
 
@@ -549,6 +617,7 @@ function wardrobesUpdate() {
 			schoolBoys: clone(defWardrobe),
 			schoolGirls: clone(defWardrobe),
 			prison: clone(defWardrobe),
+			avery_mansion: clone(defWardrobe),
 		};
 		/* beach */
 		V.wardrobes.changingRoom.name = "Beach changing room";
@@ -591,6 +660,14 @@ function wardrobesUpdate() {
 		V.wardrobes.prison.name = "Prison locker";
 		V.wardrobes.prison.transfer = false;
 		V.wardrobes.prison.isolated = true;
+		/* mansion */
+		V.wardrobes.avery_mansion.name = "Mansion Wardrobe";
+		V.wardrobes.avery_mansion.transfer = true;
+		V.wardrobes.avery_mansion.isolated = true;
+		V.wardrobes.avery_mansion.shopSend = true;
+		V.wardrobes.avery_mansion.space = 80;
+		if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
+		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
 		/* add .lastTaken prop to everything */
 		if (V.worn !== undefined) Object.keys(V.worn).forEach(s => (V.worn[s].lastTaken = "wardrobe"));
 		if (V.carried !== undefined) Object.keys(V.carried).forEach(s => (V.carried[s].lastTaken = "wardrobe"));

@@ -282,7 +282,7 @@ The door opens again. Robin looks conflicted, <<his>> face guilty. "Oh, I... It'
 <</if>>
 
 :: Robin Study 2
-<<effects>>
+<<effects>><<location "home">>
 <<if C.npc.Robin.trauma gte 40>>
 	<<if $speech_attitude is "meek">>
 		Flustered, you quickly pull Robin in, patting <<him>> gently. "I-it's okay, I'm here for you."
@@ -885,6 +885,46 @@ You shove the note <<if !$worn.under_lower.type.includes("naked")>>into your $wo
 	<</if>>
 <</if>>
 
+<br><br>
+<<robinoptions>>
+
+:: Robin Room Photo
+<<effects>>
+<<if $speech_attitude is "meek">>
+	"Do you remember this picture of us? I found it in that folder you gave me."
+<<elseif $speech_attitude is "bratty">>
+	"Someone threw this into the folder you gave me at the mansion. Do you remember this?"
+<<else>>
+	"Do you remember this picture of us? It was in that folder you gave me at the mansion."
+<</if>>
+<br><br>
+
+Robin takes the picture from you.
+<<if C.npc.Robin.trauma gte 20>>
+	The ghost of a smile crosses <<his>> face.
+<<else>>
+	<<He>> smiles briefly.
+<</if>>
+<<if $saved_orphanage_picture is 2>>
+	"I think I remember this, but wasn't Bailey in this picture?" <<His>> thumb runs along the cut edge. <<He>> squints and looks closer. "Wait, who's that behind us?"
+<<else>>
+	"I think I remember this! I know I remember that look on Bailey's face, at least." <<He>> squints and looks closer. "Wait, who's that behind you and me?"
+<</if>>
+<br><br>
+
+You sigh. "I was hoping you knew."
+<br><br>
+
+<<He>> shrugs. "I wasn't the one who put that picture in the folder." <<He>> continues looking at it. "I feel like I'm supposed to know who that is, but..." <<he>> rubs <<his>> eyes.
+<br><br>
+
+Tears start to flow down <<his>> face.
+<br><br>
+
+"Wh-why am I crying?" <<He>> rubs <<his>> arm against <<his>> face. <<He>> hands you back the photo. "I'm sorry, I don't want to look at that anymore."
+
+<<set $robin_photo_stage to 1>>
+<<set $daily.robin.photo to true>>
 <br><br>
 <<robinoptions>>
 
@@ -2217,7 +2257,7 @@ Once home, Robin gives you a surprise hug. "Thank you," <<he>> says. <<Hes>> tea
 <<if $tutorial is 0 and $debug is 0>>
 	<<set $tutorial to 1>>
 
-<<elseif C.npc.Avery.love gte random(20, 100) and C.npc.Avery.state is "active" and $robinaverybeat isnot 1>>
+<<elseif C.npc.Avery.love gte random(20, 100) and C.npc.Avery.state is "active" and !$avery_injury and $robinaverybeat isnot 1>>
 	<<npc Avery>><<person1>>
 	<<if C.npc.Avery.rage gte 20 and $averyragerevealed is 1>>
 		A car pulls up beside you. Robin tenses as the door opens, revealing a <<if $pronoun is "m">>man in a suit<<else>>woman in a smart dress<</if>>. It's Avery. <<He>> scowls at you as <<he>> climbs out. <<He>> grasps your arm. "Get in. Now." <<He>> glances at Robin as <<he>> tugs you towards the waiting vehicle. "Your friend can walk."
@@ -2911,7 +2951,7 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 <</if>>
 
 <<if C.npc.Alex.pregnancy.fee isnot true and C.npc.Alex.pregnancy.nursery is true and (_alexMother or _alexFather) and (Time.hour gte 7 and Time.hour lte 9)>>
-	<<ind>><<link [[Take your children to the farm|Bailey Office Alex Children Fee]]>><</link>>
+	<<link [[Take your children to the farm|Bailey Office Alex Children Fee]]>><</link>>
 	<br>
 <</if>>
 
@@ -2921,33 +2961,38 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 		<br><br>
 		<<set $skulduggerydifficulty to 800>>
 
-		<<ind>><<link [[Trick Bailey|Bailey's Office Hack]]>><<set $phase to 1>><</link>><<skulduggerydifficulty>>
+		<<link [[Trick Bailey|Bailey's Office Hack]]>><<set $phase to 1>><</link>><<skulduggerydifficulty>>
 		<br>
 	<<elseif isPubfameTaskAccepted("bailey")>>
 		Bailey is working on something on <<his>> computer. You have the hacker's device ready.
 		<br><br>
 		<<set $skulduggerydifficulty to 800>>
 
-		<<ind>><<link [[Trick Bailey|Bailey Sheet]]>><<set $phase to 1>><</link>><<skulduggerydifficulty>>
+		<<link [[Trick Bailey|Bailey Sheet]]>><<set $phase to 1>><</link>><<skulduggerydifficulty>>
 		<br>
 	<</if>>
 
 	<<if $robinpaid isnot 1 and $robindebtknown is 1>>
-		<<ind>><<link [[Take on Robin's debt|Bailey's Office Robin]]>><</link>><<note "Doubles weekly payment" "red">>
+		<<link [[Take on Robin's debt|Bailey's Office Robin]]>><</link>><<note "Doubles weekly payment" "red">>
 		<br>
 	<</if>>
 
 	<<if $mason_pond is 1>>
-		<<ind>><<link [[Ask about a spring|Bailey Pond]]>><<set $mason_pond to 2>><</link>>
+		<<link [[Ask about a spring|Bailey Pond]]>><<set $mason_pond to 2>><</link>>
 		<br>
 	<</if>>
 	<<if $mason_pond is 2>>
-		<<ind>><<link [[Ask about a spring|Bailey Pond 2]]>><</link>>
+		<<link [[Ask about a spring|Bailey Pond 2]]>><</link>>
 		<br>
 	<</if>>
 
 	<<if $bailey_pound is 1>>
-		<<ind>><<link [[Confront about the document you found at the pound|Bailey Pound]]>><<awareness 18>><<set $bailey_pound to 2>><</link>><<gggawareness>>
+		<<link [[Confront about the document you found at the pound|Bailey Pound]]>><<awareness 18>><<set $bailey_pound to 2>><</link>><<gggawareness>>
+		<br>
+	<</if>>
+
+	<<if $saved_orphanage_picture is 1>>
+		<<link [[Ask about the photo you found in the letter folder|Bailey Mansion Photo]]>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -2977,6 +3022,40 @@ The ghost of a frown crosses Bailey's face. <<He>> pulls <<his>> phone from <<hi
 
 <<link [[Next|Orphanage]]>><<endevent>><</link>>
 <br>
+
+:: Bailey Mansion Photo
+<<effects>>
+You produce the photo of you, Robin, Bailey, and someone else.
+<br><br>
+
+<<He>> doesn't look at you at first, but slowly turns. <<His>> eyes squint, and <<he>> slowly takes it from you. "How the hell did you find this?"
+<br><br>
+
+<<if $speech_attitude is "meek">>
+	"It was in the folder Robin gifted me at the mansion," you say.
+<<elseif $speech_attitude is "bratty">>
+	"It was lumped in with the collection of letters Robin gave me," you say.
+<<else>>
+	"It was in the folder Robin gave me at the mansion," you say.
+<</if>>
+"Do you know who that is behind us?"
+<br><br>
+
+<<He>> doesn't answer, and grabs the photo from the top <span class="red">as if <<hes>> about to rip it</span>. <<He>> hesitates, though. Instead, <<he>> opens <<his>> desk drawer and pulls out a pair of scissors.
+<<He>> cuts part of the picture away, and hands it back to you. "I fixed it for you. Now piss off."
+<br><br>
+
+Bailey's no longer in the picture. It's now just you, Robin, and someone else.
+<<if $hallucinations gte 2>>
+	<span class="blue">For a split second, it looks like they're no longer smiling.</span> It returns when you blink. You must have imagined it.
+<</if>>
+<br><br>
+
+<<set $saved_orphanage_picture to 2>>
+
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<br>
+
 
 :: Bailey Pond
 <<effects>>
@@ -3342,7 +3421,7 @@ Robin</i>"
 <<takeKissVirginity "Robin" "loveInterest">>
 <br><br>
 
-You take <<his>> hands in your own, and hold them for a moment.<<takeHandholdingVirginity "Robin" "romantic">> You feel <<his>> pulse racing. You pull away, but <<he>> leans forward and kisses you again. <<His>> cheeks are wet with tears.
+You take <<his>> hands in your own, and hold them for a moment.<<takeHandholdingVirginity "Robin" "romantic" null true>> You feel <<his>> pulse racing. You pull away, but <<he>> leans forward and kisses you again. <<His>> cheeks are wet with tears.
 <br><br>
 
 You pull away again, this time turning aside so <<his>> kiss lands on your cheek. <<He>> keeps kissing you. You laugh as <<he>> nuzzles your neck. "I love you," <<he>> whispers.
@@ -3990,7 +4069,7 @@ Robin tugs your arm, and you rise from your seat.
 		<<if $arousal gte $arousalmax>>
 			<<orgasm>>Robin looks content with <<his>> work and <<he>> kisses your cheek.
 		<<else>>
-			After a few minutes, <<he>> gives up with a sigh. "I'm sorry." Robin says, frowning.
+			After a few minutes, <<he>> gives up with a sigh. "I'm sorry," Robin says, frowning.
 			<br><br>
 			"You're fine, Robin," you tell <<him>>. "You were wonderful." Robin perks up a little at the words.
 			<br><br>

@@ -331,7 +331,7 @@ Your bed takes up most of the room.
 /* Travel */
 <br>
 The hallway outside connects to the rest of the orphanage.
-<<if $exposed gte 2>>
+<<if $exposedRaw gte 2>>
 	<<if Time.dayState isnot "night">>
 		<<if hasSexStat("exhibitionism", 5)>>
 			<br>
@@ -374,7 +374,7 @@ The hallway outside connects to the rest of the orphanage.
 			<br><br>
 		<</if>>
 	<</if>>
-<<elseif $exposed gte 1>>
+<<elseif $exposedRaw gte 1>>
 	<<if Time.dayState isnot "night">>
 		<<if hasSexStat("exhibitionism", 3)>>
 			<br>
@@ -683,7 +683,7 @@ You stare right at the lens. "I wonder who I'll invite over," you say. You stick
 
 <<if $phase is 1>>
 	<<if $speech_attitude is "meek">>
-		"Y-you woke me up," you whisper. "You're laying on top of me..."
+		"Y-you woke me up," you whisper. "You're lying on top of me..."
 	<<elseif $speech_attitude is "bratty">>
 		"You don't actually think I'm still asleep, do you?" you whisper. "Nobody'd be able to sleep like this."
 	<<else>>
@@ -828,7 +828,7 @@ You are in the bathroom.
 <<else>>
 	<<bathroomicon "bath">><<link [[Have a bath (0:30)->Bath]]>><<strip>><<pass 30>><<stress -6>><<set $hygiene to 0>><</link>><<lstress>>
 	<br>
-	<<bathroomicon "sink">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><</link>>
+	<<bathroomicon "toothbrush">><<link [[Brush teeth (0:05)|Bathroom Brush]]>><<pass 5>><<set $bathroomExit to "Bathroom">><</link>>
 <</if>>
 <br>
 <!-- Check if there's any hair-->
@@ -849,6 +849,7 @@ You are in the bathroom.
 
 :: Bathroom Brush
 <<effects>>
+<<set _exit to $bathroomExit or "Bathroom">>
 <<switch $player.gender>>
 	<<case "m">><<wearProp "toothbrush" "blue">>
 	<<case "f">><<wearProp "toothbrush" "pink">>
@@ -860,7 +861,7 @@ You squirt a dollop of toothpaste on your toothbrush and brush your teeth. When 
 <<wash_mouth>>
 <br><br>
 
-<<link [[Next|Bathroom]]>><<handheldon>><<canvas-model-override "clear">><</link>>
+<<link [[Next|_exit]]>><<handheldon>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
 
 :: Sleep
 <<set _autosavehere to true>>
@@ -2163,11 +2164,11 @@ You pull your head back in, closing the window as you give Kylar one last glance
 <</if>>
 <br><br>
 
-<<He>> shakes <<his>> head. "But I don't want to leave," <<he>> pleads. <<He>> ignores you, and pulls the covers over <<himself>> "Please let me stay. I-I'm sorry, just I've---"
+<<He>> shakes <<his>> head. "But I don't want to leave," <<he>> pleads. <<He>> ignores you, and pulls the covers over <<himself>>. "Please let me stay. I-I'm sorry, just I've---"
 <br><br>
 
 You cut <<him>> off, asking <<him>> once again to leave. You make sure to be extra firm this time.
-<<Hes>> about to speak up, but looks away in defeat and pulls the cover off <<himself>> <<He>> walks towards the window, slowly, with <<his>> head held low.
+<<Hes>> about to speak up, but looks away in defeat and pulls the cover off <<himself>>. <<He>> walks towards the window, slowly, with <<his>> head held low.
 <br><br>
 
 As soon as <<hes>> gone, you get off the bed and walk towards the window. You take a brief moment to look out the window and make sure <<hes>> gone, only to have your eyes meet with Kylar, still standing there. <<Hes>> almost completely hidden by the night.
@@ -2265,7 +2266,7 @@ You are in the main hall of the orphanage.
 <<elseif $exposed gte 1 and Time.hour lt 22 and Time.hour gte 6>>
 	You can't bear the thought of someone catching you like this. You hasten to your bedroom.
 	<br><br>
-	
+
 	<<if dangerEvent()>>
 		A door swings open up ahead, and a <<generatey1>><<person1>><<person>> steps out. <<covered>> <<He>> doesn't notice you.
 		<br><br>
@@ -2464,9 +2465,44 @@ You are in the main hall of the orphanage.
 <<elseif $christmas is 1 and Time.monthDay is 25 and $robinmissing is 0 and $christmas_gift_robin_wrapped is 1 and $christmas_gift_robin_given is undefined and Time.dayState isnot "night">>
 	<<set $christmas_gift_robin_given to true>>
 	<<christmas_robin>>
+<<elseif $auriga_artefact isnot undefined and Time.dayState isnot "night" and $avery_mansion is undefined and C.npc.Avery.state is "active" and averyMansionScore() gte 50>>
+	<<npc Avery>><<npc Bailey 2>><<person1>>
+	Orphans crowd at the window. You look through, and see Avery striding towards the front door. <<He>> walks out of sight. A moment later, two thuds echo through the building.
+	<br><br>
+	<<person2>>
+	Bailey emerges from <<his>> office, an irritated look on <<his>> face. <<He>> looks through the peekhole, frowns, then opens the door.
+	<br><br>
+	<<link [[Next|Mansion Intro Orphanage]]>><</link>>
+	<br>
 <<elseif $daily.homeEvent isnot 1 and Time.hour gte 6 and Time.hour lte 21>>
 	<<set $daily.homeEvent to 1>>
 	<<homeevent>>
+<<elseif getRobinLocation() is "orphanage" and $avery_mansion and !$avery_mansion_robin and Time.hour gte 6 and Time.hour lte 21 and !$fromRobinRoom and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
+	<<set $avery_mansion_robin to 1>>
+	<<npc Robin>><<person1>>
+	<<generatey2>>
+	<<if _robin.trauma gte 20>>
+		You hear feet shuffle behind you. It's Robin. <<He>> smiles at you. "Sorry I wasn't around to say goodbye," <<he>> says. "I hope your new home is nice. Would it be okay if I visited sometime? The orphans and I would like to make something for you."
+		<br><br>
+
+		<<link [[Tell Robin Avery's address|Home Robin Mansion Address]]>><</link>>
+		<br>
+		<<link [[Say that would be nice|Home Robin Mansion Nice]]>><</link>>
+		<br>
+		<<link [[Warn Robin to stay away from Avery's mansion|Home Robin Mansion Warn]]>><</link>>
+		<br>
+	<<else>>
+		Robin walks across the room, the boxes of several board games in <<his>> arms. <<He>> drops them when <<he>> notices you, and rushes over.
+		<br><br>
+		"They told me you found somewhere to live," <<he>> says, smiling. "You left in such a hurry. I'm sorry I wasn't around to say goodbye, but I'm glad you're still able to visit. What's your new home like?"
+		<br><br>
+		<<link [[Say it's a fabulous mansion|Home Robin Mansion Fabulous]]>><</link>>
+		<br>
+		<<link [[Say it's nothing special|Home Robin Mansion Nothing]]>><</link>>
+		<br>
+		<<link [[Say you don't want to talk about it|Home Robin Mansion Refuse]]>><</link>>
+		<br>
+	<</if>>
 <<elseif Time.hour gte 16 and Time.hour lte 21 and getRobinLocation() is "orphanage"
 and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily.robin.cdevent>>
 	<<set $daily.robin.cdevent to 1>>
@@ -2480,6 +2516,12 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 	<br>
 	<<link [[Ignore|Orphanage]]>><<endevent>><</link>>
 <<else>>
+	<<if StartConfig.sneaky and !$avery_mansion and $auriga_artefact isnot "Avery">>
+		A girl in a white dress sits in the corner, sipping tea.
+		<br><br>
+		<<ind>><<link [[Approach|Orphanage Sneaky Mansion]]>><</link>> <i>Sneaky update: Enable Avery's mansion</i>
+		<br>
+	<</if>>
 	<<if $halloween is 1 and Time.monthDay is 31 and !$fromRobinRoom and $robinmissing is 0 and Time.hour gte 16 and Time.hour lt 19 and _robin.init is 1>>
 		<<if $halloween_robin_costume>>
 			You see Robin, dressed as a $halloween_robin_costume and surrounded by excited orphans.
@@ -3000,7 +3042,7 @@ The last of the water drains from the bath, taking the slime with it. <<tearful>
 		<<generates1>><<person1>> and wait for the <<person>> to find you.
 		<br><br>
 
-	
+
 	<<if dangerEvent()>>
 	It doesn't take <<him>> long. "I've got you!" <<he>> exclaims as <<he>> pulls you from your hiding place. <<He>> doesn't let go once you're in the open, instead <<he>> pulls you closer and starts exploring your body with <<his>> hands.
 	<br><br>
@@ -3091,7 +3133,7 @@ You return to your tiny bedroom and wonder what to do.
 	Your bedroom door bursts open without warning. <span class="red">It's Bailey.</span>
 <</if>>
 
-<<if $exposed gte 1>>
+<<if $exposedRaw gte 1>>
 	<<nnpc_He "Bailey">> looks over you briefly. "Put your clothes on," <<nnpc_he "Bailey">> says. <<nnpc_He "Bailey">> snaps <<nnpc_his "Bailey">> fingers. "Now."
 	You hastily throw on the clothes you had on before. <<bedclotheson "bed">>
 <</if>>
@@ -3224,7 +3266,11 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Bed]]>><</link>>
+	<<if $robinbed is "theirs">>
+		<<link [[Next|Robin Bed]]>><</link>>
+	<<else>>
+		<<link [[Next|Bed]]>><</link>>
+	<</if>>
 <<elseif $enemyhealth lte 0>>
 	You knock the <<person>> off the bed, and <<he>> stumbles to the ground. "Fucking brat," <<he>> says, then turns to Bailey. "I want my money back."
 	<br><br>
@@ -3234,7 +3280,11 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Next|Bed]]>><</link>>
+	<<if $robinbed is "theirs">>
+		<<link [[Next|Robin Bed]]>><</link>>
+	<<else>>
+		<<link [[Next|Bed]]>><</link>>
+	<</if>>
 <<elseif $robinbed isnot undefined>>
 	Robin's eyes flutter open in response to your cry. Robin sees the <<person>> pawing at you, and kicks <<him>> in the face. <<He>> falls off the bed. "Fucking brat," <<he>> says, then turns to Bailey. "I want my money back."
 	<br><br>
@@ -3724,8 +3774,8 @@ What do you want to write or draw on your $mirror_bodypart?
 
 :: Mirror Locket
 <<effects>>
-<<set _colour to $carried.neck.colour>>
-<<neckstrip>><<wearProp "love locket" _colour>>
+<<neckstrip>><<set _colour to $carried.neck.colour>>
+<<wearProp "love locket" _colour>>
 You open the locket around your neck.
 <br><br>
 <div class="img-txt">
@@ -4438,4 +4488,24 @@ You are in the orphanage kitchen. High cupboards line the walls, above spotless 
 <</if>>
 
 <<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<handheldon>><</link>>
+<br>
+
+:: Orphanage Sneaky Mansion
+<<effects>>
+<<npc Avery>><<person1>>
+"Hello," the girl says as you approach. "Are you looking for Avery? I hear they have a nice mansion on Danube Street, and you might be able to live there, someday. I can speed things up for you, if you like."
+<br><br>
+<<link [[Accept|Orphanage Sneaky Mansion 2]]>><<set $auriga_artefact to "Avery">><<if C.npc.Avery.state is "dismissed">><<unDismissAvery>><</if>><<npcincr Avery love 100>><</link>> <i>Brings Avery's arc forward to right before their mansion is unlocked.</i>
+<br>
+<<link [[Decline|Orphanage]]>><<endevent>><</link>>
+<br>
+
+:: Orphanage Sneaky Mansion 2
+<<effects>>
+
+The girl smiles. "I'll make the call! Just hang around the main hall of the orphanage during the day, and Avery should show up to collect you. Good luck!"
+<br><br>
+A tall blonde girl in a crisp black outfit walks by, carrying a sack over her shoulder. Something in it moves.
+<br><br>
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
 <br>

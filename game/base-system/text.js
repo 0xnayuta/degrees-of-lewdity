@@ -187,35 +187,35 @@ statDisplay.create("lharass", () => statDisplay.statChange("Decreases chance of 
 statDisplay.create("gharass", () => statDisplay.statChange("Increases chance of harassment", 0, "pink"));
 statDisplay.create("noharass", () => statDisplay.statChange("No chance of harassment", 0, "green"));
 
-statDisplay.create("llove", (npc, alias) => {
+statDisplay.create("llove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -1, "red");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -1, "red");
 });
-statDisplay.create("lllove", (npc, alias) => {
+statDisplay.create("lllove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -2, "red");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -2, "red");
 });
-statDisplay.create("llllove", (npc, alias) => {
+statDisplay.create("llllove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -3, "red");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, -3, "red");
 });
-statDisplay.create("glove", (npc, alias) => {
+statDisplay.create("glove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 1, "green");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 1, "green");
 });
-statDisplay.create("gglove", (npc, alias) => {
+statDisplay.create("gglove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 2, "green");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 2, "green");
 });
-statDisplay.create("ggglove", (npc, alias) => {
+statDisplay.create("ggglove", (npc, simple) => {
 	const selectedNPC = npc || V.npc.find(name => !!C.npc[name]);
-	const loveAlias = `${alias || (selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
-	return statDisplay.statChange(selectedNPC && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 3, "green");
+	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
+	return statDisplay.statChange(selectedNPC && !simple && (npc || V.npc.length >= 2) ? `${selectedNPC}'s ${loveAlias}` : loveAlias, 3, "green");
 });
 
 statDisplay.create("llust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -1, "teal"));
@@ -671,6 +671,43 @@ statDisplay.create("gggdom", npc => {
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 3, "purple");
+});
+
+statDisplay.create("lfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, -1, "red");
+});
+statDisplay.create("llfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, -2, "red");
+});
+statDisplay.create("lllfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, -3, "red");
+});
+statDisplay.create("gfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, 1, "green");
+});
+statDisplay.create("ggfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, 2, "green");
+});
+statDisplay.create("gggfrustration", npc => {
+	let targetName = "";
+	if (npc) targetName = npc + "'s";
+	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
+	return statDisplay.statChange(`${targetName} Frustration`, 3, "green");
 });
 
 statDisplay.create("lrespect", () => statDisplay.statChange("Respect", -1, "red"));

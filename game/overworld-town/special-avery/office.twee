@@ -178,10 +178,6 @@ You clarify that you wanted to know what <<he>> meant by 'distraction'. <<He>> s
 <<effects>>
 
 <<if $phase is 0>> /* Accept */
-	<<set $weekly.averyAssistant to {}>>
-	<<set $weekly.averyAssistant.work to 0>>
-	<<set $weekly.averyAssistant.approval to 0>>
-
 	You agree to work for <<him>> right now.
 	<br><br>
 	<<He>> looks pleased at your answer. "Good, I'm glad that you're bright enough to not waste my time."
@@ -218,7 +214,7 @@ You clarify that you wanted to know what <<he>> meant by 'distraction'. <<He>> s
 <<effects>>
 <<generateManager>><<person1>>
 
-<<if !$averySeen.includes("officeAssistant")>>
+<<if !$averySeen?.includes("officeAssistant")>>
 	You knock on <<office_manager>>'s office door before entering. <<He>> looks up at you. "How can I help you?" <<he>> asks.
 	<br><br>
 	You inform <<him>> that you'd like to take the job as Avery's personal assistant.
@@ -240,7 +236,7 @@ You clarify that you wanted to know what <<he>> meant by 'distraction'. <<He>> s
 	<</if>>
 <<else>>
 	<<if Time.hour lt 8>>
-		As you go to grab the key from <<office_manager>>, <<he>> looks at you quizzically. "I'm sorry, but Avery has not arrived in the office yet. And I am under strict instructions to not let anyone else in until <<he>> has arrived. Please return later at a more suitable time."
+		As you go to grab the key from <<office_manager>>, <<he>> looks at you quizzically. "I'm sorry, but Avery has not arrived in the office yet. And I am under strict instructions to not let anyone else in until <<nnpc_he "Avery">> has arrived. Please return later at a more suitable time."
 		<br><br>
 		<span class="blue">It seems you will have to return later to work.</span>
 	<<elseif Time.hour gte 15>>
@@ -250,7 +246,7 @@ You clarify that you wanted to know what <<he>> meant by 'distraction'. <<He>> s
 	<<elseif C.npc.Avery.rage gte 60 or $daily.averyOfficeBan>>
 		As you go to grab the key from <<office_manager>>, <<he>> looks at you apologetically. "I'm sorry, I was told you are not allowed to work on that floor right now."
 		<br><br>
-		<span class="blue">It seems you won't be allowed to work with Avery until <<his>> mood improves.</span>
+		<span class="blue">It seems you won't be allowed to work with Avery until <<nnpc_his "Avery">> mood improves.</span>
 	<<else>>
 		You grab the elevator keycard from <<office_manager>> and head towards Avery's office.
 		<br><br>
@@ -267,12 +263,6 @@ You clarify that you wanted to know what <<he>> meant by 'distraction'. <<He>> s
 :: Avery Office
 <<effects>>
 <<npc Avery>><<person1>>
-
-<<if !$weekly.averyAssistant>>
-	<<set $weekly.averyAssistant to {}>>
-	<<set $weekly.averyAssistant.work to 0>>
-	<<set $weekly.averyAssistant.approval to 0>>
-<</if>>
 
 You knock on the office door before entering. Avery glances up from <<his>> computer and gives you <<= $averyragerevealed is 1 and C.npc.Avery.rage gte 20 ? "an annoyed look" : "a small nod">> before continuing <<his>> work.
 <br><br>
@@ -295,8 +285,10 @@ Most of the workers are leaving for the day. Avery and you step out of <<his>> o
 <<if C.npc.Avery.rage gte 60>>
 	wordlessly walks by you without even a goodbye.
 	<br><br>
+	<<link [[Exit (0:05)|Avery Office Leave]]>><<pass 5>><<endevent>><</link>>
+	<br>
 <<else>>
-	turns to you and smiles. "Shall I take you back home, <<pcpetname "Avery">>?"
+	turns to you and smiles. "Shall <<= $avery_mansion ? "we head" : "I take you back">> home, <<pcpetname "Avery">>?"
 	<br><br>
 
 	<<link [[Accept (0:10)|Avery Office Drive]]>><<pass 10>><</link>>
@@ -310,7 +302,7 @@ Most of the workers are leaving for the day. Avery and you step out of <<his>> o
 
 You return the elevator keycard to <<office_manager>> before returning to Avery who is waiting for you at the entrance of the parking garage.
 <br><br>
-You both walk to <<his>> car and then get inside. Avery starts the car, leaving the garage, and heading towards your destination.
+You both walk to <<his>> car and then get inside. Avery starts the car, leaves the garage, and heads towards your destination.
 <br><br>
 <<if $rng gte 81>>
 	As <<he>> drives, Avery's hand rests on your thigh, squeezing and caressing it. Occasionally <<his>> hand would go up your thigh, near your <<genitals>> and fondle them lightly.<<arousal 200 "genitals">><<garousal>>
@@ -394,12 +386,19 @@ You both walk to <<his>> car and then get inside. Avery starts the car, leaving 
 
 :: Avery Office Drop Off
 <<effects>>
+<<if $avery_mansion>>
+	Avery parks <<his>> car into the garage, and then exits the vehicle. You follow suit.
+	<br><br>
 
-<<He>> drops you off on Domus Street. <<He>> lingers for a moment before driving away.
-<br><br>
+	<<link [[Next|Mansion Garage]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<He>> drops you off on Domus Street. <<He>> lingers for a moment before driving away.
+	<br><br>
 
-<<link [[Next|Domus Street]]>><<endevent>><<set $eventskip to 1>><</link>>
-<br>
+	<<link [[Next|Domus Street]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<br>
+<</if>>
 
 :: Avery Office Drive Decline
 <<effects>>
@@ -458,7 +457,19 @@ You both walk to <<his>> car and then get inside. Avery starts the car, leaving 
 <<effects>><<set $endear to 0>>
 
 <<npc Avery>><<person1>>
-<<set $weekly.averyAssistant.work ++>>
+<<if !$weekly.averyAssistant>>
+	<<set $weekly.averyAssistant to {}>>
+<</if>>
+
+<<if $weekly.averyAssistant.work is undefined>>
+	<<set $weekly.averyAssistant.work to 0>>
+<</if>>
+
+<<if $weekly.averyAssistant.approval is undefined>>
+	<<set $weekly.averyAssistant.approval to 0>>
+<</if>>
+
+<<set $weekly.averyAssistant.work++>>
 
 <<cleareventpool>>
 <<if Time.hour gte 12 and Time.hour lte 13 and !$daily.averyOfficeLunch>>
@@ -980,7 +991,6 @@ You decide to just focus on your meal and continue eating. There's idle chatter.
 		<<run _react.push("demon")>>
 	<</if>>
 	<<if $beauty gte ($beautymax * 0.8)>><<run _react.push("beauty")>><</if>>
-	<<run console.log(T.react)>>
 	<<if _react.length gte 1>>
 		<<set _reactPick to _react.random()>>
 		<<switch _reactPick>>
@@ -1385,7 +1395,7 @@ It seems they may reject Avery's offer. You wonder if there's anything that you 
 	<<link [[Seduce them|Avery Office Business Meeting 4]]>><<set $phase to 0>><</link>><<promiscuous3>>
 	<br>
 <</if>>
-<<link [[Persuade them to accept the offe|Avery Office Business Meeting 4]]>><<set $phase to 1>><</link>><<englishdifficulty 400 1200>>
+<<link [[Persuade them to accept the offer|Avery Office Business Meeting 4]]>><<set $phase to 1>><</link>><<englishdifficulty 400 1200>>
 <br>
 <<link [[Do nothing|Avery Office Business Meeting 4]]>><<set $phase to 2>><</link>>
 <br>
@@ -1396,7 +1406,6 @@ It seems they may reject Avery's offer. You wonder if there's anything that you 
 <<if $phase is 0>> /* Seduce them */
 	<<set $seductiondifficulty to 8000>>
 	<<seductioncheck>>
-	<br><br>
 	<<seductionskilluptext>>
 	<<seductionskilluse>>
 
@@ -1857,7 +1866,7 @@ You've earned <<moneyGain _averyPay>>.
 
 :: Avery Office File Spank Finish
 
-<<set $outside to 0>><<set $location to "office">><<effects>>
+<<set $outside to 0>><<if $avery_fate is "ascended">><<location "avery_skyscraper">><<else>><<location "office">><</if>><<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
@@ -1953,7 +1962,7 @@ You've earned <<moneyGain _averyPay>>.
 <<effects>>
 
 <<if $phase is 0>> /* Give oral */
-	You move your head closer to Avery's <<= $NPCList[0].penis isnot "none" ? "cock" : "pussy">>. You hear <<him>> chuckle above you, <<his>> fingers entwining in your hair. "That's <<pcpetname "Avery">>..."
+	You move your head closer to Avery's <<= $NPCList[0].penis isnot "none" ? "cock" : "pussy">>. You hear <<him>> chuckle above you, <<his>> fingers entwining in your hair. "That's my <<pcpetname "Avery" "my">>..."
 	<br><br>
 
 	<<link [[Next|Avery Office Oral Sex]]>><<set $sexstart to 1>><</link>>
@@ -2232,7 +2241,6 @@ Now that you're pressed up against <<him>> like this, you realise that <<hes>> m
 	<<set _hole to _hole.filter(hole => hole !== $averyWarming.hole)>>
 	<<set _holeOffer to _hole.pluck()>>
 <</if>>
-<<run console.log(_holeOffer)>>
 
 <<if $phase is 0>>
 	<<He>> presses <<his>> lips against yours. You gasp, and <<he>> slips <<his>> tongue into your mouth. As Avery kisses you, <<his>> hands wander over your body, caressing and groping wherever <<he>> can reach. <<arousal 50 "mouth">><<arousal 50>><<garousal>><<set $endear += 10>><<gendear>><<takeKissVirginity "Avery" `($dateCount.Avery gte 3?"loveInterest":"romantic")`>>
@@ -2302,7 +2310,7 @@ Now that you're pressed up against <<him>> like this, you realise that <<hes>> m
 	<br><br>
 	<<if $player.penisExist>>
 		<<if $player.penissize gte 3>>
-			<<He>> lightly grazes <<his>> fingers up and down your <<penis>><<if $player.penissize is 4>>, seemingly enthralled by its immense size<</if>>. <<He>> <<= $player.penissize is 4 ? "takes considerable time to outline the thick," : "outlines the">> throbbing veins along the length of it, and swipes up a generous dollop of pre-cum once <<he>> reaches the top. <<if $player.penissize is 4>>The amount threatens to spill from <<his>> fingers, but <</if>> Avery laps the seed from <<his>> fingers. <<He>>doesn't waste a drop, savouring it with a satisfied hum.
+			<<He>> lightly grazes <<his>> fingers up and down your <<penis>><<if $player.penissize is 4>>, seemingly enthralled by its immense size<</if>>. <<He>> <<= $player.penissize is 4 ? "takes considerable time to outline the thick," : "outlines the">> throbbing veins along the length of it, and swipes up a generous dollop of pre-cum once <<he>> reaches the top. <<if $player.penissize is 4>>The amount threatens to spill from <<his>> fingers, but <</if>> Avery laps the seed from <<his>> fingers. <<He>> doesn't waste a drop, savouring it with a satisfied hum.
 			<br><br>
 			"Delicious..." <<He>> <<laughs>> quietly into your ear, sending tingles down your spine. "It makes me want to..." <<He>> wraps <<his>> hand around your <<penis>>, giving it a slight squeeze and tug.<<if $player.penissize is 4>> <<His>> fingers are only just able to fully wrap around it.<</if>> "...milk you dry so I can enjoy some more,"
 		<<elseif $player.penissize gte 2>>
@@ -2409,11 +2417,16 @@ Now that you're pressed up against <<him>> like this, you realise that <<hes>> m
 
 	Your thighs quiver as you fight the urge to press them together, but you don't resist as Avery lowers you onto <<his>>
 	<<if $averyWarming.hole is "pussy" and $player.virginity.vaginal is true>>
-		cock, <<virginitylosttext>><<takeVirginity "Avery" "vaginal">><<set _virgin to true>>
+		cock, <<virginitylosttext>><<takeVirginity "Avery" "vaginal">><<vaginalstat>><<vaginaraped>><<set _virgin to true>>
 	<<elseif $averyWarming.hole is "anus" and $player.virginity.anal is true>>
-		cock, <<virginitylosttext>><<takeVirginity "Avery" "anal">><<set _virgin to true>>
+		cock, <<virginitylosttext>><<takeVirginity "Avery" "anal">><<analstat>><<anusraped>><<set _virgin to true>>
 	<<else>>
 		cock.
+		<<if $averyWarming.hole is "pussy">>
+			<<vaginalstat>><<vaginaraped>><<takeTempleVirginity "Avery" "vaginal">>
+		<<else>>
+			<<analstat>><<anusraped>>
+		<</if>>
 	<</if>>
 	<<if $NPCList[0].penissize is 4>>
 		You have to bite down on your lip to fight tears from springing to your eyes as you struggle to take Avery's massive cock, even with <<if $averyWarming.hole is "pussy">>your natural <</if>>lubrication. <<if $averyWarming.hole is "anus">><<= $analsensitivity gte 2 ? "<<pain 2>>" : "<<pain 1>>">><<gpain>><</if>>
@@ -2578,7 +2591,7 @@ You follow Avery's <<= $averyragerevealed is 1 ? "order" : "request">>, and
 <</if>>
 
 <<if $phase is 0>>
-	Avery leans down to press <<his>> lips against yours, working <<his>> tongue past your lips and into your mouth. As <<he>> kisses you, <<his>> hands wander more aggressively over your body, caressing and groping wherever <<he>> can reach. <<He>> avoids your <<genitals>>, but it still feels good. <<arousal 50 "mouth">><<arousal 50>><<garousal>><<takeKissVirginity "Avery" `($dateCount.Avery gte 3?"loveInterest":"romantic")`>>
+	Avery leans down to press <<his>> lips against yours, working <<his>> tongue past your lips and into your mouth. As <<he>> kisses you, <<his>> hands wander more aggressively over your body, caressing and groping wherever <<he>> can reach. <<He>> avoids your <<genitals>>, but it still feels good. <<arousal 50 "mouth">><<arousal 50>><<garousal>><<takeKissVirginity "Avery" `($auriga_artefact?"loveInterest":"romantic")`>>
 	<br><br>
 	Eventually, <<he>> breaks the kiss. <<He>>
 <<else>>
@@ -2631,7 +2644,7 @@ Avery reaches for the phone. As <<he>> does, <<he>> shifts so that
 		<br><br>
 		"<<= C.npc.Avery.rage gte 60 ? "I'm glad you came prepared" : "You know I don't usually care for your little toys, but I can make an exception today">>." <<He>> laughs, caressing the length of the phone sensually, not picking it up just yet. "You've kept it warm for me, wearing this thing around all day. Yes, this will do the job nicely."
 	<<elseif $player.virginity.penile is true>>
-		vagina, <<takeVirginity "Avery" "penile">><<virginitylosttext>> <<He>> moans and squeezes around you as <<he>> adjusts to the penetration, then <<= either(`giggles`,`chuckles`,`gasps`)>> with delight.
+		vagina, <<takeVirginity "Avery" "penile">><<penilestat>><<penisraped>><<virginitylosttext>> <<He>> moans and squeezes around you as <<he>> adjusts to the penetration, then <<= either(`giggles`,`chuckles`,`gasps`)>> with delight.
 		<br><br>
 		<<He>> bends down to whisper in your ear, "My, you're a virgin, aren't you? ...Or should I say, 'weren't you'?" <<He>> caresses up and down the length of the phone sensually, not picking it up just yet. <<His>> voice is quiet, but you still hear it over the trilling ring, "Although I might have preferred taking your virginity in a more romantic setting...I'll thank you for the gift anyway." <<He>> kisses your cheek and straightens up.
 	<<else>>
@@ -2835,7 +2848,7 @@ Soon enough, <<he>> does pick up the phone, raising it to <<his>> ear. "Yes? It'
 <<if $averyWarming.work is "paper">>
 	You lick the tip of <<his>> <<personpenis>>, tasting <<= $averyWarming.hole is "anus" ? "the lube" : "your <<semen>>">> on it. It twitches against your tongue, even with the slight touch; Avery must be close. You continue to lick up and down <<his>> shaft, circling <<his>> glans whenever you reach it.
 	<br><br>
-	<<= $averyragervealed is 1 ? '"F-fuck...!"' : 'You hear <<him>> curse under <<his>> breath.'>> <<He>> must have been closer than you realised, because, the next moment, <<he>> grips your head with both hands and pushes your head down <<his>> cock. <<takeVirginity "Avery" "oral">>
+	<<= $averyragervealed is 1 ? '"F-fuck...!"' : 'You hear <<him>> curse under <<his>> breath.'>> <<He>> must have been closer than you realised, because, the next moment, <<he>> grips your head with both hands and pushes your head down <<his>> cock. <<takeVirginity "Avery" "oral">><<oralstat>>
 	<br><br>
 	<<if $NPCList[0].penissize is 4>>
 		Thick, hot cum swells into your mouth. <<His>> massive member makes taking it a difficult task.

@@ -1238,6 +1238,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 				if (V.worn.feet.type.includes("rugged")) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
+				if (V.auriga_artefact === "pc") {
+					result = Math.floor(result * 1.1);
+				}
 			}
 			break;
 		case "danceskill":
@@ -1938,7 +1941,7 @@ function getHalloweenCostume() {
 		return "karate";
 	} else if (upper.name === "monk's habit" && lower.name === "monk's habit skirt") {
 		return "monk";
-	} else if (upper.name === "padded football shirt" && lower.name === "football shorts") {
+	} else if (["football shirt", "foreign football shirt"].includes(upper.name) && ["football shorts", "foreign football shorts"].includes(lower.name)) {
 		return "football";
 	} else if (
 		(upper.name === "belly dancer's top" && lower.name === "belly dancer's bottoms") ||
@@ -2756,17 +2759,23 @@ function insecurityExists(type) {
 }
 window.insecurityExists = insecurityExists;
 
-function bestialityEnabled() {
-	return V.bestialitydisable === "f";
-}
-window.bestialityEnabled = bestialityEnabled;
-
 function isBeastSceneAllowed() {
-	return bestialityEnabled() || ((V.monsterhallucinations === "f" || V.hallucinations > 0) && V.monsterchance >= random(1, 100));
+	return V.bestialitydisable === "f" || ((V.monsterhallucinations === "f" || V.hallucinations > 0) && V.monsterchance >= random(1, 100));
 }
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
-function dangerEvent(mod = 1, floor = 9900, allure = V.allure) {
-	return random(1, 10000) >= floor - allure * mod;
+/**
+ * check if event is going to be dangerous based on rng and player allure
+ * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ *
+ * @param {number} mod allure multiplier
+ * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
+ * @param {number} allure target allure, usually that of pc, which by default is capped at 8000, resulting in 81% chance of danger with default parameters and max allure
+ * @param {boolean} reroll re-roll _danger if called more than once per passage
+ * @returns {boolean} whether the roll is dangerous
+ */
+function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	if (!T.danger || reroll) T.danger = random(1, 10000);
+	return T.danger >= floor - allure * mod;
 }
 window.dangerEvent = dangerEvent;
