@@ -9,7 +9,7 @@ Weather.Renderer.Effects.add({
 		x: 70,
 		y: 110,
 
-		riseSpeed: 10, // constant upward speed
+		riseSpeed: 5, // constant upward speed (slower default)
 		windSpeed: 0, // px/s max horizontal
 		windDirection: 0, // degrees
 
@@ -30,6 +30,12 @@ Weather.Renderer.Effects.add({
 	},
 
 	async init() {
+		// Clean up old emitters if reinitialising
+		if (Array.isArray(this.emitters)) {
+			for (const em of this.emitters) {
+				if (em && em.destroy) em.destroy();
+			}
+		}
 		this.deltaTime = this.parentLayer.animationGroup.updateRate / 1000;
 		this.emitters = [];
 
@@ -54,7 +60,6 @@ Weather.Renderer.Effects.add({
 		};
 
 		const smokes = (this.particles || []).filter(cfg => cfg.type === "smoke");
-		console.log("SMOKES", smokes);
 		for (const raw of smokes) {
 			if (raw.type !== "smoke") return;
 			const cfg = { ...defaults, ...raw };
@@ -80,10 +85,11 @@ Weather.Renderer.Effects.add({
 				curve: accelX,
 
 				initialSettings: {
-					shape: "rect",
+					shape: cfg.shape,
+					src: cfg.image,
 					size: { w: cfg.size, h: cfg.size },
 					color: cfg.color,
-					alpha: 1,
+					alpha: cfg.alpha,
 					gravity: 0, // constant rise only in gen
 					fade: true,
 					fadeTime: cfg.fadeTime,
@@ -113,7 +119,22 @@ Weather.Renderer.Effects.add({
 						velocity: { x: vx, y: vy },
 						fadeStart,
 						lifetime: fadeStart + cfg.fadeTime,
+						rotation: {
+							angle: Math.random() * 360, // Any rotation
+							speed: (Math.random() - 0.5) * 0.2, //
+						},
 					};
+				},
+				onUpdate: p => {
+					const t = p.age / p.lifetime;
+					const size = 2 + 12 * t;
+					p.size.w = size;
+					p.size.h = size;
+
+					// // 2) fade out in the last 25% of life
+					// if (t > 0.75) {
+					// 	p.alpha = 1 - (t - 0.75) / 0.25;
+					// }
 				},
 
 				animationGroup: this.parentLayer.animationGroup,
@@ -133,185 +154,17 @@ Weather.Renderer.Effects.add({
 		}
 	},
 
+	onDisable() {
+		if (Array.isArray(this.emitters)) {
+			for (const em of this.emitters) {
+				if (em && em.destroy) em.destroy();
+			}
+		}
+		this.emitters = [];
+	},
+
 	draw() {
 		this.canvas.clear();
 		for (const em of this.emitters) em.draw();
 	},
 });
-
-Weather.Renderer.Effects.add({
-	name: "fire",
-	defaultParameters: {
-		particles: [], // from your bindings
-		x: null, // fallback origin.x
-		y: null, // fallback origin.y
-		flameRate: 30,
-		sparkRate: 60,
-		baseRadius: 30,
-		riseSpeed: 3, // positive = px/sec up
-		sparkGravity: 0.1,
-		flameFade: 0.8,
-		sparkFade: 1.0,
-		colorFlame: "#ffdd99",
-		colorSpark: "#ffdd99",
-		sideOffset: 1, // max horizontal jitter
-		driftX: 1, // small random drift
-		// glow…
-		glowColor: "rgba(255,200,100,0.5)",
-		glowRadius: 50,
-		glowBlur: 2,
-		glowScaleX: 2.5,
-		glowOffsetY: 20,
-	},
-
-	async init() {
-		// grab only your .type==="fire" configs
-		const fires = (this.particles || []).filter(p => p.type === "fire");
-		this.emitters = [];
-
-		for (const raw of fires) {
-			// merge instance‐parameters (this.x,this.y, etc) + raw override
-			const cfg = {
-				x: this.x ?? this.canvas.element.width * 0.5,
-				y: this.y ?? this.canvas.element.height * 0.75,
-				...this, // pull in any other this.* defaults
-				...raw,
-			};
-
-			const ox = cfg.origin?.[0] ?? cfg.x;
-			const oy = cfg.origin?.[1] ?? cfg.y;
-			const flameLife = cfg.flameFade * 2;
-			const sparkLife = cfg.sparkFade * 2;
-
-			// ——— 1) Flames ———
-			const flame = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
-				origin: { x: ox, y: oy },
-				maxParticles: Math.ceil(cfg.flameRate * flameLife),
-				spawnRate: cfg.flameRate,
-				preWarm: true,
-				initialSettings: {
-					shape: "circle",
-					size: { w: cfg.baseRadius * 2, h: 0 },
-					color: cfg.colorFlame,
-					alpha: 1,
-					fade: true,
-					fadeStart: flameLife * 0.3,
-					fadeTime: flameLife * 0.7,
-					lifetime: flameLife,
-				},
-				generator: () => {
-					// horizontal jitter around center:
-					const xOff = (Math.random() * 2 - 1) * cfg.sideOffset;
-					const yOff = (Math.random() * 2 - 1) * (cfg.baseRadius * 0.2);
-
-					// where we actually start:
-					const x0 = ox + xOff;
-					const y0 = oy + yOff;
-
-					// “how far off center” in [0..1]
-					const t = Math.min(1, Math.abs(xOff / cfg.sideOffset));
-
-					// slower in center, faster at edges
-					const speedScale = 0.75 + 0.5 * t;
-					const vy = -cfg.riseSpeed * speedScale; // NEGATIVE → up
-					const vx = (Math.random() * 2 - 1) * cfg.driftX;
-
-					// blend hue/lightness from yellow→red
-					const hue = lerp(50, 10, t);
-					const lightness = lerp(90, 50, t);
-					const color = `hsl(${hue},100%,${lightness}%)`;
-
-					// random radius
-					const r = cfg.baseRadius * (Math.random() * 0.5 + 0.5);
-
-					return {
-						x: x0,
-						y: y0,
-						velocity: { x: vx, y: vy },
-						size: { w: r * 2, h: 0 },
-						color,
-					};
-				},
-				animationGroup: this.parentLayer.animationGroup,
-			});
-			flame.enable();
-
-			// ——— 2) Sparks ———
-			const spark = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
-				origin: { x: ox, y: oy },
-				maxParticles: Math.ceil(cfg.sparkRate * sparkLife),
-				spawnRate: cfg.sparkRate,
-				preWarm: false,
-				initialSettings: {
-					shape: "line",
-					size: { w: 1, h: 1 },
-					color: cfg.colorSpark,
-					alpha: 1,
-					fade: true,
-					fadeTime: cfg.sparkFade,
-					gravity: cfg.sparkGravity,
-					lifetime: sparkLife,
-				},
-				generator: () => {
-					const θ = Math.random() * Math.PI * 2;
-					const speed = Math.random() * 4 + 2;
-					return {
-						x: ox,
-						y: oy,
-						velocity: { x: Math.cos(θ) * speed, y: -Math.sin(θ) * speed },
-					};
-				},
-				animationGroup: this.parentLayer.animationGroup,
-			});
-			spark.enable();
-
-			this.emitters.push({ emitter: flame, kind: "flame", cfg });
-			this.emitters.push({ emitter: spark, kind: "spark", cfg });
-		}
-	},
-
-	draw() {
-		const ctx = this.canvas.ctx;
-		this.canvas.clear();
-
-		// elliptical glow
-		for (const { kind, cfg } of this.emitters) {
-			if (kind !== "flame") continue;
-			const [ox, oy] = cfg.origin || [cfg.x, cfg.y];
-			ctx.save();
-			ctx.globalCompositeOperation = "lighter";
-			ctx.filter = `blur(${cfg.glowBlur}px)`;
-			ctx.translate(ox, oy - cfg.glowOffsetY);
-			ctx.scale(cfg.glowScaleX, 1);
-			const g = ctx.createRadialGradient(0, 0, 0, 0, 0, cfg.glowRadius);
-			g.addColorStop(0, "rgba(0,0,0,0)");
-			g.addColorStop(1, cfg.glowColor);
-			ctx.fillStyle = g;
-			ctx.beginPath();
-			ctx.arc(0, 0, cfg.glowRadius, 0, 2 * Math.PI);
-			ctx.fill();
-			ctx.restore();
-		}
-
-		// draw flame blobs
-		ctx.globalCompositeOperation = "overlay";
-		for (const { emitter, kind } of this.emitters) {
-			if (kind === "flame") emitter.draw();
-		}
-
-		// draw sparks
-		ctx.globalCompositeOperation = "lighter";
-		for (const { emitter, kind } of this.emitters) {
-			if (kind === "spark") emitter.draw();
-		}
-
-		// back to normal
-		ctx.globalCompositeOperation = "source-over";
-		ctx.filter = "none";
-	},
-});
-
-// simple linear‐interpolator
-function lerp(a, b, t) {
-	return a + (b - a) * t;
-}

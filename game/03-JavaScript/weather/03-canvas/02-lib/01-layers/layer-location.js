@@ -227,20 +227,6 @@ Weather.Renderer.Layers.add({
 				},
 			},
 		},
-		{
-			effect: "fire",
-			drawCondition() {
-				if (!Array.isArray(this.particles)) return false;
-				return this.particles.some(obj => typeof obj.type === "string" && obj.type.includes("fire"));
-			},
-			params: {},
-			bindings: {
-				particles() {
-					const loc = setup.Locations.get();
-					return setup.LocationImages[loc]?.particles || [];
-				},
-			},
-		},
 	],
 });
 

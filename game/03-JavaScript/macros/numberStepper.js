@@ -25,7 +25,7 @@
  */
 Macro.add("numberStepper", {
 	handler() {
-		DOL.Perflog.logWidgetStart("numberStepper");
+		Perflog.logWidgetStart("numberStepper");
 
 		// Determine arguments and options
 		let [title, initialValue, setter, options] = this.args;
@@ -80,7 +80,6 @@ Macro.add("numberStepper", {
 			return;
 		}
 		if (min > max) {
-			console.log("min", min, "max", max);
 			$(this.output).append($("<div>", { class: "red", text: "Error: Min value must be less than max value." }));
 			return;
 		}
@@ -300,6 +299,6 @@ Macro.add("numberStepper", {
 
 		updateDisplay();
 		updateButtonStates();
-		DOL.Perflog.logWidgetEnd("numberStepper");
+		Perflog.logWidgetEnd("numberStepper");
 	},
 });

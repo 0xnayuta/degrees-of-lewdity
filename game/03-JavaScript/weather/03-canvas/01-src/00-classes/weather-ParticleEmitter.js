@@ -3,9 +3,8 @@
  * Grab your canvas context and the layer animationGroup:
  * 		const ctx = document.querySelector("canvas").getContext("2d");
  * 		const group = myWeatherLayer.animationGroup;
- *
- * Construct an emitter:
- * 		const emitter = new Weather.Renderer.ParticleEmitter(ctx, {
+	}
+};
  *   		origin:         { x: 100, y: -10 },     // start just above the top
  *   		maxParticles:   500,                    // fail‑safe cap
  *
@@ -64,9 +63,10 @@
  *   animationGroup    // Weather.Renderer.AnimationGroup
  */
 Weather.Renderer.ParticleEmitter = class ParticleEmitter {
-	static #instances = new Set();
-	static #ticker = null;
-	static #group = null;
+	// Manage emitters and tickers per animation group
+	static #emittersByGroup = new Map(); // group -> Set<ParticleEmitter>
+	static #tickersByGroup = new Map(); // group -> Animation
+	static #originalOnUpdate = new WeakMap(); // group -> function
 	static #key = "particleTicker";
 
 	#spawnAccumulator = 0;
@@ -78,11 +78,10 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	 * Dummy ticker
 	 */
 	static #setTicker(group) {
-		if (this.#ticker && this.#group === group) return;
-		this.#group = group;
+		if (this.#tickersByGroup.has(group)) return;
 		const frameDelay = group.updateRate;
 		const offscreen = new BaseCanvas(1, 1);
-		this.#ticker = new Weather.Renderer.Animation({
+		const ticker = new Weather.Renderer.Animation({
 			name: this.#key,
 			image: offscreen.element,
 			canvas: offscreen,
@@ -90,15 +89,36 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			frameDelay,
 			alwaysDisplay: true,
 		});
-		group.add(this.#key, this.#ticker);
-		this.#ticker.enable();
+		group.add(this.#key, ticker);
+		ticker.enable();
+		this.#tickersByGroup.set(group, ticker);
 
+		// Real-time seconds with pause protection and mild dt clamping
 		const original = group.onUpdate.bind(group);
+		this.#originalOnUpdate.set(group, original);
+		const nowFn = typeof performance !== "undefined" ? () => performance.now() : () => Date.now();
+		const targetDt = frameDelay / 1000;
+		let last = nowFn();
 		group.onUpdate = () => {
-			const dt = frameDelay / 1000;
-			for (const em of Weather.Renderer.ParticleEmitter.#instances) {
-				em.update(dt);
-				em.draw();
+			const now = nowFn();
+			let dt = (now - last) / 1000;
+			last = now;
+			// Freeze when hidden (alt‑tab/background)
+			const hidden = typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden");
+			if (hidden) dt = 0;
+			// Treat huge gaps as pauses: no catch‑up burst
+			if (dt > targetDt * 4) dt = 0;
+			// Clamp minor hiccups and handle clock anomalies
+			if (!Number.isFinite(dt) || dt < 0) dt = targetDt;
+			else if (dt > 0) dt = Math.min(dt, targetDt * 2);
+
+			const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(group);
+			if (set && set.size) {
+				for (const em of set) {
+					if (!em.active) continue;
+					em.update(dt);
+					em.draw();
+				}
 			}
 			original();
 		};
@@ -115,6 +135,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			generator = () => ({}),
 			onCollision = null,
 			onDestroy = null,
+			onUpdate = null,
 			curve = 0,
 			preWarm = false,
 			autoDestroy = false,
@@ -126,41 +147,66 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		this.maxParticles = maxParticles;
 		this.spawnRate = spawnRate;
 		this.spawnInterval = spawnInterval;
-		this.initialSettings = initialSettings;
 		this.generator = generator;
 		this.onCollision = onCollision;
 		this.onDestroy = onDestroy;
+		this.onUpdate = onUpdate;
 		this.curve = curve;
 		this.autoDestroy = autoDestroy;
 
-		Weather.Renderer.ParticleEmitter.#instances.add(this);
-		if (animationGroup) ParticleEmitter.#setTicker(animationGroup);
-		if (preWarm) this.#preWarm();
-	}
+		let imagePromise = Promise.resolve();
+		if (initialSettings.shape === "image" && typeof initialSettings.src === "string") {
+			const img = new Image();
+			img.src = initialSettings.src;
+			initialSettings.image = img;
+			imagePromise = img.decode();
+		}
 
-	#preWarm() {
-		const time = this.initialSettings.lifetime ?? 0;
+		this.initialSettings = initialSettings;
 
-		// spawn enough to fill the canvas
-		let count = this.spawnRate != null ? Math.min(this.maxParticles, Math.ceil(this.spawnRate * time)) : this.maxParticles;
-
-		while (count-- > 0) this.#spawnParticle();
-
-		// scatter them in that interval
-		for (const p of this.particles) {
-			p.update(Math.random() * time);
+		this.active = true;
+		if (animationGroup) {
+			// Track this emitter under its animation group
+			let set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(animationGroup);
+			if (!set) {
+				set = new Set();
+				Weather.Renderer.ParticleEmitter.#emittersByGroup.set(animationGroup, set);
+			}
+			set.add(this);
+			ParticleEmitter.#setTicker(animationGroup);
+			this.group = animationGroup;
+		}
+		if (preWarm) {
+			// Await image before prewarming
+			imagePromise.then(() => this.#preWarm()).catch(err => console.warn("Image decode failed:", err));
 		}
 	}
 
-	update(dt) {
+	#preWarm() {
+		const lifetime = this.initialSettings.lifetime;
+		const finiteLife = Number.isFinite(lifetime) && lifetime > 0;
+
+		// Always fill immediately up to maxParticles when prewarming
+		let count = this.maxParticles;
+		while (count-- > 0) this.#spawnParticle();
+
+		// Optionally scatter only if lifetime is finite; avoid aging infinite‑life particles
+		if (finiteLife) {
+			for (const p of this.particles) {
+				p.update(Math.random() * lifetime);
+			}
+		}
+	}
+
+	update(time) {
 		// spawn by rate or interval
 		if (this.spawnRate != null) {
-			this.#spawnAccumulator += dt * this.spawnRate;
+			this.#spawnAccumulator += time * this.spawnRate;
 			const toSpawn = Math.floor(this.#spawnAccumulator);
 			this.#spawnAccumulator -= toSpawn;
 			for (let i = 0; i < toSpawn; i++) this.#spawnParticle();
 		} else if (this.spawnInterval != null) {
-			this.#spawnTimer += dt;
+			this.#spawnTimer += time;
 			while (this.#spawnTimer >= this.spawnInterval) {
 				this.#spawnParticle();
 				this.#spawnTimer -= this.spawnInterval;
@@ -171,7 +217,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		const next = [];
 		for (const p of this.particles) {
 			const prevAge = p.age;
-			p.update(dt);
+			p.update(time);
 			if (this.onCollision && p.collisionTime != null && prevAge < p.collisionTime && p.age >= p.collisionTime) {
 				this.onCollision(p);
 			}
@@ -180,6 +226,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 				this.pool.push(p);
 				this.onDestroy?.(p);
 			}
+			this.onUpdate?.(p, time);
 		}
 		this.particles = next;
 
@@ -194,8 +241,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		const p = this.pool.pop() ?? new Weather.Renderer.Particle();
 
 		p.reset({
-			x: this.origin.x,
-			y: this.origin.y,
+			position: { x: this.origin.x, y: this.origin.y },
 			curve: this.curve,
 			...this.initialSettings,
 			...this.generator(),
@@ -210,14 +256,30 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	}
 
 	enable() {
-		ParticleEmitter.#ticker?.enable();
+		this.active = true;
+		if (this.group) Weather.Renderer.ParticleEmitter.#tickersByGroup.get(this.group)?.enable();
 	}
 
 	disable() {
-		ParticleEmitter.#ticker?.disable();
+		// Per-emitter disable — don’t stop the whole group ticker
+		this.active = false;
 	}
 
 	destroy() {
-		ParticleEmitter.#instances.delete(this);
+		if (this.group) {
+			const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(this.group);
+			if (set) {
+				set.delete(this);
+				if (set.size === 0) {
+					// Restore original onUpdate for this group and disable ticker
+					const original = Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(this.group);
+					if (original) this.group.onUpdate = original;
+					Weather.Renderer.ParticleEmitter.#originalOnUpdate.delete(this.group);
+					Weather.Renderer.ParticleEmitter.#tickersByGroup.get(this.group)?.disable();
+					Weather.Renderer.ParticleEmitter.#tickersByGroup.delete(this.group);
+					Weather.Renderer.ParticleEmitter.#emittersByGroup.delete(this.group);
+				}
+			}
+		}
 	}
 };

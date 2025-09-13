@@ -1261,13 +1261,16 @@ setup.LocationImages = {
 			{
 				condition: () => !Weather.bloodMoon,
 				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/smoke2.png",
 				origin: [3, 71.5], // Coordinates from the top left
-				rate: 5, // Particles generated per second
-				size: 1.5, // Size of the particle in px
-				riseSpeed: 3.2, //
+				rate: 3, // Particles generated per second
+				size: 4, // Size of the particle in px
+				riseSpeed: 0.8,
 				spread: 6,
-				color: "#55555599", // Last 2 numbers are the alpha (99 in hex means 60%)
-				windSpeed: 6, // strength of the wind, will push the particles in a direction
+				alpha: 1,
+				color: "#4c4c4cff", // Last 2 numbers are the alpha (99 in hex means 60%)
+				windSpeed: 3, // strength of the wind, will push the particles in a direction
 				windDirection: 0, //degrees - A value of 0 is right (east)
 				minFadeDistance: 1, //minimum fade time of the particles (in distance (px))
 				maxFadeDistance: 25, //maximum fade time
@@ -1278,35 +1281,22 @@ setup.LocationImages = {
 			{
 				condition: () => !Weather.bloodMoon,
 				type: "smoke",
+				shape: "image",
+				image: "img/misc/sky/clouds/fog/smoke2.png",
 				origin: [20, 69],
-				rate: 5,
-				size: 1.5,
-				riseSpeed: 3.2,
+				rate: 3,
+				size: 4,
+				riseSpeed: 0.8,
 				spread: 8,
-				color: "#55555599",
-				windSpeed: 3.5,
+				alpha: 1,
+				color: "#484848ff",
+				windSpeed: 2,
 				windDirection: 0,
 				minFadeDistance: 1,
 				maxFadeDistance: 20,
 				fadeTime: 1.2,
 				driftAmplitude: 0,
 				driftWavelength: 0,
-			},
-			{
-				type: "fire",
-				origin: [20, 20],
-				flameRate: 4,
-				sparkRate: 1,
-				baseRadius: 1,
-				riseSpeed: 1,
-				sparkGravity: -5,
-				flameFade: 1.0,
-				sparkFade: 1.2,
-				colorFlame: "#ffddaa",
-				colorSpark: "#ffddaa",
-				glowColor: "rgba(255,180,80,0.7)",
-				glowRadius: 10,
-				glowBlur: 4,
 			},
 		],
 	},

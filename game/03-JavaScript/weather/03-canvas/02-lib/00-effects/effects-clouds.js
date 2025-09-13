@@ -296,144 +296,184 @@ Weather.Renderer.Effects.add({
 	defaultParameters: {
 		// count & appearance
 		particleCount: 150,
-		minVel: 3, // px/sec
-		maxVel: 6, // px/sec
+		minVel: 2, // px/sec
+		maxVel: 4, // px/sec
 		opacity: 1,
 
-		// sprite scaling
-		scale: 2.5,
-		scaleVariance: 0.5,
+		scale: 160, // sprite width in px
+		scaleVariance: 80, // ±px around scale (e.g., 160 ± 80)
 
 		// initial spawn
 		margin: 15, // px outside canvas
 		groundBias: 1, // >1 skew spawn Y toward bottom
 
-		// wandering
 		wanderRadius: 80, // px max from original
-		// rotation
-		rotationFactor: 0.015, // base rad/sec per unit speed
-		rotationVariance: 0.7, // ±50% random variation
+		rotationFactor: 0.2, // radians/sec (slow)
+		rotationVariance: 0.5, // ±50% variation
 	},
 
 	init() {
-		const interval = this.parentLayer.animationGroup.updateRate;
-		const ticker = new Weather.Renderer.Animation({
-			image: new BaseCanvas(1, 1).element,
-			canvas: this.canvas,
-			numFrames: 1,
-			frameDelay: interval,
-			offset: 0,
-			alwaysDisplay: false,
-		});
-		this.parentLayer.animationGroup.add(`${this.id}_ticker`, ticker);
-		ticker.enable();
-
-		this.deltaTime = interval / 1000;
-		const canvasWidth = this.canvas.element.width;
-		const canvasHeight = this.canvas.element.height;
-		const maxX = canvasWidth + 2 * this.margin;
-		const fogImage = this.images.fog;
-		const velocityRange = this.maxVel - this.minVel;
-
-		const particles = [];
-		for (let i = 0; i < this.particleCount; i++) {
-			const scale = this.scale + (Math.random() * 2 - 1) * this.scaleVariance;
-			const particleW = fogImage.width * scale;
-			const particleH = fogImage.height * scale;
-
-			const originX = -this.margin + Math.random() * maxX - particleW / 2;
-			const originY = canvasHeight * (1 - Math.pow(Math.random(), this.groundBias)) - particleH / 2;
-
-			const angle = Math.random() * Math.PI * 2;
-			const distance = Math.random() * this.wanderRadius;
-			const targetX = originX + Math.cos(angle) * distance;
-			const targetY = originY + Math.sin(angle) * distance;
-
-			const speed = this.minVel + Math.random() * velocityRange;
-			const spinDir = Math.random() < 0.5 ? -1 : +1;
-			const spinVar = 1 + (Math.random() * 2 - 1) * this.rotationVariance;
-			const angularSpeed = spinDir * speed * this.rotationFactor * spinVar;
-
-			const startAngle = Math.random() * Math.PI * 2;
-
-			particles.push({
-				origX: originX,
-				origY: originY,
-				x: originX,
-				y: originY,
-				width: particleW,
-				height: particleH,
-				speed,
-				targetX,
-				targetY,
-				spinDir,
-				angle: startAngle,
-				angularSpeed,
-			});
+		// Clean up any previous emitter to avoid duplicates on reinit
+		if (this.particleEmitter && this.particleEmitter.destroy) {
+			this.particleEmitter.destroy();
+			this.particleEmitter = null;
 		}
 
-		this.particles = particles;
+		// Use the particle system to simulate fog as slow, wandering image particles
+		const interval = this.parentLayer.animationGroup.updateRate;
+		this.deltaTime = interval / 1000;
+
+		const canvasWidth = this.canvas.element.width;
+		const canvasHeight = this.canvas.element.height;
+		const fogImage = this.images.fog;
+
+		// Per-particle state, kept outside the particle object
+		this.fogState = new WeakMap();
+
+		const spawnWidth = canvasWidth + 2 * this.margin;
+
+		this.particleEmitter = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
+			origin: { x: 0, y: 0 },
+			maxParticles: this.particleCount,
+			spawnRate: this.particleCount, // quickly fill pool up to maxParticles
+			preWarm: true,
+			autoDestroy: false,
+			initialSettings: {
+				shape: "image",
+				image: fogImage,
+				// Default size (generator will set exact width/height preserving aspect)
+				size: { w: this.scale, h: this.scale * (fogImage.height / fogImage.width) },
+				alpha: this.opacity,
+				gravity: 0,
+				fade: false,
+				lifetime: Number.POSITIVE_INFINITY,
+			},
+			generator: () => {
+				// Choose width in pixels with ±variance, keep the sprite aspect ratio for height
+				const minW = Math.max(1, this.scale - this.scaleVariance);
+				const maxW = this.scale + this.scaleVariance;
+				const w = minW + Math.random() * (maxW - minW);
+				const h = w * (fogImage.height / fogImage.width);
+
+				const originX = -this.margin + Math.random() * spawnWidth - w / 2;
+				// Stronger bottom bias: enforce a bottom band based on groundBias
+				const minYFrac = Math.max(0, 1 - 0.05 * this.groundBias); // e.g., bias 8 -> bottom 60% band
+				let originY = canvasHeight * (1 - Math.pow(Math.random(), this.groundBias)) - h / 2;
+				originY = Math.max(originY, canvasHeight * minYFrac - h / 2);
+
+				// Start stationary; onUpdate will steer toward a target
+				return {
+					position: { x: originX, y: originY },
+					velocity: { x: 0, y: 0 },
+					size: { w, h },
+					// Built-in rotation: slow random spin
+					rotation: {
+						angle: Math.random() * 360,
+						// base speed with variance, random direction
+						speed: (Math.random() < 0.5 ? -1 : 1) * this.rotationFactor * (1 + (Math.random() * 2 - 1) * this.rotationVariance),
+					},
+				};
+			},
+			onUpdate: p => {
+				// Initialize per-particle state on first update
+				let st = this.fogState.get(p);
+				if (!st) {
+					const speed = this.minVel + Math.random() * (this.maxVel - this.minVel);
+
+					// Anchor wandering around original spawn to preserve bottom bias
+					const origX = p.position.x;
+					const origY = p.position.y;
+
+					// Pick a nearby target within wander radius, constrained to not drift too far upward
+					const pickTarget = () => {
+						const a = Math.random() * Math.PI * 2;
+						const r = Math.random() * this.wanderRadius;
+						let tx = origX + Math.cos(a) * r;
+						let ty = origY + Math.sin(a) * r;
+						// Limit upward wander so fog stays biased toward bottom and within a bottom band
+						const minYFrac = Math.max(0, 1 - 0.05 * this.groundBias);
+						const bandTopY = canvasHeight * minYFrac;
+						const upLimit = Math.max(origY - this.wanderRadius * 0.4, bandTopY);
+						if (ty < upLimit) ty = upLimit;
+						// Clamp within extended margins
+						tx = Math.min(Math.max(tx, -this.margin), canvasWidth + this.margin);
+						ty = Math.min(Math.max(ty, -this.margin), canvasHeight + this.margin);
+						return { x: tx, y: ty };
+					};
+
+					const target = pickTarget();
+					st = { speed, origX, origY, pickTarget, target };
+					this.fogState.set(p, st);
+				}
+
+				// Steering toward target
+				const dt = this.deltaTime;
+				let dx = st.target.x - p.position.x;
+				let dy = st.target.y - p.position.y;
+				let dist = Math.hypot(dx, dy);
+				const step = st.speed * dt;
+
+				if (dist <= step) {
+					// Re-pick a new point to move to
+					st.target = st.pickTarget();
+					st.speed = Math.random() * (this.maxVel - this.minVel) + this.minVel;
+
+					dx = st.target.x - p.position.x;
+					dy = st.target.y - p.position.y;
+					dist = Math.hypot(dx, dy);
+				}
+
+				if (dist > 1e-6) {
+					const ratio = st.speed / dist;
+					p.velocity.x = dx * ratio;
+					p.velocity.y = dy * ratio;
+				} else {
+					p.velocity.x = 0;
+					p.velocity.y = 0;
+				}
+
+				// Keep within extended margins by nudging the target back inside if needed
+				const minX = -this.margin;
+				const maxX = canvasWidth + this.margin;
+				const minY = -this.margin;
+				const maxY = canvasHeight + this.margin;
+				if (p.position.x < minX || p.position.x > maxX || p.position.y < minY || p.position.y > maxY) {
+					st.target = {
+						x: Math.min(Math.max(p.position.x, 0), canvasWidth),
+						y: Math.min(Math.max(p.position.y, 0), canvasHeight),
+					};
+				}
+			},
+			animationGroup: this.parentLayer.animationGroup,
+		});
+
+		// Ensure all fog particles are present immediately (no trickle-in)
+		if (this.particleEmitter && this.particleEmitter.enable) this.particleEmitter.enable();
+		const em = this.particleEmitter;
+		if (em && em.update) {
+			let guard = 10;
+			while (em.particles && em.particles.length < em.maxParticles && guard-- > 0) {
+				const remaining = em.maxParticles - em.particles.length;
+				const perSec = em.spawnRate || remaining;
+				const dt = Math.max(1, Math.ceil(remaining / perSec));
+				em.update(dt);
+			}
+		}
+
+		// (prefill moved below)
+	},
+
+	onDisable() {
+		// Ensure emitter is destroyed when effect is disabled
+		if (this.particleEmitter && this.particleEmitter.destroy) {
+			this.particleEmitter.destroy();
+			this.particleEmitter = null;
+		}
 	},
 
 	draw() {
-		const ctx = this.canvas.ctx;
-		const width = this.canvas.element.width;
-		const height = this.canvas.element.height;
-		const img = this.images.fog;
-
-		ctx.save();
-		ctx.globalAlpha = this.opacity;
-
-		for (const particle of this.particles) {
-			// Move toward a point
-			let dx = particle.targetX - particle.x;
-			let dy = particle.targetY - particle.y;
-			let dist = Math.hypot(dx, dy);
-			const step = particle.speed * this.deltaTime;
-
-			if (dist <= step) {
-				// Re-pick a new point to move to
-				const angle = Math.random() * 2 * Math.PI;
-				const radius = Math.random() * this.wanderRadius;
-				particle.targetX = particle.origX + Math.cos(angle) * radius;
-				particle.targetY = particle.origY + Math.sin(angle) * radius;
-				particle.speed = Math.random() * (this.maxVel - this.minVel) + this.minVel;
-
-				const spinVar = 1 + (Math.random() * 2 - 1) * this.rotationVariance;
-				particle.angularSpeed = particle.spinDir * particle.speed * this.rotationFactor * spinVar;
-
-				dx = particle.targetX - particle.x;
-				dy = particle.targetY - particle.y;
-				dist = Math.hypot(dx, dy);
-			}
-
-			if (dist > 1e-6) {
-				const ratio = step / dist;
-				particle.x += dx * ratio;
-				particle.y += dy * ratio;
-			}
-
-			particle.x = Math.clamp(particle.x, -this.margin, width + this.margin);
-			particle.y = Math.clamp(particle.y, -this.margin, height + this.margin);
-
-			// Rotation
-			particle.angle = (particle.angle + particle.angularSpeed * this.deltaTime) % (2 * Math.PI);
-
-			const cos = Math.cos(particle.angle);
-			const sin = Math.sin(particle.angle);
-			ctx.setTransform(cos, sin, -sin, cos, particle.x + particle.width / 2, particle.y + particle.height / 2);
-			ctx.drawImage(img, -particle.width / 2, -particle.height / 2, particle.width, particle.height);
-
-			// ctx.save();
-			// ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform to default
-			// ctx.globalAlpha = 0.8;
-			// ctx.fillStyle = "red";
-			// ctx.beginPath();
-			// ctx.arc(particle.x + particle.width / 2, particle.y + particle.height / 2, 2, 0, 2 * Math.PI);
-			// ctx.fill();
-			// ctx.restore();
+		if (this.particleEmitter && this.particleEmitter.draw) {
+			this.particleEmitter.draw();
 		}
-
-		ctx.restore();
 	},
 });

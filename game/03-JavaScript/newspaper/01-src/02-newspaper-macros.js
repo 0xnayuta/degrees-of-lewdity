@@ -1,6 +1,5 @@
 Macro.add("newspaper", {
 	async handler() {
-		const perf = performance.now();
 		if (!V.newspaper) return;
 
 		const $newspaper = $("<div>").addClass("newspaper-container");

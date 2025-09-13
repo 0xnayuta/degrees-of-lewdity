@@ -45,45 +45,45 @@ const Newspaper = (() => {
 			Determines if a string fits within a specified width.
 			Used to dynamically scale title text within an element.
 		*/
-		#fitsAtFontSize(el, text, fontPx, parentWidth) {
-			const ctx = this._offscreenCanvas.ctx;
-			const cs = getComputedStyle(el);
+		#fitsAtFontSize(element, text, fontPx, parentWidth) {
+			const context = this._offscreenCanvas.ctx;
+			const computedStyle = getComputedStyle(element);
 
-			const fontStyle = cs.fontStyle;
-			const fontWeight = cs.fontWeight;
-			const fontFamily = cs.fontFamily;
+			const fontStyle = computedStyle.fontStyle;
+			const fontWeight = computedStyle.fontWeight;
+			const fontFamily = computedStyle.fontFamily;
 
-			const canvasFont = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
+			const fontSpec = `${fontStyle} ${fontWeight} ${fontPx}px ${fontFamily}`;
 
-			ctx.font = canvasFont;
-			const metrics = ctx.measureText(text);
-			return metrics.width <= parentWidth;
+			context.font = fontSpec;
+			const textMetrics = context.measureText(text);
+			return textMetrics.width <= parentWidth;
 		}
 
 		/*
 			Resizes the headlines by fitting the whole width, or scaling it down until it fits
 		*/
-		#fitTitle($h, { minSize, maxSize, step = 1, allowTwoLines = false }) {
-			const el = $h[0];
-			const originalText = $h.text().trim();
-			const parentWidth = el.parentElement.clientWidth;
+		#fitTitle($heading, { minSize, maxSize, step = 1, allowTwoLines = false }) {
+			const element = $heading[0];
+			const originalText = $heading.text().trim();
+			const parentWidth = element.parentElement.clientWidth;
 
 			// Try to fit it in a single line first
 			for (let size = maxSize; size >= minSize; size -= step) {
-				if (this.#fitsAtFontSize(el, originalText, size, parentWidth)) {
-					$h.css({ fontSize: `${size}px` });
+				if (this.#fitsAtFontSize(element, originalText, size, parentWidth)) {
+					$heading.css({ fontSize: `${size}px` });
 					return;
 				}
 			}
 			if (!allowTwoLines) {
-				$h.css({ fontSize: `${minSize}px` });
+				$heading.css({ fontSize: `${minSize}px` });
 				return;
 			}
 
 			// If we need 2 lines
 			const words = originalText.split(/\s+/);
 			if (words.length < 2) {
-				$h.text(originalText).css({ fontSize: `${minSize}px` });
+				$heading.text(originalText).css({ fontSize: `${minSize}px` });
 				return;
 			}
 
@@ -105,10 +105,10 @@ const Newspaper = (() => {
 
 			// Try to scale both lines to fit (scale equally)
 			for (let size = maxSize; size >= minSize; size -= step) {
-				const fits1 = this.#fitsAtFontSize(el, line1, size, parentWidth);
-				const fits2 = this.#fitsAtFontSize(el, line2, size, parentWidth);
+				const fits1 = this.#fitsAtFontSize(element, line1, size, parentWidth);
+				const fits2 = this.#fitsAtFontSize(element, line2, size, parentWidth);
 				if (fits1 && fits2) {
-					$h.html(`${line1}<br>${line2}`).css({
+					$heading.html(`${line1}<br>${line2}`).css({
 						fontSize: `${size}px`,
 						whiteSpace: "nowrap",
 						textAlignLast: "auto",
@@ -118,7 +118,7 @@ const Newspaper = (() => {
 			}
 
 			// Don't make it smaller than the minsize
-			$h.html(`${line1}<br>${line2}`).css({
+			$heading.html(`${line1}<br>${line2}`).css({
 				fontSize: `${minSize}px`,
 				whiteSpace: "nowrap",
 			});
@@ -127,74 +127,74 @@ const Newspaper = (() => {
 		/*
 			Create the normal article block, and return it
 		*/
-		#createArticleBlock({ artId, title = null, contentHTML = "", $parentColumn }) {
-			const $block = $("<div>").addClass("dynamic-item normal");
-			$block.attr("data-art-id", artId);
+		#createArticleBlock({ artId: articleId, title = null, contentHTML = "", $parentColumn }) {
+			const $articleBlock = $("<div>").addClass("dynamic-item normal");
+			$articleBlock.attr("data-art-id", articleId);
 
-			let $h = null;
+			let $heading = null;
 			if (title !== null) {
-				$h = $("<h3>").text(title).appendTo($block);
+				$heading = $("<h3>").text(title).appendTo($articleBlock);
 			}
 			if (contentHTML.trim().length > 0) {
-				$("<p>").html(contentHTML).appendTo($block);
+				$("<p>").html(contentHTML).appendTo($articleBlock);
 			}
 
-			$parentColumn.append($block);
+			$parentColumn.append($articleBlock);
 
-			if ($h) {
-				this.#fitTitle($h, {
+			if ($heading) {
+				this.#fitTitle($heading, {
 					minSize: 18,
 					maxSize: 36,
 					step: 1,
 					allowTwoLines: true,
 				});
 			}
-			return $block;
+			return $articleBlock;
 		}
 
 		/*
 			Create the -main- article block, and return it.
 			Optionally we use an image with a caption
 		*/
-		#createMainBlock(art) {
-			const $ms = $('<div class="main-story">');
-			$("<h3>").text(this.#resolve(art.title, art, "title")).appendTo($ms);
+		#createMainBlock(article) {
+			const $mainStory = $('<div class="main-story">');
+			$("<h3>").text(this.#resolve(article.title, article, "title")).appendTo($mainStory);
 
-			if (art.image) {
-				const $fig = $("<figure>").appendTo($ms);
-				$("<img>").attr("src", art.image).css("height", "256px").appendTo($fig);
-				if (art.caption) {
-					$("<figcaption>").text(art.caption).appendTo($fig);
+			if (article.image) {
+				const $figure = $("<figure>").appendTo($mainStory);
+				$("<img>").attr("src", article.image).css("height", "256px").appendTo($figure);
+				if (article.caption) {
+					$("<figcaption>").text(article.caption).appendTo($figure);
 				}
 			}
 
-			const $txt = $('<div class="text">')
-				.addClass(art.image ? "two" : "three")
-				.appendTo($ms);
+			const $text = $('<div class="text">')
+				.addClass(article.image ? "two" : "three")
+				.appendTo($mainStory);
 			$("<p>")
-				.html(this.#normalizeContent(this.#resolveContent(art, true)))
-				.appendTo($txt);
+				.html(this.#normalizeContent(this.#resolveContent(article, true)))
+				.appendTo($text);
 
-			return $ms;
+			return $mainStory;
 		}
 
-		#createTownUpdateBlock(art) {
-			const $w = $('<div class="dynamic-item townUpdate">');
-			$("<h4>").text(this.#resolve(art.title, art, "title")).appendTo($w);
-			$("<p>").html(this.#resolveContent(art)).appendTo($w);
-			return $w;
+		#createTownUpdateBlock(article) {
+			const $wrapper = $('<div class="dynamic-item townUpdate">');
+			$("<h4>").text(this.#resolve(article.title, article, "title")).appendTo($wrapper);
+			$("<p>").html(this.#resolveContent(article)).appendTo($wrapper);
+			return $wrapper;
 		}
 
-		#createAdBlock(art) {
-			return $("<div>").addClass("dynamic-item advertisement").html(this.#resolveContent(art));
+		#createAdBlock(article) {
+			return $("<div>").addClass("dynamic-item advertisement").html(this.#resolveContent(article));
 		}
 
-		#resolve(value, art, label, defaultValue = "") {
+		#resolve(value, article, label, defaultValue = "") {
 			try {
 				return resolveValue(value, defaultValue);
 			} catch (e) {
-				console.error(`Error resolving ${label} for article "${art.id}":`, e);
-				this.errorArticles.add(art.id);
+				console.error(`Error resolving ${label} for article "${article.id}":`, e);
+				this.errorArticles.add(article.id);
 				return defaultValue;
 			}
 		}
@@ -202,26 +202,26 @@ const Newspaper = (() => {
 		/*
 		 	Resolves the content, calling optional init() functions, and providing content() with a parameter (if it's a function)
 		*/
-		#resolveContent(art, isMain = false) {
-			if (!this.tempModifiers[art.id] && typeof art.init === "function") {
+		#resolveContent(article, isMain = false) {
+			if (!this.tempModifiers[article.id] && typeof article.init === "function") {
 				try {
 					const clone = { ...(V.newspaper.modifiers || {}) };
-					const returnValue = art.init(clone);
-					this.tempModifiers[art.id] = { clone, returnValue };
+					const returnValue = article.init(clone);
+					this.tempModifiers[article.id] = { clone, returnValue };
 				} catch (e) {
-					console.error(`Error in init() for article ${art.id}:`, e);
-					this.errorArticles.add(art.id);
+					console.error(`Error in init() for article ${article.id}:`, e);
+					this.errorArticles.add(article.id);
 					return "";
 				}
 			}
-			const param = this.tempModifiers[art.id]?.returnValue ?? null;
-			const content = isMain ? art.main : art.short;
+			const param = this.tempModifiers[article.id]?.returnValue ?? null;
+			const content = isMain ? article.main : article.short;
 
 			try {
 				return typeof content === "function" ? content(param) : content;
 			} catch (e) {
-				console.error(`Error in content() for article ${art.id}:`, e);
-				this.errorArticles.add(art.id);
+				console.error(`Error in content() for article ${article.id}:`, e);
+				this.errorArticles.add(article.id);
 				return "";
 			}
 		}
@@ -258,8 +258,8 @@ const Newspaper = (() => {
 
 				const effect = weightedRandom(...weightedEffects);
 				let replacement = match;
-				let classes = [effect];
-				let styles = [];
+				const classes = [effect];
+				const styles = [];
 
 				switch (effect) {
 					case "hallucinate-backwards":
@@ -280,22 +280,22 @@ const Newspaper = (() => {
 				}
 
 				if (Math.random() < 0.8) {
-			classes.push("hallucinate-color");
-			const offset = (Math.random() * 3).toFixed(2); // desync delay
-			styles.push(`animation-delay:${offset}s`);
-		}
+					classes.push("hallucinate-color");
+					const offset = (Math.random() * 3).toFixed(2); // desync delay
+					styles.push(`animation-delay:${offset}s`);
+				}
 
-		// 🔍 Overlay: Random scale
-		if (Math.random() < 0.5) {
-			classes.push("hallucinate-scale");
-			const scale = (1 + (Math.random() * 0.4 - 0.2)).toFixed(2); // 0.8–1.2
-			styles.push(`--hallucinate-scale:${scale}`);
-		}
+				// Overlay: Random scale
+				if (Math.random() < 0.5) {
+					classes.push("hallucinate-scale");
+					const scale = (1 + (Math.random() * 0.4 - 0.2)).toFixed(2); // 0.8–1.2
+					styles.push(`--hallucinate-scale:${scale}`);
+				}
 
-		const classStr = classes.join(" ");
-		const styleStr = styles.length > 0 ? ` style="${styles.join(";")}"` : "";
-		return `<span class="${classStr}"${styleStr}>${replacement}</span>`;
-	});
+				const classStr = classes.join(" ");
+				const styleStr = styles.length > 0 ? ` style="${styles.join(";")}"` : "";
+				return `<span class="${classStr}"${styleStr}>${replacement}</span>`;
+			});
 		}
 
 		/*
@@ -308,18 +308,18 @@ const Newspaper = (() => {
 		 *  - If only a single line of content is orphaned, also move it (together with the remainder) to the next column
 		 */
 		#placeSplitableArticle(item, colIndex) {
-			const artId = item.artId;
-			const $rCol = this.columns[colIndex];
-			const domCol = $rCol[0];
+			const articleId = item.artId;
+			const $currentColumn = this.columns[colIndex];
+			const domColumn = $currentColumn[0];
 
 			// Try to place the whole article without splitting
 			const fullBlock = this.#createArticleBlock({
-				artId,
+				artId: articleId,
 				title: item.title,
 				contentHTML: item.contentHTML,
-				$parentColumn: $rCol,
+				$parentColumn: $currentColumn,
 			});
-			if (!this.#isOverflowing(domCol)) {
+			if (!this.#isOverflowing(domColumn)) {
 				return null;
 			}
 			// It did not fit
@@ -339,13 +339,13 @@ const Newspaper = (() => {
 					.replace(/(?:<br\s*\/?>)+$/, "");
 
 				const block = this.#createArticleBlock({
-					artId,
+					artId: articleId,
 					title: item.title,
 					contentHTML: rawHTML,
-					$parentColumn: $rCol,
+					$parentColumn: $currentColumn,
 				});
 
-				const fits = !this.#isOverflowing(domCol);
+				const fits = !this.#isOverflowing(domColumn);
 				if (!fits) block.remove();
 				return { fits, block };
 			};
@@ -372,24 +372,23 @@ const Newspaper = (() => {
 				let rawHTML = tokens.slice(0, bestN).join("");
 				rawHTML = rawHTML.replace(/(?:<br\s*\/?>)+$/, "");
 
-				this._titleCache = null;
 				const partialBlock = this.#createArticleBlock({
-					artId,
+					artId: articleId,
 					title: item.title,
 					contentHTML: rawHTML,
-					$parentColumn: $rCol,
+					$parentColumn: $currentColumn,
 				});
 
 				partialBlock.addClass("truncated");
 
 				// Move the whole column to the next column if there is only a single line
-				const $p = partialBlock.children("p");
-				if ($p.length) {
-					const lineH = parseFloat(getComputedStyle($p[0]).lineHeight);
-					const contentH = $p[0].offsetHeight;
-					if (contentH <= lineH * 1.1) {
+				const $paragraph = partialBlock.children("p");
+				if ($paragraph.length) {
+					const lineHeight = parseFloat(getComputedStyle($paragraph[0]).lineHeight);
+					const contentHeight = $paragraph[0].offsetHeight;
+					if (contentHeight <= lineHeight * 1.1) {
 						partialBlock.remove();
-						return { artId, title: item.title, contentHTML: item.contentHTML };
+						return { artId: articleId, title: item.title, contentHTML: item.contentHTML };
 					}
 				}
 
@@ -398,39 +397,38 @@ const Newspaper = (() => {
 					.slice(bestN)
 					.join("")
 					.replace(/^(?:<br\s*\/?>)+/, "");
-				return { artId, title: null, contentHTML: remainder };
+				return { artId: articleId, title: null, contentHTML: remainder };
 			}
 
 			// If the title is alone at the end of a column - we don't want that
 			const titleOnlyBlock = this.#createArticleBlock({
-				artId,
+				artId: articleId,
 				title: item.title,
 				contentHTML: "",
-				$parentColumn: $rCol,
+				$parentColumn: $currentColumn,
 			});
-			if (!this.#isOverflowing(domCol)) {
+			if (!this.#isOverflowing(domColumn)) {
 				titleOnlyBlock.remove();
-				return { artId, title: item.title, contentHTML: item.contentHTML };
+				return { artId: articleId, title: item.title, contentHTML: item.contentHTML };
 			}
 			titleOnlyBlock.remove();
 
 			// Move the entire article to next column - nothing fits
-			return { artId, title: item.title, contentHTML: item.contentHTML };
+			return { artId: articleId, title: item.title, contentHTML: item.contentHTML };
 		}
 
 		#placeFullArticle(item, colIndex) {
-			const artId = item.artId;
-			const $rCol = this.columns[colIndex];
-			const domCol = $rCol[0];
+			const articleId = item.artId;
+			const $renderColumn = this.columns[colIndex];
+			const domColumn = $renderColumn[0];
 
 			const fullBlock = this.#createArticleBlock({
-				artId,
+				artId: articleId,
 				title: item.title,
 				contentHTML: item.contentHTML,
-				$parentColumn: $rCol,
+				$parentColumn: $renderColumn,
 			});
-			$rCol.append(fullBlock);
-			if (!this.#isOverflowing(domCol)) {
+			if (!this.#isOverflowing(domColumn)) {
 				return true;
 			}
 
@@ -446,51 +444,53 @@ const Newspaper = (() => {
 			- Finally, try to add smaller articles to the end, using up as much space as possible.
 		*/
 		#layoutDynamicSection($inner) {
-			const $sec = $inner.find("#dynamic-section").empty();
-			const dynH = $sec[0].clientHeight;
+			// Start fresh
+			this.columns = [];
+			const $section = $inner.find("#dynamic-section").empty();
+			const dynamicHeight = $section[0].clientHeight;
 
 			const queue = this.layout.length ? this.layout : V.newspaper.queue;
 
-			const lookup = Object.fromEntries(this.articles.articles.map(a => [a.id, a]));
-			const queueObjects = Array.isArray(queue) ? queue.map(id => lookup[id]).filter(a => a !== undefined) : this.articles.articles;
+			const articleLookup = Object.fromEntries(this.articles.articles.map(a => [a.id, a]));
+			const queueArticles = Array.isArray(queue) ? queue.map(id => articleLookup[id]).filter(a => a !== undefined) : this.articles.articles;
 
-			const mainArt = queueObjects.shift();
-			let $mainBlock = null;
-			if (mainArt?.main != null) {
-				$mainBlock = this.#createMainBlock(mainArt).appendTo($sec);
-				this.#fitTitle($mainBlock.find("h3"), { minSize: 32, maxSize: 92, step: 1, allowTwoLines: false });
+			const mainArticle = queueArticles.shift();
+			let $mainArticleBlock = null;
+			if (mainArticle?.main != null) {
+				$mainArticleBlock = this.#createMainBlock(mainArticle).appendTo($section);
+				this.#fitTitle($mainArticleBlock.find("h3"), { minSize: 32, maxSize: 92, step: 1, allowTwoLines: false });
 				// divider under main
-				$('<hr class="main-divider">').appendTo($mainBlock);
+				$('<hr class="main-divider">').appendTo($mainArticleBlock);
 			}
 
-			// Get avaliable height
-			const mainH = $mainBlock ? $mainBlock[0].getBoundingClientRect().height : 0;
-			const availH = Math.max(0, dynH - mainH);
+			// Get available height
+			const mainHeight = $mainArticleBlock ? $mainArticleBlock[0].getBoundingClientRect().height : 0;
+			const availableHeight = Math.max(0, dynamicHeight - mainHeight);
 
 			const $columnsWrapper = $('<div class="columns-wrapper">')
-				.css({ height: `${availH}px` })
-				.appendTo($sec);
+				.css({ height: `${availableHeight}px` })
+				.appendTo($section);
 
 			// Hardcoded into 3 columns. Maybe change later
 			for (let i = 0; i < 3; i++) {
-				const $col = $('<div class="column">').appendTo($columnsWrapper);
-				this.columns.push($col);
+				const $column = $('<div class="column">').appendTo($columnsWrapper);
+				this.columns.push($column);
 			}
 
-			const usedIds = new Set();
+			const usedArticleIds = new Set();
 			let lastRemovedArticle = null;
-			let stop = false;
+			let stopLayout = false;
 
 			// Shuffle and place, until it overflows
 			// If it overflows, remove the last article
-			for (const art of queueObjects) {
-				if (stop) break;
+			for (const article of queueArticles) {
+				if (stopLayout) break;
 
-				if (art.category === "article" && art.short) {
+				if (article.category === "article" && article.short) {
 					let item = {
-						artId: art.id,
-						title: this.#resolve(art.title, art, "title"),
-						contentHTML: this.#normalizeContent(this.#resolveContent(art)),
+						artId: article.id,
+						title: this.#resolve(article.title, article, "title"),
+						contentHTML: this.#normalizeContent(this.#resolveContent(article)),
 					};
 					let colIndex = 0;
 
@@ -498,7 +498,7 @@ const Newspaper = (() => {
 						if (colIndex < 2) {
 							const remainder = this.#placeSplitableArticle(item, colIndex);
 							if (remainder === null) {
-								usedIds.add(art.id);
+								usedArticleIds.add(article.id);
 								break;
 							} else {
 								item = remainder;
@@ -507,17 +507,17 @@ const Newspaper = (() => {
 						} else {
 							// Last column
 							const fits = this.#placeFullArticle(item, colIndex);
-							usedIds.add(art.id);
+							usedArticleIds.add(article.id);
 							if (!fits) {
-								lastRemovedArticle = art;
+								lastRemovedArticle = article;
 								// Remove any partial blocks from all columns
 								this.columns.forEach($col => {
 									$col.children(".dynamic-item")
-										.filter((_, el) => $(el).attr("data-art-id") == art.id)
+										.filter((_, el) => $(el).attr("data-art-id") === String(article.id))
 										.remove();
 								});
-								usedIds.delete(art.id);
-								stop = true;
+								usedArticleIds.delete(article.id);
+								stopLayout = true;
 							}
 							break;
 						}
@@ -526,50 +526,53 @@ const Newspaper = (() => {
 				}
 
 				// Ads and townUpdate get added after normal articles - to ensure they are added
-				let $block;
-				if (art.category === "advertisement") {
-					$block = this.#createAdBlock(art);
-				} else if (art.category === "townUpdate") {
-					$block = this.#createTownUpdateBlock(art);
+				let $blockElement;
+				if (article.category === "advertisement") {
+					$blockElement = this.#createAdBlock(article);
+				} else if (article.category === "townUpdate") {
+					$blockElement = this.#createTownUpdateBlock(article);
 				} else {
 					continue;
 				}
 
 				for (let col = 0; col < 3; col++) {
-					$block.appendTo(this.columns[col]);
+					$blockElement.appendTo(this.columns[col]);
 					if (!this.#isOverflowing(this.columns[col][0])) {
-						usedIds.add(art.id);
+						usedArticleIds.add(article.id);
 						break;
 					}
-					$block.remove();
+					$blockElement.remove();
 					if (col === 2) {
 						//
 					}
 				}
 			}
 
-			// If an article has been removed at the end - check it's length
+			// If an article has been removed at the end - check its length
 			// Then try to add smaller articles instead. If there are no more articles to pick from, don't add anything.
 			if (lastRemovedArticle) {
 				const removedLen = this.#resolveContent(lastRemovedArticle).length;
-				const remaining = queueObjects
-					.filter(a => a.category === "article" && a.short && !usedIds.has(a.id) && a.id !== lastRemovedArticle.id)
-					.map(a => ({ art: a, length: this.#resolveContent(a).length }))
-					.sort((a, b) => b.length - a.length);
+				const remainingCandidates = queueArticles
+					.filter(a => a.category === "article" && a.short && !usedArticleIds.has(a.id) && a.id !== lastRemovedArticle.id)
+					.map(a => ({ article: a, contentLength: this.#resolveContent(a).length }))
+					.sort((a, b) => b.contentLength - a.contentLength);
 
-				for (const { art, length } of remaining) {
-					if (length < removedLen) {
-						const fullHTML = this.#normalizeContent(this.#resolveContent(art));
-						const fits = this.#placeFullArticle({ artId: art.id, title: this.#resolve(art.title, art, "title"), contentHTML: fullHTML }, 2);
+				for (const { article, contentLength } of remainingCandidates) {
+					if (contentLength < removedLen) {
+						const fullHTML = this.#normalizeContent(this.#resolveContent(article));
+						const fits = this.#placeFullArticle(
+							{ artId: article.id, title: this.#resolve(article.title, article, "title"), contentHTML: fullHTML },
+							2
+						);
 						if (fits) {
-							usedIds.add(art.id);
+							usedArticleIds.add(article.id);
 							break;
 						}
 					}
 				}
 			}
 
-			this.layout = Array.from([queue[0], ...usedIds]);
+			this.layout = Array.from([queue[0], ...usedArticleIds]);
 
 			if (V.newspaper.layout.length === 0) {
 				this.#setExpired();
@@ -578,20 +581,20 @@ const Newspaper = (() => {
 
 		#setExpired() {
 			// Merge the modifiers
-			const lookup = new Map(this.articles.articles.map(a => [a.id, a]));
+			const articleMap = new Map(this.articles.articles.map(a => [a.id, a]));
 
 			for (const id of this.layout) {
-				const art = lookup.get(id);
-				if (!art) continue;
+				const article = articleMap.get(id);
+				if (!article) continue;
 
 				// merge clone if init ran
-				const entry = this.tempModifiers[id];
-				if (entry) {
-					Object.assign(V.newspaper.modifiers, entry.clone);
+				const initEntry = this.tempModifiers[id];
+				if (initEntry) {
+					Object.assign(V.newspaper.modifiers, initEntry.clone);
 				}
 
 				V.newspaper.layout.push(id);
-				if (!art.repeatable && !V.newspaper.expired.includes(id)) {
+				if (!article.repeatable && !V.newspaper.expired.includes(id)) {
 					V.newspaper.expired.push(id);
 				}
 			}
@@ -620,19 +623,25 @@ const Newspaper = (() => {
 					temperature = Weather.toSelectedString(avgTemp, 0);
 				}
 
-				const $day = $("<div>").addClass("forecast-day");
-				const $hdr = $("<div>")
+				const $dayElement = $("<div>").addClass("forecast-day");
+				const $header = $("<div>")
 					.addClass("forecast-header")
 					.append($("<span>").addClass("date").text(dateStr))
 					.append($("<span>").addClass("day").text(dayStr));
 
-				const $info = $("<div>").addClass("info").append(icons[iconKey]);
-				const $tempWrap = $("<div>").addClass("forecast-temperature");
-				$tempWrap.append($("<span>").addClass("tempHigh").text(`${temperature}`));
+				// Append icon if available; otherwise use a placeholder square showing the iconKey
+				let iconContent = icons ? icons[iconKey] : null;
+				if (iconContent == null) {
+					iconContent = $("<div>").addClass("weather-placeholder").text(String(iconKey));
+				}
+				const $info = $("<div>").addClass("info").append(iconContent);
 
-				$info.append($tempWrap);
-				$day.append($hdr, $info);
-				$forecast.append($day);
+				const $temperatureWrapper = $("<div>").addClass("forecast-temperature");
+				$temperatureWrapper.append($("<span>").addClass("tempHigh").text(`${temperature}`));
+
+				$info.append($temperatureWrapper);
+				$dayElement.append($header, $info);
+				$forecast.append($dayElement);
 			});
 		}
 
@@ -646,13 +655,13 @@ const Newspaper = (() => {
 			const daysToGenerate = 8; // Number of days to forecast
 			const sampleHours = [6, 9, 12, 15, 18, 21]; // Interval of hours to check daily averages (e.g. every 3 hours) - only check daytime hours
 
-			const result = [];
+			const forecast = [];
 			for (let i = 0; i < daysToGenerate; i++) {
 				const dayStartTs = this.date.timeStamp + i * TimeConstants.secondsPerDay;
 
 				let freqMap = new Map();
-				let sumBase = 0;
-				let sumSun = 0;
+				let baseTempSum = 0;
+				let sunFactorSum = 0;
 				for (const hour of sampleHours) {
 					const date = new DateTime(dayStartTs + hour * TimeConstants.secondsPerHour);
 
@@ -667,17 +676,17 @@ const Newspaper = (() => {
 					// Get temperature
 					const temp = Weather.Temperature.interpolateDailyTemperature(date);
 					if (temp === null) {
-						sumBase = null;
-						sumSun = null;
+						baseTempSum = null;
+						sunFactorSum = null;
 						break;
 					}
-					sumBase += Weather.Temperature.interpolateDailyTemperature(date);
-					sumSun += Weather.activeRenderer.orbitals.sun.getFactor(date) ?? 0;
+					baseTempSum += Weather.Temperature.interpolateDailyTemperature(date);
+					sunFactorSum += Weather.activeRenderer.orbitals.sun.getFactor(date) ?? 0;
 				}
 
 				// If heavy clouds or precipitation (2+), we prioritise it over clear/light clouds (0-1)
 				let type = null;
-				let typeDef = null;
+				let typeDefinition = null;
 				let count = 0;
 				if (freqMap !== null) {
 					for (const [t, cnt] of freqMap) {
@@ -697,34 +706,36 @@ const Newspaper = (() => {
 							}
 						}
 					}
-					typeDef = Weather.genSettings.weatherTypes[type];
+					typeDefinition = Weather.genSettings.weatherTypes[type];
 				}
 
 				// Get average precipitation
-				const precipMod = typeDef?.precipitationIntensity * setup.WeatherTemperature.precipitationEffect ?? 0;
+				const precipitationModifier = typeDefinition?.precipitationIntensity * setup.WeatherTemperature.precipitationEffect ?? 0;
 				// Get average overcast
-				const overcast = Math.pow(typeDef?.value / 4, 2) ?? 0;
+				const overcast = Math.pow(typeDefinition?.value / 4, 2) ?? 0;
 
 				// Factors to generate correct average temperatures
-				const maxVar = setup.WeatherTemperature.maxDiurnalVariation * 0.5;
-				const minVar = setup.WeatherTemperature.minDiurnalVariation * 0.5;
-				const weatherMod = interpolate(minVar, maxVar, 1 - overcast);
-				const dayModSum = weatherMod * sumSun;
+				const maxVariation = setup.WeatherTemperature.maxDiurnalVariation * 0.5;
+				const minVariation = setup.WeatherTemperature.minDiurnalVariation * 0.5;
+				const weatherVariation = interpolate(minVariation, maxVariation, 1 - overcast);
+				const daylightModifierSum = weatherVariation * sunFactorSum;
 
 				// Final average temperature - add +3 extra (due to being in town)
-				const avgTemp = sumBase === null ? "???" : round((sumBase + dayModSum) / sampleHours.length + precipMod + 3, 2);
+				const avgTemp = baseTempSum === null ? "???" : round((baseTempSum + daylightModifierSum) / sampleHours.length + precipitationModifier + 3, 2);
 
-				result.push({ type, avgTemp });
+				forecast.push({ type, avgTemp });
 			}
-			return result;
+			return forecast;
 		}
 
 		async buildPaperAsync() {
 			await document.fonts.ready;
-			const perf = performance.now();
-			const $off = $("<div>").css({ position: "absolute", left: "-9999px", top: 0, width: 924, height: 1250, visibility: "hidden" }).appendTo("body");
+			const startMs = performance.now();
+			const $offscreenContainer = $("<div>")
+				.css({ position: "absolute", left: "-9999px", top: 0, width: 924, height: 1250, visibility: "hidden" })
+				.appendTo("body");
 
-			const $inner = $('<div class="newspaper-inner">').appendTo($off);
+			const $inner = $('<div class="newspaper-inner">').appendTo($offscreenContainer);
 
 			// Header
 			$inner.append(`
@@ -754,8 +765,8 @@ const Newspaper = (() => {
 			this.#layoutDynamicSection($inner);
 			this.#layoutForecast($inner);
 			this.cachedPaper = $inner.clone(true, true);
-			$off.remove();
-			console.warn("Performance newspaper: (build)", performance.now() - perf, "ms");
+			$offscreenContainer.remove();
+			console.warn("Performance newspaper: (build)", performance.now() - startMs, "ms");
 		}
 
 		render() {
@@ -763,11 +774,11 @@ const Newspaper = (() => {
 
 			if (V.drunktest) {
 				$clone.find("h3, h4, p, span").each((_, el) => {
-					const $el = $(el);
-					if ($el.children().length === 0) {
-						$el.text(this.#garbleText($el.text(), 1));
+					const $element = $(el);
+					if ($element.children().length === 0) {
+						$element.text(this.#garbleText($element.text(), 1));
 					} else {
-						$el.contents().each((_, node) => {
+						$element.contents().each((_, node) => {
 							if (node.nodeType === Node.TEXT_NODE) {
 								node.textContent = this.#garbleText(node.textContent, 1);
 							}
@@ -778,11 +789,11 @@ const Newspaper = (() => {
 
 			if (V.hallutest) {
 				$clone.find("h3, h4, p, span").each((_, el) => {
-					const $el = $(el);
-					if ($el.children().length === 0) {
-						$el.html(this.#hallucinateText($el.text(), 0.8));
+					const $element = $(el);
+					if ($element.children().length === 0) {
+						$element.html(this.#hallucinateText($element.text(), 0.8));
 					} else {
-						$el.contents().each((_, node) => {
+						$element.contents().each((_, node) => {
 							if (node.nodeType === Node.TEXT_NODE) {
 								$(node).replaceWith(this.#hallucinateText(node.textContent, 0.8));
 							}
@@ -795,56 +806,56 @@ const Newspaper = (() => {
 		}
 
 		generateWeeklyQueue() {
-			const all = this.articles.articles;
+			const allArticles = this.articles.articles;
 			const expired = new Set(V.newspaper.expired);
 
 			// Only articles with passed conditions - which haven't expired (been displayed before)
-			const eligible = all.filter(a => !expired.has(a.id) && (typeof a.condition !== "function" || a.condition()));
+			const eligible = allArticles.filter(a => !expired.has(a.id) && (typeof a.condition !== "function" || a.condition()));
 
 			// Shuffle main articles
-			const mains = eligible.filter(a => a.main);
+			const mainArticles = eligible.filter(a => a.main);
 			let mainId = null;
-			if (mains.length > 0) {
-				const maxPri = Math.max(...mains.map(a => a.priority ?? 0));
-				const top = mains.filter(a => (a.priority ?? 0) === maxPri);
+			if (mainArticles.length > 0) {
+				const maxPri = Math.max(...mainArticles.map(a => a.priority ?? 0));
+				const top = mainArticles.filter(a => (a.priority ?? 0) === maxPri);
 				this.rngInstance.shuffle(top);
 				mainId = top[0].id;
 			}
 
-			// Exclude short article if it's main property was picked above
-			const shorts = eligible.filter(a => a.short && a.id !== mainId);
+			// Exclude short article if its main property was picked above
+			const shortArticles = eligible.filter(a => a.short && a.id !== mainId);
 
 			// Sort by priority
-			const byPriority = shorts.reduce((map, art) => {
+			const priorityBuckets = shortArticles.reduce((map, art) => {
 				const p = art.priority ?? 0;
 				if (!map.has(p)) map.set(p, []);
 				map.get(p).push(art);
 				return map;
 			}, new Map());
 
-			const sortedShortIds = [...byPriority.keys()]
+			const sortedShortIds = [...priorityBuckets.keys()]
 				.sort((a, b) => b - a)
 				.flatMap(p => {
-					const bucket = byPriority.get(p);
+					const bucket = priorityBuckets.get(p);
 					this.rngInstance.shuffle(bucket);
 					return bucket.map(a => a.id);
 				});
 
 			// Build initial queue
-			const queue = [...(mainId != null ? [mainId] : []), ...sortedShortIds];
+			const articleQueue = [...(mainId != null ? [mainId] : []), ...sortedShortIds];
 
 			// Shuffle indexes 1–4
-			if (queue.length > 1) {
-				const slice = queue.slice(1, 5);
+			if (articleQueue.length > 1) {
+				const slice = articleQueue.slice(1, 5);
 				this.rngInstance.shuffle(slice);
-				queue.splice(1, slice.length, ...slice);
+				articleQueue.splice(1, slice.length, ...slice);
 			}
 
 			// Limit advertisements to max 2
-			const byId = new Map(all.map(a => [a.id, a]));
+			const byIdMap = new Map(allArticles.map(a => [a.id, a]));
 			let adCount = 0;
-			const finalQueue = queue.filter(id => {
-				const art = byId.get(id);
+			const finalQueue = articleQueue.filter(id => {
+				const art = byIdMap.get(id);
 				if (art.category === "advertisement") {
 					if (adCount < 2) {
 						adCount++;
@@ -877,6 +888,17 @@ const Newspaper = (() => {
 				articles.push(article);
 			}
 		});
+	}
+
+	// Ensure the seed stays within [0.25, 0.99] by looping within the range
+	function wrapSeed(value) {
+		const min = 0.25;
+		const max = 0.99;
+		const span = max - min; // 0.74
+		if (!Number.isFinite(value)) return min;
+		let normalized = (value - min) % span; // may be negative
+		if (normalized < 0) normalized += span; // wrap into [0, span)
+		return min + normalized; // result in [min, max)
 	}
 
 	function enableLink() {
@@ -916,7 +938,7 @@ const Newspaper = (() => {
 		disableLink();
 		V.newspaper.bought = false;
 		if (Newspaper.instance) Newspaper.instance.layout = [];
-		V.newspaper.seed += Time.days * 0.01;
+		V.newspaper.seed = wrapSeed(Time.days * 0.01);
 		V.newspaper.forecast = [];
 		V.newspaper.queue = [];
 		V.newspaper.modifiers = {};
@@ -927,7 +949,7 @@ const Newspaper = (() => {
 		const startSunday = new DateTime(Time.date.weekDay === 1 ? Time.date : Time.date.getPreviousWeekdayDate(1));
 		startSunday.toTimestamp(startSunday.year, startSunday.month, startSunday.day, 0, 0, 0);
 		V.newspaper = {
-			seed: randomFloat(0, 1, true),
+			seed: randomFloat(0.25, 0.99, true),
 			date: startSunday.timeStamp,
 			bought: false,
 			total: 0,
@@ -962,9 +984,6 @@ const Newspaper = (() => {
 				if (!Newspaper.instance) {
 					Newspaper.instance = new Newspaper.Page(V.newspaper.date);
 				}
-				if (!Newspaper.queue) {
-					Newspaper.queue = V.newspaper.queue;
-				}
 				await Newspaper.instance.buildPaperAsync();
 			} finally {
 				initPromise = null;
@@ -985,6 +1004,7 @@ const Newspaper = (() => {
 		generate,
 		enableLink,
 		disableLink,
+		wrapSeed,
 		get modifiers() {
 			return V.newspaper.modifiers;
 		},
@@ -992,14 +1012,3 @@ const Newspaper = (() => {
 })();
 window.Newspaper = Newspaper;
 
-// const img = new Image();
-// img.onload = function () {
-//     const canvas = document.createElement("canvas");
-//     canvas.width = this.width;
-//     canvas.height = this.height;
-//     const ctx = canvas.getContext("2d");
-//     ctx.drawImage(this, 0, 0);
-//     const pixel = ctx.getImageData(0, 0, 1, 1).data;
-//     console.log("pixel:", pixel);
-// };
-// img.src = window.NormalMap["img/misc/locations/home/test_n.png"];

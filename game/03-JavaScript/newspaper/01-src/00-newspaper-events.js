@@ -1,4 +1,4 @@
-// Redraw it when moving through history
+// Redraw when moving through history
 $(document).on(":enginego", () => {
 	if (!V.newspaper || !Newspaper.instance || V.newspaper.date === Newspaper.instance.date) return;
 	Newspaper.instance = null;
