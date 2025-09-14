@@ -3,11 +3,27 @@ NOTES:
 - NEVER use random() or its derivatives, such as either(), pluck(), or randomFloat()
 	Instead, use Newspaper.instance.rngInstance.random() (or its derivatives)
 	This is because we use a seeded approach to random, which changes each week (each new newspaper)
-- Title, content, image, or caption may either be a string or a function.
+- Title, content (short/main), image, or caption may either be a string or a function.
 - condition is optional, but must be a function. (defaults to always true)
 - id is not strictly required, but is highly recommended, in case we want to change the order
+- The layout engine may split long articles across columns; it avoids orphaning a title or a single short line.
 
--  init(obj) (optional):
+Priority:
+- Higher priority numbers are more likely to appear.
+- One main article (with main defined) is chosen by priority, then RNG among top priority ties.
+- Short articles are bucketed by priority and shuffled within buckets.
+- Ads and town updates are placed after normal articles; ads are limited to max 2 per weekly edition. (But may be omitted if higher priority short articles exist that week)
+
+Article fields:
+- title
+- content (short/main) - Receives init() return value as argument, if it exists
+- image
+- caption
+- condition: optional function
+- id
+- repeatable: if false, the article is expires after it appears once
+- priority: higher values are placed earlier among short articles.
+- init(obj) (optional):
 	- Called ONCE per included article for the current newspaper edition, the first time its content is resolved during build.
 		It does NOT rerun on re-renders or opening the paper again. Results are cached for that edition.
 	- It is given a shallow clone of Newspaper.modifiers
@@ -22,14 +38,13 @@ Newspaper.modifiers:
  - The return value of init() must be an object in order to be merged properly.
  - Persists for the entire edition (week). Can also access with V.newspaper.modifiers.
  - Resets when a new edition is generated via Newspaper.reset()/clear() (weekly)
-
 */
 Newspaper.addArticles(
 	{
 		id: "townProjectBridge",
 		category: "article",
 		title: "Barb Street Bridge Renewed",
-		//condition: () => V.town.projects.bridge.dateFinished <= Time.date.timeStamp, // Need failsafe for if it errors out
+		condition: () => Town.projects.bridge.isComplete,
 		priority: 2,
 		main: `Mayor Quinn has announced that the Barb Street bridge has finally opened to the public this morning, following its renovation. Spanning the long-drained canal that splits the district, the structure now offers a safer, more dignified crossing for town residents. The renovated design includes widened pedestrian paths and reinforced guardrails intended to reduce accidents.
 				
@@ -45,7 +60,7 @@ Newspaper.addArticles(
 		id: "lakeRoadOpened",
 		category: "article",
 		title: "Forest Road to Lake Opens",
-		condition: () => true,
+		condition: () => true, // Town.projects.road.isComplete,
 		priority: 2,
 		main: `The new road connecting the town to the forest lake to the south has officially opened to the public, cutting a clear path through the forest and offering a much needed shortcut. The route, which includes a modest bus stop at the lake's edge, has already seen use by students and early morning hikers.
 		
