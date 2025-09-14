@@ -175,7 +175,10 @@
 		<<if $oxygen lt 0>>
 			<span class="red">You can't breathe! Your stress will increase and you'll soon pass out if you can't find air.</span>
 		<</if>>
-		<<oxygencaption>>
+		<<dynamicblock id=oxygen-caption>>
+			<<oxygencaption>>
+		<</dynamicblock>>
+
 		<<if $underwaterintro isnot 1 and $combat isnot 1 and !$possessed>>
 			<<set $underwaterintro to 1>>
 			<i>You can't hold your breath forever. You will pass less time and use less air per action with a higher swimming skill.</i>
@@ -836,41 +839,32 @@
 <</widget>>
 
 <<widget "skulduggeryskilluse">>
-	<<if $statFreeze isnot true>>
-		<<set $skulduggery += 3>>
-		<<if $skulduggery lt 1000>>
-			<span class="gold"> You learned a thing or two about skulduggery.</span>
-			<br><br>
-		<</if>>
+	<<if $statFreeze isnot true and $skulduggery lt 1000>>
+		<<combatskulduggeryskilluse>>
+		<br><br>
 	<</if>>
 <</widget>>
 
 <<widget "combatskulduggeryskilluse">>
-	<<if $statFreeze isnot true>>
+	<<if $statFreeze isnot true and $skulduggery lt 1000>>
+		<span class="gold"> You learned a thing or two about skulduggery.</span>
 		<<set $skulduggery += 3>>
 		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000)>>
-		<<if $skulduggery lt 1000>>
-			<span class="gold"> You learned a thing or two about skulduggery.</span>
-		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "swimmingskilluse">>
-	<<if $statFreeze isnot true>>
+	<<if $statFreeze isnot true and $swimmingskill lt 1000>>
+		<span class="gold"> You've become more confident at swimming.</span>
 		<<set $swimmingskill += 9>>
-		<<if $swimmingskill lt 1000>>
-			<span class="gold"> You've become more confident at swimming.</span>
-		<</if>>
 		<<set $swimmingskill to Math.clamp($swimmingskill, 0, 1000)>>
 	<</if>>
 <</widget>>
 
 <<widget "danceskilluse">>
-	<<if $statFreeze isnot true>>
+	<<if $statFreeze isnot true and $danceskill lt 1000>>
+		<span class="gold"> You feel more confident in your dancing abilities.</span>
 		<<danceskill 1>>
-		<<if $danceskill lt 1000>>
-			<span class="gold"> You feel more confident in your dancing abilities.</span>
-		<</if>>
 	<</if>>
 <</widget>>
 
@@ -1109,11 +1103,11 @@
 
 <<widget "vaginalstat">><<if $statFreeze isnot true>><<set $vaginalstat += 1>><<set $vaginalTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "vaginalejacstat">><<if $statFreeze isnot true>><<set $vaginalejacstat += 1>><<purity -2>><<internalejac>><<fertiliseParasites "vagina">><<creampie "self" "vagina">><<set $vaginalEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "analstat">><<if $statFreeze isnot true>><<set $analstat += 1>><<set $analTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
-<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -1>><<internalejac>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "analejacstat">><<if $statFreeze isnot true>><<set $analejacstat += 1>><<purity -2>><<internalejac>><<fertiliseParasites>><<creampie "self" "anus">><<set $analEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "oralstat">><<if $statFreeze isnot true>><<set $oralstat += 1>><</if>><</widget>>
 
@@ -1153,7 +1147,7 @@
 	<</if>>
 <</if>><</silently>><</widget>>
 
-<<widget "penileejacstat">><<if $statFreeze isnot true>><<set $penileejacstat += 1>><<set $penileEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
+<<widget "penileejacstat">><<if $statFreeze isnot true>><<set $penileejacstat += 1>><<purity -2>><<set $penileEjacTimeStat to Time.date.timeStamp>><</if>><</widget>>
 
 <<widget "clothesstripstat">><<if $statFreeze isnot true>><<set $clothesstripstat += 1>><</if>><</widget>>
 
@@ -2081,7 +2075,7 @@
 	<<underlowerwear 7>><<set $worn.under_lower.colour to either("black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow")>><<set $worn.under_lower.integrity /= 2>>
 <</widget>>
 
-<<widget "exposure">>
+<<widget "exposureold">>
 	<!-- In safe locations, while alone, the player won't cover up. Love interest check is likely not hitting everywhere it should be due to NPCs generating after this check. -->
 	<<if ["Wardrobe", "Bedroom", "Sleep", "Bird Tower", "Bird Hunt", "Spa Tan Underwear", "Spa Tan Curtains", "Spa Tan Naked", "Mirror"].some(keyword => V.passage.includes(keyword)) and !($NPCList.some(obj => Object.hasOwn(obj, "type")) and !$NPCList.find(({fullDescription:fd}) => fd && Object.values($loveInterest).includes(fd)))>>
 		<<set $libertine to 2>>
@@ -2097,71 +2091,52 @@
 		<</if>>
 	<</if>>
 
-
-	<<set $worn.over_upper.exposedcarry to $worn.over_upper.exposed>>
-	<<set $worn.over_lower.exposedcarry to $worn.over_lower.exposed>>
-	<<set $worn.upper.exposedcarry to $worn.upper.exposed>>
-	<<set $worn.lower.exposedcarry to $worn.lower.exposed>>
-	<<set $worn.under_lower.exposedcarry to $worn.under_lower.exposed>>
-	<<set $worn.under_upper.exposedcarry to $worn.under_upper.exposed>>
-
-	<<if $upperwetstage gte 3>>
-		<<set $worn.upper.exposed to 2>>
-	<</if>>
-	<<if $lowerwetstage gte 3>>
-		<<set $worn.lower.exposed to 2>>
-	<</if>>
-	<<if $underlowerwetstage gte 3>>
-		<<set $worn.under_lower.exposed to 1>>
-	<</if>>
-	<<if $underupperwetstage gte 3>>
-		<<set $worn.under_upper.exposed to 1>>
-	<</if>>
-
 	<<exposedcheck>>
 
 	<<set $exposed to 0>>
-	<<if $worn.upper.exposed gte 1 and $worn.over_upper.exposed gte 1>>
-		<<if $player.gender_appearance is "m">>
-		<<elseif $libertine gte 1 or $possessed or $worn.under_upper.type.includes("covered") or $worn.lower.type.includes("covered")>>
-		<<else>>
+
+	<<if !$possessed>>
+		/*
+		To be considered exposing your underwear or breasts ($exposure 1 for both) the following must be true
+			Male appearing breasts do not count as exposed
+			over_upper needs to be exposing/displaced
+			upper needs to be exposing/displaced or wet
+			under_upper needs to not have covered trait or be exposing/displaced or be wet
+			lower needs to not have covered trait or be displaced or be wet
+		 */
+		<<if $player.gender_appearance isnot "m"
+		and $worn.over_upper.exposed gte 1
+		and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
+		and (!$worn.under_upper.type.includes("covered") or $worn.under_upper.exposure gte 1 or $underupperwetstage gte 3)
+		and (!$worn.lower.type.includes("covered") or $worn.lower.exposed gte 2 or $lowerwetstage gte 3)>>
 			<<set $exposed to 1>>
 		<</if>>
-	<</if>>
-	<<if $worn.upper.exposed gte 2 and $worn.over_upper.exposed gte 2 and $player.gender_appearance isnot "m">>
-		<<if $possessed>>
-		<<elseif $worn.under_upper.type.includes("covered") or $worn.lower.type.includes("covered")>>
-		<<elseif $libertine is 1>>
-			<<set $topless to 1>>
-		<<else>>
-			<<set $exposed to 1>>
-		<</if>>
-	<<else>>
-		<<set $topless to 0>>
-	<</if>>
-	<<if $worn.lower.exposed gte 1 and $worn.over_lower.exposed gte 1>>
-		<<if $libertine gte 1 or $possessed or $worn.under_lower.type.includes("covered")>>
-		<<else>>
-			<<set $exposed to 1>>
+
+		/*
+		To be considered exposing your underwear or genitals ($exposure 1 and 2 respectively) the following must be true
+			over_lower needs to be exposing/displaced
+			lower needs to be exposing/displaced or wet
+
+		To be considered exposing your underwear the following must be true
+			under_lower needs to not have the covered trait and be not exposing or wet
+		Otherwise to be considered exposing your genitals the following must be true
+			under_lower needs to be exposing or wet
+		 */
+		<<if $worn.over_lower.exposed gte 1
+		and ($worn.lower.exposed gte 1 or $lowerwetstage gte 3)>>
+			<<if $worn.under_lower.exposed is 0 and $underlowerwetstage lt 3 and !$worn.under_lower.type.includes("covered")>>
+				<<set $exposed to 1>>
+			<<elseif $worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3>>
+				<<set $exposed to 2>>
+			<</if>>
 		<</if>>
 	<</if>>
 
-	<<if $worn.lower.exposed gte 2 and $worn.over_lower.exposed gte 2>>
-		<<if $possessed>>
-		<<elseif $worn.under_lower.exposed gte 1>>
-			<<set $exposed to 2>>
-		<<elseif $libertine gte 1 or $worn.under_lower.type.includes("covered")>>
-		<<else>>
-			<<set $exposed to 1>>
-		<</if>>
-	<</if>>
+	<<set $exposedRaw to $exposed>>
 
-	<<set $worn.over_upper.exposed to $worn.over_upper.exposedcarry>>
-	<<set $worn.over_lower.exposed to $worn.over_lower.exposedcarry>>
-	<<set $worn.upper.exposed to $worn.upper.exposedcarry>>
-	<<set $worn.lower.exposed to $worn.lower.exposedcarry>>
-	<<set $worn.under_lower.exposed to $worn.under_lower.exposedcarry>>
-	<<set $worn.under_upper.exposed to $worn.under_upper.exposedcarry>>
+	<<if $libertine gte $exposed>>
+		<<set $exposed to 0>>
+	<</if>>
 <</widget>>
 
 <<widget "integritycheck">>
@@ -3085,7 +3060,7 @@
 		<<crimeUp 50 "petty">><<combatskulduggeryskilluse>><<combatcontrol 10>><<gcombatcontrol>>
 	<<elseif $rng gte 90 and !$compoundcard>>
 		<<set $compoundcard to 1>>
-		You steal a strange card. There's an address on it, for a location on <span class="gold">Elk Street.</span>
+		You steal a strange card. There's an address on it, for a location on <span class="gold">Elk Street</span>.
 	<<else>>
 		<<rng 5 100>>
 		You steal <<moneyGain $rng>>.
@@ -3405,7 +3380,7 @@
 			<span class="relation-name">Wolf Pack</span>
 		</div>
 		<div class="relation-description">
-			The wolves
+			The <<= $monsterchance is 100 ? "wolfgirls and wolfboys" : "wolves">>
 			<<if $wolfpackleader gte 1>> view you as <span class="green">the leader of the pack.</span>
 				<<elseif $syndromewolves gte 1>> view you as <span class="green">their <<ppackbrother>>.</span>
 				<<elseif $wolfpacktrust gte 12>> <span class="green">trust you.</span>
@@ -4519,7 +4494,7 @@
 	<<if $_timeLeft.days lt 1>>
 		<<He>> will be released
 		<<if $_timeLeft.hours gt 0>>
-			in $_timeLeft.hours hours.
+			in $_timeLeft.hours <<pluralise $_timeLeft.hours "hour">>.
 		<<else>>
 			imminently.
 		<</if>>
@@ -4736,20 +4711,51 @@
 	<</if>>
 <</widget>>
 
+/* 0: difficulty, 1: "locks"/"target", 2: additional progress */
 <<widget "skulduggeryuse">>
-	<<if _args[0] is true>>
-		<!-- This argument lets us use skulduggery without adding extra linebreaks that make formatting things a nightmare. -->
-		<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-			<<combatskulduggeryskilluse>>
+	<<if _args[0]>>
+		<<set $_difficulty to _args[0]>>
+	<<else>>
+		<<set $_difficulty to ($skulduggerydifficulty + 100)>>
+	<</if>>
+
+	<<if currentSkillValue("skulduggery") lt $_difficulty>>
+		<<skulduggeryskilluse>>
+		<<if _args[2]>>
+			<<skulduggery _args[2]>>
+		<</if>>
+	<<elseif $skulduggerysuccess or _args[1]>>
+		<<if _args[1] is "locks">>
+			<span class="blue">There's nothing more you can learn from locks this simple.</span>
+		<<elseif _args[1] is "target">>
+			<span class="blue">There's nothing more you can learn from such an easy target.</span>
 		<<else>>
 			<span class="blue">That was too easy. You didn't learn anything.</span>
 		<</if>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* 0: difficulty, 1: "locks"/"target", 2: additional progress */
+<<widget "skulduggeryuseinline">>
+	<<if _args[0]>>
+		<<set $_difficulty to _args[0]>>
 	<<else>>
-		<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-			<<skulduggeryskilluse>>
+		<<set $_difficulty to ($skulduggerydifficulty + 100)>>
+	<</if>>
+
+	<<if currentSkillValue("skulduggery") lt $_difficulty>>
+		<<combatskulduggeryskilluse>>
+		<<if _args[2]>>
+			<<skulduggery _args[2]>>
+		<</if>>
+	<<elseif $skulduggerysuccess or _args[1]>>
+		<<if _args[1] is "locks">>
+			<span class="blue">There's nothing more you can learn from locks this simple.</span>
+		<<elseif _args[1] is "target">>
+			<span class="blue">There's nothing more you can learn from such an easy target.</span>
 		<<else>>
 			<span class="blue">That was too easy. You didn't learn anything.</span>
-			<br><br>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -4847,13 +4853,6 @@
 			<<schoolrep crossdress -1>>
 			<<set $daily.crossdressingFameReduction to true>>
 		<</if>>
-	<</if>>
-<</widget>>
-
-<<widget "event_trigger">>
-	<<set $danger to random(1, 10000)>>
-	<<if $danger gte (9900 - $allure)>>
-		<<set $event_trigger to 1>>
 	<</if>>
 <</widget>>
 
@@ -4980,14 +4979,14 @@
 <</silently>><<print $_text_output>><</widget>>
 
 <<widget "sadism">>
-	<<if _args[0]>>
+	<<if _args[0] and $sadism lt 1000>>
 		<<set $sadism += _args[0]>>
 		<<set $sadism to Math.clamp($sadism, 0, 1000)>>
 	<</if>>
 <</widget>>
 
 <<widget "masochism">>
-	<<if _args[0]>>
+	<<if _args[0] and $masochism lt 1000>>
 		<<set $masochism += _args[0]>>
 		<<set $masochism to Math.clamp($masochism, 0, 1000)>>
 	<</if>>
@@ -5112,12 +5111,14 @@
 <<widget "semenswallowedstat">>
 	<<if $statFreeze isnot true and _args[0] isnot undefined>>
 		<<set $semenswallowedstat += _args[0]>>
+		<<purity -1>>
 	<</if>>
 <</widget>>
 
 <<widget "animalsemenswallowedstat">>
 	<<if $statFreeze isnot true and _args[0] isnot undefined>>
 		<<set $animalsemenswallowedstat += _args[0]>>
+		<<purity -1>>
 	<</if>>
 <</widget>>
 
@@ -5188,7 +5189,7 @@
 
 <<widget "angelBanishAction">>
 	<<set $angelBanish -->> /* Warning: assumes the player has at least 1 banishment charge*/
-	
+
 	<<set _multi to $purity gte 1000 ? 2 : 1>>
 	<<defiance `($purity / 100) * _multi`>>
 <</widget>>

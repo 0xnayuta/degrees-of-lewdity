@@ -284,7 +284,7 @@
 	<div @class="'clothing-shop-page page-' + _page + _hidden">
 		<<for _itemTemp range _itemsOnPage>>
 			<<set _item = clone(_itemTemp)>>
-			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+			<<set $_realSlot to ($clothingShopSlot is "all" ? _item.slot : $clothingShopSlot)>>
 			<<set _itemData = setup.clothes[$_realSlot][clothesIndex($_realSlot,_item)]>>
 			<<set _locked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "locked">>
 			<<set _unlocked = $specialClothes[_item.name.replace(/[- ]/g,"")] is "unlocked">>
@@ -399,7 +399,13 @@
 						</div>
 					<<else>>
 						<!-- Price tag -->
-						<span class="clothing-price"><<printmoney `getClothingCost(_item, $_realSlot)` true>></span>
+						<<if isDiscounted(_item, $_realSlot)>>
+							<div class="clothing-price old-price"><<printmoney `getClothingCost(_item, $_realSlot, true)` true>></div>
+							<div class="clothing-price clothing-discount"><<printmoney `getClothingCost(_item, $_realSlot)` true>></div>
+						<<else>>
+							<span class="clothing-price"><<printmoney `getClothingCost(_item, $_realSlot)` true>></span>
+						<</if>>
+
 						<!-- Integrity, Reveal and Warmth indicators -->
 						<<if !$shopDefaults.compactMode>>
 							<<set $_intInf = getIntegrityInfo(_item.integrity_max)>>
@@ -500,7 +506,7 @@
 
 	<<elseif $clothes_choice>>
 		<<set _temp_choice to clone(setup.clothes[$clothingShopSlot][$clothes_choice])>>
-		<<set _realSlot to ($clothingShopSlot is "all" ? _item.realSlot : $clothingShopSlot)>>
+		<<set _realSlot to ($clothingShopSlot is "all" ? _item.slot : $clothingShopSlot)>>
 		<<set _realIndex to _temp_choice.index>>
 
 		<!-- Unlocked text -->
@@ -524,6 +530,7 @@
 			<span class="pink">For girls.</span>
 		<</if>>
 		<<print _temp_choice.description>> Costs <<printmoney `getClothingCost(_temp_choice,$clothingShopSlot)`>>.
+		<<if isDiscounted(_temp_choice, $clothingShopSlot)>><b><span class="green">(<<= Newspaper.modifiers.discountedClothing.discount * 100>>% discount)</b></span><</if>>
 		<br>
 		<<set _truewarmth = getTrueWarmth(_temp_choice)>>
 		<<print setup.WeatherDescriptions.clothingWarmth(_truewarmth)>>
@@ -791,9 +798,9 @@
 						<div class="try-button div-link">
 							<<link "Return">>
 								<<shopbuyv2 _realSlot "return" null _realIndex>>
+								<<updatesidebarimg>>
 								<<updateclotheslist>>
 								<<exposedcheck>>
-								<<updatesidebarimg>>
 								<<updatesidebardescription>>
 								<<updateallure>>
 								<<updatewarmthscale>>
@@ -821,6 +828,9 @@
 					<</if>>
 					<<if ["lower"].includes($clothingShopSlot) and $worn.feet.name isnot "naked" and $worn.lower.name isnot "naked" and !setup.clothes.feet[clothesIndex("feet",$worn.feet)].notuck and !setup.clothes.lower[clothesIndex("lower",$worn.lower)].notuck>>
 						<div class="try-button div-link"><<toggleLowerTuck>></div>
+					<</if>>
+					<<if ["lower"].includes($clothingShopSlot) and $player.bodyshape is "soft" and $worn.lower.name isnot "naked" and (!setup.clothes.lower[clothesIndex("lower",$worn.lower)].outfitSecondary or setup.clothes.lower[clothesIndex("lower",$worn.lower)]?.outfitSecondary[1] isnot $worn.upper.name)>>
+						<div class="try-button div-link"><<toggleBellyTuck>></div>
 					<</if>>
 					<<if _temp_choice.variable is $worn[$clothingShopSlot].variable and _temp_choice.altsleeve and !($worn.upper.variable is "schoolcardigan" and $worn.upper.altposition isnot "alt")>>
 						<div class="try-button div-link"><<toggleAltSleeve>></div>
@@ -1631,7 +1641,7 @@
 			</div>
 			<div>
 				<img src="img/ui/clothes/warmth.png">
-				Warmth rating. How good clothing protects you from cold.
+				Warmth rating. How well clothing protects you from cold.
 			</div>
 			<br>
 
@@ -1649,7 +1659,7 @@
 			<br>
 			R - Reveal rating. How alluring clothing makes you.
 			<br>
-			W - Warmth rating. How good clothing protects you from cold.
+			W - Warmth rating. How well clothing protects you from cold.
 		<</if>>
 
 		<div class="legend-warmth">

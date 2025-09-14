@@ -11,9 +11,9 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.4.9",
-	versionName: `"Hopeless Cycle" edition`,
-	sneaky: false,
+	version: "0.5.5.4",
+	versionName: `"Pride Cometh" edition`,
+	sneaky: true,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
 };
@@ -32,7 +32,7 @@ Config.saves.isAllowed = () => {
 };
 
 if (idb.updateSettings) idb.updateSettings("useDelta", true);
-idb.footerHTML = `Special thanks to all those who <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Support Degrees of Lewdity</a>`;
+idb.footerHTML = `Support the developers! <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Vrelnir</a> <a target="_blank" class="link-external" href="https://subscribestar.adult/purityguy" tabindex="0">PurityGuy</a>`;
 
 function onLoad(save) {
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
@@ -124,7 +124,7 @@ function onSave(save, details) {
 	// Save time and weather to localStorage
 	localStorage.setItem("weather", Packer.packWeatherData());
 	localStorage.setItem("time", Time.date.timeStamp.toString(36));
-
+	localStorage.setItem("worldCorruption", V.world_corruption_soft);
 	// * legacy code for old saves system * //
 	if (!(window.idb && window.idb.active)) {
 		// eslint-disable-next-line no-undef

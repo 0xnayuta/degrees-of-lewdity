@@ -16,5 +16,6 @@ Weather.sky = new Weather.Renderer.Sky({
 		"bloodGlow",
 		"sunGlow",
 		"fog",
+		"locationSmoke",
 	],
 });

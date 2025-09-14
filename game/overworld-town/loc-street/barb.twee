@@ -61,8 +61,11 @@ You are on Barb Street. Silver blocks of flats tower all around, most separated 
 <</if>>
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
-<<elseif $town_projects.bridge is 1>>
-	<<set $town_projects.bridge to 2>>
+	<<exit>>
+<</if>>
+
+<<if Town.projects.bridge.stage is 1 and !Town.projects.bridge.isUnderConstruction>>
+	<<set Town.projects.bridge.stage to 2>>
 	You notice the remains of a bridge that once spanned the canal. You saw the same ruin in your hookah dream. It must have been removed after the canal was drained.
 	<br><br>
 	You see a <<generatey1>><<person1>><<person>> you recognise from the orphanage scurry into the canal, and emerge relieved on the other side. <span class="teal">An idea strikes you.</span> If the bridge were restored, those thugs would have a harder time harassing people.
@@ -70,75 +73,141 @@ You are on Barb Street. Silver blocks of flats tower all around, most separated 
 	<i>You could enquire about the bridge at the town hall.</i>
 	<br><br>
 	<<link [[Next|Barb Street]]>><<set $eventskip to 1>><</link>>
-<<elseif $town_projects.bridge is 3>>
-	<<set $town_projects.bridge to 4>>
-	The mayor's office acted fast, and <span class="green">a newly constructed bridge spans the canal.</span> Crossing will be safer. Any orphans finding work here will be safer as well.
+	<<exit>>
+<<elseif Town.projects.bridge.stage gt 1 and Town.projects.bridge.isUnderConstruction>>
+	The mayor's office has approved the project. <span class="yellow">Construction on the new bridge is underway.</span>
 	<br><br>
-	<<earnFeat "Bridging the Past">>
-	<<link [[Next|Barb Street]]>><<set $eventskip to 1>><</link>>
+	<<switch Time.dayState>>
+		<<case "day">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					Cranes and scaffolding now frame the canal's edge, and workers can be seen lowering supports into the dry basin.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						Rain slicks the wooden planks, and workers move cautiously, their jackets soaked through. The ground is muddy and lined with sandbags, but the noise of progress continues uninterrupted.
+					<<else>>
+						Snow has settled on the worksite like a heavy blanket. Workers shovel slush from planks before resuming their tasks.
+					<</if>>
+			<</switch>>
+		<<case "night">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					The scaffolding looms in silence under the moonlight.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						The rain falls in sheets, making silhouettes of cranes and ladders.
+					<<else>>
+						The site lies quiet, coated in a fine powder of snow. A single work light buzzes near the center beam, casting long shadows over untouched footprints.
+					<</if>>
+				<<case "heavyClouds">>
+					The bridge is barely visible beneath the low clouds.
+			<</switch>>
+		<<case "dawn">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds">>
+					As the sun rises, the scaffold catches soft gold light. One or two workers are already on-site, stretching and preparing tools.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						A thin drizzle veils the bridge site. Workers arrive reluctantly, hoods up and boots heavy. Their footsteps mix with the tapping of rain on sheet metal.
+					<<else>>
+						Snow still clings to the girders. A worker brushes it off with a gloved hand as dawn light spreads slowly through the mist.
+					<</if>>
+				<<case "heavyClouds">>
+					Steel creaks as the morning shift begins. One or two workers are already on-site, stretching and preparing tools.
+
+			<</switch>>
+
+		<<case "dusk">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds">>
+					The last sunlight catches on the scaffolding, throwing long shadows across the canal. Workers gather their tools, some staying behind to finish a task.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						The bridge glistens as workers hurry to pack up. One of them mutters that they should've wrapped earlier.
+					<<else>>
+						Evening falls with a quiet drift of snow. Construction has paused, leaving the bridge framework still and unattended.
+					<</if>>
+
+				<<case "heavyClouds">>
+					It's a cloudy evening, and the bridge site is dim under the overcast sky.
+			<</switch>>
+	<</switch>>
+	For now, crossing still requires navigating the canal bed.
+	<br><br><<set $eventskip to 1>>
+<<elseif Town.projects.bridge.isCompletionDay and Town.projects.bridge.stage is 4>>
+	<<set Town.projects.bridge.stage to 5>>
+	The newly constructed bridge spans the canal, with the final touches having just been completed.
 	<br>
+	A small crowd is gathered to watch the mayor cut a ceremonial ribbon flanked by a reporter and a photographer from the local paper.
+	Crews are packing up equipment while residents try the crossing for the first time.
+	<br>
+	<span class="green">Crossing will be safer. Any orphans finding work here will be safer as well.</span>
+	<br><br>
+	<<link [[Next|Barb Street]]>><<set $eventskip to 1>><</link>>
+	<<exit>>
+<<elseif Town.projects.bridge.stage gte 4>>
+	<span class="green">The newly constructed bridge spans the canal.</span> <<if Town.projects.bridge.stage is 4>>Crossing will be safer. Any orphans finding work here will be safer as well.<<set $eventskip to 1>><</if>>
+	<br><br>
+<</if>>
+
+<<if (dangerEvent() or $eventforced) and $eventskip is 0>>
+	<<eventsstreet>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
-		<<eventsstreet>>
+	<<if $options.mapTop is true>>
+		<<map "barb">>
+		<br>
+	<</if>>
+	Places of Interest
+	<br>
+	<<if $openinghours is 1>>
+		<<dancestudioicon>><<link [[Dance studio (0:01)|Dance Studio]]>><<pass 1>><</link>>
+		<br>
+	<<elseif Time.hour is $closinghour>>
+		<<dancestudioicon>><span class="blue">People are leaving the dance studio.</span> It must be closing time.
+		<br>
 	<<else>>
-		<<if $options.mapTop is true>>
-			<<map "barb">>
-			<br>
-		<</if>>
-		Places of Interest
+		<<dancestudioicon>><<link [[Dance studio (0:01)|Dance Studio Lock]]>><<pass 1>><</link>>
 		<br>
-		<<if $openinghours is 1>>
-			<<dancestudioicon>><<link [[Dance studio (0:01)|Dance Studio]]>><<pass 1>><</link>>
-			<br>
-		<<elseif Time.hour is $closinghour>>
-			<<dancestudioicon>><span class="blue">People are leaving the dance studio.</span> It must be closing time.
-			<br>
-		<<else>>
-			<<dancestudioicon>><<link [[Dance studio (0:01)|Dance Studio Lock]]>><<pass 1>><</link>>
-			<br>
-		<</if>>
-		<<if $exposed lte 0>>
-			<<policeicon>><<link [[Police station (0:02)|Police Station]]>><<endevent>><<pass 2>><</link>>
-			<br>
-		<</if>>
-		<<if $phase is 10>>
-			<<set $phase to 0>>
-			<<policeicon>><<link [[Sneak into police station side door (0:05)|Police Back Office]]>><<pass 5>><</link>>
-			<br>
-		<</if>>
-		<<if $town_projects.bridge gte 4>>
-			<<flatsicon>><<link [[Cross the bridge to the flats (0:01)|Flats]]>><<pass 1>><</link>>
-			<br>
-		<</if>>
-		<<if $exposed lte 0>>
-			<<flatsicon>><<link [[Cross the canal to the flats (0:01)|Flats Canal]]>><<pass 1>><</link>>
-			<br>
-		<</if>>
-		<<if $dorenintro gte 1 and $exposed lte 0>>
-			<<dooricon "doren">><<link [[Doren's flat (0:02)|Doren Entrance]]>><<pass 2>><</link>>
-			<br>
-		<</if>>
-		<<if $exposed gte 1 and Time.dayState isnot "night">>
-		<<else>>
-			<<add_link "Travel<br>">><<hideDisplay>>
-			<<domus>>
-			<<cliff>>
-			<<connudatus>>
-			<<if $exposed lte 0>>
-				<<buswait>>
-			<</if>>
-			<<loiter>>
-		<</if>>
-		<<add_link "<br>Alternate Routes<br>">><<hideDisplay>>
-		<<residential>>
-		<<stormdrain>>
+	<</if>>
+	<<if $exposed lte 0>>
+		<<policeicon>><<link [[Police station (0:02)|Police Station]]>><<endevent>><<pass 2>><</link>>
 		<br>
-		<<displayLinks>>
-		<<if $options.mapTop isnot true>>
-			<br>
-			<<map "barb">>
+	<</if>>
+	<<if $phase is 10>>
+		<<set $phase to 0>>
+		<<policeicon>><<link [[Sneak into police station side door (0:05)|Police Back Office]]>><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if Town.projects.bridge.stage gte 4>>
+		<<flatsicon>><<link [[Cross the bridge to the flats (0:01)|Flats]]>><<pass 1>><</link>>
+		<br>
+	<<else>>
+		<<flatsicon>><<link [[Cross the canal to the flats (0:05)|Flats Canal]]>><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if $dorenintro gte 1 and $exposed lte 0>>
+		<<dooricon "doren">><<link [[Doren's flat (0:02)|Doren Entrance]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+	<<if $exposed gte 1 and Time.dayState isnot "night">>
+	<<else>>
+		<<add_link "Travel<br>">><<hideDisplay>>
+		<<domus>>
+		<<cliff>>
+		<<connudatus>>
+		<<if $exposed lte 0>>
+			<<buswait>>
 		<</if>>
+		<<loiter>>
+	<</if>>
+	<<add_link "<br>Alternate Routes<br>">><<hideDisplay>>
+	<<residential>>
+	<<stormdrain>>
+	<br>
+	<<displayLinks>>
+	<<if $options.mapTop isnot true>>
+		<br>
+		<<map "barb">>
 	<</if>>
 <</if>>
 <<set $eventskip to 0>>

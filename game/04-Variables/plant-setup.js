@@ -943,7 +943,7 @@ function initPlants() {
 			type: "food",
 			days: 60,
 			multiplier: 4,
-			special: ["vegetarian"],
+			special: ["vegetarian", "sweet"],
 			season: [],
 			ingredients: ["flour", "salt", "butter", "sugar", "bottle_of_milk", "honey"],
 			icon: "chelsea_bun.png",
@@ -1299,7 +1299,6 @@ function initPlants() {
 			season: ["spring", "summer", "autumn"],
 			ingredients: [],
 			icon: "rice.png",
-			shop: ["supermarket"],
 		},
 
 		haddock: {

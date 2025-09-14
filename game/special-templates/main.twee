@@ -1,10 +1,18 @@
 :: Test
-<<set $location to "pirate_ship">><<set $outside to 0>><<effects>>
+<<set $location to "avery_mansion">><<set $outside to 0>><<effects>>
 <<endcombat>><<set $options.historyControls to true>><<set $options.maxStates to 20>>
 
-<<link [[Test]]>><</link>><br><br>
+<<npc Whitney>><<endevent>>
+<<npc Avery>><<person1>><<npcincr Avery love 50>><<set $averyragerevealed to 1>>
+<<link [[Mansion Dining]]>><</link>>
+<br>
 
+<<set $halloween_kylar_whitney to 1>>
 
+<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and $halloween_kylar_whitney isnot 1 and !$possessed>>
+			<<set $halloween_whitney_proposed to 1>>
+			<<halloweenwhitney>>
+<</if>>
 
 :: Sex
 <<if $sexstart is 1>>
@@ -193,12 +201,7 @@ Possible text describing your attempt.
 	Text describing your success.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
 	<<link [[Next|Skulduggery]]>><</link>>
 	<br>
@@ -208,12 +211,7 @@ Possible text describing your attempt.
 	Text describing your failure.
 	<br><br>
 
-	<<if $skulduggery lte ($skulduggerydifficulty + 100)>>
-		<<skulduggeryskilluse>>
-	<<else>>
-		<span class="blue">That was too easy. You didn't learn anything.</span>
-		<br><br>
-	<</if>>
+	<<skulduggeryuse>>
 
 	<<link [[Next|Skulduggery]]>><</link>>
 	<br>
@@ -459,7 +457,6 @@ Possible text describing your attempt.
 
 <<set $seductiondifficulty to 6000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -504,12 +501,7 @@ The door is locked tight.
 You successfully pick the lock and enter the building.
 <<set $compoundcentre to 1>><<set $compoundalarm += 1>>
 
-<<if $skulduggery lt 400>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-	<br><br>
-<</if>>
+<<skulduggeryuse 400 "locks">>
 
 :: Template for a widget that outputs text based on character's state
 
@@ -678,8 +670,8 @@ You successfully pick the lock and enter the building.
 	<</if>>
 <</widget>>
 
-<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure)>>
+
+	<<if dangerEvent()>>
 
 	<<else>>
 

@@ -1017,7 +1017,7 @@
 		<<set _bodyWritingOptions["Love Interests"]["It's Lonely in the Woods"] to "its_lonely_in_the_woods">>
 		<<set _bodyWritingOptions["Love Interests"]["Something is Hunting you"] to "something_is_hunting_you">>
 	<</if>>
-	<<if $dateCount.Avery gte 3 and C.npc.Avery.state isnot "dismissed">>
+	<<if $auriga_artefact and C.npc.Avery.state isnot "dismissed">>
 		<<set _bodyWritingOptions["Love Interests"]["Avery's Trophy"] to "averys_trophy">>
 		<<set _bodyWritingOptions["Love Interests"]["Endearing"] to "endearing">>
 		<<if ($player.penisExist or $player.gender_appearance is "m" or $backgroundTraits.includes("crossdresser"))>>
@@ -2149,7 +2149,7 @@
 								<<continue>>
 							<</if>>
 							<<set _displayName = (_dyes[_i].colour in setup.colours.hair_map ? setup.colours.hair_map[_dyes[_i].colour].name : _dyes[_i].colour.charAt(0).toUpperCase() + _dyes[_i].colour.slice(1)) + " ×" + _dyes[_i].count + " ">>
-							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span>`>>
+							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span></span>`>>
 							<<capture _dyes, _i>>
 								<<button _dyeName>>
 									<<set $mirror_eyebrow_dye to true>><<pass 15>>
@@ -2320,7 +2320,7 @@
 									<<option "Default" "default">>
 									<<option "Celestial" "celestial">>
 									<<option "Dark Celestial" "celestial-black">>
-									<<option "Forgiven Celestial" "celestial-fallenplus">>
+									<<option "Blue Celestial" "celestial-fallenplus">>
 									<<option "Traditional" "traditional">>
 								<</listbox>>
 							<<else>>
@@ -2344,7 +2344,7 @@
 									<<option "Torn" "torn">>
 									<<option "Cherub" "cherub">>
 									<<option "Dark Cherub" "cherub-black">>
-									<<option "Forgiven Cherub" "cherub-fallenplus">>
+									<<option "Feathered Cherub" "cherub-fallenplus">>
 									<<option "Feathered" "fallenplus">>
 									<<option "Classic Feathered" "classicfallenplus">>
 									<<option "Classic" "classic">>
@@ -2770,16 +2770,6 @@
 				<</if>>
 			</div>
 		<</if>>
-		<div class="mainButton">
-			<<button [[Confirm|$passage]]>>
-				<<set $mirrorMenu to "transformation">>
-				<<if $transformationParts.cat.heterochromia is "hidden">>
-					<<catHeterochromiaTF "hide">>
-				<<elseif $cat gte 7 and $cat lte 10>>
-					<<catHeterochromiaTF `$cat - 7`>>
-				<</if>>
-			<</button>>
-		</div>
 		<<if _isMenuEnabled>>
 			<details class="expandMenu">
 				<summary class="expandMenu">Custom Colours</summary>
@@ -2797,8 +2787,13 @@
 
 	<!-- Attach an event to every listbox item to update the PC on the sidebar. -->
 	<<script>>
-	jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
-		Wikifier.wikifyEval('<<updatesidebarimg true>>');
-	});
+		jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
+			if (V.transformationParts.cat.heterochromia === "hidden") {
+				Wikifier.wikifyEval('<<catHeterochromiaTF "hide">>');
+			} else if (V.cat >= 7 && V.cat <= 10) {
+				Wikifier.wikifyEval('<<catHeterochromiaTF `$cat - 7`>>')
+			};
+			Wikifier.wikifyEval('<<updatesidebarimg true>>');
+		});
 	<</script>>
 <</widget>>

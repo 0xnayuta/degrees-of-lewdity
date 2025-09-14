@@ -1378,7 +1378,7 @@ function masturbationEffectsArms(
 							fragment.append(span(`You take one of your ${balls} in each hand. You can barely get your hands around them`));
 							break;
 						default:
-							fragment.append(span("This text should be unreachable.", "red"));
+							fragment.append(span("This text should be unreachable", "red"));
 							break;
 					}
 				} else {
@@ -1386,7 +1386,7 @@ function masturbationEffectsArms(
 					switch (V.ballssize) {
 						case 1:
 						case 2:
-							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand.`));
+							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand`));
 							break;
 						case 3:
 							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand. It fills your palm nicely`));
@@ -1395,7 +1395,7 @@ function masturbationEffectsArms(
 							fragment.append(span(`You take ${altText.oneOfYour} in your ${arm} hand. You can barely get your hand around it`));
 							break;
 						default:
-							fragment.append(span(`You easily grab both of your ${balls} with your ${arm} hand.`));
+							fragment.append(span(`You easily grab both of your ${balls} with your ${arm} hand`));
 							break;
 					}
 				}
@@ -3258,7 +3258,7 @@ function masturbationEffectsMouth({
 				wikifier("arousal", 100, "masturbationGenital");
 				wikifier("pain", 4);
 				sWikifier(
-					`You lick the parasite, for each one, the parasite sends alternating waves of <span class="lewd">pleasure</span> and <span class="red">pain</span>.<<gpain>>`
+					`You lick the parasite. With each lick, the parasite sends alternating waves of <span class="lewd">pleasure</span> and <span class="red">pain</span>.<<gpain>>`
 				);
 			} else if (V.earSlime.corruption < 100) {
 				wikifier("arousal", 200, "masturbationGenital");

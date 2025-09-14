@@ -153,6 +153,7 @@ setup.WeatherGeneration = {
 			cloudCount: {
 				// Visual only - determines how many clouds spawn at once in the sidebar of each type
 				small: () => random(0, 2, true),
+				medium: () => 0,
 				large: () => 0,
 			},
 			// Modifies the tanning factor, based on cloud coverage. A modifier of 1 has no penalties.
@@ -176,7 +177,8 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => random(1, 4, true),
-				large: () => random(1, 1, true),
+				medium: () => random(1, 1, true),
+				large: () => 0,
 			},
 			tanningModifier: 0.5,
 			overcast: () => randomFloat(0, 0.3, true),
@@ -195,7 +197,8 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(0, 4, true),
+				medium: () => random(0, 4, true),
+				large: () => 0,
 			},
 			tanningModifier: 0.2,
 			overcast: () => randomFloat(0.5, 0.8, true),
@@ -214,7 +217,8 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(1, 5, true),
+				medium: () => random(1, 4, true),
+				large: () => random(0, 1, true),
 			},
 			tanningModifier: 0.2,
 			overcast: () => randomFloat(0.8, 1, true),
@@ -233,7 +237,8 @@ setup.WeatherGeneration = {
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(2, 5, true),
+				medium: () => random(1, 2, true),
+				large: () => random(1, 2, true),
 			},
 			tanningModifier: 0.1,
 			overcast: () => 1,
@@ -241,23 +246,46 @@ setup.WeatherGeneration = {
 			visibility: 0.4,
 		},
 		{
-			name: "thunderStorm",
+			name: "storm",
+			iconType: () => "heavy_" + Weather.precipitation,
 			value: 4,
 			probability: {
-				// Disabled for now since it's not implemented yet
-				summer: 0, // 0.02,
-				winter: 0, // 0.005,
-				spring: 0, // 0.015,
-				autumn: 0, // 0.01,
+				summer: 0.001,
+				winter: 0.01,
+				spring: 0.001,
+				autumn: 0.001,
 			},
 			cloudCount: {
 				small: () => 0,
-				large: () => random(3, 5, true),
+				medium: () => random(2, 4, true),
+				large: () => random(1, 2, true),
 			},
 			tanningModifier: 0,
 			overcast: () => 1,
 			precipitationIntensity: 2,
-			visibility: 0.3,
+			precipitationSpeed: 2,
+			visibility: 0.2,
+		},
+		{
+			name: "thunderStorm",
+			iconType: () => "heavy_" + Weather.precipitation,
+			value: 4,
+			probability: {
+				summer: 0.03,
+				winter: 0,
+				spring: 0.02,
+				autumn: 0.01,
+			},
+			cloudCount: {
+				small: () => 0,
+				medium: () => random(2, 4, true),
+				large: () => random(1, 3, true),
+			},
+			tanningModifier: 0,
+			overcast: () => 1,
+			precipitationIntensity: 2,
+			precipitationSpeed: 1.5,
+			visibility: 0.2,
 		},
 	],
 };
