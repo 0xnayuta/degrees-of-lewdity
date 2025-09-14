@@ -226,6 +226,9 @@ const Newspaper = (() => {
 			}
 		}
 
+		/*
+			Shuffles the middle letters for a drunken effect
+		*/
 		#garbleWord(word) {
 			if (word.length < 4) return word;
 
@@ -237,12 +240,18 @@ const Newspaper = (() => {
 			return word[0] + middle.join("") + word[word.length - 1];
 		}
 
+		/*
+			Replaces random words with garbled versions
+		*/
 		#garbleText(text, ratio = 0.8) {
 			return text.replace(/\b\w+\b/g, word => {
 				return Math.random() < ratio ? this.#garbleWord(word) : word;
 			});
 		}
 
+		/*
+			Adds a random hallucination effect to random words
+		*/
 		#hallucinateText(text, ratio = 0.5) {
 			const weightedEffects = [
 				["hallucinate-upside-down", 5],
@@ -285,7 +294,7 @@ const Newspaper = (() => {
 					styles.push(`animation-delay:${offset}s`);
 				}
 
-				// Overlay: Random scale
+				// Random scale
 				if (Math.random() < 0.5) {
 					classes.push("hallucinate-scale");
 					const scale = (1 + (Math.random() * 0.4 - 0.2)).toFixed(2); // 0.8–1.2
@@ -772,31 +781,28 @@ const Newspaper = (() => {
 		render() {
 			const $clone = this.cachedPaper.clone(true, true);
 
-			if (V.drunktest) {
-				$clone.find("h3, h4, p, span").each((_, el) => {
-					const $element = $(el);
-					if ($element.children().length === 0) {
-						$element.text(this.#garbleText($element.text(), 1));
-					} else {
-						$element.contents().each((_, node) => {
-							if (node.nodeType === Node.TEXT_NODE) {
-								node.textContent = this.#garbleText(node.textContent, 1);
-							}
-						});
-					}
-				});
-			}
+			// experimental drunken or hallucination effects
+			if (V.drunktest || V.hallutest) {
+				const applyDrunk = !!V.drunktest;
+				const applyHallucinate = !!V.hallutest;
+				const transformText = text => {
+					let out = text;
+					if (applyDrunk) out = this.#garbleText(out, 1);
+					return applyHallucinate ? this.#hallucinateText(out, 0.8) : out;
+				};
 
-			if (V.hallutest) {
 				$clone.find("h3, h4, p, span").each((_, el) => {
 					const $element = $(el);
 					if ($element.children().length === 0) {
-						$element.html(this.#hallucinateText($element.text(), 0.8));
+						const result = transformText($element.text());
+						if (applyHallucinate) $element.html(result);
+						else $element.text(result);
 					} else {
 						$element.contents().each((_, node) => {
-							if (node.nodeType === Node.TEXT_NODE) {
-								$(node).replaceWith(this.#hallucinateText(node.textContent, 0.8));
-							}
+							if (node.nodeType !== Node.TEXT_NODE) return;
+							const result = transformText(node.textContent);
+							if (applyHallucinate) $(node).replaceWith(result);
+							else node.textContent = result;
 						});
 					}
 				});
@@ -890,15 +896,14 @@ const Newspaper = (() => {
 		});
 	}
 
-	// Ensure the seed stays within [0.25, 0.99] by looping within the range
 	function wrapSeed(value) {
 		const min = 0.25;
 		const max = 0.99;
-		const span = max - min; // 0.74
+		const span = max - min;
 		if (!Number.isFinite(value)) return min;
-		let normalized = (value - min) % span; // may be negative
-		if (normalized < 0) normalized += span; // wrap into [0, span)
-		return min + normalized; // result in [min, max)
+		let normalized = (value - min) % span;
+		if (normalized < 0) normalized += span;
+		return min + normalized;
 	}
 
 	function enableLink() {
@@ -973,7 +978,11 @@ const Newspaper = (() => {
 	}
 
 	/*
-		Uses promise to preload the layout on page-load, and to prevent race-conditions
+		Use promise to preload the layout on page-load, and to prevent race-conditions
+		- Loads after the page and UI is loaded.
+		- If the newspaper is opened before it's ready, it waits for the loading to finish.
+		- Otherwise, it loads in the background without slowing down the load time.
+		- (Takes ~50ms to populate once)
 	*/
 	async function init() {
 		if (Newspaper.instance?.cachedPaper) return;
@@ -1011,4 +1020,3 @@ const Newspaper = (() => {
 	};
 })();
 window.Newspaper = Newspaper;
-

@@ -5,7 +5,7 @@ Weather.Renderer.Effects.add({
 		particles: [],
 
 		// smoke defaults
-		emissionRate: 10,
+		emissionRate: 10, // per second
 		x: 70,
 		y: 110,
 
@@ -16,21 +16,20 @@ Weather.Renderer.Effects.add({
 		spread: 15, // degrees fan‑out
 
 		// fade
-		minFadeDistance: 0,
-		maxFadeDistance: 50,
-		fadeTime: 1.5,
+		minFadeDistance: 0, // distance before starting to fade
+		maxFadeDistance: 50, // distance at which to be fully faded
+		fadeTime: 1.5, // seconds to fully fade
 
 		// optional wiggle
-		driftAmplitude: 4,
-		driftWavelength: 50,
+		driftAmplitude: 4, // px
+		driftWavelength: 50, // px
 
 		// look
-		particleSize: 1,
+		particleSize: 1, // px (square)
 		color: "#333333",
 	},
 
 	async init() {
-		// Clean up old emitters if reinitialising
 		if (Array.isArray(this.emitters)) {
 			for (const em of this.emitters) {
 				if (em && em.destroy) em.destroy();
@@ -40,22 +39,22 @@ Weather.Renderer.Effects.add({
 		this.emitters = [];
 
 		const defaults = {
-			rate: this.emissionRate,
-			origin: [this.x, this.y],
+			rate: this.emissionRate, // per second
+			origin: [this.x, this.y], // px
 
-			riseSpeed: this.riseSpeed,
-			windSpeed: this.windSpeed,
-			windDirection: this.windDirection,
-			spread: this.spread,
+			riseSpeed: this.riseSpeed, // px/s
+			windSpeed: this.windSpeed, // px/s
+			windDirection: this.windDirection, // degrees
+			spread: this.spread, // degrees
 
-			minFade: this.minFadeDistance,
-			maxFade: this.maxFadeDistance,
-			fadeTime: this.fadeTime,
+			minFade: this.minFadeDistance, // px
+			maxFade: this.maxFadeDistance, // px
+			fadeTime: this.fadeTime, // seconds
 
-			driftAmplitude: this.driftAmplitude,
-			driftWavelength: this.driftWavelength,
+			driftAmplitude: this.driftAmplitude, // px
+			driftWavelength: this.driftWavelength, // px
 
-			size: this.particleSize,
+			size: this.particleSize, // px
 			color: this.color,
 		};
 
@@ -71,7 +70,7 @@ Weather.Renderer.Effects.add({
 			const wRad = degToRad(cfg.windDirection);
 			const timeToMax = cfg.maxFade / cfg.riseSpeed;
 
-			// horizontal accel needed: v = a·t  ⇒  a = v/t
+			// horizontal accel needed: v = a*t  =>  a = v/t
 			const accelX = (Math.cos(wRad) * cfg.windSpeed) / timeToMax;
 			// build the emitter
 			const em = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
@@ -80,8 +79,8 @@ Weather.Renderer.Effects.add({
 				spawnRate: cfg.rate,
 				preWarm: true,
 
-				// **this is the horizontal acceleration** (px/s²),
-				// we’ll clamp afterwards to ±cfg.windSpeed
+				// horizontal acceleration (px/s^2),
+				// we'll clamp afterwards to cfg.windSpeed
 				curve: accelX,
 
 				initialSettings: {
@@ -130,17 +129,12 @@ Weather.Renderer.Effects.add({
 					const size = 2 + 12 * t;
 					p.size.w = size;
 					p.size.h = size;
-
-					// // 2) fade out in the last 25% of life
-					// if (t > 0.75) {
-					// 	p.alpha = 1 - (t - 0.75) / 0.25;
-					// }
 				},
 
 				animationGroup: this.parentLayer.animationGroup,
 			});
 
-			// clamp velocity.x to ±cfg.windSpeed every update
+			// clamp velocity.x every update
 			const origUpdate = em.update.bind(em);
 			em.update = dt => {
 				origUpdate(dt);

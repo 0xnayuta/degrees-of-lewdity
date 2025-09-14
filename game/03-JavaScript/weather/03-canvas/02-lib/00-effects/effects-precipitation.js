@@ -2,7 +2,6 @@ Weather.Renderer.Effects.add({
 	name: "particleRain",
 
 	defaultParameters: {
-		// Time-of-day tints
 		sunTint: "#ffffffbb",
 		moonTint: "#3b5580",
 		dawnDuskTint: "#dbb695",
@@ -11,13 +10,12 @@ Weather.Renderer.Effects.add({
 		groundDawnDuskTint: "#a08160",
 		baseAlpha: 1,
 
-		// Appearance & physics
-		dropCount: 100,
-		dropSpeed: 1,
-		windStrength: 1,
+		dropCount: 100, // number of drops
+		dropSpeed: 1, // px/s
+		windStrength: 1, // 0–1 multiplier
 		windAngle: 0, // Radians
-		dropLength: 3,
-		dropWidth: 1,
+		dropLength: 3, // px
+		dropWidth: 1, // px
 
 		// Splash settings
 		enableSplashes: true,
@@ -35,7 +33,7 @@ Weather.Renderer.Effects.add({
 	},
 
 	async init() {
-		// Clean up any previous emitter if re-initialized
+		// Clean up
 		if (this.particleEmitter) {
 			this.particleEmitter.destroy?.();
 			this.particleEmitter = null;
@@ -44,7 +42,7 @@ Weather.Renderer.Effects.add({
 		this.splashes = [];
 		this.splashEmitters = [];
 
-		// Compute base velocities and spawn bounds so particles drift into view
+		// base velocities and spawn bounds so particles drift into view
 		const baseVy = this.dropSpeed * Math.cos(this.windAngle);
 		const baseVx = this.dropSpeed * this.windStrength * Math.sin(this.windAngle);
 		const lifeDist = height + this.dropLength;
@@ -53,7 +51,6 @@ Weather.Renderer.Effects.add({
 		const minX = -drift;
 		const maxX = width + drift;
 
-		// build & self‑drive the system
 		this.particleEmitter = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
 			origin: { x: 0, y: -this.dropLength },
 			maxParticles: this.dropCount,
@@ -74,7 +71,7 @@ Weather.Renderer.Effects.add({
 				const spawnVy = baseVy + (Math.random() * 0.2 - 0.1);
 				const spawnVx = baseVx + (Math.random() * 0.2 - 0.1);
 
-				// pick a random collision offset between the configured triggers
+				// pick a random collision offset
 				const bandRange = this.splashTriggerTop - this.splashTriggerBottom;
 				const offset = this.splashTriggerBottom + Math.random() * bandRange;
 
@@ -100,7 +97,7 @@ Weather.Renderer.Effects.add({
 				const headX = p.position.x + normX * p.length;
 				const headY = p.position.y + normY * p.length;
 
-				// add a line ripple at the particle head
+				// add a line ripple at the particle position
 				this.splashes.push({ x: headX, y: headY, frame: 0 });
 
 				if (!this.enableSplashes) return;
@@ -109,7 +106,7 @@ Weather.Renderer.Effects.add({
 				const frac = Math.min(Math.max(dist / 25, 0), 1);
 				const scale = 1 - frac * (1 - this.splashMinScale);
 
-				// small splash particle system
+				// small splash particles
 				const splashEmitter = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
 					origin: { x: headX, y: headY },
 					maxParticles: this.splashParticleCount,
@@ -143,19 +140,31 @@ Weather.Renderer.Effects.add({
 	},
 
 	onEnable() {
-		this.particleEmitter.enable();
+		// For race conditions when changing weather type
+		if (!this.particleEmitter) {
+			const initialized = this.init?.();
+			if (initialized && typeof initialized.then === "function") {
+				initialized.then(() => this.particleEmitter?.enable?.());
+				return;
+			}
+		}
+		this.particleEmitter?.enable?.();
 	},
 
 	onDisable() {
-		// Destroy to avoid lingering references when switching weather
 		this.particleEmitter.destroy?.();
 		this.particleEmitter = null;
 	},
 
 	draw() {
-		const ctx = this.canvas.ctx;
-		const height = this.canvas.element.height;
+		const ctx = this.canvas?.ctx;
+		const height = this.canvas?.element?.height ?? 0;
 		const { topColor, bottomColor, splashMinScale, splashMaxRadius, splashLineWidth, baseAlpha } = this;
+
+		if (!this.particleEmitter) {
+			this.canvas?.clear?.();
+			return;
+		}
 
 		this.particleEmitter.initialSettings.color = topColor;
 
@@ -173,7 +182,7 @@ Weather.Renderer.Effects.add({
 			const s = this.splashes[i];
 			s.frame++;
 			const raw = Math.min(s.frame * 0.5, splashMaxRadius);
-			// compute scale
+			// scale
 			const dist = height - s.y;
 			const frac = Math.min(dist / 25, 1);
 			const scale = 1 - frac * (1 - splashMinScale);
@@ -210,7 +219,6 @@ Weather.Renderer.Effects.add({
 	name: "particleSnow",
 
 	defaultParameters: {
-		// Time-of-day tints (same as rain)
 		sunTint: "#ffffffbb",
 		moonTint: "#3b5580",
 		dawnDuskTint: "#dbb695",
@@ -218,15 +226,14 @@ Weather.Renderer.Effects.add({
 		groundNightTint: "#7895c4",
 		groundDawnDuskTint: "#a08160",
 
-		// Snow physics & appearance
 		dropCount: 200, // flakes per second
 		dropSpeed: 0.5, // slower fall
-		windStrength: 0.3,
-		windAngle: 0, // straight down (radians)
-		dropSize: 1,
-		baseAlpha: 1,
+		windStrength: 0.3, // 0–1 multiplier
+		windAngle: 0, // 0 = straight down (radians)
+		dropSize: 1, // px
+		baseAlpha: 1, // opacity
 
-		// Wobble controls for flakes
+		// Wobble
 		wobbleAmplitude: 0.5, // px side‑to‑side
 		wobbleFrequency: 1, // cycles/sec
 
@@ -234,7 +241,7 @@ Weather.Renderer.Effects.add({
 		pileTriggerTop: 20, // max px above bottom that can pile
 		pileTriggerBottom: 0, // min px above bottom
 
-		// Static pixel fade
+		// Fade before disappearing
 		pixelFadeTime: 1.5, // seconds to fade
 
 		// Snow glare (optional)
@@ -246,7 +253,6 @@ Weather.Renderer.Effects.add({
 	},
 
 	async init() {
-		// Clean up previous emitter if any
 		if (this.particleEmitter) {
 			this.particleEmitter.destroy?.();
 			this.particleEmitter = null;
@@ -254,7 +260,7 @@ Weather.Renderer.Effects.add({
 		const { width, height } = this.canvas.element;
 		this.staticPixels = [];
 
-		// compute horizontal drift from wind and prepare spawn bounds
+		// horizontal drift from wind and prepare spawn bounds
 		const windCurve = this.windStrength * this.dropSpeed * Math.sin(this.windAngle);
 		const drift = Math.abs((height + this.dropSize) * Math.tan(this.windAngle));
 		const windSign = Math.sign(windCurve);
@@ -282,11 +288,11 @@ Weather.Renderer.Effects.add({
 			},
 			generator: () => {
 				const spawnX = Math.random() * (spawnMaxX - spawnMinX) + spawnMinX;
-				// vertical speed ± small jitter
+				// vertical speed
 				const spawnVy = this.dropSpeed + (Math.random() * 0.2 - 0.1);
 				const spawnVx = this.dropSpeed * this.windStrength * Math.sin(this.windAngle) + (Math.random() * 0.1 - 0.05);
 
-				// pick a random "pile band" between bottom & top triggers
+				// pick a random pile band between bottom & top triggers
 				const range = this.pileTriggerTop - this.pileTriggerBottom;
 				const offset = this.pileTriggerBottom + Math.random() * range;
 				const collisionY = height - offset;
@@ -301,9 +307,9 @@ Weather.Renderer.Effects.add({
 					collisionTime,
 				};
 			},
-			// when a flake “collides”:
+
 			onCollision: p => {
-				// record one static‐pixel at the point of collision:
+				// record one static‐pixel at the point of collision
 				this.staticPixels.push({
 					x: p.position.x,
 					y: p.position.y,
@@ -316,7 +322,14 @@ Weather.Renderer.Effects.add({
 	},
 
 	onEnable() {
-		this.particleEmitter.enable();
+		if (!this.particleEmitter) {
+			const initialized = this.init?.();
+			if (initialized && typeof initialized.then === "function") {
+				initialized.then(() => this.particleEmitter?.enable?.());
+				return;
+			}
+		}
+		this.particleEmitter?.enable?.();
 	},
 	onDisable() {
 		this.particleEmitter.destroy?.();
@@ -324,8 +337,13 @@ Weather.Renderer.Effects.add({
 	},
 
 	draw() {
-		const ctx = this.canvas.ctx;
+		const ctx = this.canvas?.ctx;
 		const { topColor, bottomColor, pixelFadeTime, dropSize, snowGlare, glareInterval, glareDuration, glareAlpha, glareColor } = this;
+
+		if (!this.particleEmitter) {
+			this.canvas?.clear?.();
+			return;
+		}
 
 		this.canvas.clear();
 		this.particleEmitter.draw();

@@ -1,3 +1,6 @@
+/*
+	Creates a paper texture once, on load, based on a seed. (will generate the same texture for the same seed)
+*/
 setup.NewspaperTexture = (() => {
 	const sepia = { r: 112, g: 84, b: 46 };
 
@@ -15,7 +18,7 @@ setup.NewspaperTexture = (() => {
 		const { noiseIntensity, fiberCount, fiberIntensity, fiberThickness, fiberLength } = defaultOptions;
 		const ctx = canvas.ctx;
 		const [width, height] = [canvas.element.width, canvas.element.height];
-		const rng = new PRNG(V.newspaper.seed + V.newspaper.total * 0.0001);
+		const rng = new PRNG(Newspaper.wrapSeed(V.newspaper.seed + V.newspaper.total * 0.0001));
 
 		// base sepia noise
 		const img = ctx.createImageData(width, height);

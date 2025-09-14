@@ -18,12 +18,10 @@ Newspaper.Debug = class {
 		this.$scaleWrapper = $scaleWrapper;
 		this.snapshots[0] = null;
 
-		// scaffold outer container
 		this.$outerContainer = $("<div>")
 			.addClass("newspaper-debugOuter")
 			.on("click", e => e.stopPropagation());
 
-		// build panels
 		this.$debugPanel = this.buildDebugPanel();
 		this.$testOverlay = this.buildTestOverlay();
 
@@ -33,7 +31,6 @@ Newspaper.Debug = class {
 		this.buildArticleControls();
 		this.buildOverlayInputs();
 
-		// initial render & snapshot
 		this.$scaleWrapper.append(Newspaper.instance.render());
 		this.snapshotWeek();
 		this.bindControl();
@@ -75,7 +72,6 @@ Newspaper.Debug = class {
 		this.$rewindButton = $("<button>").attr("id", "newspaper-debugRewindWeek").text("Rewind Week").prop("disabled", true);
 		this.$openEditorButton = $("<button>").attr("id", "newspaper-debugOpenEditor").text("Test Article");
 
-		// assemble into debugPanel
 		this.$debugPanel
 			.append(this.$articleSelect)
 			.append($("<label>").attr("for", "debug-position-select").text("Position: "), this.$positionSelect, "<br>")
@@ -93,20 +89,15 @@ Newspaper.Debug = class {
 	buildOverlayInputs() {
 		const $overlay = this.$testOverlay;
 
-		// title input
 		this.$titleInput = $("<input>").attr({ id: "newspaper-testTitle", type: "text" }).addClass("newspaper-testTitle").val(this.testArticle.title);
-
-		// content area
 		this.$contentArea = $("<textarea>").attr({ id: "newspaper-testText", rows: 5 }).addClass("newspaper-testText").val(this.testArticle.content);
 
-		// position dropdown
 		this.$overlayPositionSelect = $("<select>")
 			.attr("id", "debug-test-position")
 			.addClass("newspaper-testPosition")
 			.append([...Array(7).keys()].map(i => $("<option>").val(i).text(i)))
 			.val(this.testArticle.position);
 
-		// placeholder-image checkbox
 		this.$imagePlaceholderCheckbox = $("<input>", { type: "checkbox", id: "debug-image-placeholder" }).prop("checked", this.testArticle.image);
 		const $imagePlaceholderLabel = $("<label>").attr("for", "debug-image-placeholder").text(" Image placeholder");
 
@@ -116,7 +107,6 @@ Newspaper.Debug = class {
 		this.$resetOverlayButton = $("<button>").attr("id", "newspaper-testResetOverlay").text("Clear input");
 		this.$buttonBar = $("<div>").addClass("newspaper-testButtons").append(this.$submitButton, this.$copyButton, this.$resetOverlayButton);
 
-		// assemble overlay
 		$overlay
 			.append($("<h3>").text("Test Article"))
 			.append($("<p>").addClass("newspaper-testDisclaimer").text("Inject a temporary article to preview the layout."))
@@ -187,7 +177,7 @@ Newspaper.Debug = class {
 			V.newspaper.forecast = Newspaper.instance.generateForecast();
 			V.newspaper.queue = Newspaper.instance.generateWeeklyQueue();
 			V.newspaper.layout = [];
-			await Newspaper.init();;
+			await Newspaper.init();
 			this.$scaleWrapper.empty().append(Newspaper.instance.render());
 			this.snapshots[this.weekOffset] = { state: V.newspaper.deepCopy(), page: Newspaper.instance };
 			this.$rewindButton.prop("disabled", false);
@@ -220,11 +210,6 @@ Newspaper.Debug = class {
 			const inputTitle = this.$titleInput.val().trim() || "Test Article";
 			const escapedTitle = $("<div>").text(inputTitle).html();
 			const inputContent = this.$contentArea.val();
-			const safeContent = sanitizeHtml(inputContent);
-			if (!safeContent) {
-				console.error("blocked");
-				return;
-			}
 
 			const position = Number(this.$overlayPositionSelect.val());
 			const debugId = "_debug";
@@ -233,7 +218,7 @@ Newspaper.Debug = class {
 				id: debugId,
 				title: escapedTitle,
 				category: "article",
-				...(position === 0 ? { main: safeContent } : { short: safeContent }),
+				...(position === 0 ? { main: inputContent } : { short: inputContent }),
 			};
 			if (this.$imagePlaceholderCheckbox.prop("checked")) {
 				tempArticle.image = "";
@@ -259,7 +244,7 @@ Newspaper.Debug = class {
 			this.testArticle.content = this.$contentArea.val();
 		});
 
-		// Keep UI and state in sync when position changes
+		// UI and state in sync when position changes
 		this.$overlayPositionSelect
 			.on("change", () => {
 				const isMain = this.$overlayPositionSelect.val() === "0";

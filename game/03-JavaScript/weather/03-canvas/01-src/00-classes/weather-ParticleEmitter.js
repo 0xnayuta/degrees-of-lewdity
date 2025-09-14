@@ -93,7 +93,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		ticker.enable();
 		this.#tickersByGroup.set(group, ticker);
 
-		// Real-time seconds with pause protection and mild dt clamping
+		// Real-time seconds
 		const original = group.onUpdate.bind(group);
 		this.#originalOnUpdate.set(group, original);
 		const nowFn = typeof performance !== "undefined" ? () => performance.now() : () => Date.now();
@@ -106,9 +106,8 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			// Freeze when hidden (alt‑tab/background)
 			const hidden = typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden");
 			if (hidden) dt = 0;
-			// Treat huge gaps as pauses: no catch‑up burst
+			// Treat huge gaps as pauses
 			if (dt > targetDt * 4) dt = 0;
-			// Clamp minor hiccups and handle clock anomalies
 			if (!Number.isFinite(dt) || dt < 0) dt = targetDt;
 			else if (dt > 0) dt = Math.min(dt, targetDt * 2);
 
@@ -166,7 +165,6 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 
 		this.active = true;
 		if (animationGroup) {
-			// Track this emitter under its animation group
 			let set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(animationGroup);
 			if (!set) {
 				set = new Set();
@@ -186,11 +184,9 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		const lifetime = this.initialSettings.lifetime;
 		const finiteLife = Number.isFinite(lifetime) && lifetime > 0;
 
-		// Always fill immediately up to maxParticles when prewarming
 		let count = this.maxParticles;
 		while (count-- > 0) this.#spawnParticle();
 
-		// Optionally scatter only if lifetime is finite; avoid aging infinite‑life particles
 		if (finiteLife) {
 			for (const p of this.particles) {
 				p.update(Math.random() * lifetime);
@@ -199,7 +195,6 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	}
 
 	update(time) {
-		// spawn by rate or interval
 		if (this.spawnRate != null) {
 			this.#spawnAccumulator += time * this.spawnRate;
 			const toSpawn = Math.floor(this.#spawnAccumulator);
@@ -213,7 +208,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			}
 		}
 
-		// update & cull
+		// update
 		const next = [];
 		for (const p of this.particles) {
 			const prevAge = p.age;
@@ -261,7 +256,6 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	}
 
 	disable() {
-		// Per-emitter disable — don’t stop the whole group ticker
 		this.active = false;
 	}
 
@@ -271,7 +265,6 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			if (set) {
 				set.delete(this);
 				if (set.size === 0) {
-					// Restore original onUpdate for this group and disable ticker
 					const original = Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(this.group);
 					if (original) this.group.onUpdate = original;
 					Weather.Renderer.ParticleEmitter.#originalOnUpdate.delete(this.group);

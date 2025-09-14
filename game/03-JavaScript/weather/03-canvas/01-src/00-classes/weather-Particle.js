@@ -167,11 +167,10 @@ Weather.Renderer.Particle = class Particle {
 			}
 
 			case "line":
-				// align to velocity vector, then draw a shrinking line
 				ctx.setTransform(this.#cos, this.#sin, -this.#sin, this.#cos, this.position.x + driftX, this.position.y);
 				ctx.rotate(this.#rotation.angle);
 				ctx.globalAlpha = this.alpha;
-				ctx.strokeStyle = this.color ?? "#ffffff";
+				ctx.strokeStyle = this.color ?? "#fff";
 				{
 					let w = this.size.w;
 					if (this.age >= this.#shrinkStart) {
@@ -188,10 +187,9 @@ Weather.Renderer.Particle = class Particle {
 				break;
 
 			case "circle":
-				// velocity-aligned circle
 				ctx.setTransform(this.#cos, this.#sin, -this.#sin, this.#cos, this.position.x + driftX, this.position.y);
 				ctx.globalAlpha = this.alpha;
-				ctx.fillStyle = this.color ?? "#ffffff";
+				ctx.fillStyle = this.color ?? "#fff";
 				ctx.beginPath();
 				ctx.arc(0, 0, this.size.w / 2, 0, 2 * Math.PI);
 				ctx.fill();
@@ -199,10 +197,9 @@ Weather.Renderer.Particle = class Particle {
 
 			case "rect":
 			default:
-				// velocity-aligned rect
 				ctx.setTransform(this.#cos, this.#sin, -this.#sin, this.#cos, this.position.x + driftX, this.position.y);
 				ctx.globalAlpha = this.alpha;
-				ctx.fillStyle = this.color ?? "#ffffff";
+				ctx.fillStyle = this.color ?? "#fff";
 				ctx.fillRect(-this.size.w / 2, -this.size.h / 2, this.size.w, this.size.h);
 		}
 

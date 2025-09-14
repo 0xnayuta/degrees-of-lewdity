@@ -819,34 +819,3 @@ Macro.add("tml", {
 		this.output.append(link);
 	},
 });
-
-/*
- * Remove scripts, etc from a chunk of html
- * Used for textboxes - mostly useful for dolmods
- */
-function sanitizeHtml(html) {
-	const $f = $("<div>").html(html);
-
-	if ($f.find("script,style").length) {
-		console.warn("<script> or <style> not allowed in textbox.");
-		return;
-	}
-
-	const bad = $f
-		.find("*")
-		.toArray()
-		.some(el =>
-			Array.from(el.attributes).some(({ name, value }) => {
-				const n = name.toLowerCase();
-				return n.startsWith("on") || (/^(href|src|xlink:href)$/i.test(n) && /^\s*javascript:/i.test(value));
-			})
-		);
-	if (bad) {
-		console.warn("Unsafe attribute in textbox.");
-		return;
-	}
-
-	return $f.html();
-}
-
-window.sanitizeHtml = sanitizeHtml;

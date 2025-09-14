@@ -7,6 +7,22 @@ NOTES:
 - condition is optional, but must be a function. (defaults to always true)
 - id is not strictly required, but is highly recommended, in case we want to change the order
 
+-  init(obj) (optional):
+	- Called ONCE per included article for the current newspaper edition, the first time its content is resolved during build.
+		It does NOT rerun on re-renders or opening the paper again. Results are cached for that edition.
+	- It is given a shallow clone of Newspaper.modifiers
+	- Return value: whatever init() returns is passed into your content functions (short/main) as their argument
+		The return value of init() will also be merged into Newspaper.modifiers and become available globally (for the rest of the week)
+		If the return value is not an object, it will NOT be merged into Newspaper.modifiers (but still passed to main/short functions)
+	- For an example, look at adNewspaper in ads.js (Creates a global discounted clothing item in the shop)
+
+Newspaper.modifiers:
+ - Becomes available globally as soon as the initial newspaper build completes.
+ - Contains the return values of all init() functions from included articles.
+ - The return value of init() must be an object in order to be merged properly.
+ - Persists for the entire edition (week). Can also access with V.newspaper.modifiers.
+ - Resets when a new edition is generated via Newspaper.reset()/clear() (weekly)
+
 */
 Newspaper.addArticles(
 	{
@@ -20,6 +36,7 @@ Newspaper.addArticles(
 			The completion of the bridge marks a significant achievement for Mayor Quinn, who has once again demonstrated clear-headed leadership and an unwavering commitment to civic progress. Speaking at the ribbon-cutting ceremony, the mayor called the project "a symbol of what can be accomplished when a town dares to believe in itself."
 
 			Though the source of funding remains undisclosed, the Town Hall assures citizens that the budget is secure and that no public funds have been diverted from essential services. Further praise has come from Barb Street residents themselves, many of whom gathered at the canal's edge to witness the first official crossing.`,
+		short: `The renovated Barb Street bridge opened this morning, restoring a safer crossing over the long-drained canal with widened paths and reinforced rails. Town Hall maintained that funding remains secure and services unaffected.`,
 		image: setup.NewspaperSettings.imgFolder + "articles/bridge.png",
 		imagePosition: "right",
 		caption: "Bridge over the old canal.",
@@ -37,6 +54,7 @@ Newspaper.addArticles(
 			Local officials note that the area has long lacked reliable infrastructure, with previous visits requiring a detour through muddy trails and dense undergrowth. With the road now complete, both educational trips and tourism to the historic lake are expected to increase.
 		
 			The mayor's office has taken full credit for the project.`,
+		short: `A new shortcut to the southern lake opened this week, replacing hazardous footpaths with a proper roadway and a small bus stop at the lake shore. Officials expect safer trips to the lake and increased visits.`,
 		image: setup.NewspaperSettings.imgFolder + "articles/forestRoad.png",
 		imagePosition: "right",
 		caption: "The new forest road.",
