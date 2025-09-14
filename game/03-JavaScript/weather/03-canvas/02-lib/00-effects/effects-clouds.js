@@ -294,14 +294,13 @@ Weather.Renderer.Effects.add({
 Weather.Renderer.Effects.add({
 	name: "particleFog",
 	defaultParameters: {
-		// count & appearance
 		particleCount: 150,
 		minVel: 2, // px/sec
 		maxVel: 4, // px/sec
 		opacity: 1,
 
 		scale: 160, // sprite width in px
-		scaleVariance: 80, // ±px around scale (e.g., 160 ± 80)
+		scaleVariance: 80,
 
 		// initial spawn
 		margin: 15, // px outside canvas
@@ -309,17 +308,15 @@ Weather.Renderer.Effects.add({
 
 		wanderRadius: 80, // px max from original
 		rotationFactor: 0.2, // radians/sec (slow)
-		rotationVariance: 0.5, // ±50% variation
+		rotationVariance: 0.5,
 	},
 
 	init() {
-		// Clean up any previous emitter to avoid duplicates on reinit
 		if (this.particleEmitter && this.particleEmitter.destroy) {
 			this.particleEmitter.destroy();
 			this.particleEmitter = null;
 		}
 
-		// Use the particle system to simulate fog as slow, wandering image particles
 		const interval = this.parentLayer.animationGroup.updateRate;
 		this.deltaTime = interval / 1000;
 
@@ -327,7 +324,6 @@ Weather.Renderer.Effects.add({
 		const canvasHeight = this.canvas.element.height;
 		const fogImage = this.images.fog;
 
-		// Per-particle state, kept outside the particle object
 		this.fogState = new WeakMap();
 
 		const spawnWidth = canvasWidth + 2 * this.margin;
@@ -335,13 +331,12 @@ Weather.Renderer.Effects.add({
 		this.particleEmitter = new Weather.Renderer.ParticleEmitter(this.canvas.ctx, {
 			origin: { x: 0, y: 0 },
 			maxParticles: this.particleCount,
-			spawnRate: this.particleCount, // quickly fill pool up to maxParticles
+			spawnRate: this.particleCount,
 			preWarm: true,
 			autoDestroy: false,
 			initialSettings: {
 				shape: "image",
 				image: fogImage,
-				// Default size (generator will set exact width/height preserving aspect)
 				size: { w: this.scale, h: this.scale * (fogImage.height / fogImage.width) },
 				alpha: this.opacity,
 				gravity: 0,
@@ -349,53 +344,46 @@ Weather.Renderer.Effects.add({
 				lifetime: Number.POSITIVE_INFINITY,
 			},
 			generator: () => {
-				// Choose width in pixels with ±variance, keep the sprite aspect ratio for height
 				const minW = Math.max(1, this.scale - this.scaleVariance);
 				const maxW = this.scale + this.scaleVariance;
 				const w = minW + Math.random() * (maxW - minW);
 				const h = w * (fogImage.height / fogImage.width);
 
 				const originX = -this.margin + Math.random() * spawnWidth - w / 2;
-				// Stronger bottom bias: enforce a bottom band based on groundBias
-				const minYFrac = Math.max(0, 1 - 0.05 * this.groundBias); // e.g., bias 8 -> bottom 60% band
+				// Stronger bottom bias
+				const minYFrac = Math.max(0, 1 - 0.05 * this.groundBias);
 				let originY = canvasHeight * (1 - Math.pow(Math.random(), this.groundBias)) - h / 2;
 				originY = Math.max(originY, canvasHeight * minYFrac - h / 2);
 
-				// Start stationary; onUpdate will steer toward a target
 				return {
 					position: { x: originX, y: originY },
 					velocity: { x: 0, y: 0 },
 					size: { w, h },
-					// Built-in rotation: slow random spin
 					rotation: {
 						angle: Math.random() * 360,
-						// base speed with variance, random direction
 						speed: (Math.random() < 0.5 ? -1 : 1) * this.rotationFactor * (1 + (Math.random() * 2 - 1) * this.rotationVariance),
 					},
 				};
 			},
 			onUpdate: p => {
-				// Initialize per-particle state on first update
 				let st = this.fogState.get(p);
 				if (!st) {
 					const speed = this.minVel + Math.random() * (this.maxVel - this.minVel);
 
-					// Anchor wandering around original spawn to preserve bottom bias
 					const origX = p.position.x;
 					const origY = p.position.y;
 
-					// Pick a nearby target within wander radius, constrained to not drift too far upward
 					const pickTarget = () => {
 						const a = Math.random() * Math.PI * 2;
 						const r = Math.random() * this.wanderRadius;
 						let tx = origX + Math.cos(a) * r;
 						let ty = origY + Math.sin(a) * r;
-						// Limit upward wander so fog stays biased toward bottom and within a bottom band
+
 						const minYFrac = Math.max(0, 1 - 0.05 * this.groundBias);
 						const bandTopY = canvasHeight * minYFrac;
 						const upLimit = Math.max(origY - this.wanderRadius * 0.4, bandTopY);
 						if (ty < upLimit) ty = upLimit;
-						// Clamp within extended margins
+
 						tx = Math.min(Math.max(tx, -this.margin), canvasWidth + this.margin);
 						ty = Math.min(Math.max(ty, -this.margin), canvasHeight + this.margin);
 						return { x: tx, y: ty };
@@ -414,7 +402,6 @@ Weather.Renderer.Effects.add({
 				const step = st.speed * dt;
 
 				if (dist <= step) {
-					// Re-pick a new point to move to
 					st.target = st.pickTarget();
 					st.speed = Math.random() * (this.maxVel - this.minVel) + this.minVel;
 
@@ -432,7 +419,6 @@ Weather.Renderer.Effects.add({
 					p.velocity.y = 0;
 				}
 
-				// Keep within extended margins by nudging the target back inside if needed
 				const minX = -this.margin;
 				const maxX = canvasWidth + this.margin;
 				const minY = -this.margin;
@@ -447,7 +433,7 @@ Weather.Renderer.Effects.add({
 			animationGroup: this.parentLayer.animationGroup,
 		});
 
-		// Ensure all fog particles are present immediately (no trickle-in)
+		// Prewarm
 		if (this.particleEmitter && this.particleEmitter.enable) this.particleEmitter.enable();
 		const em = this.particleEmitter;
 		if (em && em.update) {
@@ -459,12 +445,9 @@ Weather.Renderer.Effects.add({
 				em.update(dt);
 			}
 		}
-
-		// (prefill moved below)
 	},
 
 	onDisable() {
-		// Ensure emitter is destroyed when effect is disabled
 		if (this.particleEmitter && this.particleEmitter.destroy) {
 			this.particleEmitter.destroy();
 			this.particleEmitter = null;
