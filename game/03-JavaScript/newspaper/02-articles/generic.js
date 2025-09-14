@@ -3,11 +3,27 @@ NOTES:
 - NEVER use random() or its derivatives, such as either(), pluck(), or randomFloat()
 	Instead, use Newspaper.instance.rngInstance.random() (or its derivatives)
 	This is because we use a seeded approach to random, which changes each week (each new newspaper)
-- Title, content, image, or caption may either be a string or a function.
+- Title, content (short/main), image, or caption may either be a string or a function.
 - condition is optional, but must be a function. (defaults to always true)
 - id is not strictly required, but is highly recommended, in case we want to change the order
+- The layout engine may split long articles across columns; it avoids orphaning a title or a single short line.
 
--  init(obj) (optional):
+Priority:
+- Higher priority numbers are more likely to appear.
+- One main article (with main defined) is chosen by priority, then RNG among top priority ties.
+- Short articles are bucketed by priority and shuffled within buckets.
+- Ads and town updates are placed after normal articles; ads are limited to max 2 per weekly edition. (But may be omitted if higher priority short articles exist that week)
+
+Article fields:
+- title
+- content (short/main) - Receives init() return value as argument, if it exists
+- image
+- caption
+- condition: optional function
+- id
+- repeatable: if false, the article is expires after it appears once
+- priority: higher values are placed earlier among short articles.
+- init(obj) (optional):
 	- Called ONCE per included article for the current newspaper edition, the first time its content is resolved during build.
 		It does NOT rerun on re-renders or opening the paper again. Results are cached for that edition.
 	- It is given a shallow clone of Newspaper.modifiers
@@ -22,7 +38,6 @@ Newspaper.modifiers:
  - The return value of init() must be an object in order to be merged properly.
  - Persists for the entire edition (week). Can also access with V.newspaper.modifiers.
  - Resets when a new edition is generated via Newspaper.reset()/clear() (weekly)
-
 */
 Newspaper.addArticles(
 	{
@@ -229,5 +244,194 @@ Newspaper.addArticles(
 		short: `Staff at the old forest asylum reported an unexplained shift in the time displayed on the clocktower overlooking the grounds. Though no one touched the mechanism, the hands were found in a different position than the night before, once again ahead of schedule.
 			
 				Orderlies say the clock has been adjusting itself sporadically for years, always forward, never back. Engineers brought in from town claim the mechanism is intact, albeit weathered, and insist there is no reason it should be moving at all.`,
+	},
+	{
+		category: "article",
+		title: "Prison Supply Contract Awarded",
+		priority: 0,
+		short: `The island prison has awarded a new supply contract for laundry equipment and bedding, officials announced. Delivery is scheduled in stages to minimise disruption.
+        
+            	The prison remains closed to public visits. No tours are available.`,
+	},
+	{
+		category: "article",
+		title: "Faint Lights Above High Street",
+		priority: 0,
+		short: `Late shoppers on High Street described faint points of light gliding above the shopping centre roof on monday night. Officials attributed the sighting to atmospheric reflections.`,
+	},
+	{
+		category: "article",
+		title: "Gas Odour in Industrial Alley",
+		priority: 0,
+		short: `A reported smell of gas in the industrial alleyways off Elk Street prompted a brief evacuation on tuesday. Engineers traced the source to a corroded valve, now replaced. No injuries were reported.
+        
+            	Residents are reminded not to light fires near ventilation grates and to report odours immediately.`,
+	},
+	{
+		category: "article",
+		title: "Cargo Inspection at Mer Street Docks",
+		priority: 0,
+		short: `Dock supervisors have begun a week-long inspection of incoming cargo at Mer Street following complaints about missing consignments. Workers are asked to keep identification visible and to use the main gate after dusk.
+        
+            	Management expects minor delays during unloading while counts are reconciled.`,
+	},
+	{
+		category: "article",
+		title: "Hunters Report Wolf Activity",
+		priority: 0,
+		short: `Several hunters travelling the southern approaches to the lake reported fresh tracks and distant howls before sunrise. Town hall advise walkers to keep to marked paths and to avoid the lake's edge at dusk.
+        
+            	Officials stress there is no increased risk within town limits.`,
+	},
+	{
+		category: "article",
+		title: "Dredging Along Barb Street Canal",
+		priority: 0,
+		short: `A short section of the old canal on Barb Street will undergo dredging this week to assess silt depth and wall stability. Pedestrians are asked not to lean over the railings during the work window.
+        
+            	Police cautions that the adjacent footpath can become slippery and advise detours where possible.`,
+	},
+	{
+		category: "article",
+		title: "Night Patrols Increased on Starfish Street",
+		priority: 0,
+		short: `Residents along Starfish Street reported an uptick in evening patrols following complaints of disturbances along the beach and near the dogpound.
+        
+            	Residents are advised to secure bins and avoid leaving food waste outdoors overnight.`,
+	},
+	{
+		category: "article",
+		condition: () => Time.days > 30,
+		title: "Red Sheen After Dusk",
+		priority: 0,
+		short: `Residents across the residential quarter described a subtle red cast on window glass shortly after dusk, most visible on upper panes. Meteorologists cited particulate drift, though the effect was not recorded on street cameras.`,
+	},
+	/* Based on increased world corruption */
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20,
+		title: "Whispers in the Connadatus Tunnels",
+		priority: 0,
+		short: `Stallholders on Connadatus Street complained of faint whispers rising through drain grates after closing. Engineers chalked the reports up to air pressure shifts.
+        
+            	Several traders say the voices fall silent the moment lids are lifted.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20,
+		title: "Lantern Seen Beneath the Lake",
+		priority: 0,
+		short: `travelers wandering the forest lake before sunrise described a single lantern moving under the surface, drifting parallel to the shore. There were no boats and no ripples, only a dim glow that vanished near the submerged ruins.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20,
+		title: "Pillory Chains Rattle at Noon",
+		priority: 0,
+		short: `Cliff Street shopkeepers reported a brief rattle of chain from the pillory precisely at noon, with no one nearby. A seabird took flight and the sound ceased.
+        
+            	The mayor's office dismissed the event as a gust of wind — though the flags outside their building, just three blocks away, reportedly hung still throughout`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20,
+		title: "Shadows Cross Oxford Street Roofs",
+		priority: 0,
+		short: `Several students observed a line of shadows crossing the Oxford Street rooftops against the sun's direction. The shapes were narrow, like chimney stacks on the move, and left the pavement cold beneath for minutes after.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20 && Town.projects.bridge.isComplete,
+		title: "Silt Writes Names in the Canal",
+		priority: 0,
+		short: `Following recent rain, shallow water receded from the mostly drained canal, revealing patterns in the exposed silt beneath the new footbridge, loosely spelling several surnames.
+		
+				A town official who noticed the markings reportedly erased them, yet a new set appeared hours later, different and incomplete. Town hall has not yet issued a statement.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 20,
+		title: "Red Edge to the Moon",
+		priority: 0,
+		short: `Amateur observers noted a faint rim of red on the moon's lower edge during last full-moon. A veil of thin cloud was blamed, though the air remained still and stars were plainly visible above and below.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Unmarked Van Seen Near School",
+		priority: 1,
+		short: `Caretakers of the school grounds reported an unmarked white van idling with lights off near the rear gate after dismissal. The vehicle left when approached and did not return during the evening sweep.
+        
+            	Parents are reminded to use the main entrance for pick-up and to report suspicious activity to staff immediately.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Pale Things Along the Canal",
+		priority: 0,
+		short: `A caretaker working the old Barb Street canal claims to have seen white shapes clinging inside a grate at low water, withdrawing as his lantern neared. Engineers inspecting the bars found scrape marks on the inner side only.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Wharf Lights Fail in Sequence",
+		priority: 0,
+		short: `At Mer Street, a row of lamps failed one by one from the seaward end, then relit in reverse order without intervention. Dockworkers paused unloading while the phenomenon ran its course.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Knocks Beneath Cliff Street",
+		priority: 0,
+		short: `Shopkeepers on Cliff Street reported three knocks sounding from below the paving stones at closing time. The pillar outside the town hall trembled once, then stood still.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Missing Posters Swapped Overnight",
+		priority: 0,
+		short: `Posters for two missing orphans along High Street were found replaced with blank paper overnight. Several shopkeepers confirmed the posters were intact at closing time. By morning, new sheets had appeared bearing faint impressions, as if the images had been erased rather than removed.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Dragmarks in the Industrial Alley",
+		priority: 0,
+		short: `Security on Harvest Street reported a scuff trail that began at a shuttered loading bay and ended at a culvert gate, with no prints in between. A padlock was found inside the grate, hooked closed from within.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Footsteps Over Domus Roofs",
+		priority: 0,
+		short: `Residents on Domus Street heard a measured crossing over slate roofs that did not disturb the frost. A glimpse of white fabric was reported at the alley turn, described as “a sheet with a shape to it,” gone by the second glance.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Arcade Mirrors Hold After Closing",
+		priority: 0,
+		short: `Night staff at the Starfish Arcade reported cabinet mirrors that continued to reflect silhouettes after the building had emptied. The images did not align to the corridor and could not be approached.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Straps Found at Bus Stop",
+		priority: 1,
+		short: `A set of worn leather straps was found at a shelter off Cliff Street, neatly looped and threaded through the bench slats. No owner has come forward. The transit authority removed them and declined further comment.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Low Singing From the Sewers",
+		priority: 0,
+		short: `Residents near the park reported a low, wordless singing rising through gratings between two and three in the morning. The tone held steady until a distant bell note was heard, after which the sound folded into silence.`,
+	},
+	{
+		category: "article",
+		condition: () => V.world_corruption_soft >= 40,
+		title: "Low Singing From the Sewers",
+		priority: 0,
+		short: `Residents near the park reported a low, wordless singing rising through gratings between two and three in the morning. The tone held steady until a distant bell note was heard, after which the sound folded into silence.`,
 	}
 );
