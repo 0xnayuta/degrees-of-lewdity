@@ -1,5 +1,5 @@
 function effectsWater(waterType = "liquid") {
-	DOL.Perflog.logWidgetStart("effectsWaterJs");
+	Perflog.logWidgetStart("effectsWaterJs");
 	const fragment = document.createDocumentFragment();
 
 	const sWikifier = text => {
@@ -190,7 +190,7 @@ function effectsWater(waterType = "liquid") {
 		}
 	}
 
-	DOL.Perflog.logWidgetEnd("effectsWaterJs");
+	Perflog.logWidgetEnd("effectsWaterJs");
 	return fragment;
 }
 
@@ -202,7 +202,7 @@ Macro.add("effectswater", {
 });
 
 function effectsMakeup() {
-	DOL.Perflog.logWidgetStart("effectsMakeupJs");
+	Perflog.logWidgetStart("effectsMakeupJs");
 	const fragment = document.createDocumentFragment();
 
 	const span = (text, colour) => {
@@ -222,7 +222,7 @@ function effectsMakeup() {
 		V.makeup.mascara_running = painToTearsLvl(V.pain);
 	}
 
-	DOL.Perflog.logWidgetEnd("effectsMakeupJs");
+	Perflog.logWidgetEnd("effectsMakeupJs");
 	return fragment;
 }
 
@@ -298,38 +298,42 @@ function effects() {
 	}
 
 	sWikifier("<<updateHallucinations>>");
-	switch (V.location) {
-		case "town":
-			if (V.flashbacktownready === 1 && V.controlled === 0) {
-				delete V.flashbacktownready;
-				sWikifier("<<flashbacktown>>");
-			}
-			break;
-		case "home":
-			if (V.flashbackhomeready === 1 && V.controlled === 0) {
-				delete V.flashbackhomeready;
-				sWikifier("<<flashbackhome>>");
-			}
-			break;
-		case "beach":
-			if (V.flashbackbeachready === 1 && V.controlled === 0) {
-				delete V.flashbackbeachready;
-				sWikifier("<<flashbackbeach>>");
-			}
-			break;
-		case "underground":
-			if (V.flashbackundergroundready === 1 && V.controlled === 0) {
-				delete V.flashbackundergroundready;
-				sWikifier("<<flashbackunderground>>");
-			}
-			break;
-		case "school":
-			if (V.flashbackschoolready === 1 && V.controlled === 0) {
-				delete V.flashbackschoolready;
-				sWikifier("<<flashbackschool>>");
-			}
-			break;
+
+	if (V.controlled === 0 && V.flashbacks >= 1) {
+		switch (V.location) {
+			case "town":
+				if (V.flashbacktownready === 1) {
+					delete V.flashbacktownready;
+					sWikifier("<<flashbacktown>>");
+				}
+				break;
+			case "home":
+				if (V.flashbackhomeready === 1) {
+					delete V.flashbackhomeready;
+					sWikifier("<<flashbackhome>>");
+				}
+				break;
+			case "beach":
+				if (V.flashbackbeachready === 1) {
+					delete V.flashbackbeachready;
+					sWikifier("<<flashbackbeach>>");
+				}
+				break;
+			case "underground":
+				if (V.flashbackundergroundready === 1) {
+					delete V.flashbackundergroundready;
+					sWikifier("<<flashbackunderground>>");
+				}
+				break;
+			case "school":
+				if (V.flashbackschoolready === 1) {
+					delete V.flashbackschoolready;
+					sWikifier("<<flashbackschool>>");
+				}
+				break;
+		}
 	}
+
 	// eslint-disable-next-line no-undef
 	if (isPregnancyEnding()) {
 		sWikifier(
@@ -340,7 +344,7 @@ function effects() {
 		br();
 	}
 
-	if (V.effectsmessage && !V.statFreeze) {
+	if (V.effectsmessage && !V.statFreeze && !V.silenceNotifications) {
 		delete V.effectsmessage;
 
 		if (V.recovered_from_pregnancy) {
@@ -1577,9 +1581,9 @@ function effects() {
 
 Macro.add("effects", {
 	handler() {
-		DOL.Perflog.logWidgetStart("effectsJs");
+		Perflog.logWidgetStart("effectsJs");
 		const fragment = effects();
 		this.output.append(fragment);
-		DOL.Perflog.logWidgetEnd("effectsJs");
+		Perflog.logWidgetEnd("effectsJs");
 	},
 });

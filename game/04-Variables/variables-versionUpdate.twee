@@ -3511,7 +3511,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 68 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 70 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3535,22 +3535,8 @@
 			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
 		<</if>>
 
-		<!-- 0.5.4.3 console error fixes -->
-		<<if $objectVersion.updateClothes lt 68>>
-			<<script>>
-			for (const layer of Skin.tanningLayers) {
-				for (const [key, value] of Object.entries(layer.slots)) {
-					const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
-					if (patterns) {
-						value.pattern = patterns[0];
-					}
-				}
-			}
-			<</script>>
-		<</if>>
-
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
-		<<set $objectVersion.updateClothes to 68>>
+		<<set $objectVersion.updateClothes to 70>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3587,10 +3573,10 @@
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
 		<<run delete $museumAntiques.antiques.antiquewhitescrystal>>
 	<</if>>
-	<<if $objectVersion.museumAntiques lt 19 or $objectVersion.museumAntiques is undefined>>
+	<<if $objectVersion.museumAntiques lt 20 or $objectVersion.museumAntiques is undefined>>
 		/*Moved undefined checks for new antiques to the widget below*/
 		<<updateMuseumAntiques>>
-		<<set $objectVersion.museumAntiques to 19>>
+		<<set $objectVersion.museumAntiques to 20>>
 	<</if>>
 
 	<<pregnancyVar>>
@@ -5302,6 +5288,21 @@
 		<</script>>
 		<<unset $skinColor>>
 	<</if>>
+
+	<!-- 0.5.4.3 console error fixes -->
+	<<if $objectVersion.updateClothes lt 68>>
+		<<script>>
+		for (const layer of Skin.tanningLayers) {
+			for (const [key, value] of Object.entries(layer.slots)) {
+				const patterns = setup.clothes[key].filter(item => item.index === value.index)[0].pattern_options;
+				if (patterns) {
+					value.pattern = patterns[0];
+				}
+			}
+		}
+		<</script>>
+	<</if>>
+
 	<<if $player.skin.sunscreen is undefined>>
 		<<set $player.skin.sunscreen to { usesLeft: 0 }>>
 	<</if>>
@@ -5323,7 +5324,7 @@
 	<</if>>
 
 	<!--Skin colours for nonhuman children and inconsistency npc skin colour fix -->
-    <<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
+	<<if !$objectVersion.missingChildSkinColors or $objectVersion.missingChildSkinColors lt 3>>
 		<<script>>
 			const fixChild = (child) => {
 				if (!child.features) return;
@@ -5345,7 +5346,7 @@
 			})
 		<</script>>
 		<<set $objectVersion.missingChildSkinColors to 3>>
-    <</if>>
+	<</if>>
 
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
@@ -5712,8 +5713,15 @@
 						case "antiquegoldcompass":
 							T.museumAntiquesAmount += 500000;
 							break;
+						case "antiquegoldamulet":
+						case "antiquegolddagger":
+							T.museumAntiquesAmount += 400000;
+							break;
 						case "antiquebell":
 							T.museumAntiquesAmount += 1000000;
+							break;
+						case "antiquegoldmask":
+							T.museumAntiquesAmount += 1200000;
 							break;
 					}
 				}
@@ -5878,16 +5886,16 @@
 	<<if $daily.giftedFood is undefined>>
 		<<set $daily.giftedFood to {}>>
 	<</if>>
-    <!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
-    <<if $plants.cheese_and_crackers.name is "cheese and crackers">>
-        <<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
-        <<set $plants.porridge.plural to "servings of porridge">>
-        <<set $plants.chips.plural to "packets of chips">>
-        <<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
-        <<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
-    <</if>>
-    <<if $plants.chilli_con_carne.singular is "serving ">>
-        <<set $plants.chilli_con_carne.singular to "serving of chilli con carne">>
+	<!-- 0.5.3.1 makes sure the related $plants names use _ rather than spaces as they get used as object keys -->
+	<<if $plants.cheese_and_crackers.name is "cheese and crackers">>
+		<<run ["cheese_and_crackers", "choc_chip_cookie", "spaghetti_bolognese", "porridge"].forEach(key => $plants[key].name to key)>>
+		<<set $plants.porridge.plural to "servings of porridge">>
+		<<set $plants.chips.plural to "packets of chips">>
+		<<set $plants.yorkshire_pudding.plural to "yorkshire puddings">>
+		<<set $plants.choc_chip_cookie.plural to "chocolate chip cookies">>
+	<</if>>
+	<<if $plants.chilli_con_carne.singular is "serving ">>
+		<<set $plants.chilli_con_carne.singular to "serving of chilli con carne">>
 	<</if>>
 
 	<!-- $daily.prison not set in at least one save game -->
@@ -6092,6 +6100,7 @@
 		<<set $hourly to {}>>
 	<</if>>
 
+	<!-- Move Harper specific variables to Harper object -->
 	<<if $harper_appointments is undefined>>
 		<<set $harper_appointments to {dog: 0}>>
 		<<if $psych is 1>>
@@ -6107,10 +6116,142 @@
 		<</if>>
 
 		<<set $harper_appointments.hypnosis to $hypnosis>>
+		<<set $hypnosis_traits.suggestion to $hypnosis>>
 
 		<<unset $psych>>
 		<<unset $harperintro>>
 		<<unset $harperexam>>
 		<<unset $hypnosis>>
+	<</if>>
+
+	<<unset $danger>>
+
+	<!-- Change all of PCs children with "gray" hair to "grey" hair -->
+	<<for _child range $children>>
+		<<if $children[_child.childId].features.hairColour is "gray">>
+			<<set $children[_child.childId].features.hairColour to "grey">>
+		<</if>>
+	<</for>>
+
+	<<unset $topless>>
+
+	<!-- 0.5.5.1, repair Avery recipe request if it pulled a string instead of the setup object -->
+	<<if $avery_mansion?.food and typeof $avery_mansion.food is "string">>
+		<<set $_recipeToFix to $avery_mansion.food>>
+		<<set $avery_mansion.food to Object.entries(clone(setup.plants)).find(([key, item]) => key === $_recipeToFix)[1]>>
+	<</if>>
+
+	<!-- 0.5.5.1, add kitchen stock to Avery's mansion object -->
+	<<if $avery_mansion and !$avery_mansion.kitchen_stock>>
+		<<set $avery_mansion.kitchen_stock to {
+			normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper"],
+			requested: []
+		}>>
+		<<set $avery_mansion.kitchen_made to 0>>
+	<</if>>
+
+	<!-- 0.5.5.2, proper skyscraper init -->
+	<<if $avery_tower and $avery_tower.effects?.includes("bailey")>>
+		<<set $avery_tower.effects.delete("bailey")>>
+		<<set $avery_tower.effects.pushUnique("Bailey")>>
+		<<set $avery_tower.intro to 1>>
+	<</if>>
+
+	<!-- 0.5.5.2, fix Avery recipe object -->
+	<<if $avery_mansion and (!$avery_mansion.recipe or typeof $avery_mansion.recipe is "string")>>
+		<<set $avery_mansion.recipe to $avery_mansion.recipe ? [$avery_mansion.recipe] : []>>
+	<</if>>
+
+	<!-- 0.5.5.3, brown fox init -->
+	<<if $avery_mansion and !$avery_mansion.fox>>
+		<<set $avery_mansion.fox to {}>>
+		<<set $avery_mansion.fox.progress to 0>>
+		<<set $avery_mansion.fox.known to false>>
+		<<set $avery_mansion.fox.unlocked to false>>
+	<</if>>
+
+	<!-- 0.5.5.4, party states overhaul -->
+	<<if $avery_mansion and !$avery_mansion.version>>
+		<<set $avery_mansion.version to 1>>
+		<<if $avery_mansion.rage.party_missed>>
+			<<set $avery_mansion.party_state to "missed">>
+		<<elseif $avery_party_skipped and Time.weekDay is 1>>
+			<<set $avery_mansion.party_state to "skipped">>
+		<<elseif $avery_mansion.guest.includes("Bailey_skip") and Time.weekDay is 1>>
+			<<set $avery_mansion.party_state to "first sunday skip">>
+		<<else>>
+			<<set $avery_mansion.party_state to "waiting">>
+		<</if>>
+		
+		<<run delete V.avery_mansion.rage.party_missed>>
+		<<run delete V.avery_party_skipped>>
+
+		<<if $avery_mansion.guest.includes("_")>>
+			<<if $avery_mansion.guest.includes("Bailey")>>
+				<<set $avery_mansion.guest to "Bailey">>
+			<<elseif $avery_mansion.guest.includes("Quinn")>>
+				<<set $avery_mansion.guest to "Quinn">>
+			<<elseif $avery_mansion.guest.includes("Remy")>>
+				<<set $avery_mansion.guest to "Remy">>
+			<<elseif $avery_mansion.guest.includes("Briar")>>
+				<<set $avery_mansion.guest to "Briar">>
+			<<elseif $avery_mansion.guest.includes("Harper")>>
+				<<set $avery_mansion.guest to "Harper">>
+			<<elseif $avery_mansion.guest.includes("Jordan")>>
+				<<set $avery_mansion.guest to "Jordan">>
+			<</if>>
+		<</if>>
+
+		<<if $avery_mansion.injury is true>>
+			<<set $avery_injury to true>>
+		<</if>>
+	<</if>>
+
+	<<if $newspaper is undefined>>
+		<<script>>
+			const startSunday = new DateTime(Time.date.weekDay === 1 ? Time.date : Time.date.getPreviousWeekdayDate(1));
+			startSunday.toTimestamp(startSunday.year, startSunday.month, startSunday.day, 0, 0, 0);
+			V.newspaper = {
+				seed: randomFloat(0.25, 0.99, true),
+				date: startSunday.timeStamp,
+				bought: false,
+				total: 0,
+				modifiers: {},
+				queue: [],
+				forecast: [],
+				expired: [],
+				layout: [],
+				intro: true,
+			};
+			Newspaper.generate();
+		<</script>>
+	<</if>>
+
+	<<if $town is undefined>>
+		<<set $town = {
+			projects: {
+				bridge: {
+					stage: V.town_projects?.bridge ?? 0,
+					dateFinished: V.town_projects?.bridge > 3 ? Time.date.timeStamp : 0,
+				},
+				road: {
+					stage: V.town_projects?.road ?? 0,
+					dateFinished: V.town_projects?.road > 3 ? Time.date.timeStamp : 0,
+				},
+				fieldOffice: {
+					stage: V.town_projects?.diving ?? 0,
+					dateFinished: V.town_projects?.diving > 3 ? Time.date.timeStamp : 0,
+				},
+				thicket: {
+					stage: V.town_projects?.thicket ?? 0,
+					dateFinished: V.town_projects?.thicket > 3 ? Time.date.timeStamp : 0,
+				},
+				green: {
+					stage: V.town_projects?.green ?? 0,
+					dateFinished: V.town_projects?.green > 3 ? Time.date.timeStamp : 0,
+				},
+			}
+		}>>
+		<<unset $town_projects>>
 	<</if>>
 <</widget>>

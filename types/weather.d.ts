@@ -4,6 +4,7 @@ interface ImageLocation {
     emissive?: EmissiveSetting | { [key: string]: EmissiveSetting };
     reflective?: ReflectiveSetting;
     layerTop?: ImageSetting | { [key: string]: ImageSetting };
+	splashes?: SplashSetting;
 }
 
 interface AnimationSetting {
@@ -63,7 +64,15 @@ interface ReflectiveProperty {
     alwaysDisplay?: boolean | (() => boolean);
 	compositeOperation?: string | (() => string);
 	animation?: string | AnimationSetting;
+	verticalFactor?: number | (() => number);
+	amplitude?: number | (() => number);
+	verticalSpeed?: number | (() => number);
 }
+
+interface SplashSetting {
+	collisionThreshold: number | (() => number);
+}
+
 declare global {
 	export interface LocationImages {
         [locationKey: string]: ImageLocation;

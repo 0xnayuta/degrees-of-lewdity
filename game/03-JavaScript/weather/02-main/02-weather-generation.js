@@ -10,24 +10,26 @@ Weather.WeatherGeneration = (() => {
 			const lastKeyPointTimestamp = lastKeyPoint?.timestamp || 0;
 
 			if (date.timeStamp > lastKeyPointTimestamp) {
-				console.warn(`getWeather: Provided date is after the last key point timestamp. Returning weather type of the last key point.`);
-				return Weather.genSettings.weatherTypes[lastKeyPoint?.value] || "unknown";
+				console.warn(`getWeather: Provided date is after the last key point timestamp.`);
+				return null;
 			}
 			if (date.timeStamp < Time.date.timeStamp) {
 				console.warn(`getWeather: Provided date is before the current timestamp. Returning the current weather type.`);
 				return T.currentWeather || interpolateWeather(new DateTime(Time.date));
 			}
-
-			return interpolateWeather(date);
+			return interpolateWeather(new DateTime(date));
 		}
-		const currentWeather = V.weatherObj.name;
-		if (T.currentWeather === undefined) {
-			date = new DateTime(Time.date);
-			generateWeather(date);
-			T.currentWeather = interpolateWeather(date);
-		}
+		return T.currentWeather || interpolateWeather(new DateTime(Time.date));
+	}
 
-		if (Weather.activeRenderer?.loaded.value && T.currentWeather.name !== currentWeather) {
+	function updateWeather(date = new DateTime(Time.date)) {
+		generateWeather(date);
+
+		const previous = T.currentWeather;
+		const next = interpolateWeather(date);
+
+		if (!previous || next.name !== previous.name) {
+			T.currentWeather = next;
 			$.event.trigger(":onWeatherChange");
 		}
 		return T.currentWeather;
@@ -58,7 +60,7 @@ Weather.WeatherGeneration = (() => {
 		V.weatherObj.keypointsArr.unshift({ timestamp: nextTimeStamp, value: weatherTypeIndex });
 		V.weatherObj.keypointsArr.unshift({ timestamp: currentTimeStamp, value: weatherTypeIndex });
 
-		getWeather();
+		const newWeather = updateWeather();
 
 		if (instant && Weather.sky.loaded.value) {
 			Weather.sky.layers.get("clouds").effects[0].reset();
@@ -66,6 +68,8 @@ Weather.WeatherGeneration = (() => {
 		}
 
 		Weather.Observables.checkForUpdate();
+
+		return newWeather;
 	}
 
 	function interpolateWeather(date) {
@@ -271,6 +275,7 @@ Weather.WeatherGeneration = (() => {
 		},
 		getWeather,
 		setWeather,
+		updateWeather,
 		isWeather,
 		generate: generateWeather,
 	});

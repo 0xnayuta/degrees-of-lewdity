@@ -1,183 +1,239 @@
 Weather.Renderer.Layers.add({
 	name: "precipitation",
 	zIndex: 10,
-	animation: {
-		updateRate: 50, // Updates every 50ms
-	},
+	animation: { updateRate: 50 },
 	effects: [
-		/* Rain */
 		{
-			effect: "precipitation",
-			drawCondition(a) {
-				return !this.renderInstance.skyDisabled && Weather.isOvercast && Weather.precipitationIntensity > 1 && Weather.precipitation === "rain";
-			},
-			params: {
-				frameWidth: 42,
-				images: {
-					precipitation: "img/misc/sky/effects/rain.png",
-				},
-				position: {
-					diagonalOffset: -8,
-					offset: -8,
-				},
-				frameDelay: 100,
-			},
-			bindings: {
-				onFrame() {
-					return this.renderInstance.drawLayers("precipitation");
-				},
-				alpha() {
-					return Math.clamp(this.renderInstance.orbitals.sun.factor + 1, 0.7, 1);
-				},
-			},
-		},
-		/* Sparse rain */
-		{
-			effect: "precipitation",
+			effect: "particleRain",
 			drawCondition() {
-				return (
-					!this.renderInstance.skyDisabled &&
-					Weather.overcast > 0.25 &&
-					Weather.precipitationIntensity > 0 &&
-					Weather.precipitationIntensity <= 1 &&
-					Weather.precipitation === "rain"
-				);
+				return Weather.isOvercast && Weather.precipitation === "rain" && Weather.precipitationIntensity > 0;
 			},
 			params: {
-				frameWidth: 42,
-				images: {
-					precipitation: "img/misc/sky/effects/rain_sparse.png",
-				},
-				position: {
-					diagonalOffset: -8,
-					offset: -8,
-				},
-				frameDelay: 150,
+				sunTint: "#ffffffbb",
+				moonTint: "#38517a",
+				dawnDuskTint: "#dbb695",
+				groundDayTint: "#ffffffbb",
+				groundNightTint: "#38517a",
+				groundDawnDuskTint: "#a08160",
+				groundTownColor: "#d98cffff",
+
+				dropLength: 2.5,
+				dropWidth: 0.3,
+				baseAlpha: 1,
+				windStrength: 1,
+				windAngle: 0.2,
+				splashTriggerTop: 20,
+				splashTriggerBottom: 1,
 			},
 			bindings: {
-				onFrame() {
-					return this.renderInstance.drawLayers("precipitation");
+				dropCount() {
+					return Weather.precipitationIntensity * 200 - 170;
 				},
-				alpha() {
-					return Math.clamp(this.renderInstance.orbitals.sun.factor + 1, 0.7, 1);
+				dropSpeed() {
+					return 30;
 				},
-			},
-		},
-		/* Snow */
-		{
-			effect: "precipitation",
-			drawCondition() {
-				return !this.renderInstance.skyDisabled && Weather.isOvercast && Weather.precipitationIntensity > 1 && Weather.precipitation === "snow";
-			},
-			params: {
-				frameWidth: 32,
-				images: {
-					precipitation: "img/misc/sky/effects/snow.png",
+				topColor() {
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.moonTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.dawnDuskTint, this.sunTint, sunF);
 				},
-				position: {
-					diagonalOffset: 0,
-					offset: 0,
+				bottomColor() {
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.groundNightTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.groundDawnDuskTint, this.groundDayTint, sunF);
 				},
-				frameDelay: 150,
-			},
-			bindings: {
-				onFrame() {
-					return this.renderInstance.drawLayers("precipitation");
+				backgroundLight() {
+					if (Weather.bloodMoon || !(Time.hour >= setup.SkySettings.lightsTime.on || Time.hour < setup.SkySettings.lightsTime.off)) {
+						return false;
+					}
+					const locations = [
+						"alley",
+						"brothel",
+						"canal",
+						"compound",
+						"dance_studio",
+						"dilapitaded_shop",
+						"estate",
+						"factory",
+						"home",
+						"hospital",
+						"kylar_manor",
+						"landfill",
+						"market",
+						"museum",
+						"office",
+						"park",
+						"police_station",
+						"pool",
+						"pub",
+						"school",
+						"sewers",
+						"shopping_centre",
+						"spa",
+						"studio",
+						"strip_club",
+						"temple",
+						"town",
+					];
+					return locations.includes(V.location);
 				},
-				alpha() {
-					return Math.clamp(this.renderInstance.orbitals.sun.factor + 1, 0.6, 1);
+				backgroundTint() {
+					return Weather.bloodMoon ? "#eb3b2fee" : "#f7d088aa";
 				},
-			},
-		},
-		/* Sparse Snow */
-		{
-			effect: "precipitation",
-			drawCondition() {
-				return (
-					!this.renderInstance.skyDisabled &&
-					Weather.overcast > 0.25 &&
-					Weather.precipitationIntensity > 0 &&
-					Weather.precipitationIntensity <= 1 &&
-					Weather.precipitation === "snow"
-				);
-			},
-			params: {
-				frameWidth: 32,
-				images: {
-					precipitation: "img/misc/sky/effects/snow_sparse.png",
+				// Override based on per-location config
+				splashTriggerTop() {
+					const location = setup.Locations.get();
+					const threshold = setup.LocationImages[location]?.splashes?.collisionThreshold;
+					if (typeof threshold === "number") return threshold;
+					return this.params?.splashTriggerTop ?? 20;
 				},
-				position: {
-					diagonalOffset: 0,
-					offset: 0,
-				},
-				frameDelay: 200,
-			},
-			bindings: {
-				onFrame() {
-					return this.renderInstance.drawLayers("precipitation");
-				},
-				alpha() {
-					return Math.clamp(this.renderInstance.orbitals.sun.factor + 1, 0.6, 1);
+				splashTriggerBottom() {
+					const location = setup.Locations.get();
+					const threshold = setup.LocationImages[location]?.splashes?.collisionThreshold;
+					if (typeof threshold === "number") return 1;
+					return this.params?.splashTriggerBottom ?? 0;
 				},
 			},
 		},
 		{
-			effect: "colorOverlay",
+			effect: "particleSnow",
 			drawCondition() {
-				return !this.renderInstance.skyDisabled;
+				return Weather.isOvercast && Weather.precipitation === "snow" && Weather.precipitationIntensity > 0;
 			},
-			compositeOperation: "source-atop",
 			params: {
-				color: {
-					nightDark: "#000412bb",
-					nightBright: "#00041299",
-					day: "#97a9e8aa",
-					dawnDusk: "#7a511895",
-					bloodMoon: "#c70000cc",
-				},
+				sunTint: "#ffffff",
+				moonTint: "#7895c4bb",
+				dawnDuskTint: "#dbb695bb",
+				groundDayTint: "#ffffff",
+				groundNightTint: "#7895c4bb",
+				groundDawnDuskTint: "#dbb695bb",
+				groundTownColor: "#ffd27fbb",
+				windStrength: 0.4,
+				windAngle: 0.1,
+				dropSize: 0.6,
+				baseAlpha: 0.9,
+				dropSpeed: 8,
+
+				pileTriggerTop: 1,
+				pileTriggerBottom: 0,
+
+				wobbleAmplitude: 0.2,
+				wobbleFrequency: 0.5,
+
+				pixelFadeTime: 0.7,
 			},
 			bindings: {
-				sunFactor() {
-					return this.renderInstance.orbitals.sun.factor * interpolate(1, 0.8, Math.max(0, normalise(this.renderInstance.orbitals.sun.factor, 1, 0)));
+				dropCount() {
+					return Weather.precipitationIntensity * 60 - 35;
 				},
-				moonFactor() {
-					return this.renderInstance.moonBrightnessFactor;
+				topColor() {
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.moonTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.dawnDuskTint, this.sunTint, sunF);
 				},
-				bloodMoon() {
-					return Weather.bloodMoon;
+				backgroundLight() {
+					if (Weather.bloodMoon || !(Time.hour >= setup.SkySettings.lightsTime.on || Time.hour < setup.SkySettings.lightsTime.off)) {
+						return false;
+					}
+					return true;
+				},
+				bottomColor() {
+					if (this.backgroundLight) return this.groundTownColor;
+
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.groundNightTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.groundDawnDuskTint, this.groundDayTint, sunF);
+				},
+			},
+		},
+		{
+			effect: "particleSnow",
+			drawCondition() {
+				return Weather.isOvercast && Weather.precipitation === "snow" && Weather.precipitationIntensity > 0;
+			},
+			params: {
+				sunTint: "#ffffff",
+				moonTint: "#7895c4bb",
+				dawnDuskTint: "#dbb695bb",
+				groundDayTint: "#ffffff",
+				groundNightTint: "#7895c4bb",
+				groundDawnDuskTint: "#dbb695bb",
+				groundTownColor: "#ffd27fbb",
+				windStrength: 0.4,
+				windAngle: 0.1,
+				dropSize: 1,
+				baseAlpha: 1,
+				dropSpeed: 11,
+
+				pileTriggerTop: 20,
+				pileTriggerBottom: 1,
+
+				wobbleAmplitude: 0.3,
+				wobbleFrequency: 0.7,
+
+				pixelFadeTime: 0.7,
+			},
+			bindings: {
+				dropCount() {
+					return Weather.precipitationIntensity * 60 - 35;
+				},
+				topColor() {
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.moonTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.dawnDuskTint, this.sunTint, sunF);
+				},
+				backgroundLight() {
+					if (Weather.bloodMoon || !(Time.hour >= setup.SkySettings.lightsTime.on || Time.hour < setup.SkySettings.lightsTime.off)) {
+						return false;
+					}
+					return true;
+				},
+				bottomColor() {
+					if (this.backgroundLight) return this.groundTownColor;
+
+					const sunF = this.renderInstance.orbitals.sun.factor;
+					const moonF = this.renderInstance.orbitals.moon.factor;
+
+					const nightPhase = ColourUtils.interpolateColor("#000000", this.groundNightTint, moonF);
+					return ColourUtils.interpolateTripleColor(nightPhase, this.groundDawnDuskTint, this.groundDayTint, sunF);
+				},
+				// Override based on per-location config
+				pileTriggerTop() {
+					const location = setup.Locations.get();
+					const threshold = setup.LocationImages[location]?.splashes?.collisionThreshold;
+					if (typeof threshold === "number") return threshold;
+					return this.params?.splashTriggerTop ?? 20;
+				},
+				pileTriggerBottom() {
+					const location = setup.Locations.get();
+					const threshold = setup.LocationImages[location]?.splashes?.collisionThreshold;
+					if (typeof threshold === "number") return 1;
+					return this.params?.splashTriggerBottom ?? 0;
 				},
 			},
 		},
 		{
 			effect: "imageOverlay",
 			drawCondition() {
-				return !this.renderInstance.skyDisabled && Weather.overcast > 0.5 && Weather.precipitationIntensity >= 1 && Weather.precipitation === "rain";
+				return !this.renderInstance.skyDisabled && Weather.overcast > 0.5 && Weather.precipitationIntensity >= 1 && Weather.precipitation !== "none";
 			},
 			compositeOperation: "destination-out",
 			params: {
 				images: {
-					overlay: "img/misc/sky/effects/masks/0.png",
+					overlay: "img/misc/sky/effects/masks/4.png",
 				},
 				movement: {
 					speed: 0.5,
 				},
-				baseAlpha: 1,
-			},
-		},
-		{
-			effect: "imageOverlay",
-			drawCondition() {
-				return !this.renderInstance.skyDisabled && Weather.overcast > 0.5 && Weather.precipitationIntensity >= 1 && Weather.precipitation === "snow";
-			},
-			compositeOperation: "destination-out",
-			params: {
-				images: {
-					overlay: "img/misc/sky/effects/masks/1.png",
-				},
-				movement: {
-					speed: 0.5,
-				},
-				baseAlpha: 1,
+				baseAlpha: 0.95,
 			},
 		},
 	],

@@ -20,6 +20,14 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`],
 		},
 		{
+			link: [`Enrage Avery`, stayOnPassageFn],
+			widgets: [`<<npcincr Avery rage 100>>`, `<<set $averyragerevealed to 1>>`],
+		},
+		{
+			link: [`Calm Avery`, stayOnPassageFn],
+			widgets: [`<<npcincr Avery rage -100>>`, `<<set $averyragerevealed to 0>>`],
+		},
+		{
 			link: [`Pass 1 minute`, stayOnPassageFn],
 			widgets: [`<<pass 1>>`],
 		},
@@ -888,6 +896,41 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Possessed Fight`, `Possessed Fight Test`],
 			widgets: [`<<set $control to 0>>`, `<<set $possessed to true>>`],
+		},
+		{
+			text_only: "\n\nTown projects",
+		},
+		{
+			link: ["Bridge Finished", "Barb Street"],
+			widgets: ["<<run Town.projects.bridge.complete()>>"],
+		},
+		{
+			link: ["Road Finished", "Lake Shore"],
+			widgets: ["<<run Town.projects.road.complete()>>"],
+		},
+		{
+			link: ["Field Office Under Construction", "Lake Shore"],
+			widgets: ["<<set Town.projects.fieldOffice.stage to 2>><<run Town.projects.fieldOffice.dateFinished to new DateTime(Time.date).addDays(7).timeStamp>>"],
+		},
+		{
+			link: ["Field Office Finished", "Lake Shore"],
+			widgets: ["<<run Town.projects.fieldOffice.complete()>>"],
+		},
+		{
+			link: ["Thicket Under Construction", "Residential alleyways"],
+			widgets: ["<<set Town.projects.thicket.stage to 2>><<run Town.projects.thicket.dateFinished to new DateTime(Time.date).addDays(4).timeStamp>>"],
+		},
+		{
+			link: ["Thicket Finished", "Residential alleyways"],
+			widgets: ["<<run Town.projects.thicket.complete()>>"],
+		},
+		{
+			link: ["School Green Under Construction", "School Rear Courtyard"],
+			widgets: ["<<set Town.projects.green.stage to 2>><<run Town.projects.green.dateFinished to new DateTime(Time.date).addDays(7).timeStamp>>"],
+		},
+		{
+			link: ["School Green Finished", "School Rear Courtyard"],
+			widgets: ["<<run Town.projects.green.complete()>>"],
 		},
 		{
 			text_only: "\n\nBeast encounters",

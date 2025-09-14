@@ -403,6 +403,10 @@ window.Time = Time;
 $(document).on(":passageinit", () => {
 	/* Set current time */
 	Time.set();
+	if (V.weatherObj) {
+		Weather.WeatherGeneration.updateWeather();
+		Weather.Temperature.updateTemperature();
+	}
 });
 
 /* Local functions */
@@ -416,6 +420,8 @@ function yearPassed() {
 }
 
 function weekPassed() {
+	Newspaper.reset();
+
 	if (V.science_exam >= 200 && V.sciencetrait < 4) {
 		V.effectsmessage = 1;
 		V.science_up_message = 1;
@@ -502,6 +508,27 @@ function weekPassed() {
 		V.brothelVending.weeksRent++;
 		if (V.brothelVending.weeksEmpty >= 4) V.brothelVending.status = "sold";
 	}
+	if (V.averySpaBanWeeks > 0) V.averySpaBanWeeks--;
+
+	if (V.avery_mansion) {
+		V.avery_mansion.date_seen = false;
+		if (V.avery_tower.effects.includes("theft")) {
+			V.avery_tower.progress -= 4;
+		}
+		if (V.avery_tower.effects.includes("temple")) {
+			V.avery_tower.progress -= 4;
+		}
+		if (V.avery_tower.effects.includes("mayor")) {
+			V.avery_tower.progress += 4;
+		}
+		if (V.avery_tower.effects.includes("Remy")) {
+			V.avery_tower.progress += 4;
+		}
+		if (V.avery_tower.effects.includes("Harper")) {
+			V.avery_tower.progress += 4;
+		}
+		V.avery_tower.progress = Math.clamp(V.avery_tower.progress, 0, 100);
+	}
 
 	supermarketWeekly();
 
@@ -512,6 +539,7 @@ function weekPassed() {
 
 function dayPassed() {
 	Weather.sky.initSun();
+	Weather.WeatherGeneration.updateWeather();
 
 	// Lose one day of tanning
 	Skin.applyTanningLoss(1440);
@@ -647,11 +675,28 @@ function dayPassed() {
 		wikifier("stray_happiness", -1);
 		V.pound.tasks = [];
 	}
-	V.renttime--;
-	// Not seen bailey for more than 2 weeks, tracks missed rent
-	if (V.renttime < 0 && V.renttime % 7 === 0) {
-		V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-		V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+
+	if (V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked") {
+		// Avery takes on the PC's debt, but stops if unsatisfied
+		if (Time.weekDay !== 1) {
+			V.avery_mansion.days_absent++;
+		}
+		if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) {
+			V.renttime--;
+			// Not seen bailey for more than 2 weeks, tracks missed rent
+			if (V.renttime < 0 && V.renttime % 7 === 0) {
+				V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+				V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+			}
+		}
+		V.avery_mansion.study_unlocked = 0;
+	} else {
+		V.renttime--;
+		// Not seen bailey for more than 2 weeks, tracks missed rent
+		if (V.renttime < 0 && V.renttime % 7 === 0) {
+			V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+			V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+		}
 	}
 
 	if (V.flashbacktown > 0) V.flashbacktown--;
@@ -854,6 +899,13 @@ function dayPassed() {
 	V.daily.clearProperties();
 
 	if (random(1, 8) === 1) V.daily.robin.orphanageKitchen = true;
+
+	if (V.avery_skyscraper_fire_time >= 1) {
+		V.avery_skyscraper_fire_time--;
+	}
+	if (V.avery_mansion_fire_time >= 1) {
+		V.avery_mansion_fire_time--;
+	}
 }
 
 function hourPassed(hours) {
@@ -910,8 +962,9 @@ function hourPassed(hours) {
 				V.avery_mansion.away_timer--;
 			}
 		}
-
-		V.home_gone++;
+		if (!V.avery_mansion || ["fallen", "kicked"].includes(V.avery_fate)) {
+			V.home_gone++;
+		}
 	}
 	calchairlengthstage();
 
@@ -1036,6 +1089,34 @@ function noonCheck() {
 	delete V.edenbed;
 	delete V.glideScared;
 	if (V.pound) V.pound.sneak = 0;
+
+	if (V.avery_mansion) {
+		if (Time.weekDay !== 7 && Time.weekDay !== 1) {
+			V.avery_mansion.rage.work = true;
+		}
+		V.avery_mansion.sleep_interrupt = 0;
+	}
+
+	if (Town.projects.bridge.isComplete && Town.projects.bridge.stage === 3) {
+		Town.projects.bridge.stage = 4;
+		earnFeat("Bridging the Past");
+	}
+	if (Town.projects.road.isComplete && Town.projects.road.stage === 3) {
+		Town.projects.road.stage = 4;
+		earnFeat("Safe Trail");
+	}
+	if (Town.projects.fieldOffice.isComplete && Town.projects.fieldOffice.stage === 3) {
+		Town.projects.fieldOffice.stage = 4;
+		earnFeat("Field Work");
+	}
+	if (Town.projects.thicket.isComplete && Town.projects.thicket.stage === 3) {
+		Town.projects.thicket.stage = 4;
+		earnFeat("Concrete Woodland");
+	}
+	if (Town.projects.green.isComplete && Town.projects.green.stage === 3) {
+		Town.projects.green.stage = 4;
+		earnFeat("School Green");
+	}
 }
 
 function dawnCheck() {
@@ -1154,7 +1235,7 @@ function dailyNPCEffects() {
 	if (C.npc.Avery.state !== "dismissed") {
 		V.averyschoolpickup = 0;
 		V.averyseen = 0;
-		if (V.averydate) {
+		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
 			if (V.averydateattended !== 1) V.averydatemissed = 1;
 			V.averydateattended = 0;
@@ -1165,6 +1246,96 @@ function dailyNPCEffects() {
 			wikifier("clearNPC", "avery_sidepiece");
 		}
 		if (V.weekly.averyRejected === undefined) V.weekly.averyRejected = {};
+
+		if (V.avery_fate === "saved") {
+			C.npc.Avery.rage -= 5;
+		}
+
+		if (V.avery_mansion) {
+			V.avery_mansion.days++;
+			V.avery_mansion.date_ready = false;
+			if (Time.weekDay === 2 && !V.avery_injury) {
+				if (["waiting", "skipped"].includes(V.avery_mansion.party_state)) {
+					V.avery_mansion.party_state = "missed";
+					V.avery_mansion.party_missed_guest = V.avery_mansion.guest;
+				}
+
+				// We skipped/missed, if the party is finished properly we handle the next guest SOMEWHERE ELSE
+				if (V.avery_mansion.party_state !== "finished") {
+					// If Bailey is the guest we repeat Bailey, otherwise we rotate, skipping Jordan as appropriate
+					const rotation = {
+						Bailey: "Bailey",
+						Quinn: "Remy",
+						Remy: "Briar",
+						Briar: "Harper",
+						Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
+						Jordan: "Quinn",
+					};
+
+					V.avery_mansion.guest = rotation[V.avery_mansion.guest];
+				}
+
+				// If the state is still "missed" we don't reset the state. We still need to trigger Avery being angry we missed a party
+				if (V.avery_mansion.party_state !== "missed") {
+					V.avery_mansion.party_state = "waiting";
+				}
+			}
+
+			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 2, 6)) {
+				V.avery_mansion.rage.dinner_missed++;
+			}
+
+			V.avery_mansion.outfit_warning = false;
+			V.avery_mansion.rage.dinner_done = 0;
+
+			V.avery_mansion.rage.assess = 0;
+
+			V.avery_mansion.rage.assess =
+				V.avery_mansion.pool +
+				V.avery_mansion.kitchen +
+				V.avery_mansion.lounge +
+				V.avery_mansion.display +
+				V.avery_mansion.bedroom +
+				V.avery_mansion.bathroom +
+				V.avery_mansion.dining +
+				V.avery_mansion.garden +
+				V.avery_mansion.rage.dinner_missed;
+
+			if (V.avery_mansion.injury_timer >= 1) {
+				V.avery_mansion.injury_timer--;
+			}
+			if (V.avery_mansion.rage.timer >= 1) {
+				V.avery_mansion.rage.timer--;
+			}
+			if (V.avery_mansion.jobs.includes("pool") && V.avery_mansion.pool < 4) {
+				V.avery_mansion.pool++;
+			}
+			if (V.avery_mansion.jobs.includes("kitchen") && V.avery_mansion.kitchen < 4) {
+				V.avery_mansion.kitchen++;
+			}
+			if (V.avery_mansion.jobs.includes("lounge") && V.avery_mansion.lounge < 4) {
+				V.avery_mansion.lounge++;
+			}
+			if (V.avery_mansion.jobs.includes("display") && V.avery_mansion.display < 4) {
+				V.avery_mansion.display++;
+			}
+			if (V.avery_mansion.jobs.includes("bedroom") && V.avery_mansion.bedroom < 4) {
+				V.avery_mansion.bedroom++;
+			}
+			if (V.avery_mansion.jobs.includes("bathroom") && V.avery_mansion.bathroom < 4) {
+				V.avery_mansion.bathroom++;
+			}
+			if (V.avery_mansion.jobs.includes("dining") && V.avery_mansion.dining < 4) {
+				V.avery_mansion.dining++;
+			}
+			if (V.avery_mansion.jobs.includes("garden") && V.avery_mansion.garden < 4) {
+				V.avery_mansion.garden++;
+			}
+
+			if (V.avery_mansion.bedroom_state === "locked") {
+				V.avery_mansion.bedroom_state = "off-limits";
+			}
+		}
 	} else {
 		delete V.averyDismissalSceneWait;
 	}
@@ -1377,12 +1548,13 @@ function dailyPlayerEffects() {
 		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample
 	}
 
+	/* Disabled due to bug, and I'm not sure it's necessary anyway - Vrel
 	// Lower acceptance when it no longer applies, takes 200 days for it to drop to 0 from max
 	if (!(V.player.penisExist && V.player.penissize <= 1)) statChange.acceptance("penis_small", -5);
-	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 4 : 3))) statChange.acceptance("penis_big", -5);
+	if (!(V.player.penisExist && V.player.penissize >= (V.player.sex === "m" ? 4 : 2))) statChange.acceptance("penis_big", -5);
 	if (V.player.sex === "f" && !between(V.player.breastsize, 0, 4)) statChange.acceptance("breasts_small", -5);
 	if (!(V.player.breastsize >= (V.player.sex === "m" ? 1 : 8))) statChange.acceptance("breasts_big", -5);
-
+	*/
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
 		statChange.acceptance("pregnancy", -5);
@@ -1527,6 +1699,7 @@ function yearlyEventChecks() {
 	if (Time.monthName === "November" && Time.monthDay >= 2) {
 		delete V.halloween_kylar;
 		delete V.halloween_kylar_proposed;
+		delete V.halloween_kylar_whitney;
 		delete V.halloween_lake;
 		delete V.halloweenWolves;
 	}
@@ -1830,9 +2003,9 @@ function dailyFarmEvents() {
 	}
 	if (V.alex_countdown >= 1) V.alex_countdown--;
 
-	delete V.farm_work;
 	delete V.farm_count;
 	if (V.farm_stage < 7) delete V.farm_naked;
+	delete V.farm_work;
 	delete V.farm_event;
 	delete V.farm_end;
 	delete V.alex_breakfast;

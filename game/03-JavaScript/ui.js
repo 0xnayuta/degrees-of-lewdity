@@ -624,9 +624,23 @@ function onInputChanged(func) {
 }
 window.onInputChanged = onInputChanged;
 
+function changeOverlay() {
+	switch (T.currentOverlay) {
+		case "journal":
+			wikifier("journalNotesTextareaSave");
+			break;
+		case "options":
+			updateOptions();
+			break;
+		case "newspaper":
+			if (Newspaper.debug instanceof Newspaper.Debug) Newspaper.debug.restoreSnapshot();
+			break;
+	}
+}
+window.changeOverlay = changeOverlay;
+
 function closeOverlay() {
-	wikifier("journalNotesTextareaSave");
-	updateOptions();
+	changeOverlay();
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
 	$.event.trigger(":oncloseoverlay", [T.currentOverlay]);

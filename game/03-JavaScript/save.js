@@ -337,7 +337,7 @@ const DoLSave = ((Story, Save) => {
 	 * @param {object} state
 	 */
 	function compressState(state) {
-		DOL.Perflog.logWidgetStart("__DoLSave.compressState");
+		Perflog.logWidgetStart("__DoLSave.compressState");
 		try {
 			const dictionary = COMPRESSOR_DICTIONARIES[COMPRESSOR_CURRENT_DICTIONARY_ID];
 			const compressor = new JsonCompressor(dictionary);
@@ -355,7 +355,7 @@ const DoLSave = ((Story, Save) => {
 			}
 			return zstate;
 		} finally {
-			DOL.Perflog.logWidgetEnd("__DoLSave.compressState");
+			Perflog.logWidgetEnd("__DoLSave.compressState");
 		}
 	}
 
@@ -366,7 +366,7 @@ const DoLSave = ((Story, Save) => {
 	 * @param {object} zstate
 	 */
 	function decompressState(zstate) {
-		DOL.Perflog.logWidgetStart("__DoLSave.decompressState");
+		Perflog.logWidgetStart("__DoLSave.decompressState");
 		try {
 			if (!("dictionary" in zstate)) throw new Error("Unable to load - compressed save has no dictionary");
 			const dicid = zstate.dictionary;
@@ -380,7 +380,7 @@ const DoLSave = ((Story, Save) => {
 			const decompressor = new JsonDecompressor(dictionary);
 			return decompressor.decompress(zstate);
 		} finally {
-			DOL.Perflog.logWidgetEnd("__DoLSave.decompressState");
+			Perflog.logWidgetEnd("__DoLSave.decompressState");
 		}
 	}
 	function enableCompression() {
@@ -816,9 +816,9 @@ function settingsObjects(type) {
 					randomize: "characterAppearance",
 				},
 				facevariant: {
-					strings: ["default", "catty", "aloof", "sweet", "foxy"],
+					strings: ["default", "catty", "aloof", "sweet", "foxy", "gloomy"],
 					displayName: "Demeanour:",
-					textMap: { default: "Default", catty: "Catty", aloof: "Aloof", sweet: "Sweet", foxy: "Foxy" },
+					textMap: { default: "Default", catty: "Catty", aloof: "Aloof", sweet: "Sweet", foxy: "Foxy", gloomy: "Gloomy" },
 					randomize: "characterAppearance",
 				},
 				breastsensitivity: {
@@ -1225,7 +1225,19 @@ function settingsObjects(type) {
 					numpad: { bool: true, displayName: "Enable numpad:" },
 					traitOverlayFormat: { strings: ["table", "reducedTable", "list"], displayName: "Display traits:" },
 					font: {
-						strings: ["", "Arial", "Verdana", "TimesNewRoman", "Georgia", "Garamond", "CourierNew", "LucidaConsole", "Monaco", "ComicSans"],
+						strings: [
+							"",
+							"Arial",
+							"Verdana",
+							"TimesNewRoman",
+							"Georgia",
+							"Garamond",
+							"NewStandard",
+							"CourierNew",
+							"LucidaConsole",
+							"Monaco",
+							"ComicSans",
+						],
 						displayName: "Font:",
 					},
 					passageLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Passage line height:" },

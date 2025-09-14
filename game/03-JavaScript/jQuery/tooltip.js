@@ -121,7 +121,6 @@ const getTooltipSettings = element => {
 		if (this.name.startsWith("tooltip-")) {
 			const key = this.name.substring(8);
 			if (key in defaultTooltipSettings) {
-				// Convert to appropriate type if necessary
 				if (key === "delay" || key === "width" || key === "maxWidth") {
 					settings[key] = parseInt(this.value, 10) || defaultTooltipSettings[key];
 				} else {
@@ -211,7 +210,7 @@ const createTooltip = ($element, settings) => {
 	}
 	const $body = $("<div>").addClass("tooltip-body").appendTo(tooltip);
 	if (settings.style) $body.addClass(settings.style);
-	$body.html(settings.message); // or use `.append(settings.message)` if it’s HTML
+	$body.html(settings.message);
 
 	if (settings.width) tooltip.css("width", settings.width);
 	if (settings.maxWidth) tooltip.css("max-width", settings.maxWidth);
@@ -310,7 +309,6 @@ const updatePosition = ($element, tooltip) => {
 	tooltip.css({ left, top, position: "fixed" });
 };
 
-// .tooltip() jQuery method
 $.fn.tooltip = function (options = {}) {
 	return this.each(function () {
 		const $this = $(this);

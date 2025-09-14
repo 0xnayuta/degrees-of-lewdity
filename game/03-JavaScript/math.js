@@ -238,3 +238,13 @@ function calculateBinomial(chance, max) {
 	return result;
 }
 window.calculateBinomial = calculateBinomial;
+
+/**
+ * Converts degrees to radians
+ *
+ * @param {number} deg Degrees
+ */
+function degToRad(deg) {
+	return deg * (Math.PI / 100);
+}
+window.degToRad = degToRad;

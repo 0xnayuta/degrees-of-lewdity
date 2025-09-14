@@ -344,7 +344,7 @@ function genderappearancecheck() {
 		// if herm pc and perfect 0 apparent_femininity
 		T.gender_appearance = genderAppearanceHermTiebreak();
 	} else {
-		T.gender_appearance = V.player.gender;
+		T.gender_appearance = V.player.sex;
 	}
 	if (T.apparent_femininity_noow > 0) {
 		T.gender_appearance_noow = "f";
@@ -353,7 +353,7 @@ function genderappearancecheck() {
 	} else if (V.player.sex === "h") {
 		T.gender_appearance_noow = genderAppearanceHermTiebreak();
 	} else {
-		T.gender_appearance_noow = V.player.gender;
+		T.gender_appearance_noow = V.player.sex;
 	}
 }
 
@@ -625,3 +625,88 @@ function calculateallure() {
 	V.allure = Math.floor(allure);
 }
 DefineMacro("calculateallure", calculateallure);
+
+// check exposure, tags, and wetness
+function itemExposure(slot) {
+	const item = setup.clothes[slot][V.worn[slot].index];
+	// if you're looking to delete $overupperwetstage, $upperwetstage, $underupperwetstage, $overlowerwetstage, $lowerwetstage, or $underlowerwetstage - look here, too
+	if (item.type.includes("naked") || V[slot.replace("_", "") + "wetstage"] >= 3) return 2;
+	return item.exposed;
+}
+
+function exposure() {
+	exposedcheck();
+
+	V.exposed = 0;
+	V.exposedRaw = 0;
+
+	// wraith cares not of your exposure
+	if (V.possessed) {
+		return;
+	}
+
+	// calculate libertine factors.
+	const safeLocations = ["Wardrobe", "Bedroom", "Sleep", "Bird Tower", "Bird Hunt", "Spa Tan Underwear", "Spa Tan Curtains", "Spa Tan Naked", "Mirror"];
+	if (
+		// the check for safe locations might be too generous with included passage names, but seems to be working as of 0.5.4.9
+		safeLocations.some(location => V.passage.includes(location)) &&
+		V.NPCList.every(npc => !npc.fullDescription || Object.values(V.loveInterest).includes(npc.fullDescription)) &&
+		V.audiencepresent === 0
+	) {
+		// alone (or with a li) in safe locations - anything goes
+		V.libertine = 2;
+	} else if (
+		["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) ||
+		(V.location === "dance_studio" && V.worn.under_lower.type.includes("dance") && V.worn.under_upper.type.includes("dance"))
+	) {
+		// some places don't care about pc sporting underwear
+		V.libertine = 1;
+	} else {
+		V.libertine = 0;
+	}
+
+	/*
+		is bra visible? inappropriate if any of:
+		- considered girly. (tom)boys can get away with using chest wraps/binders and such
+		- is fetish wear
+		- too revealing to offer any protection from inappropriate exposure, basically topless (handled later)
+	*/
+	if (["over_upper", "upper"].every(slot => itemExposure(slot) >= 1)) {
+		const bra = setup.clothes.under_upper[V.worn.under_upper.index];
+		if (
+			((bra.femininity && bra.femininity > 0) || bra.type.includes("fetish")) &&
+			(!V.worn.lower.type.includes("covered") || itemExposure("lower") >= 2) &&
+			(!V.worn.under_upper.type.includes("covered") || itemExposure("under_upper") >= 1)
+		) {
+			V.exposed = 1;
+		}
+	}
+
+	/*
+		chest unobscured by clothes. inapropriate at all times for girls, or when booba too big for boys
+	*/
+	if (
+		["over_upper", "upper", "under_upper"].every(slot => itemExposure(slot) >= 1) &&
+		(!V.worn.lower.type.includes("covered") || itemExposure("lower") >= 2)
+	) {
+		if (V.player.gender_appearance !== "m" || V.player.perceived_breastsize > 3) V.exposed = 1;
+	}
+
+	/*
+		panties
+	*/
+	if (["over_lower", "lower"].every(slot => itemExposure(slot) >= 1) && !V.worn.under_lower.type.includes("covered")) {
+		V.exposed = 1;
+	}
+
+	/*
+		genitals
+	*/
+	if (["over_lower", "lower", "under_lower"].every(slot => itemExposure(slot) >= 1)) {
+		V.exposed = 2;
+	}
+
+	V.exposedRaw = V.exposed;
+	if (V.libertine >= V.exposed) V.exposed = 0;
+}
+DefineMacro("exposure", exposure);

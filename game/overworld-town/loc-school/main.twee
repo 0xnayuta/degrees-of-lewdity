@@ -82,8 +82,8 @@
 	<<link [[Refuse|School Night Pool Party Pay]]>><<set $phase to 1>><</link>>
 	<br>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+	<<if dangerEvent() and $eventskip is 0>>
 		<<eventsschoolcourtyard>>
 	<<else>>
 		<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
@@ -135,7 +135,7 @@
 		You hide behind a shed, keeping your <<lewdness>> hidden.
 		<br><br>
 	<</if>>
-<<else>>
+<<elseif !Town.projects.green.isUnderConstruction>>
 	The rear courtyard is empty.
 	<br><br>
 <</if>>
@@ -144,6 +144,7 @@
 <<if ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21 and $passagePrev is "hallway">><<set $weekly.schoolNightPoolParty to "admission">><</if>>
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<<exit>>
 <<elseif ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21>>
 	<<generateSecurity 1>><<person1>>
 	A beam of light shines on you. A security guard approaches, torch in hand. "What, another one?" <<He>> must have already caught <<if $weekly.schoolNightPoolParty is "discover">>the delinquents<<else>>some students<</if>>. "Well, whatever. Just pay up."
@@ -163,79 +164,134 @@
 	<</if>>
 	<br>
 	<<link [[Refuse|School Night Pool Party Pay]]>><<set $phase to 1>><</link>>
-	<br>
-<<elseif $town_projects.green is 1>>
-	<<set $town_projects.green to 2>>
+	<<exit>>
+<</if>>
+
+<<if Town.projects.green.stage is 1 and !Town.projects.thigreencket.isUnderConstruction>>
+	<<set Town.projects.green.stage to 2>>
 	You almost tread on an adder. It slips into a patch of tall, wild grass surrounding a large oak. Students avoid the area, as it's home to all sorts of pests. <span class="teal">An idea strikes you.</span> If the grass were cleared, there'd be a lot more room for students.
 	<br><br>
 	<i>You could enquire about the green at the town hall.</i>
 	<br><br>
 	<<link [[Next|School Rear Courtyard]]>><</link>>
 	<br>
-<<elseif $town_projects.green is 3>>
-	<<set $town_projects.green to 4>>
+	<<exit>>
+<<elseif Town.projects.green.stage gt 1 and Town.projects.green.isUnderConstruction>>
+	<span class="yellow">Renovation of the school green is underway.</span>
+	<br><br>
+	<<switch Time.dayState>>
+		<<case "day">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					A maintenance crew is clearing out the tall grass. Tools and equipment are spread out around the oak tree. Trash bags and branches are stacked near the fence.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						Workers in rain jackets clear wet grass. The area is muddy but active.
+					<<else>>
+						Crews shovel snow to reach the overgrowth underneath. Progress is slower, but they continue.
+					<</if>>
+			<</switch>>
+
+		<<case "night">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					The work area is empty. A few tools are still lying near the oak, and a tarp is tied over the equipment.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						The area is soaked. Puddles have formed where the ground was cleared earlier. Everything is quiet.
+					<<else>>
+						Snow covers most of the site. Footprints and tire tracks are still visible, but no one is around.
+					<</if>>
+			<</switch>>
+
+		<<case "dawn">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					Workers begin to arrive and check their tools. Some unload bags of soil or equipment near the tree.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						Rain falls as the team prepares for the day. They move slower, but begin setting up equipment anyway.
+					<<else>>
+						The snow makes setup harder, but some of it has already been cleared. Workers focus on accessible areas.
+					<</if>>
+			<</switch>>
+
+		<<case "dusk">>
+			<<switch Weather.name>>
+				<<case "clear" "lightClouds" "heavyClouds">>
+					Work has stopped for the day. Some grass has been trimmed, and a section near the tree is cleared. A shovel leans against the fence.
+				<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<if Weather.precipitation is "rain">>
+						The team has packed up. Water drips from equipment still under the tarp. The area looks messy but cleared in parts.
+					<<else>>
+						Snowfall has partially covered the site. Equipment is left in place.
+					<</if>>
+			<</switch>>
+	<</switch>>
+	Most students still avoid the spot, but it's already looking more maintained than before.
+	<br><br>
+	<<set $eventskip to 1>>
+<<elseif Town.projects.green.stage is 4>>
+	<<set Town.projects.green.stage to 5>>
 	Something is different. The wild grass around the oak has been cleared, creating a green area and changing the atmosphere of the whole courtyard. <span class="green">Students now have a nice area to spend lunch.</span>
 	<br><br>
-	<<earnFeat "School Green">>
-	<<link [[Next|School Rear Courtyard]]>><</link>>
-	<br>
+	<<link [[Next|School Rear Courtyard]]>><<set $eventskip to 1>><</link>>
+	<<exit>>
+<</if>>
+
+<<if dangerEvent() and $eventskip is 0>>
+	<<eventsschoolcourtyard>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
-		<<eventsschoolcourtyard>>
+	<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
+		<<schoolicon>><<link [[Sneak into the school (0:03)|Hallways]]>><<pass 3>><</link>>
+		<br>
+		<<schoolicon>><<link [[Sneak in front of the school (0:05)|School Front Courtyard]]>><<pass 5>><</link>>
+		<br><br>
+		<<fenceicon>><<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>>
+		<br>
 	<<else>>
-		<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
-			<<schoolicon>><<link [[Sneak into the school (0:03)|Hallways]]>><<pass 3>><</link>>
-			<br>
-			<<schoolicon>><<link [[Sneak in front of the school (0:05)|School Front Courtyard]]>><<pass 5>><</link>>
-			<br><br>
-			<<fenceicon>><<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>>
-			<br>
-		<<else>>
-			<<if $exposed lte 0>>
-				<<set _kylarLocation to getKylarLocation()>>
-				<<if _kylarLocation.area is "rear_courtyard">>
-					Kylar sits on a stump and stares at the ground.
-					<br>
-					<<schoolicon "stump">><<link [[Approach|Kylar Courtyard]]>><<set $kylar_text_trigger to true>><</link>>
-					<br><br>
-				<<elseif _kylarLocation.area is "english">>
-					Kylar isn't here. You look around, and catch a glimpse of <<nnpc_him "Kylar">> through one of the school's windows. <span class="gold">It looks like <<nnpc_hes "Kylar">> in the English classroom.</span>
-					<br><br>
-				<</if>>
-			<</if>>
-			<<if $exposed lte 0 and $schoolstate is "lunch">>
-				<<schoolicon "stump">><<link [[Relax on a stump (0:10)|School Stump]]>><<stress -1>><<pass 10>><<tiredness -1>><</link>><<ltiredness>><<lstress>>
+		<<if $exposed lte 0>>
+			<<set _kylarLocation to getKylarLocation()>>
+			<<if _kylarLocation.area is "rear_courtyard">>
+				Kylar sits on a stump and stares at the ground.
 				<br>
-				<<if $town_projects.green gte 4>>
-					<<socialiseicon>><<link [[Socialise on the green (0:10)|School Green]]>><<trauma -1>><<stress -1>><<pass 10>><<status 1>><</link>><<gcool>><<ltrauma>><<lstress>>
-					<br>
-				<</if>>
+				<<schoolicon "stump">><<link [[Approach|Kylar Courtyard]]>><<set $kylar_text_trigger to true>><</link>>
+				<br><br>
+			<<elseif _kylarLocation.area is "english">>
+				Kylar isn't here. You look around, and catch a glimpse of <<nnpc_him "Kylar">> through one of the school's windows. <span class="gold">It looks like <<nnpc_hes "Kylar">> in the English classroom.</span>
+				<br><br>
 			<</if>>
-			<<if $schoolstate is "lunch" and $panty_thief gte 1>>
-				<<crimeicon "mark">><<link [[Look for the underwear thief (0:10)|School Panty]]>><<pass 10>><</link>>
+		<</if>>
+		<<if $exposed lte 0 and $schoolstate is "lunch">>
+			<<schoolicon "stump">><<link [[Relax on a stump (0:10)|School Stump]]>><<stress -1>><<pass 10>><<tiredness -1>><</link>><<ltiredness>><<lstress>>
+			<br>
+			<<if Town.projects.green.isComplete>>
+				<<socialiseicon>><<link [[Socialise on the green (0:10)|School Green]]>><<trauma -1>><<stress -1>><<pass 10>><<status 1>><</link>><<gcool>><<ltrauma>><<lstress>>
 				<br>
 			<</if>>
-			<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
-			<br>
-			<<schoolicon "courtyard">><<link [[Front courtyard (0:02)|School Front Courtyard]]>><<pass 2>><</link>>
-			<br><br>
-			<<fenceicon>><<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>>
+		<</if>>
+		<<if $schoolstate is "lunch" and $panty_thief gte 1>>
+			<<crimeicon "mark">><<link [[Look for the underwear thief (0:10)|School Panty]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
+		<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
+		<br>
+		<<schoolicon "courtyard">><<link [[Front courtyard (0:02)|School Front Courtyard]]>><<pass 2>><</link>>
+		<br><br>
+		<<fenceicon>><<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
 
-		<<if $historytrait gte 1>>
-			<<if $parktunnelintro gte 1>>
-				<<parkicon>><<link [[Secret tunnel to park (0:05)|Park]]>><<pass 5>><</link>>
-				<br>
-			<<else>>
-				<<parkicon>><<link [[Secret tunnel to park (0:05)|Park Tunnel]]>><<pass 5>><</link>>
-				<br>
-			<</if>>
+	<<if $historytrait gte 1>>
+		<<if $parktunnelintro gte 1>>
+			<<parkicon>><<link [[Secret tunnel to park (0:05)|Park]]>><<pass 5>><</link>>
+			<br>
+		<<else>>
+			<<parkicon>><<link [[Secret tunnel to park (0:05)|Park Tunnel]]>><<pass 5>><</link>>
+			<br>
 		<</if>>
 	<</if>>
 <</if>>
-
 <<set $eventskip to 0>>
 
 :: School Green
@@ -535,18 +591,13 @@ The school gate is shut and sealed by a sturdy padlock.
 <<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>>
 	<<if $daily.whitney.whitneyCrossdressSwimwear>><<run $daily.whitney.whitneyCrossdressSwimwear.push("girls entrance")>><</if>>
 <</link>><<if _uncomfortable>><<gstress>><</if>><<if !_allowedToChange and $changingroomstate isnot "empty">><<gdelinquency>><</if>>
-<br><br>
+<br>
 
-<<if $changingroomstate isnot "empty" and isCrossdressing()>>
+<<if $changingroomstate isnot "empty">>
 	/* room is empty between :05 and :57 */
 	<<set _waitTime to (65 - Time.minute) % 60>>
-	<<if $player.gender_appearance is "m">>
-		<<loitericon>><<link [[`Wait for the girls to leave (0:0_waitTime)`|School Pool Entrance]]>><<pass _waitTime>><</link>>
-		<br><br>
-	<<elseif $player.gender_appearance is "f">>
-		<<loitericon>><<link [[Wait for the boys to leave (0:0_waitTime)|School Pool Entrance]]>><<pass _waitTime>><</link>>
-		<br><br>
-	<</if>>
+	<<loitericon>><<link [[`Wait for the changing rooms to empty (0:0_waitTime)`|School Pool Entrance]]>><<pass _waitTime>><</link>>
+	<br><br>
 <</if>>
 
 <<getouticon>><<link [[Leave (0:01)|Hallways]]>><<pass 1>><</link>>
@@ -701,7 +752,7 @@ You haul yourself over the fence and drop down on the other side.
 			<br><br>
 
 			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1>>
-				<<ind>><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
+				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
 			<<if $schoolfameblackmail gte 1>>
@@ -735,7 +786,7 @@ You haul yourself over the fence and drop down on the other side.
 			<</if>>
 
 			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1>>
-				<<ind>><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
+				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
 			<<if $schoolfameblackmail gte 1>>
@@ -939,9 +990,8 @@ You haul yourself over the fence and drop down on the other side.
 	<<pass 1 hour>>
 	You remain unconscious for a time.
 	<br><br>
-	<<set $danger to random(1, 10000)>>
 
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late">>
 			<<if $rng gte 81 and $analdisable is "f" and !playerChastity("anus")>>
 				<<link [[Next|School Passout Exhibit]]>><<upperruined>><<lowerruined>><<underruined>><</link>>
@@ -977,7 +1027,7 @@ You haul yourself over the fence and drop down on the other side.
 	You feel metallic clamps on your wrists, knees and ankles. You open your eyes, and find yourself outside the science classroom, bound and attached to the wall with your legs splayed, your <<lewdness>> on display. You try to struggle free, but you're locked up tight.
 	<br><br>
 
-	And perhaps more importantly, <span class="lewd">there's a strange sensation of fullness in your anus</span>. 
+	And perhaps more importantly, <span class="lewd">there's a strange sensation of fullness in your anus</span>.
 	<br><br>
 
 	A group of students round the corner and stop when they see you, eyes wide. You feel your face turn red as they behold you. They walk past, giggling and whispering to one another.<<lcool>><<gtrauma>><<gstress>><<stress 1>><<trauma 1>><<status -10>>
@@ -1010,7 +1060,7 @@ You haul yourself over the fence and drop down on the other side.
 		The <<person>> looks taken aback, and exchanges a nervous look with <<his>> friend, before <span class="green">lowering <<his>> hand and backing off</span>.
 		<br><br>
 
-		"Could you help me down, instead?" you ask. After hesitating a moment, <<he>> comes forward. Standing on <<his>> toes, <<he>> reaches up and flips a switch on the wall next to you, releasing your restraints. 
+		"Could you help me down, instead?" you ask. After hesitating a moment, <<he>> comes forward. Standing on <<his>> toes, <<he>> reaches up and flips a switch on the wall next to you, releasing your restraints.
 		<br><br>
 
 		You fall onto your hands and knees, <span class="lewd">the object in your butt slipping out as you do</span>. You begin to stand up but, suddenly acutely aware of your lewd state, you crouch down instead. The pair still look amused at the situation, but the <<person2>><<person>> pulls some towels out of <<his>> bag and hands them to you. They wordlessly leave, smiling back at you as they do.
@@ -1067,7 +1117,7 @@ You haul yourself over the fence and drop down on the other side.
 	<<if $arousal gte $arousalmax>>
 		<<orgasm>><<exhibitorgasm>>
 	<</if>>
-	
+
 	The <<person2>><<person>> claps <<his>> hands in approval, clearly enjoying your involuntary performance.
 	<br><br>
 
@@ -1102,13 +1152,7 @@ You haul yourself over the fence and drop down on the other side.
 		Before you can speak,
 		<<person1>>
 		<<if $NPCList[0].penis isnot "none">>
-			the <<person>> bends down and covers your mouth with one hand, whilst
-			<<if $pronoun is "m">>
-				unzipping <<his>> fly,
-			<<else>>
-				lifting <<his>> skirt,
-			<</if>>
-			revealing <<his>> erection. <<He>> points it towards your face as <<he>> removes <<his>> hand from your mouth, as <<he>> lowers onto you.
+			the <<person>> bends down and covers your mouth with one hand, whilst <<if $pronoun is "m">>unzipping <<his>> fly<<else>>lifting <<his>> skirt<</if>>, revealing <<his>> erection. <<He>> points it towards your face as <<he>> removes <<his>> hand from your mouth, as <<he>> lowers onto you.
 			<br><br>
 
 			Before you can move to do anything about this, the <<person2>><<person>> drops onto your midriff, knocking the wind from you, and grabbing onto your hands to stop you from fighting.
@@ -1534,12 +1578,10 @@ This watch should be worth a fair bit if you could find a buyer.
 <br><br>
 
 You leave the office. That's one less problem to worry about.
-<<ggcontrol>>
+<<set $headnodetention to 1>><<set $headblackmailed to 1>><<control 25>><<def 3>><<ggcontrol>>
 <br><br>
 
-<<set $headnodetention to 1>><<set $headblackmailed to 1>><<control 25>><<endevent>><<def 3>>
-<br><br>
-
+<<endevent>>
 <<link [[Next|Hallways]]>><</link>>
 
 :: Events Shades Hand
@@ -1664,7 +1706,7 @@ You look into the <<persons>> eyes pleadingly. "Please," you say with a sob.<<if
 <</if>>
 <br><br>
 
-<<if $danger gte (9900 - $allure)>>
+<<if dangerEvent()>>
 	<<eventsschoolstump>>
 <<else>>
 	<<if $schoolstate isnot "late">>
@@ -1757,9 +1799,9 @@ You turn away and do your best to ignore the <<person>> and <<his>> friends<<if 
 
 You storm over to the <<if $phase isnot 2>>group, where the <<persons>> friends are congratulating <<him>><<else>><<person>><</if>>.
 <br><br>
-<<He>> turns to you just in time to flinch as you shove <<him>>, making <<him>> stumble back with a surprised yep. <<He>> falls against a wall, gaping up at you in shock.
+<<He>> turns to you just in time to flinch as you shove <<him>>, making <<him>> stumble back with a surprised yelp. <<He>> falls against a wall, gaping up at you in shock.
 <br><br>
-"Asshole," you say. <<Hes>> more embarrassed than hurt, but now <<his>> friends are now laughing at <<him>>.
+"Asshole," you say. <<Hes>> more embarrassed than hurt, but now <<his>> friends are laughing at <<him>>.
 <br><br>
 
 <<if $phase is 1>>
@@ -1845,7 +1887,6 @@ After chatting for a bit, you lean in a whisper in the <<person1>><<persons>> ea
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
 <<seductionskilluptext>>
 <<seductionskilluse>>
 
@@ -1998,7 +2039,7 @@ After chatting for a bit, you stand up.
 	<<case 3>> "Y-Yeah, totally!" <<he>> says, putting on a confident grin. "See you around."
 	<<case 4>> <<He>> nods, still looking down at <<his>> lap. "S-sure," <<he>> manages to say.
 <</switch>>
-As you walk off, you hear the <<his>> friend tell <<him>>, "See? That wasn't so bad."
+As you walk off, you hear <<his>> friend tell <<him>>, "See? That wasn't so bad."
 <br><br>
 
 <<courtyard>>
@@ -2357,7 +2398,7 @@ You walk away. The pair jeer at you, but you know Sydney would want you to forgi
 <<elseif $speech_attitude is "bratty">>
 	"I'd suggest you lot try it," you say. "But I doubt you're brave enough."
 <<else>>
-	"When you look as good as this," you say. "You want to flaunt it."
+	"When you look as good as this," you say, "you want to flaunt it."
 <</if>>
 <<exhibitionism5>>
 
@@ -2698,7 +2739,7 @@ The <<person>> stammers an incoherent response, so you take <<his>> hand and pul
 	You walk away from the <<person>> before <<he>> responds.
 	<br><br>
 <<else>>
-	You try to ignore the urging voice, <span class="red">but it's a struggle.</span> You manage to tear yourself away from the <<person>> before you say anything, and almost stumble as you escape.
+	You try to ignore the urging voice, <span class="red">but it's a struggle</span>. You manage to tear yourself away from the <<person>> before you say anything, and almost stumble as you escape.
 	<br><br>
 	You hide around the corner, and the coercive feelings dissipate. Your strange behaviour was noticed by others.<<lcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 6>>
 	<br><br>
@@ -2779,7 +2820,7 @@ You stare blankly at the phone, suddenly very aware of other students looking at
 "Check it out at-" You look down at the phone and read the website address aloud. Many of the students are typing along on their own phones.
 <br><br>
 <<if $speech_attitude is "meek">>
-	"A-all I ask is that you don't fall in love with me, okay?""
+	"A-all I ask is that you don't fall in love with me, okay?"
 <<elseif $speech_attitude is "bratty">>
 	"Try not to be too jealous, okay?"
 <<else>>

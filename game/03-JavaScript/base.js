@@ -104,7 +104,7 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 		tags,
 		skipArgs,
 		handler() {
-			DOL.Perflog.logWidgetStart(macroName);
+			Perflog.logWidgetStart(macroName);
 			try {
 				const oldArgs = State.temporary.args;
 				State.temporary.args = this.args.slice();
@@ -115,7 +115,7 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 					State.temporary.args = oldArgs;
 				}
 			} finally {
-				DOL.Perflog.logWidgetEnd(macroName);
+				Perflog.logWidgetEnd(macroName);
 			}
 		},
 	});
@@ -145,7 +145,7 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 
 /**
  * Pluralises a given word if the count is not 1
- * 
+ *
  * @param {number} count Number to check
  * @param {string} singular Singular form of the word
  * @param {string} [plural] Optional plural form for irregular plurals

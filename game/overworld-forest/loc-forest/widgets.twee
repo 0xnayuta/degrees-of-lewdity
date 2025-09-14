@@ -41,7 +41,7 @@
 	<br>
 	<<if $worn.feet.type.includes("heels") and !$possessed>>
 		<<heelsicon "hobble">><<link [[Hobble in heels (0:30)|Forest]]>><<set $forestmod to 3>><<set $forest += 5>><<pass 30>><<set $forestmove to "hobble">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<gharass>>
-		<<if $town_projects.road gte 4 and $forest lte 24>>
+		<<if Town.projects.road.isComplete and $forest lte 24>>
 			<br>
 			<<forestroadicon "deep">><<link [[Follow road (0:10)|Forest]]>><<set $forestmod to 1>><<set $forest += 5>><<set $forestmove to "road">><<pass 10>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
 		<</if>>
@@ -57,7 +57,7 @@
 		<</if>>
 		<br>
 		<<sneakicon>><<link [[Carefully (0:30)|Forest]]>><<set $forestmod to 1>><<set $forest += 5>><<pass 30>><<set $forestmove to "carefully">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<lharass>>
-		<<if $town_projects.road gte 4 and $forest lte 24>>
+		<<if Town.projects.road.isComplete and $forest lte 24>>
 			<br>
 			<<forestroadicon "deep">><<link [[Follow road (0:05)|Forest]]>><<set $forestmod to 1>><<set $forest += 5>><<set $forestmove to "road">><<pass 5>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
 		<</if>>
@@ -81,7 +81,7 @@
 	<br>
 	<<if $worn.feet.type.includes("heels") and !$possessed>>
 		<<heelsicon "hobble">><<link [[Hobble in heels (0:30)|Forest]]>><<set $forestmod to 3>><<set $forest -= 5>><<pass 30>><<set $forestmove to "hobble">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<gharass>>
-		<<if $town_projects.road gte 4 and $forest lte 25 and $forest gte 1>>
+		<<if Town.projects.road.isComplete and $forest lte 25 and $forest gte 1>>
 			<br>
 			<<forestroadicon "town">><<link [[Follow road (0:10)|Forest]]>><<set $forestmod to 1>><<set $forest -= 5>><<set $forestmove to "road">><<pass 10>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
 		<</if>>
@@ -97,7 +97,7 @@
 		<</if>>
 		<br>
 		<<sneakicon>><<link [[Carefully (0:30)|Forest]]>><<set $forestmod to 1>><<set $forest -= 5>><<pass 30>><<set $forestmove to "carefully">><<if $foresthunt gte 1>><<set $foresthunt += 2>><</if>><</link>><<lharass>>
-		<<if $town_projects.road gte 4 and $forest lte 25 and $forest gte 1>>
+		<<if Town.projects.road.isComplete and $forest lte 25 and $forest gte 1>>
 			<br>
 			<<forestroadicon "town">><<link [[Follow road (0:05)|Forest]]>><<set $forestmod to 1>><<set $forest -= 5>><<set $forestmove to "road">><<pass 5>><<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>><<set $eventskip to 1>><</link>><<noharass>>
 		<</if>>
@@ -459,7 +459,7 @@
 	<<else>>
 		<<addevent "forestgem" 2>>
 		<<addinlineevent "eventforestitem_bees" 4>>
-			<<if $beedisable is "f">>
+			<<if $bestialitydisable is "f" and $beedisable is "f">>
 				You hear a gentle buzz up ahead. A large beehive hangs from a tree. Workers fly in and out in a quest for pollen. The honey would be valuable.
 				<br><br>
 
@@ -1097,15 +1097,13 @@
 		<br><br>
 
 		<<passout>>
-		<<set $danger to random(1, 10000)>>
-		<<if $danger gte (9900 - $allure)>>
-
+		
+		<<if dangerEvent()>>
 			<<if $rng gte 71 and $forest gte 21 and $plantdisable is "f" and $tentacledisable is "f" and ($hallucinations gte 2 or $backgroundTraits.includes("plantlover"))>>
 				<<link [[Everything fades to black...|Forest Plant Passout]]>><</link>>
 			<<else>>
 				<<foresthunt>>
 			<</if>>
-
 		<<else>>
 			<<set $foresthunt to 0>>
 			<<ambulance>>
@@ -1261,7 +1259,7 @@
 					However, thanks to your tending skill, you spot nearby tracks and holes in the ground. You realise <span class="red">it's a snake's nest</span>.
 				<</if>>
 		<</switch>>
-		<br>
+		<br><br>
 		<<if $forest_nest.fox is 2>>
 			<<beastNEWinit 1 fox>>
 			<<if $fox gte 6>>
@@ -1273,14 +1271,13 @@
 				<<elseif $NPCList[0].traits.includes("friendly")>><span class="green">friendly</span>.
 				<<elseif $NPCList[0].traits.includes("clumsy")>><span class="blue">clumsy</span>.
 				<</if>>
-				<br>
+				<br><br>
 			<<elseif currentSkillValue('skulduggery') gte $NPCList[0].skills.security>>
 				<<set $forest_nest.fox to 3>>
 				<span class="blue">You hear a rustle nearby.</span> Something else is eyeing up the nest, too.
-				<br>
+				<br><br>
 			<</if>>
-		<</if>>
-		<br>
+		<</if>>		
 
 		<<if $forest_nest.type lte 2>>
 			<<if pcAreArmsBound("both")>>
@@ -1689,4 +1686,61 @@
 	<<link[[Climb|Forest Bully Climb]]>><</link>><<athleticsdifficulty 0 1055>>
 	<br>
 	<<link[[Call for help|Forest Bully Help]]>><</link>>
+<</widget>>
+
+<<widget "forestRoadConstruction">>
+	<<if Town.projects.road.isUnderConstruction and Math.abs($forest - _roadLocation) <= 2>>
+		<<set _zone = $forest <= 5 ? "start" : $forest >= 20 ? "end" : "middle">>
+		<<switch _zone>>
+			<<case "start">>
+				<span class="yellow">Construction on the new forest road is underway.</span> It seems it has recently started.
+			<<case "middle">>
+				<span class="yellow">Construction is ongoing somewhere nearby.</span> You can hear it from the trail.
+			<<case "end">>
+				<span class="yellow">Construction is active near the lake.</span> The new forest road is taking shape there.
+		<</switch>>
+		<br><br>
+		<<switch Time.dayState>>
+			<<case "day" "dawn" "dusk">>
+				<<switch Weather.name>>
+					<<case "clear" "lightClouds" "heavyClouds">>
+						<<if _zone is "start">>
+							Machines are cutting through undergrowth just off the trail. Flags mark the cleared path, and crew members direct vehicles between tree stumps.
+						<<elseif _zone is "middle">>
+							The sound of chainsaws and engines echoes through the forest. You catch glimpses of workers moving between the trees.
+						<<else>>
+							Near the lake, ground has been cleared for the road and bus stop. Materials are stacked under tarps, and workers mark off drainage points.
+						<</if>>
+					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+						<<if Weather.precipitation is "rain">>
+							<<if _zone is "start">>
+								The area is muddy, but work goes on. Crews wear lay down wooden planks over the soft ground.
+							<<elseif _zone is "middle">>
+								You hear machinery over the rain. The trail is wet, and you catch glimpses of workers moving between the trees.
+							<<else>>
+								At the lake, water pools near the construction area. Tarps cover most equipment, but a few workers are still active.
+							<</if>>
+						<<else>>
+							<<if _zone is "start">>
+								Snow covers most of the path, but crews shovel it aside and keep working. Equipment moves slowly.
+							<<elseif _zone is "middle">>
+								The forest is quiet, with only occasional scraping sounds. You can't see much through the falling snow.
+							<<else>>
+								Some of the bus stop foundation is now visible above the snowline.
+							<</if>>
+						<</if>>
+				<</switch>>
+			<<case "night">>
+				<<if _zone is "start">>
+					The trail is quiet, but a few floodlights remain on at the edge of the work zone. Equipment sits idle behind temporary fencing.
+				<<elseif _zone is "middle">>
+					Through the trees, you catch glimpses of floodlight glow.
+				<<else>>
+					The construction site near the lake is still. Several floodlights stay on through the night, casting long shadows across the gravel.
+				<</if>>
+		<</switch>>
+		For now, travel between the forest and town still relies on the old trails.
+		<br><br>
+		<<set $eventskip to 1>>
+	<</if>>
 <</widget>>
