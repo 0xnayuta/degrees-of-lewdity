@@ -1,17 +1,27 @@
 function fertiliseParasites(genital = "anus") {
 	// Runs whenever someone ejaculates in your `genital`
 	const pregnancy = V.sexStats[genital].pregnancy;
+	let fertilized = false;
 	if (pregnancy.type === "parasite") {
-		pregnancy.fetus.forEach(parasite => {
+		pregnancy.fetus.forEach((parasite, index) => {
 			if (!parasite.fertilised) {
+				if (V.debug) {
+					console.log(`DEBUG: Fertilizing ${parasite.creature} in ${genital}`);
+				}
 				parasite.fertilised = true;
 				parasite.daysLeft = parasite.stats.growth;
 				if (parasite.stats.gender === "Hermaphrodite") {
 					pregnancy.motherStatus = 2;
 				}
+				fertilized = true;
 			}
 		});
+	} else {
+		if (V.debug) {
+			console.log(`DEBUG: ${genital} pregnancy.type is ${pregnancy?.type}, not "parasite"`);
+		}
 	}
+	return fertilized;
 }
 DefineMacro("fertiliseParasites", fertiliseParasites);
 

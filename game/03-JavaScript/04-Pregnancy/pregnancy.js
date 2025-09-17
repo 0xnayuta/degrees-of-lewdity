@@ -186,7 +186,8 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 		if (["hawk", "harpy"].includes(spermArray[rng].type) && !random(0, 3)) return false;
 
 		// Player becomes pregnant
-		return playerPregnancy(spermArray[rng].source, spermArray[rng].type, fatherKnown, genital, trackedNPCs);
+		const result = playerPregnancy(spermArray[rng].source, spermArray[rng].type, fatherKnown, genital, trackedNPCs);
+		return result;
 	}
 	return false;
 }
@@ -211,7 +212,8 @@ function playerPregnancyHawkAttempt(genital = "vagina") {
 		const fatherKnown = Object.keys(trackedNPCs).length === 1;
 
 		// Player becomes pregnant
-		return playerPregnancy(harpySperm.source, harpySperm.type, fatherKnown, genital, trackedNPCs);
+		const result = playerPregnancy(harpySperm.source, harpySperm.type, fatherKnown, genital, trackedNPCs);
+		return result;
 	}
 
 	return false;
@@ -854,6 +856,26 @@ function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride)
 	return true;
 }
 
+// Helper function to fertilize parasites and return fertilization info
+function tryFertilizeParasites(genital = "vagina", percentageChance = 15) {
+	const roll = random(0, 100);
+
+	if (V.debug) {
+		console.log(`DEBUG: tryFertilizeParasites ${genital}, roll: ${roll}, needed: < ${percentageChance}`);
+	}
+
+	if (roll < percentageChance) {
+		const fertilized = fertiliseParasites(genital);
+		if (V.debug) {
+			console.log(`DEBUG: ${genital} fertilization - roll: ${roll}/${percentageChance}, result: ${fertilized}`);
+		}
+		if (fertilized) {
+			return { fertilized: true, genital: genital };
+		}
+	}
+	return { fertilized: false, genital: genital };
+}
+
 function recordSperm({
 	genital = "vagina",
 	target = null,
@@ -980,6 +1002,25 @@ function recordSperm({
 
 		if (spermFoundIndex !== -1) {
 			sperm[spermFoundIndex].quantity += quantity;
+			if (V.debug) {
+				console.log(`DEBUG: Added quantity ${quantity} to existing sperm - ${spermOwnerName} ${spermType} in ${genital}, new quantity: ${sperm[spermFoundIndex].quantity}`);
+			}
+			// Chance to fertilize parasites when sperm is recorded
+			if (target === "pc") {
+				const result = tryFertilizeParasites(genital, 19);
+				if (result.fertilized) {
+					const genitalName = genital === "vagina" ? "pussy" : "rear";
+					const flavorTexts = [
+						"You feel the seed change something inside you.",
+						`A strange warmth spreads through your ${genitalName}.`,
+						`Something inside you seems to respond to the lewd fluid.`,
+						`Something shifts deep within your ${genitalName}.`,
+						"You sense a subtle change in your body.",
+						"A mysterious sensation pulses through your core."
+					];
+					return flavorTexts[random(0, flavorTexts.length - 1)];
+				}
+			}
 			return true;
 		} else {
 			const newSperm = {
@@ -992,23 +1033,72 @@ function recordSperm({
 			if (rngModifier) newSperm.mod = rngModifier;
 
 			sperm.push(newSperm);
-			return true;
+			if (V.debug) {
+				console.log(`DEBUG: Added new sperm - ${spermOwnerName} ${spermType} in ${genital}, mod: ${rngModifier}, tag: ${rngType}, daysLeft: ${daysTillRemoval}, quantity: ${quantity}`);
+			}
+			// There's a chance to fertilize parasites when sperm is recorded
+			if (target === "pc") {
+				const fertilizationChance = genital === "vagina" ? 18 : 11;
+				const result = tryFertilizeParasites(genital, fertilizationChance);
+				if (V.debug) {
+					console.log(`DEBUG: Parasite fertilization ${genital}: ${result.fertilized ? 'SUCCESS' : 'FAILED'}`);
+				}
+				if (result.fertilized) {
+					const genitalName = genital === "vagina" ? "pussy" : "rear";
+					const flavorTexts = [
+						`You feel the seed change something inside your ${genitalName}.`,
+						`A strange warmth spreads through your ${genitalName} as something within stirs.`,
+						`The foreign essence seems to awaken something deep in your ${genitalName}.`,
+						`You sense a subtle but significant change happening within your ${genitalName}.`,
+						`Something inside your ${genitalName} responds eagerly to the new presence.`
+					];
+					return {
+						success: true,
+						flavorText: flavorTexts[random(0, flavorTexts.length - 1)]
+					};
+				}
+			}
+			return { success: true };
 		}
 	}
-	return false;
+	return { success: false };
 }
-DefineMacro("recordSperm", recordSperm);
-DefineMacro("recordVaginalSperm", (target, spermOwner, spermType, daysTillRemovalOverride) =>
-	recordSperm({ target, spermOwner, spermType, daysTillRemovalOverride })
-);
-DefineMacro("recordAnusSperm", (target, spermOwner, spermType, daysTillRemovalOverride) =>
-	recordSperm({ genital: "anus", target, spermOwner, spermType, daysTillRemovalOverride })
-);
+
+// Helper function to handle macro output for recordSperm family
+function recordSpermWithOutput(args, macroContext, debugLabel) {
+	const result = recordSperm(...args);
+
+	// Debug output
+	if (V.debug) {
+		const genital = args[0]?.genital || "vagina";
+		jQuery(macroContext.output).wiki(`<br><span style="color: yellow;">(${debugLabel}: ${genital})</span><br>`);
+	}
+
+	// Flavor text output
+	if (result && result.flavorText) {
+		jQuery(macroContext.output).wiki(`<br><span class="pink">${result.flavorText}</span><br>`);
+	}
+
+	return result ? result.success : result;
+}
+
+DefineMacro("recordSperm", function() {
+	return recordSpermWithOutput(this.args, this, "recordSperm");
+});
+DefineMacro("recordVaginalSperm", function() {
+	const args = [{ target: this.args[0], spermOwner: this.args[1], spermType: this.args[2], daysTillRemovalOverride: this.args[3] }];
+	return recordSpermWithOutput(args, this, "recordVaginalSperm");
+});
+DefineMacro("recordAnusSperm", function() {
+	const args = [{ genital: "anus", target: this.args[0], spermOwner: this.args[1], spermType: this.args[2], daysTillRemovalOverride: this.args[3] }];
+	return recordSpermWithOutput(args, this, "recordAnusSperm");
+});
 window.recordSperm = recordSperm;
 
 // Period is `1 divided how many timers per day the function is run`
 function updateRecordedSperm(genital, target, period = 1) {
 	let sperm;
+	let fertilizationText = null;
 	if (genital !== "vagina" && target !== "pc") return null;
 	if (target === "pc") {
 		sperm = V.sexStats[genital].sperm;
@@ -1016,34 +1106,114 @@ function updateRecordedSperm(genital, target, period = 1) {
 		sperm = C.npc[target].pregnancy.sperm;
 	}
 	if (sperm) {
+		if (V.debug) {
+			console.log(`DEBUG: updateRecordedSperm - ${genital} sperm for ${target}, ${sperm.length} entries, period: ${period}`);
+		}
 		sperm.forEach(s => {
+			if (V.debug) {
+				console.log(`DEBUG: Processing sperm - source: ${s.source}, type: ${s.type}, daysLeft: ${s.daysLeft}, tag: ${s.tag}, mod: ${s.mod}`);
+			}
 			s.daysLeft -= period;
 
 			if (s.tag && s.tag.includes("canWash") && !isNaN(parseInt(s.tag))) {
 				let canWashCount = parseInt(s.tag);
 				canWashCount--;
+				if (V.debug) {
+					console.log(`DEBUG: canWash sperm upgrading - ${s.source} ${s.type}, newcanwashcount: ${canWashCount}`);
+				}
 				if (canWashCount >= 0) {
 					s.tag = canWashCount + "canWash";
 				} else {
 					s.tag = "";
+					if (V.debug) {
+						console.log(`DEBUG: canWash sperm became permanent - ${s.source} ${s.type} in ${genital}`);
+					}
+				}
+			}
+
+			// Fertilize parasites
+			if (target === "pc") {
+				const fertilizationChance = genital === "vagina" ? 46 : 44;
+				const result = tryFertilizeParasites(genital, fertilizationChance);
+				if (V.debug) {
+					console.log(`DEBUG: parasite fertilization ${genital}: ${result.fertilized ? 'SUCCESS' : 'FAILED'} (chance: ${fertilizationChance}%)`);
+				}
+				if (result.fertilized) {
+					if ( genital === "vagina") {
+						const flavorTexts = [
+							"You feel the seed change something inside your womb.",
+							`A strange warmth spreads through your pussy.`,
+							`Something shifts deep within your birth canal.`,
+							"You sense a subtle change in your woomanhood.",
+							"A mysterious sensation pulses through your feminine core."
+						];
+						// Store in temporary variable for widget display
+						V.parasiteFertilizationTextVagina = flavorTexts[random(0, flavorTexts.length - 1)];
+					}
+					else {
+						const flavorTexts = [
+							"You feel the seed change something inside your intestines.",
+							`A strange warmth spreads through your ass.`,
+							`Something shifts deep within your guts.`,
+							"You sense a subtle change in your rear.",
+							"A mysterious sensation pulses through your butt."
+						];
+						// Store in temporary variable for widget display
+						V.parasiteFertilizationTextAnus = flavorTexts[random(0, flavorTexts.length - 1)];
+					}
 				}
 			}
 		});
 
 		// Remove sperm that is too old now
+		const initialCount = sperm.length;
 		if (target === "pc") {
 			V.sexStats[genital].sperm = sperm.filter(s => s.daysLeft > 0);
 		} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled) {
 			C.npc[target].pregnancy.sperm = sperm.filter(s => s.daysLeft > 0);
 		}
+		const finalCount = target === "pc" ? V.sexStats[genital].sperm.length : (C.npc[target]?.pregnancy?.sperm?.length || 0);
+		if (V.debug && initialCount !== finalCount) {
+			console.log(`DEBUG: Removed ${initialCount - finalCount} expired sperm from ${genital} (${initialCount} -> ${finalCount})`);
+		}
 	}
+	return { success: true };
 }
-DefineMacro("updateRecordedSperm", updateRecordedSperm);
+DefineMacro("updateRecordedSperm", function() {
+	const result = updateRecordedSperm(...this.args);
+	return result ? result.success : result;
+});
 
 function washRecordedSperm(genital, target) {
-	if (genital !== "vagina" && target !== "pc") return null;
+	if ( (genital !== "vagina" || genital !== "anus") && target !== "pc") return null;
 	if (target === "pc") {
+		// Check if chastity is active for the genital being washed
+		const isChaste = playerChastity(genital);
+
+		if (isChaste) {
+			// Count washable sperm before filtering
+			const washableSpermBefore = V.sexStats[genital].sperm.filter(s => s.tag && s.tag.includes("canWash")).length;
+
+			// With chastity, 80% retention chance (20% removal chance)
+			V.sexStats[genital].sperm = V.sexStats[genital].sperm.filter(s => {
+				if (!s.tag || !s.tag.includes("canWash")) {
+					return true; // Keep sperm that can't be washed
+				}
+				// 80% chance to retain washable sperm when chaste
+				return Math.random() < 0.8;
+			});
+
+			/*
+			// Count washable sperm after filtering
+			const washableSpermAfter = V.sexStats[genital].sperm.filter(s => s.tag && s.tag.includes("canWash")).length;
+
+			// Set retained flag if any sperm remained
+			result.retained = washableSpermAfter > 0 && washableSpermBefore > 0;
+			*/
+		} else {
+		  // Normal washing behavior - remove all washable sperm
 		V.sexStats[genital].sperm = V.sexStats[genital].sperm.filter(s => !s.tag || (s.tag && !s.tag.includes("canWash")));
+		}
 	} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled) {
 		C.npc[target].pregnancy.sperm = C.npc[target].pregnancy.sperm.filter(s => !s.tag || (s.tag && !s.tag.includes("canWash")));
 	}
