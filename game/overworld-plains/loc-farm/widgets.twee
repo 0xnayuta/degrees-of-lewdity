@@ -823,6 +823,8 @@
 	<<set $farm.clearing to 100>>
 
 	<<farm_update>>
+
+	<<set $fields_damaged to []>>
 <</widget>>
 
 <<widget "farm_update">>
@@ -1149,7 +1151,7 @@
 
 		<</if>>
 
-		<<link [[Relax (0:20)|Farm Rest]]>><<set $phase to 0>><<trauma -2>><<stress -2>><<npcincr Alex love 1>><<pass 20>><</link>><<glove>><<ltrauma>><<lstress>>
+		<<link [[Relax (0:20)|Farm Rest]]>><<endevent>><<trauma -2>><<stress -2>><<npcincr Alex love 1>><<pass 20>><</link>><<glove>><<ltrauma>><<lstress>>
 		<br>
 
 	<<else>>
@@ -1482,7 +1484,7 @@
 
 					<<if (npcIsPregnant("Alex") and talkedAboutPregnancy("Alex","pc")) or(playerAwareTheyArePregnant() and playerIsPregnant() and talkedAboutPregnancy("pc","Alex"))>>
 
-						Alex arrives at your side. "Shit," <<he>> says. "You fuck-" <<He>> stops in the middle of the sentence, as if <<he>> remembers something. With a preoccupied expression, <<he>> looks at
+						Alex arrives at your side. "Shit," <<he>> curses. "You fuck—" <<He>> stops in the middle of the sentence, as if <<he>> remembers something. With a preoccupied expression, <<he>> looks at
 
 						<<if (npcIsPregnant("Alex") and talkedAboutPregnancy("Alex","pc")) and (playerAwareTheyArePregnant() and playerIsPregnant() and talkedAboutPregnancy("pc","Alex"))>>
 							<<his>> belly, then glances over at yours.
@@ -2296,9 +2298,9 @@
 	<<set _alex_rng to random(1, 14)>>
 	<<if _alex_rng is 14 and $fame.model gte 30>>
 		You talk about your modelling gig.
-		<<if $rng gte 60 and $alex_countdown is undefined and $farm_stage gte 7>>
+		<<if $rng gte 61 and $alex_countdown is undefined and $farm_stage gte 7>>
 			"You model? I bet." <<He>> blushes. "You're quite the looker."
-		<<elseif $rng gte 30 and $farm_stage gte 6>>
+		<<elseif $rng gte 31 and $farm_stage gte 6>>
 			"Hope you don't get too big," <<he>> says. "I'd never hear the end of it from my <<if $pronoun is "m">>dad<<else>>mum<</if>>."
 		<<else>>
 			"Don't let it get to your head," <<he>> teases. "You bet I'm giving a shout, if I catch you on TV."
@@ -2335,7 +2337,7 @@
 	<<elseif _alex_rng is 10 and $fame.social gte 30>>
 		You tell <<him>> that you schmooze in town. "It's nice that a townie elite can still get <<pher>> hands dirty with a country<<nnpc_gendery "Alex">> like me," <<he>> says teasingly.
 	<<elseif _alex_rng is 9 and $adultshopclerk>>
-		You tell <<him>> that you also work as an adult shop clerk. "Do you get an employee discount? I could use more-" <<He>> cuts <<himself>> off. "Never mind."
+		You tell <<him>> that you also work as an adult shop clerk. "Do you get an employee discount? I could use more—" <<He>> cuts <<himself>> off. "Never mind."
 	<<elseif _alex_rng is 8 and $spa_job gte 1>>
 		You tell <<him>> that you massage clients at the spa in town. "I'm overdue for one," <<he>> says. "Ever had a mud bath? I'd recommend it."
 	<<elseif _alex_rng is 7 and $oceanbreezejob is 1>>
@@ -2777,7 +2779,7 @@
 			<<set _farm_damage to (5 - _farm_fight)>>
 		<<default>>
 			<<set _farm_damage to (4 - _farm_fight)>>
-	<</switch>><<set $farm_test to _farm_fight>>
+	<</switch>>
 	<<if _farm_damage is 0 and $farm_stage gte 12>>
 		<<run $timeMessages.pushUnique("heroicVictory")>>
 	<</if>>
@@ -2788,18 +2790,18 @@
 
 <<widget "damage_farm">>
 	<<if $fields_damaged is undefined>>
-		<<set $fields_damaged to 0>>
+		<<set $fields_damaged to []>>
 	<</if>>
 	<<if _args[0] is "target">>
 		<<clear_plot farm _args[1]>>
-		<<set $fields_damaged++>>
+		<<set $fields_damaged.push(_args[1])>>
 	<<elseif _args[0] is "loop">>
 		<<set _field_number to _args[1]>>
 		<<for _i to 0; _i lt _field_number; _i++>>
 			<<if $plots.farm[_i]>>
 				<<if $plots.farm[_i].stage gte 1>>
 					<<clear_plot farm _i>>
-					<<set $fields_damaged++>>
+					<<set $fields_damaged.push(_i)>>
 				<<else>>
 					<<set _field_number++>>
 				<</if>>
@@ -2812,21 +2814,21 @@
 <</widget>>
 
 <<widget "farm_damage_report">>
-	<<if $fields_damaged is 0>>
+	<<if $fields_damaged.length is 0>>
 		<<if $farm_destroyed is true>>
 			The farm was attacked while you were gone, <span class="blue">but there were no fields to burn.</span>
 		<<else>>
 			The farm was attacked while you were gone, <span class="green">but the defenders fought valiantly, and not a single field was lost.</span>
 		<</if>>
-	<<elseif $fields_damaged is 1>>
+	<<elseif $fields_damaged.length is 1>>
 		The farm was attacked while you were gone, <span class="purple">and a field torched</span> before the defenders drove them off.<<gtrauma>><<trauma 6>>
-	<<elseif $fields_damaged is 9>>
+	<<elseif $fields_damaged.length is 9>>
 		The farm was attacked while you were gone, the defenders defeated, <span class="red">and all the fields torched.</span><<gggtrauma>><<trauma 24>>
 	<<else>>
-		The farm was attacked while you were gone, <span class="pink">and <<number $fields_damaged>> fields torched</span> before the defenders drove them off.<<ggtrauma>><<trauma 12>>
+		The farm was attacked while you were gone, <span class="pink">and the <<ordinalList $fields_damaged.map(x=>x+1).toSorted()>> fields torched</span> before the defenders drove them off.<<ggtrauma>><<trauma 12>>
 	<</if>>
 	<br><br>
-	<<unset $fields_damaged>>
+	<<set $fields_damaged to []>>
 	<<unset $farm_destroyed>>
 	<<unset $farm_attacked>>
 <</widget>>
@@ -3412,7 +3414,7 @@
 		<</if>>
 
 		<<for _bodypart, _tattoos range $skin>>
-			<<if _tattoos.special is "cattle" and _skin_array.includes(_bodypart) and !$alexRemyTattoosKnow.includes(_bodypart) and !$weekly.alexRemyTattoos and $rng gte 90>>
+			<<if _tattoos.special is "cattle" and _skin_array.includes(_bodypart) and !$alexRemyTattoosKnow.includes(_bodypart) and !$weekly.alexRemyTattoos and $rng gte 91>>
 				<<set $weekly.alexRemyTattoos to 0>>
 				<<run $alexRemyTattoosKnow.push(_bodypart)>>
 				<<break>>
