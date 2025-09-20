@@ -97,6 +97,7 @@ module.exports = {
 		Sunscreen: "readonly",
 		Newspaper: "readonly",
 		Theme: "readonly",
+		Town: "readonly",
 		// DoL SC2 functions
 		compressionVerifier: "readonly",
 		DefineMacro: "readonly",
@@ -232,6 +233,8 @@ module.exports = {
 		calculateBinomial: "readonly",
 		weightedRandom: "readonly",
 		degToRad: "readonly",
+		normAngle: "readonly",
+		shortestDelta: "readonly",
 		// DoL object functions
 		formatList: "readonly",
 		stringFrom: "readonly",

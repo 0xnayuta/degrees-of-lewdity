@@ -197,7 +197,6 @@ Weather.Temperature = (() => {
 	function interpolateDailyTemperature(date) {
 		// Check for monthly data mismatch
 		if (!V.weatherObj.monthlyTemperatures.some(monthObj => monthObj.m === date.month)) {
-			console.error("Warning: Cannot interpolate between dates outside the current monthlyTemperature array.");
 			return null;
 		}
 		// Calculate the temperature for tomorrow, adjusting for month boundaries
