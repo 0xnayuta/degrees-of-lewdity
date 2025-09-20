@@ -403,7 +403,7 @@ window.Time = Time;
 $(document).on(":passageinit", () => {
 	/* Set current time */
 	Time.set();
-	if (V.weatherObj) {
+	if (V.weatherObj && Weather.activeRenderer) {
 		Weather.WeatherGeneration.updateWeather();
 		Weather.Temperature.updateTemperature();
 	}
