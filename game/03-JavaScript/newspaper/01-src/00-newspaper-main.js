@@ -12,6 +12,7 @@ const Newspaper = (() => {
 			this.tempModifiers = {};
 			this.modifiers = { ...V.newspaper.modifiers };
 			this.errorArticles = new Set();
+			this.townUpdateID = null;
 
 			this._offscreenCanvas = new BaseCanvas();
 		}
@@ -583,7 +584,60 @@ const Newspaper = (() => {
 
 			this.layout = Array.from([queue[0], ...usedArticleIds]);
 
-			if (V.newspaper.layout.length === 0) {
+			// Guaranteed townUpdate
+			if (this.townUpdateID != null && !usedArticleIds.has(this.townUpdateID)) {
+				const articleMap = new Map(this.articles.articles.map(a => [a.id, a]));
+				const tuArticle = articleMap.get(this.townUpdateID);
+				if (tuArticle) {
+					// Free space
+					const removable = [];
+					for (let colIndex = 2; colIndex >= 0; colIndex--) {
+						this.columns[colIndex].children(".dynamic-item.normal").each((_, el) => {
+							const id = $(el).attr("data-art-id");
+							if (id && id !== String(this.townUpdateID)) {
+								const art = articleMap.get(isNaN(id) ? id : Number.isNaN(Number(id)) ? id : Number(id));
+								if (art && art.category === "article") {
+									removable.push({ id: art.id, priority: art.priority ?? 0, el, colIndex });
+								}
+							}
+						});
+						if (removable.length) break;
+					}
+
+					removable.sort((a, b) => a.priority - b.priority); 
+					for (const rem of removable) {
+						$(rem.el).remove();
+						usedArticleIds.delete(rem.id);
+						const placed = (() => {
+							for (let col = 0; col < 3; col++) {
+								const $block = this.#createTownUpdateBlock(tuArticle).appendTo(this.columns[col]);
+								if (!this.#isOverflowing(this.columns[col][0])) {
+									usedArticleIds.add(tuArticle.id);
+									return true;
+								}
+								$block.remove();
+							}
+							return false;
+						})();
+						if (placed) break;
+					}
+
+					if (!usedArticleIds.has(this.townUpdateID)) {
+						const $block = this.#createTownUpdateBlock(tuArticle).prependTo(this.columns[0]);
+						if (this.#isOverflowing(this.columns[0][0])) {
+							$block.remove();
+						} else {
+							usedArticleIds.add(tuArticle.id);
+						}
+					}
+				}
+
+				if (usedArticleIds.has(this.townUpdateID) && !this.layout.includes(this.townUpdateID)) {
+					this.layout.push(this.townUpdateID);
+				}
+			}
+
+			if (V.newspaper.layout.length === 0 && V.newspaper.bought) {
 				this.#setExpired();
 			}
 		}
@@ -781,6 +835,10 @@ const Newspaper = (() => {
 		render() {
 			const $clone = this.cachedPaper.clone(true, true);
 
+			if (V.newspaper.bought && V.newspaper.layout.length === 0) {
+				this.#setExpired();
+			}
+
 			// experimental drunken or hallucination effects
 			if (V.drunktest || V.hallutest) {
 				const applyDrunk = !!V.drunktest;
@@ -829,7 +887,17 @@ const Newspaper = (() => {
 			}
 
 			// Exclude short article if its main property was picked above
-			const shortArticles = eligible.filter(a => a.short && a.id !== mainId);
+			let shortArticles = eligible.filter(a => a.short && a.id !== mainId);
+
+			const eligibleTownUpdates = shortArticles.filter(a => a.category === "townUpdate");
+			if (eligibleTownUpdates.length > 0) {
+				const maxTUPrio = Math.max(...eligibleTownUpdates.map(a => a.priority ?? 0));
+				const topArticle = eligibleTownUpdates.filter(a => (a.priority ?? 0) === maxTUPrio);
+				this.rngInstance.shuffle(topArticle);
+				const chosenTownUpdateId = topArticle[0].id;
+				this.townUpdateID = chosenTownUpdateId;
+				shortArticles = shortArticles.filter(a => a.category !== "townUpdate" || a.id === chosenTownUpdateId);
+			}
 
 			// Sort by priority
 			const priorityBuckets = shortArticles.reduce((map, art) => {
@@ -933,8 +1001,14 @@ const Newspaper = (() => {
 
 	function buy() {
 		if (V.newspaper.bought) return;
-		enableLink();
 		statChange.money(-setup.NewspaperSettings.price * 10, "newspaper");
+		get();
+	}
+
+	// When newspaper is free
+	function get() {
+		if (V.newspaper.bought) return;
+		enableLink();
 		V.newspaper.total++;
 		V.newspaper.bought = true;
 	}
