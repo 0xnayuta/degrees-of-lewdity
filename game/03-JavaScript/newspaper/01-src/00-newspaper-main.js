@@ -23,9 +23,13 @@ const Newspaper = (() => {
 			- Converts double line-breaks into <br><br>
 		*/
 		#normalizeContent(str) {
-			return str
+			if (typeof str !== "string") return "";
+			const trimmed = str.replace(/\r\n/g, "\n").trim();
+			if (!trimmed) return "";
+			return trimmed
 				.split(/\n\s*\n+/)
 				.map(p => p.replace(/\s*\n\s*/g, " ").trim())
+				.filter(p => p.length > 0)
 				.join("<br><br>");
 		}
 
