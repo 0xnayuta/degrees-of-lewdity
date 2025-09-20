@@ -362,7 +362,7 @@ Newspaper.addArticles(
 		priority: 1,
 		short: `Caretakers of the school grounds reported an unmarked white van idling with lights off near the rear gate after dismissal. The vehicle left when approached and did not return during the evening sweep.
         
-            	Parents are reminded to use the main entrance for pick-up and to report suspicious activity to staff immediately.`,
+            	Students are reminded to use the main entrance and to report suspicious activity to staff immediately.`,
 	},
 	{
 		category: "article",

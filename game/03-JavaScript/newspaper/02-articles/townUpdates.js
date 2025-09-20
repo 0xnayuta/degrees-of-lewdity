@@ -42,17 +42,44 @@ Newspaper.modifiers:
 Newspaper.addArticles(
 	{
 		category: "townUpdate",
-		id: "townUpdate",
+		id: "worldCorruptionLure",
 		priority: 3,
-		title: "Town Update",
+		title: "Business Update",
+		condition: () => V.bird?.upgrades?.decor >= 5,
 		short: `Elk Street compound sees supply chain woes as Remy estate falls short of projected wildlife rehabilitation. This comes fresh after reports of a theft of a key piece of equipment used to sedate small animals, by "two big fucking birds," according to an employee of the Remy estate.`,
 	},
 	{
 		category: "townUpdate",
-		id: "townUpdate",
+		id: "worldCorruptionSydneyCorrupt",
 		priority: 3,
-		title: "Town Update",
-		short: `Elk Street compound sees supply chain woes as Remy estate falls short of projected wildlife rehabilitation. This comes fresh after reports of a theft of a key piece of equipment used to sedate small animals, by "two big fucking birds," according to an employee of the Remy estate.`,
+		title: "Community Update",
+		condition: () => V.sydneySeen?.includes("corruptroom"),
+		short: `Services at the temple on Wolf Street become somber as a malaise falls over the flock. When asked for comment, the bishop's attendants said only "A bold pair forgot to close the door behind them, and something escaped." The bishop was asked for comment directly following this, who said "The temple's line of succession may need to be amended."`,
+	},
+	{
+		category: "townUpdate",
+		id: "worldCorruptionSydneyPure",
+		priority: 3,
+		title: "Community Update",
+		condition: () => V.templePromised === "Sydney",
+		short: `The temple on Wolf Street sees high energy and an influx of new initiates, as a pair of the faithful are joined in a ceremony known as the 'Rite of Promise' for the first time in years.`,
+	},
+	/* Repeating weekly world corruption article if no events from above fire off */
+	{
+		category: "townUpdate",
+		id: "worldCorruptionNotif",
+		repeatable: true,
+		priority: 1,
+		title: "Business Update",
+		short: () => {
+			if (V.world_corruption_hard <= 0)
+				return `Violet Elk Ltd. sees stocks plummet as all current projects freeze. Executives scramble for solutions as emergency funding from an anonymous benefactor keeps the company afloat for the forseeable future.`;
+			if (V.world_corruption_hard <= 1)
+				return `Violet Elk Ltd. reports below-average start to the week as setbacks pile up, but ensures investors that a rebound is imminent.`;
+			if (V.world_corruption_hard <= 3)
+				return `Violet Elk Ltd. reports steady progress and growth, driving investor confidence up. The mayor continues to hold special interest, although rumours of private funding and insider trading remain unsubstantiated.`;
+			return `Violet Elk Ltd. eagerly shows off new projects in research and development. A swell of volunteers for the testing of new substances, a lack of red tape, and generous funding from independant sources, are cited as the reasons for rapid progress.`;
+		},
 	}
 );
 
