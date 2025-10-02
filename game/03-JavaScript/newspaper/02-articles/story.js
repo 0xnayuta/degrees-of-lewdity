@@ -110,25 +110,27 @@ Newspaper.addArticles(
 		priority: 2,
 		main: () => {
 			const mr = C.npc.Winter.pronoun === "f" ? "Mrs" : "Mr";
-			const bellfate =
-				V.museumAntiques.antiques.antiquebell === "stolen"
-					? "The whereabouts of the perpetrator and the bell, as well as the motive of the attack, remain unknown."
-					: `A brave patron of the museum chased down the thief and recovered the bell, returning it to its rightful place to ${mr}. Winter's gratitude.`;
-			return `The museum on Oxford Street suffered a bold break-in during opening hours. The sole target of the theft was an iron bell, known in local legends as the 'Sonorous Bell.' This artefact had been recently recovered from the ruins of the castle in the moorlands to the east.
+			let result = `The museum on Oxford Street suffered a bold break-in during opening hours. The sole target of the theft was an iron bell, known in local legends as the 'Sonorous Bell.' This artefact had been recently recovered from the ruins of the castle in the moorlands to the east.
 
-				The identity of the thief remains unknown. ${mr}. Winter, the museum's caretaker, was quoted as saying "Such thefts aren't uncommon. It's a sad fact of life that the respect for history dwindles as it ages in many groups." Witnesses reported a sense of crushing dread as the bell tolled several times during the resulting chase.
-				${bellfate}`;
+				The identity of the thief remains unknown. ${mr}. Winter, the museum's caretaker, was quoted as saying "Such thefts aren't uncommon. It's a sad fact of life that the respect for history dwindles as it ages in many groups." Witnesses reported a sense of crushing dread as the bell tolled several times during the resulting chase.`;
+			if (V.museumAntiques.antiques.antiquebell === "stolen") {
+				result += `The whereabouts of the perpetrator and the bell, as well as the motive of the attack, remain unknown.`;
+			} else {
+				result += `A brave patron of the museum chased down the thief and recovered the bell, returning it to its rightful place to ${mr}. Winter's gratitude.`;
+			}
+			return result;
 		},
 		short: () => {
 			const mr = C.npc.Winter.pronoun === "f" ? "Mrs" : "Mr";
-			const bellfate =
-				V.museumAntiques.antiques.antiquebell === "stolen"
-					? "The whereabouts of the perpetrator and the bell, as well as the motive of the attack, remain unknown."
-					: `A brave patron of the museum chased down the thief and recovered the bell, returning it to its rightful place to ${mr}. Winter's gratitude.`;
-			return `The museum on Oxford Street suffered a bold break-in during opening hours. The sole target of the theft was an iron bell, known in local legends as the 'Sonorous Bell.' This artefact had been recently recovered from the ruins of the castle in the moorlands to the east.
+			let result = `The museum on Oxford Street suffered a bold break-in during opening hours. The sole target of the theft was an iron bell, known in local legends as the 'Sonorous Bell.' This artefact had been recently recovered from the ruins of the castle in the moorlands to the east.
 
-				The identity of the thief remains unknown. ${mr}. Winter, the museum's caretaker, was quoted as saying "Such thefts aren't uncommon. It's a sad fact of life that the respect for history dwindles as it ages in many groups." Witnesses reported a sense of crushing dread as the bell tolled several times during the resulting chase.
-				${bellfate}`;
+				The identity of the thief remains unknown. ${mr}. Winter, the museum's caretaker, was quoted as saying "Such thefts aren't uncommon. It's a sad fact of life that the respect for history dwindles as it ages in many groups." Witnesses reported a sense of crushing dread as the bell tolled several times during the resulting chase.`;
+			if (V.museumAntiques.antiques.antiquebell === "stolen") {
+				result += `The whereabouts of the perpetrator and the bell, as well as the motive of the attack, remain unknown.`;
+			} else {
+				result += `A brave patron of the museum chased down the thief and recovered the bell, returning it to its rightful place to ${mr}. Winter's gratitude.`;
+			}
+			return result;
 		},
 	},
 	{
