@@ -174,6 +174,9 @@ Newspaper.addArticles(
 		id: "wishingStones",
 		title: "Relic Stolen from the Temple",
 		priority: 2,
+		main: `A relic was allegedly stolen from the temple last month. A spokesperson from the temple claims that the artefact was the preserved wrist bones of a deceased saint, and the culprit is a deprived youth.
+		
+			According to the temple, the relic gives strength to whoever possesses it, and has been held by the temple for centuries. However, independent investigations found no evidence of the relic ever existing, and the police have released a statement confirming that no evidence of theft has been found.`,
 		short: `A relic was allegedly stolen from the temple last month. Worshippers claim the artefact was the preserved wrist bones of a deceased saint. Independent investigations found no evidence of the relic ever existing, and the temple's claim has been repeatedly discredited by multiple sources.`,
 	}
 );
