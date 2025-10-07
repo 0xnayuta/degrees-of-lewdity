@@ -306,6 +306,177 @@ Newspaper.addArticles(
 		priority: 0,
 		short: `Residents across the residential quarter described a subtle red cast on window glass shortly after dusk, most visible on upper panes. Meteorologists cited particulate drift, though the effect was not recorded on street cameras.`,
 	},
+	{
+		category: "article",
+		title: "Rare Seagull Sighted",
+		priority: 0,
+		short: `A seagull with golden plumage was sighted by pedestrians near the promenade on Starfish Street. The rare breed of uncertain origin was first spotted in 1927, and has come to be associated with good luck.`,
+	},
+	{
+		category: "article",
+		title: "Rockfall on Cliff Street",
+		priority: 0,
+		short: `Residents of Barb Street were awoken by a portion of the nearby cliff collapsing into the sea. There were no injuries or property damage. Residents are reminded to keep clear of the cliff edge, and to not enter fenced-off areas.`,
+	},
+	{
+		category: "article",
+		title: "Statue Unveiled",
+		priority: 0,
+		short: `A statue on Cliff Street has been unveiled by mayor Quinn, following its refurbishment. The statue dates back two centuries, and depicts a woodland spirit from folklore.`,
+	},
+	{
+		category: "article",
+		title: "False Alarm",
+		priority: 0,
+		short: `A block of flats on Barb Street was evacuated in the middle of the night, following the triggering of multiple fire alarms. The source of the smoke turned out to be a light soot rising from the old mine. Officials claim the soot is harmless, and the alarms have been adjusted.`,
+	},
+	{
+		category: "article",
+		title: "Orphans Paint Mural",
+		priority: 0,
+		short: `Residents of the orphanage on Domus Street painted a mural to raise money. The orphanage caretaker, Bailey, has praised their creativity, and thanked everyone who donated.`,
+	},
+	{
+		category: "article",
+		title: "Party in Disarray",
+		priority: 0,
+		short: `A party on Danube Street was crashed this week by an unlikely guest. An ape, thought to have escaped from a zoo, swung into the premises from a neighbouring vineyard. None of the zoos nearby have reported a disappearance.`,
+	},
+	{
+		category: "article",
+		title: "Noisy Hymns Spark Complaint",
+		priority: 0,
+		short: `A resident of Wolf Street reported their neighbours to police, claiming they were creating an antisocial clamour. When police arrived to investigate however, they found that the neighbours in question were clergy in the nearby temple. The temple released an apology to the resident, but stated that they were bound by scripture to reach certain decibels.
+		
+		One priest told us that noise dampeners are being considered, but another stated that "the noise is the point."`,
+	},
+	{
+		category: "article",
+		title: "Connudatus Streaker",
+		priority: 0,
+		short: `A streaker was spotted on Connudatus Street, covered only by fruit snatched from one of the market stalls. The streaker's identity is unknown.
+		
+		Police want to remind everyone that such behaviour is a criminal offence.`,
+	},
+	{
+		category: "article",
+		title: "Drug Raid",
+		priority: 0,
+		short: `A club on Connudatus Street was raided, and several arrested on suspicion of distributing drugs. The raid comes after a lengthy investigation. Critics point out that such raids have become commonplace, but have done nothing to stop the flow of illicit substances into town.`,
+	},
+	{
+		category: "article",
+		title: "Moor Termites Found",
+		priority: 0,
+		short: `A Lorry was impounded on Harvest Street, following the discovery of a species of termite found on the moor. The stowaways had boarded alongside the crop. Residents are advised to report sightings of unusual creatures, termite or otherwise, to the authorities.`,
+	},
+	{
+		category: "article",
+		title: "Mermaid sighting",
+		priority: 0,
+		short: `A short clip taken on Mer Street has gone viral, appearing to show a humanoid figure with a fish tail swimming not far from the dock. The figure waves, then dives beneath the surface. Comments range from "What else are they hiding from us?" to "It's literally a random swimmer. You just put 'mermaid' in the title and people lost their minds." A statement from the police indicates there will be no investigation.`,
+	},
+	{
+		category: "article",
+		title: "Shop Window Shattered",
+		priority: 0,
+		short: `The window of a charity shop on the high street was shattered overnight. Police have asked for anyone with information to come forward.`,
+	},
+	{
+		category: "article",
+		title: "Storm Drain Explodes",
+		priority: 0,
+		short: `A storm drain "exploded," at least according to eye-witness accounts. The grate was flung several stories into the air, before landing on the roof of the nearby school. According to the mayor's office, such occurrence, while rare, are nothing to worry about.`,
+	},
+	{
+		category: "article",
+		title: "Dog Walkers Fined",
+		priority: 0,
+		short: `Police report an uptick in the number of dog walkers failing to clean up after their charges. They would like to remind dog owners that such behaviour carries a fine of up to £200, and that cleaner streets are better streets.`,
+	},
+	{
+		category: "article",
+		title: "Mysterious Graffiti",
+		priority: 0,
+		short: `Shop owners have complained of a mysterious graffiti appearing on their walls at night. They claim that washing it off is no use, as it'll reappear the following day. Police have suggested concerned residents install their own CCTV.`,
+	},
+	{
+		category: "article",
+		title: "Endangered Bats",
+		priority: 0,
+		short: `An endangered species of bat has found a home along the forest's edge. The diminuative rodent can be seen at dusk, particularly on Wolf Street, skimming along the edge of the forest. Residents are reminded that the bats eat biting insects, and shouldn't be interfered with.`,
+	},
+	{
+		category: "article",
+		title: "Survey Team Missing",
+		priority: 0,
+		short: `A survey team from the capital has been reported missing. They entered the forest last Tuesday on what was supposed to be a day's trip, but haven't been seen since. The police have asked anyone with information to come forward.`,
+	},
+	{
+		category: "article",
+		title: "Egg Race Turns Rotten",
+		priority: 0,
+		short: `An egg race took an ugly turn when a fight broke out. Seven were hospitalised. Criticism of the culture around egg racing has been renewed, with critics pointing out the high rates of substance abuse among enthusiasts.`,
+	},
+	{
+		category: "article",
+		title: "New Sea Route Found",
+		priority: 0,
+		short: `A new safe naval route to town has been discovered, at least according to one captain.
+		
+		The town is infamously difficult to reach by sea due to the numerous reefs, combined with the violent, unpredictable currents. It is hoped this will cut down on logistical expenses, and lead to fewer accidents off the coast.`,
+	},
+	{
+		category: "article",
+		title: "Beach Closed",
+		priority: 0,
+		short: `A fence has been erected around a small beach east of town, following the disappearance of a swimmer. The beach was popular among locals who wanted somewhere with fewer tourists, but the tall, jagged rocks revealed at low tied have led some to question its safety. The beach is closed until the missing person is found, or the cause of the disappearance determined.`,
+	},
+	{
+		category: "article",
+		condition: () => Time.season != "winter",
+		title: "Roses Bloom",
+		priority: 0,
+		short: `A remarkable patch of wild roses has been found on the moor, becoming an impromptu tourist hotspot. The roses span an area half the size of a football pitch.`,
+	},
+	{
+		category: "article",
+		title: "Temple Requests Donations",
+		priority: 0,
+		short: `The temple has announced a request for donations. "It's an old building," said one priest. "It needs constant, expensive, upkeep. It would be a shame if we had to leave it to ruin."
+		
+		The temple will bless anyone who donates.`,
+	},
+	{
+		category: "article",
+		title: "Umbrellas in Fashion",
+		priority: 0,
+		short: `A strange trend has emerged. Youths sporting umbrellas, regardless of the weather. Headmaster Leighton says there are no regulations governing the sort of patterns pupils can have on their umbrellas, but nonetheless asks parents to ensure that such accessories fit "the spirit of the school uniform."`,
+	},
+	{
+		category: "article",
+		title: "Salacious Cabaret",
+		priority: 0,
+		short: `A club has receive criticism following the launch of a new cabaret act. One critic called it "salacious", and added that it "violates all known standards of decency." The club manager responded by pointing out the many other clubs that would be happy for their custom, if their cabaret didn't suit.`,
+	},
+	{
+		category: "article",
+		title: "Harvest Street Roadworks",
+		priority: 0,
+		short: `Roadworks are being performed on Harvest street. Traffic can proceed, but drivers should be prepared for delays at rush hour.`,
+	},
+	{
+		category: "article",
+		title: "Threatre Production Dazzles",
+		priority: 0,
+		short: `A local theatre troop's rendition of Raul and Janet has drawn critical acclaim, and a standing ovation. This comes after criticism of the troop's use of a tamer version of the story.`,
+	},
+	{
+		category: "article",
+		title: "Dog Attack",
+		priority: 0,
+		short: `Concern about the number of stray dogs in town resurfaced after a resident was attacked. Residents are advised to report dangerous animals to the pound on Mer Street, `,
+	},
 	/* Based on increased world corruption */
 	{
 		category: "article",
@@ -321,7 +492,7 @@ Newspaper.addArticles(
 		condition: () => V.world_corruption_soft >= 20,
 		title: "Lantern Seen Beneath the Lake",
 		priority: 0,
-		short: `travelers wandering the forest lake before sunrise described a single lantern moving under the surface, drifting parallel to the shore. There were no boats and no ripples, only a dim glow that vanished near the submerged ruins.`,
+		short: `Travelers wandering the forest lake before sunrise described a single lantern moving under the surface, drifting parallel to the shore. There were no boats and no ripples, only a dim glow that vanished near the submerged ruins.`,
 	},
 	{
 		category: "article",
@@ -354,6 +525,15 @@ Newspaper.addArticles(
 		title: "Red Edge to the Moon",
 		priority: 0,
 		short: `Amateur observers noted a faint rim of red on the moon's lower edge during last full-moon. A veil of thin cloud was blamed, though the air remained still and stars were plainly visible above and below.`,
+	},
+	{
+		category: "article",
+		title: "Homeowner Complaints",
+		condition: () => V.world_corruption_soft >= 20,
+		priority: 0,
+		short: `Residents of Elk Street have sent an official complaint to the mayor's office, after finding the value of their homes drop due to their proximity to the landfill.
+		
+		"It shouldn't smell that bad," said one resident. "Someone's putting something there they ought'nt." The mayor's office is yet to respond.`,
 	},
 	{
 		category: "article",

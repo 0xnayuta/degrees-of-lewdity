@@ -191,12 +191,12 @@ Newspaper.addArticles(
 		title: "Skyscraper To Be Built",
 		priority: 2,
 		condition: () => V.avery_tower && V.avery_tower.stage === 1,
-		main: `Elk Industries announced the construction of a skyscraper, following a fierce political battle to remove regulations on the height of buildings. 
+		main: `Violet Elk Ltd. announced the construction of a skyscraper, following a fierce political battle to remove regulations on the height of buildings. 
 
 		These regulations date back centuries, originally implemented due to religious pressure. They've been relaxed over the years, but their removal has prompted criticism from the temple and more conservative citizens, who maintain that such buildings are forbidden by scripture.
 		
-		CFO of Elk Industries, Avery, has been described as the force behind the building's construction. We asked Avery for comment:
-		"The temple is free to follow its own rules, but it cannot expect others to conform. This is a wonderful town, hamstrung by red tape and dogma. Elk Industries will bring jobs and wealth in, as long as it can construct freely."
+		CFO of Violet Elk Ltd., Avery, has been described as the force behind the building's construction. We asked Avery for comment:
+		"The temple is free to follow its own rules, but it cannot expect others to conform. This is a wonderful town, hamstrung by red tape and dogma. Violet Elk Ltd. will bring jobs and wealth in, as long as it can construct freely."
 		
 		The ambitious construction is to be built on Elk Street, and is set to dwarf every other in town when finished.`,
 		short: `The construction of a skyscraper has been announced, following the removal of regulations forbidding taller buildings.`,
@@ -207,14 +207,14 @@ Newspaper.addArticles(
 		title: "New Skyscraper Amazes",
 		priority: 2,
 		condition: () => V.avery_tower && V.avery_tower.stage === 2,
-		main: `The controversial Elk Industries skyscraper became the centre of attention this week, and it isn't even finished. A prolific human rights activist from London visited town, and called the construction an "eyesore."
+		main: `The controversial Violet Elk Ltd. skyscraper became the centre of attention this week, and it isn't even finished. A prolific human rights activist from the capital visited town, and called the construction an "eyesore."
 
 		"They're draining the town dry." The activist said when asked for a comment. "I've seen it before, time and again. They say they give back, but they never do. They just dress up in strange outfits and perform rituals."
 
-		"It's envy," responds Avery, CFO of Elk Industries and the brains behind the construction. "They can't imagine building something like this, so they try to stop those who can. This town languished in an economic slump for decades, and we've my company, along with mayor Quinn's foresight, to thank for fixing it."
+		"It's envy," responds Avery, CFO of Violet Elk Ltd. and the brains behind the construction. "They can't imagine building something like this, so they try to stop those who can. This town languished in an economic slump for decades, and we've my company, along with mayor Quinn's foresight, to thank for fixing it."
 		
 		The temple has released a statement in support of the human rights activist.`,
-		short: `Construction of the Elk Industries skyscraper has attracted renewed criticism this week, following a comment by a prolific human rights activist.`,
+		short: `Construction of the Violet Elk Ltd. skyscraper has attracted renewed criticism this week, following a comment by a prolific human rights activist.`,
 	},
 	{
 		category: "article",
@@ -222,9 +222,9 @@ Newspaper.addArticles(
 		title: "New Skyscraper Finished",
 		priority: 2,
 		condition: () => V.avery_tower && V.avery_tower.stage === 3 && !V.avery_fate,
-		main: `The town's first skyscraper has been completed, intended to serve as the headquarters of Elk Industries. An opening ceremony is to be held, but the date is yet to be decided.
+		main: `The town's first skyscraper has been completed, intended to serve as the headquarters of Violet Elk Ltd.. An opening ceremony is to be held, but the date is yet to be decided.
 		
-		CFO of Elk Industries, Avery, has gone on record referring to it as "their" skyscraper. We asked them for comment:
+		CFO of Violet Elk Ltd., Avery, has gone on record referring to it as "their" skyscraper. We asked them for comment:
 		"The construction would not have gone ahead without me, that much is true. This town has been very good to me. I pushed for the construction hoping to give something back, and I want to thank everyone involved for making it a reality. This building marks the dawn of a new era of prosperity for the town."
 		
 		Not all are happy however, with complaints ranging from an alleged violation of temple scripture, to the claim that it ruins the town's skyline.`,
@@ -236,12 +236,12 @@ Newspaper.addArticles(
 		title: "Skyscraper Opening Stuns",
 		priority: 2,
 		condition: () => V.avery_fate === "ascended",
-		main: `A ceremony was held to officially open the town's new, and first, skyscraper. The guestlist included the mayor, as well as many visitors from out of town. Avery, CFO of Elk Industries, gave a short speech:
+		main: `A ceremony was held to officially open the town's new, and first, skyscraper. The guestlist included the mayor, as well as many visitors from out of town. Avery, CFO of Violet Elk Ltd., gave a short speech:
 		"Thank you all for joining me. I recognise many of you from outside town. I remember how I felt when I arrived ten years ago, I thought I'd made a mistake. But I made my fortune here. And there's more to be had. Much more. Here's to the future."
 		
-		Avery's speech, and the lack of locals invited to the party, has prompted renewed criticism of Elk Industries. Detractors claim they build "enclaves", and hire few locals, exploiting the town's infrastructure and resources while giving nothing in return. Elk Industries maintains that they invest in the town, and point out that many of the local farms produce for them directly.
+		Avery's speech, and the lack of locals invited to the party, has prompted renewed criticism of Violet Elk Ltd.. Detractors claim they build "enclaves", and hire few locals, exploiting the town's infrastructure and resources while giving nothing in return. Violet Elk Ltd. maintains that they invest in the town, and point out that many of the local farms produce for them directly.
 		
-		Mayor Quinn backs up the company. According to the mayor, the Danube spa, as well as other luxury locations, have benefited considerably from their acquisition by Elk Industries.`,
+		Mayor Quinn backs up the company. According to the mayor, the Danube spa, as well as other luxury locations, have benefited considerably from their acquisition by Violet Elk Ltd..`,
 		short: `A ceremony was held to officially open the town's new, and first, skyscraper. Mayor Quinn was in attendance, as well as many vistors from out of town.`,
 	},
 	{
@@ -249,10 +249,10 @@ Newspaper.addArticles(
 		id: "skyscraper_protest_ascended",
 		title: "Protest Outside Skyscraper",
 		priority: 2,
-		condition: () => V.avery_fate === "ascended",
+		condition: () => V.avery_fate === "ascended" && V.avery_skyscraper_fire_time <= 0,
 		main: `A protest outside the new skyscraper reached its zenith after weeks of persistent action. One allged member of the temple broke into the building, wearing rolls of toilet paper. According to multiple eyewitnesses, the protester stated a "pillar of fire" would claim the building. Security handed them to police, who released them with a warning. We were unable to find the culprit for comment.
 		
-		According to the temple, the aforementioned protester was an employee of Elk Industries, meant to discredit their protest. Elk Industries released a statement denouncing the temple's claim as a conspiracy theory.
+		According to the temple, the aforementioned protester was an employee of Violet Elk Ltd., meant to discredit their protest. Violet Elk Ltd. released a statement denouncing the temple's claim as a conspiracy theory.
 		
 		The rest of the protest was peaceful, and dispersed following the end of the opening ceremony.`,
 		short: `A protest outside the new skyscraper has drawn attention, thanks in part to one alleged member of the temple who broke into the building to harass people during the party. The temple claims no connection with this individual.`,
@@ -271,14 +271,14 @@ Newspaper.addArticles(
 		"This unforeseeable tragedy has shaken me to my core. I gave a speech at the opening ceremony, and could have been there when the fire broke out, had I not been drawn away by my mayoral duties. I take solace in the bravery of our town's firefighters, without whom this inferno could have claimed more than a single building. My thoughts and prayers are with those affected, and their families."
 		
 		The same night, a fire erupted in CFO Avery's home on Danube Street. Avery is not thought to have been present, but their current whereabouts, and the cause of the fire, are unknown. Police do not believe the two fires are related, but have requested anyone with information come forward.`,
-		short: `Tragedy struck at the opening ceremony of the town's first skyscraper. A fire broke out, believed to have been caused by falty wiring. A number of people were present during the fire, including the skyscraper's owner and CFO of Elk Industries, Avery. Casualty reports are conflicting, but hospital staff confirm dozens of injured.`,
+		short: `Tragedy struck at the opening ceremony of the town's first skyscraper. A fire broke out, believed to have been caused by falty wiring. A number of people were present during the fire, including the skyscraper's owner and CFO of Violet Elk Ltd., Avery. Casualty reports are conflicting, but hospital staff confirm dozens of injured.`,
 	},
 	{
 		category: "article",
 		id: "skyscraper_protest_fallen",
 		title: "Protest Boils Over",
 		priority: 2,
-		condition: () => V.avery_fate === "fallen" || V.avery_fate === "kicked",
+		condition: () => (V.avery_fate === "fallen" || V.avery_fate === "kicked") && V.avery_skyscraper_fire_time <= 0,
 		main: `A protest against the skyscraper's construction reached boiling point, following weeks of persistent action by temple adherents.
 		
 		Several were injured in a clash between protesters and security personnel, shortly after one protester broke through security and harassed people within the building. Multiple eyewitnesses claim the protester stated a "pillar of fire" would take the building. That same evening, a fire would indeed break out. This protester has been charged with breaking and entering, and several others have been questioned. Despite this, a police spokesperson has stated that no link between the protest and fire has been established.

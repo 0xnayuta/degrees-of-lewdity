@@ -152,6 +152,18 @@ Newspaper.addArticles(
 			  <hr>
 			  <h2>Stylists for men, women & kids</h2>
 			`,
+	},
+	{
+		category: "advertisement",
+		repeatable: true,
+		id: "adDanceStudio",
+		priority: 0,
+		short: `
+			  ${setup.NewspaperImages.ads.shop1}
+			  <h1 class="fit">Charlie's Dance Studio</h1>
+			  <hr>
+			  <h2>Beginner and intermediate lessons available</h2>
+			`,
 	}
 );
 
