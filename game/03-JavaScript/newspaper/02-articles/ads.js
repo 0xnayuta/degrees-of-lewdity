@@ -164,7 +164,55 @@ Newspaper.addArticles(
 			  <hr>
 			  <h2>Beginner and intermediate lessons available</h2>
 			`,
-	}
+	},
+	{
+		category: "advertisement",
+		repeatable: true,
+		id: "asChalets",
+		priority: 0,
+		short: `
+			  ${setup.NewspaperImages.ads.shop1}
+			  <h1 class="fit">Chalets Need You</h1>
+			  <hr>
+			  <h2>Applicants to drop by Starfish Street at any time.</h2>
+			`,
+	},
+	{
+		category: "advertisement",
+		repeatable: true,
+		id: "adPerfume",
+		priority: 0,
+		short: `
+			  ${setup.NewspaperImages.ads.shop1}
+			  <h1 class="fit">Eu De Parfum</h1>
+			  <hr>
+			  <h2>In leading shops.</h2>
+			`,
+	},
+	{
+		category: "advertisement",
+		repeatable: true,
+		id: "adFurniture",
+		priority: 0,
+		short: `
+			  ${setup.NewspaperImages.ads.shop1}
+			  <h1 class="fit">Furniture Sale</h1>
+			  <hr>
+			  <h2>Make your house into a home.</h2>
+			`,
+	},
+	{
+		category: "advertisement",
+		repeatable: true,
+		id: "adMuseum",
+		priority: 0,
+		short: `
+			  ${setup.NewspaperImages.ads.shop1}
+			  <h1 class="fit">Antiques wanted for musuem</h1>
+			  <hr>
+			  <h2>Paying in cash. See Winter.</h2>
+			`,
+	},
 );
 
 /* Helper functions for the articles */
