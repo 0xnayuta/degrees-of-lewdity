@@ -286,4 +286,92 @@ Newspaper.addArticles(
 		According to the temple, the troublemakers are not part of their order. They released a statement comdemning all violence, and claiming a strict adherence to the law.`,
 		short: `Several injured as a protest against the skyscraper's construction reached boiling point. Police have charged one protester, and questioned several others, but no link with the recent fire has been established.`,
 	},
+	{
+		category: "article",
+		id: "chef_construction",
+		title: "Cafe Renovations",
+		priority: 2,
+		condition: () => V.chef_rework >= 1,
+		main: `The Ocean Breeze cafe has closed for renovations. They are expected to take over a month.
+		
+		The renovations come after the success of the cafe's recent range of deluxe cream buns. The queues trailing down the street have become a common sight, and Sam, the cafe owner, hopes to fix this while building their business further.
+		"It's a dream come true," Sam said when asked for comment. "We have my chef and their buns to thank. I know you want to ask about the ingredients, but I'll only say we use the finest local produce, and leave it at that."
+		
+		Sam went on to say that cafe regulars are welcome to stop by their home on Barb Street for a cup of tea if they're desperate.`,
+		short: `The Ocean Breeze cafe has closed for renovations. They are expected to take over a month. The cafe owner, Sam, has stated that regulars are welcome to stop by their home on Barb Street for a cup of tea if they're desperate.`,
+	},
+	{
+		category: "article",
+		id: "chef_party_truth",
+		title: "Ocean Breeze Sweeps In",
+		priority: 2,
+		condition: () => V.chef_state === 9 && V.chef_speech === "truth",
+		main: `The Ocean Breeze cafe is now open for business, following renovations. An opening ceremony was held, with many famous guests in attendance. Our town's deluxe cream buns have made quite the impression on the greater culinary world!
+		
+		The creator of the buns, and cafe's chef, gave a speech about their creation. Unfortunately for many in attendance, they stopped short of revealing the secret ingredient!
+		
+		The cafe owner, Sam, has defended the increased price of the buns, citing higher operating costs and increased difficulty sourcing ingredients.`,
+		short: `The Ocean Breeze cafe's renovations are complete, and the star-studded grand opening went off without a hitch. The creator of the cafe's deluxe cream buns gave a funny and memorable speech.`,
+	},
+	{
+		category: "article",
+		id: "chef_party_bailey",
+		title: "Ocean Breeze Sweeps In",
+		priority: 2,
+		condition: () => V.chef_state === 9 && V.chef_speech === "bailey",
+		main: `The Ocean Breeze cafe is now open for business, following renovations. An opening ceremony was held, with many famous guests in attendance. Our town's deluxe cream buns have made quite the impression on the greater culinary world!
+		
+		The creator of the buns, and cafe's chef, gave a speech about their origins in our town's orphanage. They talked about the approach of the orphanage caretaker, Bailey, who was also in attendance, and has run the orphanage for the better part of two decades.
+
+		The cafe owner, Sam, has defended the increased price of the buns, citing higher operating costs, and increased difficulty sourcing ingredients.`,
+		short: `The Ocean Breeze cafe's renovations are complete, and the star-studded grand opening went off without a hitch. The creator of the cafe's famous cream buns gave a speech about their life growing up at the town's orphanage.`,
+	},
+	{
+		category: "article",
+		id: "chef_party_sam",
+		title: "Ocean Breeze Sweeps In",
+		priority: 2,
+		condition: () => V.chef_state === 9 && V.chef_speech === "sam",
+		main: `The Ocean Breeze cafe is now open for business, following renovations. An opening ceremony was held, with many famous guests in attendance. Our town's deluxe cream buns have made quite the impression on the greater culinary world!
+
+		The creator of the buns, and cafe's chef, gave a speech praising and thanking Sam, the cafe owner, for giving them the opportunity to create their famous pastries. This reporter, an avid consumer of said buns, joined the subsequent round of applause.`,
+		short: `The Ocean Breeze cafe's renovations are complete, and the star-studded grand opening went off without a hitch. The creator of the cafe's deluxe cream buns gave a speech thanking Sam, the cafe's owner, for all their hard work.`,
+	},
+	{
+		category: "article",
+		id: "chef_party_yourself",
+		title: "Ocean Breeze Sweeps In",
+		priority: 2,
+		condition: () => V.chef_state === 9 && V.chef_speech === "yourself",
+		main: `The Ocean Breeze cafe is now open for business, following renovations. An opening ceremony was held, with many famous guests in attendance. Our town's deluxe cream buns have made quite the impression on the greater culinary world!
+
+		The creator of the buns, and cafe's chef, gave a speech about their process, but anyone hoping to learn the secret ingredient was out of luck!
+		
+		The cafe owner, Sam, has defended the increased price of the buns, citing higher operating costs, and increased difficulty sourcing ingredients.`,
+		short: `The Ocean Breeze cafe's renovations are complete, and the star-studded grand opening went off without a hitch. THe creator of the cafe's famous deluxe cream buns gave a speech about them and their process, but kept the ingredients a secret.`,
+	},
+	{
+		category: "article",
+		id: "chef_party_refuse",
+		title: "Ocean Breeze Sweeps In",
+		priority: 2,
+		condition: () => V.chef_state === 9 && V.chef_speech === "refuse",
+		main: `The Ocean Breeze cafe is now open for business, following renovations. An opening ceremony was held, with many famous guests in attendance. Our town's deluxe cream buns have made quite the impression on the greater culinary world!
+		
+		The cafe owner, Sam, has defended the increased price of the buns, citing higher operating costs, and increased difficulty sourcing ingredients.`,
+		short: `The Ocean Breeze cafe's renovations are complete, and the star-studded grand opening went off without a hitch. Many famous guests attended, including the creator of the cafe's deluxe cream buns. The mayor thanked them in a speech.`,
+	},
+	{
+		category: "article",
+		id: "museum_theft",
+		title: "Theft from Museum",
+		priority: 2,
+		condition: () => V.museumAntiques.antiques.antiquebell === "stolen",
+		main: `A thief stole an antique bell from the museum, injuring the museum caretaker, Winter, on the way out. Winter insists the injury is superficial.
+
+		Another antique, a leather map, was also damaged. It is unknown why the bell was chosen by the thief, and police believe the criminal botched an attempt at a more lucrative crime, not expecting intervention from Winter.
+		
+		Police are investigating.`,
+		short: `A thief absconded with an antique from the museum, damaging another antique and injuring the museum caretaker, Winter. Police are investigating.`,
+	},
 );
