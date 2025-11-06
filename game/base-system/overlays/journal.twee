@@ -1528,3 +1528,96 @@
 		<<default>><<set $_text_output to 'in <span class="gold"><<= _args[0]>></span> days'>>
 	<</switch>>
 <</silently>><<print $_text_output>><</widget>>
+
+<<widget "journalCustomEntries">>
+	/*
+	custom reminder type namespace/typedef:
+	- time: 		timestamp, the time at which the reminder fires. if 0,
+						the reminder never fires or expires.
+	- granularity:  how fine the reminder is (weeks, days, hours, minutes). 
+				   		determines whether 6pm reminder displays
+						as "today" or "in 4 hours", for example.
+						may be undefined if time is 0.
+	- duration: 	number of seconds between when a reminder fires 
+						and resets/expires. for use with the .time timestamp;
+						granularity may not be finer than minutes.
+						may be undefined if time is 0.
+	- cooldown: 	the time between the reminder being set and the reminder 
+						being fired, for use with recurring reminders.
+						may be undefined if time is 0 or repeats is 0.
+	- repeats:  	the amount of time a reminder fires and resets its timer 
+						before expiration. if 0, expires on next fire. 
+						if -1, repeats indefinitely.
+						may be undefined if time is 0.
+	- intrusive: 	boolean for whether or not to push a notification about
+						the reminder to the main passage text, via <<effects>>,
+						when it triggers.
+						if undefined, treated as false.
+	- entry:		user-generated entry displayed in the custom reminders
+						section of the journal. only ever display as:
+						"<nowiki>" + reminder.entry + " </nowiki>"
+	 */
+	<<if $customReminders is undefined>>
+		<<set $customReminders to {}>>
+	<</if>>
+	hello world
+	<<set $__condtest = 1>>
+	<<set $__condtest2 = "$__condtest is 0">>
+	<<set $__codetest = `
+		<<if $__condtest>>
+			<li>You are <<print $temple_rank is "initiate" ? "an initiate at" : "a <<temple_title>> of">> the temple.
+				<<if $temple_chastity_timer lte 0>>
+					<span class="pink">You have a chastity exam due.</span>
+				<<elseif $temple_chastity_timer is 1>>
+					You have a chastity exam due <span class="purple">tomorrow</span>.
+				<<else>>
+					You have a chastity exam due <<nDays $temple_chastity_timer>>.
+				<</if>>
+				You will receive an <span class="gold">allowance</span> when passing the exam.
+			</li>
+		<<else>>
+			meowwwww
+		<</if>>
+	`>>
+	<<if $__condtest>>
+		condtest true
+	<</if>>
+	<<if $__condtest is 0>>
+		this should not show
+	<</if>>
+	<<if $__condtest2>>
+		does it evaluate the string itself?
+	<</if>>
+<</widget>>
+
+<<widget "printCustomJournalEntries">>
+	<<if $customReminders is undefined>>
+		<<set $customReminders to {}>>
+	<</if>>
+
+	<<set $_filter to _args[0] || "all">>
+	<<for _t to 0; _t lt customReminders.length; _t++>>
+
+		<<set _item to $plants[_plant_keys[_t]]>>
+		<<set _produce to setup.plants[_item.name]>>
+		<<if _item.amount gte 1>>
+			<<if $_filter is "all" or _produce.type is $_filter>>
+				<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
+				<<set _amount = _formatter.format(_item.amount)>>
+				<<if _item.amount === 1>>
+					<<set _itemName to _produce.singular || _produce.name.replace(/_/g, ' ')>>
+				<<else>>
+					<<set _itemName to _produce.plural>>
+				<</if>>
+				<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
+
+				<div class="item" @tooltip="_tooltip">
+					<<set _iconName to _produce.icon.replace(/\.[^/.]+$/, "")>>
+					<<tendingicon _iconName>>
+					<hr>
+					<<= _amount>>
+				</div>
+			<</if>>
+		<</if>>
+	<</for>>
+<</widget>>
