@@ -1,7 +1,7 @@
 :: Widgets Combat Beast [widget]
 <!-- DEV NOTES NG v2.7 Beast to NPC notes. The <<beast>> widget is analogous to <<man>> (which calls <<man-combat>>) widget, otherwise combat is identical. -->
 <!-- All beasts use $pronoun = "i". This will need to be commonised to m/f like other NPCs so will require cleanup. -->
-<!-- $semenpuddle is unique to beast combat, and only works in context of train combat. Effect is captured in this widget and could be expanded to man-combat -->
+<!-- $semenpuddle is unique to beast combat and only works in context of train combat. Effect is captured in this widget and could be expanded to man-combat -->
 <!-- $player.penisExist and $player.vaginaExist are PC variables, should really be converted to gender / pronoun checks for PC... fix later -->
 <!-- "Growling" should convert to widget to capture other beast types (squawking, yowling, roaring, etc.), as well as a "whimpering" Dom/Pain. "Jaws" "Claws" "Teeth"-->
 <!-- The "man" widget sets the gang combat dynamic (and handle gender surprise), then calls man-combat for each combatant. "beast" skips this step and sets up next combatant as part of attack calls during events. -->
@@ -26,15 +26,26 @@
 	<<if $hypnosis_deviancy_check is undefined>>
 		<<set $hypnosis_deviancy_check to 1>>
 		<<if $hypnosis_traits.deviancy gte random(1, 5) and $NPCList[_n].stance is "approach">>
-			<<if $uncomfortable.hypnosis is false>>
-				<<hypnosisicon>>A primal urge swells within you. <span class="purple">You drop to your knees, and give a provocative wiggle.</span><<hypnosisicon>> <span class="pink">The <<beasttype>> takes advantage of your display.</span>
+			<<if $hypnosis_traits.devotion gte 5>>
+				A primal urge briefly swells within you,
+				<span class="forest-green">
+					before being snuffed out.
+					<<if $worn.neck.collared gte 1>>
+						It feels as though your $worn.neck.name is tugged,
+					<<else>>
+						Your skin tingles at the phantom sensation of a collar being placed over your neck. The leash is tugged,
+					<</if>>
+					snapping you out of the trance.
+				</span>
+			<<elseif $uncomfortable.hypnosis is false>>
+				<<hypnosisText 'A primal urge swells within you. <span class="purple">You drop to your knees and give a provocative wiggle.</span>'>> <span class="pink">The <<beasttype>> takes advantage of your display.</span>
 				<<if $rng gte 71 and $position isnot "wall" and $NPCList[_n].location.head is 0>>
 					<<set $NPCList[_n].stance to "topface">><<set $NPCList[_n].mouth to 0>>
 				<<else>>
 					<<set $NPCList[_n].stance to "top">><<set $head to "grappled">><<set $NPCList[_n].mouth to 0>>
 				<</if>>
 			<<elseif $willpower lt random(1, 1000)>>
-				<<hypnosisicon>>A primal urge swells within you. <span class="purple">You drop to your knees, and give a provocative wiggle.</span><<hypnosisicon>> <span class="pink">The <<beasttype>> takes advantage of your display.</span>
+				<<hypnosisText 'A primal urge swells within you. <span class="purple">You drop to your knees and give a provocative wiggle.</span>'>> <span class="pink">The <<beasttype>> takes advantage of your display.</span>
 				<<if $rng gte 71 and $position isnot "wall" and $NPCList[_n].location.head is 0>>
 					<<set $NPCList[_n].stance to "topface">><<set $NPCList[_n].mouth to 0>>
 				<<else>>
@@ -212,7 +223,7 @@
 				<span class="pink"><<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc deep into your <<pussy>>.</span>
 				<<sex 30 "genitals">><<pain _pain>>
 			<</if>>
-			<<sex 30 "genitals">><<violence 2>>
+			<<sex 30 "genitals">><<takeVirginity $NPCList[_n].fullDescription "vaginal">><<violence 2>>
 		<<elseif $player.virginity.vaginal is true>>
 			<<if $sexStats.vagina.pregnancy.totalBirthEvents gt 0>>
 				<span class="red">Despite your lack of a hymen, you feel something inside you change as your virginity and purity are taken.</span>
@@ -252,10 +263,10 @@
 			<<rng>>
 			<<if $worn.under_lower.vagina_exposed is 1 and playerChastity("vagina")>>
 				<<if $NPCList[_n].penissize gte 5>>
-					<<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc against your $worn.genitals.name, desperate to <<if $pregnancyspeechdisable is "f">>breed<<else>>fuck<</if>> the <<pussy>> beneath. <<bHe>> <<beast_growls_text>> in pain, but <span class="pink">the device feels looser after each push.</span>
+					<<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc against your $worn.genitals.name, desperate to <<if $settings.pregnancySpeechEnabled>>breed<<else>>fuck<</if>> the <<pussy>> beneath. <<bHe>> <<beast_growls_text>> in pain, but <span class="pink">the device feels looser after each push.</span>
 					<<sex 10 "genitals">><<set $worn.genitals.integrity -= 240>><<set $enemyanger += 15>><<set $enemytrust -= 15>><<set $enemyhealth -= 5>>
 				<<else>>
-					<<bHe>> thrusts against your $worn.genitals.name, desperate to <<if $pregnancyspeechdisable is "f">>breed<<else>>fuck<</if>> the <<pussy>> beneath. <<bHe>> hurts <<bhimself>> against the hard material and withdraws, <<beast_growling_text>>.
+					<<bHe>> thrusts against your $worn.genitals.name, desperate to <<if $settings.pregnancySpeechEnabled>>breed<<else>>fuck<</if>> the <<pussy>> beneath. <<bHe>> hurts <<bhimself>> against the hard material and withdraws, <<beast_growling_text>>.
 					<<set $NPCList[_n].penis to 0>><<set $vaginause to 0>><<set $vaginastate to 0>><<sex 20 "genitals">><<set $worn.genitals.integrity -= 40>><<set $enemyanger += 15>><<set $enemytrust -= 15>><<set $enemyhealth -= 5>>
 				<</if>>
 			<<elseif $worn.under_lower.vagina_exposed is 0>>
@@ -516,7 +527,7 @@
 					<span class="lblue"><<bHe>> moves <<bhis>> penis away from your mouth.</span>
 					<<set $NPCList[_n].penis to 0>><<set $mouthuse to 0>><<set $mouthstate to 0>>
 			<</switch>>
-		<<elseif $rng lte 20>>
+		<<elseif $rng lte 15 or ($mouthsubmit isnot 1 and $rng lte 30)>>
 			<<if $player.virginity.oral isnot true>>
 				<span class="pink"><<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc into your mouth.</span>
 				<<submission 10>>
@@ -525,20 +536,11 @@
 				<<submission 30>><<takeVirginity $NPCList[_n].fullDescription "oral">>
 			<</if>>
 			<<oralstat>><<set $NPCList[_n].penis to "mouth">><<bruise face>><<violence 1>><<raped>><<set $mouthstate to "penetrated">>
-		<<elseif $rng gte 21>>
-			<<if $mouthsubmit is 1>>
-				<<bHe>> allows you to pleasure <<bhis>> $NPCList[_n].penisdesc with your mouth.
-				<<submission 5>>
-			<<else>>
-				<<if $player.virginity.oral isnot true>>
-					<span class="pink"><<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc into your mouth.</span>
-					<<submission 10>>
-				<<elseif $player.virginity.oral is true>>
-					<span class="pink"><<bHe>> thrusts <<bhis>> $NPCList[_n].penisdesc into your mouth.</span><span class="red"> It tastes strange.</span>
-					<<submission 30>><<takeVirginity $NPCList[_n].fullDescription "oral">>
-				<</if>>
-				<<oralstat>><<set $NPCList[_n].penis to "mouth">><<bruise face>><<violence 1>><<raped>><<set $mouthstate to "penetrated">>
-			<</if>>
+		<<elseif $mouthsubmit>>
+			<<bHe>> allows you to pleasure <<bhis>> $NPCList[_n].penisdesc with your mouth.
+			<<submission 5>>
+		<<else>>
+			<<bHe>> rubs <<bhis>> $NPCList[_n].penisdesc against your lips.
 		<</if>>
 	<</if>>
 
@@ -633,7 +635,7 @@
 						<span class="pink"><<bHe>> eases your <<penis>> into <<bhis>> ass, swallowing you to the base.</span>
 						<<sex 30 "genitals">><<set $speechotheranuspenetrated to 1>>
 						<<if playerHasStrapon()>><<violence 2 1 1 0>>
-						<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><</if>>
+						<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><<takeTempleVirginity $NPCList[_n].fullDescription "penile">><</if>>
 					<<elseif $player.virginity.penile is true>>
 						<span class="pink"><<bHe>> eases your virgin penis into <<bhis>> ass,</span><span class="red"> separating your foreskin from your glans and forever robbing you of your purity.</span>
 						<<sex 100 "genitals">><<takeVirginity $NPCList[_n].fullDescription "penile">><<bruise penis>><<violence 100>><<raped>><<penisraped>><<set $speechpenisvirgin to 1>>
@@ -641,7 +643,7 @@
 					<<penilestat>><<takeNPCVirginity _n "anal">><<set $NPCList[_n].penis to "otheranus">><<set $penisstate to "otheranus">>
 				<</if>>
 			<<else>>
-				Respecting your wishes, <<bhe>> does not envelope your <<penis>> with <<bhis>> ass, instead teasing the tip of your glans.
+				Respecting your wishes, <<bhe>> does not envelop your <<penis>> with <<bhis>> ass, instead teasing the tip of your glans.
 				<<sex 15 "genitals">><<set $speechotheranuswithhold to 1>><<set $enemyanger += 10>>
 			<</if>>
 		<</if>>
@@ -750,13 +752,13 @@
 					<<bHe>> kneads your $worn.genitals.name and <<his>> $NPCList[_n].penisdesc together.
 				<</if>>
 				<<if $enemyarousal gte $enemyarousalmax * 0.6 and $worn.genitals.name is "chastity parasite">>
-					<span class="purple"><<His>> precum coats your $worn.genitals.name,</span> <span class="lewd">the parasite parasite sends a wave of pleasure through your <<penis>>.</span>
+					<span class="purple"><<His>> precum coats your $worn.genitals.name,</span> <span class="lewd">the parasite sending a wave of pleasure through your <<penis>>.</span>
 					<<arousal 400 "genitals">><<if !$earSlime.defyCooldown and $earSlime.vibration lt 120>><<set $earSlime.vibration += 10>><</if>>
 					<<set $worn.genitals.integrity -= 5>>
 				<<elseif $enemyarousal gte $enemyarousalmax * 0.6>>
 					<span class="purple">Your precum mingles.</span><<purity -1>>
 					<<set $worn.genitals.integrity -= 10>>
-				<</if>>				
+				<</if>>
 				<<if $worn.genitals.name is "chastity parasite">><<arousal 100 "genitals">><</if>>
 				<<set $worn.genitals.integrity -= 5>><<set $speechchastity to 1>>
 			<<elseif $enemyarousal gte $enemyarousalmax * 0.8>>
@@ -796,7 +798,7 @@
 			<</if>>
 		<<else>>
 			<<if $rng gte 101>>
-				<<bHe>> lift <<bhis>> pussy away from your <<penis>>.
+				<<bHe>> lifts <<bhis>> pussy away from your <<penis>>.
 				<<set $thighuse to 0>><<set $NPCList[_n].penis to 0>><<set $penisactiondefault to "bay">>
 			<<else>>
 				<<bHe>> frots <<bhis>> pussy against your <<penis>>.
@@ -847,7 +849,7 @@
 				<span class="pink"><<bHe>> takes your <<penis>> deep into <<bhis>> <<pussy>>.</span>
 				<<sex 30 "genitals">>
 				<<if playerHasStrapon()>><<violence 2 1 1 0>>
-				<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><</if>>
+				<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><<takeTempleVirginity $NPCList[_n].fullDescription "penile">><</if>>
 			<<elseif $player.virginity.penile is true>>
 				<span class="pink"><<bHe>> takes your <<penis>> deep into <<bhis>> pussy,</span><span class="red"> separating your foreskin from your glans and forever robbing you of your purity.</span>
 				<<sex 100 "genitals">><<takeVirginity $NPCList[_n].fullDescription "penile">><<bruise penis>><<violence 100>><<raped>><<penisraped>>
@@ -868,7 +870,7 @@
 		<<elseif $worn.lower.vagina_exposed is 1>>
 			<<rng>>
 			<<if $worn.under_lower.vagina_exposed is 1 and playerChastity("penis")>>
-				<<bHe>> thrusts against your $worn.genitals.name, desperate to <<if $pregnancyspeechdisable is "f">>breed<<else>>fuck<</if>> with the <<penis>> beneath. <<bHe>> hurts <<bhimself>> against the hard material and withdraws, <<beast_growling_text>>.
+				<<bHe>> thrusts against your $worn.genitals.name, desperate to <<if $settings.pregnancySpeechEnabled>>breed<<else>>fuck<</if>> with the <<penis>> beneath. <<bHe>> hurts <<bhimself>> against the hard material and withdraws, <<beast_growling_text>>.
 				<<set $NPCList[_n].vagina to 0>><<set $penisuse to 0>><<set $penisstate to 0>><<sex 20 "genitals">><<set $worn.genitals.integrity -= 10>><<set $enemyanger += 15>><<set $enemytrust -= 15>><<set $enemyhealth -= 5>>
 			<<elseif $worn.under_lower.vagina_exposed is 0>>
 				<<bHe>> rubs <<bhis>> pussy against your <<penis>> through your $worn.under_lower.name.
@@ -1069,7 +1071,7 @@
 						<span class="pink"><<bHe>> eases your <<penis>> into <<bhis>> ass, swallowing you to the base.</span>
 						<<sex 30 "genitals">><<set $speechotheranuspenetrated to 1>>
 						<<if playerHasStrapon()>><<violence 2 1 1 0>>
-						<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><</if>>
+						<<else>><<bruise penis>><<violence 2>><<raped>><<penisraped>><<takeTempleVirginity $NPCList[_n].fullDescription "penile">><</if>>
 					<<elseif $player.virginity.penile is true>>
 						<span class="pink"><<bHe>> eases your virgin penis into <<bhis>> ass,</span><span class="red"> separating your foreskin from your glans and forever robbing you of your purity.</span>
 						<<sex 100 "genitals">><<takeVirginity $NPCList[_n].fullDescription "penile">><<bruise penis>><<violence 100>><<raped>><<penisraped>><<set $speechpenisvirgin to 1>>
@@ -1077,7 +1079,7 @@
 					<<penilestat>><<set $NPCList[_n].vagina to "otheranus">><<takeNPCVirginity _n "anal">><<set $penisstate to "otheranus">>
 				<</if>>
 			<<else>>
-				Respecting your wishes, <<bhe>> does not envelope your <<penis>> with <<bhis>> ass, instead teasing the tip of your glans.
+				Respecting your wishes, <<bhe>> does not envelop your <<penis>> with <<bhis>> ass, instead teasing the tip of your glans.
 				<<sex 15 "genitals">><<set $speechotheranuswithhold to 1>><<set $enemyanger += 10>>
 			<</if>>
 		<</if>>
@@ -1172,7 +1174,7 @@
 			<<set $NPCList[_n].mouth to "penisentrance">><<set $penisstate to "othermouthentrance">>
 		<<elseif $rng gte 1>>
 			<<if $worn.genitals.name is "chastity parasite">>
-				<<bHe>> licks your $worn.genitals.name, <span class="lewd">the parasite parasite sends a wave of pleasure through your <<penis>>.</span> Your reaction causes <<bhim>> to continue.
+				<<bHe>> licks your $worn.genitals.name, <span class="lewd">the parasite sending a wave of pleasure through your <<penis>>.</span> Your reaction causes <<bhim>> to continue.
 				<<arousal 400 "genitals">><<if !$earSlime.defyCooldown and $earSlime.vibration lt 120>><<set $earSlime.vibration += 10>><</if>>
 				<<sex 30 "genital">>
 			<<elseif $nopenile is 0 and playerChastity("penis")>>
@@ -1193,7 +1195,7 @@
 				<<penilestat>><<takeNPCVirginity _n "oral">><<set $NPCList[_n].mouth to "penis">><<set $penisstate to "othermouth">>
 				<<if $virginitytest is 1 and !playerHasStrapon()>><<bruise penis>><<raped>><<penisraped>><</if>>
 			<<else>>
-				Respecting your wishes, <<bhe>> does not envelope your <<penis>> with <<bhis>> mouth, instead licking it with a primal thirst.
+				Respecting your wishes, <<bhe>> does not envelop your <<penis>> with <<bhis>> mouth, instead licking it with a primal thirst.
 				<<sex 15 "genitals">>
 			<</if>>
 		<</if>>
@@ -1226,7 +1228,7 @@
 				<<elseif $worn.under_lower.vagina_exposed is 1>>
 					<<if $rng gte 71>>
 						<<if $worn.genitals.name is "chastity parasite">>
-							<<bHe>> licks your $worn.genitals.name, <span class="lewd">the parasite parasite sends a wave of pleasure through your <<penis>>.</span> Your reaction causes <<bhim>> to continue.
+							<<bHe>> licks your $worn.genitals.name, <span class="lewd">the parasite sending a wave of pleasure through your <<penis>>.</span> Your reaction causes <<bhim>> to continue.
 							<<arousal 400 "genitals">><<if !$earSlime.defyCooldown and $earSlime.vibration lt 120>><<set $earSlime.vibration += 10>><</if>>
 							<<sex 30 "genital">>
 						<<elseif $nopenile is 0 and playerChastity("penis")>>
@@ -1268,7 +1270,7 @@
 				<<bHis>> agile tongue explores and teases your <<pussy>>.
 				<<sex 30 "genitals">><<bruise vagina>><<violence 1>>
 			<<elseif $enemyarousal lte (($enemyarousalmax / 5) * 4)>>
-				<<bHe>> runs <<bhis>> tongue over your <<pussy>>, then presses against it, pushing deep inside you. <<bHe>> pulls out again, and pants.
+				<<bHe>> runs <<bhis>> tongue over your <<pussy>>, then presses against it, pushing deep inside you. <<bHe>> pulls out again and pants.
 				<<sex 30 "genitals">><<bruise vagina>><<violence 1>>
 			<<else>>
 				<<beast_Jaws_text>> latched onto your pelvis, <<bhe>> fucks your <<pussy>> with <<bhis>> tongue. <<bHis>> breath becomes more rapid.
@@ -1471,7 +1473,7 @@
 	<<if $NPCList[_n].stance is "approach">>
 
 		<<if $NPCList[_n].mouth is 0>>
-			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5>>
+			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5 and $speechdisable isnot 1>>
 				<<beastspeech _n>>
 			<<elseif $enemyanger + $rng lte 20 and $NPCList[_n].location.head is 0>>
 				<<if $NPCList[_n].penis is 0 or $NPCList[_n].vagina is 0>>
@@ -1582,7 +1584,7 @@
 
 	<<elseif $NPCList[_n].stance is "top">>
 		<<if $NPCList[_n].mouth is 0>>
-			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5>>
+			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5 and $speechdisable isnot 1>>
 				<<beastspeech _n>>
 			<<elseif ($enemyanger + $rng) lte 20 and $position isnot "wall" and $NPCList[_n].location.head isnot "head">>
 				<<bHe>> licks your face.
@@ -1631,7 +1633,7 @@
 				<<bHe>> humps your rear frantically, rubbing <<bhis>> $NPCList[_n].penisdesc between your thighs.
 				<<neutral 3 "genitals">>
 			<<elseif $rng lte 75>>
-				<<if $anususe is 0 and $analdisable is "f">>
+				<<if $anususe is 0 and $settings.analEnabled>>
 					<span class="blue"><<bHis>> $NPCList[_n].penisdesc gains purchase between your <<bottom>> cheeks.</span>
 					<<sex 5 "anus">><<bruise anus>><<violence 1>><<set $NPCList[_n].penis to "anusentrance">><<set $anususe to "penis">><<set $anusstate to "entrance">>
 				<<else>>
@@ -1681,7 +1683,7 @@
 		<</if>>
 	<<elseif $NPCList[_n].stance is "topface">>
 		<<if $NPCList[_n].mouth is 0>>
-			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5>>
+			<<if $NPCList[_n].monster is "monster" and random(1, 5) is 5 and $speechdisable isnot 1>>
 				<<beastspeech _n>>
 			<<elseif ($enemyanger + $rng) lte 25 and $position isnot "wall">>
 				<<if playerChastity()>>
@@ -1711,7 +1713,7 @@
 					<br>
 					<<sex 3 "genitals">><<set $NPCList[_n].mouth to "vaginaentrance">><<set $vaginause to "othermouth">><<set $vaginastate to "othermouthentrance">><<set $vaginatarget to _n>>
 				<</if>>
-			<<elseif ($enemyanger + $rng) lte 100 and $position isnot "wall" and $analingusdisablereceiving is "f">>
+			<<elseif ($enemyanger + $rng) lte 100 and $position isnot "wall" and $settings.analingusReceivingEnabled>>
 				<<bHe>> buries <<bhis>> wet tongue between your <<bottom>> cheeks, <span class="blue">and prods your <<if playerChastity()>>$worn.genitals.name<<elseif playerHasButtPlug()>>$worn.butt_plug.name<<else>>opening<</if>>.</span>
 				<br>
 				<<sex 3 "anus">><<set $NPCList[_n].mouth to "anusentrance">><<set $anususe to "othermouth">><<set $anusstate to "othermouthentrance">><<set $anustarget to _n>>
@@ -1797,7 +1799,7 @@
 		A <<print $combatTrain.beastTypes[_next_beast]>> awaits <<bhisnext>> turn next, along with one other <<print $combatTrain.beastTypes[_next_next_beast]>>.
 	<<elseif $combatTrain.length gte 3>>
 		<br>
-		A <<print $combatTrain.beastTypes[_next_beast]>> awaits <<bhisnext>> turn next, along with <<number $combatTrain.length-1>> other <<if $bestialitydisable is "f">>beasts<<else>>monsters<</if>>.
+		A <<print $combatTrain.beastTypes[_next_beast]>> awaits <<bhisnext>> turn next, along with <<number $combatTrain.length-1>> other <<if $settings.bestialityEnabled>>beasts<<else>>monsters<</if>>.
 	<</if>>
 	<<manend>><<set $pullaway to 0>>
 	</div>

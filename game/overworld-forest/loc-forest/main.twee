@@ -2,19 +2,46 @@
 
 <<location "forest">><<effects>><<wPersist "forest">><<getTarget true>>
 <<if $foresthunt gte 1>>
-	<<if $edenforesthunt is 1>>
+	<<if $forestHunter is "Eden" and (hasSharpSenses() or $foresthunt gte 7)>>
 		<<print either(
 			`<span class="red">You are being hunted. You see spent bullet casings lying on the ground.</span>`,
 			`<span class="red">You are being hunted. You see boot prints on the ground.</span>`,
 			`<span class="red">You are being hunted. You hear a gun firing from afar.</span>`
 		)>>
-	<<elseif $blackwolfhunt is 1>>
+	<<elseif $forestHunter is "Black Wolf" and (hasSharpSenses() or $foresthunt gte 7)>>
 		<<print either(
 			`<span class="red">You are being hunted. You see wolf fur tangled in the trees.</span>`,
 			`<span class="red">You are being hunted. You see wolf prints on the ground.</span>`,
 			`<span class="red">You are being hunted. You hear a growl in the distance.</span>`
 		)>>
-	<<elseif $wraith.hunt>>
+	<<elseif $forestHunter is "Gwylan" and (hasSharpSenses() or $foresthunt gte 7 or $gwylan?.lureSong)>>
+		<<if isGwylanAbsent() is "nobody">>
+			<<set $eventskip to 1>>
+			<<print either(
+				`<span class="red">You are being hunted. You hear nothing.</span>`,
+				`<span class="red">You are being hunted. The forest is empty.</span>`,
+				`<span class="red">You are being hunted. You see nobody.</span>`,
+				`<span class="red">Nobody is hunting you.</span>`
+			)>>
+		<<else>>
+			<<if $gwylan?.lureSong>>
+				<span class="red">You are being hunted. <<if $gwylan.lureSong is 1>>You hear singing in the distance.<</if>></span>
+				<<if $gwylan.lureSong is 1 and $islander_language gte 100>>
+					You recognise the language. <span class="blue">It's the islander tongue.</span>
+					<br><br>
+				<<elseif $islander_language gte 100>>
+					<br><br>
+				<</if>>
+				<<gwylanSong>>
+			<<else>>
+				<<print either(
+					`<span class="red">You are being hunted. You hear a soothing voice singing in the distance.</span>`,
+					`<span class="red">You are being hunted. The forest is unusually silent.</span>`,
+					`<span class="red">You are being hunted. You feel curious eyes on you.</span>`
+				)>>
+			<</if>>
+		<</if>>
+	<<elseif $wraith.hunt and $forestHunter is "Wraith">>
 		<<if $moonstate is "morning" and Time.hour gte 6>>
 			With the rising of the sun, you feel a sense of relief. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
 			<<clearWraith>>
@@ -26,7 +53,7 @@
 			)>>
 		<</if>>
 	<<else>>
-		<!-- generic text for when a hunt is happening but we haven't written a more specific version of the text. -->
+		<!-- generic text for when a hunt is happening but we haven't written a more specific version of the text, or the player's senses aren't sharp enough to know who's hunting them. -->
 		<span class="red">You are being hunted.</span>
 	<</if>>
 	<br><br>
@@ -36,306 +63,292 @@
 	<<orgasmforest>>
 <</if>>
 
-<<if $forest lte 0>>
-	<<set $forest to 0>>
-	<<forestmove>>
-	<<if $stress gte $stressmax and !$possessed>>
-		<<passoutforest>>
-	<<elseif $foresthunt gte 10>>
-		<<foresthunt>>
-	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $eventskip is 0>>
-			<<rng>>
-			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
-				<<eventforestitem>>
-			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-				<<eventforestoutskirts>>
-			<<else>>
-				<<eventforestsafe>>
-			<</if>>
-		<<elseif $town_projects.road is 1>>
-			<<set $town_projects.road to 2>>
-			You are in the forest outskirts. You can make out the town between the trees.
-			<br><br>
+<<set $forest to Math.clamp($forest, 0, 100)>>
 
-			You almost trip over a worn brick. It draws your attention to others like it. There used to be a road here, connecting the town to the lake. <span class="teal">An idea strikes you.</span> If the road were restored, the journey would be safer, for both you and other students.
-			<br><br>
+<<forestmove>>
 
-			<i>You could enquire about the road at the town hall.</i>
-			<br><br>
+<<if $stress gte $stressmax and !$possessed>>
+	<<passoutforest>>
+<<elseif $foresthunt gte 10 and !$possessed>>
+	<<foresthunt>>
+<<elseif $forest lte 0>>
 
-			<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
-			<br>
-		<<elseif $town_projects.road is 3>>
-			<<set $town_projects.road to 4>>
-			You are in the forest outskirts. You can make out the town between the trees.
-			<br><br>
+	<<if $eventskip is 0>>
+		<<rng>>
+		<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
+			<<eventforestitem>>
+		<<elseif dangerEvent($forestmod)>>
+			<<eventforestoutskirts>>
+		<<else>>
+			<<eventforestsafe>>
+		<</if>>
+	<<elseif $town_projects.road is 1>>
+		<<set $town_projects.road to 2>>
+		You are in the forest outskirts. You can make out the town between the trees.
+		<br><br>
 
-			The mayor's office acted fast. A road stretches into the forest, swerving out of sight. <span class="green">Getting to and from the lake will be much easier.</span>
-			<br><br>
+		You almost trip over a worn brick. It draws your attention to others like it. There used to be a road here, connecting the town to the lake. <span class="teal">An idea strikes you.</span> If the road were restored, the journey would be safer, for both you and other students.
+		<br><br>
 
-			<<earnFeat "Safe Trail">>
-			<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
-			<br>
-		<<elseif $eventskip gte 1>>
-			You are in the forest outskirts. You can make out the town between the trees.
-			<br><br>
+		<i>You could enquire about the road at the town hall.</i>
+		<br><br>
 
-			<<if $exposed lte 1>>
-				<<if $forest_shop_intro is 1>>
-					<<shopicon "forest">><<link [[Forest shop|Forest Shop]]>><</link>>
-					<br><br>
+		<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+		<br>
+	<<elseif $town_projects.road is 3>>
+		<<set $town_projects.road to 4>>
+		You are in the forest outskirts. You can make out the town between the trees.
+		<br><br>
+
+		The mayor's office acted fast. A road stretches into the forest, swerving out of sight. <span class="green">Getting to and from the lake will be much easier.</span>
+		<br><br>
+
+		<<earnFeat "Safe Trail">>
+		<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+		<br>
+	<<elseif $eventskip gte 1>>
+		You are in the forest outskirts. You can make out the town between the trees.
+		<br><br>
+
+		<<if $exposed lte 1 or $gwylanSeen?.includes("lights")>>
+			<<if $forest_shop_intro is 1>>
+				<<if $hypnosis_traits.devotion gte 5 and ($gwylanSeen?.includes("romance") or $gwylan?.timer?.petBed)>>
+					<<set _forestShopText to "Your home is here, cradled in the treeline.">>
+					<<set _forestShopLinkText to "Home">>
+				<<elseif $gwylanSeen?.includes("yearning") and isGwylanAbsent() isnot "nobody">>
+					<<set _forestShopText to "Gwylan's shop is here, cradled in the treeline.">>
+					<<set _forestShopLinkText to "Gwylan's shop">>
 				<<else>>
-					<<shopicon "forest">><<link [[Strange shop|Forest Shop]]>><</link>>
-					<br><br>
+					<<set _forestShopText to "The forest shop is here, cradled in the treeline.">>
+					<<set _forestShopLinkText to "Forest shop">>
+				<</if>>
+				<<= _forestShopText>><br>
+				<<if $daily.gwylan.locked or Time.isBloodMoon() or C.npc.Gwylan.state is "scorned">>
+					<<shopicon "forest">><<link [[_forestShopLinkText|Forest Shop Locked]]>><<endevent>><</link>>
+				<<else>>
+					<<shopicon "forest">><<link [[_forestShopLinkText|Forest Shop Entrance]]>><<endevent>><<set $enteringForestShop to true>><</link>>
+				<</if>>
+			<<else>>
+				A strange, castle-like shop is cradled in the treeline.<br>
+				<<if Time.isBloodMoon() or isGwylanAbsent() and C.npc.Gwylan.init isnot 0>>
+					<<shopicon "forest">><<link [[Strange shop|Forest Shop Locked]]>><<endevent>><</link>>
+				<<else>>
+					<<shopicon "forest">><<link [[Strange shop|Forest Shop Entrance]]>><<endevent>><<set $enteringForestShop to true>><</link>>
 				<</if>>
 			<</if>>
-
-			<<forestdeeper>>
 			<br><br>
+		<</if>>
 
-			<<forestsearch>>
-			<br><br>
+		<<forestdeeper>>
+		<br><br>
 
-			Leave the forest
-			<br>
-			<<danubeicon>><<link [[Danube Street (0:10)|Danube Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
-			<br>
-			<<wolficon>><<link [[Wolf Street (0:10)|Wolf Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
-			<br>
-			<<nightingaleicon>><<link [[Nightingale Street (0:10)|Nightingale Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
-			<br>
-			<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
-				<<wolficon>><<link [[Temple (0:10)|Temple Garden]]>><<pass 10>><<set $foresthunt to 0>><</link>>
-				<br>
-			<</if>>
-			<br><br>
+		<<forestsearch>>
+		<br><br>
 
-			<<if $historytrait gte 2 and $thicket_tunnel_intro is 1>>
-				<<link [[Take the secret tunnel to the residential alleyways (0:05)|Residential Thicket]]>><<pass 5>><</link>>
-				<br>
-			<</if>>
-			<<if $historytrait gte 3>>
-				<<forestroadicon "secret">>
-				<<link [[Take secret path deeper into the woods (0:10)|Forest]]>>
-					<<set $forestmod to 1.5>><<set $forest += 50>><<set $forestmove to "secretin">><<pass 10>>
-					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
-				<</link>>
-				<br>
-			<</if>>
+		Leave the forest
+		<br>
+		<<danubeicon>><<link [[Danube Street (0:10)|Danube Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+		<br>
+		<<wolficon>><<link [[Wolf Street (0:10)|Wolf Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+		<br>
+		<<nightingaleicon>><<link [[Nightingale Street (0:10)|Nightingale Street]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+		<br>
+		<<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>
+			<<templeicon "garden">><<link [[Temple garden (0:10)|Temple Garden]]>><<pass 10>><<set $foresthunt to 0>><</link>>
+			<br>
+		<</if>>
+		<br><br>
+
+		<<if $historytrait gte 2 and $thicket_tunnel_intro is 1>>
+			<<foresticon "bush">><<link [[Take the secret tunnel to the Residential alleyways (0:05)|Residential Thicket]]>><<pass 5>><<set $foresthunt to 0>><</link>>
+			<br>
+		<</if>>
+		<<if $historytrait gte 3>>
+			<<forestroadicon "secret">>
+			<<link [[Take secret path deeper into the woods (0:10)|Forest]]>>
+				<<set $forestmod to 1.5>><<set $forest += 50>><<set $forestmove to "secretin">><<pass 10>>
+				<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
+				<<if $forestHunter is "Gwylan" and $foresthunt gte 1>><<set $foresthunt += 5>><</if>>
+			<</link>>
+			<br>
 		<</if>>
 	<</if>>
 
 <<elseif $forest lte 20>>
-	<<forestmove>>
-	<<if $stress gte $stressmax and !$possessed>>
-		<<passoutforest>>
-	<<elseif $foresthunt gte 10>>
-		<<foresthunt>>
-	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $eventskip is 0>>
-			<<rng>>
-			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
-				<<eventforestitem>>
-			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-				<<eventforestoutskirts>>
-			<<else>>
-				<<eventforestsafe>>
-			<</if>>
-		<<elseif $eventskip gte 1>>
-			You are in the forest. The trees are quite sparse, you can't be too far from town.
-			<br><br>
 
-			<<if $forest gte 10 and $forest lte 14>>
-				<<foresticon "churchyard">><<link [[Old churchyard|Churchyard]]>><</link>>
-				<br><br>
-			<</if>>
-
-			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
-				<span class="gold">You see a flickering through the trees. Like a flame.</span>
-				<br><br>
-			<</if>>
-
-			<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
-				<<link [[Approach flame|Smuggler Forest]]>><</link>>
-				<br><br>
-			<</if>>
-
-			<<forestdeeper>>
-			<br><br>
-
-			<<forestsearch>>
-			<br><br>
-
-			<<forestlessdeep>>
+	<<if $eventskip is 0>>
+		<<rng>>
+		<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
+			<<eventforestitem>>
+		<<elseif dangerEvent($forestmod)>>
+			<<eventforestoutskirts>>
+		<<else>>
+			<<eventforestsafe>>
 		<</if>>
+	<<elseif $eventskip gte 1>>
+		You are in the forest. The trees are quite sparse, you can't be too far from town.
+		<br><br>
+
+		<<if $forest gte 10 and $forest lte 14>>
+			<<foresticon "churchyard">><<link [[Old churchyard|Churchyard]]>><</link>>
+			<br><br>
+		<</if>>
+
+		<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
+			<span class="gold">You see a flickering through the trees. Like a flame.</span>
+			<br><br>
+		<</if>>
+
+		<<if $smuggler_location is "forest" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
+			<<link [[Approach flame|Smuggler Forest]]>><</link>>
+			<br><br>
+		<</if>>
+
+		<<forestdeeper>>
+		<br><br>
+
+		<<forestsearch>>
+		<br><br>
+
+		<<forestlessdeep>>
 	<</if>>
 
 <<elseif $forest lte 50>>
-	<<forestmove>>
-	<<if $stress gte $stressmax and !$possessed>>
-		<<passoutforest>>
-	<<elseif $foresthunt gte 10>>
-		<<foresthunt>>
-	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $eventskip is 0>>
-			<<rng>>
-			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
-				<<eventforestitem>>
-			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-				<<eventforest>>
+
+	<<if $eventskip is 0>>
+		<<rng>>
+		<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
+			<<eventforestitem>>
+		<<elseif dangerEvent($forestmod)>>
+			<<eventforest>>
+		<<else>>
+			<<eventforestsafe>>
+		<</if>>
+	<<elseif $eventskip gte 1>>
+		You are in the forest, surrounded by nature.
+		<br><br>
+
+		<<if $forest lte 30>>
+			<<if $nextPassageCheck is "Lake Shore">>
+				<span class="nextLink"><<lakeicon>><<link [[The lake.|Lake Shore]]>><<pass 10>><</link>></span>
 			<<else>>
-				<<eventforestsafe>>
+				<<lakeicon>><<link [[Lake (0:10)|Lake Shore]]>><<pass 10>><</link>>
 			<</if>>
-		<<elseif $eventskip gte 1>>
-			You are in the forest, surrounded by nature.
-			<br><br>
-
-			<<if $forest lte 30>>
-				<<if $nextPassageCheck is "Lake Shore">>
-					<span class="nextLink"><<lakeicon>><<link [[The lake.|Lake Shore]]>><<pass 10>><</link>></span>
-				<<else>>
-					<<lakeicon>><<link [[Lake (0:10)|Lake Shore]]>><<pass 10>><</link>>
-				<</if>>
-			<<elseif $forest lte 40>>
-				<<lakeicon>><<link [[Lake (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
+		<<elseif $forest lte 40>>
+			<<lakeicon>><<link [[Lake (0:10)|Lake Waterfall]]>><<pass 10>><</link>>
+		<<else>>
+			<<if $nextPassageCheck is "Lake Fishing Rock">>
+				<span class="nextLink"><<lakeicon>><<link [[The lake.|Lake Fishing Rock]]>><<pass 10>><</link>></span>
 			<<else>>
-				<<if $nextPassageCheck is "Lake Fishing Rock">>
-					<span class="nextLink"><<lakeicon>><<link [[The lake.|Lake Fishing Rock]]>><<pass 10>><</link>></span>
-				<<else>>
-					<<lakeicon>><<link [[Lake (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
-				<</if>>
+				<<lakeicon>><<link [[Lake (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
 			<</if>>
-			<br><br>
+		<</if>>
+		<br><br>
 
-			<<forestdeeper>>
-			<br><br>
+		<<forestdeeper>>
+		<br><br>
 
-			<<forestsearch>>
-			<br><br>
+		<<forestsearch>>
+		<br><br>
 
-			<<forestlessdeep>>
-			<br><br>
+		<<forestlessdeep>>
+		<br><br>
 
-			<<if $historytrait gte 3>>
-				<<forestroadicon "secret">>
-				<<link [[Take secret path out of the woods (0:10)|Forest]]>>
-					<<set $forestmod to 1.5>><<set $forest -= 50>><<set $forestmove to "secretout">><<pass 10>>
-					<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
-				<</link>>
-				<br>
-			<</if>>
+		<<if $historytrait gte 3>>
+			<<forestroadicon "secret">>
+			<<link [[Take secret path out of the woods (0:10)|Forest]]>>
+				<<set $forestmod to 1.5>><<set $forest -= 50>><<set $forestmove to "secretout">><<pass 10>>
+				<<if $foresthunt gte 1>><<set $foresthunt += 1>><</if>>
+				<<if $forestHunter is "Gwylan" and $foresthunt gte 1>><<set $foresthunt += 5>><</if>>
+			<</link>>
+			<br>
 		<</if>>
 	<</if>>
 
 <<elseif $forest lte 99>>
-	<<forestmove>>
-	<<if $stress gte $stressmax and !$possessed>>
-		<<passoutforest>>
-	<<elseif $foresthunt gte 10>>
-		<<foresthunt>>
-	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $eventskip is 0>>
-			<<rng>>
-			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
-				<<eventforestitem>>
-			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-				<<eventforestdeep>>
-			<<else>>
-				<<eventforestsafe>>
-			<</if>>
-		<<elseif $eventskip gte 1>>
-			You are deep in the forest. The trees are tall and dark, their branches twisting together to form the canopy.
-			<br><br>
 
-			<<if $edenfreedom gte 1>>
-                <<if $edenFluidsCheck is "cleanLeave" and ($goocount + $semencount gte 10) and Time.hour gte 7 or $edenFluidsCheck is "run">>
-                    <<edenicon>><<link [[Eden's cabin (0:10)|Eden Fluids Punishment]]>><<pass 10>><</link>>
-                <<else>>
-                    <<edenicon>><<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
-                <</if>>
-                    <br>
-			<<elseif $syndromeeden gte 1>>
-				<<if $edenFluidsCheck is "cleanLeave" and ($goocount + $semencount gte 10) and Time.hour gte 7 or $edenFluidsCheck is "run">>
-                    <<edenicon>><<link [[Eden's cabin (0:10)|Eden Fluids Punishment]]>><<pass 10>><</link>>
-                <<else>>
-                    <<edenicon>><<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
-                <</if>>
-                    <br>
+	<<if $eventskip is 0>>
+		<<rng>>
+		<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
+			<<eventforestitem>>
+		<<elseif dangerEvent($forestmod)>>
+			<<eventforestdeep>>
+		<<else>>
+			<<eventforestsafe>>
+		<</if>>
+	<<elseif $eventskip gte 1>>
+		You are deep in the forest. The trees are tall and dark, their branches twisting together to form the canopy.
+		<br><br>
+		<<if $edenfreedom gte 1 or $syndromeeden gte 1>>
+			<<if $edenFluidsCheck is "cleanLeave" and ($goocount + $semencount gte 10) and Time.hour gte 7 or $edenFluidsCheck is "run">>
+				<<edenicon>><<link [[Eden's cabin (0:10)|Eden Fluids Punishment]]>><<pass 10>><</link>>
+			<<elseif !$edenHotSpring and Weather.isFreezing>>
+				<<edenicon>><<link [[Eden's cabin (0:10)|Eden Hot Spring Creation 1]]>><</link>>
+			<<else>>
+				<<edenicon>><<link [[Eden's cabin (0:10)|Eden Clearing]]>><<pass 10>><</link>>
 			<</if>>
-			<<if $syndromewolves gte 1 and $caveHumanPregnancyDiscovered isnot 1>>
-				<<wolfcaveicon>><<link [[Wolf cave (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
+			<br>
+		<</if>>
+		<<if $syndromewolves gte 1>>
+			<<if $caveHumanPregnancyDiscovered isnot 1 or !playerIsPregnant()>>
+				<<wolfcaveicon "entrance">><<link [[Wolf cave (0:10)|Wolf Cave Clearing]]>><<pass 10>><</link>>
 				<br>
-			<<elseif $syndromewolves gte 1 and $caveHumanPregnancyDiscovered is 1>>
+			<<else>>
 				<span class="blue">You don't think the wolves would allow you to come back until your pregnancy is over.</span>
 				<br>
 			<</if>>
-			<<if $pubtask is "forest" and $pubtask2 isnot 1>>
-				<<rng>>
-				<!-- Modified for Monster People -->
-				<<if $pubtasksetting is "bear" and $bestialitydisable is "f">>
-					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
-				<<elseif $pubtasksetting is "pair">>
-					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
-				<<elseif $rng gte 51 and $bestialitydisable is "f">>
-					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
-				<<else>>
-					<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
-				<</if>>
-				<br>
-			<</if>>
-			<<if $forest gte 80 and $forest lte 90 and $brookIntro gte 1>>
-				<<if $worn.feet.type.includes("heels")>>
-					<span class="red">Traversing the brook in heels would be impossible.</span>
-				<<else>>
-					<<foresticon "river">><<link [[Follow the brook (0:20)|Forest Brook]]>><<pass 20>><</link>>
-				<</if>>
-				<br>
+		<</if>>
+		<<if $pubtask is "forest" and $pubtask2 isnot 1>>
+			<<rng>>
+			<!-- Modified for Monster People -->
+			<<if $pubtasksetting is "bear">>
+				<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
+			<<elseif $pubtasksetting is "pair">>
+				<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
+			<<elseif $rng gte 51>>
+				<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Bear Box]]>><</link>>
+			<<else>>
+				<<crimeicon "black box">><<link [[Search for Landry's black box|Forest Box]]>><</link>>
 			<</if>>
 			<br>
-
-			<<forestdeeper>>
-			<br><br>
-
-			<<forestsearch>>
-			<br><br>
-
-			<<forestlessdeep>>
 		<</if>>
+		<<if $forest gte 80 and $forest lte 90 and $brookIntro gte 1>>
+			<<if $worn.feet.type.includes("heels")>>
+				<span class="red">Traversing the brook in heels would be impossible.</span>
+			<<else>>
+				<<foresticon "river">><<link [[Follow the brook (0:20)|Forest Brook]]>><<pass 20>><</link>>
+			<</if>>
+			<br>
+		<</if>>
+		<br>
+
+		<<forestdeeper>>
+		<br><br>
+
+		<<forestsearch>>
+		<br><br>
+
+		<<forestlessdeep>>
 	<</if>>
 
 <<elseif $forest gte 100>>
-	<<set $forest to 100>>
-	<<forestmove>>
-
-	<<if $stress gte $stressmax and !$possessed>>
-		<<passoutforest>>
-	<<elseif $foresthunt gte 10>>
-		<<foresthunt>>
-	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $eventskip is 0>>
-			<<rng>>
-			<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
-				<<eventforestitem>>
-			<<elseif $danger gte (9900 - ($allure * $forestmod))>>
-				<<eventforestdeep>>
-			<<else>>
-				<<eventforestsafe>>
-			<</if>>
-		<<elseif $eventskip gte 1>>
-			You are deep in the forest. You can make out the asylum through the trees.
-			<br><br>
-
-			<<forestsearch>>
-			<br><br>
-
-			<<forestlessdeep>>
+	<<if $eventskip is 0>>
+		<<rng>>
+		<<if $rng gte 81 or ($forest_search is true and $rng gte 61)>>
+			<<eventforestitem>>
+		<<elseif dangerEvent($forestmod)>>
+			<<eventforestdeep>>
+		<<else>>
+			<<eventforestsafe>>
 		<</if>>
+	<<elseif $eventskip gte 1>>
+		You are deep in the forest. You can make out the asylum through the trees.
+		<br><br>
+
+		<<forestsearch>>
+		<br><br>
+
+		<<forestlessdeep>>
 	<</if>>
 <</if>>
 
@@ -344,6 +357,7 @@
 
 :: Forest Bear Box
 <<location "forest">><<effects>>
+<<beastNEWinit 1 bear>>
 
 <<if $pubtasksetting is "bear">>
 	You return to the cave, where Landry's black box can be found. You hear something large breathing within.
@@ -357,9 +371,14 @@
 <</if>>
 <br><br>
 
-<<getinicon>><<link [[Enter|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
-<br>
-<<getouticon>><<link [[Leave|Forest]]>><</link>>
+<<if $monster is 1 or $settings.bestialityEnabled>>
+	<<getinicon>><<link [[Enter|Forest Bear Box Molestation]]>><<set $molestationstart to 1>><</link>>
+	<br>
+<<else>>
+	<<getinicon>><<link [[Enter|Forest Bear Box Molestation Finish]]>><<set $phase to 1>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Forest]]>><<endevent>><</link>>
 
 :: Forest Box
 <<location "forest">><<effects>>
@@ -367,7 +386,7 @@
 <<if $pubtasksetting is "pair">>
 	<<generate1>><<generate2>>
 	You return to the clearing with the dilapidated cabin. The <<fullGroup>> are still there.
-	"Changed your mind?" says the <<person1>><<person>> "Let us have our way with you and we'll give you the black box."
+	"Changed your mind?" says the <<person1>><<person>>. "Let us have our way with you and we'll give you the black box."
 <<else>>
 	<<set $pubtasksetting to "pair">>
 
@@ -383,12 +402,12 @@
 <</if>>
 <br><br>
 
-<<if $promiscuity gte 15>>
+<<if hasSexStat("promiscuity", 2)>>
 	<<link [[Accept|Forest Box Molestation]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
 	<br>
 <</if>>
 <<if $submissive lte 500>>
-	<<link [[Attack them|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+	<<link [[Attack them|Forest Box Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>><<defianttext>>
 	<br>
 <</if>>
 <<link [[Refuse|Forest Box Refuse]]>><</link>>
@@ -402,7 +421,6 @@
 	<<neutral 1>>
 	<<molested>>
 
-	<<beastNEWinit 1 bear>>
 	<<beastCombatInit>><<set $enemytrust -= 40>><<set $enemyanger += 40>><<set $enemyhealthmax to 400>><<set $enemyhealth to 400>>
 	You creep into the cave. After some fumbling through the dark you see the light catch on something. It's the black box.
 	The box in hand, you turn to leave the cave, but something emerges from the darkness. As you turn back around, <<bhe>> descends down onto you.
@@ -428,29 +446,43 @@
 :: Forest Bear Box Molestation Finish
 <<location "forest">><<effects>>
 
-<<if $enemyarousal gte $enemyarousalmax>>
-	<<beastejaculation>>
+<<if $phase is 1>> /* Autoresolve when bestiality disabled */
+	<<unset $phase>>
+	<<set $pubtask2 to 1>>
+	You creep into the cave. After some fumbling through the dark you see the light catch on something. It's the black box. The box in hand, you turn to leave the cave, but something emerges from the darkness. You turn around to see a mighty bear swiping its claw at you!<<gstress>>
+	<br><br>
 
-	Satisfied, the <<beasttype>> retreats into <<bhis>> abode.
-	<<if $monster is 1>>
-		<<bHe>> yawns, giving <<bhis>> hairy chest one last scratch before returning to <<bhis>> slumber.
+	You narrowly dodge aside, dropping the black box in the process. Irritated, the bear lets out a rumbling growl and tries to strike you again. Fortunately, it's too groggy to aim at you properly. You duck below and pick up the black box again, scrambling out of the cave. <<gstress>><<ggtrauma>><<ggpain>>
+	<br><br>
+
+	<<tearful>> you lean against a tree to catch your breath.<<silently>><<beastescape>><<beastescape>><</silently>>
+	<br><br>
+<<else>>
+	<<if $enemyarousal gte $enemyarousalmax>>
+		<<beastejaculation>>
+
+		Satisfied, the <<beasttype>> retreats into <<bhis>> abode.
+		<<if $monster is 1>>
+			<<bHe>> yawns, giving <<bhis>> hairy chest one last scratch before returning to <<bhis>> slumber.
+		<</if>>
+	<<elseif $enemyhealth lte 0>>
+		<<if $monster is 1>>
+			The <<beasttype>> recoils in pain, turning away from you. <<bHe>> covers <<bhis>> wrist with <<bhis>> hand, before fleeing deeper into <<bhis>> abode.
+		<<else>>
+			The <<beasttype>> turns away from you and flees deeper into its abode.
+		<</if>>
 	<</if>>
-<<elseif $enemyhealth lte 0>>
-	<<if $monster is 1>>
-		The <<beasttype>> recoils in pain, turning away from you. <<bHe>> covers <<bhis>> wrist with <<bhis>> hand, before fleeing deeper into <<bhis>> abode.
-	<<else>>
-		The <<beasttype>> turns away from you and flees deeper into its abode.
-	<</if>>
+	<br><br>
+
+	<<tearful>> you pick up the box again and leave the cave.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
 <</if>>
-<br><br>
+<<wearProp "black box">>
 
-<<tearful>> you leave the cave.
-<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<link [[Next|Forest]]>><</link>>
+<<link [[Next|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 
 :: Forest Box Molestation
 <<if $molestationstart is 1>>
@@ -509,9 +541,9 @@
 	"You're not getting away that easily," the <<person1>><<person>> says.
 	<br><br>
 
-	<<controlloss>><<set $consensual to 0>><<molested>><<set $finish to 0>>
+	<<set $consensual to 0>><<set $finish to 0>>
 
-	<<link [[Next|Forest Box Molestation]]>><</link>>
+	<<link [[Next|Forest Box Molestation]]>><<set $molestationstart to 1>><</link>>
 
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
@@ -522,8 +554,9 @@
 
 	<<clotheson>>
 	<<endcombat>>
+	<<wearProp "black box">>
 
-	<<link [[Next|Forest]]>><</link>>
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 	The pair recoil in pain and drop the box on the grass. <<tearful>> you seize it and flee the clearing, chased by their angry shouts.
@@ -532,8 +565,9 @@
 
 	<<clotheson>>
 	<<endcombat>>
+	<<wearProp "black box">>
 
-	<<link [[Next|Forest]]>><</link>>
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><<handheldon>><</link>>
 <</if>>
 
 :: Forest Science Shroom
@@ -542,10 +576,10 @@
 <<if $scienceshroomknown isnot 1>>
 	<<set $scienceshroomknown to 1>>
 	<span class="gold">You have discovered a new science project.</span>
-	<br><br>
 <</if>>
 
 <<if $phase is 0>>
+	<<wearProp "mushroom">>
 	<<set $scienceshroomheart += 1>>
 	You kneel and gather the mushrooms. They smell refreshing.
 	<<ltiredness>><<tiredness -6>>
@@ -554,6 +588,7 @@
 	<span class="gold">You can add the mushrooms you found to your project in your room or the school library.</span>
 	<br><br>
 <<else>>
+	<<wearProp "wolfshroom">>
 	<<set $scienceshroomwolf += 1>>
 	You kneel and gather the mushrooms. They smell sweet.
 	<<garousal>><<arousal 600>>
@@ -563,7 +598,7 @@
 	<br><br>
 <</if>>
 
-<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Forest]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Forest Brook
@@ -576,16 +611,16 @@ There's sharp declines and sharper rocks pointing downstream. Any further will m
 
 <<lakeicon "waterfall">><<link [[Go upstream towards the lake (0:30)|Lake Waterfall]]>><<pass 30>><<tiredness 6>><</link>><<gtiredness>>
 <br>
-
-<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $exhibitionism gte 35>>
+<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3)>>
 	<span class="red">The slime in your ear refuses to allow you to leave with <<underwearTypeText>> on.</span>
 <<else>>
 	<<if $bogProgress gte 1>>
-		<<foresticon "bog">><<link [[Go downstream towards the bog (0:30)|Bog Intro]]>><<pass 30>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
+		<<foresticon "bog">><<link [[Go downstream towards the bog (0:20)|Bog Intro]]>><<set $foresthunt to 0>><<pass 20>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
 	<<else>>
-		<<askicon>><<link [[Explore downstream (0:30)|Bog Intro]]>><<pass 30>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
+		<<mysteryicon>><<link [[Explore downstream (0:20)|Bog Intro]]>><<set $foresthunt to 0>><<pass 20>><<tiredness 6>><<set $forest to 0>><</link>><<note "One-way" "red">><<gtiredness>>
 	<</if>>
-	<br><br>
-	<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 80>><</link>>
 <</if>>
+<br><br>
+
+<<foresticon>><<link [[Forest (0:10)|Forest]]>><<pass 10>><<set $forest to 80>><</link>>
 <br>

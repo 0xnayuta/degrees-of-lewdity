@@ -1,16 +1,16 @@
 /*
  * As part of various refactors, many global namespace variables were created.
- * This is a single spot to document them, and create top-level namespaces.
+ * This is a single spot to document them and create top-level namespaces.
  */
 
 /**
- * Declare everything in a root namespace, so that things can still be found if shadowed, and for "documentation" purposes.
+ * Declare everything in a root namespace so that things can still be found if shadowed and for "documentation" purposes.
  */
 window.DOL = {
 	// In pseudo-load order
 
 	/**
-	 * This is a miniature application reporter app.  It helps get detailed error messages to devs.
+	 * This is a miniature application reporter app. It helps get detailed error messages to devs.
 	 * See file {@link ./01-error/error.js} for more.
 	 */
 	Errors: {},
@@ -19,7 +19,6 @@ window.DOL = {
 	 * See {@link ./02-version/.init.js} for more.
 	 */
 	Versions: {},
-	Perflog: {},
 	/**
 	 * General purpose call stack containing the widget names as they are called.
 	 */

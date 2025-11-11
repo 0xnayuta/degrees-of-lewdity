@@ -3,40 +3,40 @@
 
 You are in a meadow ringed by tall trees. Long grass caresses your legs. A solitary oak stands in the middle.
 
-<<if Time.dayState is "night">>
-	<<if $weather is "rain">>
+<<if Weather.dayState is "night">>
+	<<if Weather.precipitation is "rain">>
 		You can see little through the dark rain.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Snow settles between the blades.
 	<<else>>
 		The blades sway in a silent breeze.
 	<</if>>
-<<elseif Time.dayState is "dawn">>
-	<<if $weather is "rain">>
+<<elseif Weather.dayState is "dawn">>
+	<<if Weather.precipitation is "rain">>
 		Dark clouds fill the sky.
-	<<elseif $weather is "clear">>
+	<<elseif !Weather.isOvercast>>
 		The sun rises clear over the horizon.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Snowflakes fall in the morning light.
 	<<else>>
 		The trees sway with the wind.
 	<</if>>
-<<elseif Time.dayState is "dusk">>
-	<<if $weather is "rain">>
+<<elseif Weather.dayState is "dusk">>
+	<<if Weather.precipitation is "rain">>
 		Darkling clouds fill the sky.
-	<<elseif $weather is "clear">>
+	<<elseif !Weather.isOvercast>>
 		The sun disappears over the horizon.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Snow settles in the dwindling light.
 	<<else>>
 		The trees sway with the wind.
 	<</if>>
 <<else>>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The blades sway with the wind.
-	<<elseif $weather is "clear">>
+	<<elseif !Weather.isOvercast>>
 		Bright flowers bloom in many colours.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Snow blankets the treetops, and settles between the blades.
 	<<else>>
 		The blades sway in the breeze.
@@ -48,7 +48,7 @@ You are in a meadow ringed by tall trees. Long grass caresses your legs. A solit
 <</if>>
 <<if !$daily.earSlimeMeadowRelax and numberOfEarSlime() and earSlimeMakingMundaneRequests() and random(0,100) gte 92>>
 	<<set $daily.earSlimeMeadowRelax to true>>
-	<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to relax in the meadow.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+	<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to relax in the meadow.</span> It promises rewards if you comply<<if $earSlime.startedThreats>> and threatens consequences if you do not<</if>>.
 	<br><br>
 	/* Link decreases stress by both the ear slime and relaxing */
 	<<link [[Obey|Meadow Relax]]>><<set $phase to 1>><<corruption 1>><<pain -4>><<stress -12>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<llstress>>
@@ -118,14 +118,14 @@ You search for plants long and sturdy enough to build an improvised garment. You
 <<effects>>
 
 <<if $phase is 1>>You decide that the ear slime is right and look for a place to relax for a while.<</if>>
-<<if $weather is "rain">><<set $outside to 0>>
+<<if Weather.precipitation is "rain">><<set $outside to 0>>
 	You lie beneath the oak. The grass all around it is dry, protected by the thick boughs.
 	<<if Time.dayState is "night">>
 		You look out over the dark and peaceful meadow.
 	<<else>>
 		You watch the bees fly between flowers.
 	<</if>>
-<<elseif $weather is "clear">><<set $outside to 1>>
+<<elseif !Weather.isOvercast>><<set $outside to 1>>
 	<<if Time.dayState is "night">>
 		You lie on the grass and stare up at the night sky.
 	<<else>>
@@ -410,11 +410,11 @@ Your eyes were so drawn by the water that it takes you a moment to notice the <<
 	<<if $fox gte 3>>
 		<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
 		<br>
-	<<elseif $deviancy gte 55>>
+	<<elseif hasSexStat("deviancy", 4)>>
 		<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
 		<br>
 	<</if>>
-	<<if $submissive lte 500 and $deviancy gte 15>>
+	<<if $submissive lte 500 and hasSexStat("deviancy", 2)>>
 		<<link [[Punish|Meadow Cave Punish]]>><<def 1>><<trauma -6>><<stress -6>><</link>><<deviant2>><<defianttext>><<ltrauma>><<lstress>>
 		<br>
 	<</if>>
@@ -427,19 +427,22 @@ Your eyes were so drawn by the water that it takes you a moment to notice the <<
 
 	<<link [[Forgive|Meadow Cave Accept]]>><</link>>
 	<br>
-	<<if $fox gte 3>>
-		<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
-		<br>
-	<<elseif $deviancy gte 55>>
-		<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
-		<br>
+	<<if $settings.bestialityEnabled>>
+		<<if $fox gte 3>>
+			<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
+			<br>
+		<<elseif hasSexStat("deviancy", 4)>>
+			<<link [[Present yourself|Meadow Cave Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
+			<br>
+		<</if>>
 	<</if>>
 <</if>>
 
 :: Meadow Cave Accept
-<<effects>>
+<<effects>><<clotheson>>
 
 <<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
+	<<wearProp "stone talisman">>
 	<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
 	<<if $monster is 1>>
 		"Thank you!" the <<beasttype>> says.
@@ -451,12 +454,11 @@ Your eyes were so drawn by the water that it takes you a moment to notice the <<
 	<</if>>
 	<<bHe>> scurries back toward the tunnel, leaving your clothes behind.
 <</if>>
-<<clotheson>>
 
 You turn away from the water, and walk back down the tunnel.
 <br><br>
 
-<<link [[Next|Meadow Cave Exit]]>><<unset $foxGen>><</link>>
+<<link [[Next|Meadow Cave Exit]]>><<handheldon>><<unset $foxGen>><</link>>
 <br>
 
 :: Meadow Cave Punish
@@ -475,7 +477,7 @@ You turn away from the water, and walk back down the tunnel.
 	"This is what you get for crossing me," you say. You push a finger against <<bhis>> entrance, then thrust it inside.
 	<br><br>
 
-	<<bHe>> stops struggling, but remains wary as you add a second finger. You release <<bhis>> other arm and scratch your nails against <<bhis>> chest. "Steal from me again," you say, picking up the pace. "and you'll regret it." You add a third finger. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
+	<<bHe>> stops struggling, but remains wary as you add a second finger. You release <<bhis>> other arm and scratch your nails against <<bhis>> chest. "Steal from me again," you say, picking up the pace, "and you'll regret it." You add a third finger. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
 	<br><br>
 
 	With a moan, <<bhis>> whole body shudders in orgasm.
@@ -487,7 +489,7 @@ You turn away from the water, and walk back down the tunnel.
 	"This is what you get for crossing me," you say. You take <<bhis>> cock in your palm, and begin to knead it. It's soon erect.
 	<br><br>
 
-	<<bHe>> stops struggling, but remains wary as you pump <<bhis>> length. You release <<bhis>> other arm and scratch your nails against <<bhis>> chest. "Steal from me again," you say, picking up the pace. "and you'll regret it." You pump faster still. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
+	<<bHe>> stops struggling, but remains wary as you pump <<bhis>> length. You release <<bhis>> other arm and scratch your nails against <<bhis>> chest. "Steal from me again," you say, picking up the pace, "and you'll regret it." You pump faster still. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
 	<br><br>
 
 	With a gasp, <<bhe>> ejaculates all over <<bhis>> stomach.
@@ -498,14 +500,16 @@ You turn away from the water, and walk back down the tunnel.
 <br>
 
 :: Meadow Cave Punish 2
-<<effects>>
+<<effects>><<clotheson>>
 
 <<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
 	<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-	"I think I've made myself clear," you say as you rise to your feet, picking up your clothes and the strange stone as you do.<<clotheson>>
+	<<set _clothes to "clothes and the strange stone">>
+	<<wearProp "stone talisman">>
 <<else>>
-	"I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
+	<<set _clothes to "clothes">>
 <</if>>
+"I think I've made myself clear," you say as you rise to your feet, picking up your _clothes as you do.
 <br><br>
 
 You walk back to the tunnel, leaving the <<beasttype>> panting on the ground.
@@ -523,7 +527,7 @@ You walk back down the tunnel. The sheer wall looks imposing, but you find it ea
 You make it to the top, and squeeze through the entrance, emerging near the meadow.
 <br><br>
 
-<<link [[Next|Meadow]]>><</link>>
+<<link [[Next|Meadow]]>><<endevent>><</link>>
 <br>
 
 :: Meadow Cave Sex
@@ -565,38 +569,27 @@ You make it to the top, and squeeze through the entrance, emerging near the mead
 <</if>>
 
 :: Meadow Cave Sex Finish
-<<effects>>
+<<effects>><<clotheson>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<beastejaculation>>
-
-	<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
-		<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes and the strange stone as you do.<<clotheson>>
-	<<else>>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
-	<</if>>
-	<br><br>
-
-	You walk back to the tunnel, leaving the <<beasttype>> panting on the ground.
-	<<endcombat>>
-
-	<<link [[Next|Meadow Cave Exit]]>><</link>>
-	<br>
-<<else>>
-	<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
-		<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes and the strange stone as you do.<<clotheson>>
-	<<else>>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
-	<</if>>
-	<br><br>
-
-	You walk back to the tunnel, leaving the <<beasttype>> panting on the ground.
-	<<endcombat>>
-
-	<<link [[Next|Meadow Cave Exit]]>><</link>>
 <</if>>
+
+<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
+	<<set _clothes to "clothes and the strange stone">>
+	<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
+	<<wearProp "stone talisman">>
+<<else>>
+	<<set _clothes to "clothes">>
+<</if>>
+"I think I've made myself clear," you say as you rise to your feet, picking up your _clothes as you do.
+<br><br>
+
+You walk back to the tunnel, leaving the <<beasttype>> panting on the ground.
+<<endcombat>>
+
+<<link [[Next|Meadow Cave Exit]]>><<handheldon>><</link>>
+<br>
 
 :: Meadow Chase Hill
 <<effects>>
@@ -614,6 +607,7 @@ You keep low as you move, though you see no one else around.
 		You outpace your quarry, and catch <<bhim>> a little into the trees.
 		<<if $monster is 1>>
 			<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
+				<<set $phase to "monster">>
 				"I-I'm sorry," <<bhe>> says, your arm around <<bhis>> neck. "I didn't mean any harm. Here." <<bHe>> drops your clothes. "I'll give you a present too if you don't hurt me. Something I found in a cave."
 				<br><br>
 
@@ -629,11 +623,11 @@ You keep low as you move, though you see no one else around.
 			<<if $fox gte 3>>
 				<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
 				<br>
-			<<elseif $deviancy gte 55>>
+			<<elseif hasSexStat("deviancy", 4)>>
 				<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
 				<br>
 			<</if>>
-			<<if $submissive lte 500 and $deviancy gte 15>>
+			<<if $submissive lte 500 and hasSexStat("deviancy", 2)>>
 				<<link [[Punish|Meadow Chase Hill Punish]]>><<def 1>><<trauma -6>><<stress -6>><</link>><<deviant2>><<defianttext>><<ltrauma>><<lstress>>
 				<br>
 			<</if>>
@@ -646,12 +640,14 @@ You keep low as you move, though you see no one else around.
 
 			<<link [[Forgive|Meadow Chase Hill Accept]]>><</link>>
 			<br>
-			<<if $fox gte 3>>
-				<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
-				<br>
-			<<elseif $deviancy gte 55>>
-				<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
-				<br>
+			<<if $settings.bestialityEnabled>>
+				<<if $fox gte 3>>
+					<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant1>><<fox>>
+					<br>
+				<<elseif hasSexStat("deviancy", 4)>>
+					<<link [[Present yourself|Meadow Chase Hill Sex]]>><<set $sexstart to 1>><</link>><<deviant4>>
+					<br>
+				<</if>>
 			<</if>>
 		<</if>>
 	<<else>>
@@ -715,39 +711,29 @@ You keep low as you move, though you see no one else around.
 <</if>>
 
 :: Meadow Chase Hill Sex Finish
-<<effects>>
+<<effects>><<clotheson>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<beastejaculation>>
-
-	<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
-		<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes and the strange stone as you do.<<clotheson>>
-	<<else>>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
-	<</if>>
-	<br><br>
-
-	You walk back to the meadow.
-	<<endcombat>>
-
-	<<link [[Next|Meadow]]>><</link>>
-	<br>
-<<else>>
-	<<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
-		<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes and the strange stone as you do.<<clotheson>>
-	<<else>>
-		"I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
-	<</if>>
-	<br><br>
-
-	You walk back to the meadow.
-	<<endcombat>>
-
-	<<link [[Next|Meadow]]>><</link>>
-	<br>
 <</if>>
+
+<<if $phase is "monster" and $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
+		<<set _clothes to "clothes and the strange stone">>
+		<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
+		<<wearProp "stone talisman">>
+<<else>>
+	<<set _clothes to "clothes">>
+<</if>>
+
+"I think I've made myself clear," you say as you rise to your feet, picking up your _clothes as you do.
+<br><br>
+
+You walk back to the meadow.
+<br><br>
+<<endcombat>>
+
+<<link [[Next|Meadow]]>><<handheldon>><</link>>
+<br>
 
 :: Meadow Chase Hill Trap
 <<effects>>
@@ -755,7 +741,7 @@ You keep low as you move, though you see no one else around.
 You look up. A rope coils around your ankle, attaching you to a thick branch above.
 <br><br>
 
-<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
+<<if !pcAreArmsBound("both")>>
 	<<link [[Struggle (0:10)|Meadow Chase Hill Struggle]]>><<pass 10>><<pain 4>><</link>><<physiquedifficulty 1 16000>><<gpain>>
 	<br>
 <</if>>
@@ -995,7 +981,8 @@ inside that.
 
 <<clotheson>>
 <<endcombat>>
-<<link [[Next|Meadow]]>><</link>>
+<<wearProp "wallet" 0 "money">>
+<<link [[Next|Meadow]]>><<endevent>><</link>>
 <br>
 
 :: Meadow Chase Hill Accept
@@ -1013,8 +1000,8 @@ You release the <<beasttype>>.
 	<</if>>
 
 	<<pass 2>>
-	You wait a minute. Then another. Then you hear a rustle behind a tree. You investigate, and find an engraved stone lying on the ground. You're not sure what it is, but it looks intricate. It might be worth something to a collector.
-	<<clotheson>>
+	<<if $phase is "monster">>You wait a minute. Then another. Then you hear a rustle behind a tree. You investigate, and find an engraved stone lying on the ground. You're not sure what it is, but it looks intricate. It might be worth something to a collector.<</if>>
+	<<clotheson>><<wearProp "stone talisman">>
 <<else>>
 	<<if $monster is 1>>
 		"Thank you!" the <<beasttype>> says. <<bHe>> disappears between the trees.
@@ -1039,7 +1026,7 @@ You release the <<beasttype>>.
 	"This is what you get for crossing me," you say. You push a finger against <<bhis>> entrance, then thrust it inside.
 	<br><br>
 
-	<<bHe>> stops struggling, but remains wary as you add a second finger. You run your other hand down <<bhis>> shoulder. "Steal from me again," you say, picking up the pace. "and you'll regret it." You add a third finger. <<bHe>> squirms as much in discomfort as pleasure, but trembles as he approaches <<bhis>> peak.
+	<<bHe>> stops struggling, but remains wary as you add a second finger. You run your other hand down <<bhis>> shoulder. "Steal from me again," you say, picking up the pace, "and you'll regret it." You add a third finger. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
 	<br><br>
 
 	With a moan, <<bhis>> whole body shudders in orgasm.
@@ -1051,7 +1038,7 @@ You release the <<beasttype>>.
 	"This is what you get for crossing me," you say. You take <<bhis>> cock in your palm, and begin to knead it. It's soon erect.
 	<br><br>
 
-	<<bHe>> stops struggling, but remains wary as you pump <<bhis>> length. You run your other hand down <<bhis>> shoulder. "Steal from me again," you say, picking up the pace. "and you'll regret it." You pump faster still. <<bHe>> squirms as much in discomfort as pleasure, but trembles as he approaches <<bhis>> peak.
+	<<bHe>> stops struggling, but remains wary as you pump <<bhis>> length. You run your other hand down <<bhis>> shoulder. "Steal from me again," you say, picking up the pace, "and you'll regret it." You pump faster still. <<bHe>> squirms as much in discomfort as pleasure, but trembles as <<bhe>> approaches <<bhis>> peak.
 	<br><br>
 
 	With a gasp, <<bhe>> ejaculates onto the forest floor.
@@ -1064,18 +1051,15 @@ You release the <<beasttype>>.
 :: Meadow Chase Hill Punish 2
 <<effects>>
 
-
 "I think I've made myself clear," you say as you rise to your feet, picking up your clothes as you do.<<clotheson>>
 <<if $museumAntiques.antiques.antiquestonetalisman isnot "found" and $museumAntiques.antiques.antiquestonetalisman isnot "talk" and $museumAntiques.antiques.antiquestonetalisman isnot "museum">>
-	<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">>
-	Something fell from the bundle as you dressed. You look closer. It's a smooth stone, covered with engravings. It might be worth something to a collector.
+	<<set $antiquemoney += 1200>><<museumAntiqueStatus "antiquestonetalisman" "found">><<wearProp "stone talisman">>
+	Something falls from the bundle as you dress. You look closer. It's a smooth stone, covered with engravings. It might be worth something to a collector.
 	<br><br>
-<<else>>
-
 <</if>>
 
 You walk back to the meadow.
 <<deviancy4>>
 
-<<link [[Next|Meadow]]>><<unset $foxGen>><</link>>
+<<link [[Next|Meadow]]>><<handheldon>><<unset $foxGen>><</link>>
 <br>

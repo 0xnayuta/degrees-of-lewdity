@@ -20,16 +20,18 @@ function parasiteProgressDay(genital = "anus") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 	V.pregnancyStats.namesParasitesChild = V.deviancy >= 75;
 	if (pregnancy.type === "parasite") {
+		let impregnate;
 		pregnancy.fetus.forEach(parasite => {
 			if (parasite.daysLeft > 0) parasite.daysLeft--;
 			if (parasite.stats.gender === "Hermaphrodite" && parasite.daysLeft <= 3) {
 				if (parasite.stats.lastEgg > 0) {
 					parasite.stats.lastEgg--;
 				} else if (V.sexStats[genital].pregnancy.fetus.length < maxParasites(genital)) {
-					impregnateParasite(parasite.creature, true, genital, parasite);
+					impregnate = clone(parasite);
 				}
 			}
 		});
+		if (impregnate) impregnateParasite(impregnate.creature, true, genital, impregnate);
 		pregnancy.fetus = pregnancy.fetus.filter(parasite => parasite.daysLeft > 0 || parasite.fertilised);
 		if (!pregnancy.fetus.length) pregnancy.type = null;
 	}
@@ -73,7 +75,7 @@ function parasiteProgressTime(pass, genital = "anus") {
 }
 
 function impregnateParasite(parasiteType, chance, genital = "anus", hermParasite) {
-	if (V.parasitepregdisable === "t" || !parasiteType || (!V.player.vaginaExist && genital === "vagina")) return false;
+	if (V.settings.parasitePregnancyEnabled === false || !parasiteType || (!V.player.vaginaExist && genital === "vagina")) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken && !hermParasite) return false;
 
 	const pregnancy = V.sexStats[genital].pregnancy;
@@ -85,6 +87,7 @@ function impregnateParasite(parasiteType, chance, genital = "anus", hermParasite
 	if (pregnancy && rngCheck) {
 		switch (parasiteType) {
 			case "slimes":
+			case "pale slimes":
 			case "eels":
 			case "worms":
 			case "snakes":

@@ -3,6 +3,12 @@
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
 		if (typeof value === "object") value = JSON.stringify(value);
+		/* Included both types of error reporting, since this often will only occur in a link */
+		Errors.report(
+			`Unexpected value for the function "${functionName}" in the passage "${V.passage}". Param "${param}" had unexpected value of "${value}".${
+				expectedValues ? ` ${expectedValues}` : ""
+			}`
+		);
 		throw new Error(
 			`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
 				expectedValues ? ` ${expectedValues}` : ""
@@ -107,9 +113,21 @@ const statChange = (() => {
 	DefineMacro("traumaclamp", traumaClamp);
 
 	function updateHallucinations() {
-		if (V.trauma >= (V.traumamax / 10) * 5 || V.awareness >= 400 || V.hallucinogen > 0 || isBloodmoon() || V.worn.face.type.includes("esoteric") || setup.bodyparts.find(p => $skin[p].special === 'esoteric')) {
+		if (
+			V.trauma >= (V.traumamax / 10) * 5 ||
+			(V.awareness >= 400 && !(V.hypnosis_traits.insight && V.settings.hypnosisEnabled)) ||
+			(V.awareness < 200 && V.hypnosis_traits.insight && V.settings.hypnosisEnabled) ||
+			V.hallucinogen > 0 ||
+			Time.isBloodMoon() ||
+			V.worn.face.type.includes("esoteric") ||
+			V.worn.head.type.includes("esoteric")
+		) {
 			V.hallucinations = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 3 || V.awareness >= 300) {
+		} else if (
+			V.trauma >= (V.traumamax / 10) * 3 ||
+			(V.awareness >= 300 && !(V.hypnosis_traits.insight && V.settings.hypnosisEnabled)) ||
+			(V.awareness < 300 && V.hypnosis_traits.insight && V.settings.hypnosisEnabled)
+		) {
 			V.hallucinations = 1;
 		} else {
 			V.hallucinations = 0;
@@ -128,6 +146,7 @@ const statChange = (() => {
 		if (amount) {
 			V.control += amount * 10;
 			if (combat && V.control >= V.controlstart) V.control = V.controlstart;
+			else if (V.controlstart < V.control) V.controlstart = Math.min(V.control, V.controlmax);
 			V.controlled = V.control >= (V.controlmax / 5) * 2 ? 1 : 0;
 		}
 		V.control = Math.clamp(V.control, 0, V.controlmax);
@@ -234,12 +253,6 @@ const statChange = (() => {
 					const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
 					stressMod = 30 - drunkMod * 5;
 				}
-
-				if (V.body_temperature === "cold") {
-					stressMod *= 3;
-				} else if (V.body_temperature === "chilly") {
-					stressMod *= 1.5;
-				}
 				V.stress += amount * stressMod;
 			}
 		}
@@ -269,7 +282,7 @@ const statChange = (() => {
 			// Trait checks & effects
 			if (amount > 0 && V.orgasmtrait) mod *= 0.6;
 
-			// adds up to +1 to the  arousal modifier when suffocating
+			// adds up to +1 to the arousal modifier when suffocating
 			if (V.choketrait) mod += (V.oxygenmax - V.oxygen) / V.oxygenmax;
 
 			if (V.drugged > 0) {
@@ -346,9 +359,12 @@ const statChange = (() => {
 			}
 
 			// Adjusts modifier for body part sensitivity, if applicable
-			// Do not apply sensitivity boosts during chef job
-			if (sensitivity >= 1 && !V.masturbation_bowl) {
-				mod += (sensitivity - 1) * (sensitivity >= 2 ? 0.5 : 1);
+			if (amount > 0) {
+				let sensitivityMod = (sensitivity - 1) ** 2 / 4;
+				// Halve sensitivity boosts during chef job
+				// todo: rebalance chef job better
+				if (V.masturbation_bowl) sensitivityMod /= 2;
+				mod += sensitivityMod;
 			}
 
 			// Reduce the mod if masturbating while in heat and/or rut
@@ -356,12 +372,12 @@ const statChange = (() => {
 				mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
 			}
 
-			V.arousal += amount * mod;
+			V.arousal += amount * mod * Weather.BodyTemperature.arousalModifier;
 			arousalClamp();
 
 			// Add to the tracker
 			if (amount > 0) {
-				V.trackedArousal[V.trackedArousal.length - 1] += amount * mod;
+				V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * mod);
 				V.timeSinceArousal = 0;
 			}
 		}
@@ -391,18 +407,11 @@ const statChange = (() => {
 	function tiredness(amount, source) {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		if (amount > 0 && (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
+			amount *= 1.5;
+		}
 		if (amount) {
-			let mod = 1;
-			if (V.body_temperature === "hot") {
-				mod += 2;
-			} else if (V.body_temperature === "warm") {
-				mod += 0.5;
-			}
-			if (source === "pass") {
-				V.tiredness += amount * mod;
-				return;
-			}
-			V.tiredness += amount * mod * (amount > 0 ? 15 : 20);
+			V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
 		}
 	}
 	DefineMacro("tiredness", tiredness);
@@ -419,6 +428,8 @@ const statChange = (() => {
 				// science reduction
 				pain *= 1 - V.sciencetrait / 10;
 
+				if (V.drunk >= 360) pain *= Math.min(0.95, 0.95 - 0.1 * ((V.drunk - 360) / 640));
+
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
 					pain *= 1 - V.masochism / 1200;
@@ -426,7 +437,7 @@ const statChange = (() => {
 				}
 			}
 
-			V.pain += pain;
+			V.pain += pain * Weather.BodyTemperature.painModifier;
 		}
 		painClamp();
 	}
@@ -455,7 +466,7 @@ const statChange = (() => {
 	function minPain() {
 		let result = 0;
 
-		if (V.lactating && V.breastfeedingdisable === "f" && V.milkFullPain > 200) {
+		if (V.lactating && V.settings.breastFeedingEnabled === true && V.milkFullPain > 200) {
 			result += Math.ceil((V.milkFullPain - 200) / 5);
 			if (!V.daily.milkFullPainMessage) {
 				V.milkFullPainMessage = 1;
@@ -465,6 +476,7 @@ const statChange = (() => {
 
 		if (
 			V.earSlime.defyCooldown &&
+			!V.hypnosis_traits.silence &&
 			(V.worn.genitals.name === "chastity parasite" || V.parasite.penis.name === "parasite" || V.parasite.clit.name === "parasite")
 		) {
 			result += 25;
@@ -490,7 +502,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			if (source === "bonus") {
-				// find how many visible, non-mandatory school clothes are equipped, and add 1
+				// find how many visible, non-mandatory school clothes are equipped and add 1
 				const multi = getVisibleClothesList().reduce(
 					(mult, slot) => mult + (slot.type && slot.type.includes("school") && !["upper", "lower"].includes(slot.name)),
 					1
@@ -511,7 +523,7 @@ const statChange = (() => {
 		if (amount > 0) {
 			V.cool += amount;
 
-			// ind how many visible clothes have "cool" in their type (if they have type), and add 1
+			// ind how many visible clothes have "cool" in their type (if they have type) and add 1
 			const multi = getVisibleClothesList().reduce((mult, slot) => mult + (slot.type && slot.type.includes("cool")), 1);
 			V.cool += amount * multi;
 		} else if (amount < 0) {
@@ -541,7 +553,6 @@ const statChange = (() => {
 	DefineMacro("spray", spray);
 
 	function awareness(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("awareness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -556,7 +567,6 @@ const statChange = (() => {
 	DefineMacro("awareness", awareness);
 
 	function purity(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("purity", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -670,75 +680,103 @@ const statChange = (() => {
 				case 4:
 					insecurity("penis_big", amount);
 					return statDisplay.ginsecurity("penis_big");
+				case 3:
+					if (V.player.gender !== "m") {
+						insecurity("penis_big", amount);
+						return statDisplay.ginsecurity("penis_big");
+					}
+					break;
 				case 1:
 					insecurity("penis_small", amount);
 					return statDisplay.ginsecurity("penis_small");
 				case 0:
+					insecurity("penis_small", Math.floor(amount * 1.5));
+					return statDisplay.ginsecurity("penis_small");
 				case -1:
+					insecurity("penis_small", Math.floor(amount * 2));
+					return statDisplay.ginsecurity("penis_small");
 				case -2:
-					insecurity("penis_tiny", amount);
-					return statDisplay.ginsecurity("penis_tiny");
+					insecurity("penis_small", Math.floor(amount * 2.5));
+					return statDisplay.ginsecurity("penis_small");
 			}
 		}
 		return "";
 	}
 
+	function gainBreastInsecurity(amount = 5) {
+		if (V.statFreeze) return "";
+		if (isNaN(amount)) paramError("gainBreastInsecurity", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			if (V.player.breastsize >= 8) {
+				insecurity("breasts_big", amount);
+				return statDisplay.ginsecurity("breasts_big");
+			} else {
+				insecurity("breasts_small", Math.floor(amount));
+				return statDisplay.ginsecurity("breasts_small");
+			}
+		}
+		return "";
+	}
+
+	function insecurityPossible(type) {
+		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
+			paramError("insecurity", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"');
+		}
+		if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
+
+		return [
+			{
+				penis_small: V.player.penisExist && V.player.penissize <= 1,
+				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 4 : 3),
+				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
+				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
+				pregnancy: playerBellySize() >= 8,
+			}[type] && V["acceptance_" + type] < 1000,
+			type,
+		];
+	}
+
 	function insecurity(type, amount) {
 		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("insecurity", "amount", amount, "Expected a number.");
-		if (!["penis_tiny", "penis_small", "penis_big", "breasts_tiny", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
-			paramError(
-				"insecurity",
-				"type",
-				type,
-				'Expected values include "penis_tiny", "penis_small", "penis_big", "breasts_tiny", "breasts_small", "breasts_big", "pregnancy"'
-			);
-			return;
-		}
 		amount = Number(amount);
 		if (amount) {
-			const insecurityPossible = {
-				penis_tiny: V.player.penisExist && V.player.penissize <= 0,
-				penis_small: V.player.penisExist && V.player.penissize === 1,
-				penis_big: V.player.penisExist && V.player.penissize >= 4,
-				breasts_tiny: V.player.gender !== "m",
-				breasts_small: true,
-				breasts_big: true,
-				pregnancy: playerBellySize() >= 8,
-			}[type];
-			const acceptance = V["acceptance_" + type];
+			let possible;
+			[possible, type] = insecurityPossible(type);
 			let insecurity = V["insecurity_" + type];
-			if (acceptance < 1000 && insecurityPossible) {
+			if (possible || amount < 0) {
 				insecurity = Math.clamp(insecurity + amount, 0, 1000);
-				switch (Math.floor(insecurity / 200)) {
-					case 5:
-						stress(3);
-						control(-3);
-						break;
-					case 4:
-						stress(3);
-						control(-2);
-						break;
-					case 3:
-						stress(2);
-						control(-2);
-						break;
-					case 2:
-						stress(2);
-						control(-1);
-						break;
-					case 1:
-						stress(1);
-						control(-1);
-						break;
-					case 0:
-						stress(1);
-						break;
-				}
 				V["insecurity_" + type] = insecurity;
+
 				if (amount > 0) {
+					switch (Math.floor(insecurity / 200)) {
+						case 5:
+							stress(3);
+							control(-3);
+							break;
+						case 4:
+							stress(3);
+							control(-2);
+							break;
+						case 3:
+							stress(2);
+							control(-2);
+							break;
+						case 2:
+							stress(2);
+							control(-1);
+							break;
+						case 1:
+							stress(1);
+							control(-1);
+							break;
+						case 0:
+							stress(1);
+							break;
+					}
 					// reduce acceptance by matching amount
-					V["acceptance_" + type] = Math.clamp(acceptance - amount, 0, 1000);
+					V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] - amount, 0, 1000);
 				}
 			}
 		}
@@ -748,18 +786,19 @@ const statChange = (() => {
 	function acceptance(type, amount) {
 		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("acceptance", "amount", amount, "Expected a number.");
-		if (!["penis_tiny", "penis_small", "penis_big", "breasts_tiny", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
-			paramError(
-				"acceptance",
-				"type",
-				type,
-				'Expected values include "penis_tiny", "penis_small", "penis_big", "breasts_tiny", "breasts_small", "breasts_big", "pregnancy"'
-			);
+		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
+			paramError("acceptance", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"');
 			return;
 		}
 		amount = Number(amount);
 		if (amount) {
-			V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] + amount * 6, 0, 1000);
+			// Male players always gain insecurity when breast size is above 0
+			if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
+			// eslint-disable-next-line prettier/prettier
+			const insecurityMod = amount > 0 ? (Math.ceil(V["insecurity_" + type] / 200) + 1) : 1;
+
+			// eslint-disable-next-line prettier/prettier
+			V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] + (amount * insecurityMod), 0, 1000);
 		}
 	}
 	DefineMacro("acceptance", acceptance);
@@ -774,13 +813,14 @@ const statChange = (() => {
 				case 4:
 					type = "penis_big";
 					break;
-				case 1:
-					type = "penis_small";
+				case 3:
+					if (V.player.gender !== "m") type = "penis_big";
 					break;
+				case 1:
 				case 0:
 				case -1:
 				case -2:
-					type = "penis_tiny";
+					type = "penis_small";
 					break;
 			}
 			if (type && V["insecurity_" + type] > 0 && V["acceptance_" + type] < 1000) {
@@ -793,7 +833,6 @@ const statChange = (() => {
 	}
 
 	function willpower(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("willpower", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -929,7 +968,6 @@ const statChange = (() => {
 	DefineMacro("skulduggery", amount => skill("skulduggery", amount));
 
 	function prof(skill, amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("prof", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -949,7 +987,6 @@ const statChange = (() => {
 	DefineMacro("locker_suspicion", lockerSuspicion);
 
 	function alcohol(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -961,7 +998,6 @@ const statChange = (() => {
 	DefineMacro("alcohol", alcohol);
 
 	function drugs(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("drugs", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -973,7 +1009,6 @@ const statChange = (() => {
 	DefineMacro("drugs", drugs);
 
 	function hallucinogen(amount) {
-		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("hallucinogen", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
@@ -985,19 +1020,21 @@ const statChange = (() => {
 	function wet(type, amount) {
 		if (isNaN(amount)) paramError("wet", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (!["upper", "lower", "under_upper", "under_lower", "underupper", "underlower"].includes(type)) {
-			paramError("wet", "type", type, 'Expected values include "upper", "lower", "under_upper", "under_lower", "underupper" and "underlower"');
+		if (!["upper", "lower", "under_upper", "under_lower"].includes(type)) {
+			paramError("wet", "type", type, 'Expected values include "upper", "lower", "under_upper" and "under_lower"');
 			return;
 		}
-		type = type.replace(/_/g, "");
-		if (amount) {
-			V[type + "wet"] = Math.clamp(V[type + "wet"] + amount, 0, 200);
+		if (!waterproofCheck(V.worn[type])) {
+			type = type.replace(/_/g, "");
+			if (amount) {
+				V[type + "wet"] = Math.clamp(V[type + "wet"] + amount, 0, 200);
+			}
 		}
 	}
 	DefineMacro("upperwet", amount => wet("upper", amount));
 	DefineMacro("lowerwet", amount => wet("lower", amount));
-	DefineMacro("underupperwet", amount => wet("underupper", amount));
-	DefineMacro("underlowerwet", amount => wet("underlower", amount));
+	DefineMacro("underupperwet", amount => wet("under_upper", amount));
+	DefineMacro("underlowerwet", amount => wet("under_lower", amount));
 
 	function worldCorruption(type, amount) {
 		if (isNaN(amount)) paramError("worldCorruption", "amount", amount, "Expected a number.");
@@ -1025,6 +1062,224 @@ const statChange = (() => {
 		}
 	}
 	DefineMacro("world_corruption", worldCorruption);
+
+	function money(amount, source, optional = {}) {
+		if (isNaN(amount)) paramError("money", "amount", amount, "Expected a number.");
+		if (!(typeof source === "string" || source instanceof String || source === undefined))
+			paramError("money", "source", source, "Expected a string or undefined.");
+		if (!(typeof optional === "object" && optional !== null)) paramError("money", "optional", optional, "Expected an object.");
+		amount = Number(amount);
+
+		if (!Number.isFinite(amount)) {
+			paramError("money", "amount", amount, "Expected a valid number.");
+			return;
+		}
+		if (!optional.recordOnly) {
+			if (amount < 0 && V.money + amount < 0) {
+				/* Included both types of error reporting, since this often will only occur in a link */
+				Errors.report(`Unexpected use for the function "money" in the passage "${V.passage}". Player doesn't have enough money to spend.`);
+				throw new Error(`Unexpected use for the function "money". Player doesn't have enough money to spend.`);
+			}
+
+			V.money += amount;
+		}
+		if (!source || source === "prostitution") {
+			const mod = source === "prostitution" ? "Prostitution" : "";
+			switch (V.location) {
+				case "farm":
+				case "alex_farm":
+				case "alex_cottage":
+					source = "farm" + mod;
+					break;
+				case "dance_studio":
+					source = "danceStudio" + mod;
+					break;
+				case "moor":
+				case "bog":
+				case "castle":
+				case "tower":
+					source = "moor" + mod;
+					break;
+				case "riding_school":
+					source = "ridingSchool" + mod;
+					break;
+				case "strip_club":
+					source = "stripClub" + mod;
+					break;
+				case "forest":
+				case "lake":
+				case "old_temple":
+				case "lake_ruin":
+				case "wolf_cave":
+				case "cabin":
+				case "forest_shop":
+				case "catacombs":
+				case "churchyard":
+				case "sepulchre":
+					source = "forest" + mod;
+					break;
+				case "dilapidated_shop":
+				case "adult_shop":
+					source = "adultShop" + mod;
+					break;
+				case "town":
+				case "home":
+				case "police_station":
+				case "oak":
+				case "night_monster_lair":
+				case "industrial":
+				case "estate":
+				case "shopping_centre":
+				case "alley":
+				case "park":
+				case "drain":
+				case "sewers":
+				case "beech":
+				case "sea":
+				case "kylarmanor":
+					source = "town" + mod;
+					break;
+				case "studio":
+					source = "photoStudio" + mod;
+					break;
+				case "pirate_ship":
+					source = "pirates" + mod;
+					break;
+				case "school":
+				case "school_rear_courtyard":
+				case "pool":
+					source = "school" + mod;
+					break;
+				case "office":
+				case "office_building":
+				case "officeBuilding":
+				case "avery_skyscraper":
+					source = "office" + mod;
+					break;
+				case "canal":
+					source = "flatsCanal" + mod;
+					break;
+				default:
+					source = V.location + mod;
+					break;
+			}
+		}
+
+		if (!source) source = "unknown"; // Should be unreachable, but there just in case
+		// eslint-disable-next-line no-undef
+		source = toCamelCase(source);
+
+		const type = amount > 0 ? "earned" : "spent";
+		amount = Math.abs(amount);
+
+		if (!V.moneyStats[source]) V.moneyStats[source] = { earned: 0, earnedCount: 0, spent: 0, spentCount: 0 };
+		V.moneyStats[source][type] += amount;
+		V.moneyStats[source][type + "Count"]++;
+		V.moneyStats[source][type + "TimeStamp"] = Time.date.timeStamp;
+	}
+	DefineMacro("money", money);
+
+	/*
+		Using a similar source to above, you'll be able to generate 'hourly rates' in the money statistics.
+		See the 'Cafe' and 'Cafe Work' passages and `timeTrackingEndCafe` widget for example usage usage
+	*/
+	function timeTracking(source, startTracking) {
+		if (!(typeof source === "string" || source instanceof String)) paramError("timeTracking", "source", source, "Expected a string.");
+
+		if (!V.timeStats[source]) {
+			V.timeStats[source] = { total: 0, trackedStart: 0 };
+		}
+		if (startTracking) {
+			V.timeStats[source].trackedStart = Time.date.timeStamp;
+		} else if (V.timeStats[source].trackedStart) {
+			// Clamped to 24 hours to prevent crazy values from occuring
+			V.timeStats[source].total += Math.clamp(Time.date.timeStamp - V.timeStats[source].trackedStart, 0, 3600 * 24);
+			V.timeStats[source].trackedStart = 0;
+		}
+	}
+	DefineMacro("timeTrackingStart", source => timeTracking(source, true));
+	DefineMacro("timeTrackingEnd", source => timeTracking(source));
+
+	function timeTrackingManual(source, amount, timeType = "hour") {
+		if (isNaN(amount)) paramError("timeTrackingManual", "amount", amount, "Expected a number.");
+		if (!(typeof source === "string" || source instanceof String)) paramError("timeTrackingManual", "source", source, "Expected a string.");
+		if (!["hour", "minute", "second"].includes(timeType))
+			paramError("timeTrackingManual", "timeType", timeType, "Expected a string of either 'hour', 'minute' or 'second'.");
+
+		amount = Number(amount);
+		if (Number.isFinite(amount)) {
+			if (!V.timeStats[source]) {
+				V.timeStats[source] = { total: 0, trackedStart: 0 };
+			}
+			if (timeType === "hour") amount *= 3600;
+			if (timeType === "minute") amount *= 60;
+
+			// Clamped to 24 hours to prevent crazy values from occuring
+			V.timeStats[source].total += Math.clamp(amount, 0, 3600 * 24);
+		}
+	}
+	DefineMacro("timeTrackingManual", (source, amount, timeType) => timeTrackingManual(source, amount, timeType));
+
+	function timeTrackingTotal(source, timeType = "hour") {
+		if (!(typeof source === "string" || source instanceof String)) paramError("timeTrackingTotal", "source", source, "Expected a string.");
+		if (!["hour", "minute", "second"].includes(timeType))
+			paramError("timeTrackingTotal", "timeType", timeType, "Expected a string of either 'hour', 'minute' or 'second'.");
+
+		if (!V.timeStats[source]?.total || (T.timeTrackingSnapshotOveride && !V.moneyStatsSnapshot?.time[source])) return 0;
+
+		let multiplier = 1;
+		if (timeType === "hour") multiplier = 3600;
+		if (timeType === "minute") multiplier = 60;
+
+		// Override that returns a value when looking for the snapshot value
+		if (T.timeTrackingSnapshotOveride && V.moneyStatsSnapshot?.time[source]) return V.moneyStatsSnapshot?.time[source].total / multiplier;
+
+		return V.timeStats[source].total / multiplier;
+	}
+
+	function badEndTracking(source, optional = {}) {
+		// Disabled during a replay
+		if (V.replayScene) return false;
+		const lastBadEnd = V.badEndStats.last();
+
+		// Attempted to start tracking, but the previous tracking wasn't stopped
+		if (lastBadEnd && !lastBadEnd.trackedEnd) {
+			badEndTrackingEnd(lastBadEnd.source, {
+				reason: "unknown",
+				notes: `Not tracked in passage ${V.passage}, likely from an error`,
+			});
+		}
+
+		const newBadEnd = {
+			source,
+			trackedStart: Time.date.timeStamp,
+			trackedEnd: undefined,
+		};
+		if (optional.reason) newBadEnd.reasonStart = optional.reason;
+		if (optional.notes) newBadEnd.notesStart = optional.notes;
+		V.badEndStats.push(newBadEnd);
+	}
+	DefineMacro("badEndTracking", (source, optional) => badEndTracking(source, optional));
+
+	function badEndTrackingEnd(source, optional = {}) {
+		// Disabled during a replay
+		if (V.replayScene) return false;
+		let lastBadEnd = V.badEndStats.last();
+
+		// Attempted to end tracking, but either tracking doesn't exist, the trackingEnd has already been set or the source doesn't match
+		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
+			badEndTracking(source, {
+				reason: "unknown",
+				notes: `Not correctly tracked in passage ${V.passage}, ${V.badEndStats.length ? "likely from an error" : "likely from loading an old save"}`,
+			});
+			lastBadEnd = V.badEndStats.last();
+		}
+
+		lastBadEnd.trackedEnd = Time.date.timeStamp;
+		if (optional.reason) lastBadEnd.reasonEnd = optional.reason;
+		if (optional.notes) lastBadEnd.notesEnd = optional.notes;
+	}
+	DefineMacro("badEndTrackingEnd", (source, optional) => badEndTrackingEnd(source, optional));
 
 	return {
 		trauma,
@@ -1065,6 +1320,8 @@ const statChange = (() => {
 		submissive,
 		subCheck,
 		gainPenisInsecurity,
+		gainBreastInsecurity,
+		insecurityPossible,
 		insecurity,
 		acceptance,
 		gainPenisAcceptance,
@@ -1083,6 +1340,12 @@ const statChange = (() => {
 		hallucinogen,
 		wet,
 		worldCorruption,
+		money,
+		timeTracking,
+		timeTrackingManual,
+		timeTrackingTotal,
+		badEndTracking,
+		badEndTrackingEnd,
 	};
 })();
 window.statChange = statChange;

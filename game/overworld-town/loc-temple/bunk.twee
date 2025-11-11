@@ -2,11 +2,11 @@
 <<bedclotheson "Temple Bunk Bed">>
 <<effects>>
 
-You are beside your bunk in the temple quarters. There's a cupboard for your clothes, and a small space behind a screen for dressing.
+You are beside your bunk in the temple quarters. There's a cupboard for your clothes and a small space behind a screen for dressing.
 <br><br>
 
 <<if Time.dayState is "night">>
-	The bunks are full and the rooms are silent save for an occasional snore.
+	The bunks are full, and the rooms are silent save for an occasional snore.
 <<elseif Time.dayState is "day">>
 	Initiates are hard at work dusting and cleaning.
 <<elseif Time.dayState is "dawn">>
@@ -15,6 +15,24 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 	Some of the monks and nuns are preparing for bed.
 <</if>>
 <br><br>
+
+<<if $unbind is 1>>
+	<<unset $unbind>>
+	<<if $possessed>>
+		You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
+		<br><br>
+	<<else>>
+		<span class="green">You rub your bindings against the corner of a table.</span> It takes some effort, but eventually the material yields, freeing your limbs.
+		<br><br>
+	<</if>>
+	<<unbind>>
+<</if>>
+
+<<if pcAreArmsBound("any") or $feetuse is "bound">>
+	<<undobindingsicon>><<link [[Undo your bindings (0:10)|Temple Bunk]]>><<set $unbind to 1>><<pass 10>><</link>>
+	<br><br>
+<</if>>
+
 <<if $earSlime.event and $earSlime.noSleep>>
 	<<if $possessed>>
 		<<ind>><span class="purple">The slime in your head is silent.</span>
@@ -29,20 +47,21 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 	<br>
 <</if>>
 <<roomoptions>>
+<<safehouseEvents>>
 <<wardrobeicon>><<link [[Wardrobe|Temple Wardrobe]]>><</link>>
 <br>
-<<mirroricon>><<link [[Mirror|Temple Mirror]]>><<preMirror>><<endevent>><</link>>
+<<icon "mirror.png">><<link [[Mirror|Temple Mirror]]>><<preMirror>><<endevent>><</link>>
 <br><br>
-<<getouticon>><<link [[Leave|Temple Quarters]]>><</link>>
+<<getouticon>><<link [[Step back|Temple Quarters]]>><</link>>
 
 <br><br>
-<<ind>><<link [[Gameplay Settings|Temple Settings]]>><</link>>
+<<link [[Gameplay Settings|Temple Settings]]>><</link>>
 <br>
 <<attitudesControlCheck>>
 <<if $attitudesControl.showGoldLink is true>>
 	<span class="goldLink"><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>> </span><span class="red">!!</span>
 <<else>>
-	<<ind>><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
+	<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
 <</if>>
 <br>
 
@@ -55,7 +74,7 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 
 :: Temple Mirror
 <<effects>>
-<<getouticon>><<link [[Step away|Temple Bunk]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<<getouticon>><<link [[Step away|Temple Bunk]]>><<handheldon>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
 <br>
 <<mirror "reflection">>
 <br><br>
@@ -84,31 +103,25 @@ You are beside your bunk in the temple quarters. There's a cupboard for your clo
 	/* <<earSlimeFocusChoice>> or similar widgets are running */
 <<else>>
 	<<effects>>
-    <<wakingEffects $sleepHoursTotal>>
-    <<if $nightmares gte 1 and $controlled is 0>>
-        You dream you are being hunted by something <<if ["haunt", "despair"].includes($wraith.state) and $rng lte 25>>pale<<else>>dark<</if>> and terrible.
-    <<else>>
-        <<if $specialClothesEffects.bimboTotal gte random(100,1000) or $arousal gte 9000>>
-            Your sleep is plagued by dirty dreams.
-            <<arousal `$specialClothesEffects.bimboTotal / 10 * $sleepHoursTotal`>>
-            <<arousal `100 * $sleepHoursTotal`>>
-            <<if $arousal gte $arousalmax>>
-                They push you over the edge.
-                <<orgasm>>
-            <</if>>
-        <<elseif !_wakingEffect>>
-            You sleep soundly.
-            <br><br>
-        <</if>>
-    <</if>>
-    <<sleepeffects>>
-	<br><br>
-    <<set $wardrobe_location to "temple">>
-    <<wardrobeSelection true>>
-    <<radiooutfits>>
+	<<wakingEffects $sleepHoursTotal>>
+	<<if $nightmares gte 1 and $controlled is 0>>
+		<<nightmareWake>>
+	<<else>>
+		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+			<<wetDream>>
+		<<elseif !_wakingEffect>>
+			You sleep soundly.
+			<br><br>
+		<</if>>
+	<</if>>
+	<<sleepeffects>>
 
-    <br><br>
-    <<link [[Get up|Temple Bunk]]>><</link>>
-    <br>
-   <<set $phase to 0>>
+	<<set $wardrobe_location to "temple">>
+	<<wardrobeSelection true>>
+	<<radiooutfits>>
+
+	<br><br>
+	<<link [[Get up|Temple Bunk]]>><</link>>
+	<br>
+	<<set $phase to 0>>
 <</if>>

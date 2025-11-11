@@ -9,13 +9,12 @@
 	<<if $options.playtime>>
 		Play Time: <<print msToTime(($saveDetails.playTime ? $saveDetails.playTime : 0) + ($saveDetails.loadTime ? new Date() - $saveDetails.loadTime : 0))>> |
 	<</if>>
-	<<print StartConfig.version>><<if StartConfig.versionName>> <<print StartConfig.versionName>><</if>><<if StartConfig.sneaky>> SNEAKY<</if>>
+	<<print StartConfig.version>><<if StartConfig.sneaky>> SNEAKY<</if>>
 </div>
 <div id="gameVersionDisplay2"><<print StartConfig.version.slice(1)>></div>
 <<if $passage isnot "Start">>
 	<div id="feat"></div>
-	<div id="mobileStats"></div>
-	<div id="exportWarning" @class="'no-numberify ' + (Time.days gte $saveDetails.exported.days + $saveDetails.exported.frequency ? '':'hidden')">
+	<div id="exportWarning" @class="'no-numberify ' + (!$statFreeze and Time.days gte $saveDetails.exported.days + $saveDetails.exported.frequency ? '':'hidden')">
 		<span class="red">You haven't exported your save in a while</span> |
 		<<if !Browser.isMobile.any()>>
 			<<link "Export">>
@@ -28,17 +27,7 @@
 		<<link "Ignore for now">><<set $saveDetails.exported.days to Math.floor(Time.days - ($saveDetails.exported.frequency * 0.5))>><<addclass #exportWarning "hidden">><</link>>
 	</div>
 <</if>>
-<<if $replayScene isnot undefined>>
-	<<if $replayScene.startPassage is $passage or $passage is "Scene Viewer End">>
-	<<elseif !$replayScene.passages.includes($passage)>>
-		<!-- todo: replace goto with something that doesn't have a potential to fuck up the history -->
-		<<goto "Scene Viewer End">>
-	<</if>>
-	<<if $replayScene is undefined>>
-	<<elseif $replayScene.startPassage>>
-		<<run delete $replayScene.startPassage>>
-	<</if>>
-<</if>>
+
 <div id="customOverlayContainer" class="customOverlayContainer no-numberify hidden" onclick="closeOverlay()">
 	<div id="customOverlay" @class="'customOverlay hidden' + ($options.overlayFontSize ? ' fontSize' + $options.overlayFontSize : '') + ($options.overlayLineHeight ? ' lineHeight' + $options.overlayLineHeight.toString().replace('.','') : '')" onclick="event.stopPropagation()">
 		<div id="customOverlayTitle"></div>
@@ -56,7 +45,7 @@
 
 <<if !Story.has($passage)>>
 	<br>
-	Please report this, and either reload a previous save or take the emergency exit at the bottom of the page to the last safe location you were in.
+	Please report this and either reload a previous save or take the emergency exit at the bottom of the page to the last safe location you were in.
 	<<if State.history.length gt 1>>
 		Alternatively, return to the previous passage using the history depth function<<if !Config.history.controls>> that can be enabled in the options<</if>>.
 	<</if>>
@@ -72,7 +61,7 @@
 	}>>
 	<br><br>
 	Please report this,
-	<<if $cheatdisable is "f">>
+	<<if $cheatsEnabled is true>>
 		unless you got here through the use of a cheat,
 	<</if>>
 	and either reload a previous save or take the emergency exit at the bottom of the page to the last safe location you were in.

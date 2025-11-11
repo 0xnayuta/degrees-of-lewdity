@@ -9,7 +9,7 @@ function playerPenisSize() {
 }
 window.playerPenisSize = playerPenisSize;
 
-function npcHasStrapon(index) {
+function npcHasStrapon(index = V.index) {
 	if (typeof index !== "number") {
 		if (V.options.debugdisable === "f" || V.debug === 1)
 			Errors.report(`[npcHasStrapon]: index must be a number, was ${typeof index}.`, {
@@ -23,7 +23,7 @@ function npcHasStrapon(index) {
 	}
 	// index is 0 to 5
 	const npc = V.NPCList[index];
-	return npc && npc.strapon && npc.strapon.state === "worn";
+	return !!npc && !!npc.strapon && npc.strapon.state === "worn";
 }
 window.npcHasStrapon = npcHasStrapon;
 

@@ -3,7 +3,7 @@
 <<npc Alex>><<person1>><<generate2>><<generate3>>
 You wake up to two arms holding you tightly. You find yourself being dragged across a field towards a parked van.
 <br><br>
-"Shit, <<pshe>>'s waking up," the <<person2>><<person>> says.
+"Shit, <<pshes>> waking up," the <<person2>><<person>> says.
 <br><br>
 "What're you waiting for? Put <<phim>> out again before someone notices!" the <<person3>><<person>> mutters under their breath.
 <br><br>
@@ -32,11 +32,12 @@ You don't have a lot of time to shout before it's too late.
 		<br><br>
 		<<His>> voice trails off as your consciousness begins to fade. Alex quickly picks you up and carries you away before everything goes dark.
 		<br><br>
+		<<set $outside to 0>>
 		<<link [[Give in|Farm Abduction wake 3]]>><<pass 4 hours>><<set $stress -= 5000>><</link>><<lstress>>
 	<<else>>
-		The <<person2>><<person>> looks around for a moment then at you. <<He>> smirks. "What did you expect that to do, princess? Waiting for a prince to rescue you?"
+		The <<person2>><<person>> looks around for a moment then at you. <<He>> smirks. "What did you expect that to do, <<if $player.gender_appearance is "f">>princess<<else>>prince<</if>>? Waiting for a knight to rescue you?"
 		<br><br>
-		The two assailants continue to drag you towards the van. Dizziness overwhelms you. As you near the vehicle, you feel your consciousness fading.
+		The two assailants continue to drag you towards the van. As you near the vehicle, you feel your consciousness fading.
 		<br><br>
 		<<link [[Next|Moor Abduction Wake]]>><<pass 60>><<set $stress -= 2000>><<set $moor to 50>><<endevent>><</link>>
 	<</if>>
@@ -49,7 +50,7 @@ You don't have a lot of time to shout before it's too late.
 <</if>>
 
 :: Farm Abduction wake 3
-<<set $location to "alex_cottage">><<set $outside to 0>><<effects>>
+<<set $location to "alex_cottage">><<effects>>
 <<if $trauma lt ($traumamax / 10) * 6>>
 	You awake inside a farmhouse. You're lying on a couch with a blanket over you. A small table holding a cup of tea sits nearby.
 	<br><br>
@@ -181,7 +182,7 @@ You are alone in a tent, tied to a chain buried in the earth. You hear snoring o
 <br><br>
 
 <<if $stress gte $stressmax>>
-	<<if isPlayerNonparasitePregnancyEnding()>>
+	<<if isPregnancyEnding()>>
 		<<pregnancyPassout "remyAbduction">>
 	<<else>>
 		It's too much for you. You pass out.
@@ -221,10 +222,10 @@ You're marched across the moor, enduring the ogling stares of your captors.
 <<set $moor -= 5>><<pass 60>>
 <<if $moor lte 10 or $moor is undefined>>
 	You arrive at a tall fence. Through the bars you see grazing
-	<<if $monsterchance gte 1 and $hallucinations gte 1 or $monsterchance gte 1 and $monsterhallucinations is "f" or $bestialitydisable is "t">>
-		<<if beastMaleChance() is 100>>
+	<<if $settings.monsterChance gte 1 and $hallucinations gte 1 or $settings.monsterChance gte 1 and !$settings.monsterHallucinationsOnly or !$settings.bestialityEnabled>>
+		<<if $settings.maleVictimChance is 100>>
 			bullboys.
-		<<elseif beastMaleChance() is 0>>
+		<<elseif $settings.maleVictimChance is 0>>
 			cowgirls.
 		<<else>>
 			bullboys and cowgirls.
@@ -257,7 +258,7 @@ You're marched across the moor, enduring the ogling stares of your captors.
 	<<moor_binding_text>>
 	<br><br>
 	<<if $stress gte $stressmax>>
-		<<if isPlayerNonparasitePregnancyEnding()>>
+		<<if isPregnancyEnding()>>
 			<<pregnancyPassout "remyAbduction">>
 		<<else>>
 			It's too much for you. Your vision fades.
@@ -268,7 +269,7 @@ You're marched across the moor, enduring the ogling stares of your captors.
 			<br>
 		<</if>>
 	<<elseif Time.dayState is "night">>
-		"Set camp," the cry goes up. "We're not traveling in the dark."
+		"Set camp," the cry goes up. "We're not travelling in the dark."
 		<br><br>
 
 		<<if $moor lte 20>>
@@ -341,7 +342,7 @@ You're marched across the moor, enduring the ogling stares of your captors.
 		<</if>>
 		<br><br>
 
-		<<if $syndromebird is 1 and $harpy gte 6>>
+		<<if $syndromebird is 1 and $harpy gte 6 and $bird.injured lte 1>>
 			The thugs crowd closer, clutching their weapons, eyes darting up at the sky.
 			<br><br>
 
@@ -424,10 +425,10 @@ You're pushed through the gates. The entourage disperses, some carrying the cage
 You're dragged away from the entrance by a <<person1>><<person>>, and into a small barn. A <<person2>><<person>> and <<person3>><<person>> are already inside. They weren't part of the group that brought you here. They examine you.
 <br><br>
 
-<<person2>>"You weren't lying," the <<person>> says. "Good stock.<<if $pregnancyspeechdisable is "f">> Would make a fine breeder.<</if>>"
+<<person2>>"You weren't lying," the <<person>> says. "Good stock.<<if $settings.pregnancySpeechEnabled>> Would make a fine breeder.<</if>>"
 <br><br>
 
-<<person3>><<if $pregnancyspeechdisable is "f">>"Breeder?"<<else>>"Personally,"<</if>> the <<person>> interjects. "I'm more interested in the produce. Gonna make a killing." <<He>> advances on you, a metal chain and collar in <<his>> hand.
+<<person3>><<if $settings.pregnancySpeechEnabled>>"Breeder?"<<else>>"Personally,"<</if>> the <<person>> interjects. "I'm more interested in the produce. Gonna make a killing." <<He>> advances on you, a metal chain and collar in <<his>> hand.
 <br><br>
 
 <<link [[Protest|Street Van Protest]]>><<def 1>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
@@ -441,17 +442,30 @@ You're dragged away from the entrance by a <<person1>><<person>>, and into a sma
 <<effects>>
 
 <<generate2>><<generate3>>
-You awaken on a wooden floor, a cold heavy weight around your neck. Three figures loom over you.
-<<leash 21>>
-<br><br>
-<<person2>>"You weren't lying," a <<person>> says. "Good stock.<<if $pregnancyspeechdisable is "f">> Would make a fine breeder.<</if>>"
-<br><br>
+<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+	You awaken on a wooden floor. Two figures loom over you.
+	<br><br>
+	"You weren't lying," a <<person1>><<person>> says. "Good stock.<<if $settings.pregnancySpeechEnabled is "f">> Would make a fine breeder.<</if>>"
+	<br><br>
 
-<<person3>><<if $pregnancyspeechdisable is "f">>"Breeder?"<<else>>"Personally,"<</if>> a <<person>> interjects. "I'm more interested in the produce. Gonna make a killing." <<He>> grasps the leash attached to your collar, and forces you to your feet. You're in a small barn. The <<person>> tugs you behind <<him>>.
-<br><br>
+	"<<= $settings.pregnancySpeechEnabled is "f" ? "Breeder?" : "Personally,">>" the <<person2>><<person>> replies, "I'm more interested in the produce. Gonna make a killing. Need to do something about that stubborn collar, though." <<He>> grasps your familiar collar, and forces you to your feet. You're in a small barn.
+	The <<person>> recoils as you hear a small zap. "A shock collar? Maybe we can keep it after all." <<He>> pushes you along.
+	<br><br>
+	<<link [[Next|Livestock Intro Familiar Collar]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<leash 21>>
+	You awaken on a wooden floor, a cold heavy weight around your neck. Three figures loom over you.
+	<br><br>
+	<<person2>>"You weren't lying," a <<person>> says. "Good stock.<<if $settings.pregnancySpeechEnabled is "f">> Would make a fine breeder.<</if>>"
+	<br><br>
 
-<<link [[Next|Livestock Intro]]>><<endevent>><</link>>
-<br>
+	<<person3>>"<<= $settings.pregnancySpeechEnabled is "f" ? "Breeder?" : "Personally,">>" a <<person>> interjects. "I'm more interested in the produce. Gonna make a killing." <<He>> grasps the leash attached to your collar, and forces you to your feet. You're in a small barn. The <<person>> tugs you behind <<him>>.
+	<br><br>
+	<<badEndTracking "Underground Farm" { reason: "abductedMoor" }>>
+	<<link [[Next|Livestock Intro]]>><<endevent>><</link>>
+	<br>
+<</if>>
 
 :: Moor Abduction Plain Run
 <<effects>>
@@ -491,7 +505,7 @@ You break into a run, and hear a cry from behind a few moments later. You spare 
 	<<link [[Next|Moor]]>><<endevent>><<end_moor_captive>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	They soon slow, and keep glancing at the stones litering the uneven ground. Your foot catches in a small hole,<span class="red"> and you trip</span>.<<gpain>><<pain 4>>
+	They soon slow, and keep glancing at the stones littering the uneven ground. Your foot catches in a small hole,<span class="red"> and you trip</span>.<<gpain>><<pain 4>>
 	<br><br>
 
 	A <<generate1>><<person1>><<person>> is the first to catch up with you, and restrains you before you can recover. You struggle, but the others arrive to help restrain you.
@@ -537,16 +551,24 @@ You break into a run, and hear a cry from behind a few moments later. You spare 
 <<effects>>
 
 <<generate2>><<generate3>><<generate4>><<generate5>><<generate6>>
-<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
+<<if !pcAreArmsBound("both")>>
 	<<bind>>
 	<<set $moor_binding to 6>>
 	The thugs watch as the <<person>> binds your arms, and ties you to a wooden post.
 <<else>>
 	The thugs watch as the <<person>> ties you to a wooden post.
 <</if>>
-"Now you've done it," <<he>> says, stepping in front of you. <span class="red"><<He>> jabs <<his>> fist into your abdomen.</span><<gpain>><<ggstress>>
+"Now you've done it," <<he>> says, stepping in front of you.
+<<if playerBellySize(true) gte 8>>
+	<span class="red"><<He>> slaps you in the face hard.</span>
+	<<bruise face>>
+<<else>>
+	<span class="red"><<He>> jabs <<his>> fist into your abdomen.</span>
+	<<bruise tummy>>
+<</if>>
+<<gpain>><<ggstress>>
 <br><br>
-<<bruise tummy>>
+
 "This is what you get for misbehaving." <<He>> nods at a <<person2>><<person>>, who steps forward.
 <br><br>
 
@@ -605,15 +627,11 @@ They finish setting up the tents, and load the cages into the smallest. A <<gene
 
 <<set $seductiondifficulty to 8000>>
 <<seductioncheck>>
-<br><br>
-<<if $seductionskill lt 1000>>
-	<span class="gold">You feel more confident in your powers of seduction.</span>
-	<br><br>
-<</if>>
+<<seductionskilluptext>>
 <<seductionskilluse>>
 
 <<generate1>><<generate2>>
-You lock eyes with a <<person1>><<person>>. "I'm bored," you say. "If only there was a way we could-" You pause, and run your eyes over <<his>> body. "Entertain ourselves."
+You lock eyes with a <<person1>><<person>>. "I'm bored," you say. "If only there was a way we could"—you pause, and run your eyes over <<his>> body—"entertain ourselves."
 <br><br>
 The <<person1>><<person>> walks closer, but the <<person2>><<person>> steps in <<person1>><<his>> way. "I'm not being left out," <<person2>><<he>> says.
 <br><br>
@@ -663,7 +681,7 @@ The <<person1>><<person>> walks closer, but the <<person2>><<person>> steps in <
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		The pair lie on the earth, exhausted, <span class="red">but the <<person1>><<person>> keeps a tight hold on your bindings.</span>
 		<br><br>
 		<<tearful>> you're jerked to your feet.
@@ -869,11 +887,11 @@ You let the <<person>> pour the canteen into your mouth.
 <<if $rng gte 91>>
 	It's sweet, and thick. The <<person>> grins.
 	<br><br>
-	You pull away as you feel a fell heat build within. The world spins, and you find yourself lying on the earth. Your <<genitals>> ache, and yearn.<<gggarousal>><<arousal 1800>><<drugs 240>>
+	You pull away as you feel a fell heat build within. The world spins, and you find yourself lying on the earth. Your <<genitals>> aches, and yearns.<<gggarousal>><<arousal 1800>><<drugs 240>>
 	<br><br>
 	Rough hands grasp your shoulders, sending shivers down your body. You're pulled to your feet. "We've a way to go yet," the <<person>> says. "You should be ready by the time we arrive."
 <<elseif $rng gte 51 and !playerIsPregnant()>>
-	It's booze, and pretty strong. You almost gag. The <<person>> chuckles.<<lstress>><<stress -6>><<alcohol 120>>
+	It's booze, and pretty strong. You almost gag. The <<person>> chuckles.<<lstress>><<ggalcohol>><<stress -6>><<alcohol 120>>
 <<else>>
 	It's just refreshing water.<<lstress>><<stress -6>>
 <</if>>
@@ -889,21 +907,21 @@ You let the <<person>> pour the canteen into your mouth.
 You sniff the proffered canteen.
 <<if $rng gte 91>>
 
-Whatever's inside is incredibly sweet. It makes you feel lightheaded.
-<br><br>
+	Whatever's inside is incredibly sweet. It makes you feel lightheaded.
+	<br><br>
 
-<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 0>><</link>>
+	<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 0>><</link>>
 <br>
 <<elseif $rng gte 51 and !playerIsPregnant()>>
-It's strong booze.
-<br><br>
-<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 1>><</link>>
-<br>
+	It's strong booze.
+	<br><br>
+	<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 1>><</link>><<ggalcohol>>
+	<br>
 <<else>>
-It doesn't smell of anything. It could just be water.
-<br><br>
-<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 2>><</link>>
-<br>
+	It doesn't smell of anything. It could just be water.
+	<br><br>
+	<<link [[Drink|Moor Abduction Drink 2]]>><<set $phase to 2>><</link>>
+	<br>
 <</if>>
 
 <<link [[Refuse|Moor Abduction Refuse]]>><</link>>
@@ -916,11 +934,11 @@ You let the <<person>> pour the canteen into your mouth.
 <<if $phase is 0>>
 	It's sweet, and thick. The <<person>> grins.
 	<br><br>
-	You pull away as you feel a fell heat build within. The world spins, and you find yourself lying on the earth. Your <<genitals>> ache, and yearn.<<gggarousal>><<arousal 1800>><<drugs 240>>
+	You pull away as you feel a fell heat build within. The world spins, and you find yourself lying on the earth. Your <<genitals>> aches, and yearns.<<gggarousal>><<arousal 1800>><<drugs 240>>
 	<br><br>
 	Rough hands grasp your shoulders, sending shivers down your body. You're pulled to your feet. "We've a way to go yet," the <<person>> says. "You should be ready by the time we arrive."
 <<elseif $phase is 1 and !playerIsPregnant()>>
-	It's booze, and pretty strong. You almost gag. The <<person>> chuckles.<<lstress>><<stress -6>><<alcohol 120>>
+	It's booze, and pretty strong. You almost gag. The <<person>> chuckles.<<lstress>><<ggalcohol>><<stress -6>><<alcohol 120>>
 <<else>>
 	It's just refreshing water.<<lstress>><<stress -6>>
 <</if>>
@@ -956,27 +974,28 @@ You shake your head. The <<person1>><<person>> shrugs. "Suit yourself."
 <</if>>
 
 <<for _s to 0; _s lt _sleep_hour; _s++>>
-	<<if $sleeptrouble is 1 and $controlled is 0>>
-		<<set $tiredness -= 200>>
-	<<else>>
-		<<set $tiredness -= 250>>
+	<<set $tiredness -= 200>>
+	<<if !($sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber)>>
+		<<set $tiredness -= 50>>
+	<</if>>
+	<<if $hypnosis_traits.slumber>>
+		<<set _traumaToSleep to Math.floor($trauma / 100)>>
+		<<set $tiredness -= _traumaToSleep>>
 	<</if>>
 	<<pass 1 hour>>
 	<<if $nightmares gte 1 and $controlled is 0>>
 		<<stress 6>>
 	<</if>>
 <</for>>
-<br><br>
 
 You lie on the ground, and close your eyes.
 
 <<if $nightmares gte 1 and $controlled is 0>>
 	Your dreams are plagued by nightmarish creatures, hissing and hunting you through the dark. You're soon awoken by noisy activity outside.
-	<br><br>
 <<else>>
-	You struggle to sleep with the incessant hissing so close, but you must have dosed off. You're soon awoken by noisy activity outside.
-	<br><br>
+	You struggle to sleep with the incessant hissing so close, but you must have dozed off. You're soon awoken by noisy activity outside.
 <</if>>
+<br><br>
 
 A <<generate1>><<person1>><<person>> steps into the tent, and crouches behind your chain. <<He>> fiddles with your bindings while the others lift cages from beneath the tarpaulin.
 <br><br>
@@ -1051,16 +1070,13 @@ The crash spurs the creatures. A flurry of slimy hides and tendrils emerge. They
 <br><br>
 You're already running. You hear the guard scream behind you, followed by shouts.
 <<if $moor gte 51>>
-	You're able to take your time once outside the camp, and manage to avoid the pools littering the landscape. The camp is far too distracted to give chase, if they've even realised your gone.
-	<br><br>
+	You're able to take your time once outside the camp, and manage to avoid the pools littering the landscape. The camp is far too distracted to give chase, if they've even realised you're gone.
 <<elseif $moor gte 21>>
-	You're able to take your time once outside the camp, and manage to avoid tripping on the rocks littering the ground. The camp is far too distracted to give chase, if they've even realised your gone.
-	<br><br>
+	You're able to take your time once outside the camp, and manage to avoid tripping on the rocks littering the ground. The camp is far too distracted to give chase, if they've even realised you're gone.
 <<else>>
-	The camp is far too distracted to give chase, if they've even realised your gone.
-	<br><br>
+	The camp is far too distracted to give chase, if they've even realised you're gone.
 <</if>>
-
+<br><br>
 
 <<earnFeat "Slippery">>
 <<link [[Next|Moor]]>><<end_moor_captive>><</link>>
@@ -1076,7 +1092,7 @@ You wait until the guard, a <<person>>, takes a long swig from a bottle, then sl
 <<if $skulduggerysuccess is 1>>
 
 	You dart around the side of the tent, <span class="green">and escape without being seen.</span>
-	<<if Time.dayState is "dawn">>
+	<<if Weather.dayState is "dawn">>
 		The sun rises on the horizon, but it's still dark enough to conceal you. You should be far enough away before they're awake.
 	<<else>>
 		You slip into the night. You'll be far away before anyone notices you're gone.
@@ -1230,7 +1246,7 @@ You wait until the guard, a <<person>>, takes a long swig from a bottle, then sl
 	<br>
 	"Shut your fucking face."
 	<br>
-	"Make m-"
+	"Make m—"
 	<br><br>
 	<<He>> staggers back as a fist collides with <<his>> nose. Others jump to <<his>> defence, and the camp erupts into a brawl.
 	<br><br>
@@ -1256,12 +1272,10 @@ You work against your bindings, hoping nobody notices.
 <<set $moor_binding -= 1>>
 <<if $moor_binding lte 0>>
 	<span class="green">You feel them come loose.</span> You should be able to break free, but you need to choose the right moment.
-	<br><br>
 <<else>>
 	<span class="lblue">They feel a bit weaker.</span>
-	<br><br>
 <</if>>
-
+<br><br>
 
 <<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
@@ -1271,19 +1285,15 @@ You work against your bindings, hoping nobody notices.
 
 	<<skulduggeryuse>>
 
-
 <<else>>
 
 	<<if random(1, 2) is 2>>
 		<span class="red">A hand smacks the back of your head.</span> "Quit fidgeting," says a <<generate1>><<person1>><<person>>. "You're going where we say you're going."<<gpain>><<gstress>><<stress 6>><<pain 4>>
-		<br><br>
 	<<else>>
 		<span class="red">"Stop fidgeting!"</span> shouts a voice behind you. "Unless you want a beating."<<ggstress>><<stress 12>>
-		<br><br>
 	<</if>>
-
+	<br><br>
 	<<skulduggeryuse>>
-
 
 <</if>>
 
@@ -1316,7 +1326,7 @@ You screech and flap your wings. The thugs spin to face you, surprise and horror
 <span class="green">You hear another screech.</span> This one is closer. Right above. The thugs' attention snaps away from you again.
 <br><br>
 <<npc "Great Hawk">>
-The <<beasttype>> swoops closer.
+The Great Hawk swoops closer.
 <<endevent>>
 <<generate1>>
 A <<person1>><<person>> drops <<his>> weapon and runs. <<Hes>> targeted first.
@@ -1347,22 +1357,23 @@ The thugs leave you unguarded as they tighten their circle. The remaining weapon
 <br>
 
 :: Moor Abduction Bird
-<<effects>>
+<<effects>><<set $weekly.birdRescued to true>>
 
 The <<beasttype>> lands in front of you, and casts a dismissive eye at the thugs.
+<<if $bird.injured is 1>>
+	<<set $bird.injured to 0>>
+	<span class="green"><<bHis>> wing seems to have healed.</span>
+<</if>>
 
 <<if $monster is 1>>
 	"Not worth trouble," <<he>> says. "Come, <<wife>>." You take <<bhis>> hand, and together take to the sky. <<takeHandholdingVirginity "Great Hawk" "romantic">>
-	<br><br>
 <<else>>
 	You climb atop <<bhis>> back, and take to the sky.
-	<br><br>
 <</if>>
+<br><br>
 
 <<link [[Next|Moor Abduction Bird 2]]>><</link>>
 <br>
-
-
 
 :: Moor Abduction Bird 2
 <<effects>>
@@ -1374,14 +1385,12 @@ The <<beasttype>> lands in front of you, and casts a dismissive eye at the thugs
 	<br><br>
 
 	<<bHe>> pants by the time you arrive at the tower. "Be careful when alone," <<bhe>> says. "They'll take you to landbound home. No place for us."
-	<br><br>
 <<else>>
 	You soar over the moor on the <<beasttype>>'s back. <<bHe>> would struggle to support your weight like this, but your wings help as much as you can.
 	<br><br>
 	<<bHe>> struggles to remain airborne by the time you make it back to the nest.
-	<br><br>
 <</if>>
-
+<br><br>
 
 <<link [[Next|Bird Tower]]>><<endevent>><</link>>
 <br>

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /*
 	Key points
 	series: "seriesName", //Will only show the first locked feat in a series to the player
@@ -40,7 +41,7 @@ setup.feats = {
 	},
 	"It Belongs in a Museum": {
 		title: "It Belongs in a Museum!",
-		desc: "Find all the artefacts",
+		desc: "Find all the artefacts.",
 		difficulty: 3,
 		series: "",
 		filter: ["All", "General"],
@@ -103,7 +104,7 @@ setup.feats = {
 	},
 	Billboard: {
 		title: "Billboard",
-		desc: "Wear an advert, and have it pay off.",
+		desc: "Wear an advert and have it pay off.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "General"],
@@ -185,6 +186,27 @@ setup.feats = {
 		series: "distinction",
 		filter: ["All", "General"],
 	},
+	"Chef de Tournant": {
+		title: "Chef de Tournant",
+		desc: "Learn 5 recipes.",
+		difficulty: 1,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Chef de Partie": {
+		title: "Chef de Partie",
+		desc: "Learn 20 recipes.",
+		difficulty: 2,
+		series: "chef",
+		filter: ["All", "General"],
+	},
+	"Sous Chef": {
+		title: "Sous Chef",
+		desc: "Learn 50 recipes.",
+		difficulty: 3,
+		series: "chef",
+		filter: ["All", "General"],
+	},
 	"Science Fair Winner": {
 		title: "Science Fair Winner",
 		desc: "Blind them with science.",
@@ -208,6 +230,14 @@ setup.feats = {
 		series: "",
 		filter: ["All", "General"],
 		softLockable: true,
+	},
+	"50 Shades of Tan": {
+		title: "50 Shades of Tan",
+		desc: "Achieved 5 distinct tanlines at once.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Special"],
+		hint: "?????",
 	},
 	"Most Aware": {
 		title: "Most Aware",
@@ -399,6 +429,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Hungry Orphan": {
+		title: "Hungry Orphan",
+		desc: "You gifted Robin a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Robin's Song": {
 		title: "Robin's Song",
 		desc: "Helped Robin feel comfortable crossdressing.",
@@ -409,6 +446,13 @@ setup.feats = {
 	"Whitney the Tsundere": {
 		title: "Whitney the Bully",
 		desc: "You gave your virginity to them.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"The Bully's Tithe": {
+		title: "The Bully's Tithe",
+		desc: "You gifted Whitney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -434,6 +478,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Not for Rats": {
+		title: "Not for Rats",
+		desc: "You gifted Kylar a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Eden the Lonely": {
 		title: "Eden the Lonely",
 		desc: "You gave your virginity to them.",
@@ -441,9 +492,47 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Sweet and Tender": {
+		title: "Sweet and Tender",
+		desc: "You gifted Eden a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Avery the Moneybags": {
 		title: "Avery the Moneybags",
 		desc: "You gave your virginity to them.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	Kept: {
+		title: "Kept",
+		desc: "Accessed Avery's mansion.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Find a wealthy patron.",
+	},
+	"What Goes Around": {
+		title: "What Goes Around",
+		desc: "Bound Avery in their dungeon.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Turn the tables on a wealthy patron.",
+	},
+	"Pride Cometh": {
+		title: "Pride Cometh",
+		desc: "Finished Avery's tower.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Help a wealthy patron.",
+	},
+	"Haute Cuisine": {
+		title: "Haute Cuisine",
+		desc: "You gifted Avery a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -462,9 +551,30 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Home Cooking": {
+		title: "Home Cooking",
+		desc: "You gifted Alex a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Great Hawk the Terror": {
 		title: "Great Hawk the Terror",
 		desc: "You'll make an excellent spouse.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Return the Favour": {
+		title: "Return the Favour",
+		desc: "You gifted the Great Hawk a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Feather Trick": {
+		title: "Feather Trick",
+		desc: "Catch three lurkers in a single dive while hunting with the Great Hawk.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -483,9 +593,23 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Encroaching Civilisation": {
+		title: "Encroaching Civilisation",
+		desc: "You gifted the Black Wolf a favourite food.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Sydney the Pure Hearted": {
 		title: "Sydney the Pure-Hearted",
 		desc: "They gave their virginity to you.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	Communion: {
+		title: "Communion",
+		desc: "You gifted Sydney a favourite food.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
@@ -503,6 +627,23 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+	},
+	"Gwylan the Bewitching": {
+		title: "Gwylan the Bewitching",
+		desc: "You gave your virginity to them.",
+		difficulty: 2,
+		series: "gwylanVirginity",
+		hint: "Hint: Curiosity killed the virgin.",
+		filter: ["All", "Social"],
+	},
+	"Coven Comforts": {
+		title: "Coven Comforts",
+		desc: "You gifted Gwylan a favourite food.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Food for the wicked.",
+		filter: ["All", "Social"],
+		hidden: true,
 	},
 	"Love Triangles": {
 		title: "Love Triangles",
@@ -596,6 +737,46 @@ setup.feats = {
 		difficulty: 1,
 		series: "",
 		hint: "Hint: Discover the secret of Kylar's manor.",
+		filter: ["All", "Social"],
+	},
+	"Warmest Winter": {
+		title: "Warmest Winter",
+		desc: "Heard Winter's most personal tale.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Help an old fossil remember.",
+		filter: ["All", "Social"],
+	},
+	"Trials of Faith": {
+		title: "Trials of Faith",
+		desc: "Heard all endings of the 'Hopeless Cycle' story.",
+		difficulty: 4,
+		series: "",
+		hint: "Hint: A truth buried behind many lies.",
+		filter: ["All", "Social"],
+	},
+	"First Verse": {
+		title: "First Verse",
+		desc: "Helped Gwylan purge a denizen of the forest.",
+		difficulty: 1,
+		series: "gwylanPurge",
+		hint: "Hint: Learn a shopkeeper's secrets, and join in.",
+		filter: ["All", "Social"],
+	},
+	Wildsong: {
+		title: "Wildsong",
+		desc: "Helped Gwylan purge the forest through intimate union.",
+		difficulty: 2,
+		series: "gwylanPurge",
+		hint: "Hint: Delve deeper into Gwylan's secrets.",
+		filter: ["All", "Social"],
+	},
+	Foxbane: {
+		title: "Foxbane",
+		desc: "Witnessed Eden's worst nightmare.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Have a friend help you escape a hunter.",
 		filter: ["All", "Social"],
 	},
 	Neko: {
@@ -798,7 +979,7 @@ setup.feats = {
 		desc: "They just love your buns.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Baking for others.",
 	},
 	"Locked In Gold": {
@@ -806,7 +987,7 @@ setup.feats = {
 		desc: "Won't protect you from frustration.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Better to lock it away than lose it.",
 	},
 	"Bailey's Trouble Maker": {
@@ -846,7 +1027,7 @@ setup.feats = {
 		desc: "Sent someone to the pillory.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Humiliate them.",
 	},
 	"You're the Laughingstock": {
@@ -854,7 +1035,7 @@ setup.feats = {
 		desc: "Got sent to the pillory.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Seen as a criminal.",
 	},
 	"The Endless Deep": {
@@ -862,7 +1043,7 @@ setup.feats = {
 		desc: "Kept swimming out to sea.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: To the edge of the world.",
 	},
 	"Wet and Ruined": {
@@ -870,8 +1051,25 @@ setup.feats = {
 		desc: "Discovered the ruined castle.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Lost in the mire.",
+	},
+	"Terror's Equal": {
+		title: "Terror's Equal",
+		desc: "Filled the tower with impressive hunting trophies.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Vanity befitting a terror of the skies.",
+		softLockable: true,
+	},
+	"Birds of a Feather": {
+		title: "Birds of a Feather...",
+		desc: "...flock together.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Rescue an orphan of another species.",
 	},
 	"Head of the Pack": {
 		title: "Head of the Pack",
@@ -894,7 +1092,7 @@ setup.feats = {
 		desc: "Discovered the compound.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Secrets hidden from the law-abiding.",
 	},
 	"Mouth Sealed Shut": {
@@ -902,7 +1100,7 @@ setup.feats = {
 		desc: "Survived an interrogation.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Don't spill the beans.",
 	},
 	"Neck Deep": {
@@ -910,16 +1108,25 @@ setup.feats = {
 		desc: "Survived being submerged in aphrodisiac.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Resist a most lewd substance.",
 	},
 	Seedy: {
 		title: "Seedy",
-		desc: "Seeds are little things, but they can't hide from you.",
+		desc: "Found half of the seeds.",
 		difficulty: 1,
-		series: "",
-		filter: ["All", "Discoveries"],
+		series: "seeds",
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Harvest nature's secrets.",
+		softLockable: true,
+	},
+	Breedy: {
+		title: "Breedy",
+		desc: "Seeds are little things, but they can't hide from you.",
+		difficulty: 2,
+		series: "seeds",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
 	"Pride of the Farm": {
@@ -943,7 +1150,7 @@ setup.feats = {
 		desc: "Escaped Remy's farm.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: No pen can hold you.",
 		softLockable: true,
 	},
@@ -952,15 +1159,15 @@ setup.feats = {
 		desc: "Rescued by your equine friends.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Collapse in a field, but dodge the consequences.",
 	},
 	"A Thunderous Response": {
 		title: "A Thunderous Response",
-		desc: "Caused a brawl on the High Street.",
+		desc: "Caused a brawl on High Street.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Cause a schism in a crowd.",
 	},
 	"A Lewd Adventure": {
@@ -968,7 +1175,7 @@ setup.feats = {
 		desc: "Made an exposed journey through town.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Make a daring journey.",
 		softLockable: true,
 	},
@@ -977,7 +1184,7 @@ setup.feats = {
 		desc: "Rescued from a gang who got in too deep.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Make some unscrupulous acquaintances.",
 		softLockable: true,
 	},
@@ -986,7 +1193,7 @@ setup.feats = {
 		desc: "Almost crashed a car with your butt.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Break road safety laws.",
 	},
 	"Cornered Rogue": {
@@ -994,7 +1201,7 @@ setup.feats = {
 		desc: "Recovered your clothes from a mischievous fox.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Outfox a mischievous rogue.",
 		softLockable: true,
 	},
@@ -1003,7 +1210,7 @@ setup.feats = {
 		desc: "Demonstrated Winter's wooden horse to completion.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Ride a wooden horse to completion.",
 		softLockable: true,
 	},
@@ -1012,7 +1219,7 @@ setup.feats = {
 		desc: "Demonstrated Winter's ducking stool to completion.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Be ducked to completion.",
 		softLockable: true,
 	},
@@ -1021,7 +1228,7 @@ setup.feats = {
 		desc: "Defended the fields from a rival's thugs.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Trespassers will be kicked.",
 		softLockable: true,
 	},
@@ -1030,7 +1237,7 @@ setup.feats = {
 		desc: "Knotted in the field with people nearby.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: A most deviant display.",
 	},
 	"Wrong Size": {
@@ -1038,7 +1245,7 @@ setup.feats = {
 		desc: "Swapped the boys' and girls' clothes.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Drown the rumours.",
 	},
 	"Idle Hands": {
@@ -1046,7 +1253,7 @@ setup.feats = {
 		desc: "Robbed a client while working as a masseur.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Skilled hands have many uses.",
 	},
 	"Stolen Technology": {
@@ -1054,7 +1261,7 @@ setup.feats = {
 		desc: "Repaired the brothel sex machine.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Briar has something for everyone.",
 		softLockable: true,
 	},
@@ -1063,7 +1270,7 @@ setup.feats = {
 		desc: "Found the old smuggler's cave near the beach.",
 		difficulty: 1,
 		series: "beach cave",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Find the old smuggler route.",
 		softLockable: true,
 	},
@@ -1072,16 +1279,16 @@ setup.feats = {
 		desc: "Found a treasure map in the smuggler's cave.",
 		difficulty: 2,
 		series: "beach cave",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Hidden deep.",
 		softLockable: true,
 	},
 	"Buried Treasure": {
 		title: "Buried Treasure",
-		desc: "Followed the treasure map, and made a discovery.",
+		desc: "Followed the treasure map and made a discovery.",
 		difficulty: 3,
 		series: "beach cave",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"] /* unsure if this should be in both town and other */,
 		hint: "Hint: Follow the map.",
 		softLockable: true,
 	},
@@ -1090,7 +1297,7 @@ setup.feats = {
 		desc: "Escaped the giant slug.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Lurking below the surf.",
 		softLockable: true,
 	},
@@ -1099,7 +1306,7 @@ setup.feats = {
 		desc: "Threatened your way from the smuggler's den.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Defy the rogues.",
 		softLockable: true,
 	},
@@ -1108,7 +1315,7 @@ setup.feats = {
 		desc: "Protected Robin's stand from snowball-wielding delinquents.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Win a snowball fight.",
 	},
 	"Under the Ice": {
@@ -1116,7 +1323,7 @@ setup.feats = {
 		desc: "Escaped the frozen lake.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Break free.",
 		softLockable: true,
 	},
@@ -1125,7 +1332,7 @@ setup.feats = {
 		desc: "Gave gifts to the orphans.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Bring wintry cheer to the orphans.",
 	},
 	"In Red Light": {
@@ -1133,7 +1340,7 @@ setup.feats = {
 		desc: "Harvested wild blood lemons.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Strange fruit grows in strange light.",
 		softLockable: true,
 	},
@@ -1142,16 +1349,16 @@ setup.feats = {
 		desc: "Harvested wild honeycomb.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Sweet and sticky.",
 		softLockable: true,
 	},
 	"Employee Benefits": {
 		title: "Employee Benefits",
-		desc: "Discovered a shipment of gold by day, and took it by night.",
+		desc: "Discovered a shipment of gold by day and took it by night.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Find gold. Steal it later.",
 		softLockable: true,
 	},
@@ -1160,7 +1367,7 @@ setup.feats = {
 		desc: "Gained knowledge of quicksand.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Sunken moor wisdom.",
 		softLockable: true,
 	},
@@ -1169,7 +1376,7 @@ setup.feats = {
 		desc: "Escaped Remy's goons.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Escape Remy's goons.",
 		softLockable: true,
 	},
@@ -1178,7 +1385,7 @@ setup.feats = {
 		desc: "Returned the mirror to the top of the castle ruin.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Blind and in ruin.",
 		softLockable: true,
 	},
@@ -1188,7 +1395,7 @@ setup.feats = {
 		difficulty: 3,
 		series: "",
 		hint: "Hint: Witness a history washed away.",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		softLockable: true,
 	},
 	"Catch the Wind": {
@@ -1196,7 +1403,7 @@ setup.feats = {
 		desc: "Learned how to fly.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Learn to fly.",
 		softLockable: true,
 	},
@@ -1205,7 +1412,7 @@ setup.feats = {
 		desc: "Orally satisfied a pack of Remy's goons.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Make a one-sided trade.",
 		softLockable: true,
 	},
@@ -1214,7 +1421,7 @@ setup.feats = {
 		desc: "Made Wren cum before you.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Endure a gambler's demands.",
 		softLockable: true,
 	},
@@ -1223,7 +1430,7 @@ setup.feats = {
 		desc: "Convinced Wren to start a fire.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Win a destructive prize.",
 		softLockable: true,
 	},
@@ -1232,7 +1439,7 @@ setup.feats = {
 		desc: "Sold produce to an unscrupulous company.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Sell Alex's strange produce.",
 		softLockable: true,
 	},
@@ -1240,8 +1447,8 @@ setup.feats = {
 		title: "To Watch the Fields",
 		desc: "Hired security for your farm.",
 		difficulty: 1,
-		series: "",
-		filter: ["All", "Discoveries"],
+		series: "farm guard",
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Hire help.",
 		softLockable: true,
 	},
@@ -1249,8 +1456,8 @@ setup.feats = {
 		title: "Reliable Employer",
 		desc: "Employed an S-ranked guard.",
 		difficulty: 2,
-		series: "",
-		filter: ["All", "Discoveries"],
+		series: "farm guard",
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Help an employee reach their potential.",
 		softLockable: true,
 	},
@@ -1259,7 +1466,7 @@ setup.feats = {
 		desc: "Escaped Remy's goons on horseback.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Escape mounted pursuers.",
 		softLockable: true,
 	},
@@ -1268,7 +1475,7 @@ setup.feats = {
 		desc: "Interrupted a corrupt exchange.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Keep your eyes open while helping the community.",
 		softLockable: true,
 	},
@@ -1277,7 +1484,7 @@ setup.feats = {
 		desc: "Finished community service.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Pay your debt to society.",
 		softLockable: true,
 	},
@@ -1286,7 +1493,7 @@ setup.feats = {
 		desc: "Released from prison after serving your sentence.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Do your time.",
 		softLockable: true,
 	},
@@ -1295,7 +1502,7 @@ setup.feats = {
 		desc: "Disabled the prison shock collars.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Rebellious sabotage.",
 		softLockable: true,
 	},
@@ -1304,7 +1511,7 @@ setup.feats = {
 		desc: "Dug through the prison wall.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: No walls are thick enough.",
 		softLockable: true,
 	},
@@ -1313,7 +1520,7 @@ setup.feats = {
 		desc: "Learned six names in prison.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Make friends from behind bars.",
 		softLockable: true,
 	},
@@ -1322,7 +1529,7 @@ setup.feats = {
 		desc: "Befriended the watchers.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Recover that which was lost.",
 		softLockable: true,
 	},
@@ -1331,7 +1538,7 @@ setup.feats = {
 		desc: "Broke out of prison.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Cut your sentence short.",
 		softLockable: true,
 	},
@@ -1340,7 +1547,7 @@ setup.feats = {
 		desc: "Wiped Bailey's list and evaded punishment.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Wiped clean and got away with it.",
 	},
 	"Life of the Party": {
@@ -1348,7 +1555,7 @@ setup.feats = {
 		desc: "Impressed a party with your dance.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Impress Charlie's friends.",
 		softLockable: true,
 	},
@@ -1357,7 +1564,7 @@ setup.feats = {
 		desc: "Impressed an aristocratic party with your dance.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Impress high society.",
 		softLockable: true,
 	},
@@ -1366,7 +1573,7 @@ setup.feats = {
 		desc: "Stopped the ritual beneath a Danube manor.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Use your dance connections to access and end a ritual.",
 		softLockable: true,
 	},
@@ -1375,7 +1582,7 @@ setup.feats = {
 		desc: "Reached maximum status at the dog pound.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Show those dogs who's boss.",
 		softLockable: true,
 	},
@@ -1384,7 +1591,7 @@ setup.feats = {
 		desc: "Reached minimum status at the dog pound.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Submit to the dogs.",
 		softLockable: true,
 	},
@@ -1393,7 +1600,7 @@ setup.feats = {
 		desc: "Informed Bailey of the dog pound's activities.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Find dirt on the dog pound.",
 		softLockable: true,
 	},
@@ -1402,7 +1609,7 @@ setup.feats = {
 		desc: "Rescued the black dog.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Release a special prisoner.",
 		softLockable: true,
 	},
@@ -1411,7 +1618,7 @@ setup.feats = {
 		desc: "Rescued an orphan while preying as a demon.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Do a good deed, demonically.",
 		softLockable: true,
 	},
@@ -1420,7 +1627,7 @@ setup.feats = {
 		desc: "Drank all the youths' booze, but resisted rape.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Drink a lot on the moor.",
 		softLockable: true,
 	},
@@ -1429,7 +1636,7 @@ setup.feats = {
 		desc: "Caused a mad frenzy during the bukkake show.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Ruin a demonic show in the best way.",
 		softLockable: true,
 	},
@@ -1438,7 +1645,7 @@ setup.feats = {
 		desc: "Retrieved the white crystal.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Break into an ancient site.",
 		softLockable: true,
 	},
@@ -1447,7 +1654,7 @@ setup.feats = {
 		desc: "Defeated the lurker in the tentacle forest.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Defeat a monster in another world.",
 		softLockable: true,
 	},
@@ -1456,7 +1663,7 @@ setup.feats = {
 		desc: "Escaped slavery in the mines.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Escape an old industry.",
 		softLockable: true,
 	},
@@ -1465,7 +1672,7 @@ setup.feats = {
 		desc: "Built a bridge over the canal.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Restore a bridge.",
 		softLockable: true,
 	},
@@ -1474,7 +1681,7 @@ setup.feats = {
 		desc: "Restored the road through the forest.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Restore a road.",
 		softLockable: true,
 	},
@@ -1483,7 +1690,7 @@ setup.feats = {
 		desc: "Built an archaeological field office at the lake.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Build Winter's wish.",
 		softLockable: true,
 	},
@@ -1492,7 +1699,7 @@ setup.feats = {
 		desc: "Restored the residential thicket.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Restore a thicket.",
 		softLockable: true,
 	},
@@ -1501,7 +1708,7 @@ setup.feats = {
 		desc: "Restored the school green.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Restore a green.",
 		softLockable: true,
 	},
@@ -1510,7 +1717,7 @@ setup.feats = {
 		desc: "Inherited the hookah parlour.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Delve into hookah smoke.",
 		softLockable: true,
 	},
@@ -1519,7 +1726,7 @@ setup.feats = {
 		desc: "Discovered the mayor's secret.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Access the mayor's computer.",
 		softLockable: true,
 	},
@@ -1528,7 +1735,7 @@ setup.feats = {
 		desc: "Escaped a security system in the flats.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Discover intense security on Barb Street.",
 		softLockable: true,
 	},
@@ -1537,7 +1744,7 @@ setup.feats = {
 		desc: "Discovered an island lost to history.",
 		difficulty: 1,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: A mist-shrouded island waits.",
 		softLockable: true,
 	},
@@ -1546,7 +1753,7 @@ setup.feats = {
 		desc: "Discovered all the areas on the island.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Explore a mist-shrouded island.",
 		softLockable: true,
 	},
@@ -1555,7 +1762,7 @@ setup.feats = {
 		desc: "Built an islander mask of your own.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Practise wilderness woodwork.",
 		softLockable: true,
 	},
@@ -1564,7 +1771,7 @@ setup.feats = {
 		desc: "Built a throne.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Practise vain wilderness woodwork.",
 		softLockable: true,
 	},
@@ -1573,7 +1780,7 @@ setup.feats = {
 		desc: "Infiltrated the islander castle, without being captured.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Disguise yourself and enter a foreign stronghold.",
 		softLockable: true,
 	},
@@ -1582,7 +1789,7 @@ setup.feats = {
 		desc: "Retrieved the gilded spear.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: At the root of an island, waiting.",
 		softLockable: true,
 	},
@@ -1591,7 +1798,7 @@ setup.feats = {
 		desc: "Endured the Trial of Anguish to completion.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Climb the temple hierarchy.",
 		softLockable: true,
 	},
@@ -1600,7 +1807,7 @@ setup.feats = {
 		desc: "Met the bishop.",
 		difficulty: 3,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Through confession, revelation.",
 		softLockable: true,
 	},
@@ -1609,8 +1816,17 @@ setup.feats = {
 		desc: "Retrieved the gold compass.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Stolen abroad.",
+		softLockable: true,
+	},
+	"Backroom Deals": {
+		title: "Backroom Deals",
+		desc: "Witnessed a game between high level players.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Date your way into the town's upper echelons.",
 		softLockable: true,
 	},
 	"Max Those Shots": {
@@ -1618,7 +1834,7 @@ setup.feats = {
 		desc: "Holding a lot of pepper spray.",
 		difficulty: 2,
 		series: "",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"] /* unsure if this should be in both town and other */,
 		hint: "Hint: The best defence is a good offence.",
 		softLockable: true,
 	},
@@ -1627,24 +1843,32 @@ setup.feats = {
 		desc: "Helped with rebuilding the Adult Shop.",
 		difficulty: 1,
 		series: "Adult Shop",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Is it worth opening the toybox?",
-	},
-	"Brothel Provider": {
-		title: "Brothel Provider",
-		desc: "Installed a vending machine to sell products at a profit.",
-		difficulty: 2,
-		series: "",
-		filter: ["All", "Discoveries"],
-		hint: "Hint: Convince Briar to do business.",
 	},
 	"Opened Pandoras Cocks": {
 		title: "Opened Pandora's Cocks",
 		desc: "The Adult Shop couldn't have done it without you.",
 		difficulty: 3,
 		series: "Adult Shop",
-		filter: ["All", "Discoveries"],
+		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Was it worth opening the toybox so fast?",
+	},
+	"Brothel Provider": {
+		title: "Brothel Provider",
+		desc: "Installed a vending machine to sell products at a profit.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Convince Briar to do business.",
+	},
+	"Player of the Match": {
+		title: "Player of the Match",
+		desc: "Stole the cricket ball from Wren.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Double-cross your partner in crime.",
 	},
 	"Ear Slime Lover": {
 		title: "Ear Slime Lover",
@@ -1689,11 +1913,20 @@ setup.feats = {
 	},
 	"Curious Attire": {
 		title: "Curious Attire",
-		desc: "Unlocked all the special clothing items.",
+		desc: "Unlocked half of the forest shop's clothing sets.",
 		difficulty: 2,
-		series: "",
+		series: "specialClothes",
 		filter: ["All", "Special"],
-		hint: "Hint: Able to wear them all.",
+		hint: "Hint: Half of the rewards for triumph and trouble alike.",
+		softLockable: true,
+	},
+	"Wicked Wardrobe": {
+		title: "Wicked Wardrobe",
+		desc: "Unlocked all of the forest shop's clothing sets.",
+		difficulty: 3,
+		series: "specialClothes",
+		filter: ["All", "Special"],
+		hint: "Hint: All rewards for triumph and trouble alike.",
 		softLockable: true,
 	},
 	"My Collection of Feats": {
@@ -1769,8 +2002,18 @@ function featsMerge() {
 		featData = {};
 	}
 
+	if (!featData.specialClothes) featData.specialClothes = [];
+	// eslint-disable-next-line prettier/prettier
+	if (!Array.isArray(featData.specialClothes)) featData.specialClothes = getUnlockedSpecialSets(updateSpecialClothesNames(featData.specialClothes)).filter(set => setup.specialClothesSets[set].feat);
 	const loadFeats = (data = {}) => {
 		Object.entries(data).forEach(([key, date]) => {
+			if (key === "specialClothes") {
+				const clothes = Array.isArray(date)
+					? date
+					: getUnlockedSpecialSets(updateSpecialClothesNames(date)).filter(set => setup.specialClothesSets[set].feat);
+				clothes.forEach(a => featData.specialClothes.pushUnique(a));
+				return;
+			}
 			if (!featData[key] || new Date(date).getTime() < new Date(featData[key]).getTime()) {
 				featData[key] = date;
 			}
@@ -1802,12 +2045,8 @@ function featsMerge() {
 			localStorageSaves.autosave.state.history = State.deltaDecode(localStorageSaves.autosave.state.delta);
 			DoLSave.decompressIfNeeded(localStorageSaves.autosave);
 
-			if (
-				localStorageSaves.autosave.state.history &&
-				localStorageSaves.autosave.state.history[0] &&
-				localStorageSaves.autosave.state.history[0].variables
-			) {
-				const variables = localStorageSaves.autosave.state.history[0].variables;
+			if (localStorageSaves.autosave.state?.history?.[localStorageSaves.autosave.state.index]?.variables) {
+				const variables = localStorageSaves.autosave.state.history[localStorageSaves.autosave.state.index].variables;
 				if (variables.feats) {
 					loadFeats(variables.feats.allSaves);
 					loadFeats(variables.feats.currentSave);
@@ -1821,8 +2060,8 @@ function featsMerge() {
 				if (slot) {
 					slot.state.history = State.deltaDecode(slot.state.delta);
 					DoLSave.decompressIfNeeded(slot);
-					if (slot.state.history && slot.state.history[0] && slot.state.history[0].variables) {
-						const variables = slot.state.history[0].variables;
+					if (slot.state.history?.[slot.state.index]?.variables) {
+						const variables = slot.state.history[slot.state.index].variables;
 						if (variables.feats) {
 							loadFeats(variables.feats.allSaves);
 							loadFeats(variables.feats.currentSave);
@@ -1841,13 +2080,12 @@ function featsMerge() {
 		idb.getAllSaves()
 			.then(saves =>
 				saves.forEach((slot, index) => {
-					if (slot.data && Array.isArray(slot.data.history)) {
-						slot.data.history.forEach(saveData => {
-							if (saveData.variables && saveData.variables.feats) {
-								loadFeats(saveData.variables.feats.allSaves);
-								loadFeats(saveData.variables.feats.currentSave);
-							}
-						});
+					// auto-detect between uncompressed and compressed saves
+					const history = slot.data.history || State.deltaDecode(slot.data.delta);
+					const saveData = history[slot.data.index].variables;
+					if (saveData.feats) {
+						loadFeats(saveData.feats.allSaves);
+						loadFeats(saveData.feats.currentSave);
 					}
 					loadingBar.css("width", `${((localSavesChecked + index + 1) / savesToLoad) * 100}%`);
 					loadingText.html(`${index + 1} out of ${savesToLoad} saves checked.`);
@@ -1862,9 +2100,79 @@ function featsMerge() {
 }
 DefineMacro("featsMerge", featsMerge);
 
+function earnFeat(featName) {
+	if (!featName || V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze) return;
+
+	if (
+		V.feats.currentSave[featName] !== undefined ||
+		(V.feats.soft && setup.feats[featName].softLockable) ||
+		(V.feats.pregnancyLocked && setup.feats[featName].pregnancyLockable) ||
+		(V.feats.pregnancySillyLocked && setup.feats[featName].pregnancySillyLockable)
+	)
+		return;
+
+	V.feats.currentSave[featName] = new Date();
+	displayFeat(featName);
+}
+DefineMacro("earnFeat", earnFeat);
+
+function displayFeat(featName) {
+	const feat = setup.feats[featName];
+	if (!feat) return;
+
+	$(() => {
+		const passages = $("#passages");
+
+		const featsCount = passages.find(".feat").length;
+		const hidden = featsCount >= 3 ? " hiddenFeat" : "";
+
+		const wrapper = $("<div>", {
+			id: `feat-${featsCount}`,
+			class: `feat feat${featsCount}${hidden} feat-overlay`,
+		});
+
+		const coin = $("<img>", { class: "featCoin" });
+		switch (feat.difficulty) {
+			case 1:
+				coin.attr("src", "img/ui/CopperCoin.gif");
+				break;
+			case 2:
+				coin.attr("src", "img/ui/SilverCoin.gif");
+				break;
+			case 3:
+				coin.attr("src", "img/ui/GoldCoin.gif");
+				break;
+			case 4:
+				coin.attr("src", "img/ui/PlatinumCoin.gif");
+				break;
+			case 5:
+				coin.attr("src", "img/ui/JeweledCoin.gif");
+				break;
+		}
+
+		const featImage = $("<div>", { class: "featImage" }).append(coin);
+
+		const featText = $("<div>", { class: "featText" })
+			.append($("<span>", { class: "title" }).text(feat.title))
+			.append($("<span>", { class: "text" }).text(feat.desc));
+
+		const close = $("<div>", {
+			id: `closeFeat-${featsCount}`,
+			class: "closeFeat",
+			on: {
+				click: () => closeFeats(featsCount),
+			},
+		});
+
+		wrapper.append(featImage, featText, close);
+		passages.append(wrapper);
+	});
+}
+DefineMacro("displayFeat", displayFeat);
+
 // eslint-disable-next-line no-unused-vars
 function earnHourlyFeats() {
-	if (V.feats.locked || V.cheatdisable === "f" || V.debug || V.gamemode === "soft" || V.alluremod < 1 || V.replayScene) return false;
+	if (V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings.allureModifier < 1 || V.replayScene) return false;
 
 	const fragment = document.createDocumentFragment();
 
@@ -1874,7 +2182,7 @@ function earnHourlyFeats() {
 
 	// Feats that can only be earned after 50 days
 	if (Time.days >= 50) {
-		switch (V.player.gender) {
+		switch (V.player.sex) {
 			case "m":
 				earnFeat("Being a Boy");
 				break;
@@ -1902,7 +2210,7 @@ function earnHourlyFeats() {
 		(!V.player.vaginaExist || V.vaginalskill >= 1000) &&
 		(!V.player.penisExist || V.penileskill >= 1000) &&
 		V.oralskill >= 1000 &&
-		(V.analskill >= 1000 || V.analdisable === "t") &&
+		(V.analskill >= 1000 || V.settings.analEnabled === false) &&
 		V.handskill >= 1000 &&
 		V.feetskill >= 1000 &&
 		V.bottomskill >= 1000 &&
@@ -1943,7 +2251,6 @@ function earnHourlyFeats() {
 	if (specialTraits >= 1) earnFeat("A Special Trait");
 	if (specialTraits >= 9) earnFeat("A Special Trait Collector");
 
-	if (V.sexStats.anus.pregnancy.motherStatus >= 2 || V.sexStats.vagina.pregnancy.motherStatus >= 2) earnFeat("Broodmother Host");
 	if (
 		V.pregnancyStats.parasiteTypesSeen &&
 		V.pregnancyStats.parasiteTypesSeen.length >= 14 &&
@@ -1980,7 +2287,8 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	if (V.plants_known.length >= 17) earnFeat("Seedy");
+	if (V.plants_known.length >= 13) earnFeat("Seedy");
+	if (V.plants_known.length >= 26) earnFeat("Breedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -2026,7 +2334,7 @@ function earnHourlyFeats() {
 
 	if (
 		V.liquidoutsidecount >= 100 &&
-		(V.analdisable === "t" || setup.bodyliquid.combined("anus") >= 5) &&
+		(V.settings.analEnabled === false || setup.bodyliquid.combined("anus") >= 5) &&
 		(!V.player.vaginaExist || setup.bodyliquid.combined("vagina") >= 5) &&
 		setup.bodyliquid.combined("mouth") >= 5
 	) {
@@ -2039,13 +2347,17 @@ function earnHourlyFeats() {
 	if (V.seductionskill >= 1000) earnFeat("Seductress");
 	if (V.tending >= 1000) earnFeat("Green Fingered");
 	if (V.housekeeping >= 1000) earnFeat("Majordomo");
-	if (V.baseAllure >= 7000 && V.outside === 1 && V.moonstate === 0) earnFeat("Alluring");
+	if (V.baseAllure >= 7000 && V.outside === 1 && !Time.isBloodMoon()) earnFeat("Alluring");
 	if (V.science >= 1000 && V.maths >= 1000 && V.english >= 1000 && V.history >= 1000) earnFeat("Perfect Record");
 	if (V.earSlime.corruption >= 100) earnFeat("Ear Slime Lover");
 	if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 200) earnFeat("Ear Slime Amalgam");
 
-	// To earn the feat "Curious Attire"
-	fragment.append(wikifier("specialClothesUpdate"));
+	if (V.options.tanLines) {
+		const validLayers = Skin.tanningLayers.filter(layer => {
+			return layer.layers.length && layer.value >= 10;
+		});
+		if (validLayers.length >= 5) earnFeat("50 Shades of Tan");
+	}
 
 	// Should be last
 	let currentMax = 0;
@@ -2054,6 +2366,9 @@ function earnHourlyFeats() {
 	}
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
+
+	// Bugged in saves that used the "Show them the stolen card" link in many older versions
+	if (V.compound.card === 2) earnFeat("Illicit Science");
 
 	return fragment;
 }

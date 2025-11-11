@@ -1,11 +1,17 @@
+// @ts-check
 /* For any item that has a colour_combat tag, set it to 0 if that item ever gets its own combat sprites. */
 function initGenitals() {
-	setup.clothes.genitals = [
+	/** @type {ClothesItem[]} */
+	const clothing = [
 		{
 			index: 0,
+			slot: "genitals",
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			state: 0,
+			state_base: 0,
+			warmth: 0,
 			integrity: 0,
 			integrity_max: 0,
 			fabric_strength: 0,
@@ -38,6 +44,7 @@ function initGenitals() {
 		},
 		{
 			index: 1,
+			slot: "genitals",
 			name: "chastity belt",
 			name_cap: "Chastity belt",
 			variable: "chastitybelt",
@@ -49,6 +56,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -81,6 +89,7 @@ function initGenitals() {
 		},
 		{
 			index: 2,
+			slot: "genitals",
 			name: "chastity cage",
 			name_cap: "Chastity cage",
 			variable: "chastitycage",
@@ -92,6 +101,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -150,6 +160,7 @@ function initGenitals() {
 		},
 		{
 			index: 3,
+			slot: "genitals",
 			name: "gold chastity belt",
 			name_cap: "Gold chastity belt",
 			variable: "goldchastitybelt",
@@ -161,6 +172,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: [],
@@ -193,9 +205,13 @@ function initGenitals() {
 		},
 		{
 			index: 4,
+			slot: "genitals",
 			name: "fetish chastity belt",
 			name_cap: "Fetish Chastity belt",
 			variable: "chastitybeltfetish",
+			combat: {
+				reference: "chastitybelt",
+			},
 			integrity: 1500,
 			integrity_max: 1500,
 			fabric_strength: 12,
@@ -204,6 +220,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "white", "yellow", "tangerine", "cyan"],
@@ -237,9 +254,13 @@ function initGenitals() {
 		},
 		{
 			index: 5,
+			slot: "genitals",
 			name: "fetish chastity cage",
 			name_cap: "Fetish Chastity cage",
 			variable: "chastitycagefetish",
+			combat: {
+				reference: "chastitycage",
+			},
 			integrity: 1500,
 			integrity_max: 1500,
 			fabric_strength: 12,
@@ -248,6 +269,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["black", "grey", "blue", "brown", "green", "pink", "purple", "red", "yellow", "tangerine", "cyan"],
@@ -305,6 +327,7 @@ function initGenitals() {
 		},
 		{
 			index: 6,
+			slot: "genitals",
 			name: "small chastity cage",
 			name_cap: "Small Chastity cage",
 			variable: "smallchastitycage",
@@ -316,6 +339,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["pink"],
@@ -374,6 +398,7 @@ function initGenitals() {
 		},
 		{
 			index: 7,
+			slot: "genitals",
 			name: "flat chastity cage",
 			name_cap: "Flat Chastity cage",
 			variable: "flatchastitycage",
@@ -385,6 +410,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["pink"],
@@ -443,6 +469,7 @@ function initGenitals() {
 		},
 		{
 			index: 8,
+			slot: "genitals",
 			name: "chastity parasite",
 			name_cap: "chastity parasite",
 			variable: "slimechastitycage",
@@ -454,6 +481,7 @@ function initGenitals() {
 			one_piece: 0,
 			state: "waist",
 			state_base: "waist",
+			warmth: 0,
 			plural: 1,
 			colour: 0,
 			colour_options: ["red"],
@@ -511,6 +539,7 @@ function initGenitals() {
 			penisSize: true,
 		},
 	];
+	setup.clothes.genitals = clothing;
 
 	/*
 		Clothes that modders add go into this array, this should be empty in the base game at all times.

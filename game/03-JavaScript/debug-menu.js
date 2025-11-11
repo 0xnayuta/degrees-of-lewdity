@@ -12,37 +12,20 @@ setup.debugMenu = {
 setup.debugMenu.eventList = {
 	Main: [
 		{
-			link: [`test`, `Test`],
-			widgets: [`<<set $molestationstart to 0>>`],
-		},
-		{
-			link: [`CanvasModel Example`, `CanvasModel Example`],
-			widgets: [``],
-		},
-		{
 			link: [`Home`, `Bedroom`],
 			widgets: [`<<endcombat>>`],
 		},
 		{
-			link: [`Wardrobe`, `Wardrobe`],
-			widgets: [``],
+			link: [`Test`, `Test`],
+			widgets: [`<<endcombat>>`],
 		},
 		{
-			link: [`Strip`, stayOnPassageFn],
-			widgets: [`<<undressclothes "wardrobe">>`],
+			link: [`Enrage Avery`, stayOnPassageFn],
+			widgets: [`<<npcincr Avery rage 100>>`, `<<set $averyragerevealed to 1>>`],
 		},
 		{
-			link: [`Strip to undies`, stayOnPassageFn],
-			widgets: [
-				`<<generalUndress wardrobe over_upper>>`,
-				`<<generalUndress wardrobe over_lower>>`,
-				`<<generalUndress wardrobe upper>>`,
-				`<<generalUndress wardrobe lower>>`,
-			],
-		},
-		{
-			link: [`Strip all`, stayOnPassageFn],
-			widgets: [`<<undress "wardrobe">>`],
+			link: [`Calm Avery`, stayOnPassageFn],
+			widgets: [`<<npcincr Avery rage -100>>`, `<<set $averyragerevealed to 0>>`],
 		},
 		{
 			link: [`Pass 1 minute`, stayOnPassageFn],
@@ -85,6 +68,31 @@ setup.debugMenu.eventList = {
 			widgets: [`<<pass 24 hours>>`],
 		},
 		{
+			link: [`Wardrobe`, `Wardrobe`],
+			widgets: [``],
+		},
+		{
+			link: [`Strip`, stayOnPassageFn],
+			widgets: [`<<undressclothes "wardrobe">>`],
+		},
+		{
+			link: [`Strip to undies`, stayOnPassageFn],
+			widgets: [
+				`<<generalUndress wardrobe over_upper>>`,
+				`<<generalUndress wardrobe over_lower>>`,
+				`<<generalUndress wardrobe upper>>`,
+				`<<generalUndress wardrobe lower>>`,
+			],
+		},
+		{
+			link: [`Strip all`, stayOnPassageFn],
+			widgets: [`<<undress "wardrobe">>`],
+		},
+		{
+			link: [`CanvasModel Example`, `CanvasModel Example`],
+			widgets: [``],
+		},
+		{
 			link: [`Enemy Trust +++`, stayOnPassageFn],
 			widgets: [`<<set $enemytrust += 2000>>`, `<<set $enemyanger -= 1000>>`],
 		},
@@ -122,10 +130,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Roll Over`, stayOnPassageFn],
-			widgets: [() => `<<set $position to ` + (V.position === "doggy" ? "doggy" : "missionary") + `>>`],
-			condition() {
-				return V.position === "doggy" || V.position === "missionary" ? 1 : 0;
-			},
+			widgets: [
+				() => {
+					V.position = V.position === "doggy" ? "missionary" : "doggy";
+				},
+			],
 		},
 		{
 			link: [`Replay current passage with new RNG`, ""],
@@ -189,7 +198,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Wear swimsuit`, stayOnPassageFn],
-			widgets: [`<<underlowerwear 6>>`],
+			widgets: [`<<underupperwear 2>>`],
 		},
 		{
 			link: [`Testing Room`, `Testing Room`],
@@ -208,23 +217,31 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Make all beasts male`, stayOnPassageFn],
-			widgets: [`<<set $monsterchance to 0>>`, `<<set $beastMaleChanceMale to 100>>`, `<<set $beastMaleChanceFemale to 100>>`],
+			widgets: [`<<set $settings.monsterChance to 0>>`, `<<set $settings.beastMaleChanceMale to 100>>`, `<<set $settings.beastMaleChanceFemale to 100>>`],
 		},
 		{
 			link: [`Make all beasts female`, stayOnPassageFn],
-			widgets: [`<<set $monsterchance to 0>>`, `<<set $beastMaleChanceMale to 0>>`, `<<set $beastMaleChanceFemale to 0>>`],
+			widgets: [`<<set $settings.monsterChance to 0>>`, `<<set $settings.beastMaleChanceMale to 0>>`, `<<set $settings.beastMaleChanceFemale to 0>>`],
 		},
 		{
 			link: [`Make all beasts cuntboys`, stayOnPassageFn],
-			widgets: [`<<set $beastMaleChanceMale to 100>>`, `<<set $beastMaleChanceFemale to 100>>`, `<<set $cbchance to 100>>`],
+			widgets: [
+				`<<set $settings.beastMaleChanceMale to 100>>`,
+				`<<set $settings.beastMaleChanceFemale to 100>>`,
+				`<<set $settings.maleNPCVaginaChance to 100>>`,
+			],
 		},
 		{
 			link: [`Make all beasts dickgirls`, stayOnPassageFn],
-			widgets: [`<<set $beastMaleChanceMale to 0>>`, `<<set $beastMaleChanceFemale to 0>>`, `<<set $dgchance to 100>>`],
+			widgets: [
+				`<<set $settings.beastMaleChanceMale to 0>>`,
+				`<<set $settings.beastMaleChanceFemale to 0>>`,
+				`<<set $settings.femaleNPCPenisChance to 100>>`,
+			],
 		},
 		{
 			link: [`Make all beasts monster people`, stayOnPassageFn],
-			widgets: [`<<set $monsterchance to 100>>`, `<<set $monsterhallucinations to "f">>`],
+			widgets: [`<<set $settings.monsterChance to 100>>`, `<<set $settings.monsterHallucinationsOnly to false>>`],
 		},
 		{
 			text_only: `\n`,
@@ -391,7 +408,7 @@ setup.debugMenu.eventList = {
 			widgets: [`<<namedNpcPregnancy "Robin" "pc" "human" true undefined true>>`],
 		},
 		{
-			link: [`Get Whitney Pregnant with Black wolf pups`, stayOnPassageFn],
+			link: [`Get Whitney Pregnant with Black Wolf pups`, stayOnPassageFn],
 			widgets: [`<<namedNpcPregnancy "Whitney" "Black Wolf" "wolf" true undefined true>>`],
 		},
 		{
@@ -534,6 +551,10 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`],
 		},
 		{
+			link: [`Virginity Show Test`, `Virginity Show Test`],
+			widgets: [],
+		},
+		{
 			link: [`Eels Swarm Me`, `Sea Eels`],
 			widgets: [`<<endcombat>>`, `<<set $molestationstart to 1>>`],
 		},
@@ -667,6 +688,10 @@ setup.debugMenu.eventList = {
 				`<<npc "Black Wolf">>`,
 				`<<set $molestationstart to 1>>`,
 			],
+		},
+		{
+			link: [`Great Hawk Hunt Capture`, `Moor`],
+			widgets: [`<<set $moor to 50>>`, `<<set $eventskip to 1>>`, `<<moor_hunt_start>>`, `<<set $moor_hunt to 10>>`],
 		},
 		{
 			link: [`Police Pillory Start`, `Police Pillory Start`],
@@ -902,6 +927,10 @@ setup.debugMenu.eventList = {
 		{
 			link: ["Fox", "Meadow Cave Sex"],
 			widgets: ["<<endcombat>>", "<<beastNEWinit 1 'fox'>>", "<<person1>>", "<<set $sexstart to 1>>"],
+		},
+		{
+			link: ["Bear", "Forest Bear Molestation"],
+			widgets: ["<<endcombat>>", "<<beastNEWinit 1 'bear'>>", "<<person1>>", "<<set $molestationstart to 1>>"],
 		},
 		{
 			text_only: "\n\nTurn beast into: ",
@@ -1152,10 +1181,6 @@ setup.debugMenu.eventList = {
 			text_only: "\n\n",
 		},
 		{
-			link: [`Sunlight`, stayOnPassageFn],
-			widgets: [`<<set $weather to "clear">>`],
-		},
-		{
 			link: [`Wash`, stayOnPassageFn],
 			widgets: [`<<wash>>`],
 		},
@@ -1255,7 +1280,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Money`, stayOnPassageFn],
-			widgets: [`<<set $money += 500000>>`],
+			widgets: [`<<money 500000 "debug">>`],
 		},
 		{
 			link: [`Grow hair`, stayOnPassageFn],
@@ -1546,7 +1571,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drench me`, stayOnPassageFn],
-			widgets: [`<<set $upperwet to 200>>`, `<<set $lowerwet to 200>>`, `<<set $underupperwet to 200>>`, `<<set $underlowerwet to 200>>`],
+			widgets: [`<<upperwet 200>>`, `<<lowerwet 200>>`, `<<underupperwet 200>>`, `<<underlowerwet 200>>`],
 		},
 		{
 			link: [`Drench over-outfit only`, stayOnPassageFn],
@@ -1554,11 +1579,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drench middle-outfit only`, stayOnPassageFn],
-			widgets: [`<<set $upperwet to 200>>`, `<<set $lowerwet to 200>>`],
+			widgets: [`<<upperwet 200>>`, `<<lowerwet 200>>`],
 		},
 		{
 			link: [`Drench under-outfit only`, stayOnPassageFn],
-			widgets: [`<<set $underupperwet to 200>>`, `<<set $underlowerwet to 200>>`],
+			widgets: [`<<underupperwet 200>>`, `<<underlowerwet 200>>`],
 		},
 		{
 			link: [`Soak me in water`, stayOnPassageFn],
@@ -1684,8 +1709,9 @@ window.changeBorderColor = changeBorderColor;
 // const categories = ["debugEventsMain", "debugEventsCharacter", "debugEventsEvents"];
 const categories2 = ["debugMain", "debugCharacter", "debugEvents", "debugFavourites", "debugAdd"];
 
-function researchEvents(defaultValue) {
+function researchEvents(defaultValue, event) {
 	$(function () {
+		if (event != null) event.preventDefault();
 		let needle = defaultValue != null ? defaultValue : document.getElementById("searchEvents").value;
 		const eventsList = [
 			document.getElementById("debugEventsMain").getElementsByTagName("div"),
@@ -1704,7 +1730,7 @@ function researchEvents(defaultValue) {
 
 				if (haystack != null) {
 					haystack = haystack.toLowerCase();
-					if (haystack.contains(needle) === false) eventsList[i1][i2].style.display = "none";
+					if (!haystack.includes(needle)) eventsList[i1][i2].style.display = "none";
 					else eventsList[i1][i2].style.display = "";
 				}
 			}

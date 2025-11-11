@@ -1,3 +1,35 @@
+:: Adult Shop Lock
+<<set $outside to 0>><<effects>><<set $lock to 400>>
+The adult shop is closed. A sign reads: "Opening hours: <<ampm 16 00>> - <<ampm 21 00>> on weekdays. <<ampm 9 00>> - <<ampm 21 00>> on Saturdays."
+<br><br>
+
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+
+		<<lockicon "pick">>
+		<<link [[Pick it (0:10)|Adult Shop]]>>
+			<<handheldon>><<pass 10>><<crimeUp 5 "trespassing">>
+			<<if $adultShop.ban gt 0 or crimeSumCurrent() gte 50000 or $adultShop.rng gte $skulduggery>>
+				<<set $adultShop.spotted to true>>
+			<</if>>
+		<</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span>
+	<<skulduggeryrequired>>
+	<br><br>
+<</if>>
+
+<<getouticon>><<link [[Leave|Elk Street]]>><<handheldon>><</link>>
+<br>
+
 :: Adult Shop
 
 /* TEMPORARY fix to clean up NPC overflow issues */
@@ -29,7 +61,7 @@
 	]>>
 <<set _shopmusic to ["Smooth jazz","Salsa","Tango","Reggae","R&B","Romantic lounge","Classic rock","Classic pop"]>>
 
-<<set _binds to ($leftarm is "bound" or $rightarm is "bound" or $feetuse is "bound")>>
+<<set _binds to pcAreArmsBound("any") or $feetuse is "bound">>
 <<set _gag to ($worn.face.type.includes("gag") and $worn.face.cursed is 1)>>
 <<set _both to (_binds and _gag)>>
 <<set _gagname to $worn.face.name>>
@@ -83,10 +115,14 @@
 		<<if C.npc.Sirris.love gt 10>>
 			<br>
 			Sirris asks if you would like a ride home.<br>
-			<<link [[Ride home with Sirris (0:15)|Sydney Ride Home]]>><<adultShopClear>><<pass 15>><</link>>
+			<<homeicon>><<link [[Ride home with Sirris (0:15)|Sydney Ride Home]]>><<adultShopClear>><<pass 15>><</link>>
+			<<if $temple_rank is "monk" or $temple_rank is "priest">>
+				<br>
+				<<wolficon>><<link [[Ride to the temple with Sirris (0:10)|Sydney Ride Temple]]>><<adultShopClear>><<pass 10>><</link>>
+			<</if>>
 		<</if>>
 	<<else>>
-		<<ind>><<link [["Hide until it's over (1:00)"|Adult Shop]]>><<pass 1 hour>><</link>>
+		<<ind>><<link [[Hide until it's over (1:00)|Adult Shop]]>><<pass 1 hour>><</link>>
 	<</if>>
 <<else>>
 	/* States */
@@ -225,19 +261,23 @@
 	/* Links */
 	<<if $adultshopclerk and $adultshopstate isnot "closed">>
 		/* work in this shop */
-		<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><</link>>
+		<<if pcAreArmsBound("both")>>
+			<<ind>><span class="red">Both of your arms are bound</span>, so you are unable to work here.
+		<<else>>
+			<<ind>><<link [[Work (1:00)|Adult Shop Clerk Job]]>><<endevent>><<pass 60>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 	<<if !$adultshopclerk and $debug is 1>>
-		<<link [[Debug unlock clerk job|$passage]]>><<set $adultshopclerk to true>><</link>>
+		<<ind>><<link [[Debug unlock clerk job|$passage]]>><<set $adultshopclerk to true>><</link>>
 		<br>
 	<</if>>
 	<<if $adultshopstate isnot "closed">>
-		<<ind>><<link [[Approach Sirris (0:01)|Adult Shop Approach Sirris]]>><<pass 1>><<endevent>><</link>>
+		<<socialiseicon>><<link [[Approach Sirris (0:01)|Adult Shop Approach Sirris]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
 	<<if $adultshopstate is "sydney" and $debug is 1>>
-		<<ind>><<link [[Approach Sydney (0:01)|Adult Shop Approach Sydney]]>><<pass 1>><<endevent>><</link>>
+		<<socialiseicon>><<link [[Approach Sydney (0:01)|Adult Shop Approach Sydney]]>><<pass 1>><<endevent>><</link>>
 		<br>
 	<</if>>
 	<<icon "adultclothing.png">><<link [[Browse clothing (0:01)|Adult Shop Store]]>><<pass 1>><</link>>
@@ -246,7 +286,7 @@
 		<<sextoysicon "strap-on">><<link [[Browse toys (0:01)|Adult Shop Menu]]>><<pass 1>><</link>>
 	<</if>>
 	<br><br>
-	<<exiticon>><<link [[Exit (0:01)|Elk Street]]>><<pass 1>><<adultShopClear>><</link>>
+	<<elkicon>><<link [[Elk Street (0:01)|Elk Street]]>><<pass 1>><<adultShopClear>><</link>>
 
 <</if>>
 
@@ -269,7 +309,7 @@ Sirris smiles as you approach.
 <br><br>
 
 <<if !$adultshopclerk>>
-	<<askicon>><<link [[Ask for work|Adult Shop Approach Sirris Ask]]>><</link>>
+	<<socialiseicon "ask">><<link [[Ask for work|Adult Shop Approach Sirris Ask]]>><</link>>
 	<br>
 <</if>>
 <<if $brothelVending and $brothelVending.status is "set">>
@@ -289,7 +329,7 @@ Sirris smiles as you approach.
 "We could use the help!" Sirris says. "Shelves need stocking, and customers need servicing." <<nnpc_He Sirris>> pauses. "At the counter, that is."
 <br><br>
 
-"You can work whenever we're open, and I'll pay you <span class="gold">£15</span> per hour," <<nnpc_he Sirris>> adds. "Sydney helps out a lot too."
+"You can work whenever we're open, and I'll pay you <<printmoney 1500>> per hour," <<nnpc_he Sirris>> adds. "Sydney helps out a lot too."
 <br><br>
 
 <<link [[Accept|Adult Shop Approach Sirris Accept]]>><<set $adultshopclerk to 1>><</link>>
@@ -330,7 +370,7 @@ You approach Sydney.
 <</if>>
 <br><br>
 
-"I'm paid <span class="gold">£15</span> per hour, and I expect you'd get the same."
+"I'm paid <<printmoney 1500>> per hour, and I expect you'd get the same."
 <br><br>
 
 <<link [[Accept|Adult Shop Approach Sydney Accept]]>><</link>>
@@ -356,7 +396,7 @@ You approach Sydney.
 
 
 :: Adult Shop Clerk Job
-<br>
+
 You work behind the counter, selling adult products and stocking shelves.
 <br><br>
 <<adultshopclerkevents>>
@@ -430,7 +470,7 @@ You work behind the counter, selling adult products and stocking shelves.
 				<br>
 			<</if>>
 		<</if>>
-		<<if $brothelVending.lubeToRefill gte 11>>
+		<<if $brothelVending.lubeToRefill gte 11 and ![25, 50, 100, 150].includes($brothelVending.lubeToRefill)>>
 			<<lubePrice $brothelVending.lubeToRefill>>
 			<<formatmoney _price>>
 			<<if $money gte _price>>
@@ -481,7 +521,7 @@ I will see that it is delivered to the brothel immediately. Thank you for helpin
 <br><br>
 You count the money and give it to <<nnpc_him Sirris>>.
 <br><br>
-<<set $money -= _price>>
+<<money `-_price` "lube">>
 <<set $brothelVending.lube += $lubeBought>>
 <<set $brothelVending.lubeToRefill -= $lubeBought>>
 <<set $brothelVending.weeksEmpty to 0>>

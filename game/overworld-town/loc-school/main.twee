@@ -10,10 +10,10 @@
 		<<if Time.weekDay is 6 and $framed is "whitney" and C.npc.Whitney.state isnot "pillory">>
 			<br>
 			You hear some shouts and arrive just in time to see a scuffle as <span class="gold">Whitney is dragged out of the school in handcuffs by several police officers.</span><<imprison_whitney>>
-		<<elseif Time.weekDay is 6 and $framed is "leighton" and $pillory_tenant.special.name isnot "Leighton">>
+		<<elseif Time.weekDay is 6 and $framed is "leighton" and $pillory.tenant.special.name isnot "Leighton">>
 			<br>
 			You hear some loud protests and arrive just in time to see <span class="gold">Leighton being led away by police.</span><<imprison_leighton>>
-		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
+		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
 			<span class="purple">You see the head guarding the gate.</span> You're meant to be in detention, so if you leave that way, you'll be apprehended.
 		<<elseif $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<span class="purple">You see Whitney hanging out by the gate.</span>
@@ -32,9 +32,9 @@
 	<</if>>
 <<else>>
 	You are in the courtyard in front of the school.
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		It is empty, bar rivulets of rainwater.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isSnow>>
 		It is empty, the snow coating the ground lending to a picturesque stillness.
 	<<else>>
 		It is empty.
@@ -43,9 +43,13 @@
 <</if>>
 
 <<schoolperiodtext>>
-
+<<if ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21 and $passagePrev is "hallway">><<set $weekly.schoolNightPoolParty to "admission">><</if>>
 <<if $stress gte $stressmax>>
-	<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "school">>
+	<<else>>
+		<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<</if>>
 <<elseif $adultshopintro is undefined and $adultshopunlocked is undefined and $adultshopintrosirris is undefined and $schoolstate is "afternoon" and Time.weekDay is 6 and $exposed lte 0>>
 	<<set $adultshopintrosirris to 1>>
 
@@ -57,41 +61,61 @@
 	<br>
 	<<link [[Just watch|School Sirris Watch]]>><</link>>
 
-<<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-<<if $danger gte (9900 - $allure) and $eventskip is 0>>
-	<<eventscourtyard>>
-<<else>>
-	<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
-		<<sneakicon>><<link [[Sneak behind the school (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>
-		<br>
+<<elseif ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21>>
+	<<generateSecurity 1>><<person1>>
+	A beam of light shines on you. A security guard approaches, torch in hand. "What, another one?" <<He>> must have already caught <<if $weekly.schoolNightPoolParty is "discover">>the delinquents<<else>>some students<</if>>. "Well, whatever. Just pay up."
+	<br><br>
+	<<He>> holds <<his>> hand in front of you.
+	<<if $schoolNightPoolParty gte 1>>
+		You stare at <<him>> in confusion. "Didn't anyone tell you? It's 100 quid. Now."
 	<<else>>
-		<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
-		<br>
-		<<schoolicon "courtyard">><<link [[Rear courtyard (0:02)|School Rear Courtyard]]>><<pass 2>><</link>>
-		<br><br>
-		<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory_tenant.special.name isnot "Leighton">>
-			<<oxfordicon>><<link [[Leave the school|School Leave Stop]]>><<schoolclothesreset>><</link>>
-			<br>
-		<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
-			<<oxfordicon>><<link [[Leave the school|School Leave Whitney]]>><<schoolclothesreset>><</link>>
-			<br>
-		<<elseif Time.schoolDay and Time.hour gte 7 and Time.hour lte 16>>
-			<<oxfordicon>><<link [[Leave the school (0:01)|Oxford Street]]>><<schoolclothesreset>><<pass 1>><</link>>
+		"100 quid. Now."
+	<</if>>
+	<br><br>
+
+	<<if $money gte 10000>>
+		<<link [[Pay (£100)|School Night Pool Party Pay]]>><<set $phase to 0>><<money -10000 "schoolPoolParty">><</link>>
+	<<else>>
+		<span class="blue">You can't afford it.</span>
+	<</if>>
+	<br>
+	<<link [[Refuse|School Night Pool Party Pay]]>><<set $phase to 1>><</link>>
+	<br>
+<<else>>
+
+	<<if dangerEvent() and $eventskip is 0>>
+		<<eventsschoolcourtyard>>
+	<<else>>
+		<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
+			<<sneakicon>><<link [[Sneak behind the school (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>
 			<br>
 		<<else>>
-			<<oxfordicon>><<link [[Leave the school|School Gate Exit]]>><<schoolclothesreset>><</link>>
+			<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
 			<br>
+			<<schoolicon "courtyard">><<link [[Rear courtyard (0:02)|School Rear Courtyard]]>><<pass 2>><</link>>
+			<br><br>
+			<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
+				<<oxfordicon>><<link [[Leave the school|School Leave Stop]]>><<schoolclothesreset>><</link>>
+				<br>
+			<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
+				<<oxfordicon>><<link [[Leave the school|School Leave Whitney]]>><<schoolclothesreset>><</link>>
+				<br>
+			<<elseif Time.schoolDay and Time.hour gte 7 and Time.hour lte 16>>
+				<<oxfordicon>><<link [[Leave the school (0:01)|Oxford Street]]>><<schoolclothesreset>><<pass 1>><</link>>
+				<br>
+			<<else>>
+				<<oxfordicon>><<link [[Leave the school|School Gate Exit]]>><<schoolclothesreset>><</link>>
+				<br>
+			<</if>>
 		<</if>>
-	<</if>>
 
-<</if>>
+	<</if>>
 <</if>>
 
 <<set $eventskip to 0>>
 
 :: School Rear Courtyard
-<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>><<set $bus to "schoolrearcourtyard">>
+<<set $outside to 1>><<set $location to "school_rear_courtyard">><<schooleffects>><<effects>><<set $bus to "schoolrearcourtyard">>
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
 	<<if $schoolstate is "morning">>
@@ -117,9 +141,29 @@
 <</if>>
 
 <<schoolperiodtext>>
-
+<<if ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21 and $passagePrev is "hallway">><<set $weekly.schoolNightPoolParty to "admission">><</if>>
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
+<<elseif ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21>>
+	<<generateSecurity 1>><<person1>>
+	A beam of light shines on you. A security guard approaches, torch in hand. "What, another one?" <<He>> must have already caught <<if $weekly.schoolNightPoolParty is "discover">>the delinquents<<else>>some students<</if>>. "Well, whatever. Just pay up."
+	<br><br>
+	<<He>> holds <<his>> hand in front of you.
+	<<if $schoolNightPoolParty gte 1>>
+		You stare at <<him>> in confusion. "Didn't anyone tell you? It's 100 quid. Now."
+	<<else>>
+		"100 quid. Now."
+	<</if>>
+	<br><br>
+
+	<<if $money gte 10000>>
+		<<link [[Pay (£100)|School Night Pool Party Pay]]>><<set $phase to 0>><<money -10000 "schoolPoolParty">><</link>>
+	<<else>>
+		<span class="blue">You can't afford it.</span>
+	<</if>>
+	<br>
+	<<link [[Refuse|School Night Pool Party Pay]]>><<set $phase to 1>><</link>>
+	<br>
 <<elseif $town_projects.green is 1>>
 	<<set $town_projects.green to 2>>
 	You almost tread on an adder. It slips into a patch of tall, wild grass surrounding a large oak. Students avoid the area, as it's home to all sorts of pests. <span class="teal">An idea strikes you.</span> If the grass were cleared, there'd be a lot more room for students.
@@ -136,14 +180,14 @@
 	<<link [[Next|School Rear Courtyard]]>><</link>>
 	<br>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
-		<<eventscourtyard>>
+
+	<<if dangerEvent() and $eventskip is 0>>
+		<<eventsschoolcourtyard>>
 	<<else>>
 		<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate) and $exposed gte 1>>
-			<<schoolicon>><<link [[Sneak into the school (0:03)|Hallways]]>><<pass 3>><</link>>
+			<<schoolicon "building">><<link [[Sneak into the school (0:03)|Hallways]]>><<pass 3>><</link>>
 			<br>
-			<<schoolicon>><<link [[Sneak in front of the school (0:05)|School Front Courtyard]]>><<pass 5>><</link>>
+			<<schoolicon "building">><<link [[Sneak in front of the school (0:05)|School Front Courtyard]]>><<pass 5>><</link>>
 			<br><br>
 			<<fenceicon>><<link [[Climb over the fence to the industrial district (0:02)|School Rear Fence Exit]]>><<pass 2>><</link>>
 			<br>
@@ -241,19 +285,20 @@ Some are eating their lunch.
 
 	<<if !$plants_known.includes("carnation")>>
 		<<icon "tending/carnation.png">> <<link [[Search for seeds|School Green Seeds]]>><<set $plants_known.push("carnation")>><</link>>
-		<br>
+	<<elseif pcAreArmsBound("both")>>
+		<span class="red">Both of your arms are bound</span>, so you are unable to pick carnations.
 	<<else>>
 		<<icon "tending/carnation.png">> <<link [[Pick carnations|School Green Pick]]>><<stress -6>><</link>><<lstress>>
-		<br>
 	<</if>>
-	<<ind>><<link [[Ignore|School Rear Courtyard]]>><<endevent>><</link>>
+	<br>
+	<<getouticon>><<link [[Ignore|School Rear Courtyard]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
 :: School Green Seeds
 <<effects>>
 
-You crouch beside the <<person1>><<person>>. <<He>> smiles at you, and helps search among the flowers for seedings.
+You crouch beside the <<person1>><<person>>. <<He>> smiles at you, and helps search among the flowers for seedlings.
 <br><br>
 
 You find a bunch, enough to grow your own.
@@ -267,7 +312,7 @@ You find a bunch, enough to grow your own.
 
 
 :: School Green Pick
-<<effects>>
+<<effects>><<wearProp "carnation">>
 
 You join the <<person>> in picking <<icon "tending/carnation.png">> carnations. <<He>> smiles at you, but doesn't speak, as you search for flowers in bloom.
 <br><br>
@@ -389,19 +434,25 @@ You haul yourself atop it, and shimmy along until another is within reach. Stude
 
 :: School Locked
 
-<<set $outside to 0>><<effects>><<set $lock to 200>>
+<<set $outside to 1>><<effects>><<set $lock to 200>>
 The school gate is shut and sealed by a sturdy padlock.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[Pick it (0:10)|School Front Courtyard]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|School Front Courtyard]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<getouticon>><<link [[Leave|Oxford Street]]>><</link>>
+<<getouticon>><<link [[Leave|Oxford Street]]>><<handheldon>><</link>>
 <br>
 
 :: School Pool Entrance
@@ -413,21 +464,9 @@ The school gate is shut and sealed by a sturdy padlock.
 <<unset $audienceforcegirl>>
 <<unset $audienceforceboy>>
 <<unset $changingRoomGender>>
+<<unset $previousClothes>>
 
-<<set _studentsKnow to ($schoolrep.crossdress gte 4 and $changingroomstate is "own") or ($schoolrep.crossdress gte 5 and $changingroomstate isnot "empty")>>
-<<if !$daily.changingRoomPregnancyFame>><<set $daily.changingRoomPregnancyFame to $player.gender_appearience is "m" ? random(500, 1500) : random(200, 1000)>><</if>>
-<<if $player.gender_appearance is "f" and $fame.pregnancy gte $daily.changingRoomPregnancyFame or playerBellyVisible()>>
-	<<set _studentsKnow to false>>
-<</if>>
-
-<<set _seenGender to ($NudeGenderDC isnot -1 and $schoolrep.crossdress gte 4 and _studentsKnow) ? $player.gender : $player.gender_appearance>>
-<<set _uncomfortableGender to ($backgroundTraits.includes("crossdresser") ? $player.gender : false)>>
-<<set _delinquentGender to ($changingroomstate is "empty" ? false : _seenGender)>>
-<<if _delinquentGender is "m" and ($fame.pregnancy gte $daily.changingRoomPregnancyFame or playerBellyVisible())>>
-	<<set _delinquentGender to false>>
-<</if>>
-
-<<if $forcedcrossdressingdisable is "t">>
+<<if !$settings.forcedCrossdressingEnabled>>
 <<elseif $whitneyCrossdressSwimwear and $daily.school.attended.swimming and $daily.whitney.whitneyCrossdressSwimwear>>
 	/* Always has a 10% chance of occuring, but it can only occur right after ending the lesson */
 	<<if $daily.whitney.whitneyCrossdressSwimwear.includesAny("boys entrance", "boys swimwear", "boys exit") and C.npc.Whitney.dom gte 18 and Math.max(10, $bullytimer) gte $rng and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and _cameFrom>>
@@ -464,12 +503,12 @@ The school gate is shut and sealed by a sturdy padlock.
 <<else>>
 	You are outside the school changing rooms. You need to pass through them to access the pool. You hear chatter from both sides.
 
-	<<if $NudeGenderDC isnot -1 and _studentsKnow>>
+	<<if _studentsKnow>>
 		<<if $schoolrep.crossdress gte 4>>
 			<br><br>
-			<<print ($changingroomstate is "own" ? "Your classmates know" : "Everyone knows")>> you should be using the <<print ($player.gender is "m" ? "boys'" : "girls'")>> changing room.
+			<<print ($changingroomstate is "own" ? "Your classmates know" : "Everyone knows")>> you should be using the <<print ($player.sex is "m" ? "boys'" : "girls'")>> changing room.
 			<<if _uncomfortableGender>>Doing so would make you uncomfortable.<</if>>
-		<<elseif $player.gender isnot $player.gender_appearance>>
+		<<elseif isCrossdressing()>>
 			<br><br>
 			You would look out of place if you entered the <<print ($player.gender_appearance is "m" ? "girls'" : "boys'")>> changing room now.
 		<<elseif _cameFrom and _seenGender isnot _cameFrom>>
@@ -487,23 +526,22 @@ The school gate is shut and sealed by a sturdy padlock.
 	<br><br>
 <</if>>
 
+<<changingRoomSetup "m">>
 <<maleicon>><<link [[Boys' changing room|School Boy Changing Room]]>>
 	<<if $daily.whitney.whitneyCrossdressSwimwear>><<run $daily.whitney.whitneyCrossdressSwimwear.push("boys entrance")>><</if>>
-<</link>><<if _uncomfortableGender is "m">><<gstress>><</if>><<if _delinquentGender is "f">><<gdelinquency>><</if>>
+<</link>><<if _uncomfortable>><<gstress>><</if>><<if !_allowedToChange and $changingroomstate isnot "empty">><<gdelinquency>><</if>>
 <br>
+<<changingRoomSetup "f">>
 <<femaleicon>><<link [[Girls' changing room|School Girl Changing Room]]>>
 	<<if $daily.whitney.whitneyCrossdressSwimwear>><<run $daily.whitney.whitneyCrossdressSwimwear.push("girls entrance")>><</if>>
-<</link>><<if _uncomfortableGender is "f">><<gstress>><</if>><<if _delinquentGender is "m">><<gdelinquency>><</if>>
-<br><br>
+<</link>><<if _uncomfortable>><<gstress>><</if>><<if !_allowedToChange and $changingroomstate isnot "empty">><<gdelinquency>><</if>>
+<br>
 
-<<if $changingroomstate isnot "empty" and $player.gender_appearance isnot $player.gender>>
-	<<if $player.gender_appearance is "m">>
-		<<loitericon>><<link [[Wait for the girls to leave (0:06)|School Pool Entrance]]>><<pass 6>><</link>>
-		<br><br>
-	<<elseif $player.gender_appearance is "f">>
-		<<loitericon>><<link [[Wait for the boys to leave (0:06)|School Pool Entrance]]>><<pass 6>><</link>>
-		<br><br>
-	<</if>>
+<<if $changingroomstate isnot "empty">>
+	/* room is empty between :05 and :57 */
+	<<set _waitTime to (65 - Time.minute) % 60>>
+	<<loitericon>><<link [[`Wait for the changing rooms to empty (0:0_waitTime)`|School Pool Entrance]]>><<pass _waitTime>><</link>>
+	<br><br>
 <</if>>
 
 <<getouticon>><<link [[Leave (0:01)|Hallways]]>><<pass 1>><</link>>
@@ -550,7 +588,7 @@ You haul yourself over the fence and drop down on the other side.
 	<<if $worn[_cloth].integrity lte 0>>
 		You feel strangely cold. You look back at the fence, and see your <<print $worn[_cloth].name>> hanging from one of the spikes!
 	<<else>>
-		Your <<print $worn[_cloth].name>> catches on a spike and tears slightly as you climb over.
+		Your <<print $worn[_cloth].name>> catch<<if !$worn[_cloth].plural>>es<</if>> on a spike and tear<<if !$worn[_cloth].plural>>s<</if>> slightly as you climb over.
 	<</if>>
 <<elseif _cloth isnot undefined>>
 	/* has clothes, succeeded the check */
@@ -567,7 +605,7 @@ You haul yourself over the fence and drop down on the other side.
 <</if>>
 <<if _commando>>
 	<br>
-	A breeze caresses your <<genitals>>, making you shiver<<if $body_temperature is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif $exhibitionism gte 15>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
+	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif hasSexStat("exhibitionism", 2)>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
 <</if>>
 
 <<integritycheck>>
@@ -617,7 +655,7 @@ You haul yourself over the fence and drop down on the other side.
 	<<if $worn[_cloth].integrity lte 0>>
 		You feel strangely cold. You look back at the fence, and see your <<print $worn[_cloth].name>> hanging from one of the spikes!
 	<<else>>
-		Your <<print $worn[_cloth].name>> catches on a spike and tears slightly as you climb over.
+		Your <<print $worn[_cloth].name>> catch<<if !$worn[_cloth].plural>>es<</if>> on a spike and tear<<if !$worn[_cloth].plural>>s<</if>> slightly as you climb over.
 	<</if>>
 <<elseif _cloth isnot undefined>>
 	/* has clothes, succeeded the check */
@@ -634,31 +672,31 @@ You haul yourself over the fence and drop down on the other side.
 <</if>>
 <<if _commando>>
 	<br>
-	A breeze caresses your <<genitals>>, making you shiver<<if $body_temperature is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif $exhibitionism gte 15>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
+	A breeze caresses your <<genitals>>, making you shiver<<if Weather.BodyTemperature.state is "cold">>. It's getting really cold.<<stress 6>><<gstress>><<elseif hasSexStat("exhibitionism", 2)>> <span class="lewd">with excitement</span>.<<arousal 150>><<garousal>><<else>>.<</if>>
 <</if>>
 
 <<integritycheck>>
 <br><br>
 
-<<link [[Next|Industrial alleyways]]>><</link>>
+<<link [[Next|Industrial Alleyways]]>><</link>>
 <br><br>
 
 :: Head's Office
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late" and $pillory_tenant.special.name isnot "Leighton">>
+<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late" and $pillory.tenant.special.name isnot "Leighton">>
 
 	<<npc Leighton>><<person1>>
 	You knock on the <<nnpc_title "Leighton">>'s door. You hear <<his>> voice on the other side. "Enter."
 	<br><br>
 
-	<<if $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and $leftarm isnot "bound" and $rightarm isnot "bound" and $feetuse isnot "bound" or Time.hour gte 14>>
+	<<if $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and !pcAreArmsBound("any") and $feetuse isnot "bound" or Time.hour gte 14>>
 		<<if $daily.school.headInterrupted isnot 1>>
 			Leighton looks up from <<his>> desk as you enter. "How can I help you?"
 			<br><br>
 
 			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1>>
-				<<ind>><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
+				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
 			<<if $schoolfameblackmail gte 1>>
@@ -666,7 +704,7 @@ You haul yourself over the fence and drop down on the other side.
 					<<if $schoolfameconsensual is 1>>
 						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
 						<br>
-					<<elseif $exhibitionism gte 55 and $schoolfameblackmail gte 3>>
+					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
 						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
@@ -692,7 +730,7 @@ You haul yourself over the fence and drop down on the other side.
 			<</if>>
 
 			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1>>
-				<<ind>><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
+				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
 			<<if $schoolfameblackmail gte 1>>
@@ -700,7 +738,7 @@ You haul yourself over the fence and drop down on the other side.
 					<<if $schoolfameconsensual is 1>>
 						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
 						<br>
-					<<elseif $exhibitionism gte 55 and $schoolfameblackmail gte 3>>
+					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
 						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
@@ -715,7 +753,7 @@ You haul yourself over the fence and drop down on the other side.
 	<<else>>
 		Leighton looks up from <<his>> desk as you enter. "Oh. This won't do at all."
 
-		<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+		<<if pcAreArmsBound("any") or $feetuse is "bound">>
 			<br><br>
 			"How did you get yourself in this state," <<he>> mutters as <<he>> walks behind you. <span class="green">You feel your limbs fall free.</span>
 			<br><br>
@@ -733,7 +771,7 @@ You haul yourself over the fence and drop down on the other side.
 		<</if>>
 		<<if !$worn.upper.type.includes("school") and !$worn.lower.type.includes("school") and $schoolstate isnot "fifth">>
 			<<if $player.gender_appearance is "m">>
-				<<if $rng gte 51 or $forcedcrossdressingdisable is "t">>
+				<<if $rng gte 51 or !$settings.forcedCrossdressingEnabled>>
 					<<set $clothingselector to "m">>
 					<<He>> hands you a worn-looking school shirt and a pair of school shorts. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.
 					<br><br>
@@ -753,7 +791,7 @@ You haul yourself over the fence and drop down on the other side.
 					<br>
 				<</if>>
 			<<else>>
-				<<if $rng gte 51 or $forcedcrossdressingdisable is "t">>
+				<<if $rng gte 51 or !$settings.forcedCrossdressingEnabled>>
 					<<set $clothingselector to "f">>
 					<<He>> hands you a worn-looking school shirt and a school skirt. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.
 					<br><br>
@@ -775,7 +813,7 @@ You haul yourself over the fence and drop down on the other side.
 			<</if>>
 		<<elseif !$worn.lower.type.includes("school") and $schoolstate isnot "fifth">>
 			<<if $player.gender_appearance is "m">>
-				<<if $rng gte 51 or $forcedcrossdressingdisable is "t">>
+				<<if $rng gte 51 or !$settings.forcedCrossdressingEnabled>>
 					<<set $clothingselector to "m">>
 					<<He>> hands you a worn-looking pair of school shorts. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.
 					<br><br>
@@ -794,7 +832,7 @@ You haul yourself over the fence and drop down on the other side.
 					<br>
 				<</if>>
 			<<else>>
-				<<if $rng gte 51 or $forcedcrossdressingdisable is "t">>
+				<<if $rng gte 51 or !$settings.forcedCrossdressingEnabled>>
 					<<set $clothingselector to "f">>
 					<<He>> hands you a worn-looking school skirt. "You can get changed in the storeroom. I'll have your clothes sent to the pool for you to collect after school." <<He>> turns back to <<his>> computer and leaves you to change.
 					<br><br>
@@ -827,11 +865,18 @@ You haul yourself over the fence and drop down on the other side.
 	<br><br>
 
 	<<if $headpasswordknown is 1 and $headdrive isnot 1>>
-		<<schoolicon "computer">><<link [[Break into computer|Head's Computer]]>><</link>>
+		<<if pcAreArmsBound("both")>>
+			You think you'd be able to break into Leighton's computer, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<techicon "computer">><<link [[Break into computer|Head's Computer]]>><</link>>
+		<</if>>
 		<br><br>
 	<</if>>
 	<<if $pub_hack_job is 3 and not $hacker_tasks.includes("leighton")>>
-		<<lockpickicon>><<link [[Break into strongbox|Head's Stash]]>><</link>>
+		'Mickey' asked you to search for flash drives in Leighton's office.
+		<br>
+		<<investigateicon>><<link [[Search for strongbox|Head's Stash]]>><</link>>
 		<br><br>
 	<</if>>
 	<<getouticon>><<link [[Leave the office (0:01)|Hallways]]>><<pass 1>><</link>>
@@ -846,7 +891,7 @@ You haul yourself over the fence and drop down on the other side.
 <<elseif $speech_attitude is "bratty">>
 	"I won't wear _offeredclothing!" you say.
 <<else>>
-	<<if $player.gender is $clothingselector and !$backgroundTraits.includes("crossdresser")>><!-- Crossdresser trait makes PC distressed by not crossdressing and so goes to "I can't" -->
+	<<if $player.sex is $clothingselector and !$backgroundTraits.includes("crossdresser")>><!-- Crossdresser trait makes PC distressed by not crossdressing and so goes to "I can't" -->
 		"Are you sure you don't have a <<print ($clothingselector is "f" ? "pair of shorts" : "skirt")>>?" you ask.
 	<<else>>
 		"But I can't wear _offeredclothing!" you say.
@@ -864,7 +909,7 @@ You haul yourself over the fence and drop down on the other side.
 		<</if>>
 		<<He>> looks back up and says, "I'm sorry, but this uniform is all I have. Now, get dressed."
 	<<set $genderknown.pushUnique("Leighton")>><<if $player.penisExist and $player.vaginaExist>><<detention -1>><</if>> <!-- Leighton is too surprised to be angry at herm PC right now -->
-<<elseif $player.gender is $clothingselector and $genderknown.includes("Leighton")>>
+<<elseif $player.sex is $clothingselector and $genderknown.includes("Leighton")>>
 	<<He>> looks at you sternly and scoffs. "If you want to dress as a <<print ($clothingselector is "m" ? "girl" : "boy")>>, that's your prerogative, but perhaps you should come dressed like it next time. Now, get dressed."
 <<else>>
 	<<He>> looks at you sternly. "Don't talk back. I told you to get dressed. Now, get dressed."
@@ -878,23 +923,23 @@ You haul yourself over the fence and drop down on the other side.
 
 :: School Passout
 <<sydneySchedule>>
-<<if isPlayerNonparasitePregnancyEnding()>>
+<<if isPregnancyEnding()>>
 	<<pregnancyPassout "school">>
-<<elseif _sydney_location is "library" and (C.npc.Sydney.init isnot 1 or ($sydneySeen and !$sydneySeen.includes("libRescue")) or $rng gte 20)>>
+<<elseif _sydney_location is "library" and (C.npc.Sydney.init isnot 1 or ($sydneySeen and !$sydneySeen.includes("libRescue")) or $rng gte 21)>>
 	<<pass 1 hour>>
 	You remain unconscious for a time. You hear a short gasp, and feel yourself being lifted before slipping back into unconsciousness.
 	<br><br>
 	<<trauma 6>><<set $stress -= 2000>>
 	<<link [[Next|Sydney Library Rescue]]>><</link>>
 <<else>>
+	<<unset $passoutReason>>
 	<<pass 1 hour>>
 	You remain unconscious for a time.
 	<br><br>
-	<<set $danger to random(1, 10000)>>
 
-	<<if $danger gte (9900 - $allure)>>
+	<<if dangerEvent()>>
 		<<if Time.schoolDay and $schoolstate isnot "early" and $schoolstate isnot "late">>
-			<<if $rng gte 81>>
+			<<if $rng gte 81 and $settings.analEnabled and !playerChastity("anus")>>
 				<<link [[Next|School Passout Exhibit]]>><<upperruined>><<lowerruined>><<underruined>><</link>>
 			<<elseif $rng gte 1>>
 				<<link [[Next|School Passout Rape]]>><<set $molestationstart to 1>><</link>>
@@ -925,87 +970,113 @@ You haul yourself over the fence and drop down on the other side.
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $phase is 0>>
+	You feel metallic clamps on your wrists, knees and ankles. You open your eyes, and find yourself outside the science classroom, bound and attached to the wall with your legs splayed, your <<lewdness>> on display. You try to struggle free, but you're locked up tight.
+	<br><br>
 
-You feel metallic clamps on your wrists, knees and ankles. You open your eyes, and find yourself outside the science classroom, bound and attached to the wall with your legs splayed, your <<lewdness>> on display. There's a strange sensation of fullness in your anus. You try to struggle free, but you're locked up tight.
-<br><br>
+	And perhaps more importantly, <span class="lewd">there's a strange sensation of fullness in your anus</span>.
+	<br><br>
 
-A group of young students round the corner and stop when they see you, eyes wide. You feel your face turn red as they behold you. They walk past, giggling and whispering to one another.
-<<lcool>><<gtrauma>><<gstress>><<stress 1>><<trauma 1>><<status -10>>
-<br><br>
+	A group of students round the corner and stop when they see you, eyes wide. You feel your face turn red as they behold you. They walk past, giggling and whispering to one another.<<lcool>><<gtrauma>><<gstress>><<stress 1>><<trauma 1>><<status -10>>
+	<br><br>
 
-A minute passes before a <<generatey1>><<generatey2>><<fullGroup>> round the corner. They initially react like the first group but, proving to be more inquisitive, they approach you.
-<br><br>
-
-"There's a button here," says the <<person>>. "What do you think it does?" <<He>> raises <<his>> arm and hovers a finger over it.
-<br><br>
-
-<<link [[Ask them not to press it|School Passout Exhibit]]>><<set $phase to 1>><<status -10>><</link>><<lcool>>
-<br>
-<<link [[Remain silent|School Passout Exhibit]]>><<set $phase to 2>><</link>>
-
+	<<link [[Endure|School Passout Exhibit]]>><<set $phase to 1>><</link>>
+	<br>
 <<elseif $phase is 1>>
-	<<if $cool gte ($coolmax / 10 * 6)>>
-	<<He>> looks taken aback, and exchanges a nervous look with <<his>> friend, before backing off.
+	<<generatey1>><<generatey2>>
+	A minute passes before a <<fullGroup>> round the corner. They initially react like the first group but, proving to be more inquisitive, they approach you.
 	<br><br>
 
-	"Could you help me down?" You plead. <<person1>>Standing on <<his>> toes, the <<person>> reaches up and flips a switch, releasing you. You fall onto your hands and knees, the object in your butt slipping out as you do. You begin to stand up but, aware of your lewd state, you crouch instead. The pair still look amused at the situation, but the <<person2>><<person>> pulls some towels out of their bag and hands them to you. They wordlessly leave, smiling back at you as they do.
+	"There's a button here," says the <<person1>><<person>>. "What do you think it does?" <<He>> raises <<his>> arm and hovers a finger over it.
 	<br><br>
 
-	That could have been much worse, but you know the whole school will hear about it.
-	<br><br>
-	<<towelup>>
-	<<link [[Next|Hallways]]>><<endevent>><</link>>
-	<<else>>
-	<<He>> looks taken aback, but pauses only a moment before giving you an evil grin and pressing the button.
-	<br><br>
-
-	The fullness inside you starts vibrating against your <<prostate>>, softly at first, but growing in intensity, and creating an audible buzzing. The <<person>> steps back, smiling mischievously, as you try not to react to the sensation.
-	<br><br>
-
-	<<arousal 2000 "genitals">>
-		<<if $arousal gte $arousalmax>>
-		<<orgasm>><<exhibitorgasm>>
-		<</if>>
-
-	The buzzing comes to an abrupt stop. A shameful part of you feels disappointed, but the <<person2>><<person>> reaches for the button yet again. This time, the contraption doesn't give you time to warm up, sending violent shock waves through you. You involuntarily jerk, delighting the <<fullGroup>>.
-	<br><br>
-
-	<<arousal 2000 "genitals">>
-		<<if $arousal gte $arousalmax>><<orgasm>><<exhibitorgasm>>
-		<</if>>
-
-	Its purpose apparently served, the restraints release you. You drop to your hands and knees, the object in your butt slipping out as you do. The pair exchange a worried glance before bolting down the corridor, leaving you exposed on the floor.
-	<br><br>
-
-	<<link [[Next|Hallways]]>><<set $stress -= 500>><<endevent>><</link>>
+	<<link [[Ask <<him>> not to press it|School Passout Exhibit]]>><<set $phase to 2>><<status -10>><</link>><<llcool>>
 	<br>
-
-	<</if>>
+	<<link [[Remain silent|School Passout Exhibit]]>><<set $phase to 3>><</link>>
+	<br>
 <<elseif $phase is 2>>
-<<He>> presses the button.
-<br><br>
-
-	The fullness inside you starts vibrating against your <<prostate>>, softly at first, but growing in intensity, and creating an audible buzzing. The <<person>> steps back, smiling mischievously, as you try not to react to the sensation.
+	<<if $speech_attitude is "meek">>
+		"P-please don't press that!" you beg.
+	<<elseif $speech_attitude is "bratty">>
+		"Don't fucking touch that!" you say.
+	<<else>>
+		"Please don't touch that!" you say.
+	<</if>>
 	<br><br>
+	<<if $cool gte ($coolmax / 10 * 6)>>
+		The <<person>> looks taken aback, and exchanges a nervous look with <<his>> friend, before <span class="green">lowering <<his>> hand and backing off</span>.
+		<br><br>
 
-	<<arousal 2000 "genitals">>
+		"Could you help me down, instead?" you ask. After hesitating a moment, <<he>> comes forward. Standing on <<his>> toes, <<he>> reaches up and flips a switch on the wall next to you, releasing your restraints.
+		<br><br>
+
+		You fall onto your hands and knees, <span class="lewd">the object in your butt slipping out as you do</span>. You begin to stand up but, suddenly acutely aware of your lewd state, you crouch down instead. The pair still look amused at the situation, but the <<person2>><<person>> pulls some towels out of <<his>> bag and hands them to you. They wordlessly leave, smiling back at you as they do.
+		<br><br>
+
+		That could have been much worse, but you know the whole school will hear about it.
+		<br><br>
+		<<towelup>>
+		<<link [[Next|Hallways]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		The <<person>> looks taken aback, but pauses only a moment before giving you an evil grin and <span class="red">pressing the button</span>.
+		<br><br>
+
+		The fullness inside you <span class="lewd">starts vibrating against your <<prostate>></span>, softly at first, but growing in intensity, and creating an audible buzzing. The <<person>> steps back, smiling mischievously, as you try not to react to the sensation.
+		<<arousal 2000 "anus">><<gggarousal>>
+		<br><br>
+
 		<<if $arousal gte $arousalmax>>
-		<<orgasm>><<exhibitorgasm>>
+			<<orgasm>><<exhibitorgasm>>
 		<</if>>
 
-	The buzzing comes to an abrupt stop. A shameful part of you feels disappointed, but the <<person2>><<person>> reaches for the button yet again. This time, the contraption doesn't give you time to warm up, sending violent shock waves through you. You involuntarily jerk, delighting the <<fullGroup>>.
+		The buzzing comes to an abrupt stop. A shameful part of you feels disappointed, but the <<person2>><<person>> reaches for the button yet again. This time, the contraption doesn't give you time to warm up, <span class="lewd">sending violent shock waves through you</span>. You involuntarily jerk, delighting the <<fullGroup>>.
+		<<arousal 2000 "anus">><<gggarousal>>
+		<br><br>
+
+		<<if $arousal gte $arousalmax>>
+			<<orgasm>><<exhibitorgasm>>
+		<</if>>
+
+		The <<person2>><<person>> claps <<his>> hands in approval, clearly enjoying your involuntary performance.
+		<br><br>
+
+		<<link [[Next|School Passout Exhibit]]>><<set $phase to 4>><</link>>
+		<br>
+	<</if>>
+<<elseif $phase is 3>>
+	<<He>> presses the button.
 	<br><br>
 
-	<<arousal 2000 "genitals">>
-		<<if $arousal gte $arousalmax>><<orgasm>><<exhibitorgasm>>
-		<</if>>
+	/* Note: Identical to the else case of $phase 2 */
+	The fullness inside you <span class="lewd">starts vibrating against your <<prostate>></span>, softly at first, but growing in intensity, and creating an audible buzzing. The <<person>> steps back, smiling mischievously, as you try not to react to the sensation.
+	<<arousal 2000 "anus">><<gggarousal>>
+	<br><br>
 
-	Its purpose apparently served, the restraints release you. You drop to your hands and knees, the object in your butt slipping out as you do. The pair exchange a worried glance before bolting down the corridor, leaving you exposed on the floor.
+	<<if $arousal gte $arousalmax>>
+		<<orgasm>><<exhibitorgasm>>
+	<</if>>
+
+	The buzzing comes to an abrupt stop. A shameful part of you feels disappointed, but the <<person2>><<person>> reaches for the button yet again. This time, the contraption doesn't give you time to warm up, <span class="lewd">sending violent shock waves through you</span>. You involuntarily jerk, delighting the <<fullGroup>>.
+	<<arousal 2000 "anus">><<gggarousal>>
+	<br><br>
+
+	<<if $arousal gte $arousalmax>>
+		<<orgasm>><<exhibitorgasm>>
+	<</if>>
+
+	The <<person2>><<person>> claps <<his>> hands in approval, clearly enjoying your involuntary performance.
+	<br><br>
+
+	<<link [[Next|School Passout Exhibit]]>><<set $phase to 4>><</link>>
+	<br>
+<<elseif $phase is 4>>
+	The device's purpose apparently served, the restraints release you. You drop to your hands and knees, <span class="lewd">the object in your butt slipping out as you do</span>. <<covered>>
+	<br><br>
+	The pair take a step back and exchange a worried glance, clearly not having expected the device to release you. They turn and bolt down the corridor, leaving you exposed on the floor.
 	<br><br>
 
 	<<link [[Next|Hallways]]>><<set $stress -= 500>><<endevent>><</link>>
 	<br>
-
 <</if>>
 
 :: School Passout Rape
@@ -1027,13 +1098,7 @@ A minute passes before a <<generatey1>><<generatey2>><<fullGroup>> round the cor
 		Before you can speak,
 		<<person1>>
 		<<if $NPCList[0].penis isnot "none">>
-			the <<person>> bends down and covers your mouth with one hand, whilst
-			<<if $pronoun is "m">>
-				unzipping <<his>> flies
-			<<else>>
-				lifting <<his>> skirt
-			<</if>>,
-			revealing <<his>> erection. <<He>> lowers it towards your face as <<he>> removes <<his>> hand from your mouth, as <<he>> lowers onto you.
+			the <<person>> bends down and covers your mouth with one hand while <<if $pronoun is "m">>unzipping <<his>> fly<<else>>lifting <<his>> skirt<</if>>, revealing <<his>> erection. <<He>> points it towards your face as <<he>> removes <<his>> hand from your mouth, as <<he>> lowers onto you.
 			<br><br>
 
 			Before you can move to do anything about this, the <<person2>><<person>> drops onto your midriff, knocking the wind from you, and grabbing onto your hands to stop you from fighting.
@@ -1053,7 +1118,7 @@ A minute passes before a <<generatey1>><<generatey2>><<fullGroup>> round the cor
 			<<He>> <<if $pronoun is "f">>giggles mischievously<<else>>chuckles softly<</if>>.
 			"You're not going anywhere, <<girl>>."
 			<br><br>
-			<<if $facesitdisable is "f">>
+			<<if $settings.facesitEnabled>>
 				You are powerless to stop the <<person1>><<person>>. You watch as <<his>> pussy draws closer and closer.
 				<<He>> removes <<his>> hand from over your mouth, only for it to be replaced by <<his>> wet pussy as <<he>> sits on your face.
 				<<set $NPCList[0].vagina to "facesit">><<set $NPCList[_n].location.genitals = "head">>
@@ -1101,7 +1166,12 @@ A minute passes before a <<generatey1>><<generatey2>><<fullGroup>> round the cor
 <<molested>>
 
 <<generate1>><<generate2>><<maninit>><<set $leftarm to "bound">><<set $rightarm to "bound">><<set $feetuse to "bound">>
-You awaken in the science classroom, bent over a desk. Straps tie down your arms and legs, restricting your movement<<if $worn.handheld.type.includes("bookbag")>> Your $worn.handheld.name is on the floor. Someone has clearly rifled through it, but nothing appears to be missing<<elseif $worn.handheld.name isnot "naked">> Your $worn.handheld.name is on the floor<</if>>.
+You awaken in the science classroom, bent over a desk. Straps tie down your arms and legs, restricting your movement.
+<<if $worn.handheld.type.includes("bookbag")>>
+	Your $worn.handheld.name is on the floor. Someone has clearly rifled through it, but nothing appears to be missing.
+<<elseif $worn.handheld.name isnot "naked" and !$worn.handheld.name.includes("balloon")>>
+	Your $worn.handheld.name is on the floor.
+<</if>>
 <br><br>
 <</if>>
 
@@ -1121,35 +1191,35 @@ You awaken in the science classroom, bent over a desk. Straps tie down your arms
 :: School Passout Rape Finish
 <<effects>><<set $stress -= 500>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
+	<<ejaculation>>
 
-"Don't try to tell on us. No one will believe you." The pair leave you lying on the hard floor. <<tearful>> you struggle to your feet.
-<br><br>
+	"Don't try to tell on us. No one will believe you." The pair leave you lying on the hard floor. <<tearful>> you struggle to your feet.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|School Rear Courtyard]]>><</link>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
-The <<group>> recoil in pain. <<tearful>> you seize the opportunity and escape from the shed.
-<br><br>
+	The <<group>> recoil in pain. <<tearful>> you seize the opportunity and escape from the shed.
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|School Rear Courtyard]]>><</link>>
+	<<link [[Next|School Rear Courtyard]]>><</link>>
 
 <<elseif $rescue gte 1 and $alarm is 1>><<set $rescued += 1>>
 	<<if $rescue is 2>>
-		The door flies open. Whitney barges in, <<nnpc_his "Whitney">> buddies stood behind <<nnpc_him "Whitney">>.
-		<<if $pillory_tenant.special.name isnot "Leighton">>
+		The door flies open. Whitney barges in, <<nnpc_his "Whitney">> buddies stand behind <<nnpc_him "Whitney">>.
+		<<if $pillory.tenant.special.name isnot "Leighton">>
 			<<nnpc_He "Whitney">> looks between you and the two students, then scowls. You can't tell who <<nnpc_his "Whitney">> anger is directed at.<<status 1>><<gcool>>
 			<br><br>
 
 			Before things can escalate, another figure steps into the doorway. It's Leighton.
 			<<npc Leighton 3>>
-			"Whatever's going on here, it's over. I expect the lot of you in my office-"
+			"Whatever's going on here, it's over. I expect the lot of you in my office—"
 			<br><br>
 
 			Whitney slugs the <<person1>><<person>> in the face before Leighton can finish. Egged on by <<nnpc_his "Whitney">> friends, a brawl quickly ensues, with Leighton angrily trying to reign them all in.
@@ -1189,23 +1259,23 @@ The <<group>> recoil in pain. <<tearful>> you seize the opportunity and escape f
 :: School Passout Gang Rape Finish
 <<effects>><<set $feetuse to 0>><<set $stress -= 500>>
 <<if $enemyarousal gte $enemyarousalmax>>
-<<ejaculation>>
+	<<ejaculation>>
 
-Satisfied, the pair leave you tied to the desk. <<tearful>> you manage to work yourself free.<<unbind>>
-<br><br>
+	Satisfied, the pair leave you tied to the desk. <<tearful>> you manage to work yourself free.<<unbind>>
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|Science Classroom]]>><</link>>
+	<<link [[Next|Science Classroom]]>><</link>>
 <<elseif $enemyhealth lte 0>>
-Deciding you're more trouble than you're worth, the pair leave you tied to the desk. <<tearful>> you manage to work yourself free.<<unbind>>
-<br><br>
+	Deciding you're more trouble than you're worth, the pair leave you tied to the desk. <<tearful>> you manage to work yourself free.<<unbind>>
+	<br><br>
 
-<<clotheson>>
-<<endcombat>>
+	<<clotheson>>
+	<<endcombat>>
 
-<<link [[Next|Science Classroom]]>><</link>>
+	<<link [[Next|Science Classroom]]>><</link>>
 <</if>>
 
 :: Hallways Sneak
@@ -1214,14 +1284,12 @@ Deciding you're more trouble than you're worth, the pair leave you tied to the d
 You <<nervously>> poke your head outside. There's no one around. You leave the relative safety of the toilets, your <<lewdness>> on display.
 
 <<if $phase is 1>>
-<<exhibitionism3>>
+	<<exhibitionism3>>
 <<elseif $phase is 2>>
-<<exhibitionism4>>
+	<<exhibitionism4>>
 <</if>>
-<br><br>
 
 <<link [[Next|Hallways]]>><</link>>
-<br>
 
 <<set $eventskip to 0>>
 
@@ -1231,27 +1299,32 @@ You <<nervously>> poke your head outside. There's no one around. You leave the r
 The school gate is shut and sealed by a sturdy padlock.
 <br><br>
 
-	<<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-
-	<<lockpickicon>><<link [[Pick it (0:10)|Oxford Street]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+
+		<<lockicon "pick">><<link [[Pick it (0:10)|Oxford Street]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
-	<</if>>
+<</if>>
 
-<<getouticon>><<link [[Leave|School Front Courtyard]]>><</link>>
-<br>
+<<getouticon>><<link [[Leave|School Front Courtyard]]>><<handheldon>><</link>>
 
 :: Rear Courtyard Dog
 <<if $molestationstart is 1>>
-<<set $molestationstart to 0>>
-<<controlloss>>
-<<violence 1>>
-<<neutral 1>>
-<<molested>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
 	<<beastCombatInit>>
 <</if>>
 
@@ -1275,31 +1348,25 @@ The school gate is shut and sealed by a sturdy padlock.
 
 <<if $enemyarousal gte $enemyarousalmax>>
 
-<<beastejaculation>>
+	<<beastejaculation>>
 
-Satisfied, the <<beasttype>> bounds away from you.
+	Satisfied, the <<beasttype>> bounds away from you.
 
-<<tearful>> you rise to your feet.
-<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<courtyard>>
+	<<tearful>> you rise to your feet.
+	<br><br>
 
 <<else>>
 
-The <<beasttype>> whimpers and flees.
+	The <<beasttype>> whimpers and flees.
 
-<<tearful>> you rise to your feet.
-<br><br>
-
-<<clotheson>>
-<<endcombat>>
-
-<<courtyard>>
+	<<tearful>> you rise to your feet.
+	<br><br>
 
 <</if>>
+	<<clotheson>>
+	<<endcombat>>
+
+	<<courtyard>>
 
 :: Park Tunnel
 <<effects>><<set $outside to 0>>
@@ -1320,7 +1387,6 @@ There's a shaft hidden beneath the rubber flooring that should lead to the town'
 <br><br>
 
 <<link [[Next|Commercial Drain]]>><</link>>
-<br>
 
 :: Head's Computer
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -1335,7 +1401,6 @@ Leighton makes an appearance in the later pictures, sometimes posing with <<nnpc
 <br><br>
 
 <<link [[Copy to flash drive|Head's Computer Flash]]>><</link>>
-<br>
 
 :: Head's Computer Flash
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -1345,23 +1410,27 @@ You copy the files. Now to decide what to do with them.
 On your way out, you notice a shirt folded on a small table, with a sheet of paper sat atop it. It's a letter addressed to Leighton. It says the shirt is a new school uniform design.
 <br><br>
 <<set $headdrive to 1>>
+<<specialClothesUnlock "set" "foreign_school">>
 <<link [[Wear the shirt and leave|Hallways]]>><<upperwear 20>><<endevent>><</link>>
 <br>
 <<link [[Just leave|Hallways]]>><<endevent>><</link>>
-<br>
 
 :: Head's Stash
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-Looking under the head's desk you find a small but solid box with a door. It's almost a safe. You pull, but the door doesn't move. It's locked. The lock looks very solid:
-it will take some time to pick.
+Looking under the head's desk, you find a small but solid box with a door. It's almost a safe. You pull, but the door doesn't move. It's locked. The lock looks very solid: it will take some time to pick.
 <br><br>
 <<set $skulduggerydifficulty to 1000>>
 
-<<link [[Pick the lock (0:30)|Head's Stash 2]]>><<pass 30>><</link>><<skulduggerydifficulty>>
-<br>
+<<if pcAreArmsBound("both")>>
+	You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+	<br><br>
+<<else>>
+	<<wearProp "lockpick">>
+	<<link [[Pick the lock (0:30)|Head's Stash 2]]>><<handheldon>><<pass 30>><</link>><<skulduggerydifficulty>>
+	<br>
+<</if>>
 <<link [[Leave it alone|Head's Office]]>><<endevent>><</link>>
-<br>
 
 :: Head's Stash 2
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -1385,8 +1454,6 @@ You settle under the desk and set to work on the lock.
 	<br><br>
 	<</if>>
 	<<link [[Next|Head's Office]]>><<endevent>><</link>>
-	<br>
-
 <<else>>
 	It is far more complex than you expected. After nearly half an hour of fruitless poking and prodding at the lock, you give up.
 	<span class="teal">Now you have a feel for the lock, you could try again.</span>
@@ -1398,26 +1465,25 @@ You settle under the desk and set to work on the lock.
 	<<link [[Try again (0:30)|Head's Stash 2]]>><<pass 30>><</link>><<skulduggerydifficulty>>
 	<br>
 	<<link [[Give up|Head's Office]]>><<endevent>><</link>>
-	<br>
 <</if>>
 
 :: Head's Office Blackmail
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $phase is 1>>
-Leighton looks up from <<his>> desk as you enter. "How can I help you?"
-<br><br>
+	Leighton looks up from <<his>> desk as you enter. "How can I help you?"
+	<br><br>
 <</if>>
 
 <<if $speech_attitude is "bratty">>
-You give <<him>> a wicked smile. "I've been on your computer," you say. "I've seen what you keep there. I made copies."
-<br><br>
+	You give <<him>> a wicked smile. "I've been on your computer," you say. "I've seen what you keep there. I made copies."
+	<br><br>
 <<elseif $speech_attitude is "meek">>
-You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did to that student. On your computer," you manage to say. "I-I made copies."
-<br><br>
+	You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did to that student. On your computer," you manage to say. "I-I made copies."
+	<br><br>
 <<else>>
-"I've been on your computer," you say. "I've seen what you did to that student. I made copies."
-<br><br>
+	"I've been on your computer," you say. "I've seen what you did to that student. I made copies."
+	<br><br>
 <</if>>
 
 <<crimeUp 1000 "coercion">>
@@ -1430,12 +1496,11 @@ You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did t
 <<link [[No detention|Head's Office No Detention]]>><</link>>
 <br>
 <<if $schoolfameboard isnot 1 and $schoolfameblackmail isnot undefined>>
-<<link [[No more photoshoots|Head's Office No Photoshoots]]>><</link>>
-<br>
-
-	<<if $exhibitionism gte 55>>
-	<<link [[Pay me for photoshoots|Head's Office Pay Photoshoots]]>><</link>><<exhibitionist4>>
+	<<link [[No more photoshoots|Head's Office No Photoshoots]]>><</link>>
 	<br>
+
+	<<if hasSexStat("exhibitionism", 4)>>
+		<<link [[Pay me for photoshoots|Head's Office Pay Photoshoots]]>><</link>><<exhibitionist4>>
 	<</if>>
 <</if>>
 
@@ -1452,7 +1517,6 @@ This watch should be worth a fair bit if you could find a buyer.
 <<set $blackmoney += 5000>><<set $headmoney to 1>><<set $headblackmailed to 1>><<control 25>><<endevent>><<def 3>>
 
 <<link [[Next|Hallways]]>><</link>>
-<br>
 
 :: Head's Office No Detention
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -1461,35 +1525,36 @@ This watch should be worth a fair bit if you could find a buyer.
 <br><br>
 
 You leave the office. That's one less problem to worry about.
-<<ggcontrol>>
+<<set $headnodetention to 1>><<set $headblackmailed to 1>><<control 25>><<def 3>><<ggcontrol>>
 <br><br>
 
-<<set $headnodetention to 1>><<set $headblackmailed to 1>><<control 25>><<endevent>><<def 3>>
-<br><br>
-
+<<endevent>>
 <<link [[Next|Hallways]]>><</link>>
-<br>
 
 :: Events Shades Hand
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You hand River the shades. "Good. You'll get them back, the way you dress outside school is your par-" <<He>> catches <<himself>> mid-sentence. "Here, you abide by the rules." <<He>> marches away from you.
+You hand River the shades.
 <br><br>
-
-<<generatey2>><<person2>>"I thought <<pshe>> was cooler than that," you hear a <<person>> say to <<his>> friend.
+"Good. You'll get them back, the way you dress outside school is your par—" <<He>> catches <<himself>> mid-sentence. "Here, you abide by the rules." <<He>> marches away from you.
 <br><br>
-
-<<endevent>>
+<<generatey2>>"I thought <<pshe>> was cooler than that," you hear a <<person2>><<person>> say to <<his>> friend, disappointed.
+<br><br>
+<<if !$settings.blindStatsEnabled>>
+	<span class="blue">Your $worn.face.name have been returned to your wardrobe.</span>
+	<br><br>
+<</if>>
+<<generalUndress "wardrobe" "face">> /* Undresses rather than destroys the glasses, so River's promise is kept */
 
 <<courtyard>>
 
 :: Events Shades Flip
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You turn away from River and show <<him>> your middle finger. The watching students cheer you on. River is lost for words. "Y-you little... You'll be punished for this, I'll make sure you won't be able to sit for a week!" <<He>> marches away from you.
+You turn away from River and show <<him>> your middle finger. The watching students cheer you on.
 <br><br>
-
-<<endevent>>
+River is lost for words. "Y-you little... You'll be punished for this, I'll make sure you won't be able to sit for a week!" <<He>> marches away from you.
+<br><br>
 
 <<courtyard>>
 
@@ -1497,84 +1562,89 @@ You turn away from River and show <<him>> your middle finger. The watching stude
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $speech_attitude is "meek">>
-"B-but I don't have any on," you say.
+	"B-but I don't have any on," you say.
 <<elseif $speech_attitude is "bratty">>
-"You're out of luck. I'm not wearing any," you say.
+	"You're out of luck. I'm not wearing any," you say.
 <<else>>
-"But I'm not wearing any," you say.
+	"But I'm not wearing any," you say.
 <</if>>
 <br><br>
 
-"What a pervert!" the <<person>> exclaims. <<He>> kicks your glasses over to you. "Here, I don't want anything to do with them. I might catch something." <<He>> saunters off. Fortunately, your glasses appear undamaged.
-<<clotheson>>
+"What a pervert!" the <<person>> exclaims. <<He>> kicks your glasses over to you. "Here, I don't want anything to do with them. I might catch something." <<He>> saunters off.
 <br><br>
+Fortunately, your glasses appear undamaged.
 
-<<endevent>>
-
+<<clotheson>>
 <<courtyard>>
 
 :: Glasses Underwear
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You <<pulldown>> your $worn.lower.name, revealing your $worn.under_lower.name.
-<<if playerChastity() and $worn.under_lower.type.includes("naked")>>
-"What is that?" <<he>> asks, crouching for a closer look. "Is that a keyhole?" You decide <<hes>> seen enough and cover back up. "You really are a weirdo. Here," <<he>> kicks your glasses to your feet. "I don't want to catch anything." <<He>> saunters off.
+<<tearful>> you <<pulldown>> your $worn.lower.name, <span class="lewd">revealing your $worn.under_lower.name.</span>
 <br><br>
-
-Fortunately your glasses appear undamaged.
-<<clotheson>>
-<br><br>
-<<elseif $worn.under_lower.gender isnot $player.gender_appearance and $worn.under_lower.gender isnot "n">>
+<<if $worn.under_lower.gender isnot $player.gender_appearance and $worn.under_lower.gender isnot "n">>
 	<<if $player.gender_appearance is "m">>
-	"You're wearing panties!" <<he>> exclaims. "I knew you were a pervert, but this is a bit much. Here," <<he>> kicks your glasses to you. "I regret touching them now." <<He>> saunters off.
-	<br><br>
-
-Fortunately your glasses appear undamaged.
-<<clotheson>>
-<br><br>
-
+		"You're wearing panties!" <<he>> exclaims.
 	<<else>>
-	"You're wearing boy's underwear!" <<he>> exclaims. "I knew you were a pervert, but this is a bit much. Here," <<he>> kicks your glasses to you. "I regret touching them now." <<He>> saunters off.
-	<br><br>
-
-Fortunately your glasses appear undamaged.
-<<clotheson>>
-<br><br>
-
+		"You're wearing boy's underwear!" <<he>> exclaims.
 	<</if>>
+	"I knew you were a pervert, but this is a bit much. Here." <<He>> kicks your glasses to you. "I regret touching them now." <<He>> saunters off.
+	<br><br>
+	Fortunately, your glasses appear undamaged.
 <<else>>
-<<He>> eyes up your exposed underwear. "Nice. See, that wasn't so bad, was it," <<he>> says as <<he>> throws your glasses at you. You manage to catch them. "See ya around <<bitch>>, wear some better undies next time."
-<<clotheson>>
-<br><br>
+	<<He>> eyes up your exposed underwear. "Nice. See, that wasn't so bad, was it," <<he>> says as <<he>> throws your glasses at you. You manage to catch them. "See ya around <<bitch>>, wear some better undies next time."
+	<br><br>
 <</if>>
 
-<<endevent>>
-
+<<clotheson>>
 <<courtyard>>
 
 :: Glasses Refuse
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $speech_attitude is "meek">>
-"N-no," you say, unable to make eye contact. "I don't want to."
+	"N-no," you say, unable to make eye contact. "I don't want to."
 <<elseif $speech_attitude is "bratty">>
-"Fuck off pervert, I'll buy new glasses," you say.
+	"Fuck off pervert, I'll buy new glasses," you say.
 <<else>>
-"I'll just buy new glasses," you say.
+	"I'll just buy new glasses," you say.
 <</if>>
 <br><br>
 
-"Suit yourself," <<he>> responds, and crunches your glasses underfoot. "Later loser." <<He>> saunters off.
+"Suit yourself," <<he>> responds, and <<he>> <span class="red">crunches your glasses underfoot.</span> "Later loser." <<He>> saunters off.
 <br><br>
-
 <<faceruined>>
+<<courtyard>>
 
-<<endevent>>
+:: Glasses Shove
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
+You shove the <<person>> in <<his>> chest. <<He>> loses balance and falls backwards with a yelp<<if $schoollesson isnot 1>>, drawing the attention of other students<</if>>.
+<br><br>
+<<He>> gapes up at you. "C-crazy nerd, I'm telling the head you shoved me!" <<He>> staggers away, leaving your glasses undamaged.
+
+<<clotheson>>
+<<courtyard>>
+
+:: Glasses Plead
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
+You look into the <<persons>> eyes pleadingly. "Please," you say with a sob.<<if $schoollesson isnot 1>> Some other students turn their heads in your direction.<</if>> "D-don't break my glasses. I really need them."
+<br><br>
+<<if random(1,4) is 1>>
+	<<He>> glances around, then sneers. "You want something to cry about? Here." <<He>> raises <<his>> foot and <span class="red">crunches your glasses underfoot.</span> "You think I'm some bleeding-heart <<bitch>>? Think again." <<He>> saunters off.
+	<br><br>
+	<<faceruined>>
+<<else>>
+	<<He>> hesitates, glancing around uncomfortably. "Useless crybaby. Fine, you get away this time." <<He>> scoffs and saunters off, leaving your glasses undamaged.
+	<br><br>
+	<<clotheson>>
+<</if>>
 
 <<courtyard>>
 
 :: School Stump
-<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<set $outside to 1>><<set $location to "school_rear_courtyard">><<schooleffects>><<effects>>
 
 <<if $schoolstate is "lunch" or $schoolstate is "morning" or $schoolstate is "afternoon">>
 	You lean back on the stump. You close your eyes and listen to the murmuring of students in the courtyard.
@@ -1583,7 +1653,7 @@ Fortunately your glasses appear undamaged.
 <</if>>
 <br><br>
 
-<<if $danger gte (9900 - $allure)>>
+<<if dangerEvent()>>
 	<<eventsschoolstump>>
 <<else>>
 	<<if $schoolstate isnot "late">>
@@ -1591,7 +1661,6 @@ Fortunately your glasses appear undamaged.
 		<br>
 	<</if>>
 	<<link [[Stop|School Rear Courtyard]]>><</link>>
-	<br>
 <</if>>
 
 :: School Stump Ignore
@@ -1607,7 +1676,6 @@ You turn away from the pervert and shut your eyes. "You're no fun," <<he>> says.
 	<br>
 <</if>>
 <<link [[Stop|School Rear Courtyard]]>><</link>>
-<br>
 
 :: School Stump Flash
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
@@ -1628,7 +1696,6 @@ You wink at <<him>> and cover up before anyone else can see. <<He>> leaves with 
 	<br>
 <</if>>
 <<link [[Stop|School Rear Courtyard]]>><</link>>
-<br>
 
 :: School Stump Genital Flash
 
@@ -1647,99 +1714,316 @@ You wink at <<him>> and cover up before anyone else can see. <<He>> leaves with 
 	<br>
 <</if>>
 <<link [[Stop|School Rear Courtyard]]>><</link>>
-<br>
 
 :: Bra Strap Quiet
-
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
 You find a secluded space behind an outbuilding. You make sure you weren't followed, then <<pullup>> your $worn.upper.name and fix your $worn.under_upper.name.
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Bra Strap Exhibitionism
-
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You <<pullup>> your $worn.upper.name, exposing your <<breasts>>. The <<person>> and <<his>> friends fall silent and ogle you as you fix your $worn.under_upper.name.
+<<flaunting>> you <<pullup>> your $worn.upper.name, <span class="lewd">exposing your <<breasts>>.</span>
+<br><br>
+The <<person>> and <<his>> friends fall silent and ogle you as you fix your $worn.under_upper.name.
 <<pain -4>><<exhibitionism4>>
 
-<<endevent>>
 <<courtyard>>
 
 :: Bra Strap Turn
-
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
-You do your best to ignore the <<person>> and <<his>> friends.
+
+You turn away and do your best to ignore the <<person>> and <<his>> friends<<if $phase is 1>>, their jeering laughter echoing behind you<</if>>.
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Bra Strap Angry
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You storm over to the <<person>>. <<He>> turns to you just in time to see you shove <<him>>, making <<him>> flinch. <<He>> stumbles and falls against a wall. <<His>> friends are laughing at <<him>> now.
+You storm over to the <<if $phase isnot 2>>group, where the <<persons>> friends are congratulating <<him>><<else>><<person>><</if>>.
+<br><br>
+<<He>> turns to you just in time to flinch as you shove <<him>>, making <<him>> stumble back with a surprised yelp. <<He>> falls against a wall, gaping up at you in shock.
+<br><br>
+"Asshole," you say. <<Hes>> more embarrassed than hurt, but now <<his>> friends are laughing at <<him>>.
 <br><br>
 
-<<endevent>>
-<<courtyard>>
+<<if $phase is 1>>
+	<<link [[Fix your clothes somewhere quiet|Bra Strap Quiet]]>><</link>>
+	<br>
+	<<if hasSexStat("exhibitionism", 4)>>
+		<<link [[Fix your clothes right here|Bra Strap Exhibitionism]]>><</link>><<exhibitionist4>>
+		<br>
+	<</if>>
+<<else>>
+	<<courtyard>>
+<</if>>
 
 :: Courtyard Crush Flirt
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 You walk over to the <<person1>><<person>>, and sit beside <<him>>.
-
-<<if $phase is 0>>
-	<<He>> gulps down <<his>> mouthful. "H-hi," <<he>> says.
-<<elseif $phase is 1>>
-	<<His>> smile broadens. "Hi," <<he>> says.
-<<elseif $phase is 2>>
-	<<He>> turns to you. "Y-yes?" <<he>> mumbles.
-<<elseif $phase is 3>>
-	<<He>> smirks at you. "Hey babe," <<he>> says. "What can I do for you?"
-<<else>>
-	<<He>> stares at <<his>> lap with great intensity.
-<</if>>
+<<switch $phase>>
+	<<case 0>> <<He>> gulps down <<his>> mouthful. "H-hi," <<he>> says.
+	<<case 1>> <<His>> smile broadens. "Hi," <<he>> says.
+	<<case 2>> <<He>> turns to you. "Y-yes?" <<he>> mumbles.
+	<<case 3>> <<He>> smirks at you. "Hey babe," <<he>> says. "What can I do for you?"
+	<<case 4>> <<He>> stares intently at <<his>> lap.
+<</switch>>
 <br><br>
 
 <<if $speech_attitude is "meek">>
-"Y-your friend said you like me," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "You're cute too."
+	"Y-your friend said you like me," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "You're cute too."
 <<elseif $speech_attitude is "bratty">>
-"I saw you looking at me," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "Don't worry, I'm used to it."
+	"I saw you looking at me," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "I wouldn't mind looking at you."
 <<else>>
-"Your friend told me a secret," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "I like you too."
+	"Your friend told me a secret," you say, leaning closer. <<He>> must be able to feel your breath on <<his>> face. "I like you too."
 <</if>>
 <<promiscuity1>>
 
-<<if $phase is 0>>
-	<<He>> opens <<his>> mouth to speak, but burps instead. <<He>> clutches <<his>> face in embarrassment and runs for safety. <<His>> friend follows, laughing.
-<<elseif $phase is 1>>
-	<<He>> holds out a hand, which you take. You sit together for a little while as <<his>> friend gently pokes fun at you both.
-<<elseif $phase is 2>>
-	"Th-thank you," <<he>> says. <<He>> gives you a nervous smile. <<His>> friend sits on <<his>> other side, and encourages <<him>> to be more assertive through the use of pokes. <<person2>><<He>> has mild success.
-<<elseif $phase is 3>>
-	"Of course you like me," <<he>> says, grinning. <<Hes>> leaning at an odd angle. "Who wouldn't like-" <<he>> begins, before losing <<his>> balance. <<He>> tumbles to the ground, <<his>> legs flailing in the air.
-	<<if $pronoun is "f">>
-	<<His>> skirt tumbles down <<his>> legs and you glimpse <<his>> plain white panties.
-	<</if>>
-	<br><br>
-
-	<<He>> climbs to <<his>> feet and tries to laugh it off, but is too embarrassed to look at you.
-<<else>>
-	<<He>> nods at <<his>> lap while turning a deeper shade of red. You try to bring <<him>> out of <<his>> shell, but <<hes>> too shy. <<His>> friend finds <<his>> awkwardness humourous.
-<</if>>
+<<switch $phase>>
+	<<case 0>>
+		<<He>> opens <<his>> mouth to speak, but burps instead. <<He>> clutches <<his>> face in embarrassment and runs for safety.
+		<br><br>
+		<<His>> friend follows, laughing.
+	<<case 1>>
+		<<He>> holds out a hand, which you take. You sit together for a little while as <<his>> friend gently pokes fun at you both.
+		<<takeHandholdingVirginity $NPCList[0] "consensual">>
+	<<case 2>>
+		"Th-thank you," <<he>> says. <<He>> gives you a nervous smile. <<His>> friend sits on <<his>> other side, and encourages <<him>> to be more assertive through the use of pokes. <<person2>><<He>> has mild success.
+	<<case 3>>
+		"Of course you like me," <<he>> says, grinning. <<Hes>> leaning at an odd angle. "Who wouldn't like—" <<he>> begins, before losing <<his>> balance. <<He>> tumbles to the ground, <<his>> legs flailing in the air.
+		<<if $pronoun is "f">>
+			<<His>> skirt tumbles down <<his>> legs, revealing <<his>> plain white panties for a moment.
+		<</if>>
+		<br><br>
+		<<He>> climbs to <<his>> feet and tries to laugh it off, but is too embarrassed to look at you.
+	<<case 4>>
+		<<He>> nods at <<his>> lap while turning a deeper shade of red. You try to bring <<him>> out of <<his>> shell with a bit of conversation, but <<hes>> too shy to say much of anything.
+		<br><br>
+		<<His>> friend finds <<his>> awkwardness humorous.
+<</switch>>
 <br><br>
 
-<<endevent>>
+<<if $phase is 0>> /* The NPC ran away, so no other options are available */
+	<<courtyard>>
+<<else>>
+	<<if hasSexStat("promiscuity", 3)>>
+		<<link [[Seduce <<him>>|Courtyard Crush Seduce]]>><</link>><<promiscuous3>>
+		<br>
+	<</if>>
+	<<link [[Say goodbye|Courtyard Crush Goodbye]]>><</link>>
+	<br>
+<</if>>
+
+:: Courtyard Crush Seduce
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
+After chatting for a bit, you lean in a whisper in the <<person1>><<persons>> ear.
+<<if $speech_attitude is "meek">>
+	"Y-you're really cute," you tell <<him>>. "Do you wanna go somewhere together?"
+<<elseif $speech_attitude is "bratty">>
+	"How about we take this a bit further?" you ask coyly. "Test our 'compatibility'?"
+<<else>>
+	"I think I really like you," you tell <<him>>. "Want to see if our bodies like each other too?"
+<</if>>
+<<promiscuity3>>
+
+<<set $seductiondifficulty to 4000>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
+<<if $seductionrating gte $seductionrequired>>
+	<<switch $phase>>
+		<<case 0>> /* Unreachable */
+		<<case 1>> <<His>> grip on your hand tightens, and <<he>> gives you a broad smile. "Yeah, I'd love to," <<he>> whispers back.
+		<<case 2>> <<He>> hesitates, <<his>> face going red. "Y-yes, I'd like that," <<he>> stammers out.
+		<<case 3>> <<He>> stares at you blankly. After a moment, <<he>> admits, "I didn't think I'd get this far. But, yes, totally."
+		<<case 4>> <<He>> freezes up, eyes wide. The <<person2>><<person>> has to step in and poke <<person1>><<him>> a few times before <<he>> finally nods a tiny but enthusiastic 'yes'.
+	<</switch>>
+	<br><br>
+	You smile and stand up.
+	<<if $speech_attitude is "meek">>
+		"L-let's go find someplace quiet,"
+	<<elseif $speech_attitude is "bratty">>
+		"Follow me. I know a place,"
+	<<else>>
+		"I know somewhere private,"
+	<</if>>
+	you say, leading the <<person>> into the school. Behind you, the <<person2>><<person>> pumps <<his>> fist in quiet celebration. <<status 2>><<gcool>>
+	<br><br>
+
+	<<person1>>
+	<<link [[Next|Courtyard Crush Sex]]>><<set $sexstart to 1>><<set $phase to 0>><<clearsinglenpc 1>><</link>> /* The friend shouldn't follow! */
+	<br>
+<<else>>
+	<<switch $phase>>
+		<<case 0>> /* Unreachable */
+		<<case 1>> <<His>> hand tenses in yours, and <<he>> gives you a strained smile. "I, uh, I'd rather take things slow for now, if that's okay."
+		<<case 2>> <<He>> hesitates, then gives the <<person2>><<person>> a panicked glance. "I-I don't think I'm ready for that, yet."
+		<<case 3>> <<His>> eyes dart around in a panic. "Wait, I-I was kinda just pretending. I'm not actually ready to, you know..."
+		<<case 4>> <<He>> freezes up, eyes wide. You wait for a moment, and eventually <<he>> makes a tiny head shake 'no'.
+	<</switch>>
+	<<stress 3>><<gstress>>
+	<br><br>
+	You nod and quickly make your excuses. As you leave, you hear the <<person2>><<person>> say, "Seriously? After all the help I gave you?"
+	<br><br>
+
+	<<courtyard>>
+<</if>>
+
+:: Courtyard Crush Sex
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<if $phase lte 0>>
+		<<set $enemytrust += 100>>
+	<<else>>
+		<<set $enemytrust += 50>>
+	<</if>>
+	<<enable_rescue>>
+
+	You lead the <<person>> through the hallways and towards a cupboard. Other students giggle as you pass. You step in first, and <<he>> closes the door behind <<him>> as <<he>> follows. Once alone, <<he>> lunges for you.
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Courtyard Crush Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Courtyard Crush Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Courtyard Crush Sex Finish
+<<set $outside to 0>><<set $location to "school">><<effects>>
+
+<<if $enemyhealth lte 0>>
+	<<tearful>> you shove the <<person>> away and make a break for the cupboard door. <<He>> doesn't try to follow.
+	<br><br>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	"Look, this- this was amazing. Can we do this again sometime?" the <<person>> says, leaning against the wall of the cupboard.
+	<br><br>
+	<<if $orgasmcurrent is 0 and not playerChastity()>>
+		<<if $speech_attitude is "meek">>
+			"Well, I-I didn't quite manage to get off," you say, not meeting <<his>> eyes. "So, maybe?"
+		<<elseif $speech_attitude is "bratty">>
+			"Selfish much?" you say, giving <<him>> an unimpressed look. "You're the only one who got off."
+		<<else>>
+			"Well," you say, hesitating. "I didn't get to cum, so..."
+		<</if>>
+		<<His>> face pales, and <<he>> stammers out an apology before quickly making <<his>> exit.
+		<br><br>
+	<<else>>
+		<<if $speech_attitude is "meek">>
+			"Y-Yeah, this was fun," you say shyly. "I wouldn't mind another."
+		<<elseif $speech_attitude is "bratty">>
+			"Totally," you say. "You're pretty good at this."
+		<<else>>
+			"Sure," you say. "I enjoyed this. See you around."
+		<</if>>
+		<<He>> blushes at your praise, smiling to <<himself>>. When <<he>> thinks you're not looking,
+		<<print either(
+			"<<he>> does a little happy dance.",
+			"<<he>> pinches <<himself>> on the arm.",
+			"<<he>> makes a quick prayer of thanks.",
+			"<<he>> pumps <<his>> fist in victory.")>>
+		<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
+		<br><br>
+	<</if>>
+<<elseif $finish is 1>>
+	"O-Oh shit, I'm really sorry about that," the <<person>> stammers, backing away from you. "You- You won't ever see me again."
+	<br><br>
+	<<He>> turns and flees through the cupboard door before you can say anything.
+	<br><br>
+<<else>>
+	<<set $rescued += 1>>
+	Someone bashes on the door. "What's going on in there?" says a strong voice. It's <<generateRandomTeacher 2>>.
+	<br><br>
+	The <<person>> hurriedly fixes <<his>> clothing and opens the door. "This- This isn't what you think!" <<he>> starts, but <<he>> isn't fooling anyone. _teacher grabs <<him>> by the arms and hauls <<him>> away.
+	<br><br>
+	<<tearful>> you leave the cupboard.
+	<br><br>
+<</if>>
+
+<<clotheson>><<endcombat>>
+<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+<br>
+
+
+:: Courtyard Crush Goodbye
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
+After chatting for a bit, you stand up.
+<<person1>>
+<<if $speech_attitude is "meek">>
+	"I should probably go," you tell the <<person>>. "B-but you're nice. See you around?"
+<<elseif $speech_attitude is "bratty">>
+	"I gotta go," you tell the <<person>>. "See you around, cutie?"
+<<else>>
+	"I need to go," you tell the <<person>>. "But I'll see you around?"
+<</if>>
+<br><br>
+<<switch $phase>>
+	<<case 0>> /* Unreachable */
+	<<case 1>> "Yeah, sure," <<he>> says, reluctantly letting go of your hand. "Thanks for being cool about this."
+	<<case 2>> <<He>> manages to look you in the eye. "Y-Yeah, see you around."
+	<<case 3>> "Y-Yeah, totally!" <<he>> says, putting on a confident grin. "See you around."
+	<<case 4>> <<He>> nods, still looking down at <<his>> lap. "S-sure," <<he>> manages to say.
+<</switch>>
+As you walk off, you hear <<his>> friend tell <<him>>, "See? That wasn't so bad."
+<br><br>
+
+<<courtyard>>
+
+:: Courtyard Crush Mock
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+
+You look over at the <<person1>><<person>>.
+<<if $speech_attitude is "meek">>
+	"Wh-what?" you ask. "Ew, no! Stay away from me."
+<<elseif $speech_attitude is "bratty">>
+	"Absolutely not," you sneer. "I'll never be that desperate."
+<<else>>
+	"Really?" you ask. "That's so gross. Stay away from me, weirdo."
+<</if>>
+<br><br>
+The <<person2>><<persons>> face contorts in rage. "That's just cruel," <<he>> snarls. Behind <<him>>, <span class="red">the <<person1>>
+<<switch $phase>>
+	<<case 0>> <<person>> has gone pale and seems to be choking on <<his>> sandwich.
+	<<case 1>> <<persons>> smile has faded into a sour expression.
+	<<case 2>> <<person>> is staring intently at the ground, face pale.
+	<<case 3>> <<person>> has a horrifed look on <<his>> face.
+	<<case 4>> <<person>> has closed <<his>> eyes and seems to be on the verge of tears.
+<</switch>>
+</span>
+<br><br>
+You turn and march away.
+<br><br>
+
 <<courtyard>>
 
 :: Courtyard Crush Ignore
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You ignore the pair, and continue on your way.
-
+You mutter something vaguely apologetic and quickly flee the pair.
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Courtyard Crush Robin Angry
@@ -1749,11 +2033,11 @@ You march over to the pair, who look at you. You must look angry, given their st
 <br><br>
 
 <<if $speech_attitude is "meek">>
-"I-I'm Robin's," you say. "St-stay away!"
+	"I-I'm Robin's," you say. "St-stay away!"
 <<elseif $speech_attitude is "bratty">>
-"Robin's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
+	"Robin's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
 <<else>>
-"Robin's not available," you say. "Don't you forget it."
+	"Robin's not available," you say. "Don't you forget it."
 <</if>>
 <br><br>
 "We're only joking around," the <<person2>><<person>> says in <<his>> friend's defence.
@@ -1763,7 +2047,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<gcool>><<status 1>>
 	<br><br>
 
-	<<endevent>>
 	<<courtyard>>
 <<elseif $cool gte 120>>
 	<<if $cool gte random(1, 240)>>
@@ -1771,7 +2054,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<gcool>><<status 1>>
 		<br><br>
 
-		<<endevent>>
 		<<courtyard>>
 	<<else>>
 		"You wanna start something?"
@@ -1780,7 +2062,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 		<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<lstress>>
-		<br>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -1789,16 +2070,14 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 	<br>
 	<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<lstress>>
-	<br>
 <</if>>
 
 :: Courtyard Crush Robin Ignore
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 You ignore them. You know Robin wouldn't appreciate you antagonising people over this.
-
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Courtyard Crush Robin Walk
@@ -1807,7 +2086,6 @@ You ignore them. You know Robin wouldn't appreciate you antagonising people over
 You walk away. The pair jeer at you, but you know Robin wouldn't like you starting fights.
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Crush Whitney Angry
@@ -1817,11 +2095,11 @@ You march over to the pair, who look at you. You must look angry, given their st
 <br><br>
 
 <<if $speech_attitude is "meek">>
-"I-I'm Whitney's," you say. "St-stay away!"
+	"I-I'm Whitney's," you say. "St-stay away!"
 <<elseif $speech_attitude is "bratty">>
-"Whitney's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
+	"Whitney's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
 <<else>>
-"Whitney's not available," you say. "Don't you forget it."
+	"Whitney's not available," you say. "Don't you forget it."
 <</if>>
 <br><br>
 "We're only joking around," the <<person2>><<person>> says in <<his>> friend's defence.
@@ -1831,7 +2109,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<gcool>><<status 1>>
 	<br><br>
 
-	<<endevent>>
 	<<courtyard>>
 <<elseif $cool gte 120>>
 	<<if $cool gte random(1, 240)>>
@@ -1839,7 +2116,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<gcool>><<status 1>>
 		<br><br>
 
-		<<endevent>>
 		<<courtyard>>
 	<<else>>
 		"You wanna start something?"
@@ -1848,7 +2124,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><<def 1>><</link>>
 		<br>
 		<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<lstress>>
-		<br>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -1857,25 +2132,22 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><<def 1>><</link>>
 	<br>
 	<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<lstress>>
-	<br>
 <</if>>
 
 :: Courtyard Crush Whitney Ignore
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 You ignore them. The <<person1>><<person>> has no chance with Whitney anyway.
-
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Courtyard Crush Whitney Walk
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 You walk away. The pair jeer at you, but you know neither have a chance with Whitney.
-
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Courtyard Crush Sydney Angry
@@ -1885,11 +2157,11 @@ You march over to the pair, who look at you. You must look angry, given their st
 <br><br>
 
 <<if $speech_attitude is "meek">>
-"I-I'm Sydney's," you say. "St-stay away!"
+	"I-I'm Sydney's," you say. "St-stay away!"
 <<elseif $speech_attitude is "bratty">>
-"Sydney's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
+	"Sydney's mine," you say, clutching the <<person1>><<persons>> collar. "Forget it at your peril." You release and shove <<him>> away.
 <<else>>
-"Sydney's not available," you say. "Don't you forget it."
+	"Sydney's not available," you say. "Don't you forget it."
 <</if>>
 <br><br>
 "We're only joking around," the <<person2>><<person>> says in <<his>> friend's defence.
@@ -1899,7 +2171,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<gcool>><<status 1>>
 	<br><br>
 
-	<<endevent>>
 	<<courtyard>>
 <<elseif $cool gte 120>>
 	<<if $cool gte random(1, 240)>>
@@ -1907,7 +2178,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<gcool>><<status 1>>
 		<br><br>
 
-		<<endevent>>
 		<<courtyard>>
 	<<else>>
 		"You wanna start something?"
@@ -1916,7 +2186,6 @@ You march over to the pair, who look at you. You must look angry, given their st
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 		<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<lstress>>
-		<br>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -1925,16 +2194,14 @@ You march over to the pair, who look at you. You must look angry, given their st
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 	<br>
 	<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<lstress>>
-	<br>
 <</if>>
 
 :: Courtyard Crush Sydney Ignore
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
 You ignore them. You know Sydney would want you to forgive them.
-
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 :: Courtyard Crush Sydney Walk
@@ -1943,7 +2210,6 @@ You ignore them. You know Sydney would want you to forgive them.
 You walk away. The pair jeer at you, but you know Sydney would want you to forgive them.
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Crush Fight
@@ -2030,7 +2296,7 @@ You walk away. The pair jeer at you, but you know Sydney would want you to forgi
 	<<lcool>><<status -1>>
 	<br><br>
 
-	The audience jeer at you for a while, though they soon grow bored.
+	The audience jeers at you for a while, though they soon grow bored.
 	<br><br>
 
 	<<clotheson>>
@@ -2043,44 +2309,68 @@ You walk away. The pair jeer at you, but you know Sydney would want you to forgi
 :: Courtyard Flyover Walk
 <<effects>>
 
-Your blush deepens as you turn and walk away, chased by their jeering laughter.
-<br><br>
+<<if $phase is 1 or $phase is 2>>
+	Your blush deepens as you turn and walk away, leaving the scandalous video behind. <<if $phase is 1>>For now.<</if>>
+	<br><br>
+<<else>>
+	You blush deeply and increase your pace, hurrying away. Their jeering laughter chases after you.
+	<br><br>
+<</if>>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Flyover Own
 <<effects>>
 
-You stand your ground.
+<<if $phase is 2>>
+	You move forward and tap the <<person>> on the shoulder.
+	<br><br>
+	"I think I know who <<pshe>> is," you purr. <<He>> looks at you in confusion for a moment, then <<his>> eyes widen in recognition.
+	<<if !$flyover_chaste>>
+		/* Since the PC was undiscovered until now, call this here */
+		<<schoolrep_naked $flyover_chaste>>
+		<<fameschoolex 30>>
+	<</if>>
+	<br><br>
+	You give <<him>> a wink.
+<<elseif $phase is 1>>
+	You move forward and tap the <<person>> on the shoulder. When <<he>> turns to look at you, you pull aside your $worn.face.name and give <<him>> a smug smile. <<His>> eyes widens and <<he>> points at you. <span class="lewd">"I-it's you!"</span> The group turns to gawk at you.
+	<br><br>
+<<else>>
+	"Yep, that's me." You stand up straight and look the <<persons>> in the eye.
+<</if>>
+
 <<if $speech_attitude is "meek">>
 	"Did you like how I looked?" you giggle. "It was so exciting!"
 <<elseif $speech_attitude is "bratty">>
 	"I'd suggest you lot try it," you say. "But I doubt you're brave enough."
 <<else>>
-	"When you look as good as this," you say. "You want to flaunt it."
+	"When you look as good as this," you say, "you want to flaunt it."
 <</if>>
 <<exhibitionism5>>
 
-The students are taken aback by your response. You turn and strut away.
+The <<if $phase is 2>><<person>> is<<else>>students are<</if>> taken aback by your bold response. You turn away as the group bursts into a heated discussion. <<status 2>><<gcool>>
 <br><br>
 
-<<endevent>>
 <<courtyard>>
-
-
 
 :: Courtyard Herm Resist
 <<effects>>
 
-The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away. The others close in.
+<<if $speech_attitude is "meek">>
+	"I-I don't want to," you say. "It's my body."
+<<elseif $speech_attitude is "bratty">>
+	"Fuck off, creeps," you say. "Don't tell me what to do."
+<<else>>
+	"Leave me alone," you say. "It's none of your business."
+<</if>>
+<br><br>
+The three of them exchange looks, and the <<person3>><<person>> rolls <<his>> eyes. "I wasn't asking," <<he>> says. <<He>> steps forward and tries to grab you again, but you bat <<his>> arm away.
+<br><br>
+The others sneer and close in.
 <br><br>
 
-
 <<link [[Next|Courtyard Herm Fight]]>><<set $fightstart to 1>><</link>>
-<br>
-
-
 
 :: Courtyard Herm Fight
 <<if $fightstart is 1>>
@@ -2113,7 +2403,7 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 	<<ejaculation "short">>
 	All three of them collapse to the ground, the energy drained from them.
 	<br><br>
-	<<tearful>> you walk away.
+	<<tearful>> you hurry away.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -2122,7 +2412,7 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 <<elseif $enemyhealth lte 0>>
 	They back away from you, intimidated by your ferocity.
 	<br><br>
-	<<tearful>> you walk away.
+	<<tearful>> you hurry away.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -2132,7 +2422,7 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 
 	"Stop this at once," says a firm voice. Sirris leans from a staff room window.
 	<br>
-	"<<pShe>> started-"
+	"<<pShe>> started—"
 	<br>
 	"I won't hear it," Sirris continues. "Go see Leighton. Right now."
 	<br>
@@ -2148,13 +2438,15 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 		<<towelup>>
 	<</if>>
 
+	"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> says with a smile.
 	<<if $schoolrep.crossdress gte 5>>
-		"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> smiles. "You're not doing anything wrong."<<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+		"You're not doing anything wrong."
 	<<else>>
-		"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> smiles. "There's nothing wrong with you."<<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+		"There's nothing wrong with you."
 	<</if>>
+	<<trauma -6>><<stress -6>><<ltrauma>><<lstress>>
 	<br><br>
-	<<endevent>>
+
 	<<courtyard>>
 <<else>>
 	You fall to the ground, too hurt to continue fighting.<<fameexhibitionism 20>>
@@ -2177,21 +2469,21 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 	<<else>>
 		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 			<<if $worn.under_lower.type.includes("naked")>>
-				The <<person1>><<person>> crouches beside you, grasps the hem of your skirt, and lifts it. <span class="pink">Your <<genitals 1>> are revealed.</span>
+				The <<person1>><<person>> crouches beside you, grasps the hem of your skirt, and lifts it. <span class="lewd">Your <<genitals 1>> are revealed.</span>
 			<<else>>
-				The <<person1>><<person>> crouches beside you, and lifts the hem of your skirt. <<He>> pulls aside your $worn.under_lower.name, <span class="pink">revealing your <<genitals 1>></span>
+				The <<person1>><<person>> crouches beside you, and lifts the hem of your skirt. <<He>> pulls aside your $worn.under_lower.name, <span class="lewd">revealing your <<genitals 1>></span>
 			<</if>>
 		<<elseif $worn.lower.set isnot $worn.upper.set>>
 			<<if $worn.under_lower.type.includes("naked")>>
-				The <<person1>><<person>> crouches beside you, grasps the hem of your $worn.lower.name, and tugs it down. <span class="pink">Your <<genitals 1>> are revealed.</span>
+				The <<person1>><<person>> crouches beside you, grasps the hem of your $worn.lower.name, and tugs it down. <span class="lewd">Your <<genitals 1>> are revealed.</span>
 			<<else>>
-				The <<person1>><<person>> crouches beside you, and tugs down your $worn.lower.name. <<He>> pulls aside your underwear, <span class="pink">revealing your <<genitals 1>></span>
+				The <<person1>><<person>> crouches beside you, and tugs down your $worn.lower.name. <<He>> pulls aside your underwear, <span class="lewd">revealing your <<genitals 1>></span>
 			<</if>>
 		<<else>>
 			<<if $worn.under_lower.type.includes("naked")>>
-				The <<person1>><<person>> crouches beside you, and starts peeling the $worn.upper.name off your body, <span class="pink">revealing your <<undertop>> and <<genitals 1>>.</span>
+				The <<person1>><<person>> crouches beside you, and starts peeling the $worn.upper.name off your body, <span class="lewd">revealing your <<undertop>> and <<genitals 1>>.</span>
 			<<else>>
-				The <<person1>><<person>> crouches beside you and peels the $worn.upper.name off your body, <span class="pink">revealing your <<undertop>> and $worn.under_lower.name.</span> <<He>> pulls your underwear aside next, <span class="pink">baring your <<genitals 1>>.</span>
+				The <<person1>><<person>> crouches beside you and peels the $worn.upper.name off your body, <span class="lewd">revealing your <<undertop>> and $worn.under_lower.name.</span> <<He>> pulls your underwear aside next, <span class="lewd">baring your <<genitals 1>>.</span>
 			<</if>>
 		<</if>>
 		<br><br>
@@ -2215,7 +2507,6 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 	<<clotheson>>
 	<<endcombat>>
 	<<courtyard>>
-
 <</if>>
 
 
@@ -2231,11 +2522,11 @@ The <<person2>><<person>> tries to grab you again, but you bat <<his>> arm away.
 	"I'm being bullied!" you shout. "Somebody help."
 <</if>>
 <br><br>
-The <<person1>><<person>> looks around, and smirks when no one comes. "So you're a coward-"
+The <<person1>><<person>> looks around, and smirks when no one comes. "So you're a coward—"
 <br><br>
 "Stop this at once," interrupts a firm voice. Sirris leans from a staff room window.
 <br>
-"<<pShe>> started-"
+"<<pShe>> started—"
 <br>
 "I won't hear it," Sirris continues. "Go see Leighton. Right now."
 <br>
@@ -2250,95 +2541,45 @@ The bullies share a worried glance, but do as they're told.
 	<<towelup>>
 <</if>>
 
+"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> says with a smile.
 <<if $schoolrep.crossdress gte 5>>
-	"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> smiles. "You're not doing anything wrong."<<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+	"You're not doing anything wrong."
 <<else>>
-	"Are you okay?" Sirris asks once you're dressed. "Don't let them get to you," <<he>> smiles. "There's nothing wrong with you."<<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+	"There's nothing wrong with you."
 <</if>>
+<<trauma -6>><<stress -6>><<ltrauma>><<lstress>>
 <br><br>
-<<endevent>>
+
 <<courtyard>>
 
 
 :: Courtyard Herm Show
 <<effects>>
-<<fameexhibitionism 3>>
-Blushing with shame,
-<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you lift your skirt, <span class="pink">revealing your <<genitals 1>></span>.
-	<<else>>
-		you lift your skirt and pull aside your $worn.under_lower.name, <span class="pink">revealing your <<genitals 1>></span>.
-	<</if>>
-<<elseif $worn.upper.set isnot $worn.lower.set>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you tug down your $worn.lower.name, <span class="pink">revealing your <<genitals 1>></span>.
-	<<else>>
-		you tug down your $worn.lower.name and pull aside your underwear, <span class="pink">revealing your <<genitals 1>></span>.
-	<</if>>
-<<else>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you peel off your $worn.upper.name, <span class="pink">revealing your <<undertop>> and <<genitals 1>></span>.
-	<<else>>
-		you peel off your $worn.upper.name, <span class="pink">revealing your <<undertop>> and $worn.under_lower.name.</span> You pull your underwear aside, <span class="pink">baring your <<genitals 1>></span>
-	<</if>>
-<</if>>
-<br><br>
+
+<<tearful>> you reach for your clothes. <<pulldownall>>
+<<fameexhibitionism 2>>
+<<schoolrep_naked>>
 
 The <<fullGroup>> each stare at your crotch, astonishment on their faces.
-<br>
-"It's true!"
-<br>
-<<if $schoolrep.herm gte 5>>
-	"<<pShes>> a freak."
-<<else>>
-	"<<pShes>> a pervert."
-<</if>>
-<br>
-"I'm gonna tell everyone."
+<br><br>
+<<courtyardrevealresponse>>
 <br><br>
 
 You cover yourself and leave before they get any ideas. They don't stop you.
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Herm Flaunt
 <<effects>>
-<<fameexhibitionism 3>>
-<<flaunting>>
-<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you lift your skirt, <span class="pink">revealing your <<genitals 1>></span>.
-	<<else>>
-		you lift your skirt and pull aside your $worn.under_lower.name, <span class="pink">revealing your <<genitals 1>></span>.
-	<</if>>
-<<elseif $worn.upper.set isnot $worn.lower.set>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you tug down your $worn.lower.name, <span class="pink">revealing your <<genitals 1>></span>.
-	<<else>>
-		you tug down your $worn.lower.name and pull aside your underwear, <span class="pink">revealing your <<genitals 1>></span>.
-	<</if>>
-<<else>>
-	<<if $worn.under_lower.type.includes("naked")>>
-		you peel off your $worn.upper.name, <span class="pink">revealing your <<undertop>> and <<genitals 1>></span>.
-	<<else>>
-		you peel off your $worn.upper.name, <span class="pink">revealing your <<undertop>> and $worn.under_lower.name.</span> You pull your underwear aside, <span class="pink">baring your <<genitals 1>></span>
-	<</if>>
-<</if>>
+
+<<flaunting>> you reach for your clothes. <<pulldownall>>
+<<fameexhibitionism 5>>
+<<schoolrep_naked>>
 
 The <<fullGroup>> each stare at your crotch, astonishment on their faces.
-<br>
-"It's true!"
-<br>
-<<if $schoolrep.herm gte 5>>
-	"<<pShes>> a freak."
-<<else>>
-	"<<pShes>> a pervert."
-<</if>>
-<br>
-"I'm gonna tell everyone."
+<br><br>
+<<courtyardrevealresponse>>
 <br><br>
 
 <<if $schoolrep.herm gte 5>>
@@ -2358,18 +2599,15 @@ The <<fullGroup>> each stare at your crotch, astonishment on their faces.
 		"A pervert?" you say. "It's not my jaw on the floor."
 	<</if>>
 <</if>>
-<br><br>
-
 You cover yourself, and leave them staring in awe.
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Hypnosis Offer
 <<effects>>
 
-"I was wondering," you say, the words forming on their own. "Could I-" you bite your lip. "Could we have some private time?" You nod at the bike shed.
+"I was wondering," you say, the words forming on their own. "Could I"—you bite your lip—"could we have some private time?" You nod at the bike shed.
 <br><br>
 
 The <<person>> stammers an incoherent response, so you take <<his>> hand and pull <<him>> behind the shed.
@@ -2413,35 +2651,25 @@ The <<person>> stammers an incoherent response, so you take <<his>> hand and pul
 	<br><br>
 	<<tearful>> you saunter away. You're not quite sure what happened, but you feel better.
 	<br><br>
-	<<clotheson>>
-	<<endcombat>>
-	<<courtyard>>
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person>> away from you. <<He>> hits the wall, and slumps to the ground.
 	<br><br>
 	<<tearful>> you run. You're not quite sure what happened.
 	<br><br>
-	<<clotheson>>
-	<<endcombat>>
-	<<courtyard>>
 <<elseif $alarm is 1 and $rescue is 1>><<set $rescued += 1>>
 	<<generatey2>><<generatey3>><<person2>>
 	A <<person>> and <<person3>><<person>> arrive to investigate. They gawk when they see you and the <<person1>><<person>>, and it's enough to send <<him>> running.
 	<br><br>
-
 	<<covered>> <<tearful>> you run to safety. You're not quite sure what happened.
 	<br><br>
-
-	<<clotheson>>
-	<<endcombat>>
-	<<courtyard>>
 <<else>>
 	The <<person>> backs away from you. "D-did I do something wrong?" <<he>> asks. <<tearful>> you run. You're not quite sure what happened yourself.
 	<br><br>
-	<<clotheson>>
-	<<endcombat>>
-	<<courtyard>>
 <</if>>
+
+<<clotheson>>
+<<endcombat>>
+<<courtyard>>
 
 :: Courtyard Hypnosis Resist
 <<effects>>
@@ -2458,14 +2686,12 @@ The <<person>> stammers an incoherent response, so you take <<his>> hand and pul
 	You walk away from the <<person>> before <<he>> responds.
 	<br><br>
 <<else>>
-	You try to ignore the urging voice, <span class="red">but it's a struggle.</span> You manage to tear yourself away from the <<person>> before you say anything, and almost stumble as you escape.
+	You try to ignore the urging voice, <span class="red">but it's a struggle</span>. You manage to tear yourself away from the <<person>> before you say anything, and almost stumble as you escape.
 	<br><br>
-
 	You hide around the corner, and the coercive feelings dissipate. Your strange behaviour was noticed by others.<<lcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 6>>
 	<br><br>
 <</if>>
 
-<<endevent>>
 <<courtyard>>
 
 
@@ -2475,102 +2701,114 @@ The <<person>> stammers an incoherent response, so you take <<his>> hand and pul
 You ignore them. Whatever it is, you don't want to know.
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 :: Courtyard Nude Footage Investigate
 <<effects>>
 
-You approach the pair.
-
+Something is off about this. You approach the pair.
 <<if $speech_attitude is "meek">>
-	"P-people keep looking at me funny," you say. "Why?"
+	"P-people keep looking at me weird," you say. "Do you know why?"
 <<elseif $speech_attitude is "bratty">>
-	"What's so funny?" you ask.
+	"What's going on?" you ask them.
 <<else>>
-	"Why are people looking at me funny?" you ask.
+	"Why are people looking at me weird?" you ask them. "Did something happen?"
 <</if>>
 <br><br>
 
-The <<person2>><<person>> and <<person3>><<person>> look at each other, then the <<person2>><<person>> shows you <<his>> phone. A short clip plays. <span class="pink">Of you, naked,</span> in what looks like Niki's studio.
+The <<person2>><<person>> and <<person3>><<person>> look at each other, and the <<person>> motions towards you with a snicker. The <<person2>><<person>> shows you <<his>> phone. A short clip plays. <span class="lewd">Of you, naked,</span> in what looks like Niki's studio.
 <br><br>
 
-You're aware of all the other students looking at their phones. How many of them are watching you?
+You stare at the phone, suddenly very aware of other students looking at their own phones. How many of them are watching this video?
 <br><br>
 
-<<link [[Walk away|Courtyard Footage Walk]]>><<status -10>><</link>><<lcool>>
-<br>
-<<if $exhibitionism gte 75>>
+<<if hasSexStat("exhibitionism", 5)>>
 	<<link [[Own it|Courtyard Nude Footage Own]]>><</link>><<exhibitionist5>>
 	<br>
 <</if>>
+<<link [[Walk away|Courtyard Footage Walk]]>><<status -10>><</link>><<lcool>>
+<br>
 
 :: Courtyard Assault Footage Investigate
 <<effects>>
 
-You approach the pair.
-
+Taking a deep breath, you decide you need to know what's going on. You approach the pair.
 <<if $speech_attitude is "meek">>
-	"P-people keep looking at me funny," you say. "Why?"
+	"P-people keep looking at me weird," you say. "Do you know why?"
 <<elseif $speech_attitude is "bratty">>
-	"What's so funny?" you ask.
+	"What's going on?" you ask them.
 <<else>>
-	"Why are people looking at me funny?" you ask.
+	"Why are people looking at me weird?" you ask them. "Did something happen?"
 <</if>>
 <br><br>
 
-The <<person2>><<person>> and <<person3>><<person>> look at each other, then the <<person2>><<person>> shows you <<his>> phone. A short clip plays. <span class="pink">Of you, getting gangbanged,</span> in what looks like Niki's studio.
+The <<person2>><<person>> and <<person3>><<person>> look at each other. "I'm not sure—" the <<person>> starts, but the <<person2>><<person>> cuts <<person3>><<him>> off and shows you the phone screen with a smirk. A short clip plays. <span class="red">Of you, getting gangbanged,</span> in what looks like Niki's studio.
+<br><br>
+You stare blankly at the phone, suddenly very aware of other students looking at their own phones. How many of them are watching this video?
 <br><br>
 
-You're aware of all the other students looking at their phones. How many of them are watching you?
-<br><br>
-
-<<link [[Walk away|Courtyard Footage Walk]]>><<status -20>><</link>><<llcool>>
-<br>
-<<if $promiscuity gte 75>>
+<<if hasSexStat("promiscuity", 5)>>
 	<<link [[Own it|Courtyard Assault Footage Own]]>><</link>><<promiscuous5>>
 	<br>
 <</if>>
+<<link [[Walk away|Courtyard Footage Walk]]>><<status -20>><</link>><<llcool>>
+<br>
 
 
 :: Courtyard Nude Footage Own
 <<effects>>
 
-You snatch the phone away, and climb atop a nearby table. "Hey!" you shout. "Everyone!" Heads turn. Some look surprised or bemused, but others bear knowing looks.
+"Give me that," you demand, and the <<person2>><<person>> reluctantly hands over <<his>> phone. You turn and climb atop a nearby bench.
 <br><br>
-
-"You wanna see me naked?" You let the sentence hang a moment. "You can." You look down at the phone, and read the website address aloud.
-<<famemodel 20>>
-<<fameexhibitionism 20>>
+"Everyone!" you shout. "Listen up!" A hush falls over the courtyard as students turn to you. Several are surprised or bemused, but more than a few have knowing smirks.
+<br><br>
+"Ever wanted to see me naked?" You let the sentence hang a moment as a murmur goes through the small crowd. "Well, today is your lucky day! One of my lewder photoshoots just leaked, and if you ask me, <span class="lewd">I look fucking sexy.</span>"
+<br><br>
+"Check it out at—" You look down at the phone and read the website address aloud. Many of the students are typing along on their own phones.
+<br><br>
+<<if $speech_attitude is "meek">>
+	"A-all I ask is that you don't fall in love with me, okay?"
+<<elseif $speech_attitude is "bratty">>
+	"Try not to be too jealous, okay?"
+<<else>>
+	"Try not to drool over me too much, okay?"
+<</if>>
+You perform one of the lewder poses from the video and give the crowd a wink.
+<<famemodel 20>><<fameexhibitionism 20>>
 <<exhibitionism5>>
 
-You feel cathartic as you step down from the table.
-<<if $pain gte 20>>
-	Though you're still crying.
-<</if>>
+You feel cathartic as you step down from the bench<<if $pain gte 20>>, though you're still crying<</if>>.
 <br><br>
 
-<<endevent>>
+<<wearProp "phone" 0 "mobile">>
 <<courtyard>>
 
 :: Courtyard Assault Footage Own
 <<effects>>
 
-You snatch the phone away, and climb atop a nearby table. "Hey!" you shout. "Everyone!" Heads turn. Some look surprised or bemused, but others bear knowing looks.
+You snatch the phone out of the <<person2>><<persons>> hands and climb atop a nearby bench. <<He>> starts to protest, but the <<person3>><<person>> grabs <<person2>><<his>> shoulder. You ignore them.
 <br><br>
-
-"You wanna see me getting fucked from all sides?" You let the sentence hang a moment. "You can." You look down at the phone, and read the website address aloud.
-<<famemodel 20>>
-<<famerape 20>>
+"Hey!" you shout. "Everyone!" Heads turn in your direction, and soon a small crowd has formed. Some students look surprised or bemused, but others bear knowing or sympathetic looks.
+<br><br>
+"Ever wanted to see me get fucked from all sides?" You let the sentence hang a moment as the crowd starts to murmur in interest. "Well, now you can! Someone leaked a vid of me getting absolutely trashed, and if you ask me, <span class="lewd">it's hot as fuck.</span>"
+<br><br>
+"You can find it at—" You look down at the phone, and read the website address aloud. It's a bit concerning how many people seem to be following along on their own phones.
+<br><br>
+<<if $speech_attitude is "meek">>
+	"M-my only request is to enjoy yourselves lots while you're touching yourselves to me!"
+<<elseif $speech_attitude is "bratty">>
+	"Just don't get me in trouble by touching yourselves in class, yeah?"
+<<else>>
+	"Just make sure to wait until after school to touch yourselves to me, okay?"
+<</if>>
+You make a lewd motion with your hand and give the crowd a wink.
+<<famemodel 20>><<famerape 20>>
 <<promiscuity5>>
 
-You feel cathartic as you step down from the table.
-<<if $pain gte 20>>
-	Though you're still crying.
-<</if>>
+You feel cathartic as you step down from the bench<<if $pain gte 20>>, though you're still crying<</if>>. The <<person3>><<person>> stares at you in shock.
 <br><br>
 
-<<endevent>>
+<<wearProp "phone" 0 "mobile">>
 <<courtyard>>
 
 
@@ -2585,30 +2823,28 @@ You try to ignore the sinking feeling in your chest as you walk away.
 <</if>>
 <br><br>
 
-<<endevent>>
 <<courtyard>>
 
 
 :: Events Panty Accept
 <<effects>>
 
-You nod. "Great!" the <<person>> says. "I'll wait behind the school during lunch break. Bring me as many as you can!"
+After a moment of consideration, you nod.
+<br><br>
+"Great!" the <<person>> says. "I'll wait behind the school during lunch break. Bring me as many as you can!"
 <br><br>
 
-<<set $panty_thief to 1>>
-<<saveNPC 0 "panty_thief">>
-<<endevent>>
 <<courtyard>>
 
 
 :: Events Panty Refuse
 <<effects>>
 
-You turn away. "Shit," the <<person>> says. "I'll be behind the school during lunch break if you change your mind."
+You turn and start walking away from the creep.
 <br><br>
-<<set $panty_thief to 1>>
-<<saveNPC 0 "panty_thief">>
-<<endevent>>
+"Shit," the <<person>> says, then calls after you. "Okay, look. I'll be behind the school during lunch break! Change your mind whenever!"
+<br><br>
+
 <<courtyard>>
 
 :: School Panty
@@ -2635,7 +2871,6 @@ You walk along the fence, searching for the underwear-obsessed <<person>>. You f
 <</if>>
 
 <<link [[Leave|School Rear Courtyard]]>><<endevent>><</link>>
-<br>
 
 
 :: School Panty Sell
@@ -2664,7 +2899,6 @@ You've made <<moneyGain `$panties_held * 10`>>.
 <br><br>
 
 <<link [[Next|School Rear Courtyard]]>><<endevent>><</link>>
-<br>
 
 
 :: School Sirris Help
@@ -2676,9 +2910,9 @@ You've made <<moneyGain `$panties_held * 10`>>.
 You reach inside as Sirris balances the box on the car's roof. Your fingers clutch something plastic. Part of the key chain? You pull it out.
 
 <<if $awareness gte 200>>
-	<span class="pink">It's a small pink vibrator.</span>
+	<span class="lewd">It's a small pink vibrator.</span>
 <<else>>
-	It's a small pink object. Your finger presses a button, <span class="pink">and it begins to vibrate.</span>
+	It's a small pink object. Your finger presses a button, <span class="lewd">and it begins to vibrate.</span>
 <</if>>
 <br><br>
 "Oh!" Sirris says. "Wrong pocket. Sorry." You return the item, walk around to the other pocket, and fish out the key.
@@ -2690,7 +2924,6 @@ You reach inside as Sirris balances the box on the car's roof. Your fingers clut
 <br><br>
 
 <<link [[Next|School Front Courtyard]]>><<endevent>><</link>>
-<br>
 
 
 :: School Sirris Watch
@@ -2708,7 +2941,6 @@ Sirris lays the box on the passenger seat, before retrieving the rogue object. <
 <br><br>
 
 <<link [[Next|School Front Courtyard]]>><<endevent>><</link>>
-<br>
 
 
 
@@ -2719,7 +2951,7 @@ You turn and run through the courtyard,
 <<if $athleticsSuccess>>
 	<span class="green">leaving the <<person>> behind.</span> <<He>> doesn't bother to chase, instead lazing against the wall.
 	<br><br>
-	<<endevent>>
+
 	<<courtyard>>
 <<else>>
 	but the <<person>> rushes after you, <span class="red">and tackles you to the ground.</span>
@@ -2727,7 +2959,6 @@ You turn and run through the courtyard,
 	<<He>> grins, an evil glint in <<his>> eyes.
 	<br><br>
 	<<link [[Next|Courtyard Guard Quiet]]>><</link>>
-	<br>
 <</if>>
 
 
@@ -2765,14 +2996,14 @@ You turn and run through the courtyard,
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
-	You give <<him>> a swat on the rear with <<his>> own baton.	<<tearful>> you leave <<him>> spent on the ground.
+	You give <<him>> a swat on the rear with <<his>> own baton. <<tearful>> you leave <<him>> spent on the ground.
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 	<<courtyard>>
 
 <<elseif $enemyhealth lte 0>>
-	<<He>> backs away, fumbling for <<his>> walkie-talkie. "I need back up," <<he>> says. "Come in? Anyone there?"
+	<<He>> backs away, fumbling for <<his>> walkie-talkie. "I need backup," <<he>> says. "Come in? Anyone there?"
 	<br><br>
 	<<tearful>> you leave <<him>> to fumble with the device.
 	<br><br>
@@ -2786,7 +3017,6 @@ You turn and run through the courtyard,
 	<br><br>
 
 	<<link [[Next|Courtyard Guard Quiet]]>><</link>>
-	<br>
 
 <</if>>
 
@@ -2799,12 +3029,11 @@ The <<person>> grasps your shoulders, and shoves you against the wall. "Need to 
 <<He>> gropes and prods your body, fondling your <<breasts>> and <<genitals>>. Seeming satisfied, <<he>> pulls you upright and shoves you toward the gate.
 <br><br>
 
-"You're lucky I don't get the police involved," <<he>> says. <<He>> kicks you through and closes it behind you. "You can keep the cord." <<if $worn.handheld.name isnot "naked">><<He>> smirks. "And I'll be keeping this. <<He>> holds up your $worn.handheld.name. "I think that's a fair trade, yeah?"<</if>><<bind>>
+"You're lucky I don't get the police involved," <<he>> says. <<He>> kicks you through and closes it behind you. "You can keep the cord." <<if $worn.handheld.name isnot "naked">><<He>> smirks. "And I'll be keeping this." <<He>> holds up your $worn.handheld.name. "I think that's a fair trade, yeah?"<</if>><<bind>>
 <br><br>
 <<endcombat>>
 <<clotheson>>
 <<link [[Next|Oxford Street]]>><<endevent>><</link>>
-<br>
 
 :: Courtyard Guard Leave
 <<effects>>
@@ -2813,7 +3042,6 @@ The <<person>> escorts you through the front gate, and shuts it behind you. "Any
 <br><br>
 
 <<link [[Next|Oxford Street]]>><<endevent>><</link>>
-<br>
 
 :: Courtyard Guard Convince
 <<effects>>
@@ -2829,25 +3057,24 @@ The <<person>> escorts you through the front gate, and shuts it behind you. "Any
 	<br><br>
 	The <<person>> hesitates, <span class="green">then nods.</span> "Just go careful," <<he>> says. <<He>> turns away.
 	<br><br>
-	<<endevent>>
+
 	<<courtyard>>
 <<else>>
 	<<if $speech_attitude is "meek">>
-		"I-I'm not up to mischief," you say. "I'm just here for-"
+		"I-I'm not up to mischief," you say. "I'm just here for—"
 	<<elseif $speech_attitude is "bratty">>
 		"What, you frightened I'll smash windows?" you ask. "Get you in trouble?"
 	<<else>>
-		"I'm here for honest reasons," you say. "I just need-"
+		"I'm here for honest reasons," you say. "I just need—"
 	<</if>>
 	<br><br>
 	The <<person>> <span class="red">shakes <<his>> head.</span> "Rules are rules. I'll escort you outside."
 	<br><br>
 
-	<<link [[Leave|Courtyard Guard Leave]]>><</link>>
-	<br>
 	<<link [[Refuse|Courtyard Guard Refuse]]>><<crimeUp 20 "trespassing">><</link>><<crime "trespassing">>
 	<br>
-
+	<<link [[Leave|Courtyard Guard Leave]]>><</link>>
+	<br>
 <</if>>
 
 
@@ -2857,5 +3084,4 @@ The <<person>> escorts you through the front gate, and shuts it behind you. "Any
 The <<person>> studies your face. "I'll have to report you to the authorities," <<he>> says. "That's the rule." <<He>> turns away.
 <br><br>
 
-<<endevent>>
 <<courtyard>>

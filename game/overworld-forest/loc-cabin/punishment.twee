@@ -15,7 +15,6 @@
 <<effectsman>><<man>>
 
 <<stateman>>
-<br><br>
 <<actionsman>>
 
 <<if $stalk_end>>
@@ -33,7 +32,7 @@
 		Eden grabs you by the arm, <<his>> grip painful. <<He>> looks mad.
 	<<else>>
 		<<if $stalk_assess>>
-			Eden's grip on your arm remains painfully tight turns as <<he>> turns you around to face <<him>>. <<He>> looks mad.
+			Eden's grip on your arm remains painfully tight as <<he>> turns you around to face <<him>>. <<He>> looks mad.
 		<<else>>
 			You're spun around, and come face-to-face with a large figure. It's Eden. <<He>> looks mad.
 		<</if>>
@@ -47,7 +46,7 @@
 		"Told you I'd find you again, didn't I?" <<he>> snarls, pulling you close. "Looks like you still haven't learnt your place. Come on."
 	<<else>>
 		"Where the fuck have you been?" <<he>> snarls, pulling you close.
-		<<if $allure gte (3000 * $alluremod)>>
+		<<if $allure gte (3000 * $settings.allureModifier)>>
 			"I've been worried sick and you've been prancing around town like a slut!"
 		<<else>>
 			"I've been worried sick, and you're just prancing around town!"
@@ -76,6 +75,26 @@
 	<<endcombat>>
 
 	<<destinationeventend>>
+<<elseif $stalk_end is "ambush">>
+	<<if $stalk_asses>>
+		You're surprised you were able to overcome <<him>> like this, and <<hes>> no less surprised.
+	<<else>>
+		You awkwardly lie on top of Eden's chest as your mind races to figure out what to do next.
+	<</if>>
+	<<His>> eyes open.
+	<br><br>
+
+	<<silently>><<endcombat>><</silently>>
+	<<npc Eden>><<person1>>
+
+	<<link [[Fight|Eden Caged Caught Resist]]>><<set $fightstart to 1>><<def 1>><<npcincr Eden dom -1>><</link>><<ldom>>
+	<br>
+	<<link [[Run|Eden Stalk Ambush]]>><<def 1>><<npcincr Eden dom -1>><</link>><<ldom>>
+	<br>
+	<<if $syndromeeden is 1>>
+		<<link [[Kiss Eden, and then run|Eden Stalk Ambush]]>><<set $phase to 1>><<npcincr Eden love 1>><<npcincr Eden dom -1>><</link>><<glove>><<ldom>><<kissvirginitywarning>>
+		<br>
+	<</if>>
 <<else>>
 	<<if $stalk_assess>>Eden's<<else>>A familiar<</if>> voice shouts after you as you escape into the <<if Time.dayState is "night">>darkness<<else>>crowds<</if>>, but you keep running. Finally, it fades into the distance. <<tearful>> you slow to a walk, and continue on your way.
 	<br><br>
@@ -85,6 +104,22 @@
 
 	<<destinationeventend>>
 <</if>>
+
+:: Eden Stalk Ambush
+<<effects>>
+
+<<if $phase is 1>>
+	You give Eden a kiss right on the lips before <<he>> can get <<his>> bearings. <<takeKissVirginity "Eden" "romantic">>
+<</if>>
+<br><br>
+
+You push yourself off of <<him>> and dash away. <<His>> voice shouts after you as you escape into the <<if Time.dayState is "night">>darkness<<else>>crowds<</if>>, but you keep running. Finally, it fades into the distance. <<tearful>> you slow to a walk, and continue on your way.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+
+<<destinationeventend>>
 
 :: Eden Caged Caught Pull
 <<effects>>
@@ -103,6 +138,7 @@ Fearing whatever Eden has in store for you, you pull hard.
 	<<if $location is "forest">>
 		You're in the clear, but you know Eden's already on your trail. <span class="red">Something is hunting you.</span>
 		<<set $foresthunt to 1>>
+		<<set $forestHunter to "Eden">>
 		<br><br>
 
 		<<link [[Next|Forest]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -142,6 +178,7 @@ Fearing whatever Eden has in store for you, you pull hard.
 		<br>
 		You're in the clear, but you know Eden's already on your trail. <span class="red">Something is hunting you.</span>
 		<<set $foresthunt to 1>>
+		<<set $forestHunter to "Eden">>
 		<<set $edenCagedEscape to true>>
 	<<else>>
 		<<His>> grip remains almost bone-crunching. <span class="red">You can't tear away.</span> Eden silently glares as <<he>> pulls you closer.
@@ -179,35 +216,33 @@ Fearing whatever Eden has in store for you, you pull hard.
 	<<set $enemytrust -= 100>>
 	<<set $enemyhealth to 600>>
 	<<set $enemyhealthmax to 600>>
+	<<if $stalk_end is "ambush">>
+		<<set $enemyhealth -= 150>>
+	<</if>>
 	<<set $enemyanger += 200>>
-	<<if $asphyxiaLvl gte 3>>
-		<<set $NPCList[0].righthand to "throat">><<set $NPCList[0].lefthand to "throat">><<set $neckuse to "hand">>
-		"I don't want to do this," Eden says as <<he>> shifts <<his>> hands over your throat. <span class="red">You're being strangled!</span>
+	<<if $settings.asphyxiaLevel gte 3>>
+		<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+			<<set $enemyanger += 50>><<set $enemyhealth -= 20>>
+			Eden lifts <<his>> hands to strangle you. <span class="blue">The collar around your neck thrums with power.</span> <<He>> snatches <<his>> hands away with a curse. <span class="red"><<He>> slaps you across the face instead.</span>
+			<br><br>
+
+			"I'm going to remind you of your place," <<he>> says. <<violence 3>>
+		<<else>>
+			<<set $NPCList[0].righthand to "throat">><<set $NPCList[0].lefthand to "throat">><<set $neckuse to "hand">>
+			"I don't want to do this," Eden says as <<he>> shifts <<his>> hands over your throat. <span class="red">You're being strangled!</span>
+		<</if>>
 	<<else>>
 		<span class="red">Eden slaps you across the face.</span> "You're only making things harder on yourself," <<he>> snarls.
 		<<violence 6>>
 	<</if>>
+	<<forestRescueSetup>>
 	<br><br>
 <</if>>
 
 <<effects>>
 <<effectsman>>
 
-<<if $location is "forest">>
-	<<if $alarm is 1 and $rescue is 0>>
-		<<if $forest lte 20 and $gwylan_aborted isnot 1>>
-			<<set $alarm to 0>>
-			<<set $gwylan_aborted to 1>>
-
-			You see <<if $forest_shop_intro is 1 or $gwylan_rescue is 1>>Gwylan<<else>>a <<nnpc_gendery "Gwylan">><</if>> burst through the treeline, alarmed by your shout.
-			<<nnpc_He "Gwylan">> takes one look at the assailant, <span class="red">then turns and runs away.</span>
-			<br><br>
-		<<elseif $forest gt 20>>
-			<<forestRescueFail "hunter">>
-			<br><br>
-		<</if>>
-	<</if>>
-<</if>>
+<<forestRescueCheck "Eden">>
 
 <<man>>
 <<stateman>>
@@ -258,6 +293,8 @@ Fearing whatever Eden has in store for you, you pull hard.
 	<<else>>
 		<<destinationeventend>>
 	<</if>>
+<<elseif $rescue is 1>>
+	<<forestRescue>>
 <<else>>
 	You fall to the ground, too hurt to continue.
 	<br><br>
@@ -306,53 +343,17 @@ Fearing whatever Eden has in store for you, you pull hard.
 <<link [[Submit|Eden Caged Intro]]>><<set $phase to 1>><<sub 1>><<stress 6>><<npcincr Eden dom 1>><</link>><<gstress>><<gdom>>
 <br>
 
-:: Street Eden Rage
-<<set $outside to 1>><<set $location to "town">><<effects>>
+:: Eden Robin Caged Caught
+<<set $outside to 0>><<set $location to "cabin">><<effects>>
+<<npc Eden>><<person1>>
 
-<<if $phase is 1>>
-	Eden's right. You've been away for far too long. You probably couldn't break free, anyway.
-	<br><br>
-
-	<<He>> guides you towards the forest. Most people ignore you. It's a struggle to keep up with <<his>> quick steps.
-<<else>>
-	Fearing whatever Eden has in store for you, you pull hard.
-	<<if $physiqueSuccess>>
-		Eden resists, turning to you with a warning glare. After some back and forth, <span class="green"><<his>> grasp loosens enough for you to slip out and begin a full-sprint away.</span> Your arm stings, but you push past the feeling.<<pain 2>><<gpain>>
-		<br><br>
-
-		Eden gives chase, narrowly on your heels for a few minutes. <<He>> calls after you as you pull ahead, <<his>> anger palpable.
-		<br><br>
-
-		After a few minutes, the sounds of <<his>> voice fades away, until it disappears completely. You're safe. For now.
-		<br>
-		<i><span class="red">Going back to the cabin might be dangerous with Eden this mad.</span></i>
-		<<set $edenCagedEscape to true>>
-	<<else>>
-		Eden's grip remains almost bone-crunching. <span class="red">You can't tear away.</span> Eden silently glares as <<he>> pulls you closer.
-		<br><br>
-
-		<<He>> guides you towards the forest. People look on as you pass, but none intervene, despite your cries for help.<<trauma 3>><<gtrauma>>
-		<br><br>
-
-		Eden doesn't relax as <<he>> drags you through the woods, even once you're past the outskirts of town. The sounds of civilisation gradually give way to nature's deathly silence.
-		<<set $phase to 1>>
-	<</if>>
-<</if>>
+As <<he>> carries you through the forest, <<he>> doesn't loosen <<his>> grip. <<He>> doesn't even ease up on <<his>> handling of you as you're pulled into the cabin. <<He>> drops you in a heap on the floor.
+<br><br>
+Eden slams the door shut behind <<him>>. The usual familiarity and comfort of the cabin is disrupted by a foreboding feeling in your stomach. Your dread is reinforced when you see the cage in the corner.
 <br><br>
 
-<<if $phase is 1>>
-	<<set $outside to 0>><<set $location to "cabin">>
-	You're pulled into the cabin. Eden slams the door shut behind you. Everything is as you left it. Apart from the cage near the sleeping area.
-	<br><br>
-
-	<<link [[Struggle|Eden Caged Intro]]>><<set $phase to 0>><<def 1>><<npcincr Eden dom -1>><</link>><<physiquedifficulty 2000 18000>><<ldom>>
-	<br>
-	<<link [[Submit|Eden Caged Intro]]>><<set $phase to 1>><<sub 1>><<stress 6>><<npcincr Eden dom 1>><</link>><<gstress>><<gdom>>
-	<br>
-<<else>>
-	<<endevent>>
-	<<destinationeventend>>
-<</if>>
+<<link [[Next|Eden Caged Intro]]>><<set $phase to 2>><</link>>
+<br>
 
 :: Eden Caged Intro
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
@@ -362,6 +363,7 @@ Fearing whatever Eden has in store for you, you pull hard.
 	<br><br>
 
 	"Oh, so now you're behaving?" Eden spits. "Fucking great timing, isn't it? Being good when you know you can't get away with shit."
+	<br><br>
 <<elseif $phase is 0>>
 	<<if $physiqueSuccess>>
 		Knowing the punishment that is about to unfurl, you dig your heels into the floor and pull. Eden, more confident now that you're home, had loosened <<his>> grip, allowing you to pull free.
@@ -377,17 +379,18 @@ Fearing whatever Eden has in store for you, you pull hard.
 		<br>
 		Even though you're alone, a familiar chill runs up your spine. <span class="red">Something is hunting you.</span>
 		<<set $edenCagedEscape to true>>
-		<<set $edenforesthunt to 1>>
+		<<set $forestHunter to "Eden">>
 		<<set $foresthunt to 1>>
+		<br><br>
 	<<else>>
-		Knowing the punishment that is about to unfurl, you dig your heels into the floor and pull. Tired of your defiance, Eden turns and back-hands you. <<pain 4>><<gpain>>
+		Knowing the punishment that is about to unfurl, you dig your heels into the floor and pull. Tired of your defiance, Eden turns and backhands you. <<pain 4>><<gpain>>
 		<br><br>
 
 		"I'm sick of you acting like a brat. It's obvious you need reminding of your duties," <<he>> snarls.
 		<<set $phase to 1>>
+		<br><br>
 	<</if>>
 <</if>>
-<br><br>
 
 <<if $phase gte 1>>
 	Held by the scruff of your neck, the <<nnpc_title "Eden">> strips your clothes before forcing you into the cage. A heavy padlock secures the gate.
@@ -409,6 +412,7 @@ Fearing whatever Eden has in store for you, you pull hard.
 		lumbers to the bed. <<Hes>> soon out like a light.
 	<</if>>
 	<<unset $edenCagedEscape>>
+	<<unset $edenescape>>
 	<<set C.npc.Eden.trust to 0>>
 	<<set $edenCaged to {}>>
 	<<set $edenCaged.escape to 0>>
@@ -793,9 +797,9 @@ You are locked in a cage in Eden's cabin. It's small and cramped, impossible to 
 	Eden cocks an eyebrow at your request, putting <<his>> book down before walking over to the cage. Squatting down to make eye contact, <<he>> smirks. "What do I get in return?"
 	<br><br>
 
-	<<link [["Offer to get " + $NPCList[0].pronouns.him + " off"|Eden Caged Evening 2]]>><<set $phase to 0>><<npcincr Eden trust 5>><<npcincr Eden dom 1>><</link>><<gtrust>><<gdom>>
+	<<link [[Offer to get <<him>> off|Eden Caged Evening 2]]>><<set $phase to 0>><<npcincr Eden trust 5>><<npcincr Eden dom 1>><</link>><<gtrust>><<gdom>>
 	<br>
-	<<link [[Nevermind|Eden Caged Evening 2]]>><<set $phase to 1>><<npcincr Eden trust -5>><<npcincr Eden dom -1>><</link>><<ltrust>><<ldom>>
+	<<link [[Never mind|Eden Caged Evening 2]]>><<set $phase to 1>><<npcincr Eden trust -5>><<npcincr Eden dom -1>><</link>><<ltrust>><<ldom>>
 	<br>
 <<else>>
 	The rest of the night is silent, the crackling of the fire and pages in Eden's book turning all you can hear. A few hours pass before the <<nnpc_title "Eden">> gets up and gets ready for bed.
@@ -835,7 +839,7 @@ You are locked in a cage in Eden's cabin. It's small and cramped, impossible to 
 	<br>
 <<else>>
 	<<if $speech_attitude is "meek">>
-		"I-I can do my "spousal duties", if you want me to?" You bat your eyelashes a few times for extra measure.
+		"I-I can do my 'spousal duties', if you want me to?" You bat your eyelashes a few times for extra measure.
 	<<elseif $speech_attitude is "bratty">>
 		"Why don't you let me out and find out for yourself." You wink up at <<him>>.
 	<<else>>
@@ -953,11 +957,20 @@ You are locked in a cage in Eden's cabin. It's small and cramped, impossible to 
 <<tearful>> you crawl out of the cage. The stiffness slowly leaves your body as you rise to your feet.
 <br><br>
 
-<<if $worn.neck.collared isnot 1>>
+<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+	<<He>> looks at your neck and presses <<his>> lips into a thin line. <<npcincr Eden trust -5>><<ltrust>>
+	<br><br>
+
+	"If you even think of running, it won't end well for you," <<he>> threatens
+<<elseif $worn.neck.collared isnot 1>>
 	While you're standing and stretching, you feel something cold wrap around your neck, with a familiar clicking sound. It's a new collar.
 	<<leash 21>>
+<<elseif $worn.neck.collared is 1 and !$worn.neck.type.includes("leash")>>
+	While you're standing and stretching, you feel something click to your collar. It's a leash.
+	<<attach_leash>>
 <</if>>
-"Come on." Eden tugs on your leash as <<he>> heads towards the door. You follow <<him>> outside, breathing in the fresh air. The <<nnpc_title "Eden">> keeps your leash in <<his>> hand as you walk around the clearing. <<He>> watches your every move.<<stress -6>><<lstress>>
+"Come on." Eden tugs on your <<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>wrist<<else>>leash<</if>> as <<he>> heads towards the door. You follow <<him>> outside, breathing in the fresh air.
+The <<nnpc_title "Eden">> keeps <<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>close to you<<else>>your leash in <<his>> hand<</if>> as you walk around the clearing. <<He>> watches your every move.<<stress -6>><<lstress>>
 <br><br>
 
 After a few minutes, <<he>> calls out for you again. "That's enough. Come on, time for bed now."
@@ -1151,165 +1164,219 @@ The adrenaline surges through your veins. If you want to escape, now's your chan
 <<npc Eden>><<person1>>
 
 <<if $edenFluidsCheck is "run">> /* after run, return to the cabin */
-    Nervous, you walk into the clearing. Eden may still be mad. 
-    <br><br>
-    You don't see <<him>> at first, not until you hear a twig snap behind you. 
-    <<if $goocount gt 0 or $semencount gt 0>> /* with fluids on you */
-        "You're still covered in all of that. It's disgusting."<<npcincr Eden love -5>><<llllove>>
-        <br><br>
-        You see Eden reaching for you in the corner of your eye.
+	Nervous, you walk into the clearing. Eden may still be mad.
+	<br><br>
+	You don't see <<him>> at first, not until you hear a twig snap behind you.
+	<<if $goocount gt 0 or $semencount gt 0>> /* with fluids on you */
+		"You're still covered in all of that. It's disgusting."<<npcincr Eden love -20>><<llllove>>
+		<br><br>
+		You see Eden reaching for you in the corner of your eye.
 
-    <<else>> /* clean */
-        "Just because you washed, doesn't mean I forgot."
-        <br><br>
-        You see Eden reaching for you from the corner of your eye.
+	<<else>> /* clean */
+		"Just because you washed, doesn't mean I forgot."
+		<br><br>
+		You see Eden reaching for you from the corner of your eye.
 
-        <<set $edenFluidsCheck to "clean">>
-    <</if>>
-<<else>> 
-    <<for _bodyPart, _fluids range $player.bodyliquid>>
-        <<if _fluids.goo gte 1 or _fluids.semen gte 1>>
-            <<set _bodyFluids to _bodyPart>>
-            <<break>>
-        <</if>>
-    <</for>>
+		<<set $edenFluidsCheck to "clean">>
+	<</if>>
+<<else>>
+	<<for _bodyPart, _fluids range $player.bodyliquid>>
+		<<if _fluids.goo gte 1 or _fluids.semen gte 1>>
+			<<set _bodyFluids to _bodyPart>>
+			<<break>>
+		<</if>>
+	<</for>>
 
-    You burst through the trees into the clearing. Eden pauses <<his>> task to look at you. <<He>> does a double take, and  <<his>> face screws up when <<he>> sees the fluids on your _bodyFluids. <<stress 6>><<gstress>>
-    <br><br>
-    Eden marches towards you, snarling. "Who touched you?"<<npcincr Eden love -5>><<llllove>>
+	You burst through the trees into the clearing. Eden pauses <<his>> task to look at you. <<He>> does a double take, and <<his>> face screws up when <<he>> sees the fluids on your <<bodypart _bodyFluids>>. <<stress 6>><<gstress>>
+	<br><br>
+	Eden marches towards you, snarling. "Who touched you?"<<npcincr Eden love -30>><<llllove>>
 <</if>>
 
 <br><br>
-<<link [[Run|Eden Fluids Punishment 2]]>><<set $phase to 1>><<npcincr Eden love -5>><<npcincr Eden dom -1>><</link>><<llllove>><<ldom>><<athleticsdifficulty 650 900>>
+<<link [[Run|Eden Fluids Punishment 2]]>><<set $phase to 1>><<def 1>><<npcincr Eden love -10>><<npcincr Eden dom -1>><</link>><<lllove>><<ldom>><<athleticsdifficulty 650 900>>
 <br>
-<<link [[Stay still|Eden Fluids Punishment 2]]>><<set $phase to 0>><<npcincr Eden dom 1>><</link>><<gdom>>
+<<link [[Stay still|Eden Fluids Punishment 2]]>><<set $phase to 0>><<sub 1>><<npcincr Eden dom 1>><</link>><<gdom>>
 
 :: Eden Fluids Punishment 2
 <<set $outside to 1>><<set $location to "cabin">><<effects>><<set $bus to "edenclearing">>
 <<if $phase is 0>> /* Stay still */
-    <<if $edenFluidsCheck is "run" or $edenFluidsCheck is "clean">>
-        Eden's hand is rough as <<he>> grabs your arm, the <<nnpc_title "Eden">> grasping so hard <<his>> nails dig into your skin. <<pain 2>><<gpain>>
-    <<else>>
-        You shiver as Eden comes closer, jumping when <<his>> hand grabs your arm. <<He>> examines you closer, <<his>> lip curling in disgust. 
-        <br><br>
-        "I've been too gentle with you."
-    <</if>>
-        <br><br>
-        <<link [[Next|Eden Fluids Punishment 3]]>><</link>>
-<<else>> /* Run */
-    <<if $edenFluidsCheck is "run">>
-        Not wanting to be hurt again, you turn and begin sprinting into the forest. 
-    <<else>>
-        Scared of what Eden may do, you turn and begin sprinting into the forest. 
-    <</if>>
-	<<He>> yells after you, insisting that you come back. You can hear <<him>> running after you. <<stress 6>><<gstress>>
-    <br><br>
-    <<if $athleticsSuccess>>
-        You run for a while, getting scratched as you push past branches. <<gpain>><<pain 2>>
-        <br><br>
-        Eventually, Eden's yelling gets quieter until it stops completely. <span class="green">You've lost <<him>>.</span> 
-        <br><br>
-        It takes a while to catch your breath as the adrenaline runs through you. <span class="red">Returning to the cabin may be dangerous.</span>
-        <br><br>
-        <<link [[Next|Forest]]>><<set $edenFluidsCheck to "run">><<endevent>><<set $eventskip to 1>><<set $forest to random(50, 75)>><</link>>
+	<<if $edenFluidsCheck is "run" or $edenFluidsCheck is "clean">>
+		Eden's hand is rough as <<he>> grabs your arm, the <<nnpc_title "Eden">> grasping so hard <<his>> nails dig into your skin. <<pain 2>><<gpain>>
 	<<else>>
-        You push yourself as hard as you can, <span class="red">but Eden catches up.</span> <<He>> tackles you to the ground and the air leaves your lungs as you crash into the dirt. <<pain 4>><<gpain>>
-        <br><br>
-        <<if $edenFluidsCheck is "clean">>
-            "You're such an ungrateful brat," <<he>> growls as <<he>> punches you in the back of the head. <<pain 4>><<gpain>>
-        <<else>>
-            "<<if $edenFluidsCheck is "run">>I never thought that you'd be a cheat,<<else>>After all I've done, this is the thanks I get?<</if>>" Eden growls as <<he>> punches you. <<pain 8>><<ggpain>>
-        <</if>>
-        <br><br>
-        Dizzy from the punch, you can't fight <<him>> as <<he>> hauls you onto <<his>> shoulder. When you come back to your senses, Eden spanks you every time you attempt to struggle. Soon enough you return to the cabin.
-        <br><br>
-        <<link [[Next|Eden Fluids Punishment 3]]>><</link>>
-    <</if>>
+		You shiver as Eden comes closer, jumping when <<his>> hand grabs your arm. <<He>> examines you closer, <<his>> lip curling in disgust.
+		<br><br>
+		"I've been too gentle with you."
+	<</if>>
+	<br><br>
+	<<link [[Next|Eden Fluids Punishment 3]]>><</link>>
+<<else>> /* Run */
+	<<if $edenFluidsCheck is "run">>
+		Not wanting to be hurt again, you turn and begin sprinting into the forest.
+	<<else>>
+		Scared of what Eden may do, you turn and begin sprinting into the forest.
+	<</if>>
+	<<He>> yells after you, insisting that you come back. You can hear <<him>> running after you. <<stress 6>><<gstress>>
+	<br><br>
+	<<if $athleticsSuccess>>
+		You run for a while, getting scratched as you push past branches. <<gpain>><<pain 2>>
+		<br><br>
+		Eventually, Eden's yelling gets quieter until it stops completely. <span class="green">You've lost <<him>>.</span>
+		<br><br>
+		It takes a while to catch your breath as the adrenaline runs through you. <span class="red">Returning to the cabin may be dangerous.</span>
+		<br><br>
+		<<link [[Next|Forest]]>><<set $edenFluidsCheck to "run">><<endevent>><<set $eventskip to 1>><<set $forest to random(50, 75)>><</link>>
+	<<else>>
+		You push yourself as hard as you can, <span class="red">but Eden catches up.</span> <<He>> tackles you to the ground and the air leaves your lungs as you crash into the dirt. <<pain 4>><<gpain>>
+		<br><br>
+		<<if $edenFluidsCheck is "clean">>
+			"You're such an ungrateful brat," <<he>> growls as <<he>> punches you in the back of the head. <<pain 4>><<gpain>>
+		<<else>>
+			"<<if $edenFluidsCheck is "run">>I never thought that you'd be a cheat,<<else>>After all I've done, this is the thanks I get?<</if>>" Eden growls as <<he>> punches you. <<pain 8>><<ggpain>>
+		<</if>>
+		<br><br>
+		Dizzy from the punch, you can't fight <<him>> as <<he>> hauls you onto <<his>> shoulder. When you come back to your senses, Eden spanks you every time you attempt to struggle. Soon enough you return to the cabin.
+		<br><br>
+		<<link [[Next|Eden Fluids Punishment 3]]>><</link>>
+	<</if>>
 <</if>>
 
 :: Eden Fluids Punishment 3
 <<set $outside to 0>><<set $location to "cabin">><<effects>><<set $bus to "edencabin">>
 <<if $edenFluidsCheck is "clean">>
-    <<if $phase is 0>> /* Stay still */
-        Eden grasps your hand and pulls you back into the cabin. <<He>> flings you to the floor as <<he>> reaches behind a wardrobe to get something. It's the cage. <<stress 6>><<gstress>>
-    <<else>> /* Run */
-        You're led inside and dropped onto the hardwood floor as Eden reaches behind a wardrobe. <<He>> brings out the cage. <<stress 6>><<pain 4>><<gstress>><<gpain>>
-    <</if>>
+	<<if $phase is 0>> /* Stay still */
+		Eden grasps your hand and pulls you back into the cabin. <<He>> flings you to the floor as <<he>> reaches behind a wardrobe to get something. It's the cage. <<stress 6>><<gstress>>
+	<<else>> /* Run */
+		You're led inside and dropped onto the hardwood floor as Eden reaches behind a wardrobe. <<He>> brings out the cage. <<stress 6>><<pain 4>><<gstress>><<gpain>>
+	<</if>>
 <<else>>
-    <<if $phase is 0>> /* Stay still */
-        Eden pulls you towards the spring behind the cabin, <<his>> grip never loosening. When you get to the edge, <<he>> pushes you in before you can ask <<him>> what <<he>> is doing.
-        <br><br>
-    <<else>> /* Run */
-        Eden doesn't stop as <<he>> walks up to the cabin, instead walking past to the spring behind. "<<if $edenFluidsCheck is "run">>I hate how you smell right now.<<else>>You're not coming inside until you're clean.<</if>>"
-        <br><br>
-        There is no warning when Eden throws you into the spring.
-    <</if>>
-    <<if $edenspring gte 4>> /* spring is clean */
-        The water is a shock, and panic sets in as Eden grabs your hair and keeps you under for a few seconds.
-    <<else>>
-        The water is a shock, and the debris hurts as a hand grasps the back of your neck, keeping you down for a few seconds. <<pain 2>><<gpain>>
-    <</if>>
-    <br><br>
-    Eden pulls you back up, letting you gasp for air as <<he>> begins to strip you of your clothes.
-    <<wash>><<ruined>>
-    <br><br>
-    <<Hes>> quiet as <<he>> roughly washes you with a rag from <<his>> belt. It smells like <<him>>, you think it's the towel <<he>> used to wipe sweat away after working. <<npcincr Eden lust 5>><<glust>>
-    <br><br>
-    "I'm hurt," <<he>> finally says. <<His>> tone is still angry. 
-    <br><br>
-    When you're clean, Eden grasps your hand and pulls you back into the cabin. <<He>> flings you to the floor as <<he>> reaches behind a wardrobe to get something. It's the cage. <<stress 6>><<gstress>>
-    <br><br>
-    "You obviously need more time to think about what you've done."
+	<<if $phase is 0>> /* Stay still */
+		Eden pulls you towards the spring behind the cabin, <<his>> grip never loosening. When you get to the edge, <<he>> pushes you in before you can ask <<him>> what <<he>> is doing.
+		<br><br>
+	<<else>> /* Run */
+		Eden doesn't stop as <<he>> walks up to the cabin, instead walking past to the spring behind. "<<if $edenFluidsCheck is "run">>I hate how you smell right now.<<else>>You're not coming inside until you're clean.<</if>>"
+		<br><br>
+		There is no warning when Eden throws you into the spring.
+	<</if>>
+	<<if $edenspring gte 4>> /* spring is clean */
+		The water is a shock, and panic sets in as Eden grabs your hair and keeps you under for a few seconds.
+	<<else>>
+		The water is a shock, and the debris hurts as a hand grasps the back of your neck, keeping you down for a few seconds. <<pain 2>><<gpain>>
+	<</if>>
+	<br><br>
+	Eden pulls you back up, letting you gasp for air as <<he>> begins to strip you of your clothes.
+	<<wash>><<ruined>>
+	<br><br>
+	<<Hes>> quiet as <<he>> roughly washes you with a rag from <<his>> belt. It smells like <<him>>, you think it's the towel <<he>> used to wipe sweat away after working. <<npcincr Eden lust 5>><<glust>>
+	<br><br>
+	"I'm hurt," <<he>> finally says. <<His>> tone is still angry.
+	<br><br>
+	When you're clean, Eden grasps your hand and pulls you back into the cabin. <<He>> flings you to the floor as <<he>> reaches behind a wardrobe to get something. It's the cage. <<stress 6>><<gstress>>
+	<br><br>
+	"You obviously need more time to think about what you've done."
 <</if>>
 
 <<set $edenFluidsCheck to "Eden">>
 <br><br>
-<<link [[Run|Eden Fluids Punishment 4]]>><<set $phase to 1>><<npcincr Eden love -5>><<npcincr Eden dom -1>><</link>><<llllove>><<ldom>><<athleticsdifficulty 650 900>>
+<<link [[Run|Eden Fluids Punishment 4]]>><<set $phase to 1>><<def 1>><<npcincr Eden love -10>><<npcincr Eden dom -1>><</link>><<lllove>><<ldom>><<athleticsdifficulty 650 900>>
 <br>
-<<link [[Accept your punishment|Eden Fluids Punishment 4]]>><<set $phase to 0>><<npcincr Eden dom 1>><</link>><<gdom>>
+<<link [[Accept your punishment|Eden Fluids Punishment 4]]>><<set $phase to 0>><<sub 1>><<npcincr Eden dom 1>><</link>><<gdom>>
 
 :: Eden Fluids Punishment 4
 <<effects>>
 <<if $phase is 0>> /* Accept your punishment */
-    Eden is right. You betrayed <<his>> trust. You should accept your punishment. 
-    <br><br>
-    You crawl into the cage as Eden holds the gate open, flinching as <<he>> slams it shut. 
-    <br><br>
-    "Don't go thinking that I'll be kinder just because you're behaving now."
+	Eden is right. You betrayed <<his>> trust. You should accept your punishment.
+	<br><br>
+	You crawl into the cage as Eden holds the gate open, flinching as <<he>> slams it shut.
+	<br><br>
+	"Don't go thinking that I'll be kinder just because you're behaving now."
 
 	<<ruined>>
-    <<unset $edenCagedEscape>>
-    <<set $NPCName[$NPCNameList.indexOf("Eden")].trust to 0>>
-    <<set $edenCaged to {}>>
-    <<set $edenCaged.escape to 0>>
-    <<set $edenCaged.days to 0>>
-    <br><br>
-    <<link [[Next|Eden Caged]]>><<set $phase to 0>><</link>>
+	<<unset $edenCagedEscape>>
+	<<unset $edenescape>>
+	<<set $NPCName[$NPCNameList.indexOf("Eden")].trust to 0>>
+	<<set $edenCaged to {}>>
+	<<set $edenCaged.escape to 0>>
+	<<set $edenCaged.days to 0>>
+	<br><br>
+	<<link [[Next|Eden Caged]]>><<set $phase to 0>><</link>>
 <<else>> /* Run */
-    <<if $athleticsSuccess>>
-        Not wanting to be locked away, you bolt out of the door. Eden curses before giving chase. You keep going into the forest, not looking back.
-        <br><br>
-        You run for a while, getting scratched as you push past branches. <<gpain>><<pain 2>>
-        <br><br>
-        Eventually, Eden's yelling gets quieter until it stops completely. <span class="green">You've lost <<him>>.</span> 
-        <br><br>
-        It takes a while to catch your breath as the adrenaline runs through you. <span class="red">Returning to the cabin may be dangerous.</span>
-        <br><br>
-        <<link [[Next|Forest]]>><<set $edenCagedEscape to true>><<endevent>><<set $eventskip to 1>><<set $forest to random(50, 75)>><</link>>
+	<<if $athleticsSuccess>>
+		Not wanting to be locked away, you bolt out of the door. Eden curses before giving chase. You keep going into the forest, not looking back.
+		<br><br>
+		You run for a while, getting scratched as you push past branches. <<gpain>><<pain 2>>
+		<br><br>
+		Eventually, Eden's yelling gets quieter until it stops completely. <span class="green">You've lost <<him>>.</span>
+		<br><br>
+		It takes a while to catch your breath as the adrenaline runs through you. <span class="red">Returning to the cabin may be dangerous.</span>
+		<br><br>
+		<<link [[Next|Forest]]>><<set $edenCagedEscape to true>><<endevent>><<set $eventskip to 1>><<set $forest to random(50, 75)>><</link>>
 	<<else>>
-        Not wanting to be locked away, you try to bolt for the door. <span class="red">Eden is quicker than you are.</span> <<He>> grips your hair, pulling you back towards the cage. 
-        <br><br>
-        "You better learn well from this."
-        <br><br>
-        Eden throws you into the cage, locking it with a padlock.
+		Not wanting to be locked away, you try to bolt for the door. <span class="red">Eden is quicker than you are.</span> <<He>> grips your hair, pulling you back towards the cage.
+		<br><br>
+		"You better learn well from this."
+		<br><br>
+		Eden throws you into the cage, locking it with a padlock.
 
 		<<ruined>>
-        <<unset $edenCagedEscape>>
-        <<set $NPCName[$NPCNameList.indexOf("Eden")].trust to 0>>
-        <<set $edenCaged to {}>>
-        <<set $edenCaged.escape to 0>>
-        <<set $edenCaged.days to 0>>
-        <br><br>
-        <<link [[Next|Eden Caged]]>><<set $phase to 0>><</link>>
-    <</if>>
+		<<unset $edenCagedEscape>>
+		<<unset $edenescape>>
+		<<set $NPCName[$NPCNameList.indexOf("Eden")].trust to 0>>
+		<<set $edenCaged to {}>>
+		<<set $edenCaged.escape to 0>>
+		<<set $edenCaged.days to 0>>
+		<br><br>
+		<<link [[Next|Eden Caged]]>><<set $phase to 0>><</link>>
+	<</if>>
 <</if>>
+
+:: Eden Rape
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>><<set $enemyhealth to 600>><<set $enemyhealthmax to 600>><<set $enemyanger += 50>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Eden Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Eden Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Eden Rape Finish
+<<set $outside to 0>><<set $location to "cabin">><<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>><<npcincr Eden lust -20>>
+	Eden hovers over you for a few seconds to catch <<his>> breath before <<he>> moves away.<<lllust>>
+	<br><br>
+	"You're lucky I'm not tying you up again for being a brat," <<he>> mutters as <<he>> leaves you on the floor.<<stress 20>><<gstress>>
+	<br><br>
+	<<tearful>> you avoid <<his>> gaze.
+<<else>>
+	<<npcincr Eden love -10>>
+	Hissing, Eden backs away from you.
+	<br><br>
+	"This was your idea in the first place," <<he>> spits. "Maybe I shouldn't let you stay away for so long if you're going to be like this."
+	<br><br>
+	<<He>> storms off, leaving you alone on the floor.<<lllove>>
+	<br><br>
+
+	<<tearful>> you gather yourself.
+<</if>>
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+
+<<link [[Next|Eden Cabin]]>><</link>>

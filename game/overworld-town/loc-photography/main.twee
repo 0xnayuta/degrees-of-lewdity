@@ -1,5 +1,5 @@
 :: Photo Entrance
-<<effects>>
+<<effects>><<set $location to "studio">>
 
 You approach the photography studio, a tall old building opposite the hospital. There's a short flight of steps leading up to the door. "Niki's photo studio. Models wanted."
 <br><br>
@@ -10,7 +10,7 @@ You approach the photography studio, a tall old building opposite the hospital. 
 <br>
 
 :: Photo Intro
-<<effects>>
+<<effects>><<set $location to "studio">>
 <<set $photo_known to 2>>
 <<set $photo to {}>>
 <<set $photo.refused to 0>>
@@ -33,7 +33,7 @@ You lift the heavy knocker, and let it fall against the door. You wait a minute,
 Niki opens the door the rest of the way. "Come in."
 <br><br>
 
-<<set $niki_seen to "photo">>
+<<set $nikiSeen.pushUnique("photo")>>
 
 <<link [[Enter|Photo Intro 2]]>><</link>>
 <br>
@@ -43,9 +43,9 @@ Niki opens the door the rest of the way. "Come in."
 
 You follow Niki into the more modern interior, past a flight of stairs, and into a room with a desk and computer. Niki sits behind it. Pictures of
 
-<<if $malevictimchance gte 100>>
+<<if $settings.maleVictimChance gte 100>>
 	men
-<<elseif $malevictimchance lte 0>>
+<<elseif $settings.maleVictimChance lte 0>>
 	women
 <<else>>
 	men and women
@@ -53,7 +53,7 @@ You follow Niki into the more modern interior, past a flight of stairs, and into
 cover the wall behind <<him>>, most of them suggestive, but all tasteful. <<He>> points at a chair behind you, and you take a seat.
 <br><br>
 
-"Studio's upstairs," <<he>> says, removing the white stick from <<his>> mouth and flicking it into a bin. "A photoshoot takes up to three hours. You get paid upfront. <span class="gold">£450</span> per shoot." <<He>> gestures at the wall behind <<him>>. "This is the sort of thing we do."
+"Studio's upstairs," <<he>> says, removing the white stick from <<his>> mouth and flicking it into a bin. "A photoshoot takes up to three hours. You get paid upfront. <<printmoney 45000>> per shoot." <<He>> gestures at the wall behind <<him>>. "This is the sort of thing we do."
 <br><br>
 
 <<He>> pulls a lollipop from <<his>> pocket, and sticks it in <<his>> mouth. "One shoot a week. What do you think?"
@@ -102,7 +102,7 @@ Niki nods. "You know where I am if you change your mind."
 <br>
 
 :: Photo
-<<set $outside to 0>><<effects>>
+<<set $outside to 0>><<set $location to "studio">><<effects>>
 
 <<if $photo.niki_event is undefined and C.npc.Niki.love gte 10 and $brothelintro gte 1>>
 	<<set $photo.niki_event to 1>>
@@ -126,9 +126,9 @@ Niki nods. "You know where I am if you change your mind."
 	<<npc Niki>><<person1>>
 	You are in the photo studio on Nightingale Street. Niki sits behind a desk, staring at a computer screen. Pictures of
 
-	<<if $malevictimchance gte 100>>
+	<<if $settings.maleVictimChance gte 100>>
 		men
-	<<elseif $malevictimchance lte 0>>
+	<<elseif $settings.maleVictimChance lte 0>>
 		women
 	<<else>>
 		men and women
@@ -143,16 +143,19 @@ Niki nods. "You know where I am if you change your mind."
 		<br>
 		<span class="lblue">You even see a good one of yours.</span>
 
-	<<elseif $fame.model gte 1000>>
+	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7) and $daily.photo is true>>
 		<br>
-		<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
-		<<stress -3>><<lstress>>
-		<<trauma -3>><<ltrauma>>
-		<<if $daily.photo is undefined >>
+		<span class="red">A full-size picture of you hangs front and centre. Empty eyes and a blank face stare back at you.</span>
+
+	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7)>>
+		<br>
+		<span class="red">A full-size picture of you hangs front and centre. Empty eyes and a blank face stare back at you.</span>
+		<<stress 3>><<gstress>>
+		<<if $daily.photo is undefined>>
 			<<set $daily.photo to true>>
 		<</if>>
 
-	<<elseif $fame.model gte 1000 and $daily.photo is true >>
+	<<elseif $fame.model gte 1000 and $daily.photo is true>>
 		<<if $rng gte 21>>
 			<<rngWraith>>
 			<<if _wraithEvent>>
@@ -167,21 +170,18 @@ Niki nods. "You know where I am if you change your mind."
 			<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
 		<</if>>
 
-	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7)>>
+	<<elseif $fame.model gte 1000>>
 		<br>
-		<span class="red">A full-size picture of you hangs front and centre, empty eyes and a blank face stare back at you.</span>
+		<span class="green">A full-size picture of you hangs front and centre, smiling back at you.</span>
 		<<stress -3>><<lstress>>
-		<<if $daily.photo is undefined >>
+		<<trauma -3>><<ltrauma>>
+		<<if $daily.photo is undefined>>
 			<<set $daily.photo to true>>
 		<</if>>
-
-	<<elseif $fame.model gte 1000 and $trauma gte (($traumamax / 10) * 7) and $daily.photo is true>>
-		<br>
-		<span class="red">A full-size picture of you hangs front and centre, empty eyes and a blank face stare back at you.</span>
 	<</if>>
 	<br><br>
 
-	<<if $stress gte $stressmax and isPlayerNonparasitePregnancyEnding()>>
+	<<if $stress gte $stressmax and isPregnancyEnding()>>
 		<<pregnancyPassout "photo">>
 	<<else>>
 		<<if isPubfameTaskAccepted("niki")>>
@@ -190,7 +190,7 @@ Niki nods. "You know where I am if you change your mind."
 				<br>
 				<<ind>><<link [[Steal|Photo Examine Steal]]>><<loadNPC 1 "pubfame_model">><</link>>
 				<br>
-				<<askicon>><<link [[Ask to have it|Photo Examine Ask]]>><<loadNPC 1 "pubfame_model">><</link>>
+				<<socialiseicon "ask">><<link [[Ask to have it|Photo Examine Ask]]>><<loadNPC 1 "pubfame_model">><</link>>
 			<<else>>
 				Mickey's contact should be somewhere on the wall of photos.
 				<br>
@@ -217,7 +217,7 @@ Niki nods. "You know where I am if you change your mind."
 		<<nightingaleicon>><<link [[Leave|Nightingale Street]]>><<endevent>><</link>>
 		<br>
 
-		<<set $niki_seen to "photo">>
+		<<set $nikiSeen.pushUnique("photo")>>
 	<</if>>
 <</if>>
 
@@ -229,7 +229,7 @@ Niki nods, and stares at <<his>> screen a moment longer.
 
 <<if !$photo.silly>>
 	<<set _work_available to true>>
-	"Business owner needs someone to stand outside their shop in a silly outfit. Not glamorous, but it pays <span class="gold">£100.</span> Everyone starts somewhere."
+	"Business owner needs someone to stand outside their shop in a silly outfit. Not glamorous, but it pays <<printmoney 10000>>. Everyone starts somewhere."
 	<br><br>
 <</if>>
 
@@ -267,7 +267,7 @@ Niki throws you a small bundle of notes. You make <<moneyGain 100>>.
 :: Photo Silly
 <<effects>>
 
-Niki nods. "Shop's on the High Street." <<He>> hands you the business card with the address. "Come back after for your pay."
+Niki nods. "Shop's on High Street." <<He>> hands you the business card with the address. "Come back after for your pay."
 <br><br>
 
 <<link [[Ask for work|Photo Ask]]>><</link>>
@@ -285,7 +285,7 @@ Niki nods. "Shop's on the High Street." <<He>> hands you the business card with 
 A young <<nnpc_gender "Niki">> stands there, a white stick poking out of <<his>> mouth. <<He>> stares at you, waiting.
 <br><br>
 
-<<if $niki_seen is undefined>>
+<<if !$nikiSeen.length>>
 	<<if $speech_attitude is "meek">>
 		"I-I'm looking for a photographer," you say. "Sam said they were here."
 	<<elseif $speech_attitude is "bratty">>
@@ -297,14 +297,14 @@ A young <<nnpc_gender "Niki">> stands there, a white stick poking out of <<his>>
 
 	The <<nnpc_gender "Niki">> regards you for a moment longer, then holds out <<his>> hand. "Name's Niki," <<he>> says. "Studio's ready." <<He>> removes the stick from <<his>> mouth and flicks it onto the street.
 	<br><br>
-<<elseif $niki_seen is "farm">>
+<<elseif $nikiSeen.includes("farm")>>
 	You recognise <<him>>. It's Niki, the photographer from the farm. You freeze on the spot. Niki stares at you, then removes the stick from <<his>> mouth and flicks it onto the street. "Studio's ready." <<He>> pauses. "I'm glad you're okay."
 	<br><br>
 <<else>>
 	It's Niki, the photographer. <<He>> regards you. "Thought the description sounded familiar." <<He>> removes the stick from <<his>> mouth and flicks it onto the street. "Studio's ready."
 	<br><br>
 <</if>>
-<<set $niki_seen to "chef">>
+<<set $nikiSeen.pushUnique("chef")>>
 
 <<link [[Next|Photography Chef 2]]>><</link>>
 <br>
@@ -322,7 +322,7 @@ The interior is more modern. You follow Niki up a flight of stairs, and enter a 
 <</if>>
 <br><br>
 
-You walk behind a screen, and find a chef's apron and hat. You put them on.
+You walk behind a screen, and find a chef's apron and hat. You put them on.<<headundress "photo">><<upperundress "photo">><<lowerundress "photo">><<headwear 9 purple white>><<upperwear 186 white purple>><<lowerwear 88 white>>
 <br><br>
 
 <<link [[Next|Photography Chef 3]]>><</link>>
@@ -331,7 +331,7 @@ You walk behind a screen, and find a chef's apron and hat. You put them on.
 :: Photography Chef 3
 <<set $outside to 0>><<set $location to "town">><<effects>>
 
-You stand in front of the camera. <<if $pronoun is "m">>Niki strokes <<his>> stubble.<<else>>Niki strokes <<his>> chin.<</if>> "Good," <<he>> says. "Sam gave me a list of requirements. Poses and the like." <<He>> removes the stick from <<his>> mouth, and replaces it with a lollipop from <<his>> pocket.
+You stand in front of the camera. Niki strokes <<his>> <<if $pronoun is "m">>stubble<<else>>chin<</if>>. "Good," <<he>> says. "Sam gave me a list of requirements. Poses and the like." <<He>> removes the stick from <<his>> mouth, and replaces it with a lollipop from <<his>> pocket.
 <br><br>
 
 <<He>> only talks to give instructions, or advice.
@@ -366,7 +366,7 @@ You stand in front of the camera. <<if $pronoun is "m">>Niki strokes <<his>> stu
 
 <<person1>>The door barges open, and a <<person>> enters, carrying a small oven. <<Hes>> followed by five others, each carrying armfuls of kitchen utensils.
 <br><br>
-"Make way <<girl>>," the <<person>> says, glancing at you. "We got a kitchen to set up."
+"Make way, <<girl>>," the <<person>> says, glancing at you. "We got a kitchen to set up."
 <br><br>
 You watch as they prepare the props in front of the white screen. You catch them glancing at you when they think you're not looking.
 <br><br>
@@ -379,13 +379,13 @@ You watch as they prepare the props in front of the white screen. You catch them
 :: Photography Chef Tease
 <<set $outside to 0>><<set $location to "town">><<effects>>
 
-You walk over. The <<person1>><<person>> holds an arm out. "Don't get in the way <<girl>>," <<he>> says.
+You walk over. The <<person1>><<person>> holds an arm out. "Don't get in the way, <<girl>>," <<he>> says.
 <br><br>
 
-"But I want to see," you say, ignoring <<him>>. You approach the oven, and bend over to look inside. "I said-" the <<person>> begins, but <<he>> cuts off when you start wiggling your <<bottom>>. The others stop working. You can feel their eyes on you.
+"But I want to see," you say, ignoring <<him>>. You approach the oven, and bend over to look inside. "I said—" the <<person>> begins, but <<he>> cuts off when you start wiggling your <<bottom>>. The others stop working. You can feel their eyes on you.
 <<exhibitionism1>><<fameexhibitionism 6>>
 
-<<if $promiscuity gte 55>>
+<<if hasSexStat("promiscuity", 4)>>
 	<span class="lewd">An idea strikes you.</span>
 	<br><br>
 
@@ -401,12 +401,12 @@ You walk over. The <<person1>><<person>> holds an arm out. "Don't get in the way
 You turn to them, and lean back against the oven. "Niki's getting the cream," you say. "But I don't want to wait. How about you lend a hand?"
 <br><br>
 
-The <<person>> looks bemused. "We're busy here <<girl>>. We don't have time to go fetch-" You interrupt <<him>> by reaching out, and pressing a finger against <<his>> lips.
+The <<person>> looks bemused. "We're busy here, <<girl>>. We don't have time to go fetch—" You interrupt <<him>> by reaching out, and pressing a finger against <<his>> lips.
 <br><br>
 
 "You have all the cream you need right here," you say.
 
-<<if $pronoun is "f" and $breastfeedingdisable is "f">>
+<<if $pronoun is "f" and $settings.breastFeedingEnabled>>
 	You grab the <<persons>> top, and tug it down. <<His>> breasts tumble out. <<He>> gapes at you, <<his>> expression a mixture of outrage and shock. But <<he>> doesn't try to cover. The others burst into laughter.
 	<br><br>
 	You grasp the <<persons>> breasts, and rub <<his>> nipples. <<He>> doesn't stop you. <<His>> expression softens as you work. <<His>> eyes close.
@@ -487,7 +487,7 @@ Niki has you pose holding various kitchen utensils. You smile for the camera, po
 <<He>> walks over, and places a pot of cream on the oven.
 <br><br>
 
-<<if $exhibitionism gte 15 and $chef_picture is "lewd">>
+<<if hasSexStat("exhibitionism", 2) and $chef_picture is "lewd">>
 	<span class="lewd">Another lewd idea strikes you.</span>
 	<br><br>
 	<<link [[Use the lewd fluid you collected|Photography Chef Lewd Cream]]>><<set $chef_picture to "lewd">><</link>><<exhibitionist2>>
@@ -497,7 +497,7 @@ Niki has you pose holding various kitchen utensils. You smile for the camera, po
 <br>
 
 :: Photography Chef Lewd Cream
-<<set $outside to 0>><<set $location to "town">><<effects>>
+<<set $outside to 0>><<set $location to "town">><<effects>><<wearProp "ladle">>
 "I already have cream," you say, gesturing at the pot. "The others brought some."
 <br><br>
 Niki shrugs. "Fine by me." <<He>> walks back to the camera. "I'd like you to get a ladleful, look at the camera, and pour it over your chest. Pull a happy, but sheepish, expression. You're in the middle of a silly accident."
@@ -508,24 +508,24 @@ You end up on the floor, with the pot on your head, covered head-to-toe in stick
 <<exhibitionism2>>
 <<drench "goo" 5 "outside">>
 
-<<link [[Next|Photography Chef 7]]>><</link>>
+<<link [[Next|Photography Chef 7]]>><<handheldon>><</link>>
 
 :: Photography Chef Normal Cream
 <<set $outside to 0>><<set $location to "town">><<effects>>
-
+<<wearProp "ladle">>
 You open the cream as Niki returns to <<his>> position. "I'd like you to get a ladleful, look at the camera, and pour it over your chest. Pull a happy, but sheepish, expression. You're in the middle of a silly accident."
 <br><br>
 You spoon out a ladle of cream, smile at the camera, and pour it over your chest. Niki snaps more pictures. "Could you play with it a little?" <<he>> asks. You follow <<his>> instructions, getting the cream on your hands and face.
 <br><br>
 You end up on the floor, with the pot on your head, covered head-to-toe in sticky fluid.
-<<exhibitionism2>>
-
-<<link [[Next|Photography Chef 7]]>><</link>>
+<br><br>
+<<drench "goo" 5 "outside">>
+<<link [[Next|Photography Chef 7]]>><<handheldon>><</link>>
 <br>
 
 :: Photography Chef 7
 
-<<set $outside to 0>><<set $location to "town">><<effects>>
+<<set $outside to 0>><<set $location to "town">><<effects>><<headruined true>><<upperruined true>><<storeon "photo">>
 <<if $photo_known is 1>>
 	"Done," Niki says, sticking another lollipop in <<his>> mouth. "It was a pleasure working with you. You have talent. <span class="gold">Drop by if you're looking for work.</span> Give Sam my regards."
 <<else>>
@@ -535,7 +535,7 @@ You end up on the floor, with the pot on your head, covered head-to-toe in stick
 <<if $chef_picture is "lewd">>
 	You pass <<him>> on the way to the exit. <<He>> wrinkles <<his>> nose and frowns.
 <<else>>
-	<<He>> hands you a towel on the way out, which you use to dry the worst of the cream.
+	<<He>> hands you a towel on the way out, which you use to dry the worst of the cream.<<bodyliquid "outside" "goo" -3>>
 <</if>>
 <br><br>
 <<endevent>>

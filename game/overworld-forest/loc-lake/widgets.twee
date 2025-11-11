@@ -1,28 +1,8 @@
 :: Widgets Lake [widget]
 <<widget "lakeeffects">>
-	<<if Time.schoolDay>>
-		<<if Time.dayState is "day" or Time.dayState is "dusk">>
-			<<if Time.hour gte 15 and $weather isnot "rain" and $weather isnot "snow">>
-				<<set $laketeenspresent to 1>>
-			<<else>>
-				<<set $laketeenspresent to 0>>
-			<</if>>
-		<<else>>
-			<<set $laketeenspresent to 0>>
-		<</if>>
-	<<else>>
-		<<if Time.dayState is "day" or Time.dayState is "dusk">>
-			<<if $weather isnot "rain" and $weather isnot "snow">>
-				<<set $laketeenspresent to 1>>
-			<<else>>
-				<<set $laketeenspresent to 0>>
-			<</if>>
-		<<else>>
-			<<set $laketeenspresent to 0>>
-		<</if>>
-	<</if>>
+	<<set $laketeenspresent to teensPresentCheck("lake")>>
 
-	<<if $weather isnot "rain" and $weather isnot "snow" and Time.hour gte 18>>
+	<<if Weather.precipitation is "none" and Time.hour gte 18>>
 		<<set $laketeensfire to 1>>
 	<<else>>
 		<<set $laketeensfire to 0>>
@@ -60,19 +40,19 @@
 <</widget>>
 
 <<widget "passoutlake">>
-	<<if isPlayerNonparasitePregnancyEnding()>>
+	<<if isPregnancyEnding()>>
 		<<pregnancyPassout "lake">>
 	<<else>>
 		You've pushed yourself too much.
 		<br><br>
 		<<passout>>
 
-		<<set $danger to random(1, 10000)>>
-
-		<<if $exposed gte 1 and $exhibitionism lte 54 and isLoveInterest("Eden") and random(1,2) is 2>>
+		<<if $exposed gte 1 and $syndromeeden is 1 and random(1,2) is 2>>
 			<<link [[Next|Eden Passout Lake Rescue]]>><</link>>
-		<<elseif $danger gte (9900 - $allure)>>
-			<<if $laketeenspresent is 1 and Time.season isnot "winter">>
+		<<elseif C.npc.Mason.init is 1 and !Time.schoolDay and Weather.precipitation is "rain" and Time.dayState is "day" and random(1,2) is 1>>
+			<<link [[Everything fades to black...|Mason CPR]]>><</link>>
+		<<elseif dangerEvent()>>
+			<<if $laketeenspresent is 1 and !Weather.isSnow>>
 				<<link [[Next|Lake Mermaid]]>><</link>>
 				<br>
 			<<else>>
@@ -90,15 +70,17 @@
 
 <<widget "lakejourney">>
 	<<beastNEWinit 1 wolf>>
-	Someone screams. Everyone turns and backs away from the newcomer, a <<beasttype>>.
+	Someone screams. You turn with the others to see that a <<beasttype>> has emerged from the trees. There are a few more screams, and people start backing away.
+	<br><br>
 	<<if $monster is 1>>
-		<<bHis>> nude body leaves little to the imagination, <<bhis>> genitals on full display to the crowd. <<bHe>> makes no attempt to cover <<bhimself>> up. Some laugh nervously, while others shield their eyes.
+		<<bHis>> nude body leaves little to the imagination, <<bhis>> genitals on full display to the crowd. <<bHe>> makes no attempt to cover <<bhimself>>, several people shielding their eyes while others laugh nervously.
+		<br><br>
 	<</if>>
 	<<bHe>> stands some way apart and watches.
 	<br><br>
 	<!-- Modified for Monster People -->
-	<<if $deviancy gte 15 and ($monster is 1 or $bestialitydisable is "f")>>
-		<<link [[Deal with it|Lake Wolf Sex]]>><<set $sexstart to 1>><</link>><<deviant2>><<gcool>>
+	<<if hasSexStat("deviancy", 2) and ($monster is 1 or $settings.bestialityEnabled)>>
+		<<link [[Deal with <<bhim>>|Lake Wolf Sex]]>><<set $sexstart to 1>><</link>><<deviant2>><<status 2>><<gcool>>
 		<br>
 	<</if>>
 
@@ -113,7 +95,7 @@
 
 		<<if $earSlime.forcedCommando isnot undefined and $worn.under_lower.name isnot "naked">>
 		<<elseif $exposed lte 0>>
-			<<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
+			<<entertownicon>><<link [[Go with them (0:30)|Lake Return Journey]]>><<set $foresthunt to 0>><<pass 30>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>
@@ -126,7 +108,7 @@
 <</widget>>
 
 <<widget "eventlakewater">>
-	<<if wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
+	<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
 		<<wHunt "lake">>
 	<<elseif $bus is "lakeshallows">>
 		<<if $laketeenspresent is 1>>
@@ -136,7 +118,7 @@
 			<br>
 			<<link [[Ignore|Lake Shallows]]>><<endevent>><<set $eventskip to 1>><</link>>
 			<br>
-			<<if $player.gender_appearance is "f" and $exhibitionism gte 35>>
+			<<if $player.gender_appearance is "f" and hasSexStat("exhibitionism", 3)>>
 				<<link [[Flash|Lake Flash]]>><</link>><<exhibitionist3>>
 				<br>
 			<</if>>
@@ -149,14 +131,14 @@
 			<br>
 		<</if>>
 	<<else>>
-		<<if $rng gte 91 and $weather is "rain" and $bestialitydisable is "f" and $voredisable is "f" and $hallucinations gte 2 and $controlled is 0>>
+		<<if $rng gte 91 and Weather.precipitation is "rain" and $settings.bestialityEnabled and $settings.voreEnabled and $hallucinations gte 2 and $controlled is 0>>
 		Something large surges through the water beneath you. A gaping maw grips your thighs.
 		<br><br>
 
 		<<link [[Next|Lake Vore]]>><<set $molestationstart to 1>><</link>>
 		<br>
-		<<elseif $rng gte 81 and $swarmdisable is "f">>
-			<<if $slimedisable is "f" and isBloodmoon()>>
+		<<elseif $rng gte 81 and $settings.swarmsEnabled>>
+			<<if $settings.slimesEnabled and Time.isBloodMoon()>>
 				The water is agitated. Swarms of pale slimes encircle you.
 			<<else>>
 				The water is agitated. Swarms of small fish encircle you.
@@ -166,7 +148,7 @@
 			<<link [[Next|Lake Depths Swarm]]>><<set $molestationstart to 1>><</link>>
 			<br>
 		<<else>>
-			<<if Time.dayState is "night" and $weather is "rain">>
+			<<if Time.dayState is "night" and Weather.precipitation is "rain">>
 			Something brushes your leg and startles you. You look beneath the dark and violent water, but can't see anything. You feel strange.
 			<<garousal>><<arousal 600>><<gstress>><<stress 6>>
 			<br><br>
@@ -184,7 +166,7 @@
 
 <<widget "eventlakeice">>
 	<<rng>>
-	<<if wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
+	<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
 		<<wHunt "lake">>
 	<<elseif $rng gte 81>>
 		<<dancedifficulty 1 1000 true>>
@@ -193,7 +175,7 @@
 		<<else>>
 			The wind picks up, <span class="red">and you lose your footing,</span> slipping on the ice.
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
-				Your hands and knees hurt from the hard landing, but at least you were able to protect your <<pregnancyBabyText "pc">>.<<gstress>><<gpain>><<stress 6>><<pain 4>>
+				Your hands and knees hurt from the hard landing, but at least you were able to protect your <<pregnancyBabyText "pc">>.
 			<</if>>
 			<<gstress>><<gpain>><<stress 6>><<pain 4>>
 		<</if>>
@@ -221,7 +203,7 @@
 		<<link [[Walk normally|Lake Ice Normal]]>><</link>>
 		<br>
 	<<elseif $rng gte 21>>
-		<<if $weather is "snow">>
+		<<if Weather.precipitation is "snow">>
 			The snow falls heavy, and conceals the trees around the lake.
 			<<if currentSkillValue('history') gte random(1, 1000)>>
 				<span class="green">It soon passes.</span>
@@ -230,9 +212,9 @@
 				Without the trees to orient yourself, <span class="red">you lose your direction,</span> though the heavy snow soon passes.<<gstress 6>>
 				<br><br>
 			<</if>>
-		<<elseif $weather is "clear">>
+		<<elseif Weather.is("clear")>>
 			<<if Time.dayState is "night">>
-				<<if isBloodmoon()>>
+				<<if Time.isBloodMoon()>>
 					The red moon reflects off the ice. Dread stabs at you.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 					<br><br>
 				<<else>>
@@ -248,8 +230,10 @@
 				The surrounding trees are almost invisible in the dark.<<gstress>><<stress 6>>
 				<br><br>
 			<<else>>
-				You see a fox rummaging in the dirt at the lake's edge. Its ears perk, and it bounds between the trees.
+				<<beastNEWinit 1 fox>>
+				You see a <<beasttype>> rummaging in the dirt at the lake's edge. <<bHis>> ears perk, and <<bhe>> bounds between the trees.
 				<br><br>
+				<<endevent>>
 			<</if>>
 		<</if>>
 		<<destination_lake_ice>>
@@ -275,14 +259,14 @@
 <</widget>>
 
 <<widget "eventlake">>
-	<<if wraithCanHunt() and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
+	<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte random(0, 10)>>
 		<<wHunt "lake">>
 	<<elseif $rng gte 81>>
 		<!-- Modified for Monster People -->
 		<<beastNEWinit 1 boar>>
 		You see a <<beasttype>> rifling through litter at the base of a tree. <<bHe>> spots you.
 		<br><br>
-		<<if $monster is 1 or $bestialitydisable is "f">>
+		<<if $monster is 1 or $settings.bestialityEnabled>>
 			<<link [[Stand your ground|Lake Boar Stand]]>><</link>>
 			<br>
 			<<link [[Run|Lake Boar Run]]>><</link>><<athleticsdifficulty>>
@@ -334,28 +318,8 @@
 	<</link>><<lawareness>><<gwillpower>><<lstress>><<larousal>>
 	<br>
 
-	<<if $insecurity_penis_tiny gte 1 and $player.penissize lte 0 and $acceptance_penis_tiny lte 999 and $daily.lakeMeditate isnot 1>>
-		<<link [[Meditate on your small penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 4>><<willpower 1>><<set $daily.lakeMeditate to 1>>
-			<<if $willpower gte (($willpowermax / 7) * 6)>>
-				<<stress 5>><<acceptance "penis_tiny" 20>>
-			<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-				<<stress 5>><<acceptance "penis_tiny" 18>>
-			<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-				<<stress 6>><<acceptance "penis_tiny" 16>>
-			<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-				<<stress 7>><<acceptance "penis_tiny" 14>>
-			<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-				<<stress 8>><<acceptance "penis_tiny" 12>>
-			<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-				<<stress 10>><<acceptance "penis_tiny" 10>>
-			<<else>>
-				<<stress 12>><<acceptance "penis_tiny" 8>>
-			<</if>>
-		<</link>><<gstress>><<gwillpower>><<gacceptance>>
-		<br>
-	<</if>>
-	<<if $insecurity_penis_small gte 1 and $player.penissize is 1 and $acceptance_penis_small lte 999 and $daily.lakeMeditate isnot 1>>
-		<<link [[Meditate on your small penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 5>><<willpower 1>><<set $daily.lakeMeditate to 1>>
+	<<if insecurityExists("penis_small") and $daily.lakeMeditate isnot 1>>
+		<<link [[Meditate on your small penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to $player.penissize lt 0 ? 4 : 5>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "penis_small" 20>>
 			<<elseif $willpower gte (($willpowermax / 7) * 5)>>
@@ -374,71 +338,29 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $player.gender is "m">>
-		<<if $insecurity_penis_big gte 1 and $player.penissize gte 4 and $acceptance_penis_big lte 999 and $daily.lakeMeditate isnot 1>>
-			<<link [[Meditate on your big penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 6>><<willpower 1>><<set $daily.lakeMeditate to 1>>
-				<<if $willpower gte (($willpowermax / 7) * 6)>>
-					<<stress 5>><<acceptance "penis_big" 20>>
-				<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-					<<stress 5>><<acceptance "penis_big" 18>>
-				<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-					<<stress 6>><<acceptance "penis_big" 16>>
-				<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-					<<stress 7>><<acceptance "penis_big" 14>>
-				<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-					<<stress 8>><<acceptance "penis_big" 12>>
-				<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-					<<stress 10>><<acceptance "penis_big" 10>>
-				<<else>>
-					<<stress 12>><<acceptance "penis_big" 8>>
-				<</if>>
-			<</link>><<gstress>><<gwillpower>><<gacceptance>>
-			<br>
-		<</if>>
-	<<else>>
-		<<if $insecurity_penis_big gte 1 and $player.penissize gte 2 and $acceptance_penis_big lte 999 and $daily.lakeMeditate isnot 1>>
-			<<link [[Meditate on your big penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 6>><<willpower 1>><<set $daily.lakeMeditate to 1>>
-				<<if $willpower gte (($willpowermax / 7) * 6)>>
-					<<stress 5>><<acceptance "penis_big" 20>>
-				<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-					<<stress 5>><<acceptance "penis_big" 18>>
-				<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-					<<stress 6>><<acceptance "penis_big" 16>>
-				<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-					<<stress 7>><<acceptance "penis_big" 14>>
-				<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-					<<stress 8>><<acceptance "penis_big" 12>>
-				<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-					<<stress 10>><<acceptance "penis_big" 10>>
-				<<else>>
-					<<stress 12>><<acceptance "penis_big" 8>>
-				<</if>>
-			<</link>><<gstress>><<gwillpower>><<gacceptance>>
-			<br>
-		<</if>>
-	<</if>>
-	<<if $insecurity_breasts_tiny gte 1 and $player.breastsize lte 0 and $player.gender is "f" and $acceptance_breasts_tiny lte 999 and $daily.lakeMeditate isnot 1>>
-		<<link [[Meditate on your flat chest (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 7>><<willpower 1>><<set $daily.lakeMeditate to 1>>
+	<<if insecurityExists("penis_big") and $daily.lakeMeditate isnot 1>>
+		<<link [[Meditate on your big penis (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 6>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
-				<<stress 5>><<acceptance "breasts_tiny" 20>>
+				<<stress 5>><<acceptance "penis_big" 20>>
 			<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-				<<stress 5>><<acceptance "breasts_tiny" 18>>
+				<<stress 5>><<acceptance "penis_big" 18>>
 			<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-				<<stress 6>><<acceptance "breasts_tiny" 16>>
+				<<stress 6>><<acceptance "penis_big" 16>>
 			<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-				<<stress 7>><<acceptance "breasts_tiny" 14>>
+				<<stress 7>><<acceptance "penis_big" 14>>
 			<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-				<<stress 8>><<acceptance "breasts_tiny" 12>>
+				<<stress 8>><<acceptance "penis_big" 12>>
 			<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-				<<stress 10>><<acceptance "breasts_tiny" 10>>
+				<<stress 10>><<acceptance "penis_big" 10>>
 			<<else>>
-				<<stress 12>><<acceptance "breasts_tiny" 8>>
+				<<stress 12>><<acceptance "penis_big" 8>>
 			<</if>>
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $insecurity_breasts_small gte 1 and $player.breastsize gte 1 and $player.breastsize lte 5 and $acceptance_breasts_small lte 999 and $daily.lakeMeditate isnot 1>>
-		<<link [[Meditate on your small breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 8>><<willpower 1>><<set $daily.lakeMeditate to 1>>
+
+	<<if insecurityExists("breasts_small") and $daily.lakeMeditate isnot 1>>
+		<<link [[Meditate on your small breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to $player.breastsize ? 7 : 8>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
 				<<stress 5>><<acceptance "breasts_small" 20>>
 			<<elseif $willpower gte (($willpowermax / 7) * 5)>>
@@ -457,50 +379,27 @@
 		<</link>><<gstress>><<gwillpower>><<gacceptance>>
 		<br>
 	<</if>>
-	<<if $player.gender is "f">>
-		<<if $insecurity_breasts_big gte 1 and $player.breastsize gte 8 and $acceptance_breasts_big lte 999 and $daily.lakeMeditate isnot 1>>
-			<<link [[Meditate on your big breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 9>><<willpower 1>><<set $daily.lakeMeditate to 1>>
-				<<if $willpower gte (($willpowermax / 7) * 6)>>
-					<<stress 5>><<acceptance "breasts_big" 20>>
-				<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-					<<stress 5>><<acceptance "breasts_big" 18>>
-				<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-					<<stress 6>><<acceptance "breasts_big" 16>>
-				<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-					<<stress 7>><<acceptance "breasts_big" 14>>
-				<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-					<<stress 8>><<acceptance "breasts_big" 12>>
-				<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-					<<stress 10>><<acceptance "breasts_big" 10>>
-				<<else>>
-					<<stress 12>><<acceptance "breasts_big" 8>>
-				<</if>>
-			<</link>><<gstress>><<gwillpower>><<gacceptance>>
-			<br>
-		<</if>>
-	<<else>>
-		<<if $insecurity_breasts_big gte 1 and $player.breastsize gte 6 and $acceptance_breasts_big lte 999 and $daily.lakeMeditate isnot 1>>
-			<<link [[Meditate on your big breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 9>><<willpower 1>><<set $daily.lakeMeditate to 1>>
-				<<if $willpower gte (($willpowermax / 7) * 6)>>
-					<<stress 5>><<acceptance "breasts_big" 20>>
-				<<elseif $willpower gte (($willpowermax / 7) * 5)>>
-					<<stress 5>><<acceptance "breasts_big" 18>>
-				<<elseif $willpower gte (($willpowermax / 7) * 4)>>
-					<<stress 6>><<acceptance "breasts_big" 16>>
-				<<elseif $willpower gte (($willpowermax / 7) * 3)>>
-					<<stress 7>><<acceptance "breasts_big" 14>>
-				<<elseif $willpower gte (($willpowermax / 7) * 2)>>
-					<<stress 8>><<acceptance "breasts_big" 12>>
-				<<elseif $willpower gte (($willpowermax / 7) * 1)>>
-					<<stress 10>><<acceptance "breasts_big" 10>>
-				<<else>>
-					<<stress 12>><<acceptance "breasts_big" 8>>
-				<</if>>
-			<</link>><<gstress>><<gwillpower>><<gacceptance>>
-			<br>
-		<</if>>
+	<<if insecurityExists("breasts_big") and $daily.lakeMeditate isnot 1>>
+		<<link [[Meditate on your big breasts (1:00)|Lake Meditate]]>><<pass 60>><<set $phase to 9>><<willpower 1>><<set $daily.lakeMeditate to 1>>
+			<<if $willpower gte (($willpowermax / 7) * 6)>>
+				<<stress 5>><<acceptance "breasts_big" 20>>
+			<<elseif $willpower gte (($willpowermax / 7) * 5)>>
+				<<stress 5>><<acceptance "breasts_big" 18>>
+			<<elseif $willpower gte (($willpowermax / 7) * 4)>>
+				<<stress 6>><<acceptance "breasts_big" 16>>
+			<<elseif $willpower gte (($willpowermax / 7) * 3)>>
+				<<stress 7>><<acceptance "breasts_big" 14>>
+			<<elseif $willpower gte (($willpowermax / 7) * 2)>>
+				<<stress 8>><<acceptance "breasts_big" 12>>
+			<<elseif $willpower gte (($willpowermax / 7) * 1)>>
+				<<stress 10>><<acceptance "breasts_big" 10>>
+			<<else>>
+				<<stress 12>><<acceptance "breasts_big" 8>>
+			<</if>>
+		<</link>><<gstress>><<gwillpower>><<gacceptance>>
+		<br>
 	<</if>>
-	<<if $insecurity_pregnancy gte 1 and $acceptance_pregnancy lte 999 and playerBellySize() gte 8 and $daily.lakeMeditate isnot 1>>
+	<<if insecurityExists("pregnancy") and $daily.lakeMeditate isnot 1>>
 		<<set _pregnancyLink to (playerAwareTheyArePregnant() ? "Meditate on your pregnant belly (1:00)" : "Meditate on your pregnant looking belly (1:00)")>>
 		<<link [[_pregnancyLink|Lake Meditate]]>><<pass 60>><<set $phase to 10>><<willpower 1>><<set $daily.lakeMeditate to 1>>
 			<<if $willpower gte (($willpowermax / 7) * 6)>>
@@ -564,14 +463,13 @@
 					Your _clothes[0].name is lying on the ground behind a rock.
 					<br>
 				<</if>>
-				<<dressasyouwereicon>><<link [[Put on clothes|$passage]]>><<set $eventskip to 1>><<storeload _store_location>><</link>>
+				<<clothingicon _clothes[0] _clothes[0].slot>><<link [[Put on clothes|$passage]]>><<set $eventskip to 1>><<storeload _store_location>><</link>>
 				<br><br>
 			<</if>>
 		<</if>>
 		//Swimming sets://
 		<br>
 		<<listswimoutfits $wardrobe_location _store_location true>>
-		<<temperature>>
 		<br>
 		<<unset $wearoutfittext>>
 	<</if>>
@@ -594,13 +492,12 @@
 <</widget>>
 
 <<widget "halloween_lake_invite">>
-	<<generates1>><<generates2>>
 	<<set $halloween_lake to 1>>
-	You pass a <<person1>><<person>>
+	<<generates1>><<generates2>>You pass a <<person1>><<person>>
 	<<if $location is "school">>
 		with a stack of flyers tucked under <<his>> arm.
 	<<else>>
-		touting a cooler over <<his>> shoulder.
+		toting a cooler over <<his>> shoulder.
 	<</if>>
 	At <<his>> side, a <<person2>><<person>> is deep in a phone call. <<He>> mentions a Halloween party.
 	<br><br>
@@ -609,4 +506,22 @@
 	<br>
 	<<link [[Ignore|Lake Halloween Invite Ignore]]>><</link>>
 	<br>
+<</widget>>
+
+<<widget "plinthroom">>
+	There's an ancient door opposite the entrance.
+	<<if $lakeruinkey isnot 2>>
+		It's closed.
+	<<else>>
+		It's open.
+	<</if>>
+	<br>
+	<<if $lakeruinkey is 1>>
+		<<lockicon "bronze key">><<link [[Use bronze key|Lake Ruin Door]]>><<wateraction>><</link>><<loxygen>>
+		<br>
+	<</if>>
+	<<if $lakeruinkey is 2>>
+		<<lakeicon "plinth">><<link [[Swim inside plinth room|Lake Ruin Plinth]]>><<wateraction>><</link>><<loxygen>>
+		<br>
+	<</if>>
 <</widget>>

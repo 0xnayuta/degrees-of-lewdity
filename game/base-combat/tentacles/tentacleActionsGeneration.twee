@@ -1,43 +1,5 @@
 :: Widgets Tentacle Actions Generation [widget]
 
-/*Sends the required variables to the chosen display type*/
-<<widget "generateCombatActionTentacle">>
-	<<switch $options.combatControls>>
-		<<case "radio" "columnRadio">>
-			<<generateCombatActionTentacleRadio _args[0] _args[1] _args[3]>>
-		<<case "lists" "limitedLists">>
-			<<generateCombatActionTentacleList _args[0] _args[1] _args[2] _args[4]>>
-	<</switch>>
-<</widget>>
-
-/*Generated each set of actions in the form of a set of radio buttons*/
-<<widget "generateCombatActionTentacleRadio">>
-	<<for _labelC, _valueC range _args[0]>>
-		<label>
-			<<print '<<radiobutton "$'+_args[1]+'" "'+_valueC+'" ' + (_valueC is _args[2] ? "checked" : "") + '>>'>>
-			<span @class="combatListColor('', _valueC, 'Tentacle')"><<print _labelC>></span>
-			<<print '<<'+_args[1]+'DifficultyTentacle "'+_valueC+'">>'>><<if $options.combatControls is "radio">> |<</if>>
-		</label>
-	<</for>>
-<</widget>>
-
-/*Generated each set of actions in the form of a list*/
-<<widget "generateCombatActionTentacleList">>
-	<<if _args[0]>>
-		<<set _options to _args[0]>>
-		<<set _name to _args[1]>>
-		<<capture _var _options _name>>
-			<span @id="_name + 'Select'" @class="_args[2] + 'List flavorText '+(_args[3] is true?'reducedWidth':'')">
-				<<listbox `"$"+_name` autoselect>>
-					<<optionsfrom _options>>
-				<</listbox>>
-			</span>
-			/*Changes the color of the list border when the option is changed*/
-			<<combatButtonAdjustments _name "Tentacle">>
-		<</capture>>
-	<</if>>
-<</widget>>
-
 <<widget "generateActionsTentacle">>
 	<<set $combat to 1>>
 	<<if _targetlist is undefined>>
@@ -112,7 +74,6 @@
 				<<set _leftOptions to "free">>
 				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm is free.</span>
 				<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
-					<br>
 					<<targetListBox "left" _targetlistarms>>
 				<</if>>
 			<</if>>
@@ -180,7 +141,7 @@
 				<<set _defaultsCombatAction to "leftaction">>
 				<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 				<<set _pass to false>>
-				<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+				<<for _set to 0; _set lt _actionsSet.length; _set++>>
 					<<if ["leftgrabtentacle"].includes(_actionsSet[_set]) and $leftactionTarget isnot undefined>>
 						<<for _i to 0; _i lt $tentacles.max; _i++>>
 							<<if $tentacles[_i].shaft isnot "finished">>
@@ -222,7 +183,8 @@
 				<<else>>
 					<<set _reducedWidths to false>>
 				<</if>>
-				<<generateCombatActionTentacle _leftaction "leftaction" _textColor $leftaction _reducedWidths>>
+				/* _reducedWidths is used by generateCombatAction */
+				<<generateCombatAction _leftaction "leftaction" "Tentacle">>
 				<<if _leftOptions is "free" and $tentacles.active gt 0>>
 					<<leftactionSetupTentacle>>
 				<<elseif _leftOptions is "grappled" and $angel gte 4 and $angelBanish gte 1 and !$banishDisable and _banishTarget>>
@@ -360,7 +322,7 @@
 		<<case "tentacle">>
 			<<set _leftaction["Milk it"] to "leftrub"+_tentacleLeftOption>>
 			<<set _leftaction["Let go"] to "leftstop"+_tentacleLeftOption>>
-			<<if $deviancy gte 75>>
+			<<if hasSexStat("deviancy", 5)>>
 				<<if playerHasStrapon() and $penisuse is 0>>
 					<<set _leftaction["Guide to your strap-on"] to "showpenis"+_tentacleLeftOption>>
 				<<elseif $player.penisExist and $penisuse is 0>>
@@ -369,7 +331,7 @@
 				<<if $player.vaginaExist and $vaginause is 0>>
 					<<set _leftaction["Guide to your pussy"] to "showvagina"+_tentacleLeftOption>>
 				<</if>>
-				<<if $anususe is 0 and $analdisable is "f">>
+				<<if $anususe is 0 and $settings.analEnabled>>
 					<<set _leftaction["Guide to your ass"] to "showbottom"+_tentacleLeftOption>>
 				<</if>>
 				/* Old Control
@@ -415,7 +377,6 @@
 				<<set _rightOptions to "free">>
 				<span @class="($lastOptions.right isnot _rightOptions ?'gold':'')">Your right arm is free.</span>
 				<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
-					<br>
 					<<targetListBox "right" _targetlistarms>>
 				<</if>>
 				<<if _targetnumber is 1>>
@@ -486,7 +447,7 @@
 				<<set _defaultsCombatAction to "rightaction">>
 				<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 				<<set _pass to false>>
-				<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+				<<for _set to 0; _set lt _actionsSet.length; _set++>>
 					<<if ["rightgrabtentacle"].includes(_actionsSet[_set]) and $rightactionTarget isnot undefined>>
 						<<for _i to 0; _i lt $tentacles.max; _i++>>
 							<<if $tentacles[_i].shaft isnot "finished">>
@@ -528,7 +489,8 @@
 				<<else>>
 					<<set _reducedWidths to false>>
 				<</if>>
-				<<generateCombatActionTentacle _rightaction "rightaction" _textColor $rightaction _reducedWidths>>
+				/* _reducedWidths is used by generateCombatAction */
+				<<generateCombatAction _rightaction "rightaction" "Tentacle">>
 				<<if _rightOptions is "free" and $tentacles.active gt 0>>
 					<<rightactionSetupTentacle>>
 				<<elseif _rightOptions is "grappled" and $angel gte 4 and $angelBanish gte 1 and !$banishDisable and _banishTarget>>
@@ -666,8 +628,8 @@
 		<<case "tentacle">>
 			<<set _rightaction["Milk it"] to "rightrub"+_tentaclerightOption>>
 			<<set _rightaction["Let go"] to "rightstop"+_tentaclerightOption>>
-			<<if $deviancy gte 75>>
-				
+			<<if hasSexStat("deviancy", 5)>>
+
 				<<if playerHasStrapon() and $penisuse is 0>>
 					<<set _rightaction["Guide to your strap-on"] to "showpenis"+_tentacleRightOption>>
 				<<elseif $player.penisExist and $penisuse is 0>>
@@ -676,7 +638,7 @@
 				<<if $player.vaginaExist and $vaginause is 0>>
 					<<set _rightaction["Guide to your pussy"] to "showvagina"+_tentaclerightOption>>
 				<</if>>
-				<<if $anususe is 0 and $analdisable is "f">>
+				<<if $anususe is 0 and $settings.analEnabled>>
 					<<set _rightaction["Guide to your ass"] to "showbottom"+_tentaclerightOption>>
 				<</if>>
 				/* Old controls
@@ -742,7 +704,6 @@
 					<</for>>
 				<</if>>
 				<<if $options.combatControls.includes("adio") and _targetnumber gt 1 and _feetOptions.toLowerCase().includes("free")>>
-					<br>
 					<<targetListBox "feet" _targetlistall>>
 				<</if>>
 				<<if _targetnumber is 1>>
@@ -756,7 +717,7 @@
 					<<set _defaultsCombatAction to "feetaction">>
 					<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 					<<set _pass to false>>
-					<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+					<<for _set to 0; _set lt _actionsSet.length; _set++>>
 						<<if ["feetgrab"].includes(_actionsSet[_set]) and $feetactionTarget isnot undefined>>
 							<<for _i to 0; _i lt $tentacles.max; _i++>>
 								<<if $tentacles[_i].shaft isnot "finished">>
@@ -799,7 +760,8 @@
 					<<else>>
 						<<set _reducedWidths to false>>
 					<</if>>
-					<<generateCombatActionTentacle _feetaction "feetaction" _textColor $feetaction _reducedWidths>>
+					/* _reducedWidths is used by generateCombatAction */
+					<<generateCombatAction _feetaction "feetaction" "Tentacle">>
 					<<if _availableContext.includes(_feetOptions) and $tentacles.active gt 0>>
 						<<feetactionSetupTentacle>>
 					<</if>>
@@ -912,7 +874,7 @@
 		<<case "tentacle">>
 			<<set _feetaction["Milk it"] to "feetrub"+_tentacleFeetOption>>
 			<<set _feetaction["Let go"] to "feetstop"+_tentacleFeetOption>>
-			<<if $deviancy gte 75>>
+			<<if hasSexStat("deviancy", 5)>>
 				<<if playerHasStrapon() and $penisuse is 0>>
 					<<set _feetaction["Guide to your strap-on"] to "showpenis"+_tentacleFeetOption>>
 				<<elseif $player.penisExist and $penisuse is 0>>
@@ -921,7 +883,7 @@
 				<<if $player.vaginaExist and $vaginause is 0>>
 					<<set _feetaction["Guide to your pussy"] to "showvagina"+_tentacleFeetOption>>
 				<</if>>
-				<<if $anususe is 0 and $analdisable is "f">>
+				<<if $anususe is 0 and $settings.analEnabled>>
 					<<set _feetaction["Guide to your ass"] to "showbottom"+_tentacleFeetOption>>
 				<</if>>
 				/* Old control
@@ -994,7 +956,7 @@
 					<<set _defaultsCombatAction to "mouthaction">>
 					<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 					<<set _pass to false>>
-					<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+					<<for _set to 0; _set lt _actionsSet.length; _set++>>
 						<<if ["mouthlick","mouthpullaway","mouthkiss","mouthcooperate","mouthbite"].includes(_actionsSet[_set]) and _tentacleMouthOption isnot undefined>>
 							<<if Object.values(_mouthaction).includes(_actionsSet[_set] + _tentacleMouthOption)>>
 								<<set $mouthactiondefault to clone(_actionsSet[_set] + _tentacleMouthOption)>>
@@ -1014,7 +976,7 @@
 				<<set $mouthaction to $mouthactiondefault>>
 				<<set _textColor to combatListColor('mouthaction', (Object.values(_mouthaction).includes($mouthaction) ? $mouthaction : Object.values(_mouthaction)[0]), "Tentacle")>>
 				<div class="extraMargin">
-					<<generateCombatActionTentacle _mouthaction "mouthaction" _textColor $mouthaction>>
+					<<generateCombatAction _mouthaction "mouthaction" "Tentacle">>
 				</div>
 				<<if $options.combatControls.includes("ists")>>
 					<div id="mouthactionDifficulty">
@@ -1052,7 +1014,9 @@
 			<<if $head isnot "grappled">>
 				<<set _mouthaction["Pull away"] to "mouthpullaway"+_tentacleMouthOption>>
 			<</if>>
-			<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<<if !$combat_silenced>>
+				<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<</if>>
 		<<case "imminent">>
 			<<set _mouthaction["Rest"] to "rest">>
 			<<if !$worn.face.type.includes("covered") and !$worn.face.type.includes("gag")>>
@@ -1061,7 +1025,9 @@
 			<<if $head isnot "grappled">>
 				<<set _mouthaction["Pull away"] to "mouthpullaway"+_tentacleMouthOption>>
 			<</if>>
-			<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<<if !$combat_silenced>>
+				<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<</if>>
 		<<case "penetrated">>
 			<<set _mouthaction["Take it"] to "take">>
 			<<set _mouthaction["Cooperate"] to "mouthcooperate"+_tentacleMouthOption>>
@@ -1069,7 +1035,9 @@
 				<<set _mouthaction["Bite"] to "mouthbite"+_tentacleMouthOption>>
 			<</if>>
 		<<default>>
-			<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<<if !$combat_silenced>>
+				<<set _mouthaction["Lull"] to "mouthlull"+_tentacleMouthOption>>
+			<</if>>
 	<</switch>>
 <</widget>>
 
@@ -1128,7 +1096,7 @@
 					<<set _defaultsCombatAction to "penisaction">>
 					<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 					<<set _pass to false>>
-					<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+					<<for _set to 0; _set lt _actionsSet.length; _set++>>
 						<<if ["penisrub","penispullaway","peniscooperate"].includes(_actionsSet[_set]) and _tentaclepenisOption isnot undefined>>
 							<<if Object.values(_penisaction).includes(_actionsSet[_set] + _tentaclepenisOption)>>
 								<<set $penisactiondefault to clone(_actionsSet[_set] + _tentaclepenisOption)>>
@@ -1148,7 +1116,7 @@
 				<<set $penisaction to $penisactiondefault>>
 				<<set _textColor to combatListColor('penisaction', (Object.values(_penisaction).includes($penisaction) ? $penisaction : Object.values(_penisaction)[0]), "Tentacle")>>
 				<div class="extraMargin">
-					<<generateCombatActionTentacle _penisaction "penisaction" _textColor $penisaction>>
+					<<generateCombatAction _penisaction "penisaction" "Tentacle">>
 				</div>
 				<<if $options.combatControls.includes("ists")>>
 					<div id="penisactionDifficulty">
@@ -1252,7 +1220,7 @@
 					<<set _defaultsCombatAction to "vaginaaction">>
 					<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 					<<set _pass to false>>
-					<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+					<<for _set to 0; _set lt _actionsSet.length; _set++>>
 						<<if ["vaginarub","vaginapullaway","vaginacooperate"].includes(_actionsSet[_set]) and _tentaclevaginaOption isnot undefined>>
 							<<if Object.values(_vaginaaction).includes(_actionsSet[_set] + _tentaclevaginaOption)>>
 								<<set $vaginaactiondefault to clone(_actionsSet[_set] + _tentaclevaginaOption)>>
@@ -1272,7 +1240,7 @@
 				<<set $vaginaaction to $vaginaactiondefault>>
 				<<set _textColor to combatListColor('vaginaaction', (Object.values(_vaginaaction).includes($vaginaaction) ? $vaginaaction : Object.values(_vaginaaction)[0]), "Tentacle")>>
 				<div class="extraMargin">
-					<<generateCombatActionTentacle _vaginaaction "vaginaaction" _textColor $vaginaaction>>
+					<<generateCombatAction _vaginaaction "vaginaaction" "Tentacle">>
 				</div>
 				<<if $options.combatControls.includes("ists")>>
 					<div id="vaginaactionDifficulty">
@@ -1380,7 +1348,7 @@
 					<<set _defaultsCombatAction to "anusaction">>
 					<<set _actionsSet = DefaultActions.get($defaultsCombatType, "Tentacles", _defaultsCombatAction)>>
 					<<set _pass to false>>
-					<<for _set to 0; _set lt $maxDefaultActionSets; _set++>>
+					<<for _set to 0; _set lt _actionsSet.length; _set++>>
 						<<if ["anusrub","anuspullaway","anuscooperate"].includes(_actionsSet[_set]) and _tentacleanusOption isnot undefined>>
 							<<if Object.values(_anusaction).includes(_actionsSet[_set] + _tentacleanusOption)>>
 								<<set $anusactiondefault to clone(_actionsSet[_set] + _tentacleanusOption)>>
@@ -1400,7 +1368,7 @@
 				<<set $anusaction to $anusactiondefault>>
 				<<set _textColor to combatListColor('anusaction', (Object.values(_anusaction).includes($anusaction) ? $anusaction : Object.values(_anusaction)[0]), "Tentacle")>>
 				<div class="extraMargin">
-					<<generateCombatActionTentacle _anusaction "anusaction" _textColor $anusaction>>
+					<<generateCombatAction _anusaction "anusaction" "Tentacle">>
 				</div>
 				<<if $options.combatControls.includes("ists")>>
 					<div id="anusactionDifficulty">
@@ -1476,7 +1444,7 @@
 				<<set $chestaction to $chestactiondefault>>
 				<<set _textColor to combatListColor('chestaction', (Object.values(_chestaction).includes($chestaction) ? $chestaction : Object.values(_chestaction)[0]), "Tentacle")>>
 				<div class="extraMargin">
-					<<generateCombatActionTentacle _chestaction "chestaction" _textColor $chestaction>>
+					<<generateCombatAction _chestaction "chestaction" "Tentacle">>
 				</div>
 				<<if $options.combatControls.includes("ists")>>
 					<div id="chestactionDifficulty">
@@ -1517,12 +1485,7 @@
 <</widget>>
 
 <<widget "actionsvorentacles">>
-	<<if $options.images is 1 and $options.combatImages is 1>>
-		<<timed 100ms>>
-			<<combatimg>>
-			<br>
-		<</timed>>
-	<</if>>
+	<<animateCombat>>
 	<<willpowerpain>>
 	<<willpowerorgasm>>
 	<<actioncarry>>

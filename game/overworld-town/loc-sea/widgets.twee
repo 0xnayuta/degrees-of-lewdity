@@ -1,7 +1,6 @@
 :: Widgets Events Sea [widget]
 <<widget "eventsseabeach">>
-	<<if Time.dayState isnot "night" and $weather is "clear">>
-
+	<<if Time.dayState isnot "night" and !Weather.isOvercast>>
 		<<if $rng gte 96>>
 			<<sea1>>
 		<<elseif $rng gte 81>>
@@ -13,9 +12,7 @@
 		<<else>>
 			<<sea2>>
 		<</if>>
-
-	<<elseif Time.dayState isnot "night" and ($weather is "rain" or $weather is "snow")>>
-
+	<<elseif Time.dayState isnot "night" and Weather.precipitation isnot "none">>
 		<<if $rng gte 96>>
 			<<sea1>>
 		<<elseif $rng gte 81>>
@@ -46,8 +43,8 @@
 
 	<<else>>
 
-		<<if $rng gte 95>>
-			<<if $swarmdisable is "f">><<sea3>><<else>><<sea1>><</if>>
+		<<if $rng gte 96>>
+			<<if $settings.swarmsEnabled>><<sea3>><<else>><<sea1>><</if>>
 		<<elseif $rng gte 81>>
 			<<sea1>>
 		<<elseif $rng gte 61>>
@@ -62,7 +59,7 @@
 <<widget "eventssea">>
 	<<set _dangerevent to random(1, 100)>>
 	<<if _dangerevent lte 10>>
-		<<if $swarmdisable is "f">>
+		<<if $settings.swarmsEnabled>>
 			<<sea3>>
 		<<else>>
 			<<sea1>>
@@ -85,7 +82,7 @@
 <<widget "eventsdeepsea">>
 	<<set _dangerevent to random(1, 96)>>
 	<<if _dangerevent lte 10>>
-		<<if $swarmdisable is "f">>
+		<<if $settings.swarmsEnabled>>
 			<<sea3>>
 		<<else>>
 			<<sea1>>
@@ -115,19 +112,29 @@
 
 :: Widgets Sea [widget]
 <<widget "seabeach1">>
-	<<rng>>
-
-	<<generate1>><<person1>>A <<person>> swims up to you and grabs your butt.<<if $worn.under_lower.type.includes("naked") and $worn.lower.type.includes("naked")>> "Not wearing anything down here? You're such a naughty <<girl>>."<</if>> <<He>> fondles you with increasing passion.
+	<<generate1>><<person1>>A <<person>> swims up to you and grabs your butt.
+	<<outfitChecks>>
+	<<if _bottomless>>
+		"Not wearing anything down here? You're such a naughty <<girl>>.
+	<<else>>
+		"Hey there, pretty <<girl>>.
+	<</if>>
+	How about we have some fun?" <<He>> starts fondling you with increasing passion.
 	<br><br>
 
-	<<if $rng gte 81>>
+	<<if hasSexStat("promiscuity", 4)>>
+		<<link [[Agree|Sea Beach Molestation]]>><<set $sexstart to 1>><</link>><<promiscuous4>>
+	<<else>>
+		<<insufficientStat "promiscuity" "to allow this to continue">>
+	<</if>>
+	<br>
+
+	<<if random(1,5) is 1>> /* 20% change of being raped if you refuse */
 		<<link [[Pull away|Sea Beach Molestation]]>><<set $molestationstart to 1>><</link>>
 	<<else>>
 		<<link [[Pull away|Sea Beach Molestation Finish]]>><<set $finish to 1>><</link>>
 	<</if>>
 	<br>
-
-	<<link [[Allow it|Sea Beach Molestation]]>><<set $sexstart to 1>><</link>><<promiscuous1>>
 <</widget>>
 
 <<widget "seabeach2">>
@@ -141,19 +148,20 @@
 <<widget "sea1">>
 	<<beastNEWinit 3 dolphin>>
 	<<rng>>
-	<<if $rng gte 81 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Beast People -->
+	<<if $rng gte 81 and ($monster is 1 or $settings.bestialityEnabled)>>
 		Three <<beastsplural>> swim up to you and nudge you playfully. You pet them back, but they're persistent. One of them starts rubbing against you while the other two prevent you from moving away.
 		<br><br>
 
 		<<link [[Next|Sea Dolphins]]>><<set $molestationstart to 1>><</link>>
 		<br>
-	<<elseif $rng gte 25 and numberOfEarSlime() and ($monster is 1 or $bestialitydisable is "f") and ($earSlime.growth gte 80 - ($earSlime.deviancy * 10))>>
+	<<elseif $rng gte 26 and numberOfEarSlime() and ($monster is 1 or $settings.bestialityEnabled) and ($earSlime.growth gte 80 - ($earSlime.deviancy * 10))>>
 		Three <<beastsplural>> swim up to you and nudge you playfully. You pet them back.
 		<br><br>
-		<span class="lewd">You feel the slime in your head command you to <<if $exposed gte 2>>strip and <</if>>present yourself to them.</span> It promises rewards if you comply, and threatens consequences if you do not.
+
+		<span class="lewd">You feel the slime in your head command you to <<if $exposed lt 2>>strip and <</if>>present yourself to them.</span> It promises rewards if you comply and threatens consequences if you do not.
 		<br><br>
 
-		<<if $deviancy gte 55 and $submissive gte 1900>>
+		<<if hasSexStat("deviancy", 4) and $submissive gte 1900>>
 			<<link [[Submit willingly|Sea Slime Dolphins Submit willingly]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>><<deviant4>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>>
 			<br>
 		<</if>>
@@ -166,7 +174,7 @@
 		<<lstress>><<ltrauma>><<stress -12>><<trauma -6>>
 		<br><br>
 
-		<<if $deviancy gte 35 and ($monster is 1 or $bestialitydisable is "f")>><!-- Modified for Beast People -->
+		<<if hasSexStat("deviancy", 3) and ($monster is 1 or $settings.bestialityEnabled)>>
 			<<link [[Pet them lewdly|Sea Dolphins Sex]]>><<set $sexstart to 1>><</link>><<deviant3>>
 			<br>
 		<</if>>
@@ -229,7 +237,7 @@
 <</widget>>
 
 <<widget "sea5">>
-	<<if $bestialitydisable is "f">>
+	<<if $settings.bestialityEnabled>>
 		<<if $squidcount is 0>>
 
 			You feel something soft touch your <<genitals>>. You look beneath the water and see a small squid rubbing you with its tentacles.
@@ -284,7 +292,7 @@
 <</widget>>
 
 <<widget "seavore">>
-	<<if $voredisable is "f">>
+	<<if $settings.voreEnabled>>
 		<<set $rng to random(1,4)>>
 		<<if $rng lte 2>>
 			A large creature emerges from the depths, drawn by your scent. Before you even know it's there, it grabs your legs with its maw, gripping you tight.
@@ -327,7 +335,7 @@
 <</widget>>
 
 <<widget "seatentacles">>
-	<<if $tentacledisable is "f" and $hallucinations gte 2>>
+	<<if $settings.tentaclesEnabled and $hallucinations gte 2>>
 		Something brushes against your leg, then grabs you by the waist. Several tentacles rise from the water.
 		<br><br>
 
@@ -349,7 +357,7 @@
 <</widget>>
 
 <<widget "sea_struggle">>
-	<<if $bestialitydisable is "f">>
+	<<if $settings.bestialityEnabled>>
 		You feel something wrap around your leg. You peer beneath the water, and see a flurry of tentacles.
 		<br><br>
 
@@ -399,10 +407,10 @@
 <</widget>>
 
 <<widget "passoutsea">>
-	<<if isPlayerNonparasitePregnancyEnding()>>
+	<<if isPregnancyEnding()>>
 		<<pregnancyPassout "sea">>
 	<<else>>
-		<<link [[Everything fades to black|Passout Sea]]>><</link>>
+		<<link [[Everything fades to black...|Passout Sea]]>><</link>>
 	<</if>>
 <</widget>>
 
@@ -481,7 +489,7 @@
 	<<link [[Next|Sea Pair Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <<else>>
-	"So what brings you out here?" The <<person1>><<person>> asks. "I can't suppose you expected to meet a couple as fine as we."
+	"So what brings you out here?" the <<person1>><<person>> asks. "I can't suppose you expected to meet a couple as fine as we."
 	<br><br>
 	<<link [[Say you're practising swimming|Sea Pair Practise]]>><<swimmingskilluse>><</link>><<gswimming>>
 	<br>

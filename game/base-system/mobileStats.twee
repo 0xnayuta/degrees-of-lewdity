@@ -25,7 +25,7 @@
 			<mouse class="tooltip-centertop">S<span>Stress: <<print $stress.toFixed(2)>></span></mouse>
 		</div>
 	<</if>>
-	    <<if Number.isFinite($innocencestate) and $innocencestate is 1 and ($options.sidebarStats is "all" or $awareness gt -100)>>
+		<<if Number.isFinite($innocencestate) and $innocencestate is 1 and ($options.sidebarStats is "all" or $awareness gt -100)>>
 		<<mobileStatsColor "innocence">>
 		<div @class="'stat ' + _mobileColor">
 			<mouse class="tooltip-centertop">I<span>Innocence: <<print Math.abs($awareness).toFixed(2)>></span></mouse>
@@ -69,8 +69,17 @@
 <</widget>>
 
 <<widget "mobileStatsTime">>
+	<<set _hour to $options.timestyle === "ampm" ? ((Time.hour + 11) % 12) + 1 : Time.hour>>
 	<div class="stat time">
-		<<ampm>>
+		<<print _hour.toString().padStart(2, "0")>>
+		<br>
+		<span class="vertical">:</span>
+		<br>
+		<<print Time.minute.toString().padStart(2, "0")>>
+		<<if $options.timestyle === "ampm">>
+			<br>
+			<<print Time.hour >= 12 ? "pm" : "am">>
+		<</if>>
 	</div>
 <</widget>>
 
@@ -146,16 +155,16 @@
 <</widget>>
 
 <<widget "mobileStatsColorAllure">>
-	<<if $allure gte (6000 * $alluremod)>>
+	<<if $allure gte (6000 * $settings.allureModifier)>>
 		<<set _mobileColor to "red">>
 	<<else>>
-		<<switch Math.floor($allure / $alluremod / 1000)>>
+		<<switch Math.floor($allure / $settings.allureModifier / 1000)>>
 		<<case 3>>
 			<<set _mobileColor to "purple">>
 		<<case 2>>
 			<<set _mobileColor to "blue">>
 		<<case 1>>
-			<<if $allure / $alluremod gte 1500>>
+			<<if $allure / $settings.allureModifier gte 1500>>
 				<<set _mobileColor to "lblue">>
 			<<else>>
 				<<set _mobileColor to "teal">>

@@ -3,44 +3,40 @@
 <<location "seabeach">><<water>><<effects>>
 You are swimming in the sea along the beach.
 <<if Time.dayState is "day">>
-	<<if $weather is "clear">>
-		It is awash with visitors, children build sandcastles and play in the water while their parents bask in the sun. A group of students are playing volleyball.
-	<<elseif $weather is "overcast">>
-		The clouds have driven away most would-be visitors, but there are still people strolling along the water's edge.
-	<<elseif $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The beach itself is mostly deserted due to the rain, but the violent waves have attracted surfers.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		The cold has kept most away, but the violent waves have attracted surfers.
+	<<elseif !Weather.isOvercast>>
+		It is awash with visitors, children build sandcastles and play in the water while their parents bask in the sun. A group of students are playing volleyball.
+	<<else>>
+		The clouds have driven away most would-be visitors, but there are still people strolling along the water's edge.
 	<</if>>
 <<elseif Time.dayState is "dawn">>
-	<<if $weather is "clear">>
-		It is a popular destination for joggers, some have dogs with them. A few families are setting up windbreakers. A group of students are playing volleyball.
-	<<elseif $weather is "overcast">>
-		It is a popular destination for joggers, some have dogs with them. Fog blocks your view of the ocean.
-	<<elseif $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The beach itself is mostly deserted due to the rain, but the violent waves have attracted surfers.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		The cold has kept most away, but the violent waves have attracted surfers.
+	<<elseif !Weather.isOvercast>>
+		It is a popular destination for joggers, some have dogs with them. A few families are setting up windbreakers. A group of students are playing volleyball.
+	<<else>>
+		It is a popular destination for joggers, some have dogs with them. Fog blocks your view of the ocean.
 	<</if>>
 <<elseif Time.dayState is "dusk">>
-	<<if $weather is "clear">>
-		Families are leaving as the sun sets. A group of students are playing volleyball.
-	<<elseif $weather is "overcast">>
-		It is mostly deserted, but some people are strolling along the water's edge.
-	<<elseif $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The beach itself is mostly deserted due to the rain, but the violent waves have attracted surfers.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		The cold has kept most away, but the violent waves have attracted surfers.
+	<<elseif !Weather.isOvercast>>
+		Families are leaving as the sun sets. A group of students are playing volleyball.
+	<<else>>
+		It is mostly deserted, but some people are strolling along the water's edge.
 	<</if>>
 <<elseif Time.dayState is "night">>
-	<<if $weather is "clear">>
+	<<if !Weather.isOvercast && Weather.precipitation === "none">>
 		It appears deserted, save for a group of students who are drinking around a fire.
-	<<elseif $weather is "overcast">>
+	<<else>>
 		It appears deserted.
-	<<elseif $weather is "rain">>
-		It appears deserted.
-	<<elseif $weather is "snow">>
-		It appears deserted
 	<</if>>
 <</if>>
 <br><br>
@@ -48,33 +44,37 @@ You are swimming in the sea along the beach.
 	<<set $seaswim to 0>>
 	You spend some time swimming.
 	<<physique 3>><<swimmingskilluse>>
+	<<pass 30>>
 	<br><br>
 <</if>>
 <<if $exposed gte 1>>
 	You keep your <<lewdness>> hidden beneath the surface of the water.
 	<<if Time.dayState isnot "night">>
-		You can't leave the water here, people would see you!
+		If you leave the water here, people would see you!
 	<</if>>
 	<br><br>
 <</if>>
 <<if $stress gte $stressmax>>
 	<<passoutbeach>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+	<<if dangerEvent() and $eventskip is 0>>
 		<<eventsseabeach>>
 	<<else>>
 		<<if $exposed lte 0 or Time.dayState is "night">>
 			<<beachicon>><<link [[Leave the water (0:02)|Beach]]>><<pass 2>><</link>>
 			<br>
-		<<elseif $exposed is 1 and $exhibitionism gte 15>>
+		<<elseif $exposed is 1 and hasSexStat("exhibitionism", 2)>>
 			<<beachicon>><<link [[Leave the water (0:02)|Beach Exposed]]>><<pass 2>><<set $phase to 1>><</link>><<exhibitionist2>>
 			<br>
-		<<elseif $exposed gte 2 and $exhibitionism gte 75>>
+		<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
 			<<beachicon>><<link [[Leave the water (0:02)|Beach Exposed]]>><<pass 2>><<set $phase to 0>><</link>><<exhibitionist5>>
 			<br>
+		<<else>>
+			<<beachicon>><<insufficientStat "exhibitionism" "to leave the water in such an exposed state">>
+			<br>
 		<</if>>
-		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Beach]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Beach]]>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 		<br>
 		<<swimicon>><<link [[Swim out to sea (0:10)|Sea]]>><<pass 10>><<tiredness 2>><<set $sea to 0>><</link>><<gtiredness>><<swimmingdifficulty 1 100>>
 		<br><br>
@@ -91,17 +91,17 @@ You are swimming in the sea along the beach.
 <<location "searocks">><<water>><<effects>>
 You are swimming in the sea near some rocks, west of the beach.
 <<if Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The dark water is hammered by rain all around you.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Dark water devours the falling snow.
 	<<else>>
 		The water is dark and foreboding.
 	<</if>>
 <<else>>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The surface is agitated by the deluge of rain.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Snow settles on the dryer areas.
 	<<else>>
 		The water is calm and clear.
@@ -112,6 +112,7 @@ You are swimming in the sea near some rocks, west of the beach.
 	<<set $seaswim to 0>>
 	You spend some time swimming.
 	<<physique 3>><<swimmingskilluse>>
+	<<pass 30>>
 	<br><br>
 <</if>>
 <<if $exposed gte 1>>
@@ -121,13 +122,13 @@ You are swimming in the sea near some rocks, west of the beach.
 <<if $stress gte $stressmax>>
 	<<passoutbeach>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+	<<if dangerEvent() and $eventskip is 0>>
 		<<eventssea>>
 	<<else>>
 		<<swimicon "leave">><<link [[Climb onto the rocks (0:02)|Rocks]]>><<pass 2>><</link>>
 		<br><br>
-		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Rocks]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Rocks]]>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 		<br>
 		<<swimicon>><<link [[Swim out to sea (0:10)|Sea]]>><<pass 10>><<tiredness 2>><<set $sea to 0>><</link>><<gtiredness>><<swimmingdifficulty 1 100>>
 		<br><br>
@@ -147,12 +148,15 @@ There's a sheltered space atop one of the rocks, above a deep pool.
 <<if $smuggler_location is "beach" and $smuggler_timer is 0 and Time.dayState is "night" and Time.hour gte 18>>
 	<<smugglerdifficultytext>>
 <</if>>
+<<if $phase is "oxygenrecovery">>
+	<<set $phase to 0>>
+<</if>>
 <<if $phase is 1>>
 	<<set $phase to 0>>
 	You search for pieces of seaweed long and sturdy enough to build an improvised garment. You find some suitable specimens and tie them together around your chest. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
-	<<plantupper>>
+	<<plantupper "seaweed">>
 	<br><br>
-	<<if $rng gte 91 and $parasite.nipples.name is undefined and $parasitedisable is "f">>
+	<<if $rng gte 91 and $parasite.nipples.name is undefined and $settings.parasitesEnabled>>
 		Your satisfaction is interrupted by a pinching sensation on your <<nipples>>. Shocked, you pull down your top to find the culprit. Two small sea urchins have latched to your teats. They massage and suck your nipples as if trying to nurse. They don't hurt at all, but the sensations are arousing you. You tug them in a bid to be free of their molestation, but they cling too tightly. What's more, touching them with any amount of force makes them suck more intensely. You'll need help to remove them.
 		<<parasite nipples urchin>><<garousal>><<arousal 600 "breasts">>
 		<br><br>
@@ -161,15 +165,15 @@ There's a sheltered space atop one of the rocks, above a deep pool.
 <<if $phase is 2>>
 	<<set $phase to 0>>
 	You search for pieces of seaweed long and sturdy enough to build an improvised garment. You find some suitable specimens and tie them together around your waist. It's fragile and revealing, and you don't think you could take it off without breaking it, but it's better than nothing.
-	<<plantlower>>
+	<<plantlower "seaweed">>
 	<br><br>
 	<<if $parasite.penis.name is "parasite" or $parasite.clit.name is "parasite">>
 		/* Prevents the 2 types of parasites from interacting */
-	<<elseif $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $parasitedisable is "f" and !playerChastity("penis")>>
+	<<elseif $rng gte 91 and $parasite.penis.name is undefined and $player.penisExist and $settings.parasitesEnabled and !playerChastity("penis")>>
 		Your satisfaction is interrupted by a pinching sensation on your <<penis>>. Shocked, you lift your skirt to find the culprit. A small sea urchin has latched on. It massages and sucks as if trying to nurse. It doesn't hurt at all, but the sensations are making you feel shamefully aroused. You tug it in a bid to be free of its molestation, but it clings too tightly. What's more, touching it with any amount of force makes it suck more intensely. You'll need help to remove it.
 		<<parasite penis urchin>><<garousal>><<arousal 600 "genitals">>
 		<br><br>
-	<<elseif $rng gte 91 and $parasite.clit.name is undefined and $player.vaginaExist and $parasitedisable is "f" and !playerChastity("hidden") and !$player.penisExist>>
+	<<elseif $rng gte 91 and $parasite.clit.name is undefined and $player.vaginaExist and $settings.parasitesEnabled and !playerChastity("hidden") and !$player.penisExist>>
 		Your satisfaction is interrupted by a pinching sensation on your <<pussy>>. Shocked, you lift your skirt to find the culprit. A small sea urchin has latched onto your clit. It massages and sucks as if trying to nurse. It doesn't hurt at all, but the sensations are making you feel shamefully aroused. You tug it in a bid to be free of its molestation, but it clings too tightly. What's more, touching it with any amount of force makes it suck more intensely. You'll need help to remove it.
 		<<parasite clit urchin>><<garousal>><<arousal 600 "genitals">>
 		<br><br>
@@ -199,6 +203,7 @@ There's a sheltered space atop one of the rocks, above a deep pool.
 	<</if>>
 	<<swimicon "down">><<link [[Slip into the pool (0:01)|Rocks Pool]]>><<pass 1>><</link>>
 	<br>
+	<<oxygenrecovery>>
 	<br>
 	<<swimicon>><<link [[Swim into the sea (0:02)|Sea Rocks]]>><<pass 2>><</link>>
 	<br>
@@ -218,11 +223,11 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 <<else>>
 <</if>>
 
-<<if $swarmdisable is "f" and $deviancy gte 75 and $daily.rocksPoolInvite isnot 1>>
+<<if $settings.swarmsEnabled and hasSexStat("deviancy", 5) and $daily.rocksPoolInvite isnot 1>>
 	<<ind>><<link [[Invite the fish (0:05)|Rocks Swarm Invite]]>><<set $daily.rocksPoolInvite to 1>><<pass 5>><</link>><<deviant5>>
 	<br>
 <</if>>
-<<swimicon "dive">><<link [[Dive (0:01)|Rocks Dive]]>><<pass 1>><<set $phase to 0>><</link>>
+<<swimicon "dive">><<link [[Dive (0:01)|Rocks Dive]]>><<set _oxygenRecoveryBlocked to true>><<pass 1>><<set $phase to 0>><</link>>
 <br>
 <<swimicon "leave">><<link [[Climb out (0:01)|Rocks]]>><<pass 1>><</link>>
 <br>
@@ -232,7 +237,7 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 <<effects>>
 
 <<if Time.dayState is "night">>
-	<<if $weather is "clear">>
+	<<if !Weather.isOvercast>>
 		You swim toward the moonlight above, emerging in the cold night breeze.
 	<<else>>
 		Such is the darkness that it's hard to tell which way is up. You emerge into the cold night breeze before panic sets in.<<gstress>><<stress 6>>
@@ -242,7 +247,7 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 <</if>>
 <br><br>
 
-<<link [[Next|Rocks Pool]]>><<set $previousPassage = $passage>><</link>>
+<<link [[Next|Rocks Pool]]>><</link>>
 <br>
 
 :: Rocks Dive
@@ -294,7 +299,7 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 
 <<if $phase is 10>>
 	<<if $rng lte 10>>
-		<<if $voredisable is "f">>
+		<<if $settings.voreEnabled>>
 			<<if $museumAntiques.antiques.antiquediamond isnot "found" and $museumAntiques.antiques.antiquediamond isnot "talk" and $museumAntiques.antiques.antiquediamond isnot "museum">>
 				You reach for the light but the sand shifts under it. You swim upwards but feel something clamps down on your leg. You twist around to find a giant oyster intent on devouring you!
 				<br><br>
@@ -305,26 +310,25 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 				<<link [[Next|Sea Vore]]>><<set $molestationstart to 1>><<set $vorecreature to "oyster">><</link>>
 			<</if>>
 		<<else>>
-			<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
-			<br>
 			<<if $museumAntiques.antiques.antiquediamond isnot "found" and $museumAntiques.antiques.antiquediamond isnot "talk" and $museumAntiques.antiques.antiquediamond isnot "museum">>
-				<<ind>><<link [[Grasp it|Rocks Diamond]]>><<wateraction>><</link>><<loxygen>>
+				<<antiqueicon "diamond">><<link [[Grasp it|Rocks Diamond]]>><<wateraction>><</link>><<loxygen>>
 				<br>
 			<<else>>
 				<<swimicon "back">><<link [[Swim inside|Beach Cave Entrance]]>><</link>>
 				<br>
 			<</if>>
+			<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
 		<</if>>
 	<<else>>
-		<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
-		<br>
 		<<if $museumAntiques.antiques.antiquediamond isnot "found" and $museumAntiques.antiques.antiquediamond isnot "talk" and $museumAntiques.antiques.antiquediamond isnot "museum">>
-			<<ind>><<link [[Grasp it|Rocks Diamond]]>><<wateraction>><</link>><<loxygen>>
+			<<antiqueicon "diamond">><<link [[Grasp it|Rocks Diamond]]>><<wateraction>><</link>><<loxygen>>
 			<br>
 		<<else>>
 			<<swimicon "back">><<link [[Swim inside|Beach Cave Entrance]]>><</link>>
 			<br>
 		<</if>>
+		<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
+		<br>
 	<</if>>
 <<else>>
 	<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
@@ -334,7 +338,7 @@ You <<= $passagePrev.includes("Up") ? "break the pool's surface" : "slip into th
 <</if>>
 
 :: Rocks Diamond
-<<underwater>><<effects>>
+<<underwater>><<effects>><<wearProp "diamond">>
 
 <<set $antiquemoney += 2000>><<museumAntiqueStatus "antiquediamond" "found">>
 You grasp the light, along with a handful of sand, and examine it. It's a white jewel, no bigger than a fingernail, but it might be worth something to a collector.
@@ -343,9 +347,9 @@ You grasp the light, along with a handful of sand, and examine it. It's a white 
 You plant your feet against the sand, and notice a cave leading away from the pool, lit by a dim blue light.
 <br><br>
 
-<<link [[Swim up|Rocks Up]]>><<set $phase to 0>><</link>>
+<<swimicon "up">><<link [[Swim up|Rocks Up]]>><<handheldon>><<set $phase to 0>><</link>>
 <br>
-<<link [[Swim into the cave|Beach Cave Entrance]]>><</link>>
+<<swimicon "back">><<link [[Swim into the cave|Beach Cave Entrance]]>><<handheldon>><</link>>
 <br>
 
 :: Rocks Swarm Invite
@@ -402,17 +406,17 @@ You float into the middle of the pool, and open your legs. The fish are cautious
 <<location "seadocks">><<water>><<effects>>
 You are swimming in the sea near the docks, east of the beach.
 <<if Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The dark water is hammered by rain all around you.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Dark water devours snow all around you.
 	<<else>>
 		The water is dark and foreboding.
 	<</if>>
 <<else>>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The surface is agitated by the deluge of rain.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		The docks bustle with activity, workers wrapped warm against the cold.
 	<<else>>
 		The docks bustle with activity. The water is calm and clear.
@@ -423,6 +427,7 @@ You are swimming in the sea near the docks, east of the beach.
 	<<set $seaswim to 0>>
 	You spend some time swimming.
 	<<physique 3>><<swimmingskilluse>>
+	<<pass 30>>
 	<br><br>
 <</if>>
 <<if $exposed gte 1>>
@@ -432,8 +437,8 @@ You are swimming in the sea near the docks, east of the beach.
 <<if $stress gte $stressmax>>
 	<<passoutbeach>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+	<<if dangerEvent() and $eventskip is 0>>
 		<<eventssea>>
 	<<else>>
 		<<if $earSlime.forcedCommando isnot undefined and $worn.under_lower.name isnot "naked">>
@@ -442,7 +447,7 @@ You are swimming in the sea near the docks, east of the beach.
 			<<docksicon>><<link [[Climb onto the docks (0:02)|Mer Street]]>><<pass 2>><</link>>
 		<</if>>
 		<br>
-		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Docks]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
+		<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Docks]]>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 		<br>
 		<<swimicon>><<link [[Swim out to sea (0:10)|Sea]]>><<pass 10>><<tiredness 2>><<set $sea to 0>><</link>><<gtiredness>><<swimmingdifficulty 1 100>>
 		<br><br>
@@ -459,17 +464,17 @@ You are swimming in the sea near the docks, east of the beach.
 <<location "seacliffs">><<water>><<effects>>
 You are swimming in the sea at the base of some cliffs, east of the docks. A large storm drain exits above you, creating a waterfall.
 <<if Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The dark water is hammered by rain all around you.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Dark water devours the snow.
 	<<else>>
 		The water is dark and foreboding.
 	<</if>>
 <<else>>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The surface is agitated by the deluge of rain.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		The water is calm beneath the snowy sky.
 	<<else>>
 		The water is calm and clear.
@@ -480,6 +485,7 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<set $seaswim to 0>>
 	You spend some time swimming.
 	<<physique 3>><<swimmingskilluse>>
+	<<pass 30>>
 	<br><br>
 <</if>>
 <<if $exposed gte 1>>
@@ -489,15 +495,15 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 <<if $stress gte $stressmax>>
 	<<passoutbeach>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+	<<if dangerEvent() and $eventskip is 0>>
 		<<eventssea>>
 	<<else>>
 		<<swimmingdifficulty 1 100 true>>
 		<<if $swimmingSuccess>>
 			<span class="green">You successfully swim against the tide.</span>
 			<br><br>
-			<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Cliffs]]>><<pass 30>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>><<swimmingdifficulty 1 100>>
+			<<swimicon "back">><<link [[Practise swimming (0:30)|Sea Cliffs]]>><<stress -6>><<tiredness 6>><<set $seaswim to 1>><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>><<swimmingdifficulty 1 100>>
 			<br>
 			<<swimicon>><<link [[Swim out to sea (0:10)|Sea]]>><<pass 10>><<tiredness 2>><<set $sea to 0>><</link>><<gtiredness>><<swimmingdifficulty 1 100>>
 			<br><br>
@@ -518,11 +524,11 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 <<location "sea">><<water>><<effects>>
 <<if $sea is 0>>
 	You are swimming in the sea. You are near the beach outside town.
-	<<if Time.dayState is "night">>
+	<<if Weather.dayState is "night">>
 		Lights glimmer across the water.
-	<<elseif Time.dayState is "dawn">>
+	<<elseif Weather.dayState is "dawn">>
 		The shadows lengthen in the morning sun.
-	<<elseif Time.dayState is "dusk">>
+	<<elseif Weather.dayState is "dusk">>
 		The shadows lengthen in the setting sun.
 	<<else>>
 		It bustles with activity.
@@ -532,8 +538,8 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<if $stress gte $stressmax>>
 		<<passoutsea>>
 	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<if dangerEvent() and $eventskip is 0>>
 			<<eventsdeepsea>>
 		<<else>>
 			<<swimmingdifficulty 1 100 true>>
@@ -546,7 +552,7 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 				<br>
 			<<else>>
 				You try to swim against the tide, <span class="red">but it's too strong for you.</span> You are swept further out to sea.
-				<br><br><br>
+				<br><br>
 				<<link [[Next|Sea]]>><<set $sea += 10>><</link>>
 				<br>
 			<</if>>
@@ -564,8 +570,8 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<if $stress gte $stressmax>>
 		<<passoutsea>>
 	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<if dangerEvent() and $eventskip is 0>>
 			<<eventsdeepsea>>
 		<<else>>
 			<<swimmingdifficulty 1 100 true>>
@@ -592,7 +598,7 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 <<elseif $sea lte 50>>
 	You are swimming in the sea.
 	<<if Time.dayState is "night">>
-		<<if $weather is "clear">>
+		<<if !Weather.isOvercast>>
 			The town glows against the night in the distance.
 		<<else>>
 			You can see the town in the distance. An orange glow lights the clouds above.
@@ -605,8 +611,8 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<if $stress gte $stressmax>>
 		<<passoutsea>>
 	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<if dangerEvent() and $eventskip is 0>>
 			<<eventsdeepsea>>
 		<<else>>
 			<<swimmingdifficulty 1 200 true>>
@@ -624,7 +630,7 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 				<br>
 			<<else>>
 				You try to swim against the tide, <span class="red">but it's too strong for you.</span> You are swept further out to sea.
-				<br><br><br>
+				<br><br>
 				<<link [[Next|Sea]]>><<set $sea += 10>><</link>>
 				<br>
 			<</if>>
@@ -633,7 +639,7 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 <<elseif $sea lte 99>>
 	You are swimming in the sea.
 	<<if Time.dayState is "night">>
-		<<if $weather is "clear">>
+		<<if !Weather.isOvercast>>
 			You can see the town glowing on the horizon.
 		<<else>>
 			You can see the town on the horizon, lighting the clouds above.
@@ -646,8 +652,8 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<if $stress gte $stressmax>>
 		<<passoutsea>>
 	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<if dangerEvent() and $eventskip is 0>>
 			<<eventsdeepsea>>
 		<<else>>
 			<<swimmingdifficulty 1 300 true>>
@@ -690,8 +696,8 @@ You are swimming in the sea at the base of some cliffs, east of the docks. A lar
 	<<if $stress gte $stressmax>>
 		<<passoutsea>>
 	<<else>>
-		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-		<<if $danger gte (9900 - $allure) and $eventskip is 0>>
+
+		<<if dangerEvent() and $eventskip is 0>>
 			<<eventsdeepsea>>
 		<<else>>
 			<<swimmingdifficulty 1 400 true>>

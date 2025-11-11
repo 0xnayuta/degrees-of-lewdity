@@ -164,9 +164,12 @@ window.determineCatEyeStages = function () {
 	/* We've already shuffled these so they're already random */
 	targetColours.splice(-2); /* keep the last 2 */
 
+	/* Clear existing variables 'cat_tf_stage_' */
+	V.custom_eyecolours = V.custom_eyecolours.filter(obj => !obj.variable.includes("cat_tf_stage_"));
+
 	/* The right eye is the one we see the most.
 	   If this eye is light blue and the target colour is blue, the player
-	   might not notice a difference.  So, swap the two eyes */
+	   might not notice a difference. So, swap the two eyes */
 	if (V.rightEyeColour === "light blue" && targetColours[1] === blue) targetColours = [targetColours[1], targetColours[0]];
 	for (let index = 1; index <= stages; index++) {
 		const eyesResult = {

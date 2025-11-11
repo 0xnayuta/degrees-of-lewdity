@@ -1,3 +1,5 @@
+/* global ClothesItem, ClothedSlots */
+
 function mapMove(moveTo) {
 	const currentPassage = V.passage;
 	const destinationTable = [];
@@ -33,7 +35,7 @@ function shopClothingFilterToggleTrait(trait) {
 window.shopClothingFilterToggleTrait = shopClothingFilterToggleTrait;
 
 function toggleAllHairTraitsFilter() {
-	const chboxes = $("#hairContainerTraits  input:not(:checked)");
+	const chboxes = $("#hairContainerTraits input:not(:checked)");
 	if (chboxes.length > 0) chboxes.click();
 	else $("#hairContainerTraits input:checked").click();
 }
@@ -73,9 +75,9 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom",
 			/* feetaction */
-			"run", "hide", "confront", "feetresistW", "legLock", "legLocked", "feetHold",
+			"run", "taunt", "hide", "feetresistW", "legLock", "legLocked", "feetHold",
 			/* mouthaction */
-			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut","disparage",
+			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut", "disparage",
 			/* penisaction */
 			"othermouthescape", "escape", "otheranusescape", "fencingescape", "pullOut",
 			/* vaginaaction */
@@ -87,9 +89,9 @@ const combatActionColours = {
 			/* leftaction or rightaction */
 			"spray", "lefthit", "righthit", "leftstruggle", "rightstruggle", "stopchokenoncon", "pursuit_grab",
 			/* feetaction */
-			"kick",
+			"kick", "ambush",
 			/* mouthaction */
-			"bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy",
+			"confront", "bite", "demand", "breastbite", "handbite", "headbutt", "bitepussy",
 		],
 		meek: [
 			/* leftaction or rightaction */
@@ -291,7 +293,7 @@ DefineMacroS("combatDefaults", combatDefaults);
  * ($enemytrust * 10) is simply how much the NPC trust the player. Since $enemytrust can be negative, a bad trust can result in an increase in difficulty.
  * (($enemyarousalmax / ($enemyarousal + 1)) * 100) is the relative NPC arousal. This value can never be 100, except on the last turn.
  * The current arousal being divided by the max arousal means the higher the arousal (and by consequence the arousal percentage) the more difficult the action becomes (since the value will be lower).
- * This also means actions are more likely to succeed during the start of the combat, and get harder as the combat goes on.
+ * This also means actions are more likely to succeed during the start of the combat and get harder as the combat goes on.
  * ($rng * 10) is simply the random part of the equation, so the chance is not always locked into one result. This value varies between 0 and 1000, at a base 10 (so it can't be anything that's not a multiple of 10).
  * 1000 is the base difficulty. This rules how high the skill needs to be if all other values are 0. The higher the base difficulty, the harder the action. This is usually the main factor determining the success of the action.
  * $enemyanger is just like the trust part, but not multiplied. This means anger has 10x less impact in the action than trust, however $enemyanger cannot be negative and could be much higher than trust.
@@ -314,7 +316,7 @@ DefineMacroS("combatDefaults", combatDefaults);
  * So skillname is a string, and skill is an integer. Why not simply pass the skill value as the argument? Because of possible future variants, such as moor luck, affecting some variable and not the other.
  * targetid is an optional value, that doesn't see use currently but can possibly be required in the future in case any of the "enemy" variables (such as $enemyarousal or $enemytrust) become individual values ("per NPC", as health currently is).
  *
- * The output is simply: true if the action is a success, and false if the action fails.
+ * The output is simply: true if the action is a success, false if the action fails.
  */
 /**
  * Checks skill value against combat math to determine success of an action.
@@ -364,9 +366,11 @@ function hairdressersResetAlt() {
 DefineMacro("hairdressersResetAlt", hairdressersResetAlt);
 
 function browsDyeReset() {
-	jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
-		Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
-	});
+	$(() =>
+		jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
+			Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
+		})
+	);
 }
 DefineMacro("browsDyeReset", browsDyeReset);
 
@@ -403,7 +407,7 @@ function featsPointsMenuReset() {
 DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
 
 function startingPlayerImageReset() {
-	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv .macro-numberslider,#settingsDiv .macro-checkbox", () => {
+	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv ,#settingsDiv .macro-checkbox", () => {
 		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
 	});
 	return "";
@@ -440,6 +444,19 @@ function ordinalSuffixOf(i) {
 	return i + "th";
 }
 window.ordinalSuffixOf = ordinalSuffixOf;
+
+function ordinalWritten(i) {
+	const ordinals = ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth"];
+	if (i > 0 && i < 10) return ordinals[i];
+
+	const j = i % 10;
+	const k = i % 100;
+	if (j === 1 && k !== 11) return i + "st";
+	if (j === 2 && k !== 12) return i + "nd";
+	if (j === 3 && k !== 13) return i + "rd";
+	return i + "th";
+}
+window.ordinalWritten = ordinalWritten;
 
 /**
  * Given there are {deckCount} cards in the deck and {markedCount} of them have been marked by the player,
@@ -484,7 +501,7 @@ function calculateMarkedChance(deckCount, markedCount, depth, atLeast, doLog = f
 	for (let nMarkedPicked = atLeast; nMarkedPicked <= possibleMarkedCardsVisibleLimit; ++nMarkedPicked) {
 		// we calculate how many possible ways we can pull a valid number of marked cards from the deck
 		//   by dividing the cards into a pool of
-		//	* marked cards (and calculating how many ways we can pull the valid nMarkedPicked cards from the pool of markedCount marked cards),  nCr(markedCount, nMarkedPicked)
+		//	* marked cards (and calculating how many ways we can pull the valid nMarkedPicked cards from the pool of markedCount marked cards), nCr(markedCount, nMarkedPicked)
 		//	* unmarked cards (and calculating how many ways we can pull the remaining possibleMarkedCardsVisibleLimit-nMarkedPicked non-marked cards from the pool of deck-markedCount unmarked cards), ncr(deck-markedCount, possibleMarkedCardsVisibleLimit-nMarkedPicked)
 		//   and then we multiply the mutually exclusive combinations to get all possible combinations (cross-joins) of the two (since for each way we can pull (say) 1 marked card, there's the second number of ways we can pull the remaining non marked ones)
 		const markedPoolWays = nCr(markedCount, nMarkedPicked);
@@ -542,6 +559,22 @@ function toTitleCase(str) {
 }
 window.toTitleCase = toTitleCase;
 
+function camelCaseToTitle(str) {
+	return str.replace(/([A-Z])/g, " $1").toUpperFirst();
+}
+window.camelCaseToTitle = camelCaseToTitle;
+
+function toCamelCase(str) {
+	return str
+		.split(/[ _-]/g)
+		.map((str, index) => {
+			if (index) return str.toLocaleUpperFirst();
+			return str;
+		})
+		.join("");
+}
+window.toCamelCase = toCamelCase;
+
 function numbersBetween(start, end, step = 1) {
 	return Array.from({ length: (end - start) / step + 1 }, (_, i) => start + i * step);
 }
@@ -557,6 +590,17 @@ function getRobinLocation() {
 	} else if (!between(Time.hour, 7, 20)) {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
+	} else if (
+		V.gwylanSeen?.includes("cafe_walk_robin") &&
+		V.robin.timer.hurt === 0 &&
+		V.daily.robin_in_cafe &&
+		!between(V.chef_state, 7, 8) &&
+		Time.schoolDay &&
+		Time.hour === 8 &&
+		Time.minute < 50
+	) {
+		// Disabled for the time being.
+		// T.robin_location = "cafe";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
 	} else if (Time.hour === 16 && between(Time.minute, 31, 59)) {
@@ -624,7 +668,7 @@ window.getRobinCrossdressingStatus = getRobinCrossdressingStatus;
 
 /*
 	TEMPORARY - remove once obsolete
-	Temporary function until location framework is in place - to detect if a NPC is in the park
+	Temporary function until location framework is in place - to detect if an NPC is in the park
 	Uses same checks as other Park NPC checks
  */
 function isInPark(name) {
@@ -632,16 +676,16 @@ function isInPark(name) {
 		case "kylar":
 			// prettier-ignore
 			return C.npc.Kylar.state === "active"
-				&& !["rain", "snow"].includes(V.weather)
+				&& Weather.precipitation === "none"
 				&& Time.dayState === "day" && V.kylarwatched !== 1;
 		case "robin":
 			return getRobinLocation() === "park";
 		case "whitney":
 			// prettier-ignore
 			return ["active", "rescued"].includes(C.npc.Whitney.state)
-				&& C.npc.Whitney.init === 1 && ["snow", "rain"].includes(V.weather)
+				&& C.npc.Whitney.init === 1 && Weather.precipitation !== "none"
 				&& Time.dayState === "day" && !Time.schoolTime
-				&& V.daily.whitney.park === undefined && V.pillory_tenant.special.name !== "Whitney";
+				&& V.daily.whitney.park === undefined && V.pillory.tenant.special.name !== "Whitney";
 		default:
 			return false;
 	}
@@ -801,28 +845,29 @@ window.DefaultActions = {
 	setDefaults() {
 		V.actionDefaults = this.create(true);
 		let type = "rape";
-		this.addMany(type, "Submissive", "leftaction", ["leftchest"]);
-		this.addMany(type, "Submissive", "rightaction", ["rightchest"]);
-		this.addMany(type, "Submissive", "mouthaction", ["plead", "suck", "kiss", "breastsuck"]);
+		this.addMany(type, "Submissive", "leftaction", ["leftchest", "leftgrip", "leftprotect"]);
+		this.addMany(type, "Submissive", "rightaction", ["rightchest", "rightgrip", "rightprotect"]);
+		this.addMany(type, "Submissive", "mouthaction", ["plead", "suck", "breastsuck", "breastlick", "vaginalick", "letoutorgasm", "letout"]);
 		this.addMany(type, "Submissive", "penisaction", ["tease", "cooperate"]);
 		this.addMany(type, "Submissive", "vaginaaction", ["penistease", "cooperate"]);
 		this.addMany(type, "Submissive", "anusaction", ["penistease", "cooperate"]);
-		this.addMany(type, "Submissive", "feetaction", ["grabrub", "grabrub", "vaginagrabrub"]);
+		this.addMany(type, "Submissive", "feetaction", ["grabrub", "grabrub", "vaginagrabrub", "feetCurl"]);
 		this.addMany(type, "Defiant", "leftaction", ["lefthit", "leftstruggle"]);
 		this.addMany(type, "Defiant", "rightaction", ["penwhack", "righthit", "rightstruggle", "hypnosiswhack"]);
-		this.addMany(type, "Defiant", "mouthaction", ["pullaway", "bite", "breastbite", "headbutt"]);
+		this.addMany(type, "Defiant", "mouthaction", ["headbutt", "pullaway", "bite", "handbite", "breastbite", "bitepussy", "demand"]);
 		this.addMany(type, "Defiant", "penisaction", ["escape", "otheranusescape", "othermouthescape"]);
 		this.addMany(type, "Defiant", "vaginaaction", ["escape", "othermouthescape"]);
 		this.addMany(type, "Defiant", "anusaction", ["escape", "othermouthescape"]);
 		this.addMany(type, "Defiant", "feetaction", ["kick"]);
 		this.addMany(type, "Tentacles", "regrab", [0]);
 		type = "consensual";
-		this.addMany(type, "Submissive", "leftaction", ["leftchest"]);
-		this.addMany(type, "Submissive", "rightaction", ["rightchest"]);
-		this.addMany(type, "Submissive", "mouthaction", ["kiss", "suck", "breastsuck", "breastlick"]);
+		this.addMany(type, "Submissive", "leftaction", ["leftchest", "leftgrip", "leftprotect"]);
+		this.addMany(type, "Submissive", "rightaction", ["rightchest", "rightgrip", "rightprotect"]);
+		this.addMany(type, "Submissive", "mouthaction", ["kiss", "suck", "breastsuck", "breastlick", "vaginalick", "kissskin", "letoutorgasm", "letout"]);
 		this.addMany(type, "Submissive", "penisaction", ["tease", "cooperate"]);
 		this.addMany(type, "Submissive", "vaginaaction", ["penistease", "cooperate"]);
 		this.addMany(type, "Submissive", "anusaction", ["penistease", "cooperate"]);
+		this.addMany(type, "Submissive", "feetaction", ["feetCurl"]);
 		this.addMany(type, "Defiant", "leftaction", [0]);
 		this.addMany(type, "Defiant", "rightaction", ["penwhack"]);
 		this.addMany(type, "Defiant", "mouthaction", ["breastpull", "breastclosed"]);
@@ -836,7 +881,7 @@ window.DefaultActions = {
 
 function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 	let wardrobe = V.wardrobes[targetLocation];
-	if (type !== "return" && wardrobe.locationRequirement && !wardrobe.locationRequirement.includes(V.location)) {
+	if (type !== "return" && wardrobe?.locationRequirement && !wardrobe.locationRequirement.includes(V.location)) {
 		V.wardrobe_location = "wardrobe";
 		wardrobe = V.wardrobe;
 	}
@@ -869,6 +914,16 @@ function clothingData(slot, item, data) {
 	return setup.clothes[slot][clothesIndex(slot, item)][data];
 }
 window.clothingData = clothingData;
+
+/**
+ * @param {ClothedSlots} slot
+ * @param {ClothesItem} item
+ * @returns {ClothesItem}
+ */
+function getSetupClothing(slot, item) {
+	return setup.clothes[slot][clothesIndex(slot, item)];
+}
+window.getSetupClothing = getSetupClothing;
 
 function clothesDataTrimmerLoop() {
 	if (!V.passage || V.passage === "Start") return;
@@ -915,7 +970,7 @@ window.clothesDataTrimmerLoop = clothesDataTrimmerLoop;
 	Setup example - setup.clothes.upper[clothesIndex('upper',$worn.upper)].name_cap
 	clothingData example - clothingData(_slot, $worn[_slot], "integrity_max")
 
-	The `clothingData example`, allows you to add the variable back to override the setup varient, for example, if you want to increase `integrity_max`
+	The `clothingData example`, allows you to add the variable back to override the setup variant, for example, if you want to increase `integrity_max`
 
 	If any use the `Setup example` and you want to override variables like the `clothingData example`, every instance needs to be converted first, please update the comment below if you do
 */
@@ -930,6 +985,7 @@ function clothesDataTrimmer(item) {
 		"description", // use `Setup example`
 		"colour_options", // use `Setup example`
 		"accessory_colour_options", // use `Setup example`
+		"pattern_colour_options", // use `Setup example`
 		"fabric_strength", // use `clothingData example`
 		"integrity_max", // use `clothingData example`
 		"bustresize", // use `clothingData example`
@@ -949,9 +1005,11 @@ function clothesDataTrimmer(item) {
 		"oldVariable", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
 		"altDamage", // use `Setup example`
 		"hideUnderLower", // use `Setup example`, should never be added back on to clothing items due to being in `trimmerVersion`
+		"combat", // use `Setup example`, safe to remove from here as long as also removed from `trimmerVersion`
+		"shopGroup", // use `Setup example`, safe to remove from here as long as also removed from `trimmerVersion`
 	];
 	// To prevent it from running on variables multiple times, when updating toDelete, the last of the new additions should be added here
-	const trimmerVersion = ["shop", "short", "oldVariable", "hideUnderLower"];
+	const trimmerVersion = ["shop", "short", "oldVariable", "hideUnderLower", "combat", "shopGroup"];
 	let version = 0;
 	let indexToUpdateVersion = toDelete.indexOf(trimmerVersion[version]);
 	toDelete.forEach((v, index) => {
@@ -969,13 +1027,13 @@ function clothesDataTrimmer(item) {
 window.clothesDataTrimmer = clothesDataTrimmer;
 
 function clothesReturnLocation(item, type) {
-	if (!V.multipleWardrobes) return "wardrobe";
+	if (!V.settings.multipleWardrobes) return "wardrobe";
 	const isolated = ["asylum", "prison"];
 	let lastTaken = item.lastTaken;
 	// prettier-ignore
 	if (
 		!lastTaken ||
-		(V.multipleWardrobes !== "all" && !isolated.includes(lastTaken)) ||
+		(V.settings.multipleWardrobes !== "all" && !isolated.includes(lastTaken)) ||
 		!V.wardrobes[lastTaken] ||
 		!V.wardrobes[lastTaken].unlocked
 	) {
@@ -1140,7 +1198,7 @@ function currentSkillValue(skill, disableModifiers = 0) {
 		});
 		return 0;
 	}
-	// Prevents infinate loops, any call to `currentSkillValue` in this function should be written like 'currentSkillValue("skillName", disableModifiers + 1)'
+	// Prevents infinite loops, any call to `currentSkillValue` in this function should be written like 'currentSkillValue("skillName", disableModifiers + 1)'
 	if (disableModifiers >= 2) return result;
 	if (
 		// prettier-ignore
@@ -1184,13 +1242,16 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.fox >= 6) result = Math.floor(result * 1.1);
 			break;
 		case "physique":
-			if (["forest", "moor", "farm"].includes(V.location)) {
+			if (["forest", "moor", "farm", "alex_farm"].includes(V.location)) {
 				if (V.worn.feet.type.includes("heels")) {
 					result = Math.floor(result * (1 - V.worn.feet.reveal / 5000));
 				}
 				if (V.worn.feet.type.includes("rugged")) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
+			}
+			if (V.auriga_artefact === "pc") {
+				result = Math.floor(result * 1.1);
 			}
 			break;
 		case "danceskill":
@@ -1204,6 +1265,9 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			}
 			if (V.worn.feet.type.includes("shackle")) {
 				result = Math.floor(result * 0.5);
+			}
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 3;
 			}
 			break;
 		case "swimmingskill":
@@ -1225,9 +1289,12 @@ function currentSkillValue(skill, disableModifiers = 0) {
 			if (V.worn.feet.type.includes("shackle")) {
 				result = Math.floor(result * 0.5);
 			}
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 3;
+			}
 			break;
 		case "athletics":
-			if (["forest", "moor", "farm"].includes(V.location)) {
+			if (["forest", "moor", "farm", "alex_farm"].includes(V.location)) {
 				if (V.worn.feet.type.includes("heels")) {
 					result = Math.floor(result * (1 - V.worn.feet.reveal / 5000));
 				}
@@ -1235,7 +1302,11 @@ function currentSkillValue(skill, disableModifiers = 0) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
 			}
+			if (V.transformationParts.traits.chase !== "disabled") result = Math.floor(result * 1.1);
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
+			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
+				result *= V.physique / V.physiquesize / 1.5;
+			}
 			break;
 		case "willpower":
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
@@ -1305,30 +1376,179 @@ function currentSkillValue(skill, disableModifiers = 0) {
 }
 window.currentSkillValue = currentSkillValue;
 
+/**
+ * @param {string} input
+ */
+function sexStatNameMapper(input) {
+	switch (input) {
+		case "p":
+		case "promiscuity":
+		case "promiscuous":
+			return "promiscuity";
+		case "e":
+		case "exhibitionism":
+		case "exhibition":
+		case "exhibitionist":
+			return "exhibitionism";
+		case "d":
+		case "deviancy":
+		case "deviant":
+			return "deviancy";
+	}
+	return null;
+}
+window.sexStatNameMapper = sexStatNameMapper;
+
+/**
+ * @param {number} statValue
+ */
+function drunkSexStatModifier(statValue) {
+	if (V.drunk === 0) return 0;
+
+	const maxValue = 40; // The maximum value of the curve.
+	const valueAdjust = Math.clamp(maxValue - Math.floor(statValue / 4), 0, maxValue); // The curve is less effective with higher base stat.
+	const growthRate = 3; // How fast the curve grows as the drunk value increases.
+	const midpoint = 500; // Needs to be half of the max drunk value.
+	const shifter = 0.85; // Decreases this value to make lower drunk values give higher results and higher drunk values give lower results.
+	const drunkMod = (V.drunk - midpoint) / 500; // Adjusts the drunk values to be scaled correctly with the equation and max stat value.
+	const denominator = 1 + shifter * Math.E ** (-1 * growthRate * drunkMod);
+
+	return Math.floor(valueAdjust / denominator);
+}
+window.drunkSexStatModifier = drunkSexStatModifier;
+
+/**
+ * Returns the modifier for a sexStat based on heat/rut/minArousal and the stat provided.
+ *
+ * @param {string} input
+ * @returns {number}
+ */
+function heatRutSexStatModifier(input) {
+	const maxMinArousal = 5000; // Maximum value for minArousal.
+	const minArousal = Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, maxMinArousal);
+	if (minArousal === 0) return 0;
+
+	const statName = sexStatNameMapper(input);
+	if (statName == null) {
+		Errors.report(`[heatRutSexStatModifier]: input '${statName}' null.`, {
+			Stacktrace: Utils.GetStack(),
+			statName,
+		});
+		return 0;
+	}
+
+	if (statName === "exhibitionism") return 0;
+
+	const maxHeatRutSexStatModifier = 40; // Maximum modifier for sexStat() from minArousal.
+	const heatRutSexStatModifierExponent = 0.6; // Lower to raise the final modifier at lower levels of minArousal.
+	const heatRutSexStatModifier = (maxHeatRutSexStatModifier / maxMinArousal ** heatRutSexStatModifierExponent) * minArousal ** heatRutSexStatModifierExponent;
+
+	if (statName === "promiscuity") {
+		return Math.floor(heatRutSexStatModifier * 0.75);
+	} else {
+		return Math.floor(heatRutSexStatModifier);
+	}
+}
+window.heatRutSexStatModifier = heatRutSexStatModifier;
+
+/**
+ * @param {string} input
+ * @param {number} required
+ * @param {boolean} modifiers
+ */
+function hasSexStat(input, required, modifiers = true) {
+	const statName = sexStatNameMapper(input);
+	// check if stat name is valid.
+	if (statName == null) {
+		Errors.report(`[hasSexStat]: input '${statName}' null.`, {
+			Stacktrace: Utils.GetStack(),
+			statName,
+		});
+		return false;
+	}
+	let statValue = V[statName];
+	// check if value of stat is valid.
+	if (!Number.isFinite(statValue)) {
+		Errors.report(`[hasSexStat]: sex stat '${statName}' unknown.`, {
+			Stacktrace: Utils.GetStack(),
+			statName,
+		});
+		return false;
+	}
+	if (modifiers) {
+		// modify effective stat value based on inebriation.
+		statValue += drunkSexStatModifier(statValue);
+
+		// modify effective stat value based on heat/rut/minArousal.
+		statValue += heatRutSexStatModifier(statName);
+	}
+	statValue = Math.clamp(statValue, 0, 100);
+
+	switch (required) {
+		case 6:
+			/* self-destructive, extreme actions, like leglocking a rapist unprotected or provoking a group for no sane benefit. */
+			return statValue >= 95;
+		case 5:
+			/* Extremely lewd actions, like full nude exposure and inciting gangbangs. */
+			return statValue >= 75;
+		case 4:
+			/* Very lewd actions, like giving oral, using your body to get your way, and accepting lecherous propositions. */
+			return statValue >= 55;
+		case 3:
+			/* Moderately lewd actions, like giving handjobs, more lewd exposure/flaunting, and most prostitution. */
+			return statValue >= 35;
+		case 2:
+			/* Modestly lewd actions, like flashing underwear or light coercion. Many seduction checks fall under this level. */
+			return statValue >= 15;
+		case 1:
+			/* Do not use for events or checks, only for checking if value is above level 0. Level 1 actions should always be available. */
+			return statValue >= 1;
+		default:
+			Errors.report(`[hasSexStat]: sex stat requirement outside of possible value range: '${required}' (must be between 1 and 6!).`, {
+				Stacktrace: Utils.GetStack(),
+				statName,
+				required,
+			});
+			return false;
+	}
+}
+window.hasSexStat = hasSexStat;
+
 function playerIsPenetrated() {
 	return [V.mouthstate, V.vaginastate, V.anusstate].some(s => ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(s));
 }
 window.playerIsPenetrated = playerIsPenetrated;
 
 /**
- * Overloads:
- *
- * 	 (minutes)
- * 	getTimeString(hours, minutes)
- * Examples:
- *
- * 	getTimeString(20) returns "0:20"
- * 	getTimeString(1,5) returns "1:05".
- *
- * @param {...any} args
+ * @param {"left" | "right" | "any" | "both"} arm
  */
-function getTimeString(...args) {
-	if (args[0] == null) return;
-	const hours = args[1] != null ? args[0] : 0;
-	const minutes = Math.max(args[1] != null ? args[1] : args[0], 0) + hours * 60;
-	return Math.clamp(Math.trunc(minutes / 60), 0, 23) + ":" + ("0" + Math.trunc(minutes % 60)).slice(-2);
+function pcAreArmsBound(arm = "any") {
+	if (!["left", "right", "any", "both"].includes(arm)) {
+		Errors.report(`[pcAreArmsBound]: invalid argument received: '${arm}'.`, {
+			Stacktrace: Utils.GetStack(),
+			arm,
+		});
+		return false;
+	}
+	switch (arm) {
+		case "any":
+			return V.leftarm === "bound" || V.rightarm === "bound";
+		case "both":
+			return V.leftarm === "bound" && V.rightarm === "bound";
+		default:
+			return V[arm + "arm"] === "bound";
+	}
 }
-window.getTimeString = getTimeString;
+window.pcAreArmsBound = pcAreArmsBound;
+
+/**
+ * @returns {"none" | "left" | "right" | "both"}
+ */
+function pcGetArmsBound() {
+	const outcome = (V.leftarm === "bound") + (V.rightarm === "bound") * 2;
+	return ["none", "left", "right", "both"][outcome];
+}
+window.pcGetArmsBound = pcGetArmsBound;
 
 function npcAssignClothesToSet(upper, lower) {
 	return { upper: T.npcClothesItems.upper[upper], lower: T.npcClothesItems.lower[lower] };
@@ -1418,46 +1638,33 @@ function isLoveInterest(name) {
 }
 window.isLoveInterest = isLoveInterest;
 
-/** This function will determine if the date is right for a blood moon, and which part of the night it will happen in. */
-function getTodaysMoonState() {
-	const todaysMoonState = 0;
-	if (Time.monthDay === Time.lastDayOfMonth) {
-		// blood moon happens on the last night of the month
-		T.todaysMoonState = "evening";
-	} else if (Time.monthDay === 1) {
-		// blood moon happens on the first morning of the month
-		T.todaysMoonState = "morning";
+function isPossibleLoveInterest(name) {
+	switch (name) {
+		case "Robin":
+			return V.robinromance === 1;
+		case "Whitney":
+			return V.whitneyromance === 1 && C.npc.Whitney.state !== "dungeon";
+		case "Kylar":
+			return V.kylarenglish >= 1 && C.npc.Kylar.state !== "prison";
+		case "Sydney":
+			return V.sydneyromance === 1;
+		case "Eden":
+			return V.syndromeeden === 1;
+		case "Avery":
+			return V.auriga_artefact && C.npc.Avery.state !== "dismissed";
+		case "Black Wolf":
+			return V.syndromewolves === 1 && hasSexStat("deviancy", 3);
+		case "Great Hawk":
+			return V.syndromebird === 1;
+		case "Alex":
+			return V.farm_stage >= 7 && V.alex_countdown === undefined;
+		case "Gwylan":
+			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
+		default:
+			return false;
 	}
-	return todaysMoonState;
 }
-
-function getMoonState() {
-	let moonstate = 0;
-	T.todaysMoonState = getTodaysMoonState();
-
-	if (Time.nightState === T.todaysMoonState) {
-		// if the current time of night matches the time a blood moon will happen, set moonstate
-		moonstate = T.todaysMoonState;
-	}
-	// V.moonstate = moonstate; //commenting this out to make sure this function doesn't modify save variables
-	return moonstate;
-}
-window.getMoonState = getMoonState;
-
-function isBloodmoon() {
-	return Time.dayState === "night" && V.moonstate === Time.nightState; // it's only a blood moon if it's night, and the current moon state matches the current night state
-}
-window.isBloodmoon = isBloodmoon;
-
-function wraithCanHunt() {
-	return isBloodmoon() && Time.hour !== 5; // wraith events can't start at 5 AM.
-}
-window.wraithCanHunt = wraithCanHunt;
-
-function wraithSleepEventCheck() {
-	return V.wraith.state !== "" && V.wraith.nightmare === 1 && wraithCanHunt();
-}
-window.wraithSleepEventCheck = wraithSleepEventCheck;
+window.isPossibleLoveInterest = isPossibleLoveInterest;
 
 function fameTotal() {
 	let result = 0;
@@ -1491,39 +1698,210 @@ function checkTFparts() {
 }
 window.checkTFparts = checkTFparts;
 
+/*
+	Might be good to convert the whole TF mechanic, including `transformationStateUpdate` to something like below at some point.
+	Part of the transformationParts is unused right now, but its to account for this potential.
+*/
+function validateTransformations() {
+	if (V.cat >= 1 || V.wolfgirl >= 1 || V.cow >= 1 || V.harpy >= 1) {
+		V.physicalTransform = 1;
+	} else {
+		V.physicalTransform = 0;
+	}
+	if (V.demon >= 1 || V.angel >= 1 || V.fallenangel >= 2) {
+		V.specialTransform = 1;
+	} else {
+		V.specialTransform = 0;
+	}
+
+	const transformationParts = [
+		{
+			nameOveride: "wolf",
+			level: "wolfgirl",
+			build: "wolfbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "ears", tfRequired: 4 },
+				{ name: "pubes", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{ name: "pits", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{ name: "cheeks", tfRequired: 5, default: "feral" },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [{ name: "fangs", tfRequired: 2 }],
+		},
+		{
+			level: "cat",
+			build: "catbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "ears", tfRequired: 4 },
+				{ name: "tail", tfRequired: 6 },
+				{ name: "heterochromia", tfRequired: 7 },
+			],
+			traits: [
+				{ name: "fangs", tfRequired: 2 },
+				{ name: "sharpEyes", tfRequired: 2 },
+			],
+		},
+		{
+			level: "cow",
+			build: "cowbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "horns", tfRequired: 2 },
+				{ name: "ears", tfRequired: 4 },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [],
+		},
+		{
+			nameOveride: "bird",
+			level: "harpy",
+			build: "birdbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "eyes", tfRequired: 2 },
+				{ name: "malar", tfRequired: 2 },
+				{ name: "tail", tfRequired: 4 },
+				{ name: "plumage", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+				{ name: "pubes", tfRequired: 6, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+			],
+			traits: [
+				{ name: "sharpEyes", tfRequired: 2 },
+				{ name: "mateForLife", tfRequired: 3 },
+			],
+		},
+		{
+			level: "fox",
+			build: "foxbuild",
+			type: "physicalTransform",
+			parts: [
+				{ name: "ears", tfRequired: 4 },
+				{ name: "cheeks", tfRequired: 5 },
+				{ name: "tail", tfRequired: 6 },
+			],
+			traits: [
+				{ name: "fangs", tfRequired: 2 },
+				{ name: "sharpEyes", tfRequired: 2 },
+				{ name: "mateForLife", tfRequired: 3 },
+				{ name: "chase", tfRequired: 4 },
+			],
+		},
+		{
+			level: "angel",
+			build: "angelbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "halo", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+			],
+			traits: [],
+		},
+		{
+			level: "fallen",
+			build: "fallenbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "halo", tfRequired: 2 },
+				{ name: "wings", tfRequired: 2 },
+			],
+			traits: [],
+		},
+		{
+			level: "demon",
+			build: "demonbuild",
+			type: "specialTransform",
+			parts: [
+				{ name: "horns", tfRequired: 2 },
+				{ name: "tail", tfRequired: 4 },
+				{ name: "wings", tfRequired: 6 },
+			],
+			traits: [],
+		},
+	];
+	const confirmedTraits = [];
+	transformationParts.forEach(tf => {
+		const tdLevel = V[tf.level];
+		const name = tf.nameOveride || tf.level;
+		tf.parts.forEach(part => {
+			if (tdLevel >= part.tfRequired && V.transformationParts[name][part.name] === "disabled") {
+				V.transformationParts[name][part.name] = part.default || "default";
+			} else if (tdLevel < part.tfRequired && V.transformationParts[name][part.name] !== "disabled") {
+				V.transformationParts[name][part.name] = "disabled";
+			}
+		});
+		tf.traits.forEach(trait => {
+			if (tdLevel >= trait.tfRequired) confirmedTraits.pushUnique(trait.name);
+			if (tdLevel >= trait.tfRequired && V.transformationParts.traits[trait.name] === "disabled") {
+				V.transformationParts.traits[trait.name] = trait.default || "default";
+			} else if (tdLevel < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled" && !confirmedTraits.includes(trait.name)) {
+				V.transformationParts.traits[trait.name] = "disabled";
+			}
+		});
+	});
+}
+DefineMacro("validateTransformations", validateTransformations);
+
 // prettier-ignore
 function getSexesFromRandomGroup() {
 	if (maleChance() <= 0) { /* Only females. */
-		if (V.dgchance <= 0) return SexTypes.ALL_FEMALES;		/* All females, no dickgirls. Always vaginal. */
-		if (V.dgchance >= 100) return SexTypes.ALL_DICKGIRLS;	/* All females, all dickgirls. Always penises. */
+		if (V.settings.femaleNPCPenisChance <= 0) return SexTypes.ALL_FEMALES;		/* All females, no dickgirls. Always vaginal. */
+		if (V.settings.femaleNPCPenisChance >= 100) return SexTypes.ALL_DICKGIRLS;	/* All females, all dickgirls. Always penises. */
 	}
 	if (maleChance() >= 100) { /* Only males. */
-		if (V.cbchance <= 0) return SexTypes.ALL_MALES;			/* All males, no cuntboys. Always males. */
-		if (V.cbchance >= 100) return SexTypes.ALL_CUNTBOYS;	/* All males, all cuntboys. Always vaginal. */
+		if (V.settings.maleNPCVaginaChance <= 0) return SexTypes.ALL_MALES;			/* All males, no cuntboys. Always males. */
+		if (V.settings.maleNPCVaginaChance >= 100) return SexTypes.ALL_CUNTBOYS;	/* All males, all cuntboys. Always vaginal. */
 	}
-	if (V.cbchance >= 100 && V.dgchance <= 0) return SexTypes.ALL_VAGINAS;	/* Both females and males, but males are cuntboys, and there are no dickgirls. */
-	if (V.dgchance >= 100 && V.cbchance <= 0) return SexTypes.ALL_DICKS;	/* Both females and males, but all females are dickgirls, and there are no cuntboys. */
+	if (V.settings.maleNPCVaginaChance >= 100 && V.settings.femaleNPCPenisChance <= 0) return SexTypes.ALL_VAGINAS;	/* Both females and males, but all males are cuntboys, and there are no dickgirls. */
+	if (V.settings.femaleNPCPenisChance >= 100 && V.settings.maleNPCVaginaChance <= 0) return SexTypes.ALL_DICKS;	/* Both females and males, but all females are dickgirls, and there are no cuntboys. */
 	return SexTypes.BOTH;
 }
 window.getSexesFromRandomGroup = getSexesFromRandomGroup;
 
 /**
- * Pick the right colour to use when colouring various things.  Primarily sidebar stats.
+ * Pick the right colour to use when colouring various things. Primarily sidebar stats.
  * When using this function, try to keep in mind what value of your input variable you want "red" to be at.
  *
  * Example: $drugged goes higher than 500, but we want the bar to become red at 500, so we call this function as getColourClassFromPercentage($drugged / 5).
  *
  * @param {number} percentage The percentage of the desired bar colour.
+ * @param {string} stat Stat name, to determine whether or not the bar should use inverted colours (green for min, red for max).
  * @returns {string} Colour name to use.
  */
-function getColourClassFromPercentage(percentage) {
-	if (percentage <= 0) return "green";
-	if (percentage < 20) return "teal";
-	if (percentage < 40) return "lblue";
+function getColourClassFromPercentage(percentage, stat) {
+	const inverted = ![
+		"pain",
+		"arousal",
+		"tiredness",
+		"stress",
+		"trauma",
+		"drugged",
+		"hallucinogen",
+		"drunk",
+		"awareness",
+		"sex",
+		"prostitution",
+		"rape",
+		"bestiality",
+		"pregnancy",
+		"impreg",
+		"promiscuity",
+		"exhibitionism",
+		"delinquency",
+		"deviancy",
+		"corruption",
+		"crime",
+		"aggro",
+		"rage",
+	].includes(stat);
+	if (percentage <= 0) return inverted ? "red" : "green";
+	if (percentage < 20) return inverted ? "pink" : "teal";
+	if (percentage < 40) return inverted ? "purple" : "lblue";
 	if (percentage < 60) return "blue";
-	if (percentage < 80) return "purple";
-	if (percentage < 100) return "pink";
-	return "red";
+	if (percentage < 80) return inverted ? "lblue" : "purple";
+	if (percentage < 100) return inverted ? "teal" : "pink";
+	return inverted ? "green" : "red";
 }
 window.getColourClassFromPercentage = getColourClassFromPercentage;
 
@@ -1546,26 +1924,6 @@ function outfitHoodPosition(outfit) {
 }
 window.outfitHoodPosition = outfitHoodPosition;
 
-function combatCharacterShadow() {
-	if (!V.options.characterLightEnabled || !V.options.images || !V.options.combatImages) return;
-	const targetClass = "char-shadow-combat";
-	const mainDiv = ".char_combat";
-
-	$(() => {
-		$(mainDiv)
-			.find("img")
-			.filter((i, n) =>
-				n.className.match(new RegExp("layer-(" + setup.shadowImage[V.position === "doggy" ? "doggy" : "missionary"].join("|") + ")( |$)", "i"))
-			)
-			.clone(true)
-			.removeClass((i, n) => (n.match(/(^|\s)(colour|layer)-\S+/g) || []).join(" "))
-			.addClass(targetClass)
-			.removeAttr("style")
-			.appendTo($(mainDiv).last());
-	});
-}
-window.combatCharacterShadow = combatCharacterShadow;
-
 /**
  * For usage with tears calculation, converts pain stat [0..200] to 0..4 range (maxes out at pain = 80).
  *
@@ -1574,15 +1932,6 @@ window.combatCharacterShadow = combatCharacterShadow;
  */
 const painToTearsLvl = pain => Math.floor(Math.clamp(pain || V.pain, 0, 99) / 20);
 window.painToTearsLvl = painToTearsLvl;
-
-/**
- * Get the CSS Name for a mascara colour name.
- *
- * @param {string} name Name of the mascara colour.
- * @returns {string} CSS Name "csstext" of the given colour.
- */
-const mascaraNameToCSS = name => nullable(setup.colours.mascara.find(x => x.variable === name)).csstext;
-window.mascaraNameToCSS = mascaraNameToCSS;
 
 function isPubfameTaskAccepted(task, status) {
 	return V.pubfame && V.pubfame.task === task && (V.pubfame.status === "accepted" || V.pubfame.status === status);
@@ -1604,6 +1953,7 @@ function getHalloweenCostume() {
 	const upper = V.worn.upper;
 	const lower = V.worn.lower;
 	const face = V.worn.face;
+	const head = V.worn.head;
 
 	T.tf = checkTFparts();
 
@@ -1615,23 +1965,44 @@ function getHalloweenCostume() {
 		return "witch";
 	} else if (upper.name === "scarecrow shirt" && lower.name === "scarecrow skirt") {
 		return "scarecrow";
+	} else if (upper.name === "mummy top" && lower.name === "mummy skirt") {
+		return "mummy";
+	} else if (upper.name === "skeleton outfit" && lower.name === "skeleton bottoms") {
+		return "skeleton";
+	} else if (upper.name === "futuristic bodysuit" && lower.name === "futuristic bodysuit pants") {
+		return "futuresuit";
+	} else if (upper.name === "pumpkin dress" && lower.name === "pumpkin skirt") {
+		return "pumpkin";
 	} else if (upper.name.includes("gothic") && lower.name.includes("gothic")) {
 		return "gothic";
-	} else if (upper.name === "nun's habit" && lower.name === "nun's habit skirt") {
+	} else if (upper.name.includes("nun's habit") && lower.name.includes("nun's habit skirt")) {
 		return "nun";
-	} else if (upper.type.includes("maid") && lower.type.includes("maid")) {
-		return "maid";
-	} else if (upper.name.includes("christmas") && lower.name.includes("christmas")) {
-		return "christmas";
-	} else if (upper.name === "cheerleading top" && lower.name === "cheerleading skirt") {
-		return "cheerleader";
-	} else if (upper.name.includes("prison") && lower.name.includes("prison")) {
-		return "prison";
-	} else if (upper.name === "karate jacket" && lower.name === "karate trousers") {
-		return "karate";
 	} else if (upper.name === "monk's habit" && lower.name === "monk's habit skirt") {
 		return "monk";
-	} else if (upper.name === "padded football shirt" && lower.name === "football shorts") {
+	} else if (upper.name === "initiate's robe" && lower.name === "initiate's robe skirt") {
+		return "initiate";
+	} else if (upper.name === "evangelist's uniform" && lower.name === "evangelist's bloomers") {
+		return "evangelist";
+	} else if (upper.name.includes("confessor's") && lower.name.includes("confessor's")) {
+		return "confessor";
+	} else if (upper.name.includes("exorcist's") && lower.name.includes("exorcist's")) {
+		return "exorcist";
+	} else if (
+		(upper.name === "monk's sparring habit" && lower.name === "monk's sparring loincloth") ||
+		(upper.name === "nun's sparring habit" && lower.name === "nun's sparring skirt")
+	) {
+		return "sparring";
+	} else if (upper.type.includes("maid") && lower.type.includes("maid")) {
+		return "maid";
+	} else if (upper.name === "karate jacket" && lower.name === "karate trousers") {
+		return "karate";
+	} else if (upper.name.includes("christmas") && lower.name.includes("christmas")) {
+		return "christmas";
+	} else if (upper.name === "gift wrap top" && lower.name === "gift wrap bottom") {
+		return "gift wrap";
+	} else if (upper.name === "cheerleading top" && lower.name === "cheerleading skirt") {
+		return "cheerleader";
+	} else if (["football shirt", "foreign football shirt"].includes(upper.name) && ["football shorts", "foreign football shorts"].includes(lower.name)) {
 		return "football";
 	} else if (
 		(upper.name === "belly dancer's top" && lower.name === "belly dancer's bottoms") ||
@@ -1644,24 +2015,46 @@ function getHalloweenCostume() {
 		return "riding";
 	} else if (upper.name === "cow onesie" && lower.name === "cow onesie bottoms") {
 		return "cow onesie";
-	} else if (upper.name === "mummy top" && lower.name === "mummy skirt") {
-		return "mummy";
+	} else if (upper.name.includes("prison") && lower.name.includes("prison")) {
+		return "prison";
+	} else if (upper.name === "unbound straightjacket" && lower.name === "unbound straightjacket bottom") {
+		return "straightjacket";
 	} else if (upper.name.includes("sailor") && lower.name.includes("sailor")) {
 		return "sailor";
-	} else if (upper.name === "skeleton outfit" && lower.name === "skeleton bottoms") {
-		return "skeleton";
-	} else if (upper.name === "futuristic bodysuit" && lower.name === "futuristic bodysuit pants") {
-		return "futuresuit";
 	} else if (upper.name.includes("nurse") && lower.name.includes("nurse")) {
 		return "nurse";
+	} else if (upper.name === "rag top" && lower.name === "rag skirt") {
+		return "rags";
+	} else if (
+		(upper.name.includes("ballgown") || upper.name === "janet dress" || upper.name.includes("rose wedding dress")) &&
+		(head.name.includes("rose wedding veil") || head.name === "gothic crown")
+	) {
+		return "bride";
+	} else if (upper.name.includes("rose wedding suit") && lower.name.includes("rose wedding suit")) {
+		return "groom";
+	} else if (upper.name === "chef jacket" && head.name === "chef hat") {
+		return "chef";
+	} else if (upper.name === "swan lake dress" && lower.name === "swan lake skirt") {
+		return "swan";
+	} else if (upper.name === "butterfly dress" && lower.name === "butterfly dress skirt") {
+		return "butterfly";
+	} else if (upper.name === "succubus top" && lower.name === "succubus lower back wings") {
+		return "succubus";
+	} else if (
+		(upper.name === "vintage pantsuit" && lower.name === "vintage pants") ||
+		(upper.name === "vintage skirtsuit" && lower.name === "vintage skirt")
+	) {
+		return "vintage";
+	} else if (upper.name === "chain tunic" && lower.name === "chain tunic skirt") {
+		return "chain tunic";
 	} else if (face.name === "eyepatch") {
 		return "eyepatch";
 	} else if (face.name === "medical eyepatch") {
 		return "medical eyepatch";
 	} else if (face.name === "gas mask") {
 		return "gasmask";
-	} else if (upper.name === "rag top" && lower.name === "rag skirt") {
-		return "rags";
+	} else if (head.name === "military beret") {
+		return "beret";
 
 		/* Transformations */
 	} else if (T.tf.angelHalo && T.tf.angelWings) {
@@ -1866,7 +2259,7 @@ function dailyConvert() {
 		if (V.sewersfeeding === 1) V.daily.morgan.feeding = 1;
 		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[n] = 1));
 		/* `$compoundstate != undefined` is no longer used as an indicator of the access to compound,
-		as it migrated to $daily.compoundState. $compoundcard === 2 is used for that instead. */
+		as it migrated to $daily.compoundState. $compound.card === 2 is used for that instead. */
 		if (V.compoundstate !== undefined) V.compoundcard = 2;
 		V.daily.pharm.impatient = V.left_before_nurse_returned;
 
@@ -1917,8 +2310,19 @@ function convertHairLengthToStage(hair, length) {
 		else return "short";
 	}
 }
-
 window.convertHairLengthToStage = convertHairLengthToStage;
+
+function calchairlengthstage() {
+	const stages = ["short", "shoulder", "chest", "navel", "thighs", "feet"];
+
+	V.hairlength = Math.clamp(V.hairlength, 0, 1000);
+	V.hairlengthstage = stages[Math.trunc(V.hairlength / 200)];
+
+	V.fringelength = Math.clamp(V.fringelength, 0, 1000);
+	V.fringelengthstage = stages[Math.trunc(V.fringelength / 200)];
+}
+window.calchairlengthstage = calchairlengthstage;
+DefineMacro("calchairlengthstage", calchairlengthstage);
 
 function calculateSemenReleased() {
 	if (T.deniedOrgasm) return 0;
@@ -1938,6 +2342,66 @@ function calculateSemenReleased() {
 }
 window.calculateSemenReleased = calculateSemenReleased;
 
+function lustfulUpdate() {
+	// if no progress is made - nothing to update
+	if (!V.specialClothesEffects.bimbo.progress && !V.specialClothesEffects.pimp.progress) return;
+
+	let type;
+	if (V.specialClothesEffects.bimbo.progress > 0 && V.specialClothesEffects.pimp.progress > 0) {
+		// if there's progress in both, resolve it through gender appearance
+		type = V.player.gender_appearance === "f" ? "bimbo" : "pimp";
+	} else {
+		type = V.specialClothesEffects.bimbo.progress > 0 ? "bimbo" : "pimp";
+	}
+	const effectsRef = V.specialClothesEffects[type];
+	if (!effectsRef) return; // this check might not be needed
+
+	// speed up or slow down growth timers
+	const mult = type === "bimbo" ? 1 : -1;
+	const progress = effectsRef.progress;
+	V.breastgrowthtimer -= progress * 5 * mult;
+	V.bottomgrowthtimer -= progress * 5 * mult;
+	if (V.player.penisExist) V.penisgrowthtimer += progress * 5 * mult;
+
+	effectsRef.total += progress;
+	V.specialClothesEffects.bimbo.progress = 0;
+	V.specialClothesEffects.pimp.progress = 0;
+
+	if (effectsRef.total >= 400 && effectsRef.message === 0) {
+		// stage 1, move body type to androgynous
+		effectsRef.message = 1;
+		T.skipEvent = true;
+		if ((type === "bimbo" && V.player.gender_body === "m") || (type === "pimp" && V.player.gender_body === "f")) {
+			V.player.gender_body = "a";
+		}
+		V.timeMessages.pushUnique(type === "bimbo" ? "bimboMessage1" : "pimpMessage1");
+	} else if (effectsRef.total < 400 && effectsRef.message === 1) {
+		effectsRef.message = 0;
+	}
+
+	if (effectsRef.total >= 800 && effectsRef.message === 1 && T.skipEvent !== true) {
+		// stage 2, further change body type
+		effectsRef.message = 2;
+		T.skipEvent = true;
+		if (type === "bimbo" && V.player.gender_body !== "f") V.player.gender_body = "f";
+		else if (type === "pimp" && V.player.gender_body !== "m") V.player.gender_body = "m";
+		V.timeMessages.pushUnique(type === "bimbo" ? "bimboMessage2" : "pimpMessage2");
+	} else if (effectsRef.total < 800 && effectsRef.message === 2) {
+		effectsRef.message = 1;
+	}
+
+	if (effectsRef.total >= 1200 && effectsRef.message === 2 && T.skipEvent !== true) {
+		// stage 3, add lustful trait
+		effectsRef.message = 3;
+		V.backgroundTraits.pushUnique("lustful");
+		V.arousal = V.arousalmax;
+		V.timeMessages.pushUnique("bimboMessage3");
+	} else if (effectsRef.total < 1200 && effectsRef.message === 3) {
+		effectsRef.message = 2;
+	}
+}
+window.lustfulUpdate = lustfulUpdate;
+
 function npcSemenMod(penisSize) {
 	switch (penisSize) {
 		case 4:
@@ -1951,10 +2415,10 @@ function npcSemenMod(penisSize) {
 window.npcSemenMod = npcSemenMod;
 
 function maleChance(override) {
-	if (V.maleChanceSplit === "f") return V.malechance;
+	if (V.settings.maleChanceSplit === false) return V.settings.maleChance;
 	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.maleChanceMale;
-	if (appearence === "f") return V.maleChanceFemale;
+	if (appearence === "m") return V.settings.maleChanceMale;
+	if (appearence === "f") return V.settings.maleChanceFemale;
 	return 50;
 }
 window.maleChance = maleChance;
@@ -1967,23 +2431,21 @@ function attractedToBothChance(gender, rng) {
 window.attractedToBothChance = attractedToBothChance;
 
 function beastMaleChance(override) {
-	if (V.beastMaleChanceSplit === "f") return V.beastmalechance;
+	if (V.settings.beastMaleChanceSplit === false) return V.settings.beastMaleChance;
 	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.beastMaleChanceMale;
-	if (appearence === "f") return V.beastMaleChanceFemale;
+	if (appearence === "m") return V.settings.beastMaleChanceMale;
+	if (appearence === "f") return V.settings.beastMaleChanceFemale;
 	return 50;
 }
 window.beastMaleChance = beastMaleChance;
 
 function penisNames(override) {
-	const names = [];
-	const ignore = override !== undefined;
+	const names = ["penis"];
 
-	if (!ignore || override >= 0) names.push("penis");
-	if (V.player.penissize < 0 && !ignore) return names;
+	if (V.player.penissize < 0 && !override) return names;
 
-	if ((V.awareness >= 100 && !ignore) || override >= 1) names.push("dick");
-	if ((V.awareness >= 200 && V.purity < 900 && !ignore) || override >= 2) names.push("cock");
+	if ((V.awareness >= 100 && !override) || override >= 1) names.push("dick");
+	if ((V.awareness >= 200 && V.purity < 900 && !override) || override >= 2) names.push("cock");
 
 	return names;
 }
@@ -1991,11 +2453,10 @@ window.penisNames = penisNames;
 
 function pussyNames(override) {
 	const names = ["vagina"];
-	const ignore = override !== undefined;
 
-	if ((V.awareness >= 100 && !ignore) || override >= 1) names.push("pussy");
-	if ((V.awareness >= 200 && V.purity < 900 && !ignore) || override >= 2) names.push("quim");
-	if ((V.awareness >= 300 && V.purity < 100 && !ignore) || override >= 3) names.push("slit");
+	if ((V.awareness >= 100 && !override) || override >= 1) names.push("pussy");
+	if ((V.awareness >= 200 && V.purity < 900 && !override) || override >= 2) names.push("quim");
+	if ((V.awareness >= 300 && V.purity < 100 && !override) || override >= 3) names.push("slit");
 
 	return names;
 }
@@ -2041,8 +2502,9 @@ function toggleConfirmDialogUponTabClose() {
 
 window.toggleConfirmDialogUponTabClose = toggleConfirmDialogUponTabClose;
 
-function numberOfEarSlime() {
+function numberOfEarSlime(ignoreHypnoticSilence = false) {
 	let result = 0;
+	if (!ignoreHypnoticSilence && V.hypnosis_traits.silence) return 0;
 	if (V.parasite.left_ear.name === "slime") result++;
 	if (V.parasite.right_ear.name === "slime") result++;
 	return result;
@@ -2056,3 +2518,435 @@ function earSlimeMakingMundaneRequests() {
 	return true;
 }
 window.earSlimeMakingMundaneRequests = earSlimeMakingMundaneRequests;
+
+function earSlimeCorruptionClothes() {
+	if (!numberOfEarSlime()) return 0;
+	if (!V.daily.corruptionSlimeClothes) {
+		const baseCorruption = V.earSlime.corruption + V.earSlime.growth;
+		// Reduced from the original equivalent of *2.5 and *12.5, still want it to have SOME effect, but this should hopefully soften it enough
+		V.daily.corruptionSlimeClothes = Math.clamp(random(baseCorruption, baseCorruption * 5) - currentSkillValue("willpower"), 0, 1000);
+	}
+	const cap = ["prison", "asylum"].includes(V.location) ? 1000 : 500;
+
+	T.allowSchoolClothes =
+		!!Time.schoolDay || (V.location === "brothel" && Time.weekDay === 6 && V.brothelshowdata?.type === "gangbang" && !V.brothelshowdata?.done);
+
+	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
+}
+window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;
+
+function fixIntegrityUpdater() {
+	Object.entries(V.worn).forEach(([slot, item]) => fixIntegrityMax(slot, item));
+	Object.entries(V.store).forEach(([slot, items]) => items.forEach(item => fixIntegrityMax(slot, item)));
+	setup.clothes_all_slots.forEach(slot => {
+		const category = V.wardrobe[slot];
+		if (!Array.isArray(category)) {
+			console.warn("Category:", slot, "doesn't exist in wardrobe.");
+			return;
+		}
+		category.forEach(item => fixIntegrityMax(slot, item));
+	});
+	const wardrobes = Object.entries(V.wardrobes).filter(([name, wardrobe]) => !["shopReturn", "wardrobe"].includes(name));
+	if (Array.isArray(wardrobes)) {
+		wardrobes.forEach(([name, wardrobe]) => {
+			setup.clothes_all_slots.forEach(slot => {
+				const category = wardrobe[slot];
+				if (!Array.isArray(category)) {
+					console.warn("Category:", slot, "doesn't exist in wardrobe:", name);
+					return;
+				}
+				category.forEach(item => fixIntegrityMax(slot, item));
+			});
+		});
+	}
+	Object.entries(V.carried).forEach(([slot, item]) => fixIntegrityMax(slot, item));
+}
+window.fixIntegrityUpdater = fixIntegrityUpdater;
+
+// Set plots to watered if it rains
+// Temporary solution until a rework
+$(document).on(":onWeatherChange", () => {
+	if (V.daily?.plotsRain || Weather.precipitation !== "rain") return;
+	V.daily.plotsRain = true;
+	Object.entries(V.plots).forEach(([location, plots]) => {
+		// Don't water greenhouse plants from rain - disabled for now
+		// if (location === "garden" && V.alex_greenhouse === 3) return;
+		plots.forEach(plot => (plot.water = 1));
+	});
+});
+
+// Temporary until a rework
+// Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
+function tendingDay() {
+	Object.entries(V.plots).forEach(([location, plots]) => {
+		let irrigation = location === "farm" ? V.farm.irrigation || 0 : 0;
+
+		plots.forEach(plot => {
+			// Growth check
+			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
+				plot.days += 1;
+				if (plot.days >= setup.plants[plot.plant].days * ((plot.stage + 1) / 5)) {
+					plot.stage += 1;
+				}
+			}
+
+			// Rain check moved to event in ingame.js
+			plot.water = irrigation >= 1 ? (irrigation--, 1) : 0;
+		});
+	});
+}
+window.tendingDay = tendingDay;
+
+/**
+ * @param {string} slot
+ * @param {ClothesItem} value
+ * @returns {void}
+ */
+function fixIntegrityMax(slot, value) {
+	if (value.integrity_max !== 0) {
+		return; // Integrity is fine
+	}
+	const setupClothing = getSetupClothing(slot, value);
+	value.integrity_max = setupClothing.integrity_max;
+}
+window.fixIntegrityMax = fixIntegrityMax;
+
+function formatMoney(amount) {
+	const integerPart = Math.floor(amount / 100);
+	let formattedAmount = Math.abs(integerPart).toLocaleString("en-GB");
+	if (Math.abs(integerPart) <= 9999) {
+		const decimalPart = amount % 100;
+		if (decimalPart) {
+			formattedAmount += "." + ("0" + Math.floor(Math.abs(decimalPart))).slice(-2);
+		}
+	}
+	T.printmoney = (amount >= 0 ? "" : "-") + "£" + formattedAmount;
+	return T.printmoney;
+}
+window.formatMoney = formatMoney;
+DefineMacro("formatmoney", money => formatMoney(money));
+
+function unableTakeVirginity(virginity) {
+	if (!virginity) {
+		if (V.player.penisExist && V.player.vaginaExist) {
+			return unableTakeVirginity("penile") || unableTakeVirginity("vaginal");
+		} else if (V.player.penisExist) {
+			return unableTakeVirginity("penile");
+		} else if (V.player.vaginaExist) {
+			return unableTakeVirginity("vaginal");
+		}
+	}
+
+	switch (virginity) {
+		case "penile":
+			return (
+				V.settings.analEnabled === false &&
+				((V.settings.maleNPCVaginaChance === 0 && V.settings.femaleNPCPenisChance === 100) ||
+					(maleChance() === 100 && V.settings.maleNPCVaginaChance === 0) ||
+					(maleChance() === 0 && V.settings.femaleNPCPenisChance === 100) ||
+					(maleChance() === 100 && V.settings.maleNPCVaginaChance === 100 && V.settings.straponChance === 100) ||
+					(maleChance() === 0 && V.settings.femaleNPCPenisChance === 0 && V.settings.straponChance === 100))
+			);
+		case "vaginal":
+			return (
+				V.settings.straponChance === 0 &&
+				((V.settings.maleNPCVaginaChance === 100 && V.settings.femaleNPCPenisChance === 0) ||
+					(maleChance() === 100 && V.settings.maleNPCVaginaChance === 100) ||
+					(maleChance() === 0 && V.settings.femaleNPCPenisChance === 0))
+			);
+		default:
+			return false;
+	}
+}
+window.unableTakeVirginity = unableTakeVirginity;
+
+function canGiftFood(npc) {
+	let amount = 0;
+
+	Object.values(setup.plants).forEach(plants => {
+		if (plants.type === "food" && V.plants[plants.name] && V.plants[plants.name].amount > 0) {
+			amount++;
+		}
+	});
+
+	return V.daily.giftedFood[npc] === undefined && amount > 0;
+}
+window.canGiftFood = canGiftFood;
+
+function ingredientIsAllowed(providedKey) {
+	const provided = T.ingredientsSupplied || [];
+	const exceptions = T.ingredientsExceptions;
+	const isAllowed = key => {
+		if (provided.includes(key) || !exceptions || exceptions.includes(key)) return true;
+
+		const setupObject = setup.plants[key];
+		if (Array.isArray(setupObject?.ingredients) && setupObject.ingredients.length) {
+			return setupObject.ingredients.every(ingredient => {
+				return isAllowed(ingredient);
+			});
+		}
+
+		return false;
+	};
+	return isAllowed(providedKey);
+}
+window.ingredientIsAllowed = ingredientIsAllowed;
+
+function ingredientAlternativesSetup(recipe) {
+	const alternatives = {
+		bottle_of_milk: [],
+		cream: [],
+		strange_flower: ["blood_lemon"],
+		chicken_egg: ["bird_egg"],
+		beef: [],
+	};
+	if (V.chef_state >= 3 && T.allowLewdIngredients && (!V.options.ingredientsAutoManage || V.options.ingredientsAutoManageLewd)) {
+		alternatives.bottle_of_milk.pushUnique("baby_bottle_of_breast_milk");
+		alternatives.cream.pushUnique("bottle_of_semen");
+	}
+	switch (recipe) {
+		case "lasagne":
+			alternatives.beef.pushUnique("chicken");
+			break;
+	}
+
+	return alternatives;
+}
+
+function ingredientsProvided(mainIngredient, recipe) {
+	if (!setup.plants[mainIngredient] || !setup.plants[recipe]) return false;
+	const alternatives = ingredientAlternativesSetup(recipe);
+	const options = [mainIngredient];
+
+	if (alternatives[mainIngredient]) alternatives[mainIngredient].forEach(ingredient => options.pushUnique(ingredient));
+	return options.find(ingredient => T.ingredientsSupplied?.includes(ingredient));
+}
+window.ingredientsProvided = ingredientsProvided;
+
+function ingredientUsed(mainIngredient, recipe) {
+	const alternatives = ingredientAlternativesSetup(recipe);
+
+	// When auto management has been disabled
+	if (!V.options.ingredientsAutoManage) {
+		if (Array.isArray(alternatives[mainIngredient]) && alternatives[mainIngredient].includes(V.plants[mainIngredient].alternative)) {
+			return V.plants[mainIngredient].alternative;
+		}
+		return mainIngredient;
+	}
+
+	// Check for any provided ingredients first
+	if (ingredientsProvided(mainIngredient)) return ingredientsProvided(mainIngredient);
+
+	// Check for alternatives if there is none of the normal ingredient
+	if (alternatives[mainIngredient]?.length && V.plants[mainIngredient]?.amount <= 0) {
+		const alternative = alternatives[mainIngredient].find(ingredient => V.plants[ingredient]?.amount > 0);
+		if (alternative) return alternative;
+	}
+	return mainIngredient;
+}
+window.ingredientUsed = ingredientUsed;
+
+function ingredientsTotal(mainIngredient, recipe, includeAlternatives) {
+	if (!setup.plants[mainIngredient]) return 0;
+	const alternatives = ingredientAlternativesSetup(recipe);
+	let count = V.plants[mainIngredient].amount;
+	if (includeAlternatives && alternatives[mainIngredient] && !T.ingredientsSupplied?.includes(mainIngredient)) {
+		alternatives[mainIngredient].forEach(ingredient => {
+			count += V.plants[ingredient]?.amount || 0;
+		});
+	}
+	return count;
+}
+window.ingredientsTotal = ingredientsTotal;
+
+function ingredientsOptions(mainIngredient, recipe) {
+	const alternatives = ingredientAlternativesSetup(recipe);
+	const result = [mainIngredient];
+	if (Array.isArray(alternatives[mainIngredient])) alternatives[mainIngredient].forEach(ingredient => result.pushUnique(ingredient));
+	return result;
+}
+window.ingredientsOptions = ingredientsOptions;
+
+function ingredientsNextAlternative(mainIngredient, recipe) {
+	if (!V.plants[mainIngredient]) return;
+	const options = ingredientsOptions(mainIngredient, recipe);
+	const currentAlt = V.plants[mainIngredient].alternative || mainIngredient;
+	const currentIndex = options.indexOf(currentAlt);
+	const nextIndex = currentIndex === -1 || currentIndex + 1 >= options.length ? 0 : currentIndex + 1;
+	V.plants[mainIngredient].alternative = options[nextIndex];
+}
+window.ingredientsNextAlternative = ingredientsNextAlternative;
+
+function kitchenFilter() {
+	T.recipeKeys = [];
+	T.recipesGroups = ["ingredients", "sweets", "savouries", "drinks"];
+	const kitchenFilter = T.foodSearch ? T.foodSearch.split(/[_ ]/g) : false;
+
+	let missingIngredients = false;
+	let providedIngredients = false;
+	let knownRestrictions = false;
+
+	Object.keys(setup.plants).forEach(recipe => {
+		const item = setup.plants[recipe];
+
+		if (
+			kitchenFilter &&
+			!kitchenFilter.find(
+				term =>
+					(V.options.ingredientsSearch !== "ingredients" &&
+						(item.name.includes(term) || item.type.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))) ||
+					(V.options.ingredientsSearch !== "recipes" &&
+						item.ingredients.find(ingredient => ingredient.includes(term) || ingredientUsed(ingredient)?.includes(term)))
+			)
+		) {
+			return;
+		}
+
+		if (T.ingredientsSupplied?.includes(recipe)) {
+			providedIngredients = true;
+			if (!T.recipeKeys.some(recipe => recipe.key === recipe)) T.recipeKeys.push({ key: recipe, group: "Provided Ingredients" });
+			return;
+		}
+		if (!V.plants[recipe].recipe || !item.ingredients) return;
+		let group;
+
+		if (item.special.includes("sweet")) {
+			group = "sweets";
+		} else if (item.special.includes("drink")) {
+			group = "drinks";
+		} else if (item.type.includes("ingredient")) {
+			group = "ingredients";
+		} else {
+			group = "savouries";
+		}
+
+		let missingIngredientsFound = false;
+		item.ingredients.forEach(ingredient => {
+			if (ingredientsTotal(ingredient, recipe, true) <= 0 && !ingredientsProvided(ingredient, recipe)) missingIngredientsFound = true;
+		});
+
+		if (!ingredientIsAllowed(recipe)) {
+			group = "Restricted Ingredients";
+			knownRestrictions = true;
+		} else if (missingIngredientsFound) {
+			group = "Missing Ingredients";
+			missingIngredients = true;
+		}
+		if (!T.recipeKeys.some(recipeObj => recipeObj.key === recipe)) T.recipeKeys.push({ key: recipe, group });
+	});
+
+	if (providedIngredients) T.recipesGroups.unshift("Provided Ingredients");
+	if (missingIngredients) T.recipesGroups.push("Missing Ingredients");
+	if (knownRestrictions) T.recipesGroups.push("Restricted Ingredients");
+}
+DefineMacro("kitchenFilter", kitchenFilter);
+
+function marketFilter() {
+	T.marketKeys = [];
+	T.marketGroups = [];
+	const marketFilter = T.marketSearch ? T.marketSearch.split(/[_ ]/g) : false;
+
+	let missingItems = false;
+
+	Object.keys(setup.plants).forEach(product => {
+		const item = setup.plants[product];
+
+		if (V.plants[product].amount <= 0 && V.plants[product].marketStall === undefined) return;
+
+		// Makes sure items always get this set for older saves
+		if (V.plants[product].marketStall === undefined) V.plants[product].marketStall = !setup.plants[product]?.shop?.length;
+
+		if (
+			marketFilter &&
+			!marketFilter.find(term => item.name.includes(term) || item.type.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))
+		) {
+			return;
+		}
+
+		T.marketGroups.pushUnique(item.type);
+		let group = item.type;
+		if (V.plants[product].amount <= 0) {
+			missingItems = true;
+			group = "No Stock";
+		}
+		if (!T.marketKeys.find(productObj => productObj.key === product)) T.marketKeys.push({ key: product, group });
+	});
+
+	if (missingItems) T.marketGroups.push("No Stock");
+}
+DefineMacro("marketFilter", marketFilter);
+
+function teensPresentCheck(location) {
+	let present = 0;
+
+	if (V.daily.teensPresent === undefined) {
+		if (Weather.temperature < 5 && !Weather.isFrozen("lake")) {
+			V.daily.teensPresent = "arcade";
+		} else {
+			V.daily.teensPresent = "lake";
+		}
+	}
+
+	if (V.daily.teensPresent === location) {
+		if (["day", "dusk"].includes(Time.dayState) && ((Time.schoolDay && Time.hour >= 15) || !Time.schoolDay)) {
+			if (location === "arcade" || (location === "lake" && Weather.precipitation === "none")) {
+				present = 1;
+			}
+		}
+	}
+
+	return present;
+}
+window.teensPresentCheck = teensPresentCheck;
+
+function insecurityExists(type) {
+	const [possible, returnedType] = statChange.insecurityPossible(type);
+	return possible && returnedType === type && V["insecurity_" + type] > 0;
+}
+window.insecurityExists = insecurityExists;
+
+function isBeastSceneAllowed() {
+	return V.settings.bestialityEnabled || ((!V.settings.monsterHallucinationsOnly || V.hallucinations > 0) && V.settings.monsterChance >= random(1, 100));
+}
+window.isBeastSceneAllowed = isBeastSceneAllowed;
+
+/**
+ * check if event is going to be dangerous based on rng and player allure
+ * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ *
+ * @param {number} mod allure multiplier
+ * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
+ * @param {number} allure target allure, usually that of pc, which by default is capped at 8000, resulting in 81% chance of danger with default parameters and max allure
+ * @param {boolean} reroll re-roll _danger if called more than once per passage
+ * @returns {boolean} whether the roll is dangerous
+ */
+function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	if (!T.danger || reroll) T.danger = random(1, 10000);
+	return T.danger >= floor - allure * mod;
+}
+window.dangerEvent = dangerEvent;
+
+/**
+ * @param {"sight" | "hearing" | "instincts" | "any"} sense which sense is being checked
+ * @returns {string | false} part as string
+ */
+function hasSharpSenses(sense = "any") {
+	if (["any", "sight"].includes(sense)) {
+		if (V.transformationParts.traits.sharpEyes !== "disabled") return "sharp eyes";
+		if (currentSkillValue("skulduggery") >= 600) return "experienced eyes";
+	}
+	if (["any", "hearing"].includes(sense)) {
+		if (V.transformationParts.wolf.ears !== "disabled" && V.transformationParts.wolf.ears !== "hidden") return "wolf ears";
+		if (V.transformationParts.cat.ears !== "disabled" && V.transformationParts.cat.ears !== "hidden") return "cat ears";
+		if (V.transformationParts.fox.ears !== "disabled" && V.transformationParts.fox.ears !== "hidden") return "fox ears";
+		if (currentSkillValue("skulduggery") >= 600) return "experienced ears";
+	}
+	if (["instincts"].includes(sense)) {
+		if (V.wolfgirl >= 6) return "wolf instincts";
+		if (V.cat >= 6) return "cat instincts";
+		if (V.fox >= 6) return "fox instincts";
+		if (V.dryad >= 6 || currentSkillValue("tending") >= 900) return "nature-trained instincts";
+	}
+	return false;
+}
+window.hasSharpSenses = hasSharpSenses;

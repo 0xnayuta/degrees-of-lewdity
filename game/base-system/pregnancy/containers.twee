@@ -117,7 +117,7 @@
 			<<set $_creature[_i].purity += 0.5>>
 		<</if>>
 		<<if _container.creatures[_i].creature is "Pale Slime">>
-			<!-- Pale slimes raise purity more, and also raise hallucinogens -->
+			<!-- Pale slimes raise purity more and also raise hallucinogens -->
 			<<set _boosts.purity += 1.5>>
 			<<set _boosts.hallucinogen += 20>>
 			<<set $_creature[_i].purity += 1.5>>
@@ -130,7 +130,7 @@
 			<<set $_creature[_i].purity -= 0.5>>
 		<</if>>
 		<<if _container.creatures[_i].creature is "Pale Tentacle">>
-			<!-- Pale tentacles lower fatigue, and impact purity based on other parasites -->
+			<!-- Pale tentacles lower fatigue and impact purity based on other parasites -->
 			<<if Math.floor(_pregValue / 3) gt 0>>
 				<<set _boosts.tiredness += Math.floor((_pregValue / 3) * _tendingMulti)>>
 				<<set _boosts.hallucinogen += 30>>
@@ -208,7 +208,7 @@
 			<br><br>
 			You catch a glimpse of a pale figure standing right next to you. You jump back in shock. It slowly turns to you.
 			<br><br>
-			"<span class="wraith">Beautiful. Keep <<if _container.count isnot 1>>them<<else>>it<</if>> safe.</span>" It disappears with a bright flash. <<stress 6>><<gstress>>
+			"<span class="wraith">Beautiful. Keep <<pluralise _container.count "it" "them">> safe.</span>" It disappears with a bright flash. <<stress 6>><<gstress>>
 			<<if !["dead","sold"].includes($wraith.offspring)>>
 				<<set $wraith.offspring to "alive">>
 			<</if>>
@@ -222,7 +222,7 @@
 <</widget>>
 
 <<widget "creatureTooltip">>
-	<<if _creatureTip[_i].length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
+	<<if _creatureTip[_i].length gte 1 and $pregnancyStats.parasiteBook is 3 and !$settings.blindStatsEnabled>>
 		<mouse class="tooltip"><<print _container.creatures[_i].creature>><span class="gold"><<print _creatureTip[_i].join("<br>")>></span></mouse>
 	<<else>>
 		<<print _container.creatures[_i].creature>>
@@ -232,13 +232,13 @@
 <<widget "luxuryTooltip">>
 	<span class="gold">
 	<<if $phase is "farm" and $farm.parasitebarn gte 2>>
-		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
+		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and !$settings.blindStatsEnabled>>
 			<mouse class="tooltip">as advanced as can be<span><<print _luxuryTip.join("<br>")>></span></mouse>
 		<<else>>
 			as advanced as can be
 		<</if>>
 	<<else>>
-		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and $statdisable is "f">>
+		<<if _luxuryTip.length gte 1 and $pregnancyStats.parasiteBook is 3 and !$settings.blindStatsEnabled>>
 			<mouse class="tooltip"><<print _container.decorations.toLowerCase()>><span><<print _luxuryTip.join("<br>")>></span></mouse>
 		<<else>>
 			<<print _container.decorations.toLowerCase()>>
@@ -254,9 +254,11 @@
 	<<else>>
 		<<set $phase to $location>>
 	<</if>>
-	<<if _args[0] is "ind">>
-		<<ind>>
-	<</if>>
+	<<switch $phase>>
+		<<case "farm">><<farmicon "parasitebarn">>
+		<<case "home">><<fishtankicon>>
+		<<default>><<investigateicon>>
+	<</switch>>
 	<<set $container.lastLocation to $location>>
 
 	<<if $nextPassageCheck is "Containers">>
@@ -270,8 +272,8 @@
 <</widget>>
 
 <<widget "containerInfo">>
-	<<assignmenticon>>
-	<<link "Close notebook">><<replace "#info">><<assignmenticon>><<link "Open notebook">><<replace "#info">><<containerInfo>><</replace>><</link>><</replace>><</link>>
+	<<assignmenticon>><<wearProp "notebook">><<updatesidebarimg>>
+	<<link "Close notebook">><<handheldon>><<updatesidebarimg>><<replace "#info">><<assignmenticon>><<link "Open notebook">><<replace "#info">><<containerInfo>><</replace>><</link>><</replace>><</link>>
 	<br>
 	<<set _locCount to 0>>
 	<<for _locs range $container.list>>
@@ -342,7 +344,7 @@
 	<</if>>
 	<!-- Pale parasites are down here because they're variants. It looks kinda awkward because there are very few parasite variants -->
 	<<if $pregnancyStats.parasiteVariantsSeen.includes("Pale")>>
-		<li><b><span class="wraith">Pale</span></b> parasites have larger bonuses than other parasites, and also afflict you with hallucinogens.</li>
+		<li><b><span class="wraith">Pale</span></b> parasites have larger bonuses than other parasites and also afflict you with hallucinogens.</li>
 	<</if>>
 	<!-- Printing info for all remaining variants seen, that don't have any special traits -->
 	<<set $_variantsRemainder to clone($pregnancyStats.parasiteVariantsSeen).filter(types => !["Pale"].includes(types))>>
@@ -366,7 +368,7 @@
 	<<if _container.deadCreatures is 0>>
 		You currently have no <<if $pregnancyStats.namesParasitesChild is true>>children<<else>>parasites<</if>> inside the <span class="gold"><<print _container.name.toLowerCase()>></span>.
 	<<else>>
-		After not checking and feeding <<if $pregnancyStats.namesParasitesChild is true>>your children<<else>>the parasites<</if>>, it looks like <span class="red">some have died</span>. You take your time in burying them.
+		After not checking and feeding <<if $pregnancyStats.namesParasitesChild is true>>your <<pluralise _container.count "child" "children">><<else>>the <<pluralise _container.count "parasite">><</if>>, it looks like <span class="red"><<pluralise _container.count "it has" "some have">> died</span>. You take your time in burying <<pluralise _container.count "it" "them">>.
 		<<ggtrauma>>
 		<br><br>
 		<<if $pregnancyStats.namesParasitesChild is true>>
@@ -384,7 +386,7 @@
 			<<unset $wraithAngerCount>>
 			You feel something gingerly grab your neck from behind.
 			<br><br>
-			"<span class="wraith">Unforgivable. You'll join <<if _container.count isnot 1>>them<<else>>it<</if>> soon.</span>" <<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>
+			"<span class="wraith">Unforgivable. You'll join <<pluralise _container.count "it" "them">> soon.</span>" <<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>
 			<br><br>
 			You turn around, but nothing's there. <<gobsession _wraithRage>>
 			<br><br>
@@ -394,25 +396,24 @@
 	<</if>>
 <<else>>
 	<<if _container.visited is false>>
-		You check on <<if $pregnancyStats.namesParasitesChild is true>>your child<<if _container.count isnot 1>>ren<</if>><<else>>the parasite<<if _container.count isnot 1>>s<</if>><</if>>, and make sure <<if _container.count isnot 1>>they have<<else>>it has<</if>> everything <<if _container.count isnot 1>>they need<<else>>it needs<</if>> inside the <span class="gold"><<print _container.name.toLowerCase()>></span>.
-		<br>
+		You check on <<if $pregnancyStats.namesParasitesChild is true>>your <<pluralise _container.count "child" "children">><<else>>the <<pluralise _container.count "parasite">><</if>> and make sure <<pluralise _container.count "it has" "they have">> everything <<pluralise _container.count "it needs" "they need">> inside the <span class="gold"><<print _container.name.toLowerCase()>></span>.
 		<<creatureVisit>>
 	<<else>>
 		<<creatureVisit false>>
-		You watch your <<if $pregnancyStats.namesParasitesChild is true>>child<<if _container.count isnot 1>>ren<</if>><<else>>parasite<<if _container.count isnot 1>>s<</if>><</if>> inside the <span class="gold"><<print _container.name.toLowerCase()>></span>.
+		You watch your <<if $pregnancyStats.namesParasitesChild is true>><<pluralise _container.count "child" "children">><<else>><<pluralise _container.count "parasite">><</if>> inside the <span class="gold"><<print _container.name.toLowerCase()>></span>.
 	<</if>>
 	<br><br>
-	It has a max capacity of <<number _container.maxCount>> and <<if $pregnancyStats.namesParasitesChild is true>>your child<<if _container.count isnot 1>>ren<</if>><<else>>the parasite<<if _container.count isnot 1>>s<</if>><</if>> can survive <<number _container.maxDaysWithoutFood>> days without your attention<<if _container.feederName>>, thanks to your <span class="gold"><<print _container.feederName.toLowerCase()>></span><</if>>.
+	It has a max capacity of <<number _container.maxCount>> and <<if $pregnancyStats.namesParasitesChild is true>>your <<pluralise _container.count "child" "children">><<else>>the <<pluralise _container.count "parasite">><</if>> can survive <<number _container.maxDaysWithoutFood>> <<pluralise _container.maxDaysWithoutFood "day">> without your attention<<if _container.feederName>>, thanks to your <span class="gold"><<print _container.feederName.toLowerCase()>></span><</if>>.
 	<<if _container.decorations>>You have <<luxuryTooltip>> set up within the tank.<</if>>
 	<<if $phase is "farm" and $farm.parasitebarn gte 2>>The equipment set up is <<luxuryTooltip>> in the barn.<</if>>
 	<!-- For players who had multiple parasite children before the tooltip update -->
 	<<if $pregnancyStats.parasiteTypesSeen.length gte 4 and (!$pregnancyStats.parasiteBook or $pregnancyStats.parasiteBook is 1)>>
 		<<set $pregnancyStats.parasiteBook to 1>>
 		<br><br>
-		<span class="gold">Doctor Harper might be able to help you learn more about your <<if $pregnancyStats.namesParasitesChild is true>>child<<if _container.count isnot 1>>ren<</if>><<else>>parasite<<if _container.count isnot 1>>s<</if>><</if>>.</span>
+		<span class="gold">Doctor Harper might be able to help you learn more about your <<if $pregnancyStats.namesParasitesChild is true>><<pluralise _container.count "child" "children">><<else>><<pluralise _container.count "parasite">><</if>>.</span>
 	<<elseif $pregnancyStats.parasiteTypesSeen.length gte 4 and $pregnancyStats.parasiteBook is 2>>
 		<br><br>
-		<span class="gold">You can purchase a notebook to keep track of your <<if $pregnancyStats.namesParasitesChild is true>>child<<if _container.count isnot 1>>ren<</if>><<else>>parasite<<if _container.count isnot 1>>s<</if>><</if>> at the pet shop on High Street.</span>
+		<span class="gold">You can purchase a notebook to keep track of your <<if $pregnancyStats.namesParasitesChild is true>><<pluralise _container.count "child" "children">><<else>><<pluralise _container.count "parasite">><</if>> at the pet shop on High Street.</span>
 	<</if>>
 <</if>>
 <br><br>
@@ -468,7 +469,7 @@
 		<br><br>
 	<</if>>
 	<<if _container.count gt 0>>
-		<<link [[Transfer selected for selling|$passage]]>>
+		<<ind>><<link [[Transfer selected for selling|$passage]]>>
 			<<for _i to 0; _i lt _container.maxCount;_i++>>
 				<<if _container.creatures[_i] is undefined>>
 					<<continue>>
@@ -483,5 +484,5 @@
 		<</link>>
 		<br>
 	<</if>>
-	<<getouticon>><<link [[Leave|_container.leaveLink]]>><</link>>
+	<<getouticon>><<link [[Leave|_container.leaveLink]]>><<handheldon>><</link>>
 <</if>>

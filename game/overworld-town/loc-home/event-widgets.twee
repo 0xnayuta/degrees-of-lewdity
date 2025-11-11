@@ -2,8 +2,9 @@
 
 <<widget "homeevent">>
 	<<rng>>
-	<<if Time.monthName is "December" and Time.monthDay is 1>>
+	<<if Weather.precipitation === "snow" && $weatherObj.snow lte 20 && Time.month gte 10 && $yearly.firstSnow>>
 		<<npc Bailey>><<generatey2>><<generatey3>><<generatey4>>
+		<<set $yearly.firstSnow to true>>
 		You hear excited voices. Several orphans cluster around the window. It's snowing.
 		<br><br>
 		"I want to make a snowman."
@@ -28,7 +29,7 @@
 		<br>
 		"Bailey lets us decorate," a <<person2>><<person>> responds. "But gifts? Maybe Father Christmas will bring us something, huh?" <<He>> nudges the <<person1>><<person>>, who doesn't look convinced.
 		<br><br>
-		<i>Some new clothes would go a long way for a lot of residents. The shopping centre should do. You could pick up something for Robin at the forest shop or shopping centre as well.</i>
+		<i>Some new clothes would go a long way for a lot of residents. The shopping centre should do. <<if C.npc.Robin.init is 1>> You could pick up something for Robin at the forest shop or shopping centre as well.<</if>></i>
 		<br><br>
 
 		<<endevent>>
@@ -98,10 +99,10 @@
 				<br>
 			<<case 4>><<set $home_event_count += 1>>
 				<<if $orphan_rent is "paid">>
-				<<loadNPC 0 orphan_rent>><<person1>>"Hey!" a voice shouts behind you. It's the <<person>> you rescued from Bailey. "I said I'd pay you back." <<He>> reaches into <<his>> pocket and pulls out a bundle of bank notes. "<span class="gold">£1000</span>." <<He>> smiles and holds out <<his>> hand. "Take it."
+				<<loadNPC 0 orphan_rent>><<person1>>"Hey!" a voice shouts behind you. It's the <<person>> you rescued from Bailey. "I said I'd pay you back." <<He>> reaches into <<his>> pocket and pulls out a bundle of bank notes. "<<printmoney 100000>>." <<He>> smiles and holds out <<his>> hand. "Take it."
 				<br><br>
 
-				<<link [[Take|Home Money Take]]>><<set $money += 100000>><</link>>
+				<<link [[Take|Home Money Take]]>><<money 100000>><</link>>
 				<br>
 				<<link [[Refuse|Home Money Refuse]]>><<hope 1>><</link>><<ghope>>
 				<br>
@@ -118,10 +119,10 @@
 				<</if>>
 			<<case 5>><<set $home_event_count += 1>>
 				<<set $loft_known to 1>><<set $loft_upgrade to 0>>
-				<<npc Bailey>><<generateyv2>><<generateyv3>>You hear excited voices up a flight of stairs. At the top, a <<person2>><<person>> and <<person3>><<person>> are taking turns jumping in the air, grasping at the ceiling.
+				<<npc Bailey>><<generateyv2>><<generateyv3>>You hear excited voices up a flight of stairs. At the top, two of the younger orphans are taking turns jumping in the air, grasping at the ceiling.
 				<br><br>
 
-				You climb up, and reach the higher floor just as the <<person2>><<person>> places a stool to gain more reach. The <<person3>><<person>> smiles at you. "You're a bit taller than us," <<he>> says. "There's a cord up there. Could you pull it? We want to see what happens.
+				You climb up and reach the higher floor just as one of them, a <<person2>><<person>>, places a stool to gain more reach. The other, a <<person3>><<person>>, smiles at you. "Hey! You're taller than us," <<he>> says. "There's a cord up there. Could you pull it? We want to see what happens."
 				<br><br>
 
 				<<link [[Pull the cord|Orphanage Loft Intro]]>><<set $phase to 0>><</link>>
@@ -196,28 +197,28 @@
 <</widget>>
 
 <<widget "homeeventnorm">>
-	<<switch random(1, 14)>>
+	<<switch random(1, 15)>>
 		<<case 1>>
 			<<generateyv1>><<person1>>A <<person>> approaches you. "Can I have some money?" <<he>> asks. "I really need it."
 			<br><br>
 
 			<<if $money gte 500>>
-				<<link [[Give £5|Home Beg Give]]>><<set $phase to 0>><<set $money -= 500>><<hope 1>><</link>><<ghope>>
+				<<link [[Give £5|Home Beg Give]]>><<set $phase to 0>><<money -500>><<hope 1>><</link>><<ghope>>
 				<br>
 			<</if>>
 			<<if $money gte 2500>>
-				<<link [[Give £25|Home Beg Give]]>><<set $phase to 1>><<set $money -= 2500>><<hope 2>><</link>><<gghope>>
+				<<link [[Give £25|Home Beg Give]]>><<set $phase to 1>><<money -2500>><<hope 2>><</link>><<gghope>>
 				<br>
 			<</if>>
 			<<if $money gte 10000>>
-				<<link [[Give £100|Home Beg Give]]>><<set $phase to 2>><<set $money -= 10000>><<hope 3>><<reb -1>><</link>><<lreb>><<ggghope>>
+				<<link [[Give £100|Home Beg Give]]>><<set $phase to 2>><<money -10000>><<hope 3>><<reb -1>><</link>><<lreb>><<ggghope>>
 				<br>
 			<</if>>
 			<<if $skulduggery gte 100>>
 				<<link [[Encourage skulduggery|Home Beg Skulduggery]]>><<reb 1>><</link>><<greb>>
 				<br>
 			<</if>>
-			<<if $promiscuity gte 35>>
+			<<if hasSexStat("promiscuity", 3)>>
 				<<link [[Encourage prostitution|Home Beg Prostitution]]>><<reb 1>><</link>><<greb>>
 				<br>
 			<</if>>
@@ -305,7 +306,7 @@
 		<<case 11>>
 			<<rng>>
 			<<generatey1>><<generatey2>>You overhear two residents, a <<fullGroup>>, whispering about something.
-			<<if C.npc.Robin.init is 1 and $rng gte 50>>
+			<<if C.npc.Robin.init is 1 and $rng gte 51>>
 				You hear them mention Robin.
 				<br><br>
 
@@ -332,7 +333,7 @@
 
 				<<link [[Offer help (0:10)|Home Bandage]]>><<pass 10>><<hope 1>><</link>><<ghope>>
 				<br>
-				<<link [[Ignore|Orphanage]]>><<hope -1>><</link>><<lhope>>
+				<<link [[Ignore|Orphanage]]>><<hope -1>><<endevent>><</link>><<lhope>>
 				<br>
 			<<else>>
 				<<He>> avoids eye contact with everyone as <<he>> makes <<his>> way to <<his>> room.<<lhope>><<hope -1>>
@@ -358,11 +359,32 @@
 
 			<<link [[Next|Orphanage]]>><<endevent>><</link>>
 			<br>
+		<<case 15>>
+			<<if $fame.scrap gte 200>>
+				You are swarmed by orphans as you enter the hallway. They fill the air with excited chatter.
+				<br><br>
+				"You get into loads of fights, right?" one asks. They don't give you a chance to respond before continuing, "That's so cool! Can you tell us about them? Please?" The others quiet down, eager to hear your response.
+				<br><br>
+				You could exaggerate a little, if you wanted to show off.
+				<br><br>
+				<<link [[Agree (0:05)|Home Combat Agree]]>><<pass 5>><</link>>
+				<br>
+				<<link [[Exaggerate (0:10)|Home Combat Exaggerate]]>><<pass 10>><</link>><<englishdifficulty 100 400>>
+				<br>
+				<<link [[Refuse|Home Combat Refuse]]>><</link>>
+				<br>
+			<<else>>
+				You pass by a group of orphans sharing safety tips. They don't sound particularly helpful.
+				<br><br>
+
+				<<link [[Next|Orphanage]]>><<endevent>><</link>>
+				<br>
+			<</if>>
 	<</switch>>
 <</widget>>
 
 <<widget "homeeventhopehi">>
-	<<switch random(1, 6)>>
+	<<switch random(1, 7)>>
 		<<case 1>>
 			<<npc Bailey>><<person1>>A group of orphans sit in a circle, chatting. Bailey breaks them up.
 			<<lreb>><<reb -1>>
@@ -400,9 +422,9 @@
 					"a sunrise with 'each day is a new opportunity to shine' scrawled below.",
 					"two stick figures holding hands. 'Together we can do anything' is scrawled below.",
 					"a flower growing out of cracked pavement. 'Each day is a new opportunity to shine' is scrawled below.",
-					"is a hand reaching out with the words 'No matter what, you are not alone.'",
-					"is a yellow thumbs up.",
-					"a seed is sprouting from the ground. 'Even the tiniest of beginnings can lead to something great' is scrawled below.",
+					"a hand reaching out with the words 'No matter what, you are not alone.'",
+					"a yellow thumbs up.",
+					"a seed sprouting from the ground. 'Even the tiniest of beginnings can lead to something great' is scrawled below.",
 					"an explorer scaling a mountain. 'The sky's the limit' is scrawled below.",
 					"a multi-coloured heart. 'I don't know you, but I love you' is scrawled in crayon."
 				)>>
@@ -492,7 +514,7 @@
 			You make your way through the orphanage.
 			<br><br>
 
-			You see a <<generatey1>><<person1>><<person>> consoling a <<generatey2>><<person2>><<person>>. They are beside the pinned up scraps of a poster. Between sobs, the <<person2>><<person>> stutters out, "W-why does Bailey keep t-t-tearing dow-"
+			You see a <<generatey1>><<person1>><<person>> consoling a <<generatey2>><<person2>><<person>>. They are beside the pinned up scraps of a poster. Between sobs, the <<person2>><<person>> stutters out, "W-why does Bailey keep t-t-tearing dow—"
 			<br><br>
 
 			<<He>> wails. The <<person1>><<person>> wraps <<his>> arms around <<person2>><<him>>. "It's okay," <<person1>><<he>> says. "Look." The <<personsimple>> reaches into <<his>> pocket and hands <<his>> crying friend some bills.
@@ -524,7 +546,7 @@
 <</widget>>
 
 <<widget "homeeventrebhi">>
-	<<switch random(1, 9)>>
+	<<switch random(1, 10)>>
 		<<case 1>>
 			<<npc Bailey>><<person1>>You see Bailey walking between bedrooms, carrying confiscated snacks.
 			<<lhope>><<hope -1>>
@@ -540,7 +562,8 @@
 			<<link [[Next|Orphanage]]>><<endevent>><</link>>
 			<br>
 		<<case 3>>
-			You find an envelope stuck to your bedroom door. It has your name on it. Inside is <span class="gold">£100</span> and a note. It simply reads:
+			<<wearProp "cash" 0 "three">>
+			You find an envelope stuck to your bedroom door. It has your name on it. Inside is <<printmoney 10000>> and a note. It simply reads:
 
 			<<switch random(1, 10)>>
 				<<case 1>>
@@ -578,8 +601,8 @@
 			<</switch>>
 			<br><br>
 
-			<<set $money += 10000>>
-			<<link [[Next|Orphanage]]>><</link>>
+			<<money 10000>>
+			<<link [[Next|Orphanage]]>><<handheldon>><</link>>
 			<br>
 		<<case 4>>
 			<<generateyv1>><<person1>>A <<person>> bumps into you. "Sorry," <<he>> says, leaning over. "Made you drop this."
@@ -587,11 +610,13 @@
 			<<if $spray gte $spraymax or random(1, 100) gte 71>>
 				<<He>> hands you a bulging envelope you've never seen before. Inside is
 				<<if $museumAntiques.antiques.antiquesilverbrooch isnot "found" and $museumAntiques.antiques.antiquesilverbrooch isnot "talk" and $museumAntiques.antiques.antiquesilverbrooch isnot "museum">>
+					<<wearProp "silver brooch">>
 					a silver brooch. It looks old. Perhaps a collector would be interested in it.
 					<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquesilverbrooch" "found">>
 				<<else>>
 					<<switch random(1, 3)>>
 						<<case 1>>
+							<<wearProp "silver brooch">>
 							a silver brooch. It looks old. Perhaps a collector would be interested in it.
 							<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquesilverbrooch" "found">>
 						<<case 2>>
@@ -607,11 +632,12 @@
 				<<spray 1>>
 				<<He>> hands you a bulging envelope. Inside is a charge for your pepper spray.
 				<<gspray>>
+				<<wearProp "pepperspray">>
 				<br><br>
 
 			<</if>>
 			<<endevent>>
-			<<link [[Next|Orphanage]]>><</link>>
+			<<link [[Next|Orphanage]]>><<handheldon>><</link>>
 			<br>
 		<<case 5>>
 			A group of orphans are playing darts. A picture of Bailey has been tacked onto the board.
@@ -694,6 +720,15 @@
 			<br><br>
 
 			<<link [[Next|Orphanage]]>><<endevent>><</link>>
+		<<case 10>>
+			<<generatey1>><<generatey2>>
+			You notice a couple orphans sneaking into Bailey's office. One of them, a <<person1>><<person>>, is carrying a sloshing bucket, and the other, a <<person2>><<person>>, a step ladder. They're giggling to each other, eyes darting around mischievously.
+			<br><br>
+
+			<<link [[Follow them|Home Orphan Rebellious Prank]]>><<set $phase to 0>><</link>>
+			<br>
+			<<link [[Ignore them|Home Orphan Rebellious Prank]]>><<set $phase to 1>><</link>>
+			<br>
 	<</switch>>
 <</widget>>
 
@@ -755,10 +790,10 @@
 			You hear Bailey, and turn to see <<nnpc_him "Bailey">> talking down to a <<person1>><<person>>.
 			<br><br>
 
-			"So instead of going out to look for work, you're sitting around doing nothing?" <<nnpc_he "Bailey">> waves around a 'looking for job' poster, irritated.
+			"So instead of going out to look for work, you're sitting around doing nothing?" <<nnpc_He "Bailey">> waves around a 'looking for job' poster, irritated.
 			<br><br>
 
-			"N-not exactly," the <<person1>><<person>> starts. "I j-just don't want to risk bein-" The <<personsimple>> jumps as Bailey rips up <<his>> advert.
+			"N-not exactly," the <<person1>><<person>> starts. "I j-just don't want to risk bein—" The <<personsimple>> jumps as Bailey rips up <<his>> advert.
 			<br><br>
 
 			"Your <<printmoney 50000>> is due the day after tomorrow. I don't care what you have to do to get it."
@@ -789,7 +824,7 @@
 
 <<widget "homeeventriver">>
 	<<generateyv1>><<generateyv2>>
-	<span class="teal">A <<fullGroup>> walk past, carrying bags. You catch a glimpse of flour inside one. They head up the stairs towards the loft. They seem in good spirits.</span><<gghope>><<hope 3>>
+	<span class="teal">A <<fullGroup>> walk past, carrying bags. You catch a glimpse of sugar inside one. They head up the stairs towards the loft. They seem in good spirits.</span><<gghope>><<hope 3>>
 	<br><br>
 
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>
@@ -798,15 +833,15 @@
 
 <<widget "homeeventchef">>
 	<<generateyv1>><<generateyv2>><<person1>>
-	<span class="teal">You see a group of orphans bending over a box near the entrance. A <<person>> walks away, a smile on <<his>> face and carrying an armful of sweets.
+	<span class="teal">You see a group of orphans bending over a box near the entrance.</span> A <<person>> walks away, a smile on <<his>> face and carrying an armful of sweets.
 	<br><br>
 	You look in the box, and see yet more sweets. There's a note. It reads:
 	<br>
-	<i>Stay strong. There are people who care about the way you're treated.
+	<i><span class="teal">Stay strong. There are people who care about the way you're treated.</span>
 	<br>
 	- A friend.</i>
 
-	</span><<hope 3>><<gghope>>
+	<<hope 3>><<gghope>>
 	<br><br>
 
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>

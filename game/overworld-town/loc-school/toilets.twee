@@ -7,11 +7,15 @@
 You are in the antechamber outside the school toilets.
 <br><br>
 <<if $stress gte $stressmax>>
-	<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "schoolToilets">>
+	<<else>>
+		<<link [[Everything fades to black...|School Passout]]>><</link>>
+	<</if>>
 <<else>>
-	<<maleicon>><<link [[Boys' toilets|School Boy's Toilets]]>><</link>>
+	<<icon "mentoilet.png">><<link [[Boys' toilets|School Boy's Toilets]]>><</link>>
 	<br>
-	<<femaleicon>><<link [[Girls' toilets|School Girl's Toilets]]>><</link>>
+	<<icon "womentoilet.png">><<link [[Girls' toilets|School Girl's Toilets]]>><</link>>
 	<br><br>
 	<<if $historytrait gte 2 and $schooldrainintro isnot 1>>
 		<<sewericon>><<link [[Secret tunnel to drain system (0:02)|School Drain]]>><<pass 2>><</link>>
@@ -20,11 +24,11 @@ You are in the antechamber outside the school toilets.
 		<<sewericon>><<link [[Secret tunnel to drain system (0:02)|Commercial Drain]]>><<pass 2>><</link>>
 		<br>
 	<</if>>
-	<<if $brothel_basement_intro is 1 and $promiscuity gte 55>>
+	<<if $brothel_basement_intro is 1 and hasSexStat("promiscuity", 4)>>
 		<<brothelicon "gloryhole">><<link [[Set up gloryhole in antechamber|School Gloryhole Start]]>><</link>><<promiscuous4>>
 		<br>
 	<</if>>
-	<<if $condomLvl gte 1>>
+	<<if $settings.condomLevel gte 1>>
 		<<schoolVendingMachine>>
 		<br>
 	<</if>>
@@ -136,9 +140,8 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 
 <<set $seductiondifficulty to 4000>>
 <<seductioncheck>>
-<br><br>
-<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-<br>
+<<seductionskilluptext>>
+<<seductionskilluse>>
 
 <<if $seductionrating gte $seductionrequired>>
 	The <<person1>><<person>> looks <<= either("startled", "shocked", "surprised")>>, then smiles. "Well, maybe you're right. What do you say, <<= $NPCList[0].pronoun is "m" ? "boys" : "girls">>?" <<His>> face is bright red as <<he>> glances at <<his>> friends.
@@ -327,12 +330,12 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 	<<else>>
 		The <<person1>><<person>> speaks. "Oh? What will you do for us if we give them back?"
 		<br><br>
-		<<if $promiscuity gte 15>>
+		<<if hasSexStat("promiscuity", 2)>>
 			<<link [[Offer your body|School Toilets Sex]]>><<set $molestationstart to 1>><</link>>
 			<br>
 		<</if>>
 		<<if $money gte 1500>>
-			<<link [[Offer money (£15)|School Toilets Clothes]]>><<set $money -= 1500>><<set $phase to 3>><</link>>
+			<<link [[Offer money (£15)|School Toilets Clothes]]>><<money -1500>><<set $phase to 3>><</link>>
 			<br>
 		<</if>>
 		<<if $speech_attitude is "bratty">>
@@ -370,7 +373,7 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 		<br>
 	<</if>>
 <<elseif $phase is 5>>
-	You try to plead with them, but it's no use. "If you won't play ball," the <<person1>><<person>> says. "Why should we?" They laugh as they leave the room. You peek out the stall, and see an empty space where your clothes once were.
+	You try to plead with them, but it's no use. "If you won't play ball," the <<person1>><<person>> says, "why should we?" They laugh as they leave the room. You peek out the stall, and see an empty space where your clothes once were.
 	<<if $changingRoomGender is "boys">>
 		<<storeon "schoolboys" "delete">>
 	<<else>>
@@ -391,19 +394,17 @@ You walk right up to the <<person>> and place your hand on <<his>> groin. "Silly
 
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<set $changingRoomGender to "boys">>
-You are in the boy's toilets.
+You are in the boys' toilets.
 <br><br>
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip isnot 1>>
+
+	<<if dangerEvent() and $eventskip isnot 1>>
 		<<eventsschooltoilets>>
 	<<else>>
 		<<storeactions "schoolboys">>
-		<<mirroricon>><<link [[Look in the mirror (0:02)|Simple Mirror]]>><<pass 2>><<set $previousPassage = $passage>><</link>>
-		<br>
-		<<ind>><<link [[Masturbate|School Boy's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<<mirroricon "school">><<link [[Look in the mirror (0:02)|Simple Mirror]]>><<pass 2>><<set $previousPassage = $passage>><</link>>
 		<br>
 		<<if setup.bodyliquid.combined("face") gte 1 or $skin.left_cheek.pen is "pen" or $skin.right_cheek.pen is "pen" or $skin.forehead.pen is "pen" or $skin.left_cheek.pen is "mud" or $skin.right_cheek.pen is "mud" or $skin.forehead.pen is "mud" or $skin.left_cheek.pen is "lipstick" or $skin.right_cheek.pen is "lipstick" or $skin.forehead.pen is "lipstick">>
 			<<bathroomicon "sink">><<link [[Wash face (0:05)|School Boy's Wash]]>><<pass 5>><</link>>
@@ -413,13 +414,15 @@ You are in the boy's toilets.
 			<<bathroomicon "sink">><<link [[Rinse mouth (0:05)|School Boy's Rinse]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
+		<<skinicon "masturbate">><<link [[Masturbate|School Boy's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
 		<<pregnancyTest "School Boy's Toilets">>
 		<<storeon "schoolboys" "check">>
 		<<if _store_check isnot 1>>
 			<<getouticon>><<link [[Leave|Hallways]]>><</link>>
-		<<elseif $exposed gte 2 and $exhibitionism gte 55>>
+		<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 4)>>
 			<<getouticon>><<link [[Sneak out|Hallways Sneak]]>><<set $phase to 2>><</link>><<exhibitionist4>>
-		<<elseif $exposed is 1 and $exhibitionism gte 35>>
+		<<elseif $exposed is 1 and hasSexStat("exhibitionism", 3)>>
 			<<getouticon>><<link [[Sneak out|Hallways Sneak]]>><<set $phase to 1>><</link>><<exhibitionist3>>
 		<<elseif $exposed lte 0>>
 			<<getouticon>><<link [[Leave|Hallways]]>><</link>>
@@ -433,19 +436,17 @@ You are in the boy's toilets.
 
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<set $changingRoomGender to "girls">>
-You are in the girl's toilets.
+You are in the girls' toilets.
 <br><br>
 <<if $stress gte $stressmax>>
 	<<link [[Everything fades to black...|School Passout]]>><</link>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if $danger gte (9900 - $allure) and $eventskip isnot 1>>
+
+	<<if dangerEvent() and $eventskip isnot 1>>
 		<<eventsschooltoilets>>
 	<<else>>
 		<<storeactions "schoolgirls">>
-		<<mirroricon>><<link [[Look in the mirror (0:02)|Simple Mirror]]>><<pass 2>><<set $previousPassage = $passage>><</link>>
-		<br>
-		<<ind>><<link [[Masturbate|School Girl's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<<mirroricon "school">><<link [[Look in the mirror (0:02)|Simple Mirror]]>><<pass 2>><<set $previousPassage = $passage>><</link>>
 		<br>
 		<<if setup.bodyliquid.combined("face") gte 1 or $skin.left_cheek.pen is "pen" or $skin.right_cheek.pen is "pen" or $skin.forehead.pen is "pen" or $skin.left_cheek.pen is "mud" or $skin.right_cheek.pen is "mud" or $skin.forehead.pen is "mud" or $skin.left_cheek.pen is "lipstick" or $skin.right_cheek.pen is "lipstick" or $skin.forehead.pen is "lipstick">>
 			<<bathroomicon "sink">><<link [[Wash face (0:05)|School Girl's Wash]]>><<pass 5>><</link>>
@@ -455,13 +456,15 @@ You are in the girl's toilets.
 			<<bathroomicon "sink">><<link [[Rinse mouth (0:05)|School Girl's Rinse]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
+		<<skinicon "masturbate">><<link [[Masturbate|School Girl's Toilets Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
 		<<pregnancyTest "School Girl's Toilets">>
 		<<storeon "schoolgirls" "check">>
 		<<if _store_check isnot 1>>
 			<<getouticon>><<link [[Leave|Hallways]]>><</link>>
-		<<elseif $exposed gte 2 and $exhibitionism gte 55>>
+		<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 4)>>
 			<<getouticon>><<link [[Sneak out|Hallways Sneak]]>><<set $phase to 2>><</link>><<exhibitionist4>>
-		<<elseif $exposed is 1 and $exhibitionism gte 35>>
+		<<elseif $exposed is 1 and hasSexStat("exhibitionism", 3)>>
 			<<getouticon>><<link [[Sneak out|Hallways Sneak]]>><<set $phase to 1>><</link>><<exhibitionist3>>
 		<<elseif $exposed lte 0>>
 			<<getouticon>><<link [[Leave|Hallways]]>><</link>>
@@ -547,7 +550,7 @@ You bend over the sink and rinse out your mouth.
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<set $daily.vendingMachine.used to true>>
-<<set $money -= 2000>>
+<<money -2000 "schoolCondoms">><<wearProp "condom">>
 You insert the money into the machine and a 2-pack of condoms slides into a drawer.
 <br><br>
 
@@ -555,7 +558,7 @@ You insert the money into the machine and a 2-pack of condoms slides into a draw
 
 <<if Time.schoolTime>>
 	<<addevent "antechamber_vending_proposal_1" 1>>
-	<<if $promiscuity gte 50>>
+	<<if hasSexStat("promiscuity", 4)>>
 		<<addinlineevent "antechamber_vending_prom_1" 3>>
 			<<generate1>><<person1>>
 			A <<person>> enters the antechamber. <<He>> stares at you. You take the condoms and put them in your pocket while smiling at <<him>>.
@@ -574,12 +577,12 @@ You insert the money into the machine and a 2-pack of condoms slides into a draw
 		<</addinlineevent>>
 	<</if>>
 <<else>>
-    <<addinlineevent "antechamber_vending_0">>
-        You take them.
+	<<addinlineevent "antechamber_vending_0">>
+		You take them.
 		<<gcondoms 2>>
-        <br><br>
-        <<link [[Back|School Toilets]]>><<endevent>><</link>>
-    <</addinlineevent>>
+		<br><br>
+		<<link [[Back|School Toilets]]>><<endevent>><</link>>
+	<</addinlineevent>>
 <</if>>
 
 <<runeventpool>>
@@ -592,17 +595,23 @@ You insert the money into the machine and a 2-pack of condoms slides into a draw
 You examine the vending machine.
 <br><br>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[Pick it (0:10)|Vending Machine Sneak]]>><<pass 10>><<crimeUp 1 "petty">><</link>><<crime "petty">>
-	<br>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Vending Machine Sneak]]>><<handheldon>><<pass 10>><<crimeUp 1 "petty">><</link>><<crime "petty">>
+		<br>
+	<</if>>
 <<else>>
-	<span class="red">The lock looks beyond your ability to pick, it's delinquent-proof.</span><<skulduggeryrequired>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br>
 <</if>>
-<<condomicon "machine">><<link [[Smash it (0:10)|Vending Machine Smash]]>><<pass 10>><<crimeUp 5 "destruction">><<crimeUp 5 "petty">><</link>><<physiquedifficulty>> <<crimes "destruction" "petty">>
+<<condomicon "machine">><<link [[Smash it (0:10)|Vending Machine Smash]]>><<handheldon>><<pass 10>><<crimeUp 5 "destruction">><<crimeUp 5 "petty">><</link>><<physiquedifficulty>> <<crimes "destruction" "petty">>
 <br>
-<<getouticon>><<link [[Back|School Toilets]]>><</link>>
+<<getouticon>><<link [[Back|School Toilets]]>><<handheldon>><</link>>
 
 :: Vending Machine Sneak
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -612,13 +621,10 @@ You examine the vending machine.
 You deftly open the vending machine and count out the money inside. There's <<printmoney $tip>>.
 <<if _condomsStolen>>There are also _condomsStolen condoms.<</if>>
 <br><br>
-<<if $skulduggery lt 500>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-<</if>>
-<br><br>
-<<link [[Take them|School Toilets]]>><<set $money += $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
+
+<<skulduggeryuse 500 "locks">>
+
+<<link [[Take them|School Toilets]]>><<money $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
 <br>
 <<link [[Leave them|School Toilets]]>><</link>>
 
@@ -639,7 +645,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 	<<else>>
 		You kick the machine until you hear a crack. The lock breaks and the door opens. You look inside and find <<printmoney $tip>><<if _condomsStolen>>, plus _condomsStolen condoms<</if>>.
 		<br><br>
-		<<link [[Take them and leave|School Toilets]]>><<set $money += $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
+		<<link [[Take them and leave|School Toilets]]>><<money $tip>><<gcondoms _condomsStolen>><<crimeUp `$tip / 100 + _condomsStolen * 10` "petty">><</link>><<crime "petty">>
 	<</if>>
 <<else>>
 	You kick the machine until you hear a crack. You try to open the door, but the lock is stuck. You give up and decide to try another day.
@@ -791,6 +797,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<set $gloryholestat += 1>>
 	<<ejaculation>>
+	<<set _prop to "condom">>
 	<<tearful>> you take the condom <<he>> pushes through the hole.
 	"You'll probably need this more than me, you slut," <<he>> chirps as <<he>> walks away. <<gcondoms 1>>
 <<elseif $enemyhealth lte 0>>
@@ -806,6 +813,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 
 <<clotheson>>
 <<endcombat>>
+<<if _prop>><<wearProp _prop>><</if>>
 
 <<set $phase to 0>>
 <<link [[Climb out (0:01)|School Toilets]]>><<pass 1>><<unset $desperateaction>><</link>>
@@ -816,7 +824,7 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $player.perceived_breastsize gte $player.perceived_bottomsize>>
-	You hold your arms to support your <<breasts>> and arch forward. Giving him full view of your cleavage.
+	You hold your arms to support your <<breasts>> and arch forward. Giving <<him>> full view of your cleavage.
 	"Excuse me," you purr. "I think you have something that belongs to me."
 <<else>>
 	With your back to <<him>>, you part your legs and lean against the vending machine.
@@ -827,16 +835,16 @@ You deftly open the vending machine and count out the money inside. There's <<pr
 
 <<set $seductiondifficulty to 2000>>
 <<seductioncheck>>
-<br><br>
 
 <<if $seductionrating gte $seductionrequired>>
 	<!-- Passed check -->
+	<<wearProp "condom">>
 	<<He>> pauses, unable to respond. The silence is eventually broken. "E-errm, yeah, here you go." <<He>> hands you back the condoms.
 	<<gcondoms 2>>
 	<br>
-	<<if $promiscuity gte 55>>
+	<<if hasSexStat("promiscuity", 4)>>
 		<br>
-		<<link [[Still accept their offer|Vending Machine Proposal Sex]]>><</link>><<set $sexstart to 1>><<promiscuous3>>
+		<<link [[Still accept their offer|Vending Machine Proposal Sex]]>><</link>><<handheldon>><<set $sexstart to 1>><<promiscuous3>>
 	<</if>>
 <<else>>
 	<!-- Failed check -->

@@ -33,7 +33,7 @@ function skipToOrgasm(modifiers = "") {
 			if (modifiers.includes("edenPush") && masturbationEdenPush()) break;
 			if (modifiers.includes("whitneySeat")) wikifier("npcincr", "Whitney", "lust", 1);
 			if (modifiers.includes("robinSeat")) wikifier("npcincr", "Robin", "lust", 1);
-			if (modifiers.includes("kylarSeat") && V.orgasmdown >= 1) wikifier("npcincr", "Robin", "lust", 5);
+			if (modifiers.includes("kylarSeat") && V.orgasmdown >= 1) wikifier("npcincr", "Kylar", "lust", 5);
 			if (modifiers.includes("officePhase")) V.masturbationPhase++;
 			if (modifiers.includes("detentionPaddle")) masturbationDetentionPaddle();
 			if (modifiers.includes("privateShow")) masturbationPrivateShow();
@@ -72,11 +72,14 @@ function masturbationRobinWatching() {
 }
 
 function masturbationEdenPush() {
-	if (!V.edenpush && V.danger >= 9900 - V.allure && (between(Time.hour, 6, 11) || Time.hour > 14)) {
+	if ((!V.edenpush && dangerEvent() && (between(Time.hour, 6, 11) || Time.hour > 14)) || V.edenpush === 2) {
 		V.edenpush = 2;
 		return true;
 	}
+
+	return false;
 }
+window.masturbationEdenPush = masturbationEdenPush;
 
 function masturbationDetentionPaddle() {
 	if (V.orgasmdown >= 1) {

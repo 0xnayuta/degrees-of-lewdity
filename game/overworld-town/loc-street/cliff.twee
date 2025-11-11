@@ -1,7 +1,7 @@
 :: Cliff Street
 
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">><<getTarget true>>
-You are on Cliff Street. Several civic buildings are located here, including the town hall. The Ocean Breeze cafe looks out over the sea.
+You are on Cliff Street. Several civic buildings are located here, including the town hall. The Ocean Breeze Cafe looks out over the sea.
 <<if $chef_state is 9 and Time.dayState isnot "night">>
 	A queue has formed outside its extravagant doors.
 <<elseif $chef_state is 7 and $chef_rework lte 0>>
@@ -15,34 +15,34 @@ You are on Cliff Street. Several civic buildings are located here, including the
 <</if>>
 There's a path leading down to the beach.
 <<if Time.dayState is "day">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Wind howls in from the sea.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Wind howls in from the sea.
 	<<else>>
 		A gentle breeze blows in from the sea.
 	<</if>>
 <<elseif Time.dayState is "dawn">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Rain sweeps in from the sea.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Icy wind howls in from the sea.
 	<<else>>
 		There's a lot of traffic. People are driving to work.
 	<</if>>
 <<elseif Time.dayState is "dusk">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Rain sweeps in from the sea, soddening people on their way home from work.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.isFreezing>>
 		Icy wind sweeps in from the sea, chilling people on their way home from work.
 	<<else>>
 		There's a lot of traffic. People are driving home from work.
 	<</if>>
 <<elseif Time.dayState is "night">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		The sea roars below.
-	<<elseif $weather is "snow">>
-		The sea murmers below.
+	<<elseif Weather.isFreezing>>
+		The sea murmurs below.
 	<<else>>
 		The street is dark and quiet. Only the ocean can be heard.
 	<</if>>
@@ -51,32 +51,34 @@ There's a path leading down to the beach.
 <br><br>
 <<if $exposed gte 1>>
 	<<exhibitionism "street">>
-	<<if $exposed is 1 and $topless is 0>>
+	<<if $exposed is 1>>
 		<span class="lewd">This outfit might be fine on the nearby beach, but here it's too lewd!</span>
 		<br><br>
 	<</if>>
 <</if>>
 
-<<if $robinmissing is "pillory">> <!-- Robin is in pillory, or is scheduled to be -->
+<<if $robinmissing is "pillory" and $robinPillory.active>> <!-- Robin is in pillory, or is scheduled to be -->
 	<<if Time.hour lt 15>>
 		<<if $robinPillory.known is 1>>
 			Robin will be locked in the pillory today at <<ampm 15 00>>.
-			<br><br>
 		<<else>>
 			The pillory is empty, but a crowd is starting to gather regardless.
 		<</if>>
 	<<else>>
 		You see Robin in the pillory. You are unsure when <<nnpc_he "Robin">> is scheduled for release.
 		<<set $robinPillory.known to 1>> <!-- known means you know that robin is in the pillory -->
-		<br><br>
 	<</if>>
+	<br><br>
 <<else>>
-	<<if ndef $pillory_tenant>><<setup_pillory>><</if>>
-	<<if $pillory_tenant.exists is 1>> /* If someone is in pillory... */
-		<<if $timeStamp gte $pillory_tenant.endDate>>/* If sentence finished before today. */
+	<<if ndef $pillory.tenant>><<setup_pillory>><</if>>
+	<<set _endTime to new DateTime($pillory.tenant.endTime)>>
+	<<set _timeLeft to Time.date.compareWith(_endTime)>>
+
+	<<if $pillory.tenant.exists is 1>> /* If someone is in pillory... */
+		<<if _endTime.hours lt -2>> /* If sentence finished before today. */
 			<<clear_pillory>>
-		<<elseif ($pillory_tenant.endDate - $timeStamp) lte TimeConstants.secondsPerDay>>
-			<<if Time.hour is $pillory_tenant.endhour>> /* If ending now? */
+		<<elseif _timeLeft.days lt 1>>
+			<<if $pillory.tenant.endTime <= Time.date.timeStamp>> /* If ending now? */
 				<<end_npc_pillory>>
 			<<else>> /* Sentence ongoing. */
 				<<npc_pillory>>
@@ -84,7 +86,7 @@ There's a path leading down to the beach.
 		<<else>> /* Sentence ongoing to tomorrow. */
 			<<npc_pillory>>
 		<</if>>
-	<<elseif $rng %10 is 0>> /* Pillory empty gives 10% chance of new person */
+	<<elseif $rng lte 10 and !$daily.freedPillory>> /* Pillory empty gives 10% chance of new person */
 		<<new_npc_pillory>>
 	<</if>>
 <</if>>
@@ -95,10 +97,10 @@ There's a path leading down to the beach.
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
 <<elseif $chef_event gte random(1, 100) and $exposed lte 0 and !$possessed>>
-	<<rng>>
+	<<rng>><<run statusCheck("Gwylan")>>
 	<<if $chef_sus gte 100>>
 		<<set $chef_sus to 30>>
-		<<generatePolice 1>><<person1>>A police car pulls up beside you, and <<person>> steps out. "You're in trouble <<girl>>," <<he>> says. "Heard some disturbing stories about your cream business. About you making a mockery of health and safety. We take that very seriously, so we did some tests." <<He>> opens the passenger door.
+		<<generatePolice 1>><<person1>>A police car pulls up beside you, and a <<person>> steps out. "You're in trouble <<girl>>," <<he>> says. "Heard some disturbing stories about your cream business. About you making a mockery of health and safety. We take that very seriously, so we did some tests." <<He>> opens the passenger door.
 		<br><br>
 		"Get in," <<he>> says. "Best do as I say."
 		<br><br>
@@ -106,15 +108,74 @@ There's a path leading down to the beach.
 		<<link [[Get in|Chef Blackmail Car]]>><<sub 1>><</link>>
 		<br>
 		<<link [[Refuse|Chef Blackmail Car Refuse]]>><<crimeUp 3000 "resisting">><<def 1>><</link>><<crime "resisting">>
+	<<elseif !isGwylanAbsent() and _gwylanStatus?.includes("met") and !_gwylanStatus?.includes("reunion") and !$gwylanSeen?.includes("cafe_chef_truth") and $chef_speech isnot "truth" and !$weekly.gwylanCafeConfront and $rng lte 50>>
+		<<set $weekly.gwylanCafeConfront to true>>
+		<<npc Gwylan>><<person1>>
+		<<if gwylanSchedule() is "cafe">>
+			"Hold on a moment," comes a familiar voice. You turn to see Gwylan leaving the cafe after you. <<Hes>> gently smiling.
+		<<else>>
+			"There you are," comes a familiar voice. You turn to see Gwylan sitting at one of the outside tables. <<He>> stands up and approaches you with a gentle smile.
+		<</if>>
+		It's disarming.
+		<br><br>
+
+		<<if !$gwylanSeen.includes("cafe_chef")>>
+			<<set $gwylanSeen.pushUnique("cafe_chef")>>
+			"This cafe has been part of my routine for a very long time," <<he>> says. "Yet, the buns have never been this good." <<He>> steps closer to you.
+			<br><br>
+
+			"Things don't suddenly improve like this. Not this much, and not in such a short span of time.
+			<<if !$gwylan_cafe_intro>>
+				<<set $gwylan_cafe_intro to true>>
+				Everywhere I looked, it came back to you.
+			<</if>>
+			You've got a secret." <<He>> steps even closer, leaning forward.
+			<br><br>
+
+			"<<gwylanCommand "Won't you tell me?">> I won't say a word to anyone else. I promise."
+			<<if $hypnosis_traits.devotion gte 1>>
+				<span class="witchbloom"><<His>> request reverberates in your mind. Your lips feel loose. The sounds of the town all die down, and your peripheral vision becomes dark, leaving only Gwylan's freckled, smiling face.</span>
+			<</if>>
+		<<else>>
+			<<if _gwylanLastSeenDays gte 14>>
+				"Have you been avoiding me to keep your secret safe?
+			<<else>>
+				"So, have you changed your mind yet?
+			<</if>>
+			I'm awfully curious as to how you make those buns so well." <<He>> steps closer to you.
+			<br><br>
+
+			<<if C.npc.Gwylan.dom gte 15>>
+				"Come on. <<gwylanCommand "Be a <<pcpetname 'Gwylan' 'good'>> and tell me.">>"
+				<<if $hypnosis_traits.devotion gte 1>>
+					<span class="witchbloom"><<His>> gentle demand reverberates in your mind. The sounds of the town all die down, and your peripheral vision becomes dark, leaving only Gwylan's freckled, smiling face.</span>
+				<<else>>
+					<<He>> pokes at your cheek.
+				<</if>>
+			<<else>>
+				"<<gwylanCommand "Won't you tell me?">> I won't say a word to anyone else. I promise."
+				<<if $hypnosis_traits.devotion gte 1>>
+					<span class="witchbloom"><<His>> request reverberates in your mind. Your lips feel loose. The sounds of the town all die down, and your peripheral vision becomes dark, leaving only Gwylan's freckled, smiling face.</span>
+				<<else>>
+					<<He>> pokes at your cheek.
+				<</if>>
+			<</if>>
+		<</if>>
+		<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
+		<br><br>
+
+		<<link [[Tell Gwylan how the buns are made|Gwylan Chef Cream]]>><<set $phase to 1>><<npcincr Gwylan lust 5>><<npcincr Gwylan dom 2>><</link>><<gglust>><<gyearning>>
+		<br>
+		<<link [[Do not|Gwylan Chef Cream]]>><<set $phase to 2>><</link>><<gwylanWillpowerDifficulty>>
+		<br>
 	<<elseif $chef_sus gte 10 and $rng gte 51>>
 		<<generate1>><<person1>>"Hey you," a voice says to the side. "The chef." You turn to see a <<person>> leaning against a wall beside an alley. "Nice cream you have. Tastes good. I bet I can guess the ingredients though." <<He>> grins. "You're a naughty one. Not something you want the authorities to find out, that's for sure."
 		<br><br>
 
-		<<link [[Ask what they want|Chef Blackmail Ask]]>><</link>>
+		<<link [[Ask what <<he>> wants|Chef Blackmail Ask]]>><</link>>
 		<br>
 		<<link [[Refuse to be blackmailed|Chef Blackmail Refuse]]>><<def 1>><<set $chef_sus += 10>><</link>><<ggsuspicion>>
 		<br>
-
 	<<else>>
 		<<generate1>><<person1>>A <<person>> approaches you. "I tasted one of your buns," <<he>> says. "The cream is the best!" <<His>> eyes light up, and <<he>> scoops something off your arm. "You spilled some," <<he>> says. Before you can stop <<him>>, <<he>> licks it.
 		<br><br>
@@ -127,8 +188,8 @@ There's a path leading down to the beach.
 		<br>
 	<</if>>
 <<else>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
-	<<if ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
+
+	<<if (dangerEvent() or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<else>>
 		<<if $options.mapTop is true>>
@@ -149,15 +210,16 @@ There's a path leading down to the beach.
 			<<englishicon>><<link [[Attend stage plays|English Play Attend]]>><</link>>
 			<br>
 		<</if>>
-		<<if $robinmissing is "pillory" and $exposed lte 0>>
+		<<if $robinmissing is "pillory" and $robinPillory.active and $exposed lte 0>>
 			<<if Time.hour gte 15 and Time.hour lte 22>>
 				<<pilloryicon>><<link [[Watch pillory (0:10)|Robin Pillory Watch]]>><<pass 10>><</link>>
 			<<elseif Time.hour gte 23>>
 				<<pilloryicon>><<link [[Watch pillory (0:10)|Robin Pillory Failure]]>><<pass 10>><</link>>
 			<</if>>
 			<br>
-		<<elseif $pillory_tenant.exists is 1 and $exposed lte 0>>
-			<<if Time.hour is ($pillory_tenant.endhour -1) and Time.minute gte 50>>
+		<<elseif $pillory.tenant.exists is 1 and $exposed lte 0>>
+			<<set _timeLeft to Time.date.compareWith($pillory.tenant.endTime)>>
+			<<if _timeLeft.hours eq 0 and _timeLeft.minutes lte 10>>
 				<span class="blue">A police officer starts trying to disperse the crowd.</span>
 				<br>
 				<<pilloryicon>><<link [[Watch (0:10)|Cliff Street]]>><<pass 10>><</link>>
@@ -176,20 +238,24 @@ There's a path leading down to the beach.
 		<</if>>
 		<<beachicon>><<link [[Beach (0:05)|Beach]]>><<pass 5>><</link>>
 		<br>
-		<<if $exhibitionismrun is "cliff" and $weather is "clear">>
+		<<if $exhibitionismrun is "cliff" and !Weather.isOvercast>>
 			<<ind>><<link [[Take off your clothes (0:07)|Cliff Challenge]]>><</link>>
 			<br>
 		<</if>>
-		<<if $chef_state is 8 and Time.dayState is "dusk">>
-			<<cafeicon>><<link [[Attend opening event (5:00)|Chef Opening]]>><</link>>
-			<br>
-		<<elseif $chef_state is 7 and $chef_rework gte 1 and $chef_rework lte 30>>
-
-		<<elseif $chef_state is 7 and $chef_rework lte 0>>
-			<<if $exposed lte 0>>
-				<<cafeicon>><<link [[Cafe (0:01)|Ocean Breeze Rework]]>><<pass 1>><</link>>
-				<br>
+		<<if $chef_state is 8>>
+			<<if Time.dayState is "dusk">>
+				<<cafeicon>><<link [[Attend opening event (5:00)|Chef Opening]]>><</link>>
+			<<else>>
+				<<cafeicon>><span class="blue">The cafe is preparing for the grand reopening.</span>
 			<</if>>
+			<br>
+		<<elseif $chef_state is 7 and $chef_rework lte 30>>
+			<<if $chef_rework lte 0 and $exposed lte 0 and $openinghours is 1>>
+				<<cafeicon>><<link [[Cafe (0:01)|Ocean Breeze Rework]]>><<pass 1>><</link>>
+			<<else>>
+				<<cafeicon>><span class="blue">The cafe is undergoing renovations which will finish in $chef_rework <<pluralise $chef_rework "day">>.</span>
+			<</if>>
+			<br>
 		<<elseif $openinghours is 1>>
 			<<if $exposed lte 0>>
 				<<cafeicon>><<link [[Cafe (0:01)|Ocean Breeze]]>><<pass 1>><</link>>
@@ -197,10 +263,17 @@ There's a path leading down to the beach.
 			<<else>>
 			<</if>>
 		<<elseif Time.hour is $closinghour>>
-			<span class="blue">People are leaving the cafe.</span> It must be closing time.
+			<<cafeicon>><span class="blue">People are leaving the cafe.</span> It must be closing time.
 			<br>
 		<<else>>
 			<<cafeicon>><<link [[Cafe (0:01)|Ocean Breeze Lock]]>><<pass 1>><</link>>
+			<br>
+		<</if>>
+		<<run statusCheck("Gwylan")>>
+		<<if _gwylanStatus?.includes("met") and gwylanSchedule() is "cliff" and $exposed lte 0>>
+			You spot Gwylan a long way's down the street, leaning against a railing and watching the ocean.
+			<br>
+			<<socialiseicon>><<link [[Join <<nnpc_him "Gwylan">>|Gwylan Cliff]]>><</link>>
 			<br>
 		<</if>>
 		<br>
@@ -232,14 +305,12 @@ There's a path leading down to the beach.
 :: Cliff Challenge
 <<effects>>
 
-<<if $chef_rework isnot undefined>>
-
+<<if $chef_rework>>
 	The cafe is currently being renovated, and the site is covered in construction workers.
-
-<<else>>
-
+<<elseif ($chef_state is 9 or $chef_rework is undefined) and $openinghours is 1>>
 	The cafe is full, with a line reaching out the door.
-
+<<elseif $chef_state is 8 and Time.dayState is "dusk">>
+	Guests for the opening event are chatting outside the cafe.
 <</if>>
 
 People are going about their business, to and from the beach.
@@ -248,14 +319,14 @@ People are going about their business, to and from the beach.
 The note said to start at the cafe, but you need to find somewhere to put your clothes. There's a trashcan placed right next to the cafe entrance.
 <br><br>
 
-<<if $exhibitionism gte 35>>
-		<<link [[Strip|Cliff Challenge Strip]]>><</link>><<exhibitionist3>>
-		<br>
-	<<else>>
-		<span class="blue">You are not exhibitionist enough to do this.</span>
-		<br>
-	<</if>>
-	<<link [[Leave|Cliff Street]]>><</link>>
+<<if hasSexStat("exhibitionism", 3)>>
+	<<link [[Strip|Cliff Challenge Strip]]>><</link>><<exhibitionist3>>
+	<br>
+<<else>>
+	<<insufficientStat "exhibitionism" "to do this">>
+	<br>
+<</if>>
+<<link [[Leave|Cliff Street]]>><</link>>
 
 :: Cliff Challenge Strip
 <<set $challengetimer to 10>>
@@ -264,7 +335,7 @@ The note said to start at the cafe, but you need to find somewhere to put your c
 You take off your clothes, getting naked in public in front of countless people. You bunch up your clothes and quickly shove them behind the trashcan.
 <br><br>
 
-The commotion starts immediately. You hear gasps and shouts and cheers from the people surrounding you.<<if $exhibitionism gte 35>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 6>><</if>>
+The commotion starts immediately. You hear gasps and shouts and cheers from the people surrounding you.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 6>><</if>>
 <br><br>
 
 <<link [[Next|Cliff Challenge 2]]>><<pass 1>><</link>>
@@ -272,9 +343,9 @@ The commotion starts immediately. You hear gasps and shouts and cheers from the 
 :: Cliff Challenge 2
 <<effects>>
 
-<<if $chef_rework isnot undefined>>
+<<if $chef_rework>>
 	Behind you, jeers are coming from the construction workers. You turn around and see that work has stopped, and all the workers are leering at your naked body.
-<<else>>
+<<elseif ($chef_state is 9 or $chef_rework is undefined) and $openinghours is 1>>
 	You turn and see that the entire cafe is staring at you, including a shocked-looking Sam. Several customers have gotten closer to the window to get a better look at your naked body.
 <</if>>
 
@@ -293,10 +364,10 @@ The air blows on your bare skin. You can feel it flowing between your legs, over
 :: Cliff Challenge 3
 <<effects>>
 
-You leave the beach wall behind and are soon surrounded by people in suits and business wear. You are running naked outside the civic centre, with the city hall on your right.
+You leave the beach wall behind and are soon surrounded by people in suits and business wear. You are running naked outside the civic centre, with the town hall on your right.
 <br><br>
 
-People continue to shout and jeer at you. You have to run in between large crowds of public servants.<<if $exhibitionism gte 35>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 6>><</if>>
+People continue to shout and jeer at you. You have to run in between large crowds of public servants.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<gstress>><<stress 6>><</if>>
 <br><br>
 
 <<link [[Next|Cliff Challenge 4]]>><<pass 1>><</link>>
@@ -304,10 +375,10 @@ People continue to shout and jeer at you. You have to run in between large crowd
 :: Cliff Challenge 4
 <<effects>>
 
-You pass city hall and turn right onto High Street. This part of town is even more crowded.
+You pass the town hall and turn right onto High Street. This part of town is even more crowded.
 <br><br>
 
-You pass by customers and drivers and store fronts and restaurants. Everyone on the street gets a good look at your naked run. Many are able to take out their phones and grab footage of your streak.<<if $exhibitionism gte 35>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
+You pass by customers and drivers and store fronts and restaurants. Everyone on the street gets a good look at your naked run. Many are able to take out their phones and grab footage of your streak.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
 <br><br>
 
 <<link [[Next|Cliff Challenge 5]]>><<pass 1>><</link>>
@@ -315,10 +386,10 @@ You pass by customers and drivers and store fronts and restaurants. Everyone on 
 :: Cliff Challenge 5
 <<effects>>
 
-You pass by the storefront and the office building, the most crowded part of High street.
+You pass by the storefront and the office building, the most crowded part of High Street.
 <br><br>
 
-The noise is deafening as people shout and cars honk at you. It becomes difficult to weave through people as you make your way down the sidewalk. You're only halfway through your run.<<if $exhibitionism gte 35>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
+The noise is deafening as people shout and cars honk at you. It becomes difficult to weave through people as you make your way down the sidewalk. You're only halfway through your run.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
 <br><br>
 
 <<link [[Next|Cliff Challenge 6]]>><<pass 1>><</link>>
@@ -350,7 +421,7 @@ Several people clap and cheer as you put your clothes on. You catch your breath 
 <i>You're truly someone we can work with. Will be in contact again soon.</i>
 <br><br>
 
-You hear a buzzing above you. Looking up, there's a small drone hovering above the street. The drone has a camera lens pointed directly at you. As soon as you notice it, it flies away.<<if $exhibitionism gte 35>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
+You hear a buzzing above you. Looking up, there's a small drone hovering above the street. The drone has a camera lens pointed directly at you. As soon as you notice it, it flies away.<<if hasSexStat("exhibitionism", 3)>><<garousal>><<arousal 600>><<else>><<ggstress>><<stress 12>><</if>>
 <br><br>
 
 You shudder and pocket the money.
@@ -361,7 +432,7 @@ You shudder and pocket the money.
 
 :: Cliff Street Pillory
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">>
-<<if $pillory_tenant.exists>>
+<<if $pillory.tenant.exists>>
 	You join the crowd around the pillory on Cliff Street.
 	<<npc_pillory_detail>>
 	<<if $stress gte ($stressmax / 10) * 3>>
@@ -375,35 +446,35 @@ You shudder and pocket the money.
 	<</if>>
 	<<if Time.dayState is "night">>
 		<<if $stress gte ($stressmax / 10) * 3>>
-			<<if $pillory_tenant.fruitstock gte 1>>
-				<<link [[Throw fruit (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 0>><<stress -6>><<set $pillory_tenant.fruitstock -= 1>><</link>><<lstress>>
+			<<if $pillory.tenant.fruitstock gte 1>>
+				<<link [[Throw fruit (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 0>><<stress -6>><<set $pillory.tenant.fruitstock -= 1>><</link>><<lstress>>
 				<br>
 			<<else>>
 				<span class="red">There is no fruit left to throw right now.</span>
 				<br>
 			<</if>>
 		<</if>>
-		<<if $cat gte 6 and ($pillory_tenant.ass + $pillory_tenant.genital) gte 2>>
+		<<if $cat gte 6 and ($pillory.tenant.ass + $pillory.tenant.genital) gte 2>>
 			<<link [[Groom prisoner (0:05)|Cliff Street Prisoner]]>><<pass 5>><<set $phase to 1>><</link>>
 			<br>
 		<</if>>
-		<<if $pillory_tenant.lowerexposed gte 2 and $stress gte 4000 and $trauma gte (($traumamax / 5) * 1)>>
+		<<if $pillory.tenant.lowerexposed gte 2 and $stress gte 4000 and $trauma gte (($traumamax / 5) * 1)>>
 			<<link [[Spank prisoner (0:05)|Cliff Street Prisoner]]>><<pass 5>><<set $phase to 2>><</link>><<llstress>><<ltrauma>>
 			<br>
 		<</if>>
-		<<if $pillory_tenant.lowerexposed lte 1 or (($pronoun is "m" and $pillory_tenant.upperexposed lte 1) or ($pronoun is "f" and $pillory_tenant.upperexposed lte 2)) and $stress gte 7000 and $trauma gte (($traumamax / 5) * 2)>>
+		<<if $pillory.tenant.lowerexposed lte 1 or (($pronoun is "m" and $pillory.tenant.upperexposed lte 1) or ($pronoun is "f" and $pillory.tenant.upperexposed lte 2)) and $stress gte 7000 and $trauma gte (($traumamax / 5) * 2)>>
 			<<link [[Expose prisoner (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 3>><</link>><<llstress>>
 			<br>
 		<</if>>
 		<<if $submissive lte 1000 or $fame.good gte 50 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1050)>>
-			<<if ($pillory_tenant.lowerexposed + $pillory_tenant.upperexposed) gte 1>>
+			<<if ($pillory.tenant.lowerexposed + $pillory.tenant.upperexposed) gte 1>>
 				<<link [[Cover prisoner (0:05)|Cliff Street Prisoner Night Help]]>><<pass 5>><<set $phase to 0>><</link>><<gstress>>
 				<br>
 			<</if>>
 			<<if $speech_attitude is "bratty" or $fame.good gte 150 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1400)>>
-				<<if $pillory_tenant.crowd gte 8>><<set $skulduggerydifficulty to 1350>> /* 50% chance of failure, even at max skulduggery */
-				<<elseif $pillory_tenant.crowd gte 6>><<set $skulduggerydifficulty to 1250>> /* 30% fail at max skul */
-				<<elseif $pillory_tenant.crowd gte 4>><<set $skulduggerydifficulty to 1100>> /* 10% chance of success, even at max skulduggery */
+				<<if $pillory.tenant.crowd gte 8>><<set $skulduggerydifficulty to 1350>> /* 50% chance of failure, even at max skulduggery */
+				<<elseif $pillory.tenant.crowd gte 6>><<set $skulduggerydifficulty to 1250>> /* 30% fail at max skul */
+				<<elseif $pillory.tenant.crowd gte 4>><<set $skulduggerydifficulty to 1100>> /* 10% chance of success, even at max skulduggery */
 				<<else>><<set $skulduggerydifficulty to 875>>
 				<</if>>
 				<<link [[Free prisoner (0:05)|Cliff Street Prisoner Night Help]]>><<pass 5>><<set $phase to 1>><</link>> <<crime "obstruction">><<skulduggerydifficulty>><<dangerousText>>
@@ -415,26 +486,26 @@ You shudder and pocket the money.
 		<</if>>
 	<<else>> /* day */
 		<<if $stress gte ($stressmax / 5) * 2>>
-			<<if $pillory_tenant.fruitstock gte 1>>
-				<<link [[Throw fruit (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 0>><<stress -6>><<set $pillory_tenant.fruitstock -= 1>><</link>><<lstress>>
+			<<if $pillory.tenant.fruitstock gte 1>>
+				<<link [[Throw fruit (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 0>><<stress -6>><<set $pillory.tenant.fruitstock -= 1>><</link>><<lstress>>
 				<br>
 			<<else>>
 				<span class="red">There is no fruit left to throw right now.</span>
 				<br>
 			<</if>>
 		<</if>>
-		<<if $pillory_tenant.lowerexposed lte 1 and $pillory_tenant.wedgied isnot 1 and ($stress gte 6000 or $trauma gte (($traumamax / 5) * 2))>>
-			<<link [[Wedgie (0:05)|Cliff Street Prisoner]]>><<set $pillory_tenant.wedgied to 1>><<pass 5>><<set $phase to 4>><<stress -12>><</link>><<llstress>><<ltrauma>>
+		<<if $pillory.tenant.lowerexposed lte 1 and $pillory.tenant.wedgied isnot 1 and ($stress gte 6000 or $trauma gte (($traumamax / 5) * 2))>>
+			<<link [[Wedgie (0:05)|Cliff Street Prisoner]]>><<set $pillory.tenant.wedgied to 1>><<pass 5>><<set $phase to 4>><<stress -12>><</link>><<llstress>><<ltrauma>>
 			<br>
 		<</if>>
 		<<if $submissive lte 1000 or $fame.good gte 50 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1050)>>
-			<<if ($pillory_tenant.lowerexposed + $pillory_tenant.upperexposed) gte 1>>
+			<<if ($pillory.tenant.lowerexposed + $pillory.tenant.upperexposed) gte 1>>
 				<<link [[Cover prisoner (0:05)|Cliff Street Prisoner]]>><<pass 5>><<set $phase to 5>><</link>><<gstress>>
 				<br>
-				<span class="teal">In broad daylight, you don't dare help more. Maybe under the cover of night.</span>
+				<span class="teal">At this hour, you don't dare help more. Maybe under the cover of night.</span>
 				<br><br>
 			<<else>>
-				<span class="teal">In broad daylight, you don't dare help. Maybe under the cover of night.</span>
+				<span class="teal">At this hour, you don't dare help. Maybe under the cover of night.</span>
 				<br><br>
 			<</if>>
 		<</if>>
@@ -455,8 +526,8 @@ You shudder and pocket the money.
 	A box of rotten fruit lies nearby. You grab a piece and weigh it in your hand.
 	<br>
 	You throw it at <<the_pillory_person>>
-	<<if $rng gte 75>>
-	<<set $pillory_tenant.fruit += 1>>
+	<<if $rng gte 76>>
+	<<set $pillory.tenant.fruit += 1>>
 		<span class="teal">hitting <<him>> full in the face.</span> <<His>> expression is hilarious.
 		<<if currentSkillValue('physique') gte ($physiquesize / 7) * 4>>You put a lot of strength behind it, it must have hurt.<</if>>
 		<<llstress>><<stress -12>>
@@ -469,7 +540,7 @@ You shudder and pocket the money.
 	You slurp up the cream from <<the_pillory_person>>'s ass and groin. The crowd watch, awed.
 	<<famesex 20>>
 <<elseif $phase is 2>>
-<<set $pillory_tenant.spank += 1>><<control 10>><<stress -24>><<trauma -12>>
+<<set $pillory.tenant.spank += 1>><<control 10>><<stress -24>><<trauma -12>>
 	You <<print either("viciously","resentfully","grimly","self-righteously","maniacally")>> spank <<the_pillory_person>>'s ass. Somehow,
 	<<print either("it gives you a sense of control and well-being.","it brings a growing sense of calm.","it makes the shadows draw back.")>>
 	<br>
@@ -477,38 +548,38 @@ You shudder and pocket the money.
 <<elseif $phase is 3>><<control 10>><<stress -24>><<trauma -12>>
 	Approaching <<the_pillory_person>> from behind, you <<print either("smoothly","awkwardly","quickly")>>
 	<<if $pronoun is "m">>
-		<<if $pillory_tenant.upperexposed lte 1>>
-			<<set $pillory_tenant.upperexposed to 2>>displace <<his>> top, fully exposing <<his>> chest
-			<<if $pillory_tenant.lowerexposed lte 1>>and then<</if>>
+		<<if $pillory.tenant.upperexposed lte 1>>
+			<<set $pillory.tenant.upperexposed to 2>>displace <<his>> top, fully exposing <<his>> chest
+			<<if $pillory.tenant.lowerexposed lte 1>>and then<</if>>
 		<</if>>
-		<<if $pillory_tenant.lowerexposed lte 1>>pull <<his>>
-			<<if $pillory_tenant.lowerexposed is 0>>trousers and<</if>>
+		<<if $pillory.tenant.lowerexposed lte 1>>pull <<his>>
+			<<if $pillory.tenant.lowerexposed is 0>>trousers and<</if>>
 			underpants to the floor, exposing <<his>> ass and <<his>>
-			<<if $pillory_tenant.person.gender is "m">>
-				$pillory_tenant.person.penisdesc
+			<<if $pillory.tenant.person.gender is "m">>
+				$pillory.tenant.person.penisdesc
 			<<else>>
 				pussy
 			<</if>>
-			<<set $pillory_tenant.lowerexposed to 2>>
+			<<set $pillory.tenant.lowerexposed to 2>>
 		<</if>>
 	<<elseif $pronoun is "f">>
-		<<if $pillory_tenant.upperexposed lte 2>>
-			<<if $pillory_tenant.upperexposed lte 0>>displace <<his>> top and<</if>>
-			remove <<his>> bra, fully exposing <<his>> $pillory_tenant.person.breastsdesc
-			<<if $pillory_tenant.lowerexposed lte 1>>to all. Without hesitation, you then<</if>>
-			<<set $pillory_tenant.upperexposed to 3>>
+		<<if $pillory.tenant.upperexposed lte 2>>
+			<<if $pillory.tenant.upperexposed lte 0>>displace <<his>> top and<</if>>
+			remove <<his>> bra, fully exposing <<his>> $pillory.tenant.person.breastsdesc
+			<<if $pillory.tenant.lowerexposed lte 1>>to all. Without hesitation, you then<</if>>
+			<<set $pillory.tenant.upperexposed to 3>>
 		<</if>>
-		<<if $pillory_tenant.lowerexposed lte 1>>
-			<<if $pillory_tenant.lowerexposed lte 0>>hitch up <<his>> skirt and pull <<his>> panties to the floor,
+		<<if $pillory.tenant.lowerexposed lte 1>>
+			<<if $pillory.tenant.lowerexposed lte 0>>hitch up <<his>> skirt and pull <<his>> panties to the floor,
 			<<else>>pull <<the_pillory_person>>'s panties to the floor,<</if>>
 			fully exposing <<his>>
-			<<if $pillory_tenant.person.gender is "m">>
-				$pillory_tenant.person.penisdesc
+			<<if $pillory.tenant.person.gender is "m">>
+				$pillory.tenant.person.penisdesc
 			<<else>>
 				pussy
 			<</if>>
 			and ass
-			<<set $pillory_tenant.lowerexposed to 2>>
+			<<set $pillory.tenant.lowerexposed to 2>>
 		<</if>>
 	<<else>> /* in case the game goes fully non binary */
 		tear off all their clothes, fully exposing them
@@ -516,7 +587,7 @@ You shudder and pocket the money.
 	<br><br>
 
 	Some people <<print either("gasp, but","laugh, and","complain, but","fall silent, but","whistle, and","jeer, and","make lewd threats, and")>> more than a few cheer.
-<<elseif $phase is 4>><<control 5>><<stress -20>><<trauma -4>><<set $pillory_tenant.broken += 1>>
+<<elseif $phase is 4>><<control 5>><<stress -20>><<trauma -4>><<set $pillory.tenant.broken += 1>>
 	Approaching from behind, you <<print either("cheekily","aggressively","quickly","vindictively","stealthily")>>
 	grab <<the_pillory_person>>'s <<if $pronoun is "m">>underpants<<else>>panties<</if>> and hoist them up hard.
 	<br>
@@ -524,7 +595,7 @@ You shudder and pocket the money.
 	stuck in the pillory, <<he>> can't even fix it. <<He>> knows this and so does everyone watching.
 	<br>
 	Many in the crowd seem to share in your amusement.
-<<elseif $phase is 5>><<stress 6>><<famegood 10>><<trauma -10>><<set $pillory_tenant.upperexposed to 0>><<set $pillory_tenant.lowerexposed to 0>>
+<<elseif $phase is 5>><<stress 6>><<famegood 10>><<trauma -10>><<set $pillory.tenant.upperexposed to 0>><<set $pillory.tenant.lowerexposed to 0>>
 	The people watching fall quiet as they see you approach the pillory. <<The_pillory_person>> watches you warily, but relaxes when you start to restore <<his>> clothes
 	along with some fragment of <<his>> dignity.
 	<br><br>
@@ -553,14 +624,14 @@ You shudder and pocket the money.
 
 :: Cliff Street Prisoner Night Help
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">>
-<<if $phase is 0>><<stress 6>><<famegood 10>><<trauma -10>><<set $pillory_tenant.upperexposed to 0>><<set $pillory_tenant.lowerexposed to 0>>
+<<if $phase is 0>><<stress 6>><<famegood 10>><<trauma -10>><<set $pillory.tenant.upperexposed to 0>><<set $pillory.tenant.lowerexposed to 0>>
 	The people watching fall quiet as they see you approach the pillory. <<The_pillory_person>> watches you warily, but relaxes when you start to restore <<his>> clothes
 	along with some fragment of <<his>> dignity.
 	<br><br>
 	When they realise what you are doing, the crowd turn. You hear sinister grumbling behind, while you quickly finish putting <<his>> clothes back in place.
 	<br><br>
 	<<rng 12>>
-	<<if $rng gte $pillory_tenant.crowd>>
+	<<if $rng gte $pillory.tenant.crowd>>
 		Before anyone can get too brazen, you quickly move away.<br>
 		You sense lingering hostility from some in the crowd,
 		<<if $speech_attitude is "bratty">>
@@ -576,7 +647,7 @@ You shudder and pocket the money.
 		<<link [[Next| Cliff Street]]>><</link>>
 		<br>
 	<<else>>
-		<<if $pillory_tenant.crowd gt 6>><<athleticsdifficulty 400 1000 f>><<else>><<athleticsdifficulty 0 500 f>><</if>>
+		<<if $pillory.tenant.crowd gt 6>><<athleticsdifficulty 400 1000 f>><<else>><<athleticsdifficulty 0 500 f>><</if>>
 		"Watch out!" <<The_pillory_person>> says suddenly.
 		<<if $athleticsSuccess>>
 			Someone tries to grab you, but you slip their grip and dash away.<br>
@@ -704,13 +775,13 @@ They tackle you to the ground tearing at your clothes.
 :: Cliff Street Prisoner Escape
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">>
 <<get_pillory_npc>><<person1>> /* if anyone can think of a better escape scenario, feel free to add it */
-The locks swiftly come open under your skillful touch, and the crowd nearby are none the wiser.<br>
+The locks swiftly come open under your skilful touch, and the crowd nearby are none the wiser.<br>
 "Play along," you whisper. "When we're clear of the crowd, head for the alleys."
 <br><br>
 "Okay, up you get, criminal," you bark, as you throw open the pillory mechanism and drag <<the_pillory_person>> to <<his>> feet.
 
-<<if ($pillory_tenant.lowerexposed + $pillory_tenant.upperexposed) gte 1>>
-	<<if $pillory_tenant.person.pronoun is "f">>
+<<if ($pillory.tenant.lowerexposed + $pillory.tenant.upperexposed) gte 1>>
+	<<if $pillory.tenant.person.pronoun is "f">>
 		"Come on, this isn't a titty bar. No one want to see all that. Sort those clothes out. ... Good.
 	<<else>>
 		"What are you a flasher? Cover that up! No one want to see that. Sort those clothes out. ... Good.
@@ -722,35 +793,36 @@ You know where the station is: get walking."
 <br><br>
 Once out of sight of the crowd, you disappear together into an alley.
 <br><br>
-<<if $pillory_tenant.special.name is "Leighton">>
+<<if $pillory.tenant.special.name is "Leighton">>
 	"That was disgusting. I was framed," says <<the_pillory_person>> heatedly. "But thanks for getting me out."
 	<<npcincr Leighton love 10>>
-<<elseif $pillory_tenant.special.name is "Whitney">>
+<<elseif $pillory.tenant.special.name is "Whitney">>
 	"Th- Thanks," <<the_pillory_person>> scowls. "I'm gonna find the fucker who set me up for this."
 	<<npcincr Whitney love 5>>
 <<else>>
 	"Thank you," <<the_pillory_person>> says, earnestly. "That was so horrible. You really helped me out."
 <</if>>
+<<set $daily.freedPillory to true>>
 <<clear_pillory>>
 <<endevent>><<famegood 15>>
 <br><br>
-<<link [[Next|Commercial alleyways]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Commercial Alleyways]]>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Cliff Street Prisoner Escape Fail
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">>
 <<generatePolice 2>><<generatePolice 3>><<generatePolice 4>><<person3>><<crimeUp 1000 "obstruction">>
-"I'll get you out of here," you whisper.<br>
+"I'll get you out of here," you whisper.
+<br><br>
 However, with so many people watching, it's hard to work on the locks. They won't open and the bindings won't loosen. A lockpick snaps and you fumble for another.
 As time starts to stretch, you hear a rising murmur from the crowd. Starting to panic, you fail to notice as the crowd fall silent.
 <br><br>
 "It's a crime to help a criminal escape lawful punishment," a voice behind you states.
 <br><br>
-"And reckless damage to public property," another voice says. "Those locks."<br>
-You turn around slowly. Three uniformed police stand behind you.
+"And reckless damage to public property," another voice says. "Those locks." You turn around slowly. Three uniformed police stand behind you.
 <br><br>
 <<if crimeSumCurrent() gte 2000>>
-	"I recognise <<pher>> too," the <<person>> adds. "No doubt another tearaway, with a record as long as your arm."
+	"I recognise <<phim>> too," the <<person>> adds. "No doubt another tearaway, with a record as long as your arm."
 <<else>>
 	"Such a shame," the <<person>> shakes <<his>> head. "<<pShe>> looks so innocent too."
 <</if>>
@@ -763,9 +835,12 @@ You turn around slowly. Three uniformed police stand behind you.
 <br><br>
 "I think, <<girl>>," the <<person2>><<person>> says. "You're about to be in a spot of trouble."
 <br><br>
-<<link [[Apologise|Cliff Street Prisoner Escape Fail 2]]>><<set $phase to 0>><</link>><br>
-<<link [[Run for it|Cliff Street Prisoner Escape Fail Run]]>><<crimeUp 500 "resisting">><</link>><<gcrime "resisting">><br>
+<<link [[Apologise|Cliff Street Prisoner Escape Fail 2]]>><<set $phase to 0>><</link>>
+<br>
+<<link [[Run for it|Cliff Street Prisoner Escape Fail Run]]>><<crimeUp 500 "resisting">><</link>><<gcrime "resisting">>
+<br>
 <<link [[Try to talk your way out|Cliff Street Prisoner Escape Blag]]>><</link>>
+<br>
 
 
 :: Cliff Street Prisoner Escape Fail Run
@@ -777,7 +852,7 @@ You turn around slowly. Three uniformed police stand behind you.
 	You quickly leave two of the officers behind, but the <<person4>><<person>> stays hard on your tail. You pound through the town streets, with the officer relentlessly close behind.
 	<br><br><<person4>>
 	<<rng>>
-	<<if $rng gte 80>> /* only 20% chance of escape for most */
+	<<if $rng gte 81>> /* only 20% chance of escape for most */
 		Your lungs are burning and you're about to collapse, when you hear <<him>> trip on something and smack into a wall with a grunt.<br>
 		A rush of adrenaline carries you clear before <<he>> can recover.
 		<br><br>
@@ -785,7 +860,7 @@ You turn around slowly. Three uniformed police stand behind you.
 		<br><br>
 		<<endevent>>
 		<<link [[Next|Bus Station]]>><<pass 5>><</link>>
-	<<elseif $rng gte 60 and $harpy gte 6 and $birdFly gte 1>> /* harpies get a bit more chance */
+	<<elseif $rng gte 61 and $harpy gte 6 and $birdFly gte 1 and !$plucked>> /* harpies get a bit more chance */
 		Your lungs are burning and you're close to collapse, when you hear <<him>> trip on something and stagger.<br>
 		A rush of adrenaline boosts your lead. Dashing around a corner and speeding downhill, you spread your wings and soar into the sky.
 		<br><br>
@@ -793,10 +868,10 @@ You turn around slowly. Three uniformed police stand behind you.
 		<br><br>
 		<<endevent>>
 		<<link [[Next|Commercial rooftops]]>><<pass 5>><</link>>
-	<<elseif $rng gte 40>>
+	<<elseif $rng gte 41>>
 		After running half the town, the last officer <span class="green">finally seems to be tiring.</span> However, as you duck round a corner into an alley you find yourself facing <span class="red">a dead end.</span>
 		<br><br>
-		The <<person4>><<person>> quicky catches up, blocking your escape. "Got you," <<he>> pants.
+		The <<person4>><<person>> quickly catches up, blocking your escape. "Got you," <<he>> pants.
 		<br><br>
 		You're about to give up when you notice an open hatch at the base of the wall. You have no idea what's inside, but it's that or face the police.
 		<br><br>
@@ -838,13 +913,13 @@ You turn around slowly. Three uniformed police stand behind you.
 	<<set _blag to false>>
 <</if>>
 <<if _blag is true>>
-	"Actually," you say, assertively. "I am supposed to be here. Chief sent me. I was testing the quality of these bindings. The shoddy workmanship on these is appaling. How many have escaped?"
+	"Actually," you say, assertively. "I am supposed to be here. Chief sent me. I was testing the quality of these bindings. The shoddy workmanship on these is appalling. How many have escaped?"
 	<br><br>
-	"Uh- I don't. Think-" The <<person2>><<person>> looks confused.
+	"Uh— I don't. Think—" The <<person2>><<person>> looks confused.
 	<br><br>
 	"You don't know? Okay, I've heard enough," you declare. "I'm getting this one back into holding before anything can happen. Is this lock rusted up? My key keeps jamming."
 	<br><br>
-	"Oh, yeah, yeah, lock's a bit sticky," the <<person4>><<person>> says. "You have to-"
+	"Oh, yeah, yeah, lock's a bit sticky," the <<person4>><<person>> says. "You have to—"
 	<br><br>
 	"Would you mind?"
 	<br><br>
@@ -852,10 +927,10 @@ You turn around slowly. Three uniformed police stand behind you.
 	<br><br>
 	You can't quite believe it as they release the prisoner for you, and let you both walk away - unaccompanied - toward the station. Once out of sight, you disappear together into an alley.
 	<br><br>
-	<<if $pillory_tenant.special.name is "Leighton">>
+	<<if $pillory.tenant.special.name is "Leighton">>
 		"That was disgusting. I was framed," says <<the_pillory_person>> heatedly. "But thanks for getting me out."
 		<<npcincr Leighton love 10>>
-	<<elseif $pillory_tenant.special.name is "Whitney">>
+	<<elseif $pillory.tenant.special.name is "Whitney">>
 		"Th- Thanks," <<the_pillory_person>> scowls. "I'm gonna find the fucker who set me up for this."
 		<<npcincr Whitney love 5>>
 	<<else>>
@@ -864,18 +939,18 @@ You turn around slowly. Three uniformed police stand behind you.
 	<<clear_pillory>>
 	<<endevent>><<famegood 15>>
 	<br><br>
-	<<link [[Next|Commercial alleyways]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Commercial Alleyways]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	"Actually," you say, assertively. "I am supposed to be here. I was testing the quality of these bindings. The shoddy-"
+	"Actually," you say, assertively. "I am supposed to be here. I was testing the quality of these bindings. The shoddy—"
 	<br><br>
 	"No." The <<person2>><<person>> shakes <<his>> head. "No."
 	<br><br>
-	"Listen, here, officer, I-"
+	"Listen, here, officer, I—"
 	<br><br>
 	"No. We're not buying it."
 	<br><br>
-	"Is that 'impersonating an officer of the law' again?" the <<person3>><<person>> asks. "Or misrepresenting your-"
+	"Is that 'impersonating an officer of the law' again?" the <<person3>><<person>> asks. "Or misrepresenting your—"
 	<br><br>
 	"At this stage, it really doesn't matter," the <<person2>><<person>> eyes you up. "What matters is that this young <<lass>> has gone way off the rails.
 	<<text_pillory_release_fail_strip>>
@@ -906,7 +981,7 @@ You turn around slowly. Three uniformed police stand behind you.
 	<br><br>
 	A few minutes later, you are back at the pillory in Cliff Street facing three irritated police officers.
 	<br>
-	"'Wasting police resources'?" the <<person3>><<person>> asks. "Y'know. The running. That's another crime, right? Or maybe 'Evading-'"
+	"'Wasting police resources'?" the <<person3>><<person>> asks. "Y'know. The running. That's another crime, right? Or maybe 'Evading—'"
 	<br><br>
 	"At this stage, it really doesn't matter," the <<person2>><<persons>> eyes run up and down your body. "What matters is that this young <<lass>> has gone way off the rails.
 <<elseif $phase is 3>> /* surrendered */ <<pass 5>><<set $phase to 11>>
@@ -914,9 +989,9 @@ You turn around slowly. Three uniformed police stand behind you.
 	<br>
 	Your attempts to talk to <<person4>><<him>> are met with stony silence.
 	<br><br>
-	A few minutes later, you are back at the pillory in Cliff Street facing three irrate police officers.
+	A few minutes later, you are back at the pillory in Cliff Street facing three irate police officers.
 	<br>
-	"'Wasting police resources'?" the <<person3>><<person>> asks. "Y'know, the-"
+	"'Wasting police resources'?" the <<person3>><<person>> asks. "Y'know, the—"
 	<br><br>
 	"Drop it," the <<person2>><<person>> openly eyes you up. "What matters is that this young <<lass>> has gone way off the rails.
 <<else>> /* ?? */ <<set $phase to 10>>
@@ -960,7 +1035,7 @@ They proceed, cutting everything to shreds, soon leaving you
 "<<pShe>> was trying to let the other one out," the <<person3>><<person>> says. "So I guess <<pshe>> wants to swap places?"
 <br><br>
 "Is that right?" the <<person2>><<person>> asks you. "You wanna free this scumbag, and serve the rest of <<person1>><<his>> sentence? I'm happy to sub you in here, but it could get rough.
-Due process would be to wrap a towel around you and get you to the station. You wait a while, go to court, have some judge get all wet-eyed about systemic injustice
+Due process would be to wrap a towel around you and get you to the station. You wait awhile, go to court, have some judge get all wet-eyed about systemic injustice
 or whatever and let you off with community service. But it's your call. What'll it be?"
 <br><br>
 <<link [[Swap with the pillory prisoner|Cliff Street Prisoner Escape Fail 5]]>><<if $phase lt 10>><<set $phase to 0>><<else>><<set $phase to 1>><</if>><</link>><br>
@@ -968,11 +1043,14 @@ or whatever and let you off with community service. But it's your call. What'll 
 <br>
 
 :: Cliff Street Prisoner Escape Fail 5
-<<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "cliff">><<earnFeat "You're the Laughingstock">>
-<<set _sentence_days_left to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerDay)>>/* Calc hours remaining */
-<<set _hours to Math.floor(($pillory_tenant.endDate - $timeStamp) / TimeConstants.secondsPerHour)>>/* hours to end hour */
-<<if _hours gte 27>><<set _hours to 27>><</if>>
-<<if _hours lt 2>><<set _hours to 2>><</if>> /* cap hours: high and low */
+<<set $outside to 1>>
+<<set $location to "town">><<set $bus to "cliff">>
+<<effects>>
+<<earnFeat "You're the Laughingstock">>
+
+<<set _endTime to new DateTime($pillory.tenant.endTime)>>
+<<set _timeLeft to Time.date.compareWith(_endTime, true)>>
+<<set _hours to round(Math.clamp(_timeLeft / TimeConstants.secondsPerHour, 2, 27), 0)>>
 
 <<person2>>
 <<if $phase lte 1>>
@@ -993,11 +1071,13 @@ The <<person2>><<person>> gently pats your bare butt. "Have fun in there. Someon
 <<else>>If we remember."
 <</if>><br><br>
 The police officers walk away. The <<person4>><<person>> <<if $phase is 3>>who chased you down<</if>> blows you a kiss.
-<<set $pillorytime to _hours>>
-<<set $pilloryaudience to ($pillory_tenant.crowd/2)>>
+<<set $pillory.time to {
+	start: Time.date.timeStamp,
+	end: $pillory.tenant.endTime
+}>>
+<<set $pillory.audience to $pillory.tenant.crowd / 2>>
 <<crimeDown 5000>>
 <<clear_pillory>>
 <<endevent>>
 <br><br>
 <<link [[Next|Pillory]]>><</link>>
-<br>

@@ -1,6 +1,6 @@
 :: Office Executive Start
 <<effects>>
-<<if $footdisable is "f">>
+<<if $settings.footFetishEnabled>>
 	<<set $execFetish to random(0,4)>>
 <<else>>
 	<<set $execFetish to random(0,5)>>
@@ -15,57 +15,92 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 "I want you to help me rearrange some furniture." <<He>> stands up, moves in front of <<his>> desk, and looks you up and down.
 <br><br>
 
+/* TODO: add variation when PC is wearing over clothes,  */
+/* TODO: Add a generic clothing exhibitionism function StripExhibitionismRequired(slot/type)? types: all/allUpper/allLower? */
 <<switch $execFetish>>
 	<<case 5>>
-		<<if $worn.feet.name isnot "naked">>
-			"Why dont you take your $worn.feet.name off while you work? The carpet is nice, so I'm sure you'll enjoy it. Plus, I'll throw in a little extra tip."
+		<<if !$worn.feet.type.includes("naked") and !$worn.feet.type.includes("shackle")>>
+			"Why don't you take your $worn.feet.name off while you work? The carpet is nice, so I'm sure you'll enjoy it. Plus, I'll throw in a little extra tip."
 			<br><br>
 			<<link [[Remove shoes|Office Executive Shoe Strip]]>><</link>>
 			<br>
 			<<link [[Refuse|Office Executive Refuse]]>><</link>>
 		<<else>>
-			"I see they let you lot walk around without any shoes on. Interesting," <<he>> says as <<his>> eyes lock on to your feet. "Let's get you to work shall we?"
+			"I see they let you lot walk around without any shoes on. Interesting," <<he>> says as <<his>> eyes lock on to your feet. "Let's get you to work, shall we?"
 			<br><br>
 			<<link [[Next|Office Executive Work]]>><</link>>
 		<</if>>
 	<<case 4>>
-		"If you want some extra money, take off all of your clothes while you work. I like to see a <<if $player.gender_appearance is "m">>strapping<<else>>nubile<</if>> young <<lass>> in action, and I'm willing to pay."
-		<br><br>
-		<<if $exhibitionism gte 55>>
-			<<link [[Remove all clothes|Office Executive Undress]]>><<execstriporder>><</link>><<exhibitionist4>>
-			<br>
-		<<else>>
-			You don't feel comfortable undressing.
+		<<if !_fullyNaked>>
+			"If you want some extra money, take off all of your clothes while you work. I like to see a <<if $player.gender_appearance is "m">>strapping<<else>>nubile<</if>> young <<lass>> in action, and I'm willing to pay."
 			<br><br>
+
+			<<if hasSexStat("exhibitionism", 5)>>
+				<<link [[Remove all clothes|Office Executive Undress]]>><<execstriporder>><</link>><<exhibitionist4>>
+			<<else>>
+				<<insufficientStat "exhibitionism" "to undress here">>
+			<</if>>
+			<br>
+			<<link [[Refuse|Office Executive Refuse]]>><</link>>
+		<<else>>
+			<<He>> takes in your nudity. Your body shakes with arousal as <<he>> eyes up your <<lewdness>>. "Let's get you to work shall we?" <<garousal>>
+			<br><br>
+			<<link [[Next|Office Executive Work]]>><</link>>
 		<</if>>
-		<<link [[Refuse|Office Executive Refuse]]>><</link>>
 	<<case 3>>
-		"I'll give you a nice tip if you are bottomless while you work. Don't worry, it's just you and me."
-		<br><br>
-		<<if $exhibitionism gte 55>>
-			<<link [[Remove your bottoms|Office Executive Undress]]>><<execstriporder>><</link>> <<exhibitionist4>>
-			<br>
-		<<else>>
-			You don't feel comfortable working with your <<genitals>> exposed.
+		<<outfitChecks>>
+		<<danceStripActionObject>>
+		<<if $worn.lower.name isnot "naked">>
+			<<if _middleOutfit>>
+				<<set _statRequired to _danceExhibition.middleOutfit[0]>>
+				<<set _cloth to $worn.upper.name>>
+			<<else>>
+				<<set _statRequired to _danceExhibition.lower[0]>>
+				<<set _cloth to $worn.lower.name>>
+			<</if>>
+
+			"I'll give you a nice tip if you are bottomless while you work. Don't worry, it's just you and me."
 			<br><br>
+
+			<<if hasSexStat("exhibitionism", _statRequired)>>
+				<<link [[Remove your _cloth|Office Executive Undress]]>><<execstriporder>><</link>> <<exhibitionist _statRequired>>
+			<<else>>
+				<<insufficientStat "exhibitionism" "to take up <<his>> offer">>
+			<</if>>
+			<br>
+			<<link [[Refuse|Office Executive Refuse]]>><</link>>
+		<<else>>
+			<<He>> leers at your exposed <<genitals>> with a lustful gaze. "Let's get you to work shall we?" <<garousal>>
+			<br><br>
+			<<link [[Next|Office Executive Work]]>><</link>>
 		<</if>>
-		<<link [[Refuse|Office Executive Refuse]]>><</link>>
 	<<case 2>>
-		"I'll give you a nice tip if you are topless while you work. Don't worry, it's just you and me."
-		<br><br>
-		<<if $worn.upper.set is $worn.lower.set and $worn.under_lower.name is "naked">>
-			You don't feel comfortable removing your $worn.upper.name without any underwear on.
+		<<outfitChecks>>
+		<<danceStripActionObject>>
+		<<if $worn.upper.name isnot "naked">>
+			<<if _middleOutfit>>
+				<<set _statRequired to _danceExhibition.middleOutfit[0]>>
+			<<else>>
+				<<set _statRequired to _danceExhibition.upper[0]>>
+			<</if>>
+
+			"I'll give you a nice tip if you are topless while you work. Don't worry, it's just you and me."
 			<br><br>
-		<<elseif $exhibitionism gte 35>>
-			<<link [[Remove your top|Office Executive Undress]]>><<execstriporder>><</link>> <<exhibitionist3>>
+
+			<<if hasSexStat("exhibitionism", _statRequired)>>
+				<<link [[Remove your $worn.upper.name|Office Executive Undress]]>><<execstriporder>><</link>> <<exhibitionist _statRequired>>
+			<<else>>
+				<<insufficientStat "exhibitionism" "to take up <<his>> offer">>
+			<</if>>
 			<br>
+			<<link [[Refuse|Office Executive Refuse]]>><</link>>
 		<<else>>
-			You don't feel comfortable working without a top on.
+			"I see they let you lot walk around without a top on. Interesting," <<he>> says as <<he>> eyes up your <<chest>>. "Let's get you to work shall we?" <<garousal>>
 			<br><br>
+			<<link [[Next|Office Executive Work]]>><</link>>
 		<</if>>
-		<<link [[Refuse|Office Executive Refuse]]>><</link>>
 	<<default>>
-		"Hmmm. I guess you'll do. Work fast, but try not to break anything, got it?" <<He>> says dismissively.
+		"Hmmm. I guess you'll do. Work fast, but try not to break anything, got it?" <<he>> says dismissively.
 		<br><br>
 		<<link [[Next|Office Executive Work]]>><</link>>
 <</switch>>
@@ -76,37 +111,38 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 <<outfitChecks>>
 <<if $rng gte 51>>
 	The <<person1>><<person>> has you rearrange <<his>> large collection of books. You use a stepladder to begin removing the books from the top shelf of one bookcase.
-	<br>
+	<br><br>
 	<<if _bottomless>>
 		You glance down and notice <<him>> eyeing your exposed <<genitals>>, which sends chills down your spine. <<garousal>>
-		<br>
+		<br><br>
 	<</if>>
 	You remove all of the books and begin rearranging them as per <<his>> instructions.
 	<<if $execFetish is 1 and $worn.feet.name is "naked">>
-		<br>
+		<br><br>
 		While placing a stack of books on a particularly high shelf, you nearly lose your footing. You grip the tread of the stepladder with your toes to maintain your balance and look back at the <<person1>><<person>> in embarrassment. <<He>> is staring intently at your feet.
 	<</if>>
 <<else>>
+	<<wearProp "papers">>
 	The <<person1>><<person>> asks you to clean <<his>> desk and file the large stacks of papers sitting on it.
-	<br>
+	<br><br>
 	<<if _topless>>
 		While sorting through the papers, you look up to see <<him>> staring at your bare <<breasts>>. <<garousal>>
-		<br>
+		<br><br>
 	<</if>>
 	After a few minutes, you finally make it through one stack of papers and move on to the next.
 	<<if $execFetish is 1 and $worn.feet.name is "naked">>
-		<br>
+		<br><br>
 		Hastily running back and forth feels easier without shoes, and you occasionally catch the <<person1>><<person>> tracking your movements from behind <<his>> computer screen, <<his>> eyes locked on your feet.
 	<</if>>
 <</if>>
 <br><br>
-<<link [[Next|Office Executive Work Finish]]>><</link>>
+<<link [[Next|Office Executive Work Finish]]>><<handheldon>><</link>>
 
 :: Office Executive Work Finish
 <<effects>>
 <<tiredness 5>>
 You complete the work and return to the <<person1>><<person>>.
-<br>
+<br><br>
 <<if $execFight is 0>>
 	<<if $stripCount isnot 0>>
 		<<set $tipTotal to (6 * $stripCount)>>
@@ -114,7 +150,6 @@ You complete the work and return to the <<person1>><<person>>.
 		<<set $tipTotal to 5>>
 	<</if>>
 	"You did good work here," <<he>> says, handing you a tip. <<assignmenttip $tipTotal>> "Effective and obedient. I like that in a temp."
-	<br>
 	<<if $execFetish is 1 and $stripCount isnot 0>>
 		<<set $execSell to (200 * $officeFloor)>>
 		<<He>> starts to hand you your shoes but hesitates. "If you let me keep these, I'll give you an extra <span class="gold"><<printmoney $execSell>></span>."
@@ -146,6 +181,7 @@ You complete the work and return to the <<person1>><<person>>.
 	<<if $rng gte (90 - $officeFloor)>>
 		"Don't think that a job well done makes up for disobeying your superiors, though. Little shits like you don't get to keep their clothes." <<He>> tosses an apron at you. "That's all you deserve. Now get out of my office."
 		<<stealclothes>>
+		<br><br>
 		<<clotheson>>
 		<<lowerwear 4>>
 		<<pass 60>>
@@ -163,16 +199,18 @@ You complete the work and return to the <<person1>><<person>>.
 <<effects>>
 You agree to take the extra money from the <<person1>><<person>>.
 <<if $execFetish isnot 1>>
-	<<storeon "exec room" "delete">>
+	<<storeon "exec room">>
+	<<execdestroyclothes>>
 	<<if $exposed gte 1>>
 	<<He>> tosses you the money wrapped in a towel. "Good <<girl>>. You can leave now."
 	<br>
 	You wrap the towel around your <<lewdness>> and walk out of the office.
 	<</if>>
-	As you leave, you can hear <<him>> loudly sniffing your clothes.<<set $money += $execSell>><<towelup>>
+	As you leave, you can hear <<him>> loudly sniffing your clothes.<<money $execSell>><<towelup>>
 <<else>>
-	<<storeon "exec room" "delete">>
-	<<He>> hands you the money. "A fair exchange, I say. You may leave now." As you leave the office, you can hear <<him>> loudly sniffing your shoes.<<set $money += $execSell>>
+	<<storeon "exec room">>
+	<<execdestroyclothes>>
+	<<He>> hands you the money. "A fair exchange, I say. You may leave now." As you leave the office, you can hear <<him>> loudly sniffing your shoes.<<money $execSell>>
 <</if>>
 <<completeassignment>>
 
@@ -194,8 +232,8 @@ You decline the <<person1>><<persons>> offer. <<storeon "exec room">>
 	"I don't feel comfortable undressing here, <<sir>>," you say.
 <</if>>
 <br><br>
-<<set $danger to random(1,10000)>>
-<<if $danger gte 8000 - (300 * $officeFloor)>>
+
+<<if dangerEvent(1, 8000, 300*$officeFloor)>>
 	The <<person1>><<person>> walks up to you and roughly grabs your arms. "Do you know who I am? You don't say no to me."
 	<br><br>
 	<<link [[Next|Office Executive Force Strip]]>><<set $molestationstart to 1>><</link>>
@@ -321,7 +359,7 @@ After removing your clothes, the <<person1>><<person>> gathers them up and tucks
 <br>
 <<link [[Refuse|Office Executive Force Strip Refuse]]>><</link>><<gsecurity>>
 <br>
-<<if $exhibitionism gte 35>>
+<<if hasSexStat("exhibitionism", 3)>>
 	<<link [[Run away|Office Executive Force Strip Run]]>><</link>><<exhibitionist3>>
 	<br>
 <</if>>
@@ -379,8 +417,10 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 			<<execremovedress>>
 		<<case "bra">>
 			<<execremoveundertop>>
-		<<case "panties" "underclothes">>
+		<<case "panties">>
 			<<execremoveunderbottom>>
+		<<case "underclothes">>
+			<<execremoveunderclothes>>
 		<<default>>
 			<<error "execstripperform error: " + $stripItems[$stripCount] + " is not a valid entry">>
 	<</switch>>
@@ -398,7 +438,7 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 		soft under your feet.
 	<</if>>
 	<<He>> picks up your discarded shoes and places them on <<his>> desk. "Please continue." <<feetundress "exec room">>
-	<br>
+	<br><br>
 	<<link [[Next|Office Executive Undress]]>><<set $stripCount++>><</link>>
 <</widget>>
 
@@ -545,6 +585,50 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 	<<link [[Next|Office Executive Undress]]>><<set $stripCount++>><</link>>
 <</widget>>
 
+<<widget "execremoveunderclothes">>
+	<<set $removedItem to $worn.under_upper.name>>
+	<<underupperundress "exec room">>
+	<<underlowerundress "exec room">>
+	<<if $speech_attitude is "meek">>
+		Your hands shake as you unfasten your $removedItem and slowly lower it to your ankles. You hesitate, covering your <<lewdness>> as you stand.
+		<br>
+		The <<person1>><<person>> bends over and grasps the crumpled garment. "Come now, don't be shy."
+		You slowly step out of your $removedItem as <<he>> scoops it up from under you and folds it nicely onto <<his>> desk before returning <<his>> attention to you.
+	<<elseif $speech_attitude is "bratty">>
+		You unfasten your $removedItem and gracefully adjust your posture, allowing it to slide down your body onto the floor, baring your <<lewdness>>.
+		You step out with one foot and use the other to kick your $removedItem over to the <<person1>><<person>>. <<He>> picks it up and folds it nicely onto <<his>> desk before returning <<his>> attention to you.
+	<<else>>
+		You unfasten your $removedItem and lower it to your feet before stepping out of it. The <<person1>><<person>> bends over to pick it up, eyeing your <<lewdness>>.
+		<<He>> folds your $removedItem nicely onto <<his>> desk before returning <<his>> attention to you.
+	<</if>>
+	<br><br>
+	<<link [[Next|Office Executive Undress]]>><<set $stripCount++>><</link>>
+<</widget>>
+
+<<widget "execdestroyclothes">>
+	<<for _i = 0; _i lt $stripItems.length; _i++>>
+		<<switch $stripItems[_i]>>
+			<<case "dress">>
+				<<upperruined>>
+				<<lowerruined>>
+			<<case "top">>
+				<<upperruined>>
+			<<case "skirt">>
+				<<lowerruined>>
+			<<case "underclothes">>
+				<<underupperruined>>
+				<<underlowerruined>>
+			<<case "bra">>
+				<<underupperruined>>
+			<<case "panties">>
+				<<underlowerruined>>
+			<<case "shoes">>
+				<<feetruined>>
+			<<default>>
+				<<error "execdestroyclothes error: " + $stripItems[$stripCount] + " is not a valid entry">>
+		<</switch>>
+	<</for>>
+<</widget>>
 
 <<widget "execstriporder">>
 	<<if $execFetish is 1 or $execFetish is 4>>

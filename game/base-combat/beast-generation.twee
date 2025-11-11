@@ -20,6 +20,11 @@
 	<!-- Set gender and pronoun, random if unspecified -->
 	<<if _gen is "m" or _gen is "f">>
 		<<set $NPCList[_n].gender to _gen>><<set $NPCList[_n].pronoun to _gen>>
+	<<elseif !isNaN(_generate_partner) and $NPCList[_generate_partner].gender isnot undefined>>
+		<!-- This determines if the couple is homo or not. The generated NPC's partner is, by default, the NPC directly before them in NPCList. The partner can be selected manually with an argument. -->
+		<<set $NPCList[_n].gender to maleChance($NPCList[_generate_partner].pronoun) gte random(1, 100) ? "m" : "f">>
+		<<set $NPCList[_n].pronoun to $NPCList[_n].gender>>
+		<<unset _generate_partner>>
 	<<else>>
 		<<if random(1, 100) lte beastMaleChance()>>
 			<<set $NPCList[_n].gender to "m">><<set $NPCList[_n].pronoun to "m">>
@@ -40,7 +45,7 @@
 		head: 0,
 		genitals: 0,
 	}>>
-	
+
 	<<if $NPCList[_n].pregnancy is undefined>>
 		<<set $NPCList[_n].pregnancy to 0>>
 	<</if>>
@@ -92,8 +97,8 @@
 	<!-- v2.7 $BeastList is 0-7: "dog", "cat", "pig", "wolf", "dolphin", "lizard", "bear", "creature" -->
 	<!-- v2.13 "horse" added to $BeastList -->
 
-	<<set _h to [200,150,200,300,200,250,500,300,200,500,225,150,400,300]>> <!-- Health Max per type -->
-	<<set _t to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider"]>> <!-- Name of each type -->
+	<<set _h to [200,150,200,300,200,250,500,300,200,500,225,150,400,300,350]>> <!-- Health Max per type -->
+	<<set _t to ["dog","cat","pig","wolf","dolphin","lizard","bear","boar","creature","horse","fox","hawk","cow","spider","snake"]>> <!-- Name of each type -->
 	<<set _d to [["large"],
 		["large"],
 		["fat"],
@@ -107,11 +112,12 @@
 		["large"],
 		["fierce"],
 		["huge"],
-		["slimy"]
+		["slimy"],
+		["scaly"]
 		]>> <!-- Descriptor of each type -->
-	<<set _pd to ["knotted penis","spiked penis","penis","knotted penis","strange penis","penis","penis","penis","penis","equine cock","knotted penis","avian cock","bovine cock","arachnid penis"]>> <!-- Descriptor of Penises -->
+	<<set _pd to ["knotted penis","spiked penis","penis","knotted penis","strange penis","penis","penis","penis","penis","equine cock","knotted penis","avian cock","bovine cock","arachnid penis","serpent penis"]>> <!-- Descriptor of Penises -->
 	/% <<set _cla to [1,1,1,1,0,1,1,1]>> %/
-	<<set _ps to [2,2,2,3,2,2,3,3,2,5,2,2,4,2]>> <!-- Size of penises -->
+	<<set _ps to [2,2,2,3,2,2,3,3,2,5,2,2,4,2,2]>> <!-- Size of penises -->
 
 	<<set _i to $BeastList.indexOf(_type)>>
 	<<set $NPCList[_n].healthmax to _h[_i]>>
@@ -144,30 +150,40 @@
 
 	<!-- Monster generation code -->
 	<<rng>>
-	<!-- Set hallucination creatures to always be monsters. Shadow types could be .monster = "shadow" -->
 	<<if $NPCList[_n].type is "creature" and !_tower_creature>>
+		<!-- Set hallucination creatures to always be monsters. tower creature is special and can be generated as a beast, even with bestiality disabled -->
 		<<set $NPCList[_n].monster to "monster">>
-	<<elseif _beast_monster isnot "beast" and ($monsterchance gte $rng and ($hallucinations gte 1 or $monsterhallucinations is "f")) or (_beast_monster is "monster") or ($bestialitydisable is "t" and $NPCList[0].monster is "monster")>>
+	<<elseif _beast_monster is "beast">>
+		<!-- got explicit request to generate a beast, not a monster -->
+		<<set $NPCList[_n].monster to 0>>
+	<<elseif !$settings.bestialityEnabled && $NPCList[0].monster is "monster">>
+		<!-- if bestiality is disabled, some scenes check if the first beast is generated as a monster to see if the encounter can proceed to be lewd. if so - all subsequent beasts must also be converted to monsters unless explicitly told not to -->
+		<!-- TODO: rewrite such encounters with a clearer distinction between lewd and non-lewd generated beasts -->
 		<<set $NPCList[_n].monster to "monster">>
-		<<if ["dog","pig","wolf","dolphin","boar","fox","hawk","cow"].includes($NPCList[_n].type)>> <!-- Remove claws from many monster types -->
+	<<elseif $settings.monsterChance gte $rng and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly) or _beast_monster is "monster">>
+		<<set $NPCList[_n].monster to "monster">>
+	<</if>>
+
+	<<if $NPCList[_n].monster is "monster">>
+		<<if ["dog","pig","wolf","dolphin","boar","fox","hawk","cow","snake"].includes($NPCList[_n].type)>> <!-- Remove claws from many monster types -->
 			<<run delete $NPCList[_n].claws>> <!-- It can't have claws - using undefined to maintain back compat with previous saves mid-combat ($claws) -->
 		<</if>>
 		<<if $NPCList[_n].type is "horse">>
 			<<set $NPCList[_n].type to "centaur">>
 		<<elseif $NPCList[_n].type is "hawk">>
 			<<set $NPCList[_n].type to "harpy">>
+		<<elseif $NPCList[_n].type is "creature">>
+			<!-- do nothing so creatures don't become creatureboys -->
 		<<elseif $NPCList[_n].gender is "f">>
 			<<set $NPCList[_n].type to $NPCList[_n].type + "girl">>
 		<<else>>
 			<<set $NPCList[_n].type to $NPCList[_n].type + "boy">>
 		<</if>>
-	<</if>>
 
-	<<if $NPCList[_n].monster is "monster">>
 		<<set $NPCList[_n].lefthand to 0>>
 		<<set $NPCList[_n].righthand to 0>>
 		<!-- female monster people mammals have an accessible chest and might be able to lactate. -->
-		<<if $NPCList[_n].pronoun is "f" and ["catgirl", "doggirl", "wolfgirl", "beargirl", "foxgirl", "cowgirl"].includes($NPCList[_n].type)>>
+		<<if $NPCList[_n].pronoun is "f" and ["catgirl", "doggirl", "wolfgirl", "beargirl", "foxgirl", "cowgirl", "harpy"].includes($NPCList[_n].type)>>
 			<<set $NPCList[_n].chest to 0>>
 			<<if ["beargirl", "cowgirl"].includes($NPCList[_n].type)>> <!-- Bigger monsters = Bigger booba -->
 				<<set $_breastMin to [0,0,0,0,2,2,2,2,2,5,5,5,5,5,5,5,8,8,9,10,12]>>
@@ -178,11 +194,11 @@
 			<</if>>
 			<<set _brdes to ["nipple","budding","tiny","small","pert","modest","full","large","ample","massive","huge","gigantic","enormous"]>>
 			<<set _brlvl to random(0,20)>> <!-- select a random index in the arrays -->
-			<<if $breast_mod gte $_breastMin[_brlvl]>><<set $_breastMin[_brlvl] to $breast_mod>><</if>>
-			<<if $breast_mod gte $_breastMax[_brlvl]>><<set $_breastMax[_brlvl] to $breast_mod>><</if>>
-			<<if $breast_mod lt 0>>
-				<<set $_breastMin[_brlvl] to Math.clamp($_breastMin[_brlvl]+$breast_mod, 0, 12)>>
-				<<set $_breastMax[_brlvl] to Math.clamp($_breastMax[_brlvl]+$breast_mod, 0, 12)>>
+			<<if $settings.breastModifier gte $_breastMin[_brlvl]>><<set $_breastMin[_brlvl] to $settings.breastModifier>><</if>>
+			<<if $settings.breastModifier gte $_breastMax[_brlvl]>><<set $_breastMax[_brlvl] to $settings.breastModifier>><</if>>
+			<<if $settings.breastModifier lt 0>>
+				<<set $_breastMin[_brlvl] to Math.clamp($_breastMin[_brlvl]+$settings.breastModifier, 0, 12)>>
+				<<set $_breastMax[_brlvl] to Math.clamp($_breastMax[_brlvl]+$settings.breastModifier, 0, 12)>>
 			<</if>>
 			<<set _rngbr to random($_breastMin[_brlvl], $_breastMax[_brlvl])>>
 			<<set $NPCList[_n].breastsize to _rngbr>>
@@ -200,7 +216,7 @@
 				<<set $NPCList[_n].lactation to 0>>
 			<</if>>
 		<</if>>
-		<<if random(1, 100) lte $blackchance>>
+		<<if random(1, 100) lte $settings.darkSkinChance>>
 			<<set $NPCList[_n].skincolour to "black">>
 		<<else>>
 			<<set $NPCList[_n].skincolour to "white">>
@@ -254,19 +270,19 @@
 
 		<<rng>>
 		<<if $NPCList[_n].gender is "m">>
-			<<if $rng lte $cbchance and $debugEnableHerms>>
+			<<if $rng lte $settings.maleNPCVaginaChance and $debugEnableHerms>>
 				<<set $NPCList[_n].penis to 0>>
 				<<set $NPCList[_n].vagina to 0>>
-			<<elseif $rng lte $cbchance>>
+			<<elseif $rng lte $settings.maleNPCVaginaChance>>
 				<<set $NPCList[_n].vagina to 0>>
 			<<else>>
 				<<set $NPCList[_n].penis to 0>>
 			<</if>>
 		<<elseif $NPCList[_n].gender is "f">>
-			<<if $rng lte $dgchance and $debugEnableHerms>>
+			<<if $rng lte $settings.femaleNPCPenisChance and $debugEnableHerms>>
 				<<set $NPCList[_n].vagina to 0>>
 				<<set $NPCList[_n].penis to 0>>
-			<<elseif $rng lte $dgchance>>
+			<<elseif $rng lte $settings.femaleNPCPenisChance>>
 				<<set $NPCList[_n].penis to 0>>
 			<<else>>
 				<<set $NPCList[_n].vagina to 0>>
@@ -598,4 +614,30 @@
 
 <<widget "generatespider6">>
 	<<generateBEAST 6 spider>>
+<</widget>>
+
+
+<!-- creature snake calls -->
+<<widget "generatesnake1">>
+	<<generateBEAST 1 snake>>
+<</widget>>
+
+<<widget "generatesnake2">>
+	<<generateBEAST 2 snake>>
+<</widget>>
+
+<<widget "generatesnake3">>
+	<<generateBEAST 3 snake>>
+<</widget>>
+
+<<widget "generatesnake4">>
+	<<generateBEAST 4 snake>>
+<</widget>>
+
+<<widget "generatesnake5">>
+	<<generateBEAST 5 snake>>
+<</widget>>
+
+<<widget "generatesnake6">>
+	<<generateBEAST 6 snake>>
 <</widget>>

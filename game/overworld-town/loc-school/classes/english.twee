@@ -21,7 +21,7 @@
 		<br><br>
 		<<exit>>
 	<</if>>
-	<<if $rightarm is "bound" or $leftarm is "bound" or $feetuse is "bound">>
+	<<if pcAreArmsBound("any") or $feetuse is "bound">>
 		Doren looks concerned. "<<= $player.gender_appearance is "m" ? "Lad" : "Lass">>, who tied you up like that? Are you okay? Leighton should have something to cut you free. Go see the head."
 		<br><br>
 
@@ -49,10 +49,24 @@
 		<<englishstart>>
 		<<exit>>
 	<</if>>
-	<<if Time.minute lte 5>>
+	<<if Time.minute lt 5>>
 		You enter the English classroom.
 		<<npc Doren>><<person1>>
 		Doren is preparing at the front of the room while the seats fill.
+		<<if $dorenhonest isnot 1 and $fame.rape gte 800>>
+			<br><br>
+			<<He>> looks up at you. "<<Lass>>, a word? I'd like to speak to you outside." <<He>> looks at the rest of the class. "Keep yourselves busy for a moment."
+			<br><br>
+			You can feel your classmates' eyes on you as you follow <<him>> from the classroom.
+			<br><br>
+			<<He>> shuts the door behind you and speaks in an uncharacteristically quiet tone. "Is everything alright, <<lass>>? I've heard rumours about you recently; is there something you want to tell me?"
+			<br><br>
+
+			<<link [[Be honest|English Events Honest]]>><<npcincr Doren love 1>><<stress 6>><<trauma -6>><</link>><<gstress>><<ltrauma>>
+			<br>
+			<<link [[Say you're fine|English Events Fine]]>><</link>>
+			<<exit>>
+		<</if>>
 		<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 			<<undressOverClothes "englishClassroom">>
 			You hang your coat at the back of the class and take your seat.
@@ -160,7 +174,7 @@
 
 	<<emptyClassroomMasturbationIntro>>
 
-	<<link [[Leave the room (0:01)|Hallways]]>><<pass 1>><</link>>
+	<<getouticon>><<link [[Leave the room (0:01)|Hallways]]>><<pass 1>><</link>>
 	<br>
 <</if>>
 
@@ -187,7 +201,7 @@
 	<<exam_cheat english>>
 	<<if !$daily.earSlimeCheatExam and numberOfEarSlime() and earSlimeMakingMundaneRequests() and random(0,200) gte 150 - $earSlime.corruption>>
 		<<set $daily.earSlimeCheatExam to true>>
-		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to cheat in the exam.</span> It promises rewards if you comply<<if $earSlime.startedThreats>>, and threatens consequences if you do not<</if>>.
+		<span @class="$earSlime.startedThreats ? 'lewd' : 'lblue'">You feel the slime in your head command you to cheat in the exam.</span> It promises rewards if you comply<<if $earSlime.startedThreats>> and threatens consequences if you do not<</if>>.
 		<br><br>
 		<<link [[Obey|English Exam]]>><<set $phase to 4>><<corruption 1>><<pain -4>><<stress -6>><<trauma -12>><<sub 2>><</link>><<gcorruption>><<lpain>><<lltrauma>><<lstress>>
 		<br>
@@ -211,8 +225,8 @@
 	<</if>>
 <<elseif $kylarenglishstate is "active">>
 
-	<<if Time.minute lte 5>>
-		The English lesson begins, how do you want to conduct yourself?
+	<<if Time.minute lt 5>>
+		The English lesson begins. How do you want to conduct yourself?
 		<br><br>
 	<<else>>
 		The English lesson continues. How do you want to conduct yourself?
@@ -233,14 +247,14 @@
 		<<bedicon "zzz">><<link [[Sleep at your desk|English Lesson Sleep]]>><</link>><<ltiredness>>
 		<br>
 	<</if>>
-	<<if $exhibitionism gte 75>>
-		<<ind>><<link [[Masturbate|English Lesson Masturbate]]>><<set $masturbationstart to 1>><<npcincr Kylar lust 5>><</link>><<exhibitionist5>><<glust>>
+	<<if hasSexStat("exhibitionism", 5)>>
+		<<skinicon "masturbate">><<link [[Masturbate|English Lesson Masturbate]]>><<set $masturbationstart to 1>><<npcincr Kylar lust 5>><</link>><<exhibitionist5>><<glust>>
 		<br>
 	<</if>>
 <<else>>
 
-	<<if Time.minute lte 5>>
-		The English lesson begins, how do you want to conduct yourself?
+	<<if Time.minute lt 5>>
+		The English lesson begins. How do you want to conduct yourself?
 		<br><br>
 		<<classgrades>>
 	<<else>>
@@ -262,8 +276,8 @@
 		<<bedicon "zzz">><<link [[Sleep at your desk|English Lesson Sleep]]>><</link>><<ltiredness>>
 		<br>
 	<</if>>
-	<<if $exhibitionism gte 55>>
-		<<ind>><<link [[Masturbate|English Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+	<<if hasSexStat("exhibitionism", 4)>>
+		<<skinicon "masturbate">><<link [[Masturbate|English Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
 		<br>
 	<</if>>
 <</if>>
@@ -341,7 +355,7 @@ Doren also laughs. "Go to your class, or I just might!" <<He>> holds the door op
 <<if $phase is 1>>
 	<<lessonEnd "englishClassroom">>
 <<else>>
-	<<lessonEvents "english">>
+	<<lessonEvents "english" 2>>
 <</if>>
 
 :: English Lesson Daydream
@@ -367,13 +381,13 @@ Doren also laughs. "Go to your class, or I just might!" <<He>> holds the door op
 <<if $phase is 1>>
 	<<lessonEnd "englishClassroom">>
 <<else>>
-	<<lessonEvents "english">>
+	<<lessonEvents "english" 0.5>>
 <</if>>
 
 :: English Lesson Sleep
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
-You rest your head on the desk while Doren <<print either("discusses the proper use of adverbs", "animatedly reads aloud from a book", "talks about the symbolism of yellow curtains", "shares examples of different types of poems", "leads two students in a reenactment of a play")>>. Your eyes soon close, just for a moment, before you open them again. You struggle to stay awake, but the desk is just too comfy.
+You rest your head on the desk while Doren <<print either("discusses the proper use of adverbs", "animatedly reads aloud from a book", "talks about the symbolism of yellow curtains", "shares examples of different types of poems", "leads two students in a reenactment of a play", "leads a discussion on literary symbolism", "quizzes a student on different types of syllabic verse", "explains how to structure an analytical essay")>>. Your eyes soon close, just for a moment, before you open them again. You struggle to stay awake, but the desk is just too comfy.
 <br><br>
 <<towelup>>
 <<tiredness -12>>

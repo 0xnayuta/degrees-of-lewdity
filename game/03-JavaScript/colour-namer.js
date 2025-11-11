@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 function clamp255(val) {
 	return val > 255 ? 255 : val < 0 ? 0 : val;
 }
@@ -71,7 +72,7 @@ window.getCustomClothesColourCanvasFilter = function (hue, saturation, brightnes
 		// Slider brightness is 0..4, we consider 0..1 for colour spec
 		// and everything above as extra brightness adjustment
 		// In new renderer it's a shift, not multiplier, so we scale it from x1..x4 to +0..+0.21
-		filterBrightness += (brightness - 1) * 0.07;
+		filterBrightness += (brightness - 1) * 0.07 - (1 - saturation) * 0.21;
 	}
 	return Renderer.mergeLayerData(
 		{
@@ -92,7 +93,7 @@ window.rgbToHsv = function (colour) {
 	const v = Math.max(rabs, gabs, babs);
 	const diff = v - Math.min(rabs, gabs, babs);
 	const diffc = c => (v - c) / 6 / diff + 1 / 2;
-	const percentRoundFn = num => Math.round(num * 100) / 100;
+	const percentRoundFn = num => round(num, 2);
 	if (diff === 0) {
 		h = s = 0;
 	} else {

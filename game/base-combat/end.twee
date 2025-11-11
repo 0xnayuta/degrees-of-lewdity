@@ -26,6 +26,54 @@
 		<br>
 	<</if>>
 
+	<<if ($enemyarousal gte $enemyarousalmax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1)>>
+		<<set $_samplesCollected to 0>>
+		<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 2 : 1>>
+		<<for $_sample to 0; $_sample lt $enemyno; $_sample++>>
+			<<if canCollectSampleSingle(V.NPCList[$_sample]?.type)>>
+				<<if canCollectSamples() is "bound">>
+					/* Ensures the bound message only shows if the player could have collected samples otherwise */
+					<<set $_samplesCollected to "bound">>
+					<<break>>
+				<<else>>
+					<<set $_samplesToCollect to collectSample(V.NPCList[$_sample]?.type, $_sampleMod)>>
+					<<if $_samplesToCollect>>
+						<<set $_samplesCollected += $_samplesToCollect>>
+					<</if>>
+				<</if>>
+			<</if>>
+		<</for>>
+		<<if $_samplesCollected is "bound">>
+			<span class="red">With your arms bound, you're unable to take a sample of lewd fluid.</span>
+		<<elseif $_samplesCollected>>
+			<<if $location is "forest_shop_garden" and $beastRitual>>
+				<span class="green">Gwylan helps you collect the fluids in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+			<<else>>
+				<span class="lewd">You collect as much lewd fluid as you can in the vials Gwylan gave you.</span>
+			<</if>>
+			You obtain <span class="gold"><<number $_samplesCollected>></span> <<pluralise $_samplesCollected "sample" "samples">> of fluid.
+			<<set $_br to true>>
+			<br>
+		<</if>>
+	<<elseif ($enemytype is "plant" and $abomination is 1 or $enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and canCollectSamples() and canCollectSampleSingle("plant")>>
+		<<if canCollectSamples() is "bound">>
+			<span class="red">With your arms bound, you're unable to take a sample of nectar.</span>
+		<<else>>
+			<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 1.3 : 1>>
+			<<set $_fromTentacles to $combat_tentacle_record.fluid || 1>>
+			<<set $_nectarCollected to Math.ceil((1 + $_fromTentacles / 9) * $_sampleMod)>>
+			<<set $_samplesToCollect to collectSample("plant", $_nectarCollected)>>
+			<<if $location is "forest_shop_garden" and $beastRitual>>
+				<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+			<<else>>
+				<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
+			<</if>>
+			You obtain <span class="gold"><<number $_nectarCollected>></span> <<pluralise $_nectarCollected "sample" "samples">> of nectar.
+		<</if>>
+		<<set $_br to true>>
+		<br>
+	<</if>>
+
 	<<if $transformationParts.traits.mateForLife isnot "disabled" and $sexavoid is 0>>
 		<<if $enemyno is 1 and isLoveInterest($npc[$npcrow.indexOf(0)])>>
 			<<if $fox gte 3>>
@@ -99,6 +147,23 @@
 
 	<</if>>
 
+	<<if $stalk_end is "escaped" or $stalk_end is "hide" or $stalk_end is "ambush">>
+		<<if $transformationParts.traits.chase isnot "disabled">>
+			Your heart races.
+			<span class="green">The thrill of the chase invigorates you.</span>
+			<<if $stalk_taunted is "success">>
+				<span class="green">Especially thanks to your bold provocation.</span> <<transform fox 1>><<promiscuity2>>
+			<<else>>
+				<<lstress>><<garousal>>
+				<br>
+				<<set $_br to true>>
+			<</if>>
+			<<stress -8>><<arousal 200>><<transform fox 1>>
+		<<elseif $stalk_taunted is "success">>
+			Your heart races. <span class="green">Escaping after such a bold provocation invigorates you.</span> <<transform fox 1>><<promiscuity2>>
+		<</if>>
+	<</if>>
+
 	<<unset $enemytype>>
 
 	<<endevent _args[0]>>
@@ -109,6 +174,7 @@
 	<<set $sexavoid to 1>>
 	<<set $orgasmdown to 0>>
 	<<set $penisbitten to 0>>
+	<<set $mouthsubmit to 0>>
 	<<set $breastbitten to 0>>
 	<<set $apologised to 0>>
 	<<unset $bodywriting_special>>
@@ -125,6 +191,7 @@
 	<<unset $pounce_delay>>
 	<<unset $hypnosis_deviancy_check>>
 	<<unset $animOverride>>
+	<<unset $encounterDialogue>>
 
 	<<if $player.penisExist>>
 		<<set $penisstate to 0>>
@@ -152,6 +219,7 @@
 	<<set $mouthstate to 0>>
 	<<set $finish to 0>>
 	<<unset $stalk_end>>
+	<<unset $stalk_taunted>>
 	<<unset $stalk_event>>
 	<<unset $stalk_clothes>>
 	<<unset $stalk>>
@@ -177,6 +245,7 @@
 	<<if $head isnot "bound">>
 		<<set $head to 0>>
 	<</if>>
+	<<set $face to 0>>
 	<<if $position is "wall">>
 		<<set $leftarm to 0>>
 		<<set $rightarm to 0>>
@@ -210,6 +279,8 @@
 	<<unset $otherFilled>>
 	<<unset $noupper>>
 	<<unset $noupperasked>>
+	<<unset $nomask>>
+	<<unset $nomaskasked>>
 	<<set $askedtochoke to 0>>
 	<<unset $speechwheeze>>
 	<<set $speechorgasmweakcumcount to 0>>
@@ -218,7 +289,9 @@
 	<<set $speechorgasmrepeat to 0>>
 	<<set $underwatertime to 0>>
 	<<if $underwater isnot 1>>
-		<<oxygenrefresh>>
+		<<if !$oxygenRecovery>>
+			<<oxygenrefresh>>
+		<</if>>
 		<<set $suffocating to 0>>
 	<</if>>
 	<<set $walltype to "wall">>
@@ -234,6 +307,7 @@
 	<<unset $handGuideLeft>>
 	<<unset $handGuideRight>>
 	<<unset $easySteal>>
+	<<unset $canRescue>>
 
 
 	<<set $leftactiondefault to $leftaction>>
@@ -463,6 +537,11 @@
 		<</if>>
 	<</if>>
 	<<set $enemyArousalLossReduction to 1>>
+	<<if $combat_silenced>>
+		<span class="green">Your voice returns.</span>
+		<<set $_br to true>>
+		<br>
+	<</if>>
 
 	<<unset $phalluscolorA>>
 	<<unset $phalluscolorB>>
@@ -477,6 +556,11 @@
 
 	<<unset $disableNormalImpregnation>>
 	<<unset $disableImpregnation>>
+
+	<<unset $combat_hypnosis>>
+	<<unset $combat_silenced>>
+	<<unset $combat_player_orgasm_target>>
+	<<unset $combat_tentacle_record>>
 	<<if $_br>>
 		<br>
 	<</if>>
@@ -592,12 +676,16 @@
 	<<unset $speechNPCHandholdingVirgin>>
 	<<unset $sydneyComments>>
 	<<unset $sydneyUniqueComments>>
+	<<unset $gwylanComments>>
+	<<unset $gwylanUniqueComments>>
 	<<unset $noBodyWriting>>
 	<<unset $noAdmire>>
 	<<unset $breakIgnore>>
 	<<unset $eventforced>>
 	<<unset $pearlChance>>
 	<<unset $internalejac>>
+	<<unset $noHypnosis>>
+	<<unset $noIntroName>>
 
 	<<set $orgasmcurrent to 0>>
 
@@ -617,6 +705,7 @@
 
 	<<unset $speechcum>>
 	<<set $speechorgasmcount to 0>>
+	<<unset $speechmilk>>
 
 	<<set $npc_named to 0>>
 	<<unset $setupMidOrgasm>>
@@ -626,9 +715,22 @@
 	<<set $index to 0>>
 	<<set $modeloptionsOverride to {}>>
 
-	<<if $propEquipped is 1 and $worn.handheld.type.includes("prop")>>
+	<<if $propEquipped is 1>>
 		<<handheldon>>
 		<<set $propEquipped to 0>>
+	<</if>>
+
+	<<if $worn.neck.name is "familiar collar">>
+		/* ToDo: Gwylan - the "leash" type could be used to determine whether the player is allowed to stray from the forest shop. If that is done, remove this whole block. */
+		<<if $worn.neck.type.includes("leash") and !["forest_shop", "forest_shop_garden"].includes($location) and !$beastRitual and !$sexRitual>>
+			<<run $worn.neck.type.delete("leash")>>
+			<<if $familiarLeash>>
+				<<run Errors.report("Magic leash spell misfired! Leash granted on passage: " + $familiarLeash + " and destroyed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
+			<<else>>
+				<<run Errors.report("Magic leash spell misfired! An origin passage could not be determined. The leash has been removed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
+			<</if>>
+		<</if>>
+		<<unset $familiarLeash>>
 	<</if>>
 <</widget>>
 
@@ -734,6 +836,7 @@
 
 	<<unset $speechcum>>
 	<<set $speechorgasmrepeat to 0>>
+	<<unset $speechmilk>>
 
 	<<unset $speechgenitals>>
 	<<unset $speechbreasts>>
@@ -746,6 +849,7 @@
 	<<unset $speechcoverpenis>>
 	<<unset $speechcovervagina>>
 	<<unset $speechapologiseno>>
+	<<unset $speechapologiseunforgiving>>
 	<<unset $speechforgive>>
 	<<unset $speechspray>>
 	<<unset $speechvaginavirgin>>
@@ -758,6 +862,7 @@
 	<<unset $speechgrowlrut>>
 	<<unset $speechpregnant>>
 	<<unset $speechleglock>>
+	<<unset $speechbanish>>
 
 	<<if $speechcrossdressangry is 2>>
 		<<set $speechcrossdressangry to 1>>

@@ -17,19 +17,19 @@ You are stood in the police station lobby. A <<person1>><<person>> in an officer
 	<br>
 <</if>>
 <<if crimeSumCurrent() gte 1000>>
-	<<ind>><<link [[Turn yourself in (1:00)|Police Turn]]>><<pass 6>><</link>><<note "You'll receive a more lenient sentence" "green">>
+	<<skinicon "manacles">><<link [[Turn yourself in (1:00)|Police Turn]]>><<pass 6>><</link>><<note "You'll receive a more lenient sentence" "green">>
 	<br>
 <</if>>
 <<if $worn.neck.collared is 1 or $worn.neck.name is "collar">>
-	<<askicon>><<link [[Ask for collar removal|Police Station Collar]]>><</link>>
+	<<socialiseicon "ask">><<link [[Ask for collar removal|Police Station Collar]]>><</link>>
 	<br>
 <</if>>
 <<if $worn.feet.type.includes("shackle")>>
-	<<askicon>><<link [[Ask for shackle removal|Police Station Shackle]]>><</link>>
+	<<crimeicon "shackles">><<link [[Ask for shackle removal|Police Station Shackle]]>><</link>>
 	<br>
 <</if>>
 <<if $headdrive is 1 and $headpolice isnot 1>>
-	<<ind>><<link [[Give evidence against Leighton|Police Leighton]]>><</link>>
+	<<techicon "usb">><<link [[Give evidence against Leighton|Police Leighton]]>><</link>>
 	<br>
 <</if>>
 
@@ -74,19 +74,31 @@ You ask the <<person>> if you can have your collar removed.
 <<if $worn.neck.collaredpolice is 1 and $community_service gte 1>>
 	<span class="red">"No can do,"</span> <<he>> says. "That's part of your sentence. Finish your community service, then we'll remove it."
 	<br><br>
-	<<if $promiscuity gte 15 and $daily.policeCollarSeduceAttempt isnot 1>>
+	<<if hasSexStat("promiscuity", 2) and $daily.policeCollarSeduceAttempt isnot 1>>
 		<<link [[Seduce|Police Station Seduce]]>><<set $daily.policeCollarSeduceAttempt to 1>><<set $phase to 1>><</link>><<promiscuous2>>
 		<br>
 	<</if>>
-<<else>>
-	"Sure," <<he>> says. "It'll cost £200. You really shouldn't go putting those things on for fun. They're government property for one thing, and a bitch to get off by design."
+<<elseif $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+	"That doesn't look like one of ours. Give me a moment." <<He>> enters the lobby proper moments later. <<He>> feels it. "It's just fabric. This will only take a minute."
 	<br><br>
-	<<if $promiscuity gte 15 and $daily.policeCollarSeduceAttempt isnot 1>>
+
+	<<He>> produces a pair of scissors, and tries to cut the collar. The scissors slide away as they close, leaving not a mark. <<He>> scratches <<his>> head. "That's new."
+	<br><br>
+
+	<<He>> walks through a different door, and returns with a crowbar. "Hold still." <<He>> hooks the collar around the end, and tries wrenching it free. <<pain 2>><<gpain>>
+	<br><br>
+
+	<<He>> stops, but only after leaving a mark on your skin. "I don't know what kind of trick collar that is, but it's not coming off short of divine intervention. Sorry."
+	<br><br>
+<<else>>
+	"Sure," <<he>> says. "It'll cost you, though. You really shouldn't go putting those things on for fun. They're government property for one thing, and a <<bitch>> to get off by design."
+	<br><br>
+	<<if hasSexStat("promiscuity", 2) and $daily.policeCollarSeduceAttempt isnot 1>>
 		<<link [[Seduce|Police Station Seduce]]>><<set $daily.policeCollarSeduceAttempt to 1>><<set $phase to 0>><</link>><<promiscuous2>>
 		<br>
 	<</if>>
 	<<if $money gte 20000>>
-		<<link [[Pay up|Police Station Collar Removal]]>><<set $money -= 20000>><</link>>
+		<<link [[Pay up (£200)|Police Station Collar Removal]]>><<money -20000 "collarRemoval">><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -111,9 +123,9 @@ You ask the <<person>> if you can have your shackles removed. "Dunno what you ex
 	<<set $seductiondifficulty to 4000>>
 <</if>>
 <<seductioncheck>>
-<br><br>
-<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-<br><br>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
 <<if $seductionrating gte $seductionrequired>>
 	"I'll pretend I didn't hear that.
 	<<if $phase is 1>>
@@ -150,7 +162,7 @@ You ask the <<person>> if you can have your shackles removed. "Dunno what you ex
 <<if $syndromeeden is 1>>
 	<<set $edencollarremove to 1>>
 <</if>>
-"I'll be right round," The <<person>> says. <<He>> enters the lobby proper moments later, holding a strange-looking key. <<He>> holds it up to the collar, and the lock clicks open, releasing your neck. <<He>> takes the collar. "As I said, government property."
+"I'll be right round," the <<person>> says. <<He>> enters the lobby proper moments later, holding a strange-looking key. <<He>> holds it up to the collar, and the lock clicks open, releasing your neck. <<He>> takes the collar. "As I said, government property."
 <br><br>
 <<set $worn.neck.type.push("broken")>><<neckruined true>><<set $worn.neck.collaredpolice to 0>>
 <<link [[Next|Police Station]]>><</link>>
@@ -196,13 +208,13 @@ You ask the <<person>> if you can have your shackles removed. "Dunno what you ex
 	<<clotheson>>
 	<<endcombat>>
 <<elseif $finish is 1>>
-	"Fine," <<he>> says "I'm not taking the collar off though."
+	"Fine," <<he>> says. "I'm not taking the collar off though."
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
 <</if>>
-<br><br>
-<<link [[Next|Residential alleyways]]>><</link>>
+
+<<link [[Next|Residential Alleyways]]>><</link>>
 
 :: Police Leighton
 
@@ -253,27 +265,27 @@ You get the feeling the police aren't going to be helpful. At least you tried to
 	<<if $police_access_card is 0 and ($rng % 3) is 0>>
 		<br><span class="gold">A police access card lies on the desk.</span> A note on it says "external access only."
 		<br><br>
-		<<ind>><<link [[Steal access card|Police Back Office]]>><<set $police_access_card to 1>><</link>>
+		<<icon "access_card.png">><<link [[Steal access card|Police Back Office]]>><<set $police_access_card to 1>><</link>>
 		<br>
 	<<else>>
 	<br><br>
 	<</if>>
 	<<if $police_hack is 4>>
 		<!-- SANITY: Intentional mismatch between stated time and actual time, to avoid letting the user know that it will fail -->
-		<<ind>><<link [[Access police computer (0:10)|Police Computer]]>><<pass 1>><<set $phase to 0>><</link>>
+		<<techicon "computer">><<link [[Access police computer (0:10)|Police Computer]]>><<pass 1>><<set $phase to 0>><</link>>
 		<br>
 	<<elseif $police_hack is 5>>
-		<<ind>><<link [[Access police computer (0:10)|Police Computer]]>><<pass 10>><<set $phase to 1>><</link>>
+		<<techicon "computer">><<link [[Access police computer (0:10)|Police Computer]]>><<pass 10>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
 <<else>>
 	You find yourself amid a set of administrative back offices. There are police everywhere. You cannot go anywhere or access anything. About to be discovered you have no choice but to slip away.
-	<br>
+	<br><br>
 	<<if $arousal gte $arousalmax>>
 		<<orgasmLocation "policeStation">>
 	<</if>>
 	<span class="gold">It would probably be quieter at night.</span>
-	<br><br>
+	<br>
 <</if>>
 <br>
 <<barbicon>><<link [[Leave|Barb Street]]>><<set $police_intro to 0>><</link>>
@@ -307,3 +319,96 @@ You get the feeling the police aren't going to be helpful. At least you tried to
 <br><br>
 <<link [[Leave|Police Back Office]]>><<set $phase to 0>><</link>>
 <br>
+
+:: Police Sneak Caught
+<<set $outside to 0>><<set $location to "police_station">><<set $police_delete to 0>><<effects>>
+<<generate1>><<person1>>
+Before you can access the computer, a beam of light shines on you.
+<br><br>
+"I've caught you, sneaky little rat," a voice snarls.
+<br><br>
+You turn, shielding your eyes from the bright torchlight. <span class="red">It's a police officer</span>. Before you can make a break for it, <<he>> tackles you to the floor.
+<br><br>
+<<link [[Next|Police Sneak Rape]]>><<set $molestationstart to 1>><</link>>
+
+:: Police Sneak Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemyhealth to 300>>
+	<<set $NPCList[0].insecurity to "ethics">>
+
+	"Let's see who we have here." Pinning you to the ground, the <<person>> <<if $worn.face.name isnot "naked">>displaces your $worn.face.name, <</if>>tilts your head, and examines your face.
+	<br><br>
+
+	<<if crimeSumCurrent() gte 6000>>
+		"Well, well, it looks like I've landed myself quite the big catch." <<He>> snickers triumphantly. "Could never miss the chance to punish criminal scum like you."
+		<<set $enemyanger += 150>>
+		<<set $enemytrust -= 120>>
+	<<elseif $beauty gte ($beautymax / 7) * 6>>
+		"You certainly are a catch, aren't you?" You don't think <<hes>> talking about your criminal history. <<He>> hungrily rakes <<his>> eyes down your body, pausing only to <<if $player.breastsize gte 1>>paw at your <<breasts>><<else>>grope your crotch.<</if>>
+		<br><br>
+		"I'm going to enjoy this."
+		<<set $enemyanger += 50>>
+		<<set $enemytrust -= 30>>
+	<<else>>
+		"Tsk." <<He>> clicks <<his>> tongue. "Don't know what I expected, but still, I won't turn down a chance to punish criminals like you."
+		<<set $enemyanger += 100>>
+		<<set $enemytrust -= 60>>
+	<</if>>
+
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Police Sneak Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Police Sneak Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Police Sneak Rape Finish
+<<effects>>
+<<if $pain gte 100 and $willpowerpain is 0>>
+	"Learnt your lesson?" <<He>> pulls your hair violently, yanking your head up to look at <<him>>. "Because I'm not finished," <<he>> says, throwing you to the ground and stripping you of your clothes. "These belong in the evidence locker. Now, get your ass out. I don't want to see you around here again."
+	<br><br>
+	The <<person>> kicks you out, leaving you exposed.
+	<br><br>
+	<<clothesruined>>
+	<<tearful>> you try to cover yourself.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Barb Street]]>><</link>>
+<<else>>
+
+	<<if $enemyarousal gte $enemyarousalmax>>
+		<<ejaculation>><<set $rapestat += 1>><<famerape 1>>
+	<</if>>
+
+	You shove the <<person>> off of you, scrambling to your feet. However, <<he>> doesn't give up easily.
+	<br><br>
+	<<if $worn.feet.name isnot "ankle cuffs">>
+		"Not so fast," <<he>> grunts with effort. You feel <<his>> hands clasp on your ankle, along with something metallic. You hear a 'click' before you manage to kick <<him>> away.
+		<<shackle_feet>>
+	<<else>>
+		<<He>> grabs the chain of your shackles and yanks, sending you tumbling down to the floor with a crash.<<pain 10>><<gpain>>
+		<br><br>
+		It takes a moment, but you're able to kick <<him>> away from you.
+	<</if>>
+	<br><br>
+	<<tearful>> you flee the scene.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Barb Street]]>><</link>>
+<</if>>

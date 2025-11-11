@@ -3,15 +3,15 @@
 <<widget "danceactions">>
 	<<exposure>>
 	<<if $danceevent is 0>>
-		<<if $exposed gte 2 and $exhibitionism lte 74 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
+		<<if $exposed gte 2 and $exhibitionism lte 74 and $forceddance isnot 1 and $dance_job_exposed isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel")>>
 			<!--
 				No dancing if:
-				Under 75 exhib, fully exposed, not forced, (not at brothel or not corrupt dance)
+				Under 75 exhib, fully exposed, not forced, haven't chosen to dance despite exposure, (not at brothel or not corrupt dance)
 			-->
-		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel") and !$worn.under_lower.type.includes("dance")>>
+		<<elseif $exposed gte 1 and $exhibitionism lte 34 and $forceddance isnot 1 and $dance_job_exposed isnot 1 and ($corruptionDancing is undefined or $dancelocation isnot "brothel") and !$worn.under_lower.type.includes("dance")>>
 			<!--
 				No dancing if:
-				Under 35 exhib, half exposed, not forced,
+				Under 35 exhib, half exposed, not forced, haven't chosen to dance despite exposure,
 				not wearing dance clothes, (not at brothel or not corrupt Dancing)
 			-->
 		<<else>>
@@ -65,7 +65,7 @@
 				<label><span class="meek">Seductive Dance</span> (0:01) <<combatexhibitionist1>> <<radiobutton "$danceaction" "seductive">></label> |
 			<</if>>
 			<br>
-			<<if $exhibitionism gte 15>>
+			<<if hasSexStat("exhibitionism", 2)>>
 				<<if $danceactiondefault is "sexual">>
 					<label><span class="sub">Sexual Dance</span> (0:01) <<combatexhibitionist2>> <<radiobutton "$danceaction" "sexual" checked>></label> |
 				<<else>>
@@ -74,7 +74,7 @@
 				<br>
 			<</if>>
 			<<goocount>>
-			<<if $cat gte 6 and $liquidoutsidecount gte 1 and $leftarm isnot "bound" and $rightarm isnot "bound">>
+			<<if $cat gte 6 and $liquidoutsidecount gte 1 and !pcAreArmsBound("any")>>
 				<<if $danceactiondefault is "groom">>
 					<label><span class="sub">Groom</span> (0:01) <span class="blue">Cat</span> <<radiobutton "$danceaction" "groom" checked>></label> |
 				<<else>>
@@ -93,14 +93,14 @@
 		<<link [[Push away|$passage]]>><<set $danceaction to "vippush">><</link>>
 		<br>
 	<<elseif $danceevent is "darryl">>
-		<<link [[Reassure|$passage]]>><<set $danceaction to "darrylreassure">><<npcincr Darryl love 1>><</link>><<glove>>
+		<<link [[Reassure|$passage]]>><<set $danceaction to "darrylreassure">><<npcincr Darryl love 1>><</link>><<glove "Darryl" "simple">>
 		<br>
 		<<link [[Pull Darryl onto the stage|$passage]]>><<set $danceaction to "darrylpull">><</link>>
 		<br>
 	<<elseif $danceevent is "briar">>
-		<<link [[Wink at Briar|$passage]]>><<set $danceaction to "briarwink">><<npcincr Briar love 1>><</link>><<glove>>
+		<<link [[Wink at Briar|$passage]]>><<set $danceaction to "briarwink">><<npcincr Briar love 1>><</link>><<glove "Briar" "simple">>
 		<br>
-		<<if $promiscuity gte 35>>
+		<<if hasSexStat("promiscuity", 3)>>
 			<<link [[Seduce Briar|$passage]]>><<set $danceaction to "briarseduce">><</link>><<promiscuous3>>
 			<br>
 		<<else>>
@@ -108,7 +108,7 @@
 			<br>
 		<</if>>
 	<<elseif $danceevent is "strippertrouble">>
-		<<link [[Help them|$passage]]>><<set $danceaction to "stripperhelp">><</link>>
+		<<link [[Intervene|$passage]]>><<set $danceaction to "stripperhelp">><</link>>
 		<br>
 		<<link [[Ignore|$passage]]>><<set $danceaction to "stripperignore">><</link>>
 		<br>
@@ -123,7 +123,7 @@
 		<br>
 		<<if $dancelocation is "brothel" and $corruptionDancing isnot undefined>>
 			The slime in your ear prevents you from ending the show.
-		<<elseif $dancelocation isnot "underground" and $dancelocation isnot "smuggler_forced">>
+		<<elseif $forceddance isnot 1>>
 			<<link [["It's too dangerous, time to end the show"|$passage]]>><<set $danceaction to "finish">><</link>>
 			<br>
 		<</if>>
@@ -176,24 +176,24 @@
 			<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 			<br>
 		<<else>>
-			<<link [[Drink|$passage]]>><<set $danceaction to "drink">><</link>><<dancedifficulty 1 `800 + $drunk`>>
+			<<link [[Drink|$passage]]>><<set $danceaction to "drink">><</link>><<dancedifficulty 1 `800 + $drunk`>><<galcohol>>
 			<br>
-			<<link [[Drink carefully|$passage]]>><<set $danceaction to "drink_careful">><</link>>
+			<<link [[Drink carefully|$passage]]>><<set $danceaction to "drink_careful">><</link>><<galcohol>>
 			<br>
 		<</if>>
-		<<refuseicon>><<link [[Ignore|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
+		<<link [[Ignore|$passage]]>><<set $danceaction to "drink_ignore">><</link>>
 		<br>
 	<<elseif $danceevent is "light">>
-		<<if $exhibitionism gte 75>>
+		<<if hasSexStat("exhibitionism", 5)>>
 			<<link [[Flaunt|$passage]]>><<set $danceaction to "light_flaunt">><</link>><<ginterest>>
 			<br>
 		<</if>>
-		<<if $forceddance is 1>>
+		<<if $forceddance is 1 or $dance_job_exposed is 1>>
 			<<link [[Cover yourself|$passage]]>><<set $danceaction to "light_cover">><</link>>
 			<br>
 		<</if>>
 	<<elseif $danceevent is "corruptionDance">>
-		<<if $promiscuity gte 75 and $submissive gte 1900>>
+		<<if hasSexStat("promiscuity", 5) and $submissive gte 1900>>
 			<<link [[Submit willingly|$passage]]>>
 				<<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>>
 				<<set $corruptionResult to "submit">><<set $danceaction to "corruptionResult">>
@@ -348,7 +348,17 @@
 					They won't let you keep it.
 				<<else>>
 					You've gained <<printmoney $dancetip>>.
-					<<set $money += $dancetip>>
+					<<if $dancelocation>>
+						<<switch $dancelocation>>
+							<<case "stage">><<set _tipSource to "danube">>
+							<<case "club">><<set _tipSource to "stripClub">>
+							<<default>><<set _tipSource to $dancelocation>>
+						<</switch>>
+						<<set _tipSource += "DanceTips">>
+					<<else>>
+						<<set _tipSource to "danceTips">>
+					<</if>>
+					<<money $dancetip _tipSource>>
 				<</if>>
 			<</if>>
 			<br><br>
@@ -445,7 +455,7 @@
 						<<dancestrip>>
 					<<elseif $rng gte 31 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 21 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 21 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory.tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
 					<<elseif $rng gte 11 and $robinBrothel>>
 						<<dancebrothelrobin>>
@@ -463,7 +473,7 @@
 						<<dancestrip>>
 					<<elseif $rng gte 51 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 41 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 41 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory.tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
 					<<elseif $rng gte 31 and $robinBrothel>>
 						<<dancebrothelrobin>>
@@ -479,7 +489,7 @@
 						<<dancevip>>
 					<<elseif $rng gte 71 and $privatedanceoffered isnot 1>>
 						<<danceprivate>>
-					<<elseif $rng gte 61 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory_tenant.special.name isnot "Leighton">>
+					<<elseif $rng gte 61 and $daily.leightonDanceOffered isnot 1 and Time.weekDay gte 6 and $leightonbrothel is 1 and $pillory.tenant.special.name isnot "Leighton">>
 						<<danceleighton>>
 					<<elseif $rng gte 51 and $robinBrothel>>
 						<<dancebrothelrobin>>
@@ -614,6 +624,8 @@
 						<<dancemolest>>
 					<</if>>
 				<</if>>
+			<<elseif $dancelocation is "wren_heist">>
+				/* No events */
 			<</if>>
 		<</if>>
 	<</if>>
@@ -626,7 +638,7 @@
 		The spotlight changes hue and brightens, forcing you to squint.
 	<<else>>
 		<<set $danceevent to "light">>
-		The spotlight changes hue, piercing the fabric of your clothes, and illuminating the skin beneath. <span class="lewd">It's as if you're naked!</span>
+		The spotlight changes hue, piercing the fabric of your clothes and illuminating the skin beneath. <span class="lewd">It's as if you're naked!</span>
 	<</if>>
 <</widget>>
 
@@ -640,7 +652,7 @@
 
 <<widget "dancepull">>
 	<<set $danceevent to "dancepull">>
-	Driven mad with lust, <span class="pink">the <<person>> grasps your leg, and tries to pull you off the stage.</span>
+	Driven mad with lust, <span class="pink">the <<person>> grasps your leg and tries to pull you off the stage.</span>
 <</widget>>
 
 <<widget "dancedrunktrip">>
@@ -650,16 +662,16 @@
 		<<set _top.integrity -= 10>>
 		You're caught, but your _top.name <<= _top.plural is 1 ? "snag" : "snags">>.
 		<<if _top.integrity lte 0>>
-			<span class="pink">You hear a tear,</span> and look down to find its tattered remains vanishing in the crowd.
+			<span class="pink">You hear a tear,</span> and look down to find <<= _top.plural is 1 ? "their" : "its">> tattered remains vanishing in the crowd.
 			<<arousal 100>><<if _top is $worn.over_upper>><<overupperruined>><<else>><<upperruined>><</if>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
 		<<else>>
 			Someone cops a feel of your chest as you climb back up.
 		<</if>>
 	<<elseif !_bottomless>>
 		<<set _bottom.integrity -= 10>>
-		You're caught, but your _bottom.name snags.
+		You're caught, but your _bottom.name <<= _bottom.plural is 1 ? "snag" : "snags">>.
 		<<if _bottom.integrity lte 0>>
-			<span class="pink">You hear a tear,</span> and look down to find its tattered remains vanishing in the crowd.
+			<span class="pink">You hear a tear,</span> and look down to find <<= _bottom.plural is 1 ? "their" : "its">> tattered remains vanishing in the crowd.
 			<<arousal 100>><<if _bottom is $worn.over_lower>><<overlowerruined>><<else>><<lowerruined>><</if>><<set $audiencearousal += 5>><<set $audienceexcitement += 5>>
 		<<else>>
 			Someone cops a feel of your <<bottom>> as you climb back up.
@@ -737,13 +749,13 @@
 <</widget>>
 
 <<widget "danceprivate">>
-	The <<person>> raises <<his>> <<if $pronoun is "m">>wallet,<<else>>purse,<</if>> indicating <<he>> wants to hire your services.
+	The <<person>> raises <<his>> <<if $pronoun is "m">>wallet<<else>>purse<</if>>, indicating <<he>> wants to hire your services.
 	<<set $danceevent to "private">>
-	<<if $promiscuity lte 34 and $uncomfortable.prostituting is true>>
+	<<if !hasSexStat("promiscuity", 3) and $uncomfortable.prostituting is true>>
 		However, you are not promiscuous enough to take up <<his>> offer.
 		<<set $privatedanceoffered to 1>>
 	<</if>>
-	<<if $promiscuity lte 34 and $uncomfortable.prostituting is false>>
+	<<if !hasSexStat("promiscuity", 3) and $uncomfortable.prostituting is false>>
 		<<His>> offer repulses you, but you need the money.
 	<</if>>
 <</widget>>
@@ -764,7 +776,7 @@
 
 <<widget "dancedarryl">>
 	<<set $danceevent to "darryl">>
-	You notice Darryl roam between stages, checking in on the dancers. <<nnpc_He "Darryl">> arrives at yours, and watches you.
+	You notice Darryl roam between stages, checking in on the dancers. <<nnpc_He "Darryl">> arrives at yours and watches you.
 <</widget>>
 
 <<widget "dancebriar">>
@@ -774,7 +786,7 @@
 
 <<widget "dancestrippertrouble">>
 	<<set $danceevent to "strippertrouble">>
-	The <<person>> tries to drag another employee off their stage.
+	The <<person>> tries to drag another employee off <<if maleChance() gte random(1,100)>>his<<else>>her<</if>> stage.
 <</widget>>
 
 <<widget "dancesalivate">>
@@ -782,7 +794,7 @@
 <</widget>>
 
 <<widget "dancesamfinish">>
-	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Good job today. Here's a little something extra." You earn <<moneyGain 10>>.
+	<<endevent>><<npc Sam>>Sam appears beside your table-stage. "That's enough everyone, this <<girl>> has had enough." <<He>> takes you by the arm and leads you into a back room. "Good job today. Here's a little something extra." You earn <<printmoney 1000>><<money 1000 "cafeWaiter">>.
 	<<npcincr Sam love 2>><<glove>><<set $danceevent to "finish">>
 <</widget>>
 
@@ -792,25 +804,23 @@
 		"I knew I'd find you here,"
 	<<elseif $delinquency gte 400>>
 		"So this is why you're missing classes,"
-	<<elseif $exposed gte 2 and $exhibitionism gte 75>>
+	<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
 		"I knew you were a slut,"
 	<<else>>
 		"You look cute up there,"
 	<</if>>
 	says a familiar voice. It's Leighton, raising a stack of bills.
-	<br><br>
 <</widget>>
 
 <<widget "dancebrothelrobin">>
 	<<set $danceevent to "robin">>
 	You hear a familiar voice call your name. Without halting your dance, you scan the crowd for the source. <span class="pink">It's Robin.</span> <<nnpc_He "Robin">> looks worried and beckons you to come with <<nnpc_him "Robin">>.
 	<<set $weekly.robinBrothel to true>><<unset $robinBrothel>>
-	<br><br>
 <</widget>>
 
 <<widget "danceCorruption">>
 	<<set $danceevent to "corruptionDance">>
-	<span class="lewd">You feel the slime in your head command you to not stop dancing for the crowd.</span> It promises rewards if you comply, and threatens consequences if you do not.
+	<span class="lewd">You feel the slime in your head command you to not stop dancing for the crowd.</span> It promises rewards if you comply and threatens consequences if you do not.
 <</widget>>
 
 <<widget "danceWraith">>

@@ -19,15 +19,15 @@ function ampm(hour, minute) {
 	}
 	return !ampm ? ("0" + getTimeString(hour, minute)).slice(-5) : getTimeString(hour, minute) + ampm;
 }
+window.ampm = ampm;
 DefineMacroS("ampm", ampm);
 
 function advanceToHour() {
-	return passTime(60 - Time.minute);
+	passTime(60 - Time.minute);
 }
 Macro.add("advancetohour", {
 	handler() {
-		const fragment = advanceToHour();
-		this.output.append(fragment);
+		advanceToHour();
 	},
 });
 
@@ -35,12 +35,11 @@ function passTimeUntil(hour, minute = 0) {
 	const currentSeconds = Time.hour * TimeConstants.secondsPerHour + Time.minute * TimeConstants.secondsPerMinute;
 	const targetSeconds = hour * TimeConstants.secondsPerHour + minute * TimeConstants.secondsPerMinute;
 	const secondsToPass = (targetSeconds - currentSeconds + TimeConstants.secondsPerDay) % TimeConstants.secondsPerDay;
-	return passTime(secondsToPass, "sec");
+	passTime(secondsToPass, "sec");
 }
 Macro.add("passTimeUntil", {
 	handler() {
-		const fragment = passTimeUntil(...this.args);
-		this.output.append(fragment);
+		passTimeUntil(...this.args);
 	},
 });
 
@@ -66,18 +65,15 @@ const secondsMapper = {
  *
  * @param {number} time The interval of units of time
  * @param {'sec'|'min'|'hour'|'day'|'week'} type The spans of time to pass.
- * @returns {DocumentFragment} The fragment to render elements from.
  */
 function passTime(time = 0, type = "min") {
 	if (!Number.isInteger(time)) return Errors.report("Invalid time to pass: " + time, Utils.GetStack());
 	const multiplier = secondsMapper[type] || 1;
-	const fragment = Time.pass(time * multiplier);
-	return fragment;
+	Time.pass(time * multiplier);
 }
 Macro.add("pass", {
 	handler() {
-		const fragment = passTime(...this.args);
-		this.output.append(fragment);
+		passTime(...this.args);
 	},
 });
 
@@ -111,14 +107,19 @@ Macro.add("clock", {
 function schoolTerm() {
 	if (Time.schoolTerm) {
 		const date = Time.nextSchoolTermEndDate;
+		const currentTimeStamp = Time.date.timeStamp;
 		if (date.year === Time.year && date.month === Time.month && date.day === Time.monthDay) {
-			if (date.timeStamp > Time.date.timeStamp) return "School term finishes today.";
+			if (date.timeStamp > currentTimeStamp) {
+				return "School term finishes today.";
+			} else {
+				const nextDate = Time.getNextSchoolTermStartDate(date.addDays(1));
+				return "School term has finished. Next term starts on " + getFormattedDate(nextDate, true) + ".";
+			}
 		} else {
-			return "School term finishes on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName + ".";
+			return "School term finishes on " + getFormattedDate(date, true) + ".";
 		}
 	}
 	const date = Time.nextSchoolTermStartDate;
-	return "School term starts on " + date.weekDayName + " the " + ordinalSuffixOf(date.day) + " of " + date.monthName + ".";
+	return "School term starts on " + getFormattedDate(date, true) + ".";
 }
-
 DefineMacroS("schoolterm", schoolTerm);

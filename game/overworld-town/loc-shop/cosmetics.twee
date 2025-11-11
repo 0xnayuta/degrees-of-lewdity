@@ -3,46 +3,133 @@
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
 
-	<<lockpickicon>><<link [[Pick it (0:10)|Cosmetics Store]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Cosmetics Store]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
 
-<<getouticon>><<link [[Leave|Shopping Centre Top]]>><</link>>
-<br>
+<<getouticon>><<link [[Leave|Shopping Centre Top]]>><<handheldon>><</link>>
 
 :: Cosmetics Store
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
 You are in the cosmetics store. Several shelvings stand before you, filled with all kinds of colourful tubes, jars and boxes.
 <br><br>
-<<cosmeticsicon>><<link [[Look at lipsticks|Cosmetics Lipstick]]>><</link>>
-<br>
-<<cosmeticsicon "eyeshadow">><<link [[Look at eye shadows|Cosmetics Eyeshadow]]>><</link>>
-<br>
-<<cosmeticsicon "mascara">><<link [[Look at mascaras|Cosmetics Mascara]]>><</link>>
-<br>
-<<cosmeticsicon "dyes">><<link [[Look at hair dyes|Cosmetics Dyes]]>><</link>>
-<br><br>
-<<getouticon>><<link [[Leave|Shopping Centre Top]]>><</link>>
+
+<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
+	You are alone in the darkness.
+	<br><br>
+<<elseif $exposed gte 1>>
+	You hide behind a shelf to protect your dignity.
+	<br><br>
+<</if>>
+
+<<if $stress gte $stressmax>>
+	<<passoutshop>>
+<<elseif Time.hour is $closinghour>>
+	It's closing time. Security is herding everyone outside.
+	<<if $exposed gte 1>>
+		Panic swells within you as you realise how embarrassed you'll be should security find you exposed like this.
+	<</if>>
+	<br><br>
+	<<if $exposed lte 0>>
+		<<highicon>><<link [[Go outside|High Street]]>><</link>>
+		<br>
+	<<else>>
+		<<ind>><<link [["Hide until it's over (1:00)"|Cosmetics Store]]>><<pass 1 hour>><</link>>
+	<</if>>
+<<else>>
+	<<if Time.dayState is "night" and !$weekly.theft.cosmeticsShop>>
+		<<shopicon "register">><<link [[Examine the cash register|Cosmetics Store Register]]>><</link>>
+		<br><br>
+	<</if>>
+	<<if Time.dayState is "night" or $exposed lte 0>>
+		<<cosmeticsicon>><<link [[Look at lipsticks|Cosmetics Lipstick]]>><</link>>
+		<br>
+		<<cosmeticsicon "eyeshadow">><<link [[Look at eyeshadows|Cosmetics Eyeshadow]]>><</link>>
+		<br>
+		<<cosmeticsicon "mascara">><<link [[Look at mascaras|Cosmetics Mascara]]>><</link>>
+		<br>
+		<<cosmeticsicon "blusher">><<link [[Look at blushers|Cosmetics Blusher]]>><</link>>
+		<br>
+		<<cosmeticsicon "dyes">><<link [[Look at hair dyes|Cosmetics Dyes]]>><</link>>
+		<br>
+		<<cosmeticsicon "sunscreen">><<link [[Look at sunscreen|Cosmetics Sunscreen]]>><</link>>
+		<br><br>
+	<</if>>
+	<<getouticon>><<link [[Leave|Shopping Centre Top]]>><</link>>
+<</if>>
 
 :: Cosmetics Lipstick
 <<CosmeticsGenericDepartment "lipstick" "lipstick" "lipsticks" "lipstick" "" "#FF0000" 1000 "Cosmetics Lipstick" "A bunch of colourful lipsticks stand on a shelf." true true 20 `setup.colours.lipstick.map(c=>c.variable)`>>
 
 :: Cosmetics Eyeshadow
-<<CosmeticsGenericDepartment "eyeshadow" "eyeshadow" "eyeshadows" "eyeshadow" "" "#FF0000" 1500 "Cosmetics Eyeshadow" "Small boxes with sparkly eye shadows lie before you." true true 20 `setup.colours.eyeshadow.map(c=>c.variable)`>>
+<<CosmeticsGenericDepartment "eyeshadow" "eyeshadow" "eyeshadows" "eyeshadow" "" "#FF0000" 1500 "Cosmetics Eyeshadow" "Small boxes of sparkly eyeshadow lie before you." true true 20 `setup.colours.eyeshadow.map(c=>c.variable)`>>
 
 :: Cosmetics Mascara
 <<CosmeticsGenericDepartment "mascara" "mascara" "mascaras" "mascara" "" "#FF0000" 1500 "Cosmetics Mascara" "There's a dozen mascaras lying before you. They're all black though." true true 20 `setup.colours.mascara.map(c=>c.variable)`>>
 
+:: Cosmetics Blusher
+<<CosmeticsGenericDepartment "blusher" "blusher" "blushers" "blusher" "" "#FF0000" 1500 "Cosmetics Blusher" "Several blusher compacts lie before you. One of them looks like it would go well with your skin tone." true true 20 `setup.colours.blusher.map(c=>c.variable)`>>
+
 :: Cosmetics Dyes
 <<CosmeticsGenericDepartment "hairdye" "hair dye" "hair dyes" "hair" "colour-hair" "#FD6064" 4000 "Cosmetics Dyes" "You come to the shelf with hair dyes." false true 1 `setup.colours.hair.filter(c=>c.dye).map(c=>c.variable)`>>
+
+
+:: Cosmetics Sunscreen
+<<set _sunscreen to Skin.Sunscreen.bottle>>
+<<set _sunscreen.durationHours to Math.floor(Skin.Sunscreen.duration / TimeConstants.secondsPerHour)>>
+
+You come to a shelf with many bottles of sunscreen.
+<<if Skin.Sunscreen.usesLeft gt 0>>
+	<<set _ownedBottles to Math.ceil(Skin.Sunscreen.usesLeft / _sunscreen.uses)>>
+	<br>
+	You already own <<print _ownedBottles>> <<pluralise _ownedBottles "bottle">>, with <<print Skin.Sunscreen.usesLeft>> <<pluralise Skin.Sunscreen.usesLeft "use">> left.
+<</if>>
+
+<br><br>
+Each bottle costs <<printmoney _sunscreen.price>> and has <<print _sunscreen.uses>> uses. Each use lasts around <<print _sunscreen.durationHours>> <<pluralise _sunscreen.durationHours "hour">>.
+<br>
+<<if Time.dayState is "night">>
+	<<link [[Steal a bottle|Cosmetics Sunscreen]]>>
+		<<crimeUp `_sunscreen.price / 100` "petty">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+	<</link>><<crime "petty">>
+	<br>
+	<<link [[Steal a bottle and apply right now|Cosmetics Sunscreen]]>>
+		<<crimeUp `_sunscreen.price / 100` "petty">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+		<<run Skin.Sunscreen.apply()>>
+	<</link>><<crime "petty">>
+<<elseif $money gte _sunscreen.price>>
+	<<link [[Buy a bottle (<<printmoney _sunscreen.price>>)|Cosmetics Sunscreen]]>>
+		<<money `-_sunscreen.price` "cosmetics">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+	<</link>>
+	<br>
+	<<link [[Buy a bottle and apply right now (<<printmoney _sunscreen.price>>)|Cosmetics Sunscreen]]>>
+		<<money `-_sunscreen.price` "cosmetics">>
+		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+		<<run Skin.Sunscreen.apply()>>
+	<</link>>
+<<else>>
+	<span class="purple">You can't afford the purchase.</span>
+<</if>>
+<br><br>
+<<link [[Go back|Cosmetics Store]]>><</link>>
+
 
 :: Cosmetics Store Widgets [widget]
 <<widget "CosmeticsGenericDepartment">>
@@ -115,17 +202,17 @@ You are in the cosmetics store. Several shelvings stand before you, filled with 
 			<<set _buy = Time.dayState == "night" ? "Steal" : "Buy">>
 			<<if _isConsumable == true>>
 				<<set _usesText = _usesPerBuy > 1 ? " ("+_usesPerBuy+" uses)" : "">>
-				<<link [[_buy+_usesText|_passageCurrent]]>><<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy>><<if Time.dayState is "night">><<crimeUp `_price / 100` "thievery">><<else>><<set $money -= _price>><</if>><</link>><<if Time.dayState is "night">><<crime "thievery">><</if>>
+				<<link [[_buy+_usesText|_passageCurrent]]>><<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy>><<if Time.dayState is "night">><<crimeUp `_price / 100` "petty">><<else>><<money `-_price `"cosmetics">><</if>><</link>><<if Time.dayState is "night">><<crime "petty">><</if>>
 				<br>
 				<<if _canUseNow == true>>
-					<<link [[_buy+_usesText+" and apply"+(_usesPerBuy > 1 ? " one" : "")+" right now"|_passageCurrent]]>><<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy-1>><<set $makeup[_itemType] = $cosmeticsChoice>><<if Time.dayState is "night">><<crimeUp `_price / 100` "thievery">><<else>><<set $money -= _price>><</if>><</link>><<if Time.dayState is "night">><<crime "thievery">><</if>>
+					<<link [[_buy+_usesText+" and apply"+(_usesPerBuy > 1 ? " one" : "")+" right now"|_passageCurrent]]>><<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy-1>><<set $makeup[_itemType] = $cosmeticsChoice>><<if Time.dayState is "night">><<crimeUp `_price / 100` "petty">><<else>><<money `-_price` "cosmetics">><</if>><</link>><<if Time.dayState is "night">><<crime "petty">><</if>>
 					<br>
 				<</if>>
 			<<else>>
-				<<link [[_buy+" and send home"|_passageCurrent]]>><<set $makeup.owned[_itemType].push($cosmeticsChoice)>><<if Time.dayState is "night">><<crimeUp `_price / 100` "thievery">><<else>><<set $money -= _price>><</if>><</link>><<if Time.dayState is "night">><<crime "thievery">><</if>>
+				<<link [[_buy+" and send home"|_passageCurrent]]>><<set $makeup.owned[_itemType].push($cosmeticsChoice)>><<if Time.dayState is "night">><<crimeUp `_price / 100` "petty">><<else>><<money `-_price` "cosmetics">><</if>><</link>><<if Time.dayState is "night">><<crime "petty">><</if>>
 				<br>
 				<<if _canUseNow == true>>
-					<<link [[_buy+" and use right now"|_passageCurrent]]>><<set $makeup.owned[_itemType].push($cosmeticsChoice)>><<set $makeup[_itemType] = $cosmeticsChoice>><<if Time.dayState is "night">><<crimeUp `_price / 100` "thievery">><<else>><<set $money -= _price>><</if>><</link>><<if Time.dayState is "night">><<crime "thievery">><</if>>
+					<<link [[_buy+" and use right now"|_passageCurrent]]>><<set $makeup.owned[_itemType].push($cosmeticsChoice)>><<set $makeup[_itemType] = $cosmeticsChoice>><<if Time.dayState is "night">><<crimeUp `_price / 100` "petty">><<else>><<money `-_price` "cosmetics">><</if>><</link>><<if Time.dayState is "night">><<crime "petty">><</if>>
 					<br>
 				<</if>>
 			<</if>>

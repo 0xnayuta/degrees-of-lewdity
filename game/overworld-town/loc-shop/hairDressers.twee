@@ -2,27 +2,32 @@
 
 <<set $outside to 0>><<effects>><<set $lock to 0>>
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[Pick it (0:10)|Hairdressers]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Hairdressers]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span>
 	<<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
-<br>
+<<getouticon>><<link [[Leave|Shopping Centre]]>><<handheldon>><</link>>
 
 :: Hairdressers
 
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 You are in the hairdressers. Various hair products are available for sale. You can also have your hair cut or dyed.
-<<if Time.dayState is "night">>
+<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
 	You are alone in the darkness.
 <<elseif $exposed gte 1>>
 	You hide in a cupboard to protect your dignity.
-<<else>>
+<<elseif Time.dayState isnot "night">>
 	There's a seat available.
 <</if>>
 <<if $hairgelBottles is undefined>>
@@ -46,9 +51,9 @@ You are in the hairdressers. Various hair products are available for sale. You c
 		<</if>>
 	<<else>>
 		<<if Time.dayState is "night" and Time.hour isnot $closinghour>>
-			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp `8 / 100` "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">>
+			<<hairdressericon "gel">><<link [[Steal a bottle of hair gel|$passage]]>><<crimeUp 8 "petty">><<set $hairgelBottles += 1>><</link>><<crime "petty">> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 			<br>
-			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp `50 / 100` "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">>
+			<<hairdressericon "hairspray">><<link [[Steal a bottle of hair growth formula|$passage]]>><<crimeUp 50 "petty">><<set $sexStats.pills.pills["Hair Growth Formula"].owned++>><<set $sexStats.pills.boughtOnce to true>><</link>><<crime "petty">> | Owned: <span class="gold"><<= $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
 			<br>
 			<<if !$weekly.theft.hairDressers>>
 				<<shopicon "register">><<link [[Examine the cash register|Hairdressers Register]]>><</link>>
@@ -56,25 +61,22 @@ You are in the hairdressers. Various hair products are available for sale. You c
 			<</if>>
 		<</if>>
 		<<if $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
+			<<hairdressericon "chair">><<link [[Take a seat|Hairdressers Seat]]>><</link>>
+			<br>
 			<<if $money gte 800>>
-				<<hairdressericon "gel">> <<link [[Purchase hair gel (£8)|Hairdressers Gel]]>><<set $money -= 800>><<set $hairgelBottles += 1>><</link>>
-				<br>
+				<<hairdressericon "gel">> <<link [[Purchase hair gel (£8)|Hairdressers Gel]]>><<money -800 "hairdressers">><<set $hairgelBottles += 1>><</link>> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 			<<else>>
 				<<hairdressericon "gel">> <span class="blue">You can't afford any hair gel or growth formula.</span>
-				<br>
 			<</if>>
+			<br>
 			<<if $money gte 5000>>
-				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (£50)|Hairdressers Gel]]>><<set $money -= 5000>><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>>
-				<br>
+				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (£50)|Hairdressers Gel]]>><<money -5000 "hairdressers">><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
 			<<elseif $money gte 800>>
 				<<hairdressericon "hairspray">> <span class="blue">You can't afford any hair growth formula.</span>
-				<br>
 			<</if>>
-			<<hairdressericon "chair">><<link [[Take a seat|Hairdressers Seat]]>><</link>>
 			<br><br>
 		<</if>>
 		<<getouticon>><<link [[Leave|Shopping Centre]]>><</link>>
-		<br>
 	<</if>>
 <</if>>
 
@@ -95,7 +97,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <<if $phase is 1>>
 	You have <span class="gold"><<print $sexStats.pills.pills["Hair Growth Formula"].owned>></span> applications of hair growth formula left.
 <<else>>
-	You have <span class="gold">$hairgelBottles</span> <<print ($hairgelBottles is 1) ? "bottle" : "bottles">> of hair gel.
+	You have <span class="gold">$hairgelBottles</span> <<pluralise $hairgelBottles "bottle">> of hair gel.
 <</if>>
 <br><br>
 
@@ -122,7 +124,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 :: Hairdressers Session
 <<hairdressersSession>>
-<<link [[Leave|Hairdressers]]>><<endevent>><</link>>
+<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
 
 :: Hairdressers Widgets [widget]
 /*args[0]: dye name in colours.js */
@@ -169,7 +171,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<</if>>
 	<<set _hiddenMannequin = $options.images is 1 ? "" : "hidden">>
 	<div id="hairDresserDiv">
-		<div id="mannequin" @class="'mannequin ' + _hiddenMannequin + ($sidebarRenderer is 'both' ? ' both-renderers' : '')" style="height:unset">
+		<div id="mannequin" @class="'mannequin ' + _hiddenMannequin" style="height:unset">
 			<<mannequinHairdresser>>
 		</div>
 		<div>
@@ -183,7 +185,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<set _hairOptions to {"Don't cut":$hairlength}>>
 				<<for _i to 9; _i gte 0; _i-->>
 					<<set $_length to (_i * 100) + 100>>
-					<<if $_length + 50 lt $hairlength>> /* + 50 to ensure its not cut too early */
+					<<if $_length + 50 lt $hairlength>> /* + 50 to ensure it's not cut too early */
 						<<set _hairOptions[_hairNames[_i]] to $_length>>
 					<</if>>
 				<</for>>
@@ -206,7 +208,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<set _fringeOptions to {"Don't cut":$fringelength}>>
 				<<for _i to 3; _i gte 0; _i-->>
 					<<set $_length to (_i * 200) + 100>>
-					<<if $_length + 50 lt $fringelength>> /* + 50 to ensure its not cut too early */
+					<<if $_length + 50 lt $fringelength>> /* + 50 to ensure it's not cut too early */
 						<<set _fringeOptions[_fringeNames[_i]] to $_length>>
 					<</if>>
 				<</for>>
@@ -234,13 +236,13 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<elseif $twoToneHairDye>>
 					<<set _currentCost += 25000>>
 				<</if>>
-				Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour is not $naturalhaircolour>> or cleared of hair dye<</if>>:
+				Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour isnot $naturalhaircolour>> or cleared of hair dye<</if>>:
 				<br>
 				<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
 				<label><<radiobutton "$dyedHairPart" "fringe" autocheck>> Fringe</label> |
 				<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label> |
 				<br>
-				<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone coloring</label>
+				<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
 				<br>
 
 				<<set _dyeOptions to {"Don't dye":"noChange"}>>
@@ -250,7 +252,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<</if>>
 				<<if $money gte _currentCost + 6000 or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
-						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple")  or $naturalhaircolour is $hairdressersHairColour[_i]>>
+						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
 						<</if>>
 						<<set _dyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
@@ -319,9 +321,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 					<<optionsfrom _browsDyeOptions>>
 				<</listbox>>
 				<<if $browsDyeOption isnot "noChange"and $browsDyeOption isnot "removeDye">>
-					<div @class="'hair-'+$browsDyeOption">
-						<div style="height: 25px; width: 100px; margin-top:5px; background-color: #fd6064; border:1px solid #ccc;" class="colour-hair"></div>
-					</div>
+					<<dyeSwatch $browsDyeOption>>
 					<br>
 				<<else>>
 					<br><br>
@@ -335,32 +335,32 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 
 	<<if _sydneyPresent>>
 		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
-			<<link [[Continue|Sydney Hairdressers Session]]>>
-				<<set $money -= _currentCost>>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
+				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<<elseif $money lt _currentCost>>
-			You don't have enough money to pay the hairdresser.
+			<span class="red">You don't have enough money to pay the hairdresser.</span>
 			<br><br>
-			<<link [[Continue|Sydney Hairdressers Session]]>><</link>>
+			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>><</link>>
 			<br>
 		<</if>>
 		<<if _cancel>>
 			<br><br>
-			<<link [[Leave|Sydney Hairdressers Cancel]]>><<endevent>><</link>>
+			<<getouticon>><<link [[Leave|Sydney Hairdressers Cancel]]>><<endevent>><</link>>
 		<</if>>
 	<<else>>
 
 		<<if $money lt _currentCost>>
-			You don't have enough money to pay the hairdresser.
+			<<hairdressericon "chair">><span class="red">You don't have enough money to pay the hairdresser.</span>
 		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
-			You need to select two diffent colours for two-tone hair colouring.
+			<<hairdressericon "chair">><span class="red">You need to select two different colours for two-tone hair colouring.</span>
 		<<elseif _currentCost gt 0>>
-			<<link [[Pay hairdresser|Hairdressers Session]]>>
-				<<set $money -= _currentCost>>
+			<<hairdressericon "chair">><<link [[Pay hairdresser|Hairdressers Session]]>>
+				<<money `-_currentCost` "hairdressers">>
 			<</link>>
 		<</if>>
 		<br><br>
-		<<link [[Leave|Hairdressers]]>><<endevent>><</link>>
+		<<getouticon>><<link [[Leave|Hairdressers]]>><<endevent>><</link>>
 	<</if>>
 <</widget>>
 
@@ -391,10 +391,10 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<<if $browsDyeOption is "removeDye">>
 		<<if _pass gt 0>>
 			Then <<he>> asks you to tilt your head back. <<He>> applies a liquid smelling of artificial chemicals to your eyebrows. The hairdresser finishes the procedure by wiping your brows with soapy tissue and washing your face.
-			<<He>> brings up a mirror for you to see your eyebrows back in its natural $naturalhaircolour colour.
+			<<He>> brings up a mirror for you to see your eyebrows back in their natural $naturalhaircolour colour.
 		<<else>>
 			<<He>> applies a liquid smelling of artificial chemicals to your eyebrows. The hairdresser finishes the procedure by wiping your brows with soapy tissue and washing your face.
-			<<He>> brings up a mirror for you to see your eyebrows back in its natural $naturalhaircolour colour.
+			<<He>> brings up a mirror for you to see your eyebrows back in their natural $naturalhaircolour colour.
 		<</if>>
 		<br><br>
 		<<set $makeup.browscolour to clone($naturalhaircolour)>>
@@ -538,13 +538,23 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <</widget>>
 
 <<widget "mannequinHairdresser">>
-	<<if $options.images is 1 and $sidebarRenderer isnot "img">>
+	<<if $options.images is 1>>
 		<div class="mannequin-inner">
+			<<selectmodel "lighting" "hairdresser">>
+			<<set _modeloptions.lights.gradient.enabled = false>>
+			<<set _modeloptions.lights.flat.enabled = false>>
+			<<rendermodel "lighting">>
 			<<selectmodel "main" "hairdresser">>
-				<<set _modeloptions.mannequin to true>>
-				<<set _modeloptions.show_face to false>>
+				<<selectmodel "main">>
+				<<set _modeloptions.tanningEnabled to false>>
+				<<set _modeloptions.skin_type = Skin.color.natural>>
+				<<set _modeloptions.skin_tone = Skin.color.tan>>
+				<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
+				<<set _modeloptions.mouth to 'neutral'>>
+				<<set _modeloptions.facevariant = $facevariant>>
+				<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
+				<<set _modeloptions.right_eye = $makeup.eyelenses.right != 0 ? $makeup.eyelenses.right : $rightEyeColour>>
 				<<showlayer "brows">>
-				<<set _modeloptions.crotch_visible to true>>
 				<<set _modeloptions.brows to "top">>
 				<<set _modeloptions.brows_colour to ($makeup.browscolour != 0 ? $makeup.browscolour : $naturalhaircolour)>>
 				<<if $browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye">>
@@ -593,6 +603,11 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<set _modeloptions.hair_fringe_length to $fringeOption != $fringelength ? convertHairLengthToStage("fringe", $fringeOption) : $fringelengthstage>>
 				<<set _modeloptions.hair_fringe_type to $fringetype>>
 				<<set _modeloptions.hair_sides_type to $hairtype>>
+
+				<<set _modeloptions.worn.upper.index to 14>>
+				<<set _modeloptions.worn.upper.colour to "white">>
+				<<set _modeloptions.worn.lower.index to 15>>
+				<<set _modeloptions.worn.lower.colour to "white">>
 			<<rendermodel "canvas-mannequin">>
 		</div>
 	<</if>>

@@ -7,14 +7,17 @@ Config.history.maxStates = 5;
 /* debug will enable or disable the feature only for new games */
 /* sneaky will enable the Sneaky notice banner on the opening screen and save display */
 /* versionName will be displayed in the top right of the screen, leave as "" to not display anything */
-window.StartConfig = {
+const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.4.7.5",
-	versionName: "",
+	version: "0.5.6.8",
+	versionName: `"Love Bites" edition`,
 	sneaky: false,
+	socialMediaEnabled: true,
+	sourceLinkEnabled: false,
 };
+window.StartConfig = StartConfig;
 
 State.prng.init();
 
@@ -28,21 +31,8 @@ Config.saves.isAllowed = () => {
 	return true;
 };
 
-idb.footerHTML = `
-	<div class="savesListRow">
-		<div class="saveGroup">
-			<span style="margin: 0;">
-				Special thanks to all those who <a target="_blank" class="link-external" href="https://subscribestar.adult/vrelnir" tabindex="0">Support Degrees of Lewdity</a>
-			</span>
-			<div class="saveId"></div>
-			<div class="saveButton"></div>
-			<div class="saveName"></div>
-			<div class="saveDetails"></div>
-		</div>
-		<div class="saveButton">
-			<input type="button" class="saveMenuButton right" value="Delete All" onclick="idb.saveList('confirm clear')">
-		</div>
-	</div>`;
+if (idb.updateSettings) idb.updateSettings("useDelta", true);
+idb.footerHTML = `Support the developers! <a target="_blank" class="link-external" href="https://vrelnir.fanbox.cc/" tabindex="0">Vrelnir</a> <a target="_blank" class="link-external" href="https://purity.fanbox.cc/" tabindex="0">PurityGuy</a>`;
 
 function onLoad(save) {
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
@@ -75,6 +65,7 @@ function onLoad(save) {
 			details.loadCount++;
 		}
 	});
+	$.event.trigger(":onloadsave", { save });
 }
 window.onLoad = onLoad;
 Save.onLoad.add(onLoad);
@@ -111,6 +102,9 @@ function onSave(save, details) {
 	// * update feats * //
 	Wikifier.wikifyEval("<<updateFeats>>");
 
+	// Save the recently loaded version
+	save.state.loadedVersion = StartConfig.version;
+
 	// * update $saveDetails wherever possible * //
 	const type = details.type;
 	const date = save.date;
@@ -127,6 +121,10 @@ function onSave(save, details) {
 		State.setSessionState(session);
 	}
 
+	// Save time and weather to localStorage
+	localStorage.setItem("weather", Packer.packWeatherData());
+	localStorage.setItem("time", Time.date.timeStamp.toString(36));
+	localStorage.setItem("worldCorruption", V.world_corruption_soft);
 	// * legacy code for old saves system * //
 	if (!(window.idb && window.idb.active)) {
 		// eslint-disable-next-line no-undef
@@ -141,16 +139,10 @@ Save.onSave.add(onSave);
 
 /* convert version string to numeric value */
 const tmpver = StartConfig.version.replace(/[^0-9.]+/g, "").split(".");
-window.StartConfig.version_numeric = tmpver[0] * 1000000 + tmpver[1] * 10000 + tmpver[2] * 100 + tmpver[3] * 1;
+StartConfig.version_numeric = tmpver[0] * 1000000 + tmpver[1] * 10000 + tmpver[2] * 100 + tmpver[3] * 1;
+State.qcadd(StartConfig => StartConfig?.every(version => !version.variables.facevariant));
 
 Config.saves.autosave = "autosave";
-
-Config.saves.isAllowed = function () {
-	if (tags().includes("nosave")) {
-		return false;
-	}
-	return true;
-};
 
 importStyles("style.css")
 	.then(function () {
@@ -167,20 +159,6 @@ l10nStrings.errorTitle = StartConfig.version + " Error";
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");
 Wikifier.Parser.delete("emdash");
-
-/* ToDo: implement the dolls system, uncomment during and when its setup
-importScripts([
-	"img/dolls/NameValueMaps.js",
-	"img/dolls/dollUpdater.js",
-	"img/dolls/dollLoader.js",
-	"img/dolls/DollHouse.js",
-	"img/dolls/FDoll.js",
-]).then(function () {
-	console.log("Dolls scripts running");
-})
-.catch(function (err) {
-	console.log(err);
-}); */
 
 // Runs before a passage load, returning a string redirects to the new passage name.
 Config.navigation.override = function (dest) {
@@ -214,6 +192,13 @@ Config.navigation.override = function (dest) {
 			case "Forest Shop Legs":
 			case "Forest Shop Feet":
 				return "Forest Shop";
+
+			case "Residential alleyways":
+				return "Residential Alleyways";
+			case "Commercial alleyways":
+				return "Commercial Alleyways";
+			case "Industrial alleyways":
+				return "Industrial Alleyways";
 
 			case "Cafe Fruit Salad":
 			case "Cafe Autumn Ale":
@@ -606,6 +591,116 @@ Config.navigation.override = function (dest) {
 			case "Beach Cave Rope Over Top":
 				return "Beach Cave Rope Top";
 
+			case "Prison Wren Intro Met":
+				return "Prison Wren Intro";
+
+			case "Museum Box":
+				return "Museum Waterlogged Ivory Box";
+			case "Museum Silver Ring":
+				return "Museum Worn Silver Ring";
+			case "Museum Gold Necklace":
+				return "Museum Ornate Gold Necklace";
+			case "Museum Gold Chastity Belt":
+				return "Museum Golden Chastity Belt";
+			case "Museum Ivory Necklace":
+				return "Museum Immaculate Ivory Necklace";
+			case "Museum Crystal":
+				return "Museum Arousing Crystal";
+			case "Museum Horn":
+				return "Museum Hunting Horn";
+			case "Museum Watch":
+				return "Museum Old Watch";
+			case "Museum Dildo":
+				return "Museum Odd Medical Aid";
+			case "Museum Candlestick":
+				return "Museum Noble Candle Stick";
+			case "Museum Arrow":
+				return "Museum Mossy Forest Arrow";
+			case "Museum Dagger":
+				return "Museum Rusted Forest Dagger";
+			case "Museum Gem":
+				return "Museum Pulsing Forest Gem";
+			case "Museum Hourglass":
+				return "Museum Inscribed Hourglass";
+			case "Museum Cup":
+				return "Museum Discarded Cup";
+			case "Museum Burner":
+				return "Museum Incense Burner";
+			case "Museum Brass Statuette":
+				return "Museum Forgotten Brass Statuette";
+			case "Museum Grenade":
+				return "Museum Old Grenade";
+			case "Museum Bell":
+				return "Museum Sonorous Bell";
+			case "Museum Shell":
+				return "Museum Artillery Shell";
+			case "Museum Mine Sign":
+				return "Museum Bailey Sign";
+			case "Museum Island Arrow":
+				return "Museum Islander Arrow";
+
+			case "Home Leave Undies":
+			case "Home Leave Naked":
+			case "Home Leave Undies Day":
+			case "Home Leave Naked Day":
+				return "Home Leave";
+
+			case "Garden Fence Naked Night":
+			case "Garden Fence Undies Night":
+			case "Garden Fence Naked Day":
+			case "Garden Fence Undies Day":
+				return "Garden Fence";
+
+			case "Street Eden Worried Refuse Cabin":
+			case "Street Eden Worried Leave 2":
+			case "Town Eden Park Flirt Sex":
+			case "Town Eden Park Flirt Sex Finish":
+			case "Town Eden Park Finish":
+			case "Town Eden Park Finish 2":
+			case "Town Eden Shopping Clothes Eden Dress Up":
+			case "Town Eden Shopping Clothes Eden Dress Up 2":
+			case "Town Eden Shopping Clothes Eden Dress Up 3":
+			case "Town Eden Shopping Clothes Eden Dress Up 4":
+			case "Town Eden Shopping Clothes Eden Dress Up Sex":
+			case "Town Eden Shopping Clothes Eden Dress Up Sex Finish":
+			case "Town Eden Shopping Clothes PC Dress Up":
+			case "Town Eden Shopping Clothes PC Dress Up Flaunt":
+			case "Town Eden Shopping Clothes PC Dress Up Flaunt Refuse":
+			case "Town Eden Shopping Clothes PC Dress Up Sex":
+			case "Town Eden Shopping Clothes PC Dress Up Sex Finish":
+				return "Street Eden Worried Suggest";
+
+			case "Prison Wren Panties":
+			case "Prison Wren Briefs":
+			case "Prison Wren Bra":
+			case "Prison Wren Vest":
+			case "Prison Wren Shirt":
+			case "Prison Wren Trousers":
+			case "Prison Wren Jumpsuit":
+				return "Prison Wren Clothes";
+			case "Wolf Cave Hand":
+				return "Wolf Cave Accept";
+			case "Wolf Cave Hand Refuse":
+				return "Wolf Cave Refuse";
+			case "Wolf Cave Hand Finish":
+				return "Wolf Cave Accept Finish";
+
+			case "Forest Coop Rescue":
+				switch (V.phase) {
+					case 1:
+						return "Forest Wolf Finish";
+					case 2:
+						return "Forest Slime Rape Finish";
+					case 3:
+						return "Forest Slime Wolf Rape Finish";
+					case 4:
+						return "Forest Swim Molestation Finish";
+					default:
+						return "Forest Molestation Finish";
+				}
+			case "Street Eden Rage":
+				return "Eden Caged Caught";
+
 			default:
 				return false;
 		}
@@ -617,6 +712,20 @@ Config.navigation.override = function (dest) {
 	if (passageArgs.name !== dest) {
 		/* Return new passage dest. Will divert the processed passage to this. */
 		return passageArgs.name;
+	}
+
+	// Scene viewer redirect
+	if (V.replayScene) {
+		if (passageArgs.name === V.replayScene.startPassage) {
+			return false;
+		}
+		if (passageArgs.name === "Scene Viewer End") {
+			delete V.replayScene.startPassage;
+			return false;
+		}
+		if (!V.replayScene.passages.includes(passageArgs.name)) {
+			return "Scene Viewer End";
+		}
 	}
 
 	if (pageLoading) {

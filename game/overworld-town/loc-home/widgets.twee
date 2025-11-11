@@ -1,30 +1,28 @@
 :: Widgets Home [widget]
 
 <<widget "home_outside">>
-	<<if $exposed gte 2>>
-		<<if Time.dayState is "night">>
-			<<if $exhibitionism gte 55>>
-				<<dooricon "orphanage">><<link [[Sneak outside (0:02)|Home Leave Naked]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist4>><</if>>
-				<br>
+	<<if $exposed gte 1>>
+		<<set _ex to ($exposed >= 2 ? (Time.dayState == "night" ? 4 : 5) : (Time.dayState == "night" ? 2 : 3))>>
+		<<if hasSexStat("exhibitionism", _ex)>>
+			<<if Time.dayState is "night">>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:02)|Home Leave]]>><<pass 2>><</link>>
+			<<else>>
+				<<dooricon "orphanage">><<link [[Sneak outside (0:05)|Home Leave]]>><<pass 5>><</link>>
 			<</if>>
-		<<else>>
-			<<if $exhibitionism gte 75>>
-				<<dooricon "orphanage">><<link [[Sneak outside (0:05)|Home Leave Naked Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist5>><</if>>
-				<br>
-			<</if>>
-		<</if>>
-	<<elseif $exposed gte 1>>
-		<<if Time.dayState is "night">>
-			<<if $exhibitionism gte 15>>
-				<<dooricon "orphanage">><<link [[Sneak outside (0:02)|Home Leave Undies]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist2>><</if>>
-				<br>
-			<</if>>
-		<<else>>
-			<<if $exhibitionism gte 35>>
-				<<dooricon "orphanage">><<link [[Sneak outside (0:05)|Home Leave Undies Day]]>><</link>><<if $daily.ex.fence isnot 1>><<exhibitionist3>><</if>>
-				<br>
+			<<if $daily.ex.fence isnot 1>>
+				<<switch _ex>>
+					<<case 2>>
+						<<exhibitionist2>>
+					<<case 3>>
+						<<exhibitionist3>>
+					<<case 4>>
+						<<exhibitionist4>>
+					<<case 5>>
+						<<exhibitionist5>>
+				<</switch>>
 			<</if>>
 		<</if>>
+		<br>
 	<<else>>
 		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
 			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Robin Trauma Visit]]>><<set $phase to 2>><<pass 1>><</link>>
@@ -53,7 +51,7 @@
 	<<if $player.vaginaExist and $player.virginity.vaginal isnot true and !playerChastity("hidden")>>
 		<<bodyliquid "vagina" _liquid random(1,3)>>
 	<</if>>
-	<<if $player.virginity.anal isnot true and !playerChastity("anus") and $analdisable is "f">>
+	<<if $player.virginity.anal isnot true and !playerChastity("anus") and $settings.analEnabled>>
 		<<bodyliquid "anus" _liquid random(1,3)>>
 	<</if>>
 	<<if $player.virginity.oral isnot true>>
@@ -80,14 +78,14 @@
 	You wake up in a confused and disoriented state. The last thing you recall is getting into bed <<if $robinbed is "theirs">>with Robin<<else>>like normal<</if>>. However, you're clearly not in it anymore. You have a feeling that the slime in your ear is involved in some way.
 	<br><br>
 	<<if $tutorial or $debug>>
-		<<set _newLocation to ["Residential alleyways", "Commercial alleyways", "Park", "Industrial alleyways"].random()>>
+		<<set _newLocation to ["Residential Alleyways", "Commercial Alleyways", "Park", "Industrial Alleyways"].random()>>
 		<<set $eventskip to 1>>
 
-		<<if random(0,100) gt 80 and (maleChance() lt 100 or $cbchance gt 0) and $earSlime.deviancy gte 3>>
+		<<if random(0,100) gt 80 and (maleChance() lt 100 or $settings.maleNPCVaginaChance gt 0) and $earSlime.deviancy gte 3>>
 			<<set _coveredIn to "slime">>
 			<<slimeWakeBodyliquid "goo">>
 		<</if>>
-		<<if random(0,100) gt 80 and (maleChance() gt 0 or $dgchance gt 0) and $earSlime.promiscuity gte 3>>
+		<<if random(0,100) gt 80 and (maleChance() gt 0 or $settings.femaleNPCPenisChance gt 0) and $earSlime.promiscuity gte 3>>
 			<<set _coveredIn to (_coveredIn is "slime" ? "slime and semen" : "semen")>>
 			<<slimeWakeBodyliquid "semen">>
 		<</if>>
@@ -102,7 +100,7 @@
 		<<set $tutorial to 1>>
 		<<generate1>><<person1>>Without warning, a <<person>> passing by, bumps into you. <<He>> staggers back and looks at you with anger, but <<his>> rage turns to lechery as <<he>> beholds you. "You're the cutest thing I've seen all week! Come 'ere."
 		<br><br>
-		<<link [[Next|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Residential alleyways">><</link>>
+		<<link [[Next|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Residential Alleyways">><</link>>
 	<</if>>
 	<<exitAll>>
 <</widget>>
@@ -116,7 +114,7 @@
 	<<set _options to 1>>
 	<<if $player.penisExist and ($worn.genitals.name is "chastity parasite" or !playerChastity("penis"))>><<set _options++>><</if>>
 	<<if $player.vaginaExist and !playerChastity("vagina")>><<set _options++>><</if>>
-	<<if $analdisable is "f" and !playerChastity("anus")>><<set _options++>><</if>>
+	<<if $settings.analEnabled and !playerChastity("anus")>><<set _options++>><</if>>
 
 	<<arousal 10000>>
 	<<drugs 200>>
@@ -138,7 +136,7 @@
 		aggressively fingering your pussy. The pleasure quickly sends you <<if _deniedOrgasm>>close to the edge<<else>>over the edge<</if>>.
 		<br><br>
 		<<orgasm>>
-	<<elseif $analdisable is "f" and !playerChastity("anus") and _rng gte 100 / Math.clamp(_options - 2, 1, Infinity)>>
+	<<elseif $settings.analEnabled and !playerChastity("anus") and _rng gte 100 / Math.clamp(_options - 2, 1, Infinity)>>
 		aggressively fingering your anus. The pleasure quickly sends you <<if _deniedOrgasm>>close to the edge<<else>>over the edge<</if>>.
 		<br><br>
 		<<orgasm>>
@@ -157,10 +155,12 @@
 <<widget "orphanageWard">>
 	<<if $debug is 1 or $ward_unlocked>>
 		<br>
-		<<if $exposed gt 0 or ["split dress", "short ballgown", "large towel", "cropped hoodie", "slut shirt,", "tie-front top", "towel top"].includes($worn.upper.name) or ["split dress skirt", "short ballgown skirt", "micro pleated skirt", "miniskirt", "towel skirt"].includes($worn.lower.name)>>
-			<span class="pink">You're dressed too indecently to enter the youth ward.</span>
-		<<elseif $liquidcount gte 1>>
-			<span class="pink">You should clean yourself before entering the youth ward.</span>
+		<<if inappropriatePlayerState("clothes")>>
+			<<childicon "blocks">><span class="pink">You're dressed too indecently to enter the youth ward.</span>
+		<<elseif inappropriatePlayerState("fluids")>>
+			<<childicon "blocks">><span class="pink">You should clean yourself before entering the youth ward.</span>
+		<<elseif inappropriatePlayerState("drugs")>>
+			<<childicon "blocks">><span class="pink">You're too intoxicated to enter the youth ward.</span>
 		<<else>>
 			<<if !$orphanageWardIntro>>
 				<<childicon "blocks">><<link [[Ward (0:01)|Orphanage Ward Intro]]>><<pass 1>><</link>>
@@ -173,7 +173,7 @@
 
 <<widget "orphanageWardOptions">>
 	<<getChildrenIds `{location:"home", father:"Ivory Wraith"}`>><<rngWraith 1 "night">>
-	<<if _childrenIds.length gte 1 and _wraithEvent and !$possessed>>
+	<<if _childrenIds.length gte 1 and _wraithEvent and !$possessed and !$daily.wraithNursery>>
 		<<childicon "crib">><<link [[Nursery|Orphanage Ward Wraith Sing]]>><<set $exitPassage to $passage>><</link>>
 		<br>
 	<<else>>
@@ -206,7 +206,7 @@
 
 <<widget "generateSleepLinks">>
 	<<set _sleep_passage to _args[0]>>
-	<<set _maxHours to ($sleeptrouble is 1 and $controlled is 0) ? 10 : 8>>
+	<<set _maxHours to ($sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber) ? 10 : 8>>
 	<<for _i = _maxHours; _i > 0; _i-->>
 		<<if _i is 1>>
 			<<link [[Sleep for 1 hour|_sleep_passage]]>><<set $sleephour to 1>><</link>> &#8194;(<<timeAfterXHours 1>>)<<ltiredness>>

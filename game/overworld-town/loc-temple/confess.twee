@@ -13,7 +13,7 @@ A large half-circle is gouged into the stone around the booth.
 <</if>>
 
 <<if $daily.confessed>>
-	<span class="purple">You've already confessed your sins today.</span>
+	<<refuseicon>><span class="purple">You've already confessed your sins today.</span>
 	<br>
 <<else>>
 	<<getinicon>><<link [[Enter as a penitent (0:30)|Temple Confess Self]]>><</link>>
@@ -23,11 +23,11 @@ A large half-circle is gouged into the stone around the booth.
 	<<getinicon>><<link [[Enter as a confessor|Temple Confess Start]]>><<set $phase to 1>><</link>> <<note "+ Grace?" "green">>
 	<br>
 <<elseif $temple_rank is "initiate">>
-	<span class="purple">You must achieve a higher rank at the temple before you can take confessions.</span>
+	<<refuseicon>><span class="purple">You must achieve a higher rank at the temple before you can take confessions.</span>
 	<br>
 <</if>>
 <br>
-<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
+<<getouticon>><<link [[Step away|Temple]]>><<endevent>><</link>>
 <br>
 
 :: Temple Confess Self
@@ -50,7 +50,7 @@ You enter the right side of the booth, closing the heavy door behind you. A simp
 Foam soundproofing material is visible in some of the corners. Whatever you say here won't be heard outside. You also notice a stack of towels on a small shelf above you.
 <br><br>
 
-Before long, you hear the other door open, and a silhouette sits on the other side. You hear a flick, and smell the burning of incense.
+Before long, you hear the other door open, and a silhouette sits on the other side. You hear a flick and smell the burning of incense.
 A <<personsimple>>'s voice greets you.
 "Welcome, child. Lay your sins bare, so they may be forgiven." <<He>> speaks in an unusual intonation, concealing <<his>> natural voice.
 <br><br>
@@ -60,15 +60,15 @@ A <<personsimple>>'s voice greets you.
 <br>
 <<link [[Confess your temptations|Temple Confess Self Temptation]]>><<set $confession to "temptation">><<arousal 20>><<awareness 3>><</link>><<garousal>><<gawareness>>
 <br>
-<<if $promiscuity gte 15>>
+<<if hasSexStat("p", 1)>>
 	<<link [[Confess your promiscuity|Temple Confess Self Promiscuity]]>><<set $confession to "promiscuity">><<control -25>><</link>> <<note "- Promiscuity" "green">> <<llcontrol>><<gggtrauma>>
 	<br>
 <</if>>
-<<if $exhibitionism gte 15>>
+<<if hasSexStat("e", 1)>>
 	<<link [[Confess your exhibitionism|Temple Confess Self Exhibitionism]]>><<set $confession to "exhibitionism">><<control -25>><</link>> <<note "- Exhibitionism" "green">> <<llcontrol>><<gggtrauma>>
 	<br>
 <</if>>
-<<if $deviancy gte 15>>
+<<if hasSexStat("d", 1)>>
 	<<link [[Confess your deviancy|Temple Confess Self Deviancy]]>><<set $confession to "deviancy">><<control -25>><</link>> <<note "- Deviancy" "green">> <<llcontrol>><<gggtrauma>>
 	<br>
 <</if>>
@@ -127,8 +127,8 @@ A <<personsimple>>'s voice greets you.
 	You share your doubts about the temple and its faith with <<him>>.
 <</if>>
 
-<<if _wraithEvent and $wraithIntro>>
-	<<pass 30>>
+<<if _wraithEvent and $wraithIntro and !$daily.wraithConfess>>
+	<<pass 30>><<set $daily.wraithConfess to true>>
 	<br><br>
 	<<if $world_corruption_soft gte 100>>
 		"<span class="wraith">You are right to doubt, <<pcpetname "Wraith">>,</span>"
@@ -136,7 +136,7 @@ A <<personsimple>>'s voice greets you.
 		"<span class="wraith">What is there to doubt, <<pcpetname "Wraith">>?</span>"
 	<</if>>
 	<<if C.npc["Ivory Wraith"].love gte 10>>
-		a voice says from your left. You flail and push yourself to the right, until you're pressed up against the wooden slats. A pale figure sits next to you, resting its head against its hand. Its <<wraithEyes>> eyes are half closed. <<stress 6>><<gstress>>
+		a voice says from your left. You flail and push yourself to the right until you're pressed up against the wooden slats. A pale figure sits next to you, resting its head against its hand. Its <<wraithEyes>> eyes are half closed. <<stress 6>><<gstress>>
 	<<else>>
 		a familiar voice says from the other side. The silhouette gains a pair of piercing <<wraithEyes>> eyes. A pale face pushes its way through the slats as if they weren't there. <<stress 18>><<ggstress>>
 	<</if>>
@@ -146,7 +146,7 @@ A <<personsimple>>'s voice greets you.
 		"<span class="wraith">Your wards are weakening. A vessel full of holes inevitably takes water.</span>"
 
 		As if to demonstrate, the booth slowly begins to fill with water. You pull your feet up to the bench and stand up.
-		A pair of cold arms wrap around you from behind. You think you should panic, but you feel strangely calm, even as the water rises above your head.
+		A pair of cold arms wraps around you from behind. You think you should panic, but you feel strangely calm, even as the water rises above your head.
 		<br><br>
 
 		"<span class="wraith">All the world to drown. Stay the course. We may yet float.</span>"
@@ -166,7 +166,7 @@ A <<personsimple>>'s voice greets you.
 				"<span class="wraith">Open your eyes.</span>"
 			<</if>>
 		<<elseif $wraith.state is "haunt">>
-			"<span class="wraith">Do you doubt yourself, because of what you have taken from me?</span>"
+			"<span class="wraith">Do you doubt yourself because of what you have taken from me?</span>"
 			Two pale hands cup your face. "<span class="wraith">Repent.</span>"
 		<<else>>
 			"<span class="wraith">The world could be so much worse.</span>"
@@ -188,7 +188,8 @@ A <<personsimple>>'s voice greets you.
 		<<case "Jordan">>
 			"Doubt is the greatest challenge of the soul. All people experience doubt. But doubt is weak. Faith is stronger." <<He>> speaks with confidence and grace.
 		<<case "Sydney">>
-			"Doubt is nothing but self-sabotage. You're above doubt, always remember that." <<He>> sounds hopeful, and clearly wants to help you.
+			<<run $sydneySeen.pushUnique("self-sabotage")>>
+			"Doubt is nothing but self-sabotage. You're above doubt, always remember that." <<He>> sounds hopeful and clearly wants to help you.
 		<<case "Confessor">>
 			<<He>> gives a low chuckle and speaks with an experienced, yet jaded, tone.
 			<<if $temple_confessor_intro and ($temple_rank is "monk" or $temple_rank is "priest")>>
@@ -224,7 +225,7 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 
 <<switch $attendant>>
 	<<case "Jordan">>
-		"Tempering one's desires does not come easy. It is important to acknowledge the sinful thoughts in your mind, and appreciate your own ability to never act on them." <<He>> speaks with confidence and grace.
+		"Tempering one's desires does not come easy. It is important to acknowledge the sinful thoughts in your mind and appreciate your own ability to never act on them." <<He>> speaks with confidence and grace.
 	<<case "Sydney">>
 		<<run statusCheck("Sydney")>>
 		<<if _sydneyStatus.includes("corrupt")>>
@@ -239,8 +240,8 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 <</switch>>
 <br><br>
 
-<<if $promiscuity gte 35>>
-	<<link [["Tell " + $NPCList[0].pronouns.him + " that you are tempted by " + $NPCList[0].pronouns.him|Temple Confess Self Temptation Goad]]>><</link>><<promiscuous3>>
+<<if hasSexStat("promiscuity", 3)>>
+	<<link [[Tell <<him>> that you are tempted by <<him>>|Temple Confess Self Temptation Goad]]>><</link>><<promiscuous3>>
 	<br>
 	<<link [[Continue|Temple Confess Self End]]>><</link>>
 	<br>
@@ -272,7 +273,7 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 
 <<switch $attendant>>
 	<<case "Jordan">>
-		There's a long moment of silence, before <<he>> speaks plainly. "You would not be the first, I'm afraid. I am quite beholden to my vows. <<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>I ask that you keep yours in mind.<<else>>I advise you take vows of your own.<</if>>"
+		There's a long moment of silence before <<he>> speaks plainly. "You would not be the first, I'm afraid. I am quite beholden to my vows. <<if $temple_rank isnot undefined and $temple_rank isnot "prospective">>I ask that you keep yours in mind.<<else>>I advise you take vows of your own.<</if>>"
 		<br><br>
 
 		You sit in awkward silence for a few minutes. <<stress 6>><<gstress>>
@@ -296,7 +297,7 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 				There's a short gasp. "I-I'm <<if $templePromised is "Sydney">>promised<<else>>taken<</if>> already! And you shouldn't think about... oh, no... I'm sorry, I can't do this!"
 				<br><br>
 
-				<<He>> hurridly exits the booth, leaving you all alone. <<npcincr Sydney purity -1>><<lspurity>>
+				<<He>> hurriedly exits the booth, leaving you all alone. <<npcincr Sydney purity -1>><<lspurity>>
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End Alone]]>><</link>>
@@ -313,7 +314,7 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 				<<link [[Next|Temple Confess Self End Alone]]>><</link>>
 				<br>
 			<<else>>
-				There's a short gasp. "I'm... I'm sorry for tempting you, I did not mean to. I will repent." You hear <<him>> get on <<his>> knees, and start praying.
+				There's a short gasp. "I'm... I'm sorry for tempting you, I did not mean to. I will repent." You hear <<him>> get on <<his>> knees and start praying.
 				<br><br>
 
 				After some time, <<he>> rises. "I'm sorry. I'm so sorry, I... oh, no." <<He>> quickly exits the booth, leaving you alone. <<npcincr Sydney purity -1>><<lspurity>>
@@ -335,15 +336,12 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 	<<default>>
 		<<set $seductiondifficulty to (4000 - ($world_corruption_soft * 10))>>
 		<<seductioncheck>>
-		<br><br>
-		<<if $seductionskill lt 1000>>
-			<span class="gold">You feel more confident in your powers of seduction.</span>
-			<br><br>
-		<</if>>
+		<<seductionskilluptext>>
 		<<seductionskilluse>>
+
 		<<if $seductionrating gte $seductionrequired>>
 			<<if $temple_rank is undefined or $temple_rank is "prospective">>
-				"I... I suppose there's no helping it, then. I will help you purge your temptations, and become free of sin. Prostrate yourself before me."
+				"I... I suppose there's no helping it, then. I will help you purge your temptations and become free of sin. Prostrate yourself before me."
 			<<elseif $temple_rank is "initiate">>
 				"I... I suppose I must discipline you then, initiate. Prostrate yourself before me, and your sins will be forgiven."
 			<<else>>
@@ -383,8 +381,8 @@ You share your sinful thoughts and temptations with <<him>>. <<He>> lends a pati
 	<</if>>
 <</if>>
 You recount your acts of sinful temptation and lust.
-<<if $promiscuity gte 75>>
-	<<if $promiscuity gte 95>>
+<<if hasSexStat("promiscuity", 5)>>
+	<<if hasSexStat("promiscuity", 6)>>
 		You retell them in visceral detail, never letting <<him>> get a word in. There's too much to speak of. So much to confess. As if your whole life revolved around these acts.
 		<br><br>
 
@@ -406,7 +404,7 @@ You recount your acts of sinful temptation and lust.
 			<<He>> kneels, and the metal shutter opens. "Place your hands between us, in prayer." You comply and kneel down, placing your hands into the opening. <<His>> hands grasp around yours. They're warm.
 			<br><br>
 
-			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess, until the weight of your sins start to fall away. <<He>> responds with tales of martyrs long past who were forgiven, despite innumerable acts of blasphemy. You can't explain it, but by the end, you feel lighter.
+			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess until the weight of your sins starts to fall away. <<He>> responds with tales of martyrs long past who were forgiven despite innumerable acts of blasphemy. You can't explain it, but by the end, you feel lighter.
 			<br><br>
 
 			After some time, you release each other and stand. "Please return soon, child. We have much work to do. Have faith."
@@ -432,7 +430,7 @@ You recount your acts of sinful temptation and lust.
 				There's a long pause. "You are indeed sinful," <<he>> finally says. "I believe your confession is as much of a test for me as it is for you. Can I forgive someone so wrought by sin?"
 				<br><br>
 
-				Another pause. You hear <<him>> stand after some time, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				Another pause. You hear <<him>> stand after some time and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				"I must contemplate what you've told me. Please return soon." <<He>> leaves the booth hastily. <<npcincr Sydney purity -1>><<lspurity>>
@@ -454,32 +452,32 @@ You recount your acts of sinful temptation and lust.
 			<br>
 		<<default>>
 			<<set $promiscuity -= 3>><<trauma 100>>
-			"So many sins. Do not worry, even the most sinful can repent." You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			"So many sins. Do not worry, even the most sinful can repent." You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
-			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are an... unique case. Please return soon, I feel you still have much to confess."
+			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are a... unique case. Please return soon, I feel you still have much to confess."
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End Alone]]>><</link>>
 			<br>
 	<</switch>>
 <<else>>
-	<<if $promiscuity gte 55>>
+	<<if hasSexStat("promiscuity", 4)>>
 		<<set $promiscuity -= 2>><<trauma 50>>
 		There's a lot to cover, so you waste no time. You hesitate at some of the more embarrassing instances of you using your body to get your way, but eventually tell it all.
-	<<elseif $promiscuity gte 35>>
+	<<elseif hasSexStat("promiscuity", 3)>>
 		<<set $promiscuity -= 2>><<trauma 40>>
 		You feel a little ashamed as you recall some of the more adventurous times, but eventually tell it all.
 	<<else>>
 		<<set $promiscuity -= 1>><<trauma 30>>
-		There isn't too much to tell, and by the time you're done talking you already feel a little better.
+		There isn't too much to tell, and by the time you're done talking, you already feel a little better.
 	<</if>>
 	<br><br>
 
 	<<switch $attendant>>
 		<<case "Jordan">>
 			"Your body is a temple, child. You should not give it away so freely. Work to see more value in yourself."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -488,14 +486,14 @@ You recount your acts of sinful temptation and lust.
 			<<run statusCheck("Sydney")>>
 			<<if _sydneyStatus.includes("corrupt")>>
 				"You should save your body for someone special, at the very least," <<he>> says. "Try to see more value in yourself."
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
 				<br>
 			<<else>>
 				"I'm sorry you've already done such awful things with your body. It's not too late to repent!"
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -503,14 +501,14 @@ You recount your acts of sinful temptation and lust.
 			<</if>>
 		<<case "Confessor">>
 			"You're on the path to corruption, child. You must repent before it's too late. Before this town swallows you."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
 			<br>
 		<<default>>
 			"Bodies are sacred, only meant to be given to the one we trust most, and only them. Repent, child, and grow past these sins."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -532,15 +530,20 @@ You recount your acts of sinful temptation and lust.
 		"Forgive me, I've sinned."
 	<</if>>
 <</if>>
-You recount your acts of exposure and indecency.
-<<if $exhibitionism gte 75>>
-	<<if $exhibitionism gte 95>>
+
+<<if $exposed gte 2>>
+	You look down at your <<lewdness>>, then admit that you're currently indecent. You recount your other acts of exposure.
+<<else>>
+	You recount your acts of exposure and indecency.
+<</if>>
+<<if hasSexStat("exhibitionism", 5)>>
+	<<if hasSexStat("exhibitionism", 6)>>
 		You retell them in visceral detail, never letting <<him>> get a word in. There's too much to speak of. So much to confess. As if your whole life revolved around letting the world see everything.
 		<br><br>
 
 		You're in tears by the end. You beg for forgiveness, because you know you can't forgive yourself. <<tearup>>
 	<<else>>
-		You speak for a long time. You didn't realise just how many times you've exposed yourself, or the sheer number of people you've let see everything.
+		You speak for a long time. You didn't realise just how many times you've exposed yourself or the sheer number of people you've let see everything.
 		<br><br>
 
 		A shame that you didn't know you had begins to well up. Something about acknowledging your sins like this is making you feel ill.
@@ -556,10 +559,16 @@ You recount your acts of exposure and indecency.
 			<<He>> kneels, and the metal shutter opens. "Place your hands between us, in prayer." You comply and kneel down, placing your hands into the opening. <<His>> hands grasp around yours. They're warm.
 			<br><br>
 
-			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess, until the weight of your sins start to fall away. <<He>> responds with a lecture on modesty, and how your body should only be seen by one you are most intimate with. You can't explain it, but by the end, you feel lighter.
+			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess until the weight of your sins starts to fall away. <<He>> responds with a lecture on modesty and how your body should only be seen by one you are most intimate with. You can't explain it, but by the end, you feel lighter.
 			<br><br>
 
-			After some time, you release each other and stand. "Please return soon, child. We have much work to do. Have faith."
+			After some time, you release each other and stand.
+			<<if $exposed gte 2>>
+				"Please, help yourself to a towel when you leave. Return soon, child.
+			<<else>>
+				"Please return soon, child.
+			<</if>>
+			We have much work to do. Have faith."
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End Alone]]>><</link>>
@@ -573,19 +582,33 @@ You recount your acts of exposure and indecency.
 
 				You see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				"Take it one step at a time. Think of yourself in a more modest way, and don't let yourself be so vulnerable," <<he>> says much more genuinely.
+				<<if $exposed gte 2>>
+					"Oh, and take a towel with you when you leave."
+				<</if>>
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
 				<br>
 			<<else>>
 				<<set $exhibitionism -= 4>><<trauma 80>>
-				There's a long pause. "You are indeed sinful," <<he>> finally says. "To expose your body in such ways is profane."
+				There's a long pause. "You are indeed sinful," <<he>> finally says.
+				<<if $exposed gte 2>>
+					"Exposing your body in such ways, especially in a place of worship, is profane."
+				<<else>>
+					"To expose your body in such ways is profane."
+				<</if>>
 				<br><br>
 
-				Another pause. You hear <<him>> stand after some time, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				Another pause. You hear <<him>> stand after some time and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
-				"I must contemplate what you've told me. Please return soon." <<He>> leaves the booth hastily. <<npcincr Sydney purity -1>><<lspurity>>
+				"I must contemplate what you've told me.
+				<<if $exposed gte 2>>
+					Cover up with one of our towels before you leave, and please return soon."
+				<<else>>
+					Please return soon."
+				<</if>>
+				<<He>> leaves the booth hastily. <<npcincr Sydney purity -1>><<lspurity>>
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End Alone]]>><</link>>
@@ -595,7 +618,8 @@ You recount your acts of exposure and indecency.
 			There's a long pause.
 			<br><br>
 
-			"I see. You're another victim. I name you <span class="red">corrupted</span>." You see the silhouette kneel. "Remove your clothes, and stand against the seal of confession. I will take your corruption into myself, and you will be forgiven."
+			"I see. You're another victim. I name you <span class="red">corrupted</span>." You see the silhouette kneel.
+			"<<= $exposed gte 2 ? "Stand" : "Remove your clothes, and stand">> against the seal of confession. I will take your corruption into myself, and you will be forgiven."
 			<br><br>
 
 			<<link [[Comply|Temple Confess Self Purge]]>><</link>>
@@ -604,32 +628,38 @@ You recount your acts of exposure and indecency.
 			<br>
 		<<default>>
 			<<set $exhibitionism -= 3>><<trauma 80>>
-			"So many sins. Do not worry, even the most sinful can repent." You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			"So many sins. Do not worry, even the most sinful can repent." You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
-			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are an... unique case. Please return soon, I feel you still have much to confess."
+			"Only actions can lead you to true forgiveness. You must work to improve yourself. Even then, you are a... unique case.
+			<<if $exposed gte 2>>
+				Please take one of the provided towels with you, and return soon.
+			<<else>>
+				Please return soon.
+			<</if>>
+			I feel you still have much to confess."
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End Alone]]>><</link>>
 			<br>
 	<</switch>>
 <<else>>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		<<set $exhibitionism -= 2>><<trauma 50>>
 		There's a lot to cover, so you waste no time. You hesitate at some of the more embarrassing instances of you exposing yourself, but eventually tell it all.
-	<<elseif $exhibitionism gte 35>>
+	<<elseif hasSexStat("exhibitionism", 3)>>
 		<<set $exhibitionism -= 2>><<trauma 40>>
 		You feel a little ashamed as you recall some of the more adventurous times, but eventually tell it all.
 	<<else>>
 		<<set $exhibitionism -= 1>><<trauma 30>>
-		There isn't too much to tell, and by the time you're done talking you already feel a little better.
+		There isn't too much to tell, and by the time you're done talking, you already feel a little better.
 	<</if>>
 	<br><br>
 
 	<<switch $attendant>>
 		<<case "Jordan">>
 			"Modesty is a virtue, child. Your intimate body should only be seen by the one most precious to you."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -638,14 +668,14 @@ You recount your acts of exposure and indecency.
 			<<run statusCheck("Sydney")>>
 			<<if _sydneyStatus.includes("corrupt")>>
 				"Oh, so you're... a nudist?" There's a pause. "That doesn't seem... too sinful, at least. There's worse things you can do."
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
 				<br>
 			<<else>>
-				"I don't think being naked is a sin, by technicality, but flaunting youself in a sexually provocative manner certainly is. It's not too late to repent, though!"
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				"I don't think being naked is a sin, by technicality, but flaunting yourself in a sexually provocative manner certainly is. It's not too late to repent, though!"
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -653,14 +683,14 @@ You recount your acts of exposure and indecency.
 			<</if>>
 		<<case "Confessor">>
 			"You're on the path to corruption, child. You must repent before it's too late. Before you attract the wrong kind of attention."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
 			<br>
 		<<default>>
 			"Using your naked form to provoke others is cruel. Repent, child, and grow past these sins."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -683,8 +713,8 @@ You recount your acts of exposure and indecency.
 	<</if>>
 <</if>>
 You recount your acts of deviancy and debauchery.
-<<if $deviancy gte 75>>
-	<<if $deviancy gte 95>>
+<<if hasSexStat("deviancy", 5)>>
+	<<if hasSexStat("deviancy", 6)>>
 		You retell them in visceral detail, never letting <<him>> get a word in. There's too much to speak of. So much to confess. As if your whole life revolved around monstrous sexual acts.
 		<br><br>
 
@@ -706,7 +736,7 @@ You recount your acts of deviancy and debauchery.
 			<<He>> kneels, and the metal shutter opens. "Place your hands between us, in prayer." You comply and kneel down, placing your hands into the opening. <<His>> hands grasp around yours. They're warm.
 			<br><br>
 
-			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess, until the weight of your sins start to fall away. <<He>> responds with a long lecture on the purity of the human body. <<He>> says you're not the first to fall to such inhuman temptations, and sadly won't be the last. You can't explain it, but by the end, you feel lighter.
+			Despite the wooden slats separating you, you feel very close to <<him>>. You continue to confess until the weight of your sins starts to fall away. <<He>> responds with a long lecture on the purity of the human body. <<He>> says you're not the first to fall to such inhuman temptations and sadly won't be the last. You can't explain it, but by the end, you feel lighter.
 			<br><br>
 
 			After some time, you release each other and stand. "Please return soon, child. We have much work to do. Have faith."
@@ -729,10 +759,10 @@ You recount your acts of deviancy and debauchery.
 				<br>
 			<<else>>
 				<<set $deviancy -= 4>><<trauma 80>>
-				"W-WITH A WHAT?!" <<he>> yells, cutting off one of your more interesting stories. "I'm sorry, but this is too much, I... no, no, I can do this..." <<he>> takes a deep breath.
+				"W-WITH A WHAT?!" <<he>> yells, cutting off one of your more interesting stories. "I'm sorry, but this is too much, I... no, no, I can do this..." <<He>> takes a deep breath.
 				<br><br>
 
-				You hear <<him>> stand after some time, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand after some time and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				"I must contemplate what you've told me. Please return soon." <<He>> leaves the booth hastily. <<npcincr Sydney purity -1>><<lspurity>>
@@ -754,7 +784,7 @@ You recount your acts of deviancy and debauchery.
 			<br>
 		<<default>>
 			<<set $deviancy -= 3>><<trauma 80>>
-			"A... ah. I see. I..." You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			"A... ah. I see. I..." You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
 			"Please, see a doctor, before you cause some new disease to spread."
@@ -764,22 +794,22 @@ You recount your acts of deviancy and debauchery.
 			<br>
 	<</switch>>
 <<else>>
-	<<if $deviancy gte 55>>
+	<<if hasSexStat("deviancy", 4)>>
 		<<set $deviancy -= 2>><<trauma 50>>
 		There's a lot to cover, so you waste no time. You hesitate at some of the more embarrassing instances of lewd gratification with animals, but eventually tell it all.
-	<<elseif $deviancy gte 35>>
+	<<elseif hasSexStat("deviancy", 3)>>
 		<<set $deviancy -= 2>><<trauma 40>>
 		You feel a little ashamed as you recall some of the more adventurous times, but eventually tell it all.
 	<<else>>
 		<<set $deviancy -= 1>><<trauma 30>>
-		There isn't too much to tell, and by the time you're done talking you already feel a little better.
+		There isn't too much to tell, and by the time you're done talking, you already feel a little better.
 	<</if>>
 	<br><br>
 
 	<<switch $attendant>>
 		<<case "Jordan">>
-			"The human form is sacred, and should not be sullied by such inhuman sins. It is not too late for you, child."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
+			"The human form is sacred and should not be sullied by such inhuman sins. It is not too late for you, child."
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -788,14 +818,14 @@ You recount your acts of deviancy and debauchery.
 			<<run statusCheck("Sydney")>>
 			<<if _sydneyStatus.includes("corrupt")>>
 				"That's messed up," <<he>> says plainly. "You should... probably see a doctor. And maybe get a rabies shot or ten."
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
 				<br>
 			<<else>>
 				"Wh... what makes you attracted to things like that? That's so... uh, sorry."
-				You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+				You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 				<br><br>
 
 				<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -803,14 +833,14 @@ You recount your acts of deviancy and debauchery.
 			<</if>>
 		<<case "Confessor">>
 			"You're on the path to corruption, child. You must repent before it's too late. Before something <i>really</i> inhuman gets to you."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "As your confessor, I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
 			<br>
 		<<default>>
 			"To sully the human form with such filth is far beneath you. Repent, child, and grow past these sins."
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -833,7 +863,7 @@ You recount your acts of deviancy and debauchery.
 	<</if>>
 <</if>>
 <<if $purity gte 500>>
-	You tell <<him>> about your body being sullied by lewd acts, and the impurity growing within you.
+	You tell <<him>> about your body being sullied by lewd acts and the impurity growing within you.
 <<elseif $purity gte 200>>
 	You confess your defilement and corruption in excruciating detail.
 <<else>>
@@ -846,12 +876,12 @@ You recount your acts of deviancy and debauchery.
 		<<if $purity gte 200>>
 			"Have faith. You are not beyond salvation. There's still time to repent, but you must take action to do so."
 		<<else>>
-			"You carry a... presence with you. You must shed the weight of your sins, before they pull you down and drown you. Seek further repentance, child."
+			"You carry a... presence with you. You must shed the weight of your sins before they pull you down and drown you. Seek further repentance, child."
 		<</if>>
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
-		"Return soon. One confession alone can not bring an impure soul back to the light."
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
+		"Return soon. One confession alone cannot bring an impure soul back to the light."
 		<br><br>
 
 		<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -861,21 +891,21 @@ You recount your acts of deviancy and debauchery.
 		<<if _sydneyStatus.includes("corrupt")>>
 			"It's... easy to slip into the path of corruption, I know. And coming back is even harder. It won't be easy, and you'll have to fight for it."
 		<<else>>
-			"Staying on the path of purity requires contant vigilance. Even small slips can lead to an avalanche. I will keep you in my prayers."
+			"Staying on the path of purity requires constant vigilance. Even small slips can lead to an avalanche. I will keep you in my prayers."
 		<</if>>
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 		<br><br>
 
 		<<link [[Next|Temple Confess Self End]]>><</link>>
 		<br>
 	<<case "Confessor">>
 		<<if $purity gte 200>>
-			"Ahhh... you're slipping. Soon, you'll be as corrupt as..." <<he>> pauses. You think <<he>> licked <<his>> lips. "Should you find yourself falling further, return here. We'll... purify you."
+			"Ahhh... you're slipping. Soon, you'll be as corrupt as..." <<He>> pauses. You think <<he>> licked <<his>> lips. "Should you find yourself falling further, return here. We'll... purify you."
 			<br><br>
 
-			You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
+			You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
 			<br><br>
 
 			<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -897,7 +927,7 @@ You recount your acts of deviancy and debauchery.
 		<</if>>
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 		<br><br>
 
 		<<link [[Next|Temple Confess Self End]]>><</link>>
@@ -918,7 +948,7 @@ You recount your acts of deviancy and debauchery.
 		"Forgive me, I've sinned."
 	<</if>>
 <</if>>
-You share your various affairs and escapades, and the amount of partners you've gone through without being too specific.
+You share your various affairs, escapades, and the number of partners you've gone through without being too specific.
 <br><br>
 
 <<switch $attendant>>
@@ -926,7 +956,7 @@ You share your various affairs and escapades, and the amount of partners you've 
 		"Trust is easy to earn, but difficult to repair. You must stop toying with others like this." <<He>> speaks with confidence and grace.
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says.
 	<<case "Sydney">>
 		<<if $sydneyromance gte 1>>
 			<<He>> doesn't say anything at first. The way <<his>> silhouette moves makes <<him>> look uncomfortable.
@@ -937,22 +967,22 @@ You share your various affairs and escapades, and the amount of partners you've 
 				"Playing with someone's emotions like that is... evil. How could you do that?"
 			<</if>>
 		<<else>>
-			"The union between two souls is sacred. You need to decide who you really love, and stick with them."
+			"The union between two souls is sacred. You need to decide who you really love and stick with them."
 		<</if>>
-		<<He>> sounds indignant, and takes a deep breath. "Sorry."
+		<<He>> sounds indignant and takes a deep breath. "Sorry."
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 	<<case "Confessor">>
 		"One who betrays their most beloved is truly rotten to the core. If you don't repent, you may need to be... purified." The last word slips from <<his>> tongue in a way that sends a shiver up your spine.
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a grim tone.
 	<<default>>
 		"You've broken your bonds, and they will not be easily mended. You must put serious work in to repair them."
 		<br><br>
 
-		You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
+		You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you forgiven by word. You must still forgive yourself by act," <<he>> says in a rehearsed tone.
 <</switch>>
 <br><br>
 
@@ -975,7 +1005,7 @@ You share your various affairs and escapades, and the amount of partners you've 
 		<br><br>
 
 		<<if $templePromised is "Sydney">>
-			"Your beloved will be summoned, and punished alongside you. I'm sorry," you hear. You turn to see Jordan leaving the confessional.
+			"Your beloved will be summoned and punished alongside you. I'm sorry," you hear. You turn to see Jordan leaving the confessional.
 			<br><br>
 
 			<<link [[Next|Sydney Temple Punish Intro Confession]]>><<endconfessionself>><</link>>
@@ -1039,7 +1069,7 @@ You share your various affairs and escapades, and the amount of partners you've 
 				<</if>>
 			<</if>>
 		<<else>>
-			<<He>> looks at you for a long moment, before averting <<his>> gaze and ringing the bell on the confessional.
+			<<He>> looks at you for a long moment before averting <<his>> gaze and ringing the bell on the confessional.
 			<br><br>
 
 			<<link [[Next|Temple Arcade Intro]]>><<endconfessionself>><</link>>
@@ -1050,7 +1080,7 @@ You share your various affairs and escapades, and the amount of partners you've 
 		<br><br>
 
 		<<if $templePromised is "Sydney">>
-			"Your beloved will be summoned, and punished alongside you," you hear. <<He>> exits the booth behind you, placing <<his>> hands on your shoulders. <<He>> wears dark robes.
+			"Your beloved will be summoned and punished alongside you," you hear. <<He>> exits the booth behind you, placing <<his>> hands on your shoulders. <<He>> wears dark robes.
 			<br><br>
 
 			<<link [[Next|Sydney Temple Punish Intro Confession]]>><<endconfessionself>><</link>>
@@ -1067,7 +1097,7 @@ You share your various affairs and escapades, and the amount of partners you've 
 		<br><br>
 
 		<<if $templePromised is "Sydney">>
-			"Your beloved will be summoned, and punished alongside you," you hear. <<He>> swiftly exits the booth, avoiding eye contact with you.
+			"Your beloved will be summoned and punished alongside you," you hear. <<He>> swiftly exits the booth, avoiding eye contact with you.
 			<br><br>
 
 			<<link [[Next|Sydney Temple Punish Intro Confession]]>><<endconfessionself>><</link>>
@@ -1094,7 +1124,7 @@ You <<if $exposed isnot 2>>take off your clothes and <</if>>stand against the se
 	<<He>> chuckles. "No one would hear you. Just relax."
 <<else>>
 	"This seems wrong," you say.<br>
-	<<He>> chuckles but doesn't say anything.
+	<<He>> chuckles, but doesn't say anything.
 <</if>>
 <br><br>
 
@@ -1130,7 +1160,7 @@ The metal shutter opens. A hand presses up against your <<genitals>>.
 The stimulation continues for quite some time, and you feel your knees start to grow weak.
 <br><br>
 
-<<He>> increases the speed of <<his>> work, until you hit a sudden, unpleasant breaking point with very little buildup.
+<<He>> increases the speed of <<his>> work until you hit a sudden, unpleasant breaking point with very little buildup.
 <br><br>
 
 <<arousal 10000 "genitals">>
@@ -1166,7 +1196,7 @@ The stimulation continues for quite some time, and you feel your knees start to 
 				<<removeparasite "breasts">>
 				<<set _parasitesRemoved to "breasts">>
 			<</if>>
-			<<if _parasitesRemoved>>You watch as the parasites on your _parasitesRemoved start losing their colour before seemly disintegrating.<</if>>
+			<<if _parasitesRemoved>>You watch as the parasites on your _parasitesRemoved start losing their colour before seemingly disintegrating.<</if>>
 		<</if>>
 	<<else>>
 		<<set $earSlime.growth to Math.clamp(Math.ceil($earSlime.growth * 0.9), 0, Infinity)>>
@@ -1174,32 +1204,32 @@ The stimulation continues for quite some time, and you feel your knees start to 
 	<<llcorruption true>><<corruption -10>>
 	<br><br>
 <</if>>
-You hear <<him>> stand, and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you purified, and may you remain on the path of the light hereafter," <<he>> says in a grim tone.
+You hear <<him>> stand and see <<his>> silhouette draw the shape of a cross against the wooden slats. "I name you purified, and may you remain on the path of the light hereafter," <<he>> says in a grim tone.
 <br><br>
 
 The scraping of metal irritates your ears, but you can't see what's happening. <<He>> leaves shortly after.
 <br><br>
 
 <<if $confession is "promiscuity">>
-	<<if $promiscuity gte 75>>
+	<<if hasSexStat("promiscuity", 5)>>
 		<<set $promiscuity -= 10>><<trauma 80>>
-	<<elseif $promiscuity gte 35>>
+	<<elseif hasSexStat("promiscuity", 3)>>
 		<<set $promiscuity -= 5>><<trauma 50>>
 	<<else>>
 		<<set $promiscuity -= 2>><<trauma 40>>
 	<</if>>
 <<elseif $confession is "exhibitionism">>
-	<<if $exhibitionism gte 75>>
+	<<if hasSexStat("exhibitionism", 5)>>
 		<<set $exhibitionism -= 10>><<trauma 80>>
-	<<elseif $exhibitionism gte 35>>
+	<<elseif hasSexStat("exhibitionism", 3)>>
 		<<set $exhibitionism -= 5>><<trauma 50>>
 	<<else>>
 		<<set $exhibitionism -= 2>><<trauma 40>>
 	<</if>>
 <<elseif $confession is "deviancy">>
-	<<if $deviancy gte 75>>
+	<<if hasSexStat("deviancy", 5)>>
 		<<set $deviancy -= 10>><<trauma 80>>
-	<<elseif $deviancy gte 35>>
+	<<elseif hasSexStat("deviancy", 3)>>
 		<<set $deviancy -= 5>><<trauma 50>>
 	<<else>>
 		<<set $deviancy -= 2>><<trauma 40>>
@@ -1242,7 +1272,7 @@ leaving shortly after <<him>>.
 :: Temple Confess Self Refuse
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
 
-You refuse, and opt to leave the confessional. "You remain unforgiven," you hear from behind you.
+You refuse and opt to leave the confessional. "You remain unforgiven," you hear from behind you.
 <br><br>
 
 <<link [[Next|Temple]]>><<endconfessionself>><</link>>
@@ -1333,39 +1363,52 @@ The right side is open for penitents to confess their sins, while the left side 
 A large half-circle is gouged into the stone around the booth.
 <br><br>
 
-"You look unsure of yourself, child." You feel a hand on your shoulder. It's Jordan. "You seek to act as a confessor, yes? I'll show you how."
+"You look unsure of yourself, child." You feel a hand on your shoulder. It's Jordan. "You seek to act as a confessor, yes? Let me show you how."
 <br><br>
 
-<<link [[Next|Temple Confess Tutorial 2]]>><</link>>
+<<templeicon "confession">><<link [[Accept (0:30)|Temple Confess Tutorial 2]]>><<pass 30>><<npcincr "Jordan" love 1>><</link>><<glove>>
+<br>
+<<getouticon>><<link [[Decline|Temple]]>><<endevent>><</link>>
 <br>
 
 :: Temple Confess Tutorial 2
 <<temple_effects>><<effects>>
-You enter the confessional with Jordan.
+You nod and enter the confessional with Jordan.
 <br><br>
 
 The interior is more spacious than the outside lets on, enough for both of you to fit. A cushioned bench sits before you.
 Jordan gestures to the wooden slats that separate the two sides. "This is the seal of confession. It represents the privacy of the penitent's sins. Their sins are only for the Lord to hear, through you."
 <br><br>
 
-You take note of a small metal shutter under the seal, and a silver bowl attached to the wall under it. Jordan notices your gaze. "A symbol of purity. The silver vessel takes in the sins of the penitent, where they are forgiven."
+You take note of a small metal shutter under the seal and a silver bowl attached to the wall under it. Jordan notices your gaze. "A symbol of purity. The silver vessel takes in the sins of the penitent, where they are forgiven."
 <br><br>
 
 <<He>> gestures to a rope next to the bench. "This operates the bell outside. Only pull this if you are faced with another member of the temple who has confessed to breaking their vows. It will call in the specialists to purify them."
 <br><br>
 
-<<He>> moves on to a case full of small sticks. "Each time a penitent enters, light this incense and speak the phrase 'Welcome. Lay your sins bare, so they may be forgiven.' In most cases you will aim to forgive and guide your penitent. The phrase you will speak for forgiveness is 'I name you forgiven by word. You must still forgive yourself by act.' In the more severe cases of sin or illegal activity, you should be firm and demand they repent."
+<<link [[Next|Temple Confess Tutorial 3]]>><</link>>
+<br>
+
+:: Temple Confess Tutorial 3
+<<temple_effects>><<effects>>
+Jordan moves on to a case full of small sticks.
+<br><br>
+
+"Each time a penitent enters, light this incense and speak the phrase 'Welcome. Lay your sins bare, so they may be forgiven.' In most cases you will aim to forgive and guide your penitent. The phrase you will speak for forgiveness is 'I name you forgiven by word. You must still forgive yourself by act.' In the more severe cases of sin or illegal activity, you should be firm and demand they repent."
 <br><br>
 
 <<He>> continues. "If you believe your penitent to be full of a great amount of sin and corruption, you will tell them to write their name and address on one of these pieces of paper." <<He>> gestures to a stack of papers on a shelf, opposite to the seal.
 "This is known as contrition. In giving their sacred name, letting all the world know of their sins, they will be forgiven. The specialists will help them purify themselves at a later date."
 <br><br>
 
-Jordan places a hand on your head. "You must use your best judgement to properly attend to your penitents. I know you can do it. Good luck, child." Jordan leaves you alone in the booth.
+Jordan places a hand on your head. "You must use your best judgement to properly attend to your penitents. I know you can do it. Good luck, child."
+<br><br>
+
+<<He>> leaves you alone in the booth.
 <<endevent>>
 <br><br>
 
-<<link [[Wait for a penitent (0:30)|Temple Confess]]>><<pass 30>><</link>>
+<<link [[Wait for a penitent|Temple Confess]]>><</link>>
 <br>
 
 :: Temple Confess Start
@@ -1389,7 +1432,11 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 <<if Time.hour gte 6 and Time.hour lt 22>>
 	<<if $exposed gte 1>>
 		You grab a few towels from the shelf above you.
-		<<towelup>>
+		<<dry_full>>
+		<<silently>><<exposure>><</silently>>
+		<<if $exposed gte 1>>
+			<<towelup>>
+		<</if>>
 		<br><br>
 	<</if>>
 
@@ -1409,10 +1456,22 @@ Jordan places a hand on your head. "You must use your best judgement to properly
 <</if>>
 
 :: Temple Confess
-<<set $outside to 0>><<set $location to "temple">><<sydneySchedule>><<temple_effects>><<effects>>
+<<set $outside to 0>><<set $location to "temple">><<sydneySchedule>><<temple_effects>><<effects>><<rngWraith>>
 <<set $confessionsTaken = ($confessionsTaken || 0) + 1>>
-You hear the other door open and greet your attendant.
-"Welcome. Lay your sins bare, so they may be forgiven." You light the incense and do your best to speak outside your usual tone.
+<<if _wraithEvent and $wraithIntro and !$weekly.wraithConfess>>
+	<<set _wraithConfess to true>><<set $weekly.wraithConfess to true>><<set $attendant to "wraith">><<set _noOptions to true>>
+	You hear the other door open. Before you can greet your penitent, you feel a cold wind blow. It steals your breath.
+
+	<<if $demon gte 6 and $wraith.state isnot "haunt">>
+		You can almost feel what is on the other side of the booth. All that separates you are misunderstandings.
+	<</if>>
+	<br><br>
+
+	"Welcome. Lay your sins bare, so they may be forgiven," you say. You do your best to keep your voice even. When you go to light the incense, the flame flickers out no matter how many times you try.
+<<else>>
+	You hear the other door open and greet your attendant.
+	"Welcome. Lay your sins bare, so they may be forgiven." You light the incense and do your best to speak outside your usual tone.
+<</if>>
 <br><br>
 
 <<cleareventpool>>
@@ -1426,27 +1485,27 @@ You hear the other door open and greet your attendant.
 	<<addinlineevent "confession_corrupt_2" 0.7>>
 		<<generate1>><<person1>><<set $attendant to "corrupt_2">>
 		They sit down. A <<personsimple>>'s voice greets you. "Hello, dear <<sister>>. I fear I've done some rather dreadful things. For the past month or so, I've been seeing a prostitute every day.
-		Each time we meet, our acts become more and more depraved, and now, I find myself thinking about nothing but these carnal deeds. Today I even caught myself thinking about stealing this sex worker away, to be locked away in my basement. Thus, I decided to come here."
+		Each time we meet, our acts become more and more depraved, and now, I find myself thinking about nothing but these carnal deeds. Today I even caught myself thinking about stealing this sex worker away to be locked away in my basement. Thus, I decided to come here."
 	<</addinlineevent>>
 	<<addinlineevent "confession_corrupt_3" 0.7>>
 		<<generate1>><<person1>><<set $attendant to "corrupt_3">>
-		They sit down anxiously. A <<personsimple>>'s voice greets you. "I fear I've angered God," <<he>> says.
+		They sit down. A <<personsimple>>'s anxious voice greets you. "I fear I've angered God," <<he>> says.
 		<br><br>
 
 		After a moment of silence, you encourage <<him>> to elaborate.
 		<br><br>
 
-		"I've started seeing... visions. Hearing voices. They tell me to do terrible things, until I am a terrible thing myself. I know they aren't real, no matter how real they feel. I... I don't know what I've done wrong, or what I should do to make it stop."
+		"I've started seeing... visions. Hearing voices. They tell me to do terrible things until I am a terrible thing myself. I know they aren't real, no matter how real they feel. I... I don't know what I've done wrong or what I should do to make it stop."
 	<</addinlineevent>>
 	<<addinlineevent "confession_corrupt_4" 0.7>>
-		<<generateRole 0 0 "initiate" t>><<person1>><<set $attendant to "corrupt_4">>
+		<<generatey1>><<person1>><<set $attendant to "corrupt_4">>
 		They sit. A <<personsimple>>'s voice greets you. "Hello, <<sister>>. I've been having some... horrible thoughts lately. Things I would never think of on purpose. I... can I share? Some of them are really bad."
 		<br><br>
 
 		You give <<him>> permission to continue.
 		<br><br>
 
-		"I've had thoughts about other initiates. Thoughts about making them break their vows just to see them get punished. Thoughts about other members of our order, and how I'd like them to... defile... me. Thoughts about <<nnpc_brother "Jordan">> Jordan... I even had my <<if $pronoun is "m">>cage<<else>>belt<</if>> removed just to have <<nnpc_him "Jordan">> close to me."
+		"I've had thoughts about other initiates. Thoughts about making them break their vows just to see them get punished. Thoughts about other members of our order and how I'd like them to... defile... me. Thoughts about <<nnpc_brother "Jordan">> Jordan... I even had my <<if $pronoun is "m">>cage<<else>>belt<</if>> removed just to have <<nnpc_him "Jordan">> close to me."
 		<br><br>
 
 		<<He>> begins to sob. "And... and I'm starting to like these thoughts! I hate that I like them! They aren't mine! This isn't who I am!"
@@ -1476,7 +1535,7 @@ You hear the other door open and greet your attendant.
 	<</addinlineevent>>
 	<<addinlineevent "confession_corrupt_9" 1>>
 		<<generate1>><<person1>><<set $attendant to "corrupt_9">>
-		They sit. A <<personsimple>>'s voice greets you, as <<he>> presses <<his>> hand against the seal.
+		They sit. A <<personsimple>>'s voice greets you as <<he>> presses <<his>> hand against the seal.
 		<<if $angel gte 6>>
 			"Oh my, I'm blessed indeed. You're angelic. I can feel your radiance through the seal. May this poor wretch humbly request you purge me of my sins?"
 		<<elseif $fallenangel gte 2>>
@@ -1502,23 +1561,23 @@ You hear the other door open and greet your attendant.
 <!-- Sinful penitents (forgive, repent, or either) -->
 <<addinlineevent "confession_sinner_1" 1>>
 	<<generate1>><<person1>><<set $attendant to "sinner_1">>
-	They sit down with a sigh. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have..." <<he>> pauses.
+	They sit down with a sigh. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have..." <<He>> pauses.
 	"I did something horrible. I... There was this
 	<<if maleChance($pronoun) gte random(1, 100)>>
 		boy. He needed money really bad, to pay someone off, I think. I... I made him do things.
-		<<if random(1,100) lte $npcvirginitychance>>
+		<<if random(1,100) lte $settings.npcVirginChanceStudent>>
 			I ended up taking his virginity.
 		<</if>>
 		He didn't seem to mind,
 	<<else>>
 		girl. She needed money really bad, to pay someone off, I think. I... I made her do things.
 		<<if $NPCList[0].penis is 0>>
-			<<if random(1,100) lte $npcVirginityChance>>
+			<<if random(1,100) lte $settings.npcVirginChanceStudent>>
 				I ended up taking her virginity.
 			<</if>>
 			She didn't seem to mind,
 		<<else>>
-			<<if random(1,100) lte $npcVirginityChance>>
+			<<if random(1,100) lte $settings.npcVirginChanceStudent>>
 				I think I was her first.
 			<</if>>
 			She didn't seem to mind,
@@ -1587,18 +1646,18 @@ You hear the other door open and greet your attendant.
 <</addinlineevent>>
 <<addinlineevent "confession_sinner_silent" 1>>
 	<<generate1>><<person1>><<set $attendant to "sinner_silent">>
-	They sit down. You sit in silence for a moment, hearing nothing from the other side. You move closer to the seal, and hear them mumbling a prayer.
+	They sit down. You sit in silence for a moment, hearing nothing from the other side. You move closer to the seal and hear them mumbling a prayer.
 <</addinlineevent>>
 <<addinlineevent "confession_sinner_orphan_1" 1>>
 	<<generateyv1>><<person1>><<set $attendant to "sinner_orphan_1">>
 	They sit down. A <<personsimple>>'s voice greets you. "Uhm... h-hello. I... I did some bad things." <<He>> goes silent, and you gently encourage <<him>> to continue.
 	<br><br>
 
-	"I... I have a debt to pay off. B... uhm, my guardian, is demanding I pay them back for all the years I lived under <<nnpc_his "Bailey">> roof. The demands are a lot. I have to do some... ugly things to keep up." You're able to fill in the gaps yourself.
+	"I... I have a debt to pay off. B... uhm, my guardian is demanding I pay them back for all the years I lived under <<nnpc_his "Bailey">> roof. The demands are a lot. I have to do some... ugly things to keep up." You're able to fill in the gaps yourself.
 <</addinlineevent>>
 <<addinlineevent "confession_sinner_orphan_2" 1>>
 	<<generateyv1>><<person1>><<set $attendant to "sinner_orphan_2">>
-	They sit down. A <<personsimple>>'s voice greets you. "This is stupid. This is so stupid." <<He>> grumbles for a moment, before letting out an annoyed sigh. "How do you pretentious fucks keep your faith in this shithole of a town? I... I have to sell my body just to pay off a debt I didn't even know I was building up for the last seven years. The things I have to do are disgusting."
+	They sit down. A <<personsimple>>'s voice greets you. "This is stupid. This is so stupid." <<He>> grumbles for a moment before letting out an annoyed sigh. "How do you pretentious fucks keep your faith in this shithole of a town? I... I have to sell my body just to pay off a debt I didn't even know I was building up for the last seven years. The things I have to do are disgusting."
 	<br><br>
 
 	You open your mouth to respond, but <<he>> continues. "It... wasn't so bad at first. Working odd jobs for cash under the table. Running deliveries, helping around houses. But then the demands started getting steeper. And people started trying to fucking... feel me up while I was working. Before I knew it, I was getting on my knees and... and... it's all Bailey's fucking fault!"
@@ -1609,14 +1668,14 @@ You hear the other door open and greet your attendant.
 		They sit down with a sigh. A <<personsimple>>'s voice greets you. "I'm a sick fuck. I've been paying students from the local school to steal each others' unmentionables and bring them to me."
 	<</addinlineevent>>
 <</if>>
-<<if $npcPregnancyDisable is "f">>
+<<if $settings.npcPregnancyEnabled>>
 	<<addinlineevent "confession_sinner_pregnant" 1>>
 		<<generate1>><<person1>><<set $attendant to "sinner_pregnant">>
 		They sit down. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I...
 		<<if $pronoun is "m">>
 			I got someone pregnant. It was a moment of weakness and passion. I do care for my partner, but I... I'm not ready for this. I don't know what to do."
 		<<else>>
-			I got pregnant. It was a moment of weakness and passion. I don't know what to do. I'm so afraid. My partner doesn't know yet, I'm afraid he'll leave me."
+			I got pregnant. It was a moment of weakness and passion. I don't know what to do. I'm so afraid. My partner doesn't know yet. I'm afraid he'll leave me."
 		<</if>>
 	<</addinlineevent>>
 <</if>>
@@ -1624,19 +1683,15 @@ You hear the other door open and greet your attendant.
 	<<generate1>><<person1>><<set $attendant to "sinner_generic_forgive">>
 	They sit down. A <<personsimple>>'s voice greets you.
 	<<set _sinPoolForgive to [
-		`"Forgive me, <<sister>>, for I have sinned. I have coveted my neighbour's spouse."`,
-		`"Forgive me, <<sister>>, for I have sinned. I have coveted my neighbour."`,
-		`"Forgive me, <<sister>>, for I have sinned. I lost a bet, and went streaking across town naked."`,
+		`"Forgive me, <<sister>>, for I have sinned. I have coveted my <<print either("neighbour","neighbour's spouse","friend's spouse")>>."`,
+		`"Forgive me, <<sister>>, for I have sinned. I lost a bet and went streaking across town naked."`,
 		`"Forgive me, <<sister>>, for I have sinned. I've been hitting up the strip club behind my spouse's back for a few weeks."`,
 		`"Forgive me, <<sister>>, for I have sinned. I've been... indulging myself at the local brothel."`,
 		`"I've got a problem. I've been gambling like mad."`,
-		`"Forgive me, <<sister>>, for I've had impure thoughts about my neighbour."`,
-		`"Forgive me, <<sister>>, for I've had impure thoughts about a close friend."`,
-		`"Forgive me, <<sister>>, for I've had impure thoughts about the clergy here."`,
+		`"Forgive me, <<sister>>, for I've had impure thoughts about <<print either("my neighbour","a close friend","the clergy here")>>."`,
 		`"Forgive me, <<sister>>, for I've had impure thoughts about... well, a lot of people."`,
 		`"Forgive me, <<sister>>, for I have fallen into temptation."`,
-		`"Forgive me, <<sister>>, for I have sown deceit amongst my peers."`,
-		`"Forgive me, <<sister>>, for I have sown unkind words amongst my peers."`,
+		`"Forgive me, <<sister>>, for I have sown <<print either("deceit","unkind words")>> amongst my peers."`,
 	]>>
 	<<set _sinForgive to _sinPoolForgive.pluck()>>
 	<<print _sinForgive>>
@@ -1650,14 +1705,14 @@ You hear the other door open and greet your attendant.
 		`"Forgive me, <<sister>>, for I have had unfaithful thoughts about my spouse."`,
 		`"Forgive me, <<sister>>, for I turned a blind eye to the criminal activity of a friend."`,
 		`"Forgive me, <<sister>>, for I... I've committed petty thievery."`,
-		`"Forgive me, <<sister>>. I stole some money that I found lying unattended at the local cafe."`,
-		`"Forgive me, <<sister>>, for I have stolen from a friend. I... I felt like I deserved something more than they did. I was jealous."`,
+		`"Forgive me, <<sister>>. I stole some money that I found lying unattended at the local <<print either("spa","markets","cafe","arcade","pub")>>."`,
+		`"Forgive me, <<sister>>, for I have stolen from a <<print either("neighbour","friend","co-worker")>>. I... I felt like I deserved something more than they did. I was jealous."`,
 	]>>
-	<<if $bestialitydisable is false>>
+	<<if $settings.bestialityEnabled>>
 		<<set _sinPoolRepent.push(
-			`"Forgive me, <<sister>>, for I've had impure thoughts about... my dog."`,
-			`"Forgive me, <<sister>>, for I have sinned. I have layed with a beast as though it were a human."`,
-			)>>
+			`"Forgive me, <<sister>>, for I've had impure thoughts about... my <<print either("","friend's","neighbour's")>> <<print either("dog","cat")>>."`,
+			`"Forgive me, <<sister>>, for I have sinned. I have lain with a beast as though it were a human."`,
+		)>>
 	<</if>>
 	<<set _sinRepent to _sinPoolRepent.pluck()>>
 	<<print _sinRepent>>
@@ -1727,6 +1782,65 @@ You hear the other door open and greet your attendant.
 	]>>
 	<<set _templeSin to _templeSinPool.pluck()>>
 	<<print _templeSin>>
+<</addinlineevent>>
+
+<!-- Temple penitents post-punishment (varies) -->
+<<addinlineevent "confession_temple_punished_faithful" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_1">>
+	They sit down. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have sinned," <<he>> says. "I have doubted the faith." You hear <<him>> fidget.
+	<br><br>
+
+	<<He>> dissolves into sobbing. You wait uncomfortably. After a last sniffle, <<he>> continues. <<His>> voice sounds stronger.
+	"There was a-an incident. I broke my vow, and then I was purified. It was the process of purification that made me doubt, <<sister>>. I endured unspeakable horrors to earn forgiveness. It's my fault, of course, but..."
+	<br><br>
+
+	<<He>> cuts <<himself>> off. You see <<his>> hand press up against the small metal shutter. A part of you wants to hold it, but you resist.
+	"I can only pray that I am forgiven," <<he>> says. "It has to be enough. If all of that wasn't enough, if I am not free of sin, then what was the point? Please, <<sister>>. Tell me that I'm pure."
+<</addinlineevent>>
+<<addinlineevent "confession_temple_punished_disillusioned" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_2">>
+	You hear a dry chuckle from the other side. A <<personsimple>>'s voice greets you. "Funny. I used to say that." There's a beat of silence. "<<Sister>>, I have sinned, but I do not ask for your forgiveness. I think your forgiveness is a crock of shit, to be honest."
+	<<He>> hurries on without waiting for your response. "I mean, I did everything I was supposed to. I practised the faith. I took confessions. I even went door to door and begged for donations."
+	<br><br>
+
+	<<He>> sighs. "But when I lay with someone I loved in sacred union, they said I broke my vow. I was punished, <<sister>>. I won't tell you the things they did to me. I don't think I could bear to utter such filth here, even after all I've been through."
+	<br><br>
+
+	More silence. It stretches so long and thin that you think it will snap and let something in. A wave of relief comes over you when <<he>> starts to speak again. "I really only came here to tell someone that I was leaving. My beloved and I are going to go where we can love each other freely. No walls between us. I just wish...
+	<<if $grace gte 100>>
+		I wish I had your devotion, <<sister>>."
+	<<elseif $grace gte 50>>
+		I wish I was as strong as you, <<sister>>."
+	<<else>>
+		I wish I wasn't the only one who feels this way. Can you understand me, <<sister>>?"
+	<</if>>
+<</addinlineevent>>
+<<if $world_corruption_soft gte 50>>
+	<<addinlineevent "confession_temple_punished_vowbreaker" 1>>
+		<<generatev1>><<person1>><<set $attendant to "punished_3">>
+		They sit down. A <<personsimple>>'s voice greets you, and <<he>> wastes no time. "Forgive me, <<sister>>, for I have broken my vow."
+		<br><br>
+
+		"You must be purified—" you begin.<br>
+		"Wait!" <<he>> says. "Before you summon the specialists, please listen to my story. That's why you're here, isn't it?"<br>
+		You hesitate, your hand gripping the rope. You let it go. <<He>> sighs in relief.
+		<br><br>
+
+		"I was a good initiate and an even better <<monk>>. I did everything asked of me. But I was raped on my way home from my duties. I never saw the face of my attacker, and I doubt I ever will. I dreaded the examination for weeks. For good reason, because I failed." <<He>> laughs. "Then they set me up to be raped again. Imagine how that feels, <<sister>>. To be raped, and as punishment for someone else's crime, raped again."
+		<br><br>
+
+		There's the rustling of clothes as <<he>> shifts. "I'm recording it this time. They can't keep getting away with it. I'll show the world, and then they'll be shut down." <<He>> takes a deep breath. "Thank you for listening, <<sister>>. I'm ready now."
+	<</addinlineevent>>
+<</if>>
+<<addinlineevent "confession_temple_punished_vessel" 1>>
+	<<generateTemple 1>><<person1>><<set $attendant to "punished_corrupt">>
+	They sit down. A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, but I have sinned. I have gone through the temple's purification. At first, it was fine. I understood. But the more I thought about it, the more I questioned it. Why would such acts of violence purify me, if that was what corrupted me?"
+	<br><br>
+
+	<<He>> chuckles. "But then I realised. I was taking the corruption of others into myself. I was making a difference. So I broke my vow again. And again." <<His>> voice grows louder. "And it was good, and I was good for being a vessel for corruption. But it's become too much. I wake up screaming at night. I feel sick when I look at myself in the mirror. I haven't been able to eat. I can't think of anything but how much I don't want to do this anymore."
+	<br><br>
+
+	"I can feel all of this corruption welling up inside of me. It's eating at me like acid, leaving holes in my faith. I think something is trying to use me to enter this world." <<He>> starts to cry. "I don't want to let It in, <<sister>>! I don't want to be the reason It wins! Please, you have to help me before it's too late."
 <</addinlineevent>>
 
 <!-- Other/Special penitents -->
@@ -1818,6 +1932,37 @@ You hear the other door open and greet your attendant.
 			<br>
 		<</addinlineevent>>
 	<</if>>
+	<<if $templePromised is "Sydney" and $sydneySeen.includes("punishment")>>
+		<<addinlineevent "confession_sydney_doubt" 1>>
+			<<npc Sydney>><<person1>><<set $attendant to "sydney_doubt">>
+			<<set $daily.sydneyConfession to true>>
+			<<if $sydneySeen.includes("confessionRevealed")>>
+				<span class="blue">You hear three knocks on the door's frame.</span>
+			<</if>>
+			A <<personsimple>>'s voice greets you. "Forgive me, <<sister>>, for I have sinned," <<he>> says.
+
+			<<if _sydneyStatus.includes("corrupt")>>
+				"I've got doubts. I'm promised to someone, and we get to... do it, whenever we want because of it. But if either of us break our vows with someone else, we'll both get punished. I get that happening if we cheat on each other willingly. But what happens if either of us is assaulted? This town is full of holes, and there are many eager to reach through them to harm others."
+				<br><br>
+
+				<<if $awarelevel gte 2>>You think you know what <<he>> means.<<else>>You wonder what <<he>> means by holes.<</if>>
+				<br><br>
+
+				"This has been making me doubt my faith," <<he>> continues. "Am I putting it in the right place? I think I am, but, <<sister>>, I admit that I've become confused. It's not fair that <<pshe>> has to endure punishment for someone else's sin, let alone me." <<He>> pauses. "Fuck, that was selfish. I guess I still have some growing to do."
+			<<else>>
+				"I... I can't believe I've been thinking about this." <<He>> takes a deep breath. "I have been promised to someone. My beloved. We can be in-intimate with each other because of that. If either of us breaks our vow with someone else, though, we are punished. At least we're punished together, right? But..."
+				<br><br>
+
+				There's a catch in <<his>> voice. It's subtle, but in this small space, you hear it. "But what if my b-beloved is assaulted?" <<he>> asks. "Please forgive me for saying this, <<sister>>, but it seems so unfair to punish <<phim>> for that." The words pour out in a flood. You feel <<his>> doubt pushing against your lips to force its way in. <<stress 3>><<gstress>>
+				<br><br>
+
+				"It isn't as if <<pshe>> asked for it. Yes, maybe <<pshe>> shouldn't put <<pherself>> in a situation where <<pshe>> could get attacked, but what if <<pshe>> does everything right and it still happens? How is it fair or right to punish <<phim>> for that? And why should I be punished alongside <<phim>>?" <<He>> pauses. "Oh, that sounds so selfish. I guess I'll need to ask forgiveness for that too."
+			<</if>>
+			<br><br>
+
+			<<He>> sighs. "<<Sister>>, what should I do?"
+		<</addinlineevent>>
+	<</if>>
 <</if>>
 
 <<if ($museumhorse is 1 or $museumduck is 1) and !$weekly.winterConfession and C.npc.Winter.init is 1 and $confessionsTaken gte 5>>
@@ -1849,6 +1994,21 @@ You hear the other door open and greet your attendant.
 		<<link [[Yes|Temple Confess Jordan Yes]]>><</link>>
 		<br>
 		<<link [[No|Temple Confess Jordan No]]>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<!-- Must be last. -->
+<<if _wraithConfess>>
+	<<cleareventpool>>
+	<<addinlineevent "confession_wraith" 1000>>
+		Water trickles through the metal grate.
+		<br><br>
+
+		"<span class="wraith">Those drowned can only speak the sea.</span>"
+		<br><br>
+
+		<span class="wraith"><<link [[Confess|Temple Confess Wraith]]>><</link>></span>
 		<br>
 	<</addinlineevent>>
 <</if>>
@@ -1917,7 +2077,7 @@ You hear the other door open and greet your attendant.
 	<<elseif $speech_attitude is "meek">>
 		"Y-you're forgiven by word, but you must forgive yourself by act," you say.
 	<<elseif $speech_attitude is "bratty">>
-		"You're forgiven. But you still need to forgive yourself," you say.
+		"You're forgiven, but you still need to forgive yourself," you say.
 	<<else>>
 		"You're forgiven, but you need to act to forgive yourself," you say.
 	<</if>>
@@ -1955,7 +2115,7 @@ You hear the other door open and greet your attendant.
 	<<case "corrupt_5" "corrupt_5_fake">>
 		<br><br>
 
-		"Forgiveness? Are you daft? Forget this, you're wasting my time. I'll come back when a more competant confessor is available."
+		"Forgiveness? Are you daft? Forget this, you're wasting my time. I'll come back when a more competent confessor is available."
 		<br><br>
 
 		<<He>> leaves the booth with a huff. <<grace -2>><<lgrace>>
@@ -1999,7 +2159,7 @@ You hear the other door open and greet your attendant.
 		<</if>>
 		<br><br>
 
-		"Lame. You sound like my <<if $malechance is 100>>dad<<else>>mum<</if>>. But... maybe that means you're right." <<He>> exits the confessional. <<grace 1>><<ggrace>>
+		"Lame. You sound like my <<if $settings.maleChance is 100>>dad<<else>>mum<</if>>. But... maybe that means you're right." <<He>> exits the confessional. <<grace 1>><<ggrace>>
 	<<case "sinner_6" "sinner_7">>
 		"The Lord understands. The world can be cruel, but you're doing your best."
 		<br><br>
@@ -2035,7 +2195,7 @@ You hear the other door open and greet your attendant.
 	<<case "sinner_silent">>
 		<br><br>
 
-		<<He>> says nothing, and leaves the booth.
+		<<He>> says nothing and leaves the booth.
 	<<case "sinner_orphan_1">>
 		"Be strong. We're all suffering together. Keep your fellow orphans safe."
 		<br><br>
@@ -2093,6 +2253,29 @@ You hear the other door open and greet your attendant.
 		<br><br>
 
 		"Oh, thank you, thank you so much <<sister>>! I promise I won't break it again!" <<He>> exits the confessional. <<grace -2>><<lgrace>><<stress -12>><<llstress>>
+	<<case "punished_1">>
+		<br><br>
+		"Forgiven," <<he>> says. <<His>> relief is palpable. "Yes. I am forgiven, but I must work on forgiving myself. Thank you, <<sister>>. Thank you!"
+		<br><br>
+
+		<<He>> leaves the confessional. You feel a warm glow in your chest. <<grace 1>><<stress -2>><<ggrace>><<lstress>>
+	<<case "punished_2">>
+		<br><br>
+
+		<<He>> laughs. It almost sounds like a sob. "It's all bullshit," <<he>> says. "Goodbye, <<sister>>. I hope they are kinder to you than they were to me."
+		<br><br>
+
+		<<He>> exits the confessional, leaving you <<if $temple_arcade_known or $sydneySeen?.includes("punishment")>>with your own memories of the temple's punishments<<else>>to ponder the meaning of <<his>> words<</if>>. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		<br><br>
+
+		<<He>> stays silent for a moment. "Your faith is strong, <<sister>>. I envy you. I don't think I can forgive. But maybe I can forget."
+		<br><br>
+
+		<<He>> leaves the confessional, but not before pushing <<his>> recorder through the small metal chute. <<stress -3>><<lstress>>
+	<<case "punished_corrupt">>
+		<br><br>
+		"I don't deserve to be forgiven!" <<he>> shouts. "I have to do my duty! If you can't help me, I'll find someone who can!" <<He>> rushes from the confessional, shouting all the while. <<grace -2>><<lgrace>>
 	<<case "sydney_promised">>
 		"If you are bound by promise, then you have committed no sin. You were given exception through a holy rite."
 		<br><br>
@@ -2108,6 +2291,23 @@ You hear the other door open and greet your attendant.
 		<br><br>
 
 		You hear a sigh of relief. "Thank you, <<sister>>." <<He>> exits the confessional. <<grace 1>><<ggrace>><<npcincr "Sydney" love 3>><<glove "Sydney">>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		"Doubts are normal. To doubt is human, to know all is divine. You are not lost so long as you do not let your doubts consume you. Forgive yourself, <<nnpc_brother "Sydney">>, as I forgive you."
+		<br><br>
+
+		<<if _sydneyStatus.includes("corrupt")>>
+			"And if my doubts do consume me?" <<he>> challenges. "What then, <<sister>>? Will I still be forgiven?"
+			<br><br>
+
+			"Yes," you say with confidence. "For you are loved by God<<if isLoveInterest("Sydney")>> and your beloved<</if>>, and that love will keep you from straying. I'm sure of it."
+			<br><br>
+
+			<<He>> is silent for a long time. "Huh. That's not what I expected you to say. I've... No one has ever really had that kind of faith in me before. Thank you, <<sister>>."
+		<<else>>
+			"Human," <<he>> echoes. "I am just a <<personsimple>>, that's true. I guess I thought I should be above such things. Thank you for reminding me that I'm not."
+		<</if>>
+		<<He>> exits the confessional. You sneak a look through your door. <<He>> looks at peace. <<grace 1>><<npcincr Sydney love 2>><<ggrace>><<glove>>
 	<<case "winter">>
 		"It is difficult to keep one's thoughts in check during such a vulnerable moment. Perhaps talk to this student of yours about it."
 		<br><br>
@@ -2135,7 +2335,7 @@ You hear the other door open and greet your attendant.
 	<<elseif $speech_attitude is "meek">>
 		"Y-you're forgiven by word, but you still need to repent," you say.
 	<<elseif $speech_attitude is "bratty">>
-		"You're forgiven. But you need to get your shit together and repent," you say.
+		"You're forgiven, but you need to get your shit together and repent," you say.
 	<<else>>
 		"You're forgiven, but you need to repent," you say.
 	<</if>>
@@ -2174,7 +2374,7 @@ You hear the other door open and greet your attendant.
 		"Trying to trick a confessor is evil. You would tempt me in such a holy place?"
 		<br><br>
 
-		"Ah. You don't know. I'll come back when a more competant confessor is available."
+		"Ah. You don't know. I'll come back when a more competent confessor is available."
 		<br><br>
 
 		<<He>> leaves the booth with a huff. <<grace -2>><<lgrace>>
@@ -2210,7 +2410,7 @@ You hear the other door open and greet your attendant.
 		"Propositioning a confessor in such a holy place... you should get yourself fitted with a chastity device to contain your lust."
 		<br><br>
 
-		"Oh piss off, I'm just looking for a little fun you damned prig." <<He>> exits the booth. <<grace 1>><<ggrace>>
+		"Oh piss off, I'm just looking for a little fun, you damned prig." <<He>> exits the booth. <<grace 1>><<ggrace>>
 	<<case "sinner_3">>
 		"Get yourself fitted with a chastity device if you must."
 		<br><br>
@@ -2262,7 +2462,7 @@ You hear the other door open and greet your attendant.
 	<<case "sinner_silent">>
 		<br><br>
 
-		<<He>> says nothing, and leaves the booth.
+		<<He>> says nothing and leaves the booth.
 	<<case "sinner_orphan_1">>
 		"You're better than this. There are other ways to make money. Find honest work."
 		<br><br>
@@ -2276,10 +2476,10 @@ You hear the other door open and greet your attendant.
 		"Other ways, huh? You don't think I've tried that? You think I have a fucking choice? You'll never understand."
 		<br><br>
 
-		<<link [["Tell " + $NPCList[0].pronouns.him + " you're an orphan too"|Temple Confess Repent Orphan Tell]]>><<grace -2>><<hope 2>><<reb 2>><</link>>
+		<<link [[Tell <<him>> you're an orphan too|Temple Confess Repent Orphan Tell]]>><<grace -2>><<hope 2>><<reb 2>><</link>>
 		<br>
 		<<if $trauma gte 4000 or $uncomfortable.prostituting is false>>
-			<<link [["Snap at " + $NPCList[0].pronouns.him|Temple Confess Repent Orphan Snap]]>><<trauma -12>><<grace -4>><<hope -1>><<reb 4>><</link>>
+			<<link [[Snap at <<him>>|Temple Confess Repent Orphan Snap]]>><<trauma -12>><<grace -4>><<hope -1>><<reb 4>><</link>>
 			<br>
 		<</if>>
 		<<link [[Say nothing|Temple Confess Repent Orphan Silent]]>><</link>>
@@ -2336,13 +2536,36 @@ You hear the other door open and greet your attendant.
 		<br><br>
 
 		"R...right. Apologies." <<His>> voice is full of dread. <<He>> exits the confessional sheepishly.
+	<<case "punished_1">>
+		<br><br>
+		"Of course," <<he>> says. "I'm not forgiven yet. How could I be? The doubt still lingers. Thank you, <<sister>>. I will work harder. I will be worthy of the Temple. I will."
+		<br><br>
+
+		<<He>> repeats <<his>> last two words as <<he>> exits the confessional. It sounds like a desperate hymn. <<stress 3>><<gstress>>
+	<<case "punished_2">>
+		The words feel hollow. <<stress 3>><<gstress>>
+		<br><br>
+
+		"Yeah," <<he>> says. "Somehow, I knew you'd say that. It's what <<nnpc_he "Jordan">> taught us, isn't it? Stay safe, <<sister>>. <<if $temple_arcade_known or $sydneySeen?.includes("punishment")>>You know what happens to those that step outside the faith.<<else>>There are things about this temple that you don't know.<</if>>"
+		<br><br>
+
+		<<He>> exits the confessional, leaving you feeling uncertain of your judgement. <<stress 3>><<awareness 2>><<gstress>><<gawareness>>
+	<<case "punished_3">>
+		<br><br>
+
+		"It's them that need to repent," <<he>> says. "I'm doing what needs to be done. You'll see. It's for the greater good." <<He>> leaves the confessional. You wonder if <<he>> will return to try again. <<stress 3>><<gstress>>
+	<<case "punished_corrupt">>
+		<br><br>
+
+		"Have you even been listening to me?" <<he>> asks. "<<Sister>>, I am meant to be a vessel for corruption. I can't repent. There are some evils that must be contained." <<He>> exits the confessional before you can respond. <<grace -2>><<awareness 2>><<lgrace>><<gawareness>>
+
 	<<case "sydney_promised">>
 		"Do not abuse the Rite of Promise. You risk corrupting you and your beloved."
 		<br><br>
 
 		"I... I knew it. I'm sorry, <<sister>>." <<He>> exits the confessional. <<grace 1>><<ggrace>><<npcincr Sydney lust -1>><<npcincr Sydney purity 2>><<lslust>><<gspurity>>
 	<<case "sydney_romance">>
-		"You mustn't allow yourself to be swayed by another. Remember your vows, and your duty to us."
+		"You mustn't allow yourself to be swayed by another. Remember your vows and your duty to us."
 		<br><br>
 
 		"I... I knew it. I'm sorry, <<sister>>." <<He>> exits the confessional. <<grace 1>><<ggrace>><<npcincr Sydney lust -1>><<npcincr Sydney purity 2>><<lslust>><<gspurity>>
@@ -2351,6 +2574,21 @@ You hear the other door open and greet your attendant.
 		<br><br>
 
 		There's a moment of silence. "You're right, <<sister>>. I was foolish. Thank you." <<He>> trudges from the confessional. <<grace 1>><<ggrace>><<npcincr "Sydney" love -8>><<lllove "Sydney">>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		<<if $sydneySeen.includes("self-sabotage")>>
+			"A wise <<monk>> once told me that doubt is self-sabotage," you say. "Repent for hurting yourself, and forgiveness will follow."
+		<<else>>
+			"You are stronger than your doubts," you say. "Repent for questioning the faith, and you will be forgiven."
+		<</if>>
+		<br><br>
+
+		<<if _sydneyStatus.includes("corrupt")>>
+			"I guess I knew that," <<he>> says. "It's still nice to hear from someone else. Thanks, <<sister>>. I'll try to remember that."
+		<<else>>
+			"You're right," <<he>> says. "Of course you are. Thank you so much, <<sister>>, for keeping me on the right path."
+		<</if>>
+		<<He>> exits the confessional. <<grace 1>><<npcincr Sydney love 2>><<ggrace>><<glove>>
 	<<case "winter">>
 		"The bond between teacher and student should remain professional. Be wary."
 		<br><br>
@@ -2373,7 +2611,7 @@ You hear the other door open and greet your attendant.
 <<if $speech_attitude is "meek">>
 	"D-don't say that! I'm stuck under Bailey's thumb just the same," you say.
 <<elseif $speech_attitude is "bratty">>
-	"I'm in the exact same situation as you, don't go taking your problems out on others just because you're in a bad place right now," you say.
+	"I'm in the exact same situation as you. Don't go taking your problems out on others just because you're in a bad place right now," you say.
 <<else>>
 	"We probably know each other. We're both stuck under Bailey," you say.
 <</if>>
@@ -2389,11 +2627,11 @@ You hear the other door open and greet your attendant.
 :: Temple Confess Repent Orphan Snap
 <<temple_effects>><<effects>>
 <<if $speech_attitude is "meek">>
-	"I... I'll never understand?! Do you have any idea the thing's I've had to do? The... horrible people I've had to deal with? Despite that, I'm sitting here trying to... to make people like you feel better about themselves!"
+	"I... I'll never understand?! Do you have any idea the things I've had to do? The... horrible people I've had to deal with? Despite that, I'm sitting here trying to... to make people like you feel better about themselves!"
 <<elseif $speech_attitude is "bratty">>
 	"Watch your fucking mouth, I'm in the exact same situation as you!" you yell. "Do you see me bitching about it, or do you see me taking my life into my own hands and trying to make a difference? God knows I could be spending my time doing something other than trying to make pathetic little runts like you feel better!"
 <<else>>
-	"You have no idea who you're talking to. I've gone through it too! You're just too shortsighted and defeatist to actually try to improve your situation, you'd rather piss away your problems on someone else. Am I right? Why not try to help others, like I'm doing right now?"
+	"You have no idea who you're talking to. I've gone through it too! You're just too shortsighted and defeatist to actually try to improve your situation. You'd rather piss away your problems on someone else. Am I right? Why not try to help others, like I'm doing right now?"
 <</if>>
 <br><br>
 
@@ -2422,6 +2660,7 @@ There's so much you want to say. But you say none of it.
 <<if !$daily.contritions>>
 	<<set $daily.contritions to 0>>
 <</if>>
+<<wearProp "pen">>
 You grab one of the pieces of paper and a pen from the stack and slip them through the metal shutter.
 "To make amends, you must return to us at a later date. Please write your full name and address here. The specialists will assist you in purification."
 <br><br>
@@ -2467,12 +2706,12 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<<He>> continues to repeat <<himself>> as <<he>> leaves the booth. You hear <<his>> voice fade away slowly. <<stress 3>><<gstress>>
 	<<case "corrupt_9">>
 		<<set $daily.contritions++>>
-		"Hmph, you're new here aren't you? Very well, I'll tolerate the 'specialists' once more." <<He>> chuckles. "You should try purging your petitioners more... personally, <<sister>>. It might just open your eyes."
+		"Hmph. You're new here, aren't you? Very well, I'll tolerate the 'specialists' once more." <<He>> chuckles. "You should try purging your petitioners more... personally, <<sister>>. It might just open your eyes."
 		<br><br>
 
 		<<He>> leaves without another word. <<grace 1>><<ggrace>>
 	<<case "sinner_1" "sinner_3" "sinner_4" "sinner_5">>
-		"M-my name? I'm... I'm not sure about this..." <<He>> stays silent for a moment, before leaving the confessional. <<He>> doesn't write <<his>> name. <<grace -2>><<lgrace>>
+		"M-my name? I'm... I'm not sure about this..." <<He>> stays silent for a moment before leaving the confessional. <<He>> doesn't write <<his>> name. <<grace -2>><<lgrace>>
 	<<case "sinner_2">>
 		"Purification? I'll pass, I just wanted some quick fun." <<He>> exits the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_6">>
@@ -2482,15 +2721,15 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<case "sinner_8">>
 		"Yeah, nope, this is fucking weird. Goodbye." <<He>> exits the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_9">>
-		"Oh. Alright..." <<He>> hesitantly signs <<his>> name, and exits the booth. <<grace -2>><<lgrace>>
+		"Oh. Alright..." <<He>> hesitantly signs <<his>> name and exits the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_10">>
-		"Nope, don't exactly wan't to advertise this. Just came to clear my head." <<He>> leaves the confessional. <<grace -2>><<lgrace>>
+		"Nope, don't exactly want to advertise this. Just came to clear my head." <<He>> leaves the confessional. <<grace -2>><<lgrace>>
 	<<case "sinner_criminal_1">>
 		"I... I can't! You'll just... report me to the authorities! This was a mistake..." <<He>> quickly leaves the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_criminal_2">>
 		<<He>> laughs. "Do you think I'm stupid? You'll just use that info to get me locked up. Piss off." <<He>> quickly leaves the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_silent">>
-		<<He>> says nothing, and leaves the booth.
+		<<He>> says nothing and leaves the booth.
 	<<case "sinner_orphan_1" "sinner_orphan_2">>
 		"Purification...? I guess it can't hurt." <<He>> writes <<his>> name and exits the booth. <<grace -2>><<lgrace>><<hope -1>><<lhope>>
 	<<case "sinner_panty_thief">>
@@ -2508,15 +2747,40 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<case "temple_4" "temple_5">>
 		"Of course, <<sister>>. I will be pure again, one way or another." <<He>> writes <<his>> name and exits the confessional. <<grace -2>><<lgrace>>
 	<<case "temple_6">>
-		"R...right. Purification." <<His>> voice is full of dread. <<He>> writes <<his>> name and exits the confessional sheepishly.	<<grace -2>><<lgrace>>
+		"R...right. Purification." <<His>> voice is full of dread. <<He>> writes <<his>> name and exits the confessional sheepishly. <<grace -2>><<lgrace>>
+	<<case "punished_1">>
+		There's a horrible silence. "I..." <<His>> voice breaks. "Is this where they got th-those people? Does it all come from within? I-I can't do this. I won't, faith or not."
+		<br><br>
+
+		<<He>> rushes from the confessional without writing <<his>> name. <<grace -2>><<lgrace>>
+	<<case "punished_2">>
+		There's a tense silence. "You know what the temple does with these names, right?" <<He>> scoffs. "Doesn't matter. I shouldn't have expected anything else. Goodbye, <<sister>>. If you're smart, you'll leave too."
+		<br><br>
+
+		<<He>> exits the confessional. You sit in the silence. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		You hear <<him>> shudder. "Yeah," <<he>> says slowly. "I could record it from the other side. That's not a bad idea." <<He>> writes <<his>> name on the paper and leaves. <<grace -2>><<lgrace>>
+	<<case "punished_corrupt">>
+		"No, you simpleton," <<he>> says angrily. "I am meant to take in their corruption, not put more in the world! I suppose I'll return when there is a more competent confessor." <<He>> leaves in a huff. <<grace -2>><<lgrace>>
 	<<case "sydney_promised" "sydney_romance" "sydney_love">>
-		"What? I haven't broken my vow. Are you trying to...? No, nevermind. Good day, <<sister>>." <<He>> exits the confessional. <<grace -2>><<lgrace>>
+		"What? I haven't broken my vow. Are you trying to...? No, never mind. Good day, <<sister>>." <<He>> exits the confessional. <<grace -2>><<lgrace>>
+	<<case "sydney_doubt">>
+		<<run statusCheck("Sydney")>>
+		<<if _sydneyStatus.includes("corrupt")>>
+			"Not a chance. I haven't broken my vow, so I've got no reason to make amends."
+		<<else>>
+			"I don't think..." <<He>> trails off. "I mean, no. I haven't broken my vow, and neither has my beloved. We don't need to be purified."
+		<</if>>
+		You hear <<him>> shuffle as <<he>> stands.
+		<br><br>
+
+		"My beloved and I can withstand any test thrown at us. Our faith will drown our doubts. Thank you for being an example of everything the temple isn't, <<sister>>." <<He>> exits the confessional. You sneak a look through your door. <<He>> looks angry. <<grace -4>><<stress 3>><<llgrace>><<gstress>>
 	<<case "winter">>
 		"What is this? This was meant to be anonymous. I knew this was a mistake." <<He>> exits the booth slowly. <<grace -2>><<lgrace>>
 	<<default>>
-	<br><br>
+		<br><br>
 
-	"Thank you, <<sister>>." <<He>> exits the confessional. <<grace 1>><<ggrace>>
+		"Thank you, <<sister>>." <<He>> exits the confessional. <<grace 1>><<ggrace>>
 <</switch>>
 <br><br>
 
@@ -2525,7 +2789,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<set $daily.contritions to 0>>
 <</if>>
 
-<<link [[Next|Temple Confess Start]]>><<endconfession>><</link>>
+<<link [[Next|Temple Confess Start]]>><<handheldon>><<endconfession>><</link>>
 <br>
 
 :: Temple Confess Purify
@@ -2585,6 +2849,50 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		"No! No no no! Please!" <<His>> door opens. "It wasn't my fault! Please!"
 		The <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>> take <<him>>. <<grace 2>><<ggrace>><<stress 12>><<ggstress>><<trauma 6>><<gtrauma>>
+	<<case "punished_1">>
+		<<if $temple_confessor_intro>>
+			"Your doubt disgusts me. You must be purified. Please exit the booth and do not resist."
+		<<else>>
+			"You must be purified. I will summon the specialists. Please exit the booth and cooperate with them."
+		<</if>>
+		You pull the rope and ring the bell.
+		<br><br>
+
+		"Oh," <<he>> says, <<his>> voice oddly flat. "Right. I should have known that my faith was weak. Will this fix me? Will this fix me? Will this fix me?"
+		<br><br>
+
+		<<He>> repeats <<his>> question as the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>> lead <<him>> away. Soon <<his>> voice fades into the distance. The silence that follows is worse. <<grace -2>><<trauma 3>><<lgrace>><<gtrauma>>
+	<<case "punished_2">>
+		<<if $temple_confessor_intro>>
+			"You must be purified. Please exit the booth and do not resist."
+		<<else>>
+			"You must be purified. I will summon the specialists. Please exit the booth and cooperate with them."
+		<</if>>
+		You pull the rope and ring the bell.
+		<br><br>
+
+		"No!" <<he>> screams. The confessional shakes. "No, you can't do this to me! I won't go through it again! Please, <<sister>>, you don't understand, they're going to—"
+		<<His>> voice cuts off with a grunt. You hear <<him>> being dragged away. It sounds like <<hes>> crying. <<grace -2>><<stress 6>><<trauma 12>><<lgrace>><<gstress>><<ggtrauma>>
+	<<case "punished_3">>
+		<<if $temple_confessor_intro>>
+			"As you wish. You will be purified. Please exit the booth and do not resist."
+		<<else>>
+			"As you wish. You will be purified. I will summon the specialists. Please exit the booth and cooperate with them."
+		<</if>>
+		You pull the rope and ring the bell.
+		<br><br>
+
+		Before the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>> lead <<him>> away, they speak to each other in voices too low for you to make out. <<He>> cries out. "No, you can't take my recorder! That's mine! Give it back! Wait, please!" <<His>> pleas fall on deaf ears. All except for your own. <<grace 1>><<stress 3>><<trauma 6>><<ggrace>><<gstress>><<gtrauma>>
+	<<case "punished_corrupt">>
+		<<if $temple_confessor_intro>>
+			"You must be purified. Please exit the booth and do not resist."
+		<<else>>
+			"You must be purified. I will summon the specialists. Please exit the booth and cooperate with them."
+		<</if>>
+		You pull the rope and ring the bell.
+		<br><br>
+
+		"No, I'm too full!" <<he>> says. "If I let any more in, It will win. You're in league with It, you're letting It win!" <<He>> tries to fight the <<if $temple_confessor_intro>>confessors<<else>>specialists<</if>>, but they eventually subdue <<him>>. <<He>> screams as <<hes>> dragged away. <<gstress>><<stress 3>><<world_corruption "soft" 1>>
 	<<default>>
 		<<if $temple_confessor_intro>>
 			"You must be purified. Please exit the booth and do not resist."
@@ -2656,7 +2964,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<case "sinner_4" "sinner_5">>
 		"Woah, what?! Creep!" <<He>> flees the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_6">>
-		"You're... just trying to take advantage of me, because of what I told you!" <<He>> flees the booth. <<grace -2>><<lgrace>>
+		"You're... just trying to take advantage of me because of what I told you!" <<He>> flees the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_7">>
 		"Fuck no, at least at the brothel I'd get paid for this shit." <<He>> exits the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_8">>
@@ -2667,7 +2975,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<case "sinner_criminal_1" "sinner_criminal_2">>
 		"I clearly came to the wrong place." <<He>> quickly leaves the booth. <<grace -2>><<lgrace>>
 	<<case "sinner_silent">>
-		<<He>> says nothing, and leaves the booth.
+		<<He>> says nothing and leaves the booth.
 	<<case "sinner_orphan_1">>
 		"H...here too, huh? I... it's hopeless." <<He>> shuffles out of the booth. <<grace -2>><<lgrace>><<hope -1>><<lhope>>
 	<<case "sinner_orphan_2">>
@@ -2680,7 +2988,20 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<case "sinner_generic_rapist">>
 		<<set _accepted to true>>
 		"Is this some kind of sick joke? No, you're serious, aren't you?" <<He>> complies.
-	<<case "sydney_promised" "sydney_romance">>
+	<<case "punished_1">>
+		<<set _accepted to true>>
+		You hear <<him>> breathing. "If this is how I will be forgiven," <<he>> says at last, "I'll do anything, <<sister>>. Even if it means I have to endure this again."
+	<<case "punished_2">>
+		"Oh, <<Sister>>," <<he>> says with genuine sorrow. "I can't believe..." <<He>> stops. "No, I can believe they would do this. I'm so sorry. I'm so, so sorry."
+		<br><br>
+
+		<<He>> leaves the confessional in a hurry. You fix your clothing and sit back down. <<His>> words make you feel sad, though you don't know why. <<stress 3>><<gstress>>
+	<<case "punished_3">>
+		"Even the confessors are in on it?" <<he>> says. "That's so fucked up. This whole place is fucked. I'm out." <<He>> leaves the confessional, slamming the door so hard the whole thing rattles. <<stress 3>>
+	<<case "punished_corrupt">>
+		<<set _accepted to true>>
+		"Yes, yes," <<he>> says. "Oh, <<sister>>, yes, thank you. Please empty me so I may take in more."
+	<<case "sydney_promised" "sydney_romance" "sydney_doubt">>
 		<<set _noOptions to true>>
 		<<run statusCheck("Sydney")>>
 		<<if _sydneyStatus.includes("corrupt")>>
@@ -2693,7 +3014,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		<<link [[Reveal yourself|Temple Confess Purge Sydney]]>><</link>>
 		<br>
-		<<link [["Let " + $NPCList[0].pronouns.him + " leave"|Temple Confess Start]]>><<endconfession>><</link>>
+		<<link [[Let <<him>> leave|Temple Confess Start]]>><<endconfession>><</link>>
 		<br>
 	<<case "sydney_love">>
 		"Wh-what? I'm... not sure we're supposed to do that. I... I can't! I'm sorry!" <<He>> flees the confessional. <<grace -2>><<lgrace>><<npcincr "Sydney" purity -2>><<lspurity>>
@@ -2732,7 +3053,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 <<else>>
 	"Wh-why would you say something like that? I... I mean, I guess it was funny."
 <</if>>
-<<He>> laughs it off after a moment. "I trust you, so... maybe we should have a signal or something, so we can recognise each other in here." <<He>> thinks.
+<<He>> laughs it off after a moment. "I trust you, so... maybe we should have a signal or something so we can recognise each other in here." <<He>> thinks.
 "Ah! How about this. I'll <span class="blue">knock on the door frame three times</span> whenever I enter this side. That way you know it's me."
 <br><br>
 
@@ -2780,7 +3101,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 	<<He>> sits next to you on the bench.
 	<<if _sydneyStatus.includes("Lust")>>
-		You place a hand on <<his>> chest, and gently push <<him>> into a lying position. <<He>> lets out a held breath and embraces you.
+		You place a hand on <<his>> chest and gently push <<him>> into a lying position. <<He>> lets out a held breath and embraces you.
 		<<sydneyLewd>>
 		<br><br>
 
@@ -2790,14 +3111,12 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<br><br>
 		<<set $seductiondifficulty to 8000 - ((C.npc.Sydney.love + C.npc.Sydney.lust) * 15) - C.npc.Sydney.purity>>
 		<<seductioncheck>>
-		<br><br>
+		<<seductionskilluptext>>
+		<<seductionskilluse>>
 
-		<<if $seductionskill lt 1000>><span class="gold">You feel more confident in your powers of seduction.</span><</if>><<seductionskilluse>>
-		<br><br>
-
-		You place a hand on <<his>> chest, and ease <<him>> into a lying position.
+		You place a hand on <<his>> chest and ease <<him>> into a lying position.
 		<<if $seductionrating gte $seductionrequired>>
-			<span class="green"><<He>> lets out a held breath, and embraces you.</span>
+			<span class="green"><<He>> lets out a held breath and embraces you.</span>
 			<<sydneyLewd>>
 			<br><br>
 
@@ -2807,7 +3126,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 			"W-wait! I... I really don't know about this... I've..." <<He>> lightly trembles.
 			<<sydneySexFail>>
 			<br>
-			You decide to take it slow, in light of <<his>> hesitation.
+			You decide to take it slow in light of <<his>> hesitation.
 			You begin to <<handtext>> fondle <<his>> <<sydneyGenitals>> through <<his>> underwear<<if !$sydneyChastityKnown and _sydneyChastity>>, <span class="lewd">but you feel something obstructing you</span><</if>>. <<He>> looks nervous, but doesn't stop you. <<He>> gingerly spreads <<his>> legs to give you easier access. You remove <<his>> underwear.
 			<br><br>
 			<<sydneyExpose>> You waste no time pleasuring <<him>><<if _sydneyChastity>> through <<his>> belt<</if>>. <<He>> blushes and looks away as <<he>> gradually gets <<if $NPCList[0].penis isnot "none">>erect<<else>>wet<</if>> from your touch. You keep it up for a while, eventually leaning forward and kissing <<his>> neck, which elicits a moan.
@@ -2869,16 +3188,41 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<<link [[Next|Temple Confess Sydney Sex]]>><<set $speechdisable to 0>><</link>>
 		<br>
 	<<else>>
-		<<if $NPCList[0].vagina.toString().includes("mouth")>>
+		<<set _sydtext to "Sydney">>
+		<<if $neckuse is "hand">>
+			<<if $NPCList[0].lefthand is "throat">>
+				<<set $NPCList[0].lefthand to 0>>
+			<</if>>
+			<<if $NPCList[0].righthand is "throat">>
+				<<set $NPCList[0].righthand to 0>>
+			<</if>>
+			Sydney releases your <<if $mouthuse>>neck<<else>>neck.<</if>>
+			<<set _sydtext to " and">>
+			<<set $neckuse to 0>>
+		<</if>>
+		<<if $NPCList[0].vagina.toString().includes("facesit") or ($NPCList[0].vagina.toString().includes("mouth") and $NPCList[0].vagina isnot "othermouth")>>
 			<<set $NPCList[0].vagina to 0>>
-			Sydney withdraws from your mouth.
-		<<elseif $NPCList[0].penis.toString().includes("mouth")>>
+			<<set $NPCList[0].location.genitals to 0>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].penis.toString().includes("mouth") and $NPCList[0].penis isnot "othermouth">>
 			<<set $NPCList[0].penis to 0>>
-			Sydney withdraws from your mouth.
-		<<elseif $mouthuse is "kiss" and $NPCList[0].mouth is "kiss">>
+			<<set $NPCList[0].location.genitals to 0>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].mouth.toString().includes("kiss")>>
 			<<set $NPCList[0].mouth to 0>>
-			Sydney pulls out of the kiss.
-		<<else>>
+			<<set $NPCList[0].location.head to 0>>
+			_sydtext pulls out of the kiss.
+		<<elseif $mouthuse is "breasts">>
+			<<set $NPCList[0].chest to 0>>
+			<<set $NPCList[0].location.head to 0>>
+			<<if [$NPCList[0].lefthand].includesAny("head_breasts", "head_nipples")>>
+				<<set $NPCList[0].lefthand to 0>>
+			<</if>>
+			<<if [$NPCList[0].righthand].includesAny("head_breasts", "head_nipples")>>
+				<<set $NPCList[0].righthand to 0>>
+			<</if>>
+			_sydtext withdraws from your mouth.
+		<<elseif _sydtext is "Sydney">>
 			Sydney stops.
 		<</if>>
 		<<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>><<set $head to 0>>
@@ -2902,7 +3246,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 			<<elseif $speech_attitude is "meek">>
 				"Y-you're forgiven by word, but you must forgive yourself by act," you say.
 			<<elseif $speech_attitude is "bratty">>
-				"You're forgiven. But you still need to forgive yourself," you say.
+				"You're forgiven, but you still need to forgive yourself," you say.
 			<<else>>
 				"You're forgiven, but you need to act to forgive yourself," you say.
 			<</if>>
@@ -2914,16 +3258,15 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 				<<case "sinner_2">>
 					"I'm forgiven? Ah, thank you, <<sister>>!" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> exits the booth. <<grace -2>><<lgrace>>
 				<<case "sinner_3">>
-					"Forgiven? How could you just forgive me after what I did? Did you even listed to a word I said?" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> storms out of the booth. <<grace -2>><<lgrace>>
+					"Forgiven? How could you just forgive me after what I did? Did you even listen to a word I said?" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> storms out of the booth. <<grace -2>><<lgrace>>
 			<</switch>>
-			<br><br>
 		<<case "repent">>
 			<<if $angel gte 6 or ($confessionsTaken gte 10 and $grace gte 25)>>
 				"Repent. Change your ways, and you'll be forgiven," you say with confidence.
 			<<elseif $speech_attitude is "meek">>
 				"Y-you're forgiven by word, but you still need to repent," you say.
 			<<elseif $speech_attitude is "bratty">>
-				"You're forgiven. But you need to get your shit together and repent," you say.
+				"You're forgiven, but you need to get your shit together and repent," you say.
 			<<else>>
 				"You're forgiven, but you need to repent," you say.
 			<</if>>
@@ -2941,7 +3284,8 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 			<<if !$daily.contritions>>
 				<<set $daily.contritions to 0>>
 			<</if>>
-			You reach for one of the pieces of paper from the stack. You strain, but can't reach it with Sydney in the way. <<He>> grabs one for you, and produces a red pen from <<his>> robes. You slip them through the metal shutter.
+			<<wearProp "pen">>
+			You reach for one of the pieces of paper from the stack. You strain, but can't reach it with Sydney in the way. <<He>> grabs one for you and produces a red pen from <<his>> robes. You slip them through the metal shutter.
 			<br><br>
 
 			"To make amends, you must return to us at a later date. Please write your full name and address here. The specialists will assist you in purification."
@@ -2950,7 +3294,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 				<<case "sinner_1">>
 					"My name? I'm... I'm not comfortable doing that!" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> exits the booth. <<grace -2>><<lgrace>>
 				<<case "sinner_2">>
-					"I... you're just going to use my name to turn me in!" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>>storms out of the booth. <<grace -2>><<lgrace>>
+					"I... you're just going to use my name to turn me in!" <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> storms out of the booth. <<grace -2>><<lgrace>>
 				<<case "sinner_3">>
 					<<set $sydneyConfession.Choice to "correct">><<set $daily.contritions ++>>
 					"Purification. Of course. Thank you, <<sister>>." <<if $sydneyConfession.Pronoun is "m">>He<<else>>She<</if>> signs <<if $sydneyConfession.Pronoun is "m">>his<<else>>her<</if>> name and exits the booth. <<grace 1>><<ggrace>>
@@ -2975,12 +3319,22 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<</switch>>
 	<br><br>
 
-	<<link [[Next|Temple Confess Sydney Sex]]>><<set $speechdisable to 0>><</link>>
+	<<link [[Next|Temple Confess Sydney Sex]]>><<handheldon>><<set $speechdisable to 0>><</link>>
 	<br>
 <<else>>
 	<<set $enemyanger to -10>>
 	<<temple_effects>><<effects>>
 	<<effectsman>>
+	<<if $neckuse is "hand" and $timer is 4>>
+		<<set _neckused to 1>>
+		<<if $NPCList[0].lefthand is "throat">>
+			<<set $NPCList[0].lefthand to 0>>
+		<</if>>
+		<<if $NPCList[0].righthand is "throat">>
+			<<set $NPCList[0].righthand to 0>>
+		<</if>>
+		<<set $neckuse to 0>>
+	<</if>>
 	<<man>>
 	<<if _sound is 1>>
 		<<set $sydneyConfession.Sound++>>
@@ -2998,15 +3352,33 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<<set $speechdisable to 1>>
 		<span class="red">The other door opens.</span> You both freeze, and Sydney covers <<his>> mouth.
 		<br><br>
-		<<if $NPCList[0].vagina.toString().includes("mouth")>>
+		<<set _sydtext to "Sydney">>
+		<<if _neckused>>
+			<<set _sydtext to "<<He>>">>
+			Sydney releases your neck. <<gaspair>>
+		<</if>>
+		<<if $NPCList[0].vagina.toString().includes("facesit") or ($NPCList[0].vagina.toString().includes("mouth") and $NPCList[0].vagina isnot "othermouth")>>
 			<<set $NPCList[0].vagina to 0>>
-			Sydney withdraws from your mouth.
-		<<elseif $NPCList[0].penis.toString().includes("mouth")>>
+			<<set $NPCList[0].location.genitals to 0>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].penis.toString().includes("mouth") and $NPCList[0].penis isnot "othermouth">>
 			<<set $NPCList[0].penis to 0>>
-			Sydney withdraws from your mouth.
-		<<elseif $mouthuse is "kiss" and $NPCList[0].mouth is "kiss">>
+			<<set $NPCList[0].location.genitals to 0>>
+			_sydtext withdraws from your mouth.
+		<<elseif $NPCList[0].mouth.toString().includes("kiss")>>
 			<<set $NPCList[0].mouth to 0>>
-			Sydney pulls out of the kiss.
+			<<set $NPCList[0].location.head to 0>>
+			_sydtext pulls out of the kiss.
+		<<elseif $mouthuse is "breasts">>
+			<<set $NPCList[0].chest to 0>>
+			<<set $NPCList[0].location.head to 0>>
+			<<if [$NPCList[0].lefthand].includesAny("head_breasts", "head_nipples")>>
+				<<set $NPCList[0].lefthand to 0>>
+			<</if>>
+			<<if [$NPCList[0].righthand].includesAny("head_breasts", "head_nipples")>>
+				<<set $NPCList[0].righthand to 0>>
+			<</if>>
+			_sydtext withdraws from your mouth.
 		<</if>>
 		<<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>><<set $head to 0>>
 		<<switch _sydneyArousal>>
@@ -3029,12 +3401,12 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		The penitent sighs. A <<if $sydneyConfession.Pronoun is "m">>man's<<else>>woman's<</if>> voice greets you.
 		<<if $orgasmdown gte 1>>
 			<<set $sydneyConfession.Sound++>>
-			"Forgive me, <<sister>>, for I have... is everything alright?" You rapidly nod your head, before remembering that <<if $sydneyConfession.Pronoun is "m">>he<<else>>she<</if>> can't see you.
+			"Forgive me, <<sister>>, for I have... is everything alright?" You rapidly nod your head before remembering that <<if $sydneyConfession.Pronoun is "m">>he<<else>>she<</if>> can't see you.
 			<br><br>
 
 			"Eh... everything's fine," you say, trying to stifle your moans. "Lay my... uh, your sins bare, so they may be fuh... forgiven."
 		<<elseif _sound>>
-			"Forgive me, <<sister>>, for I have... is everything alright?" You rapidly nod your head, before remembering that <<if $sydneyConfession.Pronoun is "m">>he<<else>>she<</if>> can't see you.
+			"Forgive me, <<sister>>, for I have... is everything alright?" You rapidly nod your head before remembering that <<if $sydneyConfession.Pronoun is "m">>he<<else>>she<</if>> can't see you.
 			<br><br>
 
 			"Everything's fine. Lay your sins bare, so they may be forgiven," you say.
@@ -3125,7 +3497,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		<<if $corruptionRollover is 1>>
 			<<unset $corruptionRollover>>
-			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 		<<else>>
 			<<switch _sydneyStatus>>
 				<<case "corrupt" "corruptLust">>
@@ -3139,9 +3511,9 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 		<<if $corruptionRollover is 1>>
 			<<unset $corruptionRollover>>
 			<<if $sydneyConfession.State isnot "">>
-				"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+				"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 			<<else>>
-				"Th-that was incredible," <<he>> murmurs. "I want... I want to do it again. And... again." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+				"Th-that was incredible," <<he>> murmurs. "I want... I want to do it again. And... again." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 			<</if>>
 		<<else>>
 			<<if $sydneyConfession.State is "exposed">>
@@ -3192,7 +3564,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		<<if $corruptionRollover is 1>>
 			<<unset $corruptionRollover>>
-			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 		<<else>>
 			<<switch _sydneyStatus>>
 				<<case "corrupt" "corruptLust">>
@@ -3204,12 +3576,12 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<<else>>
 		<<if $corruptionRollover is 1>>
 			<<unset $corruptionRollover>>
-			Sydney lets out a pained moan, and quickly covers <<his>> mouth to stifle it. "Th-that was..." <<He>> gazes into your eyes. "I think I like it when you're rough with me. <span class="lewd">I feel like a whole world just opened up.</span>"
+			Sydney lets out a pained moan and quickly covers <<his>> mouth to stifle it. "Th-that was..." <<He>> gazes into your eyes. "I think I like it when you're rough with me. <span class="lewd">I feel like a whole world just opened up.</span>"
 		<<else>>
 			<<switch _sydneyStatus>>
 				<<case "pure" "pureLust">>
 					<<if $enemyarousal gte ($enemyarousalmax / 5) * 2>>
-						Sydney lets out a pained moan, and quickly covers <<his>> mouth to stifle it. <<He>> looks down in shame. "I... I think I've had enough..."
+						Sydney lets out a pained moan and quickly covers <<his>> mouth to stifle it. <<He>> looks down in shame. "I... I think I've had enough..."
 					<<else>>
 						"H-hey! Stop! Please!" Sydney quickly separates from you. "Th-that really hurt... I mean, I still kind of liked it, but..." <<his>> face flushes, and <<he>> looks away. "M...maybe we can finish this some other time..."
 					<</if>>
@@ -3240,7 +3612,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		<<if $corruptionRollover is 1>>
 			<<unset $corruptionRollover>>
-			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. "<span class="lewd">I feel like a whole world just opened up.</span>"
+			"Th-that was so thrilling," <<he>> murmurs. "I've never felt so alive." <<He>> gazes into your eyes. <span class="lewd">"I feel like a whole world just opened up."</span>
 		<<else>>
 			<<switch _sydneyStatus>>
 				<<case "corrupt" "corruptLust">>
@@ -3314,6 +3686,153 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 <<link [[Next|Temple Confess Start]]>><<endconfession>><</link>>
 <br>
 
+:: Temple Confess Wraith
+<<temple_effects>><<effects>><<rainWraith>>
+
+A voice starts to speak. "My faith led me to suffer. I begged my brothers and sisters for aid as the water rose to my head. They turned their backs to me and became shadows. I know they heard me. Could they not feel my lungs burning for air, or the cold rush of water dousing my life? What of the binds around my limbs that yet entomb me in my own demise? Where were they?"
+<br><br>
+
+You realise that your lips are forming the words as you listen. It's no longer clear who's speaking and who's listening.
+<<if $wraith.state is "haunt">>The voice distorts. "Where were you, <<pcpetname "Wraith">>?"<</if>>
+<br><br>
+
+The voice stops. It awaits its answer. The water rises up to your hips. <<stress 6>><<trauma 12>><<gstress>><<ggtrauma>>
+<br><br>
+
+<span class="wraith"><<link [[Forgive|Temple Confess Wraith Result]]>><<set $phase to 0>><</link>></span>
+<br>
+<span class="wraith"><<link [[Repent|Temple Confess Wraith Result]]>><<set $phase to 1>><</link>></span>
+<br>
+<span class="wraith"><<link [[Contrition|Temple Confess Wraith Result]]>><<set $phase to 2>><</link>></span>
+<br>
+<span class="wraith"><<link [[Purge|Temple Confess Wraith Result]]>><<set $phase to 3>><</link>></span>
+<br>
+<span class="wraith"><<link [[Ring the bell|Temple Confess Wraith Result]]>><<set $phase to 4>><</link>></span>
+<br>
+
+:: Temple Confess Wraith Result
+<<temple_effects>><<effects>>
+<<switch $phase>>
+	<<case 0>>
+		<<if $angel gte 6 or ($confessionsTaken gte 10 and $grace gte 25)>>
+			You stand and draw a shape you have never seen before against the seal of confession. Your hand burns.
+			<<if $wraith.state is "haunt">>
+				"You can never be forgiven by word or action,"
+			<<else>>
+				"You cannot be forgiven by word. Action is your only choice,"
+			<</if>>
+			you say with confidence.
+		<<elseif $speech_attitude is "meek">>
+			<<if $wraith.state is "haunt">>
+				"Y-you can't be forgiven,"
+			<<else>>
+				"You h-have to e-earn forgiveness,"
+			<</if>>
+			you whisper.
+		<<elseif $speech_attitude is "bratty">>
+			<<if $wraith.state is "haunt">>
+				"You'll never be forgiven,"
+			<<else>>
+				"Words won't forgive you. Only actions will,"
+			<</if>>
+			you say.
+		<<else>>
+			<<if $wraith.state is "haunt">>
+				"You won't be forgiven so easily,"
+			<<else>>
+				"You won't be forgiven until you act on your wrongs,"
+			<</if>>
+			you say.
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">Speak the sea,</span>" the voice says.
+	<<case 1>>
+		<<if $angel gte 6 or ($confessionsTaken gte 10 and $grace gte 25)>>
+			You stand and draw a shape you have never seen before against the seal of confession. Your hand burns.
+			<<if $wraith.state is "haunt">>
+				"Repentance won't save you,"
+			<<else>>
+				"Repent through action,"
+			<</if>>
+			you say with confidence.
+		<<elseif $speech_attitude is "meek">>
+			<<if $wraith.state is "haunt">>
+				"T-there is no r-repenting,"
+			<<else>>
+				"Y-you must repent through your a-actions,"
+			<</if>>
+			you say.
+		<<elseif $speech_attitude is "bratty">>
+			<<if $wraith.state is "haunt">>
+				"It's meaningless to repent now,"
+			<<else>>
+				"You can still undo the damage you caused if you repent,"
+			<</if>>
+			you say.
+		<<else>>
+			<<if $wraith.state is "haunt">>
+				"There's no salvation in repenting,"
+			<<else>>
+				"Your only hope is to repent,"
+			<</if>>
+			you say.
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">Take the apple. Smash it. Try to piece it back together,</span>" the voice says.
+	<<case 2>>
+		You grab one of the pieces of paper and a pen from the stack and slip them through the metal shutter. It shrivels into glowing purple dust on the other side.
+		<<if $wraith.state is "haunt">>
+			"You can't make amends. Please write your full name and address here. The specialist will find you when the moon is red."
+		<<else>>
+			"The specialist can't help you make amends. You must do that yourself."
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">How do you restore a broken heart?</span>" the voice asks.
+	<<case 3>>
+		"I name myself <span class="red">corrupted</span>." You remove your clothes, position yourself against the seal, and open the small metal shutter. "You will take my corruption into yourself, <<if $wraith.state is "haunt">>but I will never be forgiven<<else>>and I will be on the path to forgiveness<</if>>."
+		<br><br>
+
+		"<span class="wraith">Light reflects. Darkness absorbs. We are reflections.</span>"
+	<<default>>
+		"I must face my crime. I will exit the booth and won't resist." You pull the rope and ring the bell. Instead of its usual sound, you hear
+		<<if $seabird_lullaby gte 2>>
+			<span class="teal">Seabird's Lullaby</span> toll throughout the temple.
+		<<else>>
+			<<set $seabird_lullaby to 1>>
+			a <span class="teal">haunting yet familiar melody</span>.
+		<</if>>
+		<br><br>
+
+		"<span class="wraith">Legends begin with a stolen glance.</span>"
+<</switch>>
+<br><br>
+
+The water surges upwards, covering your head before you can react. You hold your breath for as long as you can. Instinct overrides logic, forcing you to open your mouth and let the water rush in.
+<br><br>
+
+<<link [[Next|Temple Confess Wraith End]]>><</link>>
+<br>
+
+:: Temple Confess Wraith End
+<<temple_effects>><<effects>>
+You wake some time later, alone. Water drips from your hair and soaks into your clothes.
+<<silently>><<water>><<effectswater "water">><<exposure>><<covered>><</silently>>
+Doubts assail you,
+<<if $demon gte 6>>
+	but you think you understand. <<awareness 5>><<gawareness>>
+<<elseif $angel gte 6>>
+	but the purity within you burns them away.
+<<else>>
+	and you are left to face them alone.
+<</if>>
+<br><br>
+
+<<link [[Next|Temple Confess Start]]>><<endconfession>><</link>>
+<br>
+
 :: Temple Confess Purge Sex
 
 <<if $sexstart is 1>>
@@ -3366,6 +3885,8 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 			"Th-thank you for your forgiveness, <<sister>>..." <<He>> sheepishly dresses and leaves.
 		<<case "sinner_generic_rapist">>
 			"You've... you've indulged my horrible thoughts. I'm worse than I was before!" <<He>> gets dressed and storms out of the confessional.
+		<<case "punished_1">>
+			"Was this enough? Am I forgiven? Am I pure?" <<he>> asks. "Am I pure? Am I pure?" <<He>> continues to ask as <<he>> gets dressed and leaves. You wonder if anyone is listening to <<his>> prayer. <<stress 3>><<gstress>>
 		<<default>>
 			"Th-thank you for your forgiveness, <<sister>>..." <<He>> sheepishly dresses and leaves.
 	<</switch>>
@@ -3387,13 +3908,13 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 	<</if>>
 	<<switch $attendant>>
 		<<case "corrupt_5_fake">>
-			"Fuck! You saw through my ruse after all, huh? Stupid bitch, I'll remember this!" <<He>> flees the booth. <<grace 2>><<ggrace>>
+			"Fuck! You saw through my ruse after all, huh? Stupid <<bitch>>, I'll remember this!" <<He>> flees the booth. <<grace 2>><<ggrace>>
 		<<case "sinner_2">>
 			"Ow! Fuck! Why?!" <<He>> gets dressed and leaves the booth in a hurry. <<grace 2>><<ggrace>>
 		<<case "sinner_10">>
 			"Nope. I'll stick to fruit from now on." <<He>> gets dressed and leaves the booth. <<grace 2>><<ggrace>>
 		<<case "sinner_generic_rapist">>
-			"Okay... okay! I get it! Ill never rape again!" <<He>> gets dressed and storms out of the confessional. <<grace 2>><<ggrace>>
+			"Okay... okay! I get it! I'll never rape again!" <<He>> gets dressed and storms out of the confessional. <<grace 2>><<ggrace>>
 		<<default>>
 			You hear <<him>> getting dressed, and <<he>> leaves the booth in a hurry. <<grace -2>><<lgrace>>
 	<</switch>>
@@ -3421,15 +3942,20 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>><<set $gloryholestat += 1>>
 	<<if $temple_confessor_intro>>
-		<<if $NPCList[0].vagina.toString().includes("mouth") or $NPCList[0].penis.toString().includes("mouth")>>
-			<span class="lewd">You take in the corruption.</span>
+		<<if $NPCList[0].vagina.toString().includes("mouth") or ["mouth", "vagina", "anus"].includes($NPCList[0].penis.toString())>>
+			<span class="lewd">You take the corruption into your body directly.</span>
 		<<else>>
-			The silver vessel fills with a glowing pink fluid. <span class="lewd">You tilt the bowl, and take in the corruption.</span>
+			<<wearProp "aphrodisiac jar">>
+			The silver vessel fills with a glowing pink fluid. <span class="lewd">You tilt the bowl and take in the corruption.</span>
 		<</if>>
 		<<if $angel gte 6>>
-			<span class="gold">The purity within you snuffs it.</span>
+			<span class="gold">The purity within you clashes with it, snuffing it out.</span><<trauma 6>><<pain 1>><<gtrauma>><<gpain>>
+		<<elseif $fallenangel gte 2 and $fallenangel lt 4>>
+			<span class="black">It rushes to fill the emptiness inside of you, and vanishes within. You feel nothing.</span>
 		<<elseif $demon gte 6>>
 			<span class="purple">It melds with your very being.</span><<stress -12>><<trauma -6>><<purity -40>><<llstress>><<ltrauma>><<lllpurity>>
+		<<elseif $dryad gte 6>>
+			<span cass="red">You feel violently ill as it twists your connection to the world. Your blossom turns sickly for a moment.</span><<stress 12>><<trauma 24>><<pain 10>><<ggstress>><<ggtrauma>><<ggpain>>
 		<<else>>
 			<<purity -25>><<llpurity>>
 		<</if>>
@@ -3438,7 +3964,7 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 
 		<<switch $attendant>>
 			<<case "corrupt_1">>
-				"The holes... they're gone. They're gone!" <<He>> cries out in rapture. "Thank you, <<sister>>!" <<He>> dresses and leaves.
+				"The holes... they're gone. They're gone!" <<he>> cries out in rapture. "Thank you, <<sister>>!" <<He>> dresses and leaves.
 			<<case "corrupt_2">>
 				"I feel... different. Better. Thank you, <<sister>>." <<He>> dresses and leaves.
 			<<case "corrupt_3">>
@@ -3453,6 +3979,8 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 				You hear a heavy gasp. "F-finally! It's over! I owe you one, doll." <<He>> dresses and leaves.
 			<<case "corrupt_9">>
 				"Ahh, a fine expulsion. Thank you, dear <<sister>>." <<He>> dresses and leaves.
+			<<case "punished_corrupt">>
+				<<He>> cries out in rapture. "You are a blessing," <<he>> says. <<His>> voice shakes with tearful relief. "<<Sister>>, the holes are gone. You have restored my faith. Thank you. Thank you." <<He>> dresses and leaves.
 			<<default>>
 				"Ahh, a fine expulsion. Thank you, dear <<sister>>." <<He>> dresses and leaves.
 		<</switch>>
@@ -3505,8 +4033,8 @@ You grab one of the pieces of paper and a pen from the stack and slip them throu
 <</if>>
 
 :: Temple Confess Inspect
-<<temple_effects>><<effects>>
-You feel an irresistable pull towards the glowing fluid. Before you know it, you've tilted the bowl and <span class="lewd">consumed it all.</span> <<grace 1>><<ggrace>>
+<<temple_effects>><<effects>><<wearProp "aphrodisiac jar">>
+You feel an irresistible pull towards the glowing fluid. Before you know it, you've tilted the bowl and <span class="lewd">consumed it all.</span> <<grace 1>><<ggrace>>
 <br><br>
 
 You don't know why you just did that. It was almost automatic. But a single thought intrudes in the back of your mind:
@@ -3515,9 +4043,9 @@ You don't know why you just did that. It was almost automatic. But a single thou
 <span class="lewd">More. Drain more. Purify <<him>>.</span>
 <br><br>
 
-<<link [[Drain more|Temple Confess Drain]]>><<set $phase to 1>><<grace 1>><</link>><<ggrace>>
+<<link [[Drain more|Temple Confess Drain]]>><<handheldon>><<set $phase to 1>><<grace 1>><</link>><<ggrace>>
 <br>
-<<link [[Stop|Temple Confess Stop]]>><<set $phase to 0>><</link>>
+<<link [[Stop|Temple Confess Stop]]>><<handheldon>><<set $phase to 0>><</link>>
 <br>
 
 :: Temple Confess Drain
@@ -3543,7 +4071,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 		<<link [[Drain more|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [["Let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
+		<<link [[Let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
 		<br>
 	<<case 3>>
 		You make sure <<he>> doesn't pull away. <span class="lewd">You drain more.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3551,7 +4079,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 		<<link [[Drain|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
 		<br>
 	<<case 4>>
 		<<He>> tries to pull away. <span class="lewd">The seal of confession won't let <<him>>. Purge <<him>> of sin.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3559,7 +4087,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 		<<link [[Drain!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
 		<br>
 	<<case 5>>
 		<<He>> ejaculates again. <span class="lewd">Purge <<him>> of sin.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3567,7 +4095,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 		<<link [[Purge!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 		<br>
-		<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
+		<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
 		<br>
 	<<case 6>>
 		<<He>> ejaculates again. <span class="lewd">Purify <<him>>.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3606,7 +4134,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 			<<link [[Drain more|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [["Let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
+			<<link [[Let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 100 1100>>
 			<br>
 		<<case 3>>
 			You make sure <<he>> doesn't pull away. <span class="lewd">You drain more.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3614,7 +4142,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 			<<link [[Drain|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 200 1200>>
 			<br>
 		<<case 4>>
 			<<He>> tries to pull away. <span class="lewd">The seal of confession won't let <<him>>. Purge <<him>> of sin.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3622,7 +4150,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 			<<link [[Drain!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 300 1300>>
 			<br>
 		<<case 5>>
 			<<He>> ejaculates again. <span class="lewd">Purge <<him>> of sin.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3630,7 +4158,7 @@ You don't know why you just did that. It was almost automatic. But a single thou
 
 			<<link [[Purge!|Temple Confess Drain]]>><<set $phase++>><<grace 1>><</link>><<ggrace>><<lpurity>>
 			<br>
-			<<link [["Try to let " + $NPCList[0].pronouns.him + " go"|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
+			<<link [[Try to let <<him>> go|Temple Confess Stop]]>><<set $phase++>><</link>><<willpowerdifficulty 400 1400>>
 			<br>
 		<<case 6>>
 			<<He>> ejaculates again. <span class="lewd">Purify <<him>>.</span> <<ggrace>><<purity -5>><<lpurity>>
@@ -3698,7 +4226,7 @@ You awaken with a start. You're on a stone bed, surrounded by figures in dark ro
 "The vessel awakens."<br>
 "Hush."<br><br>
 
-Three of the figures step forward, with the <<person1>><<priest>> in the middle taking an extra step. The light of torches and braziers illuminate silver hooks. <<He>> pulls down <<his>> hood revealing a head of long, dark hair.
+Three of the figures step forward, with the <<person1>><<priest>> in the middle taking an extra step. The light of torches and braziers illuminate silver hooks. <<He>> pulls down <<his>> hood, revealing a head of long, dark hair.
 <<if $kylar_manor_secret is 3>>
 	<span class="blue">You recognise <<him>>.</span> <<Hes>> the <<priest>> that told you about the monstrance in Kylar's manor.
 <</if>>
@@ -3718,7 +4246,7 @@ Three of the figures step forward, with the <<person1>><<priest>> in the middle 
 :: Temple Confessor Intro 3
 <<temple_effects>><<effects>>
 
-"You no doubt have questions. But I have two for you, first." <<person1>><<He>> takes a step forward. You instictively push yourself back. <<He>> gestures to <<his>> sides.<br>
+"You no doubt have questions. But I have two for you, first." <<person1>><<He>> takes a step forward. You instinctively push yourself back. <<He>> gestures to <<his>> sides.<br>
 "Tea?" asks the <<person2>><<priest>> to <<person1>><<his>> right.<br>
 "...or coffee?" asks the <<person3>><<priest>> to <<person1>><<his>> left.<br><br>
 
@@ -3749,9 +4277,9 @@ You clasp the mug, relishing in its warmth. <<He>> rejoins the <<person1>><<prie
 <br><br>
 
 <<if $phase is 0>>
-	The left <<person3>><<priest>> returns with a chair, and joins <<his>> right hand with the other <<person2>><<priest>>'s left.
+	The left <<person3>><<priest>> returns with a chair and joins <<his>> right hand with the other <<person2>><<priest>>'s left.
 <<else>>
-	The right <<person2>><<priest>> returns with a chair, and joins <<his>> left hand with the other <<person3>><<priest>>'s right.
+	The right <<person2>><<priest>> returns with a chair and joins <<his>> left hand with the other <<person3>><<priest>>'s right.
 <</if>>
 The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> face seems much more gentle. "My second question," <<he>> starts. "How was it? Your first time?"<br>
 "Your first purge?"<br>
@@ -3767,9 +4295,9 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 :: Temple Confessor Intro 5
 <<temple_effects>><<effects>>
 <<if $phase is 0>>
-	<<He>> smiles, and licks <<his>> lips. "Relish in it. The first is always the most intense. It won't be as potent next time."
+	<<He>> smiles and licks <<his>> lips. "Relish in it. The first is always the most intense. It won't be as potent next time."
 <<elseif $phase is 1>>
-	<<He>> smiles, and lets out a low belly laugh. "Don't worry. The first is always the most intense. You'll have much more control over yourself next time."
+	<<He>> smiles and lets out a low belly laugh. "Don't worry. The first is always the most intense. You'll have much more control over yourself next time."
 <<else>>
 	<<He>> gives you a patient smile. "You're still confused. It's alright. The first is always the most intense. It will become easier, and the effects won't last as long."
 <</if>>
@@ -3816,7 +4344,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		"Destiny?"<br>
 		"Providence?"<br><br>
 	<<case "jordan">>
-		The <<bishop>> laughs. Hard. <<He>> throws <<his>> head back, and wipes a tear from <<his>> face. "Get comfortable, sweet child." All the other dark-robed figures sit down.
+		The <<bishop>> laughs. Hard. <<He>> throws <<his>> head back and wipes a tear from <<his>> face. "Get comfortable, sweet child." All the other dark-robed figures sit down.
 		<br><br>
 
 		"Jordan's flock is the face of our order. They take confessions. They give alms, and run the soup kitchen, and smite the creatures from the other side that creep through the holes. But they won't ever harm... us. Humans. They're powerless against humans who have fallen to corruption. This is why we're needed."
@@ -3829,7 +4357,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		Could they ever fight the <i>human</i> monsters? No, if Jordan knew what we were capable of, it would cause another schism. But make no mistake. Jordan is our <<nnpc_brother "Jordan">>. Family. Kin. We all work towards the same goal. We all seek to protect. We all seek to rid the world of the Dark Elk's taint."
 		<br><br>
 
-		<<He>> pauses, and frowns. "More than that, Jordan is strong. Stronger than all of us. Stronger than we could ever hope to be. <<nnpc_His "Jordan">> innocence makes <<nnpc_him "Jordan">> so. That innocence is a shield, one that the Children of Auriga can never pierce. Belief is real, more real than the Elk's vile spawn. It is vital that Jordan remains unaware of what we do, lest our shield splinter. The seal of confession must hold, or all the world will drown."<br>
+		<<He>> pauses and frowns. "More than that, Jordan is strong. Stronger than all of us. Stronger than we could ever hope to be. <<nnpc_His "Jordan">> innocence makes <<nnpc_him "Jordan">> so. That innocence is a shield, one that the Children of Auriga can never pierce. Belief is real, more real than the Elk's vile spawn. It is vital that Jordan remains unaware of what we do, lest our shield splinter. The seal of confession must hold, or all the world will drown."<br>
 		"Our greatest strength."<br>
 		"Our greatest weakness."<br><br>
 
@@ -3892,7 +4420,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		"Pure."<br><br>
 		<<unset $drainedAge>><<unset $drainedPronoun>>
 
-		"You drained the corruption of Auriga, and purified it within your body."<br>
+		"You drained the corruption of Auriga and purified it within your body."<br>
 		"Vessel."<br>
 		"Purifier." <<gawareness>><<awareness 10>><br><br>
 	<<case "how">>
@@ -3901,7 +4429,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		"A single missing feather." <<ggawareness>><<awareness 20>>
 		<br><br>
 
-		"Through these holes, Auriga's corruption seeps in. It infests. It tempts. It bends the will of those it seeps into, who, knowing or otherwise, make the holes larger. This corruption is... released from a victim," <<he>> licks <<his>> lips, "by the peak moment of coitus."<br>
+		"Through these holes, Auriga's corruption seeps in. It infests. It tempts. It bends the will of those it seeps into, who, knowing or otherwise, make the holes larger. This corruption is... released from a victim"—<<he>> licks <<his>> lips—"by the peak moment of coitus."<br>
 		"Purges."<br>
 		"Urges." <<ggawareness>><<awareness 20>>
 		<br><br>
@@ -3910,7 +4438,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		"Proliferate."<br>
 		"An overflowing cup."<br><br>
 
-		"However. If the corrupted individual's partner has been inducted into our order through a trial, the corruption can not take root in them, either. With nowhere to escape, it will be strangled by the holy truth within them. By the gift of Virgo." Every robed figure in the room stands at attention, stomping their right foot. It reverberates in your chest.<br>
+		"However, if the corrupted individual's partner has been inducted into our order through a trial, the corruption cannot take root in them, either. With nowhere to escape, it will be strangled by the holy truth within them. By the gift of Virgo." Every robed figure in the room stands at attention, stomping their right foot. It reverberates in your chest.<br>
 		"Our saviour."<br>
 		"Our gaoler."<br>
 		"One."<br>
@@ -3923,11 +4451,11 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		The <<bishop>> spreads <<his>> arms out wide, gesturing to everyone in the room. It's hard to tell just how many robed figures there are. Under <<his>> robes, you see more of the silver hooks. They're attached to coils of threaded wire.
 		<br><br>
 
-		"You sit before all of us. Jordan's flock, the majority, remain unaware of the finer details of our activities, but we know much about them in turn. It must remain this way. This is the seal of confession. We take the burden of the sins of the many, so few have to suffer their weight."<br>
+		"You sit before all of us. Jordan's flock, the majority, remain unaware of the finer details of our activities, but we know much about them in turn. It must remain this way. This is the seal of confession. We take the burden of the sins of the many so few have to suffer their weight."<br>
 		"Hold fast."<br>
 		"Martyrs."<br><br>
 	<<case "cruel">>
-		The <<bishop>> doubles over and laughs yet again. "Oh, <<sister>>. You don't know the first thing about cruelty. There will come a day where you see, first hand, the deeds of the Children of Auriga. Then you will know what cruelty truly means. I can not fault you, you are but a child to the rest of us. Your compassion is... refreshing."<br>
+		The <<bishop>> doubles over and laughs yet again. "Oh, <<sister>>. You don't know the first thing about cruelty. There will come a day where you see, first hand, the deeds of the Children of Auriga. Then you will know what cruelty truly means. I cannot fault you, you are but a child to the rest of us. Your compassion is... refreshing."<br>
 		"Cherish it."<br>
 		"Before it slips through your fingers."<br><br>
 	<<case "where">>
@@ -3949,7 +4477,7 @@ The <<person1>>centre <<priest>> sits, coming down to your eye level. <<His>> fa
 		"Another."<br>
 		"Never."<br><br>
 
-		"The cult known as the Children of Auriga gnaw at the locks that keep Auriga from entering our world. They gnaw like rabid animals in heat, and worship a profane concept of passion and lust far beyond sanity. We oppose them in every way we can. We fill the holes. We free their victims. We punish," <<he>> licks <<his>> lips, "their followers."
+		"The cult known as the Children of Auriga gnaw at the locks that keep Auriga from entering our world. They gnaw like rabid animals in heat and worship a profane concept of passion and lust far beyond sanity. We oppose them in every way we can. We fill the holes. We free their victims. We punish"—<<he>> licks <<his>> lips—"their followers."
 		<br><br>
 
 		"Be wary of saying the name. The word itself is a taint, one you're not yet inoculated to."<br>
@@ -4085,9 +4613,11 @@ Once you're able to stand by yourself, the two priests that represent the bishop
 :: Temple Confessor Intro 8
 <<temple_effects>><<effects>>
 
-You emerge into the temple cloister. The bishop's hands each bow to you.<br>
+You emerge into the temple cloister. The Bishop's Hands each bow to you.<br>
 "Be safe, <<sister>>."<br>
 "Be swift, <<sister>>."<br><br>
+
+<<specialClothesUnlock "set" "temple_confessor">>
 
 <<link [[Next|Temple Cloister]]>><<endevent>><</link>>
 <br>

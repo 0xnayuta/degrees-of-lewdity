@@ -106,14 +106,20 @@
 
 			<<if _plantbed.stage gte 1>>
 				<<set $_plantedPlant to setup.plants[_plantbed.plant]>>
+				<<if $_plantedPlant is undefined>>
+					<<error {
+						message	: `Could not access property from modded save. (${_plantbed.plant})`,
+					}>>
+					<<exitAll>>
+				<</if>>
 
-				<<if $weather is "rain">>
+				<<if Weather.precipitation is "rain">>
 					<<set _plantbed.water to 1>>
 				<</if>>
 			<</if>>
 
 			<<if _plantbed.stage gte 5>>
-				<span class="green">The <<print $_plantedPlant.plural>> are flowering, and ready for picking.</span>
+				<span class="green">The <<print $_plantedPlant.seed_name ? `$_plantedPlant.seed_name is` : `$_plantedPlant.plural are`>> flowering and ready for picking.</span>
 				<br>
 				<<switch _plantbed.size>>
 					<<case "small">> <<set $_timeStr to "0:05">><<set _pass to 5>>
@@ -121,7 +127,7 @@
 					<<default>> <<set $_timeStr to "1:00">><<set _pass to 60>>
 				<</switch>>
 
-				<<if $leftarm is "bound" and $rightarm is "bound">>
+				<<if pcAreArmsBound("both")>>
 					<span class="red">Can't pick when your arms are bound.</span>
 				<<else>>
 					<<if $options.images is 1 and $_plantedPlant.icon>>
@@ -132,11 +138,11 @@
 				<br>
 
 			<<elseif _plantbed.stage is 4>>
-				<span class="teal">The <<print $_plantedPlant.plural>> are budding.</span>
+				<span class="teal">The <<print $_plantedPlant.seed_name ? `$_plantedPlant.seed_name is` : `$_plantedPlant.plural are`>> budding.</span>
 			<<elseif _plantbed.stage is 3>>
-				<span class="lblue">The <<print $_plantedPlant.plural>> have grown into seedlings.</span>
+				<span class="lblue">The <<print $_plantedPlant.seed_name ? `$_plantedPlant.seed_name has` : `$_plantedPlant.plural have`>> grown into seedlings.</span>
 			<<elseif _plantbed.stage is 2>>
-				<span class="blue">Thin <<print $_plantedPlant.plural>> sprout from the soil.</span>
+				<span class="blue"><<print $_plantedPlant.seed_name ? `${$_plantedPlant.seed_name.toUpperFirst()} sprouts` : `Thin $_plantedPlant.plural sprout`>> from the soil.</span>
 			<<elseif _plantbed.stage is 1>>
 				<span class="blue">You planted <<print $_plantedPlant.name.replace(/_/g," ")>> seeds here.</span>
 			<<else>>
@@ -180,7 +186,7 @@
 		<<if $location is "alex_farm" and _plotsToWater.length gte $_hoursUntilAttack>>
 			<span class="pink">You won't have enough time to water all your fields before Remy's arrival.</span>
 		<<else>>
-			<<if !($leftarm is "bound" and $rightarm is "bound")>>
+			<<if !pcAreArmsBound("both")>>
 				<<gardenicon "water">>
 				<<link "Water all dry beds ($_time)" $passage>>
 					<<tendingWaterAllDryBeds _plotsToWater>><<tiredness _water_needed>><<physique _water_needed>><<tending _water_needed>>
@@ -209,24 +215,26 @@
 	<</switch>>
 
 	<<set $_time to getTimeString(_tPass)>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<span class="red">Can't water when your arms are bound.</span>
 	<<else>>
+		<<wearProp "watering can">>
 		<<gardenicon "water">>
 		<<link "Water ($_time)" $passage>>
 			<<tending _tStatup>><<pass _tPass>><<set _plantbed.water to 1>><<set $tendingvars.plot_watered to true>>
-			<<tiredness _tStatup>><<physique _tStatup>><<event_trigger>>
+			<<tiredness _tStatup>><<physique _tStatup>><<set $phase to Number(dangerEvent())>><<set $phase2 to "watered">>
 		<</link>><<gtiredness>><<gtending>>
 	<</if>>
 <</widget>>
 
 <<widget "tendingWaterAllDryBeds">>
+	<<wearProp "watering can">>
 	<<set $_plotsToWater to _args[0]>>
 
 	<<for $_plot range $_plotsToWater>>
 		<<set $_plot.water to 1>>
 		<<set _waterTime to setup.tending.wateringTimes[$_plot.size]>>
-		<<pass _waterTime>><<event_trigger>>
+		<<pass _waterTime>><<set $phase to Number(dangerEvent())>><<set $phase2 to "watered">>
 	<</for>>
 	<<set $tendingvars.all_plots_watered to true>>
 <</widget>>
@@ -250,6 +258,7 @@
 			<br><br>
 			Please report this.
 		<<elseif $_plant.season.includes(Time.season) or (_location is "garden" and $alex_greenhouse gte 3)>>
+			<<set $_name to $_plant.seed_name ? $_plant.seed_name : $_plant.plural>>
 			/* comparing soil types; check if target bed is compatible with the seed's soil type */
 			<<if $_plant.bed is _plantbed.bed>>
 				<<switch _plantbed.size>>
@@ -262,13 +271,13 @@
 					<<if $options.images is 1 and $_plant.icon>>
 						<img class="tending_icon" @src="`img/misc/icon/tending/` + $_plant.icon">
 					<</if>>
-					<<link "Plant $_plant.plural ($_timeString)" $passage>><<pass _passTime>><<run plantSeedsInPlot(_plantbed, _plantType)>><</link>>
+					<<link "Plant $_name ($_timeString)" $passage>><<pass _passTime>><<run plantSeedsInPlot(_plantbed, _plantType)>><</link>>
 				<</capture>>
-				<<if $statdisable is "f">>
+				<<if !$settings.blindStatsEnabled>>
 					<span class="orange">(<<print $_plant.days>> days)</span>
 				<</if>>
 			<<else>>
-				<span class="blue"><<print $_plant.plural.toLocaleUpperFirst()>> only grow in <<print $_plant.bed>>.</span>
+				<span class="blue"><<print $_name.toLocaleUpperFirst()>> only grow in <<print $_plant.bed>>.</span>
 			<</if>>
 		<<else>>
 			<<tending_season_notice $_plant>>
@@ -303,7 +312,7 @@
 	<<if $farm_attack_timer is 0>>
 		<<set $_timeUntilAttack to ((23 - Time.hour) * 60) + (60 - Time.minute)>>
 	<</if>>
-	<<if $leftarm is "bound" and $rightarm is "bound">>
+	<<if pcAreArmsBound("both")>>
 		<span class="red">Can't till when your arms are bound.</span>
 		<br>
 	<<else>>
@@ -315,10 +324,10 @@
 				<<link "Till (_timeString)" $passage>>
 					<<set $tendingvars.plot_tilled to true>>
 					<<tiredness _baseTiredness>><<physique _baseTiredness>>
-					<<pass _baseTime>>
-					<<if $location is "farm">>
+					<<if $location is "alex_farm">>
 						<<farm_count _baseTime>>
 					<</if>>
+					<<pass _baseTime>>
 					<<set _plantbed.till to 1>>
 				<</link>><<gtiredness>>
 			<</capture>>
@@ -334,10 +343,10 @@
 					/* Till */
 					<<set $tendingvars.plot_tilled_fertiliser to true>>
 					<<tiredness _fertTiredness>><<physique _fertTiredness>>
-					<<pass _baseTimeFert>>
-					<<if $location is "farm">>
+					<<if $location is "alex_farm">>
 						<<farm_count _baseTimeFert>>
 					<</if>>
+					<<pass _baseTimeFert>>
 					<<set _plantbed.till to 1>>
 
 					/* Fertilise */
@@ -375,11 +384,13 @@
 		<br>
 	<</if>>
 	<<if $tendingvars.plot_tilled>>
+		<<wearProp "hoe">>
 		You get to work removing weeds and tilling the soil. It's hard going, but when you're done the soil is ready for planting.
 		<span class="gold">You get a good workout.</span>
 		<br>
 	<</if>>
 	<<if $tendingvars.plot_tilled_fertiliser>>
+		<<wearProp "hoe">>
 		You get to work removing weeds and tilling the soil while mixing in some fertiliser. It's hard going, but when you're done the soil is ready for planting.
 		<span class="gold">You get a good workout.</span>
 	<</if>>
@@ -387,39 +398,11 @@
 		You plant the seeds in the cool earth.
 		<br>
 	<</if>>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		<span class="green">The rain soaks the ground.</span>
 		<br>
 	<</if>>
 	<<run unsetTendingVars()>>
-<</widget>>
-
-<<widget "tending_day">>
-	<<for _location range Object.keys($plots)>>
-		<<switch _location>>
-			<<case "farm">> <<set _irrigation to ($farm.irrigation ? $farm.irrigation : 0)>>
-			<<default>> <<set _irrigation to 0>>
-		<</switch>>
-		<<for $_plot range $plots[_location]>>
-			/* growth check */
-			<<if $_plot.stage gte 1 and ($_plot.water is 1 or $_plot.bed is "water")>>
-				<<set $_plot.days += 1>>
-				<<if $_plot.days gte setup.plants[$_plot.plant].days * (($_plot.stage+1) / 5)>>
-					<<set $_plot.stage += 1>>
-				<</if>>
-			<</if>>
-
-			/* should this check really happen AFTER the growth check? */
-			<<if $weather is "rain">>
-				<<set $_plot.water to 1>>
-			<<elseif _irrigation gte 1>>
-				<<set $_plot.water to 1>>
-				<<set _irrigation-->>
-			<<else>>
-				<<set $_plot.water to 0>>
-			<</if>>
-		<</for>>
-	<</for>>
 <</widget>>
 
 <<widget "tending_harvest">>
@@ -451,7 +434,7 @@
 	<<if $backgroundTraits.includes("greenthumb")>>
 		<<set _tending_amount *= 1.2>>
 	<</if>>
-	<<set _tending_amount *= $tending_yield_factor>>
+	<<set _tending_amount *= $settings.tendingYieldModifier>>
 
 	<<set _tending_amount to Math.trunc(_tending_amount)>>
 	<<set $plants[$_type].amount += _tending_amount>>
@@ -531,4 +514,16 @@
 		<<set $_seasons to formatList($_plant.season)>>
 		<<print $_plant.plural.toLocaleUpperFirst()>> can only be planted in $_seasons.
 	</span>
+<</widget>>
+
+<<widget "updatePlants">>
+	<<set $_food_keys to Object.keys(setup.plants)>>
+	<<for _i to 0; _i lt $_food_keys.length; _i++>>
+		<<set $_type to $_food_keys[_i]>>
+		<<if $plants[$_type] is undefined>>
+			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": 0}>>
+		<<elseif $plants[$_type].name is undefined>>
+			<<set $plants[$_type] to {"name": setup.plants[$_type].name, "plural": setup.plants[$_type].plural, "amount": $plants[$_type].amount}>>
+		<</if>>
+	<</for>>
 <</widget>>

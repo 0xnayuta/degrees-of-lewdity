@@ -95,7 +95,7 @@
 			<<set $sexStats.anus.pregnancy.parasiteFeltMovement to clone($sexStats.anus.pregnancy.feltMovement)>>
 			<<set $sexStats.anus.pregnancy.givenBirth to 0>>
 		<</if>>
-		<<pregnancyVar>><!--In case its not been ran before -->
+		<<pregnancyVar>><!--In case it's not been ran before -->
 		<<if $sexStats.anus.pregnancy.seenDoctor>>
 			<<set $pregnancyStats.parasiteDoctorEvents to clone($sexStats.anus.pregnancy.seenDoctor)>>
 		<</if>>
@@ -277,12 +277,12 @@
 		<<run $sexStats.vagina.pregnancy.potentialFathers.forEach(s => {if(s.source.toLowerCase().includes("wolf") && s.type === "human") s.type = "wolf"})>>
 		<<run $sexStats.anus.sperm.forEach(s => {if(s.source.toLowerCase().includes("wolf") && s.type === "human") s.type = "wolf"})>>
 		<<run $sexStats.anus.pregnancy.potentialFathers.forEach(s => {if(s.source.toLowerCase().includes("wolf") && s.type === "human") s.type = "wolf"})>>
-		<<if $sexStats.vagina.pregnancy.type is "human" and $sexStats.vagina.pregnancy.fetus[0].father.toLowerCase().includes("wolf")>>
+		<<if $sexStats.vagina.pregnancy.type is "human" and $sexStats.vagina.pregnancy.fetus[0]?.father.toLowerCase().includes("wolf")>>
 			<<set $sexStats.vagina.pregnancy.type to "wolf">>
 
 			<<run $sexStats.vagina.pregnancy.fetus.forEach(child => {
 				child.type = "wolf";
-				const furColour = ["gray", "brown", "tan", "white"];
+				const furColour = ["grey", "brown", "tan", "white"];
 				if (child.father === "Black Wolf") {
 					furColour.concat(["black", "black", "black"]);
 				}
@@ -312,7 +312,7 @@
 			<<set _breastMulti to 1>>
 	<</switch>>
 	<<if _breastMulti isnot 0>>
-		<<switch $player.gender>>
+		<<switch $player.sex>>
 		<<case "m">>
 			<<set _breastMulti -= 1>>
 		<<case "f" "h">>
@@ -436,7 +436,7 @@
 			<<set $penisgrowthtimer += 100>>
 		<</if>>
 
-		/* The $player.gender isnot "f" is to specifically block the parasite penis from shrinking below tiny */
+		/* The $player.sex isnot "f" is to specifically block the parasite penis from shrinking below tiny */
 		<<if $penisgrowthtimer lte 0 and $player.penissize lt $penissizemax and $player.penissize gte -1>>
 			<<set $player.penissize += 1>>
 			<<set $penisgrowthtimer += 700>>
@@ -449,11 +449,11 @@
 			<<set $player.penissize -= 1>>
 			<<set $penisgrowthtimer -= 700>>
 			<<set $penisshrinkmessage to $player.penissize>><<set $effectsmessage to 1>>
-		<<elseif $penisgrowthtimer gte 1200 and $player.penissize is 0 and $player.penissize gt $penissizemin and $player.gender isnot "f">>
+		<<elseif $penisgrowthtimer gte 1200 and $player.penissize is 0 and $player.penissize gt $penissizemin and $player.sex isnot "f">>
 			<<set $player.penissize -= 1>>
 			<<set $penisgrowthtimer -= 1000>>
 			<<set $penisshrinkmessage to $player.penissize>><<set $effectsmessage to 1>>
-		<<elseif $penisgrowthtimer gte 1500 and $player.penissize is -1 and $player.penissize gt $penissizemin and _overdose lte -20 and $player.gender isnot "f">>
+		<<elseif $penisgrowthtimer gte 1500 and $player.penissize is -1 and $player.penissize gt $penissizemin and _overdose lte -20 and $player.sex isnot "f">>
 			<<set $player.penissize -= 1>>
 			<<set $penisgrowthtimer -= 1300>>
 			<<set $penisshrinkmessage to $player.penissize>><<set $effectsmessage to 1>>
@@ -540,9 +540,12 @@
 <</widget>>
 
 <<widget "autoTakePillCheck">>
-	<<if !$statFreeze && $sexStats && $sexStats.pills && $pillsTakenOn != (Time.monthDay.toString() + Time.month + Time.year.toString())>>
+	<<if $statFreeze>>
+		<<exit>>
+	<</if>>
+	<<if $sexStats?.pills && $pillsTakenOn != (Time.monthDay.toString() + Time.month + Time.year.toString())>>
 		<<set _pills to $sexStats.pills>>
-		<<if $molestationstart isnot 1 and $combat is 0 and (["home", "alex_cottage", "asylum", "prison"].includes($location) or ($location is "cabin" and $syndromeeden gte 1) or ($location is "temple" and V.wardrobes.temple.unlocked) or ($location is "seapirates" and V.wardrobes.pirate.unlocked))>> <!-- Eden Syndrome is 0 or 1, but could be higher in the future. -->
+		<<if $molestationstart isnot 1 and $combat is 0 and (["home", "alex_cottage", "asylum", "prison", "avery_mansion"].includes($location) or ($location is "cabin" and $syndromeeden gte 1) or ($location is "temple" and V.wardrobes.temple.unlocked) or ($location is "pirate_ship" and V.wardrobes.pirate.unlocked))>> <!-- Eden Syndrome is 0 or 1, but could be higher in the future. -->
 			<<set _keys to Object.keys(_pills.lastTaken)>> /* "lastTaken" will induce you in error here, it's only to retrieve the pills type list*/
 			<<for _i, _key range _keys>>
 				<<run determineAutoTakePill(_key)>>
@@ -580,6 +583,11 @@
 			<</for>>
 		<</if>>
 	<</if>>
+	<<if Skin.Sunscreen.autoApply and Skin.Sunscreen.timeLeft is 0 and Skin.Sunscreen.usesLeft gt 0 and !pcAreArmsBound("any")>>
+		<<run Skin.Sunscreen.apply()>>
+		<<set $sunscreenAutoApplied to true>>
+		<<set $effectsmessage to 1>>
+	<</if>>
 <</widget>>
 
 /*<<playWithBreasts>>*/
@@ -600,4 +608,10 @@
 		<<set $sexStats.creampie[_args[0]][_args[1]]++>>
 	<</if>>
 	<<set $internalejac to 1>>
+<</widget>>
+
+<<widget "fillOther">>
+	<<set $otherFilled to $otherFilled or 0>>
+	<<set $otherFilled += $semen_amount gt ($semen_volume / 24) * 18 ? 2 : 1>>
+	<<set $otherFilled to Math.clamp($otherFilled, 0, 5)>>
 <</widget>>

@@ -5,9 +5,9 @@ You are in the park.
 <<if Time.dayState is "dawn">>
 	There are a few people out walking or jogging. Some have dogs with them.
 <<elseif Time.dayState is "day">>
-	<<if $weather is "rain">>
+	<<if Weather.precipitation is "rain">>
 		Very few people are out, walking around the puddles that dot the paths.
-	<<elseif $weather is "snow">>
+	<<elseif Weather.precipitation is "snow">>
 		Many people are out, walking their dogs or jogging, wrapped up warm against the cold.
 	<<else>>
 		Many people are out, walking their dogs or jogging. You hear children in the playground.
@@ -31,7 +31,7 @@ Tulips grow in great patches near the riverbank.
 <<if $exposed gte 1>>
 	<<exhibitionism "park">>
 	<<if Time.dayState isnot "night">>
-		You can hear the commotion of the High Street, there's no way you'll be able to cross like this. However, there's a depot from which crates are being carried across the road, maybe you could hide in one of them.
+		You can hear the commotion of High Street. There's no way you'll be able to cross like this. However, there's a depot from which crates are being carried across the road. Maybe you could hide in one of them.
 		<br><br>
 	<</if>>
 <</if>>
@@ -42,16 +42,17 @@ Tulips grow in great patches near the riverbank.
 	<<passoutpark>>
 <<else>>
 	<<run statusCheck("Robin")>>
-	<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
+
 	<<if ($halloween_kylar is 1 or C.npc.Kylar.love gte 60) and $halloween_kylar_proposed isnot 1 and Time.dayState is "night" and C.npc.Kylar.init is 1 and C.npc.Kylar.state is "active" and (($halloween is 1 and Time.monthDay is 31 and Time.hour gte 21) or (Time.monthName is "November" and Time.monthDay is 1 and Time.hour lte 6)) and !$possessed>>
 		<<halloweenkylar>>
-	<<elseif ($danger gte (9900 - $allure) or $eventforced) and $eventskip is 0>>
+	<<elseif (dangerEvent() or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
 	<<elseif $robinReunionScene isnot undefined and _robin_location is "park" and $exposed lte 0 and !$possessed>>
 		<<npc Robin>><<person1>>
 		<<if $robinReunionScene is "dungeon">>
+			<<wearProp "hot drink" 0 "cocoa">>
 			<<unset $robinReunionScene>><<set $robinPostMortem to true>>
-			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth goes agape as <<he>> sees you, and <<he>> sprints towards you.
+			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth falls agape as <<he>> sees you, and <<he>> sprints towards you.
 			<br><br>
 
 			"I don't believe it!" <<he>> squeals as <<he>> buries <<himself>> in your chest. "I-I thought you were gone forever! We need to talk about this at home. When you're ready."
@@ -68,7 +69,8 @@ Tulips grow in great patches near the riverbank.
 			<br>
 		<<elseif $robinReunionScene is "dungeonRobin">>
 			<<unset $robinReunionScene>>
-			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth goes agape as <<he>> sees you, and <<he>> sprints towards you.
+			<<wearProp "hot drink" 0 "cocoa">>
+			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth goes falls as <<he>> sees you, and <<he>> sprints towards you.
 			<br><br>
 
 			"You made it out!" <<he>> squeals as <<he>> buries <<himself>> in your chest. "When you were recaptured, I didn't know what I was going to do."
@@ -159,7 +161,11 @@ Tulips grow in great patches near the riverbank.
 					<br>
 				<</if>>
 			<</if>>
-			<<icon "tending/tulip.png">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
+			<<if pcAreArmsBound("both")>>
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick tulips.
+			<<else>>
+				<<icon "tending/tulip.png">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
+			<</if>>
 			<br>
 			<<if _robin_location is "park">>
 				<!-- if robin met, is not missing, trauma < 80%, on winter sundays 09:00 - 16:59 -->
@@ -189,34 +195,34 @@ Tulips grow in great patches near the riverbank.
 				<br><br>
 			<</if>>
 		<</if>>
-		<<maleicon>><<link [[Men's toilets (0:01)|Men's Toilets]]>><<pass 1>><</link>>
+		<<icon "mentoilet.png">><<link [[Men's toilets (0:01)|Men's Toilets]]>><<pass 1>><<endevent>><</link>>
 		<br>
-		<<femaleicon>><<link [[Women's toilets (0:01)|Women's Toilets]]>><<pass 1>><</link>>
+		<<icon "womentoilet.png">><<link [[Women's toilets (0:01)|Women's Toilets]]>><<pass 1>><<endevent>><</link>>
 		<<if $leftleg is "bound" or $rightleg is "bound">>
 			<br>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
 			You cannot go for a run with $_boundType bound.
 		<<elseif $worn.feet.type.includes("heels") and ($exposed is 0 or Time.dayState is "night")>>
 			<br>
-			<<heelsicon>><<link [[Exercise in heels (0:30)|Park Exercise Heels]]>><<pass 30>><<tiredness 3>><<stress -1>><<athletics 2>><<slimeEventEnd "running">><</link>><<ggtiredness>><<gathletics>><<lstress>>
+			<<heelsicon>><<link [[Exercise in heels (0:30)|Park Exercise Heels]]>><<athletics 3>><<pass 30>><<tiredness 4>><<stress -1>><<slimeEventEnd "running">><</link>><<ggtiredness>><<gathletics>><<lstress>>
 		<<else>>
 			<<if Time.dayState is "night">>
-				<<if $exposed gte 2 and $exhibitionism gte 35>>
+				<<if $exposed gte 2 and hasSexStat("exhibitionism", 3)>>
 					<br>
-					<<runicon>><<link [[Go for a run (0:30)|Park Run Exposed]]>><<pass 30>><<set $phase to 0>><<tiredness 3>><<stress -3>><<athletics 3>><<slimeEventEnd "running">><</link>><<exhibitionist3>><<gtiredness>><<gathletics>><<lstress>>
+					<<runicon>><<link [[Go for a run (0:30)|Park Run Exposed]]>><<athletics 4>><<set $phase to 0>><<tiredness 3>><<stress -3>><<slimeEventEnd "running">><</link>><<exhibitionist3>><<gtiredness>><<gathletics>><<lstress>>
 				<<elseif $exposed is 1>>
 					<br>
-					<<runicon>><<link [[Go for a run (0:30)|Park Run Exposed]]>><<pass 30>><<set $phase to 1>><<tiredness 3>><<stress -3>><<athletics 3>><<slimeEventEnd "running">><</link>><<exhibitionist1>><<gtiredness>><<gathletics>><<lstress>>
+					<<runicon>><<link [[Go for a run (0:30)|Park Run Exposed]]>><<athletics 4>><<set $phase to 1>><<tiredness 3>><<stress -3>><<slimeEventEnd "running">><</link>><<exhibitionist1>><<gtiredness>><<gathletics>><<lstress>>
 				<<elseif $exposed is 0>>
 					<br>
-					<<runicon>><<link [[Go for a run (0:30)|Park Run]]>><<pass 30>><<tiredness 3>><<stress -3>><<athletics 3>><<slimeEventEnd "running">><</link>><<gtiredness>><<gathletics>><<lstress>>
+					<<runicon>><<link [[Go for a run (0:30)|Park Run]]>><<athletics 4>><<pass 30>><<tiredness 3>><<stress -3>><<slimeEventEnd "running">><</link>><<gtiredness>><<gathletics>><<lstress>>
 				<</if>>
 			<<elseif $exposed is 0>>
 				<br>
-				<<runicon>><<link [[Go for a run (0:30)|Park Run]]>><<pass 30>><<tiredness 3>><<stress -3>><<athletics 3>><<slimeEventEnd "running">><</link>><<gtiredness>><<gathletics>><<lstress>>
+				<<runicon>><<link [[Go for a run (0:30)|Park Run]]>><<athletics 4>><<pass 30>><<tiredness 3>><<stress -3>><<slimeEventEnd "running">><</link>><<gtiredness>><<gathletics>><<lstress>>
 			<</if>>
 		<</if>>
-		<<if (($weather isnot "rain" and $weather isnot "snow") or $worn.handheld.type.includes("rainproof"))>>
+		<<if (Weather.precipitation is "none" or $worn.handheld.type.includes("rainproof"))>>
 			<<if $milkshake gte 1 and $exposed lte 0>>
 				<br>
 				<<foodicon "milkshake">><<link [[Drink your milkshake (0:10)|Beach Milkshake]]>><<pass 10>><<set $milkshake -= 1>><<stress -5>><</link>><<lstress>>
@@ -226,19 +232,20 @@ Tulips grow in great patches near the riverbank.
 				<<foodicon "popcorn">><<link [[Eat your popcorn (0:10)|Balloon Consume]]>><<pass 10>><<set $popcorn -= 1>><<wearProp "popcorn">><<trauma -3>><<set $phase to "park">><</link>><<ltrauma>>
 			<</if>>
 		<</if>>
-		<<if Time.dayState is "night" and $exhibitionism gte 55 and $daily.ex.fountain is undefined>>
+		<<if Time.dayState is "night" and !Weather.isFrozen("fountain") and hasSexStat("exhibitionism", 4) and $daily.ex.fountain is undefined>>
 			<br>
 			<<parkicon "fountain">><<link [[Bathe in the fountain (0:10)|Park Fountain]]>><<set $daily.ex.fountain to 1>><</link>><<exhibitionist4>>
 		<</if>>
 		<<if $exposed gte 1 and Time.dayState isnot "night">>
 			<br>
-			<<ind>><<link [[Hide in a crate (0:10)|Crate Ex]]>><<pass 10>><</link>>
+			<<icon "crate.png">><<link [[Hide in a crate (0:10)|Crate Ex]]>><<pass 10>><</link>>
 			<br>
-			<<if $exposed gte 2 and $exhibitionism gte 75>>
-				<<link [[Cross flyover to the industrial district (0:05)|Flyover Ex Naked]]>><</link>><<if $daily.ex.flyover is undefined>><<exhibitionist5>><</if>>
-			<<elseif $exposed is 1 and $exhibitionism gte 35>>
-				<<link [[Cross flyover to the industrial district (0:05)|Flyover Ex Undies]]>><</link>><<if $daily.ex.flyover is undefined>><<exhibitionist3>><</if>>
+			<<if $exposed gte 2 and hasSexStat("exhibitionism", 5)>>
+				<<icon "flyover.png">><<link [[Cross flyover to the industrial district (0:05)|Flyover Ex Naked]]>><</link>><<if $daily.ex.flyover is undefined>><<exhibitionist5>><</if>>
+			<<elseif $exposed is 1 and hasSexStat("exhibitionism", 3)>>
+				<<icon "flyover.png">><<link [[Cross flyover to the industrial district (0:05)|Flyover Ex Undies]]>><</link>><<if $daily.ex.flyover is undefined>><<exhibitionist3>><</if>>
 			<</if>>
+			<br>
 		<<else>>
 			<br><br>
 			<<add_link "Travel<br>">><<hideDisplay>>
@@ -256,8 +263,12 @@ Tulips grow in great patches near the riverbank.
 		<</if>>
 		<<stormdrain>>
 		<<if $historytrait gte 1 and $parktunnelintro gte 1>>
-			<<add_link "<<schoolicon 'building'>><<link [[Secret tunnel to school (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>">>
-			<br>
+			<<if $schoolBlocked>>
+				/* none */
+			<<else>>
+				<<add_link "<<schoolicon 'courtyard'>><<link [[Secret tunnel to rear school courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>><br>">>
+				<br>
+			<</if>>
 		<</if>>
 		<<displayLinks>>
 		<<if $options.mapTop isnot true>>
@@ -287,6 +298,7 @@ You search the riverbank for the prettiest <<icon "tending/tulip.png">> tulips, 
 <br><br>
 
 <<if $tendingSuccess>>
+	<<wearProp "tulip">>
 	<span class="green">You find some particularly vibrant specimens.</span>
 	<<tending_pick tulip>>
 	<br><br>
@@ -296,9 +308,10 @@ You search the riverbank for the prettiest <<icon "tending/tulip.png">> tulips, 
 <</if>>
 
 <<if $rng gte 91>>
+	<<wearProp "soft drink can">>
 	You search behind an old wall by the river. There are no tulips. Instead you find two empty cans of soda, an empty packet of crisps, and hundreds of used lottery tickets.
 	<br><br>
 <</if>>
 
-<<link [[Next|Park]]>><</link>>
+<<link [[Next|Park]]>><<handheldon>><</link>>
 <br>

@@ -87,7 +87,7 @@
 	<</if>>
 <</widget>>
 
-<<widget "compressNPC">>
+<<widget "storeNPC">>
 	/*First argument is the NPClist index of the NPC to be saved. Second argument is the string you want to save it under.*/
 	<<if _args[0] gte 0 and _args[1]>>
 		<<set $_name to _args[1]>>
@@ -103,9 +103,30 @@
 		<<set $_slot to _args[0]>>
 		<<if EventSystem.isSlotTaken($_slot)>>
 			<<set $storedNPCs[$_name] to {
-				npc: npcCompressor($NPCList[$_slot]),
+				npc: {
+					adult: $NPCList[$_slot].adult,
+					breastsize: $NPCList[$_slot].breastsize,
+					breastdesc: $NPCList[$_slot].breastdesc,
+					breastsdesc: $NPCList[$_slot].breastsdesc,
+					description: $NPCList[$_slot].description,
+					fullDescription: $NPCList[$_slot].fullDescription,
+					gender: $NPCList[$_slot].gender,
+					insecurity: $NPCList[$_slot].insecurity,
+					name: $NPCList[$_slot].name,
+					monster: $NPCList[$_slot].monster,
+					penis: $NPCList[$_slot].penis,
+					penisdesc: $NPCList[$_slot].penisdesc,
+					penissize: $NPCList[$_slot].penissize,
+					pregnancy: $NPCList[$_slot].pregnancy,
+					pregnancyAvoidance: $NPCList[$_slot].pregnancyAvoidance,
+					pronoun: $NPCList[$_slot].pronoun,
+					skincolour: $NPCList[$_slot].skincolour,
+					teen: $NPCList[$_slot].teen,
+					type: $NPCList[$_slot].type,
+					vagina: $NPCList[$_slot].vagina,
+				},
 			}>>
-			<<set _lastCompressedName to $_name>>
+			<<set _lastStoredName to $_name>>
 		<<else>>
 			<<run Errors.report(`saveNPCPreg called with invalid or empty NPCList slot (${$_slot})`,
 			{
@@ -131,13 +152,13 @@
 			<!-- Set Gender -->
 			<<if $per_npc[$_i].gender is "none" or _args[0] is "genders">>
 				<<if $per_npc[$_i].pronoun is "m">>
-					<<if random(0, 99) gte $cbchance>>
+					<<if random(0, 99) gte $settings.maleNPCVaginaChance>>
 						<<set $per_npc[$_i].gender to "m">>
 					<<else>>
 						<<set $per_npc[$_i].gender to "f">>
 					<</if>>
 				<<elseif $per_npc[$_i].pronoun is "f">>
-					<<if random(0, 99) gte $dgchance>>
+					<<if random(0, 99) gte $settings.femaleNPCPenisChance>>
 						<<set $per_npc[$_i].gender to "f">>
 					<<else>>
 						<<set $per_npc[$_i].gender to "m">>
@@ -156,8 +177,8 @@
 
 			<!-- Set breast defaults-->
 
-			<<set _b_mod_lower to Math.clamp($breast_mod, 0, 12)>>
-			<<set _b_mod_upper to Math.clamp($breast_mod + 12, 0, 12)>>
+			<<set _b_mod_lower to Math.clamp($settings.breastModifier, 0, 12)>>
+			<<set _b_mod_upper to Math.clamp($settings.breastModifier + 12, 0, 12)>>
 
 			<!-- can't use breastsize, since that would either break the numberslider
 			or make one of the sizes always be randomised,
@@ -187,32 +208,32 @@
 
 			/*
 			<<set _p_mod_upper to 8>><<set _p_mod_lower to 1>>
-			<<if $penis_mod gt 0>>
-				<<set _p_mod_lower += $penis_mod - 1>>
-			<<elseif $penis_mod lt 0>>
-				<<set _p_mod_upper += $penis_mod + 1>>
+			<<if $settings.penisModifier gt 0>>
+				<<set _p_mod_lower += $settings.penisModifier - 1>>
+			<<elseif $settings.penisModifier lt 0>>
+				<<set _p_mod_upper += $settings.penisModifier + 1>>
 			<</if>>
 
 			alternative way to write that:
-			<<set _p_mod_lower to ($penis_mod > 0 ? $penis_mod : 1)>>
-			<<set _p_mod_upper to ($penis_mod < 0 ? 9 + $penis_mod : 8)>>
+			<<set _p_mod_lower to ($settings.penisModifier > 0 ? $settings.penisModifier : 1)>>
+			<<set _p_mod_upper to ($settings.penisModifier < 0 ? 9 + $settings.penisModifier : 8)>>
 			*/
 
-			<<if $penis_mod is 8>>
+			<<if $settings.penisModifier is 8>>
 				<<set _p_mod_upper to 8>><<set _p_mod_lower to 8>>
-			<<elseif $penis_mod gte 6>>
+			<<elseif $settings.penisModifier gte 6>>
 				<<set _p_mod_upper to 8>><<set _p_mod_lower to 7>>
-			<<elseif $penis_mod gte 4>>
+			<<elseif $settings.penisModifier gte 4>>
 				<<set _p_mod_upper to 8>><<set _p_mod_lower to 5>>
-			<<elseif $penis_mod gte 2>>
+			<<elseif $settings.penisModifier gte 2>>
 				<<set _p_mod_upper to 8>><<set _p_mod_lower to 3>>
-			<<elseif $penis_mod gte 0>>
+			<<elseif $settings.penisModifier gte 0>>
 				<<set _p_mod_upper to 8>><<set _p_mod_lower to 1>>
-			<<elseif $penis_mod gte -2>>
+			<<elseif $settings.penisModifier gte -2>>
 				<<set _p_mod_upper to 7>><<set _p_mod_lower to 1>>
-			<<elseif $penis_mod gte -4>>
+			<<elseif $settings.penisModifier gte -4>>
 				<<set _p_mod_upper to 5>><<set _p_mod_lower to 1>>
-			<<elseif $penis_mod gte -6>>
+			<<elseif $settings.penisModifier gte -6>>
 				<<set _p_mod_upper to 3>><<set _p_mod_lower to 1>>
 			<<else>>
 				<<set _p_mod_upper to 1>><<set _p_mod_lower to 1>>

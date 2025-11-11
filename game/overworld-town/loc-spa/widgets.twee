@@ -14,56 +14,67 @@
 
 <<widget "spa_work">>
 	<<spa_init>>
-	<<generate1>><<person1>>
-	A <<person>> enters,
-	<<if $pronoun is "m">>
-		wearing a towel around <<his>> waist.
+	<<if C.npc.Avery.init is 1 and !$avery_injury and $dateCount.Avery gte 1 and C.npc.Avery.state isnot "dismissed" and $rng gte 96 and Time.weekDay is 1 and !$averySpaBanWeeks and !$daily.averySpa>>
+		<<set $spa.personality to "Avery">><<set $daily.averySpa to true>><<set $endear to 0>>
+		<<npc Avery>><<person1>>
+		It's not long before one enters,
 	<<else>>
-		wearing a towel around <<his>> body.
+		<<generate1>><<person1>>
+		A <<person>> enters,
 	<</if>>
-	<<rng 5>>
-	<<switch $rng>>
-	<<case 1>>
-		<<set $spa.personality to "hesitant">>
-		"Hello," <<he>> says. "I've not done this before. Do I just lie down?"
+	wearing a towel around <<his>> <<= $pronoun is "m" ? "waist" : "body">>.
+	<<if $spa.personality is "Avery">>
+		<<averyspa>>
+	<<else>>
+		<<cleareventpool>>
+		<<addinlineevent "spa_hesitant" 1>>
+			<<set $spa.personality to "hesitant">>
+			"Hello," <<he>> says. "I've not done this before. Do I just lie down?"
+		<</addinlineevent>>
+
+		<<addinlineevent "spa_tired" 1>>
+			<<set $spa.personality to "tired">>
+			<<He>> <span class="lewd">pulls off <<his>> towel</span> and lies down with barely a glance in your direction.
+			<<if $awareness lte 100>>
+				<<awareness 1>><<gawareness>>
+			<</if>>
+			<<if $purity gte 990>>
+				<<gstress>><<stress 6>>
+			<</if>>
+		<</addinlineevent>>
+
+		<<addinlineevent "spa_rude" 1>>
+			<<set $spa.personality to "rude">>
+			<<He>> eyes you up.
+			<<if $beauty gte 8000>>
+				"Nice," <<he>> says, before lying on the table.
+			<<else>>
+				"Was expecting better," <<he>> says, before lying on the table. "You better be good."<<gstress>><<stress 6>>
+			<</if>>
+		<</addinlineevent>>
+
+		<<addinlineevent "spa_lewd" 1>>
+			<<set $spa.personality to "lewd">>
+			"You're a treat," <<he>> says, leering at your body. "How about I lose the towel." <<He>> lets it drop to the floor, and puts <<his>> hands on <<his>> hips. "Like what you see?"
+			<<if $awareness lte 100>>
+				<<awareness 1>><<gawareness>>
+			<</if>>
+			<<if $purity gte 990>>
+				<<gstress>><<stress 6>>
+			<</if>>
+			<br><br>
+			<<He>> laughs, and lies on the table.
+		<</addinlineevent>>
+
+		<<addinlineevent "spa_polite" 1>>
+			<<set $spa.personality to "polite">>
+			<<He>> nods at you, and lies on the table.
+		<</addinlineevent>>
+		<<runeventpool>>
 		<br><br>
-	<<case 2>>
-		<<set $spa.personality to "tired">>
-		<<He>> <span class="lewd">pulls off <<his>> towel</span> and lies down with barely a glance in your direction.
-		<<if $awareness lte 100>>
-			<<awareness 1>><<gawareness>>
-		<</if>>
-		<<if $purity gte 990>>
-			<<gstress>><<stress 6>>
-		<</if>>
-		<br><br>
-	<<case 3>>
-		<<set $spa.personality to "rude">>
-		<<He>> eyes you up.
-		<<if $beauty gte 8000>>
-			"Nice," <<he>> says, before lying on the table.
-		<<else>>
-			"Was expecting better," <<he>> says, before lying on the table. "You better be good."<<gstress>><<stress 6>>
-		<</if>>
-		<br><br>
-	<<case 4>>
-		<<set $spa.personality to "lewd">>
-		"You're a treat," <<he>> says, leering at your body. "How about I lose the towel." <<He>> lets it drop to the floor, and puts <<his>> hands on <<his>> hips. "Like what you see?"
-		<<if $awareness lte 100>>
-			<<awareness 1>><<gawareness>>
-		<</if>>
-		<<if $purity gte 990>>
-			<<gstress>><<stress 6>>
-		<</if>>
-		<br><br>
-		<<He>> laughs, and lies on the table.
-		<br><br>
-	<<case 5>>
-		<<set $spa.personality to "polite">>
-		<<He>> nods at you, and lies on the table.
-		<br><br>
-	<</switch>>
-	<<spa_actions>>
+
+		<<spa_actions>>
+	<</if>>
 <</widget>>
 
 <<widget "spa_init">>
@@ -77,9 +88,10 @@
 	<<famesocial 1>>
 	<<towelup>>
 	<<endevent>>
+	<<timeTrackingEnd "spa">>
 	/*<<effects>>*/
 	<<if between(Time.hour, 8, 20)>>
-		<<ind>><<link [[Next customer (0:50)|Spa Work]]>><</link>>
+		<<spaicon "massage">><<link [[Next customer (0:50)|Spa Work]]>><<money 1000 "spa">><</link>>
 		<br>
 		<<spaicon>><<link [[Lobby|Spa]]>><</link>>
 		<br>
@@ -114,17 +126,17 @@
 		<<link [[Remain polite|Spa Rude Polite]]>><</link>>
 		<br>
 	<<else>>
-		<span class="red">and grasps your $worn.upper.name.</span>
+		<span class="red">grasping your $worn.upper.name.</span>
 		<<if $worn.upper.open is 1 or $worn.upper.set isnot $worn.lower.set or $worn.upper.integrity lte 20>>
 
 			<<if $worn.under_upper.type.includes("naked")>>
 				<<fameexhibitionism 1>>
 				<<if $worn.upper.open is 1>>
-					<<He>> tugs it down,
+					<<He>> tugs <<upperit>> down,
 				<<elseif $worn.upper.integrity gt 20>>
-					<<He>> pulls it up,
+					<<He>> pulls <<upperit>> up,
 				<<else>>
-					<<He>> tears it off your body,
+					<<He>> tears <<upperit>> off your body,
 					<<set $worn.upper.integrity -= 20>>
 					<<integritycheck>><<exposure>>
 				<</if>>
@@ -136,11 +148,11 @@
 				<<spa_end>>
 			<<else>>
 				<<if $worn.upper.open is 1>>
-					<<He>> tugs it down,
+					<<He>> tugs <<upperit>> down,
 				<<elseif $worn.upper.integrity gt 20>>
-					<<He>> pulls it up,
+					<<He>> pulls <<upperit>> up,
 				<<else>>
-					<<He>> tears it off your body,
+					<<He>> tears <<upperit>> off your body,
 					<<set $worn.upper.integrity -= 20>>
 					<<integritycheck>><<exposure>>
 				<</if>>
@@ -151,13 +163,13 @@
 				<br>
 			<</if>>
 		<<else>>
-			<<He>> tries to tear it from your body, but only damages the fabric before you manage to twist away.
+			<<He>> tries to tear <<upperit>> from your body, but only damages the fabric before you manage to twist away.
 			<<set $worn.upper.integrity -= 20>>
 			<br><br>
 
 			<<He>> looks set to try again, but another member of staff bangs on the door. "Everything okay in there?"
 			<br>
-			"Yes," the <<person>> responds. "I'm just leaving." <<He>> shoots you a last look before exiting the room.
+			"Yes," the <<person>> responds. "I'm just leaving." <<He>> shoots you one last look before exiting the room.
 			<br><br>
 
 			<<spa_end>>
@@ -220,13 +232,13 @@
 				<br>
 			<</if>>
 		<<else>>
-			<<He>> tries to tear it from your body, but only damages the fabric before you manage to twist away.
+			<<He>> tries to tear <<lowerit>> from your body, but only damages the fabric before you manage to twist away.
 			<<set _bottom.integrity -= 20>>
 			<br><br>
 
 			<<He>> looks set to try again, but another member of staff bangs on the door. "Everything okay in there?"
 			<br>
-			"Yes," the <<person>> responds. "I'm just leaving." <<He>> shoots you a last look before exiting the room.
+			"Yes," the <<person>> responds. "I'm just leaving." <<He>> shoots you one last look before exiting the room.
 			<br><br>
 
 			<<spa_end>>
@@ -267,10 +279,11 @@
 <</widget>>
 
 <<widget "spa_hand_failed">>
-	<<if $NPCList[0].penis isnot "none">>
+	<<if $NPCList[0].penis isnot "none" and !$NPCList[0].penisdesc.includes("strap-on")>>
 		<<handejacstat>><<ejacstat>><<bodyliquid "leftarm" "semen">><<bodyliquid "rightarm" "semen">>
 		<<His>> <<print $NPCList[0].penisdesc>> erupts over your hands while <<his>> body spasms and jerks.
 	<<else>>
+		<<if random(0,1) is 1>><<bodyliquid "rightarm" "goo">><<else>><<bodyliquid "leftarm" "goo">><</if>>
 		<<His>> body spasms and jerks.
 	<</if>>
 	<br><br>
@@ -286,7 +299,7 @@
 
 <<widget "spa_rape_failed">>
 	<<if $NPCList[0].penis isnot "none">>
-		<<if $player.vaginaExist or $analdisable is "f">>
+		<<if $player.vaginaExist or $settings.analEnabled>>
 			<<He>> grasps your <<bottom>>, and tries to force <<his>> cock inside you.
 		<<else>>
 			<<He>> grasps your <<bottom>>
@@ -356,7 +369,7 @@
 		The lights flicker back on, filling you with warmth and relief. You try to relax until the session ends, and the lights fade again.
 		<br><br>
 
-		<<link [[Next|Spa]]>><<clotheson>><</link>>
+		<<link [[Next|Spa]]>><<pass 60>><<clotheson>><</link>>
 		<br>
 	<<else>>
 		<span class="red">You hear the door open.</span> You turn your head, and see a pair of legs rush in. They crouch a moment, then turn and leave the room.
@@ -365,12 +378,11 @@
 		You push open the tanning bed. <span class="pink">Your clothes are gone!</span><<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
 		<br><br>
 
-		<<link [[Chase the culprit|Spa Tan Chase]]>><</link>><<athleticsdifficulty 1 1400>>
+		<<link [[Chase the culprit|Spa Tan Chase]]>><<pass 20>><</link>><<athleticsdifficulty 1 1400>>
 		<br>
-		<<link [[Ask for help|Spa Tan Help]]>><</link>>
+		<<link [[Ask for help|Spa Tan Help]]>><<pass 20>><</link>>
 		<br>
 		<<set $skulduggerydifficulty to 500>>
-		<<link [[Look for towels|Spa Tan Sneak]]>><</link>><<skulduggerydifficulty>>
-		<br>
+		<<link [[Look for towels|Spa Tan Sneak]]>><<pass 20>><</link>><<skulduggerydifficulty>>
 	<</if>>
 <</widget>>

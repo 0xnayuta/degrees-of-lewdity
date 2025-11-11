@@ -6,10 +6,15 @@ You see a security guard at the gate, resting <<his>> feet on <<his>> desk and p
 <br><br>
 Despite <<his>> distraction, <<he>> would spot you if you approached. There's a smaller gate to the side, but it's padlocked shut.
 <<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-	<<lockpickicon>><<link [[Break in (0:05)|Docks Sneak Pick]]>><<pass 5>><<crimeUp 5 "trespassing">><<endevent>><</link>><<crime "trespassing">>
-	<br>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Break in (0:05)|Docks Sneak Pick]]>><<pass 5>><<crimeUp 5 "trespassing">><<endevent>><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span>
 	<<skulduggeryrequired>>
@@ -21,10 +26,10 @@ Despite <<his>> distraction, <<he>> would spot you if you approached. There's a 
 
 :: Docks Sneak Pick
 
-<<effects>>
+<<effects>><<wearProp "lockpick">>
 You successfully pick the lock, and sneak into restricted area of the docks.
 <br><br>
-<<link [[Next|Docks Sneak]]>><</link>>
+<<link [[Next|Docks Sneak]]>><<handheldon>><</link>>
 <br>
 
 
@@ -35,14 +40,14 @@ You successfully pick the lock, and sneak into restricted area of the docks.
 You are on the docks.
 
 <<if $stress gte $stressmax>>
-	<<if isPlayerNonparasitePregnancyEnding()>>
+	<<if isPregnancyEnding()>>
 		<<pregnancyPassout "docksSneak">>
 	<<else>>
 		You've pushed yourself too much.
 		<br><br>
 		<<passout>>
-		<<set $danger to random(1, 10000)>>
-		<<if $danger gte (9900 - $allure)>>
+
+		<<if dangerEvent()>>
 			<<link [[Next|Passout Docks]]>><</link>>
 			<br>
 		<<else>>
@@ -95,12 +100,17 @@ You are on the docks.
 		The containers here hold nothing of value to you.
 		<br><br>
 	<<else>>
-		<<swimicon "break">><<link [[Break into the containers (0:30)|Docks Search]]>><<pass 30>><<crimeUp 5 "trespassing">><<dock_security 1>><</link>><<crime "trespassing">><<gsecurity>><<skul_dock_state $bus>>
-		<br><br>
+		<<if pcAreArmsBound("both")>>
+			You think you'd be able to break into the containers, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<icon "cargo.png">><<link [[Break into the containers (0:30)|Docks Search]]>><<handheldon>><<pass 30>><<crimeUp 5 "trespassing">><<dock_security 1>><</link>><<crime "trespassing">><<gsecurity>><<skul_dock_state $bus>>
+			<br><br>
+		<</if>>
 	<</if>>
 	<<skul_dock_nav>>
 	<<if $bus is "NW" or $bus is "N" or $bus is "NE">>
-		<<swimicon "dive">><<link [[Dive into the sea|Docks Dive]]>><</link>>
+		<<swimicon "dive">><<link [[Dive into the sea|Docks Dive]]>><<handheldon>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -109,16 +119,12 @@ You are on the docks.
 
 
 :: Docks Search
-<<effects>>
+<<effects>><<wearProp "lockpick">>
 <<skul_dock_init>>
 The containers are virtually identical. One by one, you pick the padlocks and enter the containers.
-
-<<if $skulduggery lt 500>>
-	<<skulduggeryskilluse>>
-<<else>>
-	<span class="blue">There's nothing more you can learn from locks this simple.</span>
-<</if>>
 <br><br>
+
+<<skulduggeryuse 500 "locks">>
 
 <<rng 6>>
 <<if $rng is 1>>
@@ -145,15 +151,15 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		You know there's gold here somewhere. You break into another. It's full of brown packages. You recognise them. You search among them, and then you find it. It's heavier than the others. You tear it open, and find the small bar of gold.
 		<br><br>
 		<<earnFeat "Employee Benefits">>
-		<<link [[Take it (0:05)|Docks Gold]]>><<pass 5>><<crimeUp 3000 "thievery">><<set $blackmoney += 3000>><</link>><<crime "thievery">>
+		<<link [[Take it (0:05)|Docks Gold]]>><<handheldon>><<pass 5>><<crimeUp 3000 "thievery">><<set $blackmoney += 3000>><</link>><<crime "thievery">>
 		<br>
 	<<else>>
 		You keep searching, and come to a container full of brown packages.
 		<br><br>
 
-		<<link [[Search carefully (1:00)|Docks Gold Careful]]>><<pass 60>><</link>>
+		<<link [[Search carefully (1:00)|Docks Gold Careful]]>><<handheldon>><<pass 60>><</link>>
 		<br>
-		<<link [[Tear into them (0:05)|Docks Gold Tear]]>><<crimeUp 100 "thievery">><<pass 5>><</link>><<crime "thievery">>
+		<<link [[Tear into them (0:05)|Docks Gold Tear]]>><<handheldon>><<crimeUp 100 "thievery">><<pass 5>><</link>><<crime "thievery">>
 		<br>
 	<</if>>
 
@@ -166,8 +172,31 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		<br><br>
 	<</if>>
 
+	<<link [[Take it (0:05)|Docks Aphrodisiacs]]>><<handheldon>><<pass 5>><<crimeUp 1200 "thievery">><<set $blackmoney += 1200>><</link>><<crime "thievery">>
+	<br>
 
-	<<link [[Take it (0:05)|Docks Aphrodisiacs]]>><<pass 5>><<crimeUp 1200 "thievery">><<set $blackmoney += 1200>><</link>><<crime "thievery">>
+<<elseif $skul_dock[$bus].contents is "mechanisms">>
+	<<if $skul_dock[$bus].state is "known">>
+		You know that custom-made mechanisms meant for <<= $compound.symbol.includesAny("wraith", "machine") ? "the compound" : "a local company">> are here somewhere. You break into another container. It's full of crates stamped with a <<= $compound.symbol.length ? "familiar" : "pink">> symbol.
+		<br><br>
+	<<else>>
+		You search another. The interior is full of crates stamped with a <<= $compound.symbol.length ? "familiar" : "pink">> symbol.
+		<br><br>
+	<</if>>
+	<<if !$compound.symbol.length and $catsuit_found>>
+		<<run $compound.symbol.pushUnique("docks")>>
+		<<run $compound.symbol.pushUnique("catsuit")>>
+		<span class="blue">It looks vaguely familiar.</span> You didn't get a good look at the time, but you recall finding a catsuit in a container full of crates with a similar pink symbol.
+		<br><br>
+		You tilt your head as you try to decipher the intricate shape. Three concentric arcs, bisected by a column of bone. Three interlaced arcs nestled within. Prongs that splinter outward from the innermost ring. It looks more esoteric than practical.
+	<<elseif $compound.symbol.includes("catsuit")>>
+		It looks like the one you saw when you found the catsuit.
+	<</if>>
+	<br><br>
+	You pry open the crates. They're filled with complicated machinery, most of it too heavy to carry. Some of the smaller mechanisms look like they could be worth something on the black market.
+	<br><br>
+
+	<<link [[Take them (0:05)|Docks Machinery Parts]]>><<handheldon>><<world_corruption "soft" -5>><<pass 5>><<crimeUp 1000 "thievery">><<set $blackmoney += 1000>><</link>><<crime "thievery">>
 	<br>
 <<elseif $skul_dock[$bus].contents is "electronics">>
 	<<if $skul_dock[$bus].state is "known">>
@@ -178,7 +207,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		<br><br>
 	<</if>>
 
-	<<link [[Take them (0:05)|Docks Electronics]]>><<pass 5>><<crimeUp 300 "thievery">><<set $blackmoney += 300>><</link>><<crime "thievery">>
+	<<link [[Take them (0:05)|Docks Electronics]]>><<handheldon>><<pass 5>><<crimeUp 300 "thievery">><<set $blackmoney += 300>><</link>><<crime "thievery">>
 	<br>
 <<elseif $skul_dock[$bus].contents is "fertiliser">>
 	<<if currentSkillValue('tending') gte 400>>
@@ -189,7 +218,7 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 			You search another. The interior is loaded with bags of fertiliser. While you know you can't carry much, having some on hand might be useful.
 			<br><br>
 		<</if>>
-		<<link [[Take some (0:05)|Docks fertiliser]]>><<pass 5>><<crimeUp 200 "thievery">><<set $fertiliser.current++>><</link>><<crime "thievery">>
+		<<link [[Take some (0:05)|Docks fertiliser]]>><<handheldon>><<pass 5>><<crimeUp 200 "thievery">><<set $fertiliser.current++>><</link>><<crime "thievery">>
 	<<else>>
 		You search another. The interior is loaded with bags of what looks like dirt filled inside.
 		<br><br>
@@ -204,28 +233,26 @@ The containers are virtually identical. One by one, you pick the padlocks and en
 		<br><br>
 	<</if>>
 
-	<<link [[Next|Docks Catsuit]]>><</link>>
+	<<link [[Examine|Docks Catsuit]]>><<handheldon>><</link>>
 	<br>
-
-
 <<else>>
 	You open the final container. It's empty.
 	<br><br>
 <</if>>
 
 
-<<link [[Leave|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[Leave|Docks Sneak]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 <<set $skul_dock[$bus].state to "empty">>
 
 :: Docks Gold
-<<effects>>
+<<effects>><<wearProp "gold bar">>
 
 You pocket the gold, and leave the container. It'll be worth a lot on the black market.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Docks Sneak]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks Gold Careful
@@ -267,12 +294,12 @@ You take the strange fluid, and leave the container.
 <br>
 
 :: Docks Electronics
-<<effects>>
+<<effects>><<wearProp "phone" 0 "mobile">>
 
 You snatch all the phones, cameras, and other smaller devices, and leave the container.
 <br><br>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Docks Sneak]]>><<handheldon>><<set $eventskip to 1>><</link>>
 <br>
 
 :: Docks fertiliser
@@ -286,20 +313,27 @@ You grab a bag of fertiliser, and leave the container.
 
 :: Docks Catsuit
 <<effects>>
-
-
 <<npc Wren>><<person1>>
-<<if $wren_seen is "cards" or $wren_seen is "letter" or $wren_seen is "catsuit" or $wren_seen is "winter">>
-	You hear a click, <span class="red">and the end of a pistol emerges from the dark.</span> A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows. <span class="gold">It's Wren.</span> "Not who I was expecting," <<he>> says, lowering <<his>> gun. <<covered>>
-	<br><br>
-	<<if $exposed gte 1>>
-		<<He>> laughs. "You seem prone to losing your clothes, but you're in the right place." <<He>> points <<his>> gun at the black catsuit. "Should fit you."
-	<<else>>
-		"And here I thought you were just some <<girl>> in over <<pher>> head," <<he>> says. "Or did Bailey send you? Either way, I won't interfere." <<He>> points <<his>> gun at the black catsuit. "Should fit."
-	<</if>>
+
+You step forward, intent on examining the catsuit.
+<br><br>
+
+Instead, you hear a click, <span class="red">and the end of a pistol emerges from the dark</span>. A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows.
+<<if $wrenSeen.includesAny("cards", "letter", "catsuit", "winter", "prison")>>
+	<span class="gold">It's Wren.</span> "Not who I was expecting," <<he>> says, lowering <<his>> gun. <<covered>>
 	<br><br>
 
-	"Hope you visit the estate soon," <<he>> says as <<he>> brushes past you. "Work keeps me busy, and it's good to let my hair down."
+	<<if $exposed gte 1>>
+		<<He>> laughs. "<<= $wrenSeen.includes("prison") ? "I'm afraid I have nothing for sale" : "You seem prone to losing your clothes">>, but you're in the right place."
+	<<elseif $wrenSeen.includes("prison")>>
+		"I'm shocked prison didn't reform you. Shocked."
+	<<else>>
+		"And here I thought you were just some <<girl>> in over <<pher>> head," <<he>> says. "Or did Bailey send you? Either way, I won't interfere."
+	<</if>>
+	<<He>> points <<his>> gun at the black catsuit. "Should fit you."
+	<br><br>
+
+	"Hope you <<= $wrenSeen.includes("prison") ? "stay a step ahead of them" : "visit the estate soon">>," <<he>> says as <<he>> brushes past you. "Work keeps me busy, <<= $wrenSeen.includes("prison") ? "but I look forward to meeting again" : "and it's good to let my hair down">>."
 	<br><br>
 
 	<<if isPubfameTaskAccepted("wren")>>
@@ -308,26 +342,13 @@ You grab a bag of fertiliser, and leave the container.
 		<<He>> disappears into the night. You turn back to the catsuit.
 	<</if>>
 	<br><br>
-<<elseif $wren_seen is "prison">>
-	You hear a click, <span class="red">and the end of a pistol emerges from the dark.</span> A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows. <span class="gold">It's Wren.</span> "Not who I was expecting," <<he>> says, lowering <<his>> gun. <<covered>>
-	<br><br>
-	<<if $exposed gte 1>>
-		<<He>> laughs. "I'm afraid I have nothing for sale, but you're in the right place." <<He>> points <<his>> gun at the black catsuit. "Should fit you."
-	<<else>>
-		"I'm shocked prison didn't reform you. Shocked." <<He>> points <<his>> gun at the black catsuit. "Should fit."
-	<</if>>
-	<br><br>
-
-	"Hope you stay a step ahead of them," <<he>> says as <<he>> brushes past you. "Work keeps me busy, but I look forward to meeting again."
-	<br><br>
-
-	<<He>> disappears into the night. You turn back to the catsuit.
-	<br><br>
 <<else>>
-	You hear a click, <span class="red">and the end of a pistol emerges from the dark.</span> A <<personsimple>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair follows. "Well well," <<he>> says. "Not who I was expecting." <<He>> lowers <<his>> gun, and examines you from head to toe. <<covered>>
+	"Well well," <<he>> says. "Not who I was expecting." <<He>> lowers <<his>> gun, and examines you from head to toe. <<covered>>
 	<br><br>
 	<<if $exposed gte 1>>
 		The <<personsimple>> laughs. "You're in the right place." <<He>> points <<his>> gun at the black catsuit. "Should fit you."
+	<<elseif $wrenSeen.includes("pregnancy")>>
+		"I guess caves aren't the only place you like to sneak around," <<he>> says. "<<= playerBellyVisible() ? "And you're already knocked up again. Try not to pass out this time." : "At least you're not knocked up this time.">>" <<He>> points <<his>> gun at the black catsuit. "Should fit."
 	<<else>>
 		"Thought I knew all the rats in town," <<he>> says. "I won't stop you." <<He>> points <<his>> gun at the black catsuit. "Should fit."
 	<</if>>
@@ -348,23 +369,23 @@ You grab a bag of fertiliser, and leave the container.
 	<<link [[Give Wren the letter|Docks Catsuit Letter]]>><</link>>
 	<br>
 <</if>>
-<<link [[Wear the catsuit|Docks Catsuit Wear]]>><<endevent>><<set $wren_seen to "catsuit">><</link>>
+<<link [[Wear the catsuit|Docks Catsuit Wear]]>><<endevent>><<set $wrenSeen.pushUnique("catsuit")>><<set $wrenSeenLast to "catsuit">><</link>>
 <br>
-<<link [[Take the catsuit|Docks Catsuit Take]]>><<endevent>><<set $wren_seen to "catsuit">><</link>>
+<<link [[Take the catsuit|Docks Catsuit Take]]>><<endevent>><<set $wrenSeen.pushUnique("catsuit")>><<set $wrenSeenLast to "catsuit">><</link>>
 
 :: Docks Catsuit Letter
-<<effects>>
-<<set $wren_seen to "letter">>
+<<effects>><<wearProp "envelope" 0 "manila">>
+<<set $wrenSeen.pushUnique("letter")>><<set $wrenSeenLast to "letter">>
 
 You call out for Wren to stop. <<He>> turns and looks at you with a curious smile. "Well, what is it?"
 <br><br>
 
 <<if $speech_attitude is "meek">>
-	"Th-this is from the old man," you say, holding the Manila envelope to <<him>>.
+	"Th-this is from the old man," you say, holding the manila envelope to <<him>>.
 <<elseif $speech_attitude is "bratty">>
-	"The old man sent me," you say, holding the Manila envelope to <<him>>. "Here."
+	"The old man sent me," you say, holding the manila envelope to <<him>>. "Here."
 <<else>>
-	"The old man told me to give this to you," you say, holding the Manila envelope to <<him>>.
+	"The old man told me to give this to you," you say, holding the manila envelope to <<him>>.
 <</if>>
 <br><br>
 
@@ -401,10 +422,12 @@ It's tight, but you pull on the catsuit. It hugs your skin, and shows off your f
 
 <i>You'll leave fewer traces of yourself while wearing the catsuit. Crime will increase more slowly.</i>
 <br><br>
+<<specialClothesUnlock "item" "catsuit">>
 
-<<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<<link [[Examine the crates|Docks Catsuit Crates]]>><</link>>
 <br>
-
+<<link [[Leave|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<br>
 
 :: Docks Catsuit Take
 <<effects>>
@@ -417,14 +440,35 @@ You take the catsuit. It might be handy later.
 
 <i>You'll leave fewer traces of yourself while wearing the catsuit. Crime will increase more slowly.</i>
 <br><br>
+<<specialClothesUnlock "item" "catsuit">>
+
+<<link [[Examine the crates|Docks Catsuit Crates]]>><</link>>
+<br>
+<<link [[Leave|Docks Sneak]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Docks Catsuit Crates
+<<effects>>
+<<run $compound.symbol.pushUnique("catsuit")>>
+You study the crates. They're stamped with a lurid pink symbol. You tilt your head as you try to decipher the intricate shape. Three concentric arcs, bisected by a column of bone. Three interlaced arcs nestled within. Prongs that splinter outward from the innermost ring. It looks more esoteric than practical.
+<br><br>
+
+Several crates have already been pried open and rifled through. Wren's handiwork, you presume. You peek inside. They're filled with complicated machinery, most of it too heavy to carry. Some of the smaller mechanisms look like they could be worth something on the black market.
+<br><br>
+
+<<link [[Take them (0:05)|Docks Machinery Parts]]>><<world_corruption "soft" -5>><<pass 5>><<crimeUp 1000 "thievery">><<set $blackmoney += 1000>><</link>><<crime "thievery">>
+
+:: Docks Machinery Parts
+<<effects>>
+
+You scoop up as many of the machinery parts as you can carry and leave the container.
+<br><br>
 
 <<link [[Next|Docks Sneak]]>><<set $eventskip to 1>><</link>>
 <br>
 
-
-
 :: Docks Hide
-<<effects>>
+<<effects>><<wearProp "lockpick">>
 
 You try to break into one of the cargo containers.
 
@@ -459,7 +503,7 @@ You try to break into one of the cargo containers.
 		"Gotcha," <<he>> says, pinning you. "Backup will be here soon." <<He>> leans closer. "But first, how's about a little fun?"
 		<br><br>
 
-		<<link [[Next|Docks Sneak Rape]]>><<set $molestationstart to 1>><</link>>
+		<<link [[Next|Docks Sneak Rape]]>><<handheldon>><<set $molestationstart to 1>><</link>>
 		<br>
 	<</if>>
 
@@ -685,7 +729,7 @@ You wait around the corner, listening for the patter of feet. The <<beasttype>> 
 
 You pounce as soon as <<bhe>> appears. <<if $monster is 1>>"Intruder!" <<bhe>> shouts.<</if>>
 
-<<if $monster is 1 or $bestialitydisable is "f">>
+<<if $monster is 1 or $settings.bestialityEnabled>>
 	<br><br>
 	<<link [[Next|Docks Dog]]>><<set $molestationstart to 1>><</link>>
 <<else>>
@@ -726,11 +770,10 @@ You pounce as soon as <<bhe>> appears. <<if $monster is 1>>"Intruder!" <<bhe>> s
 <<effects>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
-
 	<<beastejaculation knot>>
 
-	<<if _knotted is true>>
-		<<set $dock_knot to true>>
+	<<if _knotted>>
+		<<set $dock_knot to _knotted>>
 		<span class="red">You remain knotted together as footsteps draw closer.</span>
 		<br><br>
 
@@ -835,7 +878,7 @@ They grasp your arms, haul you to your feet, and drag you through the maze of co
 <</if>>
 <br><br>
 
-The <<person>> laughs. "Sure," <<he>> reaches into <<his>> pocket. "Once I have backup." <<He>> pulls out <<his>> phone. "And proper evidence of your trespassing."
+The <<person>> laughs. "Sure." <<He>> reaches into <<his>> pocket. "Once I have backup." <<He>> pulls out <<his>> phone. "And proper evidence of your trespassing."
 <br><br>
 
 <<link [[Next|Docks Watch]]>><<endevent>><</link>>
@@ -876,7 +919,7 @@ More phones emerge from pockets as they continue to make degrading comments.
 At last,
 <<if $dock_knot>>
 	<<unset $dock_knot>>
-	the knot shrinks enough for the <<beasttype>> to wiggle free. The audience cheer, but they're not finished.
+	the knot shrinks enough for the <<beasttype>> to wiggle free. The audience cheers, but they're not finished.
 <<else>>
 	the <<beasttype>> releases you, accompanied by a cheer from the audience.
 <</if>>
@@ -1200,7 +1243,7 @@ They push you towards the entrance.
 	<<neutral 1>>
 
 	<<set $machine_health to 10>><<set $machine_ammo to 8>>
-	<<if $player.vaginaExist and $analdisable is "f">>
+	<<if $player.vaginaExist and $settings.analEnabled>>
 		<<machine_init vaginal arm_chains>>
 		<<set $machine.vaginal.armed to 1>>
 	<<elseif $player.vaginaExist>>

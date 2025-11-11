@@ -13,21 +13,22 @@
 		A rough-looking <<person2>><<person>> stands next to <<person1>><<him>>.
 		<<person2>><<He>> cracks <<his>> knuckles.
 	<</if>>
+	<br><br>
+
+	<<rent_avery>>
 
 	<<if $_robinWasInRoom is 1>>
-		<br><br>
-
 		You look around, but Robin is nowhere to be found.
 		<br><br>
 
 		"Don't bother, <<nnpc_hes "Robin">> being kept for safe keeping," Bailey sneers at you.
+		<br><br>
 	<</if>>
 
 	<<if $baileyOfficeSeduced is 1>>
 		<<unset $baileyOfficeSeduced>>
 		<<set $_rentSeduce to true>>
 	<</if>>
-	<br><br>
 
 	<<if $babyIntros and $babyIntros.Bailey and $babyIntros.Bailey.length gt 0>>
 		<<set _homeBabyRent to true>>
@@ -40,7 +41,7 @@
 		<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 		<br>
 		<<if $baileyseduced isnot 1>>
-			<<if $promiscuity gte 15>>
+			<<if hasSexStat("promiscuity", 2)>>
 				<<link [[Seduce|Rent Seduce]]>><<set $phase to ($_rentSeduce ? 1 : 0)>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
 				<br>
 			<<elseif $uncomfortable.prostituting is false>>
@@ -67,6 +68,8 @@
 <<widget "rentduerobin">>
 	<<set $_robinInRoom to _args[0]>>
 	<<npc Bailey>><<person1>>
+	<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+	<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
 
 	"Time to pay up," <<he>> says.
 	<<if $baileydefeatedchain gte 3>>
@@ -183,7 +186,7 @@
 			<br>
 		<</if>>
 		<<if $baileyseduced isnot 1 and $_seduceAllowed>>
-			<<if $promiscuity gte 15>>
+			<<if hasSexStat("promiscuity", 2)>>
 				<<link [[Seduce|Rent Seduce]]>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
 				<br>
 			<<elseif $uncomfortable.prostituting is false>>
@@ -221,21 +224,20 @@
 <</silently>><</widget>>
 
 <<widget "rentmod">>
-	<<set $rentmoney to Math.floor($rentmoney * $rentmod)>>
+	<<set $rentmoney to Math.floor($rentmoney * $settings.rentCostModifier)>>
 	<<if $robinpaid is 1>>
 		<<set $rentmoney *= 2>>
 	<</if>>
 <</widget>>
 
 <<widget "rentpay">>
-	<<set $money -= $rentmoney + ($babyRent or 0)>>
-	<<set $baileyPaidStat += $rentmoney + ($babyRent or 0)>>
+	<<money `-($rentmoney + ($babyRent or 0))` "baileyRent">>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
 	Bailey snatches the money from your hand and starts counting. "Good," <<nnpc_he "Bailey">> says, satisfied. "You came through.
 	<<if $rentstage is 1>>
-		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier did you?"
+		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier, did you?"
 	<<else>>
 		Next week I want <<printmoney $rentmoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>."
 	<</if>>
@@ -256,7 +258,7 @@
 
 	<<if !$robinPunishments.includes("docks") and $debug>>/* locked behind debug until further improvements */
 		<<generate2>><<generate3>>
-		"Oh, <<nnpc_he "Robin">>'s cute. A perfect little travel companion," an unfamiliar <<person2>><<personsimple>>'s voice says.
+		"Oh, <<nnpc_hes "Robin">> cute. A perfect little travel companion," an unfamiliar <<person2>><<personsimple>>'s voice says.
 		<<if C.npc.Robin.pronoun is $player.gender_appearance>>
 			You're not sure who they're referring to.
 		<</if>>
@@ -298,7 +300,7 @@
 	You aren't left hanging there for long.
 	Your hood is yanked off your head as a<<if $syndromeeden gte 1>> familiar<</if>> <<personsimple>>'s voice appears beside you.
 
-	<<if $edenCagedEscape>>
+	<<if $edenCagedEscape or edenFreedomStatus() gte 2>>
 		"I told you I'd find you again," Eden growls as <<he>> pulls you to the ground. <<He>> doesn't untie you. "This time the lesson better stick."
 		<br><br>
 
@@ -308,21 +310,14 @@
 
 		<<link [[Next (0:30)|Eden Caged Intro]]>><<pass 30>><<set $phase to 2>><</link>>
 		<br>
-	<<elseif $edenfreedom gte 2 and $edendays gte 8>>
+	<<elseif edenFreedomStatus() gte 1>>
 		"I trusted you," Eden says as <<he>> cuts your bindings. You fall to the floor in a heap.
 		"This is what happens if you don't obey me. It's for your own protection." <<He>> pulls you to your feet. "Let's go home."
 		<br><br>
 
 		<<link [[Next (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
 		<br>
-	<<elseif $edenfreedom is 1 and $edendays gte 2>>
-		"I trusted you," Eden says as <<he>> cuts your bindings. You fall to the floor in a heap.
-		"This is what happens if you don't obey me. It's for your own protection." <<He>> pulls you to your feet. "Let's go home."
-		<br><br>
-
-		<<link [[Next (0:30)|Eden Recaptured]]>><<pass 30>><</link>>
-		<br>
-	<<elseif $edenfreedom gte 1>>
+	<<elseif edenFreedomStatus() is 0>>
 		"I knew you'd end up like this. The town is dangerous," Eden says, cutting your bindings. <<He>> catches you as you fall. "Let's go home."
 		<br><br>
 
@@ -332,6 +327,7 @@
 		<<link [[Next (0:30)|Eden Cabin]]>><<pass 30>><</link>>
 		<br>
 	<<else>>
+		<<badEndTracking "Eden" { reason: "soldBailey" }>>
 		<<if $hunterintro is 1>>
 			"I knew I'd get you back."
 		<<else>>
@@ -343,6 +339,35 @@
 		<<endevent>>
 
 		<<link [[Next|Forest Hunter Intro]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "rentGwylanTrade">>
+	<<npc Gwylan>><<person1>>
+	You aren't left hanging there for long. Your hood is gingerly lowered, and a <<personsimple>>'s gentle voice wistfully appears beside you. "Oh, <<pcpetname "Gwylan">>."
+	<br><br>
+
+	<<if $gwylan.taken>>
+		/* ToDo: Gwylan - soft bad end */
+		<span class="red">It's Gwylan.</span>. <<He>> steps around you, revealing <<his>> sad smile.
+		<br><br>
+
+		"Do you have any idea how worried I was?" <<He>> hugs you. "Naughty little runaway. Come, a warm bed is waiting for us at home." <<He>> raises <<his>> hand, and your leash appears in it.
+		You're led into the forest, and to Gwylan's shop.
+		<br><br>
+
+		<<link [[Next|Forest Shop Entrance]]>><<endevent>><<pass 15>><</link>>
+		<br>
+	<<else>>
+		<span class="forest-green">It's Gwylan.</span> <<He>> steps around you, revealing <<his>> bright smile.
+		<br><br>
+
+		"You're lucky you still have your collar, otherwise I wouldn't have found you." <<He>> hugs you. "Let's go, before someone sees."
+		You're led into the forest, and to Gwylan's shop.
+		<br><br>
+
+		<<link [[Next|Forest Shop Entrance]]>><<endevent>><<pass 15>><</link>>
 		<br>
 	<</if>>
 <</widget>>
@@ -413,7 +438,7 @@
 				<<if pregnancyCountBetweenParents("Alex","pc") is 1 or pregnancyCountBetweenParents("pc","Alex")>>
 					<<if C.npc.Alex.pregnancy.selfKnowledge or C.npc.Alex.pregnancy.pcKnowledge>>
 						"I got word that you knocked up some <<if C.npc.Alex.pronoun is "f">>bitch<<else>>slut<</if>> outside town. I paid them a little visit and saw that that farm's no place for a brat. I did you the favour of bringing your spawn back here, where it belongs."
-					
+
 					<<else>>
 						"I've paid a little visit to that farmer <<if C.npc.Alex.pronoun is "f">>girl<<else>>boy<</if>> You should have done the same. Anyway, <<nnpc_he "Alex">> popped out <<print _childrenText>>, and I already know it's yours."
 
@@ -460,6 +485,24 @@
 	<<set $ward_unlocked to true>><<run delete $babyIntros.Bailey>>
 <</widget>>
 
+<<widget "rent_avery">>
+	<<if $avery_mansion>>
+		<<if $avery_fate is "fallen" or $avery_fate is "kicked">>
+			<<if $avery_mansion.fallen_bailey_message>>
+				<<set $avery_mansion.fallen_bailey_message to true>>
+				<span class="black">Avery has fallen.</span> Because of that, <span class="red"><<nnpc_he "Avery">> can no longer pay Bailey for you</span>.
+				<br><br>
+			<</if>>
+		<<elseif !$avery_mansion.bailey_message>>
+			<<set $avery_mansion.bailey_message to true>>
+			<span class="red">"That idiot on Danube Street is refusing to pay,"</span> Bailey says. "So it falls to you. If that's a problem, take it up with <<nnpc_him Avery>>."
+			<br><br>
+			<i>Avery will refuse to pay Bailey if you don't show up at the mansion, or fail to adequately please <<nnpc_him Avery>>.</i>
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
 :: Rent Pay
 <<effects>>
 
@@ -470,7 +513,7 @@
 		<<link [[Next|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<<else>>
-		<<link [[Next->Hospital front]]>><<pass 10>><<endevent>><</link>>
+		<<link [[Next|Hospital front]]>><<pass 10>><<endevent>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -544,14 +587,15 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 
 :: Rent Refuse Robin
 <<effects>><<set $baileypaychain to 0>>
-
+<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
+<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
+<<person1>>
 <<if $speech_attitude is "bratty">>
 	You stare at <<him>> in defiance. "I'm not paying you. I don't care what you do to me, but leave Robin out of this."
 <<elseif $speech_attitude is "meek">>
 	"N-no," you stutter, surprised by your bravery. "I-I won't let you hurt either of us..."
 <<else>>
 	"The money isn't yours," you say. "Punish me however you want but leave <<nnpc_him "Robin">> out of this."
-	<<person1>>
 <</if>>
 <br><br>
 
@@ -614,7 +658,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 		<</if>>
 	<</if>>
 <<else>>
-	"You can pay me," <<person1>><<he>> sneers. "With money. <span class="pink">£<<print $rentmoney / 100>>.</span> <span class="red">That's what your body's worth.</span>"
+	"You can pay me," <<person1>><<he>> sneers. "With money. <span class="pink">£<<print ($rentmoney + ($babyRent or 0)) / 100>>.</span> <span class="red">That's what your body's worth.</span>"
 	<br><br>
 
 	<<if $baileydefeatedchain gte 1>>
@@ -718,14 +762,15 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	You hear a rustle of paper before being dragged further along the tunnel.
 	<br><br>
 	<<if _robinIsPresent>>
+		<<badEndTracking "Underground Dungeon" { reason: "soldBaileyRobin" }>>
 		<<link [[Next|Underground Intro]]>><<set $baileySold to true>><<endevent "phaseless">><<set $phase to 1>><</link>>
 	<<else>>
+		<<badEndTracking "Underground Dungeon" { reason: "soldBailey" }>>
 		<<link [[Next|Underground Intro]]>><<set $baileySold to true>><</link>>
 	<</if>>
 	<br>
 <<elseif $rentsale is 2>>
 	<<set $rentsale += 1>>
-	<<leash 21>>
 	<<if _robinIsPresent>>
 		You journey for some time until you feel solid concrete beneath your feet. Another set of footsteps approach.
 		You think you hear the rustle of an officer's belt.
@@ -748,23 +793,34 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	<<else>>
 		You journey for some time,
 	<</if>>
-	until you hear the sound of engines up ahead. The sound echoes, becoming closer, until you hear it all around you.
-	"Good stock," says an unfamiliar voice. "Would make a fine breeder."
-	<br>
-	"The money," Bailey responds, impatient.
-	<br>
-	"Ah. Here." There's a rustle to one side, then someone tugs on your leash, pulling you forward.
-	<br>
-	"A pleasure," Bailey says, already walking away.
-	<br><br>
+	<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+		until you hear wind rustling through leaves. "I had something else lined up for you," Bailey starts as <<nnpc_he "Bailey">> lifts you and hooks your bindings on something behind you, leaving you suspended in the air.
+		"But you've attracted some very peculiar attention. Someone made me a better offer. Don't go anywhere, you'll be picked up shortly." You feel <<his>> hands run along your collar. "You're in way over your head."
+		You hear <<him>> walk away, leaving you alone.
+		<br><br>
 
-	"Watch the step," says the unfamiliar voice. Whatever you've stepped onto is rumbling. "Sit."
-	You fumble around your knees, and find what feels like a bench.
-	You sit, then hear the slam of doors, and a few moment later you lurch as the floor moves beneath you. You're in a vehicle.
-	<br><br>
+		<<endevent>>
+		<<rentGwylanTrade>>
+	<<else>>
+		<<leash 21>>
+		until you hear the sound of engines up ahead. The sound echoes, becoming closer, until you hear it all around you.
+		"Good stock," says an unfamiliar voice. "Would make a fine breeder."
+		<br>
+		"The money," Bailey responds, impatient.
+		<br>
+		"Ah. Here." There's a rustle to one side, then someone tugs on your leash, pulling you forward.
+		<br>
+		"A pleasure," Bailey says, already walking away.
+		<br><br>
 
-	<<link [[Next|Street Van Bailey]]>><<set $baileySold to true>><</link>>
-	<br>
+		"Watch the step," says the unfamiliar voice. Whatever you've stepped onto is rumbling. "Sit."
+		You fumble around your knees, and find what feels like a bench.
+		You sit, then hear the slam of doors, and a few moments later you lurch as the floor moves beneath you. You're in a vehicle.
+		<br><br>
+
+		<<link [[Next|Street Van Bailey]]>><<set $baileySold to true>><</link>>
+		<br>
+	<</if>>
 <<elseif $rentsale is 1>>
 	<<set $rentsale += 1>>
 	<<if _robinIsPresent>>
@@ -779,11 +835,20 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	<</if>>
 	You hear wind rustling through leaves.
 	Bailey lifts you and hooks your bindings on something behind you, leaving you suspended in the air.
-	"Don't go anywhere, you'll be picked up shortly," <<he>> says. You hear <<him>> walk away, leaving you alone.
-	<br><br>
+	<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+		"I had something else lined up for you, but you've attracted some very peculiar attention. Someone made me a better offer. Don't go anywhere, you'll be picked up shortly."
+		You feel <<his>> hands run along your collar. "You're in way over your head." You hear <<him>> walk away, leaving you alone.
+		<br><br>
 
-	<<endevent>>
-	<<rentEdenTrade>>
+		<<endevent>>
+		<<rentGwylanTrade>>
+	<<else>>
+		"Don't go anywhere, you'll be picked up shortly," <<he>> says. You hear <<him>> walk away, leaving you alone.
+		<br><br>
+
+		<<endevent>>
+		<<rentEdenTrade>>
+	<</if>>
 <<else>>
 	<<set $rentsale to 1>>
 	<<generate2>><<person2>>
@@ -791,18 +856,20 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	<br><br>
 	<<if _robinIsPresent>>
 		"No, I'm just taking my <<print (_robin.pronoun is $player.gender_appearance ? (_robin.pronoun is "m" ? "boys" : "girls") : "kids")>> for a walk,"
+		says Bailey, <<person1>><<his>> temper barely concealed beneath the sarcasm.
+		"Just give me the cash. And I want them back in one piece, you're not paying enough..."
 	<<else>>
 		"No, I'm just taking my <<girl>> for a walk,"
+		says Bailey, <<person1>><<his>> temper barely concealed beneath the sarcasm.
+		"Just give me the cash. And I want <<phim>> back in one piece, you're not paying enough..."
 	<</if>>
-	says Bailey, <<person1>><<his>> temper barely concealed beneath the sarcasm.
-	"Just give me the cash. And I want them back in one piece, you're not paying enough..."
 	<br><br>
 
 	<<if _robinIsPresent>>
 		<<if _robin.dom lte 50>>
-			"Please, let us go! We didn't do anything-"
+			"Please, let us go! We didn't do anything—"
 		<<else>>
-			"Wait! Let <<phim>> go! Please don't hurt my <<girlfriend>>-"
+			"Wait! Let <<phim>> go! Please don't hurt my <<girlfriend>>—"
 		<</if>>
 		Robin's voice suddenly becomes muffled, and to your alarm, you hear <<nnpc_him "Robin">> fall to the ground soon after.
 		<br><br>
@@ -1111,13 +1178,13 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	<<if $timer gte 1>>
 		<<switch $baileySpoke>>
 			<<case 2>>
-				<<if $speechplead is 1 or $speechapologiseno is 1 or $speechscream is 1 or $speechdemand is 1>>
+				<<if $speechplead is 1 or $speechapologiseno is 1 or $speechscream is 1 or $speechdemand is 1 or $speechapologiseunforgiving is 1>>
 					"Save your breath," Bailey says. "If you really want to save <<nnpc_him "Robin">>, it's not too late to pay."
 				<<else>>
 					"I told you, all that time ago," Bailey says. "Get me my money... or I'll find a way to extract value from you."
 				<</if>>
 			<<case 1>>
-				<<if $speechplead is 1 or $speechapologiseno is 1>>
+				<<if $speechplead is 1 or $speechapologiseno is 1 or $speechapologiseunforgiving is 1>>
 					Bailey rolls <<his>> eyes. "If you'd paid me on time, maybe you wouldn't be crying your eyes out now."
 					<<set $baileySpoke++>>
 				<<elseif $speechscream is 1 or $speechdemand is 1>>
@@ -1127,7 +1194,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 					"Don't know why you took this waif's debt in the first place if you weren't ready to pay it," Bailey sneers.
 				<</if>>
 			<<default>>
-				<<if $speechplead is 1 or $speechapologiseno is 1>>
+				<<if $speechplead is 1 or $speechapologiseno is 1 or $speechapologiseunforgiving is 1>>
 					Bailey scoffs at you. "Oh, now you're sorry? Now that there's consequences?"
 					<<set $baileySpoke++>>
 				<<elseif $speechscream is 1 or $speechdemand is 1>>
@@ -1214,7 +1281,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 	Bailey walks off, and Robin continues clinging to you.
 	<<if _robin.trauma gte 40>>
-		"I th-thought..." <<he>> chokes up and holds you tighter.
+		"I th-thought..." <<He>> chokes up and holds you tighter.
 	<<else>>
 		"I thought I was going to lose you," <<he>> says after a long moment.
 	<</if>>
@@ -1270,7 +1337,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 You feel someone put their hand on your shoulder, turning you see it's Bailey.
 <br><br>
-"Welcome to the outside world, I hope you learned your lesson of not doing anything all week," <<he>> says, "I expect you to try harder this week, you're not going to like to see what happens if you fail to pay me again."
+"Welcome to the outside world, I hope you learned your lesson after not doing anything all week," <<he>> says, "I expect you to try harder this week, you're not going to like to see what happens if you fail to pay me again."
 <br><br>
 You're escorted by Bailey back to your bedroom and left alone.
 <br><br>

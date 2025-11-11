@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 // adjust mousetrap behavior, see mousetrap.js
 Mousetrap.prototype.stopCallback = function (e, element, combo) {
@@ -9,7 +10,7 @@ Mousetrap.prototype.stopCallback = function (e, element, combo) {
 
 // add binds for "next" link in combat
 // eslint-disable-next-line no-undef
-Mousetrap.bind(["z", "n", "enter", "space"], function () {
+Mousetrap.bind(["z", "n", "enter"], function () {
 	$("#passages #next a.macro-link").trigger("click");
 });
 
@@ -103,7 +104,6 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 		tags,
 		skipArgs,
 		handler() {
-			DOL.Perflog.logWidgetStart(macroName);
 			try {
 				const oldArgs = State.temporary.args;
 				State.temporary.args = this.args.slice();
@@ -113,8 +113,8 @@ function DefineMacro(macroName, macroFunction, tags, skipArgs) {
 				} else {
 					State.temporary.args = oldArgs;
 				}
-			} finally {
-				DOL.Perflog.logWidgetEnd(macroName);
+			} catch (e) {
+				console.warn("Something went wrong", e);
 			}
 		},
 	});
@@ -143,6 +143,77 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
 }
 
 /**
+ * Pluralises a given word if the count is not 1
+ *
+ * @param {number} count Number to check
+ * @param {string} singular Singular form of the word
+ * @param {string} [plural] Optional plural form for irregular plurals
+ * @returns {string} Correct word form
+ */
+
+function pluralise(count, singular, plural) {
+	count = Wikifier.getValue(count);
+	if (plural === undefined) {
+		plural = singular + "s";
+	}
+	return count === 1 ? singular : plural;
+}
+window.pluralise = pluralise;
+DefineMacroS("pluralise", pluralise);
+
+/**
+ * Creates and returns a keyword describing the wetness of a clothing article.
+ *
+ * @param {string} slot clothing article slot used
+ * @returns {string} condition key word ("drenched"|"torn|"frayed"|"full")
+ */
+
+function wetnessKeyword(slot) {
+	const i = V[`${slot.replace("_", "")}wet`];
+	if (i >= 100) {
+		return "drenched";
+	} else if (i >= 80) {
+		return "wet";
+	} else if (i >= 50) {
+		return "damp";
+	} else {
+		return "dry";
+	}
+}
+window.wetnessKeyword = wetnessKeyword;
+
+/**
+ * Returns an optional wetness prefix for the article of clothing.
+ 
+ * @param {string} slot clothing article slot used
+ * @returns {string} printable integrity prefix
+ */
+function wetnessWord(slot) {
+	const kw = wetnessKeyword(slot);
+	if (!kw) return "";
+	let colorClass;
+	switch (kw) {
+		case "dry":
+			colorClass = "green";
+			break;
+		case "damp":
+			colorClass = "teal";
+			break;
+		case "wet":
+			colorClass = "purple";
+			break;
+		case "drenched":
+			colorClass = "red";
+			break;
+		default:
+			colorClass = ""; // default without color
+	}
+	return `<span class="${colorClass}">${kw.trim()}</span> `;
+}
+window.wetnessWord = wetnessWord;
+DefineMacroS("wetnessWord", wetnessWord);
+
+/**
  * Creates and returns the keyword describing the integrity of a clothing article.
  *
  * @param {object} worn clothing article, State.variables.worn.XXXX
@@ -168,11 +239,11 @@ window.integrityKeyword = integrityKeyword;
  *
  * @param {object} worn clothing article, State.variables.worn.XXXX
  * @param {string} slot clothing article slot used
- * @param {string} alt alt version for metal/plastic devices
  * @returns {string} printable integrity prefix
  */
 function integrityWord(worn, slot) {
 	const kw = integrityKeyword(worn, slot);
+	// alt version for metal/plastic devices
 	const alt = setup.clothes[slot][clothesIndex(slot, worn)].altDamage;
 	if (alt === "parasite") {
 		switch (kw) {
@@ -282,6 +353,39 @@ function faceintegrity() {
 DefineMacroS("faceintegrity", faceintegrity);
 
 /**
+ * @param {number} wetnessValue
+ */
+function getWetStage(wetnessValue) {
+	if (wetnessValue >= 100) return 3;
+	if (wetnessValue >= 80) return 2;
+	if (wetnessValue >= 40) return 1;
+	return 0;
+}
+
+/**
+ * Updates the wetstage for the given "wet" variable and the sidebar image to reflect the changes
+ *
+ * @param {string} wetVar
+ * @param {number} wetnessValue
+ */
+function cheatsShowWetness(wetVar, wetnessValue) {
+	V[wetVar + "stage"] = getWetStage(wetnessValue);
+	wikifier("<<updatesidebarimg false>>");
+}
+window.cheatsShowWetness = cheatsShowWetness;
+
+/**
+ * @param {string} id the slider's full id
+ * @param {number} value
+ */
+function cheatsUpdateSlider(id, value) {
+	const slider = $(id);
+	if (!slider.length) return;
+	slider.val(value).trigger("change");
+}
+window.cheatsUpdateSlider = cheatsUpdateSlider;
+
+/**
  * @param {object} worn clothing article, State.variables.worn.XXXX
  * @returns {string} printable clothing colour
  */
@@ -338,12 +442,15 @@ function outfitChecks() {
 				return V.worn[item].name !== "naked" && ((T.bottomIsSkirt = setup.clothes[item][clothesIndex(item, V.worn[item])].skirt), true);
 			})
 		];
-	T.bottomUnder =
-		V.worn[
-			bottomLayers.slice(bottomLayers.indexOf(T.bottom)).find(item => {
-				return V.worn[item].name !== "naked" && ((T.bottomUnderIsSkirt = setup.clothes[item][clothesIndex(item, V.worn[item])].skirt), true);
-			})
-		];
+	if (T.bottom !== V.worn.under_lower) {
+		T.bottomUnder =
+			V.worn[
+				bottomLayers.slice(bottomLayers.indexOf(T.bottom)).find(item => {
+					return V.worn[item].name !== "naked" && ((T.bottomUnderIsSkirt = setup.clothes[item][clothesIndex(item, V.worn[item])].skirt), true);
+				})
+			];
+	}
+	T.underwear = T.bottomUnder && V.worn.under_lower.name !== "naked";
 	T.swimwear =
 		((V.worn.under_lower.type.includes("swim") && V.worn.lower.type.includes("naked")) || V.worn.lower.type.includes("swim")) &&
 		(V.worn.under_upper.type.includes("swim") || V.worn.under_upper.type.includes("naked")) &&
@@ -475,20 +582,28 @@ window.mobBtnShow = mobBtnShow;
 
 /**
  * Selects a random item from an array of weighted options. Each option is an array with
- * two elements: the item, and its weight.
+ * two elements: the item and its weight.
  * Works similar to eventpool, but more generic and lightweight, and works with any data types.
  *
  * Options with a higher weight have a higher chance of being chosen.
  *
  * @param {Array} options Each option is an array where the first item is a value, and the second item is its weight.
+ * @param {object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
  * @returns {*} The selected item
  * @example
  *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3]));  // Relative probability for these will be: apple: 16.67%, banana: 33.33%, cherry: 50%
+ *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3], rngInstance));  // Optional rngInstance
  */
 function weightedRandom(...options) {
 	if (!Array.isArray(options) || options.length === 0) {
 		throw new Error("Options must be a non-empty array.");
 	}
+
+	let rngInstance;
+	if (options[options.length - 1] instanceof PRNG) {
+		rngInstance = options.pop();
+	}
+
 	let totalWeight = 0;
 	const processedOptions = options.map(([value, weight]) => {
 		if (typeof weight !== "number") {
@@ -498,7 +613,7 @@ function weightedRandom(...options) {
 		return [value, totalWeight];
 	});
 
-	const random = Math.random() * totalWeight;
+	const random = (rngInstance ? rngInstance.random() : State.random()) * totalWeight;
 	for (const [value, cumulativeWeight] of processedOptions) {
 		if (cumulativeWeight >= random) {
 			return value;
@@ -508,6 +623,24 @@ function weightedRandom(...options) {
 	return options[0][0];
 }
 window.weightedRandom = weightedRandom;
+
+/**
+ * Resolves the provided value by checking if it is a function or a direct value.
+ * If the value is a function, the function is invoked and its result is returned.
+ * If it is not a function, the value itself is returned.
+ * If the value is undefined, a specified default value is returned instead.
+ *
+ * @param {Function|any} value The value to resolve, which can be a function or any value
+ * @param {number} defaultValue The default value to use if the provided value is undefined
+ * @returns {number} The resolved value, either from the function call or directly
+ */
+function resolveValue(value, defaultValue = undefined) {
+	if (typeof value === "function") {
+		return value();
+	}
+	return value ?? defaultValue;
+}
+window.resolveValue = resolveValue;
 
 /**
  * This macro sets $rng. If the variable $rngOverride is set, $rng will always be set to that.
@@ -550,7 +683,6 @@ window.nullable = nullable;
 
 /**
  * This inputs an icon img tag, using the given filename.
- * Files are all in img/misc/icon/
  * Example: <<icon "bed.png">>
  * <<icon "bed.png" "nowhitespace">> does not add a trailing whitespace for formatting.
  * <<icon "bed.png" "infront">> will cause the icon to layer ontop of the next one
@@ -558,19 +690,31 @@ window.nullable = nullable;
 Macro.add("icon", {
 	handler() {
 		if (!V.options.images) return;
+		const basePath = this.name === "iconUi" ? "img/ui/" : "img/misc/icon/";
 		const name = typeof this.args[0] === "string" ? this.args[0] : "error";
 		const iconImg = document.createElement("img");
-		iconImg.className = "icon" + (this.args.includes("infront") ? " infront" : "");
-		iconImg.src = "img/misc/icon/" + name;
+		iconImg.className = [
+			"icon",
+			this.name === "iconUi" && (this.args?.[1] === "with-text" ? "icon-container-with-text" : "icon-container"),
+			this.args.includes("infront") && "infront",
+			this.args.includes("flip") && "flip",
+		]
+			.filter(Boolean)
+			.join(" ");
+		iconImg.src = basePath + name;
 		this.output.append(iconImg);
 		// append a whitespace for compatibility with old icon behavior
 		if (!this.args.includes("nowhitespace")) this.output.append(" ");
 	},
 });
 
+Macro.add("iconUi", {
+	handler: Macro.get("icon").handler,
+});
+
 /**
  * Adds a foldout, which can be expanded and collapsed
- * It uses the first element in the content as a header (which can be clicked on), and all other elements as the body (which gets expanded/collapsed)
+ * It uses the first element in the content as a header (which can be clicked on) and all other elements as the body (which gets expanded/collapsed)
  * First argument defines whether it starts expanded or not.
  * Second argument defines the variable where the foldout state is saved (if no variable is defined, the foldout will reset to default if you leave the page)
  * Example: <<foldout true "_tempVar">><div>header here</div>body here<</foldout>>
@@ -608,5 +752,69 @@ Macro.add("foldout", {
 			setFoldoutState(foldoutState, 100);
 		});
 		e.appendTo(this.output);
+	},
+});
+
+/* global ClothedSlots */
+
+/**
+ * @param {ClothedSlots} slot
+ */
+function carriedClear(slot) {
+	const slotFound = slot in V.carried;
+	if (!slotFound) {
+		return;
+	}
+
+	V.carried[slot] = clone(setup.clothes[slot][0]);
+}
+window.carriedClear = carriedClear;
+
+Macro.add("carriedClear", {
+	handler() {
+		carriedClear(this.args[0]);
+	},
+});
+
+// create text map link
+Macro.add("tml", {
+	handler() {
+		// name of the linked location
+		const target = this.args[0];
+
+		const link = document.createElement("a");
+		link.classList.add("no-numberify");
+		link.title = target;
+		// shorten street names to the first two letters
+		link.text = target.includes("Street") ? ` ${target.slice(0, 2)} ` : "─┼─";
+
+		let type = "locked";
+		if (target === V.passage) type = "current";
+		else if (V.possessed && target === V.nextPassageCheck) type = "possessed next";
+		else if (V.map.available[V.passage].includes(target) || V.debug) type = V.possessed ? "possessed" : "normal";
+		switch (type) {
+			case "current":
+				link.id = "currentLoc";
+				link.title += " (you are here)";
+				break;
+			case "possessed next":
+				link.classList.add("nextLink");
+				link.title += " (0:05)";
+				link.onclick = () => Engine.play(V.nextPassage);
+				break;
+			case "possessed":
+				link.title += " (0:05)";
+				link.onclick = () => Engine.play(V.nextPassage);
+				break;
+			case "normal":
+				link.title += " (0:05)";
+				link.onclick = () => mapMove(target);
+				break;
+			case "locked":
+				link.classList.add("lockedLoc");
+				break;
+		}
+
+		this.output.append(link);
 	},
 });

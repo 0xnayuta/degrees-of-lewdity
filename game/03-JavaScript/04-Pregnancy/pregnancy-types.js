@@ -1,3 +1,4 @@
+/* global weightedRandom */
 function maxParasites(genital = "anus") {
 	switch (V.sexStats[genital].pregnancy.motherStatus) {
 		case 1:
@@ -11,7 +12,7 @@ function maxParasites(genital = "anus") {
 window.maxParasites = maxParasites;
 
 function canImpregnateParasite(genital = "anus") {
-	if (V.parasitepregdisable === "t" || (genital === "vagina" && !V.player.vaginaExist)) return false;
+	if (V.settings.parasitePregnancyEnabled === false || (genital === "vagina" && !V.player.vaginaExist)) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken) return false;
 	const pregnancy = V.sexStats[genital].pregnancy;
 
@@ -40,13 +41,13 @@ function npcPregObject(person, mother) {
 			parentId = parentFunction.addToParentList(person, undefined, parentType);
 		}
 		if (person === "pc") {
-			// pregnancy isnt required for the player
+			// pregnancy isn't required for the player
 			result = {
 				name: "pc",
-				gender: V.player.gender,
+				gender: V.player.sex,
 				type: "human",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: V.skinColor.natural,
+				skinColour: Skin.color.natural,
 				hairColour: V.naturalhaircolour,
 				eyeColour: V.eyeselect,
 			};
@@ -76,7 +77,7 @@ function npcPregObject(person, mother) {
 				name: person,
 				type: "unknown",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: random(0, 100) >= V.blackchance ? "black" : "white",
+				skinColour: random(0, 100) >= V.settings.darkSkinChance ? "dark" : "light",
 			};
 		}
 	} else {
@@ -131,7 +132,7 @@ function pregPrep({ motherObject, fatherObject, parasiteType = null, genital = n
 		}
 
 		// Prevent Non-parasitic pregnancy in the anus unless the player is male with a magic tattoo
-		if (genital === "anus" && !canBeMPregnant() && !parasiteType) return ["MPreg is not currently avaliable to the player"];
+		if (genital === "anus" && !canBeMPregnant() && !parasiteType) return ["MPreg is not currently available to the player"];
 
 		pregnancy = V.sexStats[genital].pregnancy;
 
@@ -149,7 +150,7 @@ function pregPrep({ motherObject, fatherObject, parasiteType = null, genital = n
 		fertility += Math.clamp(V.sexStats.pills.pills["fertility booster"].doseTaken || 0, 0, Infinity);
 		contraceptive += Math.clamp(V.sexStats.pills.pills.contraceptive.doseTaken || 0, 0, 2);
 	} else if (!parasiteType) {
-		if (V.npcPregnancyDisable === "t") return ["NPC pregnancy disabled"];
+		if (V.settings.npcPregnancyEnabled === false) return ["NPC pregnancy disabled"];
 
 		// Male or Unknown NPC pregnancies unsupported right now
 		if (!motherObject.gender || motherObject.gender === "m") return ["Pregnancy not supported for NPC input"];
@@ -248,8 +249,31 @@ function hairColourCalc(colour) {
 }
 
 function skinColourCalc(colour) {
+	if (colour === "black") return "dark";
+	if (colour === "white") return "light";
 	if (colour) return colour;
-	return ["light", "medium", "dark", "ylight", "ymedium", "ydark"][random(0, 5)];
+	return [
+		"light",
+		"medium",
+		"dark",
+		"gyaru",
+		"rlight",
+		"rmedium",
+		"rdark",
+		"rgyaru",
+		"ylight",
+		"ymedium",
+		"ydark",
+		"ygyaru",
+		"glight",
+		"gmedium",
+		"gdark",
+		"ggyaru",
+		"blight",
+		"bmedium",
+		"bdark",
+		"bgyaru",
+	].random();
 }
 
 // Only applies to the pc
@@ -305,7 +329,7 @@ const babyBase = ({
 		fatherKnown: father && fatherKnown,
 		born: { day: null, month: null, year: null },
 		conceived: { day: Time.monthDay, month: Time.monthName, year: Time.year },
-		conceivedLocation: mother === "pc" || (father === "pc" && (V.pregnancytype === "fetish" || T.npcForceImpregnation)) ? V.location : null,
+		conceivedLocation: mother === "pc" || (father === "pc" && (V.settings.pregnancyType === "fetish" || T.npcForceImpregnation)) ? V.location : null,
 		gender,
 		features: {
 			size,
@@ -339,7 +363,7 @@ window.pregnancyGenerator = {
 		if (typeof fatherObject === "string" || fatherObject instanceof String) return fatherObject;
 
 		if (
-			V.incompletePregnancyDisable !== "f" &&
+			V.settings.incompletePregnancyEnabled === false &&
 			motherObject.name === "pc" &&
 			C.npc[fatherObject.name] &&
 			!setup.pregnancy.canImpregnatePlayer.includes(fatherObject.name)
@@ -348,7 +372,7 @@ window.pregnancyGenerator = {
 		}
 
 		if (
-			V.incompletePregnancyDisable !== "f" &&
+			V.settings.incompletePregnancyEnabled === false &&
 			fatherObject.name === "pc" &&
 			C.npc[motherObject.name] &&
 			!setup.pregnancy.canBePregnant.includes(motherObject.name)
@@ -424,7 +448,7 @@ window.pregnancyGenerator = {
 		if (typeof fatherObject === "string" || fatherObject instanceof String) return fatherObject;
 
 		if (
-			V.incompletePregnancyDisable !== "f" &&
+			V.settings.incompletePregnancyEnabled === false &&
 			motherObject.name === "pc" &&
 			C.npc[fatherObject.name] &&
 			!setup.pregnancy.canImpregnatePlayer.includes(fatherObject.name)
@@ -433,7 +457,7 @@ window.pregnancyGenerator = {
 		}
 
 		if (
-			V.incompletePregnancyDisable !== "f" &&
+			V.settings.incompletePregnancyEnabled === false &&
 			fatherObject.name === "pc" &&
 			C.npc[motherObject.name] &&
 			!setup.pregnancy.canBePregnant.includes(motherObject.name)
@@ -446,9 +470,9 @@ window.pregnancyGenerator = {
 
 		if (pregnancy) {
 			const result = { fetus: [], type: "wolf", timer: 0 };
-			const furColour = ["gray", "brown", "tan", "white"];
+			let furColour = ["grey", "brown", "tan", "white"];
 			if (motherObject.name === "Black Wolf" || fatherObject.name === "Black Wolf") {
-				furColour.concat(["black", "black", "black"]);
+				furColour = furColour.concat(["black", "black", "black"]);
 			}
 			for (let i = 0; i < 8; i++) {
 				const childId =
@@ -457,7 +481,7 @@ window.pregnancyGenerator = {
 				let gender = random(0, 100) > 50 ? "f" : "m";
 				if ((motherObject.gender === "h" || fatherObject.gender === "h") && (motherObject.name === fatherObject.name || random(0, 100) >= 75))
 					gender = "h";
-				if ((mother === "pc" || father === "pc") && V.player.gender === "h" && random(0, 100) >= 75) gender = "h";
+				if ((mother === "pc" || father === "pc") && V.player.sex === "h" && random(0, 100) >= 75) gender = "h";
 				const baby = babyBase({
 					childId,
 					birthId,
@@ -470,6 +494,7 @@ window.pregnancyGenerator = {
 					size: bodySizeCalc(V.bodysize),
 					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
 					hairColour: furColour[random(0, furColour.length - 1)],
+					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
 				result.fetus.push(baby);
 				parentFunction.increaseKids(motherObject.parentId.id, 0, fatherObject.parentId.id);
@@ -497,7 +522,7 @@ window.pregnancyGenerator = {
 				fertilised: whether it's fertilised or not. Parasites need to be fertilised before they can be birthed
 				daysLeft: how long until it can be birthed. Birthing is possible when it's 3 or less, but significantly more likely at 0
 				timeLeft: how long until it prompts a daily event. Speed impacts how fast it goes down
-				stats.growth: how long it takes to birth, and how much the parasite is worth when selling
+				stats.growth: how long it takes to birth and how much the parasite is worth when selling
 				stats.speed: how often it prompts a daily event. Also determines the parasite's activity
 			*/
 			const result = { fetus: clone(pregnancy.fetus), type: "parasite" };
@@ -574,18 +599,21 @@ window.pregnancyGenerator = {
 		if (typeof pregnancy === "string" || pregnancy instanceof String) return pregnancy;
 
 		if (pregnancy) {
-			const result = { fetus: [], type: "hawk", timer: 0, timerEnd: random(3, 6) };
-
+			const result = { fetus: [], type: "hawk", timer: 0, timerEnd: random(14, 28) };
+			const eggBoost = 20 * fertility + 20 * magicTattoo;
 			let count;
+
 			if (mother === "pc") {
-				count = Math.clamp(V.harpyEggs, 0, 3);
+				count = Math.clamp(V.harpyEggs?.count || weightedRandom([1, 1], [2, 2], [3, 1]), 0, 4);
 			} else {
-				count = random(1, 3);
+				count = weightedRandom([1, 1], [2, 4], [3, 4], [4, 1]);
 			}
 			if (!count) return false;
-			if (fertility || magicTattoo) count++;
+			if (random(0, 100) > 94 - eggBoost) count++;
 
 			const featherColour = ["white", "brown"];
+
+			const eggTimer = new DateTime(Time.date).addDays(random(23, 30)).timeStamp;
 
 			for (let i = 0; i < count; i++) {
 				// Hard coded limit
@@ -608,9 +636,10 @@ window.pregnancyGenerator = {
 					size: bodySizeCalc(V.bodysize),
 					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
 					hairColour: featherColour[random(0, featherColour.length - 1)],
+					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
 				// Hours
-				baby.eggTimer = new DateTime(Time.date).addHours(random(24 * 26, 24 * 32)).timeStamp;
+				baby.eggTimer = eggTimer;
 				result.fetus.push(baby);
 				parentFunction.increaseKids(motherObject.parentId.id, 0, fatherObject.parentId.id);
 			}

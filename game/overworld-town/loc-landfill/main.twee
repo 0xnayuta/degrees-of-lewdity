@@ -38,22 +38,24 @@ You are in the landfill on Elk Street.
 <</if>>
 <br><br>
 
-<<set $danger to random(1, 10000)>>
+
 <<if $stress gte $stressmax>>
 	<<passouttrash>>
 <<elseif $arousal gte $arousalmax>>
 	The warmth growing within you passes the point of no return. Your knees buckle. <<orgasm>>
 
-	<<if $rng gte 51 and $parasitedisable is "f" and ($parasite.left_ear.name is undefined or $parasite.right_ear.name is undefined) and $slimedisable is "f" and $hallucinations gte 1>>
+	<<if $rng gte 51 and $settings.parasitesEnabled and ($parasite.left_ear.name is undefined or $parasite.right_ear.name is undefined) and $settings.slimesEnabled and $hallucinations gte 1>>
 		Attracted by your orgasm, something stirs within the detritus. It oozes out from deep within one of the mountains, and squirms across the concrete. You see it just before it reaches you, a living slime. It leaps on your back, and squirms up your neck. You try to reach for it, but it's too fast.
 		<br><br>
 
 		<<if $parasite.left_ear.name is undefined>>
 			<span class="lewd">It squirms into your left ear,</span> leaving no trace.
 			<<parasite left_ear slime>>
+			<<set $parasite.left_ear.origin to "landfill">>
 		<<elseif $parasite.right_ear.name is undefined>>
 			<span class="lewd">It squirms into your right ear,</span> leaving no trace.
 			<<parasite right_ear slime>>
+			<<set $parasite.right_ear.origin to "landfill">>
 		<</if>>
 		<br><br>
 		<<tearful>> you rise to your feet. You feel unnaturally aroused, despite your orgasm. It's a small feeling at first. Then it grows, until <span class="lewd">an overwhelming desire for lewdity overtakes you.</span>
@@ -72,7 +74,7 @@ You are in the landfill on Elk Street.
 		<<link [[Next|Trash]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<</if>>
-<<elseif $danger gte (9900 - $allure) and $eventskip is 0>>
+<<elseif dangerEvent() and $eventskip is 0>>
 	<<eventstrash>>
 <<else>>
 
@@ -97,10 +99,10 @@ You are in the landfill on Elk Street.
 			<br>
 		<<else>>
 			<<if $trash_key is 1>>
-				<<ind>><<link [[Use the key (0:10)|Trash Leave]]>><<pass 10>><<set $trash_unlocked to 1>><</link>>
+				<<lockicon "old key">><<link [[Use the key (0:10)|Trash Leave]]>><<pass 10>><<set $trash_unlocked to 1>><</link>>
 				<br>
 			<<else>>
-				<<ind>><<link [[Try the gate (0:05)|Trash Gate Leave]]>><<pass 5>><</link>>
+				<<lockicon "gate">><<link [[Try the gate (0:05)|Trash Gate Leave]]>><<pass 5>><</link>>
 				<br>
 			<</if>>
 		<</if>>
@@ -126,14 +128,19 @@ The gate is barred by a heavy-duty padlock.
 		<span class="green">It looks like a perfect fit for the key you found.</span>
 		<br><br>
 
-		<<lakeicon "key">><<link [[Use the key (0:05)|Trash Enter]]>><<set $trash_unlocked to 1>><<pass 5>><</link>>
+		<<lockicon "old key">><<link [[Use the key (0:05)|Trash Enter]]>><<set $trash_unlocked to 1>><<pass 5>><</link>>
 		<br>
 	<<elseif currentSkillValue('skulduggery') gte $lock>>
-		<span class="green">The lock looks easy to pick.</span>
-		<br><br>
-
-		<<lockpickicon>><<link [[Pick lock (0:05)|Trash Lock Enter]]>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-		<br>
+		<<if pcAreArmsBound("both")>>
+			You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+			<br><br>
+		<<else>>
+			<<wearProp "lockpick">>
+			<span class="green">The lock looks easy to pick.</span>
+			<br><br>
+			<<lockicon "pick">><<link [[Pick lock (0:05)|Trash Lock Enter]]>><<handheldon>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+			<br>
+		<</if>>
 	<<else>>
 		<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 		<br><br>
@@ -142,7 +149,7 @@ The gate is barred by a heavy-duty padlock.
 	<</if>>
 <</if>>
 
-<<elkicon>><<link [[Leave|Elk Street]]>><</link>>
+<<elkicon>><<link [[Leave|Elk Street]]>><<handheldon>><</link>>
 <br>
 
 :: Trash Gate Leave
@@ -152,19 +159,24 @@ The gate is barred by a chain and padlock. You wonder if there's a key somewhere
 <br><br>
 
 <<set $lock to 800>>
-
-	<<if currentSkillValue('skulduggery') gte $lock>>
-	<span class="green">The lock looks easy to pick.</span>
-	<br><br>
-
-	<<lockpickicon>><<link [[Pick lock (0:05)|Trash Lock Leave]]>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
-	<br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
 	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+
+		<<lockicon "pick">><<link [[Pick lock (0:05)|Trash Lock Leave]]>><<handheldon>><<pass 5>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span> <<skulduggeryrequired>>
 	<br><br>
-	<</if>>
+<</if>>
 
-<<getouticon>><<link [[Leave|Trash]]>><</link>>
+<<getouticon>><<link [[Leave|Trash]]>><<handheldon>><</link>>
 
 :: Trash Lock Enter
 <<set $location to "landfill">><<set $outside to 1>><<effects>>
@@ -206,25 +218,26 @@ The gate is barred by a chain. You push the large key into the padlock, and the 
 <<set $location to "landfill">><<set $outside to 1>><<effects>>
 
 You search the piles of rubbish for anything of value.
-
 <br><br>
-
-
 
 <<if $trash_key isnot 1 and $trash_unlocked isnot 1>>
 	You find a large, iron key. You wonder if it opens anything nearby.
 	<<set $trash_key to 1>>
+	<<wearProp "key" 0 "iron">>
 
 <<elseif $trash gte 100>>
 	<<if $brothel_machine_repair is 2>>
+		<<wearProp "aphrodisiac jar">>
 		You spot a pink light reflect off the base of the compactor. You investigate, and find a small canister. There's a glass window on the side, letting you see the glowing pink gel within. <span class="gold">This must be the fuel used by the brothel sex machine.</span>
 		<<set $brothel_machine_repair to 3>>
-	<<elseif $rng gte 80>>
+	<<elseif $rng gte 81>>
+		<<wearProp "incense">>
 		You find an ancient incense burner. It's clearly an antique. You're not sure why anyone would throw it out.
 		<<set $antiquemoney += 100>><<museumAntiqueStatus "antiquetrashburner" "found">><<crimeUp 100 "thievery">>
 
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		<<rng>>
+		<<wearProp "stolen purse">>
 		<<if $rng gte 81>>
 			You find a discarded purse. There's <<moneyGain 100 true true>> still inside.
 		<<elseif $rng gte 61>>
@@ -236,19 +249,19 @@ You search the piles of rubbish for anything of value.
 		<<else>>
 			You find a discarded purse. There's <<moneyGain 20 true true>> still inside.
 		<</if>>
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		The rubbish gives way in a small avalanche, <span class="red">revealing a baleful eye.</span> It pierces you with its stare, before vanishing into the mountain. It happened so quick you might have imagined it, but when you close your eyes, it's still there, watching.<<ghallucinogens>><<ggstress>><<set $hallucinogen += 90>><<stress 12>>
 	<<else>>
 		You don't find anything.
 	<</if>>
 <<elseif $trash gte 50>>
-	<<if $rng gte 80>>
+	<<if $rng gte 81>>
+		<<wearProp "envelope" 0 "manila">>
 		You find a stuffed envelope, full of someone's personal information. Bank details, social security number, the works. Someone should be willing to pay for it.
 		<<crimeUp 50 "thievery">><<set $blackmoney += 50>>
-
-		<br><br>
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		<<rng>>
+		<<wearProp "stolen purse">>
 		<<if $rng gte 81>>
 			You find a discarded purse. There's <<moneyGain 50 true true>> still inside.
 		<<elseif $rng gte 61>>
@@ -260,8 +273,8 @@ You search the piles of rubbish for anything of value.
 		<<else>>
 			You find a discarded purse. There's <<moneyGain 10 true true>> still inside.
 		<</if>>
-	<<elseif $rng gte 30>>
-		You find a discarded container, bearing the logo of the nearby compound. As you disturb it, a chemical process within completes, sending the lid rocketting into the sky and filling the air with a sweet, pink mist.
+	<<elseif $rng gte 31>>
+		You find a discarded container, bearing the logo of the nearby compound. As you disturb it, a chemical process within completes, sending the lid rocketing into the sky and filling the air with a sweet, pink mist.
 		<br><br>
 
 		You cough and back away, <span class="pink">feeling a strange warmth.</span><<gdrugged>><<garousal>><<arousal 600>><<set $drugged += 90>>
@@ -269,13 +282,13 @@ You search the piles of rubbish for anything of value.
 		You don't find anything.
 	<</if>>
 <<elseif $trash gte 30>>
-	<<if $rng gte 80>>
+	<<if $rng gte 81>>
+		<<wearProp "keycard">>
 		You find a bank card. Someone made a half-hearted effort to rendering it unusable before throwing it out, but you bend it back into shape. Should be worth something to the right people.
 		<<crimeUp 30 "thievery">><<set $blackmoney += 30>>
-
-		<br><br>
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		<<rng>>
+		<<wearProp "stolen purse">>
 		<<if $rng gte 81>>
 			You find a discarded purse. There's <<moneyGain 40 true true>> still inside.
 		<<elseif $rng gte 61>>
@@ -287,17 +300,19 @@ You search the piles of rubbish for anything of value.
 		<<else>>
 			You find a discarded purse. There's <<moneyGain 10 true true>> still inside.
 		<</if>>
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		You don't find anything interesting, except a strange slime. <<random_goo>>
 	<<else>>
 		You don't find anything.
 	<</if>>
 <<elseif $trash gte 10>>
-	<<if $rng gte 80>>
+	<<if $rng gte 81>>
+		<<wearProp "cup">>
 		You find a stained metal cup. You wipe the grime off, and reveal a silver shine beneath. It looks like it belongs in a museum.
 		<<set $antiquemoney += 50>><<museumAntiqueStatus "antiquetrashcup" "found">><<crimeUp 20 "thievery">>
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		<<rng>>
+		<<wearProp "stolen purse">>
 		<<if $rng gte 81>>
 			You find a discarded purse. There's <<moneyGain 30 true true>> still inside.
 		<<elseif $rng gte 61>>
@@ -309,18 +324,20 @@ You search the piles of rubbish for anything of value.
 		<<else>>
 			You find a discarded purse. There's <<moneyGain 10 true true>> still inside.
 		<</if>>
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		You don't find anything, except an old, worthless porno magazine.<<garousal>><<arousal 600>>
 	<<else>>
 		You don't find anything.
 	<</if>>
 <<else>>
-	<<if $rng gte 80>>
+	<<if $rng gte 81>>
+		<<wearProp "phone" 0 "corded">>
 		You find an old-but-working phone. It should be worth something at least.
 		<<crimeUp 30 "thievery">><<set $blackmoney += 30>>
 		<i>Perhaps greater valuables can be found deeper in the landfill.</i>
-	<<elseif $rng gte 60>>
+	<<elseif $rng gte 61>>
 		<<rng>>
+		<<wearProp "stolen purse">>
 		<<if $rng gte 81>>
 			You find a discarded purse. There's <<moneyGain 25 true true>> still inside.
 		<<elseif $rng gte 61>>
@@ -332,7 +349,7 @@ You search the piles of rubbish for anything of value.
 		<<else>>
 			You find a discarded purse. There's <<moneyGain 5 true true>> still inside.
 		<</if>>
-	<<elseif $rng gte 30>>
+	<<elseif $rng gte 31>>
 		You prod your finger on something sharp.<<gpain>><<pain 1>>
 	<<else>>
 		You don't find anything.
@@ -345,12 +362,12 @@ You search the piles of rubbish for anything of value.
 	<<generatey1>><<generatey2>><<generatey3>><<generatey4>><<generatey5>><<generatey6>>
 	You hear the sound of <<group>> in the distance.
 	<br><br>
-	<<investigateicon>><<link [[Investigate|Trash Compare]]>><</link>>
+	<<link [[Investigate|Trash Compare]]>><<handheldon>><</link>>
 	<br>
 	<<link [[Ignore|Trash]]>><<endevent>><</link>>
 	<br>
 <<else>>
-	<<link [[Next|Trash]]>><</link>>
+	<<link [[Next|Trash]]>><<handheldon>><</link>>
 	<br>
 <</if>>
 
@@ -369,26 +386,26 @@ You search the piles of rubbish for anything of value.
 	<<switch $player.breastsize>>
 		<<case 0>>
 			The <<group>> burst into laughter. "<<pShes>> flat as a board!" the <<trashSelect>><<person>> jeers.
-			<<set _notInsecure to $player.gender is "m" or $acceptance_breasts_tiny gte 1000>>
-			<<set _insecurityType to "breasts_tiny">>
+			<<set _notInsecure to $player.sex is "m" or $acceptance_breasts_small gte 1000>>
+			<<set _insecurityType to "breasts_small">>
 		<<case 1 2 3>>
 			The <<group>> chuckle as they examine your <<breasts>>. "A bit on the small side," the <<trashSelect>><<person>> says.
-			<<set _notInsecure to $player.gender is "m" or $acceptance_breasts_small gte 1000>>
+			<<set _notInsecure to $player.sex is "m" or $acceptance_breasts_small gte 1000>>
 			<<set _insecurityType to "breasts_small">>
 		<<case 4 5 6>>
 			The <<group>> chatter at the sight of your <<breasts>>. "Pretty nice," the <<trashSelect>><<person>> says, smiling. "Decent size." The others nod their agreement.
-			<<set _notInsecure to $player.gender is "f" or $acceptance_breasts_big gte 1000>>
+			<<set _notInsecure to $player.sex is "f" or $acceptance_breasts_big gte 1000>>
 			<<set _insecurityType to "breasts_big">>
 			<<set _kind to true>>
 		<<case 7 8 9>>
 			The <<group>> let out scattered sounds of awe. The <<trashSelect>><<person>> gives a low whistle. "Now those are tits with some heft to them."
-			<<set _notInsecure to $player.gender is "f" or $acceptance_breasts_big gte 1000>>
+			<<set _notInsecure to $player.sex is "f" or $acceptance_breasts_big gte 1000>>
 			<<set _insecurityType to "breasts_big">>
 		<<case 10 11 12>>
 			"Holy shit," the <<trashSelect>><<person>> gasps. The rest of the <<group>> follow suit. The <<person>> grins and mimes milking a cow. "<<pShes>> massive. You could drown in those!"
 			<<set _notInsecure to $acceptance_breasts_big gte 1000>>
 			<<set _insecurityType to "breasts_big">>
-			<<set _breastEnvy to !_noFollowUp and $trashCompare.enviousBreastIds.length gte 1 and $deviancy gte 55>>
+			<<set _breastEnvy to !_noFollowUp and $trashCompare.enviousBreastIds.length gte 1 and hasSexStat("deviancy", 4)>>
 	<</switch>>
 	<br><br>
 
@@ -411,12 +428,12 @@ You search the piles of rubbish for anything of value.
 	<<switch $player.penissize>>
 		<<case -2>>
 			The <<group>> burst into uncontrollable laughter. "That's the smallest thing I've ever seen!" the <<trashSelect>><<person>> coos. "Aww, who's a little guy? Can it even get erect?"
-			<<set _notInsecure to $acceptance_penis_tiny gte 1000>>
-			<<set _insecurityType to "penis_tiny">>
+			<<set _notInsecure to $acceptance_penis_small gte 1000>>
+			<<set _insecurityType to "penis_small">>
 		<<case -1 0>>
 			The <<group>> turn to each other, before laughing. "Anyone have a microscope?" the <<trashSelect>><<person>> jokes.
-			<<set _notInsecure to $acceptance_penis_tiny gte 1000>>
-			<<set _insecurityType to "penis_tiny">>
+			<<set _notInsecure to $acceptance_penis_small gte 1000>>
+			<<set _insecurityType to "penis_small">>
 		<<case 1>>
 			The <<group>> look down at your <<penis>>, and a couple let out small chuckles. "A little on the small side," the <<trashSelect>><<person>> says. "It's no big deal."
 			<<set _notInsecure to $acceptance_penis_small gte 1000>>
@@ -432,7 +449,7 @@ You search the piles of rubbish for anything of value.
 			"Holy shit," the <<trashSelect>><<person>> whispers. "It's a fucking monster." The rest of the <<group>> gape in shock.
 			<<set _notInsecure to $acceptance_penis_big gte 1000>>
 			<<set _insecurityType to "penis_big">>
-			<<set _penisEnvy to !_noFollowUp and $trashCompare.enviousPenisIds.length gte 1 and $deviancy gte 55>>
+			<<set _penisEnvy to !_noFollowUp and $trashCompare.enviousPenisIds.length gte 1 and hasSexStat("deviancy", 4)>>
 	<</switch>>
 	<<if $player.penissize isnot 2>>
 		<br><br>
@@ -515,11 +532,11 @@ You approach the group, and find a <<fullGroup>>. They turn quiet when they hear
 "I heard you in the scrap and figured I'd come see what you were all doing. I didn't think I'd come across anyone here."
 <br><br>
 <<if $beauty gte 2000>>
-	The <<person4>><<person>> whispers to the <<person1>><<person>> at the front. The <<person1>><<person>> looks at <<him>> and the others questioningly, and they give <<him>> a nervous nod. "We'll tell you," the <<person1>><<person>> says, "but only if you agree not to tell anyone about it. Oh, and you had best do as we say too. If we show you it you'll have to join in with us."
+	The <<person4>><<person>> whispers to the <<person1>><<person>> at the front. The <<person1>><<person>> looks at <<him>> and the others questioningly, and they give <<him>> a nervous nod. "We'll tell you," the <<person1>><<person>> says, "but only if you agree not to tell anyone about it. Oh, and you had best do as we say too. If we show you it, you'll have to join in with us."
 	<br><br>
 	<<link [[Accept|Trash Compare Others]]>><<set $phase to 0>><</link>>
 	<br>
-	<<refuseicon>><<link [[Refuse|Trash Compare Refuse]]>><</link>>
+	<<link [[Refuse|Trash Compare Refuse]]>><</link>>
 <<else>>
 	"Nothing you would be interested in, ugly," the <<person3>><<person>> says, before <<he>> turns around and walks away with <<his>> friends.
 	<<trauma 6>><<gtrauma>>
@@ -622,7 +639,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 <</if>>
 
 <!-- TODO: add more reactions based on _randomLine. Each line should have variations that express different personalities. -->
-<!-- Example: lines where the NPC is embarassed, or confident/proud, or aroused, or embarassed AND aroused, or way too aroused -->
+<!-- Example: lines where the NPC is embarassed, or confident/proud, or aroused, or embarrassed AND aroused, or way too aroused -->
 <!-- This should also be done for the breast lines as well. -->
 <<if _npc.penis isnot "none">>
 	The <<person>> <<npcUndressText _npc "lower" "self">>, <<npcRevealText _npc "lower">>.
@@ -673,7 +690,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 			<<set _firstPerson to $index>>
 			<br><br>
 			The <<personselect $phase>><<person>>, and the rest of the <<group>>, give <<personselect _firstPerson>><<him>> weird looks, but the <<personselect $phase>><<person>> nonetheless turns around and sticks <<his>> bottom out.
-			<<His>> <<if $NPCList[$index].penis isnot "none">>$NPCList[$index].penisdesc is cradeled by <<his>> thighs, and <<his>><</if>> pussy is on full display. <<He>> seems confused, both by the request and by <<his>> own lack of resistance to it.
+			<<His>> <<if $NPCList[$index].penis isnot "none">>$NPCList[$index].penisdesc is cradled by <<his>> thighs, and <<his>><</if>> pussy is on full display. <<He>> seems confused, both by the request and by <<his>> own lack of resistance to it.
 			The <<personselect _firstPerson>><<person>>, on the other hand, lets out a quiet gasp.
 		<<case 4>>
 			<<He>> goes so far as to spread <<his>> vagina open, giving you and the group a look inside. There are a few scattered sounds of appreciation, but nobody says anything.
@@ -683,7 +700,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 			<<set _firstPerson to $index>><<personselect $phase>>
 			<br><br>
 
-			<<if $trashCompare.phasePool.contains(_firstPerson)>>
+			<<if $trashCompare.phasePool.includes(_firstPerson)>>
 				"You did? Okay!" The <<person>> adopts a beaming grin, and a blush spreads across <<his>> face as <<he>> enthusiastically holds <<his>> vagina open for the <<personselect _firstPerson>><<person>>.
 				The <<person>> stares intensely, and the <<personselect $phase>><<person>> slowly grows increasingly aroused, until the <<trashSelect>><<person>> ends the moment with a subtle cough.
 			<<else>>
@@ -712,17 +729,12 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 
 <<if $phase is 5>>
 	<<personselect $phase>>
-	The <<group>> turn to look at you expectantly. "Come on," the <<person>> says. "It's your turn.
-	<<if $player.gender_appearance is "f">>
-		Show us your chest."
-	<<else>>
-		Show us your junk."
-	<</if>>
+	The <<group>> turn to look at you expectantly. "Come on," the <<person>> says. "It's your turn. Show us your <<if $player.gender_appearance is "f">>tits<<else>>junk<</if>>."
 	<br><br>
 
 	<<link [[Try and back out|Trash Compare Back Out]]>><</link>>
 	<br>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		<<link [[Show them|Trash Compare Show]]>><</link>><<exhibitionist4>>
 		<br>
 	<</if>>
@@ -734,15 +746,9 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 <<effects>>
 "No, I'd rather not," you say to the <<group>>.
 <br><br>
-"You made a promise," the <<person1>><<person>> retorts angrily, stepping forward. "Now you can either strip of your own free will, or we can make you." <<He>> crosses <<his>> arms. "It's ok if you feel a little embarrassed, but a promise is a promise.
-<<if $player.gender_appearance is "f">>
-	So take out your tits."
-<<else>>
-	So take out your dick."
-<</if>>
-<<stress 6>><<gstress>>
+"You made a promise," the <<person1>><<person>> retorts angrily, stepping forward. "Now you can either strip of your own free will, or we can make you." <<He>> crosses <<his>> arms. "It's ok if you feel a little embarrassed, but a promise is a promise. So take out your <<if $player.gender_appearance is "f">>tits<<else>>dick<</if>>."<<stress 6>><<gstress>>
 <br><br>
-<<if $exhibitionism gte 55>>
+<<if hasSexStat("exhibitionism", 4)>>
 	<<link [[Strip|Trash Compare Show]]>><</link>><<exhibitionist4>>
 <<else>>
 	<<link [[Reluctantly strip|Trash Compare Show]]>><<set $desperateaction to 2>><</link>><<exhibitionist4>>
@@ -756,7 +762,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 <<set _audience to [0,1,2,3,4,5]>>
 
 <<if $player.gender_appearance is "f">>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		"My turn," you say with a grin, before grasping your $worn.upper.name.
 	<<else>>
 		You nervously grasp your $worn.upper.name.
@@ -768,7 +774,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 	<<TrashComparePlayerBreastsReact>>
 
 <<else>>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		"My turn," you say with a grin, before grasping your $worn.lower.name.
 	<<else>>
 		You nervously grasp your $worn.lower.name.
@@ -799,7 +805,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 
 	<<link [[Refuse|Trash Compare Show Refuse]]>><<set $phase to 2>><</link>>
 	<br>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		<<link [[Show them|Trash Compare Breasts Show All]]>><</link>><<exhibitionist4>>
 	<</if>>
 
@@ -812,7 +818,7 @@ Wary of their offer, you decline, and take your leave. The <<group>> watch you a
 
 	<<link [[Refuse|Trash Compare Show Refuse]]>><<set $phase to 1>><</link>>
 	<br>
-	<<if $exhibitionism gte 55>>
+	<<if hasSexStat("exhibitionism", 4)>>
 		<<link [[Show them|Trash Compare Penis Show All]]>><</link>><<exhibitionist4>>
 	<</if>>
 
@@ -851,7 +857,7 @@ Talking together they search their pockets and manage to produce a total of <<pr
 Grinning, you take their money and tell them about the urchin parasites they can find in the sea, and how if you let them stay on your _target, they make _it grow. You neglect to tell them about how it likes to pleasure them too.
 You can only imagine them attempting to try this before realising in shock what it's doing to them and that they can't get it off without showing their _target to a doctor.
 <<arousal 1000>><<garousal>>
-<<set $money += _offer>>
+<<money _offer>>
 <br><br>
 
 <<if $trashCompare.girl is 6 and $phase is 0>>

@@ -1,63 +1,153 @@
 :: Widgets Journal [widget]
 <<widget "journal">>
 	<br>
-	<<print "It is the " + ordinalSuffixOf(Time.monthDay) + " of " + Time.monthName + ", " + Time.year + "." >>
-	<ul style="margin-top:10px;margin-left:-5px;">
+	<<print "It is " + getFormattedDate(Time.date) + ", " + Time.year + ".">>
+	<ul class="journal">
 	<<if Time.days lt 0>>
 		<<if Time.days lt -365>>
-			<li>It is around <span class="gold"><<print Math.floor(Time.startDate.year - Time.year)>></span> years before you started the game.</li>
+			<<set _yearsBefore = Math.floor(Time.startDate.year - Time.year)>>
+			<li>It is around <span class="gold"><<print _yearsBefore>></span> <<pluralise _yearsBefore "year">> before you started the game.</li>
 		<<else>>
-			<li>It is <span class="gold"><<print Time.days * -1>></span> days before you started the game.</li>
+			<<set _daysBefore = Time.days * -1>>
+			<li>It is <span class="gold"><<print _daysBefore>></span> <<pluralise _daysBefore "day">> before you started the game.</li>
 		<</if>>
 	<<else>>
-		<li>It has been <span class="gold"><<print Time.days>></span> days since the game started.</li>
+		<li>It has been <span class="gold"><<print Time.days>></span> <<pluralise Time.days "day">> since the game started.</li>
 		<<if $hardmodedays isnot undefined>>
-			<li>You survived <span class="gold">$hardmodedays</span> days on hard mode.</li>
+			<li>You survived <span class="gold">$hardmodedays</span> <<pluralise $hardmodedays "day">> on hard mode.</li>
 			<br>
 		<</if>>
-		<li>The game started in $startingseason.</li>
+		<li>The game started in <<print Time.getSeason(new DateTime($startDate))>>.</li>
 		<li>It is <<print Time.season>>.</li>
 		<li><<schoolterm>></li>
 	<</if>>
 	</ul>
 
 	<<if $options.images is 1>>
-		<<if Time.season is "winter">>
-			<img id="world_map" src="img/misc/world_map_winter.png">
+		<div class="map">
+			<<if Weather.isSnow>>
+				<img id="world_map" src="img/misc/world_map_winter.png">
+			<<else>>
+				<img id="world_map" src="img/misc/world_map.png">
+			<</if>>
+		</div>
+	<</if>>
+
+	<<if $hc>>
+		<hr>
+		<h1 class="header gold bold">Hopeless Cycle</h1>
+		<<if $tags.includes("ending")>>
+			All stories must end.
+		<<elseif Time.isBloodMoon()>>
+			The blood moon looms. This is it.
 		<<else>>
-			<img id="world_map" src="img/misc/world_map.png">
+			<<set $_daysUntilBloodMoon to Time.lastDayOfMonth - Time.monthDay>>
+			<<if $_daysUntilBloodMoon is 0>>
+				Night of the blood moon.
+			<<elseif $_daysUntilBloodMoon is 1>>
+				One day until the blood moon.
+			<<else>>
+				<<Number $_daysUntilBloodMoon>> days until the blood moon.
+			<</if>>
+			<br>
+			<<if $prisonerEvents.includes("health")>>
+				<ul class="journal">
+					<<if $hc.nightBreakIn is "heard">>
+						<li>Someone plans to sneak into <<= $prisoner.name>>'s cell late at night.</li>
+					<</if>>
+					<<if $prisonerEvents.includes("raped") and !$prisonerEvents.includes("rapedReported")>>
+						<li>You can inform the Hand of <<= $prisoner.name>>'s defilement in the prayer room.</li>
+					<</if>>
+					<<if $prisonerEvents.includes("brand")>>
+						<li><<= $prisoner.name.toUpperFirst()>>'s burns can be treated with herbs from the garden and <i>clean</i> water.</li>
+					<</if>>
+					<<if $hc.dogs>>
+						<li>House Romilly's dogs are present in the garden.</li>
+					<</if>>
+					<<if $hc.wellTainted>>
+						<li>The well's water is foul. Water can be sourced from the lake in the forest instead.</li>
+					<</if>>
+				</ul>
+			<</if>>
+			<<if Object.values($hcChallenge).count(true)>>
+				<<if $hcChallengeRandom.blind>>
+					<<if $hcChallengeRandom.min is $hcChallengeRandom.max>>
+						You selected <<number Object.values($hcChallenge).count(true)>> <span class="blue">unknown</span> challenges.
+					<<else>>
+						You selected between <<number $hcChallengeRandom.min>> and <<number $hcChallengeRandom.max>> <span class="blue">unknown</span> challenges.
+					<</if>>
+				<<else>>
+					<<hcChallengeSummary "journal">>
+				<</if>>
+			<</if>>
 		<</if>>
-		<br>
+	<</if>>
+	<<if $statFreeze>>
+		<<exit>>
 	<</if>>
 
 	<<if $rentday isnot undefined || $rentmoney isnot undefined>>
 		<hr>
-		<span class="gold bold">Time-Sensitive</span>
-		<ul style="margin-top:10px;margin-left:-5px;">
-			<<if $rentday isnot undefined>>
-				<<if $renttime lte 0>>
-					<li>Bailey is looking for you, and wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+		<h1 class="header gold bold">Time-Sensitive</h1>
+		<ul class="journal">
+			<<if $avery_mansion>>/* Is Avery paying for the PC? */
+				<<if $avery_mansion.rage.assess gte 9>>
+					<<set _avery_pay to false>>
 				<<else>>
-					<li>Bailey wants <<printmoney $rentmoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+					<<set _avery_pay to true>>
 				<</if>>
-			<<elseif $rentmoney isnot undefined>>
-				<li>Bailey wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+			<<else>>
+				<<set _avery_pay to false>>
+			<</if>>
+			<<if !_avery_pay>>
+				<<if $rentday isnot undefined>>
+					<<if $renttime lte 0>>
+						<li>Bailey is looking for you and wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+					<<else>>
+						<li>Bailey wants <<printmoney $rentmoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+					<</if>>
+				<<elseif $rentmoney isnot undefined>>
+					<li>Bailey wants <<printmoney $rentmoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+				<</if>>
+			<</if>>
+
+			<<if $syndromeeden is 1 and $edenfreedom gte 1 and $location isnot "cabin">> /* Another parameter is planned, something like $edenpunishment. It is meant to only trigger the journal note after the player has been given a reason to be wary of breaking Eden's rules. */
+				<<if edenFreedomStatus() is 0>>
+					<li>You are expected back at Eden's cabin
+					<<if $edenfreedom is 1>>
+						<<if $edendays is 2>>
+							<span class="pink">tonight, before midnight</span>.
+						<<else>> /* $edendays is 1 */
+							by <span class="gold">tomorrow night</span>, at the latest.
+						<</if>>
+					<<else>> /* $edenfreedom is 2 or more */
+						<<if $edendays is 7>>
+							<span class="pink">tonight, before midnight</span>.
+						<<elseif $edendays is 6>>
+							by <span class="gold">tomorrow night</span>, at the latest.
+						<<else>> /* $edendays is between 1 and 5 */
+							in <span class="gold"><<print ["seven", "six", "five", "four", "three", "two"][$edendays]>></span> days, at the latest.
+						<</if>>
+					<</if>></li>
+				<<elseif edenFreedomStatus() is 1 and (($edenfreedom is 1 and $edendays lt 4) or ($edenfreedom is 2 and $edendays lt 10))>> /* Warning lasts for one day on freedom 1 and two days on freedom 2 */
+					<li>You have <span class="red">failed</span> to return to Eden on time. <<nnpc_He "Eden">> will have noticed by now.</li>
+				<</if>>
 			<</if>>
 
 			<<if $averydate is 1 and Time.hour lte 21 and $averydatedone isnot 1>>
-				<li>You have a date scheduled with Avery. <<nnpc_He "Avery">>'ll wait for you on Domus Street between <span class="gold"><<ampm 20 00>></span> and <span class="gold"><<ampm 21 00>></span>.</li>
+				<li>You have a date scheduled with Avery <span class="pink"><<this_saturday>></span>. <<nnpc_He "Avery">>'ll wait for you <<= $avery_mansion ? "in the garage" : "on Domus Street">> between <span class="gold"><<ampm 20 00>></span> and <span class="gold"><<ampm 21 00>></span>.</li>
 			<</if>>
 
-			<<if $psych is 1>>
-				<li>You have an appointment with Doctor Harper
+			<<if $harper_appointments.enabled or $schoolPsych is 1>>
+				<li>You <<if $harper_appointments.enabled>>have an<<else>>may get an<</if>> appointment with Doctor Harper
 				<<if Time.weekDay is 6>>
 					<<if $daily.harperVisit is 1>>
-						next <span class='yellow'>Friday</span>.
+						next <span class="gold">Friday</span>.
 					<<else>>
-						<span class='pink'>today</span>.
+						<span class="pink">today</span>.
 					<</if>>
 				<<else>>
-					on <span class='yellow'>Friday</span>.
+					on <span class="gold">Friday</span>.
 				<</if>></li>
 			<</if>>
 
@@ -65,12 +155,12 @@
 				<li>You're expected to perform at the brothel
 				<<if Time.weekDay is 6>>
 					<<if $brothelshowdata.done>>
-						next <span class='yellow'>Friday</span>.
+						next <span class="gold">Friday</span>.
 					<<else>>
-						<span class='pink'>today</span>.
+						<span class="pink">today</span>.
 					<</if>>
 				<<else>>
-					on <span class='yellow'>Friday</span>.
+					on <span class="gold">Friday</span>.
 				<</if>></li>
 			<</if>>
 
@@ -79,14 +169,15 @@
 					<<set _date to new DateTime($brothel_escortjob.date)>>
 					<li>You have an escort job scheduled. You're expected to be in front of the brothel
 					<<if Time.monthDay is _date.day>>
-						<span class="gold">today</span> at <span class="gold"><<ampm _date.hour>></span>.
+						<span class="pink">today</span>
 					<<elseif Time.date.dayDifference(_date) is 1>>
-						<span class="gold">tomorrow</span>.
+						<span class="gold">tomorrow</span>
 					<<elseif Time.date.dayDifference(_date) gte 7>>
-						next <span class="gold">_date.weekDayName</span> at <span class="gold"><<ampm _date.hour>></span>.
+						next <span class="gold">_date.weekDayName</span>
 					<<else>>
-						on <span class="gold">_date.weekDayName</span> at <span class="gold"><<ampm _date.hour>></span>.
-					<</if>></li>
+						on <span class="gold">_date.weekDayName</span>
+					<</if>>
+					at <span class="gold"><<ampm _date.hour>></span>.</li>
 				<</if>>
 			<</if>>
 
@@ -109,14 +200,18 @@
 				<</if>>
 			<</if>>
 
+			<<if $wrenHeist is true and Time.hour lte 20 and $wrenHeistDance.attended isnot true>>
+				<li>You are supposed to meet Wren <span class="pink">tonight</span> between <span class="gold"><<ampm 19 00>></span> and <span class="gold"><<ampm 21 00>></span>. <<nnpc_He "Wren">> gave you directions to the mansion on Danube Street.</li>
+			<</if>>
+
 			<<if $smuggler_known is 1 and $smuggler_timer gte 0>>
 				<li>Smugglers are bringing something valuable into town
 					<<if $smuggler_timer is 0>>
-						<span class="gold">tonight</span>, before midnight.
+						<span class="pink">tonight</span>, before midnight.
 					<<elseif $smuggler_timer is 1>>
 						<span class="gold">tomorrow</span>, before midnight.
 					<<else>>
-						in <span class="gold">$smuggler_timer</span> days.
+						<<nDays $smuggler_timer>>.
 					<</if>>
 					<<if $smuggler_location is "forest">>
 						They're bringing it through the forest.
@@ -133,13 +228,11 @@
 			<<if $farm_stage gte 7>>
 				<li>Remy will attack the farm
 					<<if $farm_attack_timer is 0>>
-						<span class="gold">tonight</span>.
-					<<elseif $farm_attack_timer is 1>>
-						<span class="gold">tomorrow</span>.
+						<span class="pink">tonight</span>.
 					<<else>>
-						in <span class="gold">$farm_attack_timer</span> days.
+						<<nDays $farm_attack_timer>>.
 					<</if>>
-					<<nnpc_He Remy>>'ll arrive between <<ampm 21 00>> and midnight.
+					<<nnpc_He Remy>>'ll arrive between <span class="gold"><<ampm 21 00>></span> and <span class="gold">midnight</span>.
 				</li>
 			<</if>>
 
@@ -148,23 +241,85 @@
 					<<if $temple_chastity_timer lte 0>>
 						<span class="pink">You have a chastity exam due.</span>
 					<<elseif $temple_chastity_timer is 1>>
-						You have a chastity exam due <span class="purple">tomorrow.</span>
+						You have a chastity exam due <span class="purple">tomorrow</span>.
 					<<else>>
-						You have a chastity exam due in <span class="gold">$temple_chastity_timer</span> days.
+						You have a chastity exam due <<nDays $temple_chastity_timer>>.
 					<</if>>
 					You will receive an <span class="gold">allowance</span> when passing the exam.
+				</li>
+			<</if>>
+
+			<<if $studyBooks isnot undefined and ($studyBooks?.rented isnot "none" or $studyBooks?.stolen isnot "none")>>
+				<li>
+					<<if $studyBooks.rented isnot "none">>
+						<<switch $studyBooks.rented>>
+							<<case "Pinch">>
+								<<if $per_npc.pinch isnot undefined>>
+									<<set _book to `copy of \"How ${$per_npc.pinch.pronoun is "m" ? "Mr" : "Ms"} Pinch Groped Christmas\"`>>
+								<<else>>
+									<<set _book to "olive-coloured book">>
+								<</if>>
+							<<case "Raul and Janet">>
+								<<set _book to `copy of \"${$studyBooks.rented}\"`>>
+							<<case "English" "science" "maths" "history">>
+								<<set _book to $studyBooks.rented + " textbook">>
+						<</switch>>
+						<<if Time.schoolTerm>>
+							<<if $book_rent_timer is 0>>
+								<span class="blue">You have <<a _book>> due.</span>
+							<<elseif $book_rent_timer lt 0>>
+								<span class="red">You have <<a _book>> overdue.</span>
+							<<else>>
+								You have <<a _book>> due in <span class="gold">$book_rent_timer</span> <<pluralise $book_rent_timer "day">>.
+							<</if>>
+						<</if>>
+					<</if>>
+					<<if $studyBooks.stolen isnot "none">>
+						<<set _colour to $bookStolenKnown gte 3 ? "red" : $bookStolenKnown is 2 ? "pink" : "white">>
+						<<switch $studyBooks.stolen>>
+							<<case "Pinch">>
+								<<if $per_npc.pinch isnot undefined>>
+									<span @class=_colour>You've stolen a copy of "How <<= $per_npc.pinch.pronoun is "m" ? "Mr" : "Ms">> Pinch Groped Christmas".</span>
+								<<else>>
+									<span @class=_colour>You've stolen an olive-coloured book.</span>
+								<</if>>
+							<<case "Raul and Janet">>
+								<span @class=_colour>You've stolen a copy of "$studyBooks.stolen".</span>
+							<<case "English" "science" "maths" "history">>
+								<span @class=_colour>You've stolen <<a $studyBooks.stolen>> textbook.</span>
+							<<default>>
+						<</switch>>
+					<</if>>
+					<<if !Time.schoolTerm and $studyBooks.rented isnot "none">>
+						<<if $studyBooks.rented>>You have <<a _book>> checked out.<</if>>
+						<span class="blue">Books are not due over school break!</span>
+					<</if>>
+				</li>
+			<</if>>
+
+			<<if $gwylanSeen?.includes("ritual_beast")>>
+				<li>
+					<<run statusCheck("Gwylan")>>
+					<<if $gwylan.timer.ritual and Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) > 0>>
+						<<set _ritualDays to Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual))>>
+						Gwylan will be ready for another ritual in <span class="gold"><<number _ritualDays>></span> <<pluralise _ritualDays "day" "days">>.
+					<<elseif _gwylanStatus.includes("badEndReady") or $gwylan.hunting is 3>>
+						<span class="red">Gwylan is waiting to perform another ritual with you.</span>
+					<<else>>
+						<span class="pink">Gwylan is ready to perform another ritual.</span>
+					<</if>>
 				</li>
 			<</if>>
 		</ul>
 	<</if>>
 
-	<<if ($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || ($studyBooks isnot undefined and $studyBooks.rented isnot "none") || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined)>>
+	<<if !$statFreeze and (($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $dockwork gte 2 || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || $gwylan?.request.event)>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
-		<span class="gold bold">Reminders</span>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<h1 class="header gold bold">Reminders</h1>
+		<ul class="journal carry">
 			<<if $temple_spear_mission is 1>>
-				<li>Jordan has tasked you with retrieving an artefact spear. It is said to reside on a mysterious island.
+				<li><<islandicon>> Jordan has tasked you with retrieving an artefact spear. It is said to reside on a mysterious island.
 					<<if $temple_spear_mission_winter is undefined>>
 						Jordan mentioned that the historian at the local museum might have more information.
 					<<else>>
@@ -174,47 +329,51 @@
 			<</if>>
 			<<if $eden_asylum_window is 1 and $location is "asylum">>
 				<<if Time.hour lt 22>>
-					<li>Eden will be watching the asylum at <<ampm 20 00>> tonight.</li>
+					<li><<asylumicon "cell">> Eden will be watching the asylum at <<ampm 20 00>> <span class="pink">tonight</span>.</li>
 				<<else>>
-					<li>Eden is watching the asylum, waiting for you to mark your room.</li>
+					<li><<asylumicon "cell">> Eden is watching the asylum, waiting for you to mark your room.</li>
 				<</if>>
 			<</if>>
 
 			<<if $daily.eden.distract gte 1 and $location is "asylum">>
 				<<if Time.hour lt 21>>
-					<li>Eden will create a distraction at <<ampm 21 00>> tonight.</li>
+					<li><<asylumicon "cell">> Eden will create a distraction at <<ampm 21 00>> <span class="pink">tonight</span>.</li>
 				<</if>>
 			<</if>>
 
 			<<if $dockwork gte 2>>
-				<li>You can work at the docks starting from <<ampm 7 00>> - <<ampm 8 00>> on any day except school days.</li>
+				<li><<docksicon>> You can work at the docks starting from <<ampm 7 00>> - <<ampm 8 00>><<if !($idDocksReveal is 2)>> on any day except school days<</if>>.</li>
 			<</if>>
 
-			<<if $brothelshowdata.intro and $brothelshowdata.type is "none" >>
-				<li>You can star in shows at the brothel.</li>
+			<<if $brothelshowdata.intro and $brothelshowdata.type is "none">>
+				<li><<brothelicon "stage">> You can star in shows at the brothel.</li>
 			<</if>>
 
 			<<if $pubtask2 is 1>>
-					<li>Return the black box to Landry at the pub.</li>
+				<li><<crimeicon "black box">> Return the black box to Landry at the pub.</li>
 			<<elseif $pubtask>>
-					<li>Landry wants you to retrieve a black box from the $pubtask.</li>
+				<li><<crimeicon "black box">> Landry wants you to retrieve a black box from the $pubtask.</li>
+			<</if>>
+
+			<<if $farm_manors_usb gte 1>>
+				<li><<techicon "usb">> You have a USB containing sensitive information, found in a manor in the farmlands.</li>
 			<</if>>
 
 			<<if $police_hack is 1>>
-					<li>Landry might be able to help you with the locked police computer.</li>
+				<li><<techicon "computer">> Landry might be able to help you with the locked police computer.</li>
 			<<elseif $pub_hack_job is 1>>
-					<li>Landry wants you to find a hacker supposedly named 'Mickey' living at the Domus street orphanage.</li>
+				<li><<investigateicon>> Landry wants you to find a hacker supposedly named 'Mickey' living at the Domus Street orphanage.</li>
 			<<elseif $pub_hack_job is 2>>
-					<li>Convince 'Mickey' to work with you.</li>
+				<li><<socialiseicon>> Convince 'Mickey' to work with you.</li>
 			<<elseif $pub_hack_job is 3>>
 				<<if !$hacker_tasks.includes("bailey")>>
-					<li>'Mickey' wants you to implant a device on Bailey's computer while Bailey is logged in.</li>
+					<li><<techicon "email">> 'Mickey' wants you to implant a device on Bailey's computer while Bailey is logged in.</li>
 				<</if>>
 				<<if !$hacker_tasks.includes("leighton")>>
-					<li>'Mickey' wants you to steal memory cards from a strongbox under Leighton's desk.</li>
+					<li><<crimeicon "safe">> 'Mickey' wants you to steal memory cards from a strongbox under Leighton's desk.</li>
 				<</if>>
 				<<if $hacker_tasks.length gte 2>>
-					<li>You need to talk to Landry about 'Mickey'.</li>
+					<li><<socialiseicon>> You need to talk to Landry about 'Mickey'.</li>
 				<</if>>
 			<</if>>
 
@@ -223,40 +382,45 @@
 					<li>
 						<<switch $pubfame.task>>
 							<<case "river">>
-								'Mickey' wants you to check on River, the maths teacher at your school.
+								<<investigateicon>> 'Mickey' wants you to check on River, the maths teacher at your school.
 							<<case "gwylan">>
-								'Mickey' wants you to find a specific snow globe at <<if $forest_shop_intro is 1>>Gwylan's shop<<else>>the shop on the outskirts of the forest<</if>>.
+								<<icon "snowgsnowglobelobe.gif">> 'Mickey' wants you to find a specific snow globe at <<if $forest_shop_intro is 1>>Gwylan's shop<<else>>the shop on the outskirts of the forest<</if>>.
 							<<case "temple">>
-								'Mickey' wants you to find a book on architecture at the temple with a password on the inside cover.
+								<<templeicon>> 'Mickey' wants you to find a book on architecture at the temple with a password on the inside cover.
 							<<case "kylar">>
-								'Mickey' wants you to deliver a letter to
+								<<icon "manilaenvelope.png">> 'Mickey' wants you to deliver a letter to
 								<<if C.npc.Kylar.state is "prison">>
 									the police station, so they can give it to Kylar.
 								<<else>>
 									Kylar<<if C.npc.Kylar.init isnot 1>>, a student at your school<</if>>.
 								<</if>>
 							<<case "wren">>
-								'Mickey' wants you to deliver a letter to <<if $wren_intro is undefined>>a <<nnpc_gender "Wren">> named Wren. <<nnpc_He "Wren">> can be found at Remy's estate in the moor, or at the docks at night<<else>>Wren<</if>>.
+								<<icon "manilaenvelope.png">> 'Mickey' wants you to deliver a letter to <<if $wren_intro is undefined>>a <<nnpc_gender "Wren">> named Wren. <<nnpc_He "Wren">> can be found at Remy's estate in the moor, or at the docks at night<<else>>Wren<</if>>.
 							<<case "hospital">>
+								<<icon "access_card.png">>
 								'Mickey' wants you to steal a keycard from the hospital.
 								<<if $location is "asylum">>
 									However, you think they might be happy with a keycard from this place too.
 								<</if>>
 							<<case "morgan">>
-								'Mickey' wants you to retrieve a USB drive from the old sewers. They think <<if $sewersintro is 1>>Morgan<<else>>someone down there<</if>> has it.
+								<<techicon "usb">> 'Mickey' wants you to retrieve a USB drive from the old sewers. They think <<if $sewersintro is 1>>Morgan<<else>>someone down there<</if>> has it.
 							<<case "niki">>
-								'Mickey' wants you to retrieve a photo from Niki's photography studio, of a $per_npc.pubfame_model.fullDescription with $pubfame.niki.hair hair.
+								<<photographystudioicon>> 'Mickey' wants you to retrieve a photo from Niki's photography studio, of a $per_npc.pubfame_model.fullDescription with $pubfame.niki.hair hair.
 							<<case "bailey">>
-								'Mickey' wants you to implant a device on Bailey's computer while Bailey is logged in.
+								<<techicon "usb">> 'Mickey' wants you to implant a device on Bailey's computer while Bailey is logged in.
 							<<case "briar">>
-								'Mickey' wants you to implant a device on Briar's computer at the brothel.
+								<<techicon "usb">> 'Mickey' wants you to implant a device on Briar's computer at the brothel.
 							<<case "office">>
-								'Mickey' wants you to deliver a letter to the office building.
+								<<if $avery_fate is "ascended">>
+									<<skyscrapericon>> 'Mickey' wants you to deliver a letter to Avery's skyscraper
+								<<else>>
+									<<officebuildingicon>> 'Mickey' wants you to deliver a letter to the office building
+								<</if>>.
 							<<case "remy">>
 								<!-- intentionally does not include the password -->
-								'Mickey' wants you to retrieve a package from a contact at Remy's riding school<<if $ridingschoolintro is undefined>>, in the countryside beyond Harvest Street<</if>>.
+								<<steedicon>> 'Mickey' wants you to retrieve a package from a contact at Remy's riding school<<if $ridingschoolintro is undefined>>, in the countryside beyond Harvest Street<</if>>.
 							<<case "compound">>
-								'Mickey' wants you to set cameras around the compound on Elk Street.
+								<<techicon "vcam">> 'Mickey' wants you to set cameras around the compound on Elk Street.
 								<<if $pubfame.compound.cameras.length gte 1>>
 									You've already hidden cameras in <<print formatList($pubfame.compound.cameras, "and", true)>>.
 								<</if>>
@@ -264,20 +428,20 @@
 						They'll <<if $pubfame.goal.includes("perm")>>permanently<<else>>temporarily<</if>> <<if $pubfame.goal.includes("Raise")>>raise<<else>>lower<</if>> your <<fameProse $pubfame.target>> fame upon completion.
 					</li>
 				<<elseif $pubfame.status is "done">>
-					<li>You can report to 'Mickey' that your favour is complete.</li>
+					<li><<socialiseicon>> You can report to 'Mickey' that your favour is complete.</li>
 				<</if>>
 			<</if>>
 
 			<<if $robindebtevent gte 1 and $robinmissing is "docks" and $docksrobinintro isnot 1>>
-				<li>Robin is missing. <<nnpc_He "Robin">> was taken to the docks on Mer Street.</li>
+				<li><<docksicon>> Robin is missing. <<nnpc_He "Robin">> was taken to the docks on Mer Street.</li>
 			<</if>>
 
 			<<if $robindebtevent gte 1 and $robinmissing is "landfill" and $mistrobinintro isnot 1 and $robinmistknown>>
-				<li>Robin is missing. <<nnpc_He "Robin">> was taken to the landfill on Elk Street.</li>
+				<li><<landfillicon>> Robin is missing. <<nnpc_He "Robin">> was taken to the landfill on Elk Street.</li>
 			<</if>>
 
 			<<if $robindebtevent gte 1 and $robinmissing is "pillory" and $robinPillory.known is 1>>
-				<li>Robin is missing.
+				<li><<pilloryicon>> Robin is missing.
 					<<if Time.hour lte 14>>
 						<<nnpc_Hes "Robin">> scheduled to be put in the pillory on Cliff Street at <<ampm 15 00>>.
 					<<else>>
@@ -289,97 +453,90 @@
 			<<if $earSlime.event and !_tempEventHide>>
 				<<switch $earSlime.event>>
 					<<case "get sperm into your anus" "get sperm into your vagina" "get sperm into your anus completed" "get sperm into your vagina completed">>
-						<li class="lewd">The slime in your head commanded you to get sperm into your <<print $player.vaginaExist ? "vagina" : "anus">>.</li>
+						<li class="lewd"><<socialiseicon "ask">> The slime in your head commanded you to get sperm into your <<print $player.vaginaExist ? "vagina" : "anus">>.</li>
 					<<case "get your own sperm into your anus" "get your own sperm into your vagina" "get your own sperm into your anus completed" "get your own sperm into your vagina completed">>
-						<li class="lewd">The slime in your head commanded you to get your own sperm into your <<print $player.vaginaExist ? "vagina" : "anus">>.</li>
+						<li class="lewd"><<socialiseicon "ask">> The slime in your head commanded you to get your own sperm into your <<print $player.vaginaExist ? "vagina" : "anus">>.</li>
 					<<case "only sleep naked from now on" "only wear feminine clothes for a while" "only wear masculine clothes for a while">> /* Show nothing */
 					<<default>>
-						<li class="lewd">The slime in your head commanded you to <<print $earSlime.event>><<if $earSlime.noSleep>> before it allows you to sleep<</if>>.</li>
+						<li class="lewd"><<bedicon>> The slime in your head commanded you to <<print $earSlime.event>><<if $earSlime.noSleep>> before it allows you to sleep<</if>>.</li>
 				<</switch>>
 			<</if>>
 			<<if $earSlime.forcedCommando isnot undefined>>
-				<li class="lewd">The slime in your head commanded you to go commando.</li>
+				<li class="lewd"><<icon "cross.png" "infront">><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> The slime in your head commanded you to go commando.</li>
 			<</if>>
 			<<if $earSlime.forcedDressing isnot undefined>>
-				<li class="lewd">The slime in your head commanded you to only wear more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</li>
+				<li class="lewd"><<if $earSlime.forcedDressing.type is "f">><<femaleicon>><<else>><<maleicon>><</if>> The slime in your head commanded you to only wear more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</li>
 			<</if>>
 
 			<<if $temple_rank is "prospective">>
-				<li>Jordan has offered you a place at the temple, but you must first pass the trial of purity.</li>
+				<li><<templeicon>> Jordan has offered you a place at the temple, but you must first pass the trial of purity.</li>
 			<</if>>
 
 			<<if $chef_state is 4>>
-				<li>Sam wants you to visit an address on Nightingale Street.</li>
+				<li><<nightingaleicon>> Sam wants you to visit an address on Nightingale Street.</li>
 			<<elseif $chef_state is 7 and $chef_rework lte 0>>
-				<li>The renovations at the Ocean Breeze have finished.</li>
+				<li><<cafeicon>> The renovations at the Ocean Breeze have finished.</li>
 			<<elseif $chef_state is 7 and $chef_rework lte 30>>
-				<li>The Ocean Breeze is closed for renovations. They will be done in <span class="gold">$chef_rework</span> days.</li>
+				<li><<cafeicon>> The Ocean Breeze is closed for renovations. They will be done <<nDays $chef_rework>>.</li>
 			<<elseif $chef_state is 7>>
-				<li>The Ocean Breeze will close for renovations in <span class="gold"><<print ($chef_rework - 30)>></span> days.</li>
+				<<set _timer to $chef_rework - 30>>
+				<li><<cafeicon>> The Ocean Breeze will close for renovations <<nDays _timer>>.</li>
 			<<elseif $chef_state is 8>>
-				<li>Sam wants you to attend the Ocean Breeze's grand reopening on any evening between <<ampm 18 00>> and <<ampm 21 00>>.</li>
+				<li><<cafeicon>> Sam wants you to attend the Ocean Breeze's grand reopening on any evening between <<ampm 18 00>> and <<ampm 21 00>>.</li>
 			<</if>>
 
 			<<if $mason_pond is 1>>
-				<li>Mason mentioned a stream under Domus Street, which could be used to make a spring. You'd need Bailey's permission first.</li>
+				<li><<socialiseicon "ask">> Mason mentioned a stream under Domus Street, which could be used to make a spring. You'd need Bailey's permission first.</li>
 			<<elseif $mason_pond is 2>>
-				<li>Bailey wants <span class="gold">£6000</span> to build a spring in the orphanage garden.</li>
+				<li><<birdicon "wallet">> Bailey wants <<printmoney 600000>> to build a spring in the orphanage garden.</li>
 			<<elseif $mason_pond is 3>>
-				<li>A spring is being built in the orphanage garden.</li>
+				<li><<watericon "waterside_wolfcave">> A spring is being built in the orphanage garden.</li>
 			<<elseif $mason_pond is 4>>
-				<li>The spring in the orphanage garden should be finished.</li>
+				<li><<watericon "waterside_wolfcave">> The spring in the orphanage garden should be finished.</li>
 			<</if>>
 
 			<<if $brothel_machine_repair is 1>>
-				<li>Ask Briar about the backstage sex machine.</li>
+				<li><<socialiseicon "ask">> Ask Briar about the backstage sex machine.</li>
 			<<elseif $brothel_machine_repair is 2>>
-				<li>The brothel sex machine needs refuelling. It uses an expensive pink gel. Briar suggested looking in the landfill. It would be deep inside, near the compactor.</li>
+				<li><<symbol "lust">> The brothel sex machine needs refuelling. It uses an expensive pink gel. Briar suggested looking in the landfill. It would be deep inside, near the compactor.</li>
 			<<elseif $brothel_machine_repair is 3>>
-				<li>You have the pink gel Briar wants for the sex machine.</li>
+				<li><<symbol "lust">> You have the pink gel Briar wants for the sex machine.</li>
 			<</if>>
 
 			<<if $harpy gte 6 and $birdFly isnot 1>>
-				<li>Your wings are strong, but you don't know how to use them. The Great Hawk could teach you.</li>
+				<li><<birdicon "prepare_hunt_day">> Your wings are strong, but you don't know how to use them. The Great Hawk could teach you.</li>
 			<</if>>
 
 			<<if $farm_stage gte 5 and $estate_fence is undefined>>
-				<li>Remy is encroaching on Alex's farm, operating from the estate on the moor.</li>
-			<<elseif $estate_fence is "quest" and currentSkillValue('skulduggery') lt 800>>
-				<li>Find someone who can help you break into the Remy estate. Someone with underworld connections, or who knows the moor.</li>
-			<<elseif $estate_fence is "bird">>
-				<li>Search the Remy estate fence for an entrance made by the Great Hawk.</li>
-			<<elseif $estate_fence is "landry">>
-				<li>Search the Remy estate fence for an entrance made by Landry's specialist.</li>
+				<li><<mooricon "remy">> Remy is encroaching on Alex's farm, operating from the estate on the moor.</li>
+			<<elseif $farm_stage gte 5 or isPubfameTaskAccepted("wren")>>
+				<<if $estate_fence is "quest" and currentSkillValue('skulduggery') lt 800>>
+					<li><<mooricon "remy">> Find someone who can help you break into the Remy estate. Someone with underworld connections, or who knows the moor.</li>
+				<<elseif $estate_fence is "bird">>
+					<li><<mooricon "remy">> Search the Remy estate fence for an entrance made by the Great Hawk.</li>
+				<<elseif $estate_fence is "landry">>
+					<li><<mooricon "remy">> Search the Remy estate fence for an entrance made by Landry's specialist.</li>
+				<</if>>
 			<</if>>
 
 			<<if $farm>>
 				<<if $farm.tower gte 1 and !$farm.tower_guard>>
-					<li>The watchtower at the farm isn't staffed. You can find suitable candidates in the pub on Harvest Street.</li>
+					<li><<investigateicon>> The watchtower at the farm isn't staffed. You can find suitable candidates in the pub on Harvest Street.</li>
 				<</if>>
 			<</if>>
 
 			<<if $photo>>
 				<<if $photo.silly is "accepted">>
-					<li>A business owner on the High Street is expecting you during the day.</li>
+					<li><<highicon>> A business owner on High Street is expecting you during the day.</li>
 				<<elseif $photo.silly is "done">>
-					<li>You can collect your pay for the High Street job from Niki.</li>
+					<li><<photographystudioicon>> You can collect your pay for the High Street job from Niki.</li>
 				<</if>>
 			<</if>>
 
 			<<if $jordan_ritual_dance is 1>>
-				<li>Jordan has asked you to investigate one of the manors on Danube street. One of the temple's flock went missing after finding work there. You can get access through Charlie, and your status as a dancer.</li>
+				<li><<danubeicon>> Jordan has asked you to investigate one of the manors on Danube Street. One of the temple's flock went missing after finding work there. You can get access through Charlie, and your status as a dancer.</li>
 			<<elseif $jordan_ritual_dance is 2>>
-				<li>You encountered a strange ritual in a manor on Danube Street. Inform Jordan, priest at the temple.</li>
-			<</if>>
-
-			<<if $studyBooks isnot undefined and $studyBooks.rented isnot "none">>
-				<<if $book_rent_timer is 0>>
-					<li><span class="blue">You have a library book due.</span></li>
-				<<elseif $book_rent_timer lt 0>>
-					<li><span class="red">You have a library book overdue.</span></li>
-				<<else>>
-					<li>You have a library book due in <span class="gold">$book_rent_timer</span> day<<if $book_rent_timer gt 1>>s<</if>>.</li>
-				<</if>>
+				<li><<templeicon>> You encountered a strange ritual in a manor on Danube Street. Inform Jordan, head <<nnpc_title "Jordan">> at the temple.</li>
 			<</if>>
 
 			<<if $farm>>
@@ -387,77 +544,147 @@
 				<li>
 					<<switch $farm.build>>
 						<<case "parasites 1">>
-							The parasite barn is being built.
+							<<farmicon 'parasitebarn'>> The parasite barn is being built.
 						<<case "parasites 2">>
-							The parasite barn is being expanded.
+							<<farmicon 'parasitebarn'>> The parasite barn is being expanded.
 						<<case "wall 1">>
-							The wall is undergoing a thorough repair.
+							<<choreicon "fix">> The wall is undergoing a thorough repair.
 						<<case "wall 2">>
-							The wall is being reinforced.
+							<<choreicon "fix">> The wall is being reinforced.
 						<<case "wall 3">>
-							A metal fence is being built atop the stone wall.
+							<<choreicon "fix">> A metal fence is being built atop the stone wall.
 						<<case "wall 4">>
-							Barbed wire is being affixed atop the fence.
+							<<choreicon "fix">> Barbed wire is being affixed atop the fence.
 						<<case "tower 1">>
-							A watchtower is being constructed at the edge of the fields.
+							<<skyscrapericon "construction">> A watchtower is being constructed at the edge of the fields.
 						<<case "tower 2">>
-							Searchlights are being affixed atop the watchtower.
+							<<techicon "torch">> Searchlights are being affixed atop the watchtower.
 						<<case "kennel 1">>
-							A guard dog training facility is being constructed.
+							<<farmicon "kennel">> A guard dog training facility is being constructed.
 						<<case "barn 1" "barn 2">>
-							The barn is being expanded.
+							<<farmicon "barn">> The barn is being expanded.
 						<<case "woodland 1" "woodland 2" "woodland 3">>
-							A fence is being built around the nearby woodland.
+							<<choreicon "fix">> A fence is being built around the nearby woodland.
 						<<case "stable 1">>
-							The stable is being expanded.
+							<<farmicon "barn">> The stable is being expanded.
 						<<case "coop 1" "coop 2">>
-							The coop is being expanded.
+							<<farmicon "barn">> The coop is being expanded.
 						<<case "irrigation">>
-							Irrigation is being installed in a field.
+							<<gardenicon "plot">> Irrigation is being installed in a field.
 						<<case "nursery">>
-							A nursery is being built in the cottage.
+							<<childicon "crib">> A nursery is being built in the cottage.
 					<</switch>>
-					<<if $farm.build_timer is 1>>
-						It'll be finished <span class="gold">tomorrow.</span>
-					<<else>>
-						It'll be finished in <span class="gold"><<number $farm.build_timer>></span> days.
-					<</if>>
+					It'll be finished <<nDays $farm.build_timer>>.
 				</li>
 				<</if>>
 			<</if>>
 
 			<<if $adultshopgrandopening is true>>
-				<li>The grand opening of Sirris' adult shop is taking place on Elk Street today.</li>
+				<li><<shopicon "adult">> The grand opening of Sirris' adult shop is taking place on Elk Street <span class="pink">today</span>.</li>
 			<<elseif $adultshopintro is 1 and $adultshopunlocked is undefined>>
 				<<set $_theshop to "The adult shop">>
 				<li>
 					<<if $adultshopprogress gte 22>>
-						$_theshop's official opening is tomorrow.
+						<<shopicon "adult">> $_theshop's official opening is tomorrow.
 					<<elseif $adultshopprogress gte 18>>
-						$_theshop is nearing completion.
+						<<shopicon "dilapidated">> $_theshop is nearing completion.
 					<<elseif $adultshopprogress gte 14>>
-						$_theshop is halfway to completion.
+						<<shopicon "dilapidated">> $_theshop is halfway to completion.
 					<<elseif $adultshopprogress gte 7>>
-						$_theshop is starting to take shape.
+						<<shopicon "dilapidated">> $_theshop is starting to take shape.
 					<<elseif $adultshopprogress gte 2>>
-						$_theshop is in disrepair.
+						<<shopicon "dilapidated">> $_theshop is in disrepair.
 					<<else>>
-						$_theshop is in great disrepair.
+						<<shopicon "dilapidated">> $_theshop is in great disrepair.
 					<</if>>
 					<<if $adultshopprogress lt 22>>
 						You can help Sydney there on Elk Street, on Fridays after <<ampm 16>>.
 					<</if>>
 				</li>
 			<</if>>
+
+			<<if $gwylan?.request?.event and !($gwylan?.timer?.nobody gte Time.date.timeStamp)>>
+				<<switch $gwylan.request.event>>
+					<<case "meetAtShop">>
+						<li><<shopicon "forest">>Gwylan has asked you to meet <<nnpc_him "Gwylan">> at the forest shop.</li>
+					<<case "meetAtCafe">>
+						<li><<cafeicon>>Gwylan has asked you to meet <<nnpc_him "Gwylan">> at the cafe between <<ampm 7 20>> and <<ampm 9 20>>.</li>
+					<<case "yearning">>
+						<li><<shopicon "forest">>Gwylan has asked you to meet <<nnpc_him "Gwylan">> at the forest shop so <<nnpc_he "Gwylan">> can apologise properly.</li>
+					<<case "clothing">>
+						<li><<shopicon "forest">>Gwylan has asked you to wear <<if $gwylan.request.items.length gt 1>>some clothes<<else>>a clothing item<</if>> to the forest shop.</li>
+						<<gwylanJournalItems>>
+					<<case "ingredients">>
+						<li><<tendingicon "basket">>Gwylan has asked you to gather some ingredients.</li>
+						<<gwylanJournalItems>>
+					<<case "sample">>
+						<li><<iconUi "emptyvial.png">> Gwylan has asked you to gather some samples.</li>
+						<<gwylanJournalItems>>
+					<<case "recipe">>
+						<li><<tendingicon "basket">>Gwylan has asked you to gather some items to make <span class="blue">$gwylan.request.special</span>.</li>
+						<<gwylanJournalItems>>
+					<<case "samplePlayer">>
+						/* ToDo: Gwylan */
+					<<case "preen">>
+						<<if $gwylan.request.special is "harpy">>
+							<li><<tficon "bird">> Gwylan has asked to preen your wings.
+							<<if $harpy lt 6>>
+								<span class="blue">You don't have wings anymore. Perhaps enough hawk feathers will suffice.</span>
+							<</if>>
+							</li>
+						<<else>>
+							<<set $_featherCount to $gwylan.request.items.find(feather => feather.name === "feathers").need>>
+							<li><<birdicon "feathers">> Gwylan has asked you for <span class="gold"><<number $_featherCount>></span> of the hawk's feathers.</li>
+							<<if $bird?.materials?.feathers>>You have <span class="blue"><<number $bird.materials.feathers>>.</span><</if>>
+							<<if $harpy gte 6>>
+								<span class="gold">Perhaps <<nnpc_he "Gwylan">> could preen your wings directly...</span>
+							<</if>>
+						<</if>>
+					<<case "cream">>
+						<li><<tendingicon "cream">><span class="lewd">Gwylan has made you a lewd offer involving some cream...</span></li>
+					<<case "robin">>
+						/* ToDo: Gwylan */
+					<<case "chastity">>
+						<li>
+						<<if playerChastity()>><<lockicon>><<else>><<lockicon "unlock">><</if>>
+						<<if $gwylan.request.command is true>>
+							Gwylan <<if $hypnosis_traits.devotion gte 3>>has commanded<<else>>wants<</if>> you to remove your chastity device.
+						<<else>>
+							Gwylan has offered to help you remove your chastity device.
+						<</if>>
+						<<if playerChastity() and $gwylan.request.items>>
+							<<nnpc_He "Gwylan">> needs some items to help.
+						<</if>>
+						</li>
+						<<if !playerChastity()>>
+							<span class='fa-icon fa-selected'></span>
+						<<else>>
+							<span class='fa-icon fa-unselected'></span>
+						<</if>>
+						<<if $worn.genitals.name is "gold chastity belt" or $gwylan.request.details?.gold>>
+							<<antiqueicon "chastity">>
+						<<else>>
+							<<icon "clothes/chastity_belt.png">>
+						<</if>>
+						<span class="red">Remove</span> chastity device
+						<<if playerChastity() and $gwylan.request.items>>
+							<br><span class="blue">Or</span><br>
+							<<gwylanJournalItems>>
+						<</if>>
+
+					<<default>>
+						<li><span class="red">Gwylan has asked you to do something, but the task has no journal description! Please report this bug.</span></li>
+				<</switch>>
+			<</if>>
 		</ul>
 	<</if>>
 
-	<<if $valentines is 1 or $halloween is 1 or $christmas is 1>>
+	<<if ($valentines is 1 and $valentines_eden is 1) or $halloween is 1 or $christmas is 1>>
 		<hr>
-		<span class="gold bold">Holidays</span>
+		<h1 class="header gold bold">Holidays</h1>
 	<</if>>
 	<<if $valentines_eden is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>Valentine's day is held on February 14th.</li>
 			<<if $valentines_eden is 1 and !$valentines_eden_bought>>
 				<li>You can buy something for Eden to celebrate.</li>
@@ -468,7 +695,7 @@
 	<</if>>
 
 	<<if $halloween is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>Halloween is held on October 31st.</li>
 			<<if $halloween_whitney is 1 and C.npc.Whitney.state isnot "dungeon">>
 				<li>Whitney will be trick-or-treating on Domus Street from <<ampm 19 00>>.</li>
@@ -492,7 +719,7 @@
 	<</if>>
 
 	<<if $christmas is 1>>
-		<ul style="margin-top:10px;margin-left:-5px;">
+		<ul class="journal">
 			<li>
 				<<if Time.monthDay is 25 and Time.hour lte 20>>
 					The orphans are celebrating Christmas.
@@ -518,7 +745,7 @@
 			<<if $syndromeeden gte 1>>
 				<<if Time.monthDay is 25>>
 					<<if Time.hour lte 20>>
-						<li>You can celebrate Christmas with Eden today.</li>
+						<li>You can celebrate Christmas with Eden <span class="pink">today</span>.</li>
 					<</if>>
 				<<else>>
 					<li>Christmas is coming. You can celebrate it with Eden.</li>
@@ -530,22 +757,138 @@
 					<li>Eden's invited you for a Christmas dinner at <<ampm 18 00>>.</li>
 				<</if>>
 			<</if>>
+			<<if $fake_artefact is "pc">>
+				<li>Landry wants you to find the wishing stones in the vault in Avery's mansion and replace them with the fakes <<nnpc_he Landry>> provided. <<nnpc_He Landry>> said that would save Avery from <<nnpc_himself "Avery">>.</li>
+			<</if>>
+		</ul>
+	<</if>>
+
+	<<if $avery_mansion and C.npc.Avery.state isnot "dismissed">>
+		<hr>
+		<h1 class="header gold bold">Avery's Demands</h1>
+		<ul class="journal carry">
+			<li><<foodicon "eat">>Avery wants you to have dinner ready at <span @class="between(Time.weekDay,2,6) ? 'gold' : ''"><<ampm 21 00>> weekdays</span>.</li>
+			<<if $avery_mansion.food.name isnot "none">>
+				<li>
+					<<tendingicon $avery_mansion.food.icon>>
+					<<set $_averyMissedColor to ["","purple","pink","red"][Math.clamp($avery_mansion.rage.dinner_missed,0,3)]>>
+					<<set $_averyDishAmount to $plants[$avery_mansion.food.name].amount>>
+					<<set $_averyDishAmountColour to $plants[$avery_mansion.food.name].amount ? "green" : "red">>
+					<span @class="$_averyMissedColor">Avery wants <<recipe_name $avery_mansion.food.name "article">>.</span> You currently have <span @class="$_averyDishAmountColour"><<print $_averyDishAmount>></span>.
+				</li>
+			<</if>>
+			<<if !["missed", "started"].includes($avery_mansion.party_state)>>
+				<li><<icon "front_gate.png">>You're expected at Avery's mansion <span @class="Time.weekDay is 1 ? 'gold' : ''">after <<ampm 18>> <<if ["first sunday skip", "finished", "skipped"].includes($avery_mansion.party_state)>>next<<else>>on<</if>> Sunday</span>, for a party. The guest of honour is $avery_mansion.guest.</li>
+			<</if>>
+			<<if $avery_mansion.landry is 1>>
+				<li><<harvesticon>> Someone dropped a note for you outside Avery's mansion, asking you to visit them in the pub on Harvest Street.</li>
+			<</if>>
+			<<if $avery_mansion.fox.task and !$avery_fate>>
+				<li><<icon "clothes/foxmask.png">>
+				<<if $avery_mansion.fox.task_complete is "success">>
+					<span class="green">You have completed the brown fox's task.</span>
+				<<elseif $avery_mansion.fox.task_complete is "fail">>
+					<span class="red">You have failed the brown fox's task.</span>
+				<<elseif $avery_mansion.fox.task isnot $avery_mansion.guest and $avery_mansion.fox.task isnot "heist">>
+					<span class="purple">You did not complete the brown fox's task.</span>
+				<<else>>
+					<<switch $avery_mansion.fox.task>>
+						<<case "heist">>The brown fox trusts you enough to conduct a direct heist of the wishing stones and has given you a signal to make in the garden whenever Avery isn't around.
+						<<case "Jordan">>The brown fox has asked you to give a message to two disguised initiates when Jordan comes by the mansion.
+						<<case "Quinn">>The brown fox has asked you to perform a hand signal after getting the attention of a compromised agent who's grown attached to Quinn at the next party.
+						<<case "Remy">>
+							<<if $brownFoxWounded or $fake_artefact is "Avery">>
+								<<if $avery_mansion.fox.task_detail is "descend">>
+									The brown fox has tasked you with ensuring that both of Remy's retainers leave the party early.
+								<<else>>
+									The brown fox has tasked you with ensuring that both of Remy's retainers remain at the party.
+								<</if>>
+							<<else>>
+								The brown fox will be at Avery's next party.
+							<</if>>
+						<<case "Briar">>
+							<<if $avery_mansion.fox.task_detail is "descend">>
+								The brown fox has tasked you with getting Briar to actively sabotage construction on the tower during the next party.
+							<<else>>
+								The brown fox has tasked you with convincing Briar to support tower construction during the next party.
+							<</if>>
+						<<case "Harper">>The brown fox has tasked you with swapping out Harper's phials during the next party.
+					<</switch>>
+				<</if>>
+				</li>
+			<</if>>
+			/* Reworked, left in while in construction
+			<<if $avery_mansion.landry gte 2 and $auriga_artefact is "Avery">>
+				<li>Landry will give you <span class="gold">£10000</span> if you can bring <<nnpc_him "Landry">> the <span class="pink">wishing stones</span> from Avery's mansion.</li>
+				<<if $avery_mansion.mickey>>
+					<li>Mickey suggests making Avery feel more dominant would cause them to reveal the stones' location. Alternatively, helping Avery reach their goals could bring them into the open.</li>
+				<</if>>
+				<<if $avery_mansion.jobs.includes("dungeon")>>
+					<li>Avery revealed a dungeon containing a vault. It seems a likely place for the stones.</li>
+				<</if>>
+				<<if $avery_mansion.fake_stones is 2>>
+					<li>Optionally, replace Avery's wishing stones with the fakes Mickey gave you.</li>
+				<</if>>
+			<<elseif $avery_mansion.landry gte 2 and $auriga_artefact is "pc">>
+				<li>Landry will give you <span class="gold">£10000</span> if you can bring <<nnpc_him "Landry">> the <span class="pink">wishing stones</span> that are in your possession.</li>
+			<</if>>
+			<<if $avery_mansion.fake_stones is 1>>
+				<li><<investigateicon>> Find a convincing fake to swap for the wishing stones.</li>
+			<<elseif $avery_mansion.fake_stones is 2>>
+				<li><<icon "avery_vault.png">> Leave the fake wishing stones in Avery's vault.</li>
+			<</if>>*/
+			<<if $avery_mansion.jobs.includes("maid")>>
+				<li><<iconUi "clothes/traits/maid.png">>Avery wants you to greet <<nnpc_him Avery>> after work wearing an outfit with the maid trait.</li>
+			<<elseif $avery_mansion.jobs.includes("formal")>>
+				<li><<iconUi "clothes/traits/formal.png">>Avery wants you to greet <<nnpc_him Avery>> after work wearing an outfit with the formal trait.</li>
+			<</if>>
+			<<if $avery_mansion.jobs.includes("hairlength")>>
+				<li><<icon "scissors.png">> Avery wants you to keep your hair no longer than the top of your chest.</li>
+			<</if>>
+			<<if $avery_mansion.jobs.includes("hairstyle")>>
+				<li><<icon "comb.png">> Avery wants you to keep your hair in the neat style.</li>
+			<</if>>
+			<<if $avery_mansion.jobs.includes("knees")>>
+				<li><<socialiseicon>> Avery wants you to kneel before <<nnpc_him Avery>> after work.</li>
+			<<elseif $avery_mansion.jobs.includes("bow")>>
+				<li><<socialiseicon>> Avery wants you to <<= $player.gender_appearance is "f" ? "curtsy" : "bow">> to <<nnpc_him Avery>> after work.</li>
+			<</if>>
+			<<if $avery_mansion.jobs.includes("lounge") or
+			$avery_mansion.jobs.includes("dining") or
+			$avery_mansion.jobs.includes("bedroom") or
+			$avery_mansion.jobs.includes("pool") or
+			$avery_mansion.jobs.includes("garden") or
+			$avery_mansion.jobs.includes("display") or
+			$avery_mansion.jobs.includes("kitchen") or
+			$avery_mansion.jobs.includes("bathroom")>>
+				<li><<icon "clothes/feather_duster.png">>
+					<<set $_averyCleanColor to ["","purple","pink","red"][Math.clamp(Math.floor(($avery_mansion.rage.assess - $avery_mansion.rage.dinner_missed) / 3),0,3)]>>
+					<span @class="$_averyCleanColor">Avery wants you to keep <<nnpc_his Avery>> mansion clean.</span>
+				</li>
+			<</if>>
+			<<if $avery_tower>>
+				<<if $avery_tower.stage is 3 and !$avery_fate>>
+					<li><<skyscrapericon "bloodmoon">> Avery expects you to meet <<nnpc_him Avery>> at <<nnpc_his Avery>> mansion <span class="gold">during the next blood moon</span> to attend the opening ceremony for <<nnpc_his Avery>> skyscraper.
+					</li>
+				<</if>>
+			<</if>>
 		</ul>
 	<</if>>
 
 	<<if $scienceproject is "ongoing">>
 		<hr>
+		<h1 class="header gold bold">Science Fair</h1>
 		<<if $scienceprojectdays is 0>>
-			The science fair is being held at the town hall on Cliff street today from <<ampm 9 00>> until <<ampm 18 00>>.
+			The science fair is being held at the town hall on Cliff Street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
 			<br>
 		<<else>>
-			The science fair will be held at the town hall on Cliff Street in <span class="gold">$scienceprojectdays</span> days.
+			The science fair will be held at the town hall on Cliff Street <<nDays $scienceprojectdays>>.
 			<br>
 		<</if>>
 		You have the following ongoing science projects. You'll choose one to present at the fair.
 		<br><br>
 		<<if $sciencelichenknown is 1>>
-			<span class="gold bold">Local lichen</span>
+			<span class="gold bold">Local Lichen</span>
 			<br>
 			<<if $sciencechance is undefined>>
 				<<set $sciencechance to []>>
@@ -602,16 +945,16 @@
 				<span class='fa-icon fa-unselected'></span><span class="black"> Examine purple lichen on the lake ruin.</span>
 				<br>
 			<</if>>
-			As it is, this project has a  <span @class="($sciencechance.length is 0 ? 'red' : $sciencechance.length is 1 ? 'pink' : $sciencechance.length is 2 ? 'purple' : $sciencechance.length is 3 ? 'teal' : $sciencechance.length is 4 ? 'green' : '')"><<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>%</span> chance of winning the fair. Winning with this project will greatly reduce trauma and endear you to your teachers.
+			As it is, this project has a <span @class="($sciencechance.length is 0 ? 'red' : $sciencechance.length is 1 ? 'pink' : $sciencechance.length is 2 ? 'purple' : $sciencechance.length is 3 ? 'teal' : $sciencechance.length is 4 ? 'green' : '')"><<print ($sciencelichenparkready * 25 + $sciencelichenlakeready * 25 + $sciencelichendrainready * 25 + $sciencelichentempleready * 25)>>%</span> chance of winning the fair. Winning with this project will greatly reduce trauma and endear you to your teachers.
 			<br><br>
 		<<else>>
 			<span class="black">????????????</span>
 			<br>
-		 Explore to discover.
+			Explore to discover.
 			<br><br>
 		<</if>>
 		<<if $scienceshroomknown is 1>>
-			<span class="gold bold">Local mushrooms</span>
+			<span class="gold bold">Local Mushrooms</span>
 			<br>
 			<span @class="($scienceshroomheart is 5 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span><span @class="$scienceshroomheart is 0 and $scienceshroomheartready is 0 ? 'black' : ''"> $scienceshroomheart/5 heartshrooms found.</span>
 			<br>
@@ -637,8 +980,7 @@
 			<br><br>
 		<</if>>
 		<<if $sciencephallusknown is 1>>
-			<span class="gold bold">Local phalli</span>
-			<mouse class="tooltip gold">(?)<span>Look for participants on the beach during good weather.</span></mouse>
+			<span class="gold bold">Local Phalli <mouse class="tooltip gold">(?)<span>Look for participants on the beach during good weather.</span></mouse></span>
 			<br>
 			<span @class="($sciencephallus is 10 ? 'fa-icon fa-selected' : 'fa-icon fa-unselected')"></span> $sciencephallus/10 phalli measured.
 			<br>
@@ -647,7 +989,7 @@
 				Add phalli to your project at home or the library.
 			<</if>>
 			<br>
- 			 As it is, this project has a <span @class="$sciencephallusready gte 10 ? 'green' : $sciencephallusready gte 8 ? 'teal' : $sciencephallusready gte 6 ? 'lblue' : $sciencephallusready gte 4 ? 'purple' : $sciencephallusready gte 2 ? 'pink' : $sciencephallusready gte 0 ? 'red' : ''"><<print ($sciencephallusready * 10)>>%</span> chance of winning the fair. Winning with this project will greatly reduce trauma and make you more famous.
+			As it is, this project has a <span @class="$sciencephallusready gte 10 ? 'green' : $sciencephallusready gte 8 ? 'teal' : $sciencephallusready gte 6 ? 'lblue' : $sciencephallusready gte 4 ? 'purple' : $sciencephallusready gte 2 ? 'pink' : $sciencephallusready gte 0 ? 'red' : ''"><<print ($sciencephallusready * 10)>>%</span> chance of winning the fair. Winning with this project will greatly reduce trauma and make you more famous.
 			<br>
 		<<else>>
 			<span class="black">????????????</span>
@@ -660,12 +1002,12 @@
 	<<if $mathsproject is "ongoing">>
 		<<set $mathschance = Math.clamp($mathschance, 0, 100)>>
 		<hr>
-		<span class="gold bold">Maths Competition</span><br>
+		<h1 class="header gold bold">Maths Competition</h1>
 		<<if $mathsprojectdays is 0>>
-			The maths competition is being held at the town hall on Cliff street today from <<ampm 9 00>> until <<ampm 18 00>>.
+			The maths competition is being held at the town hall on Cliff Street <span class="pink">today</span> from <<ampm 9 00>> until <<ampm 18 00>>.
 			<br>
 		<<else>>
-			The maths competition will be held at the town hall on Cliff Street in <span class="gold">$mathsprojectdays</span> <<if $mathsprojectdays is 1>>day<<else>>days<</if>>.
+			The maths competition will be held at the town hall on Cliff Street in <span class="gold">$mathsprojectdays</span> <<pluralise $mathsprojectdays "day">>.
 			<br>
 			Your solution must be ready before then. You can work on your project at the orphanage or the school library.
 			<br>
@@ -686,9 +1028,9 @@
 			<span class="green">Your solution is perfect. You have a $mathschance% chance of winning the competition.</span>
 		<</if>>
 		<br><br>
-		You have <span class="gold">$mathsinfo</span> insights.
+		You have <span class="gold">$mathsinfo</span> <<pluralise $mathsinfo "insight">>.
 		<<if $stimdealerknown is 1>>
-			You have <span class="gold">$mathsstim</span> stimulants.
+			You have <span class="gold">$mathsstim</span> <<pluralise $mathsstim "stimulant">>.
 			<br>
 			You can buy stimulants from dealers on Oxford Street.
 			<br>
@@ -697,151 +1039,367 @@
 
 	<<if $englishPlay is "ongoing">>
 		<hr>
-		<span class="gold bold">English Play</span><br>
+		<h1 class="header gold bold">English Play</h1>
 		<<if $englishPlayDays is 0>>
-			The school plays are being held at the town hall on Cliff street tonight from <<ampm 17 00>> until <<ampm 21 00>>.
+			The school plays are being held at the town hall on Cliff Street <span class="pink">tonight</span> from <span class="gold"><<ampm 17 00>></span> until <span class="gold"><<ampm 21 00>></span>.
 		<<else>>
-			The school plays will be performed at the town hall on Cliff street in <span class="gold">$englishPlayDays</span> <<if $englishPlayDays is 1>>day<<else>>days<</if>>.
+			The school plays will be performed at the town hall on Cliff Street in <span class="gold">$englishPlayDays</span> <<pluralise $englishPlayDays "day">>.
 		<</if>>
 		<<if $englishPlayRoles.Player isnot "none">>
-			<br>
-			You have taken the role of $englishPlayRoles.Player. You can rehearse alone at the orphanage.
+			<ul class="journal">
+			<li>You have taken the role of $englishPlayRoles.Player. You can rehearse alone at the orphanage.</li>
 			<<if $englishPlayRoles.Kylar isnot "none" and $englishPlayRoles.KylarKnown>>
-				<br>
-				Kylar is playing as $englishPlayRoles.Kylar. You can rehearse with <<nnpc_him "Kylar">> in <<if $weather is "rain" or $weather is "snow">>the school library<<else>>the school's rear courtyard<</if>> after school.
+				<li>Kylar has taken the role of $englishPlayRoles.Kylar. You can rehearse with <<nnpc_him "Kylar">> in <<if Weather.precipitation !== "none">>the school library<<else>>the school's rear courtyard<</if>> after school.</li>
 			<<elseif $englishPlayKylarReplace>>
-				<br>
-				Kylar's part in the play will have to be taken over by another student.
+				<li>Kylar's part in the play will have to be taken over by another student.</li>
 			<</if>>
 			<<if $englishPlayRoles.SydneyKnown>>
-				<br>
-				Sydney is playing as $englishPlayRoles.Sydney. You can rehearse with <<nnpc_him "Sydney">> in the English classroom after school.
+				<li>Sydney has taken the role of $englishPlayRoles.Sydney. You can rehearse with <<nnpc_him "Sydney">> in the English classroom after school.</li>
 			<</if>>
 			<<if !$englishPlayRoles.SydneyKnown and !$englishPlayRoles.KylarKnown>>
-				<br>
-				You can meet your partners in the English classroom after school.
+				<li>You can meet your partners in the English classroom after school.</li>
 			<<elseif !$englishPlayRoles.SydneyKnown or (!$englishPlayRoles.KylarKnown and !$englishPlayKylarReplace)>>
-				<br>
-				You can meet your other partner in the English classroom after school.
+				<li>You can meet your other partner in the English classroom after school.</li>
 			<</if>>
+			</ul>
 			<br>
 			<<playReadiness>>
 			Performing well will spread social fame and give a large boost to school status.
 		<<else>>
 			<<if $englishPlayLate>>
-				You have <<number $englishPlayLate>> <<if $englishPlayLate is 1>>day<<else>>days<</if>> to choose a role. You can sign up in the English classroom after school, or just help other students rehearse.
+				You have <<number $englishPlayLate>> <<pluralise $englishPlayLate "day">> to choose a role. You can sign up in the English classroom after school, or just help other students rehearse.
 			<<else>>
 				It's too late for you to take a role, but you can still help other students rehearse and watch the plays with the audience.
 			<</if>>
 		<</if>>
 	<</if>>
 
-	<<if $museumAntiqueJournalHints.length gte 1>>
+	<<set _plant_keys to Object.keys($plants)>>
+	<<set _hasProduce to Object.keys($plants).some(key => $plants[key].amount >= 1)>>
+	<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held].some(i => i >= 1)>>
+	<<if _carrying or _hasProduce>>
 		<hr>
-		<span class="gold bold">Museum Items</span>
-		<br>
-		<<museumAntiqueText>>
-		Winter has mentioned some items that are missing from the museum.
-		<ul style="margin-top:10px;margin-left:-5px;">
-		<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
-		<!-- most recent go on top -->
-		<<for _hint range _hintslist>>
-			<<if _museumAntiqueText[_hint]>>
-				<li><<print _museumAntiqueText[_hint].journal>></li>
-			<<else>>
-				<li><span class="red">warning: antique "_hint" doesn't have a hint. save exported from modded version?</span></li>
-				<<set $museumAntiqueJournalHints.delete(_hint)>>
-			<</if>>
-		<</for>>
+		<h1 class="header gold bold">Inventory</h1>
+	<</if>>
+	<<if $farm_key is true and $location is "farm" and !$bus.includes("farm")>>
+		You have stored:
+		<ul class="journal carry">
+			<li><<lockicon "bronze key">> <span class="green">A ring of keys</span> in your stall. You can use them to escape, but be careful not to get caught with them.</li>
 		</ul>
-	<</if>>
-
-	<<if $antiquemoney gt 0 || $blackmoney gt 0 || $phials_held gte 1 || $lurkers_held gte 1 || $popcorn gte 1 || $milkshake gte 1 || $panties_held gte 1>>
-		<hr>
-		<span class="gold bold">Inventory</span>
 		<br>
 	<</if>>
-	<ul style="margin-top:10px;margin-left:-5px;">
-	<<if $antiquemoney gt 0>>
-		<li>You are carrying <span class="green">£<<print $antiquemoney>></span> in antiques. You can sell them to the museum.</li>
-	<</if>>
-	<<if $blackmoney gt 0>>
-		<li>You are carrying <span class="green">£<<print $blackmoney>></span> in stolen goods. You can sell them to someone on the black market.</li>
-	<</if>>
-	<<if $phials_held gte 2>>
-		<li>You are carrying <span class="green">$phials_held</span> phials of aphrodisiac. You can sell them on Elk Street.</li>
-	<<elseif $phials_held gte 1>>
-		<li>You are carrying a phial of aphrodisiac. You can sell it on Elk Street.</li>
-	<</if>>
-	<<if $lurkers_held gte 2>>
-		<li>You are carrying <span class="green">$lurkers_held</span> lurkers.</li>
-	<<elseif $lurkers_held is 1>>
-		<li>You are carrying a lurker.</li>
-	<</if>>
-	<<if $location is "prison">>
-		<li>You have <span class="green"><<number $prison.teeth>></span> shark's teeth.
-		<<if $prison_wren_intro isnot 1>>
-			You can find Wren in the yard on Fridays after lunch.
+	<<if _carrying or _hasProduce>>
+		You are carrying:
+		<ul class="journal carry">
+			<<if ["prison", "prison_beach"].includes($location) and $prison.teeth gte 1>>
+				<li><<tendingicon "sharks_teeth">> <span class="green"><<number $prison.teeth>></span> shark's teeth.
+				<<if $prison_wren_intro isnot 1>>
+					You can find Wren in the yard on Fridays after lunch.
+				<</if>>
+				</li>
+			<</if>>
+			<<if $antiquemoney gt 0>>
+				<li><<museumicon>><span class="green">£<<print $antiquemoney>></span> in antiques. You can sell them to the museum.</li>
+			<</if>>
+			<<if $blackmoney gt 0>>
+				<li><<highicon>><span class="green">£<<print $blackmoney>></span> in stolen goods. You can sell them to someone on the black market.</li>
+			<</if>>
+			<<if $phials_held gt 0>>
+				<li><<icon "aphrodisiac.png">> <span class="green">$phials_held</span> <<pluralise $phials_held "phial">> of aphrodisiac. You can sell <<pluralise $phials_held "it" "them">> on Elk Street.</li>
+			<</if>>
+			<<if $lurkers_held gt 0>>
+				<li><<birdicon "lurkers">><span class="green">$lurkers_held</span> <<pluralise $lurkers_held "lurker">>.</li>
+			<</if>>
+			<<if $milkshake gt 0>>
+				<li><<foodicon "milkshake">> <span class="green">$milkshake</span> <<pluralise $milkshake "milkshake">>.</li>
+			<</if>>
+			<<if $popcorn gt 0>>
+				<li><<foodicon "popcorn">> <span class="green">$popcorn</span> <<pluralise $popcorn "bag">> of popcorn.</li>
+			<</if>>
+			<<if $panties_held gt 0>>
+				<li><span class="clothes-white"><<icon "clothes/plain_panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it" "them">> during lunchtime in the school rear courtyard.</li>
+			<</if>>
+			<<if _hasProduce>>
+				<li><<stallicon "open">> <span class="green">Products</span> for sale. You can sell them by renting a stand on Connudatus Street at dawn.</li>
+			<</if>>
+		</ul>
+
+		<<if _hasProduce>>
 			<br>
+			<details class="journal">
+				<summary class="journal">Products</summary>
+				<<set $_types to []>>
+				<<for _t to 0; _t lt _plant_keys.length; _t++>>
+					<<set _produce to setup.plants[$plants[_plant_keys[_t]].name]>>
+					<<set $_types.pushUnique(_produce.type.toUpperFirst())>>
+				<</for>>
+				<<set $_types.sort()>>
+				<<if $_types.length>>
+					<div style="padding: 0.25rem 0.5rem;">
+						Show:
+						<<listbox "_invDisplay" autoselect>>
+							<<option "All" "all">>
+							<<optionsfrom $_types>>
+						<</listbox>>
+					</div>
+				<</if>>
+				<div class="itemInventory" id="journalInv">
+					<<journalInventory _invDisplay>>
+				</div>
+				<<run jQuery(document).on("change", "#listbox--invdisplay", function (e) {
+					Wikifier.wikifyEval("<<replace #journalInv>><<journalInventory " + T.invDisplay.toLowerCase() + ">><</replace>>");
+				});>>
+			</details>
 		<</if>>
-		</li>
 	<</if>>
-	<<if $milkshake gte 1>>
-		<li>You are carrying <span class="green">$milkshake</span> <<print $milkshake is 1 ? "milkshake" : "milkshakes">>.</li>
-	<</if>>
-	<<if $popcorn gte 1>>
-		<li>You are carrying <span class="green">$popcorn</span> <<print $popcorn is 1 ? "bag" : "bags">> of popcorn.</li>
-	<</if>>
-	<<if $panties_held gte 1>>
-		<li>You are carrying <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<print $panties_held is 1 ? "it" : "them">> during lunchtime in the school rear courtyard.</li>
-	<</if>>
-	<<if $farm_key is true>>
-		<li>You have stashed a ring of keys. You can use them to escape, be careful not to get caught with them.</li>
-	<</if>>
-	</ul>
 
-	<<if $plants_known.length gt 0>>
-	<hr>
-		<span class="gold bold">Seeds</span>
-		<br>
-		You can grow:
-		<<set _plant_keys to Object.keys(setup.plants)>>
-		<<for _i to 0; _i lt _plant_keys.length; _i++>>
-			<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
-				<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
-					<<if $options.images is 1 and setup.plants[_plant_keys[_i]].icon>>
-						<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_i]].icon">
-					<</if>>
-					<span class="green"><<print setup.plants[_plant_keys[_i]].plural[0].toUpperCase() + setup.plants[_plant_keys[_i]].plural.substring(1)>></span> |
+	<<if $museumintro is 1 or $plants_known.length gte 0>>
+		<hr>
+		<h1 class="header gold bold">Collectibles</h1>
+		<<if $museumintro is 1>>
+			<<museumAntiqueText>><<museumPaintingText>>
+			<<if $museumAntiqueJournalHints.length gte 1 || Object.values(V.museumAntiques.paintings).includes("found")>>
+				<<set _hintslist to clone($museumAntiqueJournalHints).reverse()>>
+				<<if $museumAntiqueJournalHints.length gte 1>>
+					Winter has mentioned some items that are missing from the museum.
+				<</if>>
+				<ul class="journal">
+					<<for _hint range _hintslist>>
+						<<if _museumAntiqueText[_hint]>>
+							<<if ["found", "talk"].includes($museumAntiques.antiques[_hint])>>
+								<li>You should show the <<= _museumAntiqueText[_hint].name.toLowerCase()>> to Winter.</li>
+							<<else>>
+								<li><<print _museumAntiqueText[_hint].journal>></li>
+							<</if>>
+						<<else>>
+							<li><span class="red">Warning: Antique "_hint" doesn't have a hint. Did you export this save from a modded version?</span></li>
+							<<set $museumAntiqueJournalHints.delete(_hint)>>
+						<</if>>
+					<</for>>
+					<<for $_labelP, $_valueP range $museumAntiques.paintings>>
+						<<if $_valueP is "found">>
+							<li>You should show the <<= _museumPaintingText[$_labelP].journalName.toLowerCase()>> to Winter.</li>
+						<</if>>
+					<</for>>
+				</ul>
+				<br>
+			<</if>>
+			<<set $_antiquesFound to Object.values($museumAntiques.antiques).filter(status => status !== "notFound").length>>
+			<<set $_paintingsFound to Object.values($museumAntiques.paintings).filter(status => status !== "notFound").length>>
+			<<set $_totalFound to $_antiquesFound + $_paintingsFound>>
+			<<if $_totalFound is 0>>
+				You haven't found any items for the museum yet. Explore the world more to discover antiques.
+			<<elseif $_antiquesFound is $museumAntiques.maxCount and !$museum_paintings_intro>>
+				The museum has <span class="gold"><<= $_antiquesFound>></span> <<pluralise $_antiquesFound "antique">>.
+				You've found <span class="green">every</span> antique for the museum.
+			<<elseif $_totalFound is $museumAntiques.maxCount + Object.values($museumAntiques.paintings).length>>
+				The museum has <span class="gold"><<= $_antiquesFound>></span> <<pluralise $_antiquesFound "antique">> and <span class="gold"><<= $_paintingsFound>></span> <<pluralise $_paintingsFound "painting">>.
+				You've found <span class="green">every</span> item for the museum.
+			<<else>>
+				You've found
+				<span class="gold"><<= $_antiquesFound>></span> <<pluralise $_antiquesFound "antique">>
+				<<if $museum_paintings_intro>>and <span class="gold"><<= $_paintingsFound>></span> <<pluralise $_paintingsFound "painting">><</if>>
+				for the museum.
+				<<set _antiquesMissing to $museumAntiques.maxCount - $_antiquesFound>>
+				<<set _paintingsMissing to Object.values($museumAntiques.paintings).length - $_paintingsFound>>
+				<<if $_antiquesFound is $museumAntiques.maxCount>>
+					You've found <span class="green">every</span> antique for the museum, but are missing <span class="gold"><<= _paintingsMissing>></span> <<pluralise _paintingsMissing "painting">>.
+				<<elseif _paintingsMissing is 0>>
+					You've found <span class="green">every</span> painting for the museum, but are missing
+						<span class="gold"><<= _antiquesMissing>></span> <<pluralise _antiquesMissing "antique">>.
 				<<else>>
-					??? |
+					You're missing
+					<span class="gold"><<= _antiquesMissing>></span> <<pluralise _antiquesMissing "antique">><<if $museum_paintings_intro>> and <span class="gold"><<= _paintingsMissing>></span> <<pluralise _paintingsMissing "painting">><</if>>.
 				<</if>>
 			<</if>>
-		<</for>>
-	<</if>>
+			<br><br>
+			<details class="journal">
+				<summary class="journal">Museum Items</summary>
+				<<if $museum_paintings_intro>>
+					<span class="gold bold m-2">Antiques</span>
+					<br>
+				<</if>>
+				<div class="itemCollectible">
+					<<for _labelM, _valueM range $museumAntiques.antiques>>
+						<<set _antique to $museumAntiqueJournalHints.includes(_labelM) ? _museumAntiqueText[_labelM]?.journalName || _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst() : _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst()>>
+						<<if $museumAntiqueJournalHints.includes(_labelM)>>
+							<<switch _valueM>>
+								<<case "notFound">>
+									<div class="item unknown" @tooltip="_antique">
+										<<icon "museum_empty.png">>
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_antique">
+										<<icon _museumAntiqueText[_labelM].icon>>
+									</div>
+							<</switch>>
+						<<else>>
+							<<switch _valueM>>
+								<<case "notFound">>
+									<div class="item unknown" tooltip="Unknown antique.">
+										<<mysteryicon>>
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_antique">
+										<<icon _museumAntiqueText[_labelM].icon>>
+									</div>
+							<</switch>>
+						<</if>>
+					<</for>>
+				</div>
+				<<if $museum_paintings_intro>>
+					<hr>
+					<span class="gold bold m-2">Paintings</span>
+					<br>
+					<div class="itemPainting">
+						<<for _labelP, _valueP range $museumAntiques.paintings>>
+							<<set _painting to _valueP isnot "museum" ? _museumPaintingText[_labelP].journalName : _museumPaintingText[_labelP].name>>
 
-	<<set _plant_keys to Object.keys($plants)>>
-	<<if _plant_keys.length gt 0>>
-	<hr>
-	<span class="gold bold">Produce</span>
-	<br>
-	You have:
-	<<for _t to 0; _t lt _plant_keys.length; _t++>>
-		<<if $plants[_plant_keys[_t]].amount gte 1>><<set _plant_temp to 1>>
-			<span class="green"><<print $plants[_plant_keys[_t]].amount>></span>
-			<<if $options.images is 1 and setup.plants[_plant_keys[_t]].icon>>
-				<img class="tending_icon" @src="`img/misc/icon/tending/` + setup.plants[_plant_keys[_t]].icon">
-			<</if>>
-			<<if setup.plants[$plants[_plant_keys[_t]].name].singular and $plants[_plant_keys[_t]].amount === 1>>
-				<<print setup.plants[$plants[_plant_keys[_t]].name].singular>> <<print _t lt (_plant_keys.length-1) ? "|" : "">>
+							<<switch _valueP>>
+								<<case "museum" "recovered">>
+									<<if _labelP is "paintingward">>
+										<<if $bleedingWardCheckpoint>>
+											<<set _painting += ": 50% heard">>
+										<</if>>
+									<<elseif _labelP is "paintingsnake">>
+										<<set _painting to `<div style='text-align:center'>${_museumPaintingText[_labelP].name}`>>
+										<<if $hcEndings.length is 0>>
+											<<set _painting += "<br><span class='gold'>0/7 Endings:</span><br><span class='black'>S, A, B, C, D, E, F</span>">>
+										<<else>>
+											<<set _painting += `<br><span class='gold'>${$hcEndings.length}/7 Endings:</span><br>`>>
+											<<set _painting += `<span class=${$hcEndings.includes('S') ? 'gold' : 'black'}> ${$hcEndings.includes('S') ? 'S' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('A') ? 'green' : 'black'}> ${$hcEndings.includes('A') ? 'A' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('B') ? 'teal' : 'black'}> ${$hcEndings.includes('B') ? 'B' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('C') ? 'blue' : 'black'}> ${$hcEndings.includes('C') ? 'C' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('D') ? 'purple' : 'black'}> ${$hcEndings.includes('D') ? 'D' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('E') ? 'pink' : 'black'}> ${$hcEndings.includes('E') ? 'E' : '?'}</span>,`>>
+											<<set _painting += `<span class=${$hcEndings.includes('F') ? 'red' : 'black'}> ${$hcEndings.includes('F') ? 'F' : '?'}</span>`>>
+										<</if>>
+										<<if $hcChallengesCompleted and Object.values($hcChallengesCompleted).count("") isnot Object.values($hcChallengesCompleted).length>>
+											<<set _painting += `<br><span class='blue italic'>Challenges completed:</span><br>`>>
+											<<set _painting += `<span style="color: ${ColourUtils.interpolateMultiple(["--red", "--pink", "--purple", "--blue", "--teal", "--green", "--gold"], normalise(Object.values($hcChallengesCompleted).count("S"), Object.values($hcChallengesCompleted).length, 0))}">${Object.values($hcChallengesCompleted).count("S")}/${setup.hopelessCycleChallenges.length}</span>`>>
+										<</if>>
+										<<set _painting += `</div>`>>
+									<</if>>
+									<div class="item" @tooltip="_painting">
+										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+										<<switch _labelP>>
+											<<case "paintingsnake">><<set _percent to (Math.round($hcEndings.length) / 7 * 100)>>
+											<<case "paintingward">><<set _percent to $bleedingWardCheckpoint ? 50 : 100>>
+											<<default>><<set _percent to 100>>
+										<</switch>>
+										<div class="paintingProgress" @style="'--progress: ' + _percent + '%;'">
+											<<if $options.images>>
+												<div class="progress">
+													<span class="starBar">
+														<img class="active-icon-img" src="img/ui/gold_star.png">
+														<img class="inactive-icon-img" src="img/ui/empty_star.png">
+													</span>
+												</div>
+											<<else>>
+												<div class="meter">
+													<div class="goldbar" @style="'width:' + _percent + '%'"></div>
+												</div>
+											<</if>>
+										</div>
+									</div>
+								<<case "talk">>
+									<<set $_tooltipPainting to `You should ask Winter about the ${_museumPaintingText[_labelP].journalName.toLowerCase()}.`>>
+									<div class="item" @tooltip="$_tooltipPainting">
+										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconFull" width="120" height="120">
+									</div>
+								<<case "notFound">>
+									<div class="item" tooltip="Unknown Painting.">
+										<img class="icon" src="img/misc/icon/antiques/paintings/curtain.png" width="120" height="120">
+									</div>
+								<<default>>
+									<div class="item" @tooltip="_painting">
+										<img class="icon" @src="'img/misc/icon/' + _museumPaintingText[_labelP].iconRaw" width="120" height="120">
+									</div>
+							<</switch>>
+						<</for>>
+					</div>
+				<</if>>
+			</details>
+			<br>
+		<</if>>
+
+		<<if $plants_known.length gte 0>>
+			<<set _plant_keys to Object.keys(setup.plants)>>
+			<<set _collection to 0>>
+			<<for _i to 0; _i lt $plants_known.length; _i++>>
+				<<if Object.keys(setup.plants).includes($plants_known[_i])>>
+					<<set _collection += 1>>
+				<</if>>
+			<</for>>
+			<<set _total to 0>>
+			<<for _i to 0; _i lt _plant_keys.length; _i++>>
+				<<if setup.plants[_plant_keys[_i]].type === "flower" || setup.plants[_plant_keys[_i]].type === "vegetable">>
+					<<set _total += 1>>
+				<</if>>
+			<</for>>
+			<<if _collection is 0>>
+				You can't grow any plants. Explore the world more to discover seeds.
 			<<else>>
-				<<print $plants[_plant_keys[_t]].plural>> <<print _t lt (_plant_keys.length-1) ? "|" : "">>
+				You can grow <span class="gold"><<= _collection>></span> <<pluralise _collection "kind of plant" "kinds of plants">>.
+				<<if _collection is _total>>
+					You've found <span class="green">every</span> seed.
+				<<else>>
+					<<set _seedsMissing to _total - _collection>>
+					You're missing <span class="gold"><<= _seedsMissing>></span> <<pluralise _seedsMissing "seed">>.
+				<</if>>
+			<</if>>
+			<br><br>
+			<details class="journal">
+				<summary class="journal">Seeds</summary>
+				<div class="itemCollectible">
+					<<for _i to 0; _i lt _plant_keys.length; _i++>>
+						<<set _tooltip to setup.plants[_plant_keys[_i]].seed_name ? setup.plants[_plant_keys[_i]].seed_name.toUpperFirst() : (setup.plants[_plant_keys[_i]].plural[0].toUpperCase() + setup.plants[_plant_keys[_i]].plural.substring(1))>>
+						<<set _icon to setup.plants[_plant_keys[_i]].icon>>
+						<<if setup.plants[_plant_keys[_i]].type is "flower" or setup.plants[_plant_keys[_i]].type is "vegetable">>
+							<<if $plants_known.includes( setup.plants[_plant_keys[_i]].name)>>
+								<div class="item" @tooltip="_tooltip">
+									<<icon `"tending/" + _icon`>>
+								</div>
+							<<else>>
+								<div class="item unknown" tooltip="Unknown seed.">
+									<<mysteryicon>>
+								</div>
+							<</if>>
+						<</if>>
+					<</for>>
+				</div>
+			</details>
+		<</if>>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "journalInventory">>
+	<<set $_filter to _args[0] || "all">>
+	<<for _t to 0; _t lt _plant_keys.length; _t++>>
+		<<set _item to $plants[_plant_keys[_t]]>>
+		<<set _produce to setup.plants[_item.name]>>
+		<<if _item.amount gte 1>>
+			<<if $_filter is "all" or _produce.type is $_filter>>
+				<<set _formatter = new Intl.NumberFormat('en-gb', { roundingMode: 'trunc', notation: 'compact' })>>
+				<<set _amount = _formatter.format(_item.amount)>>
+				<<if _item.amount === 1>>
+					<<set _itemName to _produce.singular || _produce.name.replace(/_/g, ' ')>>
+				<<else>>
+					<<set _itemName to _produce.plural>>
+				<</if>>
+				<<set _tooltip to `<span class="green">${_item.amount}</span> ${_itemName}`>>
+
+				<div class="item" @tooltip="_tooltip">
+					<<set _iconName to _produce.icon.replace(/\.[^/.]+$/, "")>>
+					<<tendingicon _iconName>>
+					<hr>
+					<<= _amount>>
+				</div>
 			<</if>>
 		<</if>>
 	<</for>>
-	<br><br>
-	<</if>>
-	<<if _plant_temp is 1>>You can sell them by renting a stand on Connudatus Street at dawn.<br><</if>>
 <</widget>>
 
 <<widget "journalNotes">>
@@ -852,9 +1410,8 @@
 	<</if>>
 	<<if !_currentPage>><<set _currentPage to "default">><</if>>
 	<<set _listPageName to _currentPage>>
-	<details>
-		<summary style="display:list-item;">Controls</summary>
-		<br>
+	<<foldout false "_journalFoldout">>
+		<span>Extra</span>
 		Page:
 		<<listbox "_listPageName" autoselect>>
 			<<optionsfrom Object.keys($journalNotes)>>
@@ -873,7 +1430,19 @@
 			<<if !$journalNotes[_currentPage]>><<set _currentPage to "default">><</if>>
 			<<replace "#customOverlayContent">><<journalNotes>><</replace>>
 		<</link>> |
-
+		<<if $debug is 1>>
+			<<link "DEBUG: <<=($options.enableJournalDebugTwee ? 'Disable' : 'Enable')>> Code Execution">>
+				<<if $options.enableJournalDebugTwee>>
+					<<set delete $options.enableJournalDebugTwee>>
+				<<else>>
+					<<set $options.enableJournalDebugTwee to true>>
+				<</if>>
+				<<replace "#customOverlayContent">><<journalNotes>><</replace>>
+			<</link>>
+			<mouse class="tooltip linkBlue">(?)<span>
+				Allows journal notes to run as Twee code.
+			</span></mouse> |
+		<</if>>
 		<br><br>
 
 		New page name: <<textbox "_pageName" "">>
@@ -892,13 +1461,35 @@
 			Page names can only contain A-Z, numbers, underscore, dashes and spaces.
 		</span></mouse>
 		<div id="journalNotesMessage"></div>
-	</details>
+	<</foldout>>
 	<br>
 	<div id="journalNotesTextarea"><<journalNotesTextarea>></div>
 <</widget>>
 
 <<widget "journalNotesTextarea">>
-	<<button `"Save (" + _currentPage + ")"`>>
+	<<if $options.enableJournalDebugTwee and $debug is 1>>
+		<div class="settingsToggleItemWide">
+			<<foldout true "_journalDebugTweeFoldout">>
+				<span style="font-size:large">output</span>
+				<span id='journalDebugTweeOutput'>@@color:red;wiki&lpar;&rpar; executes Twee code from the textarea below.@@<br></span>
+			<</foldout>>
+			<hr>
+			<<button "@@color:red;.wiki&lpar;'_currentPage'&rpar;@@">>
+				<<journalNotesTextareaSave>>
+				<<replace "#journalDebugTweeOutput">><<script>>$(output).wiki(T.displayedTextArea);<</script>><</replace>>
+				<<replace "#journalDebugTweeCopyButton">>
+					<<button 'Copy to clipboard'>>
+						<<run _txt = $('#journalDebugTweeOutput')[0].innerHTML>>
+						<<run navigator.clipboard.writeText(_txt.replaceAll('<br>','\n'))>>
+					<</button>>
+					<<button [[Reload Passage|$passage]]>><<set $cheatReload to true>><</button>>
+				<</replace>>
+			<</button>>
+			<span id='journalDebugTweeCopyButton'></span>
+		</div>
+		<br>
+	<</if>>
+	<<button `'<span class="fa-icon fa-save"></span> Save (' + _currentPage + ')'`>>
 		<<journalNotesTextareaSave>>
 	<</button>>
 	<label><<checkbox "$options.notesAutoSave" false true autocheck>> Auto Save</label>
@@ -925,6 +1516,15 @@
 	<<set _noteElement to jQuery('#textarea--displayedtextarea')[0]>>
 	<<if _noteElement and _noteElement.value>>
 		<<set $journalNotes[_currentPage] to LZString.compress(_noteElement.value)>>
-		<<run updateMoment()>>
+		/* put notes into save data immediately without the need to change passage */
+		<<run State.history[State.activeIndex].variables.journalNotes = clone(V.journalNotes)>>
 	<</if>>
 <</widget>>
+
+<<widget "nDays">><<silently>>
+	<<switch _args[0]>>
+		<<case 0>><<set $_text_output to '<span class="gold">today</span>'>>
+		<<case 1>><<set $_text_output to '<span class="gold">tomorrow</span>'>>
+		<<default>><<set $_text_output to 'in <span class="gold"><<= _args[0]>></span> days'>>
+	<</switch>>
+<</silently>><<print $_text_output>><</widget>>
