@@ -198,7 +198,7 @@ class XrayCombatMapper {
 			}
 		} else {
 			if (T.knotted || T.knotted_short) options.animKeyBase = "mid";
-			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 4) options.animKeyBase = "vfast";
+			else if (V.orgasmdown > 0 || V.enemyarousal >= (V.enemyarousalmax / 5) * 4) options.animKeyBase = "vfast";
 			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 3) options.animKeyBase = "fast";
 			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 1) options.animKeyBase = "mid";
 			else options.animKeyBase = "slow";
@@ -457,7 +457,7 @@ class XrayCombatMapper {
 		penetrator.penetratedType =
 			V.enemytype === "machine"
 				? "machine"
-				: V.penisstate !== 0 && ["tentacle", "tentacledeep"].includes(V.penisstate)
+				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
 				? "tentacle"
 				: V.NPCList[V.penistarget].type;
 
