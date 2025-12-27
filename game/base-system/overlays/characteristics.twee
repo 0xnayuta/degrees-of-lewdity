@@ -1060,3 +1060,228 @@
 	<</if>>
 	<</silently>><<if $_sourceText>><<print $_sourceText>><<print $_source.length and $_source.length gte 2 ? " are " : " is">> <<print $_arousedText>>.<<if _args[0]>><br><br><</if>><</if>>
 <</widget>>
+
+<<widget "characteristicsClothing">>
+	<<if _inWardrobe>>
+		<<set _noStripFlag to true>>
+		<<set _noAdjustFlag to true>>
+	<</if>>
+	<<if !($dancing is 0 and $combat is 0 and $replayScene is undefined)>>
+		<<set _noStripFlag to true>>
+	<</if>>
+	
+	<div class="settingsHeader options">Clothing</div>
+	<br>
+	<div id="characteristics-clothing-display">
+		<<characteristicsClothingDisplay>>
+	</div>
+<</widget>>
+
+<<widget "characteristicsClothingDisplay">>
+	<div style="margin:0px auto; display: flex; justify-content: center; align-items: end;">
+		<<if $options.images is 1>>
+			<div class="mannequin-inner" style="width:256px; height:256px;">
+				<<selectmodel "lighting">>
+				<<set _modeloptions.lights.gradient.enabled = false>>
+				<<set _modeloptions.lights.flat.enabled = false>>
+				<<rendermodel "lighting">>
+				<<selectmodel "main">>
+				<<modelprepare-player-body>>
+				<<modelprepare-player-clothes>>
+				<<if $options.sidebarAnimations isnot false>>
+					<<animatemodel "main">>
+				<<else>>
+					<<rendermodel "main">>
+				<</if>>
+			</div>
+		<</if>>
+		<style>
+			#clothingCharacteristics img {
+				height:40px
+			}
+		</style>
+		<div id="clothingCharacteristics" style="text-align:center; background-color: var(--850);">
+			<<set _clothingList ||= $worn>>
+			<span @class="_clothingList === $worn ? 'goldLink':'unselected'">
+				<<link "Wearing">>
+					<<set _clothingList to $worn>>
+					<<replace "#characteristics-clothing-display">>
+						<<characteristicsClothingDisplay>>
+					<</replace>>
+				<</link>>
+			</span> | 
+			<span @class="_clothingList === $carried ? 'goldLink':'unselected'">
+				<<link "Carrying">>
+					<<set _clothingList to $carried>>
+					<<replace "#characteristics-clothing-display">>
+						<<characteristicsClothingDisplay>>
+					<</replace>>
+				<</link>>
+			</span>
+			<br>
+			<<set _displayArr = [
+				["over_head","head","",""],
+				["","face","neck",""],
+				["over_upper","upper","under_upper","hands"],
+				["over_lower","lower","under_lower","handheld"],
+				["","legs","",""],
+				["","feet","",""],
+			]>>
+			<div class="camouflage">
+				<<for _i to 0; _i lt _displayArr.length; _i++>>
+					<<if _i gt 0>>
+						<br>
+					<</if>>
+					<<for _clothingLayer range _displayArr[_i]>>
+						<<if $debug != 1 and _clothingLayer.match(/^over/)>>
+							<<set _clothingLayer to "">>
+						<</if>>
+						<<if !_clothingLayer>>
+							<<set _imageFunction to `<<ind>>`>>
+						<<elseif  _clothingList[_clothingLayer].type.contains("prop")>>
+							<<set _imageFunction to `<<icon 'ask.png'>>`>>
+						<<elseif _clothingList[_clothingLayer]?.index gt 0 and $options.images is 1>>
+							<<set _imageFunction to `<<clothingicon _clothingList[_clothingLayer] _clothingLayer>>`>>
+						<<else>>
+							<<set _clothingLayerString to _clothingLayer.replace('_','')>>
+							<<switch _clothingLayerString>>
+								<<case "overupper", "overhead", "overlower">>
+									<<set _clothingLayerString to "overoutfit">>
+								<<case "hands">>
+									<<set _clothingLayerString to "hand">>
+								<<default>>
+							<</switch>>
+							<<set _imageFunction to `<<clothingcategoryicon _clothingLayerString>>`>>
+						<</if>>
+						<<capture _clothingLayer, _clothingList>>
+							<<link _imageFunction>>
+								<<replace "#clothingCharacteristicsInfo">>
+									<<characteristicsClothingPrintInfo _clothingLayer _clothingList>>
+								<</replace>>
+							<</link>>
+						<</capture>>
+					<</for>>
+				<</for>>
+			</div>
+		</div>
+	</div>
+	<br>
+	<div id="clothingCharacteristicsInfo">
+		<<if _lastOpenedClothingSlot>>
+			<<characteristicsClothingPrintInfo _slot _clothingList>>
+		<</if>>
+	</div>
+	<hr>
+	<span>Warmth:</span>
+	<<warmthscale>>
+	<div id="warmth-description">
+		<<warmth_description>>
+	</div>
+<</widget>>
+
+<<widget "characteristicsClothingPrintInfo">>
+	<<set _slot to _args[0]>>
+	<<set _args[1] ||= $worn>>
+	<<set _clothingArray to _args[1]>>
+	<<set _wornItem to _clothingArray[_slot]>>
+	<<if !_wornItem or _wornItem.index lte 0>>
+		<<exit>>
+	<</if>>
+	<<set _lastOpenedClothingSlot to _slot>>
+	<div class="settingsToggleItemWide">
+		<span class="gold"><<print _slot.toUpperFirst().replace('_', ' ')>></span>
+		<br>
+		<<set _wornItemData to setup.clothes[_slot][clothesIndex(_slot,_wornItem)]>>
+		<<clothingicon _wornItem _slot>>
+		<<print _wornItemData.name_cap>>
+		<<if _wornItem.colour and _wornItem.colour isnot 0>>
+			<span @class="_wornItem.colour?.replace(' ','-')">
+				<<if _wornItem.pattern and ![0, "plain"].includes(_wornItem.pattern) and _wornItemData.pattern_options?.length gt 1>>
+					(_wornItem.colour _wornItem.pattern)
+				<<else>>
+					(_wornItem.colour)
+				<</if>>
+			</span>
+		<<elseif _wornItem.pattern and _wornItem.pattern isnot 0 and _wornItemData.pattern_options?.length gt 1>>
+			<span @class="_wornItem.pattern?.replace(' ','-')">(_wornItem.pattern)</span>
+		<</if>>
+		<<if _wornItem.outfitPrimary isnot undefined>>
+			<<set _keys to Object.keys(_wornItem.outfitPrimary)>>
+			<<set _broken to 0>>
+			<<for _j to 0; _j lt _keys.length; _j++>>
+				<<if _wornItem.outfitPrimary[_keys[_j]] is "broken">>
+					<<set _broken++>>
+				<</if>>
+			<</for>>
+			<<if _broken is 0>>
+					<span class="gold">(Outfit)</span>
+			<<elseif _broken lt _keys.length>>
+					<span class="red">(Partly Broken)</span>
+			<<else>>
+					<span class="red">(Broken)</span>
+			<</if>>
+			<<if _wornItem.one_piece is "split">>
+					<span class="separated-indicator">(Separated)</span>
+			<</if>>
+		<</if>>
+		<<if _wornItem.outfitSecondary isnot undefined>>
+			<<if _wornItem.outfitSecondary[1] is "broken">>
+				<span class="red">(Broken)</span>
+			<<else>>
+				<span class="gold">(Outfit)</span>
+				<<if _wornItem.one_piece is "split">>
+					<span class="separated-indicator">(Separated)</span>
+				<</if>>
+			<</if>>
+		<</if>>
+		<<wardrobeintegrity _wornItem _slot>>
+		<<link "Extra Info">>
+			<<run $('#wardrobeItemDetails_'+T.slot).toggleClass('hidden')>>
+		<</link>>
+		<br>
+		<div @id="'wardrobeItemDetails_' + _slot" @class="'wardrobeItemDetails ' + ($wardrobeDefaults.extraInfo?'':'hidden')">
+			<<if _wornItem.plural is 1>>
+				<<integrity `clothingData(_slot,_wornItem,'integrity_max')` "cap">>
+			<<else>>
+				A <<integrity `clothingData(_slot,_wornItem,'integrity_max')`>>
+			<</if>>
+			and <<reveal _wornItem.reveal>> <<print _wornItem.name>>.
+
+			<<if _wornItem.gender is "m">>
+				<span class="lblue">For boys ♂.</span>
+			<<elseif _wornItem.gender is "f">>
+				<span class="pink">For girls ♀.</span>
+			<</if>>
+			<<print _wornItemData.description>>
+			<br>
+			<<print setup.WeatherDescriptions.clothingWarmth(getTrueWarmth(_wornItem))>>
+			<br><br>
+			<<set _temp_choice to _clothingArray[_slot]>>
+			<<shoptraits>>
+		</div>
+
+		<<if _clothingArray === $worn and ($dancing is 0 and $combat is 0)>>
+			<<set _wardrobe_list to _slot>>
+
+			<<if isConnectedToHood(_wardrobe_list)>>
+				<!-- If selected item is a hood or selected item has a secondary hood piece -->
+				<div class="no-numberify"><<toggleHoodLink "characteristics">></div>
+			<</if>>
+			<<if _wardrobe_list is "upper" and $worn.lower.name isnot "naked" and !_wornItemData.notuck and V.worn.upper.outfitPrimary is undefined>>
+				<div class="no-numberify"><<toggleUpperTuck>></div>
+			<<elseif _wardrobe_list is "lower" and $worn.feet.name isnot "naked" and !_wornItemData.notuck and !setup.clothes.feet[clothesIndex("feet",$worn.feet)].notuck>>
+				<div class="no-numberify"><<toggleLowerTuck>></div>
+			<</if>>
+			<<if _wardrobe_list is "upper" and $worn.upper.name isnot "naked" and _wornItemData.altsleeve>>
+				<div class="no-numberify toggleAltSleeve"><<toggleAltSleeve>></div>
+			<</if>>
+			<div class="no-numberify toggleAltLink"><<toggleAltLink _wardrobe_list>></div>
+			<<if _wardrobe_list is "neck">>
+				<div id="wardrobeLeash" class="no-numberify"><<toggleLeash>></div>
+			<</if>>
+			<<if _wardrobe_list is "face">>
+				<div class="no-numberify toggleAltLink"><<toggleFaceLayer>></div>
+			<</if>>
+		<</if>>
+	</div>
+<</widget>>
