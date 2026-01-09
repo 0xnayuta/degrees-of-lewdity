@@ -6,8 +6,6 @@ module.exports = {
 			true,
 			{
 				severity: "warning",
-				// To prevent stylelint from removing -webkit-background-clip
-				ignore: ["background-clip"],
 			},
 		],
 
@@ -15,7 +13,7 @@ module.exports = {
 		"selector-class-pattern": null,
 		"selector-id-pattern": null,
 
-		/* Because we don't use PostCSS, these errors seem redundant. */
+		/* PostCSS handles adding and removing vendor prefixes, these errors are redundant. */
 		"media-feature-name-no-vendor-prefix": null,
 		"property-no-vendor-prefix": null,
 		"value-no-vendor-prefix": null,
