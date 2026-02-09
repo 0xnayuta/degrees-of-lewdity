@@ -169,7 +169,7 @@ function effectsWater(waterType = "liquid") {
 			}
 			sWikifier("<<covered>>");
 			br();
-			br();
+			if (V.makeupWashed) br();
 		} else if (wetIntro >= 1) {
 			if (V.exhibitionism >= 35) {
 				span(
@@ -185,7 +185,7 @@ function effectsWater(waterType = "liquid") {
 				);
 			}
 			br();
-			br();
+			if (V.makeupWashed) br();
 		}
 	}
 	return fragment;
@@ -1120,6 +1120,37 @@ function effects() {
 			delete V.pregnancyDailyEvent;
 		}
 
+		// Check if any parasites are present before running events. If not, clear events.
+		// TODO: Clear event messages in the case of "staggered" births where some parasites remain in that category. Otherwise, all events will continue to play until the daily reset, even if some parasites have already been birthed.
+		if (V.daily.parasiteEvent) {
+			if (V.sexStats.vagina.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("vagina"); i++) {
+					if (V.sexStats.vagina.pregnancy.fetus[i] != undefined) {
+						T.hasVaginaParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (V.sexStats.anus.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("anus"); i++) {
+					if (V.sexStats.anus.pregnancy.fetus[i] != undefined) {
+						T.hasAnusParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (!T.hasVaginaParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+					return !event.includes("vagina");
+				});
+			}
+			if (!T.hasAnusParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function(event) {
+					return !event.includes("anus");
+				});
+			}
+		}
+
 		if (V.daily.parasiteEvent) {
 			let minDaysLeft;
 			if (V.sexStats.vagina.pregnancy.type === "parasite") {
@@ -1670,6 +1701,18 @@ function effects() {
 				case "adultShopContribution":
 					if (V.adultshopcontribution) fragment.append(wikifier("earnFeat", "'Opened Pandoras Box'"));
 					if (V.adultshopcontribution >= 12) fragment.append(wikifier("earnFeat", "'Opened Pandoras Cocks'"));
+					break;
+				case "valentinesTomorrow":
+					sWikifier(
+						`<span class="gold">Tomorrow is Valentine's Day. You find yourself looking forward to spending quality time with someone special.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
+					break;
+				case "valentinesToday":
+					sWikifier(
+						`<span class="gold">Today is Valentine's Day. You look forward to spending quality time with someone special today. You sense that doing so will be extra rewarding.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
 					break;
 				default:
 					// Report error

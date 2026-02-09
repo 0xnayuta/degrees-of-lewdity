@@ -14,6 +14,7 @@
 	<<set $breastsensitivity to 1>>
 	<<set $bottomsensitivity to 1>>
 	<<set $genitalsensitivity to 1>>
+	<<set $alcoholMod to 1>>
 	<<set $facestyle to "default">>
 	<<set $facevariant to "default">>
 	<<set $eyeselect to "purple">>
@@ -311,15 +312,6 @@
 		<<switch _selectedStart>>
 			<<case "default">>
 				<div class="my-1"><span class="gold bold">Current Settings:</span> <i>Adjustable</i></div>
-				/* Reset these settings if going back to this tab */
-				<<set $settings.maleChanceSplit to false>>
-				<<set $settings.maleChance to 50>>
-				<<set $settings.maleChanceMale to 50>>
-				<<set $settings.maleChanceFemale to 50>>
-				<<set $settings.beastMaleChanceSplit to false>>
-				<<set $settings.beastMaleChance to 50>>
-				<<set $settings.beastMaleChanceMale to 50>>
-				<<set $settings.beastMaleChanceFemale to 50>>
 				<<button "Start Game!">>
 					<<presets _kinkPreset "save">>
 					<<presets _namedNpcPreset "save">>
@@ -1105,6 +1097,12 @@
 				<label><span class="pink">Sensitive</span> <<radiobutton "$genitalsensitivity" 2 autocheck>></label> |
 				<label><span class="red">Very sensitive</span> <<radiobutton "$genitalsensitivity" 3 autocheck>></label>
 			</div>
+			<div class="settingsToggleItem">
+				<span class="gold">Alcohol Tolerance</span><br>
+				<label><span class="blue">Heavyweight </span><<radiobutton "$alcoholMod" 0.5 autocheck>></label> |
+				<label>Normal <<radiobutton "$alcoholMod" 1 autocheck>></label> |
+				<label><span class="red">Lightweight</span> <<radiobutton "$alcoholMod" 1.5 autocheck>></label>
+			</div>
 		</div>
 
 		<hr>
@@ -1215,7 +1213,7 @@
 					<<script>>
 						localStorage.removeItem("dolFeats");
 					<</script>>
-					<<setupFeats true>>
+					<<setupFeatBoosts true>>
 					<<displaySettings "featSettings">>
 				<</link>>
 				<span class="red"> This will remove all feats that have been earned so far, meaning you will have to collect them again.</span>
@@ -2392,11 +2390,10 @@
 
 		<<if _npcList is undefined>>
 			<<set _npcList to {}>>
-			<<set _sortedNPCList to clone($NPCNameList)>>
-			<<run _sortedNPCList.sort()>>
+			<<set _sortedNPCList to clone($NPCNameList).sort()>>
 
 			<<for $_i to 0; $_i lt _sortedNPCList.length; $_i++>>
-				<<set _npcList[_sortedNPCList[$_i]] to clone($NPCNameList.indexOf(_sortedNPCList[$_i]))>>
+				<<set _npcList[_sortedNPCList[$_i]] to $NPCNameList.indexOf(_sortedNPCList[$_i])>>
 			<</for>>
 
 			<<if $passage is "Start" or !$wraithIntro>>
@@ -2519,25 +2516,23 @@
 			<span style="font-size:80%">
 				<br>
 				<<link "Previous">>
-					<<if _npcId is 0>>
-						<<set _npcId to $NPCNameList.length - 1>>
+					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
+					<<if _sortedId is 0>>
+						<<set _sortedId to $NPCNameList.length - 1>>
 					<<else>>
-						<<set _npcId-->>
+						<<set _sortedId-->>
 					<</if>>
-					<<if _npcList[$NPCName[_npcId].nam] is undefined>>
-						<<set _npcId-->>
-					<</if>>
+					<<set _npcId to _npcList[_sortedNPCList[_sortedId]]>>
 					<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>
 				<</link>> <span style="color:white">|</span>
 				<<link "Next">>
-					<<if _npcId is $NPCNameList.length - 1>>
-						<<set _npcId to 0>>
+					<<set _sortedId to _sortedNPCList.indexOf($NPCNameList[_npcId])>>
+					<<if _sortedId gte $NPCNameList.length - 1>>
+						<<set _sortedId to 0>>
 					<<else>>
-						<<set _npcId++>>
+						<<set _sortedId++>>
 					<</if>>
-					<<if _npcList[$NPCName[_npcId].nam] is undefined>>
-						<<set _npcId++>>
-					<</if>>
+					<<set _npcId to _npcList[_sortedNPCList[_sortedId]]>>
 					<<replace #npcSettingsMenu>><<npcSettingsMenu>><</replace>>
 				<</link>>
 			</span>
@@ -2832,7 +2827,7 @@
 	<br><br>
 	<div id="featsFinishButton" class="hidden">
 		<<link "Next">>
-			<<setupFeats true>>
+			<<setupFeatBoosts true>>
 			<<replace "#startCaption">><<startCaption>><</replace>>
 			<<replace "#settingsStart">><<settingsStart>><</replace>>
 		<</link>>

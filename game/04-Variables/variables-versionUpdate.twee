@@ -3510,7 +3510,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 74 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 75 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3530,8 +3530,13 @@
 			<<run fixIntegrityUpdater()>>
 		<</if>>
 		<!-- reset propEquipped -->
-		<<if $objectVersion.updateClothes lt 62>>
-			<<if $propEquipped is 1 and $worn.handheld.type !== "prop" and $worn.handheld.variable !== "featherduster">><<set $propEquipped to 0>><</if>>
+		<<if $objectVersion.updateClothes lt 75>>
+			<<if $propEquipped is 1 and $worn.handheld.type.includes("prop")>>
+				<<generalRuined "handheld" true "worn">>
+
+				<<wearProp $worn.handheld.name>>
+			<</if>>
+			<<run delete $propEquipped>>
 		<</if>>
 
 		<!-- 0.5.6.9 Rename Nurse Hat -->
@@ -3547,7 +3552,7 @@
 
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 74>>
+		<<set $objectVersion.updateClothes to 75>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3592,15 +3597,18 @@
 		<</if>>
 
 		<<specialClothesRefresh>>
-		<<updateFeats>>
 
 		<!-- DO increment this, and don't forget to do it in variables-start.twee, too -->
 		<<set $objectVersion.specialClothes to 20>>
 	<</if>>
+	<<if $objectVersion.feats lt 2>>
+		<<updateFeats>>
+		<<set $objectVersion.feats to 2>>
+	<</if>>
 
-	<<if $objectVersion.wardrobes lt 15 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 16 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 15>>
+		<<set $objectVersion.wardrobes to 16>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -5297,13 +5305,6 @@
 		<<run delete $_indexTmp>>
 		<<run delete $_isOverwritingNPC>>
 	<</if>>
-	/* Kill the leather leggings with fire */
-	/* Commenting out again due to continued issues
-	<<if !$objectVersion.itemFix lt 1 or $objectVersion.itemFix is undefined>>
-		<<if $worn.under_lower.name isnot "naked" and $worn.legs.name is "leather leggings">><<generalUndress "wardrobe" "under_lower">><</if>>
-		<<run convertLegstoUnder()>>
-		<<set $objectVersion.itemFix to 1>>
-	<</if>>*/
 	<<if $sydney_spear_talk is 1>>
 		<<set $sydneySeen.pushUnique("spearMission")>>
 		<<unset $sydney_spear_talk>>
@@ -6690,4 +6691,137 @@
 	<<if $passage isnot "Gwylan Ritual Bait Sex Plant" and $genitalReactionDisable>>
 		<<unset $genitalReactionDisable>>
 	<</if>>
+
+	<!-- 0.5.8.0 -->
+
+	/* docks variable cleanup */
+	<<if !$docks>>
+		<<set $docks to {
+			askedForWork: $dockwork ? true : false,
+			hired: $dockwork and $dockwork is 2 ? true : false,
+			wage: $dockwage ? ($dockwage + 500) : 1500,
+			status: $dockstatus || 30,
+			firstDay: $timeStats.docks and $timeStats.docks.total ? false : true,
+			dayType: "normal",
+			suspicion: 0,
+			fakeID: ["not considered", "idea", "shown"][$idDocksReveal || 0],
+			dailyHours: {
+				shift: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				},
+				overtime: {
+					total: 0,
+					workedHard: 0,
+					slacked: 0,
+					unpaid: 0,
+				}
+			},
+			slave: {
+				seen: $dockslave ? true : false,
+				money: $dockslavemoney || 0,
+			},
+			pub: {
+				count: $dockpubcount || 0,
+				cooldown: 0,
+			},
+			quiz: {
+				bet: $dockquiz and $dockquiz isnot "none" ? $dockquiz : "nothing",
+				home: $dockquizhome || 0,
+				away: $dockquizaway || 0,
+			}
+		}>>
+
+		/* Increase docks status to new baseline for players who started docks content, but didn't progress in it */
+		<<if $docks.wage is 1500 and $docks.status lt 30>>
+			<<set $docks.status to 30>>
+		<</if>>
+
+		<<run ["dockwork", "dockwage", "dockstatus", "idDocksReveal", "dockslave", "dockslavemoney", "dockpubcount", "dockquiz", "dockquizhome", "dockquizaway"].forEach(v => delete V[v]);>>
+
+		<<if $daily>>
+			<<set $daily.docksLeftEarly to false>>
+			<<set $daily.docksExhibitionism to $daily.dockExhibitionism ? true : false>>
+		<</if>>
+	<</if>>
+
+	/* further compound variable cleanup */
+	<<if $compound>>
+		<<if $compound.card is 2>> /* Entered the compound at least once. Could be obtained with or without a card */
+			<<set $compound.card to false>> /* Since the card is reusable now, resetting to false */
+			<<set $compound.discovered to true>>
+			<<set $compound.allowed to false>>
+		<<elseif $compound.card is 1>> /* Compound card obtained. Tracking was lost when set to 2 */
+			<<set $compound.card to true>>
+			<<set $compound.discovered to false>>
+			<<set $compound.allowed to false>>
+		<</if>>
+	<</if>>
+
+	<!-- 0.5.7.9, loft kitchen ingredients -->
+	<<if $loft_river and !$loftIngredients>>
+		<<set $loftIngredients to {}>>
+	<</if>>
+
+	/* Charlie's dance studio variable cleanup */
+	<<if !$danceStudio>>
+		<<set $danceStudio to {
+			intro: $dancestudiointro ? true : false,
+			jobOffered: $dance_job_intro ? true : false,
+			anger: $dancestudioanger || 0,
+			handVirginProtected: false,
+			stage: $dancestage || 0,
+			lesson: $dancelesson || "none",
+		}>>
+
+		/* Player is currently in the intro when importing */
+		<<if $danceStudioIntroExit>>
+			<<set $danceStudio.introExit to $danceStudioIntroExit>>
+		<</if>>
+
+		/* Player is currently doing a job when importing */
+		<<if def $dance_job_time>>
+			<<set $danceStudio.job to {
+				time: $dance_job_time,
+				interest: $dance_job_interest,
+				stage: $dance_job_stage is 2 ? true : false,
+				stageExplore: $dance_job_stage_explore,
+				bunny: $dance_job_bunny ? true : false,
+				exhibitionism: $dance_job_exhib ? true : false,
+				exposed: $dance_job_exposed ? true : false,
+			}>>
+		<</if>>
+
+		/* Also delete unused stat dance_love */
+		<<run ["dancestudiointro", "dance_job_intro", "dancestudioanger", "danceStudioIntroExit", "dancelesson", "dancestage", "dance_job_time", "dance_job_interest", "dance_job_stage", "dance_job_stage_explore", "dance_job_bunny", "dance_job_exhib", "dance_job_exposed", "dance_love"].forEach(v => delete V[v]);>>
+	<</if>>
+
+	/* Lake ruin cleanup */
+	<<if !$lakeRuin>>
+		<<set $lakeRuin to {}>>
+		<<if $lakeruinkey>>
+			<<set $lakeRuin.key to $lakeruinkey>>
+			<<unset $lakeruinkey>>
+		<</if>>
+
+		<<if $wraithPrison or $sciencelichenlake is 1 or $scienceproject is "won" or $scienceproject is "done">>
+			<<set $lakeRuin.rune to true>>
+		<</if>>
+	<</if>>
+
+	/* Replaced with $phase */
+	<<unset $lakeswim>>
+
+	<<if $alcoholMod is undefined>>
+		<<set $alcoholMod to 1>>
+	<</if>>
+
+	/* Fix corrupted variable */
+	<<set $pillsConsumed to ($pillsconsumed || 0) + ($pillsConsumed || 0)>>
+	<<if def $pillsconsumed>>
+		<<unset $pillsconsumed>>
+	<</if>>
+
 <</widget>>

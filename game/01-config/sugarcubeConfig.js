@@ -11,15 +11,17 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.7.9",
-	versionName: `"Lockers and Lockets" edition`,
-	sneaky: false,
+	version: "0.5.8.0",
+	versionName: `"Assorted Chocolates" edition`,
+	sneaky: true,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
 };
 window.StartConfig = StartConfig;
 
 State.prng.init();
+// disable widget performance logs for the release
+Perflog.enabled = false;
 
 window.versionUpdateCheck = true;
 window.onLoadUpdateCheck = false;
@@ -100,7 +102,7 @@ function incSavesCount(storyVars = V, type, date) {
 
 function onSave(save, details) {
 	// * update feats * //
-	Wikifier.wikifyEval("<<updateFeats>>");
+	updateFeats();
 
 	// Save the recently loaded version
 	save.state.loadedVersion = StartConfig.version;
@@ -153,8 +155,6 @@ importStyles("style.css")
 	});
 
 console.log("Game Version:", StartConfig.version);
-
-l10nStrings.errorTitle = StartConfig.version + " Error";
 
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");

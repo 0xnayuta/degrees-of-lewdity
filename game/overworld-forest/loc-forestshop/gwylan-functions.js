@@ -622,7 +622,7 @@ function gwylanRequestIngredients() {
 	const isSeasonEnding = [2, 5, 8, 11].includes(Time.month) && Time.monthDay > Time.lastDayOfMonth - 22;
 	const nextSeason = Time.month > 11 || Time.month < 3 ? "spring" : Time.month > 8 ? "winter" : Time.month > 5 ? "autumn" : "summer";
 
-	const blockedTypes = ["food", "vegetable", "meat", "fish"]; // enable fish once we have a fishing system. Yes, I am serious.
+	const blockedTypes = ["food", "vegetable", "meat", "seafood"]; // enable seafood once we have a fishing system. Yes, I am serious.
 	const blockedItems = ["pink_rose", "oyster_pearl", "orange"]; // oyster pearl could be a required ingredient for something powerful later?
 	const blockedSources = ["human"];
 	const seedOnly = ["carnation", "daisy", "lotus", "plumeria", "poppy", "strange_flower", "white_rose"]; // items that can only be asked for if the player has their seeds due to remote location or no wild harvest
@@ -754,6 +754,7 @@ function canCollectSamples() {
 	// Check broadly if sample collection is possible
 	if (!V.gwylan?.request?.event) return false;
 	if (!V.gwylan.request.items?.some(item => item.category === "sample")) return false;
+	if (V.statFreeze) return false;
 	if (pcAreArmsBound("both")) {
 		return "bound";
 	}
@@ -776,6 +777,13 @@ function canCollectSampleSingle(species, modifier = null) {
 	if (species === "harpy") speciesCorrected = "hawk";
 	if (species === "human" && V.npc.includes("Ivory Wraith")) return false; // no bustin
 
+	if (!speciesCorrected) {
+		Errors.report(`[canCollectSampleSingle]: speciesCorrected is undefined! Defaulting to human.`, {
+			Stacktrace: Utils.GetStack(),
+			speciesCorrected,
+		});
+		speciesCorrected = "human";
+	}
 	const hasNeededSample = V.gwylan.request.items?.some(item => item.category === "sample" && speciesCorrected.includes(item.name));
 
 	return hasNeededSample;
@@ -929,7 +937,7 @@ window.gwylanHypnoMax = gwylanHypnoMax;
 
 function gwylanForestRescueRange() {
 	if (!V.gwylanSeen?.includes("ritual_sex")) return 25;
-	if (V.worn.neck.name === "familiar collar") return 100;
+	if (V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1) return 100;
 	if (V.fox >= 6) return 50;
 	return 25;
 }

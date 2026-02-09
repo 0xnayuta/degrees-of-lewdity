@@ -1226,7 +1226,8 @@ function initHead() {
 			mask_img: 1,
 			hood: 0,
 			colour: 0,
-			colour_options: [],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
+			colour_sidebar: 1,
 			colour_combat: 0,
 			type: ["normal", "hat"],
 			gender: "m",
@@ -1235,15 +1236,20 @@ function initHead() {
 			cost: 4500,
 			description: "For honest men and bonnie lasses.",
 			shop: ["clothing"],
-			accessory: 0,
+			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [],
-			back_img: 1,
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
+			accessory_colour_sidebar: 1,
+			pattern: 0,
+			pattern_options: ["pompom"],
+			pattern_layer: "tertiary",
+			back_img: 0,
 			back_img_colour: "primary",
 			cursed: 0,
 			location: 0,
 			iconFile: "tam_o_shanter.png",
-			accIcon: 0,
+			accIcon: "tam_o_shanter_acc.png",
+			detailIcon: "tam_o_shanter_pompom.png",
 		},
 		{
 			index: 34,
@@ -3256,8 +3262,8 @@ function initHead() {
 	setup.clothes.head = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.head = [];
 
