@@ -193,7 +193,7 @@
 	<</if>>
 
 	/* Leaving the forest shop for elsewhere */
-	<<if $location is "forest_shop" and ["walking_to_cafe", "cafe", "cliff"].includes(_gwylanLocation)>>
+	<<if $location is "forest_shop" and ["walking_to_cafe", "cafe", "cliff"].includes(_gwylanLocation) and !$daily.gwylan.cafeOfferDeclined>>
 		Gwylan's eyes are glued to a nearby cuckoo clock. <<He>> suddenly walks by you, grabbing <<his>> hat and an umbrella from a stand.
 		<<if ["walking_to_cafe", "cafe"].includes(_gwylanLocation)>>
 			<<if $gwylanSeen.includesAny("cafe_walk", "struggles") or $gwylan.sea gte 10>>
@@ -207,7 +207,7 @@
 
 				<<cafeicon>><<link [[Walk with Gwylan (0:15)|Gwylan Walk Cafe Solo]]>><<pass 15>><<set $phase to 0>><</link>>
 				<br>
-				<<refuseicon>><<link [[Decline the offer (0:01)|Gwylan Walk Cafe Solo]]>><<pass 1>><<set $phase to 1>><</link>>
+				<<refuseicon>><<link [[Decline the offer (0:01)|Gwylan Walk Cafe Solo]]>><<pass 1>><<set $phase to 1>><<set $daily.gwylan.cafeOfferDeclined to true>><</link>>
 			<<else>>
 				"Breakfast time," <<he>> says. "Sorry. The <<if Time.season is "winter">>gingerbread waits<<else>>crepes wait<</if>> for nobody.<<if $gwylanSeen.includes("cafe")>> Meet me at the cafe later?<</if>>"
 				<br><br>
@@ -272,6 +272,10 @@
 		<<if $gwylanSeen.includes("ritual_beast")>>
 			<<if $gwylan.timer.ritual and Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) > 0>>
 				<<set _ritualDays to Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual))>>
+				<<if _ritualDays gt 7>>
+					<<set $gwylan.timer.ritual to Time.date.timeStamp + (7 * 86400)>>
+					<<set _ritualDays to 7>>
+				<</if>>
 				<<set $_askbr to true>>
 				<<icon "clothes/witch_hat_sage.png">><span class="pink">Gwylan will be ready for another ritual in <<number _ritualDays>> <<pluralise _ritualDays "day">>.</span>
 			<<elseif $gwylanSeen.includes("ritual_sex_intro")>>
