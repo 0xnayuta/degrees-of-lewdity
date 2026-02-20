@@ -145,12 +145,13 @@ const statChange = (() => {
 		amount = Number(amount);
 
 		// halve control gains outside of combat
-		if (amount > 0 && !combat) amount /= 2;
+		if (amount > 0 && !V.combat) amount /= 2;
 		V.control += amount * 10;
 		// if you're looking here to fix a bug where an action that should increase control in combat actually lowers it instead - check State.history/State.expired for the combat start passage and look for a missing <<controlloss>> that failed to set $controlstart to the right value
 		if (combat && V.control >= V.controlstart) V.control = V.controlstart;
 		else if (!combat) V.controlstart = Math.min(V.control, V.controlmax);
-		V.controlled = V.control > V.controlmax / 2 ? 1 : 0;
+		const threshold = V.controltrait ? V.controlmax / 3 : V.controlmax / 2;
+		V.controlled = V.control > threshold ? 1 : 0;
 		V.control = Math.clamp(V.control, 0, V.controlmax);
 	}
 	DefineMacro("control", amount => control(amount));
@@ -257,6 +258,7 @@ const statChange = (() => {
 				}
 				V.stress += amount * stressMod;
 			}
+			V.stress = Math.clamp(V.stress, 0, V.stressmax);
 		}
 	}
 	DefineMacro("stress", stress);
@@ -428,6 +430,13 @@ const statChange = (() => {
 		}
 		if (amount) {
 			V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
+		}
+		const overflow = V.tiredness - C.tiredness.max;
+		if (overflow > 0) {
+			// channel excessive fatigue into stress and trauma
+			stress(overflow / 3);
+			trauma(overflow / 6);
+			V.tiredness -= overflow;
 		}
 	}
 	DefineMacro("tiredness", tiredness);

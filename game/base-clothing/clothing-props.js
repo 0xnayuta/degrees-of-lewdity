@@ -37,7 +37,8 @@ window.propLevels = propLevels;
 /* primary prop colour may be specified in _args[1], secondary in _args[2]. if the item has colour or accColour options provided in setup, but no colour is specified, one will be randomised. otherwise, prop is assumed to be non-recolourable. */
 function wearProp(prop, colour, accColour) {
 	const key = normaliseKey(prop);
-	const tending = setup.plants[key.replace("gift", "")];
+	const tendingItem = key.replace("_gift", "").replace("_basket", "");
+	const tending = setup.plants[tendingItem];
 	const propErties = setup.props[key] ?? {};
 	T.prop = Object.assign({}, setup.propDefaults, propErties, {
 		name: normaliseFileName(key),
@@ -45,7 +46,6 @@ function wearProp(prop, colour, accColour) {
 		accColour: accColour ?? (propErties.accColour?.length ? propErties.accColour.random() : false),
 	});
 
-	if (tending?.type === "food" && T.prop.name.includes("gift")) T.prop.folder = "food";
 	if (T.prop.hasLevels) T.prop.name += propLevels(key);
 
 	if (key.startsWith("antique")) {
@@ -259,6 +259,15 @@ function initProps() {
 		red_wine: {
 			folder: "drink",
 		},
+		absinthe: {
+			folder: "drink",
+		},
+		cider: {
+			folder: "drink",
+		},
+		scotch: {
+			folder: "drink",
+		},
 		white_wine: {
 			folder: "drink",
 		},
@@ -325,6 +334,9 @@ function initProps() {
 			folder: "drink",
 		},
 		bean_tin: {
+			folder: "food",
+		},
+		apple_slice: {
 			folder: "food",
 		},
 		choco_donut: {
@@ -408,13 +420,13 @@ function initProps() {
 		mints: {
 			folder: "food",
 		},
-		burnt: {
+		inedible_burnt: {
 			folder: "food",
 		},
-		slop: {
+		inedible_slop: {
 			folder: "food",
 		},
-		tentaslop: {
+		inedible_tentaslop: {
 			folder: "food",
 		},
 		rice: {
@@ -428,7 +440,19 @@ function initProps() {
 		sugar: {
 			armPosition: "clutch",
 		},
+		fertiliser: {
+			armPosition: "clutch",
+		},
 		berry_basket: {
+			folder: "tending",
+		},
+		farm_basket: {
+			folder: "tending",
+		},
+		pinkshroom: {
+			folder: "tending",
+		},
+		hawk_egg: {
 			folder: "tending",
 		},
 		plant_pot: {
@@ -523,6 +547,10 @@ function initProps() {
 		crop: {
 			folder: "sex toy",
 		},
+		wooden_paddle: {
+			folder: "sex toy",
+			armPosition: "right_cover",
+		},
 		whip: {
 			folder: "sex toy",
 			colour: ["brown", "black", "khaki", "sand"],
@@ -574,6 +602,9 @@ function initProps() {
 		antique_silver_dagger: {
 			zIndex: "handheld_over_sleeve",
 		},
+		badminton_racquet: {
+			armPosition: "right_cover",
+		},
 		bucket: {
 			armPosition: "right_cover",
 		},
@@ -588,7 +619,7 @@ function initProps() {
 		},
 		piano: {
 			armPosition: "right_cover",
-			zIndex: "handheld_over_sleeve",
+			zIndex: "tailPenisCoverOverlay",
 		},
 		box: {
 			armPosition: "clutch",
@@ -693,6 +724,10 @@ function initProps() {
 		},
 		rubber: {
 			colour: ["light pink"],
+		},
+		bouquet: {
+			colour: ["light pink", "red", "pink", "white"],
+			hasAccessory: true,
 		},
 		hammer: {
 			zIndex: "handheld_over_sleeve",

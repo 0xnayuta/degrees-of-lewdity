@@ -716,8 +716,8 @@ Renderer.CanvasModels.main = {
 		options.zupperleft = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 		options.zupperright = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 
-		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.arms_cover_right;
-		if (options.arm_left === "cover") options.zupperleft = ZIndices.arms_cover_left;
+		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.right_cover_arm + 1;
+		if (options.arm_left === "cover") options.zupperleft = ZIndices.left_cover_arm + 1;
 		if (options.worn.head.setup.name === "sage witch hat") {
 			const ears = isPartEnabled(options.fox_ears_type) || isPartEnabled(options.wolf_ears_type) || isPartEnabled(options.cat_ears_type)
 			if (ears) options.hideHeadAcc = true;
@@ -1472,7 +1472,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.toast,
 
 			srcfn() {
-				return `img/clothes/props/food/toast/toast-${V.trauma > 4000 ? "raw" : "buttered"}.png`;
+				return `img/clothes/props/food/toast-${V.trauma > 4000 ? "raw" : "buttered"}.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.toast;
@@ -3145,7 +3145,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_left !== "none";
 			},
 			zfn(options) {
-				return options.arm_left === "cover" ? ZIndices.arms_cover_left - 0.5 : options.zarms + 0.2;
+				return options.arm_left === "cover" ? options.zupperleft - 0.5 : options.zarms + 0.2;
 			},
 		},
 		"hands_left_acc": {
@@ -3166,7 +3166,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_left !== "none";
 			},
 			zfn(options) {
-				return options.arm_left === "cover" ? ZIndices.arms_cover_left - 0.5 : options.zarms + 0.2;
+				return options.arm_left === "cover" ? options.zupperleft - 0.5 : options.zarms + 0.2;
 			},
 		},
 		"hands_left_fitted": {
@@ -3265,7 +3265,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_right !== "none";
 			},
 			zfn(options) {
-				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover_right - 0.5 : options.zarms + 0.2;
+				return ["cover", "hold"].includes(options.arm_right) ? options.zupperright - 0.5 : options.zarms + 0.2;
 			},
 		},
 		"hands_right_acc": {
@@ -3287,7 +3287,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_right !== "none";
 			},
 			zfn(options) {
-				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.arms_cover_right - 0.5 : options.zarms + 0.2;
+				return ["cover", "hold"].includes(options.arm_right) ? options.zupperright - 0.5 : options.zarms + 0.2;
 			},
 		},
 		"hands_right_detail": {
@@ -3336,6 +3336,8 @@ Renderer.CanvasModels.main = {
 				return true;
 			},
 			zfn(options) {
+				const setup = options.worn.handheld.setup;
+				if (options.arm_right === "cover" && V.worn.handheld.holdPosition === "right_cover" && setup.zIndex) return ZIndices[setup.zIndex];
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
 				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
 				return ZIndices[options.worn.handheld.setup.zIndex];
@@ -3366,6 +3368,8 @@ Renderer.CanvasModels.main = {
 				return options.worn.handheld.setup.accessory === 1;
 			},
 			zfn(options) {
+				const setup = options.worn.handheld.setup;
+				if (options.arm_right === "cover" && V.worn.handheld.holdPosition === "right_cover" && setup.zIndex) return ZIndices[setup.zIndex];
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
 				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
 				return ZIndices[options.worn.handheld.setup.zIndex];
@@ -3388,6 +3392,8 @@ Renderer.CanvasModels.main = {
 				return hasRightDetail;
 			},
 			zfn(options) {
+				const setup = options.worn.handheld.setup;
+				if (options.arm_right === "cover" && V.worn.handheld.holdPosition === "right_cover" && setup.zIndex) return ZIndices[setup.zIndex];
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
 				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
 				return ZIndices[options.worn.handheld.setup.zIndex];

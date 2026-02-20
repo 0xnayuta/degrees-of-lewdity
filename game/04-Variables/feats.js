@@ -522,6 +522,14 @@ setup.feats = {
 		filter: ["All", "Social"],
 		hint: "Hint: Turn the tables on a wealthy patron.",
 	},
+	"Most Exclusive": {
+		title: "Most Exclusive",
+		desc: "Ate at a restaurant with a year-long waiting list.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+		hint: "Hint: Go on a Valentine's date with a wealthy patron.",
+	},
 	"Pride Cometh": {
 		title: "Pride Cometh",
 		desc: "Finished Avery's tower.",
@@ -657,6 +665,12 @@ setup.feats = {
 		desc: "Three wasn't enough for you.",
 		difficulty: 3,
 		series: "love triangles",
+		filter: ["All", "Social"],
+	},
+	"Be My Valentine": {
+		title: "Be My Valentine",
+		desc: "Gifted valentines chocolate at the right time.",
+		difficulty: 1,
 		filter: ["All", "Social"],
 	},
 	"Ballroom Show-off": {
@@ -2388,6 +2402,8 @@ function updateFeats() {
 		if (!(curFeats[feat] instanceof Date)) {
 			if (isJsonString(curFeats[feat])) curFeats[feat] = JSON.parse(curFeats[feat]);
 			else curFeats[feat] = new Date(curFeats[feat]);
+			// somehow new date is neither json nor a date string. reset it and mark as ancient
+			if (!curFeats[feat]?.valueOf()) curFeats[feat] = new Date(1);
 		}
 		// if feat was unlocked earlier, do nothing
 		if (allFeats[feat] && getTimeNumber(allFeats[feat] <= getTimeNumber(curFeats[feat]))) return;
@@ -2400,10 +2416,12 @@ function updateFeats() {
 		if (notFeats.includes(feat) || !(feat in setup.feats)) return;
 		// fix bad dates while we're at it
 		if (!(allFeats[feat] instanceof Date)) {
-			const newDate = isJsonString(allFeats[feat]) ? JSON.parse(allFeats[feat]) : new Date(allFeats[feat]);
+			let newDate;
+			if (isJsonString(allFeats[feat])) newDate = JSON.parse(allFeats[feat]);
+			else newDate = new Date(allFeats[feat]);
 			if (!newDate?.valueOf()) {
-				// somehow new date is invalid
-				throw new Error(`updateFeats ${feat}: Invalid date`);
+				Errors.report(`updateFeats "${feat}": Invalid date "${allFeats[feat]}"`);
+				newDate = new Date(1);
 			}
 			allFeats[feat] = newDate;
 			writeFlag = true;
@@ -2743,7 +2761,7 @@ function applyFeatBoosts() {
 					);
 				} else {
 					colors.delete("custom");
-					item.colour = colors.random();
+					item.accessory_colour = colors.random();
 				}
 			}
 			// pick the pattern

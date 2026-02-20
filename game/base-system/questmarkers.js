@@ -40,12 +40,12 @@ const events = [
 	{
 		name: "avery date",
 		condition() {
-			return V.avery_mansion?.schedule !== "away" && V.averydate === 1 && V.averydatedone !== 1 && Time.weekDay === 7;
+			return V.avery_mansion?.schedule !== "away" && V.averydate === 1 && V.averydatedone !== 1 && V.averydateattended !== 1 && Time.weekDay === 7;
 		},
 		starthour: 20,
 		endhour: 20,
 		priority: 4,
-		text: "You have a date with Avery <<print $avery_mansion ? 'in the mansion garage': 'on Domus Street'>> <<if Time.hour is 20>><span class='gold'>right now!</span><<else>>at <<ampm 20 00>>.<</if>>",
+		text: "You have a date with Avery <<print $avery_mansion ? 'in the mansion garage': 'on Domus Street'>> <<if Time.hour is 20>><span class='gold'>right now</span>.<<else>>at <<ampm 20 00>>.<</if>>",
 		failuretext: "You didn't show up for your date with Avery.",
 	},
 	{
@@ -144,6 +144,7 @@ const events = [
 				V.adultshopprogress < 22 &&
 				V.adultshopintro === 1 &&
 				V.adultshopunlocked === undefined &&
+				!V.daily.dilapidatedShopHelp &&
 				Time.weekDay === 6 &&
 				(Time.hour <= 15 || V.adultshopstate === "sydney")
 			);
@@ -151,7 +152,7 @@ const events = [
 		starthour: 16,
 		endhour: 19,
 		priority: 6,
-		text: "Adult shop on Elk Street is undergoing renovations after <<ampm 16>> today.",
+		text: "The adult shop on Elk Street is undergoing renovations after <<ampm 16>> today.",
 		failuretext: "You didn't help <<if C.npc.Sydney.init>>Sydney<</if>> at the adult shop today.",
 	},
 	{
@@ -201,7 +202,7 @@ const events = [
 		endhour: 20,
 		priority: 5,
 		text: "The school plays are being held today at Cliff Street from <<ampm 17 00>> until <<ampm 21 00>>",
-		failuretext: "The last of the school plays is finished by now. You didn't attend.",
+		failuretext: "The last of the school plays has finished by now. You didn't attend.",
 	},
 	{
 		name: "english play tomorrow",

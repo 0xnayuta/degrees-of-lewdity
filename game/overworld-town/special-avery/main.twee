@@ -2859,7 +2859,7 @@ The <<person2>><<person>> returns once more, this time with the main menu. Just 
 <br>
 
 :: Avery Date Drink
-<<effects>><<wearProp "soft drink can">>
+<<effects>><<wearProp "soft drink">>
 
 <<if $speech_attitude is "meek" or $speech_attitude_avery>>
 	"N-no," you say. "I'd like something else."
@@ -3416,7 +3416,7 @@ You reach for the money, but <<he>> lifts it away from you. "First things first,
 <<set $outside to 0>><<effects>>
 
 <<if $averywalkintrotalk is 1>>
-	"It's okay," you whisper to Robin. "<<nnpc_He "Avery">> give us a lift before. It'll be safer than the roads."
+	"It's okay," you whisper to Robin. "<<nnpc_He "Avery">> gave us a lift before. It'll be safer than the roads."
 	<br><br>
 
 	Robin nods, but seems unconvinced. You both climb into the back of Avery's car.
@@ -3438,7 +3438,12 @@ You reach for the money, but <<he>> lifts it away from you. "First things first,
 	Robin nods, but seems unconvinced. You both climb into the back of Avery's car.
 	<br><br>
 
-	The journey is short, though you're held up by traffic. Avery chats and glances at you through the rear-view mirror. "It makes sense I drop you off," <<he>> says at one point. "It's on my normal route. I should be able to pick you up too, every Monday, as well as any other day I get off early."
+	The journey is short, though you're held up by traffic. Avery chats and glances at you through the rear-view mirror. 
+	<<if $avery_mansion>>
+		"It makes sense I drop you off when I can," <<he>> says at one point. "I should be able to pick you up too, every Monday, as well as any other day I get off early."
+	<<else>>
+		"It makes sense I drop you off," <<he>> says at one point. "It's on my normal route. I should be able to pick you up too, every Monday, as well as any other day I get off early."
+	<</if>>
 	<<glove>><<npcincr Avery love 1>>
 	<br><br>
 
@@ -3861,23 +3866,22 @@ The rest of the journey is uneventful. Robin stays close to you the whole way.
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
+	Avery sits back in <<his>> seat once <<hes>> finished using you. "I think you got the message, as clear as day," <<he>> says, <<his>> breath heavy.
+	<<larage>><<npcincr Avery rage -5>>
+	<br><br>
 	<<if $avery_mansion>>
-		Avery sits back in <<his>> seat once <<hes>> finished using you. "I think you got the message, as clear as day," <<he>> says as <<he>> puts <<his>> foot down.
-		<<larage>><<npcincr Avery rage -5>>
-		<br><br>
-		<<He>> doesn't speak during the trip to the mansion.
-		<br><br>
+		<<He>> puts <<his>> foot down, and doesn't speak during the trip to the mansion.
 	<<else>>
-		Avery sits back in <<his>> seat once <<hes>> finished using you. "I think you got the message, as clear as day," <<he>> says inbetween heavy breaths. <<He>> shoves you to the side. "Now get out, and you better start behaving from now on."
-		<<larage>><<npcincr Avery rage -5>>
-		<br><br>
+		<<He>> shoves you to the side. "Now get out, and you better start behaving from now on."
 	<</if>>
+	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
 
 	<<if $avery_mansion>>
-		<<tearful>> you climb from the car.
+		<<averySchedule>>
+		<<tearful>> you climb from the car. <<if $avery_mansion.schedule is "work">>"I'll be back after work," <<he>> says tersely. The engine roars away behind you.<</if>>
 		<br><br>
 
 		<<link [[Next|Mansion Garage]]>><</link>>
@@ -4085,7 +4089,8 @@ you say.
 <<effects>>
 
 <<if $avery_mansion>>
-	You lean in and plant a kiss on Avery's lips. <<He>> smiles, then climbs from the car.<<takeKissVirginity "Avery" `($auriga_artefact?"loveInterest":"romantic")`>>
+	<<averySchedule>>
+	You lean in and plant a kiss on Avery's lips. <<He>> smiles, then <<= $avery_mansion.schedule is "work" ? "drives away" : "climbs from the car">>.<<takeKissVirginity "Avery" `($auriga_artefact?"loveInterest":"romantic")`>>
 	<br><br>
 
 	<<link [[Next|Mansion Garage]]>><<endevent>><</link>>
@@ -4110,20 +4115,17 @@ You quickly open the door and step out from the car. Avery frowns, and you
 <</if>>
 
 <<if $avery_mansion>>
-	<<He>> watches you for a moment before stepping outside.
+	<<averySchedule>>
+	<<He>> watches you for a moment before <<= $avery_mansion.schedule is "work" ? "driving away" : "stepping outside">>.
 	<br><br>
 
-	<<endevent>>
-
-	<<link [[Next|Mansion Garage]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Mansion Garage]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
 	<<He>> watches you for a moment before driving away.
 	<br><br>
 
-	<<endevent>>
-
-	<<link [[Next|Domus Street]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Domus Street]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <</if>>
 
@@ -5590,15 +5592,20 @@ Avery exits the pub shortly after you. You see <<his>> face clouded by frustrati
 The ride back is silent.
 <<if $averyragerevealed is 1 and C.npc.Avery.rage gte 50>>
 	<<if $avery_mansion>>
+		<<averySchedule>>
 		Soon enough, the two of you make it to the mansion. Before you climb out of the car, Avery grabs your shoulder. Your face twists as <<his>> fingers dig in.
 		<br><br>
 		"Next time you want to show off, take a moment to actually think about whether you can," <<he>> says, baring <<his>> teeth. "I won't allow you to embarrass me, even if you do it by embarrassing yourself."
 		<br><br>
-		<<He>> shoves you out before you can respond. You stagger but manage to steady yourself. Avery climbs out, and walks away.
+		<<He>> shoves you out before you can respond. You stagger but manage to steady yourself.
+		<<if $avery_mansion.schedule is "work">>
+			"I'll be back when I'm done with work," <<he>> snarls. The engine roars away behind you.
+		<<else>>
+			Avery climbs out, and walks away.
+		<</if>>
 		<br><br>
 
-		<<endevent>>
-		<<link [[Next|Mansion Garage]]>><</link>>
+		<<link [[Next|Mansion Garage]]>><<endevent>><</link>>
 		<br>
 	<<else>>
 		Soon enough, the two of you make it to the orphanage. Before you climb out of the car, Avery grabs your shoulder. Your face twists as <<his>> fingers dig in.
@@ -5608,8 +5615,7 @@ The ride back is silent.
 		<<He>> shoves you out before you can respond. You stagger but manage to steady yourself on the pavement. The engine roars away behind you.
 		<br><br>
 
-		<<endevent>>
-		<<link [[Next|Domus Street]]>><</link>>
+		<<link [[Next|Domus Street]]>><<endevent>><</link>>
 		<br>
 	<</if>>
 <<else>>
@@ -5671,18 +5677,22 @@ You lean in and plant a kiss on Avery's lips. <<He>> smiles. <<His>> thumb linge
 <br><br>
 
 <<if $avery_mansion>>
-	You climb from the car. <<He>> watches a moment before following suit.
+	<<averySchedule>>
+	You climb from the car.
+	<<if $avery_mansion.schedule is "work">>
+		"I have <<= either("to get back to work", "to speak with a client now", "a meeting to get to")>>. I'll see you tonight, <<pcPetname "Avery" "my">>."
+	<<else>>
+		<<He>> watches a moment before following suit.
+	<</if>>
 	<br><br>
 
-	<<endevent>>
-	<<link [[Next|Mansion Garage]]>><</link>>
+	<<link [[Next|Mansion Garage]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	You get out of the car. <<He>> watches you for a moment before driving away.
 	<br><br>
 
-	<<endevent>>
-	<<link [[Next|Domus Street]]>><</link>>
+	<<link [[Next|Domus Street]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -5690,18 +5700,22 @@ You lean in and plant a kiss on Avery's lips. <<He>> smiles. <<His>> thumb linge
 <<effects>>
 
 <<if $avery_mansion>>
-	Avery frowns when you shrug <<his>> hand off. You get out of the car. <<He>> watches you for a moment before following suit.
+	<<averySchedule>>
+	Avery frowns when you shrug <<his>> hand off. You get out of the car.
+	<<if $avery_mansion.schedule is "work">>
+		<<He>> watches you for a moment. "Very well," <<he>> says. "I have <<= either("to get back to work", "to speak with a client now", "a meeting to get to")>>. I'll see you tonight."
+	<<else>>
+		<<He>> watches you for a moment before following suit.
+	<</if>>
 	<br><br>
 
-	<<endevent>>
-	<<link [[Next|Mansion Garage]]>><</link>>
+	<<link [[Next|Mansion Garage]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	Avery frowns when you shrug <<his>> hand off. You get out of the car. <<He>> watches you for a moment before driving away.
 	<br><br>
 
-	<<endevent>>
-	<<link [[Next|Domus Street]]>><</link>>
+	<<link [[Next|Domus Street]]>><<endevent>><</link>>
 	<br>
 <</if>>
 
@@ -5714,9 +5728,9 @@ You lean in and plant a kiss on Avery's lips. <<He>> smiles. <<His>> thumb linge
 <</if>>
 You spend some time chatting, mostly listening and nodding as Avery talks about <<his>> business. Finally, Avery looks at <<his>> watch. "Sorry, I still have some work to do. I need to head out now."
 <br><br>
-<<link [[Ask for a ride home|Avery Pub Winter Drink Finish 2]]>><</link>><<set $phase to 2>>
+<<link [[Ask for a ride home|Avery Pub Winter Drink Finish 2]]>><<set $phase to 2>><</link>>
 <br>
-<<link [[Don't|Avery Pub Winter Drink Finish 2]]>><</link>>
+<<link [[Don't|Avery Pub Winter Drink Finish 2]]>><<set $phase to 1>><</link>>
 <br>
 
 :: Avery Pub Winter Drink Finish 2
@@ -5741,11 +5755,11 @@ You spend some time chatting, mostly listening and nodding as Avery talks about 
 		<br>
 	<</if>>
 <<else>>
-You bid <<him>> farewell. <<He>> pays for your beverages before <<= $phase is 0 ? "patting your head and leaving" : "leaving">>. You finish your drink and exit the pub.
-<br><br>
+	You bid <<him>> farewell. <<He>> pays for your beverages before <<= $phase is 0 ? "patting your head and leaving" : "leaving">>. You finish your drink and exit the pub.
+	<br><br>
 
-<<link [[Next|Harvest Street]]>><<endevent>><</link>>
-<br>
+	<<link [[Next|Harvest Street]]>><<endevent>><</link>>
+	<br>
 <</if>>
 
 :: Avery Pub Winter Refuse
