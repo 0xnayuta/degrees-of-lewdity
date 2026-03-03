@@ -180,6 +180,8 @@ const Time = (() => {
 				}
 				// pass the remaining minutes
 				minutePassed((minutes - minsToNextHour) % 60);
+				// reset BodyTemperature effects
+				delete T.bodyActivity;
 			}
 		} catch (ex) {
 			// we only need to catch it so "finally" can run, so, right back at you
@@ -577,6 +579,9 @@ function weekPassed() {
 
 function dayPassed() {
 	Weather.sky.initSun();
+	Weather.WeatherGeneration.updateWeather();
+	Weather.Temperature.updateTemperature();
+	Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);
 
 	// Lose one day of tanning
 	Skin.applyTanningLoss(1440);
@@ -1121,10 +1126,6 @@ function minutePassed(minutes) {
 	// Snow & ice
 	Weather.setAccumulatedSnow(minutes);
 	Weather.setIceThickness(minutes);
-
-	// Overcast
-	Weather.sky.updateFade();
-	V.weatherObj.overcast = round(Weather.sky.fadables.overcast.factor, 2);
 
 	// Effects
 	V.stress = Math.min(V.stress, V.stressmax);

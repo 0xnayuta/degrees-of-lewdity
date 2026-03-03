@@ -112,16 +112,16 @@
 <<widget "oxygenrecovery">>
 	<<if $oxygenRecovery and $oxygen lt $oxygenmax>>
 		/* 8 minutes to recover from 0 oxygen */
-		<<set _oxygenResaturationSeconds to Math.ceil((1 - $oxygen/$oxygenmax)*Time.oxygenResaturationDuration)>>
-		<<set _oxygenResaturationMinutes to Math.ceil(_oxygenResaturationSeconds/60)>>
-		<<loitericon>><<link [[`Catch your breath (${getTimeString(_oxygenResaturationMinutes)})`|$passage]]>>
+		<<set $_seconds to Math.ceil((1 - $oxygen/$oxygenmax) * Time.oxygenResaturationDuration)>>
+		<<set $_minutes to Math.ceil($_seconds / TimeConstants.secondsPerMinute)>>
+		<<loitericon>><<capture $_seconds>><<link [[`Catch your breath (${getTimeString($_minutes)})`|$passage]]>>
 			<<if ['string', 'number'].includes(typeof(_args[0]))>>
 				<<set $phase to _args[0]>>
 			<<elseif _args[0]>>
 				<<set $phase to "oxygenrecovery">>
 			<</if>>
-			<<pass _oxygenResaturationSeconds seconds>>
-		<</link>>
+			<<pass $_seconds seconds>>
+		<</link>><</capture>>
 		<br>
 	<</if>>
 <</widget>>
@@ -892,9 +892,7 @@
 		<</if>>
 	<</for>>
 
-	<<if $worn.under_upper.type.includes("athletic") and $player.breastsize gte 6>>
-		<<set _temp *= 1.1>>
-	<<elseif $player.breastsize gte 6>>
+	<<if $player.breastsize gte 6 and !$worn.under_upper.type.includes("athletic")>>
 		<<set _temp /= 1.1>>
 	<</if>>
 
@@ -1823,7 +1821,7 @@
 			<<case "day">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>It's a bright and sunny day.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 						<<if Weather.precipitation is "rain">>
 							It's a rainy day.
 						<<else>>
@@ -1834,7 +1832,7 @@
 			<<case "night">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The stars are shining.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 						<<if Weather.precipitation is "rain">>
 							It's a rainy night.
 						<<else>>
@@ -1845,7 +1843,7 @@
 			<<case "dawn">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The sun is rising.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 					<<if Weather.precipitation is "rain">>
 						It's a rainy morning.
 					<<else>>
@@ -1856,7 +1854,7 @@
 			<<case "dusk">>
 				<<switch Weather.name>>
 					<<case "clear" "lightClouds">>The sun is setting.
-					<<case "lightPrecipitation" "heavyPrecipitation" "thunderStorm">>
+					<<case "lightPrecipitation" "heavyPrecipitation" "storm" "thunderstorm">>
 					<<if Weather.precipitation is "rain">>
 						It's a rainy evening.
 					<<else>>
