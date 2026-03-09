@@ -1,14 +1,21 @@
-class ClothingLayer {
+/* Wrapper for an article of clothing.
+ * Bridges V.worn and setup.clothes
+ * Interactions regarding clothing should use this object instead of direct access.
+ */
+class ClothingItem {
 	constructor(slot) {
 		this.slot = slot;
 	}
 
-	/* live reference to the worn item */
 	get item() {
 		return V.worn[this.slot];
 	}
 
-	/* properties */
+	get template() {
+		return setup.clothes[this.slot][clothesIndex(this.slot, this.item)];
+	}
+
+	/* runtime */
 	get name() {
 		return this.item.name;
 	}
@@ -21,8 +28,40 @@ class ClothingLayer {
 	get type() {
 		return this.item.type;
 	}
+	get colour() {
+		return this.item.colour;
+	}
 
-	/* boolean checks */
+	/* static */
+	get isSkirt() {
+		return this.template.skirt === 1;
+	}
+	get isShort() {
+		return this.template.short === 1;
+	}
+	get isOnePiece() {
+		return this.template.one_piece === 1;
+	}
+	get integrityMax() {
+		return this.template.integrity_max;
+	}
+	get fabricStrength() {
+		return this.template.fabric_strength;
+	}
+	get warmth() {
+		return this.template.warmth;
+	}
+	get reveal() {
+		return this.template.reveal;
+	}
+	get cost() {
+		return this.template.cost;
+	}
+	get description() {
+		return this.template.description;
+	}
+
+	/* boolean */
 	get isNaked() {
 		return this.item.type.includes("naked");
 	}
@@ -32,11 +71,8 @@ class ClothingLayer {
 	get isWorn() {
 		return this.item.state === "waist";
 	}
-	get isSkirt() {
-		return setup.clothes[this.slot][clothesIndex(this.slot, this.item)].skirt === 1;
-	}
 
-	/* exposure checks */
+	/* exposure */
 	exposes(type) {
 		return !!this.item[type + "_exposed"];
 	}
@@ -45,21 +81,26 @@ class ClothingLayer {
 	damage(amount) {
 		this.item.integrity -= amount;
 	}
-	strip() {
-		this.item.state = "legs";
-	}
 }
-window.ClothingLayer = ClothingLayer;
+window.ClothingItem = ClothingItem;
+
+/* General-purpose factory — usable anywhere in twee.
+ * @param {string} slot e.g. "lower", "upper", "under_lower"
+ * @returns {ClothingItem}
+ */
+function clothingItem(slot) {
+	return new ClothingItem(slot);
+}
+window.clothingItem = clothingItem;
 
 /* Returns the outermost clothing layer covering a body area, or null if exposed.
  * @param {string} region "lower" or "upper"
  * @param {string} [exposureType] "anus" or "vagina" (ignored for upper)
- * @returns {ClothingLayer|null}
+ * @returns {ClothingItem|null}
  */
 function combatClothingLayer(region, exposureType) {
 	const worn = V.worn;
 	if (region === "upper") {
-		/* upper body checks lower slot state for waist — matches existing combat-dildospank behavior */
 		const layers = [
 			{ nameSlot: "over_upper", stateSlot: "over_lower" },
 			{ nameSlot: "upper", stateSlot: "lower" },
@@ -67,18 +108,18 @@ function combatClothingLayer(region, exposureType) {
 		];
 		for (const layer of layers) {
 			if (worn[layer.nameSlot].name !== "naked" && worn[layer.stateSlot].state === "waist") {
-				return new ClothingLayer(layer.nameSlot);
+				return new ClothingItem(layer.nameSlot);
 			}
 		}
 		return null;
 	}
-	/* lower body: over_lower → lower → under_lower */
+
 	const exposedKey = exposureType + "_exposed";
 	const layers = ["over_lower", "lower", "under_lower"];
 	for (const slot of layers) {
 		const item = worn[slot];
 		if (item.name !== "naked" && item.state === "waist" && !item[exposedKey]) {
-			return new ClothingLayer(slot);
+			return new ClothingItem(slot);
 		}
 	}
 	return null;
