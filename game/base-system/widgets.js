@@ -146,8 +146,8 @@ function genderappearancecheck() {
 	} */
 	/* Determine how visible the player's bottom is */
 	if (
-		(setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1 && V.worn.lower.skirt_down === 1 && V.worn.lower.state === "waist") ||
-		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 &&
+		(clothingItem("lower").isSkirt && V.worn.lower.skirt_down === 1 && V.worn.lower.state === "waist") ||
+		(clothingItem("over_lower").isSkirt &&
 			V.worn.over_lower.skirt_down === 1 &&
 			V.worn.over_lower.state === "waist")
 	) {
