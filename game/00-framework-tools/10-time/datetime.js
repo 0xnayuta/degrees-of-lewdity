@@ -96,7 +96,8 @@ class DateTime {
 	 * @param {number} second
 	 */
 	toTimestamp(year, month, day, hour, minute, second) {
-		if (year < TimeConstants.MIN_DATE.year || year > TimeConstants.MAX_DATE.year) throw new Error(`Invalid year: Year must be between ${TimeConstants.MIN_DATE.timeStamp}-${TimeConstants.MAX_DATE.year}.`);
+		if (year < TimeConstants.MIN_DATE.year || year > TimeConstants.MAX_DATE.year)
+			throw new Error(`Invalid year: Year must be between ${TimeConstants.MIN_DATE.timeStamp}-${TimeConstants.MAX_DATE.year}.`);
 		if (month < 1 || month > 12) throw new Error("Invalid month: Month must be between 1-12.");
 		const daysInMonth = DateTime.getDaysOfMonthFromYear(year);
 		if (day < 1 || day > daysInMonth[month - 1]) throw new Error("Invalid date: Day must be between 1-" + daysInMonth[month - 1] + ".");
@@ -121,7 +122,7 @@ class DateTime {
 	 * @param {number} timestamp The timestamp to convert.
 	 */
 	fromTimestamp(timestamp) {
-		// Initialize the year to 1
+		// Initialise the year to 1
 		let year = 1;
 		let month = 0;
 		let day = Math.trunc(timestamp / TimeConstants.secondsPerDay);

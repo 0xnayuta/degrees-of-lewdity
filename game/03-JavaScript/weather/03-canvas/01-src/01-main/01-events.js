@@ -1,13 +1,13 @@
-/* Initialize sky canvas on loading a save */
+/* Initialise sky canvas on loading a save */
 $(document).on(":onloadsave", () => {
-	if (!Weather.sky?.loaded.value) return;
-	Weather.activeRenderer = Weather.sky;
-	Weather.sky.initialize();
+	if (!Weather.sidebar?.loaded.value) return;
+	Weather.activeRenderer = Weather.sidebar;
+	Weather.sidebar.initialize();
 });
 
 /* Clear all layers on restart */
 $(document).on(":enginerestart", () => {
-	Weather.sky?.stopAll();
+	Weather.sidebar?.stopAll();
 });
 
 /* Initialise banner canvas on passageend in order to load Time and localStorage correctly */
@@ -32,7 +32,7 @@ $(document).on(":passageend", async () => {
 	}
 });
 
-/* Initialize sky canvas on page refresh */
+/* Initialise sky canvas on page refresh */
 $(document).on(":passagestart", () => {
 	// Setup banner for start menu
 	if (["Start", "Clothes Testing", "Renderer Test Page", "Tips"].includes(State.passage)) {
@@ -89,9 +89,9 @@ $(document).on(":passagestart", () => {
 	}
 
 	// Return if sidebar has already been initialised
-	if (!V.weatherObj || Weather.sky?.loaded.value) return;
-	Weather.activeRenderer = Weather.sky;
-	Weather.sky.initialize();
+	if (!V.weatherObj || Weather.sidebar?.loaded.value) return;
+	Weather.activeRenderer = Weather.sidebar;
+	Weather.sidebar.initialize();
 });
 
 $(document).one(":passagerender", () => {

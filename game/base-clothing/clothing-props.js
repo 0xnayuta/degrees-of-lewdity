@@ -383,6 +383,9 @@ function initProps() {
 		pasta_fork: {
 			folder: "food",
 		},
+		pasty: {
+			folder: "food",
+		},
 		popcorn: {
 			folder: "food",
 		},
@@ -611,15 +614,12 @@ function initProps() {
 		toolbox: {
 			armPosition: "right_cover",
 		},
-		shears: {
-			armPosition: "right_cover",
-		},
 		first_aid: {
 			armPosition: "right_cover",
 		},
-        fish_basket: {
-            armPosition: "right_cover",
-        },
+		fish_basket: {
+			armPosition: "right_cover",
+		},
 		piano: {
 			armPosition: "right_cover",
 			zIndex: "tailPenisCoverOverlay",

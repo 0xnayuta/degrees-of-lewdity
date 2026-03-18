@@ -1,6 +1,6 @@
 Macro.add("skybox", {
 	handler() {
-		Weather.sky.skybox.appendTo(this.output);
+		Weather.sidebar.skybox.appendTo(this.output);
 	},
 });
 
@@ -34,7 +34,7 @@ Macro.add("weatherIcon", {
 
 		const dayState = Weather.bloodMoon ? "blood" : Weather.dayState === "night" ? "night" : "day";
 		const weatherState = resolveValue(Weather.current.iconType, "clear");
-		const path = `img/ui/weather/${dayState}_${weatherState}.png`;
+		const path = `img/ui/weather/${dayState}-${weatherState}.png`;
 
 		iconImg.attr("src", path);
 		Weather.Tooltips.skybox(iconImg);

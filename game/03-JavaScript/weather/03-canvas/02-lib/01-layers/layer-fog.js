@@ -7,7 +7,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "particleFog",
 			drawCondition() {
-				return !this.renderInstance.skyDisabled && setup.LocationImages[setup.Locations.get()].weather.fogEnabled;
+				return !this.renderInstance.sidebarSkyDisabled && setup.LocationImages[setup.Locations.get()].weather.fogEnabled;
 			},
 			params: {
 				scale: 30,
@@ -15,7 +15,7 @@ Weather.Renderer.Layers.add({
 				minVel: 0.6, // px/sec
 				maxVel: 1.2,
 				images: {
-					fog: "img/misc/sky/clouds/fog/fog0.png",
+					fog: "img/misc/sky/clouds/fog/1.png",
 				},
 			},
 			bindings: {
@@ -36,7 +36,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "colorOverlay",
 			drawCondition() {
-				return !this.renderInstance.skyDisabled;
+				return !this.renderInstance.sidebarSkyDisabled;
 			},
 			compositeOperation: "source-atop",
 			params: {

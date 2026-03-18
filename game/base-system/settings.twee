@@ -8,7 +8,7 @@
 	<<set $player.ballsExist to false>>
 	<<set $player.freckles to false>>
 	<<set $player.breastsize to 0>>
-	<<set $player.penissize to 1>>
+	<<set $player.penissize to 3>>
 	<<set $bodysize to 2>>
 	<<set $mouthsensitivity to 1>>
 	<<set $breastsensitivity to 1>>
@@ -71,6 +71,7 @@
 	<<set $settings.skillCheckStyle to "words">>
 	<<set $blackwolfmonster to 1>>
 	<<set $greathawkmonster to 1>>
+	<<set $nightmonstermonster to 1>>
 	<<set $reducedLineHeight to false>>
 	<<set $settings.clothingCostModifier to 1>>
 	<<set $settings.underwearCostModifier to 1>>
@@ -182,7 +183,7 @@
 	</div>
 
 	<hr>
-	<<set _featTabName to "Feat Boosts<span class='red'> *</span>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/GoldCoin.gif'/>" : "")>>
+	<<set _featTabName to "Feat Boosts<span class='red'> *</span>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "")>>
 	<<switch _selectedStart>>
 		/*Basic Start is selected */
 		<<case "default">>
@@ -538,9 +539,9 @@
 	<<set $saveName to $saveName.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
 	<<unset $importString>>
 
-	/* Updates the penis max size for females so its never below 1 */
-	<<if $player.sex is "f" && $penissizemax < 0>>
-		<<set $penissizemax to 0>>
+	/* Updates the penis max size for females so its never below 2 */
+	<<if $player.sex is "f" && $penissizemax < 2>>
+		<<set $penissizemax to 2>>
 	<</if>>
 <</widget>>
 
@@ -843,7 +844,7 @@
 			</div>
 			<div class="settingsToggleItem">
 			<<if StartConfig.enableImages is true>>
-				<span class="gold">Sidebar Preview:</span><br> <label>Hide clothes <<checkbox "_showClothes" true false autocheck>></label> | <label>Hide underwear <<checkbox "_showUnderwear" true false autocheck>></label>
+				<span class="gold">Sidebar Preview:</span><br> <label>Hide clothes <<checkbox "_showClothes" true false autocheck>></label> | <label>Hide underwear <<checkbox "_showUnderwear" true false autocheck>></label> | <label>Flaccid penis <<checkbox "_flaccidPenis" false true autocheck>></label>
 				<br>
 			<</if>>
 			</div>
@@ -933,9 +934,9 @@
 				<div class="settingsToggleItem">
 					<span data-target="player.sex" data-disabledif="V.player.sex==='f'">
 					<span class="gold">Penis Size:</span><br>
-					<label>Tiny <<radiobutton "$player.penissize" 0 autocheck>></label> |
-					<label>Small <<radiobutton "$player.penissize" 1 autocheck>></label> |
-					<label>Normal <<radiobutton "$player.penissize" 2 autocheck>></label>
+					<label>Tiny <<radiobutton "$player.penissize" 2 autocheck>></label> |
+					<label>Small <<radiobutton "$player.penissize" 3 autocheck>></label> |
+					<label>Normal <<radiobutton "$player.penissize" 4 autocheck>></label>
 					</span>
 				</div>
 			<</if>>
@@ -2260,15 +2261,15 @@
 		<<if ($passage is "Start" and $player.sex isnot "f") or $player.penisExist>>
 			<div class="settingsToggleItemWide">
 			<span class="gold">Penis Size Limits:</span> <span class="tooltip-anchor linkBlue" tooltip="Penises already below the minimum size won't automatically grow.">(?)</span>
-			<<rangeslider "$penissizemin" "$penissizemax" $penissizemin $penissizemax -2 4 1
+			<<rangeslider "$penissizemin" "$penissizemax" $penissizemin $penissizemax 0 6 1
 				{
 					minClamp: 0,
 					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
 				}
 				{
 					value: (v1, v2) => {
-						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 4, -2));
-						const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 4, -2));
+						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 6, 0));
+						const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 6, 0));
 						var name = ["Micro","Mini", "Tiny", "Small", "Normal", "Large", "Enormous"];
 						return `<span style="color: ${color1}">${name[v1+2]}</span> - <span style="color: ${color2}">${name[v2+2]}</span>`;
 					},
@@ -2448,7 +2449,7 @@
 
 					T.npcKeys = {};
 					T.npcKeyNames = [];
-					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "tower_creature", "pinch", "black_dog", "hacker", "bishop", "bishop_right_hand", "bishop_left_hand", "manager"];
+					const allowed_npcs = ["steed", "guard", "inmate", "panty_thief", "school_nurse", "pinch", "black_dog", "hacker", "bishop", "bishop_right_hand", "bishop_left_hand", "manager"];
 					Object.keys(V.per_npc).forEach(k => {
 						for (const j of allowed_npcs){
 							if (k.includes(j)){
@@ -2656,8 +2657,13 @@
 				<label><<radiobutton "$NPCName[_npcId].skincolour" "white" autocheck>> Pale</label> |
 				<label><<radiobutton "$NPCName[_npcId].skincolour" "black" autocheck>> Dark</label>
 				</span>
-			<<elseif $NPCName[_npcId].nam is "Great Hawk">>/*disable skin colour toggle when player has BW set to 'always a beast'*/
+			<<elseif $NPCName[_npcId].nam is "Great Hawk">>/*disable skin colour toggle when player has GH set to 'always a beast'*/
 				<span data-target="greathawkmonster" data-disabledif="V.greathawkmonster===0">
+				<label><<radiobutton "$NPCName[_npcId].skincolour" "white" autocheck>> Pale</label> |
+				<label><<radiobutton "$NPCName[_npcId].skincolour" "black" autocheck>> Dark</label>
+				</span>
+			<<elseif $NPCName[_npcId].nam is "Night Monster">>/*disable skin colour toggle when player has NM set to 'always a beast'*/
+				<span data-target="nightmonstermonster" data-disabledif="V.nightmonstermonster===0">
 				<label><<radiobutton "$NPCName[_npcId].skincolour" "white" autocheck>> Pale</label> |
 				<label><<radiobutton "$NPCName[_npcId].skincolour" "black" autocheck>> Dark</label>
 				</span>
@@ -2684,6 +2690,14 @@
 				<label><<radiobutton "$greathawkmonster" 0 autocheck>> Always a beast</label> |
 				<label><<radiobutton "$greathawkmonster" 1 autocheck>> Monster girl or boy when requirements met</label> |
 				<label><<radiobutton "$greathawkmonster" 2 autocheck>> Always a monster girl or boy</label>
+			</div>
+		<<elseif $NPCName[_npcId].nam is "Night Monster">>
+			<div class="settingsToggleItemWide">
+				<span class="gold">Beast Type:</span>
+				<br>
+				<label><<radiobutton "$nightmonstermonster" 0 autocheck>> Always a beast</label> |
+				<label><<radiobutton "$nightmonstermonster" 1 autocheck>> Monster girl or boy when requirements met</label> |
+				<label><<radiobutton "$nightmonstermonster" 2 autocheck>> Always a monster girl or boy</label>
 			</div>
 		<</if>>
 	</div>
@@ -2748,8 +2762,6 @@
 			<div class="settingsHeader">
 				<<if $per_npc[_pNPCId].name_known or _pNPCId is "farm_tower_guard">>
 					$per_npc[_pNPCId].name the <<= toTitleCase(_pNPCId.toUpperFirst().replace(/_/g, ' '))>>
-				<<elseif _pNPCId is "tower_creature">>
-					The Night Monster
 				<<elseif _pNPCId is "hacker">>
 					'Mickey' the Hacker
 				<<elseif _pNPCId is "bishop">>

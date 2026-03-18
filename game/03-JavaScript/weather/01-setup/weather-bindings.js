@@ -17,13 +17,13 @@ setup.WeatherBindings = {
 	time: {
 		variable: () => Time.date.timeStamp,
 		layers: [
-			"all", // TODO: This seems inefficient and defeats the purpose of having all of these different bindings 
+			"all", // TODO: This seems inefficient and defeats the purpose of having all of these different bindings
 		],
 	},
 	weather: {
 		variable: () => Weather.name,
 		layers: [
-			"sky", // Uses Weather.current.darkenFactor.sky for the sky color overlay, which changes with the weather
+			"sky", // Uses Weather.current.darkenFactor.sky for the sky colour overlay, which changes with the weather
 			"clouds", // Cloud counts/alpha and darken factor are informed by Weather.current
 			"cirrusClouds", // Cirrus count/opacity and darken factor are informed by Weather.current
 			"overcastClouds", // Overcast darken factor and opacity are informed by Weather.current
