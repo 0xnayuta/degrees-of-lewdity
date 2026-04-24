@@ -185,7 +185,7 @@ function initSpecialClothes() {
 		halloween: {
 			text: "collection of Halloween costumes",
 			requirements: () => Time.hasDatePassed(10, 21),
-			hint: "in stock from the 21st of October",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 10, 21))>>",
 			shop: ["forest"],
 			feat: false,
 			icon: "food/halloween.png",
@@ -263,7 +263,7 @@ function initSpecialClothes() {
 		},
 		pumpkin: {
 			text: "pumpkin costume",
-			requirements: () => Object.values(V.plants).filter(food => food.recipe).length >= 15,
+			requirements: () => Object.values(V.foodstuff).filter(food => food.knows_recipe).length >= 15,
 			hint: "learn 15 recipes",
 			shop: ["forest"],
 			subsetOf: ["halloween"],
@@ -275,7 +275,7 @@ function initSpecialClothes() {
 		christmas: {
 			text: "Christmas clothes",
 			requirements: () => Time.hasDatePassed(12, 18) || V.specialClothesEvents?.includes("skulduggery_gift"),
-			hint: "in stock from the 18th of December, or leave a generous gift for a family in need",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 12, 18))>>, or leave a generous gift for a family in need",
 			shop: ["forest"],
 			feat: true,
 			featCost: 5,
@@ -285,7 +285,7 @@ function initSpecialClothes() {
 		valentines: {
 			text: "collection of Valentine's Day clothes",
 			requirements: () => Time.hasDatePassed(2, 7),
-			hint: "in stock from the 7th of February",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 2, 7))>>",
 			shop: ["forest"],
 			feat: false,
 			icon: "gift_vday.png",
@@ -318,9 +318,9 @@ function initSpecialClothes() {
 			iconColor: "pink",
 		},
 
-		// Bad end or stockholm syndrome sets
+		// Bad end or Stockholm syndrome sets
 		bad_end: {
-			text: "collection of clothes from unsavory places",
+			text: "collection of clothes from unsavoury places",
 			shop: ["forest"],
 			feat: false,
 			icon: "cage.png",
@@ -641,7 +641,7 @@ function initSpecialClothes() {
 			subsetOf: ["mask", "fox"],
 			feat: true,
 			featCost: 5,
-			icon: "clothes/foxmask.png",
+			icon: "clothes/fox_mask.png",
 		},
 		fedora: {
 			text: "fedora",
@@ -684,7 +684,7 @@ function initSpecialClothes() {
 			shop: ["forest"],
 			feat: true,
 			featCost: 5,
-			icon: "dancestudio.png",
+			icon: "dance-studio.png",
 		},
 		sage_witch_hat: {
 			text: "strange witch hat",
@@ -783,7 +783,7 @@ function initSpecialClothes() {
 			text: "fox-themed items",
 			shop: ["forest"],
 			feat: false,
-			icon: "clothes/foxmask.png",
+			icon: "clothes/fox-mask.png",
 		},
 	};
 }

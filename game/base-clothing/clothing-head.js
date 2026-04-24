@@ -1999,7 +1999,7 @@ function initHead() {
 			integrity_max: 100,
 			fabric_strength: 5,
 			reveal: 1,
-			word: "n",
+			word: "a",
 			one_piece: 0,
 			plural: 0,
 			hood: 0,
@@ -2699,6 +2699,9 @@ function initHead() {
 			name: "cake hat",
 			name_cap: "Cake hat",
 			variable: "cake",
+			combat: {
+				reference: "naked", /* TODO: create missionary and doggystyle sprites, then remove */
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 200,

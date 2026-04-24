@@ -116,6 +116,9 @@ const Time = (() => {
 	}
 	/*
 	 * Changes date without "passing time"
+	 *
+	 * Consider using the timeTravel() function instead if you are making a large (1 month+) change to the date to prevent
+	 * too many weather / fog keypoints from generating due to the large gap in time.
 	 */
 	function setDate(date) {
 		set(date.timeStamp - V.startDate);
@@ -424,7 +427,26 @@ const Time = (() => {
 		betweenHours,
 		openingHours: minutes => betweenHours(7, 20, minutes),
 		oxygenResaturationDuration,
+		timeTravel,
 	});
+
+	/*
+	 * Use this instead of Time.setDate() when jumping to a date far away from the current time. Without it, thousands of weather/fog keypoints
+	 * could be generated to attempt to fill the gap between the time travel date and the current date, which can freeze the browser.
+	 *
+	 * When used as part of a flashback with freezePlayerStats/unfreezePlayerStats, freezePlayerStats must be called before timeTravel() so
+	 * that V.weatherObj and V.timeStamp are captured into V.frozenValues, then unfreezePlayerStats restores them at the end of the event.
+	 *
+	 * This will always randomize the current weather, so if you want to use this to change the time while in a flashback scene, make sure
+	 * to follow it up with calls to Weather.set and Weather.Temperature.set().
+	 */
+	function timeTravel(date) {
+		V.weatherObj.keypointsArr = [];
+		V.weatherObj.fogKeypoints = [];
+		Time.setDate(date);
+		Weather.WeatherGeneration.generate(date);
+		Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr);
+	}
 })();
 window.Time = Time;
 
@@ -606,6 +628,7 @@ function dayPassed() {
 	if (V.whitneyromance || C.npc.Whitney.dom >= 20) {
 		V.bullytimer += 20;
 		V.bullytimeroutside += 10;
+		V.whitney_home_timer += 1;
 	} else {
 		V.bullytimer += 10;
 		V.bullytimeroutside += 5;
@@ -802,6 +825,22 @@ function dayPassed() {
 		if (V.farm.milking.catchChance > random(10, 1000) / 10) V.farm.milking.caught = true;
 		if (V.farm.milking.catchChance >= 25) V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.95, 0, 100).toFixed(3);
 		else V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.98, 0, 100).toFixed(3);
+	}
+
+	if (V.livestock.winter.active === false) {
+		if (Weather.temperature <= 0 && Time.month.between(9, 10)) V.livestock.winter.trigger++;
+		else if (Time.month >= 11 || Time.month === 1) {
+			if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+			else V.livestock.winter.active = true;
+			V.livestock.winter.exam = false;
+		} else V.livestock.winter.trigger = 0;
+	} else {
+		if (Weather.temperature > 0 && Time.month === 2) V.livestock.winter.trigger++;
+		else if (Time.month >= 3 && Time.month <= 8) {
+			if (V.bus === "livestock") V.livestock.winter.trigger = 5;
+			else V.livestock.winter.active = false;
+			V.livestock.winter.exam = false;
+		} else V.livestock.winter.trigger = 0;
 	}
 
 	if (Weather.precipitation === "rain" && V.bird.upgrades?.firepit && !V.bird.upgrades.shelter) {
@@ -1038,7 +1077,7 @@ function hourPassed(hours) {
 			}
 		}
 		if (!V.avery_mansion || ["fallen", "kicked"].includes(V.avery_fate)) {
-			V.home_gone++;
+			V.hoursGoneFromHome++;
 		}
 
 		// Robin autowatering
@@ -1181,6 +1220,8 @@ function noonCheck() {
 
 	if (V.statFreeze) return;
 
+	V.robinwakeday = 0;
+	delete V.robin_kicked_out;
 	delete V.bartend_info;
 	delete V.bartend_info_other;
 	if (V.per_npc.bartend) wikifier("clearNPC", "bartend");
@@ -1219,7 +1260,6 @@ function noonCheck() {
 function dawnCheck() {
 	if (V.statFreeze) return;
 
-	V.robinwakeday = 0;
 	V.wolfwake = 0;
 	V.edenwake = 0;
 	delete V.skul_dock_init;
@@ -1231,9 +1271,9 @@ function dawnCheck() {
 	delete V.alexSomno;
 	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
-	delete V.robin_kicked_out;
 	delete V.gwylanWake;
 	delete V.gwylanCafeWake;
+	delete V.whitney_night_knock;
 
 	if (V.schoolBlocked) delete V.schoolBlocked;
 
@@ -2552,8 +2592,9 @@ window.getShortFormattedDate = function (date) {
 
 /* Determines and replenishes stock at supermarket */
 function supermarketWeekly() {
-	Object.keys(setup.plants).forEach(key => {
-		if (setup.plants[key].shop?.includes("supermarket")) V.plants[key].supermarket = Math.trunc(3000 / setup.plants[key].plant_cost);
+	Object.keys(setup.foodstuff).forEach(key => {
+		if (setup.foodstuff[key].shop.available_in?.includes("supermarket"))
+			V.foodstuff[key].supermarket = Math.trunc(3000 / setup.foodstuff[key].shop.sell_price);
 	});
 }
 DefineMacro("supermarketWeekly", supermarketWeekly);

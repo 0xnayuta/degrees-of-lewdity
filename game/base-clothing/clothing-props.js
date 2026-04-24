@@ -38,7 +38,7 @@ window.propLevels = propLevels;
 function wearProp(prop, colour, accColour) {
 	const key = normaliseKey(prop);
 	const tendingItem = key.replace("_gift", "").replace("_basket", "");
-	const tending = setup.plants[tendingItem];
+	const tending = setup.foodstuff[tendingItem];
 	const propErties = setup.props[key] ?? {};
 	T.prop = Object.assign({}, setup.propDefaults, propErties, {
 		name: normaliseFileName(key),
@@ -52,18 +52,8 @@ function wearProp(prop, colour, accColour) {
 		T.prop.name = T.prop.name.replace(/^antique[_-]?/, "").trim();
 		T.prop.folder = "antique";
 	} else if (tending && !propErties.folder) {
-		switch (tending.type) {
-			case "food":
-				T.prop.folder = tending.special.includes("drink") ? "drink" : "food";
-				T.prop.zIndex = "handheld_over_sleeve";
-				break;
-			case "ingredient":
-				T.prop.folder = "ingredient";
-				break;
-			default:
-				T.prop.folder = tending.shop ? "ingredient" : "tending";
-				break;
-		}
+		T.prop.folder = tending.prop_folder;
+		if (["food", "drink"].includes(T.prop.folder)) T.prop.zIndex = "handheld_over_sleeve";
 	}
 	if (T.prop.overUnderSplit || T.prop.overUnderAccSplit) T.prop.zIndex = "handheld_over_sleeve";
 	return T.prop;
@@ -455,8 +445,16 @@ function initProps() {
 		pinkshroom: {
 			folder: "tending",
 		},
-		hawk_egg: {
+		hawk_egg_1: {
 			folder: "tending",
+		},
+		hawk_egg_2: {
+			folder: "tending",
+			armPosition: "clutch",
+		},
+		hawk_egg_3: {
+			folder: "tending",
+			armPosition: "clutch",
 		},
 		plant_pot: {
 			folder: "furniture",
@@ -745,6 +743,12 @@ function initProps() {
 		},
 		hedge_shears: {
 			armPosition: "right_cover",
+		},
+		tarnished_spear: {
+			overUnderSplit: true,
+		},
+		restored_spear: {
+			overUnderSplit: true,
 		},
 	};
 

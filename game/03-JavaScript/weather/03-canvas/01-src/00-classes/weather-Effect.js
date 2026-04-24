@@ -2,6 +2,7 @@ Weather.Renderer.Effect = class Effect {
 	constructor(effect, condition, compositeOperation, params) {
 		this.params = params ?? {};
 		this.id = params.id;
+		this.effectName = effect.name;
 		this.onInit = effect.init;
 		this.onDraw = effect.draw;
 		this.onEnable = effect.onEnable;
@@ -80,7 +81,7 @@ Weather.Renderer.Effect = class Effect {
 		const subEffectsImageLoadPromises = this.effects.map(subEffect => subEffect.loadImages());
 		return Promise.all([...imageLoadPromises, ...subEffectsImageLoadPromises]);
 	}
-
+	
 	/**
 	 * Allows adding of sub-effects recursively
 	 *

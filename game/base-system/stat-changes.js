@@ -921,7 +921,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("livestockObey", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.livestock_obey = Math.clamp((V.livestock_obey || 0) + amount, 0, 100);
+			V.livestock.obey = Math.clamp((V.livestock.obey || 0) + amount, 0, 100);
 		}
 	}
 	DefineMacro("livestock_obey", livestockObey);
@@ -1271,7 +1271,7 @@ const statChange = (() => {
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
 			badEndTrackingEnd(lastBadEnd.source, {
 				reason: "unknown",
-				notes: `Not tracked in passage ${V.passage}, likely from an error`,
+				notes: `A bad end started in passage ${V.passage} while the previous bad end was still active. This is an error. Please report this to Vrelnir.`,
 			});
 		}
 
@@ -1295,7 +1295,8 @@ const statChange = (() => {
 		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
 			badEndTracking(source, {
 				reason: "unknown",
-				notes: `Not correctly tracked in passage ${V.passage}, ${V.badEndStats.length ? "likely from an error" : "likely from loading an old save"}`,
+				notes: `No bad end was considered active in ${V.passage} when badEndTrackingEnd was called. This is
+				 ${V.badEndStats.length ? "an error. Please report this to Vrelnir" : "likely due to loading an old save"}.`,
 			});
 			lastBadEnd = V.badEndStats.last();
 		}

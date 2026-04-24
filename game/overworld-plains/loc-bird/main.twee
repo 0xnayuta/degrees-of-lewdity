@@ -641,6 +641,7 @@ You let <<bhim>> grasp your shoulders with <<bhis>> talons, and <<bhe>> lifts yo
 
 :: Bird Rescue No Syndrome Tower 1
 <<effects>>
+<<unset $moor_hunt>>
 In the distance, you see a
 <<if $birdescaped gte 1>>
 	familiar tower. <span class="red"><<bHes>> taking you back to <<bhis>> nest.</span><<gstress>><<stress 4>>
@@ -1427,15 +1428,21 @@ You are inside <<if $syndromebird is 1>>your tower<<else>>a ruined tower<</if>>,
 		<</if>>
 		<br><br>
 	<</if>>
-	<<if pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.name is "ankle cuffs">>
-		<<if $possessed>>
-			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
-			<br><br>
-			<<unbind>>
+	<<if $possessed and (pcAreArmsBound("any") or $feetuse is "bound" or $worn.feet.type.includes("shackle"))>>
+		You stare down at your bindings.
+		<<if breakableSoftBinding()>>
+			You pull, and they fall apart, unable to hold against you.
+			<<if ["ankle cuffs", "ball and chain"].includes($worn.feet.name)>>
+				You then hear a click, and your $worn.feet.name fall to the ground.
+			<</if>>
 		<<else>>
-			<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
-			<br><br>
+			You hear a click, and your $worn.feet.name fall to the ground.
 		<</if>>
+		<br><br>
+		<<unbind>>
+	<<elseif breakableSoftBinding()>>
+		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Bird Tower Unbind]]>><<bird_pass 10>><<unbind>><</link>>
+		<br><br>
 	<</if>>
 
 	<<birdicon "perch">><<link [[Approach the perch|Bird Tower Perch]]>><</link>>
@@ -4210,7 +4217,7 @@ You bring your attentive touch down towards <<bhis>> groin.
 		<<addinlineevent "bird_bask_rescued">>
 			<<run delete $weekly.birdRescued>>
 			As you bask, your thoughts turn to your recent ordeal with
-			<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+			<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 				Remy's thugs out in the moor.
 			<<else>>
 				the people that tried to kidnap you out on the moor.
@@ -5744,7 +5751,7 @@ You consider your options. The moor itself has nothing special, neither do the a
 <br><br>
 
 Eventually your mind settles on the
-<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 	Remy estate. Knowing the kind of business they do, you're sure they would have something special.
 	<<if $estate and $estate.chaos>>
 		You're no stranger to causing trouble for Remy, but the mere thought of stealing something from the estate with <<your_bird_text>> fills you with adrenaline.
@@ -6077,7 +6084,7 @@ Where will you fly?
 
 	<<addinlineevent "flight_casual_moor_people" 1>>
 		You notice a small group of people walking around.
-		<<if $livestock_intro isnot undefined>>
+		<<if $livestock.intro isnot undefined>>
 			You recognise them from Remy's farm.
 		<<else>>
 			None of them look familiar to you.
@@ -6164,7 +6171,7 @@ Where will you fly?
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+	<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 		<<addinlineevent "flight_casual_moor_remy" 1>>
 			You end up close to the outskirts of the moor. You spot Remy's estate a bit further away. <<your_bird_text "cap">> looks uneasy.
 			<<if $monster is 1>>
@@ -6846,7 +6853,7 @@ You look through your telescope.
 			You see a group of campfires.
 		<</if>>
 		They're surrounded by tents, which are themselves surrounded by supplies and makeshift barriers. The occupants are dressed in matching uniforms.
-		<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock_intro isnot undefined>>
+		<<if $remySeen?.includesAny("farm","livestock","manor") or $livestock.intro isnot undefined>>
 			You recognise them. <span class="red">Remy's goons.</span>
 		<<else>>
 			They look dangerous.
@@ -7333,7 +7340,7 @@ You look up to the sky.
 <br>
 
 :: Bird Tower Eggs Take
-<<setTowerTemp>><<effects>><<wearProp "hawk egg">>
+<<setTowerTemp>><<effects>><<wearProp `"hawk egg " + Math.clamp($eggLayNumber, 1, 3)`>>
 
 You take the unfertilised <<pluralise $eggLayNumber "egg">> from the nest. <<your_bird_text "cap">> doesn't seem to mind. <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
 <br><br>
@@ -7455,7 +7462,7 @@ You're filled with a sense of maternal bliss.
 		You're flooded with emotion. <<trauma -12>><<lltrauma>>
 	<</if>>
 	<br><br>
-	<<wearProp "hawk egg">>
+	<<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 	<<if $syndromebird isnot 1 and $bird.syndrome gte 15>>
 		Your eyes wander down to the <<pluralise $eggLayNumber "egg">>. Your <<pluralise $eggLayNumber "child">>. Your mind fills with instinctual purpose. You rest your head on <<bhis>> shoulder. <<bHis>> plumage is so soft. Staying here with <<bhim>> doesn't seem so bad anymore.
 		<span class="red">It's not <<bhis>> fault. <<bHe>> only wants a mate.

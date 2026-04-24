@@ -991,7 +991,7 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 <br><br>
 
 <<if $passoutReason is "hyperthermia">>
-	"We found you passed out. You caused quite the worry, but my examination found no problems. You simply overheated." <<He>> strokes your hair. "<<= $farmGateCD is 0 ? "One of my men said you were acting up tonight. Maybe next time you'll be a good _cow and behave, hmm?" : "I'm proud you're being such a hard worker, but we can't have such a valuable member of our herd fainting, now can we?">> All that exercise must have gotten to you. Here, <<girl>>."
+	"We found you passed out. You caused quite the worry, but my examination found no problems. You simply overheated." <<He>> strokes your hair. "<<= $livestock.lock.cooldown is 0 ? "One of my men said you were acting up tonight. Maybe next time you'll be a good _cow and behave, hmm?" : "I'm proud you're being such a hard worker, but we can't have such a valuable member of our herd fainting, now can we?">> All that exercise must have gotten to you. Here, <<girl>>."
 	<br><br>
 
 	Remy holds up a bowl of water, and you realise just how parched you are. <<He>> lifts the bowl to your lips, and you gulp down the cool water greedily. Your desperation to slake your thirst causes some to spill on your <<chest>> and <<he>> chuckles. When the last drop of water is gone, you sigh with relief.
@@ -1006,7 +1006,7 @@ You awaken in a dingy windowless room, the stone walls lit only by a flaming tor
 <<else>>
 	"We found you passed out and shivering. You caused quite the worry, but my examination found no problems. You simply got too cold." <<He>> strokes your hair.
 	<br><br>
-	<<set Weather.bodyTemperature++>>
+	<<set Weather.bodyTemperature++>><<if !$livestock.winter.active>><<set $livestock.winter.trigger++>><</if>>
 	<<if $speech_attitude is "meek">>
 		"Um... maybe if I had some clothes, that would help?" you whisper.
 	<<elseif $speech_attitude is "bratty">>
@@ -1165,7 +1165,7 @@ Robin stands up. "I should get back to my stand now," <<he>> says, glancing over
 
 :: Passout Beach Heatstroke Students
 <<effects>>
-<<generateRole 0 "popular" "boy/girl">>
+<<generateRole 0 "popular" "boy/girl" t>>
 
 You feel a pair of arms hook under you and lift you off the sand.
 <<if $cool gte 240>>
@@ -1310,7 +1310,7 @@ You stay there for a while, listening as the <<person>> talks about <<his>> life
 <<effects>><<generate1>> <<person1>>
 <<set $outside to 0>><<set $location to "hospital">>
 
-The last thing you hear is a <<personsimple>>'s voice. "Wait, I know that face... people call <<phim>> `<<overworld_nickname>>`, right? We should get <<phim>> to a hospital." <<He>> scoops you up and places you in the backseat of a car. The car is warm, and you drift off.
+The last thing you hear is a <<personssimple>> voice. "Wait, I know that face... people call <<phim>> `<<overworld_nickname>>`, right? We should get <<phim>> to a hospital." <<He>> scoops you up and places you in the backseat of a car. The car is warm, and you drift off.
 <br><br>
 <<link [[Wake up|Hospital Bed]]>><<set $passoutReason to "hypothermia">><</link>>
 
@@ -1697,6 +1697,9 @@ After a few minutes, <<bhe>> gets off of you. <<if $monster is 1>>"Wait here," <
 
 <<if $phase is 1>>
 	You lean in close to <<your_bird_text>>. <<bHe>> turns <<bhis>> head towards you and nuzzles against your cheek. <<bHe>> <<= $monster is 1 ? "presses <<bhis>> lips to yours" : "pecks <<bhis>> beak against your lips">>. You return the <<= $monster is 1 ? "kiss, twining your arms around <<bhis>> neck" : "peck, peppering <<bhis>> face with small kisses">>. <<takeKissVirginity "Great Hawk" "loveInterest">>
+	<<if _pcKissVirginityTaken>>
+		<br><br>
+	<</if>>
 <<else>>
 	<<if $speech_attitude is "meek">>
 		"Th-thank you for saving me," you say, giving <<bhim>> a shy smile.
@@ -2401,6 +2404,7 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 <<if hasSexStat("promiscuity", 2)>>
 	<<link [[Make out|Passout Heatstroke Kiss End]]>><<set $phase to 2>><</link>><<promiscuous2>><<kissvirginitywarning>>
 <</if>>
+
 :: Passout Heatstroke Kiss End
 <<effects>>
 <<set Weather.Temperature.override.increase.inside(-3, "The impromptu fan brings some relief.")>>
@@ -2420,7 +2424,9 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 
 <<elseif $phase is 1>>
 	You lie still, and the <<person1>><<person>> presses <<his>> lips to yours. <<= either("<<His>> tongue tries to worm its way unpleasantly into your mouth.", "They're chapped and rough, the sensation not unlike kissing sandpaper.")>><<takeKissVirginity $NPCList[0] rape>>
-	<br><br>
+	<<if _pcKissVirginityTaken>>
+		<br><br>
+	<</if>>
 	<<He>> pulls away after a few moments. "Wow, the <<girls>> in this town are amazing. That was the best kiss I've ever had."
 	<br><br>
 	"<<pShes>> barely conscious, mate."
@@ -2437,7 +2443,7 @@ The <<person1>><<person>> takes out an informational pamphlet meant for tourists
 	<<if $speech_attitude is "meek">>
 		"Th-thank you for finding me," you say with a coy twirl of your hair. "I feel much better."
 	<<elseif $speech_attitude is "bratty">>
-		"Yeah? Not bad yourself, lover<<= $NPCList[0].pronoun is "m" ? "boy" : "girl">>," you tease. "I'm feeling much better now."
+		"Yeah? Not bad yourself, lover<<= $NPCList[0].pronouns.boy>>," you tease. "I'm feeling much better now."
 	<<else>>
 		"That was nice," you say sweetly. "I feel a lot better. Thank you."
 	<</if>>
@@ -3549,7 +3555,7 @@ The <<person>> approaches you, coming to a stop a touch closer than is polite. "
 <</if>>
 <br><br>
 <<if dangerEvent()>>
-	The <<person>>'s smile turns
+	The <<persons>> smile turns
 	<<if $rng gte 81 and $settings.bestialityEnabled>>
 		<<generateBEAST 2 dog>>
 		<<set $NPCList[1].name to $NPCList[1].pronoun is "f" ? $NPC_names_f.random() : $NPC_names_m.random()>>
@@ -3775,7 +3781,7 @@ The <<beasttype 1>> mounts you at <<bhis 1>> <<master>>'s command. The <<person>
 	<<link [[Next|Residential Alleyways]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	<<tearful>> you can do nothing but lie there and take what the <<person>>'s dog gives you until it's satisfied.
+	<<tearful>> you can do nothing but lie there and take what the <<persons>> dog gives you until it's satisfied.
 	<br><br>
 	<<person1>><<beastejaculation>>
 
