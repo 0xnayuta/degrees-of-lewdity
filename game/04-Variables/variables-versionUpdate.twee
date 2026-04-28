@@ -6884,6 +6884,10 @@
 		<<unset $hospitalintro>>
 	<</if>>
 
+	<<if C.npc.Harper.init is 1 and $harperSeen is undefined>>
+		<<set $harperSeen to []>>
+	<</if>>
+
 	/* Unset Night Monster persistent NPC in favour of Named NPC (NNPC) */
 	<<if !$nightMonsterNNPCUpdate>>
 		<<set $nightMonsterNNPCUpdate to 1>> /* set to 1 here, set to 2 in variablesStart2 or Config.navigation.override */
@@ -7060,30 +7064,6 @@
 		<<run ["livestock_dig", "livestock_lock_intro", "livestockLockSeq", "farmLockStr", "farmLockQty", "livestock_pig", "livestock_obey", "livestock_intro", "livestock_robin", "livestock_noise", "livestock_river", "livestock_fence", "livestock_grass", "livestock_muzzle", "livestock_return", "livestock_escape", "livestock_harper", "livestock_horse", "livestock_horse_rescued", "livestock_food", "livestock_milk", "livestock_semen"].forEach(v => delete V[v]);>>
 	<</if>>
 
-	<<if $hy_parent or $hy_sibling>>
-		/* Store any current NPCList entries to restore later */
-		<<if $NPCList[0].fullDescription>>
-			<<for _i to 0; _i lt $NPCList.length; i++>>
-				<<set $_tempNPCList[_i] to $NPCList[_i]>>
-			<</for>>
-		<</if>>
-		<<endevent>>
-		<<generate1>>
-		<<generates2>>
-		<<set $NPCList[0] to clone($hy_parent)>>
-		<<set $NPCList[1] to clone($hy_sibling)>>
-		<<saveNPC 0 "hy_parent">>
-		<<saveNPC 1 "hy_sibling">>
-		<<unset $hy_parent>>
-		<<unset $hy_sibling>>
-		<<endevent>>
-		<<if $_tempNPCList?.length>>
-			<<for _i to 0; _i lt $_tempNPCList.length; i++>>
-				<<set $NPCList[_i] to $_tempNPCList[_i]>>
-			<</for>>
-		<</if>>
-	<</if>>
-
 	<!-- Renaming variable -->
 	<<if $hoursGoneFromHome is undefined>>
 		<<set $hoursGoneFromHome to $home_gone>>
@@ -7175,53 +7155,6 @@
 		<<if $furniture.bedroom.poster?.name is "cow_girl">>
 			<<set $furniture.bedroom.poster.name to "cow-girl">>
 			<<set $furniture.bedroom.poster.nameCap to "Cow-girl">>
-		<</if>>
-	<</if>>
-
-	/* Fix Alex's parents not being generated properly on older saves */
-	<<if $farm_stage gte 1 and (!$per_npc.alexs_parent1 or !$per_npc.alexs_parent2)>>
-		/* Store any current NPCList entries to restore later */
-		<<if $NPCList[0].fullDescription>>
-			<<for _i to 0; _i lt $NPCList.length; i++>>
-				<<set $_tempNPCList[_i] to $NPCList[_i]>>
-			<</for>>
-		<</if>>
-		<<endevent>>
-		/* Clear out an NPC if only one was generated, as this can result in the pairing not working correctly */
-		<<if $per_npc.alexs_parent1>>
-			<<clearNPC "alexs_parent1">>
-		<</if>>
-		<<if $per_npc.alexs_parent2>>
-			<<clearNPC "alexs_parent2">>
-		<</if>>
-		<<generate1>>
-		<<saveNPC 0 "alexs_parent1">>
-		<<generatep2>>
-		<<saveNPC 1 "alexs_parent2">>
-		<<endevent>>
-		<<if $_tempNPCList?.length>>
-			<<for _i to 0; _i lt $_tempNPCList.length; i++>>
-				<<set $NPCList[_i] to $_tempNPCList[_i]>>
-			<</for>>
-		<</if>>
-	<</if>>
-
-	/* Fix o-long-and-beautiful not being generated properly on older saves */
-	<<if $o_long_and_beautiful gte 1 and !$per_npc.long_haired>>
-		/* Store any current NPCList entries to restore later */
-		<<if $NPCList[0].fullDescription>>
-			<<for _i to 0; _i lt $NPCList.length; i++>>
-				<<set $_tempNPCList[_i] to $NPCList[_i]>>
-			<</for>>
-		<</if>>
-		<<endevent>>
-		<<generateRole 0 "long-haired" 0 t>>
-		<<saveNPC 0 "long_haired">>
-		<<endevent>>
-		<<if $_tempNPCList?.length>>
-			<<for _i to 0; _i lt $_tempNPCList.length; i++>>
-				<<set $NPCList[_i] to $_tempNPCList[_i]>>
-			<</for>>
 		<</if>>
 	<</if>>
 <</widget>>
