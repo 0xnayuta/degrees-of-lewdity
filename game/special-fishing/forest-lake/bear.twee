@@ -1,0 +1,138 @@
+/*
+ * A bear attacks you. The encounter is more dangerous at night.
+ */
+
+
+:: Fishing Forest Lake Bear Attack
+<<beastNEWinit 1 bear>>
+You hear a crash from the treeline behind you, and by the time you can turn around a massive <<beasttype>> is upon you, pinning you down with <<bhis>> weight.
+<br><br>
+
+<<link [[Fight|Fishing Forest Lake Bear Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Forest Lake Bear Interrupt Attack
+<<run endFishingCombat()>>
+<<beastNEWinit 1 bear>>
+<<set $fishingBearMouthTarget to random(1, 4)>>
+You're focused on your catch when a crash erupts from the treeline. A massive <<beasttype>> is upon you,
+<<if $fishingBearMouthTarget is 1>>
+	<span class="red"><<bhis>> mouth closing around your neck</span> before you can react.
+<<elseif $fishingBearMouthTarget is 2>>
+	<span class="red">snapping <<bhis>> jaws at your head</span> before you can react.
+<<else>>
+	knocking you to the ground before you can react.
+<</if>>
+<br><br>
+
+<<link [[Fight|Fishing Forest Lake Bear Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Forest Lake Bear Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+	<<set $enemytrust -= 40>>
+	<<set $enemyanger += 40>>
+	<<set $enemyhealthmax to 400>>
+	<<set $enemyhealth to 400>>
+	<<set $enemyarousalmax to 1000>>
+	
+	<<if $fishingBearMouthTarget is 1>>
+		<<set $NPCList[0].mouth to "neck">>
+		<<set $head to "grappled">>
+	<<elseif $fishingBearMouthTarget is 2>>
+		<<set $NPCList[0].mouth to "hair">>
+		<<set $head to "grappled">>
+	<</if>>
+	<<unset $fishingBearMouthTarget>>
+	<<forestRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+
+<<forestRescueCheck "bear">>
+<br>
+<<beast $enemyno>>
+<br><br>
+
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Forest Lake Bear Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Forest Lake Bear Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Forest Lake Bear Molestation Finish
+<<effects>>
+<<set $fishing.lake.event to "none">>
+<<set $fishing.lake.eventDanger to 0>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<beastejaculation>>
+
+	Satisfied, the <<beasttype>> returns to the forest.
+	<br><br>
+
+	<<tearful>> you gather your things and step back from the shore.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Return to fishing|Fishing Forest Lake Wait]]>><</link>>
+	<br>
+	<<link [[Leave|Lake Fishing Rock]]>><</link>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	You scare the mighty <<beasttype>>. <<bHe>> flees from the lakeshore, crashing through the treeline.
+	<br><br>
+
+	<<tearful>> you gather your things and step back from the shore.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Return to fishing|Fishing Forest Lake Wait]]>><</link>>
+	<br>
+	<<link [[Leave|Lake Fishing Rock]]>><</link>>
+	<br>
+<<elseif $rescue is 1 and $alarm is 1>>
+	<<forestRescue>>
+<</if>>
+
+
+:: Widgets Fishing Forest Lake Bear [widget]
+<<widget "fishingForestLakeBearAttackWaitAmbient">>
+	<<addinlineevent 2>>
+		You see movement in the trees beyond the lake edge. Probably just a deer.
+		<<set $fishing.lake.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 3>>
+		The musty smell of wet fur drifts on the breeze.
+		<<set $fishing.lake.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 2>>
+		You hear heavy footfalls somewhere in the forest.
+		<<set $fishing.lake.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 2>>
+		Branches snap in the forest behind you.
+		<<set $fishing.lake.eventDanger += 1>>
+	<</addinlineevent>>
+	<<addinlineevent 1.5>>
+		You feel like something is watching you.
+		<<set $fishing.lake.eventDanger += 1>>
+	<</addinlineevent>>
+<</widget>>

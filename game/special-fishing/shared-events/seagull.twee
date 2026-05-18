@@ -1,0 +1,125 @@
+/*
+ * A seagull swoops down after you reel in a catch and tries to steal your fish. You can try to shoo it with an athletics check or just give it the fish.
+ * If the fish is too large, the seagull will just try to take it, fail, and walk away embarrassed.
+ */
+:: Fishing Seagull Shoo
+<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+<<if $athleticsSuccess>>
+	<<if $speech_attitude is "meek">>
+		You <span class="green">wave your hand at it</span>.
+	<<elseif $speech_attitude is "bratty">>
+		You <span class="green">stamp your foot and swing your arms at it</span>.
+	<<else>>
+		You <span class="green">grab for the fish, shoving the seagull away</span>.
+	<</if>>
+	The seagull <span class="green">startles and backs away</span>, then wheels off over the water.
+	<br><br>
+
+	<<if _canEatFish>>
+		<br>
+		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<if $bus is "fishingBeach">>
+		<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back]]>><</link>>
+		<br>
+		<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
+		<<if _canEatFish>>
+			<br>
+			<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>>
+		<</if>>
+	<<elseif $bus is "fishingPier">>
+		<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
+		<br>
+		<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
+		<<if _canEatFish>>
+			<br>
+			<<link [[Eat the fish|Fishing Pier Cat Eat]]>><</link>>
+		<</if>>
+	<<elseif $bus is "fishingCoastPath">>
+		<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Coast Path Throw Back]]>><</link>>
+		<br>
+		<<link [[Stow it away|Fishing Coast Path Keep]]>><</link>>
+		<<if _canEatFish>>
+			<br>
+			<<link [[Eat the fish|Fishing Coast Path Cat Eat]]>><</link>>
+		<</if>>
+	<</if>>
+<<else>>
+	You grab your fish from the water and unhook it, <span class="red">the seagull darts in and snatches it right from your hand</span>. It gets airborne immediately, the fish swinging below it as it gains height.
+	<br><br>
+	
+	<<if $bus is "fishingBeach">>
+		<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
+		<br>
+		<<link [[Return to the beach|Beach]]>><</link>>
+	<<elseif $bus is "fishingPier">>
+		<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
+		<br>
+		<<link [[Return to the pier|Dock Pier]]>><</link>>
+	<<elseif $bus is "fishingCoastPath">>
+		<<link [[Cast back out|Fishing Coast Path Wait]]>><</link>>
+		<br>
+		<<link [[Return to the path|Coast Path]]>><</link>>
+	<</if>>
+<</if>>
+
+
+:: Fishing Seagull Give
+You hold the <<print $fishingHookedFish.type>> out and the seagull takes it immediately, then flies away. <<lstress>><<stress -2>>
+<br><br>
+
+<<if $bus is "fishingBeach">>
+	<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
+	<br>
+	<<link [[Return to the beach|Beach]]>><</link>>
+<<elseif $bus is "fishingPier">>
+	<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
+	<br>
+	<<link [[Return to the pier|Dock Pier]]>><</link>>
+<<elseif $bus is "fishingCoastPath">>
+	<<link [[Cast back out|Fishing Coast Path Wait]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+<</if>>
+
+/* ========================== */
+/* ===== Combat Widgets ===== */
+/* ========================== */
+
+
+:: Widgets Fishing Seagull Combat [widget]
+<<widget "fishingSeagullCaught">>
+	<<set _fishingSeagullLocationKey to _args[0]>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, _fishingSeagullLocationKey)>>
+	<<fishingCatchFishText _fishingSeagullLocationKey>>
+	<<run endFishingCombat()>>
+	<<set $daily.fishing.seagullSteal to true>>
+
+	<<if $fishingHookedFish.size gte 80>>
+		A seagull sweeps across the sky in a sharp arc overhead, spots your <<if $fishingHookedFish.isHuge>>huge <</if>><<print $fishingHookedFish.type>>, and drops down beside you. It clamps its beak onto the fish and heaves. Nothing moves. It heaves again, harder, and still the fish doesn't budge. The seagull gives it one last appraising look, then waddles away with the energy of a creature that has decided this never happened.
+		<br><br>
+
+		<<if $bus is "fishingBeach">>
+			<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back]]>><</link>>
+			<br>
+			<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
+		<<elseif $bus is "fishingPier">>
+			<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
+			<br>
+			<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
+		<<elseif $bus is "fishingCoastPath">>
+			<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Coast Path Throw Back]]>><</link>>
+			<br>
+			<<link [[Stow it away|Fishing Coast Path Keep]]>><</link>>
+		<</if>>
+	<<else>>
+		A seagull drops from the sky and lands nearby, cocking its head at your <<print $fishingHookedFish.type>>. After a moment of deliberation, it hops forward and lunges for your catch.
+		<br><br>
+
+		<<link [[Shoo it away|Fishing Seagull Shoo]]>><</link>><<athleticsdifficulty 1 800>>
+		<br>
+		<<link [[Let it have the fish|Fishing Seagull Give]]>><</link>>
+	<</if>>
+<</widget>>

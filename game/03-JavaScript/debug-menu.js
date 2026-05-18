@@ -1702,6 +1702,10 @@ setup.debugMenu.eventList = {
 			widgets: [`<<run unlockAllSeeds()>>`],
 		},
 		{
+			link: [`Complete fishing journal`, stayOnPassageFn],
+			widgets: [`<<run debugDiscoverAllFishing()>>`],
+		},
+		{
 			link: [`Super Debug Character`, stayOnPassageFn],
 			widgets: [
 				`<<set $school += 4000>>`,

@@ -1,0 +1,90 @@
+/* 
+ * When you're fishing on the beach and the campfire party is present. They can offer to cook the fish you catch if it's big enough, and can react to
+ * you catching a fish or eating a fish.
+ */
+:: Fishing Beach Cat Eat Party
+<<set $daily.fishing.beach.partyFeed to "declined">>
+The teens by the campfire go silent as they watch you drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+<br><br>
+
+<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Beach Party Fish Cook
+You carry the <<print $fishingHookedFish.type>> over to the teens by the fire. They whoop as one of them pulls out a knife and cleans it as best they can. In a few minutes, it's sizzling over the flames.
+<br><br>
+
+You and the others tear into it once it's done. It's messy, smoky, and a little sandy, but it tastes great. <<stress -12>><<llstress>><<status 25>><<ggcool>>
+<br><br>
+
+<<link [[Return to Fishing|Fishing Beach Wait]]>><</link>>
+<br>
+<<link [[Stick around|Beach Party]]>><</link>>
+
+
+:: Fishing Beach Throw Back Party
+<<set $daily.fishing.beach.partyFeed to "declined">>
+You toss the <<print $fishingHookedFish.type>> back into the sea, ignoring the groans and jeers that rise from the campfire behind you.
+<br><br>
+
+<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Fishing Beach Keep Party
+<<set $daily.fishing.beach.partyFeed to "declined">>
+You stow the <<print $fishingHookedFish.type>> away, ignoring the groans and jeers that rise from the campfire behind you.
+<<tending_give $fishingHookedFish.type 1>>
+<br><br>
+
+<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+
+:: Widgets Fishing Beach Campfire Party [widget]
+
+<<widget "fishingWaitAmbientCampfireParty">>
+	<<if beachCampfirePartyPresent()>>
+		<<addinlineevent 3>>
+			You smell smoke wafting from the campfire.
+		<</addinlineevent>>
+		<<addinlineevent 3>>
+			You hear laughter from the campfire.
+		<</addinlineevent>>
+	<</if>>
+<</widget>>
+
+/* ========================== */
+/* ===== Combat Widgets ===== */
+/* ========================== */
+
+<<widget "fishCombatBeachCaughtCampfireCook">>
+	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "beach")>>
+	<<fishingCatchFishText "beach">>
+	<<run endFishingCombat()>>
+	<<set $daily.fishing.beach.partyFeed to "offering">>
+
+	You hear cheers from the campfire. Someone calls out asking if you'll share the <<print $fishingHookedFish.type>> so they can cook it for everyone.
+	<br><br>
+
+	<<if _canEatFish>>
+		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<link [[Have them cook the fish|Beach Party Fish Cook]]>><<pass 15>><<set $daily.fishing.beach.partyFeed to "accepted">><</link>>
+	<br>
+	<<if _canEatFish>>
+		<<link [[Eat the fish|Fishing Beach Cat Eat Party]]>><</link>>
+		<br>
+	<</if>>
+	<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
+	<br>
+	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back Party]]>><</link>>
+<</widget>>

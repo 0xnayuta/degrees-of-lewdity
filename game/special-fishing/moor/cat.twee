@@ -1,0 +1,191 @@
+/*
+ * A cat attacks you. Encounter is more dangerous at night.
+ * Reuses the great hawk rescue event, but I need to test it and think about having the code not be just copy-pasted from its original source. I'll either 
+ *  do something different for the rescue, or pull out that great hawk rescue into a shared widget.
+ */
+
+
+:: Fishing Moor Cat Attack
+<<if Weather.dayState is "night">>
+	<<set $fishingCatCount to 2>>
+<<else>>
+	<<set $fishingCatCount to 1>>
+<</if>>
+<<beastNEWinit $fishingCatCount cat>>
+A furious growl erupts from the nearby rocks. Before you can react, 
+<<if $fishingCatCount is 1>>
+	a large <<beasttype>> bounds toward you, muscles rippling beneath <<bhis>> fur.
+<<else>>
+	two large <<beasttype>>s bound toward you, muscles rippling beneath their fur.
+<</if>>
+<br><br>
+
+<<link [[Fight|Fishing Moor Cat Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Moor Cat Interrupt Attack
+<<run endFishingCombat()>>
+<<if Weather.dayState is "night">>
+	<<set $fishingCatCount to 2>>
+<<else>>
+	<<set $fishingCatCount to 1>>
+<</if>>
+<<beastNEWinit $fishingCatCount cat>>
+<<set $fishingCatMouthTarget to random(1, 4)>>
+<<if $fishingCatCount is 1>>
+	You're focused on your catch when a large <<print either("hazel", "yellow", "green", "blue")>>-eyed <<beasttype>> bursts from the heather. <<bHe>> snarls and charges straight at
+	<<if $fishingCatMouthTarget is 1>>
+		you, <span class="red">jaws clamping down on your neck.</span>
+	<<elseif $fishingCatMouthTarget is 2>>
+		you, <span class="red">teeth snapping at your face.</span>
+	<<else>>
+		you before you can react.
+	<</if>>
+<<else>>
+	You're focused on your catch when large <<print either("hazel", "yellow", "green", "blue")>>-eyed <<beasttype>>s burst from the heather. <<bhe 0>> snarls and <<bhe 1>> snarls, charging straight at
+	<<if $fishingCatMouthTarget is 1>>
+		you, <span class="red">jaws clamping down on your neck.</span>
+	<<elseif $fishingCatMouthTarget is 2>>
+		you, <span class="red">teeth snapping at your face.</span>
+	<<else>>
+		you before you can react.
+	<</if>>
+<</if>>
+<br><br>
+
+<<link [[Fight|Fishing Moor Cat Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Moor Cat Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<beastCombatInit>>
+	<<beastTrainGenerate>>
+	<<unset $fishingCatCount>>
+	<<set $enemyhealthmax to 500>>
+	<<set $enemyhealth to 500>>
+	<<if $fishingCatMouthTarget is 1>>
+		<<set $NPCList[0].mouth to "neck">>
+		<<set $head to "grappled">>
+	<<elseif $fishingCatMouthTarget is 2>>
+		<<set $NPCList[0].mouth to "hair">>
+		<<set $head to "grappled">>
+	<</if>>
+	<<unset $fishingCatMouthTarget>>
+	<<set $NPCList[0].stance to "top">>
+	<<hawkRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<br><br>
+<<beast $enemyno>>
+<br><br>
+
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Cat Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Cat Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Cat Molestation Finish
+<<effects>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<beastejaculation>>
+	<<if $combatTrain.length gt 0>>
+		The <<beasttype>> hisses in satisfaction and retreats back into the heather. Another <<beasttype>> slinks out of the reeds.
+		<br><br>
+
+		<<combatTrainAdvance>>
+		<<link [[Next|Fishing Moor Cat Molestation]]>><</link>>
+	<<else>>
+		Satisfied, the <<beasttype>> moves away from you.
+		<br><br>
+
+		<<tearful>> you gather yourself.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<</if>>
+<<elseif $alarm is 1 and $rescue is 1>>
+	Your cry for help is answered. A <<hawkScreechDesc>> pierces the air. <<hawkRescueApproachSentence>>
+	<br><br>
+
+	The <<beasttype>> pulls back at the noise, retreating into the heather.
+	<<clotheson>>
+	<<endcombat>>
+	<<npc "Great Hawk">><<person1>>
+	<<tearful>> you search the heavens for <<if $syndromebird is 1>>your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>><<else>>whatever startled the <<beasttype>><</if>>. You spot <<if $syndromebird is 1>>your<<else>>a<</if>> <<beasttype>> descending towards you.
+	<br><br>
+
+	<<set $phase to 0>>
+	<<if $syndromebird is 1>>
+		<<link [[Next|Bird Rescue Syndrome]]>><</link>>
+	<<else>>
+		<<link [[Next|Bird Rescue No Syndrome]]>><</link>>
+	<</if>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	<<beastwound>>
+	<<if $combatTrain.length gt 0>>
+		The <<beasttype>> recoils in pain and flees back into the heather. Another <<beasttype>> emerges from the reeds.
+		<br><br>
+
+		<<combatTrainAdvance>>
+		<<link [[Next|Fishing Moor Cat Molestation]]>><</link>>
+	<<else>>
+		The <<beasttype>> recoils in pain and flees back into the heather.
+		<br><br>
+
+		<<tearful>> you gather yourself.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<</if>>
+<</if>>
+
+
+:: Widgets Fishing Moor Cat [widget]
+<<widget "fishingMoorCatAttackWaitAmbient">>
+	<<addinlineevent 2>>
+		You see a shadow move across the heather.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 2>>
+		You hear a low hiss carried on the wind.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 2>>
+		Grass rustles near the rocky outcropping behind you.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 1.5>>
+		You feel like something is watching you from the rocks.
+		<<set $fishing.moor.eventDanger += 1>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		You hear a low growl rumbling across the moor.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+<</widget>>

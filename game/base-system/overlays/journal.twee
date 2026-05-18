@@ -1463,6 +1463,97 @@
 				</div>
 			</details>
 		<</if>>
+		<<if $fishing?.locationsFound?.length>>
+			<br><br>
+			<<set _fishingLocations to ["pier", "beach", "forestLake", "moor", "coastPath"]>>
+			<<set _fishKeys to Object.keys(setup.fishing_fish)>>
+			<details class="journal">
+				<summary class="journal">Fishing</summary>
+				<div class="itemCollectible">
+					<<for _location range _fishingLocations>>
+						<<if $fishing.locationsFound.includes(_location)>>
+							<div class="item" @tooltip="camelCaseToTitle(_location)">
+								<<lakeicon "fishing">>
+							</div>
+						<<else>>
+							<div class="item unknown" tooltip="Unknown fishing spot">
+								<<mysteryicon>>
+							</div>
+						<</if>>
+					<</for>>
+				</div>
+				<<for _location range _fishingLocations>>
+					<<if $fishing.locationsFound.includes(_location)>>
+						<details class="journal" style="margin: .5rem 0.5rem 0;">
+							<summary class="journal"><<= camelCaseToTitle(_location)>></summary>
+							<div class="itemCollectible">
+								<<set _locationFish to _fishKeys.filter(fish => setup.fishing_fish[fish].locations?.[_location] > 0)>>
+								<<for _fishKey range _locationFish>>
+									<<set _fishName to setup.foodstuff[_fishKey]?.name or _fishKey.replace(/_/g, " ")>>
+									<<if $fishingRecord[_fishKey]?.found_in?.includes(_location)>>
+										<div class="item" @tooltip="_fishName.toUpperFirst()">
+											<<foodstufficon "salmon">>
+										</div>
+									<<else>>
+										<div class="item unknown" tooltip="Unknown fish">
+											<span class="red bold journalFishingUnknown">?</span>
+										</div>
+									<</if>>
+								<</for>>
+							</div>
+						</details>
+					<</if>>
+				<</for>>
+				<details class="journal" style="margin: .5rem;">
+					<summary class="journal">Records</summary>
+					<div class="fishingRecords">
+						<<for _fishKey range _fishKeys>>
+							<<set _fishName to setup.foodstuff[_fishKey]?.name or _fishKey.replace(/_/g, " ")>>
+							<<set _fishRecord to $fishingRecord[_fishKey]>>
+							<<if _fishRecord>>
+								<<set _fishConfig to setup.fishing_fish[_fishKey]>>
+								<<set _largestSizePercent to (_fishRecord.largest - _fishConfig.min_size) / (_fishConfig.max_size - _fishConfig.min_size)>>
+								<<set _smallestSizePercent to (_fishRecord.smallest - _fishConfig.min_size) / (_fishConfig.max_size - _fishConfig.min_size)>>
+								<div class="fishingRecord">
+									<div class="item" @tooltip="_fishName.toUpperFirst()">
+										<<foodstufficon "salmon">>
+									</div>
+									<div>
+										<span class="gold bold"><<= _fishName.toUpperFirst()>></span><br>
+										Caught: <span class="green"><<= _fishRecord.num_caught>></span><br>
+										Biggest:
+										<span @class="_largestSizePercent gte 0.85 ? 'gold' : 'journalFishingRecordSize'"><<= _fishRecord.largest>></span> cm
+										<<if _largestSizePercent gte 0.98>>
+											<span class="journalFishingRecordStar"><<iconUi "star-gold.png">></span>
+										<<elseif _largestSizePercent gte 0.92>>
+											<span class="journalFishingRecordStar"><<iconUi "star-silver.png">></span>
+										<<elseif _largestSizePercent gte 0.85>>
+											<span class="journalFishingRecordStar"><<iconUi "star-bronze.png">></span>
+										<</if>>
+										<br>
+										Smallest:
+										<span @class="_smallestSizePercent lte 0.15 ? 'gold' : 'journalFishingRecordSize'"><<= _fishRecord.smallest>></span> cm
+										<<if _smallestSizePercent lte 0.02>>
+											<span class="journalFishingRecordStar"><<iconUi "star-gold.png">></span>
+										<<elseif _smallestSizePercent lte 0.08>>
+											<span class="journalFishingRecordStar"><<iconUi "star-silver.png">></span>
+										<<elseif _smallestSizePercent lte 0.15>>
+											<span class="journalFishingRecordStar"><<iconUi "star-bronze.png">></span>
+										<</if>>
+									</div>
+								</div>
+							<<else>>
+								<div class="fishingRecord">
+									<div class="item unknown" tooltip="Unknown fish">
+										<span class="red bold journalFishingUnknown">?</span>
+									</div>
+								</div>
+							<</if>>
+						<</for>>
+					</div>
+				</details>
+			</details>
+		<</if>>
 	<</if>>
 	<br>
 <</widget>>

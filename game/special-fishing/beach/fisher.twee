@@ -1,0 +1,277 @@
+/*
+ * A random NPC fisher arrives on the beach and fishes nearby. They can slowly get drunk over the course of the session, making them more belligerent. If you catch
+ * something while they're drunk, they might try to take it from you.
+ */
+:: Fishing Beach Fisher Arrive
+<<generate1>><<saveNPC 0 "fishing_beach_npc_fisher">><<person1>>
+<<set $daily.fishing.beach.fisher.phase to "fishing">>
+<<set $daily.fishing.beach.fisher.age to 0>>
+<<set $daily.fishing.beach.fisher.drunk to 0>>
+<<fishingLocationDescription "beach">>
+<br><br>
+
+Another fisher, a <<person>>, walks down to the shore and sets up a short distance away.
+<br><br>
+
+<<link [[Wait for a bite (0:05)|Fishing Beach Wait]]>><<pass 5>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Fishing Beach Fisher Tips Offer
+<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+<<set $daily.fishing.beach.fisher.tipGiven to true>>
+
+<<switch random(1, 3)>>
+	<<case 1>>
+		The <<person>> watches you for a moment, then takes a few steps toward you. "Hey, do you want some help? You look like you're fighting the fish more than you need to."
+	<<case 2>>
+		The <<person>> reels in, pauses, then adjusts something on <<his>> setup before casting again. After a moment <<he>> glances over. "I know this spot fairly well. Happy to share what I know, if you want."
+	<<case 3>>
+		The <<person>> reels in and checks <<his>> bait carefully, then glances over towards you. "How are you getting on?" <<He>> asks. "I know a couple of tricks for this spot, if you want to hear them."
+<</switch>>
+<br><br>
+
+<<link [[Sure|Fishing Beach Fisher Tips]]>><</link>>
+<br>
+<<link [[No thanks|Fishing Beach Fisher Tips Decline]]>><</link>>
+
+
+:: Fishing Beach Fisher Tips
+<<switch random(1, 3)>>
+	<<case 1>>
+		The <<person>> demonstrates a few casts, pointing out where <<he>> aims and how <<he>> adjusts the tension as the line settles.
+	<<case 2>>
+		The <<person>> crouches near the waterline and points to where the sand drops off, explaining where the fish tend to run.
+	<<case 3>>
+		The <<person>> shows you how <<he>> positions <<his>> hands on the rod before casting, watching where the line lands and adjusting.
+<</switch>>
+
+After a while <<he>> turns back to <<his>> own rod, apparently satisfied.
+<br><br>
+
+<<link [[Next|Fishing Beach Wait]]>><</link>>
+
+
+:: Fishing Beach Fisher Tips Decline
+<<if $speech_attitude is "meek">>
+	"Oh, no, it's okay. I'm fine, thank you."
+<<elseif $speech_attitude is "bratty">>
+	"I don't need help." You turn back to your line.
+<<else>>
+	"I'm alright, thanks."
+<</if>>
+<br><br>
+
+The <<person>> shrugs. "Suit yourself."
+<br><br>
+
+<<link [[Wait for a bite (0:05)|Fishing Beach Wait]]>><<pass 5>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Fishing Beach Fisher Leave Night
+<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+<<clearNPC "fishing_beach_npc_fisher">>
+<<set $daily.fishing.beach.fisher.phase to "finished">>
+
+The <<person>> glances up at the darkening sky and starts to pack up <<his>> fishing gear. "I'm not a fan of night fishing around these parts. You should head home too."
+<br><br>
+
+<<link [[Next|Fishing Beach Wait]]>><</link>>
+
+
+:: Fishing Beach Fisher Leave Weather
+<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+<<clearNPC "fishing_beach_npc_fisher">>
+<<set $daily.fishing.beach.fisher.phase to "finished">>
+
+The <<person>> looks up as the weather begins to turn rough, then begins to leave. "The weather is turning, I'm going to head home before it gets any worse. You should head out too."
+<br><br>
+
+<<link [[Next|Fishing Beach Wait]]>><</link>>
+
+
+:: Fishing Beach Events [widget]
+<<widget "fishingBeachFisherAmbient">>
+	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+	<<set $daily.fishing.beach.fisher.age += 1>>
+	<<cleareventpool>>
+
+	<<addinlineevent 1>>
+		The <<person>> reels in, checks the empty hook, and lets out a quiet sigh before casting back out.
+	<</addinlineevent>>
+	<<addinlineevent 5>>
+		The <<person>> reels in, re-baits the hook, and casts back out.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person>> reels in, takes a small fish off the hook and tosses it back before casting back out.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person>> reels in, takes a small fish off the hook and stores it in <<his>> bag before casting back out.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person>> picks a clump of seaweed off <<his>> line and casts back out.
+	<</addinlineevent>>
+
+	<<if $daily.fishing.beach.fisher.drunk gte 3>>
+		<<addinlineevent 15>>
+			The <<person1>><<person>> sways slightly on <<his>> feet, rod dipping toward the water.
+		<</addinlineevent>>
+		<<addinlineevent 1>>
+			The <<person>> reels in, squints at the hook, and mutters something under <<his>> breath before casting sloppily back out.
+		<</addinlineevent>>
+		<<addinlineevent 1>>
+			The <<person>> tugs <<his>> line free from a snag with more force than necessary, nearly losing <<his>> footing.
+		<</addinlineevent>>
+		<<addinlineevent 1>>
+			The <<person>> fumbles with the bait for a moment before managing to hook it, then casts back out with a grunt.
+		<</addinlineevent>>
+		<<addinlineevent 4>>
+			The <<person>> glances over at you, eyes a little unfocused. <<He>> gives you a slow, lopsided smile before turning back to <<his>> rod.
+		<</addinlineevent>>
+		<<addinlineevent 2>>
+			The <<person>> loses <<his>> balance for a moment, stumbling in the sand before catching <<himself>>. <<He>> laughs softly to <<himself>>.
+		<</addinlineevent>>
+	<<else>>
+		<<addinlineevent 15>>
+			The <<person>> stands a few paces away, quiet and focused on <<his>> line.
+		<</addinlineevent>>
+	<</if>>
+
+	<<addinlineevent 1>>
+		The <<person>> reaches into <<his>> bag, pulls out a flask, and takes a long drink before tucking it away.
+		<<set $daily.fishing.beach.fisher.drunk += 1>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person>> pulls out a flask and drinks from it, then goes back to <<his>> rod.
+		<<set $daily.fishing.beach.fisher.drunk += 1>>
+	<</addinlineevent>>
+
+	<<if $daily.fishing.beach.fisher.age gte 4>>
+		<<addinlineevent 7>>
+			<<set $daily.fishing.beach.fisher.age to 0>>
+			The <<person>> suddenly braces, struggling with the line as <<his>> rod bends around. After a tense moment, <<he>> reels in and pulls out a fish with a satisfied grunt. <<He>> holds it up briefly before unhooking it and dropping it in <<his>> cooler.
+		<</addinlineevent>>
+		<<addinlineevent 12>>
+			<<set $daily.fishing.beach.fisher.age to 0>>
+			The <<person>> suddenly braces, fighting with the line as it pulls <<his>> rod around. Then <<he>> jolts back as whatever was on the line escapes.
+			<<if $daily.fishing.beach.fisher.drunk gte 3>>
+				<<He>> swears loudly, fumbling with <<his>> line before eventually getting it hooked and cast back out.
+			<<else>>
+				With a sigh, <<he>> re-hooks <<his>> line and casts back out.
+			<</if>>
+		<</addinlineevent>>
+	<</if>>
+	<<runeventpool>>
+<</widget>>
+
+
+:: Fishing Beach Fisher Give Fish
+The <<person>> snatches it from your hands and staggers off, muttering about "respekt" and "my spot." 
+<br><br>
+
+<<clearNPC "fishing_beach_npc_fisher">>
+<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Fishing Beach Fisher Give Fish Attack
+<<if $speech_attitude is "meek">>
+	"But I caught it... it's mine."
+<<elseif $speech_attitude is "bratty">>
+	"Not a chance. Get your own."
+<<else>>
+	"No. I caught it."
+<</if>>
+<br><br>
+
+<<He>> narrows <<his>> eyes. "I tend to take what I want," <<he>> says as <<he>> strides towards you.
+<br><br>
+
+<<link [[Fight|Fishing Beach Fisher Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Beach Fisher Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 1>>
+	<<maninit>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Beach Fisher Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Beach Fisher Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Beach Fisher Molestation Finish
+<<effects>>
+<<clearNPC "fishing_beach_npc_fisher">>
+<<set $daily.fishing.beach.fisher.phase to "finished">>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<He>> shudders and pulls away, breathing hard. After a moment, <<he>> staggers up the beach and disappears over a dune.
+	<br><br>
+
+	<<tearful>> you get to your feet.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
+	<br>
+	<<link [[Return to the beach|Beach]]>><</link>>
+<<elseif $enemyhealth lte 0>>
+	<<He>> stumbles back, gasping. <<He>> looks at you for a moment, then turns and walks off down the beach.
+	<br><br>
+
+	<<tearful>> you gather yourself.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<tending_give>>
+	<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
+	<br>
+	<<link [[Return to the beach|Beach]]>><</link>>
+<</if>>
+
+
+/* ========================== */
+/* ===== Combat Widgets ===== */
+/* ========================== */
+
+
+:: Widgets Fishing Beach Fisher Molestation [widget]
+<<widget "fishCombatBeachCaughtFisherDrunk">>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "beach")>>
+	<<fishingCatchFishText "beach">>
+	<<run endFishingCombat()>>
+
+	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+	The <<person>> stares at your catch for a moment, eyes narrowing. <<He>> straightens up unsteadily and takes a step toward you. "That one's mine, I had a line right there. Hand it over."
+	<br><br>
+
+	<<link [[Give <<him>> the fish|Fishing Beach Fisher Give Fish]]>><</link>>
+	<br>
+	<<link [[Refuse|Fishing Beach Fisher Give Fish Attack]]>><</link>>
+<</widget>>

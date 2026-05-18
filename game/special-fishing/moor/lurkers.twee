@@ -1,0 +1,174 @@
+/*
+ * Lurkers attack you. There is a bait-and-switch here, where you thought you caught something, but it's a lurker.
+ */
+
+
+:: Fishing Moor Lurker Attack
+/* fishing todo: Make sure this is in line with the fishing minigame start text once that is done */
+Your line is pulled away from you as something grabs the line.
+<br><br>
+
+<<link [[Next|Fishing Moor Lurker Bait And Switch]]>><</link>>
+
+
+:: Fishing Moor Lurker Interrupt Attack
+<<run endFishingCombat()>>
+<<set $fishingLurkerAttackLocation to random(1, 4)>>
+You're focused on your catch when lurkers leap out of the reeds,
+<<if $fishingLurkerAttackLocation is 1>>
+	<span class="red">one of them leaping on your face</span> before you can react, their chittering filling your ears.
+<<elseif $fishingLurkerAttackLocation is 2>>
+	<span class="red">one of them leaping on your chest</span> before you can react, their chittering filling your ears.
+<<elseif $fishingLurkerAttackLocation is 3>>
+	<span class="red">one of them leaping between your legs</span> before you can react, their chittering filling your ears.
+<<else>>
+	their chittering filling your ears.
+<</if>>
+<br><br>
+
+<<link [[Fight|Fishing Moor Lurker Molestation]]>><<set $struggle_start to 1>><</link>>
+
+
+:: Fishing Moor Lurker Bait And Switch
+You tug on the line, expecting resistance, but then are surprised when whatever you hooked flies out of the water. You see a lurker jumping towards you for a split second before it <span class="red">lands on your face.</span>
+<br><br>
+
+<<link [[Fight|Fishing Moor Lurker 2 Molestation]]>><<set $struggle_start to 1>><</link>>
+
+
+:: Fishing Moor Lurker 2 Molestation
+<<effects>>
+
+<<if $struggle_start is 1>>
+	<<struggle_init>>
+	<<set $struggle.creature to "lurker">>
+	<<struggle_creatures 1 2>>
+	<<set $combat to 1>>
+	<<controlloss>>
+	<<violence 1>>
+	<<molested>>
+	<<set $struggle.mouth.creature to "lurker">>
+	<<set $mouthuse to "struggle">>
+	<<set $mouthstate to "struggle">>
+	<<set $struggle.enemy[0].location to "mouth">>
+	<<set $timer to 16>>
+	<<unset $struggle_start>>
+<</if>>
+
+<<if ($timer is 14 or $timer is 12 or $timer is 10 or $timer is 7 or $timer is 5) and random(1, 2) is 1>>
+	<<struggle_add 1 2>>
+	<span class="pink">Another lurker leaps from the reeds!</span>
+	<br><br>
+<</if>>
+
+<<struggle>>
+
+<<if $struggle.done gte $struggle.number>>
+	<span id="next"><<link [[Next|Fishing Moor Lurker Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Lurker Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Lurker Molestation
+<<effects>>
+
+<<if $struggle_start is 1>>
+	<<struggle_init>>
+	<<set $struggle.creature to "lurker">>
+	<<struggle_creatures 3 2>>
+	<<set $combat to 1>>
+	<<controlloss>>
+	<<violence 1>>
+	<<molested>>
+	<<if $fishingLurkerAttackLocation is 1>>
+		<<set $struggle.mouth.creature to "lurker">>
+		<<set $mouthuse to "struggle">>
+		<<set $mouthstate to "struggle">>
+		<<set $struggle.enemy[0].location to "mouth">>
+	<<elseif $fishingLurkerAttackLocation is 2>>
+		<<set $struggle.chest.creature to "lurker">>
+		<<set $chestuse to "struggle">>
+		<<set $cheststate to "struggle">>
+		<<set $struggle.enemy[0].location to "chest">>
+	<<elseif $fishingLurkerAttackLocation is 3>>
+		<<if $player.penisExist>>
+			<<set $struggle.penis.creature to "lurker">>
+			<<set $penisuse to "struggle">>
+			<<set $penisstate to "struggle">>
+			<<set $struggle.enemy[0].location to "penis">>
+		<<else>>
+			<<set $struggle.vagina.creature to "lurker">>
+			<<set $vaginause to "struggle">>
+			<<set $vaginastate to "struggle">>
+			<<set $struggle.enemy[0].location to "vagina">>
+		<</if>>
+	<</if>>
+	<<unset $fishingLurkerAttackLocation>>
+	<<set $timer to 16>>
+	<<unset $struggle_start>>
+<</if>>
+
+<<if ($timer is 14 or $timer is 10 or $timer is 7) and random(1, 2) is 1>>
+	<<struggle_add 1 2>>
+	<span class="pink">Another lurker leaps from the reeds!</span>
+	<br><br>
+<</if>>
+
+<<struggle>>
+
+<<if $struggle.done gte $struggle.number>>
+	<span id="next"><<link [[Next|Fishing Moor Lurker Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Lurker Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Lurker Finish
+<<effects>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+
+The lurkers scatter into the reeds, chittering and hissing as they retreat into the water.
+<br><br>
+
+<<tearful>> you stumble back to your feet and pick up your fishing rod from the mud.
+<br><br>
+
+<<clotheson>>
+<<endcombat>>
+
+<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+<br>
+<<link [[Return to the moor|Moor]]>><</link>>
+
+
+:: Widgets Fishing Moor Event Lurkers [widget]
+<<widget "fishingMoorLurkerAttackWaitAmbient">>
+	<<addinlineevent 2>>
+		The dark water ripples in tight circles near the reeds.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		You hear frantic chittering from the reeds around you.
+		<<set $fishing.moor.eventDanger += 1>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		Something splashes in the shallows.
+		<<set $fishing.moor.eventDanger += 1>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		You hear rapid skittering through wet grass nearby.
+		<<set $fishing.moor.eventDanger += 2>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		A wet hiss carries across the moor water.
+		<<set $fishing.moor.eventDanger += 1.5>>
+	<</addinlineevent>>
+	<<addinlineevent 1.5>>
+		You feel like something is watching you.
+		<<set $fishing.moor.eventDanger += .5>>
+	<</addinlineevent>>
+<</widget>>
+
+

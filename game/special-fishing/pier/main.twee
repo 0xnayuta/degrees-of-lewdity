@@ -1,0 +1,190 @@
+:: Dock Pier
+<<fishingLocationDescription "pier">>
+<br><br>
+
+<<link [[Start fishing|Fishing Pier Wait]]>><</link>>
+<br>
+<<mericon>><<link [[Walk back to the docks (0:10)|Docks]]>><<pass 10>><</link>>
+
+/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the
+ wait loop, where events can happen. */
+
+
+:: Fishing Pier Wait
+<<run initFishingPier()>>
+<<run discoverFishingLocation("pier")>>
+<<fishingLocationDescription "pier">>
+<<fishingPierAmbient>>
+
+<br><br>
+<<if $fishingPierSip>>
+	<<unset $fishingPierSip>>
+	<<fishingPierWhitneySip>>
+<<elseif !$daily.fishing?.hasFishedToday or random(1, 5) is 1>>
+	<<set $daily.fishing.hasFishedToday to true>>
+	Your bob hasn't attracted anything yet.
+<<else>>
+	<<fishingPierWaitAmbient>>
+<</if>>
+<br><br>
+
+<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><</link>>
+<<if ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
+	<br>
+	<<link [[Take a sip of cider|Fishing Pier Wait]]>><<set $fishingPierSip to true>><</link>>
+<</if>>
+<<if $daily.fishing.pier.whitney.phase is "alone">>
+	<br>
+	<<link [[Move closer to Whitney|Fishing Pier Whitney Alone Move Close]]>><</link>>
+<<elseif $daily.fishing.pier.whitney.phase is "bet">>
+	<br>
+	/* Fishing todo: Remove the option to leave once you try and get beat up? */
+	<<link [[Return to the pier|Fishing Pier Cannot Leave]]>><</link>>
+<<else>>
+	<br>
+	<<link [[Return to the pier|Dock Pier]]>><</link>>
+<</if>>
+<<fishingPierDebugLinks>>
+
+
+:: Fishing Pier Wait Loop
+<<pass 5>>
+<<cleareventpool>>
+
+<<addinlineevent "bite" 8.5>>
+	<<set $fishingHookedFish to rollFish("pier")>>
+	<<include "Fishing Pier Bite">>
+<</addinlineevent>>
+
+/* Whitney bullies Fisher off the pier */
+<<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.whitney.phase is undefined>>
+	<<addinlineevent "whitneyBullyFisher" 0.2>>
+		<<include "Fishing Pier Whitney Bully Fisher">>
+	<</addinlineevent>>
+<</if>>
+
+/* Whitney cider offer event */
+<<if $daily.fishing.pier.whitney.phase is "idle" and $whitneyromance is 1 and $daily.fishing.pier.whitney.pcCider is 0 and $daily.fishing.pier.whitney.pcCiderTotal lt 3 and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
+	<<addinlineevent "whitneyCiderOffer" 1>>
+		<<include "Fishing Whitney Drink Offer">>
+	<</addinlineevent>>
+<</if>>
+
+/* Whitney Pier betting event */
+<<if $daily.fishing.pier.whitney.phase is "idle">>
+	<<addinlineevent "whitneyBet" 1>>
+		<<include "Fishing Whitney Pier Bet">>
+	<</addinlineevent>>
+<</if>>
+
+/* fisher event start */
+<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
+	<<addinlineevent "fisherArrive" 1>>
+		<<include "Fishing Pier Fisher Arrive">>
+	<</addinlineevent>>
+<</if>>
+
+/* Fisher tips event */
+<<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk lte 2 and $daily.fishing.pier.fisher.tipGiven is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
+	<<addinlineevent "fisherTipsOffer" .1>>
+		<<include "Fishing Pier Fisher Tips Offer">>
+	<</addinlineevent>>
+<</if>>
+
+/* Fisher leaves */
+<<if $daily.fishing.pier.fisher.phase is "fishing">>
+	<<if Time.hour gte 20>>
+		<<addinlineevent "fisherLeaveNight" 10>>
+			<<include "Fishing Pier Fisher Leave Night">>
+		<</addinlineevent>>
+	<<elseif ["storm", "thunderstorm"].includes(Weather.name)>>
+		<<addinlineevent "fisherLeaveWeather" 10>>
+			<<include "Fishing Pier Fisher Leave Weather">>
+		<</addinlineevent>>
+	<</if>>
+<</if>>
+
+/* Tentacle pulls rod event */
+<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase)>>
+	<<addinlineevent "tentacles" 0.5>>
+		<<include "Fishing Pier Tentacles">>
+	<</addinlineevent>>
+<</if>>
+
+/* Wind blow event */
+<<if ["storm", "thunderstorm", "heavyClouds", "heavyPrecipitation"].includes(Weather.name)>>
+	<<addinlineevent "wind" 1.5>>
+		<<include "Fishing Pier Wind">>
+	<</addinlineevent>>
+<</if>>
+
+/* Nothing happens, wait loop continues */
+<<addinlineevent "wait" 10>>
+	<<include "Fishing Pier Wait">>
+<</addinlineevent>>
+<<runeventpool>>
+
+
+:: Fishing Pier Bite
+Your rod jerks hard in your hands, a <<print $fishingHookedFish.type>> has taken the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
+<br><br>
+
+<<link [[Next|Fishing Combat Pier]]>><<run startFishingCombat("pier")>><</link>>
+
+
+
+:: Fishing Pier Throw Back
+You toss the <<print $fishingHookedFish.type>> back into the sea.
+<br><br>
+
+<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
+<br>
+<<link [[Return to the pier|Dock Pier]]>><</link>>
+
+
+:: Fishing Pier Keep
+You stow the <<print $fishingHookedFish.type>> away.
+<<tending_give $fishingHookedFish.type 1>>
+<br><br>
+
+<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
+<br>
+<<link [[Return to the pier|Dock Pier]]>><</link>>
+
+
+:: Fishing Pier Cat Eat
+You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+<br><br>
+
+<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
+<br>
+<<link [[Return to the pier|Dock Pier]]>><</link>>
+
+:: Widgets Fishing Pier Wait Flavor [widget]
+<<widget "fishingPierAmbient">>
+	<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is "fishing">>
+		<<fishingPierFisherAmbient>>
+	<<elseif ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase)>>
+		<<if $daily.fishing.pier.fellOff>>
+			<br><br>
+			Whitney looks over at you with a smirk. "Welcome back, slut. Did you enjoy your swim?"
+
+			<<unset $daily.fishing.pier.fellOff>>
+		<<else>>
+			<<switch $daily.fishing.pier.whitney.phase>>
+				<<case "idle">>
+					<<fishingPierWhitneyIdleAmbient>>
+				<<case "bet">>
+					<<fishingPierWhitneyBetAmbient>>
+				<<case "alone">>
+					<<fishingPierWhitneyAloneAmbient>>
+			<</switch>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "fishingPierWaitAmbient">>
+	<<cleareventpool>>
+	<<fishingWaitAmbient "pier">>
+	<<runeventpool>>
+<</widget>>

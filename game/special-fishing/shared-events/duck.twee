@@ -1,0 +1,80 @@
+/*
+ * Unused for now. The idea is that a duck would land, chill out, lower stress, then leave. They would leave if a dangerous event
+ *  starts, giving the player a heads up. They can leave by being pulled under the water by something, giving stress. I'd probably
+ *  remove this since it's so similar to the ducklings event. I'm learning that variation isn't always good, since variation can imply
+ *  different mechanics to the player, when in reality there is none.
+ */
+:: Fishing Duck Arrive
+<<if $bus is "fishingMoor">>
+	<<set $daily.fishing.moor.duck.phase to "present">>
+	<<set $daily.fishing.moor.duck.age to 0>>
+	<<fishingLocationDescription "moor">>
+<<else>>
+	<<set $daily.fishing.lake.duck.phase to "present">>
+	<<set $daily.fishing.lake.duck.age to 0>>
+	<<fishingLocationDescription "forestLake">>
+<</if>>
+<br><br>
+
+A loose group of ducks sweeps low over the water and splashes down ahead of you, sending rings spreading out across the surface.
+<br><br>
+
+<<if $bus is "fishingMoor">>
+	<<link [[Wait for a bite (0:05)|Fishing Moor Wait]]>><<pass 5>><</link>>
+	<br>
+	<<link [[Return to the moor|Moor]]>><</link>>
+<<else>>
+	<<link [[Wait for a bite (0:05)|Fishing Forest Lake Wait]]>><<pass 5>><</link>>
+	<br>
+	<<link [[Leave|Lake Fishing Rock]]>><</link>>
+<</if>>
+
+
+:: Widgets Fishing Duck Wait Ambient [widget]
+<<widget "fishingDuckWaitAmbient">>
+	<<if _args[0] is "moor">>
+		<<set $daily.fishing.moor.duck.age to $daily.fishing.moor.duck.age + 1>>
+		<<set _duckAge to $daily.fishing.moor.duck.age>>
+	<<else>>
+		<<set $daily.fishing.lake.duck.age to $daily.fishing.lake.duck.age + 1>>
+		<<set _duckAge to $daily.fishing.lake.duck.age>>
+	<</if>>
+	<<set _duckLeaveChance to Math.min(0.5, _duckAge * 0.04)>>
+	<<cleareventpool>>
+
+	<<addinlineevent 10>>
+		The duck drifts slowly across the water, quacking occasionally.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The duck flaps its wings vigorously, sending up a small spray.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The duck bobs gently on the ripples, riding the small waves.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The duck upends itself into the water, feet skyward, before surfacing with a brisk shake.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The duck shakes its head, scattering water drops.
+	<</addinlineevent>>
+
+	<<addinlineevent _duckLeaveChance>>
+		One of the ducks flaps hard against the water and lifts off. A second follows, then a third, until the whole group is airborne, climbing away in a loose, rattling line until they're out of sight.
+		<<if _args[0] is "moor">>
+			<<set $daily.fishing.moor.duck.phase to "finished">>
+		<<else>>
+			<<set $daily.fishing.lake.duck.phase to "finished">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent 0.05>>
+		There's a sudden violent churn of water. One duck vanishes, nothing left but a burst of loose feathers spinning above the surface. The others erupt into the air in a clatter of wings, calling sharply as they scatter and disappear.
+		<<if _args[0] is "moor">>
+			<<set $daily.fishing.moor.duck.phase to "finished">>
+		<<else>>
+			<<set $daily.fishing.lake.duck.phase to "finished">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<runeventpool>>
+<</widget>>

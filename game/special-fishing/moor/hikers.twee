@@ -1,0 +1,890 @@
+/*
+ * This is the moor hiker event, and uses the danger system. So you hear them approaching, and then they either attack you or don't attack you.
+ *  If they don't attack you, they can offer you drinks, share a campfire meal if you catch a fish big enough to cook, and you can flirt with them (potentially 
+ *  leading to sex with one or both). If you flirt and then try to pull back, it can lead to an noncon combat. If you accept their drink, there's a chance that
+ *  it will be spiked. If you drink the spiked drink, you pass out, get tied up, and a noncon combat starts. Once it's done, you get dropped off in the moor
+ *  a random distance away. After any combat with them, there is a chance that they will bring you to Remmy, reusing that chain of events.
+ * Here and when Whitney offers you a drink, you'll be able to take a sip on the fishing wait passage while waiting for a bite.  
+ * Reuses the great hawk rescue event, but I need to test it and think about having the code not be just copy-pasted from its original source. I'll either 
+ *  do something different for the rescue, or pull out that great hawk rescue into a shared widget.
+ */
+
+:: Fishing Moor Hiker Attack
+<<set $fishingMoorHikersCount to 1>>
+<<if random(1, 4) is 1>>
+	<<set $fishingMoorHikersCount to 2>>
+<</if>>
+
+You're watching your line when you hear footsteps closing fast<<if $fishingMoorHikersCount is 2>> around you<</if>>. Before you can turn, <span class="red"><<if $fishingMoorHikersCount is 1>>they're on you, grabbing you and throwing you to the ground<<else>>they overwhelm you, throwing you to the ground<</if>></span>.
+<br><br>
+
+<<link [[Fight|Fishing Moor Hiker Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Moor Hiker Interrupt Attack
+<<run endFishingCombat()>>
+<<set $fishingMoorHikersCount to 1>>
+<<if random(1, 4) is 1>>
+	<<set $fishingMoorHikersCount to 2>>
+<</if>>
+
+You're focused on your catch when you hear movement in the heather<<if $fishingMoorHikersCount is 2>> around you<</if>>, too late. <span class="red"><<if $fishingMoorHikersCount is 1>>Someone grabs you from behind and slams you to the ground<<else>>Multiple hands are on you before you can turn, dragging you to the ground<</if>></span>.
+<br><br>
+
+<<link [[Fight|Fishing Moor Hiker Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Moor Hiker Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<generate1>>
+	<<if $fishingMoorHikersCount is 2>>
+		<<generate2>>
+	<</if>>
+	<<unset $fishingMoorHikersCount>>
+	<<maninit>>
+	<<hawkRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Hiker Molestation Finish
+<<effects>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<if random(1, 4) is 1>>
+		The <<if $enemyno gt 1>><<group>><<else>><<person>><</if>> laugh<<if $enemyno is 1>>s<</if>> roughly as <<if $enemyno gt 1>>they<<else>><<he>><</if>> finish<<if $enemyno is 1>>es<</if>> with you. "Remy will want this one," <<person1>><<if $enemyno is 1>><<person>> says<<else>><<person>> says, and <<his>> companion nods<</if>>.
+		<br><br>
+
+		<<if !pcAreArmsBound("both")>>
+			Rough hands force your wrists behind you, and bind them together.
+			<br><br>
+		<</if>>
+
+		/* Fishing Todo: destroy rod for wardrobe */
+		You're pulled to your feet. <<tearful>> you're marched across the moor. <<if $worn.handheld.name isnot "naked">>Your $worn.handheld.name is left behind.<</if>>
+		<br><br>
+
+		<<set $daily.fishing.moor.hikers.phase to "finished">>
+		<<set $fishing.moor.event to "none">>
+		<<set $fishing.moor.eventDanger to 0>>
+		<<clearNPC "moor_hiker_1">>
+		<<clearNPC "moor_hiker_2">>
+		<<clotheson>>
+		<<endcombat>>
+		<<bind>>
+		<<link [[Next|Moor Abduction]]>><</link>>
+		<br>
+	<<else>>
+		The <<if $enemyno gt 1>><<group>> laugh<<else>><<person>> laughs<</if>> roughly, seemingly satisfied. "That was easy," <<if $enemyno gt 1>>one of them says<<else>><<he>> says<</if>>.
+		<br><br>
+
+		<<tearful>> you scramble to gather yourself as <<if $enemyno gt 1>>they wander<<else>><<he>> wanders<</if>> off into the moor, disappearing into the heather.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<</if>>
+<<elseif $alarm is 1 and $rescue is 1>>
+	The <<if $enemyno gt 1>><<group>> begin<<else>><<person>> begins<</if>> to curse as a <<hawkScreechDesc>> pierces the air. <<hawkRescueApproachSentence>>
+	<br><br>
+
+	The <<if $enemyno gt 1>><<group>>, panicked, scatter<<else>><<person>>, panicked, flees<</if>> in different directions, disappearing into the moor.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<npc "Great Hawk">><<person1>>
+	<<tearful>> you search the heavens for <<if $syndromebird is 1>>your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>><<else>>whatever your assailant saw<</if>>. You quickly find what you're looking for, seeing <<if $syndromebird is 1>>your<<else>>a<</if>> <<beasttype>> flying towards you as fast as <<bhis>> wings can carry <<bhim>>.
+	<br><br>
+
+	<<if $syndromebird is 1>>
+		<<link [[Next|Bird Rescue Syndrome]]>><</link>>
+	<<else>>
+		<<link [[Next|Bird Rescue No Syndrome]]>><</link>>
+	<</if>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	<<if $enemyno gt 1>>
+		You manage to land enough strikes between them to drive them back. They exchange a look and scatter into the heather without another word.
+		<br><br>
+
+		<<tearful>> you catch your breath, watching the heather settle, then turn back to your line.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<<else>>
+		You land a solid strike against The <<person1>><<person>>. <<He>> staggers back, and you hold your ground, watching until <<he>> retreats into the heather.
+		<br><br>
+
+		<<tearful>> you catch your breath and turn back to your line.
+		<br><br>
+
+		<<clotheson>>
+		<<endcombat>>
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<</if>>
+<</if>>
+
+
+:: Fishing Moor Hiker Arrive
+<<set $daily.fishing.moor.hikers.phase to "sit">>
+<<generate1>>
+<<generate2>>
+<<saveNPC 0 "moor_hiker_1">>
+<<saveNPC 1 "moor_hiker_2">>
+
+Voices carry across the moor before you see anyone. Two figures crest over a low hill nearby, heading toward you. One of them raises a hand when they spot you. They look like hikers.
+<br><br>
+
+"Didn't think there'd be anyone else out here," the <<person1>><<person>> says as they draw near, glancing at your rod. <<His>> companion, a <<person2>><<person>> sets down a bag with a quiet clink. "We're looking to sit down and take a little break, mind if we set up nearby? We won't crowd you."
+<br><br>
+
+<<link [[Sure|Fishing Moor Hiker Sit]]>><</link>>
+<br>
+<<link [[Wave them off|Fishing Moor Wait]]>>
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+	<<set $fishing.moor.event to "none">>
+	<<set $fishing.moor.eventDanger to 0>>
+	<<clearNPC "moor_hiker_1">>
+	<<clearNPC "moor_hiker_2">>
+<</link>>
+
+
+:: Fishing Moor Hiker Sit
+<<set $daily.fishing.moor.hikers.spike to dangerEvent(0.35)>>
+
+They settle a short distance back in the heather off to the side. The <<person2>><<person>> produces a pair of cans from <<his>> bag and pops one open, handing the other to <<his>> companion. They clink them together quietly. <<stress -3>><<lstress>>
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Leave
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+The <<person1>><<person>> stretches and nudges the other. "Better head back," <<he>> says.
+<br><br>
+
+They gather their things unhurriedly. The <<person2>><<person>> gives you a brief nod as they turn and head back across the moor.
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Leave Weather
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+The <<person1>><<person>> squints into the rain. "Right, we're off." They start gathering their things. "Don't stay out too long, it's not safe in these parts."
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Leave Dusk
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+The <<person1>><<person>> gets to <<his>> feet, brushing heather from <<his>> clothes. "We're losing the light," <<he>> says with a glance towards the sky. <<His>> companion nods and starts packing up. They wave farewell and head off into the dusk.
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Leave Night
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+
+<<if $daily.fishing.moor.hikers.phase is "campfire">>
+	The <<person1>><<person>> pokes at the dying embers and looks up at the dark sky. "It's getting late, we should head out."
+<<else>>
+	The <<person1>><<person>> looks up at the dark sky. "It's getting late, we should head out."
+<</if>>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+The pair bid you farewell and pick their way off into the dark.
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hikers Leave
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+
+<<if $daily.fishing.moor.hikers.phase is "sit" and $daily.fishing.moor.hikers.drinkCount gte 1 and ($daily.fishing.moor.hikers.spike or random(1, 4) is 1)>>
+	The <<person1>><<person>> glances at the can. "You should finish that off before you go. We'll take the empty back with us."
+	<br><br>
+
+	<<if $daily.fishing.moor.hikers.spike>>
+		<<silently>><<englishdifficulty 300 1000>><</silently>>
+		<<if $englishSuccess>>
+			<span class="red">There's something a little too eager in the way they watch you, it's as if this matters more to them than it should.</span>
+			<br><br>
+		<</if>>
+	<</if>>
+
+	<<if $daily.fishing.moor.hikers.spike>>
+		<<link [[Finish the drink|Fishing Moor Spiked Drink Leave]]>><</link>>
+	<<else>>
+		<<link [[Finish the drink|Fishing Moor Hiker Drink Leave Chug]]>><</link>>
+	<</if>>
+	<br>
+	<<link [[Decline|Moor]]>>
+		<<set $daily.fishing.moor.hikers.phase to "finished">>
+		<<set $fishing.moor.eventDanger to 0>>
+		<<set $fishing.moor.event to "none">>
+		<<clearNPC "moor_hiker_1">>
+		<<clearNPC "moor_hiker_2">>
+		<<set $eventskip to 1>>
+	<</link>>
+<<else>>
+	<<if $daily.fishing.moor.hikers.phase is "campfire">>
+		The <<person1>><<person>> gives you a warm smile as you pack up. "Take care out there, and thanks again for the meal." <<llstress>><<stress -10>>
+	<<else>>
+		The <<person2>><<person>> smiles as you pack up. "Take care out there," <<he>> says with a small wave. "Be safe." <<lstress>><<stress -5>>
+	<</if>>
+	<br><br>
+
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+	<<set $fishing.moor.eventDanger to 0>>
+	<<set $fishing.moor.event to "none">>
+	<<clearNPC "moor_hiker_1">>
+	<<clearNPC "moor_hiker_2">>
+	<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+<</if>>
+
+
+:: Fishing Moor Hiker Drink Leave Chug
+<<alcohol `($daily.fishing.moor.hikers.drinkCount * 10)`>><<ggalcohol>>
+
+You tip the can back and drain the rest in a few long swallows. The hikers cheer, grinning as you hand the empty can over.
+<br><br>
+
+"Cheers" the <<person1>><<person>> says, crushing the can before tucking it away. "Safe travels." <<lstress>><<stress -4>>
+<br><br>
+
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+<<set $fishing.moor.eventDanger to 0>>
+<<set $fishing.moor.event to "none">>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+
+<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+
+
+:: Fishing Moor Spiked Drink Leave
+<<set $daily.fishing.moor.hikers.drinkCount to 0>>
+<<drugs 180>>
+
+You tip the can back and drain the rest before handing it over, and the <<person2>><<person>> takes it from you with a pleased little smile.
+<br><br>
+
+You turn away, and before you get ten steps away, you begin to feel dizzy. You blink. The moor looks further away than it should, and the sound of the water is oddly distant. Your legs feel unreliable beneath you. Why is the ground moving towards you?
+<br><br>
+
+<<link [[...|Fishing Moor Spiked Drink 2]]>><<pass 20>><</link>>
+
+
+:: Fishing Moor Campfire Cook
+<<set $daily.fishing.moor.hikers.spike to false>>
+
+"That's a good one," The <<person1>><<person>> says, eyeing the <<print $fishingHookedFish.type>>. The <<person2>><<person>> is already on <<his>> feet, scanning the ground around the three of you. It takes a little while, one of them gathers sticks of various sizes while the other clears a patch of ground. A few minutes later, they light a small fire and the fish goes on a stone over the flames. The smell of cooked fish wafts around the three of you.
+<br><br>
+
+<<if $daily.fishing.moor.hikers.drinkCount lte 0 and !$daily.fishing.moor.hikers.drinkOffered>>
+	<<set $daily.fishing.moor.hikers.drinkOffered to true>>
+	While the fish cooks, The <<person1>><<person>> produces a pair of cans from the bag. "May as well," <<he>> says, and offers you one.
+	<br><br>
+
+	<<link [[Accept|Fishing Moor Campfire Eat]]>><<set $daily.fishing.moor.hikers.drinkCount to 10>><<pass 15>><</link>>
+	<br>
+	<<link [[Decline|Fishing Moor Campfire Eat]]>><<pass 15>><</link>>
+<<else>>
+	<<link [[Next|Fishing Moor Campfire Eat]]>><<pass 15>><</link>>
+<</if>>
+
+
+:: Fishing Moor Campfire Eat
+<<set $daily.fishing.moor.hikers.phase to "campfire">>
+
+After a couple minutes, the <<print $fishingHookedFish.type>> is ready to eat, skin blackened on the side where it was resting against the rock. The hikers break it apart with their hands, the <<person2>><<person>> passing you a good hunk of the meat.
+<br><br>
+
+You sit in a loose ring around the fire, eating in comfortable silence. The <<person1>><<person>> licks <<his>> fingers and leans back. "Not bad for something caught out here," <<he>> says. 
+<br><br>
+
+You almost feel like the fire is pushing back the evils of the world. <<stress -20>><<lllstress>>
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Flirt
+<<set $daily.fishing.moor.hikers.flirt to true>>
+<<set $seductiondifficulty to 4000>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
+/* Fishing Todo Writing: flirting text */
+You flirt with them
+<<promiscuity1>>
+<br>
+
+<<if $seductionrating gte $seductionrequired>>
+	The <<person1>><<person>> holds your gaze. The <<person2>><<person>> leans back, watching with interest.
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 2)>>
+		<<link [[Press Further|Fishing Moor Hiker Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+		<br>
+		<<link [[Pull them both in|Fishing Moor Hiker Both Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+
+	<<if dangerEvent()>>
+		<<link [[Back off|Fishing Moor Hiker Flirt Back Off Molestation]]>><</link>>
+	<<else>>
+		<<link [[Back off|Fishing Moor Wait]]>><</link>>
+	<</if>>
+	<br>
+<<else>>
+	The <<person1>><<person>> glances at <<his>> friend. <<He>> clears <<his>> throat and looks out across the moor, letting the moment pass.
+	<br><br>
+
+	<<link [[Next|Fishing Moor Wait]]>><</link>>
+	<br>
+<</if>>
+
+:: Fishing Moor Hiker Seduce
+<<set $seductiondifficulty to 6000>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
+/* Fishing Todo Writing: flirting text */
+Flirt<<promiscuity2>>
+<br>
+
+<<if $seductionrating gte $seductionrequired>>
+	The <<person1>><<person>> reaches out and pulls you the rest of the way in, and you hear The <<person2>><<person>> shifting closer behind you.
+	<br><br>
+
+	<<link [[Next|Fishing Moor Hiker Sex]]>><<set $sexstart to 1>><</link>>
+	<br>
+	
+	<br>
+<<else>>
+	The <<person2>><<person>> grins and shakes <<his>> head. "I'll leave <<person1>><<him>> to you."
+	<br><br>
+
+	<br>
+	<<link [[Continue with the <<person1>><<person>>|Fishing Moor Hiker Sex]]>><<set $sexstart to 1>><</link>>
+	<br>
+<</if>>
+
+:: Fishing Moor Hiker Flirt Back Off Molestation
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+The <<person1>><<person>>'s smile fades as <<he>> stands up and starts to stalk towards you. "You're going to tease me like that and just walk away? That's not happening." 
+<br><br>
+
+<<link [[Next|Fishing Moor Hiker Seduce Molestation]]>><<set $molestationstart to 1>><</link>>
+
+:: Fishing Moor Hiker Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<set $enemyno to 1>>
+	<<maninit>>
+	<<set $enemytrust += 200>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Sex Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Sex]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Hiker Sex Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	You rest on the heather for a moment while the moor wind cools your skin.
+	<br><br>
+
+	The <<person1>><<person>> catches <<his>> breath and sits up. "We should be heading back," <<he>> says. The other hiker nods and begins gathering their things, and not too long after they're walking away deeper into the moor, giving you a brief wave as they go.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $fishing.moor.event to "none">>
+	<<set $fishing.moor.eventDanger to 0>>
+	<<clearNPC "moor_hiker_1">>
+	<<clearNPC "moor_hiker_2">>
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+	<<link [[Next|Fishing Moor Wait]]>><</link>>
+<<elseif $finish is 1>>
+	The <<person1>><<person>> pulls back, catching <<his>> breath. After a moment <<he>> sits up and glances across the moor. "Right," <<he>> says simply. The other hiker starts gathering their things and they soon head off.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $fishing.moor.event to "none">>
+	<<set $fishing.moor.eventDanger to 0>>
+	<<clearNPC "moor_hiker_1">>
+	<<clearNPC "moor_hiker_2">>
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+	<<link [[Next|Fishing Moor Wait]]>><</link>>
+<<elseif $enemyhealth lte 0>>
+	You scramble to your feet and put distance between yourself and them. "You're not worth it," the <<person1>><<person>> says, before hastily grabbing <<his>> things and leaving with <<his>> companion in tow.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $fishing.moor.event to "none">>
+	<<set $fishing.moor.eventDanger to 0>>
+	<<clearNPC "moor_hiker_1">>
+	<<clearNPC "moor_hiker_2">>
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+	<<link [[Next|Fishing Moor Wait]]>><</link>>
+<</if>>
+
+
+:: Fishing Moor Hiker Both Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+	<<set $enemyno to 2>>
+	<<maninit>>
+	<<set $enemytrust += 200>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Sex Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Both Sex]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Spiked Drink 1
+<<drugs 180>>
+
+You set the can down and something feels wrong almost immediately, a warmth that spreads too fast, a faint blur creeping in at the edges of your vision.
+<br><br>
+
+You blink. The moor looks further away than it should, and the sound of the water is oddly distant. Your legs feel unreliable beneath you. Why is the ground moving towards you?
+<br><br>
+
+<<link [[...|Fishing Moor Spiked Drink 2]]>><<pass 20>><</link>>
+
+
+:: Fishing Moor Spiked Drink 2
+<<bind>>
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+
+You come to on the ground. Heather pressed against your cheek. Your wrists are bound behind you. You try to rise, but can't manage it. Your head is heavy, thoughts slow and thick.
+<br><br>
+
+The <<person1>><<person>> and <<person2>><<person>> stand over you, grinning. "Thought that'd take longer." "What an idiot." They advance on you.
+<br><br>
+
+<<link [[Next|Fishing Moor Spiked Drink Molestation]]>><<set $molestationstart to 1>><</link>>
+
+
+:: Fishing Moor Spiked Drink Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 2>>
+	<<set $enemynomax to 2>>
+	<<maninit>>
+	<<hawkRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Spiked Drink Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Spiked Drink Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Spiked Drink Molestation Finish
+<<effects>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	<<tearful>> you get to your feet and glance around. The heather all looks the same. <span class="red">You have no idea how deep in the moor you are.</span>
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $moor to Math.max(90, $moor + random(5, 15) * 3)>>
+	<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+	<br>
+<<elseif $alarm is 1 and $rescue is 1>>
+	The <<group>> begin to curse as a <<hawkScreechDesc>> pierces the air. <<hawkRescueApproachSentence>>
+	<br><br>
+
+	The <<group>>, panicked, scatter in different directions, disappearing into the moor.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<npc "Great Hawk">><<person1>>
+	<<tearful>> you search the heavens for <<if $syndromebird is 1>>your <<if $monster is 1>><<nnpc_wife "Great Hawk">><<else>>partner<</if>><<else>>whatever your assailant saw<</if>>. You quickly find what you're looking for, seeing <<if $syndromebird is 1>>your<<else>>a<</if>> <<beasttype>> flying towards you as fast as <<bhis>> wings can carry <<bhim>>.
+	<br><br>
+
+	<<if $syndromebird is 1>>
+		<<link [[Next|Bird Rescue Syndrome]]>><</link>>
+	<<else>>
+		<<link [[Next|Bird Rescue No Syndrome]]>><</link>>
+	<</if>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	You manage to push one of them off. In the confusion you scramble upright and run, no direction, just away. The drug makes everything lurch and blur.
+	<br><br>
+
+	<<tearful>> you run until the sounds behind you are gone, until there's nothing but heather and wind. The moor looks the same in every direction. <span class="red">You have no idea where you are.</span>
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $moor to Math.max(90, $moor + random(2, 5) * 5)>>
+	<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+<</if>>
+
+
+:: Fishing Moor Hiker Drink Offer
+<<set $daily.fishing.moor.hikers.drinkOffered to true>>
+
+The <<person1>><<person>> reaches into the bag and produces a can. <<He>> holds it out toward you. "Want one?"
+<br><br>
+
+<<link [[Accept|Fishing Moor Wait]]>><<set $daily.fishing.moor.hikers.drinkCount to 10>><</link>>
+<br>
+<<link [[Decline|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hiker Seduce Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 1>>
+	<<set $enemynomax to 1>>
+	<<maninit>>
+	<<hawkRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Molestation Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Moor Hiker Seduce Molestation]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Moor Cat Eat Hikers
+You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+<br><br>
+
+Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring at you.
+<<if random(1, 2) is 1>>
+	Without a word, the hikers start packing up their things, giving you looks that are a mix of concern and confusion.
+	<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+	<<set $fishing.moor.event to "none">>
+	<<set $daily.fishing.moor.hikers.phase to "finished">>
+<</if>>
+<br><br>
+
+<<link [[Wait for a bite (0:05)|Fishing Moor Wait]]>><<pass 5>><</link>>
+<br>
+<<link [[Return to the moor|Moor]]>><</link>>
+
+
+:: Widgets Fishing Moor Event Hikers [widget]
+<<widget "fishingMoorHikersWaitAmbient">>
+	<<addinlineevent 1.5>>
+		You hear muffled voices in the distance, carrying across the wetland.
+		<<set $fishing.moor.eventDanger += 1.5>>
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		You hear footsteps crunching on the heather and wet grass.
+		<<set $fishing.moor.eventDanger += 3>>
+	<</addinlineevent>>
+	<</widget>>
+
+<<widget "fishingMoorHikerAmbient">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+
+	<<cleareventpool>>
+	<<if $daily.fishing.moor.hikers.phase is "sit">>
+		<<fishingMoorHikerSitAmbient>>
+	<<elseif $daily.fishing.moor.hikers.phase is "campfire">>
+		<<fishingMoorHikerCampfireAmbient>>
+	<</if>>
+	<<runeventpool>>
+<</widget>>
+
+<<widget "fishingMoorHikerSitAmbient">>
+	<<addinlineevent 10>>
+		The hikers talk quietly between themselves.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person1>><<person>> chuckles at something <<his>> companion says.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The hikers watch your float for a moment, interested, then resume talking.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person1>><<person>> points at something across the moor to <<his>> companion, but they can't seem to agree what it is.
+	<</addinlineevent>>
+	<<if $daily.fishing.moor.hikers.spike and $daily.fishing.moor.hikers.drinkCount gte 1>>
+		<<addinlineevent 0.5>>
+			The <<person1>><<person>> glances your way. <<His>> eyes settle on your can for a moment before <<he>> looks back at the water.
+		<</addinlineevent>>
+	<</if>>
+<</widget>>
+
+<<widget "fishingMoorHikerCampfireAmbient">>
+	<<addinlineevent 10>>
+		The hikers talk over the crackle of the fire.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person1>><<person>> laughs at something, and the <<person2>><<person>> shakes <<his>> head, grinning.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The <<person1>><<person>> licks <<his>> fingers and leans back, staring up at the sky.
+	<</addinlineevent>>
+	<<addinlineevent 1>>
+		The hikers take long sips from their cans and watch the fire settle.
+	<</addinlineevent>>
+<</widget>>
+
+<<widget "fishingMoorHikerChat">>
+/* Fishing Todo Writing: chatting text */
+	You chat with the hikers<<stress -1>><<lstress>>
+<</widget>>
+
+<<widget "fishingMoorHikerDrinkSip">>
+	<<set $daily.fishing.moor.hikers.drinkCount -= 1>>
+	<<if $daily.fishing.moor.hikers.drinkCount is 9>>
+		You take a sip from the can, you can taste the alcohol. <<alcohol 17>>
+	<<elseif $daily.fishing.moor.hikers.drinkCount lte 0>>
+		You tip the can back and drain the last of it. <<alcohol 17>>
+	<<elseif $daily.fishing.moor.hikers.drinkCount lte 9>>
+		You take a sip from the can. <<alcohol 17>>
+	<</if>>
+<</widget>>
+
+/* ========================== */
+/* ===== Combat Widgets ===== */
+/* ========================== */
+<<widget "fishCombatMoorOrgasmHikers">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+	<<orgasm>>
+	<<print either("You stagger on the uneven boggy ground", "You drive the end of your rod into the earth to keep from falling")>>,
+	struggling to keep upright as your orgasm hits.
+	<<set $orgasmcurrent to 0>>
+	The rod slips from your grip. By the time you find your footing again, the line is slack and the <<print $fishingHookedFish.type>> is gone.
+	<<run endFishingCombat()>>
+	<br><br>
+
+	<<switch random(1, 4)>>
+		<<case 1>>
+			The <<person1>><<person>> lets out a slow whistle. The <<person2>><<person>> claps twice, grinning at you.
+		<<case 2>>
+			"Oh. Wow." A beat of silence, then The <<person1>><<person>> starts clapping, laughing as <<he>> does.
+		<<case 3>>
+			The <<person2>><<person>> coughs. The <<person1>><<person>> just stares for a moment before letting out a long, low whistle.
+		<<case 4>>
+			"Bloody hell." The <<person1>><<person>> starts clapping and The <<person2>><<person>> joins in with a whoop.
+	<</switch>>
+	<<fameexhibitionism 5>>
+	<br>
+	<<link [[Next|Fishing Moor Wait]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatMoorCaughtHikers">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+	<<set _cookOffer to true or random(1, 2) is 1 and canCookFish($fishingHookedFish.type, $fishingHookedFish.size) and $daily.fishing.moor.hikers.phase isnot "campfire">>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "moor")>>
+	<<fishingCatchFishText "moor">>
+	<<run endFishingCombat()>>
+
+	<<if random(1, 3) is 1>>
+		<<switch random(1, 2)>>
+			<<case 1>>
+				"Nice catch." The <<person1>><<person>> nods approvingly at the fish.
+			<<case 2>>
+				The <<person2>><<person>> leans in to get a look at your catch. "Not bad."
+		<</switch>>
+		<br><br>
+	<</if>>
+
+	<<if _cookOffer>>
+		The <<person1>><<person>> looks over the <<print $fishingHookedFish.type>>. "We could probably start a fire and make a meal out of that, what do you think?"
+		<br><br>
+	<</if>>
+
+	<<if _canEatFish>>
+		It's a small fish, you could probably just fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<if _cookOffer>>
+		<<link [[Let them cook it|Fishing Moor Campfire Cook]]>><</link>>
+		<br>
+	<</if>>
+
+	<<if _canEatFish>>
+		<<link [[Eat the fish|Fishing Moor Cat Eat Hikers]]>><</link>>
+		<br>
+	<</if>>
+
+	<<link [[Stow it away|Fishing Moor Keep]]>><</link>>
+	<br>
+	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Moor Throw Back]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatMoorLineSnappedHikers">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+	Your line suddenly goes slack, and the <<print $fishingHookedFish.type>> disappears into the depths.
+	<<run endFishingCombat()>>
+	<br><br>
+	
+	<<switch random(1, 3)>>
+		<<case 1>>
+			The <<person1>><<person>> pats you once on the shoulder. "Ah, hard luck."
+		<<case 2>>
+			The <<person2>><<person>> clicks <<his>> tongue sympathetically. "Nearly had it." 
+		<<case 3>>
+			The <<person1>><<person>> winces. "That's rough. You almost had it."
+	<</switch>>
+
+	<<if $daily.fishing.moor.hikers.drinkCount is 0 and random(1, 2) is 1 or true>>
+		<<he>> reaches into the bag and holds out a can. "Here, a consolation."
+		<br><br>
+
+		/* fishing todo: move spike setting to here? its more logical */
+
+		<<link [[Accept|Fishing Moor Wait]]>><<set $daily.fishing.moor.hikers.drinkCount to 10>><</link>>
+		<br>
+		<<link [[Decline|Fishing Moor Wait]]>><</link>>
+	<<else>>
+		<br><br>
+
+		<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
+		<br>
+		<<link [[Return to the moor|Moor]]>><</link>>
+	<</if>>
+<</widget>>

@@ -1,0 +1,93 @@
+:: Fishing Combat Beach
+<<effects>>
+<<run fishingCombatEffects()>>
+
+/* Player orgasm */
+<<if $arousal gte $arousalmax>>
+	<<fishCombatBeachOrgasm>>
+
+/* You've caught the fish */
+<<elseif $fishing.combat.fishDistance lte 0>>
+	<<if Time.dayState is "day" and ($daily.fishing.beach.fisher.phase is "finished" or $daily.fishing.beach.fisher.phase is undefined) and random(1, 12) is 1 and $daily.fishing.seagullSteal is undefined>>
+		<<fishingSeagullCaught "beach">>
+	<<elseif $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.drunk gte 1 and random(1, 5) is 1>>
+		<<fishCombatBeachCaughtFisherDrunk>>
+	<<elseif beachCampfirePartyPresent() and random(1, 4) is 1 and $daily.fishing.beach.partyFeed is undefined and canCookFish($fishingHookedFish.type, $fishingHookedFish.size)>>
+		<<fishCombatBeachCaughtCampfireCook>>
+	<<else>>
+		<<fishCombatBeachCaught>>
+	<</if>>
+
+/* Your line has snapped */
+<<elseif $fishing.combat.lineHealth lte 0>>
+	<<fishCombatBeachLineSnapped>>
+
+/* Still fishing */
+<<else>>
+	<<fishCombatBeachMain>>
+
+<</if>>
+
+
+:: Fishing Beach Cut Line
+You release the tension on the rod, letting the line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, the line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
+<br><br>
+
+<<run endFishingCombat()>>
+<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
+<br>
+<<link [[Return to the beach|Beach]]>><</link>>
+
+
+:: Widgets Fishing Combat Beach [widget]
+<<widget "fishCombatBeachMain">>
+	<<run fishCombatAction()>>
+	<<fishCombatActionDescription>>
+	<<printFishInfo>>
+	<br><br>
+
+	<<fishCombatActions "Beach">>
+	<<fishingBeachCombatDebugLinks>>
+<</widget>>
+
+<<widget "fishCombatBeachCaught">>
+	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "beach")>>
+	<<fishingCatchFishText "beach">>
+	<<run endFishingCombat()>>
+
+	<<if _canEatFish>>
+		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<if _canEatFish>>
+		<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>>
+		<br>
+	<</if>>
+
+	<br>
+	<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
+	<br>
+	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatBeachLineSnapped">>
+	<<run endFishingCombat()>>
+
+	Your line suddenly goes slack, and the <<print $fishingHookedFish.type>> disappears into the depths.
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
+	<br>
+	<<link [[Return to the beach|Beach]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatBeachOrgasm">>
+	<<run endFishingCombat()>>
+
+	<<orgasmFishing "beach">>
+	The rod slips from your grip. By the time you recover, the line has gone slack, the <<print $fishingHookedFish.type>> is long gone.
+	<br>
+	<<link [[Next|Fishing Beach Wait]]>><</link>>
+<</widget>>

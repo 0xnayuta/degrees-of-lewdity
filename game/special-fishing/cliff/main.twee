@@ -1,0 +1,88 @@
+:: Fishing Coast Path Approach
+	You follow a narrow side path cut into the cliff face, picking your way down towards the water. An old wooden dock juts out below,
+	half-rotten and creaking in the wind, it looks ready to collapse. You don't think it's safe to stand on the dock, but the path before it is safe enough to fish from.
+	<br><br>
+
+	<<link [[Start fishing|Fishing Coast Path Wait]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+
+
+:: Fishing Coast Path Wait
+	<<run initFishingCoastPath()>>
+	<<run discoverFishingLocation("coastPath")>>
+		<<fishingLocationDescription "coastPath">>
+	<br><br>
+	
+	<<if !$daily.fishing?.hasFishedToday or random(1, 5) is 1>>
+		<<set $daily.fishing.hasFishedToday to true>>
+		Your bob hasn't attracted anything yet.
+	<<else>>
+		<<fishingCoastPathWaitAmbient>>
+	<</if>>
+	
+	<br><br>
+
+	<<link [[Wait for a bite (0:05)|Fishing Coast Path Wait Loop]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+	<<fishingCoastPathDebugLinks>>
+
+
+:: Fishing Coast Path Wait Loop
+	<<pass 5>>
+	<<cleareventpool>>
+
+	<<addinlineevent "bite" 3>>
+		<<set $fishingHookedFish to rollFish("coastPath")>>
+		<<include "Fishing Coast Path Bite">>
+	<</addinlineevent>>
+
+	/* Nothing happens, wait loop continues */
+	<<addinlineevent "wait" 5>>
+		<<include "Fishing Coast Path Wait">>
+	<</addinlineevent>>
+	<<runeventpool>>
+
+
+:: Fishing Coast Path Bite
+	Your line pulls sharply away as a <<print $fishingHookedFish.type>> takes the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
+	<br><br>
+
+	<<link [[Next|Fishing Combat Coast Path]]>><<run startFishingCombat("coastPath")>><</link>>
+
+
+:: Fishing Coast Path Throw Back
+	You toss the <<print $fishingHookedFish.type>> back into the surf.
+	<br><br>
+
+	<<link [[Cast back out|Fishing Coast Path Wait]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+
+
+:: Fishing Coast Path Keep
+	You stow the <<print $fishingHookedFish.type>> away.
+	<<tending_give $fishingHookedFish.type 1>>
+	<br><br>
+
+	<<link [[Cast back out|Fishing Coast Path Wait]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+
+
+:: Fishing Coast Path Cat Eat
+	You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+	<br><br>
+
+	<<link [[Cast back out|Fishing Coast Path Wait]]>><</link>>
+	<br>
+	<<link [[Return to the path|Coast Path]]>><</link>>
+
+
+:: Widgets Fishing Coast Path Wait Flavor [widget]
+<<widget "fishingCoastPathWaitAmbient">>
+	<<cleareventpool>>
+	<<fishingWaitAmbient "coastPath">>
+	<<runeventpool>>
+<</widget>>
