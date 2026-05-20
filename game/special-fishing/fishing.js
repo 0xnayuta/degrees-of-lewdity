@@ -1,22 +1,14 @@
 /*
 ====== Main Fishing Todo ======  
 - Add rods to shop
-- Make it so that the fishing link doesn't appear unless you are holding a fishing rod
 - While fishing on pier: whitney and co can sneak up on you and set up
 - Whitney and co can be on the pier to begin with
 - Implement fishing chain lock
-- Is orgasmFishing correctly used everywhere? I recall there is some text for the campfire teens cheering for you if you orgasm, and the hikers should do the same on the moor, and the Fisher should do something as well on the beach and pier.
-- Should the ambient descriptions, of the hikers, ducks, ducklings, go inline with the weather description?
 - Test screaming for gwa rescue in forest fishing attack
 - Different rod tiers. If fishing on the cliff face, you need the highest tier of rod or else it will break.
-- Bug: When you flirt with the hikers, and have sex with one, but don't pull the other in, there is a full audience.
 - Passout scenes? Passout functionality?
 - Go through and find places to put stress/trauma changes
-- Chatting or sipping instead of waiting for a bite prevents npcs from leaving
-- Throw back passages, and any passages that have "wait for a bite" and "return to the X" need to either be on the main fishing wait passage, or be changed to have next as their link
 - Hawk rescue can happen too often
-- Many "back to fishing" + "leave" link pairs should be changed to either link to the wait loop or just be replaced with "next" links 
-
 
 ====== Random fishing notes ====
 - Avery: yacht fishing location, unique?
@@ -44,6 +36,72 @@
 - The great hawk rescue event is reused and duplicated a bunch in the fishing code, and that's bad. 
 - Add some passage links to the forest to make climbing up onto the fishing rock possible 
 - Same for the docks
+
+====== Needed images ======
+Caught fish handheld props:
+- /img/clothes/props/fish/haddock.png
+- /img/clothes/props/fish/salmon.png
+- /img/clothes/props/fish/trout.png
+- /img/clothes/props/fish/cod.png
+- /img/clothes/props/fish/herring.png
+- /img/clothes/props/fish/whiting.png
+- /img/clothes/props/fish/mackerel.png
+- /img/clothes/props/fish/flounder.png
+- /img/clothes/props/fish/sole.png
+- /img/clothes/props/fish/bass.png
+- /img/clothes/props/fish/roach.png
+- /img/clothes/props/fish/perch.png
+- /img/clothes/props/fish/chub.png
+- /img/clothes/props/fish/pike.png
+- /img/clothes/props/fish/eel.png
+- /img/clothes/props/fish/grayling.png
+
+Ingredient handheld props:
+- /img/clothes/props/ingredient/herring.png
+- /img/clothes/props/ingredient/whiting.png
+- /img/clothes/props/ingredient/mackerel.png
+- /img/clothes/props/ingredient/flounder.png
+- /img/clothes/props/ingredient/sole.png
+- /img/clothes/props/ingredient/bass.png
+- /img/clothes/props/ingredient/roach.png
+- /img/clothes/props/ingredient/perch.png
+- /img/clothes/props/ingredient/chub.png
+- /img/clothes/props/ingredient/pike.png
+- /img/clothes/props/ingredient/eel.png
+- /img/clothes/props/ingredient/grayling.png
+
+Caught fish UI icons:
+- /img/misc/icon/fish/haddock.png
+- /img/misc/icon/fish/salmon.png
+- /img/misc/icon/fish/trout.png
+- /img/misc/icon/fish/cod.png
+- /img/misc/icon/fish/herring.png
+- /img/misc/icon/fish/whiting.png
+- /img/misc/icon/fish/mackerel.png
+- /img/misc/icon/fish/flounder.png
+- /img/misc/icon/fish/sole.png
+- /img/misc/icon/fish/bass.png
+- /img/misc/icon/fish/roach.png
+- /img/misc/icon/fish/perch.png
+- /img/misc/icon/fish/chub.png
+- /img/misc/icon/fish/pike.png
+- /img/misc/icon/fish/eel.png
+- /img/misc/icon/fish/grayling.png
+
+Foodstuff UI icons:
+- /img/misc/icon/tending/herring.png
+- /img/misc/icon/tending/whiting.png
+- /img/misc/icon/tending/mackerel.png
+- /img/misc/icon/tending/flounder.png
+- /img/misc/icon/tending/bass.png
+- /img/misc/icon/tending/roach.png
+- /img/misc/icon/tending/perch.png
+- /img/misc/icon/tending/chub.png
+- /img/misc/icon/tending/pike.png
+- /img/misc/icon/tending/eel.png
+
+Fishing rod clothing trait icon
+- /img/ui/clothes/traits/fishing-rod.png
 
 */
 
@@ -128,7 +186,7 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 		fishRecord.found_in.push(locationKey);
 	}
 
-	if (fishKey === "sea_bass") {
+	if (fishKey === "bass") {
 		// Fishing Todo: why error????
 		earnFeat("Nice Bass");
 	}
@@ -154,7 +212,7 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 window.updateFishRecord = updateFishRecord;
 
 function canCookFish(fishKey, fishSize) {
-	const eatableFish = ["trout", "perch", "pike", "chub", "salmon", "sea_bass", "haddock", "cod"];
+	const eatableFish = ["trout", "perch", "pike", "chub", "salmon", "bass", "haddock", "cod"];
 	if (!eatableFish.includes(fishKey)) return false;
 	const fishConfig = setup.fishing_fish[fishKey];
 	return fishSize >= fishConfig.max_size - 0.15 * (fishConfig.max_size - fishConfig.min_size) && fishSize >= 80;
@@ -162,17 +220,12 @@ function canCookFish(fishKey, fishSize) {
 window.canCookFish = canCookFish;
 
 function canStartFishing() {
-	return !pcAreArmsBound("any");
+	// fishing todo
+	// return !pcAreArmsBound("any") && V.worn.handheld.type.includes("fishing_rod");
+
+	return true;
 }
 window.canStartFishing = canStartFishing;
-
-function discoverFishingLocation(locationKey) {
-	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes(locationKey)) {
-		V.fishing.locationsFound.push(locationKey);
-	}
-}
-window.discoverFishingLocation = discoverFishingLocation;
 
 function debugDiscoverAllFishing() {
 	V.fishing ??= {};
@@ -196,6 +249,8 @@ window.debugDiscoverAllFishing = debugDiscoverAllFishing;
 function initFishingBeach() {
 	V.bus = "fishingBeach";
 	V.fishing ??= {};
+	V.fishing.locationsFound ??= [];
+	if (!V.fishing.locationsFound.includes("beach")) V.fishing.locationsFound.push("beach");
 	V.fishing.beach ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.beach ??= {};
@@ -209,6 +264,8 @@ window.initFishingBeach = initFishingBeach;
 function initFishingCoastPath() {
 	V.bus = "fishingCoastPath";
 	V.fishing ??= {};
+	V.fishing.locationsFound ??= [];
+	if (!V.fishing.locationsFound.includes("coastPath")) V.fishing.locationsFound.push("coastPath");
 	V.fishing.coastPath ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.coastPath ??= {};
@@ -220,6 +277,8 @@ window.initFishingCoastPath = initFishingCoastPath;
 function initFishingForestLake() {
 	V.bus = "fishingForestLake";
 	V.fishing ??= {};
+	V.fishing.locationsFound ??= [];
+	if (!V.fishing.locationsFound.includes("forestLake")) V.fishing.locationsFound.push("forestLake");
 	V.fishing.lake ??= {};
 	V.fishing.lake.event ??= "none";
 	V.fishing.lake.eventDanger ??= 0;
@@ -233,6 +292,8 @@ window.initFishingForestLake = initFishingForestLake;
 function initFishingMoor() {
 	V.bus = "fishingMoor";
 	V.fishing ??= {};
+	V.fishing.locationsFound ??= [];
+	if (!V.fishing.locationsFound.includes("moor")) V.fishing.locationsFound.push("moor");
 	V.fishing.moor ??= {};
 	V.fishing.moor.event ??= "none";
 	V.fishing.moor.eventDanger ??= 0;
@@ -254,6 +315,8 @@ window.initFishingMoor = initFishingMoor;
 function initFishingPier() {
 	V.bus = "fishingPier";
 	V.fishing ??= {};
+	V.fishing.locationsFound ??= [];
+	if (!V.fishing.locationsFound.includes("pier")) V.fishing.locationsFound.push("pier");
 	V.fishing.pier ??= {};
 	V.fishing.whitney ??= {};
 	V.daily.fishing ??= {};
@@ -268,6 +331,27 @@ function initFishingPier() {
 	delete V.fishingHookedFish;
 }
 window.initFishingPier = initFishingPier;
+
+function isPlayerFishingAlone() {
+	switch (V.bus) {
+		case "fishingBeach":
+			return [undefined, "finished"].includes(V.daily?.fishing?.beach?.fisher?.phase);
+		case "fishingPier":
+			return (
+				[undefined, "finished"].includes(V.daily?.fishing?.pier?.fisher?.phase) &&
+				[undefined, "finished"].includes(V.daily?.fishing?.pier?.whitney?.phase)
+			);
+		case "fishingMoor":
+			return (
+				[undefined, "finished"].includes(V.daily?.fishing?.moor?.fox?.phase) && [undefined, "finished"].includes(V.daily?.fishing?.moor?.hikers?.phase)
+			);
+		case "fishingCoastPath":
+			return true;
+		case "fishingForestLake":
+			return true;
+	}
+}
+window.isPlayerFishingAlone = isPlayerFishingAlone;
 
 function startFishingCombat(locationKey) {
 	V.fishing.combat = {
@@ -284,9 +368,26 @@ function startFishingCombat(locationKey) {
 }
 window.startFishingCombat = startFishingCombat;
 
+function startFishingProp() {
+	if (V.worn.handheld.type.includes("fishing_rod")) {
+		V.worn.handheld.holdPosition = "right_cover";
+		wikifier("updatesidebarimg");
+	}
+}
+window.startFishingProp = startFishingProp;
+
+function stopFishingProp() {
+	if (V.worn.handheld.type.includes("fishing_rod")) {
+		V.worn.handheld.holdPosition = 0;
+		wikifier("updatesidebarimg");
+	}
+}
+window.stopFishingProp = stopFishingProp;
+
 function endFishingCombat() {
 	V.fishing.combat = {};
 	V.fishingCombatActive = false;
+	stopFishingProp();
 }
 window.endFishingCombat = endFishingCombat;
 
@@ -426,3 +527,22 @@ function fishingLocationWaterBodyName(locationKey) {
 	}
 }
 window.fishingLocationWaterBodyName = fishingLocationWaterBodyName;
+
+function holdCaughtFish(fishKey) {
+	const config = setup.fishing_fish[fishKey];
+	if (!config.catch_prop) return;
+	const [folder, name] = config.catch_prop
+		.replace(/^img\/clothes\/props\//, "")
+		.replace(/\.png$/, "")
+		.split("/");
+	T.prop = Object.assign({}, setup.propDefaults, {
+		folder,
+		name,
+		armPosition: "clutch",
+		colour: false,
+		accColour: false,
+	});
+	wikifier("updatesidebarimg");
+}
+window.holdCaughtFish = holdCaughtFish;
+DefineMacro("holdCaughtFish", holdCaughtFish);

@@ -12,6 +12,8 @@ function initFishingFishConfig() {
 				pier: 0.5,
 				coastPath: 0.5,
 			},
+			icon: "fish/haddock.png",
+			catch_prop: "img/clothes/props/fish/haddock.png",
 		},
 		salmon: {
 			min_size: 45,
@@ -26,6 +28,8 @@ function initFishingFishConfig() {
 				coastPath: 1,
 				forestLake: 0.5,
 			},
+			icon: "fish/salmon.png",
+			catch_prop: "img/clothes/props/fish/salmon.png",
 		},
 		trout: {
 			min_size: 25,
@@ -39,6 +43,8 @@ function initFishingFishConfig() {
 				forestLake: 1,
 				moor: 1,
 			},
+			icon: "fish/trout.png",
+			catch_prop: "img/clothes/props/fish/trout.png",
 		},
 		cod: {
 			min_size: 40,
@@ -53,6 +59,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/cod.png",
+			catch_prop: "img/clothes/props/fish/cod.png",
 		},
 		herring: {
 			min_size: 20,
@@ -67,6 +75,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 0.5,
 			},
+			icon: "fish/herring.png",
+			catch_prop: "img/clothes/props/fish/herring.png",
 		},
 		whiting: {
 			min_size: 25,
@@ -81,6 +91,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/whiting.png",
+			catch_prop: "img/clothes/props/fish/whiting.png",
 		},
 		mackerel: {
 			min_size: 22,
@@ -95,6 +107,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/mackerel.png",
+			catch_prop: "img/clothes/props/fish/mackerel.png",
 		},
 		flounder: {
 			min_size: 25,
@@ -109,6 +123,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/flounder.png",
+			catch_prop: "img/clothes/props/fish/flounder.png",
 		},
 		sole: {
 			min_size: 24,
@@ -123,8 +139,10 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/sole.png",
+			catch_prop: "img/clothes/props/fish/sole.png",
 		},
-		sea_bass: {
+		bass: {
 			min_size: 35,
 			max_size: 95,
 			preferred_season: ["summer", "autumn"],
@@ -137,6 +155,8 @@ function initFishingFishConfig() {
 				pier: 1,
 				coastPath: 1,
 			},
+			icon: "fish/bass.png",
+			catch_prop: "img/clothes/props/fish/bass.png",
 		},
 		roach: {
 			min_size: 15,
@@ -150,6 +170,8 @@ function initFishingFishConfig() {
 				forestLake: 1,
 				moor: 0.5,
 			},
+			icon: "fish/roach.png",
+			catch_prop: "img/clothes/props/fish/roach.png",
 		},
 		perch: {
 			min_size: 20,
@@ -163,6 +185,8 @@ function initFishingFishConfig() {
 				forestLake: 1,
 				moor: 1,
 			},
+			icon: "fish/perch.png",
+			catch_prop: "img/clothes/props/fish/perch.png",
 		},
 		chub: {
 			min_size: 25,
@@ -176,6 +200,8 @@ function initFishingFishConfig() {
 				forestLake: 0.5,
 				moor: 0.25,
 			},
+			icon: "fish/chub.png",
+			catch_prop: "img/clothes/props/fish/chub.png",
 		},
 		pike: {
 			min_size: 45,
@@ -189,6 +215,8 @@ function initFishingFishConfig() {
 				forestLake: 1,
 				moor: 0.75,
 			},
+			icon: "fish/pike.png",
+			catch_prop: "img/clothes/props/fish/pike.png",
 		},
 		eel: {
 			min_size: 35,
@@ -202,6 +230,8 @@ function initFishingFishConfig() {
 				forestLake: 1,
 				moor: 0.5,
 			},
+			icon: "fish/eel.png",
+			catch_prop: "img/clothes/props/fish/eel.png",
 		},
 		grayling: {
 			min_size: 25,
@@ -214,6 +244,8 @@ function initFishingFishConfig() {
 			locations: {
 				forestLake: 0.25,
 			},
+			icon: "fish/grayling.png",
+			catch_prop: "img/clothes/props/fish/grayling.png",
 		},
 	};
 }

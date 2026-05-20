@@ -76,6 +76,10 @@ setup.debugMenu.eventList = {
 			widgets: [``],
 		},
 		{
+			link: [`Caught Fish Prop Debug`, `Caught Fish Prop Debug`],
+			widgets: [``],
+		},
+		{
 			link: [`Learn all recipes`, stayOnPassageFn],
 			widgets: [`<<learn_recipe_all>>`],
 		},

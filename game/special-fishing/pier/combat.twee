@@ -8,6 +8,8 @@
 		<<fishCombatPierOrgasmWhitneyBet>>
 	<<elseif $daily.fishing.pier.whitney.phase is "alone">>
 		<<fishCombatPierOrgasmWhitneyAlone>>
+	<<elseif $daily.fishing.pier.fisher.phase is "fishing">>
+		<<fishCombatPierOrgasmFisher>>
 	<<else>>
 		<<fishCombatPierOrgasm>>
 	<</if>>
@@ -53,16 +55,16 @@
 
 
 :: Fishing Pier Cut Line
+<<run endFishingCombat()>>
 You release the tension on the rod, letting the line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, the line breaks free. Through the dark water below, you catch a glimpse of it darting away.
 <br><br>
 
-<<run endFishingCombat()>>
 <<if $daily.fishing.pier.whitney.phase is "bet">>
 	<<fishingPierCutLineWhitneyBet>>
 <<else>>
 	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
 	<br>
-	<<link [[Return to the pier|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><</link>>
 <</if>>
 
 
@@ -80,18 +82,22 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 <<widget "fishCombatPierCaught">>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "pier")>>
-	<<fishingCatchFishText "pier">>
 	<<run endFishingCombat()>>
+	<<run holdCaughtFish($fishingHookedFish.type)>>
+
+	<<fishingCatchFishText "pier">>
+	<br><br>
 
 	<<if $fishingHookedFish.size gt 100 and Time.dayState is "day" and $docks.hired and random(1, 3) is 1>>
 		In the distance, dock workers notice the size of it and a couple cheer for you from the docks.<<dockstatus 1>>
+		<br><br>
 	<</if>>
 
 	<<if _canEatFish>>
 		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
 	<</if>>
 
-	<br>
 	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
 	<br>
 	<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
@@ -108,7 +114,7 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 
 	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
 	<br>
-	<<link [[Return to the pier|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><</link>>
 <</widget>>
 
 <<widget "fishCombatPierOrgasm">>

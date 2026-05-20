@@ -15,7 +15,7 @@ declare global {
 		| "mackerel"
 		| "flounder"
 		| "sole"
-		| "sea_bass"
+		| "bass"
 		| "roach"
 		| "perch"
 		| "chub"

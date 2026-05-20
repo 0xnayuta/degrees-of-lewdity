@@ -36,6 +36,7 @@ You're focused on your catch when you hear movement in the heather<<if $fishingM
 
 :: Fishing Moor Hiker Molestation
 <<if $molestationstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
@@ -106,7 +107,7 @@ You're focused on your catch when you hear movement in the heather<<if $fishingM
 		<<endcombat>>
 		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 		<br>
-		<<link [[Return to the moor|Moor]]>><</link>>
+		<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 	<</if>>
 <<elseif $alarm is 1 and $rescue is 1>>
 	The <<if $enemyno gt 1>><<group>> begin<<else>><<person>> begins<</if>> to curse as a <<hawkScreechDesc>> pierces the air. <<hawkRescueApproachSentence>>
@@ -139,7 +140,7 @@ You're focused on your catch when you hear movement in the heather<<if $fishingM
 		<<endcombat>>
 		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 		<br>
-		<<link [[Return to the moor|Moor]]>><</link>>
+		<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 	<<else>>
 		You land a solid strike against The <<person1>><<person>>. <<He>> staggers back, and you hold your ground, watching until <<he>> retreats into the heather.
 		<br><br>
@@ -151,7 +152,7 @@ You're focused on your catch when you hear movement in the heather<<if $fishingM
 		<<endcombat>>
 		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 		<br>
-		<<link [[Return to the moor|Moor]]>><</link>>
+		<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 	<</if>>
 <</if>>
 
@@ -183,7 +184,7 @@ Voices carry across the moor before you see anyone. Two figures crest over a low
 :: Fishing Moor Hiker Sit
 <<set $daily.fishing.moor.hikers.spike to dangerEvent(0.35)>>
 
-They settle a short distance back in the heather off to the side. The <<person2>><<person>> produces a pair of cans from <<his>> bag and pops one open, handing the other to <<his>> companion. They clink them together quietly. <<stress -3>><<lstress>>
+They settle down a short distance off to the side. The <<person2>><<person>> produces a pair of cans from <<his>> bag and pops one open, handing the other to <<his>> companion. They clink them together quietly. <<stress -3>><<lstress>>
 <br><br>
 
 <<link [[Next|Fishing Moor Wait]]>><</link>>
@@ -198,10 +199,7 @@ They settle a short distance back in the heather off to the side. The <<person2>
 <<clearNPC "moor_hiker_2">>
 <<set $daily.fishing.moor.hikers.phase to "finished">>
 
-The <<person1>><<person>> stretches and nudges the other. "Better head back," <<he>> says.
-<br><br>
-
-They gather their things unhurriedly. The <<person2>><<person>> gives you a brief nod as they turn and head back across the moor.
+The <<person1>><<person>> stretches and nudges the other. "Better head back," <<he>> says. They start gathering their things, and before too long they're heading across the moor, giving you a brief wave before they go.
 <br><br>
 
 <<link [[Next|Fishing Moor Wait]]>><</link>>
@@ -258,7 +256,22 @@ The pair bid you farewell and pick their way off into the dark.
 <<link [[Next|Fishing Moor Wait]]>><</link>>
 
 
-:: Fishing Moor Hikers Leave
+:: Fishing Moor Hikers Chat Leave
+<<loadNPC 0 "moor_hiker_1">><<person1>>
+<<loadNPC 1 "moor_hiker_2">><<person2>>
+<<set $fishing.moor.event to "none">>
+<<set $fishing.moor.eventDanger to 0>>
+<<clearNPC "moor_hiker_1">>
+<<clearNPC "moor_hiker_2">>
+<<set $daily.fishing.moor.hikers.phase to "finished">>
+
+The three of you chat while you wait for something to grab your line. Eventually the <<person1>><<person>> glances back the way they came and stretches. "We should get moving," <<he>> says. <<His>> companion nods and they begin packing up their things. Before too long, they give you a wave goodbye and start heading across the moor. 
+<br><br>
+
+<<link [[Next|Fishing Moor Wait]]>><</link>>
+
+
+:: Fishing Moor Hikers Drink Offer On PC Leave
 <<loadNPC 0 "moor_hiker_1">><<person1>>
 <<loadNPC 1 "moor_hiker_2">><<person2>>
 
@@ -280,7 +293,8 @@ The pair bid you farewell and pick their way off into the dark.
 		<<link [[Finish the drink|Fishing Moor Hiker Drink Leave Chug]]>><</link>>
 	<</if>>
 	<br>
-	<<link [[Decline|Moor]]>>
+	<<link [[Decline and Leave|Moor]]>>
+		<<run stopFishingProp()>>
 		<<set $daily.fishing.moor.hikers.phase to "finished">>
 		<<set $fishing.moor.eventDanger to 0>>
 		<<set $fishing.moor.event to "none">>
@@ -301,7 +315,7 @@ The pair bid you farewell and pick their way off into the dark.
 	<<set $fishing.moor.event to "none">>
 	<<clearNPC "moor_hiker_1">>
 	<<clearNPC "moor_hiker_2">>
-	<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Moor]]>><<run stopFishingProp()>><<set $eventskip to 1>><</link>>
 <</if>>
 
 
@@ -320,7 +334,7 @@ You tip the can back and drain the rest in a few long swallows. The hikers cheer
 <<clearNPC "moor_hiker_1">>
 <<clearNPC "moor_hiker_2">>
 
-<<link [[Next|Moor]]>><<set $eventskip to 1>><</link>>
+<<link [[Next|Moor]]>><<run stopFishingProp()>><<set $eventskip to 1>><</link>>
 
 
 :: Fishing Moor Spiked Drink Leave
@@ -339,10 +353,10 @@ You turn away, and before you get ten steps away, you begin to feel dizzy. You b
 :: Fishing Moor Campfire Cook
 <<set $daily.fishing.moor.hikers.spike to false>>
 
-"That's a good one," The <<person1>><<person>> says, eyeing the <<print $fishingHookedFish.type>>. The <<person2>><<person>> is already on <<his>> feet, scanning the ground around the three of you. It takes a little while, one of them gathers sticks of various sizes while the other clears a patch of ground. A few minutes later, they light a small fire and the fish goes on a stone over the flames. The smell of cooked fish wafts around the three of you.
+The <<person2>><<person>> stands and begins gathering sticks while the other clears a small patch of ground. Within a few minutes they have a fire going, the fish propped on a flat stone above the flames. The smell of it drifts around the three of you.
 <br><br>
 
-<<if $daily.fishing.moor.hikers.drinkCount lte 0 and !$daily.fishing.moor.hikers.drinkOffered>>
+<<if $daily.fishing.moor.hikers.drinkCount lte 0 and !$daily.fishing.moor.hikers.drinkOffered and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
 	<<set $daily.fishing.moor.hikers.drinkOffered to true>>
 	While the fish cooks, The <<person1>><<person>> produces a pair of cans from the bag. "May as well," <<he>> says, and offers you one.
 	<br><br>
@@ -361,10 +375,7 @@ You turn away, and before you get ten steps away, you begin to feel dizzy. You b
 After a couple minutes, the <<print $fishingHookedFish.type>> is ready to eat, skin blackened on the side where it was resting against the rock. The hikers break it apart with their hands, the <<person2>><<person>> passing you a good hunk of the meat.
 <br><br>
 
-You sit in a loose ring around the fire, eating in comfortable silence. The <<person1>><<person>> licks <<his>> fingers and leans back. "Not bad for something caught out here," <<he>> says. 
-<br><br>
-
-You almost feel like the fire is pushing back the evils of the world. <<stress -20>><<lllstress>>
+You sit in a loose ring around the fire, eating in comfortable silence. The <<person1>><<person>> licks <<his>> fingers and leans back. "Not bad for something caught out here," <<he>> says. You almost feel like the fire is pushing back the evils of the world. <<stress -20>><<lllstress>>
 <br><br>
 
 <<link [[Next|Fishing Moor Wait]]>><</link>>
@@ -443,6 +454,7 @@ The <<person1>><<person>>'s smile fades as <<he>> stands up and starts to stalk 
 
 :: Fishing Moor Hiker Sex
 <<if $sexstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
@@ -515,6 +527,7 @@ The <<person1>><<person>>'s smile fades as <<he>> stands up and starts to stalk 
 
 :: Fishing Moor Hiker Both Sex
 <<if $sexstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
@@ -569,6 +582,7 @@ The <<person1>><<person>> and <<person2>><<person>> stand over you, grinning. "T
 
 :: Fishing Moor Spiked Drink Molestation
 <<if $molestationstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
@@ -660,6 +674,7 @@ The <<person1>><<person>> reaches into the bag and produces a can. <<He>> holds 
 
 :: Fishing Moor Hiker Seduce Molestation
 <<if $molestationstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
@@ -701,37 +716,26 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 <</if>>
 <br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Moor Wait]]>><<pass 5>><</link>>
-<br>
-<<link [[Return to the moor|Moor]]>><</link>>
+<<link [[Next|Fishing Moor Wait]]>><</link>>
 
 
 :: Widgets Fishing Moor Event Hikers [widget]
-<<widget "fishingMoorHikersWaitAmbient">>
-	<<addinlineevent 1.5>>
-		You hear muffled voices in the distance, carrying across the wetland.
-		<<set $fishing.moor.eventDanger += 1.5>>
+/* Text that can appear while waiting if hikers will approach soon */
+<<widget "fishingMoorHikersAttackWaitAmbient">>
+	<<addinlineevent 20>>
+		<<print either(
+			"You hear muffled voices in the distance, carrying across the wetland.",
+			"You hear footsteps crunching on the heather and wet grass."
+		)>>
+		<<set $fishing.moor.eventDanger += 1>>
 	<</addinlineevent>>
-	<<addinlineevent 1>>
-		You hear footsteps crunching on the heather and wet grass.
-		<<set $fishing.moor.eventDanger += 3>>
-	<</addinlineevent>>
-	<</widget>>
+<</widget>>
 
-<<widget "fishingMoorHikerAmbient">>
+<<widget "fishingMoorHikerSitAmbient">>
 	<<loadNPC 0 "moor_hiker_1">><<person1>>
 	<<loadNPC 1 "moor_hiker_2">><<person2>>
 
 	<<cleareventpool>>
-	<<if $daily.fishing.moor.hikers.phase is "sit">>
-		<<fishingMoorHikerSitAmbient>>
-	<<elseif $daily.fishing.moor.hikers.phase is "campfire">>
-		<<fishingMoorHikerCampfireAmbient>>
-	<</if>>
-	<<runeventpool>>
-<</widget>>
-
-<<widget "fishingMoorHikerSitAmbient">>
 	<<addinlineevent 10>>
 		The hikers talk quietly between themselves.
 	<</addinlineevent>>
@@ -749,9 +753,14 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 			The <<person1>><<person>> glances your way. <<His>> eyes settle on your can for a moment before <<he>> looks back at the water.
 		<</addinlineevent>>
 	<</if>>
+	<<runeventpool>>
 <</widget>>
 
 <<widget "fishingMoorHikerCampfireAmbient">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+
+	<<cleareventpool>>
 	<<addinlineevent 10>>
 		The hikers talk over the crackle of the fire.
 	<</addinlineevent>>
@@ -764,6 +773,7 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 	<<addinlineevent 1>>
 		The hikers take long sips from their cans and watch the fire settle.
 	<</addinlineevent>>
+	<<runeventpool>>
 <</widget>>
 
 <<widget "fishingMoorHikerChat">>
@@ -817,21 +827,22 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<set _cookOffer to true or random(1, 2) is 1 and canCookFish($fishingHookedFish.type, $fishingHookedFish.size) and $daily.fishing.moor.hikers.phase isnot "campfire">>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "moor")>>
-	<<fishingCatchFishText "moor">>
 	<<run endFishingCombat()>>
+	<<run holdCaughtFish($fishingHookedFish.type)>>
+	
+	<<fishingCatchFishText "moor">>
+	<br><br>
 
-	<<if random(1, 3) is 1>>
+	<<if _cookOffer>>
+		The <<person1>><<person>> looks over the <<print $fishingHookedFish.type>>. "We could probably start a fire and make a meal out of that, what do you think?"
+		<br><br>
+	<<elseif random(1, 3) is 1>>
 		<<switch random(1, 2)>>
 			<<case 1>>
 				"Nice catch." The <<person1>><<person>> nods approvingly at the fish.
 			<<case 2>>
 				The <<person2>><<person>> leans in to get a look at your catch. "Not bad."
 		<</switch>>
-		<br><br>
-	<</if>>
-
-	<<if _cookOffer>>
-		The <<person1>><<person>> looks over the <<print $fishingHookedFish.type>>. "We could probably start a fire and make a meal out of that, what do you think?"
 		<br><br>
 	<</if>>
 
@@ -885,6 +896,14 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 
 		<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
 		<br>
-		<<link [[Return to the moor|Moor]]>><</link>>
+		<<link [[Leave|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
 	<</if>>
+<</widget>>
+
+<<widget "fishingWaitOrgasmMoorHikers">>
+	<<loadNPC 0 "moor_hiker_1">><<person1>>
+	<<loadNPC 1 "moor_hiker_2">><<person2>>
+	<<orgasm>>
+	<<print either("You stagger on the uneven boggy ground", "You drive the end of your rod into the earth to keep from falling")>>,
+	struggling to keep upright as your orgasm hits. "Bloody hell." The <<person1>><<person>> starts clapping and the <<person2>><<person>> joins in with a whoop. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 5>>
 <</widget>>

@@ -31,7 +31,7 @@
 	<<elseif $fishing.combat.lineHealth lte 0>>
 		<<if $daily.fishing.moor.fox.phase is "watching">>
 			<<fishCombatMoorLineSnappedFox>>
-		<<elseif ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
+		<<elseif ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase) and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
 			<<fishCombatMoorLineSnappedHikers>>
 		<<else>>
 			<<fishCombatMoorLineSnapped>>
@@ -49,13 +49,13 @@
 
 
 :: Fishing Moor Cut Line
+<<run endFishingCombat()>>
 You release the tension on the rod, letting the line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, the line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
 <br><br>
 
-<<run endFishingCombat()>>
 <<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
 <br>
-<<link [[Return to the moor|Moor]]>><</link>>
+<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 
 
 :: Widgets Fishing Combat Moor [widget]
@@ -74,14 +74,17 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 <<widget "fishCombatMoorCaught">>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "moor")>>
-	<<fishingCatchFishText "moor">>
 	<<run endFishingCombat()>>
+	<<run holdCaughtFish($fishingHookedFish.type)>>
+
+	<<fishingCatchFishText "moor">>
+	<br><br>
 
 	<<if _canEatFish>>
 		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
 	<</if>>
 
-	<br>
 	<<link [[Stow it away|Fishing Moor Keep]]>><</link>>
 	<br>
 	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Moor Throw Back]]>><</link>>
@@ -108,7 +111,7 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 
 	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
 	<br>
-	<<link [[Return to the moor|Moor]]>><</link>>
+	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 <</widget>>
 
 <<widget "fishCombatMoorOrgasm">>

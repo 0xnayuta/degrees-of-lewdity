@@ -2,25 +2,37 @@
 <<fishingLocationDescription "pier">>
 <br><br>
 
-<<link [[Start fishing|Fishing Pier Wait]]>><</link>>
-<br>
+<<if canStartFishing()>>
+	<<link [[Start fishing|Fishing Pier Wait]]>><</link>>
+	<br>
+<</if>>
 <<mericon>><<link [[Walk back to the docks (0:10)|Docks]]>><<pass 10>><</link>>
 
-/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the
- wait loop, where events can happen. */
 
-
+/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Pier Wait
+<<effects>>
 <<run initFishingPier()>>
-<<run discoverFishingLocation("pier")>>
-<<fishingLocationDescription "pier">>
-<<fishingPierAmbient>>
+<<run startFishingProp()>>
 
+<<fishingLocationDescription "pier">>
+<<fishingPierLocationAmbient>>
 <br><br>
-<<if $fishingPierSip>>
-	<<unset $fishingPierSip>>
-	<<fishingPierWhitneySip>>
-<<elseif !$daily.fishing?.hasFishedToday or random(1, 5) is 1>>
+
+<<if $arousal gte $arousalmax>>
+	<<if $daily.fishing.pier.whitney.phase is "bet">>
+		<<fishingWaitOrgasmPierWhitneyBet>>
+	<<elseif $daily.fishing.pier.whitney.phase is "alone">>
+		<<fishingWaitOrgasmPierWhitneyAlone>>
+	<<elseif $daily.fishing.pier.fisher.phase is "fishing">>
+		<<fishingWaitOrgasmPierFisher>>
+	<<else>>
+		<<orgasmFishing "pier">>
+	<</if>>
+	<br><br>
+<</if>>
+
+<<if !$daily.fishing?.hasFishedToday or random(1, 5) is 1 and !$fishingPierWaitAmbientOverride>>
 	<<set $daily.fishing.hasFishedToday to true>>
 	Your bob hasn't attracted anything yet.
 <<else>>
@@ -29,10 +41,12 @@
 <br><br>
 
 <<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><</link>>
+
 <<if ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
 	<br>
-	<<link [[Take a sip of cider|Fishing Pier Wait]]>><<set $fishingPierSip to true>><</link>>
+	<<link [[Take a sip|Fishing Pier Wait]]>><<set $fishingPierWaitAmbientOverride to "sip">><</link>><<galcohol>>
 <</if>>
+
 <<if $daily.fishing.pier.whitney.phase is "alone">>
 	<br>
 	<<link [[Move closer to Whitney|Fishing Pier Whitney Alone Move Close]]>><</link>>
@@ -42,30 +56,32 @@
 	<<link [[Return to the pier|Fishing Pier Cannot Leave]]>><</link>>
 <<else>>
 	<br>
-	<<link [[Return to the pier|Dock Pier]]>><</link>>
+	<<link [[Return to the pier|Dock Pier]]>><<run stopFishingProp()>><</link>>
 <</if>>
+
 <<fishingPierDebugLinks>>
 
 
+/* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Pier Wait Loop
 <<pass 5>>
 <<cleareventpool>>
 
-<<addinlineevent "bite" 8.5>>
+<<addinlineevent "bite" 10>>
 	<<set $fishingHookedFish to rollFish("pier")>>
 	<<include "Fishing Pier Bite">>
 <</addinlineevent>>
 
 /* Whitney bullies Fisher off the pier */
 <<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.whitney.phase is undefined>>
-	<<addinlineevent "whitneyBullyFisher" 0.2>>
+	<<addinlineevent "whitneyBullyFisher" 0.38>>
 		<<include "Fishing Pier Whitney Bully Fisher">>
 	<</addinlineevent>>
 <</if>>
 
 /* Whitney cider offer event */
 <<if $daily.fishing.pier.whitney.phase is "idle" and $whitneyromance is 1 and $daily.fishing.pier.whitney.pcCider is 0 and $daily.fishing.pier.whitney.pcCiderTotal lt 3 and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
-	<<addinlineevent "whitneyCiderOffer" 1>>
+	<<addinlineevent "whitneyCiderOffer" 2>>
 		<<include "Fishing Whitney Drink Offer">>
 	<</addinlineevent>>
 <</if>>
@@ -79,14 +95,14 @@
 
 /* fisher event start */
 <<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
-	<<addinlineevent "fisherArrive" 1>>
+	<<addinlineevent "fisherArrive" 2>>
 		<<include "Fishing Pier Fisher Arrive">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher tips event */
 <<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk lte 2 and $daily.fishing.pier.fisher.tipGiven is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
-	<<addinlineevent "fisherTipsOffer" .1>>
+	<<addinlineevent "fisherTipsOffer" 0.5>>
 		<<include "Fishing Pier Fisher Tips Offer">>
 	<</addinlineevent>>
 <</if>>
@@ -106,20 +122,20 @@
 
 /* Tentacle pulls rod event */
 <<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase)>>
-	<<addinlineevent "tentacles" 0.5>>
+	<<addinlineevent "tentacles" 1>>
 		<<include "Fishing Pier Tentacles">>
 	<</addinlineevent>>
 <</if>>
 
 /* Wind blow event */
 <<if ["storm", "thunderstorm", "heavyClouds", "heavyPrecipitation"].includes(Weather.name)>>
-	<<addinlineevent "wind" 1.5>>
+	<<addinlineevent "wind" 4>>
 		<<include "Fishing Pier Wind">>
 	<</addinlineevent>>
 <</if>>
 
 /* Nothing happens, wait loop continues */
-<<addinlineevent "wait" 10>>
+<<addinlineevent "wait" 25>>
 	<<include "Fishing Pier Wait">>
 <</addinlineevent>>
 <<runeventpool>>
@@ -137,9 +153,7 @@ Your rod jerks hard in your hands, a <<print $fishingHookedFish.type>> has taken
 You toss the <<print $fishingHookedFish.type>> back into the sea.
 <br><br>
 
-<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
-<br>
-<<link [[Return to the pier|Dock Pier]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 
 
 :: Fishing Pier Keep
@@ -147,26 +161,22 @@ You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <br><br>
 
-<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
-<br>
-<<link [[Return to the pier|Dock Pier]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 
 
 :: Fishing Pier Cat Eat
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <br><br>
 
-<<link [[Cast back out|Fishing Pier Wait]]>><</link>>
-<br>
-<<link [[Return to the pier|Dock Pier]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 
 :: Widgets Fishing Pier Wait Flavor [widget]
-<<widget "fishingPierAmbient">>
+/* Text that appears above the description of the PC waiting for a bite. Used for describing what other NPCs or animals are doing if they are present next to the player. */
+<<widget "fishingPierLocationAmbient">>
 	<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is "fishing">>
 		<<fishingPierFisherAmbient>>
 	<<elseif ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase)>>
 		<<if $daily.fishing.pier.fellOff>>
-			<br><br>
 			Whitney looks over at you with a smirk. "Welcome back, slut. Did you enjoy your swim?"
 
 			<<unset $daily.fishing.pier.fellOff>>
@@ -183,8 +193,16 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 	<</if>>
 <</widget>>
 
+/* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingPierWaitAmbient">>
-	<<cleareventpool>>
-	<<fishingWaitAmbient "pier">>
-	<<runeventpool>>
+	<<if $fishingPierWaitAmbientOverride is "sip">>
+		<<fishingPierWhitneySip>>
+	<<else>>
+		<<cleareventpool>>
+		<<fishingWaitAmbient "pier">>
+
+		<<runeventpool>>
+	<</if>>
+	
+	<<unset $fishingPierWaitAmbientOverride>>
 <</widget>>

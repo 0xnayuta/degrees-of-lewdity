@@ -4,7 +4,11 @@
 
 /* Player orgasm */
 <<if $arousal gte $arousalmax>>
-	<<fishCombatBeachOrgasm>>
+	<<if $daily.fishing.beach.fisher.phase is "fishing">>
+		<<fishCombatBeachOrgasmFisher>>
+	<<else>>
+		<<fishCombatBeachOrgasm>>
+	<</if>>
 
 /* You've caught the fish */
 <<elseif $fishing.combat.fishDistance lte 0>>
@@ -30,13 +34,13 @@
 
 
 :: Fishing Beach Cut Line
+<<run endFishingCombat()>>
 You release the tension on the rod, letting the line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, the line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
 <br><br>
 
-<<run endFishingCombat()>>
 <<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
 <br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
 
 
 :: Widgets Fishing Combat Beach [widget]
@@ -53,8 +57,11 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 <<widget "fishCombatBeachCaught">>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "beach")>>
-	<<fishingCatchFishText "beach">>
 	<<run endFishingCombat()>>
+	<<run holdCaughtFish($fishingHookedFish.type)>>
+
+	<<fishingCatchFishText "beach">>
+	<br><br>
 
 	<<if _canEatFish>>
 		It's such a small fish, you could probably fit the whole thing in your mouth.
@@ -63,10 +70,9 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 
 	<<if _canEatFish>>
 		<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>>
-		<br>
+		<br><br>
 	<</if>>
 
-	<br>
 	<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
 	<br>
 	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back]]>><</link>>
@@ -80,7 +86,7 @@ You release the tension on the rod, letting the line go slack. The <<print $fish
 
 	<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
 	<br>
-	<<link [[Return to the beach|Beach]]>><</link>>
+	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
 <</widget>>
 
 <<widget "fishCombatBeachOrgasm">>

@@ -13,9 +13,7 @@
 Another fisher, a <<person>>, walks down to the shore and sets up a short distance away.
 <br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Beach Wait]]>><<pass 5>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
 :: Fishing Beach Fisher Tips Offer
@@ -34,7 +32,7 @@ Another fisher, a <<person>>, walks down to the shore and sets up a short distan
 
 <<link [[Sure|Fishing Beach Fisher Tips]]>><</link>>
 <br>
-<<link [[No thanks|Fishing Beach Fisher Tips Decline]]>><</link>>
+<<link [[No thanks|Fishing Beach Wait]]>><</link>>
 
 
 :: Fishing Beach Fisher Tips
@@ -53,24 +51,6 @@ After a while <<he>> turns back to <<his>> own rod, apparently satisfied.
 <<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
-:: Fishing Beach Fisher Tips Decline
-<<if $speech_attitude is "meek">>
-	"Oh, no, it's okay. I'm fine, thank you."
-<<elseif $speech_attitude is "bratty">>
-	"I don't need help." You turn back to your line.
-<<else>>
-	"I'm alright, thanks."
-<</if>>
-<br><br>
-
-The <<person>> shrugs. "Suit yourself."
-<br><br>
-
-<<link [[Wait for a bite (0:05)|Fishing Beach Wait]]>><<pass 5>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
-
-
 :: Fishing Beach Fisher Leave Night
 <<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
 <<clearNPC "fishing_beach_npc_fisher">>
@@ -87,7 +67,7 @@ The <<person>> glances up at the darkening sky and starts to pack up <<his>> fis
 <<clearNPC "fishing_beach_npc_fisher">>
 <<set $daily.fishing.beach.fisher.phase to "finished">>
 
-The <<person>> looks up as the weather begins to turn rough, then begins to leave. "The weather is turning, I'm going to head home before it gets any worse. You should head out too."
+The <<person>> looks up as the weather begins to turn rough, then begins to pack up <<his>> fishing gear. "The weather is turning, I'm going to head home before it gets any worse. You should head out too."
 <br><br>
 
 <<link [[Next|Fishing Beach Wait]]>><</link>>
@@ -174,9 +154,7 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 
 <<clearNPC "fishing_beach_npc_fisher">>
 <<set $daily.fishing.beach.fisher.phase to "finished">>
-<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
 :: Fishing Beach Fisher Give Fish Attack
@@ -197,6 +175,7 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 
 :: Fishing Beach Fisher Molestation
 <<if $molestationstart is 1>>
+	<<run stopFishingProp()>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
 	<<violence 1>>
@@ -239,7 +218,7 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 	<<endcombat>>
 	<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
 	<br>
-	<<link [[Return to the beach|Beach]]>><</link>>
+	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
 <<elseif $enemyhealth lte 0>>
 	<<He>> stumbles back, gasping. <<He>> looks at you for a moment, then turns and walks off down the beach.
 	<br><br>
@@ -252,8 +231,15 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 	<<tending_give>>
 	<<link [[Return to fishing|Fishing Beach Wait]]>><</link>>
 	<br>
-	<<link [[Return to the beach|Beach]]>><</link>>
+	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
 <</if>>
+
+<<widget "fishingWaitOrgasmBeachFisher">>
+	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+	<<set _orgasmText to either("You dig the end of your rod into the sand to keep upright", "Your knees nearly buckle, your rod dragging furrows in the wet sand")>>
+	<<orgasm>>
+	<<= _orgasmText>> as your body convulses. As you steady yourself, you find the <<person>> watching you."Hell of a catch," <<he>> calls over, laughing. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+<</widget>>
 
 
 /* ========================== */
@@ -264,8 +250,11 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 :: Widgets Fishing Beach Fisher Molestation [widget]
 <<widget "fishCombatBeachCaughtFisherDrunk">>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "beach")>>
-	<<fishingCatchFishText "beach">>
 	<<run endFishingCombat()>>
+	<<run holdCaughtFish($fishingHookedFish.type)>>
+
+	<<fishingCatchFishText "beach">>
+	<br><br>
 
 	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
 	The <<person>> stares at your catch for a moment, eyes narrowing. <<He>> straightens up unsteadily and takes a step toward you. "That one's mine, I had a line right there. Hand it over."
@@ -274,4 +263,15 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 	<<link [[Give <<him>> the fish|Fishing Beach Fisher Give Fish]]>><</link>>
 	<br>
 	<<link [[Refuse|Fishing Beach Fisher Give Fish Attack]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatBeachOrgasmFisher">>
+	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+	<<set _orgasmText to either("You dig the end of your rod into the sand to keep upright", "Your knees nearly buckle, your rod dragging furrows in the wet sand")>>
+	<<orgasm>>
+	<<= _orgasmText>> as your body convulses. The rod slips from your grip. By the time you recover, the line has gone slack and the <<print $fishingHookedFish.type>> is long gone. "Hell of a catch," the <<person>> calls over, laughing. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<run endFishingCombat()>>
+	<br><br>
+
+	<<link [[Next|Fishing Beach Wait]]>><</link>>
 <</widget>>

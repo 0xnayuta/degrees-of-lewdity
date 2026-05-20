@@ -3221,12 +3221,12 @@ function initFoodstuff() {
 				sell_price: 600,
 			},
 		},
-		sea_bass: {
+		bass: {
 			index: 154,
-			name: "sea bass",
-			singular: "sea bass",
-			plural: "sea bass",
-			icon: "sea-bass.png",
+			name: "bass",
+			singular: "bass",
+			plural: "bass",
+			icon: "bass.png",
 			category: "seafood",
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",

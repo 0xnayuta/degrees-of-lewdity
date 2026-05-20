@@ -1,12 +1,17 @@
+/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Forest Lake Wait
+<<effects>>
 <<run initFishingForestLake()>>
-<<run discoverFishingLocation("forestLake")>>
+<<run startFishingProp()>>
+
 <<fishingLocationDescription "forestLake">>
 <br><br>
 
-<<fishingForestLakeAmbient>>
+<<if $arousal gte $arousalmax>>
+	<<orgasmFishing "forestLake">>
+	<br><br>
+<</if>>
 
-	
 <<if !$daily.fishing?.hasFishedToday or random(1, 5) is 1>>
 	<<set $daily.fishing.hasFishedToday to true>>
 	Your bob hasn't attracted anything yet.
@@ -17,44 +22,30 @@
 
 <<link [[Wait for a bite (0:05)|Fishing Forest Lake Wait Loop]]>><</link>>
 <br>
-<<link [[Leave|Lake Fishing Rock]]>><</link>>
+<<link [[Leave|Lake Fishing Rock]]>><<run stopFishingProp()>><</link>>
 <<fishingForestLakeDebugLinks>>
 
 
+/* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Forest Lake Wait Loop
 <<pass 5>>
 <<cleareventpool>>
 
-<<addinlineevent "bite" 10.25>>
+<<addinlineevent "bite" 10>>
 	<<set $fishingHookedFish to rollFish("forestLake")>>
 	<<include "Fishing Forest Lake Bite">>
 <</addinlineevent>>
 
 /* Rock slip */
 <<addinlineevent "rockSlip" 1>>
-	As you shift your weight, the slick rocks beneath your feet give way and you begin to slip.
-	<br><br>
-
-	<<silently>><<dancedifficulty 600 1200>><</silently>>
-	<<if $danceSuccess>>
-		<span class="green">You manage to catch yourself, regaining your footing on the treacherous stone.</span>
-		<br><br>
-
-		<<link [[Next|Fishing Forest Lake Wait]]>><</link>>
-	<<else>>
-		<span class="red">You tumble into the lake.</span>
-		<br><br>
-
-		<<link [[Next|Lake Depths]]>><<set $eventskip to 1>><</link>>
-	<</if>>
+	<<include "Fishing Forest Lake Rock Slip">>
 <</addinlineevent>>
 
 /* Wolf Attack */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "wolfStart" .75>>
+		<<addinlineevent "wolfStart" 2>>
 			<<set $fishing.lake.event to "wolf">>
-			<<fishingForestLakeStartleAnimals>>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
 	<<elseif $fishing.lake.event is "wolf">>
@@ -70,9 +61,8 @@
 /* Bear Attack */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "bearStart" 0.4>>
+		<<addinlineevent "bearStart" 1.5>>
 			<<set $fishing.lake.event to "bear">>
-			<<fishingForestLakeStartleAnimals>>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
 	<<elseif $fishing.lake.event is "bear">>
@@ -88,9 +78,8 @@
 /* Plant Person Kiss */
 <<if $settings.plantsEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "plantPersonStart" 1.25>>
+		<<addinlineevent "plantPersonStart" 1.5>>
 			<<set $fishing.lake.event to "plantPerson">>
-			<<fishingForestLakeStartleAnimals>>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
 	<<elseif $fishing.lake.event is "plantPerson">>
@@ -106,9 +95,8 @@
 /* Vine Attack Event */
 <<if $settings.tentaclesEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "plantStart" 0.25>>
+		<<addinlineevent "plantStart" 0.5>>
 			<<set $fishing.lake.event to "plant">>
-			<<fishingForestLakeStartleAnimals>>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
 	<<elseif $fishing.lake.event is "plant">>
@@ -124,9 +112,8 @@
 /* Boar Attack Event */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "boarStart" .5>>
+		<<addinlineevent "boarStart" 1>>
 			<<set $fishing.lake.event to "boar">>
-			<<fishingForestLakeStartleAnimals>>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
 	<<elseif $fishing.lake.event is "boar">>
@@ -140,7 +127,7 @@
 <</if>>
 
 /* Nothing happens, wait loop continues */
-<<addinlineevent "wait" 10>>
+<<addinlineevent "wait" 25>>
 	<<include "Fishing Forest Lake Wait">>
 <</addinlineevent>>
 <<runeventpool>>
@@ -157,9 +144,7 @@ Your line cuts through the water as something takes the bait, a <<print $fishing
 You toss the <<print $fishingHookedFish.type>> back into the lake.
 <br><br>
 
-<<link [[Cast back out|Fishing Forest Lake Wait]]>><</link>>
-<br>
-<<link [[Leave|Lake Fishing Rock]]>><</link>>
+<<link [[Next|Fishing Forest Lake Wait]]>><</link>>
 
 
 :: Fishing Forest Lake Keep
@@ -167,27 +152,22 @@ You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <br><br>
 
-<<link [[Cast back out|Fishing Forest Lake Wait]]>><</link>>
-<br>
-<<link [[Leave|Lake Fishing Rock]]>><</link>>
+<<link [[Next|Fishing Forest Lake Wait]]>><</link>>
 
 
 :: Fishing Forest Lake Cat Eat
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <br><br>
 
-<<link [[Cast back out|Fishing Forest Lake Wait]]>><</link>>
-<br>
-<<link [[Leave|Lake Fishing Rock]]>><</link>>
+<<link [[Next|Fishing Forest Lake Wait]]>><</link>>
 
 
 :: Widgets Fishing Forest Lake Wait Flavor [widget]
-<<widget "fishingForestLakeAmbient">>
-<</widget>>
-
+/* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingForestLakeWaitAmbient">>
 	<<cleareventpool>>
 	<<fishingWaitAmbient "forestLake">>
+
 	<<if $fishing.lake.event is "wolf">>
 		<<fishingForestLakeWolfAttackWaitAmbient>>
 	<<elseif $fishing.lake.event is "bear">>
@@ -200,7 +180,4 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 		<<fishingForestLakeBoarAttackWaitAmbient>>
 	<</if>>
 	<<runeventpool>>
-<</widget>>
-
-<<widget "fishingForestLakeStartleAnimals">>
 <</widget>>

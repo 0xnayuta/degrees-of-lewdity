@@ -1,10 +1,22 @@
+/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen.  */
 :: Fishing Beach Wait
+<<effects>>
 <<run initFishingBeach()>>
-<<run discoverFishingLocation("beach")>>
+<<run startFishingProp()>>
+
 <<fishingLocationDescription "beach">>
 <<fishingBeachAmbient>>
-
 <br><br>
+
+<<if $arousal gte $arousalmax>>
+	<<if $daily.fishing.beach.fisher.phase is "fishing">>
+		<<fishingWaitOrgasmBeachFisher>>
+	<<else>>
+		<<orgasmFishing "beach">>
+	<</if>>
+	<br><br>
+<</if>>
+
 <<if !$daily.fishing?.hasFishedToday or random(1, 5) is 1>>
 	<<set $daily.fishing.hasFishedToday to true>>
 	Your bob hasn't attracted anything yet.
@@ -15,15 +27,15 @@
 
 <<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><</link>>
 <br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
 <<fishingBeachDebugLinks>>
 
-
+/* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Beach Wait Loop
 <<pass 5>>
 <<cleareventpool>>
 
-<<addinlineevent "bite" 0>>
+<<addinlineevent "bite" 10>>
 	<<set $fishingHookedFish to rollFish("beach")>>
 	<<include "Fishing Beach Bite">>
 <</addinlineevent>>
@@ -45,7 +57,7 @@
 
 /* Fisher tips */
 <<if $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.tipGiven is undefined>>
-	<<addinlineevent "fisherTipsOffer" .1>>
+	<<addinlineevent "fisherTipsOffer" 0.5>>
 		<<include "Fishing Beach Fisher Tips Offer">>
 	<</addinlineevent>>
 <</if>>
@@ -71,6 +83,7 @@
 /* Dog tearing at clothing */
 <<if [undefined, "finished"].includes($daily.fishing.beach.fisher.phase)>>
 	<<addinlineevent "beachDog" 1>>
+		<<run stopFishingProp()>>
 		<<beachday2>>
 	<</addinlineevent>>
 <</if>>
@@ -90,17 +103,15 @@
 
 	/* Classmates approach */
 	<<addinlineevent "beachClassmates" 1>>
+		<<run stopFishingProp()>>
 		<<include "Fishing Beach Classmates">>
 	<</addinlineevent>>
 <</if>>
 
 
 <<if Weather.dayState is "night">>
-	<<addinlineevent "beachNight1" 1>>
+	<<addinlineevent "nightDog" 1>>
 		<<beachnight1>>
-	<</addinlineevent>>
-	<<addinlineevent "beachNight2" 1>>
-		<<beachnight2>>
 	<</addinlineevent>>
 	<<addinlineevent "beachNightTentacles" 0.5>>
 		<<include "Fishing Beach Tentacle Event">>
@@ -108,7 +119,7 @@
 <</if>>
 
 /* Nothing happens, wait loop continues */
-<<addinlineevent "wait" 2>>
+<<addinlineevent "wait" 25>>
 	<<include "Fishing Beach Wait">>
 <</addinlineevent>>
 <<runeventpool>>
@@ -125,9 +136,7 @@ Your line snaps taut as a <<print $fishingHookedFish.type>> takes the bait.<<if 
 You toss the <<print $fishingHookedFish.type>> back into the sea.
 <br><br>
 
-<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
 :: Fishing Beach Keep
@@ -135,30 +144,31 @@ You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <br><br>
 
-<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
 :: Fishing Beach Cat Eat
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <br><br>
 
-<<link [[Cast back out|Fishing Beach Wait]]>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><</link>>
+<<link [[Next|Fishing Beach Wait]]>><</link>>
 
 
 :: Widgets Fishing Beach Wait Flavor [widget]
+/* Text that appears above the description of the PC waiting for a bite. Used for describing what other NPCs or animals are doing if they are present next to the player. */
 <<widget "fishingBeachAmbient">>
 	<<if $daily.fishing.beach.fisher.phase is "fishing">>
 		<<fishingBeachFisherAmbient>>
 	<</if>>
 <</widget>>
 
+/* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingBeachWaitAmbient">>
 	<<cleareventpool>>
 	<<fishingWaitAmbient "beach">>
-	<<fishingWaitAmbientCampfireParty>>
+
+	<<if beachCampfirePartyPresent()>>
+		<<fishingWaitAmbientCampfireParty>>
+	<</if>>
 	<<runeventpool>>
 <</widget>>
