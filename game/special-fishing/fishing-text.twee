@@ -177,7 +177,7 @@
 <</widget>>
 
 <<widget "fishingCatchFishText">>
-	<<set _fishingRecordEntry to $fishingRecord[$fishingHookedFish.type]>>
+	<<set _fishingRecordEntry to $fishing.record[$fishingHookedFish.type]>>
 	<<set _isBiggest to $fishingHookedFish.size is _fishingRecordEntry.largest>>
 	<<set _isSmallest to $fishingHookedFish.size is _fishingRecordEntry.smallest>>
 
@@ -204,7 +204,15 @@
 * ========== GENERIC ==========
 */
 
+<<if !$daily.fishing?.hasFishedToday>>
+	<<set $eventPoolOverride to "defaultFishing">>
+	<<set $daily.fishing.hasFishedToday to true>>
+<</if>>
+
 /* Generic */
+<<addinlineevent "defaultFishing" 3>>
+	Your bob hasn't attracted anything yet.
+<</addinlineevent>>
 <<addinlineevent 3>>
 	You shift your weight and keep the rod level.
 <</addinlineevent>>
@@ -1692,18 +1700,22 @@
 		<<if $hypnosis_traits.devotion gte 3>>
 			<<addinlineevent "gwylanHypnoThought1" 1>>
 				<<set $eventPoolOverride to "gwylanHypnoThought2">>
+				<<run fishingNextEventOverride("wait")>>
 				<span @class="basicHypnoCss()">Your thoughts turn to Gwylan.</span>
 			<</addinlineevent>>
 			<<addinlineevent "gwylanHypnoThought2" 1>>
 				<<set $eventPoolOverride to "gwylanHypnoThought3">>
+				<<run fishingNextEventOverride("wait")>>
 				<span @class="basicHypnoCss()">...Your thoughts turn to Gwylan...</span>
 			<</addinlineevent>>
 			<<addinlineevent "gwylanHypnoThought3" 0>>
 				<<set $eventPoolOverride to "gwylanHypnoThought4">>
+				<<run fishingNextEventOverride("wait")>>
 				<span @class="basicHypnoCss()">...</span>
 			<</addinlineevent>>
 			<<addinlineevent "gwylanHypnoThought4" 0>>
 				<<set $eventPoolOverride to "gwylanHypnoThought5">>
+				<<run fishingNextEventOverride("wait")>>
 				<span @class="basicHypnoCss()">...Gwylan?</span>
 			<</addinlineevent>>
 			<<addinlineevent "gwylanHypnoThought5" 0>>
@@ -2005,11 +2017,69 @@
 
 	/*
 	* =========== BAD END THOUGHTS ===========
-	* Fishing todo writting: The idea of many of these idle thoughts is the question: "What does the PC think about when alone with their thoughts?" Then 
-	*  to extrapolate from that, they can think about their bad ends, and maybe have a small panic attack, but this whole idea could be too much.
-	*  I worry that the response to this would be "dude... it's fishing". I want a chain of thoughts for the panic attacks, but I can't come up with a chain
-	*  for some of them. Though not all bad ends are equal, so that might be fine. 
 	*/
+
+	/* Underground Farm */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Underground Farm"; })>>
+		<<addinlineevent 1>>
+			You catch a whiff of straw on the wind and are reminded of Remy's farm. <<trauma 1>><<gtrauma>>
+		<</addinlineevent>>
+		<<if $skin.left_bottom.special is "cattle">>
+			<<addinlineevent 1>>
+				...your brand itches. <<trauma 1>><<gtrauma>>
+			<</addinlineevent>>
+		<</if>>
+	<</if>>
+
+	/* Wolf Cave */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Wolf Cave"; }) and !isLoveInterest("Black Wolf")>>
+		<<addinlineevent 1>>
+			You hear what might sound like a howl, and hold your breath until the sound fades. <<trauma 1>><<gtrauma>>
+		<</addinlineevent>>
+	<</if>>
+
+	/* Island */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Island"; })>>
+		<<addinlineevent 1>>
+			You remember how alone the island nights felt. <<trauma 1>><<gtrauma>>
+		<</addinlineevent>>
+	<</if>>
+
+	/* Underground Dungeon */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Underground Dungeon"; })>>
+		<<addinlineevent 1>>
+			Your mind drifts to that underground brothel. Somewhere, someone is still watching what they did to you. <<trauma 1>><<gtrauma>>
+		<</addinlineevent>>
+		<<if $skin.left_shoulder.pen is "tattoo" and $skin.left_shoulder.special is "one_six_three">>
+			<<addinlineevent 1>>
+				You glance to your side, and can't help but see
+				<<if _fishingWearingUpper>>
+					where the edge of a tattoo peeks out from beneath your clothes. 163. <<trauma 2>><<gtrauma>>
+				<<else>>
+					where a tattoo reads 163. <<trauma 2>><<gtrauma>>
+				<</if>>
+			<</addinlineevent>>
+		<</if>>
+	<</if>>
+
+	/* Pound */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Pound"; })>>
+		<<addinlineevent 1>>
+			You remember the pound cages and the smell of wet concrete. <<trauma 1>><<gtrauma>>
+		<</addinlineevent>>
+	<</if>>
+
+	/* Prison */
+	<<if isPlayerFishingAlone() and $badEndStats.find(function (stat) { return stat.source is "Prison"; })>>
+		<<addinlineevent 1>>
+			You think you see a sharks tooth, but it's just a pebble.
+		<</addinlineevent>>
+		<<if _fishingLocationKey is "beach">>
+			<<addinlineevent 1>>
+				You can't help but look for shark teeth in the sand.
+			<</addinlineevent>>
+		<</if>>
+	<</if>>
 
 	/* Asylum Fishing Todo Writing */
 	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Asylum"; })>>
@@ -2324,13 +2394,6 @@
 		<</addinlineevent>>
 		<<addinlineevent 3>>
 			You feel as though something is following your reflection across the red-lit water. <<stress 1>><<gstress>>
-		<</addinlineevent>>
-	<</if>>
-
-	<<if $arousal gte $arousalmax>>
-		<<set $eventPoolOverride to "fishingOrgasm">>
-		<<addinlineevent "fishingOrgasm">>
-			<<orgasmFishing _fishingLocationKey>>
 		<</addinlineevent>>
 	<</if>>
 <</widget>>

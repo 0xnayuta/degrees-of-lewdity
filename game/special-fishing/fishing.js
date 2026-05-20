@@ -170,15 +170,15 @@ function rollFish(locationKey) {
 window.rollFish = rollFish;
 
 function updateFishRecord(fishKey, fishSize, locationKey) {
-	V.fishingRecord ??= {};
-	V.fishingRecord[fishKey] ??= {
+	V.fishing.record ??= {};
+	V.fishing.record[fishKey] ??= {
 		num_caught: 0,
 		largest: fishSize,
 		smallest: fishSize,
 		found_in: [],
 	};
 
-	const fishRecord = V.fishingRecord[fishKey];
+	const fishRecord = V.fishing.record[fishKey];
 	fishRecord.num_caught += 1;
 	fishRecord.largest = Math.max(fishRecord.largest, fishSize);
 	fishRecord.smallest = Math.min(fishRecord.smallest, fishSize);
@@ -192,14 +192,14 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 	}
 
 	const fishKeys = Object.keys(setup.fishing_fish);
-	if (fishKeys.every(key => V.fishingRecord[key]?.num_caught > 0)) {
+	if (fishKeys.every(key => V.fishing.record[key]?.num_caught > 0)) {
 		earnFeat("Wet Rod");
 	}
 
 	if (
 		fishKeys.every(key => {
 			const fishConfig = setup.fishing_fish[key];
-			const fishRecord = V.fishingRecord[key];
+			const fishRecord = V.fishing.record[key];
 			if (!fishRecord) return false;
 			const largestSizePercent = (fishRecord.largest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
 			const smallestSizePercent = (fishRecord.smallest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
@@ -230,7 +230,7 @@ window.canStartFishing = canStartFishing;
 function debugDiscoverAllFishing() {
 	V.fishing ??= {};
 	V.fishing.locationsFound = ["pier", "beach", "forestLake", "moor", "coastPath"];
-	V.fishingRecord ??= {};
+	V.fishing.record ??= {};
 	V.daily.fishing ??= {};
 
 	for (const [fishKey, fishConfig] of Object.entries(setup.fishing_fish)) {
@@ -241,7 +241,7 @@ function debugDiscoverAllFishing() {
 			updateFishRecord(fishKey, fishConfig.min_size, locationKeys[0]);
 			updateFishRecord(fishKey, fishConfig.max_size, locationKeys[0]);
 		}
-		V.fishingRecord[fishKey].found_in = locationKeys;
+		V.fishing.record[fishKey].found_in = locationKeys;
 	}
 }
 window.debugDiscoverAllFishing = debugDiscoverAllFishing;
@@ -546,3 +546,50 @@ function holdCaughtFish(fishKey) {
 }
 window.holdCaughtFish = holdCaughtFish;
 DefineMacro("holdCaughtFish", holdCaughtFish);
+
+function fishingNextEventOverride(fishingEvent) {
+	if (fishingEvent === "catch") {
+		switch (V.bus) {
+			case "fishingBeach":
+				V.nextPassage = "Fishing Beach Bite";
+				break;
+			case "fishingCoastPath":
+				V.nextPassage = "Fishing Coast Path Bite";
+				break;
+			case "fishingForestLake":
+				V.nextPassage = "Fishing Forest Lake Bite";
+				break;
+			case "fishingMoor":
+				V.nextPassage = "Fishing Moor Bite";
+				break;
+			case "fishingPier":
+				V.nextPassage = "Fishing Pier Bite";
+				break;
+			default:
+				return Errors.report("fishingNextEventOverride: unknown bus", { bus: V.bus });
+		}
+	} else if (fishingEvent === "wait") {
+		switch (V.bus) {
+			case "fishingBeach":
+				V.nextPassage = "Fishing Beach Wait";
+				break;
+			case "fishingCoastPath":
+				V.nextPassage = "Fishing Coast Path Wait";
+				break;
+			case "fishingForestLake":
+				V.nextPassage = "Fishing Forest Lake Wait";
+				break;
+			case "fishingMoor":
+				V.nextPassage = "Fishing Moor Wait";
+				break;
+			case "fishingPier":
+				V.nextPassage = "Fishing Pier Wait";
+				break;
+			default:
+				return Errors.report("fishingNextEventOverride: unknown bus", { bus: V.bus });
+		}
+	} else {
+		return Errors.report("fishingNextEventOverride: unknown arg", { fishingEvent });
+	}
+}
+window.fishingNextEventOverride = fishingNextEventOverride;
