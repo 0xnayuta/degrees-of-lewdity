@@ -1150,7 +1150,6 @@ setup.feats = {
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Reel in a bass.",
-		softLockable: true,
 	},
 	"Wet Rod": {
 		title: "Wet Rod",
@@ -1159,7 +1158,6 @@ setup.feats = {
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Complete your fishing records.",
-		softLockable: true,
 	},
 	"Master Baiter": {
 		title: "Master Baiter",
@@ -1168,7 +1166,6 @@ setup.feats = {
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Catch a giant and tiny specimen of every fish.",
-		softLockable: true,
 	},
 	"Pride of the Farm": {
 		title: "Pride of the Farm",
