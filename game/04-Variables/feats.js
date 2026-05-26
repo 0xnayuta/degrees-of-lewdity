@@ -1149,7 +1149,7 @@ setup.feats = {
 		difficulty: 1,
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
-		hint: "Hint: Reel in a fine bass.",
+		hint: "Hint: Reel in a bass.",
 		softLockable: true,
 	},
 	"Wet Rod": {
@@ -1163,11 +1163,11 @@ setup.feats = {
 	},
 	"Master Baiter": {
 		title: "Master Baiter",
-		desc: "Earned every fishing size gold star.",
+		desc: "Caught the biggest and smallest size possible of each fish.",
 		difficulty: 3,
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
-		hint: "Hint: Catch a remarkable giant and tiny specimen of every fish.",
+		hint: "Hint: Catch a giant and tiny specimen of every fish.",
 		softLockable: true,
 	},
 	"Pride of the Farm": {
