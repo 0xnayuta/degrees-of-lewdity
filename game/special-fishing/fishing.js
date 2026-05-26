@@ -1,41 +1,43 @@
 /*
 ====== Main Fishing Todo ======  
 - Add rods to shop
-- While fishing on pier: whitney and co can sneak up on you and set up
-- Whitney and co can be on the pier to begin with
-- Implement fishing chain lock
 - Test screaming for gwa rescue in forest fishing attack
 - Different rod tiers. If fishing on the cliff face, you need the highest tier of rod or else it will break.
 - Passout scenes? Passout functionality?
+- Wet clothing events
 - Go through and find places to put stress/trauma changes
 - Hawk rescue can happen too often
-
-====== Random fishing notes ====
-- Avery: yacht fishing location, unique?
-- Robin: Game of raising or lowering dom based on the fish caught comparisons
-- High dom Robin, corrupt sydney, maybe Alex, maybe Avery: Distract PC while trying to fish
-- Descriptions of how fish-populated the fishing spots are, meaning that if you want to fish, you can look around a bit
-- The Whitney Pier should have text that appears if you've run into it before. A friend could say "oh I like this game", or something
-- Kylar: Your lines get caught together. "that could be us"
+- Hawk rescue code is duplicated too much
+- Add some passage links to the forest to make climbing up onto the fishing rock possible 
+- Same for the docks
+- Move over UI fishing minigame from other branch
+- Whitney pier event: Better endings
+- Whitney pier event: Whitney needs to be able to show up even without the npc fisher present
+- Whitney pier event: Alone time with Whitney? I have a bunch of commented out code for it that I'm really not a fan of.
 
 
 ====== Fishing Nice to haves ====
 - You should be able to add fish you caught today to your fishing tank
 - Forest and moor: Alternate events where a plant person saves you from another hostile event
 - Moor: Plant person attack
-- Be able to wade out into the water while fishing on the beach, greater likelyhood of tentacle attack and other ocean attacks, better fish odds.
 - Forest and moor: Alternate events where a plant person saves you from another hostile event
 - Cliff location should have large waves that make it more difficult to fish, to account for the lack of danger there.
 - Use nested eventpools to make it so that the wait ambient text is better weighted. For example, rain, which adds more ambient events, shouldn't make seeing danger events less likely.
 - Fishing lake: You see some people leave their spot and start walking towards you, could turn into encounter, or a wholesome interaction. 
-- Lake: Ducks land on the lake, just flavor. Can watch them chill, then watch them leave.
-- Costal Path fishing spot should be a long walk to and from either side of the costal path
 - Beach night event: You hear somebody saying "next time... distracted", then next time you start fishing, you get attacked after 2-3 rounds.
 - Whitney bet event: If the fish is small, you should be able to eat it. At which whitney laughs hard, everyone else looks at you confused and shocked, and you're let go if you want.
 - Whitney friends: Throw small fish at you to make fun of your insecurities. "hey, it reminds me of you"
 - The great hawk rescue event is reused and duplicated a bunch in the fishing code, and that's bad. 
-- Add some passage links to the forest to make climbing up onto the fishing rock possible 
-- Same for the docks
+
+
+====== Random fishing notes ====
+- Avery: yacht fishing location, unique?
+- Robin: Game of raising or lowering dom based on the fish caught comparisons?
+- High dom Robin, corrupt sydney, maybe Alex, maybe Avery: Distract PC while trying to fish?
+- Descriptions of how fish-populated the fishing spots are, meaning that if you want to fish, you can look around a bit
+- The Whitney Pier should have text that appears if you've run into it before. A friend could say "oh I like this game", or something
+- Kylar: Your lines get caught together. "that could be us"
+
 
 ====== Needed images ======
 Caught fish handheld props:
@@ -102,6 +104,10 @@ Foodstuff UI icons:
 
 Fishing rod clothing trait icon
 - /img/ui/clothes/traits/fishing-rod.png
+
+Fishing location images + link icon
+- Pier
+- Bottom of a cliff with an old, small, broken pier and a path leading back up to the top of the cliff.
 
 */
 
@@ -187,7 +193,7 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 	}
 
 	if (fishKey === "bass") {
-		// Fishing Todo: why error????
+		// Fishing Todo: why lint error????
 		earnFeat("Nice Bass");
 	}
 

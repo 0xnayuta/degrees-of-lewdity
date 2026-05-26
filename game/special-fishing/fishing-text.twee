@@ -1,16 +1,15 @@
 /*
  * While fishing, you'll see a description of the location and weather at the top of the passage. (fishingWaitAmbient)
  * 
- * When you start fishing, you'll see the text "Your bob hasn't attracted anything yet." as you click the wait for a bite link. That text is replaced by one 
- *  of the fishingIdleThoughts. There are many variations based on weather, location, time, etc, but mostly should reference, ya know, fishing. As I was writing, I didn't add a reference 
- *  to fishing to some of them, I lost the plot a bit while making this huge list. So some of them are "You reposition your hands on the rod." while others are 
- *  "Thunder booms in the distance". I have the ones related to fishing with a higher eventpool weight.
- * There are also many idle thoughts about the state of the world or the player, which I think even though they don't check the fishing checkbox, they check the  
- *  "what does the player think about when alone with their thoughts" checkbox, which I think is fine. Find these under the "SPECIFIC" comment separator.
- * Some of these world state idle thoughts have to do with bad ends, and are a chain of idle thoughts that will appear one after another, and will also lock
- *  the player in the idle loop so a catch or event doesn't break up the chain (I haven't implemented that feature yet). While I like them for the most part,  
- *  I worry that... well, "dude, it's fishing, don't be so dramatic". I worry that the presence of fishing right next to these panic attacks causes either to
- *  look at best out of place.
+ * When you start fishing, you'll see the text "Your bob hasn't attracted anything yet." as you click the wait for a
+ *  bite link. That text is replaced by one of the fishingIdleThoughts. There are many variations based on weather,
+ *  location, time, etc, but mostly should reference, ya know, fishing. As I was writing, I didn't add a reference
+ *  to fishing to some of them, I lost the plot a bit while making this huge list. So some of them are "You reposition
+ *  your hands on the rod." while others are "Thunder booms in the distance". I have the ones related to fishing
+ *  with a higher eventpool weight.
+ * There are also many idle thoughts about the state of the world or the player, which I think even though they don't
+ *  check the fishing checkbox, they check the "what does the player think about when alone with their thoughts"
+ *  checkbox, which I think is fine. Find these under the "SPECIFIC" comment separator.
  *
  */
 :: Widgets Fishing [widget]
@@ -356,7 +355,7 @@
 <</if>>
 
 <<if Weather.fog gte 0.8>>
-	<<addinlineevent 1>>
+	<<addinlineevent 2>>
 		You can barely make out anything beyond your line in the fog.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
@@ -408,7 +407,7 @@
 /* Snow */
 <<if Weather.precipitation is "snow">>
 	<<if Weather.precipitation is "snow">>
-		<<addinlineevent 1>>
+		<<addinlineevent 2>>
 			You watch snowflakes drift into the <<print fishingLocationWaterBodyName(_fishingLocationKey)>>.
 		<</addinlineevent>>
 		<<addinlineevent 3>>
@@ -421,10 +420,13 @@
 			You almost lose your footing against the harsh wind.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			The <<= Weather.name>> rages above.
-		<</addinlineevent>>
-		<<addinlineevent 1>>
 			The <<print fishingLocationWaterBodyName(_fishingLocationKey)>> churns as the <<= Weather.name>> crashes down.
+		<</addinlineevent>>
+	<</if>>
+
+	<<if ["storm", "thunderstorm"].includes(Weather.name)>>
+		<<addinlineevent 1>>
+			The <<= Weather.name>> rages above.
 		<</addinlineevent>>
 	<</if>>
 <</if>>
@@ -438,7 +440,7 @@
 
 /* Day / Dawn / Dusk */
 <<if ["dawn", "day", "dusk"].includes(Weather.dayState) and Weather.precipitation === "none">>
-	<<addinlineevent 1>>
+	<<addinlineevent 2>>
 		You squint as sunlight reflects off the water.
 	<</addinlineevent>>
 <</if>>
@@ -454,7 +456,6 @@
 	<<addinlineevent 1>>
 		You watch birds circle overhead.
 	<</addinlineevent>>
-
 	<<addinlineevent 1>>
 		A shadow passes over the water as birds cross above you.
 	<</addinlineevent>>
@@ -527,7 +528,7 @@
 
 /*
 * ========== FOREST ==========
-* (split out from lake since I might add a river fishing location)
+* (split out from lake since a river location might be added in the future)
 */
 <<if _fishingLocationKey is "forestLake">>
 
@@ -592,9 +593,6 @@
 			Birdsong rises through the trees as morning starts.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			You hear wings flutter in the branches above you.
-		<</addinlineevent>>
-		<<addinlineevent 1>>
 			A distant deer call carries softly through the woods.
 		<</addinlineevent>>
 	<</if>>
@@ -602,7 +600,10 @@
 	/* Day */
 	<<if Weather.dayState is "day">>
 		<<addinlineevent 1>>
-			You listen to birds rustling in the canopy.
+			You listen to birds rustling in the trees.
+		<</addinlineevent>>
+		<<addinlineevent 1>>
+			You hear birds fluttering in the branches above you.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
 			You hear a woodpecker tapping in the trees.
@@ -870,7 +871,7 @@
 	<<addinlineevent 1>>
 		You watch a small crab skitter across the wet boards. <<stress -1>><<lstress>>
 	<</addinlineevent>>
-	<<addinlineevent 3>>
+	<<addinlineevent 2>>
 		You check your line for any fraying.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
@@ -887,7 +888,7 @@
 	/* Raining */
 	<<if Weather.precipitation is "rain">>
 		<<addinlineevent 1>>
-			You listen to rain drumming on the wood of the pier.
+			You listen to the drumming of rain on the wood of the pier.
 		<</addinlineevent>>
 	<</if>>
 
@@ -2080,299 +2081,6 @@
 			<</addinlineevent>>
 		<</if>>
 	<</if>>
-
-	/* Asylum Fishing Todo Writing */
-	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Asylum"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Asylum" ? 2 : 0.5>>
-		<<addinlineevent _fishingBadEndWeight>>
-			You remember the cold white halls of the asylum. <<trauma 1>><<gtrauma>>
-		<</addinlineevent>>
-	<</if>> */
-
-	/* Mines Fishing Todo Writing */
-	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Mines"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Mines" ? 2 : 0.5>>
-		<<addinlineevent _fishingBadEndWeight>>
-			You remember the weight of stone and stale underground air. <<trauma 1>><<gtrauma>>
-		<</addinlineevent>>
-	<</if>> */
-
-	/* Pound Fishing Todo Writing */
-	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Pound"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Pound" ? 2 : 0.5>>
-		<<addinlineevent _fishingBadEndWeight>>
-			You remember the pound cages and the smell of wet concrete. <<trauma 1>><<gtrauma>>
-		<</addinlineevent>>
-	<</if>>
-
-	/* Prison Fishing Todo Writing */
-	/* <<if $badEndStats.find(function (stat) { return stat.source is "Prison"; })>>
-		<<addinlineevent 1>>
-			You think you see a sharks tooth, but it's just a pebble.
-		<</addinlineevent>>
-		<<if _fishingLocationKey is "beach">>
-			<<addinlineevent 1>>
-				You can't help but look for shark teeth in the sand.
-			<</addinlineevent>>
-		<</if>>
-	<</if>>  */
-
-	/* Underground Dungeon - Idle thought chains */
-	<<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Underground Dungeon"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Underground Dungeon" ? 2 : 0.5>>
-
-		/* Severe panic attacks */
-		/* <<if $panicattacks gte 2>>
-			<<addinlineevent "uDungeonThought1.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uDungeonThought1.2">>
-				<<if $skin.left_shoulder.pen is "tattoo" and $skin.left_shoulder.special is "one_six_three">>
-					You glance to your side, and can't help but see
-					<<if _fishingWearingUpper>>
-						where the edge of a tattoo peeks out from beneath your clothes. 163. <<gstress>><<stress 2>>
-					<<else>>
-						where a tattoo reads 163. <<gstress>><<stress 2>>
-					<</if>>
-				<<else>>
-					Somewhere nearby, water drips. The sound finds something in you and squeezes. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.2" 0>>
-				<<set $eventPoolOverride to "uDungeonThought1.3">>
-				You remember the slam of a cage in the dark. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.3" 0>>
-				<<set $eventPoolOverride to "uDungeonThought1.4">>
-				You remember the stage. The helplessness. Dozens of eyes waiting for you to begin. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.4" 0>>
-				<<set $eventPoolOverride to "uDungeonThought1.5">>
-				Your mouth goes dry as you remember having to choose humiliation or dehydration. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.5" 0>>
-				<<set $eventPoolOverride to "uDungeonThought1.6">>
-				You stand there, eyes wide open. <<pass 5>><<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.6" 0>>
-				<<set $eventPoolOverride to "uDungeonThought1.7">>
-				Eventually, you calm down, blinking away tears while pushing down feelings of frailty. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought1.7" 0>>
-				Somewhere, someone is still watching what they did to you. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-		<</if>> */
-
-		/* Moderate panic attacks
-		Fishing Todo Writing: Remove? This feels too short.
-		<<if $panicattacks is 1>>
-			<<addinlineevent "uDungeonThought2.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uDungeonThought2.2">>
-				<<if $skin.left_shoulder.pen is "tattoo" and $skin.left_shoulder.special is "one_six_three">>
-					You glance to your side, and can't help but see
-					<<if _fishingWearingUpper>>
-						where the edge of a tattoo peeks out from beneath your clothes. 163. <<gstress>><<stress 2>>
-					<<else>>
-						where a tattoo reads 163. <<gstress>><<stress 2>>
-					<</if>>
-				<<else>>
-					Somewhere nearby, water drips. The sound finds something in you and squeezes. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought2.2" 0>>
-				<<set $eventPoolOverride to "uDungeonThought2.3">>
-				The memory of cages and darkness flash through your mind. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uDungeonThought2.3" 0>>
-				Somewhere, someone is still watching what they did to you. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-		<</if>> */
-	<</if>>
-
-	/* Underground Farm - Idle thought chains */
-	<<if isPlayerFishingAlone() and (_fishingLocationKey is "moor" or $fishingDebugBadEndPanic is "Underground Farm") and $stress gte ($stressmax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Underground Farm"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Underground Farm" ? 2 : 0.5>>
-
-		/* Severe panic attacks */
-		/* <<if $panicattacks gte 2>>
-			<<addinlineevent "uFarmThought1.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uFarmThought1.2">>
-				You catch a whiff of straw on the wind and your stomach turns. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.2" 0>>
-				<<set $eventPoolOverride to "uFarmThought1.3">>
-				The smell lingers, hay and animal musk. You can't stop Remy's pens from invading your mind. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.3" 0>>
-				<<set $eventPoolOverride to $cow gte 4 ? "uFarmThought1.5" : "uFarmThought1.4">>
-				<<if $worn.neck.collared is 1>>
-					You feel around your collar, frantically trying to find any way to take it off. <<gstress>><<stress 2>>
-				<<else>>
-					You feel the phantom weight of the collar around your neck and remember the click of the lock. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.4" 0>>
-				<<set $eventPoolOverride to "uFarmThought1.5">>
-				You begin to retch as you remember the feeling of mushy grass in your mouth. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.5" 0>>
-				<<set $eventPoolOverride to "uFarmThought1.6">>
-				Your chest tightens. You need to hide, but you don't know how. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.6" 0>>
-				<<set $eventPoolOverride to "uFarmThought1.7">>
-				You need to run, but you don't know where. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.7" 0>>
-				<<if $skin.left_bottom.special is "cattle">>
-					<<set $eventPoolOverride to "uFarmThought1.8">>
-				<<else>>
-					<<unset $fishingDebugBadEndPanic>>
-				<</if>>
-				You lose track of time as you stand there, tense and unmoving, before you begin to calm down. <<pass 10>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought1.8" 0>>
-				<<unset $fishingDebugBadEndPanic>>
-				...your brand itches.
-			<</addinlineevent>>
-		<</if>> */
-
-		/* Moderate panic attacks */
-		/* <<if $panicattacks is 1>>
-			<<addinlineevent "uFarmThought2.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uFarmThought2.2">>
-				You catch a whiff of straw and feel a flutter of unease. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought2.2" 0>>
-				<<set $eventPoolOverride to "uFarmThought2.3">>
-				The memory of Remy's pens drifts into your mind. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought2.3" 0>>
-				<<set $eventPoolOverride to "uFarmThought2.4">>
-				<<if $worn.neck.collared is 1>>
-					For a moment, the weight of the collar around your neck feels unbearable. <<gstress>><<stress 1>>
-				<<else>>
-					For a moment, you feel the phantom weight of a collar around your neck. <<gstress>><<stress 1>>
-				<</if>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought2.4" 0>>
-				<<if $skin.left_bottom.special is "cattle">>
-					<<set $eventPoolOverride to "uFarmThought2.5">>
-				<<else>>
-					<<unset $fishingDebugBadEndPanic>>
-				<</if>>
-				You shake it off and take a breath, returning your focus to the water. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought2.5" 0>>
-				<<unset $fishingDebugBadEndPanic>>
-				...your brand itches.
-			<</addinlineevent>>
-		<</if>> */
-
-		/* High trauma without panic attacks */
-		/* <<if $panicattacks is 0 and $trauma gte ($traumamax / 5) * 3>>
-			<<addinlineevent "uFarmThought3.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uFarmThought3.2">>
-				The smell of old straw passes by you. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uFarmThought3.2" 0>>
-				<<unset $fishingDebugBadEndPanic>>
-				...your brand itches.
-			<</addinlineevent>>
-		<</if>> */
-
-	<</if>>
-
-	/* Wolf Cave - Idle thought chains */
-	<<if isPlayerFishingAlone() and $stress gte ($stressmax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Wolf Cave"; }) and !isLoveInterest("Black Wolf")>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Wolf Cave" ? 2 : 0.5>>
-
-		/* Severe panic attacks */
-		/* <<if $panicattacks gte 2>>
-			<<addinlineevent "uWolfThought1.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uWolfThought1.2">>
-				You hear what might sound like a howl, and your thoughts snap to a dark cave. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.2" 0>>
-				<<set $eventPoolOverride to "uWolfThought1.3">>
-				You remember heavy musk surrounding you, pressing in from all sides. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.3" 0>>
-				<<set $eventPoolOverride to "uWolfThought1.4">>
-				<<if daystate isnot "night">>
-					Glimmers on the water turn into eyes reflecting in the dark. <<gstress>><<stress 2>>
-				<<else>>
-					The glint of fireflies turn into eyes reflecting in the dark. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.4" 0>>
-				<<set $eventPoolOverride to "uWolfThought1.5">>
-				Your vision tunnels and you grip your rod. You can't shake the feeling of wet fur against your skin. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.5" 0>>
-				<<set $eventPoolOverride to "uWolfThought1.6">>
-				You can't fight. You can only submit. <<gstress>><<stress 2>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.6" 0>>
-				<<set $eventPoolOverride to "uWolfThought1.7">>
-				You force yourself to stand still, to slow your breathing. <<pass 10>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought1.7" 0>>
-				<<if _fishingLocationKey is "forestLake">>
-					You look around you, but can't see anything through the trees. You don't feel any better. <<gstress>><<stress 4>>
-				<<elseif _fishingLocationKey is "moor">>
-					You look around you, but can't see anything through the reeds. Do wolves come this way? <<gstress>><<stress 2>>
-				<<else>>
-					You look around you, but don't see anything out of the ordinary. You don't feel any better. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-		<</if>> */
-
-		/* Normal panic attacks */
-		/* <<if $panicattacks is 1>>
-			<<addinlineevent "uWolfThought2.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uWolfThought2.2">>
-				You hear a distant howl and feel your heart quicken. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought2.2" 0>>
-				<<set $eventPoolOverride to "uWolfThought2.3">>
-				You can't stop thoughts of wet fur and musk filling your mind. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought2.3" 0>>
-				You squeeze your hands around the rod and force the memories down. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-		<</if>> */
-
-		/* High trauma, no panic attacks */
-		/* <<if $panicattacks is 0 and $trauma gte ($traumamax / 5) * 3>>
-			<<addinlineevent "uWolfThought3.1" _fishingBadEndWeight>>
-				<<set $eventPoolOverride to "uWolfThought3.2">>
-				You hear what sounds like a distant howl and tense up. <<gstress>><<stress 1>>
-			<</addinlineevent>>
-			<<addinlineevent "uWolfThought3.2" 0>>
-				<<if _fishingLocationKey is "forestLake">>
-					You look around you, but can't see anything through the trees. You don't feel any better. <<gstress>><<stress 4>>
-				<<elseif _fishingLocationKey is "moor">>
-					You look around you, but can't see anything through the reeds. Do wolves come this way? <<gstress>><<stress 2>>
-				<<else>>
-					You look around you, but don't see anything out of the ordinary. You don't feel any better. <<gstress>><<stress 2>>
-				<</if>>
-			<</addinlineevent>>
-		<</if>> */
-
-	<</if>>
-
-	/* Island Fishing Todo Writing */
-	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Island"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Island" ? 4 : 0.5>>
-		<<addinlineevent _fishingBadEndWeight>>
-			You remember how alone the island nights felt. <<trauma 1>><<gtrauma>>
-		<</addinlineevent>>
-	<</if>> */
-
-	/* Pirate Ship Fishing Todo Writing  */
-	/* <<if isPlayerFishingAlone() and $trauma gte ($traumamax / 5) * 3 and $badEndStats.find(function (stat) { return stat.source is "Pirate Ship"; })>>
-		<<set _fishingBadEndWeight to _fishingRecentBadEndSource is "Pirate Ship" ? 2 : 0.5>>
-
-	<</if>> */
 
 	/* Wraith */
 	<<if $wraith.state and isPlayerFishingAlone()>>
