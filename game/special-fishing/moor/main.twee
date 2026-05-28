@@ -8,6 +8,10 @@
 <<fishingMoorLocationAmbient>>
 <br><br>
 
+<<if $exposed gte 1>>
+	<<exhibitionism "moorFishing">>
+	<br><br>
+<</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingMoor>>
 	<<run fishingNextEventOverride("wait")>>
@@ -66,6 +70,7 @@
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Moor Wait Loop
+<<effects>>
 <<pass 5>>
 <<cleareventpool>>
 
@@ -123,7 +128,7 @@
 		<<include "Fishing Moor Hiker Attack">>
 	<</addinlineevent>>
 	<<if !["storm", "thunderstorm", "rain", "heavyClouds"].includes(Weather.name) and !["dusk", "night"].includes(Weather.dayState)>>
-		<<addinlineevent "moorHikersArrive" _moorHikersProbability + 1.5>>
+		<<addinlineevent "moorHikersArrive" `$exposed gte 1 ? 0 : _moorHikersProbability + 1.5`>>
 			<<set $fishing.moor.eventDanger to 0>>
 			/* Setting the moor.event to this in order to prevent other moor events from triggering */
 			<<set $fishing.moor.event to "blocked">>
@@ -164,6 +169,13 @@
 		<<include "Fishing Moor Hiker Leave">>
 		<<set $fishing.moor.event to "none">>
 	<</addinlineevent>>
+
+	/* Hikers attack if player is exposed */
+	<<if $exposed gte 1>>
+		<<addinlineevent "hikersExposedAttack" $daily.fishing.moor.hikersOgle>>
+			<<include "Fishing Moor Hiker Exposed Attack">>
+		<</addinlineevent>>
+	<</if>>
 <</if>>
 
 /* Fox event */

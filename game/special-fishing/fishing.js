@@ -8,12 +8,11 @@
 - Go through and find places to put stress/trauma changes
 - Hawk rescue can happen too often
 - Hawk rescue code is duplicated too much
-- Add some passage links to the forest to make climbing up onto the fishing rock possible 
-- Same for the docks
 - Move over UI fishing minigame from other branch
 - Whitney pier event: Better endings
 - Whitney pier event: Whitney needs to be able to show up even without the npc fisher present
 - Whitney pier event: Alone time with Whitney? I have a bunch of commented out code for it that I'm really not a fan of.
+- When exposed on the fishing rock, add an event where people walk up and gawk at you, maybe attack.
 
 
 ====== Fishing Nice to haves ====

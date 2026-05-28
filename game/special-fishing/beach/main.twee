@@ -8,6 +8,10 @@
 <<fishingBeachAmbient>>
 <br><br>
 
+<<if $exposed gte 1>>
+	<<exhibitionism "beachFishing">>
+	<br><br>
+<</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingBeach>>
 	<<run fishingNextEventOverride("wait")>>
@@ -17,13 +21,20 @@
 
 <br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><</link>>
-<br>
-<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
+<<if Weather.dayState isnot "night" and (($exposed is 1 and !hasSexStat("exhibitionism", 3)) or ($exposed gte 2 and !hasSexStat("exhibitionism", 5)))>>
+	<span class="blue">You are not exhibitionistic enough to keep standing around in such an exposed state.</span>
+	<br>
+	<<link [[Return to the beach|Beach]]>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
+<<else>>
+	<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><</link>>
+	<br>
+	<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
+<</if>>
 <<fishingBeachDebugLinks>>
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Beach Wait Loop
+<<effects>>
 <<pass 5>>
 <<cleareventpool>>
 
@@ -67,9 +78,33 @@
 	<</if>>
 <</if>>
 
+/* Fisher attacks if player is exposed */
+<<if $daily.fishing.beach.fisher.phase is "fishing" and $exposed gte 1>>
+	<<addinlineevent "fisherExposedAttack" $daily.fishing.beach.fisherOgle>>
+		<<include "Fishing Beach Fisher Exposed Attack">>
+	<</addinlineevent>>
+<</if>>
+
+/* Bystander notices exposed player */
+<<if $exposed gte 1 and Weather.dayState is "day">>
+	<<addinlineevent "exposedNoticed" 1>>
+		<<run stopFishingProp()>>
+		<<beachex1>>
+	<</addinlineevent>>
+	<<addinlineevent "exposedMolestation" 1>>
+		<<run stopFishingProp()>>
+		<<beachex2>>
+	<</addinlineevent>>
+<</if>>
+
 /* Wind blows skirt */
 <<addinlineevent "beachWind" 1>>
 	<<beachday4>>
+<</addinlineevent>>
+
+/* Wave soaks the PC */
+<<addinlineevent "beachWave" 1>>
+	<<include "Fishing Beach Wave">>
 <</addinlineevent>>
 
 /* Dog tearing at clothing */
