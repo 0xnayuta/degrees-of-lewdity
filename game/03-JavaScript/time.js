@@ -188,7 +188,7 @@ const Time = (() => {
 			}
 		} catch (ex) {
 			// we only need to catch it so "finally" can run, so, right back at you
-			throw new Error(ex);
+			throw ex;
 		} finally {
 			// finally, set the time where it should be
 			setDate(new DateTime(prevDate.timeStamp + seconds));
@@ -1560,6 +1560,10 @@ function dailyNPCEffects() {
 		) {
 			C.npc.Sydney.chastity.anus = "";
 			V.sydneyAnalShieldComment = true;
+		}
+		if (V.sydney.heartbroken) V.sydney.heartbroken--;
+		else if (V.sydney.heartbroken === 0) {
+			delete V.sydney.heartbroken;
 		}
 	}
 
