@@ -43,6 +43,8 @@ declare global {
 		preferred_season: Season[];
 		preferred_time: FishingFishPreferredTime[];
 		preferred_location: FishingLocationKey[];
+
+		// Preferred weather is also used to weight the spawning of fish with that preferred weather 
 		preferred_weather: FishingFishPreferredWeather[];
 	}
 }

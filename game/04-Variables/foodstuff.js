@@ -1621,7 +1621,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 700,
 				available_in: ["supermarket"],
 			},
 		},
@@ -3202,7 +3202,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 150,
 			},
 		},
 		whiting: {
@@ -3215,7 +3215,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 300,
 			},
 		},
 		mackerel: {
@@ -3228,7 +3228,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 200,
 			},
 		},
 		flounder: {
@@ -3241,7 +3241,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 400,
 			},
 		},
 		bass: {
@@ -3254,7 +3254,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 800,
 			},
 		},
 		roach: {
@@ -3267,7 +3267,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 80,
 			},
 		},
 		perch: {
@@ -3280,7 +3280,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 250,
 			},
 		},
 		chub: {
@@ -3293,7 +3293,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 150,
 			},
 		},
 		pike: {
@@ -3306,7 +3306,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 400,
 			},
 		},
 		sole: {
@@ -3319,7 +3319,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 1000,
 			},
 		},
 		eel: {
@@ -3332,7 +3332,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 700,
 			},
 		},
 		grayling: {
@@ -3345,7 +3345,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			shop: {
-				sell_price: 600,
+				sell_price: 900,
 			},
 		},
 	};

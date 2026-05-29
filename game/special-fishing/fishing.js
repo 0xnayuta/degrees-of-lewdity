@@ -145,9 +145,10 @@ function rollFishSize(locationKey, fishKey) {
 function rollFish(locationKey) {
 	const pool = [];
 	let totalWeight = 0;
-	for (const [fishKey, config] of Object.entries(setup.fishing_fish)) {
-		const weight = config.locations[locationKey];
-		if (weight > 0) {
+	for (const [fishKey, fishConfig] of Object.entries(setup.fishing_fish)) {
+		const locationWeight = fishConfig.locations[locationKey];
+		if (locationWeight > 0) {
+			const weight = fishConfig.preferred_weather.includes(Weather.name) ? locationWeight * 2 : locationWeight;
 			pool.push({ key: fishKey, weight });
 			totalWeight += weight;
 		}
