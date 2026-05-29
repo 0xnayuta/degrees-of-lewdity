@@ -1475,6 +1475,7 @@ function initHandheld() {
 			zIndex: "head",
 			iconFile: "fishing-rod.png",
 			accIcon: 0,
+			holdingPreventsRightCover: 1,
 		},
 	];
 	setup.clothes.handheld = clothing;

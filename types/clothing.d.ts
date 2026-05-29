@@ -334,6 +334,10 @@ declare global {
 		coverImage?: 0 | 1;
 		leftImage?: 0 | 1;
 		rightImage?: 0 | 1;
+		/** Prevents lower exposure from automatically moving the right arm to cover */
+		holdingPreventsRightCover?: 0 | 1;
+		/** Prevents upper exposure from automatically moving the left arm to cover */
+		holdingPreventsLeftCover?: 0 | 1;
 		mask_img_ponytail?: 0 | 1;
 		head_type?: "veil" | "hat";
 		// TODO list and document other options
