@@ -3193,7 +3193,7 @@ function initFoodstuff() {
 			},
 		},
 		herring: {
-			index: 149,
+			index: 150,
 			name: "herring",
 			singular: "herring",
 			plural: "herring",
@@ -3206,7 +3206,7 @@ function initFoodstuff() {
 			},
 		},
 		whiting: {
-			index: 150,
+			index: 151,
 			name: "whiting",
 			singular: "whiting",
 			plural: "whiting",
@@ -3219,7 +3219,7 @@ function initFoodstuff() {
 			},
 		},
 		mackerel: {
-			index: 151,
+			index: 152,
 			name: "mackerel",
 			singular: "mackerel",
 			plural: "mackerel",
@@ -3232,7 +3232,7 @@ function initFoodstuff() {
 			},
 		},
 		flounder: {
-			index: 152,
+			index: 153,
 			name: "flounder",
 			singular: "flounder",
 			plural: "flounder",
@@ -3284,7 +3284,7 @@ function initFoodstuff() {
 			},
 		},
 		chub: {
-			index: 167,
+			index: 157,
 			name: "chub",
 			singular: "chub",
 			plural: "chub",
@@ -3297,7 +3297,7 @@ function initFoodstuff() {
 			},
 		},
 		pike: {
-			index: 168,
+			index: 158,
 			name: "pike",
 			singular: "pike",
 			plural: "pike",
@@ -3310,7 +3310,7 @@ function initFoodstuff() {
 			},
 		},
 		sole: {
-			index: 170,
+			index: 159,
 			name: "sole",
 			singular: "sole",
 			plural: "sole",
@@ -3323,7 +3323,7 @@ function initFoodstuff() {
 			},
 		},
 		eel: {
-			index: 169,
+			index: 160,
 			name: "eel",
 			singular: "eel",
 			plural: "eels",
@@ -3336,7 +3336,7 @@ function initFoodstuff() {
 			},
 		},
 		grayling: {
-			index: 171,
+			index: 161,
 			name: "grayling",
 			singular: "grayling",
 			plural: "grayling",
