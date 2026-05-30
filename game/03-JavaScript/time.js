@@ -2508,7 +2508,7 @@ function earSlimeDaily(passageEffects = false) {
 			}
 		}
 
-		// Breaks chastity gear over time, attempts to equip a chastity parasite if it aplies
+		// Breaks chastity gear over time, attempts to equip a chastity parasite if it applies
 		if (!["naked", "chastity parasite"].includes(V.worn.genitals.name) && playerChastity()) {
 			V.worn.genitals.integrity -= 500;
 			if (V.worn.genitals.integrity <= 0) {

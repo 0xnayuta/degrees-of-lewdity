@@ -2788,7 +2788,7 @@ function applyFeatBoosts() {
 		specialClothesUpdate();
 		const level = details.specialClothing.purchased;
 		// old notes on the level:
-		/* Level 1 upgrade - unlock previosuly unlocked special clothing sets by selection. */
+		/* Level 1 upgrade - unlock previously unlocked special clothing sets by selection. */
 		/* Level 2 upgrade - unlock all special clothes unlocked in any other save. */
 		/* Level 3 upgrade - everything is remembered. */
 		unlocked.forEach(c => {
