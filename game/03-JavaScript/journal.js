@@ -367,6 +367,13 @@ class CustomReminder {
  * investigate timetravel
  * statfreeze support: hide all journal entries and ensure new entries can't be made
  * 
+ * input stuff:
+ * <<addclass>>, <<removeclass>>, <<toggleclass>>
+ * <<radiovar>>
+ * <<checkbox>>
+ * <label>
+ * <form>
+ * <input> (particularly time input, dropdown input)
  * 
  * for interface: add simple mode and advanced mode (what has what?)
  * in-journal click-to-complete? onclick function for the textboxes that toggles their class
@@ -391,4 +398,13 @@ class CustomReminder {
  * 
  * other -- invalidate hawker feats when crop yield over 500%?
  * other -- rebalance bun sell profits
+ */
+
+
+/**
+ * changelog:
+ * this journal shit
+ * pregnancy acceptance no longer decays after mother trait gained (end of third pregnancy)
+ * safety with npcincr and cleaned up relationshipclamp
+ * lots of typo fixes
  */
