@@ -307,7 +307,7 @@ const Time = (() => {
 	/**
 	 *
 	 * @param {number} from starting hour
-	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opeining hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
+	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opening hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
 	 * @param {?number} pass minutes to pass before checking
 	 * @returns {boolean} whether current time after passing `pass` minutes will be between specified hours
 	 */

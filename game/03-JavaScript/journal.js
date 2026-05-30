@@ -59,8 +59,8 @@ class CustomReminder {
 	 *      user-generated entry displayed in the custom reminders
 	 *      section of the journal. only ever display as:
 	 *      "<nowiki>" + reminder.entry + " </nowiki>"
-	 * @param {string} color
-	 *      what color the custom reminder should be in the journal.
+	 * @param {undefined | "red" | "pink" | "purple" | "blue" | "lblue" | "teal" | "green" | "gold"} colour
+	 *      what colour the custom reminder should be in the journal.
 	 *      will be exposed to the user as a dropdown.
 	 *      must correspond to a css class.
 	 *      may be undefined.
@@ -69,7 +69,7 @@ class CustomReminder {
 				duration = undefined, repeats = undefined, 
 				cooldown = undefined, intrusive = undefined, 
 				persistent = undefined, entry = "", 
-				color = undefined) {
+				colour = undefined) {
 		// some silly little type checking
 		if (!Number.isFinite(timeStamp) || typeof timeStamp !== 'number' || timeStamp < 0 || timeStamp > 315569437199) 
 			throw new Error(`invalid timeStamp ${timeStamp} passed to CustomReminder constructor`);
@@ -210,29 +210,30 @@ class CustomReminder {
 		 */
 		this.entry = entry;
 	
-		// TODO add type checking for color once implemented
+		// TODO add type checking for colour once implemented
+		if (colour !== undefined && !["red", "pink", "purple", "blue", "lblue", "teal", "green", "gold"].includes(colour))
+			throw new Error(`invalid colour ${colour} passed to CustomReminder constructor`)
 		/**
-		 * @type {string}
+		 * @type {undefined | "red" | "pink" | "purple" | "blue" | "lblue" | "teal" | "green" | "gold"}
 		 * @description 
-		 * what color the custom reminder should be in the journal.
+		 * what colour the custom reminder should be in the journal.
 		 * will be exposed to the user as a dropdown.
 		 * must correspond to a css class.
 		 * may be undefined.
 		 */
-		this.color = color;
+		this.colour = colour;
 	}
 
 	/**
 	 * returns a string of this reminder's text that can be safely wikified
 	 *
-	 * @param {string} color optionally, a class to apply to the text
 	 * @returns the text of the reminder that we want to display in the 
-	 * 			journal or in the main passage, wrapped up cozy and safe
+	 * 			journal, wrapped up cozy and safe
 	 */
-	getText(color = undefined) {
-		// TODO replace color arg with simple this.color if appropriate (use cases?)
-		if (color !== undefined) {
-			return `<span class=${color}><nowiki>${this.entry}</nowiki></span>`;
+	getText() {
+		// TODO replace colour arg with simple this.colour if appropriate (use cases?)
+		if (this.colour !== undefined) {
+			return `<span class=${this.colour}><nowiki>${this.entry}</nowiki></span>`;
 		}
 		return `<nowiki>${this.entry}</nowiki>`
 	}
@@ -255,7 +256,7 @@ class CustomReminder {
 	}
 
 	/**
-	 * update the reminder, and push 
+	 * update the reminder, and push intrusive non-persistent reminders
 	 * 
 	 * to be called by pass() in time.js
 	 */
@@ -267,6 +268,8 @@ class CustomReminder {
 			throw new Error(`V.customReminders exists but has no attribute reminders, yet some CustomReminder with entry ${this.entry} exists and called its update()`)
 		if (!Object.hasOwn(V.customReminders, "notifications"))
 			throw new Error(`V.customReminders exists but has no attribute notifications`)
+		// if (!Object.hasOwn(V.customReminders, "colours"))
+		// 	throw new Error(`V.customReminders exists but has no attribute colours`)
 
 		// if the reminder is hidden, we're in a flashback or something
 		// we don't want to update anything, because it could mess with things
@@ -279,7 +282,8 @@ class CustomReminder {
 			// if we haven't fired, do so whether or not the duration has lapsed,
 			// unless the user has already marked the reminder as complete
 			if (this.intrusive && !this.fired && !this.complete) {
-				V.customReminders.notifications.push(this.getText(this.color));
+				V.customReminders.notifications.push(this.entry.getText());
+				// V.customReminders.colours.push(this.colour);
 				// if the reminder is persistent, fired can stay false so it continues firing
 				// otherwise, set it to true, so it doesn't fire again until the next reset
 				this.fired = !this.persistent; 
@@ -298,9 +302,8 @@ class CustomReminder {
 			
 			if (this.repeats !== -1) {
 				// make sure we don't do more durations than we have left
-				// this will never include the final fire (the one that 
-				// happens when repeats is 0 and sets the reminder to expire after)
-				// that's always handled on its own after we deal with however many cycles we've skipped
+				// this doesn't include the "final fire" that happens before the reminder expires
+				// but that should be handled by the above initial fire:
 				skippedDurations = Math.min(skippedDurations, this.repeats);
 				// decrement inside this if, because we only want to decrement if 
 				// the reminder doesn't go forever
@@ -311,7 +314,8 @@ class CustomReminder {
 				// stack a reminder for each full duration we missed
 				// even if it's persistent (and so not 1:1 reminder per fire), we still want parity here
 				for (let i = 0; i < skippedDurations; i++) {
-					V.customReminders.notifications.push(this.getText(this.color));
+					V.customReminders.notifications.push(this.entry.getText());
+					// V.customReminders.colours.push(this.colour);
 				}
 			}
 			this.timeStamp += this.cooldown * this.skippedDurations;
@@ -345,6 +349,13 @@ class CustomReminder {
 		return V.timeStamp >= this.timestamp && V.timeStamp < this.timeStamp + this.duration;
 	}
 
+	/**
+	 * 
+	 */
+	hash() {
+
+	}
+
 	
 
 }
@@ -358,6 +369,7 @@ class CustomReminder {
  * 
  * 
  * for interface: add simple mode and advanced mode (what has what?)
+ * in-journal click-to-complete? onclick function for the textboxes that toggles their class
  * 
  * investigate save reminder (alternative to <<effects>>?)
  * in-passage dismiss button (mark as complete)
@@ -366,5 +378,12 @@ class CustomReminder {
  * investigate time freezing stuff and hc integration
  * add export/import for reminders (json format? -- investigate settings export/import)
  * 
+ * hash function or unique ids? probably ids, but how do we pick the id?
+ * hardcoded limit to max reminders? testing for later, how much can the game handle? how big is a reminder, how much do they bloat save size? compare to notes...
  * 
+ * maybe remove granularity? seems stupid when we can just hardcode to show days at >24 hours and hours at >60 mins
+ * 
+ * have persistent reminders act as regular intrusive, and otherwise only queue reminders if there isn't already one queued? how do we check if it's queued or not?
+ * 
+ * don't push reminders when $combat is 1 -- just skip everything there
  */
