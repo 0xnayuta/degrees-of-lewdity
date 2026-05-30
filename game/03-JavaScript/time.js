@@ -1787,7 +1787,11 @@ function dailyPlayerEffects() {
 	*/
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
-		statChange.acceptance("pregnancy", -5);
+		// after third pregnancy, acceptance no longer decays
+		if (playerNormalPregnancyTotal() < 3) {
+			statChange.acceptance("pregnancy", -5);
+		}
+
 	}
 
 	for (const bodypart of setup.bodyparts) {
