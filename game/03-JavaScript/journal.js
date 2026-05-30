@@ -386,4 +386,8 @@ class CustomReminder {
  * have persistent reminders act as regular intrusive, and otherwise only queue reminders if there isn't already one queued? how do we check if it's queued or not?
  * 
  * don't push reminders when $combat is 1 -- just skip everything there
+ * 
+ * nullish assignment
+ * 
+ * other -- invalidate hawker feats when crop yield over 500%?
  */
