@@ -2661,7 +2661,7 @@ function applyFeatBoosts() {
 	// green thumb
 	if (upgrades.greenThumb) {
 		V.backgroundTraits.pushUnique("greenthumb");
-		if (V.fertilizer) ++V.fertilizer.current;
+		if (V.fertiliser) ++V.fertiliser.current;
 	}
 
 	// parasitic pregnancy
