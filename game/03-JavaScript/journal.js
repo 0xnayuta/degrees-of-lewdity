@@ -65,7 +65,7 @@ class CustomReminder {
 	 *      must correspond to a css class.
 	 *      may be undefined.
 	 */
-	constructor(timeStamp = 0, granularity = undefined, 
+	constructor(timeStamp = 0, // granularity = undefined, 
 				duration = undefined, repeats = undefined, 
 				cooldown = undefined, intrusive = undefined, 
 				persistent = undefined, entry = "", 
@@ -82,17 +82,17 @@ class CustomReminder {
 		 */
 		this.timeStamp = timeStamp;
 
-		if (this.timeStamp !== 0 && !["weeks", "days", "hours", "minutes"].includes(granularity)) 
-			throw new Error(`invalid granularity ${granularity} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp}`);
-		/**
-		 * @type {"weeks" | "days" | "hours" | "minutes"}
-		 * @description 
-		 * how fine the reminder is (weeks, days, hours, minutes).
-		 * determines whether 6pm reminder displays
-		 * as "today" or "in 4 hours", for example.
-		 * may be undefined if time is 0.
-		 */
-		this.granularity = granularity;
+		// if (this.timeStamp !== 0 && !["weeks", "days", "hours", "minutes"].includes(granularity)) 
+		// 	throw new Error(`invalid granularity ${granularity} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp}`);
+		// /**
+		//  * @type {"weeks" | "days" | "hours" | "minutes"}
+		//  * @description 
+		//  * how fine the reminder is (weeks, days, hours, minutes).
+		//  * determines whether 6pm reminder displays
+		//  * as "today" or "in 4 hours", for example.
+		//  * may be undefined if time is 0.
+		//  */
+		// this.granularity = granularity;
 		
 		if (this.timestamp !== 0 && (!Number.isFinite(duration) || typeof duration !== 'number' || duration < 0))
 			throw new Error(`invalid duration ${duration} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp}`);
