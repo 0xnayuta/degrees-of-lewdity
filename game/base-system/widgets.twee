@@ -1899,15 +1899,15 @@
 
 <<widget "towelup">>
 	<<if $exposed gte 1>>
-		<<if $upperwetstage gte 3 and !$worn.under_upper.type.includes("covered") or $underupperwetstage gte 3 and $worn.under_upper.type.includes("covered")>>
+		<<if $upperwetstage gte 3 and !$worn.under_upper.type.includes("torso_covering") or $underupperwetstage gte 3 and $worn.under_upper.type.includes("torso_covering")>>
 			<<upperwear "towel top">>
 		<</if>>
-		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered") or $underlowerwetstage gte 3 and $worn.under_lower.type.includes("covered")>>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("lower_covering") or $underlowerwetstage gte 3 and $worn.under_lower.type.includes("lower_covering")>>
 			<<lowerwear "towel skirt">>
 		<</if>>
-		<<if $worn.upper.exposed gte 1 and !$worn.under_upper.type.includes("covered")>>
+		<<if $worn.upper.exposed gte 1 and !$worn.under_upper.type.includes("torso_covering")>>
 			<<upperwear "large towel">>
-		<<elseif $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
+		<<elseif $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("lower_covering")>>
 			<<lowerwear "towel skirt">>
 		<</if>>
 	<</if>>
@@ -1915,10 +1915,10 @@
 
 <<widget "towelupm">>
 	<<if $exposed gte 1>>
-		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("covered")>>
+		<<if $lowerwetstage gte 3 and !$worn.under_lower.type.includes("lower_covering")>>
 			<<lowerwear "towel skirt">>
 		<</if>>
-		<<if $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("covered")>>
+		<<if $worn.lower.exposed gte 1 and !$worn.under_lower.type.includes("lower_covering")>>
 			<<lowerwear "towel skirt">>
 		<</if>>
 	<</if>>
@@ -2033,8 +2033,8 @@
 		<<if $player.gender_appearance isnot "m"
 		and $worn.over_upper.exposed gte 1
 		and ($worn.upper.exposed gte 1 or $upperwetstage gte 3)
-		and (!$worn.under_upper.type.includes("covered") or $worn.under_upper.exposure gte 1 or $underupperwetstage gte 3)
-		and (!$worn.lower.type.includes("covered") or $worn.lower.exposed gte 2 or $lowerwetstage gte 3)>>
+		and (!$worn.under_upper.type.includes("torso_covering") or $worn.under_upper.exposure gte 1 or $underupperwetstage gte 3)
+		and (!$worn.lower.type.includes("overalls") or $worn.lower.exposed gte 2 or $lowerwetstage gte 3)>>
 			<<set $exposed to 1>>
 		<</if>>
 
@@ -2050,7 +2050,7 @@
 		 */
 		<<if $worn.over_lower.exposed gte 1
 		and ($worn.lower.exposed gte 1 or $lowerwetstage gte 3)>>
-			<<if $worn.under_lower.exposed is 0 and $underlowerwetstage lt 3 and !$worn.under_lower.type.includes("covered")>>
+			<<if $worn.under_lower.exposed is 0 and $underlowerwetstage lt 3 and !$worn.under_lower.type.includes("lower_covering")>>
 				<<set $exposed to 1>>
 			<<elseif $worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3>>
 				<<set $exposed to 2>>
@@ -3686,6 +3686,15 @@
 	<</if>>
 <</widget>>
 
+<<!-- The "game\04-Variables\variables-start2.twee" descriptions for hair and fringe length have their growth values
+	equal to each other. However, this widget contradicts that description and assumes the player's fringe will never
+	grow past their face.
+
+	Made a post on Discord about whether players want the character to be able to grow a longer fringe. Doesn't seem like
+	there's much interest, so will treat these descriptions as the default.
+
+	Someone will need to update the $fringelengthstage values to reflect the current in-game descriptions, to prevent
+	future confusion. -->>>
 <<widget "fringedescription">>
 	<<if $haircolour isnot $hairfringecolour>>
 		<<if $hairFringeColourStyle is "gradient">>
@@ -3711,6 +3720,54 @@
 	<<else>>
 		and your <<print $_fringe>> is very short.
 	<</if>>
+<</widget>>
+
+
+<<!-- Added a hair and fringe details widget to make hair length discrimination more viable.
+	Not sure if there's another file where this widget would be better placed. Feel free to move.
+	Descriptions based on the values in "game\base-system\overlays\characteristics.twee" and
+	the "game\04-Variables\variables-start2.twee".
+
+	See "game\overworld-plains\loc-farm\events.twee" for examples of its use. -->>>>
+<<widget "hairDetails">>
+	<<if $hairlength gte 900>>
+		extremely long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 700>>
+		very long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 400>>
+		long <<haircolourtext>> hair\
+	<<elseif $hairlength gte 100>>
+		<<haircolourtext>> hair\
+	<<else>>
+		short <<haircolourtext>> hair\
+	<</if>>
+<</widget>>
+
+
+<<widget "fringeDetails">>
+	<<silently>>
+	<<if $fringelength gte 980>>
+		very long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 800>>
+		long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 600>>
+		somewhat long <<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 400>>
+		<<hairfringecolourtext>> fringe\
+	<<elseif $fringelength gte 200>>
+		short <<hairfringecolourtext>> fringe\
+	<<else>>
+		very short <<hairfringecolourtext>> fringe\
+	<</if>>
+	<</silently>>
+<</widget>>
+
+<<widget "templeLossLower">>
+	<span class="pink">a hollowness flows through you, reminding you of your loss. The loss of something that was never yours.</span>
+<</widget>>
+
+<<widget "templeLossUpper">>
+	<span class="pink">A hollowness flows through you, reminding you of your loss. The loss of something that was never yours.</span>
 <</widget>>
 
 <<widget "willpowerpain">>

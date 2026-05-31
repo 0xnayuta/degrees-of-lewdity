@@ -421,10 +421,10 @@
 	<<it "over_lower">>
 <</widget>>
 <<widget "upperit">>
-	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>><<it "under_upper">><<else>><<it "upper">><</if>>
+	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("torso_covering")>><<it "under_upper">><<else>><<it "upper">><</if>>
 <</widget>>
 <<widget "lowerit">>
-	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>><<it "under_lower">><<else>><<it "lower">><</if>>
+	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("lower_covering")>><<it "under_lower">><<else>><<it "lower">><</if>>
 <</widget>>
 <<widget "underupperit">>
 	<<it "under_upper">>
@@ -457,13 +457,13 @@
 	<<has "over_lower">>
 <</widget>>
 <<widget "upperhas">>
-	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("covered")>>
+	<<if $worn.upper.name is "naked" and $worn.under_upper.type.includes("torso_covering")>>
 		<<has "under_upper">>
 	<<else>>
 		<<has "upper">>
 	<</if>><</widget>>
 <<widget "lowerhas">>
-	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("covered")>>
+	<<if $worn.lower.name is "naked" and $worn.under_lower.type.includes("lower_covering")>>
 		<<has "under_lower">>
 	<<else>>
 		<<has "lower">>
@@ -1511,6 +1511,8 @@
 	<<set _text_output to "lips">>
 <</silently>><<if !_mouthSensitivityDescribed>><<mouthsensitivity>><</if>><<print _text_output>><</widget>>
 
+<!-- Prints the current state of the player's under_upper clothing, assuping the over_upper clothing has been destroyed.
+	The corresponding lower check is called "undies" -->
 <<widget "undertop">><<silently>>
 	<<if $worn.under_upper.exposed lte 0>>
 		<<set _text_output to $worn.under_upper.name>>
@@ -2765,6 +2767,8 @@
 	0 or omitted or null - display full name of undies or full genital description
 	1 - display simple name of undies or full genital description
 	2 - display simple name of undies or simple genital description
+
+	The corresponding upper check is called "undertop"
  -->
 <<widget "undies">><<silently>>
 	<<outfitChecks>>
@@ -2800,7 +2804,7 @@
 			and
 		<</if>>
 		$worn.upper.name\
-	<<elseif $worn.under_upper.type.includes("covered")>>
+	<<elseif $worn.under_upper.type.includes("torso_covering")>>
 		<<if $worn.over_upper.name isnot "naked">>
 			and
 		<</if>>
@@ -2817,7 +2821,7 @@
 			and
 		<</if>>
 		$worn.lower.name\
-	<<elseif $worn.under_lower.type.includes("covered")>>
+	<<elseif $worn.under_lower.type.includes("lower_covering")>>
 		<<if $worn.over_lower.name isnot "naked">>
 			and
 		<</if>>
@@ -2922,11 +2926,11 @@
 	<<set _breasts to _text_output>>
 	<<if $worn.under_lower.type.includes("naked") and $worn.lower.type.includes("naked")>>
 		<<if !$worn.upper.type.includes("naked")>>
-		<<set _text_output to "<span class=\"lewd\">exposed " + _genitals + "</span>. Your covered chest makes your bare lower half feel more conspicuous">>
+			<<set _text_output to "<span class=\"lewd\">exposed " + _genitals + "</span>. Your covered chest makes your bare lower half feel more conspicuous">>
 		<<elseif !$worn.under_upper.type.includes("naked")>>
 			<<undertop>>
 			<<set _undertop to _text_output>>
-			<<set _text_output to `<span class=\"lewd\">exposed ${_genitals}${!$worn.under_upper.type.includes("covered") ? " and " + _undertop : ""}</span>. Your somewhat covered chest makes your bare lower half feel more conspicuous`>>
+			<<set _text_output to `<span class=\"lewd\">exposed ${_genitals}${!$worn.under_upper.type.includes("torso_covering") ? " and " + _undertop : ""}</span>. Your somewhat covered chest makes your bare lower half feel more conspicuous`>>
 		<<else>>
 			<<set _text_output to "<span class=\"lewd\">exposed</span> ">>
 			<<if $player.breastsize gte 3>>
@@ -2957,7 +2961,7 @@
 		<<else>>
 			<<undertop>>
 			<<set _undertop to _text_output>>
-			<<if $worn.lower.type.includes("naked") and _underOutfit is false>>
+			<<if $worn.lower.type.includes("naked") and !$worn.under_lower.type.includes("lower_covering") and _underOutfit is false>>
 				<<undies>>
 				<<set _undies to _text_output>>
 				<<set _text_output to "<span class=\"lewd\">exposed " + _undies + " and " + _undertop + "</span>">>
@@ -3255,7 +3259,7 @@
 			<<set _exposed to false>>
 			<<set _wet to false>>
 
-			<<if ($worn.upper.exposed gte 1 or $upperwetstage gte 3) and (!$worn.under_upper.type.includes("covered") or ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)) and (!$worn.lower.type.includes("covered") or ($worn.lower.exposed gte 1 or $lowerwetstage gte 3))>>
+			<<if ($worn.upper.exposed gte 1 or $upperwetstage gte 3) and (!$worn.under_upper.type.includes("torso_covering") or ($worn.under_upper.exposed gte 1 or $underupperwetstage gte 3)) and (!$worn.lower.type.includes("overalls") or ($worn.lower.exposed gte 1 or $lowerwetstage gte 3))>>
 				<<if $upperwetstage gte 3 or $underupperwetstage gte 3>>
 					<<set _text_output += "visible ">>
 					<<set _wet to true>>
@@ -3273,7 +3277,7 @@
 				<</if>>
 			<</if>>
 
-			<<if ($worn.lower.exposed gte 1 or $lowerwetstage gte 3) and (!$worn.under_lower.type.includes("covered") or ($worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3))>>
+			<<if ($worn.lower.exposed gte 1 or $lowerwetstage gte 3) and (!$worn.under_lower.type.includes("lower_covering") or ($worn.under_lower.exposed gte 1 or $underlowerwetstage gte 3))>>
 				<<if _text_output isnot "">>
 					<<set _text_output += " and ">>
 				<</if>>
@@ -4248,10 +4252,18 @@
 				<<if $pain gte 100>>
 					Your whole body hurts as
 				<<elseif $pain gte 40>>
-					<<if $speech_attitude is "bratty">>
-						You wipe away angry tears as
+					<<if $leftarm is "bound" and $rightarm is "bound">>
+						<<if $speech_attitude is "bratty">>
+							You blink away angry tears as
+						<<else>>
+							You blink away tears as
+						<</if>>
 					<<else>>
-						You wipe away your tears as
+						<<if $speech_attitude is "bratty">>
+							You wipe away angry tears as
+						<<else>>
+							You wipe away your tears as
+						<</if>>
 					<</if>>
 				<<elseif $worn.neck.name is "ivory necklace" and !pcAreArmsBound("both") and !_rubbedNecklace>>
 					<<set _rubbedNecklace to true>>
