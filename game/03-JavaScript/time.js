@@ -2255,6 +2255,7 @@ function dailyFarmEvents() {
 			 * a bit impractical, since the player can sometimes go over a week without visiting him.
 			 * 
 			 * Changed the value to 0.9, for up to 10 days of food, or up to £2,169 when sold in a Market Stall.
+			 * Generates £1,518.30 each week, assuming the player collects it every day.
 			 * 
 			 * The food should realistically expire at different rates, but doing so would make the mechanic more
 			 * complex without providing a meaningful improvement to gameplay.
@@ -2269,11 +2270,17 @@ function dailyFarmEvents() {
 			// Truffles sell for £8.00 on the market.
 			// This generates £8.00 * 16.5 = £132.00 each day
 			wikifier("farm_stock", "truffles", 9, 24);
-			wikifier("farm_pigs", -2);
+			/**
+			 * Personally think the -2 daily decay is too high. At this rate, the PC can't be gone for more than a month
+			 * before the pig's go back to hating their guts. It's also twice as fast as the dog kennel. I think it makes
+			 * more sense to halve the values, so a fully upgraded farm will have the animal's respect all decay at the
+			 * same rate. Except for horses, which don't lose anything.
+			 */
+			wikifier("farm_pigs", -1);
 		} else if (V.farm.woodland >= 1) {
 			// This generates £8.00 * 4.5 = £36.00 each day
 			wikifier("farm_stock", "truffles", 3, 6);
-			wikifier("farm_pigs", -1);
+			wikifier("farm_pigs", -0.5);
 		}
 		if (V.farm.barn >= 2) {
 			// Milk and Cream each sell for £1.00 on the market.

@@ -4,6 +4,18 @@
 <<farm_work_update>>
 
 You are in the woodland within the farm grounds.
+<<if $farm_work.woodland is 0>>
+	Heavy branches and thick clumps of leaves litter the trails.
+	<span class="red">You will not be able to forage.</span>
+<<elseif $farm_work.woodland is 1>>
+	Some branches and patches of leaves litter the trails.
+	<span class="red">You will not be able to forage.</span>
+<<elseif $farm_work.woodland is 2>>
+	Only a few branches and sparse leaves cover the trails.
+	You will be able to forage, <span class="yellow">although some branches may block your way.</span>
+<<else>>
+	You will be able to forage, <span class="green">and the paths through the woodland are clear.</span>
+<</if>>
 
 <<if Time.dayState is "night">>
 	<<if Weather.precipitation is "snow">>
@@ -20,6 +32,33 @@ You are in the woodland within the farm grounds.
 		The trees shield you from the worst of the rain.
 	<<else>>
 		You are surrounded by the chirping of birds.
+	<</if>>
+<</if>>
+<br><br>
+
+<<if $farm_work.pigs_out is 0>>
+	<<if _farm_work_time <= -3>>
+		The pigs are asleep in their sty.
+	<<elseif _farm_work_time <= 0>>
+		The pigs are rubbing each other awake.
+	<<else>>
+		The pigs oink to be let out.
+	<</if>>
+<<elseif $farm_work.pigs_out is 1>>
+	<<if Time.season is "winter">>
+		<span class="cyan">The earth is too cold to find fungi.</span>
+	<<elseif Weather.precipitation is "snow">>
+		<span class="cyan">The pigs stay away from the ice treeline.</span>
+	<<elseif Weather.precipitation is "rain">>
+		<span class="orange">The pigs root around in the muddy undergrowth.</span>
+	<<else>>
+		<span class="orange">The pigs root around in the damp undergrowth.</span>
+	<</if>>
+<<else>>
+	<<if _farm_work_time < 46>>
+		The pigs shuffle around in their sty.
+	<<else>>
+		The pigs are asleep in their sty.
 	<</if>>
 <</if>>
 <<if $farm_work.alex is "woodland">>
@@ -60,11 +99,76 @@ You are in the woodland within the farm grounds.
 		<</if>>
 		<br>
 	<</if>>
-	<<if $farm_work.forage isnot 1 and $farm.woodland gte 2>>
+	/*
+		The original code allowed you to forage once a day, regardless of the woodland's current tending status.
+		I believe it would be better if you could only forage AFTER the woodlands have been fully tended to (Untidy
+		woodlands = Hard to navigate). Since the "Forage for fungi" activity will also be a way to raise the Pig's Respect,
+		I think it makes sense if the player has the option to forage once per day at Woodlands Level 2, and twice per day
+		at Woodlands Level 3.
+		
+		If think it would be fair if a Level 3 Woodlands still gives double the produce of a Level 2 Woodlands, as it will
+		need an extra 20 minutes of Tending each day and further increases that rate that the pigs lose Respect for the
+		player. If the player doesn't want to spend that time tending, they can wait for Alex to finish it when he's doing
+		his chores. However, the "Forage for fungi" activity will only be available while the pigs are out in their pen.
+		
+		It costs £30,000 to reach a Level 2 Woodlands, and £80,000 to reach a Level 3 Woodlands.
+		
+		Using the current Market Stall rates, Foraging for Fruit with a Level 2 Woodlands will now give £100 worth of Fruit,
+		while Foraging for Fungi will give £50-200 worth of Fungi, depending on the player's Athleticism and Tending skills.
+
+		Foraging will be broken up into 3 20-minute events, where a dangerEvent() may trigger each time. When Foraging for
+		fungi, there will be a 2/3 chance for a Pig-based Skill-Check. Passing this Skill Check will give +1 Pig's Respect.
+
+		Foraging for Fungi will also require the player to reward the pigs when they return to the farm, either with ~£20
+		worth of potatoes or carrots, or ~£4 worth of apples. The player can also choose the reward the pigs with their
+		body. (1x Consensual Pig Encounters above -10 Pig's Respect, 2x Consensual Pig Encounters from -19 to -10 Pig's
+		Respect, and 3x Consensual Pig Encounters at -20 Pig's Respect and below). These food rates are doubled for a
+		Level 3 Woodlands, and scale based on the combined market value of the Mushrooms and Truffles that have been
+		harvested. 
+
+		Rewarding the pigs in any way will give +3 Pig's Respect, while refusing will give -3 Pig's Respect.
+		
+		If the player refuses when the Pig's Respect is already less than or equal to -10, they will enter a Farm Pigs Feed
+		extreme encounter. The player can call for Alex's Help, or try to pass the Skill Check for +1 Pig's Respect. Losing
+		the combat encounter will also cause the pigs to take HALF of the player's harvest.
+		
+		If the Pig's Respect is less than or equal to -20, the Tending / Physique checks will become much harder (50%
+		chance at maximum Tending, 75% chance at 15,000 Physique), and they will first lead the player deep into the
+		woodlands so the player can't call Alex for help. The player will be unable to satiate them with regular food, as
+		the pigs demand an immediate reward. The player's only non-Skill-based options will be to give them half of the
+		player's harvest or to reward them with their body. Losing a combat encounter will also cause the pigs to take ALL
+		of the PC's harvest.
+
+		The dangerEvent()'s that can be obtained when Foraging for fungi will be 1/3 generic, and 2/3 Pig-based. That means
+		the player, if they have maximum Allure and reward the pigs each time, will be able to gain ~5 Pig's Respect every
+		time they Forage for fungi. With a Level 3 Woodlands, they can theoretically raise the Pig's Respect by 10 each day.
+
+		Assuming the player rewards the pigs with potatoes or carrots, and the Pig's Respect is above -20, a Level 3
+		Woodlands will give around £800 - £80 = £720 per day, for 2 hours of work (If Alex tends the woodlands for you).
+
+		See "https://docs.google.com/spreadsheets/d/11sYCs887BkfBjLbs5lufGH1KH-4Y5FK-UFpixTKyT4Y" for the exact math.
+	 */
+	<<if $farm_work.forage lt ($farm.woodland - 1) and $farm.woodland gte 2>>
 		<<if pcAreArmsBound("both")>>
 			<span class="red">Both of your arms are bound</span>, so you are unable to forage.
 		<<else>>
-			<<foresticon "bush">><<link [[Forage (1:00)|Farm Woodland Forage]]>><<set $farm_work.forage to 1>><<pass 60>><</link>>
+			<<foresticon "bush">><<link [[Forage for fruits (1:00)|Farm Woodland Forage]]>><<set $farm_work.forage += 1>>
+				<<set $phase to {
+					basket: [0, 0, 0],
+					remainingAttempts: 3,
+					forageType: "fruit",
+					}>>
+			<</link>>
+			<<if $farm_work.pigs_out is 1 and Time.season is not "winter">>
+				<br>
+				<<animalicon "pig">><<link [[Forage for fungi (1:00)|Farm Woodland Forage]]>><<set $farm_work.forage += 1>>
+					<<set $phase to {
+						basket: [0, 0, 0],
+						remainingAttempts: 3,
+						forageType: "fungi",
+						}>>
+				<</link>>
+			<</if>>
 		<</if>>
 		<br>
 	<</if>>
@@ -72,49 +176,40 @@ You are in the woodland within the farm grounds.
 <</if>>
 
 :: Farm Woodland Tend
-<<effects>>
+<<effects>><<outfitChecks>>
 
 You remove dead wood, and trim the branches of the wildest trees.
 <br><br>
 
-
 <<if dangerEvent()>>
-	<<if $worn.upper.name isnot "naked" and random(1, 2) is 2>>
-		<<set $worn.upper.integrity -= 10>>
-		<<if $worn.upper.integrity lte 0>>
-			Your $worn.upper.name <<= $worn.upper.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it. <span class="pink">The force tears the fabric from your body, baring your <<undertop>>.</span>
+	/* 0 means upper clothing, 1 means lower clothing */
+	<<set _branchTarget to random(0, 1)>>
+	<<if _top>>
+		<<set _top.integrity -= 10>>
+		<<if _top.integrity lte 0>>
+			Your _top.name <<= $_top.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it.
+			<span class="pink">The force tears the fabric from your body, baring your <<undertop>>.</span>
 		<<else>>
-			Your $worn.upper.name <<= $worn.upper.plural ? "catch" : "catches">> on one such branch, leaving <<upperit>> worse for wear.
+			Your _top.name <<= _top.plural ? "catch" : "catches">> on one such branch, leaving _top.name worse for wear.
 		<</if>>
-	<<elseif $worn.lower.name isnot "naked">>
-		<<set $worn.lower.integrity -= 10>>
-		<<if $worn.lower.integrity lte 0>>
-			Your $worn.lower.name <<= $worn.lower.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it. <span class="pink">The force tears the fabric from your body, baring your <<undies>>.</span>
+	<<elseif _bottom.name isnot "naked">>
+		<<set _bottom.integrity -= 10>>
+		<<if _bottom.integrity lte 0>>
+			Your _bottom.name <<= _bottom.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it.
+			<span class="pink">The force tears the fabric from your body, baring your <<undies>>.</span>
 		<<else>>
-			Your $worn.lower.name <<= $worn.lower.plural ? "catch" : "catches">> on one such branch, leaving <<lowerit>> worse for wear.
-		<</if>>
-	<<elseif $worn.under_upper.name isnot "naked" and random(1, 2) is 2>>
-		<<set $worn.under_upper.integrity -= 10>>
-		<<if $worn.under_upper.integrity lte 0>>
-			Your $worn.under_upper.name <<= $worn.under_upper.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it. <span class="pink">The force tears the fabric from your body, baring your <<breasts>>.</span>
-		<<else>>
-			Your $worn.under_upper.name <<= $worn.under_upper.plural ? "catch" : "catches">> on one such branch, leaving <<underupperit>> worse for wear.
-		<</if>>
-	<<elseif $worn.under_lower.name isnot "naked">>
-		<<set $worn.under_lower.integrity -= 10>>
-		<<if $worn.under_lower.integrity lte 0>>
-			Your $worn.under_lower.name <<= $worn.under_lower.plural ? "catch" : "catches">> on one such branch as a gust of wind disturbs it. <span class="pink">The force tears the fabric from your body, baring your <<genitals>>.</span>
-		<<else>>
-			Your $worn.under_lower.name <<= $worn.under_lower.plural ? "catch" : "catches">> on one such branch, leaving <<underlowerit>> worse for wear.
+			Your _bottom.name <<= _bottom.plural ? "catch" : "catches">> on one such branch, leaving _bottom.name worse for wear.
 		<</if>>
 	<<else>>
-		A gust of wind animates them as you work, scratching your skin.<<gpain>><<pain 4>>
+		A gust of wind animates the branches as you work, scratching your skin.<<gpain>><<pain 4>>
 	<</if>>
+	<<integritycheck no_text>><<exposure>>
 	<br><br>
 	<<link [[Next|Farm Woodland]]>><</link>>
 <<else>>
 	<<link [[Next|Farm Woodland]]>><</link>>
 <</if>>
+
 
 :: Farm Woodland Tend Alex
 <<effects>>
@@ -203,9 +298,9 @@ You help Alex remove dead wood, and trim the branches of the wildest trees.
 	<<link [[Next|Farm Woodland]]>><<endevent>><</link>>
 <</if>>
 
+
 :: Farm Woodland Tend Skirt
 <<effects>>
-
 
 You step around the ladder just as a gust billows Alex's skirt, giving you a clear view of <<his>> red boyshorts.
 <br><br>
@@ -259,6 +354,7 @@ You step around the ladder just as a gust billows Alex's skirt, giving you a cle
 
 <<link [[Next|Farm Woodland]]>><<endevent>><</link>>
 
+
 :: Farm Woodland Tend Tease
 <<effects>>
 
@@ -279,6 +375,7 @@ Alex's blush deepens. <<He>> continues sawing the log, but keeps <<his>> legs ti
 
 <<link [[Next|Farm Woodland]]>><<endevent>><</link>>
 
+
 :: Farm Woodland Tend No Skirt
 <<effects>>
 
@@ -292,62 +389,192 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 
 
 :: Farm Woodland Forage
-<<effects>>
+<<set _basket to $phase.basket>>
+<<set _remainingAttempts to $phase.remainingAttempts - 1>>
+<<set _forageType to $phase.forageType>>
+<<effects>><<outfitChecks>>
 
-You take a basket into the woodland, and search the boughs and floor for ripe edibles.
-<br><br>
-
-<<if $rng gte 76>>
-	<<wearProp "strawberry basket">>
-	<span class="green">You find some ripe <<foodstufficon "strawberry">> strawberries.</span>
-	<<if $farm.woodland gte 3>>
-		<<tending_pick strawberry 10 50>>
-	<<else>>
-		<<tending_pick strawberry 5 25>>
-	<</if>>
-<<elseif $rng gte 51>>
-	<<wearProp "peach basket">>
-	<span class="green">You find some ripe <<foodstufficon "peach">> peaches.</span>
-	<<if $farm.woodland gte 3>>
-		<<tending_pick peach 10 50>>
-	<<else>>
-		<<tending_pick peach 5 25>>
-	<</if>>
-<<elseif $rng gte 26>>
-	<<wearProp "plum basket">>
-	<span class="green">You find some ripe <<foodstufficon "plum">> plums.</span>
-	<<if $farm.woodland gte 3>>
-		<<tending_pick plum 10 50>>
-	<<else>>
-		<<tending_pick plum 5 25>>
-	<</if>>
+<<if _remainingAttempts lte 0>>
+	/* Triggers at the end of the foraging session */
+	
 <<else>>
-	<<wearProp "mushroom basket">>
-	<span class="green">You find some <<foodstufficon "mushroom">> mushrooms.</span>
-	<<if $farm.woodland gte 3>>
-		<<tending_pick mushroom 10 50>>
-	<<else>>
-		<<tending_pick mushroom 5 25>>
-	<</if>>
-<</if>>
-<br><br>
+	<<pass 20>>
 
-<<if random(1, 5) is 5>>
-	You smell a mesmerising sweetness. It leads you to a strange purple flower.
+	<<if _forageType is "fruit">>
+		You take a basket into the woodland, and search the boughs and bushes for fruit.
+	<<elseif _forageType is "fungi">>
+		You take a basket into the woodland, and search the undergrowth for fungi.
+		<<if $farm.beasts.pigs > -20>>
+			The pigs guide you along.
+		<<else>>
+			<span class="red">The pigs guide you along.</span>
+		<</if>>
+	<<else>>
+		ERROR (Farm Woodland Forage): YOU SHOULD NOT BE HERE. PLEASE REPORT.
+	<</if>>
 	<br><br>
-	<<if pcAreArmsBound("both")>>
-		<span class="red">Both of your arms are bound</span>, so you are unable to pick the flower.
+
+	/**
+	* Changed the RNG checks so that the player makes 3 foraging checks, each taking 20 minutes,
+	* with a chance of receiving ANY type of fruit.
+	*
+	* Pig-based dangerEvents may trigger if the player is foraging for fungi.
+	*
+	* Basket holds Strawberries, Peaches, and Plums when foraging for fruit, or Mushrooms
+	* and Truffles when foraging for fungi. When foraging for fungi, the last index is not used.
+	*/	
+	<<if _forageType is "fruit">>
+		<<set _target to random(0, 2)>>
+		<<switch _target>>
+			<<case 0>>
+				/* Strawberries */
+				<<wearProp "strawberry basket">>
+				<span class="green">You find some ripe <<foodstufficon "strawberry">> strawberries.</span>
+				<<if $farm.woodland gte 3>>
+					<<tending_pick strawberry 40 100>>
+				<<else>>
+					<<tending_pick strawberry 20 50>>
+				<</if>>
+				<<set _basket[0] += _tending_amount>>
+			<<case 1>>
+				/* Peaches */
+				<<wearProp "peach basket">>
+				<span class="green">You find some ripe <<foodstufficon "peach">> peaches.</span>
+				<<if $farm.woodland gte 3>>
+					<<tending_pick peach 20 80>>
+				<<else>>
+					<<tending_pick peach 10 40>>
+				<</if>>
+				<<set _basket[1] += _tending_amount>>
+			<<case 2>>
+				/* Plums */
+				<<wearProp "plum basket">>
+				<span class="green">You find some ripe <<foodstufficon "plum">> plums.</span>
+				<<if $farm.woodland gte 3>>
+					<<tending_pick plum 30 70>>
+				<<else>>
+					<<tending_pick plum 15 35>>
+				<</if>>
+				<<set _basket[2] += _tending_amount>>
+		<</switch>>
+		<br><br>
+	<<elseif _forageType is "fungi">>
+		/* When foraging, there is a 2/3 chance to find Mushrooms, and a 1/3 chance to find Truffles */
+		<<set _target to random(0, 2)>>
+		<<if _target is lt 2>>
+			/* Mushrooms */
+			<<wearProp "mushroom basket">>
+			<span class="green">You find some <<foodstufficon "mushroom">> mushrooms.</span>
+			<<if $farm.woodland gte 3>>
+				<<tending_pick mushroom 20 60>>
+			<<else>>
+				<<tending_pick mushroom 10 30>>
+			<</if>>
+			<<set _basket[0] += _tending_amount>>
+		<<else>>
+			/* Truffles */
+			/* NOTE: THERE DOES NOT CURRENTLY EXIST A TRUFFLE BASKET SPRITE. SPRITEWORK NEEDED. */
+			<<wearProp "mushroom basket">>
+			<span class="green">You find some <<foodstufficon "truffle">> truffles.</span>
+			<<if $farm.woodland gte 3>>
+				<<tending_pick truffle 20 60>>
+			<<else>>
+				<<tending_pick truffle 10 30>>
+			<</if>>
+			<<set _basket[1] += _tending_amount>>
+		<</if>>
 	<<else>>
-		<<foodstufficon "strange_flower">> <<link [[Pick|Farm Woodland Harvest]]>><<drugs 60>><</link>><<garousal>>
+		ERROR (Farm Woodland Forage): YOU SHOULD NOT BE HERE. PLEASE REPORT.
 	<</if>>
-	<br>
-	<<getouticon>><<link [[Ignore|Farm Woodland]]>><</link>>
-<<else>>
-	<<link [[Next|Farm Woodland]]>><</link>>
+
+	<<if dangerEvent()>>
+		/**
+		 * If the player is foraging for fruit, they will only get scratched by some branches. If they are foraging for
+		 * fungi, they have a 1/3 chance of getting scratched, and a 2/3 chance of getting molested by a pig.
+		 *
+		 * "true" will be replaced with random(1, 3) is 3 after the pig harassment text is added.
+		 */
+		<<if _forageType is "fruit" or (_forageType is "fungi" and true)>>
+			/* 0 means upper clothing, 1 means lower clothing */
+			<<set _branchTarget to random(0, 1)>>
+			<<if _top>>
+				<<set _top.integrity -= 10>>
+				<<if _top.integrity lte 0>>
+					Your _top.name <<= $_top.plural ? "catch" : "catches">> on a branch as a gust of wind disturbs it.
+					<span class="pink">The force tears the fabric from your body, baring your <<undertop>>.</span>
+				<<else>>
+					Your _top.name <<= _top.plural ? "catch" : "catches">> on a branch, leaving _top.name worse for wear.
+				<</if>>
+			<<elseif _bottom.name isnot "naked">>
+				<<set _bottom.integrity -= 10>>
+				<<if _bottom.integrity lte 0>>
+					Your _bottom.name <<= _bottom.plural ? "catch" : "catches">> on a branch as a gust of wind disturbs it.
+					<span class="pink">The force tears the fabric from your body, baring your <<undies>>.</span>
+				<<else>>
+					Your _bottom.name <<= _bottom.plural ? "catch" : "catches">> on a branch, leaving _bottom.name worse for wear.
+				<</if>>
+			<<else>>
+				A gust of wind animates the nearby branches, scratching your skin.<<gpain>><<pain 4>>
+			<</if>>
+			<<integritycheck no_text>><<exposure>>
+		<<else>>
+			TODO: Pig harassment events while foraging for fungi in the woodlands. If you see this, please report.
+		<</if>>
+		<br><br>
+		<<link [[Next|Farm Woodland Forage]]>>
+			<<set $phase to {
+				basket: _basket,
+				remainingAttempts: _remainingAttempts - 1,
+				forageType: _forageType,
+				}>>
+		<</link>>
+	<<else>>
+		<<if random(1, 5) is 5>>
+			You smell a mesmerising sweetness. It leads you to a strange purple flower.
+			<br><br>
+			<<if pcAreArmsBound("both")>>
+				/**
+				 * Shouldn't currently be possible to reach this text, as you can't start foraging if your arms are bound.
+				 * Maybe there will be an arm binding event in the future? 
+				 */
+				<span class="red">Both of your arms are bound</span>, so you are unable to pick the flower.
+				<br>
+			<<else>>
+				<<foodstufficon "strange_flower">><<link [[Pick|Farm Woodland Strange Harvest]]>><<drugs 60>>
+					<<set $phase to {
+						basket: _basket,
+						remainingAttempts: _remainingAttempts - 1,
+						forageType: _forageType,
+						}>>
+				<</link>><<garousal>>
+			<</if>>
+			<br>
+			<<getouticon>><<link [[Ignore|Farm Woodland Forage]]>>
+				<<set $phase to {
+					basket: _basket,
+					remainingAttempts: _remainingAttempts - 1,
+					forageType: _forageType,
+					}>>
+			<</link>>
+			<br>
+		<<else>>
+			<<link [[Next|Farm Woodland Forage]]>>
+				<<set $phase to {
+					basket: _basket,
+					remainingAttempts: _remainingAttempts - 1,
+					forageType: _forageType,
+					}>>
+			<</link>>
+			<br>
+		<</if>>
+	<</if>>
 <</if>>
 
 
-:: Farm Woodland Harvest
+:: Farm Woodland Strange Harvest
+<<set _basket to $phase.basket>>
+<<set _remainingAttempts to $phase.remainingAttempts>>
+<<set _forageType to $phase.forageType>>
 <<effects>><<wearProp "strange flower basket">>
 
 <<tending_pick strange_flower 1 1>>
@@ -355,7 +582,13 @@ You take a basket into the woodland, and search the boughs and floor for ripe ed
 The warmth spreads from your fingertips. You resist the urge to bury your nose in its silken petals.
 <br><br>
 
-<<link [[Next|Farm Woodland]]>><</link>>
+<<link [[Next|Farm Woodland Forage]]>>
+	<<set $phase to {
+		basket: _basket,
+		remainingAttempts: _remainingAttempts,
+		forageType: _forageType,
+		}>>
+<</link>>
 <br>
 
 
