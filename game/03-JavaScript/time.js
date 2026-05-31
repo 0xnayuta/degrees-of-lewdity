@@ -2250,29 +2250,48 @@ function dailyFarmEvents() {
 		V.farm_attack_timer--;
 		if (V.farm_attack_timer < 0) wikifier("farm_attack_auto");
 		if (V.farm.stock) {
-			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
-			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
-			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
-			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.8);
+			/**
+			 * Original value was 0.8, which only allowed Alex's Cottage to store up to 5 days of food. This seems
+			 * a bit impractical, since the player can sometimes go over a week without visiting him.
+			 * 
+			 * Changed the value to 0.9, for up to 10 days of food, or up to £2,169 when sold in a Market Stall.
+			 * 
+			 * The food should realistically expire at different rates, but doing so would make the mechanic more
+			 * complex without providing a meaningful improvement to gameplay.
+			*/
+			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.9);
+			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.9);
+			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
+			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.9);
 		}
+		// See "https://docs.google.com/spreadsheets/d/11sYCs887BkfBjLbs5lufGH1KH-4Y5FK-UFpixTKyT4Y" for the exact math.
 		if (V.farm.woodland >= 3) {
-			wikifier("farm_stock", "truffles", 6, 12);
+			// Truffles sell for £8.00 on the market.
+			// This generates £8.00 * 16.5 = £132.00 each day
+			wikifier("farm_stock", "truffles", 9, 24);
 			wikifier("farm_pigs", -2);
 		} else if (V.farm.woodland >= 1) {
+			// This generates £8.00 * 4.5 = £36.00 each day
 			wikifier("farm_stock", "truffles", 3, 6);
 			wikifier("farm_pigs", -1);
 		}
 		if (V.farm.barn >= 2) {
-			wikifier("farm_stock", "milk", 12, 24);
-			wikifier("farm_stock", "cream", 12, 24);
+			// Milk and Cream each sell for £1.00 on the market.
+			// This generates £1.00 * (37.5 + 27) = £64.50 each day
+			wikifier("farm_stock", "milk", 27, 48);
+			wikifier("farm_stock", "cream", 18, 36);
 		} else if (V.farm.barn >= 1) {
-			wikifier("farm_stock", "milk", 6, 12);
-			wikifier("farm_stock", "cream", 6, 12);
+			// This generates £1.00 * (10.5 + 7.5) = £18.00 each day
+			wikifier("farm_stock", "milk", 9, 12);
+			wikifier("farm_stock", "cream", 6, 9);
 		}
 		if (V.farm.coop >= 2) {
-			wikifier("farm_stock", "eggs", 12, 24);
+			// Eggs sell for £0.40 on the market.
+			// This generates £0.40 * (51) = £20.40 each day
+			wikifier("farm_stock", "eggs", 30, 72);
 		} else if (V.farm.coop >= 1) {
-			wikifier("farm_stock", "eggs", 6, 12);
+			// This generates £0.40 * (18) = £7.20 each day
+			wikifier("farm_stock", "eggs", 12, 24);
 		}
 		if (V.farm.kennel >= 1) {
 			wikifier("farm_dogs", -1);
