@@ -1401,6 +1401,12 @@ function initFoodstuff() {
 				cook_minutes: 40,
 				servings: 1,
 				ingredients: ["haddock", "rice", "chicken_egg", "butter", "vegetable_oil", "lemon", "cream"],
+				ingredient_alternatives: {
+					normal: {
+						haddock: ["cod", "herring", "mackerel", "salmon", "trout", "whiting", "eel"],
+					},
+					lewd: {},
+				},
 				tags: [],
 			},
 			food: {
@@ -2484,6 +2490,12 @@ function initFoodstuff() {
 				cook_minutes: 30,
 				servings: 1,
 				ingredients: ["cod", "chips", "vegetable_oil", "flour"],
+				ingredient_alternatives: {
+					normal: {
+						cod: ["haddock", "whiting", "flounder", "sole", "bass", "perch", "pike"],
+					},
+					lewd: {},
+				},
 				tags: [],
 			},
 			food: {
