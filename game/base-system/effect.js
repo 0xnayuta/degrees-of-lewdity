@@ -235,15 +235,8 @@ function effects() {
 	};
 	const br = () => fragment.append(document.createElement("br"));
 
-	// Deprecated as of current
+	// Depricated as of current
 	// if (V.newVersionData) sWikifier("<<newversionnotification>>");
-
-	if (V.combat !== 1 && V.customReminders?.notifications !== undefined) {
-		while (V.customReminders.notifications.length > 0) {
-			sWikifier(V.customReminders.notifications.pop());
-			br();
-		}
-	}
 
 	sWikifier("<<autoTakePillCheck>>");
 	fragment.append(effectsWater());
