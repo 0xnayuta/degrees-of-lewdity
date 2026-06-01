@@ -130,10 +130,21 @@
 	<</addinlineevent>>
 <</if>>
 
-/* Wind blow event */
+/* Wind blow event — weight 4 at 0 dance skill, 0.5 at 600 */
 <<if ["storm", "thunderstorm", "heavyClouds", "heavyPrecipitation"].includes(Weather.name)>>
-	<<addinlineevent "wind" 4>>
-		<<include "Fishing Pier Wind">>
+	<<set _windChance to Math.clamp(4 - currentSkillValue('danceskill') * 3.7 / 600, 0.3, 4)>>
+	<<addinlineevent "wind" _windChance>>
+		<<if $daily.fishing.pier.whitney.phase is "alone">>
+			<<include "Fishing Pier Wind Whitney Alone">>
+		<<elseif $daily.fishing.pier.whitney.phase is "idle">>
+			<<include "Fishing Pier Wind Whitney Idle">>
+		<<elseif $daily.fishing.pier.whitney.phase is "bet">>
+			<<include "Fishing Pier Wind Whitney Bet">>
+		<<elseif $daily.fishing.pier.fisher.phase is "fishing">>
+			<<include "Fishing Pier Wind Fisher">>
+		<<else>>
+			<<include "Fishing Pier Wind">>
+		<</if>>
 	<</addinlineevent>>
 <</if>>
 
