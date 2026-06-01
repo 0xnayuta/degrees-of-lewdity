@@ -4,12 +4,9 @@
 - Test screaming for gwa rescue in forest fishing attack
 - Different rod tiers. If fishing on the cliff face, you need the highest tier of rod or else it will break.
 - Passout scenes? Passout functionality?
-- Wet clothing events
 - Go through and find places to put stress/trauma changes
-- Hawk rescue can happen too often
 - Hawk rescue code is duplicated too much
 - Move over UI fishing minigame from other branch
-- Whitney pier event: Better endings
 - Whitney pier event: Whitney needs to be able to show up even without the npc fisher present
 - Whitney pier event: Alone time with Whitney? I have a bunch of commented out code for it that I'm really not a fan of.
 - When exposed on the fishing rock, add an event where people walk up and gawk at you, maybe attack.
@@ -71,7 +68,7 @@ Ingredient handheld props:
 - /img/clothes/props/ingredient/eel.png
 - /img/clothes/props/ingredient/grayling.png
 
-Caught fish UI icons:
+Caught fish UI icons for the journal:
 - /img/misc/icon/fish/haddock.png
 - /img/misc/icon/fish/salmon.png
 - /img/misc/icon/fish/trout.png
