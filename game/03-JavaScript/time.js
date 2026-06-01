@@ -307,7 +307,7 @@ const Time = (() => {
 	/**
 	 *
 	 * @param {number} from starting hour
-	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opening hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
+	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opeining hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
 	 * @param {?number} pass minutes to pass before checking
 	 * @returns {boolean} whether current time after passing `pass` minutes will be between specified hours
 	 */
@@ -1787,11 +1787,7 @@ function dailyPlayerEffects() {
 	*/
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
-		// after third pregnancy, acceptance no longer decays
-		if (playerNormalPregnancyTotal() < 3) {
-			statChange.acceptance("pregnancy", -5);
-		}
-
+		statChange.acceptance("pregnancy", -5);
 	}
 
 	for (const bodypart of setup.bodyparts) {
@@ -2512,7 +2508,7 @@ function earSlimeDaily(passageEffects = false) {
 			}
 		}
 
-		// Breaks chastity gear over time, attempts to equip a chastity parasite if it applies
+		// Breaks chastity gear over time, attempts to equip a chastity parasite if it aplies
 		if (!["naked", "chastity parasite"].includes(V.worn.genitals.name) && playerChastity()) {
 			V.worn.genitals.integrity -= 500;
 			if (V.worn.genitals.integrity <= 0) {
