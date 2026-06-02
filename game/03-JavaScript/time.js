@@ -2272,9 +2272,12 @@ function dailyFarmEvents() {
 			wikifier("farm_stock", "truffles", 9, 24);
 			/**
 			 * Personally think the -2 daily decay is too high. At this rate, the PC can't be gone for more than a month
-			 * before the pig's go back to hating their guts. It's also twice as fast as the dog kennel. I think it makes
-			 * more sense to halve the values, so a fully upgraded farm will have the animal's respect all decay at the
-			 * same rate. Except for horses, which don't lose anything.
+			 * before the pig's go back to hating their guts. It's also twice as fast as the Dog Kennel's penalty. I
+			 * think it makes more sense to halve the values, so a fully upgraded farm will have the animal's respect
+			 * all decay at the same rate. Except for horses, which don't lose anything for balance reasons I guess.
+			 * 
+			 * That way, raising the Farm Animal's Respect could be treated like a monthly activity where the player
+			 * won't have to spend twice as long on pleasing the pigs.
 			 */
 			wikifier("farm_pigs", -1);
 		} else if (V.farm.woodland >= 1) {
@@ -2301,6 +2304,14 @@ function dailyFarmEvents() {
 			wikifier("farm_stock", "eggs", 12, 24);
 		}
 		if (V.farm.kennel >= 1) {
+			/**
+			 * I think it would be very funny if the Kennel also gave -1 Horse Respect per day. That way, if
+			 * the player returns to the farm with every animal at -30 respect, there will be an Animal Farm
+			 * easter egg saying stuff like, "The animals are plotting." and
+			 * "You hear singing in the barn +Stress" after midnight.
+			 * 
+			 * Probably too political for DOL, though.
+			 */ 
 			wikifier("farm_dogs", -1);
 			wikifier("farm_cattle", -1);
 		}
