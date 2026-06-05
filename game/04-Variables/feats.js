@@ -471,6 +471,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Whitney's Secret": {
+		title: "Whitney's Secret",
+		desc: "Discover Whitney's collection.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Kylar the Obsessed": {
 		title: "Kylar the Obsessed",
 		desc: "You gave your virginity to them.",
@@ -2661,7 +2668,7 @@ function applyFeatBoosts() {
 	// green thumb
 	if (upgrades.greenThumb) {
 		V.backgroundTraits.pushUnique("greenthumb");
-		if (V.fertilizer) ++V.fertilizer.current;
+		if (V.fertiliser) ++V.fertiliser.current;
 	}
 
 	// parasitic pregnancy
@@ -2788,7 +2795,7 @@ function applyFeatBoosts() {
 		specialClothesUpdate();
 		const level = details.specialClothing.purchased;
 		// old notes on the level:
-		/* Level 1 upgrade - unlock previosuly unlocked special clothing sets by selection. */
+		/* Level 1 upgrade - unlock previously unlocked special clothing sets by selection. */
 		/* Level 2 upgrade - unlock all special clothes unlocked in any other save. */
 		/* Level 3 upgrade - everything is remembered. */
 		unlocked.forEach(c => {

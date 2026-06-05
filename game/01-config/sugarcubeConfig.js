@@ -11,9 +11,9 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.9.8",
-	versionName: `"Here Comes the Sun" edition`,
-	sneaky: false,
+	version: "0.5.10.5",
+	versionName: `"Name pending" edition`,
+	sneaky: true,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
 };
@@ -207,6 +207,10 @@ Config.navigation.override = function (dest) {
 				return "Commercial Alleyways";
 			case "Industrial alleyways":
 				return "Industrial Alleyways";
+
+			case "English Event2":
+			case "English Event2 Molest":
+				return "English Molest";
 
 			case "Cafe Fruit Salad":
 			case "Cafe Autumn Ale":
