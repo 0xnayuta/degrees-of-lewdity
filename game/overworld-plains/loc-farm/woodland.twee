@@ -413,8 +413,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 
 <<if _remainingAttempts lt 0>>
 	<!-- Triggers at the end of the foraging session -->
-	<<if _forageType is "fruit" or $farm.beasts.pigs gte -20
-		or not ($settings.bestialityEnabled or $farm_work.pig.monster)>>
+	<<if _forageType is "fruit" or $farm.beasts.pigs gte -20>>
 		You can see the treeline from here.
 
 		<<set _uniqueItems to 0>>
@@ -670,22 +669,26 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<</link>>
 		<br>
 		
-		<<if hasSexStat("deviancy", 5)>>
-			<<animalicon "pig">><<link [[Offer your body (?:??)|Farm Woodland Forage Reward Extreme]]>>
+		<!-- The "body" and "nothing" rewards are disabled when bestiality is disabled and the pigs aren't monsters. -->
+		<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+			<<if hasSexStat("deviancy", 5)>>
+				<<animalicon "pig">><<link [[Offer your body (?:??)|Farm Woodland Forage Reward Extreme]]>>
+					<<set $phase to {
+						type: "body",
+						basket: _basket
+					}>>
+				<</link>><<deviant5>>
+			<</if>>
+			<br>
+
+			<<foresticon>><<link [[Refuse (?:??)|Farm Woodland Forage Reward Extreme]]>>
 				<<set $phase to {
-					type: "body",
+					type: "nothing",
 					basket: _basket
 				}>>
-			<</link>><<deviant5>>
+			<</link>><<dangerousText>>
+			<br>
 		<</if>>
-		<br>
-
-		<<foresticon>><<link [[Refuse (?:??)|Farm Woodland Forage Reward Extreme]]>>
-			<<set $phase to {
-				type: "nothing",
-				basket: _basket
-			}>>
-		<</link>><<dangerousText>>
 	<</if>>
 <<else>>
 	<<pass 20>>
@@ -784,11 +787,11 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		If they are foraging for fungi with a Level 2 Woodland, they will have a 1/2 chance of
 		getting molested by a pig after being scratched by a branch.
 		
-		If they are foraging for fungi with a Level 3 Woodland, the pig will always molest them
-		after being scratched by a branch.
+		If they are foraging for fungi with a Level 3 Woodland, they will have a 4/5 chance of
+		getting molested by a pig.
 		
 		If the chosen target on the player's body fails, or if the player gets hit with an
-		unlucky 1/4, the pig will simply tackle them and the skill checks will be harder. -->
+		unlucky 1/4, they will fall to the ground and the skill checks will be harder. -->
 	<<if (_forageType is "fruit" and dangerEvent()) or
 		(_forageType is "fungi" and ((_checkResults[0] is 2 and _checkResults[1] is 2) or dangerEvent(1.25)))>>
 		<<set _woodlandFungiChecks to [
@@ -797,7 +800,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 			{checkType: "lowernaked", checkFail: true}
 		]>>
 		<<eventChecks _woodlandFungiChecks false>>
-		<<set _attemptOne to random(0, 3)>>
+		<<set _attemptOne to random(0, 2)>>
 
 		<<if _attemptOne is 0 and _checkResults[_attemptOne] is 2>>
 			Your <<hairDetails>> catches on a branch as a gust of wind disturbs it. It's stuck.<<gpain>><<pain 4>>
@@ -824,21 +827,20 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<br><br>
 		
 		<<if _forageType is "fungi" and (($farm.woodland is 2 and random(1, 2) is 2)
-			or ($farm.woodland is 3 and random(1, 5) lte 4))
+			or ($farm.woodland is 3 and random(1, 5) is lte 4))
 			and ($settings.bestialityEnabled or $farm_work.pig.monster)>>
 			<!-- The event will be initiated by the player's hair or clothes catching on a branch. Upon triggering
 				this event, a pig will try to molest them.
 				
 				If however the targeted check fails, due to the player's hair being too short, the
-				player's upper or lower clothing slot being naked, or they simply hit the unlucky 1/4, the pig
-				will first tackle them and the skill checks will be harder.-->
+				player's upper or lower clothing slot being naked, or they simply hit the unlucky 1/4, they will
+				first fall the the ground and the skill checks will be harder. -->
 			<<if _checkResults[_attemptOne] is 2 and random(1, 4) is not 4>>
-				<<if _attemptOne is 0 and _checkResults[_attemptOne] is 2>>
+				<<if _attemptOne is 0>>
 					As you untangle your hair,
-				<<elseif (_attemptOne is 1 or _attemptOne is 2) and _checkResults[_attemptOne] is 2>>
-					As you untangle yourself,
 				<<else>>
-					As you back away from the branches,
+					<!-- Player's body is targeted while they're wearing clothes. -->
+					As you untangle yourself,
 				<</if>>
 				
 				<<if $farm_work.pig.monster>>
@@ -855,7 +857,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 						forageType: _forageType,
 						startPosition: "standing"
 					}>>
-				<</link>><<tendingdifficulty 1 600>>
+				<</link>><<tendingdifficulty 1 900>>
 				<br>
 				<<link [[Shove <<farm_him pig>> away|Farm Woodland Pigs Shove]]>>
 					<<set $phase to {
@@ -864,7 +866,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 						forageType: _forageType,
 						startPosition: "standing"
 					}>>
-				<</link>><<physiquedifficulty 1 12000>>
+				<</link>><<physiquedifficulty 1 13500>>
 				<br>
 				<<link [[Endure|Farm Woodland Pigs Endure]]>><<trauma 6>><<stress 6>><<farm_pigs -1>>
 					<<set $phase to {
@@ -888,10 +890,13 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 				<</if>>
 			<<else>>
 				<<if _attemptOne is 0 and _checkResults[_attemptOne] is 2>>
+					<!-- Unlucky 1/4. -->
 					As you untangle your hair,
 				<<elseif (_attemptOne is 1 or _attemptOne is 2) and _checkResults[_attemptOne] is 2>>
+					<!-- Unlucky 1/4. -->
 					As you untangle yourself,
 				<<else>>
+					<!-- Failed the check. -->
 					As you back away from the branches,
 				<</if>>
 				you trip on a root and fall onto your back. Looking up, you see a <<farm_text pig>> standing in
@@ -906,7 +911,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 						forageType: _forageType,
 						startPosition: "prone"
 					}>>
-				<</link>><<tendingdifficulty 1 1000>>
+				<</link>><<tendingdifficulty 1 1200>>
 				<br>
 				<<link [[Shove <<farm_him pig>> away|Farm Woodland Pigs Shove]]>>
 					<<set $phase to {
@@ -915,7 +920,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 						forageType: _forageType,
 						startPosition: "prone"
 					}>>
-				<</link>><<physiquedifficulty 1 15000>>
+				<</link>><<physiquedifficulty 1 16000>>
 				<br>
 				<!-- Enduring not possible because the player is already prone. -->
 				<<if hasSexStat("deviancy", 4)>>
@@ -1009,7 +1014,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 :: Farm Woodland Forage Reward Extreme
 <<set _rewardType to $phase.type>>
 <<set _basket to $phase.basket>>
-<<effects>>
+<<effects>><<outfitChecks>>
 
 <<if _rewardType is "basket">>
 	You hold out your basket. The <<farm_text_many pig>> stare at it.
@@ -1068,57 +1073,117 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<<if _amountTaken gt 0>>
 			<<set _pigsUnsatisfied += 1>>
 		<<else>>
-			<!-- Each serving of fungi takes the pigs ~2 minutes to eat -->
+			<!-- Each serving of fungi takes the pigs ~2 minutes to eat. -->
 			<<pass 2>>
 		<</if>>
 	<</for>>
 
-	<!-- The pigs will take 30-40 minutes to return to the farm from where they took the player.
-		When satisfied, they will rest for 10 minutes before leaving.  -->
-	<<if _pigsUnsatisfied lte 0>>
+	<!-- Players who've disabled bestiality can only get a little respect. Failing to satisfy the pigs will instead give them
+		increasing amounts of trauma, stress, and pain.
+
+		The pigs will take 30-40 minutes to return to the farm from where they took the player.
+		When satisfied, they will rest for 10 minutes before leaving. -->
+	<<if _pigsUnsatisfied lte 0 or not ($settings.bestialityEnabled or $farm_work.pig.monster)>>
 		<<set _passTime to random(30, 40)>>
 		<<pass _passTime>>
-		<<pass 10>>
-		After some time, the <<farm_text_many pig>> laze on the earth, satisfied with the meal.<<ggrespect>><<farm_pigs 4>>
-		<br><br>
 
-		<<if _basket[0] + _basket[1] gt 0>>
-			You pick up your basket. It seems like they left some food behind. After picking up their leftovers, you find
-			yourself left with 
-			<span class="green">
-				<<if _uniqueItems is 1>>
-					<<for _j = 0; _j < 2; _j++>>
-						<<if _basket[_j] gt 0>>
-							<<foodstuffReport _basketTypes[_j] _basket[_j] _basketTypes[_j]>>.
-						<</if>>
-					<</for>>
-				<<else>>
-					<<foodstuffReport "mushroom" _basket[0] "mushroom">>, and <<foodstuffReport "truffle" _basket[1] "truffle">>.
-				<</if>>
-			</span>
-		<</if>>
-		<br><br>
+		<<if _pigsUnsatisfied lte 0>>
+			<<pass 10>>
+			After some time, the <<farm_text_many pig>> laze on the earth, satisfied with the meal.
+			<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+				<<ggrespect>><<farm_pigs 4>>
+			<<else>>
+				<<grespect>><<farm_pigs 1>>
+			<</if>>
+			<br><br>
+		
+			<<if _basket[0] + _basket[1] gt 0>>
+				You pick up your basket. It seems like they left some food behind. After picking up their leftovers, you're
+				able to find 
+				<span class="green">
+					<<if _uniqueItems is 1>>
+						<<for _j = 0; _j < 2; _j++>>
+							<<if _basket[_j] gt 0>>
+								<<foodstuffReport _basketTypes[_j] _basket[_j] _basketTypes[_j]>>.
+							<</if>>
+						<</for>>
+					<<else>>
+						<<foodstuffReport "mushroom" _basket[0] "mushroom">>, and <<foodstuffReport "truffle" _basket[1] "truffle">>.
+					<</if>>
+				</span>
+			<</if>>
+			<br><br>
 
-		You don't know the way back, so you wait for them to get up. Some <<farm_text_many pig>> approach you during this
-		time, giving you a lick or a nuzzle for the meal. A few of them still look at you with lustful eyes, but the others
-		form a ring of sorts that stops them from approaching.
-		<br><br>
+			You don't know the way back, so you wait for them to get up. Some <<farm_text_many pig>> approach you during this
+			time, giving you a lick or a nuzzle for the meal.
+			<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+				A few of them still look at you with lustful eyes, but the others form a ring of sorts that stops them from
+				approaching.
+			<</if>>
+			<br><br>
 
-		<span class="red">It seems like they think you've paid your due.</span><<gstress>><<stress 6>>
-		<br><br>
+			<span class="red">It seems like they think you've paid your due.</span><<gstress>><<stress 6>>
+			<br><br>
 
-		<<farm_gen pig>>
+			<<farm_gen pig>>
 
-		<<if $farm_work.pig.monster>>
-			"Thank meal," a <<farm_text pig>> says. "We go back now." You follow them.
-		<<else>>
+			<<if $farm_work.pig.monster>>
+				"Thank meal," a <<farm_text pig>> says. "We go back now." You follow them.
+			<<else>>
+				Eventually, they get up and start trotting somewhere. You follow them.
+			<</if>>
+			<br><br>
+		<<elseif _pigsUnsatisfied is lte 2>>
+			<!-- Should only be possible if bestiality is disabled and the pigs aren't monsters.
+			Text for 1-2 unsatisfied pigs. -->
+			<<pass 4>>
+			Once your basket is empty, some <<farm_text_many pig>> lay on the earth, satisfied with their meal.
+			<br><br>
+
+			You don't know the way back, so you wait for them to get up. A few <<farm_text_many pig>> approach you during this
+			time, giving you a lick or a nuzzle as thanks. However, some of the <<farm_text_many pig>> seem unsatisfied. They
+			push you around, checking if you have any more food hidden away.<<gtrauma>><<gstress>>
+			<!-- This amount includes the "It seems they think you've paid your due" stress, and adds +6 stress for every
+				unsatisfied pig. -->
+			<<trauma 6>>
+			<<if _pigsUnsatisfied is 1>><<stress 12>><<else>><<stress 18>><</if>>
+			<br><br>
+
 			Eventually, they get up and start trotting somewhere. You follow them.
+			<br><br>
+		<<else>>
+			<!-- Should only be possible if bestiality is disabled and the pigs aren't monsters.
+			Text for 3-4 unsatisfied pigs. -->
+			<<pass 2>>
+			Once your basket is empty, a few of the <<farm_text_many pig>> lay down. However, most of them are unsatisfied.
+			<br><br>
+
+			You don't know the way back, and you're worried about disturbing them, so you sit with your back against a tree. The
+			<<farm_text_many pig>> get back up. However, instead of dispersing, they turn to you. They want more food.
+			<br><br>
+
+			<!-- Pigs may tear off player's clothes looking for more food. However, they will not try to molest the player. -->
+			They knock you around, searching for anything you might have hidden away.
+			<<if _top or _bottom>>
+				They grasp and tear, and soon have your <span class="pink">clothes reduced to tatters.</span><<clothesruined>>
+				<<ggtrauma>><<ggstress>><<gpain>><<pain 6>>
+			<<else>>
+				You trip and stumble as you're shoved, scraping your skin against the nearby trees.
+				<<ggtrauma>><<ggstress>><<gpain>><<pain 12>>
+			<</if>>
+			<<trauma 12>>
+			<<if _pigsUnsatisfied is 3>><<stress 24>><<else>><<stress 30>><</if>>
+			<br><br>
+
+			Eventually, they tire of their search and trot away with a huff. You watch their outlines fade between the trees.
+			Hesitantly, you follow them.
+			<br><br>
 		<</if>>
-		<br><br>
 
 		<<link [[Next|Farm Woodland]]>><</link>>
 		<br>
 	<<else>>
+		<!-- Should only be possible if bestiality is enabled, or the pigs are monsters. -->
 		<<if _pigsUnsatisfied is 1>>
 			<<pass 6>>
 			After emptying your basket, most of the <<farm_text_many pig>> laze on the earth, satisfied with their meal.
@@ -1514,6 +1579,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 	<br><br>
 
 <<elseif _rewardType is "body">>
+	<!-- Should not be possible to reach this branch without bestiality being enabled or the farm pigs being monsters. -->
 	<!-- Player will satisfy a pig with their body (+1 Pig's Respect). If the player has good Science and Tending,
 		they will recognize and reward a pig that was particularly helpful (+1 Pig's Respect). -->
 	You look among the <<farm_text_many pig>> gathered before you, deciding which one you'll reward.
@@ -1664,7 +1730,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<</link>>
 	<</if>>
 <<else>>
-	<<if $farm.beasts.pigs gte -5>>
+	<<if $farm.beasts.pigs gte -5 or not ($settings.bestialityEnabled or $farm_work.pig.monster)>>
 		<<farm_pigs -3>>
 		They consider you, then snort and trot away.
 		<br><br>
