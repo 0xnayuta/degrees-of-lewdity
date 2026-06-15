@@ -70,8 +70,15 @@
 
 /* Whitney bullies Fisher off the pier */
 <<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.whitney.phase is undefined>>
-	<<addinlineevent "whitneyBullyFisher" 0.38>>
+	<<addinlineevent "whitneyBullyFisher" 0.3>>
 		<<include "Fishing Pier Whitney Bully Fisher">>
+	<</addinlineevent>>
+<</if>>
+
+/* Whitney and friends arrive */
+<<if $daily.fishing.pier.whitney.phase is undefined and [undefined, "finished"].includes($daily.fishing.pier.fisher.phase) and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
+	<<addinlineevent "whitneyArrive" 0.3>>
+		<<include "Fishing Pier Whitney Arrive">>
 	<</addinlineevent>>
 <</if>>
 
@@ -89,8 +96,45 @@
 	<</addinlineevent>>
 <</if>>
 
+/* Whitney leaves */
+<<if $daily.fishing.pier.whitney.phase is "idle">>
+	<<if ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
+		<<addinlineevent "whitneyIdleLeaveWeather" 10>>
+			<<include "Fishing Pier Whitney Idle Leave Weather Heavy">>
+		<</addinlineevent>>
+	<<elseif Time.hour gte 20>>
+		<<addinlineevent "whitneyIdleLeaveNight" 10>>
+			<<include "Fishing Pier Whitney Leave Night">>
+		<</addinlineevent>>
+	<</if>>
+<<elseif $daily.fishing.pier.whitney.phase is "bet">>
+	<<if ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
+		<<addinlineevent "whitneyBetLeaveWeather" 10>>
+			<<include "Fishing Pier Whitney Bet Leave Weather Heavy">>
+		<</addinlineevent>>
+	<<elseif Time.hour gte 20>>
+		<<addinlineevent "whitneyBetLeaveNight" 10>>
+			<<include "Fishing Pier Whitney Bet Leave Night">>
+		<</addinlineevent>>
+	<<elseif Weather.name is "lightPrecipitation" and $daily.fishing.pier.whitney.rainLeave is undefined>>
+		<<addinlineevent "whitneyRainStay" 10>>
+			<<include "Fishing Pier Whitney Bet Weather Light">>
+		<</addinlineevent>>
+	<</if>>
+<<elseif $daily.fishing.pier.whitney.phase is "alone">>
+	<<if ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
+		<<addinlineevent "whitneyAloneLeaveWeather" 10>>
+			<<include "Fishing Pier Whitney Alone Leave Weather Heavy">>
+		<</addinlineevent>>
+	<<elseif Time.hour gte 24>>
+		<<addinlineevent "whitneyAloneLeaveNight" 10>>
+			<<include "Fishing Pier Whitney Alone Leave Night">>
+		<</addinlineevent>>
+	<</if>>
+<</if>>
+
 /* fisher event start */
-<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
+<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is undefined and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
 	<<addinlineevent "fisherArrive" 2>>
 		<<include "Fishing Pier Fisher Arrive">>
 	<</addinlineevent>>
@@ -109,7 +153,7 @@
 		<<addinlineevent "fisherLeaveNight" 10>>
 			<<include "Fishing Pier Fisher Leave Night">>
 		<</addinlineevent>>
-	<<elseif ["storm", "thunderstorm"].includes(Weather.name)>>
+	<<elseif ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
 		<<addinlineevent "fisherLeaveWeather" 10>>
 			<<include "Fishing Pier Fisher Leave Weather">>
 		<</addinlineevent>>
