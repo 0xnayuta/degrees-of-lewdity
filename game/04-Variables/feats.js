@@ -471,6 +471,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Whitney's Secret": {
+		title: "Whitney's Secret",
+		desc: "Discover Whitney's collection.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Kylar the Obsessed": {
 		title: "Kylar the Obsessed",
 		desc: "You gave your virginity to them.",
@@ -2325,8 +2332,9 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	if (V.plants_known.length >= 13) earnFeat("Seedy");
-	if (V.plants_known.length >= 26) earnFeat("Breedy");
+	let total_seeds = Object.values(setup.foodstuff).filter(plant => plant.tending?.has_seeds).length;
+	if (V.plants_known.length >= total_seeds / 2) earnFeat("Seedy");
+	if (V.plants_known.length >= total_seeds) earnFeat("Breedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -2398,10 +2406,7 @@ function earnHourlyFeats() {
 	}
 
 	// Should be last
-	let currentMax = 0;
-	for (let i = 0; i < Object.keys(setup.feats).length; i++) {
-		currentMax += setup.feats[Object.keys(setup.feats)[i]].difficulty;
-	}
+	let currentMax = Object.values(setup.feats).reduce((sum, feat) => sum + feat.difficulty, 0);
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
 
@@ -2685,7 +2690,7 @@ function applyFeatBoosts() {
 	// green thumb
 	if (upgrades.greenThumb) {
 		V.backgroundTraits.pushUnique("greenthumb");
-		if (V.fertilizer) ++V.fertilizer.current;
+		if (V.fertiliser) ++V.fertiliser.current;
 	}
 
 	// parasitic pregnancy
@@ -2812,7 +2817,7 @@ function applyFeatBoosts() {
 		specialClothesUpdate();
 		const level = details.specialClothing.purchased;
 		// old notes on the level:
-		/* Level 1 upgrade - unlock previosuly unlocked special clothing sets by selection. */
+		/* Level 1 upgrade - unlock previously unlocked special clothing sets by selection. */
 		/* Level 2 upgrade - unlock all special clothes unlocked in any other save. */
 		/* Level 3 upgrade - everything is remembered. */
 		unlocked.forEach(c => {

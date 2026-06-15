@@ -181,7 +181,7 @@
 			</span>
 			<br>
 			<<set _gender_body_words to {"m": "Masculine", "f": "Feminine", "a": "Androgynous"}>>
-			Body type: <mouse class="tooltip linkBlue">(?)<span>Contributes to how feminine or masculine you appear. In normal gameplay, the player's body type does not contribute to gender appearance, unless it has been feminised or masculinised via special clothing.</span></mouse>:
+			Body type <mouse class="tooltip linkBlue">(?)<span>Contributes to how feminine or masculine you appear. In normal gameplay, the player's body type does not contribute to gender appearance, unless it has been feminised or masculinised via special clothing.</span></mouse>:
 			<span id="statsBodyType">
 				<<cheatsBody>>
 			</span>
@@ -311,7 +311,7 @@
 			<br>
 		</div>
 		<<set _cl_slots to ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"]>>
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<<run _cl_slots.push("face")>>
 		<</if>>
 		<<set $_clothes to []>>
@@ -452,7 +452,7 @@
 			<<set $_clothes.push("a chastity belt")>>
 		<</if>>
 
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<div class="settingsToggleItemWide numberslider-inline">
 				<span class="gold"><<clothingicon $worn.face "face">><<= $worn.face.name.toUpperFirst()>> integrity:</span>
 
@@ -538,11 +538,11 @@
 				<<listbox "_slot" autoselect>>
 					<<optionsfrom setup.clothingLayer.body>>
 				<</listbox>>
-				<<set _clothesID to "1">>
-				<<textbox "_clothesID" "1">>
+				<<set _clothesID to 1>>
+				<<numberbox "_clothesID" 1>>
 				<br>
 				<<link "Send">>
-					<<if !between(+_clothesID, 1, setup.clothes[_slot].length)>>
+					<<if !between(_clothesID, 1, setup.clothes[_slot].length - 1)>>
 						<<replace "#ClothesSendResult">>That didn't work!<</replace>>
 					<<else>>
 						<<shopbuyv2 _slot "buy" "send" _clothesID 1>>
@@ -1592,8 +1592,15 @@
 				<</if>>
 				<<wolficon>><<link [[Temple]]>><<cheats-teleport-function>><</link>>
 				<br>
-				<<kitchenicon "soup">><<link [[Soup Kitchen]]>><<cheats-teleport-function>><</link>>
-				<br>
+				<<if $soup_kitchen_known is 1 and $exposed lte 0>>
+					<!-- take passage of time into account -->
+					<<if Time.betweenHours(18, 20, 1)>>
+						<<kitchenicon "soup">><<link [[Soup Kitchen]]>><<cheats-teleport-function>><</link>>
+					<<else>>
+						<<kitchenicon "soup">><<link [[Soup Kitchen|Soup Kitchen Closed]]>><<cheats-teleport-function>><</link>>
+					<</if>>
+					<br>
+				<</if>>
 				<<stripclubicon>><<link [[Strip Club]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<hospitalicon>><<link [[Hospital|Hospital front]]>><<cheats-teleport-function>><</link>>

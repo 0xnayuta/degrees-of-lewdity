@@ -2182,7 +2182,7 @@
 			<<case 6>>
 				"I'll remind you who you belong to,"
 			<<case 5>>
-				"Come out you worthless slut,"
+				"Come out, you worthless slut,"
 			<<case 4>>
 				"You think you're clever, hiding from me?"
 			<<case 3>>
@@ -2971,8 +2971,9 @@
 
 		<<avery_mansion_location_tracker>>
 
-		<<if $avery_mansion.schedule isnot "garden" and !$daily.avery.oranges>>
-			<<foodstufficon "orange">> <<link [[Steal Oranges (0:20)|Avery Garden Steal]]>><<pass 20>><<set $skulduggerydifficulty to 500>><</link>><<tendingdifficulty 1 300>><<skulduggerydifficulty 500>>
+		<<if !_avery_interrupt and $avery_mansion.schedule isnot "garden" and !$daily.avery.oranges>>
+			<<set $skulduggerydifficulty to 500>>
+			<<foodstufficon "orange">> <<link [[Steal oranges (0:20)|Avery Garden Steal]]>><<pass 20>><</link>><<tendingdifficulty 1 300>><<skulduggerydifficulty>>
 			<br><br>
 		<</if>>
 
@@ -3260,7 +3261,7 @@
 					<br>
 					<<foodstufficon "banana">> <<link [[Take 6 Bananas|Mansion Kitchen]]>><<tending_give banana 6>><<set $daily.avery.bananas to true>><</link>>
 					<br><br>
-				<</if>>	
+				<</if>>
 				<<if $avery_mansion.kitchen gte 4>>
 					<span class="red">You can't cook like this!</span> You'll need to clean the kitchen before you can make anything.
 					<br><br>
@@ -3519,19 +3520,53 @@
 
 			<<if $bus is "avery_dining">>
 				<<if $avery_mansion.schedule is "breakfast">>
-					<<if !$daily.avery.breakfast_bite and random(1, 4)>>
-						<<set _hide_links to 1>>
-						You enter the dining room and see Avery eating breakfast. It's a simple parfait with <<= either("fruits","granola","cereal")>>. Though simple, it looks tasty.
-						<br><br>
+					<<if !$daily.avery.breakfast>>
+						<<set $daily.avery.breakfast to 1>>
+						<<cleareventpool>>
+							<<addinlineevent "avery_breakfast_bite" 1>>
+								<<set _hide_links to 1>>
+								<<set _avery_breakfast_event to "bite">>
+								You enter the dining room and see Avery eating breakfast. It's a simple parfait with <<= either("fruits","granola","cereal")>>. Though simple, it looks tasty.
+								<br><br>
+							<</addinlineevent>>
+
+							<<addinlineevent "avery_breafkast_coffee" 1>>
+								<<set _hide_links to 1>>
+								<<set _avery_breakfast_event to "coffee">>
+							<</addinlineevent>>
+
+							<<addinlineevent "avery_breakfast_table" 1>>
+								<<set _hide_links to 1>>
+								<<set _avery_breakfast_event to "table">>
+							<</addinlineevent>>
+
+							<<addinlineevent "avery_breakfast_no_event_2" 1>>
+
+							<</addinlineevent>>
+						<<runeventpool>>
 					<</if>>
-					<<set $daily.avery.breakfast_bite to 1>>
+					<<endevent>>
 					<<npc "Avery">><<person1>>
-					<<if _hide_links and C.npc.Avery.love gte 60 and C.npc.Avery.rage lt 20>>
+					<<if _avery_breakfast_event is "bite" and C.npc.Avery.love gte 60 and C.npc.Avery.rage lt 20>>
 						Avery notices you looking. "Hungry?" <<He>> scoops up a spoonful. "Would you like a bite?"
 						<br><br>
 						<<link [[Yes|Mansion Breakfast Avery Bite]]>><<set $phase to 1>><</link>>
 						<br>
 						<<link [[No|Mansion Breakfast Avery Bite]]>><<set $phase to 2>><</link>>
+						<br>
+					<<elseif _avery_breakfast_event is "coffee">>
+						"<<= $averyragerevealed and C.npc.Avery.rage gte 20 ? "Make me some coffee, won't you" : "Would you mind making me some coffee">>?<<if $averySeen.includes("lewd_coffee")>> The same way you made it before,<</if>>" Avery ask when you enter the dining room. <<He>> sounds tired.
+						<br><br>
+						<<link [[Make Avery coffee (0:05)|Mansion Breakfast Avery Coffee]]>><</link>>
+						<br>
+						<<link [[Refuse|Mansion Breakfast Avery Coffee Refuse]]>><</link>><<llove>>
+						<br>
+					<<elseif _avery_breakfast_event is "table">>
+						You enter the dining room, and see Avery setting the table for breakfast.
+						<br><br>
+						<<link [[Help <<him>>|Mansion Breakfast Avery Table]]>><<set $phase to 0>><</link>>
+						<br>
+						<<link [[Leave <<him>> to it|Mansion Breakfast Avery Table End]]>><<set $phase to 1>><</link>>
 						<br>
 					<<else>>
 						<<unset _hide_links>>
@@ -3568,7 +3603,7 @@
 						<</if>>
 						<<endevent>>
 						<br><br>
-				 		<<socialiseicon>><<link [[Talk to Avery|Mansion Talk]]>><</link>>
+						<<socialiseicon>><<link [[Talk to Avery|Mansion Talk]]>><</link>>
 						<br><br>
 					<</if>>
 				<<elseif $avery_mansion.schedule is "dinner">>
@@ -4518,17 +4553,20 @@
 					<br><br>
 				<</if>>
 			<<case "dinner">>
-				<<if $bus isnot "avery_dining">>
-					<<switch $bus>>
-						<<case "avery_bedroom" "avery_bathroom" "avery_study">>
-							Avery is waiting for dinner downstairs.
-						<<case "avery_lounge" "avery_display" "avery_garage">>
-							Avery is waiting for dinner.
-						<<case "avery_garden" "avery_pool">>
-							Avery is waiting for dinner inside.
-						<<default>>
-					<</switch>>
-					<br><br>
+				<<set _dinnerDate to $avery_valentines?.ready and Time.monthDay is 14 and Time.monthName is "February">>
+				<<if Time.weekDay isnot 1 and !_dinnerDate>>
+					<<if $bus isnot "avery_dining">>
+						<<switch $bus>>
+							<<case "avery_bedroom" "avery_bathroom" "avery_study">>
+								Avery is waiting for dinner downstairs.
+							<<case "avery_lounge" "avery_display" "avery_garage">>
+								Avery is waiting for dinner.
+							<<case "avery_garden" "avery_pool">>
+								Avery is waiting for dinner inside.
+							<<default>>
+						<</switch>>
+						<br><br>
+					<</if>>
 				<</if>>
 			<<case "study">>
 				<<if $bus isnot "avery_study">>

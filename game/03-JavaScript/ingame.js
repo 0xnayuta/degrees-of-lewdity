@@ -631,7 +631,7 @@ function getRobinLocation() {
 		}
 	} else if (V.halloween === 1 && between(Time.hour, 16, 18) && Time.monthDay === 31) {
 		T.robin_location = "halloween";
-	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && C.npc.Robin.trauma < 80) {
+	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && Weather.precipitation !== "rain" && C.npc.Robin.trauma < 80) {
 		T.robin_location = Time.season === "winter" ? "park" : "beach";
 	} else if (V.englishPlay === "ongoing" && V.englishPlayDays === 0 && Time.hour >= 17 && Time.hour < 21) {
 		T.robin_location = "englishPlay";
@@ -711,6 +711,11 @@ function isInPark(name) {
 			return C.npc.Doren.init === 1
 				&& Time.hour >= 9 && Time.hour <= 15
 				&& Time.weekDay === 7;
+		case "sam":
+			// prettier-ignore
+			return C.npc.Sam.init === 1
+				&& (Time.hour >= 6 && Time.hour < 7)
+				&& Weather.precipitation === "none";
 		default:
 			return false;
 	}
@@ -1213,6 +1218,11 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
+/**
+ * @param {string} skill The name of the requested skill.
+ * @param {number} disableModifiers How much of an effect that modifiers will have on the player's current skill. Higher values means a lower effect. Stops at 2.
+ * @returns Returns the current value of the requested skill, accounting for potential modifiers.
+ */
 function currentSkillValue(skill, disableModifiers = 0) {
 	let result = V[skill];
 	if (!result && result !== 0) {

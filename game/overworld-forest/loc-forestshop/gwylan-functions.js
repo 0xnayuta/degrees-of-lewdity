@@ -764,7 +764,7 @@ function gwylanRequestIngredients() {
 			category: "tending",
 			name: ingredientKey,
 			type: setupItem.category,
-			need: 0,
+			need: 1,
 		};
 		if (setupItem.shop.available_in?.includes("supermarket")) {
 			const supermarketMaxNeed = Math.trunc(3000 / setup.foodstuff[ingredientKey].shop.sell_price); // supermarket items are set to this every week, so ensure it can't take more than 1 week to complete request
@@ -914,7 +914,7 @@ function gwylanRequestClothingSlotCheck(slot) {
 		thing =>
 			thing.category === "clothing" &&
 			V.worn[slot].name === thing.name &&
-			(thing.slot !== "upper" || (V.worn[slot].one_piece === 1 && gwylanRequestClothingSlotCheck("lower")) || V.worn[slot].one_piece === 0) &&
+			(thing.slot !== "upper" || (V.worn[slot].one_piece === 1 && V.worn.lower.name !== "naked") || V.worn[slot].one_piece === 0) &&
 			(thing.colour_requirement === "any" ||
 				V.worn[slot].colour === thing.colour_requirement ||
 				window.clothesColour(V.worn[slot]) === thing.colour_requirement) &&

@@ -1309,7 +1309,7 @@ function initHandheld() {
 			iconFile: "vintage-suitcase.png",
 			accIcon: "vintage-suitcase-acc.png",
 			holdPosition: "right_cover",
-		},
+        },
 		{
 			index: 31,
 			slot: "handheld",

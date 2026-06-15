@@ -1905,7 +1905,7 @@
 
 	<<if $o_long_and_beautiful gt 10>>
 		<<set $o_long_and_beautiful to 10>>
-	<<elseif !$hy_parent and !$hy_student and $o_long_and_beautiful is 10>>
+	<<elseif !$hy_parent and !$hy_student and $o_long_and_beautiful gte 10>>
 		<<set $o_long_and_beautiful to 9>>
 	<</if>>
 
@@ -3510,7 +3510,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 77 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 81 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3552,7 +3552,7 @@
 
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 77>>
+		<<set $objectVersion.updateClothes to 81>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -7170,26 +7170,26 @@
 
 	/* Add skin type(tanning difficulty) options, from easiest 0 to hardest 4*/
 	<<if $settings.tanningDifficulty is undefined>>
-    	<<set $settings.tanningDifficulty to 2>>
+		<<set $settings.tanningDifficulty to 2>>
 	<</if>>
 
 	/* Fixed the amount of Honeycomb and Blood Lemons that Gwylan asks for */
 	<<if $gwylan?.request?.items?.length>>
-        <<for _item range $gwylan.request.items>>
-            <<if _item.name is "wild_honeycomb" and _item.need gt 3>>
-                <<set _item.need to 3>>
+		<<for _item range $gwylan.request.items>>
+			<<if _item.name is "wild_honeycomb" and _item.need gt 3>>
+				<<set _item.need to 3>>
 			<<elseif _item.name is "blood_lemon" and _item.need gt 6>>
-                <<set _item.need to 6>>
-            <</if>>
-        <</for>>
-    <</if>>
-	
+				<<set _item.need to 6>>
+			<</if>>
+		<</for>>
+	<</if>>
+
 	/* Fixed Scarred Inmate not having a name */
 	<<if $per_npc.scarred_inmate && $per_npc.scarred_inmate.name is undefined>>
 		<<set $per_npc.scarred_inmate.name to ($per_npc.scarred_inmate.pronoun is "f" ? $NPC_names_f.random() : $NPC_names_m.random())>>
 		<<set $per_npc.scarred_inmate.fullDescription to $per_npc.scarred_inmate.name>>
 	<</if>>
-	
+
 	/* Supermarket Backcomp for Bananas and Orange additions */
 	<<for _key range Object.keys(setup.foodstuff)>>
 		<<if setup.foodstuff[_key].shop.available_in?.includes("supermarket") and V.foodstuff[_key].supermarket is undefined>>
@@ -7200,6 +7200,95 @@
 	/* Unsetting $avery_valentines.invite to false when $avery_valentines.done is already true */
 	<<if $avery_valentines?.done is true and $avery_valentines?.invite is true>>
 		<<set $avery_valentines.invite to false>>
+	<</if>>
+
+	/* setting npcSeen for already initiated NPCs */
+	<<if C.npc.Whitney.init is 1 and !$whitneySeen>>
+		<<set $whitneySeen to []>>
+	<</if>>
+	<<if C.npc.Eden.init is 1 and !$edenSeen>>
+		<<set $edenSeen to []>>
+	<</if>>
+	<<if C.npc.Doren.init is 1 and !$dorenSeen>>
+		<<set $dorenSeen to []>>
+	<</if>>
+	<<if C.npc.Sam.init is 1 and !$samSeen>>
+		<<set $samSeen to []>>
+	<</if>>
+	<<if C.npc.Alex.init is 1 and !$alexSeen>>
+		<<set $alexSeen to []>>
+	<</if>>
+
+	/* Fixed Butterfly Eyepatch not being unlocked */
+	<<if $specialClothes[125].unlocked is 3>>
+		<<set $specialClothes[133].unlocked to 3>>
+	<</if>>
+
+	/* Remove Duplicate Sunflower from $plants_known */
+	<<if $plants_known.filter(seed => seed === 'sunflower').length gt 1>>
+		<<set $plants_known.delete("sunflower")>>
+		<<set $plants_known.pushUnique("sunflower")>>
+	<</if>>
+
+	/* Fix for broken clothes */
+	<<if $saveVersions.some(v => ["0.5.10.0","0.5.10.1","0.5.10.2","0.5.10.3","0.5.10.4","0.5.10.5","0.5.10.6"].includes(v))>>
+		<<run ['upper','lower','under_upper','under_lower'].forEach(slot => {
+			if(V.worn[slot].one_piece === undefined && V.worn[slot].name !== "naked"){
+				if (V.worn[slot].set === slot){
+					V.worn[slot].one_piece = 0;
+				} else {
+					V.worn[slot].one_piece = 1;
+				}
+			}
+		})>>
+
+		<<run ['upper','lower','under_upper','under_lower'].forEach(slot => {
+			for(let i = 0; i < V.wardrobe[slot].length; i++){
+				if(V.wardrobe[slot][i].one_piece === undefined){
+					if (V.wardrobe[slot][i].set === slot){
+						V.wardrobe[slot][i].one_piece = 0;
+					} else {
+						V.wardrobe[slot][i].one_piece = 1;
+					}
+				}
+			}
+		})>>
+
+		<<run Object.keys(V.wardrobes).forEach(wardrobe => {
+			if(wardrobe !== "shopReturn" && wardrobe !== "wardrobe"){
+				['upper','lower','under_upper','under_lower'].forEach(slot => {
+					for (let i = 0; i < V.wardrobes[wardrobe][slot].length; i++) {
+						if(V.wardrobes[wardrobe][slot][i].one_piece === undefined){
+							if (V.wardrobes[wardrobe][slot][i].set === slot){
+								V.wardrobes[wardrobe][slot][i].one_piece = 0;
+							} else {
+								V.wardrobes[wardrobe][slot][i].one_piece = 1;
+							}
+						}
+					}
+				});
+			}
+		})>>
+	<</if>>
+
+	/* Fix for é in V.avery_mansion.food souffle */
+	<<if $avery_mansion?.food is "soufflé">>
+		<<set $avery_mansion.food to "souffle">>
+	<</if>>
+
+	<!-- 5.10.9 -->
+	<<if $monthly is undefined>>
+		<<set $monthly = {}>>
+	<</if>>
+
+	<!-- 5.10.11 -->
+	<<if $skulduggeryroll isnot undefined>>
+		<<unset $skulduggeryroll>>
+	<</if>>
+
+	/* fixed valentines chocolates not appearing in V.foodstuff */
+	<<if !$foodstuff["valentines_chocolate"]>>
+		<<set $foodstuff["valentines_chocolate"] to {amount: 0} >>
 	<</if>>
 
 	<<if $fishing is undefined>>
