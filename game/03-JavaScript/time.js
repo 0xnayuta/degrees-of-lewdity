@@ -1121,7 +1121,7 @@ function hourPassed(hours) {
 		}
 
 		// Decrease fishing danger values by 0.5 per hour, and remove the event if the danger is 0.
-		if (V.fishing && !["fishingMoor", "fishingForestLake"].includes(V.bus)) {
+		if (V.fishing) {
 			Object.values(V.fishing).forEach(location => {
 				if (location.eventDanger !== undefined) {
 					location.eventDanger = Math.max(0, location.eventDanger - 0.5);
