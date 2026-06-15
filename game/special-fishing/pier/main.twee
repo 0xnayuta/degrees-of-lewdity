@@ -35,16 +35,13 @@
 	<span class="blue">You are not exhibitionistic enough to keep standing around in such an exposed state.</span>
 <<else>>
 	<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><</link>>
-		<<if ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
+		<<if ["bet", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
 		<br>
 		<<link [[Take a sip|Fishing Pier Wait]]>><<set $fishingPierWaitAmbientOverride to "sip">><</link>><<galcohol>>
 	<</if>>
 <</if>>
 
-<<if $daily.fishing.pier.whitney.phase is "alone">>
-	<br>
-	<<link [[Move closer to Whitney|Fishing Pier Whitney Alone Move Close]]>><</link>>
-<<elseif $daily.fishing.pier.whitney.phase is "bet">>
+<<if $daily.fishing.pier.whitney.phase is "bet">>
 	<<if !$daily.fishing.pier.whitney.cantLeave>>
 		<br>
 		<<link [[Return to the pier|Fishing Pier Cannot Leave]]>><<run stopFishingProp()>><<set $daily.fishing.pier.whitney.cantLeave to true>><</link>>
@@ -106,6 +103,10 @@
 		<<addinlineevent "whitneyIdleLeaveNight" 10>>
 			<<include "Fishing Pier Whitney Leave Night">>
 		<</addinlineevent>>
+	<<elseif $daily.fishing.pier.whitney.age gt 12>>
+		<<addinlineevent "whitneyIdleLeave" 10>>
+			<<include "Fishing Pier Whitney Idle Leave">>
+		<</addinlineevent>>
 	<</if>>
 <<elseif $daily.fishing.pier.whitney.phase is "bet">>
 	<<if ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
@@ -119,16 +120,6 @@
 	<<elseif Weather.name is "lightPrecipitation" and $daily.fishing.pier.whitney.rainLeave is undefined>>
 		<<addinlineevent "whitneyRainStay" 10>>
 			<<include "Fishing Pier Whitney Bet Weather Light">>
-		<</addinlineevent>>
-	<</if>>
-<<elseif $daily.fishing.pier.whitney.phase is "alone">>
-	<<if ["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
-		<<addinlineevent "whitneyAloneLeaveWeather" 10>>
-			<<include "Fishing Pier Whitney Alone Leave Weather Heavy">>
-		<</addinlineevent>>
-	<<elseif Time.hour gte 24>>
-		<<addinlineevent "whitneyAloneLeaveNight" 10>>
-			<<include "Fishing Pier Whitney Alone Leave Night">>
 		<</addinlineevent>>
 	<</if>>
 <</if>>
@@ -178,9 +169,7 @@
 <<if ["storm", "thunderstorm", "heavyClouds", "heavyPrecipitation"].includes(Weather.name)>>
 	<<set _windChance to Math.clamp(4 - currentSkillValue('danceskill') * 3.7 / 600, 0.3, 4)>>
 	<<addinlineevent "wind" _windChance>>
-		<<if $daily.fishing.pier.whitney.phase is "alone">>
-			<<include "Fishing Pier Wind Whitney Alone">>
-		<<elseif $daily.fishing.pier.whitney.phase is "idle">>
+		<<if $daily.fishing.pier.whitney.phase is "idle">>
 			<<include "Fishing Pier Wind Whitney Idle">>
 		<<elseif $daily.fishing.pier.whitney.phase is "bet">>
 			<<include "Fishing Pier Wind Whitney Bet">>
@@ -238,7 +227,7 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 <<widget "fishingPierLocationAmbient">>
 	<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is "fishing">>
 		<<fishingPierFisherAmbient>>
-	<<elseif ["bet", "alone", "idle"].includes($daily.fishing.pier.whitney.phase)>>
+	<<elseif ["bet", "idle"].includes($daily.fishing.pier.whitney.phase)>>
 		<<if $daily.fishing.pier.fellOff>>
 			Whitney looks over at you with a smirk. "Welcome back, slut. Did you enjoy your swim?"
 
@@ -249,8 +238,6 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 					<<fishingPierWhitneyIdleAmbient>>
 				<<case "bet">>
 					<<fishingPierWhitneyBetAmbient>>
-				<<case "alone">>
-					<<fishingPierWhitneyAloneAmbient>>
 			<</switch>>
 		<</if>>
 	<</if>>
