@@ -297,7 +297,7 @@ setup.shopDetails = {
 		details: "none",
 	},
 	fishing_rod: {
-		name: "Fishing rod",
+		name: "Fishing Rod",
 		desc: "Needed to go fishing.",
 		details: "none",
 	},

@@ -310,6 +310,15 @@ function initFishingMoor() {
 	V.daily.fishing.moor.hikers.drinkOffered ??= false;
 	V.daily.fishing.moor.hikers.flirt ??= false;
 	V.daily.fishing.moor.hikers.leaveChance ??= 0;
+	if (V.moor_hunt >= 1) {
+		V.fishing.moor.event = "none";
+		V.fishing.moor.eventDanger = 0;
+		if (["sit", "campfire"].includes(V.daily.fishing.moor.hikers?.phase)) {
+			V.daily.fishing.moor.hikers.phase = "finished";
+			wikifier("clearNPC", "moor_hiker_1");
+			wikifier("clearNPC", "moor_hiker_2");
+		}
+	}
 	V.fishingCombatActive = false;
 	delete V.fishingHookedFish;
 }

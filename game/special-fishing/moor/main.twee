@@ -6,8 +6,11 @@
 
 <<fishingLocationDescription "moor">>
 <<fishingMoorLocationAmbient>>
-<br><br>
+<<if $moor_hunt gte 1>>
+	<span class="red">You are still being hunted.</span>
+<</if>>
 
+<br><br>
 <<if $exposed gte 1>>
 	<<exhibitionism "moorFishing">>
 	<br><br>
@@ -72,12 +75,22 @@
 :: Fishing Moor Wait Loop
 <<effects>>
 <<pass 5>>
+<<if $moor_hunt gte 1>>
+	<<set $moor_hunt += 0.5>>
+<</if>>
 <<cleareventpool>>
 
 <<addinlineevent "bite" 10>>
 	<<set $fishingHookedFish to rollFish("moor")>>
 	<<include "Fishing Moor Bite">>
 <</addinlineevent>>
+
+/* Hawk hunt capture */
+<<if $moor_hunt gte 10>>
+	<<addinlineevent "hawkHunt" 100>>
+		<<include "Fishing Moor Hawk Hunt">>
+	<</addinlineevent>>
+<</if>>
 
 /* Lurkers */
 <<if $settings.lurkersEnabled>>
@@ -114,7 +127,7 @@
 <</if>>
 
 /* Hikers approach events */
-<<if $fishing.moor.event is "none">>
+<<if $fishing.moor.event is "none" and !($moor_hunt gte 1)>>
 	<<addinlineevent "moorHikersStart" 2.5>>
 		<<set $fishing.moor.event to "moorHikers">>
 		<<fishingMoorStartleAnimals>>
