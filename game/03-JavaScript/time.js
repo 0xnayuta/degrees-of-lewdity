@@ -2278,19 +2278,13 @@ function dailyFarmEvents() {
 			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
 			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.9);
 		}
-		// See "https://docs.google.com/spreadsheets/d/11sYCs887BkfBjLbs5lufGH1KH-4Y5FK-UFpixTKyT4Y" for the exact math.
 		if (V.farm.woodland >= 3) {
 			// Truffles sell for £8.00 on the market.
 			// This generates £8.00 * 16.5 = £132.00 each day
 			wikifier("farm_stock", "truffles", 9, 24);
 			/**
-			 * Personally think the -2 daily decay is too high. At this rate, the PC can't be gone for more than a month
-			 * before the pig's go back to hating their guts. It's also twice as fast as the Dog Kennel's penalty. I
-			 * think it makes more sense to halve the values, so a fully upgraded farm will have the animal's respect
-			 * all decay at the same rate. Except for horses, which don't lose anything for balance reasons I guess.
-			 * 
-			 * That way, raising the Farm Animal's Respect could be treated like a monthly activity where the player
-			 * won't have to spend twice as long on pleasing the pigs.
+			 * Pig's respect decays at -1 point per day, so a player at 30 Pig's Respect can be gone for 60 days before the
+			 * pigs reach -30 Pig's Respect and go back to hating their guts.
 			 */
 			wikifier("farm_pigs", -1);
 		} else if (V.farm.woodland >= 1) {

@@ -1,9 +1,5 @@
 :: Farm Woodland
 <<set $outside to 1>><<set $location to "alex_farm">><<set $bus to "woodland">><<effects>>
-<!-- OneDrive is ass btw its "backup files" cringe makes duplicates of all of your files and throws random VSCode
-	errors on all of your files for code you already changed but wasn't "automatically" saved to the backups.
-	Ended up moving most of my files on there into new folders with the exact same name and purpose. After doing
-	that, errors be goned. Fuck that shit. -->
 <<farm_work_update>>
 
 You are in the woodland within the farm grounds.
@@ -114,53 +110,48 @@ You are in the woodland within the farm grounds.
 		<</if>>
 		<br>
 	<</if>>
-	<!-- The original code allowed you to forage once a day, regardless of the woodland's current tending status.
-		I believe it would be better if you could only forage AFTER the woodlands have been fully tended to (Untidy
-		woodlands = Hard to navigate). Since the "Forage for fungi" activity will also be a way to raise the Pig's Respect,
-		I think it makes sense if the player has the option to forage once per day at Woodland Level 2, and twice per day
-		at Woodland Level 3.
-		
-		If think it would be fair if a Level 3 Woodland still gives double the produce of a Level 2 Woodland, as it will
-		need an extra 20 minutes of Tending each day and further increases that rate that the pigs lose Respect for the
-		player. If the player doesn't want to spend that time tending, they can wait for Alex to finish it when he's doing
-		his chores. However, the "Forage for fungi" activity will only be available while the pigs are out in their pen.
+	<!-- Players with a Level 2 Woodland can forage once per day, and players with a Level 3 Woodland can forage twice per
+		day. To balance this out, the player will only be able to forage after the Woodland is fully tended, and a Level 3
+		Woodland will increase the daily Pig's Respect decay from -0.5 to -1. If the player doesn't want to spend that time
+		tending, they can wait for Alex to finish it for them. However, the "Forage for fungi" activity will only be
+		available while the pigs are out in their pen.
 		
 		It costs £30,000 to reach a Level 2 Woodland, and £80,000 to reach a Level 3 Woodland.
 		
-		Using the current Market Stall rates, Foraging for Fruit with a Level 2 Woodland will now give £100 worth of Fruit,
-		while Foraging for Fungi will give £50-200 worth of Fungi, depending on the player's Athleticism and Tending skills.
+		Using the current Market Stall rates, Foraging for Fruit with a Level 2 Woodland will give £50 worth of Fruit, while
+		Foraging for Fungi will give £100 worth of Fungi. This amount can be increased with the player's Tending skills.
+		Players at this stage of the game would likely already having Tending S, which would double their average yield to
+		£100 and £200, respectively.
 
-		Foraging will be broken up into 3 20-minute events, where a dangerEvent() may trigger each time. When Foraging for
-		fungi, there will be a 2/3 chance for a Pig-based Skill-Check. Passing this Skill Check will give +1 Pig's Respect.
+		Foraging is broken up into 3 20-minute events, where a dangerEvent() may trigger each time. Foraging for Fruit will
+		cause the dangerEvent to trigger a generic punishment, while Foraging for Fungi has a chance to trigger a pig-related
+		skill check. Passing this Skill Check will give +1 Pig's Respect. There is also a chance, depending on RNG and the
+		player's state of dress, for the Skill Check to be much harder, with a small chance of failure even with maxed stats.
 
-		Foraging for Fungi will also require the player to reward the pigs when they return to the farm, either with ~£20
-		worth of potatoes or carrots, or ~£4 worth of apples. The player can also choose the reward the pigs with their
-		body. (1x Consensual Pig Encounters above -5 Pig's Respect, 2x Consensual Pig Encounters from -19 to -5 Pig's
-		Respect, and 3x Consensual Pig Encounters at -20 Pig's Respect and below). These food rates are doubled for a
-		Level 3 Woodland, and scale based on the combined market value of the Mushrooms and Truffles that have been
-		harvested. 
-
-		Rewarding the pigs in any way will give +3 Pig's Respect, while refusing will give -3 Pig's Respect.
+		Foraging for Fungi will also require the player to reward the pigs when they return to the farm, either with
+		potatoes, carrots, or apples. The required food scales based on the amount of fungi the player gathered during the
+		session, and is doubled if the Pig's Respect is between -20 and -6.
 		
-		If the player refuses when the Pig's Respect is already less than or equal to -5, they will enter a Farm Pigs Feed
-		extreme encounter. The player can call for Alex's Help, or try to pass the Skill Check for +1 Pig's Respect. Losing
-		the combat encounter will also cause the pigs to take HALF of the player's harvest.
+		The player can also choose the reward the pigs with their body. The amount of pigs they will need to satisfy is:
+			1x Consensual Pig Encounters from 5 to 30 Pig's Respect
+			2x Consensual Pig Encounters from -5 to 4 Pig's Respect
+			3x Consensual Pig Encounters from -20 to -6 Pig's Respect
+
+		Rewarding the pigs in any way will give Pig's Respect, varying based on the reward, while refusing will give -3
+		Pig's Respect.
 		
-		If the Pig's Respect is less than or equal to -20, the Tending / Physique checks will become much harder (50%
-		chance at maximum Tending, 75% chance at 15,000 Physique), and they will first lead the player deep into the
-		woodlands so the player can't call Alex for help. The player will be unable to satiate them with regular food, as
-		the pigs demand an immediate reward. The player's only non-Skill-based options will be to give them half of the
-		player's harvest or to reward them with their body. Losing a combat encounter will also cause the pigs to take ALL
-		of the PC's harvest.
+		If the player refuses when the Pig's Respect is between -20 and -6, the player will be faced with 3 non-consensual
+		Pig Encounters. Fighting one off will lead to +1 Pig's Respect, but calling for Alex's Help at any point will lead
+		to -3 Pig's Respect.
+		
+		If the Pig's Respect is between -30 and -21, they will first lead the player deep into the woodland so the player
+		can't call Alex for help. The player will be unable to satiate them with regular food, as the pigs demand an
+		immediate reward. The player's only option will be to give them their harvest, to reward them with their body, or
+		to refuse and try to fight them off.
 
-		The dangerEvent()'s that can be obtained when Foraging for fungi will be 1/3 generic, and 2/3 Pig-based. That means
-		the player, if they have maximum Allure and reward the pigs each time, will be able to gain ~5 Pig's Respect every
-		time they Forage for fungi. With a Level 3 Woodland, they can theoretically raise the Pig's Respect by 10 each day.
-
-		Assuming the player rewards the pigs with potatoes or carrots, and the Pig's Respect is above -20, a Level 3
-		Woodland will give around £800 - £80 = £720 per day, for 2 hours of work (If Alex tends the woodlands for you).
-
-		See "https://docs.google.com/spreadsheets/d/11sYCs887BkfBjLbs5lufGH1KH-4Y5FK-UFpixTKyT4Y" for the exact math. -->
+		Offering their harvest is not guaranteed to satisfy the pigs, even at Tending S and with a Green Thumb. However,
+		the first 2 options will cause the following encounters to be consensual. If the player fights off a pig at any
+		point, the following encounters will become non-consensual. -->
 	<<if $farm_work.forage lt ($farm.woodland - 1) and $farm_work.woodland is $farm.woodland>>
 		<<if pcAreArmsBound("both")>>
 			<span class="red">Both of your arms are bound</span>, so you are unable to forage.
@@ -462,7 +453,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 				of carrots, or £5.00 of apples. This assumes apples can only be harvested in the Forest. Quantities
 				will need to be changed if apples suddenly become easier to harvest.
 				
-				The requested quantity is increased by 100% if the Pig's Respect is between -19 and -5. -->
+				The requested quantity is increased by 100% if the Pig's Respect is between -20 and -5. -->
 			<<if $farm.beasts.pigs gte -5>>
 				<<set _respectModifier to 1>>
 				The <<farm_text_many pig>> crowd around you.
@@ -472,6 +463,8 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 				While you could also give them nothing, you get the feeling that refusing too often may be a
 				<span class="red">very bad idea.</span>
 			<<else>>
+				<!-- Should be impossible to reach this point with -30 to -21 Pig's Respect, as it would lead the
+					player to a different passage. -->
 				<<set _respectModifier to 2>>
 				The <<farm_text_many pig>> crowd around you. They jostle you around, insisting on a large reward.
 				While you could also give them nothing, you get the feeling that refusing any more
@@ -578,36 +571,27 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 			ERROR (Farm Woodland Forage): forageType is invalid. Please report.
 		<</if>>
 	<<else>>
-		<!-- A player with Tending S, the Green Thumb trait, and a Level 3 Woodland
-			can find an average of:
+		<!-- A player with Tending S, the Green Thumb trait, and a Level 3 Woodland can find an average of:
 			20 * 3 * 2.4 = 144 fungi each time they enter the Woodland.
 
-			Once the Pig's Respect is less than -20, they will take the player deep
-			into the woodland at the end of the foraging session, and demand a
-			reward. The player will have the option to give them their harvest,
-			reward them with their body, or refuse.
+			Once the Pig's Respect is less than -20, they will take the player deep into the woodland at the end of the
+			foraging session, and demand a reward. The player will have the option to give them their harvest, reward
+			them with their body, or refuse.
 
-			The pigs will initially want to have sex with the player 4 times
-			(pigsLeft will be 4). If the player offers them their harvest, each
-			pigsLeft will try to eat a random(20, 40) amount of fungi from the
-			player's basket, repeating 5 times (150 fungi on average). Each fully
-			satisfied attempt will reduce pigsLeft by 1. If the pigs can eat their
-			fill at least 4 times, they will leave the player alone.
+			The pigs will initially want to have sex with the player 4 times (pigsLeft will be 4). If the player offers
+			them their harvest, each pigsLeft will try to eat a random(20, 40) amount of fungi from the player's basket,
+			repeating 5 times (150 fungi on average). Each fully satisfied attempt will reduce pigsLeft by 1. If the pigs
+			can eat their fill at least 4 times, they will leave the player alone.
 
-			If the pigs can eat their fill 5 times, they will leave the player with
-			whatever food is left over, then rest and head back to the farm.
+			If the pigs can eat their fill 5 times, they will leave the player with whatever food is left over, then rest
+			and head back to the farm.
 
 			Each fully satisfied pig gives +1 Pig's Respect (+4 max).
 
 			Pigs will eat the truffles first, then the mushrooms.
 
-			If the player refuses, pigsLeft will increase by 1, and all remaining
-			encounters will become non-consensual.
-
-			See:
-			"https://docs.google.com/spreadsheets/d/11sYCs887BkfBjLbs5lufGH1KH-4Y5FK-UFpixTKyT4Y"
-			for the exact math.
-			-->
+			If the player refuses, pigsLeft will increase by 1 (Total of 5), and all remaining encounters will become
+			non-consensual. -->
 		You've been here for a while. You decide to count up your harvest, then head back towards the farm.
 
 		<<set _uniqueItems to 0>>
@@ -709,12 +693,12 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 	<</if>>
 	<<physique 1>>
 	<br><br>
-	<!-- Changed the RNG checks so that the player makes 3 foraging checks, each taking 20 minutes,
-		with a chance of receiving ANY type of fruit.
+	<!-- The player makes 3 foraging checks, each taking 20 minutes, with a chance of receiving something from a pool of items,
+		depending on the activity.
 		
-		Basket holds Strawberries, Peaches, and Plums when foraging for fruit, or Mushrooms and
-		Truffles when foraging for fungi. When foraging for fungi, the last index is not used. -->	
+		All 3 basket indices are used when foraging for fruit. When foraging for fungi, the last index is not used. -->	
 	<<if _forageType is "fruit">>
+		<!-- Basket holds Strawberries, Peaches, and Plums when foraging for fruit. -->
 		<<set _target to random(0, 2)>>
 		<<switch _target>>
 			<<case 0>>
@@ -766,7 +750,6 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 			<<set _basket[0] += _tending_amount>>
 		<<else>>
 			<!-- Truffles -->
-			<!-- NOTE: THERE DOES NOT CURRENTLY EXIST A TRUFFLE BASKET SPRITE. SPRITEWORK NEEDED. -->
 			<<wearProp "mushroom basket">>
 			<span class="green">You find some <<foodstufficon "truffle">> truffles.</span>
 			<<if $farm.woodland gte 3>>
@@ -781,17 +764,17 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 	<</if>>
 	<br><br>
 
-	<!-- If the player is foraging for fruit or disabled bestiality, they will get scratched by
-		some branches and nothing else will happen.
+	<!-- If the player is foraging for fruit or disabled bestiality, they will get scratched by some branches and
+		nothing else will happen.
 
-		If they are foraging for fungi with a Level 2 Woodland, they will have a 1/2 chance of
-		getting molested by a pig after being scratched by a branch.
+		If they are foraging for fungi with a Level 2 Woodland, they will have a 1/2 chance of getting molested by
+		a pig after being scratched by a branch.
 		
-		If they are foraging for fungi with a Level 3 Woodland, they will have a 4/5 chance of
-		getting molested by a pig.
+		If they are foraging for fungi with a Level 3 Woodland, they will have a 4/5 chance of getting molested by
+		a pig.
 		
-		If the chosen target on the player's body fails, or if the player gets hit with an
-		unlucky 1/4, they will fall to the ground and the skill checks will be harder. -->
+		If the chosen target on the player's body fails, or if the player gets hit with an unlucky 1/4, they will
+		fall to the ground and the skill checks will be harder. -->
 	<<if (_forageType is "fruit" and dangerEvent()) or
 		(_forageType is "fungi" and ((_checkResults[0] is 2 and _checkResults[1] is 2) or dangerEvent(1.25)))>>
 		<<set _woodlandFungiChecks to [
@@ -829,12 +812,12 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<<if _forageType is "fungi" and (($farm.woodland is 2 and random(1, 2) is 2)
 			or ($farm.woodland is 3 and random(1, 5) is lte 4))
 			and ($settings.bestialityEnabled or $farm_work.pig.monster)>>
-			<!-- The event will be initiated by the player's hair or clothes catching on a branch. Upon triggering
-				this event, a pig will try to molest them.
+			<!-- The event will be initiated by the player's hair or clothes catching on a branch. Upon triggering this
+				event, a pig will try to molest them.
 				
-				If however the targeted check fails, due to the player's hair being too short, the
-				player's upper or lower clothing slot being naked, or they simply hit the unlucky 1/4, they will
-				first fall the the ground and the skill checks will be harder. -->
+				If however the targeted check fails, due to the player's hair being too short, the player's upper or
+				lower clothing slot being naked, or they simply hit the unlucky 1/4, they will first fall the the ground
+				and the skill checks will be harder. -->
 			<<if _checkResults[_attemptOne] is 2 and random(1, 4) is not 4>>
 				<<if _attemptOne is 0>>
 					As you untangle your hair,
@@ -1045,12 +1028,12 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 	<<set _pigsUnsatisfied to -1>>
 	<<for _i = 0; _i < 5; _i++>>
 		<<set _amountTaken to random(20, 40)>>
-		<!-- Take from truffles if they exist -->
+		<!-- Take from truffles if they exist. -->
 		<<if _basket[1] gt 0 and _basket[1] gte _amountTaken>>
 			<<set _basket[1] -= _amountTaken>>
 			<<set $foodstuff["truffle"].amount -= _amountTaken>>
 			<<set _amountTaken to 0>>
-		<!-- Empty the truffles if there aren't enough -->
+		<!-- Empty the truffles if there aren't enough. -->
 		<<elseif _basket[1] gt 0 and _basket[1] lt _amountTaken>>
 			<<set _amountTaken to _amountTaken - _basket[1]>>
 			<<set $foodstuff["truffle"].amount -= _basket[1]>>
@@ -1058,7 +1041,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<</if>>
 		<!-- Take from mushrooms if they exist. Can use an "if" statement here because the pig will either be fully
 			satisfied by the truffles (0), or the truffles will run out and cause the pig to look for mushrooms
-			instead (> 0) -->
+			instead (> 0). -->
 		<<if _basket[0] gt 0 and _basket[0] gte _amountTaken>>
 			<<set _basket[0] -= _amountTaken>>
 			<<set $foodstuff["mushroom"].amount -= _amountTaken>>
@@ -1242,7 +1225,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 		<</if>>
 
 		<!-- After feeding them, the player will have the option to have consensual or non-consensual sex with the pigs that
-			are unsatisfied. Deviancy check for consensual sex will be lower since the player already fed them. -->
+			are unsatisfied. -->
 		<<if hasSexStat("deviancy", 5)>>
 			<<link [[Submit to them|Farm Woodland Pigs Reward]]>><<set $sexstart to 1>>
 				<<set $phase to {
@@ -1289,7 +1272,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 	<!-- Going to hell for this lol -->
 	<<if _checkResults[0] is 2 and _checkResults[1] is 2>>
 		<!-- Extra point of Respect if the player passes both checks. Passing this also allows the player to automatically
-		refuse one of the pig's advances and gain +1 Pig's Respect. -->
+		refuse one of the pig's advances and (potentially) gain +1 Pig's Respect. -->
 		
 		<<farm_gen pig>>
 
@@ -1927,7 +1910,6 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 
 	The <<farm_text pig>> climbs off you, satisfied.
 
-	<!-- +Respect if done consensually. -Respect if nonconsensual. -->
 	<<if $farm_work.pig.monster>>
 		The others cheer.
 		<br>
@@ -2204,7 +2186,7 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 				You follow the pig prints back to the farm.					
 			<<else>>
 				<<pass 20>>
-				The indents all look the same. You spend some time going in circles, until at last, you see some familiar
+				The indents all look the same. You spend some time going in circles, until at last, you see familiar
 				buildings through the treeline.
 			<</if>>
 			<br><br>
@@ -2299,15 +2281,15 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 <<set _pigsLeft to $phase.pigsLeft>>
 <<set _location to $phase.location>>
 
-<!-- Your pig has a 40% chance of winning you the +Respect and -pigsLeft. Your power of horni fills it with determination!
-	Unfortunately it just had sex with you, and you milked it RATHER good. -->
+<!-- Your pig has a 40% chance of winning you the +Respect. Your power of horni fills it with determination! Unfortunately
+	it just had sex with you, and you milked it RATHER good. -->
 <<if random(1, 5) lte 3>>
 	At last, the other <<farm_text pig>> presses your <<farm_text pig _helpfulPigGender>> into the dirt.
 	<<if $farm_work.pig.monster>>
 		Panting, <<farm_he pig _helpfulPigGender>> looks up at the other <<farm_text pig>> and squeezes out four words.
 		"No... helpful. No... reward."
 	<<else>>
-		It looks tired, struggling underneath the other pig, but still finds rooms in its lungs to muster out a whine.
+		It looks tired, struggling underneath the other pig, but still find the breath to muster out a whine.
 	<</if>>
 	<br><br>
 	
@@ -3055,11 +3037,9 @@ You look away as Alex saws through the branch. "Here it comes," <<he>> says. It 
 <<set _forageType to $phase.forageType>>
 <<effects>><<wearProp "strange flower basket">>
 
-<!-- Seems weird to only give 1 of them when you'll eventually be able to grow hundreds in Alex's Fields.
-	Since this event has a 1/5 chance of occurring and the flowers sell for £10.00 on the market, I think
-	it makes sense for them to give around 2.5 flowers per harvest, or £50 with a Tending Skill S. This
-	way, the player gains around £10.00 of Strange Flowers for every 20 minutes they spend in the
-	woodland with a Tending Skill S.-->
+<!-- This event has a 1/5 chance of occurring and the flowers sell for £10.00 on the market. The player will gain an average
+	of 2.5 flowers per harvest, or 5 with a Tending Skill S. This way, the player gains around £10.00 of Strange Flowers for
+	every 20 minutes they spend in the woodland with a Tending Skill S.-->
 <<tending_pick strange_flower 1 4>>
 
 The warmth spreads from your fingertips. You resist the urge to bury your nose in its silken petals.

@@ -451,25 +451,13 @@
 	<<if $foodstuff[$_type] is undefined>>
 		<<set $foodstuff[$_type] to {"amount": 0}>>
 	<</if>>
-	<!-- Harvests are not affected by the "affected_by_tending_skill" flag. -->>
+	<!-- Harvests are not affected by the "affected_by_tending_skill" flag. -->
 	<<switch $_plot.size>>
-		<!-- The old code allows a player to harvest up to 1000 / 20 + 10 = 60 products from a small plot, or
-			1000 / 10 + 10 = 110 products from a medium plot. 
-			
-			On average, a player with Tending S will grow (10 + 60) / 2 = 35 or (10 + 110) / 2 = 60 products
-			from a small and medium plot, respectively.
-			
-			The current values scale the produce gained from:
-			(10 to 10) and (10 to 10) at Tending F, to (10 to 60) and (10 to 110) at Tending S.
-			It seems unintuitive for the spread to go from 0 to 50 or 0 to 100 based on the player's current
-			Tending skill.
-			
-			It seems more reasonable to go from:
-			(5 to 15) and (10 to 30) at Tending F to (25 to 45) and (40 to 80) at Tending S.
+		<!-- For small and medium plots, a player with Tending F will grow between (5 to 15) and (10 to 30) crops, respectively.
+			This averages out to 10 and 20 crops for small and medium plots.
 
-			These updated values will double the spread from Tending F to S, while maintaining the existing
-			averages. However, the medium plots will increase their average productivity from 10 to 20 for
-			players with Tending F. -->
+			A player with Tending S will be able to grow (25 to 45) and (40 to 80) crops, increasing the averages to 35 and 60,
+			respectively. This roughly triples the player's average harvest, and doubles the range they can receive. -->
 		<<case "small">>
 			<<set _tending_amount to
 				random(5 + (currentSkillValue('tending') * 20/1000), 15 + (currentSkillValue('tending') * 30/1000))
@@ -522,14 +510,9 @@
 		<<set _tending_amount to random(1, 5)>>
 	<</if>>
 
-	<!-- It seems like this value only triggers if the item's "affected_by_tending_skill" variable in
-		"game\04-Variables\foodstuff.js" is true. However, the game originally only marked when an item's
-		"affected_by_tending_skill" is false. This value isn't ever set to true, so players with
-		Tending S are getting half what what they're supposed to.
-
-		Set the "affected_by_tending_skill" to true for all items with natural sources (plants and direct
-		animal products). Combined with the Green Thumb Trait, a player will now be able to harvest 2.4x
-		the base amount of produce, compared to the original 1.2x. -->
+	<!-- If a foodstuff's "affected_by_tending_skill" is true, it will add up to a 2x multiplier on the
+		amount of crops the player can gather. Combined with the Green Thumb trait, a player can gather up
+		to 2.4x the original amount. -->
 	<<if setup.foodstuff[$_type].tending?.affected_by_tending_skill>>
 		<<set _tending_amount *= (1 + (currentSkillValue('tending') / 1000))>>
 	<</if>>
