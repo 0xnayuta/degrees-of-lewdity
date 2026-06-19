@@ -166,7 +166,6 @@ function pluralise(count, singular, plural) {
 		that: "those",
 		is: "are",
 		it: "them",
-		potato: "potatoes"
 	});
 
 	count = Wikifier.getValue(count);
@@ -855,8 +854,6 @@ Macro.add("tml", {
 
 /**
  * Sets a temporary variable checkResults to the outcome of the provided skill / status checks.
- * 
- * Skill checks affected by the Temple's Burden will use an RNG seperate from $burdenRng, to avoid interference.
  *
  * The "physique" check's maximum value defaults to the player's "physiquesize", aka their BODY SIZE'S maximum physique.
  * 
@@ -885,6 +882,7 @@ Macro.add("tml", {
  ** -2 means the player succeeded the check, but the Temple's Burden is activated.
  */
 function eventChecks(eventRequests) {
+	V.temple_burden ??= 0;
 	T.checkResults = [];
 
 	for (let i = 0; i < eventRequests.length; i++) {
@@ -904,7 +902,7 @@ function eventChecks(eventRequests) {
 		 */
 		if (curCheckType === "physique") {
 			// Need special-cased code for the physique check.
-			let templeActivation = curIncludeBurden && (random(1, 100) <= V.burdenThreshold);
+			let templeActivation = curIncludeBurden && (V.temple_burden >= random(1, 100));
 			let playerOutcome = currentSkillValue(curCheckType) >= random(curCheckMin, curCheckMax ?? V.physiquesize);
 			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1) * (templeActivation ? -1 : 1);
 		}
@@ -919,7 +917,7 @@ function eventChecks(eventRequests) {
 			 * Then, convert that into 2 (for success) or 1 (for failure).
 			 * Then, make the output negative if the Temple's Burden activated during the skill check.
 			*/
-			let templeActivation = curIncludeBurden && (random(1, 100) <= V.burdenThreshold);
+			let templeActivation = curIncludeBurden && (V.temple_burden >= random(1, 100));
 			let playerOutcome = currentSkillValue(curCheckType) >= random(curCheckMin, curCheckMax ?? 1000);
 			finalOutcome = ((curCheckFail ? !(baseOutcome && playerOutcome) : (baseOutcome && playerOutcome)) ? 2 : 1) * (templeActivation ? -1 : 1);
 		}
