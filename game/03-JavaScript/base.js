@@ -854,6 +854,8 @@ Macro.add("tml", {
 
 
 /**
+ * TODO: This is a stopgap function. Remove it and all references to it after the skill check widgets have been refactored.
+ * 
  * Sets a temporary variable checkResults to the outcome of the provided skill / status checks.
  * 
  * Skill checks affected by the Temple's Burden will use an RNG seperate from $burdenRng, to avoid interference.
@@ -898,10 +900,7 @@ function eventChecks(eventRequests) {
 
 		let baseOutcome = curBaseChance >= random(1, 100);
 		let finalOutcome = 0;
-		/** 
-		 * I had to sort of guess where the values for each of these skill checks are stored. Some may use the wrong variables
-		 * and will need to be fixed.
-		 */
+		
 		if (curCheckType === "physique") {
 			// Need special-cased code for the physique check.
 			let templeActivation = curIncludeBurden && (random(1, 100) <= V.burdenThreshold);
