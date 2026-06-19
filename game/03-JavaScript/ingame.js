@@ -697,7 +697,8 @@ function isInPark(name) {
 			// prettier-ignore
 			return C.npc.Kylar.state === "active"
 				&& Weather.precipitation === "none"
-				&& Time.dayState === "day" && V.kylarwatched !== 1;
+				&& Time.dayState === "day" && !Time.schoolTime
+				&& V.kylarwatched !== 1;
 		case "robin":
 			return getRobinLocation() === "park";
 		case "whitney":
@@ -2446,8 +2447,8 @@ function calculateSemenReleased() {
 	released += V.semen_volume / 30;
 
 	if (V.femaleclimax === 1) released /= 30;
-	if (V.orgasmtrait >= 1) released *= 2.5;
-	if (V.cow >= 6) released *= 2;
+	if (V.orgasmtrait >= 1) released *= 1.5;
+	if (V.cow >= 6) released *= 1.2;
 
 	/* if the player doesn't have enough semen, set $_semen_released to whatever they have left */
 	if (V.semen_amount < released) released = V.semen_amount;
@@ -3065,8 +3066,15 @@ function isBeastSceneAllowed() {
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
 /**
- * check if event is going to be dangerous based on rng and player allure
- * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ * Check if an event is going to be dangerous based on rng and the player's Allure. Another target's Allure can
+ * be substitued as needed.
+ * 
+ * For consistency, danger rng is rolled once per passage, unless specified through the "reroll" parameter.
+ * 
+ * Lowering the floor increases the player's flat probability of triggering an event. Changing the mod
+ * increases / decreases the chance of triggering the event with increasing / decreasing Allure.
+ * 
+ * For a guaranteed activation at 8,000 Allure, set a mod of 1.25, or a floor of 8,000.
  *
  * @param {number} mod allure multiplier
  * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
@@ -3075,6 +3083,17 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
  * @returns {boolean} whether the roll is dangerous
  */
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	/**
+	 * (mod = 1, floor = 8,000)
+	 * * 8,000 Allure: 100% pass chance
+	 * * 6,000 Allure:  80% pass chance
+	 * *     0 Allure:  20% pass chance
+	 * 
+	 * (mod = 1.25, floor = 9,900)
+	 * * 8,000 Allure: 100% pass chance
+	 * * 6,000 Allure:  76% pass chance
+	 * *     0 Allure:   1% pass chance
+	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	return T.danger >= floor - allure * mod;
 }
@@ -3130,3 +3149,32 @@ function breakableSoftBinding() {
 }
 
 window.breakableSoftBinding = breakableSoftBinding;
+
+function averageBunPrice(toSell = T.buns_sold) {
+	/* Calculates the average price of a bun with diminishing returns */
+	let totalRevenue = 0;
+	let remaining = toSell;
+	if (V.daily.buns_sold === undefined) {
+		V.daily.buns_sold = 0;
+	}
+	let harmonics = 1+Math.floor(V.daily.buns_sold/20); // 1st batch: full price (1/1), 2nd: 1/2, etc.
+	let doneToday = V.daily.buns_sold%20;
+	let bunsToSell = 0;
+	let pricePerBun = V.bun_value / harmonics;
+
+	while (remaining > 0) {
+		bunsToSell = Math.min(20-doneToday, remaining);
+		doneToday = 0;
+		
+		totalRevenue += bunsToSell * pricePerBun;
+		remaining -= bunsToSell;
+		harmonics++;
+		pricePerBun = V.bun_value / harmonics;
+	}
+
+	V.daily.buns_sold += T.buns_sold;
+
+	return totalRevenue / toSell;
+}
+
+window.averageBunPrice = averageBunPrice;
