@@ -8,25 +8,26 @@
 <<fishingBeachAmbient>>
 <br><br>
 
+<<set _exhibitionismCheck to Weather.dayState is "night" or (($exposed isnot 1 or hasSexStat("exhibitionism", 3)) and ($exposed lt 2 or hasSexStat("exhibitionism", 5)))>>
+
 <<if $exposed gte 1>>
 	<<exhibitionism "beachFishing">>
 	<br><br>
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingBeach>>
-	<<run fishingNextEventOverride("wait")>>
-<<else>>
+<<elseif _exhibitionismCheck>>
 	<<fishingBeachWaitAmbient>>
 <</if>>
 
 <br><br>
 
-<<if Weather.dayState isnot "night" and (($exposed is 1 and !hasSexStat("exhibitionism", 3)) or ($exposed gte 2 and !hasSexStat("exhibitionism", 5)))>>
-	<span class="blue">You are not exhibitionistic enough to keep standing around in such an exposed state.</span>
+<<if !_exhibitionismCheck>>
+	<<insufficientStat "exhibitionism" "to keep standing around in such an exposed state">>
 	<br>
 	<<link [[Return to the beach|Beach]]>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
 <<else>>
-	<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><</link>>
+	<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><<pass 5>><</link>>
 	<br>
 	<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
 <</if>>
@@ -34,8 +35,6 @@
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Beach Wait Loop
-<<effects>>
-<<pass 5>>
 <<cleareventpool>>
 
 <<addinlineevent "bite" 10>>
@@ -65,6 +64,13 @@
 	<</addinlineevent>>
 <</if>>
 
+/* Fisher cliff tip */
+<<if $daily.fishing.beach.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("coastPath")>>
+	<<addinlineevent "fisherCliffTipOffer" 0.5>>
+		<<include "Fishing Beach Fisher Cliff Tip Offer">>
+	<</addinlineevent>>
+<</if>>
+
 /* Fisher leaves */
 <<if $daily.fishing.beach.fisher.phase is "fishing">>
 	<<if Time.hour gte 20>>
@@ -80,18 +86,18 @@
 
 /* Fisher attacks if player is exposed */
 <<if $daily.fishing.beach.fisher.phase is "fishing" and $exposed gte 1>>
-	<<addinlineevent "fisherExposedAttack" $daily.fishing.beach.fisherOgle>>
+	<<addinlineevent "fisherExposedAttack" fishingDangerEventWeight($daily.fishing.beach.fisherOgle)>>
 		<<include "Fishing Beach Fisher Exposed Attack">>
 	<</addinlineevent>>
 <</if>>
 
 /* Bystander notices exposed player */
 <<if $exposed gte 1 and Weather.dayState is "day">>
-	<<addinlineevent "exposedNoticed" 1>>
+	<<addinlineevent "exposedNoticed" fishingDangerEventWeight(1)>>
 		<<run stopFishingProp()>>
 		<<beachex1>>
 	<</addinlineevent>>
-	<<addinlineevent "exposedMolestation" 1>>
+	<<addinlineevent "exposedMolestation" fishingDangerEventWeight(1)>>
 		<<run stopFishingProp()>>
 		<<beachex2>>
 	<</addinlineevent>>
@@ -109,8 +115,7 @@
 
 /* Dog tearing at clothing */
 <<if [undefined, "finished"].includes($daily.fishing.beach.fisher.phase)>>
-	<<addinlineevent "beachDog" 1>>
-		<<run stopFishingProp()>>
+	<<addinlineevent "beachDog" fishingDangerEventWeight(3.5)>>
 		<<beachday2>>
 	<</addinlineevent>>
 <</if>>
@@ -118,7 +123,7 @@
 <<if Weather.dayState is "day">>
 	/* Beach molestation */
 	<<if [undefined, "finished"].includes($daily.fishing.beach.fisher.phase)>>
-		<<addinlineevent "beachMolestation" 1>>
+		<<addinlineevent "beachMolestation" fishingDangerEventWeight(3.5)>>
 			<<include "Fishing Beach Molestation">>
 		<</addinlineevent>>
 	<</if>>
@@ -130,18 +135,17 @@
 
 	/* Classmates approach */
 	<<addinlineevent "beachClassmates" 1>>
-		<<run stopFishingProp()>>
 		<<include "Fishing Beach Classmates">>
 	<</addinlineevent>>
 <</if>>
 
 
 <<if Weather.dayState is "night">>
-	<<addinlineevent "nightDog" 1>>
+	<<addinlineevent "nightDog" fishingDangerEventWeight(3.5)>>
 		<<beachnight1>>
 	<</addinlineevent>>
-	<<addinlineevent "beachNightTentacles" 0.5>>
-		<<include "Fishing Beach Tentacle Event">>
+	<<addinlineevent "beachNightTentacles" fishingDangerEventWeight(1)>>
+		<<include "Fishing Beach Tentacles">>
 	<</addinlineevent>>
 <</if>>
 
@@ -153,6 +157,7 @@
 
 
 :: Fishing Beach Bite
+<<effects>>
 Your line snaps taut as a <<print $fishingHookedFish.type>> takes the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
 <br><br>
 
@@ -167,6 +172,7 @@ You toss the <<print $fishingHookedFish.type>> back into the sea.
 
 
 :: Fishing Beach Keep
+<<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <br><br>
@@ -175,6 +181,7 @@ You stow the <<print $fishingHookedFish.type>> away.
 
 
 :: Fishing Beach Cat Eat
+<<effects>>
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <br><br>
 

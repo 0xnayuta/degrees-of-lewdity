@@ -1,4 +1,4 @@
-/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
+﻿/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Moor Wait
 <<effects>>
 <<run initFishingMoor()>>
@@ -17,28 +17,23 @@
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingMoor>>
-	<<run fishingNextEventOverride("wait")>>
 <<else>>
 	<<fishingMoorWaitAmbient>>
 <</if>>
 <br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Moor Wait Loop]]>><</link>>
+<<link [[Wait for a bite (0:05)|Fishing Moor Wait Loop]]>>
+	<<pass 5>>
+	<<if $moor_hunt gte 1>>
+		<<set $moor_hunt += 0.5>>
+	<</if>>
+<</link>>
 <br>
 <<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
 	<<if $daily.fishing.moor.hikers.leaveChance is undefined>>
 		<<set $daily.fishing.moor.hikers.leaveChance to -2>>
 	<<else>>
 		<<set $daily.fishing.moor.hikers.leaveChance += 0.3>>
-	<</if>>
-
-	<<if $daily.fishing.moor.hikers.leaveChance gte random(3, 50)>>
-		<<link [[Chat (0:05)|Fishing Moor Hikers Chat Leave]]>><<pass 5>><</link>>
-	<<else>>
-		<<link [[Chat (0:05)|Fishing Moor Wait]]>>
-			<<pass 5>>
-			<<set $fishingMoorWaitAmbientOverride to "chat">>
-		<</link>>
 	<</if>>
 
 	<br>
@@ -49,7 +44,7 @@
 <</if>>
 
 <<if $daily.fishing.moor.hikers.drinkCount gte 1>>
-	<<if $daily.fishing.moor.hikers.spike and random(1, 2) is 1>>
+	<<if $daily.fishing.moor.hikers.spike and $rng gte 50>>
 		<<link [[Take a sip|Fishing Moor Spiked Drink 1]]>><<alcohol 10>><</link>><<galcohol>>
 	<<else>>
 		<<link [[Take a sip|Fishing Moor Wait]]>><<set $fishingMoorWaitAmbientOverride to "sip">><<alcohol 10>><</link>><<galcohol>>
@@ -73,11 +68,6 @@
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Moor Wait Loop
-<<effects>>
-<<pass 5>>
-<<if $moor_hunt gte 1>>
-	<<set $moor_hunt += 0.5>>
-<</if>>
 <<cleareventpool>>
 
 <<addinlineevent "bite" 10>>
@@ -95,7 +85,7 @@
 /* Lurkers */
 <<if $settings.lurkersEnabled>>
 	<<if $fishing.moor.event is "none">>
-		<<addinlineevent "lurkerStart" 1.25>>
+		<<addinlineevent "lurkerStart" fishingDangerEventWeight(4.5)>>
 			<<set $fishing.moor.event to "lurker">>
 			<<fishingMoorStartleAnimals>>
 			<<include "Fishing Moor Wait">>
@@ -112,7 +102,7 @@
 
 /* Cat Attack Event */
 <<if $fishing.moor.event is "none">>
-	<<addinlineevent "catStart" 1.25>>
+	<<addinlineevent "catStart" fishingDangerEventWeight(4.5)>>
 		<<set $fishing.moor.event to "cat">>
 		<<fishingMoorStartleAnimals>>
 		<<include "Fishing Moor Wait">>
@@ -135,12 +125,12 @@
 	<</addinlineevent>>
 <<elseif $fishing.moor.event is "moorHikers">>
 	<<set _moorHikersProbability to Math.max(0, $fishing.moor.eventDanger - 1)>>
-	<<addinlineevent "moorHikersAttack" _moorHikersProbability>>
+	<<addinlineevent "moorHikersAttack" fishingDangerEventWeight(_moorHikersProbability)>>
 		<<set $fishing.moor.eventDanger to 0>>
 		<<set $fishing.moor.event to "none">>
 		<<include "Fishing Moor Hiker Attack">>
 	<</addinlineevent>>
-	<<if !["storm", "thunderstorm", "rain", "heavyClouds"].includes(Weather.name) and !["dusk", "night"].includes(Weather.dayState)>>
+	<<if !["storm", "thunderstorm", "lightPrecipitation", "heavyPrecipitation", "heavyClouds"].includes(Weather.name) and !["dusk", "night"].includes(Weather.dayState)>>
 		<<addinlineevent "moorHikersArrive" `$exposed gte 1 ? 0 : _moorHikersProbability + 1.5`>>
 			<<set $fishing.moor.eventDanger to 0>>
 			/* Setting the moor.event to this in order to prevent other moor events from triggering */
@@ -155,7 +145,6 @@
 	<<if !$daily.fishing.moor.hikers.drinkOffered and $daily.fishing.moor.hikers.drinkCount lte 0 and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
 		<<addinlineevent "hikerDrinkOffer" 1>>
 			<<include "Fishing Moor Hiker Drink Offer">>
-			<<set $fishing.moor.event to "none">>
 		<</addinlineevent>>
 	<</if>>
 
@@ -251,9 +240,7 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 
 /* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingMoorWaitAmbient">>
-	<<if $fishingMoorWaitAmbientOverride is "chat">>
-		<<fishingMoorHikerChat>>
-	<<elseif $fishingMoorWaitAmbientOverride is "sip">>
+	<<if $fishingMoorWaitAmbientOverride is "sip">>
 		<<fishingMoorHikerDrinkSip>>
 	<<else>>
 		<<cleareventpool>>

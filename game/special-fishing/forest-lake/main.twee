@@ -13,13 +13,12 @@
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingForestLake>>
-	<<run fishingNextEventOverride("wait")>>
 <<else>>
 	<<fishingForestLakeWaitAmbient>>
 <</if>>
 <br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Forest Lake Wait Loop]]>><</link>>
+<<link [[Wait for a bite (0:05)|Fishing Forest Lake Wait Loop]]>><<pass 5>><</link>>
 <br>
 <<link [[Leave|Lake Fishing Rock]]>><<run stopFishingProp()>><</link>>
 <<fishingForestLakeDebugLinks>>
@@ -27,8 +26,6 @@
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Forest Lake Wait Loop
-<<effects>>
-<<pass 5>>
 <<cleareventpool>>
 
 <<addinlineevent "bite" 10>>
@@ -45,7 +42,7 @@
 /* Wolf Attack */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "wolfStart" 2>>
+		<<addinlineevent "wolfStart" fishingDangerEventWeight(2)>>
 			<<set $fishing.lake.event to "wolf">>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
@@ -62,7 +59,7 @@
 /* Bear Attack */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "bearStart" 1.5>>
+		<<addinlineevent "bearStart" fishingDangerEventWeight(1.5)>>
 			<<set $fishing.lake.event to "bear">>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
@@ -79,7 +76,7 @@
 /* Plant Person Kiss */
 <<if $settings.plantsEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "plantPersonStart" 1.5>>
+		<<addinlineevent "plantPersonStart" fishingDangerEventWeight(1.5)>>
 			<<set $fishing.lake.event to "plantPerson">>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
@@ -96,7 +93,7 @@
 /* Vine Attack Event */
 <<if $settings.tentaclesEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "plantStart" 0.5>>
+		<<addinlineevent "plantStart" fishingDangerEventWeight(0.5)>>
 			<<set $fishing.lake.event to "plant">>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
@@ -113,7 +110,7 @@
 /* Boar Attack Event */
 <<if $settings.bestialityEnabled>>
 	<<if $fishing.lake.event is "none">>
-		<<addinlineevent "boarStart" 1>>
+		<<addinlineevent "boarStart" fishingDangerEventWeight(1)>>
 			<<set $fishing.lake.event to "boar">>
 			<<include "Fishing Forest Lake Wait">>
 		<</addinlineevent>>
@@ -127,6 +124,13 @@
 	<</if>>
 <</if>>
 
+/* Fish swarm drags the player into the lake */
+<<if $settings.swarmsEnabled>>
+	<<addinlineevent "lakeSwarm" fishingDangerEventWeight(0.5)>>
+		<<include "Fishing Forest Lake Swarm">>
+	<</addinlineevent>>
+<</if>>
+
 /* Nothing happens, wait loop continues */
 <<addinlineevent "wait" 25>>
 	<<include "Fishing Forest Lake Wait">>
@@ -135,6 +139,7 @@
 
 
 :: Fishing Forest Lake Bite
+<<effects>>
 Your line cuts through the water as something takes the bait, a <<print $fishingHookedFish.type>>.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
 <br><br>
 
@@ -142,6 +147,7 @@ Your line cuts through the water as something takes the bait, a <<print $fishing
 
 
 :: Fishing Forest Lake Throw Back
+<<effects>>
 You toss the <<print $fishingHookedFish.type>> back into the lake.
 <br><br>
 
@@ -149,6 +155,7 @@ You toss the <<print $fishingHookedFish.type>> back into the lake.
 
 
 :: Fishing Forest Lake Keep
+<<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <br><br>
@@ -157,6 +164,7 @@ You stow the <<print $fishingHookedFish.type>> away.
 
 
 :: Fishing Forest Lake Cat Eat
+<<effects>>
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <br><br>
 

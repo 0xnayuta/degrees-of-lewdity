@@ -1,15 +1,12 @@
 /*
 ====== Main Fishing Todo ======  
-- Add rods to shop
 - Test screaming for gwa rescue in forest fishing attack
-- Different rod tiers. If fishing on the cliff face, you need the highest tier of rod or else it will break.
-- Passout scenes? Passout functionality?
-- Go through and find places to put stress/trauma changes
 - Hawk rescue code is duplicated too much
-- Move over UI fishing minigame from other branch
-- Whitney pier event: Whitney needs to be able to show up even without the npc fisher present
-- Whitney pier event: Alone time with Whitney? I have a bunch of commented out code for it that I'm really not a fan of.
+- Implement UI fishing minigame
 - When exposed on the fishing rock, add an event where people walk up and gawk at you, maybe attack.
+- Sort out the location of the pier
+- Simple ear slime stuff
+- Normalize weather.daystate and time.daystate usages
 
 
 ====== Fishing Nice to haves ====
@@ -117,7 +114,7 @@ function rollFishSize(locationKey, fishKey) {
 	if (fishConfig.preferred_weather.includes(Weather.name)) {
 		preferredMatchCount++;
 	}
-	if (fishConfig.preferred_time.includes(Time.dayState)) {
+	if (fishConfig.preferred_time.includes(Weather.dayState)) {
 		preferredMatchCount++;
 	}
 	if (Time.isBloodMoon() && fishConfig.preferred_time.includes("bloodMoon")) {
@@ -214,6 +211,12 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 }
 window.updateFishRecord = updateFishRecord;
 
+function numberOfFishCaught() {
+	if (!V.fishing?.record) return 0;
+	return Object.values(V.fishing.record).reduce((sum, r) => sum + r.num_caught, 0);
+}
+window.numberOfFishCaught = numberOfFishCaught;
+
 function canCookFish(fishKey, fishSize) {
 	const eatableFish = ["trout", "perch", "pike", "chub", "salmon", "bass", "haddock", "cod"];
 	if (!eatableFish.includes(fishKey)) return false;
@@ -253,7 +256,6 @@ function initFishingBeach() {
 	V.bus = "fishingBeach";
 	V.fishing ??= {};
 	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes("beach")) V.fishing.locationsFound.push("beach");
 	V.fishing.beach ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.beach ??= {};
@@ -268,7 +270,6 @@ function initFishingCoastPath() {
 	V.bus = "fishingCoastPath";
 	V.fishing ??= {};
 	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes("coastPath")) V.fishing.locationsFound.push("coastPath");
 	V.fishing.coastPath ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.coastPath ??= {};
@@ -281,7 +282,6 @@ function initFishingForestLake() {
 	V.bus = "fishingForestLake";
 	V.fishing ??= {};
 	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes("forestLake")) V.fishing.locationsFound.push("forestLake");
 	V.fishing.lake ??= {};
 	V.fishing.lake.event ??= "none";
 	V.fishing.lake.eventDanger ??= 0;
@@ -296,7 +296,6 @@ function initFishingMoor() {
 	V.bus = "fishingMoor";
 	V.fishing ??= {};
 	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes("moor")) V.fishing.locationsFound.push("moor");
 	V.fishing.moor ??= {};
 	V.fishing.moor.event ??= "none";
 	V.fishing.moor.eventDanger ??= 0;
@@ -328,7 +327,6 @@ function initFishingPier() {
 	V.bus = "fishingPier";
 	V.fishing ??= {};
 	V.fishing.locationsFound ??= [];
-	if (!V.fishing.locationsFound.includes("pier")) V.fishing.locationsFound.push("pier");
 	V.fishing.pier ??= {};
 	V.fishing.whitney ??= {};
 	V.daily.fishing ??= {};
@@ -388,6 +386,7 @@ function startFishingProp() {
 }
 window.startFishingProp = startFishingProp;
 
+// Some events are reused for fishing, such as some events on the beach that can also happen while fishing on the beach. So if you see this somewhere in an event that is unrelated to fishing, it is there for the case where you get into that event through fishing.
 function stopFishingProp() {
 	if (V.worn.handheld.type.includes("fishing_rod")) {
 		V.worn.handheld.holdPosition = 0;
@@ -411,7 +410,7 @@ window.canEatFishTf = canEatFishTf;
 function fishingCombatEffects() {
 	const combat = V.fishing.combat;
 
-	/* Capture last turn's noise before resetting. */
+	// Capture last turn's noise before resetting.
 	const wasNoisy = combat.playerAttention;
 	combat.playerAttention = false;
 
@@ -473,7 +472,7 @@ function fishingCombatEffects() {
 }
 window.fishingCombatEffects = fishingCombatEffects;
 
-/* Decides what the fish does this turn based on its stamina and depth. */
+// Decides what the fish does this turn based on its stamina and depth.
 function fishCombatAction() {
 	const combat = V.fishing.combat;
 
@@ -491,7 +490,7 @@ function fishCombatAction() {
 }
 window.fishCombatAction = fishCombatAction;
 
-/* Escalates danger events for the current fishing location when the player makes noise during combat. */
+// Escalates danger events for the current fishing location when the player makes noise during combat.
 function fishingAttentionCheck() {
 	const combat = V.fishing.combat;
 	if (!combat.playerAttention) return;
@@ -559,49 +558,9 @@ function holdCaughtFish(fishKey) {
 window.holdCaughtFish = holdCaughtFish;
 DefineMacro("holdCaughtFish", holdCaughtFish);
 
-function fishingNextEventOverride(fishingEvent) {
-	if (fishingEvent === "catch") {
-		switch (V.bus) {
-			case "fishingBeach":
-				V.nextPassage = "Fishing Beach Bite";
-				break;
-			case "fishingCoastPath":
-				V.nextPassage = "Fishing Coast Path Bite";
-				break;
-			case "fishingForestLake":
-				V.nextPassage = "Fishing Forest Lake Bite";
-				break;
-			case "fishingMoor":
-				V.nextPassage = "Fishing Moor Bite";
-				break;
-			case "fishingPier":
-				V.nextPassage = "Fishing Pier Bite";
-				break;
-			default:
-				return Errors.report("fishingNextEventOverride: unknown bus", { bus: V.bus });
-		}
-	} else if (fishingEvent === "wait") {
-		switch (V.bus) {
-			case "fishingBeach":
-				V.nextPassage = "Fishing Beach Wait";
-				break;
-			case "fishingCoastPath":
-				V.nextPassage = "Fishing Coast Path Wait";
-				break;
-			case "fishingForestLake":
-				V.nextPassage = "Fishing Forest Lake Wait";
-				break;
-			case "fishingMoor":
-				V.nextPassage = "Fishing Moor Wait";
-				break;
-			case "fishingPier":
-				V.nextPassage = "Fishing Pier Wait";
-				break;
-			default:
-				return Errors.report("fishingNextEventOverride: unknown bus", { bus: V.bus });
-		}
-	} else {
-		return Errors.report("fishingNextEventOverride: unknown arg", { fishingEvent });
-	}
+// Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), ×2 at max allure (8000).
+function fishingDangerEventWeight(defaultEventWeight) {
+	const allureMultiplier = Math.clamp(1 + (V.allure - 2000) / 6000, 1, 2);
+	return defaultEventWeight * allureMultiplier;
 }
-window.fishingNextEventOverride = fishingNextEventOverride;
+window.fishingDangerEventWeight = fishingDangerEventWeight;

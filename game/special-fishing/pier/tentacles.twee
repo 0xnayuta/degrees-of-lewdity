@@ -1,9 +1,9 @@
-﻿/*
+/*
  * Tentacles surge up from under the pier and grab your rod, trying to pull you in. You can let go (safe), banish them with angel power, or hold on with
  * an athletics check. Failing the check either gets you rescued by the NPC fisher if they're present, or pulls you into Sea Tentacles.
- * There's a todo for breaking the rod as a wardrobe item on the failed-rescue outcome.
  */
 :: Fishing Pier Tentacles
+<<effects>>
 Tentacles surge up from the water and coil around your fishing rod, trying to pull it and you in.
 <br><br>
 
@@ -12,45 +12,47 @@ Tentacles surge up from the water and coil around your fishing rod, trying to pu
 	<br>
 <</if>>
 
-<<link [[Let go|Fishing Pier Wait]]>><</link>>
+<<link [[Let go|Fishing Pier Wait]]>><<handheldruined>><</link>>
 <br>
 <<link [[Hold on|Fishing Pier Tentacles Hold]]>><</link>><<athleticsdifficulty 600 1200>>
 
 
 :: Fishing Pier Tentacles Banish
-You focus your mind on the tentacles coiling around your rod, then make an intricate gesture with your hand. <span class="green">The tentacles shimmer and recoil violently,</span> releasing their grip and retreating into the depths. <<stress 4>><<gstress>>
+<<effects>>
+You focus your mind on the tentacles coiling around your rod, then make an intricate gesture with your hand. <span class="green">The tentacles shimmer and recoil violently,</span> releasing their grip and retreating into the depths.<<stress 4>><<gstress>>
 <br><br>
 
-<<link [[Next|Fishing Beach Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 
 
 :: Fishing Pier Tentacles Hold
+<<effects>>
 <<if $athleticsSuccess>>
 	<span class="green">You brace and wrench the rod free from the tentacles' grip.</span>
 	<br><br>
 
 	<<link [[Next|Fishing Pier Wait]]>><</link>>
 <<else>>
-	<<if $daily.fishing.pier.fisher.phase is "fishing" and random(1, 2) is 1>>
-		<span class="red">The tentacles yank hard,</span> but the <<person1>><<person>> next to you grabs you before you can be pulled in. Your rod slips from your hands and disappears into the sea. <<stress 3>><<gstress>><<handheldruined>>
+	<<if $daily.fishing.pier.fisher.phase is "fishing" and $rng gte 50>>
+		<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+		<span class="red">The tentacles yank hard,</span> but the <<person>> next to you grabs you before you can be pulled in. Your rod slips from your hands and disappears into the sea.<<stress 3>><<gstress>><<handheldruined>>
 		<br><br>
 
 		"You okay?" <<he>> asks, breathing hard.
 		<br><br>
 
-		<<link [[Next|Fishing Pier Fisher Thank Normal]]>><<set $phase to 1>><</link>>
+		<<link [[Next|Fishing Pier Fisher Saved On Pier]]>><<set $phase to 1>><</link>>
 		<br>
 		<<link [[Thank <<him>> with a kiss|Fishing Pier Fisher Thank Kiss]]>><<set $phase to 1>><<promiscuous1>><<kissvirginitywarning>><</link>>
 	<<else>>
-		<span class="red">The tentacles yank hard, dragging you off the pier and into the water.</span>
-		<<if random(1, 2) is 1>>
-			You manage to keep hold of your rod as you go over.
+			<<rng>>
+		<<if $rng gte 80>>
+			<span class="red">The tentacles drag you off the pier and into the water,</span> though you manage to keep hold of your rod.
 		<<else>>
-			Your rod slips from your hands as you're dragged under. <<handheldruined>>
+			<span class="red">The tentacles drag you off the pier and into the water,</span> your rod slipping from your hands as you go under. <<handheldruined>>
 		<</if>>
-		<<stress 10>><<ggstress>>
-		<br><br>
-
+		
+		<<run stopFishingProp()>>
 		<<link [[Next|Sea Tentacles]]>><<location "seadocks">><<set $molestationstart to 1>><</link>>
 	<</if>>
 <</if>>

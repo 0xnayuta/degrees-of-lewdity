@@ -1,4 +1,4 @@
-/*
+﻿/*
  * A random NPC fisher sets up on the pier. They get drunk over time and can be driven off by Whitney. If tentacles drag you off the pier and the fisher is
  *  present, they may save you, after which they either demand sexual repayment (leading to a nonconsentual encounter combat if you refuse), or you can thank them 
  *  with a kiss. If you pull away after you do so, that also might lead to a nonconsentual encounter. If a fisher is present when you catch a fish, they may  
@@ -6,6 +6,7 @@
  *  as them saving you from the tentacles.
  */
 :: Fishing Pier Fisher Arrive
+<<effects>>
 <<generate1>><<saveNPC 0 "fishing_pier_npc_fisher">><<person1>>
 <<set $daily.fishing.pier.fisher.phase to "fishing">>
 <<set $daily.fishing.pier.fisher.age to 0>>
@@ -24,6 +25,7 @@ A <<person>> walks onto the pier with a fishing rod, setting up a short distance
 
 
 :: Fishing Pier Fisher Tips Offer
+<<effects>>
 <<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
 <<set $daily.fishing.pier.fisher.tipGiven to true>>
 
@@ -39,49 +41,99 @@ A <<person>> walks onto the pier with a fishing rod, setting up a short distance
 
 <<link [[Sure|Fishing Pier Fisher Tips]]>><</link>>
 <br>
-<<link [[No thanks|Fishing Pier Wait]]>><</link>>
+<<link [[No thanks|Fishing Pier Fisher Tips Decline]]>><</link>>
 
 
 :: Fishing Pier Fisher Tips
+<<effects>>
 <<switch random(1, 3)>>
 	<<case 1>>
 		The <<person>> demonstrates a few casts, pointing out where <<he>> aims and how <<he>> adjusts the tension as the line settles.
 	<<case 2>>
 		The <<person>> shows you how <<he>> positions <<his>> hands on the rod before casting, watching where the line lands and adjusting.
 	<<case 3>>
-		The <<person>> crouches by the railing and points to where the current cuts around the edge of the pier, explaining where the fish tend to sit. 
+		The <<person>> crouches by the railing and points to where the current cuts around the edge of the pier, explaining where the fish tend to sit.
 <</switch>>
 <br><br>
 
 After a while <<he>> turns back to <<his>> own rod, apparently satisfied.
 <br><br>
 
-<<link [[Next|Fishing Pier Wait]]>><</link>>
+<<set $daily.fishing.pier.fisher.phase to "finished">>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
+
+
+:: Fishing Pier Fisher Tips Decline
+<<effects>>
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+
+<<if $speech_attitude is "meek">>
+	"I'm alright, thanks," you say quietly.
+<<elseif $speech_attitude is "bratty">>
+	"I'm fine," you say, not looking up from your line.
+<<else>>
+	"Thanks, but I'm good," you say.
+<</if>>
+<br><br>
+
+"Suit yourself," <<he>> says, and turns back to <<his>> rod.
+<br><br>
+
+<<set $daily.fishing.pier.fisher.phase to "finished">>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
+
+
+:: Fishing Pier Fisher Cliff Tip Offer
+<<effects>>
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+
+The <<person>> reels in slowly, glancing over. "You've been at it a while now. Since you seem to know what you're doing — there's a spot I haven't told many people about."
+<br><br>
+
+<<link [[Sure|Fishing Pier Fisher Cliff Tip]]>><</link>>
+<br>
+<<link [[No thanks|Fishing Pier Fisher Tips Decline]]>><</link>>
+
+
+:: Fishing Pier Fisher Cliff Tip
+<<effects>>
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+<<run $fishing.locationsFound.pushUnique("coastPath")>>
+
+"East of town, along the coastal path," <<he>> says. "There's a side path cuts down to the water. Old dock at the bottom, half-rotten, but the spot itself is calm. Good fishing. Not many people bother making the trip."
+<br><br>
+
+<<He>> turns back to <<his>> rod.
+<br><br>
+
+<<set $daily.fishing.pier.fisher.phase to "finished">>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 
 
 :: Fishing Pier Fisher Leave Night
+<<effects>>
 <<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
 
 The <<person>> glances up at the darkening sky and starts to pack up <<his>> fishing gear. "I'm not a fan of night fishing around these parts. You should head home too."
 <br><br>
 
-<<link [[Next|Fishing Pier Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 
 
 :: Fishing Pier Fisher Leave Weather
+<<effects>>
 <<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
 
 The <<person>> looks up as the weather begins to turn rough, then begins to pack up <<his>> fishing gear. "The weather is turning, I'm going to head home before it gets any worse. You should head out too."
 <br><br>
 
-<<link [[Next|Fishing Pier Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 
 
 :: Fishing Pier Whitney Bully Fisher
+<<effects>>
 <<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
 Whitney and a couple of <<nnpc_his "Whitney">> friends stroll onto the pier, laughing about something. "Hey, you, the <<person>>" Whitney calls while walking up to you. "You're in our spot."
 <br><br>
@@ -92,12 +144,11 @@ The <<person>> glances over, caught off guard. <<He>> looks between Whitney and 
 Whitney watches <<him>> go with a satisfied smirk, then turns to <<nnpc_his "Whitney">> friends. "Come on. Let's set up here."
 <br><br>
 
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
 <<set $daily.fishing.pier.whitney.phase to "idle">>
-<<link [[Next|Fishing Pier Whitney Bully Fisher Greet Player]]>><</link>>
+<<link [[Next|Fishing Pier Whitney Bully Fisher Greet Player]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 <br>
-<<link [[Leave|Fishing Pier Whitney Bully Fisher Player Leave]]>><</link>>
+<<link [[Leave|Fishing Pier Whitney Bully Fisher Player Leave]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 
 
 :: Fishing Pier Events [widget]
@@ -107,66 +158,66 @@ Whitney watches <<him>> go with a satisfied smirk, then turns to <<nnpc_his "Whi
 	<<cleareventpool>>
 
 	<<addinlineevent 1>>
-		The <<person>> reels in, checks the empty hook, and lets out a quiet sigh before casting back out.
+		The <<personsimple>> reels in, checks the empty hook, and lets out a quiet sigh before casting back out.
 	<</addinlineevent>>
 	<<addinlineevent 5>>
-		The <<person>> reels in, re-baits the hook, and casts back out.
+		The <<personsimple>> reels in, re-baits the hook, and casts back out.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The <<person>> reels in, takes a small fish off the hook and tosses it back before casting back out.
+		The <<personsimple>> reels in, takes a small fish off the hook and tosses it back before casting back out.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The <<person>> reels in, takes a small fish off the hook and stores it in <<his>> cooler before casting back out.
+		The <<personsimple>> reels in, takes a small fish off the hook and stores it in <<his>> cooler before casting back out.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The <<person>> picks a clump of seaweed off <<his>> line and casts back out.
+		The <<personsimple>> picks a clump of seaweed off <<his>> line and casts back out.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The <<person>> works <<his>> line free from a snag near the pier posts.
+		The <<personsimple>> works <<his>> line free from a snag near the pier posts.
 	<</addinlineevent>>
 
 	<<if $daily.fishing.pier.fisher.drunk gte 3>>
 		<<addinlineevent 15>>
-			The <<person1>><<person>> sways slightly on <<his>> feet, rod dipping toward the water.
+			The <<personsimple>> sways slightly on <<his>> feet, rod dipping toward the water.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			The <<person>> reels in, squints at the hook, and mutters something under <<his>> breath before casting sloppily back out.
+			The <<personsimple>> reels in, squints at the hook, and mutters something under <<his>> breath before casting sloppily back out.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			The <<person>> tugs <<his>> line free from a snag with more force than necessary, nearly losing <<his>> footing.
+			The <<personsimple>> tugs <<his>> line free from a snag with more force than necessary, nearly losing <<his>> footing.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			The <<person>> fumbles with the bait for a moment before managing to hook it, then casts back out with a grunt.
+			The <<personsimple>> fumbles with the bait for a moment before managing to hook it, then casts back out with a grunt.
 		<</addinlineevent>>
 		<<addinlineevent 1>>
-			The <<person>> glances over at you, eyes a little unfocused. <<He>> gives you a slow, lopsided smile before turning back to <<his>> rod.
+			The <<personsimple>> glances over at you, eyes a little unfocused. <<He>> gives you a slow, lopsided smile before turning back to <<his>> rod.
 		<</addinlineevent>>
 		<<addinlineevent 2>>
-			The <<person>> loses <<his>> balance for a moment, grabbing the railing to steady <<himself>>. <<He>> laughs softly to <<himself>>.
+			The <<personsimple>> loses <<his>> balance for a moment, grabbing the railing to steady <<himself>>. <<He>> laughs softly to <<himself>>.
 		<</addinlineevent>>
 	<<else>>
 		<<addinlineevent 15>>
-			The <<person>> stands a few paces away, quiet and focused on <<his>> line.
+			The <<personsimple>> stands a few paces away, quiet and focused on <<his>> line.
 		<</addinlineevent>>
 	<</if>>
 
 	<<addinlineevent 1>>
-		The <<person>> reaches for <<his>> bottle on the railing and takes a drink.
+		The <<personsimple>> reaches for <<his>> bottle on the railing and takes a drink.
 		<<set $daily.fishing.pier.fisher.drunk += 1>>
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The <<person>> picks up the bottle and drinks from it, then goes back to <<his>> rod.
+		The <<personsimple>> picks up the bottle and drinks from it, then goes back to <<his>> rod.
 		<<set $daily.fishing.pier.fisher.drunk += 1>>
 	<</addinlineevent>>
 
 	<<if $daily.fishing.pier.fisher.age gte 4>>
 		<<addinlineevent 7>>
 		<<set $daily.fishing.pier.fisher.age to 0>>
-			The <<person>> suddenly braces, struggling with the line as <<his>> rod bends around. After a tense moment, <<he>> reels in and pulls out a fish with a satisfied grunt. <<He>> holds it up briefly before unhooking it and dropping it in <<his>> cooler.
+			The <<personsimple>> suddenly braces, struggling with the line as <<his>> rod bends around. After a tense moment, <<he>> reels in and pulls out a fish with a satisfied grunt. <<He>> holds it up briefly before unhooking it and dropping it in <<his>> cooler.
 		<</addinlineevent>>
 		<<addinlineevent 12>>
 			<<set $daily.fishing.pier.fisher.age to 0>>
-			The <<person>> suddenly braces, fighting with the line as it pulls <<his>> rod around. Then <<he>> jolts back as whatever was on the line escapes.
+			The <<personsimple>> suddenly braces, fighting with the line as it pulls <<his>> rod around. Then <<he>> jolts back as whatever was on the line escapes.
 			<<if $daily.fishing.pier.fisher.drunk gte 3>>
 				<<He>> swears loudly, fumbling with <<his>> line before eventually getting it hooked and cast back out.
 			<<else>>
@@ -179,21 +230,21 @@ Whitney watches <<him>> go with a satisfied smirk, then turns to <<nnpc_his "Whi
 		<<set $daily.fishing.pier.fisherOgle ??= 1>>
 		<<addinlineevent $daily.fishing.pier.fisherOgle>>
 			<<set $daily.fishing.pier.fisherOgle += 1>>
-			The <<person>>'s gaze drifts towards your <<lewdness>> before <<he>> turns back to <<his>> line.
+			The <<personsimple>>'s gaze drifts towards your <<lewdness>> before <<he>> turns back to <<his>> line.
 		<</addinlineevent>>
 		<<addinlineevent $daily.fishing.pier.fisherOgle>>
 			<<set $daily.fishing.pier.fisherOgle += 1>>
-			The <<person>> glances over your <<lewdness>> with a long, slow look before turning back to <<his>> rod.
+			The <<personsimple>> glances over your <<lewdness>> with a long, slow look before turning back to <<his>> rod.
 		<</addinlineevent>>
 	<</if>>
 	<<if $exposed gte 2>>
 		<<addinlineevent $daily.fishing.pier.fisherOgle>>
 			<<set $daily.fishing.pier.fisherOgle += 2>>
-			The <<person>> stares openly at your <<lewdness>>, not bothering to look away when you catch <<him>> looking.
+			The <<personsimple>> stares openly at your <<lewdness>>, not bothering to look away when you catch <<him>> looking.
 		<</addinlineevent>>
 		<<addinlineevent $daily.fishing.pier.fisherOgle>>
 			<<set $daily.fishing.pier.fisherOgle += 2>>
-			The <<person>> looks you over your <<lewdness>> with a slow, deliberate stare, not paying any attention to his rod.
+			The <<personsimple>> looks over your <<lewdness>> with a slow, deliberate stare, not paying any attention to <<his>> rod.
 		<</addinlineevent>>
 	<</if>>
 
@@ -202,12 +253,12 @@ Whitney watches <<him>> go with a satisfied smirk, then turns to <<nnpc_his "Whi
 
 
 :: Fishing Pier Fisher Take Fish Accept
-The <<person>> snatches it from your hands and staggers off the pier, muttering about "respekt" and "my spot." 
+<<effects>>
+The <<person>> snatches it from your hands and staggers off the pier, muttering about "respekt" and "my spot."
 <br><br>
 
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
-<<link [[Next|Fishing Pier Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 
 
 :: Fishing Pier Fisher Take Fish Refuse
@@ -220,7 +271,7 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 <</if>>
 <br><br>
 
-<<He>> narrows <<his>> eyes. "I tend to take what I want," <<he>> says as <<he>> strides towards you.
+<<He>> narrows <<his>> eyes. "I tend to take what I want," <<he>> says as <<he>> strides towards you.<<stress 4>><<gstress>>
 <br><br>
 
 <<link [[Fight|Fishing Pier Fisher Take Fish Molestation]]>><<set $molestationstart to 1>><</link>>
@@ -256,7 +307,6 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 
 :: Fishing Pier Fisher Take Fish Molestation Finish
 <<effects>>
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
 
 <<if $enemyarousal gte $enemyarousalmax>>
@@ -269,9 +319,9 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <<elseif $enemyhealth lte 0>>
 	<<He>> stumbles back, gasping. <<He>> looks at you for a moment, then turns and walks off down the pier.
 	<br><br>
@@ -282,9 +332,9 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 	<<clotheson>>
 	<<endcombat>>
 	<<tending_give>>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <</if>>
 
 
@@ -299,10 +349,18 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 	<<set $enemyno to 1>>
 	<<maninit>>
 	<<set $enemyanger += 50>>
-	<<set $NPCList[0].lefthand to "hair">>
-	<<set $head to "grappled">>
+	<<if $wristGrab>>
+		<<set $wristGrab to false>>
+		<<set $NPCList[0].lefthand to "arms">>
+		<<set $leftarm to "grappled">>
 
-	The <<person>> forces you down, grabbing a fistful of your hair.
+		<<He>> forces you back against the pier railing, wrist still locked in <<his>> grip.
+	<<else>>
+		<<set $NPCList[0].lefthand to "hair">>
+		<<set $head to "grappled">>
+
+		The <<person>> forces you down, grabbing a fistful of your hair.
+	<</if>>
 <</if>>
 
 <<effects>>
@@ -323,31 +381,28 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 
 :: Fishing Pier Fisher Payment Molestation Finish
 <<effects>>
-
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	The fisher groans as <<he>> finishes, <<his>> breathing ragged. <<He>> pulls away, staggering slightly. <<tearful>> you gather yourself.
 	<br><br>
 
 	<<if $enemyanger gte 140>>
-		<<He>> glares at you with contempt. <<He>> then kicks you hard in the side, sending you tumbling off the pier and into the water below. <<stress 15>><<ggstress>><<pain 10>><<ggpain>>
+		<<He>> glares at you with contempt. <<He>> then kicks you hard in the side, sending you tumbling off the pier and into the water below.<<pain 10>><<ggpain>><<stress 15>><<ggstress>>
 
 		<<clotheson>>
 		<<endcombat>>
-		<<clearNPC "fishing_pier_npc_fisher">>
 		<<set $daily.fishing.pier.fisher.phase to "finished">>
-		<<link [[Next|Sea Docks]]>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Sea Docks]]>><<clearNPC "fishing_pier_npc_fisher">><<set $eventskip to 1>><</link>>
 	<<elseif $enemyanger lt 140>>
 		<<He>> tucks <<his>> shirt back in without a word, and walks off down the pier.
 		<br><br>
 
 		<<clotheson>>
 		<<endcombat>>
-		<<clearNPC "fishing_pier_npc_fisher">>
 		<<set $daily.fishing.pier.fisher.phase to "finished">>
-		<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+		<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 		<br>
-		<<link [[Leave|Dock Pier]]>><</link>>
+		<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<</if>>
 <<elseif $enemyhealth lte 0>>
 	<<He>> looks at you with fury in <<his>> eyes, pulling <<his>> clothes back together. "You think you can humiliate me?" <<He>> staggers back, then storms off down the pier, muttering threats.
@@ -358,24 +413,31 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 
 	<<clotheson>>
 	<<endcombat>>
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <</if>>
 
 
-:: Fishing Pier Fisher Thank Normal
+:: Fishing Pier Fisher Saved On Pier
+<<effects>>
 <<if dangerEvent(1, 9900 - $daily.fishing.pier.fisher.drunk * 600, V.allure, true)>>
 	The fisher steps closer, <<his>> eyes darkening. "Yeah? Just 'thanks'?" <<He>> looks around, then leans even closer to you. You can feel <<his>> breath<<if $daily.fishing.pier.fisher.drunk gte 1>>, sour with alcohol<</if>>.
 	<br><br>
 
-	<<if $phase is 0>>"I nearly went over that railing with you,"<<else>>"I risked getting pulled in for you,"<</if>> <<he>> says, voice low. "You could show me a little more appreciation." <<He>> reaches down and adjusts <<his>> crotch. "Get on your knees. You should know what I want."
+	<<if $phase is 0>>"I nearly went over that railing with you,"<<else>>"I risked getting pulled in for you,"<</if>> <<he>> says, voice low. "You could show me a little more appreciation." <<He>> reaches down and adjusts <<his>> crotch. "Get on your knees. You should know what I want."<<stress 4>><<gstress>>
 	<br><br>
 
+	<<if hasSexStat("promiscuity", 3)>>
+		<<link [[Comply reluctantly|Fishing Pier Fisher Coerced Sex]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+		<br>
+	<<else>>
+		<<link [[Comply reluctantly|Fishing Pier Fisher Coerced Sex]]>><<set $molestationstart to 1>><<set $phase to 2>><<stress 6>><<trauma 6>><</link>><<gstress>><<gtrauma>>
+		<br>
+	<</if>>
 	<<if hasSexStat("promiscuity", 4)>>
-		<<link [[Get on your knees|Fishing Pier Fisher Want Sex]]>><<promiscuous4>><</link>>
+		<<link [[Comply eagerly|Fishing Pier Fisher Coerced Sex]]>><<set $sexstart to 1>><<set $phase to 2>><</link>><<promiscuous4>>
 		<br>
 	<</if>>
 	<<link [[Refuse|Fishing Pier Fisher Want Sex Refuse]]>><</link>>
@@ -383,32 +445,18 @@ The <<person>> snatches it from your hands and staggers off the pier, muttering 
 	The <<person>> gives you a friendly pat on the shoulder before giving a worried glance towards the water. <<He>> then turns and starts packing up <<his>> gear.
 	<br><br>
 
-	"I'm heading in, stay safe. You're worth more than your equipment" <<he>> says as he starts walking down the pier.
+	"I'm heading in, stay safe. You're worth more than your equipment" <<he>> says as <<he>> starts walking down the pier.
 	<br><br>
 
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
 
-	<<link [[Next|Fishing Pier Wait]]>><</link>>
+	<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 <</if>>
 
-
-:: Fishing Pier Fisher Want Sex
-You hesitate for only a moment before sinking to your knees. The pier is cold and wet beneath you.
-<br><br>
-
-"That's what I thought," <<he>> says, and shoves <<his>> pants down.
-<<if $NPCList[0].penis isnot "none">>
-	<<His>> cock springs free, half-hard already.
-<<else>>
-	<<He>> pulls <<his>> underwear aside, exposing <<himself>>.
-<</if>>
-<br><br>
-
-<<link [[Next|Fishing Pier Fisher Sex]]>><<set $sexstart to 1>><<set $phase to 2>><</link>>
 
 
 :: Fishing Pier Fisher Want Sex Refuse
+<<effects>>
 <<if $speech_attitude is "meek">>
 	"S-sorry," you stammer, shrinking back. "I can't— I don't—"
 <<elseif $speech_attitude is "bratty">>
@@ -418,7 +466,7 @@ You hesitate for only a moment before sinking to your knees. The pier is cold an
 <</if>>
 <br><br>
 
-<<His>> expression hardens. "So that's how it is?" <<He>> grabs your arm, <<his>> grip tight. "You're not too good to owe me, but you're too good to repay me? We're doing this whether you like it or not."
+<<His>> expression hardens. "So that's how it is?" <<He>> grabs your arm, <<his>> grip tight. "You're not too good to owe me, but you're too good to repay me? We're doing this whether you like it or not."<<stress 5>><<gstress>>
 <br><br>
 
 <<link [[Next|Fishing Pier Fisher Payment Molestation]]>><<set $molestationstart to 1>><</link>>
@@ -446,22 +494,24 @@ You lean forward and kiss the fisher, your hand finding <<his>> chest. <<takeKis
 	<<He>> gives a nervous glance to the water. "I'm heading in, stay safe. You're worth more than your equipment." <<He>> starts walking away, down the pier.
 	<br><br>
 
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
 
-	<<link [[Next|Fishing Pier Wait]]>><</link>>
+	<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 <</if>>
 
 
 :: Fishing Pier Fisher Thank Kiss Accept
+<<effects>>
 <<famesex 10>>
+
 You let <<him>> lower you to the deck, your body responding to <<his>> touch, <<his>> hands roaming over you.<<garousal>><<arousal 300>>
 <br><br>
 
-<<link [[Next|Fishing Pier Fisher Sex]]>><<set $sexstart to 1>><<set $phase to 1>><</link>>
+<<link [[Next|Fishing Pier Fisher Coerced Sex]]>><<set $sexstart to 1>><<set $phase to 1>><</link>>
 
 
 :: Fishing Pier Fisher Thank Kiss Refuse
+<<effects>>
 You pull away, breaking the kiss.
 <br><br>
 
@@ -474,14 +524,13 @@ You pull away, breaking the kiss.
 	<<He>> lets out a slow breath. "Fine, forget it." <<He>> steps back and picks up <<his>> gear. "Just... be careful out there." <<He>> walks off down the pier.
 	<br><br>
 
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
 
-	<<link [[Next|Fishing Pier Wait]]>><</link>>
+	<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
 <</if>>
 
 
-:: Fishing Pier Fisher Sex
+:: Fishing Pier Fisher Coerced Sex
 <<if $sexstart is 1>>
 	<<run stopFishingProp()>>
 	<<set $sexstart to 0>>
@@ -496,9 +545,24 @@ You pull away, breaking the kiss.
 
 	<<if $phase is 1>>
 		<<set $enemytrust += 100>>
+		<<He>> pulls you down beneath <<him>>, <<his>> hands finding you eagerly.
+	<<else>>
+		You sink to your knees. "That's what I thought," <<he>> says, and grabs a fistful of your hair.
 	<</if>>
+<<elseif $molestationstart is 1>>
+	<<run stopFishingProp()>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<set $enemyno to 1>>
+	<<maninit>>
+	<<set $NPCList[0].lefthand to "hair">>
+	<<set $head to "grappled">>
+	<<npcoral>>
 
-	The <<person>> forces you down, grabbing a fistful of your hair as <<he>> does.
+	The <<person>> grabs a fistful of your hair and forces you down. "There we go," <<he>> says.
 <</if>>
 
 <<effects>>
@@ -510,40 +574,43 @@ You pull away, breaking the kiss.
 <<actionsman>>
 
 <<if _combatend>>
-	<span id="next"><<link [[Next|Fishing Pier Fisher Sex Finish]]>><</link>></span>
+	<span id="next"><<link [[Next|Fishing Pier Fisher Coerced Sex Finish]]>><</link>></span>
 <<else>>
-	<span id="next"><<link [[Next|Fishing Pier Fisher Sex]]>><</link>></span>
+	<span id="next"><<link [[Next|Fishing Pier Fisher Coerced Sex]]>><</link>></span>
 <</if>>
 
 
-:: Fishing Pier Fisher Sex Finish
+:: Fishing Pier Fisher Coerced Sex Finish
 <<effects>>
-
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	The fisher lets out a long, shaky breath and pulls back from you. "Now that's what I call even" <<he>> says quietly, tucking <<his>> shirt back in. <<He>> glances out at the water for a moment, then picks up <<his>> gear and starts heading off the pier without another word.
 	<br><br>
 
-	<<clotheson>>
-	<<endcombat>>
-	<<clearNPC "fishing_pier_npc_fisher">>
-	<<set $daily.fishing.pier.fisher.phase to "finished">>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
-	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
-<<elseif $finish is 1>>
-	The fisher pauses, looking at you. <<He>> breathes out slowly. "Alright," <<he>> says quietly, pulling back. <<He>> straightens <<his>> clothes and collects <<his>> gear before heading off the pier without another word.
+	<<tearful>> you get back to your feet.
 	<br><br>
 
 	<<clotheson>>
 	<<endcombat>>
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+<<elseif $finish is 1>>
+	The fisher pauses, looking at you. <<He>> breathes out slowly. "Alright," <<he>> says quietly, pulling back. <<He>> straightens <<his>> clothes and collects <<his>> gear before heading off the pier without another word.
+	<br><br>
+
+	<<tearful>> you get back to your feet.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $daily.fishing.pier.fisher.phase to "finished">>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <<elseif $enemyhealth lte 0>>
-	The fisher staggers back, gasping. You catch your breath as <<he>> stumbles away.
+	The fisher staggers back, gasping. <<tearful>> you catch your breath as <<he>> stumbles away.
 	<br><br>
 
 	<<He>> pulls <<his>> clothes back together with shaking hands, looking at you with something between anger and embarrassment. Without a word, <<he>> picks up <<his>> gear and storms off down the pier.
@@ -551,16 +618,16 @@ You pull away, breaking the kiss.
 
 	<<clotheson>>
 	<<endcombat>>
-	<<clearNPC "fishing_pier_npc_fisher">>
 	<<set $daily.fishing.pier.fisher.phase to "finished">>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <</if>>
 
 :: Fishing Pier Fisher Exposed Attack
+<<effects>>
 <<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
-The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <<He>> turns and looks you over your <<lewdness>>. "I know an invitation when I see one," <<he>> says, and walks toward you.
+The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <<He>> turns and looks you over your <<lewdness>>. "I know an invitation when I see one," <<he>> says, and walks toward you.<<stress 4>><<gstress>>
 <br><br>
 
 <<link [[Next|Fishing Pier Fisher Exposed Molestation]]>><<set $molestationstart to 1>><</link>>
@@ -596,18 +663,17 @@ The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <
 
 :: Fishing Pier Fisher Exposed Molestation Finish
 <<effects>>
-<<clearNPC "fishing_pier_npc_fisher">>
 <<set $daily.fishing.pier.fisher.phase to "finished">>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	<<if $enemyanger gte 140>>
-		<<He>> shudders, then his expression twists. "Stupid <<bitch>>." <<He>> drives <<his>> foot into your side and you double over. <<He>> then kicks you toward the edge of the pier, sending you tumbling into the water below. <<gstress>><<gpain>><<stress 4>><<pain 4>>
+		<<He>> shudders, then his expression twists. "Stupid <<bitch>>." <<He>> drives <<his>> foot into your side and you double over. <<He>> then kicks you toward the edge of the pier, sending you tumbling into the water below.<<gpain>><<gstress>><<pain 4>><<stress 4>>
 		<br><br>
 
 		<<clotheson>>
 		<<endcombat>>
-		<<link [[Next|Sea Docks]]>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Sea Docks]]>><<clearNPC "fishing_pier_npc_fisher">><<set $eventskip to 1>><</link>>
 	<<else>>
 		<<He>> shudders and pulls away, breathing hard. After a moment, <<he>> staggers upright and walks off down the pier without a word.
 		<br><br>
@@ -617,9 +683,9 @@ The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <
 
 		<<clotheson>>
 		<<endcombat>>
-		<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+		<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 		<br>
-		<<link [[Leave|Dock Pier]]>><</link>>
+		<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<</if>>
 <<elseif $enemyhealth lte 0>>
 	<<He>> stumbles back, gasping. <<He>> looks at you for a moment, then turns and walks off down the pier.
@@ -630,9 +696,244 @@ The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <
 
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+<</if>>
+
+
+:: Fishing Pier Fisher Saved From Water
+<<effects>>
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+
+<<if $speech_attitude is "meek">>
+	"Th-thank you."
+<<else>>
+	"Thanks."
+<</if>>
+<br><br>
+
+<<if dangerEvent(1, 9900 - $daily.fishing.pier.fisher.drunk * 600, V.allure, true)>>
+	The <<personsimple>> steps closer, <<his>> eyes darkening. "Yeah? Just 'thanks?'" <<He>> looks around, then leans in. You can feel <<his>> breath<<if $daily.fishing.pier.fisher.drunk gte 1>>, sour with alcohol<</if>>.
+	<br><br>
+
+	"You'd be in a much worse spot if it wasn't for me," <<he>> says, voice low. "I think that's worth a little more than 'thanks'." <<He>> reaches down and adjusts <<his>> crotch. "You know what I want."<<gstress>><<stress 4>>
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 3)>>
+		<<link [[Comply reluctantly|Fishing Pier Fisher Coerced Sex]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+		<br>
+	<<else>>
+		<<link [[Comply reluctantly|Fishing Pier Fisher Coerced Sex]]>><<set $molestationstart to 1>><<set $phase to 2>><<stress 6>><<trauma 6>><</link>><<gstress>><<gtrauma>>
+		<br>
+	<</if>>
+	<<if hasSexStat("promiscuity", 4)>>
+		<<link [[Comply eagerly|Fishing Pier Fisher Coerced Sex]]>><<set $sexstart to 1>><<set $phase to 2>><</link>><<promiscuous4>>
+		<br>
+	<</if>>
+	<<link [[Refuse|Fishing Pier Fisher Want Sex Refuse]]>><</link>>
+<<elseif $exposed gte 1>>
+	The <<personsimple>> rummages in <<his>> bag and holds out a towel. "Here," <<he>> says.
+	<br><br>
+
+	<<link [[Accept|Sea Docks Fisher Towel Accept]]>><</link>>
+	<br>
+	<<link [[Decline|Sea Docks Fisher Towel Decline]]>><</link>>
+	<br>
+	<<link [[Flirt|Fishing Pier Fisher Flirt]]>><</link>><<promiscuous2>>
+<<else>>
+	"Don't mention it," <<he>> says, glancing at you sideways for a moment before looking back out at the water.
+	<br><br>
+
+	<<link [[Next|Fishing Pier Wait]]>><<endevent>><<clearNPC "fishing_pier_npc_fisher">><<set $daily.fishing.pier.fisher.phase to "finished">><</link>>
+	<br>
+	<<link [[Flirt|Fishing Pier Fisher Flirt]]>><</link>><<promiscuous2>>
+<</if>>
+
+
+:: Fishing Pier Fisher Flirt
+<<effects>>
+<<set $seductiondifficulty to ($exposed gte 1 ? 4500 : 6000)>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
+<<if $exposed gte 1>>
+	You shift your body, exposing your <<lewdness>> to the <<person>>.
+	<br>
+<</if>>
+<<promiscuity2>>
+<br>
+
+<<if $seductionrating gte $seductionrequired>>
+	<<if $exposed gte 1>>
+		The <<personsimple>> goes still, the towel going limp in <<his>> hand. After a moment, the corner of <<his>> mouth turns up.
+	<<else>>
+		The <<personsimple>> holds your gaze. After a moment, the corner of <<his>> mouth turns up.
+	<</if>>
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 3)>>
+		<<link [[Press further|Fishing Pier Fisher Flirt Press]]>><</link>><<promiscuous3>>
+		<br>
+	<<else>>
+		<<insufficientStat "promiscuity" "to press further">>
+		<br>
+	<</if>>
+	<<if dangerEvent(1, 9900 - $daily.fishing.pier.fisher.drunk * 600, V.allure, true)>>
+		<<link [[Back off|Fishing Pier Fisher Flirt Back Off]]>><</link>>
+	<<else>>
+		<<link [[Back off|Fishing Pier Wait]]>><</link>>
+	<</if>>
+<<else>>
+	<<if $exposed gte 1>>
+		<<He>> blinks, looking mildly caught off guard. <<He>> clears <<his>> throat and holds the towel out again and looks away.
+		<br><br>
+
+		<<link [[Take it|Sea Docks Fisher Towel Accept]]>><</link>>
+		<br>
+		<<link [[Decline|Sea Docks Fisher Towel Decline]]>><</link>>
+	<<else>>
+		<<He>> looks away, clearing <<his>> throat. "Take care out there," <<he>> says, and turns back to <<his>> rod.
+		<br><br>
+
+		<<set $daily.fishing.pier.fisher.phase to "finished">>
+		<<link [[Next|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
+	<</if>>
+<</if>>
+
+
+:: Fishing Pier Fisher Flirt Back Off
+<<effects>>
+The <<personsimple>>'s expression shifts. "You can't do that then just walk away." <<He>> catches your wrist. "I just pulled you out of the water. You owe me."<<gstress>><<stress 5>>
+<br><br>
+
+<<if $speech_attitude is "meek">>
+	"I — sorry" you stammer, "I didn't mean — please, let go."
+<<elseif $speech_attitude is "bratty">>
+	"Get your hands off me!" you bark, " I don't owe you anything."
+<<else>>
+	"Get your hands off me!" you say to the <<man>>.
+<</if>>
+<br><br>
+
+"You think that I care?" <<He>> pulls you in close to <<him>>, hand tightening on your wrist.
+<br><br>
+
+<<link [[Next|Fishing Pier Fisher Payment Molestation]]>><<set $molestationstart to 1>><<set $wristGrab to true>><</link>>
+
+
+:: Sea Docks Fisher Towel Accept
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+<<effects>>
+You take it gratefully and wrap it around yourself.
+<<towelup>>
+<br><br>
+
+"Any time," the <<personsimple>> says, giving a worried glance toward the water. <<He>> starts packing up <<his>> gear. "Stay safe," <<he>> adds, heading off down the pier.
+<br><br>
+
+<<set $daily.fishing.pier.fisher.phase to "finished">>
+<<link [[Next|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
+
+
+:: Sea Docks Fisher Towel Decline
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+<<effects>>
+<<if $speech_attitude is "meek">>
+	"I'm okay," you say quietly. "Thank you, though."
+<<elseif $speech_attitude is "bratty">>
+	"Keep it," you say. "I'm fine."
+<<else>>
+	"I'm alright," you say.
+<</if>>
+<br><br>
+
+The <<personsimple>> shrugs. "If you're happy going around like that, I won't complain," <<he>> says, turning back to <<his>> line.
+<br><br>
+
+<<set $daily.fishing.pier.fisher.phase to "finished">>
+<<link [[Next|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><<endevent>><</link>>
+
+
+:: Fishing Pier Fisher Flirt Press
+<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+<<effects>>
+You step closer and place your hand on <<his>> chest. <<He>> looks down at you, then sets <<his>> rod against the railing and leans towards you.
+<br><br>
+
+<<link [[Next|Fishing Pier Fisher Flirt Sex]]>><<set $sexstart to 1>><</link>>
+
+
+:: Fishing Pier Fisher Flirt Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+	<<set $enemyno to 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Fishing Pier Fisher Flirt Sex Finish]]>><</link>></span>
+<<else>>
+	<span id="next"><<link [[Next|Fishing Pier Fisher Flirt Sex]]>><</link>></span>
+<</if>>
+
+
+:: Fishing Pier Fisher Flirt Sex Finish
+<<effects>>
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	The <<person>> steps back and says with a laugh "Aren't you glad I was here?" Before packing up <<his>> things and heading off down the pier.
+	<br><br>
+
+	You get back to your feet.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $daily.fishing.pier.fisher.phase to "finished">>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+<<elseif $finish is 1>>
+	The <<person>> pauses, looking down at you. <<He>> breathes out slowly. "Alright," <<he>> says quietly, pulling back. <<He>> straightens <<his>> clothes and collects <<his>> gear before heading off the pier without another word.
+	<br><br>
+
+	You get back to your feet.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $daily.fishing.pier.fisher.phase to "finished">>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+<<elseif $enemyhealth lte 0>>
+	The <<person>> staggers back, gasping. You catch your breath as <<he>> stumbles away.
+	<br><br>
+
+	<<He>> pulls <<his>> clothes back together with shaking hands, looking at you with something between fury and humiliation. Without a word, <<he>> picks up <<his>> gear and storms off down the pier.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+	<<set $daily.fishing.pier.fisher.phase to "finished">>
+	<<link [[Return to fishing|Fishing Pier Wait]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_pier_npc_fisher">><</link>>
 <</if>>
 
 
@@ -664,7 +965,7 @@ The <<person>> reels in <<his>> line and sets <<his>> rod against the railing. <
 	<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
 	<<set _orgasmText to either("You grab the pier railing with your free hand", "You press yourself hard against the railing")>>
 	<<orgasm>>
-	<<= _orgasmText>> as your body convulses in climax. The rod slips and the line goes slack. The <<print $fishingHookedFish.type>> is long gone. "Hell of a catch," the <<person>> calls over, laughing. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<= _orgasmText>> as your body convulses in climax. The rod slips and the line goes slack. The <<print $fishingHookedFish.type>> is long gone. "Hell of a catch," the <<person>> calls over, laughing as <<he>> reels in an empty hook.<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
 	<<run endFishingCombat()>>
 	<br><br>
 

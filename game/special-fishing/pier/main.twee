@@ -2,8 +2,22 @@
 <<fishingLocationDescription "pier">>
 <br><br>
 
+<<if $daily.fishing.pier.whitney.phase is "idle">>
+	<<if ["dusk", "night"].includes(Weather.dayState)>>
+		<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<else>>
+		Whitney and a few friends are spread along the railing further down, cans in hand, rods hanging over the edge.
+		<br><br>
+	<</if>>
+<</if>>
+
 <<if canStartFishing()>>
+	<<run V.fishing.locationsFound.pushUnique("pier")>>
 	<<link [[Start fishing|Fishing Pier Wait]]>><</link>>
+	<br>
+<<elseif !$fishing.locationsFound.includes("pier")>>
+	<<run V.fishing.locationsFound.pushUnique("pier")>>
+	<span class="gold">If you had a fishing rod, you could probably catch fish from here</span>.
 	<br>
 <</if>>
 <<mericon>><<link [[Walk back to the docks (0:10)|Docks]]>><<pass 10>><</link>>
@@ -11,9 +25,10 @@
 
 /* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Pier Wait
-<<effects>>
 <<run initFishingPier()>>
 <<run startFishingProp()>>
+
+<<set _exhibitionismCheck to Weather.dayState is "night" or (($exposed isnot 1 or hasSexStat("exhibitionism", 3)) and ($exposed lt 2 or hasSexStat("exhibitionism", 5)))>>
 
 <<fishingLocationDescription "pier">>
 <<fishingPierLocationAmbient>>
@@ -25,16 +40,15 @@
 <</if>>
 <<if $arousal gte $arousalmax>>
 	<<orgasmFishingPier>>
-	<<run fishingNextEventOverride("wait")>>
-<<else>>
+<<elseif _exhibitionismCheck>>
 	<<fishingPierWaitAmbient>>
 <</if>>
 <br><br>
 
-<<if Weather.dayState isnot "night" and !$daily.fishing.pier.whitney.cantLeave and (($exposed is 1 and !hasSexStat("exhibitionism", 3)) or ($exposed gte 2 and !hasSexStat("exhibitionism", 5)))>>
-	<span class="blue">You are not exhibitionistic enough to keep standing around in such an exposed state.</span>
+<<if Weather.dayState isnot "night" and !$daily.fishing.pier.whitney.cantLeave and !_exhibitionismCheck>>
+	<<insufficientStat "exhibitionism" "to keep standing around in such an exposed state">>
 <<else>>
-	<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><</link>>
+	<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><<pass 5>><</link>>
 		<<if ["bet", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
 		<br>
 		<<link [[Take a sip|Fishing Pier Wait]]>><<set $fishingPierWaitAmbientOverride to "sip">><</link>><<galcohol>>
@@ -56,8 +70,6 @@
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Pier Wait Loop
-<<effects>>
-<<pass 5>>
 <<cleareventpool>>
 
 <<addinlineevent "bite" 10>>
@@ -87,8 +99,8 @@
 <</if>>
 
 /* Whitney Pier betting event */
-<<if $daily.fishing.pier.whitney.phase is "idle">>
-	<<addinlineevent "whitneyBet" 1>>
+<<if $daily.fishing.pier.whitney.phase is "idle" and !$daily.fishing.pier.whitney.betComplete>>
+	<<addinlineevent "whitneyBet" fishingDangerEventWeight(1)>>
 		<<include "Fishing Whitney Pier Bet">>
 	<</addinlineevent>>
 <</if>>
@@ -138,6 +150,13 @@
 	<</addinlineevent>>
 <</if>>
 
+/* Fisher cliff tip event */
+<<if $daily.fishing.pier.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("coastPath")>>
+	<<addinlineevent "fisherCliffTipOffer" 0.5>>
+		<<include "Fishing Pier Fisher Cliff Tip Offer">>
+	<</addinlineevent>>
+<</if>>
+
 /* Fisher leaves */
 <<if $daily.fishing.pier.fisher.phase is "fishing">>
 	<<if Time.hour gte 20>>
@@ -153,14 +172,14 @@
 
 /* Fisher attacks if player is exposed */
 <<if $daily.fishing.pier.fisher.phase is "fishing" and $exposed gte 1>>
-	<<addinlineevent "fisherExposedAttack" $daily.fishing.pier.fisherOgle>>
+	<<addinlineevent "fisherExposedAttack" fishingDangerEventWeight($daily.fishing.pier.fisherOgle)>>
 		<<include "Fishing Pier Fisher Exposed Attack">>
 	<</addinlineevent>>
 <</if>>
 
 /* Tentacle pulls rod event */
 <<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase)>>
-	<<addinlineevent "tentacles" 1>>
+	<<addinlineevent "tentacles" fishingDangerEventWeight(3)>>
 		<<include "Fishing Pier Tentacles">>
 	<</addinlineevent>>
 <</if>>
@@ -185,6 +204,13 @@
 <<addinlineevent "pierWave" 0.5>>
 	<<include "Fishing Pier Wave">>
 <</addinlineevent>>
+
+/* Eel swarm drags the player into the water */
+<<if $settings.swarmsEnabled>>
+	<<addinlineevent "pierSwarm" fishingDangerEventWeight(1)>>
+		<<include "Fishing Pier Swarm">>
+	<</addinlineevent>>
+<</if>>
 
 /* Nothing happens, wait loop continues */
 <<addinlineevent "wait" 25>>
@@ -228,10 +254,10 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 	<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is "fishing">>
 		<<fishingPierFisherAmbient>>
 	<<elseif ["bet", "idle"].includes($daily.fishing.pier.whitney.phase)>>
-		<<if $daily.fishing.pier.fellOff>>
+		<<if $daily.fishing.pier.whitney.playerFellOff>>
 			Whitney looks over at you with a smirk. "Welcome back, slut. Did you enjoy your swim?"
 
-			<<unset $daily.fishing.pier.fellOff>>
+			<<unset $daily.fishing.pier.whitney.playerFellOff>>
 		<<else>>
 			<<switch $daily.fishing.pier.whitney.phase>>
 				<<case "idle">>
