@@ -1,12 +1,7 @@
 /*
 ====== Main Fishing Todo ======  
 - Test screaming for gwa rescue in forest fishing attack
-- Hawk rescue code is duplicated too much
-- Implement UI fishing minigame
-- When exposed on the fishing rock, add an event where people walk up and gawk at you, maybe attack.
 - Sort out the location of the pier
-- Simple ear slime stuff
-- Normalize weather.daystate and time.daystate usages
 
 
 ====== Fishing Nice to haves ====
@@ -21,7 +16,8 @@
 - Whitney bet event: If the fish is small, you should be able to eat it. At which whitney laughs hard, everyone else looks at you confused and shocked, and you're let go if you want.
 - Whitney friends: Throw small fish at you to make fun of your insecurities. "hey, it reminds me of you"
 - The great hawk rescue event is reused and duplicated a bunch in the fishing code, and that's bad. 
-
+- When exposed on the fishing rock, add an event where people walk up and gawk at you, maybe attack.
+- Hawk rescue code is duplicated too much
 
 ====== Random fishing notes ====
 - Avery: yacht fishing location, unique?
@@ -184,29 +180,6 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 	fishRecord.smallest = Math.min(fishRecord.smallest, fishSize);
 	if (!fishRecord.found_in.includes(locationKey)) {
 		fishRecord.found_in.push(locationKey);
-	}
-
-	if (fishKey === "bass") {
-		// Fishing Todo: why lint error????
-		earnFeat("Nice Bass");
-	}
-
-	const fishKeys = Object.keys(setup.fishing_fish);
-	if (fishKeys.every(key => V.fishing.record[key]?.num_caught > 0)) {
-		earnFeat("Wet Rod");
-	}
-
-	if (
-		fishKeys.every(key => {
-			const fishConfig = setup.fishing_fish[key];
-			const fishRecord = V.fishing.record[key];
-			if (!fishRecord) return false;
-			const largestSizePercent = (fishRecord.largest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
-			const smallestSizePercent = (fishRecord.smallest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
-			return largestSizePercent >= 0.98 && smallestSizePercent <= 0.02;
-		})
-	) {
-		earnFeat("Master Baiter");
 	}
 }
 window.updateFishRecord = updateFishRecord;
