@@ -170,14 +170,12 @@ function updateFishRecord(fishKey, fishSize, locationKey) {
 	V.fishing.record[fishKey] ??= {
 		num_caught: 0,
 		largest: fishSize,
-		smallest: fishSize,
 		found_in: [],
 	};
 
 	const fishRecord = V.fishing.record[fishKey];
 	fishRecord.num_caught += 1;
 	fishRecord.largest = Math.max(fishRecord.largest, fishSize);
-	fishRecord.smallest = Math.min(fishRecord.smallest, fishSize);
 	if (!fishRecord.found_in.includes(locationKey)) {
 		fishRecord.found_in.push(locationKey);
 	}

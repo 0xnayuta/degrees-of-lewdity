@@ -1150,14 +1150,6 @@ setup.feats = {
 		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
-	"Nice Bass": {
-		title: "Nice Bass",
-		desc: "Caught a bass.",
-		difficulty: 1,
-		series: "fishing",
-		filter: ["All", "Discoveries-Other"],
-		hint: "Hint: Reel in a bass.",
-	},
 	"Wet Rod": {
 		title: "Wet Rod",
 		desc: "Caught one of every fish.",
@@ -1168,7 +1160,7 @@ setup.feats = {
 	},
 	"Master Baiter": {
 		title: "Master Baiter",
-		desc: "Caught the biggest and smallest size possible of each fish.",
+		desc: "Caught the biggest size possible of each fish.",
 		difficulty: 3,
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
@@ -2424,8 +2416,7 @@ function earnHourlyFeats() {
 			const fishRecord = V.fishing.record[key];
 			if (!fishRecord) return false;
 			const largestSizePercent = (fishRecord.largest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
-			const smallestSizePercent = (fishRecord.smallest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
-			return largestSizePercent >= 0.98 && smallestSizePercent <= 0.02;
+			return largestSizePercent >= 0.98;
 		})
 	) {
 		earnFeat("Master Baiter");
