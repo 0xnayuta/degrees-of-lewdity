@@ -492,7 +492,7 @@ window.pregnancyGenerator = {
 					monster: monster ? "monster" : 0,
 					gender,
 					size: bodySizeCalc(V.bodysize),
-					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
+					eyeColour: [eyeColourCalc(motherObject.eyeColour), eyeColourCalc(fatherObject.eyeColour)][random(0, 1)],
 					hairColour: furColour[random(0, furColour.length - 1)],
 					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
@@ -594,6 +594,10 @@ window.pregnancyGenerator = {
 		const motherObject = npcPregObject(mother, true);
 		let fatherObject;
 		if (father) fatherObject = npcPregObject(father);
+		// Temporary fix: the hawk generator uses fatherObject unconditionally below (child id,
+		// gender, the baby's father), so a Great Hawk pregnancy with no father crashed here.
+		// Bail out cleanly instead. Proper fatherless / donor-parent support comes with the rework.
+		if (!fatherObject) return false;
 
 		const [pregnancy, fertility, magicTattoo] = pregPrep({ motherObject, genital, override: "hawk" });
 		if (typeof pregnancy === "string" || pregnancy instanceof String) return pregnancy;
@@ -634,7 +638,7 @@ window.pregnancyGenerator = {
 					monster: monster ? "monster" : 0,
 					gender,
 					size: bodySizeCalc(V.bodysize),
-					eyeColour: [eyeColourCalc(motherObject.name), eyeColourCalc(fatherObject.name)][random(0, 1)],
+					eyeColour: [eyeColourCalc(motherObject.eyeColour), eyeColourCalc(fatherObject.eyeColour)][random(0, 1)],
 					hairColour: featherColour[random(0, featherColour.length - 1)],
 					skinColour: [skinColourCalc(motherObject.skinColour), skinColourCalc(fatherObject.skinColour)][random(0, 1)],
 				});
