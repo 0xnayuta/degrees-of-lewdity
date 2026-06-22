@@ -94,7 +94,7 @@ class CustomReminder {
 		//  */
 		// this.granularity = granularity;
 		
-		if (this.timestamp !== 0 && (!Number.isFinite(duration) || typeof duration !== 'number' || duration < 0))
+		if (this.timeStamp !== 0 && (!Number.isFinite(duration) || typeof duration !== 'number' || duration < 0))
 			throw new Error(`invalid duration ${duration} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp}`);
 		/**
 		 * @type {number}
@@ -278,7 +278,7 @@ class CustomReminder {
 			return;
 
 		// first, fire the reminder if needed
-		if (V.timeStamp >= this.timeStamp) {
+		if (Time.date.timeStamp >= this.timeStamp) {
 			// if we haven't fired, do so whether or not the duration has lapsed,
 			// unless the user has already marked the reminder as complete
 			if (this.intrusive && !this.fired && !this.complete) {
@@ -290,8 +290,8 @@ class CustomReminder {
 			}
 		}
 		// next, if the reminder needs to reset
-		if (V.timeStamp >= this.timeStamp + this.duration) {
-			let elapsedTime = V.timeStamp - this.timeStamp; // current time - fire time
+		if (Time.date.timeStamp >= this.timeStamp + this.duration) {
+			let elapsedTime = Time.date.timeStamp - this.timeStamp; // current time - fire time
 			// this is fine because cooldown is the exact period between firings, 
 			// rather than the durations between when a reminder becomes active
 			// ex: if a reminder repeats every 5 minutes, lasts 1 minute, and 11 minutes 
@@ -324,7 +324,7 @@ class CustomReminder {
 		}
 
 		// now, handle the finishing cases
-		if (V.timeStamp >= this.timeStamp + this.duration) {
+		if (Time.date.timeStamp >= this.timeStamp + this.duration) {
 			if (this.repeats === 0) {
 				this.expired = true;
 				return;
@@ -346,7 +346,7 @@ class CustomReminder {
 	 * 
 	 */
 	isActive() {
-		return V.timeStamp >= this.timestamp && V.timeStamp < this.timeStamp + this.duration;
+		return Time.date.timeStamp >= this.timeStamp && Time.date.timeStamp < this.timeStamp + this.duration;
 	}
 
 	/**
@@ -398,13 +398,4 @@ class CustomReminder {
  * 
  * other -- invalidate hawker feats when crop yield over 500%?
  * other -- rebalance bun sell profits
- */
-
-
-/**
- * changelog:
- * this journal shit
- * pregnancy acceptance no longer decays after mother trait gained (end of third pregnancy)
- * safety with npcincr and cleaned up relationshipclamp
- * lots of typo fixes
  */

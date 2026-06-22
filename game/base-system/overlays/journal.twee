@@ -1626,44 +1626,110 @@
 
 <<widget "journalCustomEntries">>
 	/*
-		* the reminders attribute stores objects of the type CustomReminder
-		* the notifications attribute stores strings that will be wikified by <<effects>> on its next call
-		*/
+	 * the reminders attribute stores objects of the type CustomReminder
+	 * the notifications attribute stores strings that will be wikified by <<effects>> on its next call
+	 */
 	<<set $customReminders ??= {
 		"reminders": [],
 		"notifications": []
 	}>>
 	hello world<br/>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<!-- nullish assignment here means the reminder won't be lost if the tab is closed, 
+			but it will be lost when moving to a new passage since it's a temporary variable -->
+			<<set _newReminder ??= {
+				timeStamp: Time.date.timeStamp,
+				granularity: "minutes",
+				duration: 0,
+				repeats: 0,
+				cooldown: 600,
+				behaviour: "unintrusive",
+				entry: "",
+				colour: undefined
+			}>>
+			<div class="settingsHeader options"><span class="gold">New Reminder</span></div>
+			<div class="settingsToggleItem">
+				<span class="gold">Time:</span><br>
+				<!--
+				<input
+					type="datetime-local"
+					id="meeting-time"
+					name="meeting-time"
+					value="2018-06-12T19:30"
+					min="2018-06-07T00:00"
+					max="2018-06-14T00:00" 
+				/>
+				<<switch $options.dateFormat>>
+					<<case "en-US">>
+						Started: $_time.month/$_time.day/$_time.year
+					<<case "zh-CN">>
+						Started: $_time.year/$_time.month/$_time.day
+					<<default>>
+						Started: $_time.day/$_time.month/$_time.year
+				<</switch>>
+				<<ampm>>
+				-->
+				<<dateInput "_newReminder.timeStamp" _newReminder.timeStamp>>
 
-	<<set _newReminder = {
-		timeStamp: V.timeStamp,
-		granularity: "minutes",
-		duration: 0,
-		repeats: 0,
-		cooldown: 600,
-		behaviour: "unintrusive",
-		entry: "",
-		colour: undefined
-	}>>
-	<label> Granularity <mouse class="tooltip linkBlue">(?)
-		<span>
-			minutes, hours, days
-		</span></mouse>
-	</label>
-	<label> Reminder behavior <mouse class="tooltip linkBlue">(?)
-		<span>
-			Unintrusive reminders have no special behavior, remaining in the journal.
-			Intrusive reminders will remind you in the body of text you typically read while playing the moment they trigger.
-			Persistent reminders will remind you as intrusive reminders do, but will continuously do so for the duration they are active.
-		</span></mouse>
-		<label style="display:block">Unintrusive<<radiobutton "_newReminder.behaviour" "unintrusive" autocheck>></label>
-		<label>Intrusive<<radiobutton "_newReminder.behaviour" "intrusive" autocheck>></label>
-		<label>Persistent<<radiobutton "_newReminder.behaviour" "persistent" autocheck>></label>
-	</label>
-	<label>
-		Reminder text <<textbox "_newReminder.entry" "">>
-	</label>
+			</div>
+			_newReminder.timeStamp
+			
 
+			<div class="settingsToggleItem">
+				<span class="gold">Reminder behavior:</span><br>
+				<label><mouse class="tooltip">Unintrusive<span>Unintrusive reminders have no special behavior, remaining in the journal.</span></mouse> <<radiobutton "_newReminder.behaviour" "unintrusive" autocheck>></label> |
+				<label><mouse class="tooltip">Intrusive<span>Intrusive reminders will remind you in the body of text you typically read while playing the moment they trigger.</span></mouse> <<radiobutton "_newReminder.behaviour" "intrusive" autocheck>></label> |
+				<label><mouse class="tooltip">Persistent<span>Persistent reminders will remind you as intrusive reminders do, but will continuously do so for the duration they are active.</span></mouse> <<radiobutton "_newReminder.behaviour" "persistent" autocheck>></label>
+			</div>
+			<div class="settingsToggleItem">
+				<span class="gold">Colour:</span><br>
+				<label><span>None</span> <<radiobutton "_newReminder.colour" undefined autocheck>></label> |
+				<label><span class="red">Red</span> <<radiobutton "_newReminder.colour" "red" autocheck>></label> |
+				<label><span class="pink">Pink</span> <<radiobutton "_newReminder.colour" "pink" autocheck>></label> |
+				<label><span class="purple">Purple</span> <<radiobutton "_newReminder.colour" "purple" autocheck>></label> |
+				<label><span class="blue">Blue</span> <<radiobutton "_newReminder.colour" "blue" autocheck>></label> |
+				<label><span class="lblue">Light blue</span> <<radiobutton "_newReminder.colour" "lblue" autocheck>></label> |
+				<label><span class="teal">Teal</span> <<radiobutton "_newReminder.colour" "teal" autocheck>></label> |
+				<label><span class="green">Green</span> <<radiobutton "_newReminder.colour" "green" autocheck>></label> |
+				<label><span class="gold">Gold</span> <<radiobutton "_newReminder.colour" "gold" autocheck>></label>
+			</div>
+
+	/**
+	 * @param {DateTime.timeStamp} timeStamp
+	 *      the precise time at which the reminder should fire. if 0,
+	 *      the reminder never fires or expires.
+	 *      must be in [0, 315569437199]
+	 * @param {number} duration
+	 *      number of seconds between when a reminder fires
+	 *      and resets/expires. for use with the .time timeStamp;
+	 *      granularity may not be finer than minutes.
+	 *      must be nonnegative.
+	 *      may be undefined if time is 0.
+	 * @param {number} repeats
+	 *      the amount of times a reminder fires and resets its timer
+	 *      before expiration. if 0, expires on next fire.
+	 *      if -1, repeats indefinitely.
+	 *      must be an integer
+	 *      may be undefined if time is 0.
+	 * @param {number} cooldown
+	 *      the number of seconds timeStamp should be increased by when
+	 *      the reminder resets after being fired, for use with recurring
+	 *      reminders.
+	 *      must be nonnegative.
+	 *      may be undefined if time is 0 or repeats is 0.
+	 */
+
+
+			<div class="settingsToggleItemWide">
+				<span class="gold">Reminder text:</span><br>
+				<label><<textarea "_newReminder.entry" _newReminder.entry>></label>
+			</div>
+
+
+		</div>
+	<hr>
+	</div>
 	
 	<span class='fa-icon fa-selected' onclick='this.classList.toggle("fa-selected"); this.classList.toggle("fa-unselected");' style='cursor: pointer;'></span>
 	<br/>
