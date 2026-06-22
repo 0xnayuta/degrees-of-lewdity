@@ -529,9 +529,17 @@ function holdCaughtFish(fishKey) {
 window.holdCaughtFish = holdCaughtFish;
 DefineMacro("holdCaughtFish", holdCaughtFish);
 
-// Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), ×2 at max allure (8000).
+// Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), x2 at max allure (8000).
 function fishingDangerEventWeight(defaultEventWeight) {
 	const allureMultiplier = Math.clamp(1 + (V.allure - 2000) / 6000, 1, 2);
 	return defaultEventWeight * allureMultiplier;
 }
 window.fishingDangerEventWeight = fishingDangerEventWeight;
+
+// Used to scale the likelihood of catching a fish. x2 when teeming, x0.5 when quiet, 1 otherwise.
+function fishingCatchEventWeight(defaultEventWeight, location) {
+	const population = V.daily.fishing[location]?.fishPopulation;
+	const multiplier = population === "teeming" ? 2 : population === "quiet" ? 0.5 : 1;
+	return defaultEventWeight * multiplier;
+}
+window.fishingCatchEventWeight = fishingCatchEventWeight;
