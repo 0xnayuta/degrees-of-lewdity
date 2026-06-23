@@ -30,22 +30,18 @@
 
 ====== Needed images ======
 Caught fish handheld props:
-- /img/clothes/props/fish/haddock.png
-- /img/clothes/props/fish/salmon.png
-- /img/clothes/props/fish/trout.png
-- /img/clothes/props/fish/cod.png
-- /img/clothes/props/fish/herring.png
-- /img/clothes/props/fish/whiting.png
-- /img/clothes/props/fish/mackerel.png
-- /img/clothes/props/fish/flounder.png
-- /img/clothes/props/fish/sole.png
-- /img/clothes/props/fish/bass.png
-- /img/clothes/props/fish/roach.png
-- /img/clothes/props/fish/perch.png
-- /img/clothes/props/fish/chub.png
-- /img/clothes/props/fish/pike.png
-- /img/clothes/props/fish/eel.png
-- /img/clothes/props/fish/grayling.png
+- /img/clothes/props/fish/caught-haddock.png
+- /img/clothes/props/fish/caught-salmon.png
+- /img/clothes/props/fish/caught-trout.png
+- /img/clothes/props/fish/caught-cod.png
+- /img/clothes/props/fish/caught-whiting.png
+- /img/clothes/props/fish/caught-mackerel.png
+- /img/clothes/props/fish/caught-sole.png
+- /img/clothes/props/fish/caught-roach.png
+- /img/clothes/props/fish/caught-perch.png
+- /img/clothes/props/fish/caught-chub.png
+- /img/clothes/props/fish/caught-pike.png
+- /img/clothes/props/fish/caught-grayling.png
 
 Ingredient handheld props:
 - /img/clothes/props/ingredient/herring.png
@@ -509,25 +505,6 @@ function fishingLocationWaterBodyName(locationKey) {
 	}
 }
 window.fishingLocationWaterBodyName = fishingLocationWaterBodyName;
-
-function holdCaughtFish(fishKey) {
-	const config = setup.fishing_fish[fishKey];
-	if (!config.catch_prop) return;
-	const [folder, name] = config.catch_prop
-		.replace(/^img\/clothes\/props\//, "")
-		.replace(/\.png$/, "")
-		.split("/");
-	T.prop = Object.assign({}, setup.propDefaults, {
-		folder,
-		name,
-		armPosition: "clutch",
-		colour: false,
-		accColour: false,
-	});
-	wikifier("updatesidebarimg");
-}
-window.holdCaughtFish = holdCaughtFish;
-DefineMacro("holdCaughtFish", holdCaughtFish);
 
 // Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), x2 at max allure (8000).
 function fishingDangerEventWeight(defaultEventWeight) {
