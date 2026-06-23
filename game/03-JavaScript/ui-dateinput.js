@@ -1,9 +1,11 @@
 /*
  * Usage:
  * <<dateInput varname value?>>
- * creates a 3-input date input, returning its values as a timestamp to varname whenever updates
+ * creates a 3-input date input, returning its values as a timestamp to varname whenever any of the values updates, as long as no inputs are empty
  * 
- * to state variable VARNAME having value VALUE.
+ * optionally pre-fills with provided value as default
+ * 
+ * must be between TimeConstants.MIN_DATE and TimeConstants.MAX_DATE,
  *
  */
 Macro.add("dateInput", {
@@ -62,6 +64,11 @@ Macro.add("dateInput", {
 				State.setVar(varName, dateTime.timeStamp);
 			}
 		}
+		function clampAndPad(element, n) {
+			if (element.val() !== "") {
+				element.val(Math.clamp(element.val(), element.prop("min"), element.prop("max")).toString().padStart(n, "0"));
+			}
+		}
 		function recalculateMaxDays() {
 			// this is an if because that's easier to read than a nested ternary
 			if (monthInput.val() > 0) {
@@ -72,38 +79,36 @@ Macro.add("dateInput", {
 				 * and dereference it to grab the right month.
 				 * if yearInput.val() is empty (falsy), we want a leap year to err on the side of a larger max for february,
 				 * so we default to 2024 (because it's the most recent leap year :p)
-				 * 
-				 * monthInput.val() is coerced to a number automatically for dereferencing. wish there was an easy way to have 
-				 * jquery just return these as numbers directly instead of strings, but i think there's no way to do that 
-				 * without changing something global, and i don't want to cause side effects for anyone else. so, we rely
-				 * on javascript's weird type unsafety and just pretend the strings are numbers.
-				 * good thing getDaysOfMonthFromYear() returns an array of numbers!
 				 */				
 				dayInput.prop("max", DateTime.getDaysOfMonthFromYear(yearInput.val() || 2024)[monthInput.val() - 1]);
 			} else {
 				// if month is empty, reset max days to 31, since that's the highest possible value
 				dayInput.prop("max", 31);
 			}
-			if (dayInput.val() !== "")
-				dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
+			clampAndPad(dayInput, 2);
+			// if (dayInput.val() !== "")
+				// dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
 		}
 
 		dayInput.on("change", function handler() {
-			if (dayInput.val() !== "")
-				dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
+			clampAndPad(dayInput, 2);
+			// if (dayInput.val() !== "")
+				// dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
 			recalculateTimestamp();
 		});
 
 		monthInput.on("change", function handler() {
-			if (monthInput.val() !== "")
-				monthInput.val(Math.clamp(monthInput.val(), monthInput.prop("min"), monthInput.prop("max")));
+			clampAndPad(monthInput, 2);
+			// if (monthInput.val() !== "")
+				// monthInput.val(Math.clamp(monthInput.val(), monthInput.prop("min"), monthInput.prop("max")));
 			recalculateMaxDays();
 			recalculateTimestamp();
 		});
 
 		yearInput.on("change", function handler() {
-			if (yearInput.val() !== "")
-				yearInput.val(Math.clamp(yearInput.val(), yearInput.prop("min"), yearInput.prop("max")));
+			clampAndPad(yearInput, 4);
+			// if (yearInput.val() !== "")
+				// yearInput.val(Math.clamp(yearInput.val(), yearInput.prop("min"), yearInput.prop("max")));
 			recalculateMaxDays();
 			recalculateTimestamp();
 		});
