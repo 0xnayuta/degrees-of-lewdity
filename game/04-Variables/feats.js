@@ -1150,14 +1150,6 @@ setup.feats = {
 		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
-	"Nice Bass": {
-		title: "Nice Bass",
-		desc: "Caught a bass.",
-		difficulty: 1,
-		series: "fishing",
-		filter: ["All", "Discoveries-Other"],
-		hint: "Hint: Reel in a bass.",
-	},
 	"Wet Rod": {
 		title: "Wet Rod",
 		desc: "Caught one of every fish.",
@@ -1168,7 +1160,7 @@ setup.feats = {
 	},
 	"Master Baiter": {
 		title: "Master Baiter",
-		desc: "Caught the biggest and smallest size possible of each fish.",
+		desc: "Caught the biggest size possible of each fish.",
 		difficulty: 3,
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
@@ -2412,6 +2404,23 @@ function earnHourlyFeats() {
 
 	// Bugged in saves that used the "Show them the stolen card" link in many older versions
 	if (V.compound.discovered) earnFeat("Illicit Science");
+
+	const fishKeys = Object.keys(setup.fishing_fish);
+	if (fishKeys.every(key => V.fishing.record[key]?.num_caught > 0)) {
+		earnFeat("Wet Rod");
+	}
+
+	if (
+		fishKeys.every(key => {
+			const fishConfig = setup.fishing_fish[key];
+			const fishRecord = V.fishing.record[key];
+			if (!fishRecord) return false;
+			const largestSizePercent = (fishRecord.largest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
+			return largestSizePercent >= 0.98;
+		})
+	) {
+		earnFeat("Master Baiter");
+	}
 
 	return fragment;
 }

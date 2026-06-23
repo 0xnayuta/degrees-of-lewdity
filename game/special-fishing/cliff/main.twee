@@ -1,48 +1,84 @@
+:: Fishing Coast Path Approach Down
+<<effects>>
+<<dancedifficulty 1 600>>
+<<if $rng gte 20 or $danceSuccess>>
+	You turn off the coastal path onto a narrow trail down the cliff face. The footing is uneven and it takes a bit of care, but you make it down without trouble.
+<<else>>
+	You turn off the coastal path onto a trail path down the cliff face. Your foot slips on a loose stone and you go down hard, <span class="red">scraping your hands and knees.</span>
+	<<gpain>><<pain 4>>
+<</if>>
+<br><br>
+
+<<link [[Next|Fishing Coast Path Approach]]>><</link>>
+
+
 :: Fishing Coast Path Approach
-You follow a narrow side path cut into the cliff face, picking your way down towards the water. An old wooden dock juts out below,
-half-rotten and creaking in the wind, it looks ready to collapse. You don't think it's safe to stand on the dock, but the path before it is safe enough to fish from.
+<<effects>>
+An old wooden dock juts out below, half-rotten and creaking in the wind, it looks ready to collapse. You don't think it's safe to stand on the dock, but the path before it is safe enough.
 <br><br>
 
 <<if canStartFishing()>>
-	<<link [[Start fishing|Fishing Coast Path Wait]]>><</link>>
+	<<fishingRodIcon>><<link [[Start fishing|Fishing Coast Path Wait]]>><</link>>
+	<br>
+<<else>>
+	If you had a fishing rod, you could probably catch fish from here
 	<br>
 <</if>>
-<<link [[Hike up the path|Coast Path]]>><</link>>
+<<link [[Hike up the path (0:10)|Fishing Coast Path Approach Up]]>><</link>>
+
+
+:: Fishing Coast Path Approach Up
+<<effects>>
+<<dancedifficulty 1 600>>
+<<if $rng gte 20 or $danceSuccess>>
+	You head up the cliff trail to the coastal path.
+<<else>>
+	You head up the cliff trail. Halfway up, your foot slips and you go down on your hands, <span class="red">catching yourself before you slide back down.</span>
+	<<gpain>><<pain 4>><<gstress>><<stress 3>>
+<</if>>
+<br><br>
+
+<<link [[Next|Coast Path]]>><<pass 10>><</link>>
 
 
 /* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Coast Path Wait
-<<effects>>
 <<run initFishingCoastPath()>>
 <<run startFishingProp()>>
 
-<<fishingLocationDescription "coastPath">>
+<<fishingLocationDescription "coastPath">><<fishingLocationPopulation "coastPath">>
 <br><br>
 
-<<if $exposed gte 1>>
-	<<exhibitionism "coastPathFishing">>
-	<br><br>
-<</if>>
-<<if $arousal gte $arousalmax>>
-	<<orgasmFishingCoastPath>>
-	<<run fishingNextEventOverride("wait")>>
+<<if $stress gte $stressmax>>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "fishingCoastPath">>
+	<<else>>
+		<<passoutbeach>>
+	<</if>>
 <<else>>
-	<<fishingCoastPathWaitAmbient>>
-<</if>>
-<br><br>
+	<<if $exposed gte 1>>
+		<<exhibitionism "coastPathFishing">>
+		<br><br>
+	<</if>>
+	<<if $arousal gte $arousalmax>>
+		<<orgasmFishingCoastPath>>
+	<<else>>
+		<<fishingCoastPathWaitAmbient>>
+	<</if>>
+	<br><br>
 
-<<link [[Wait for a bite (0:05)|Fishing Coast Path Wait Loop]]>><</link>>
-<br>
-<<link [[Leave|Fishing Coast Path Approach]]>><<run stopFishingProp()>><</link>>
+	<<link [[Wait for a bite (0:05)|Fishing Coast Path Wait Loop]]>><<pass 5>><</link>>
+	<br>
+	<<link [[Leave|Fishing Coast Path Approach]]>><<run stopFishingProp()>><</link>>
+<</if>>
 <<fishingCoastPathDebugLinks>>
 
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
 :: Fishing Coast Path Wait Loop
-<<effects>>
-<<pass 5>>
+
 <<cleareventpool>>
-<<addinlineevent "bite" 7>>
+<<addinlineevent "bite" fishingCatchEventWeight(7, "coastPath")>>
 	<<set $fishingHookedFish to rollFish("coastPath")>>
 	<<include "Fishing Coast Path Bite">>
 <</addinlineevent>>
@@ -55,6 +91,7 @@ half-rotten and creaking in the wind, it looks ready to collapse. You don't thin
 
 
 :: Fishing Coast Path Bite
+<<effects>>
 Your line pulls sharply away as a <<print $fishingHookedFish.type>> takes the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
 <br><br>
 
@@ -62,22 +99,28 @@ Your line pulls sharply away as a <<print $fishingHookedFish.type>> takes the ba
 
 
 :: Fishing Coast Path Throw Back
+<<effects>>
 You toss the <<print $fishingHookedFish.type>> back into the surf.
+<<unset $fishingHookedFish>>
 <br><br>
 
 <<link [[Next|Fishing Coast Path Wait]]>><</link>>
 
 
 :: Fishing Coast Path Keep
+<<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
+<<unset $fishingHookedFish>>
 <br><br>
 
 <<link [[Next|Fishing Coast Path Wait]]>><</link>>
 
 
 :: Fishing Coast Path Cat Eat
+<<effects>>
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+<<unset $fishingHookedFish>>
 <br><br>
 
 <<link [[Next|Fishing Coast Path Wait]]>><</link>>

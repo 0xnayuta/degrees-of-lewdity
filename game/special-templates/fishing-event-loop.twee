@@ -1,0 +1,99 @@
+/* Passage that the player is sent to when they start fishing. If the player lands on this passage, there's not going to be an event that fires. The player can then click on the wait for a bite link to get sent into the wait loop passage, which can either trigger an event, or send the user back to this passage. */
+:: Fishing LocationName
+<<run initFishingLocationName()>>
+<<run startFishingProp()>>
+
+/* Ambient description (weather, time of day, the water). */
+<<fishingLocationDescription "locationName">>
+
+/* Describes any NPCs/animals/whatever currently present as part of an active event. */
+<<fishingLocationNameLocationAmbient>>
+<br><br>
+
+<<if $exposed gte 1>>
+	<<exhibitionism "locationNameFishing">>
+	<br><br>
+<</if>>
+<<if $arousal gte $arousalmax>>
+	<<orgasmFishingLocationName>>
+<<else>>
+	/* Displays the waiting text displayed to the user. */
+	<<fishingLocationNameWaitAmbient>>
+<</if>>
+<br><br>
+
+<<link [[Wait for a bite (0:05)|Fishing LocationName Wait]]>><</link>>
+<br>
+<<link [[Leave|SomeParentPassage]]>><<run stopFishingProp()>><</link>>
+
+/* Wait loop passage. Sending the user here will roll an event and send the user to that event. "Nothing" is treated like every other event, and instead of sending the user to an event, it sends the user back to the Fishing LocationName passage. */
+:: Fishing LocationName Wait
+<<pass 5>>
+<<cleareventpool>>
+
+/* Generic bite event. */
+<<addinlineevent "bite" 10>>
+	<<set $fishingHookedFish to rollFish("locationName")>>
+	<<include "Fishing LocationName Bite">>
+<</addinlineevent>>
+
+/* Danger event. When this event is rolled, it starts the danger event by setting $fishing.locationName.event to the danger event that was rolled (like a wolf sneaking up on you), but also sends the user back to the wait passage, so it is unclear that something has happened. Once $fishing.locationName.event is set to a value, the <<fishingLocationNameWaitAmbient>> has hints added to it that something will attack you soon, allowing the player to pay attention to that if they want so they can leave. When these wait ambient texts appear, they increase the odds of the actual attack being rolled.
+*/
+<<if $fishing.locationName.event is "none">>
+	<<addinlineevent "dangerStart" fishingDangerEventWeight(3)>>
+		<<set $fishing.locationName.event to "dangerName">>
+		<<include "Fishing LocationName Wait">>
+	<</addinlineevent>>
+<<elseif $fishing.locationName.event is "dangerName">>
+	<<set _attackProbability to Math.max(0, $fishing.locationName.eventDanger - 1)>>
+	<<addinlineevent "dangerAttack" _attackProbability>>
+		<<set $fishing.locationName.eventDanger to 0>>
+		<<set $fishing.locationName.event to "none">>
+		<<include "Fishing LocationName DangerName Attack">>
+	<</addinlineevent>>
+<</if>>
+
+/* Nothing bites event */
+<<addinlineevent "wait" 25>>
+	<<include "Fishing LocationName Wait">>
+<</addinlineevent>>
+<<runeventpool>>
+
+
+
+:: Widgets Fishing LocationName Wait Flavor [widget]
+
+<<widget "fishingLocationNameLocationAmbient">>
+	<<if $daily.fishing.locationName.eventName.phase is "idle">>
+		/* Widget that should go in the .twee file for the associated event that has the possible text that can appear to describe what that npc/animal/whatever is doing at the time */
+		<<theLocationAmbientWidgetForThatEvent>>
+	<</if>>
+<</widget>>
+
+
+/* Picks the waiting sentence each loop. <<fishingWaitAmbient>> is a set of inlineEvents, no clear/runeventpool, as should be any other widgets placed here. That way, you can have your default set of wait text from <<fishingWaitAmbient>> be added to any event-specific wait text for any active events. */
+<<widget "fishingLocationNameWaitAmbient">>
+	<<cleareventpool>>
+	<<fishingWaitAmbient "locationName">>
+
+	<<if $fishing.locationName.event is "dangerName">>
+		/* Widget that should go in the .twee file for the associated event that has the possible text that can appear instead of the normal wait text. event danger (the odds of the actual attack for the active danger event) should be increased by the inline events used to show that a dangerous event is active. */
+		<<fishingLocationNameDangerWaitAmbient>>
+	<</if>>
+
+	<<runeventpool>>
+<</widget>>
+
+
+
+/* Example */
+<<widget "fishingLocationNameDangerWaitAmbient">>
+	<<addinlineevent 20>>
+		<<print either(
+			"You hear spooky noises.",
+			"You smell spooky smells.",
+			"You see spooky sights."
+		)>>
+		<<set $fishing.locationName.eventDanger += 1>>
+	<</addinlineevent>>
+<</widget>>
