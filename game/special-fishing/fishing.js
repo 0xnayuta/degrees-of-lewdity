@@ -2,6 +2,12 @@
 ====== Main Fishing Todo ======  
 - Test screaming for gwa rescue in forest fishing attack
 - Sort out the location of the pier
+- Investigate fish size calculations
+- Fix fishing minigame. 
+	- Add +fatigue when you reel in hard
+	- Smaller fish can just be reeled in with no minigame?
+	- Smaller fish don't give you any sort of accomplishment, so maybe they don't give -stress?
+	- Maybe you need to figure out if it's a small fish or not first? That could be just annoying though.
 
 
 ====== Fishing Nice to haves ====
