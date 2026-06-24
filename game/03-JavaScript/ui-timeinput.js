@@ -97,6 +97,7 @@ Macro.add("timeInput", {
 		});
 
 		hourInput.appendTo(this.output);
+		// $(`<span>:</span>`).appendTo(this.output);
 		minuteInput.appendTo(this.output);
 		if (V.options.timestyle === "ampm") {
 			ampm.appendTo(this.output);
