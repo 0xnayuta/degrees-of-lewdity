@@ -233,11 +233,11 @@ setup.feats = {
 	},
 	"50 Shades of Tan": {
 		title: "50 Shades of Tan",
-		desc: "Achieved 5 distinct tanlines at once.",
+		desc: "Achieved 5 distinct tan lines at once.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Special"],
-		hint: "?????",
+		hint: "Hint: Spend some time in the sun.",
 	},
 	"Most Aware": {
 		title: "Most Aware",
