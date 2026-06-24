@@ -122,15 +122,14 @@ function rollFishSize(locationKey, fishKey) {
 		preferredMatchCount++;
 	}
 
-	const preferenceFactor = preferredMatchCount / 4;
-	const rollExp = lerp(preferenceFactor, 2, 1.2);
+	const preferenceFactor = Math.clamp(preferredMatchCount / 4, 0, 1);
+	const rollExp = interpolate(2.6, 1.4, preferenceFactor);
 	const sizeRoll = randomExp(rollExp);
 	const size = round(lerp(sizeRoll, fishConfig.min_size, fishConfig.max_size), 2);
 	const range = fishConfig.max_size - fishConfig.min_size;
 
 	// Rounds 98% to 100% and 2% to 0% so people don't get fish that are super super close to max/min size, but doesn't count.
 	if (size >= fishConfig.min_size + 0.98 * range) return fishConfig.max_size;
-	if (size <= fishConfig.min_size + 0.02 * range) return fishConfig.min_size;
 	return size;
 }
 
@@ -344,7 +343,6 @@ function startFishingCombat(locationKey) {
 		fishDistance: 20 + random(-5, 10),
 		fishAction: "",
 		playerAction: "",
-		playerAttention: false,
 		fishDepth: random(1, 3),
 	};
 	V.fishingCombatActive = true;
@@ -383,10 +381,6 @@ window.canEatFishTf = canEatFishTf;
 function fishingCombatEffects() {
 	const combat = V.fishing.combat;
 
-	// Capture last turn's noise before resetting.
-	const wasNoisy = combat.playerAttention;
-	combat.playerAttention = false;
-
 	if (combat.fishAction === "rest") {
 		combat.fishStamina = Math.min(combat.fishStamina + 1, V.fishingHookedFish.startingStamina + 1);
 		if (combat.playerAction === "reel") {
@@ -394,7 +388,6 @@ function fishingCombatEffects() {
 		}
 	} else if (combat.fishAction === "thrash") {
 		combat.fishStamina -= 1;
-		combat.playerAttention = true;
 		combat.lineHealth -= random(0, 1);
 		if (combat.playerAction === "reel") {
 			combat.fishDistance -= 5;
@@ -404,9 +397,6 @@ function fishingCombatEffects() {
 		combat.fishStamina -= 1;
 		if (combat.playerAction === "reel") {
 			combat.lineHealth -= 1;
-			if (combat.fishDepth === 1) {
-				combat.playerAttention = true;
-			}
 		} else if (combat.playerAction === "slack") {
 			combat.fishDistance += 5;
 		} else if (combat.playerAction === "hold") {
@@ -416,31 +406,22 @@ function fishingCombatEffects() {
 	} else if (combat.fishAction === "swim") {
 		combat.fishStamina -= 1;
 		if (combat.playerAction === "reel") {
-			if (combat.fishDepth === 1) {
-				combat.playerAttention = true;
-			}
 			combat.fishDistance -= 5;
 			combat.lineHealth -= 1;
 			combat.fishDepth = Math.max(combat.fishDepth - 1, 1);
 		} else if (combat.playerAction === "slack") {
 			combat.fishDistance += 5;
-		} else if (combat.playerAction === "hold") {
-			if (combat.fishDepth === 1 && random(1, 2) === 1) {
-				combat.playerAttention = true;
-			}
 		}
 	}
 
-	if (wasNoisy) {
-		let eventDanger = 0;
-		if (combat.location === "moor") {
-			eventDanger = V.fishing.moor.eventDanger;
-		} else if (combat.location === "forestLake") {
-			eventDanger = V.fishing.lake.eventDanger;
-		}
-		if (random(1, 100) <= eventDanger) {
-			T.fishingDangerEventTriggered = true;
-		}
+	let eventDanger = 0;
+	if (combat.location === "moor") {
+		eventDanger = V.fishing.moor.eventDanger;
+	} else if (combat.location === "forestLake" && V.fishing.lake.event !== "plantPerson") {
+		eventDanger = V.fishing.lake.eventDanger;
+	}
+	if (random(1, 100) <= eventDanger) {
+		T.fishingDangerEventTriggered = true;
 	}
 }
 window.fishingCombatEffects = fishingCombatEffects;
@@ -462,37 +443,6 @@ function fishCombatAction() {
 	}
 }
 window.fishCombatAction = fishCombatAction;
-
-// Escalates danger events for the current fishing location when the player makes noise during combat.
-function fishingAttentionCheck() {
-	const combat = V.fishing.combat;
-	if (!combat.playerAttention) return;
-
-	if (combat.location === "moor") {
-		if (V.fishing.moor.event === "none") {
-			const validEvents = [];
-			if (V.settings.lurkersEnabled) validEvents.push("lurker");
-			if (V.settings.bestialityEnabled) validEvents.push("cat", "moorHikers");
-			validEvents.push("moorHikers");
-			V.fishing.moor.event = validEvents[random(0, validEvents.length - 1)];
-		} else {
-			V.fishing.moor.eventDanger += 0.25;
-		}
-	} else if (combat.location === "forestLake") {
-		if (V.fishing.lake.event === "none") {
-			const validEvents = [];
-			if (V.settings.bestialityEnabled) validEvents.push("wolf", "bear", "boar");
-			if (V.settings.plantsEnabled) validEvents.push("plantPerson");
-			if (V.settings.tentaclesEnabled) validEvents.push("plant");
-			if (validEvents.length > 0) {
-				V.fishing.lake.event = validEvents[random(0, validEvents.length - 1)];
-			}
-		} else {
-			V.fishing.lake.eventDanger += 0.25;
-		}
-	}
-}
-window.fishingAttentionCheck = fishingAttentionCheck;
 
 function fishingLocationWaterBodyName(locationKey) {
 	switch (locationKey) {
