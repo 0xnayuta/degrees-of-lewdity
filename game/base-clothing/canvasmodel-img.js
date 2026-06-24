@@ -284,7 +284,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.mouth = "frown";
 	} else if (V.pain >= 1 || (V.exposed === 1 && V.uncomfortable.underwear === true) || (V.combat === 1 && V.consensual !== 1)) {
 		T.modeloptions.mouth = "neutral";
-	} else if (V.stress >= (V.stressmax / 5) * 3 || !(V.control >= (V.controlmax / 5) * 1)) {
+	} else if (V.stress >= (V.stressmax / 5) * 3 || !(V.control >= (C.control.max * 0.2))) {
 		T.modeloptions.mouth = "neutral";
 	} else {
 		T.modeloptions.mouth = "smile";

@@ -26,12 +26,12 @@ const statChange = (() => {
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
 				// increase trauma by 3x amount at 0 control, 1.5x at full, then go trait reductions
-				V.trauma += Math.trunc(amount * (3 - 1.5 * (V.control / V.controlmax)) * traumaMod);
+				V.trauma += Math.trunc(amount * (3 - 1.5 * (V.control / C.control.max)) * traumaMod);
 			} else {
 				// good doctors know how to help you
 				if (["asylum", "hospital"].includes(V.location)) traumaMod *= 2;
 				// decrease trauma by 1.5x amount with no control, 3x with full control
-				V.trauma += Math.trunc(amount * (1.5 + 1.5 * (V.control / V.controlmax)) * traumaMod);
+				V.trauma += Math.trunc(amount * (1.5 + 1.5 * (V.control / C.control.max)) * traumaMod);
 			}
 		}
 
@@ -53,10 +53,10 @@ const statChange = (() => {
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
 
 				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
+				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / C.control.max))) * traumaMod)
 			} else {
 				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc((amount * 1) + ((amount * 0.5) * (V.control / V.controlmax)));
+				V.trauma += Math.trunc((amount * 1) + ((amount * 0.5) * (V.control / C.control.max)));
 			}
 			traumaClamp();
 		}
@@ -141,7 +141,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("control", "amount", amount, "Expected a number.");
 		if (V.gamemode === "soft") {
 			// everything is a consensual consensual roleplay
-			V.control = V.controlmax;
+			V.control = C.control.max;
 			V.controlled = 1;
 			return;
 		}
@@ -149,13 +149,15 @@ const statChange = (() => {
 
 		// halve control gains outside of combat
 		if (amount > 0 && !V.combat) amount /= 2;
-		V.control += amount * 10;
+		V.control += amount * C.control.max * 0.01;
+
 		// if you're looking here to fix a bug where an action that should increase control in combat actually lowers it instead - check State.history/State.expired for the combat start passage and look for a missing <<controlloss>> that failed to set $controlstart to the right value
 		if (combat && V.control >= V.controlstart) V.control = V.controlstart;
-		else if (!combat) V.controlstart = Math.min(V.control, V.controlmax);
-		const threshold = V.controltrait ? V.controlmax / 3 : V.controlmax / 2;
+		else if (!combat) V.controlstart = Math.min(V.control, C.control.max);
+		
+		const threshold = V.controltrait ? C.control.max / 3 : C.control.max / 2;
 		V.controlled = V.control > threshold ? 1 : 0;
-		V.control = Math.clamp(V.control, 0, V.controlmax);
+		V.control = Math.clamp(V.control, C.control.min, C.control.max);
 	}
 	DefineMacro("control", amount => control(amount));
 	DefineMacro("combatcontrol", amount => control(amount, true));
@@ -978,6 +980,7 @@ const statChange = (() => {
 		}
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
+		// Temporary edge cases added until all $variablemax values have been removed
 		if (amount) {
 			V[type] = Math.clamp(V[type] + amount, 0, V[type + "max"] || 1000);
 		}

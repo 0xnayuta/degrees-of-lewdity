@@ -17,11 +17,13 @@ function initCNPC() {
 window.initCNPC = initCNPC;
 
 function initCCrime() {
-	C.crime = {};
+	// Moved the constants initialized by this function to "game\01-config\constants.js".
 
-	C.crime.max = 10000;
-	C.crime.min = 0;
-	C.crime.spree = 1000;
+	// C.crime = {};
+
+	// C.crime.max = 10000;
+	// C.crime.min = 0;
+	// C.crime.spree = 1000;
 
 	for (const crime of Object.keys(setup.crimeNames)) {
 		Object.defineProperty(C.crime, crime, {

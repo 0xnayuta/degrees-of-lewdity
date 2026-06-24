@@ -179,18 +179,52 @@
 	}>>
 	<<npcList>>
 	<<npcNamed>>
-	<<set $controlmax to 1000>>
-	<<set $control to 1000>>
+
+	<!-- Variable max and min values will be removed, and all references to them will be replaced with C.[variable name].max. -->
+	<!--
+		When removing a max variable, perform the following searches:
+			Look for references to $variablemax and V.variablemax
+
+			Search through all uses of $variable and V.variable to change magic number comparisons to a proportion of the new
+			C.[variable name].max.
+
+			After all references have been removed, add an edge case to the "game\base-system\stat-changes.js" file's skill()
+			function to cover the newly added constant value. After all constants are updated, replace the edge cases with a
+			new function that uses the new constant values.
+				This only applies to the stat types that skill() actually accepts.
+
+		After ALL max variables have been removed, comb through Math.clamp for any potential min / max values that have yet
+		to be replaced.
+
+		Parts of the code will be marked with $variablemax to signal that they need attention.
+	 -->
+	
+	<!--
+		Some of the old $controlmax code uses "<<control $controlmax>>" to max out the player's control, which throws a
+		"Argument is not a number" error when $controlmax is replaced with C.control.max.
+		
+		In those and similar cases, a replacement is used like so:
+			<<set $control to C.control.max>>
+
+		In cases where $controlmax is passed in as a value to more complicated widgets, backticks can be used to disable the
+		error, like so:
+			<<statbarinverted $control `C.control.max` _showCaptionText>>
+	-->
+	
+	<<set $control to C.control.max>>
 
 	<<clothinginit>>
 	<<parasiteinit>>
 	<<init_names>>
 
+	<!-- Money is tracked to the hundredths place, so this is actually £5.00. -->
 	<<set $money to 500>>
 	<<set $moneyStats to {
 		cheats: { earned: 0, earnedCount: 1 },
 		startingMoney: { earned: 500, earnedCount: 1 },
 	}>>
+
+
 	<<set $timeStats to {}>>
 	<<set $badEndStats to []>>
 	<<set $awareness to 0>>
@@ -202,7 +236,7 @@
 	<<set $fringetype to "default">>
 	<<set $trauma to 0>>
 	<<set $traumamax to 5000>>
-	<<set $stressmax to 10000>>
+	<<set $stressmax to 1000>>
 	<<set $arousalmax to 10000>>
 	<<set $physique to 3500>>
 	<<set $physiquemax to 20000>>

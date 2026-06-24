@@ -459,7 +459,6 @@ const DoLCompressorDictionaries = (() => {
 		"contrast",
 		"control",
 		"controlled",
-		"controlmax",
 		"controlstart",
 		"cool",
 		"coolmax",
