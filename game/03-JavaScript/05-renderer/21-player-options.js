@@ -755,7 +755,7 @@ class PlayerCombatMapper {
 	}
 
 	static getMouthState() {
-		return combat.isActive() && V.arousalmax / V.arousal > 0.6;
+		return combat.isActive() && (C.arousal.max / V.arousal) > 0.6;
 	}
 
 	/**

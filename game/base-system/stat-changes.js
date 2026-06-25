@@ -371,10 +371,10 @@ const statChange = (() => {
 					V.arousalmasochism += amount * mod;
 					break;
 				case "time":
-					arousal = Math.clamp(V.arousal + amount * mod, 0, V.arousalmax);
+					arousal = Math.clamp(V.arousal + amount * mod, C.arousal.min, C.arousal.max);
 					if (V.trackedArousal.length > 4) {
 						V.trackedArousal.deleteAt(0);
-						V.trackedArousal[V.trackedArousal.length - 1] += (arousal * arousal) / (V.arousalmax * 0.8);
+						V.trackedArousal[V.trackedArousal.length - 1] += (arousal * arousal) / (C.arousal.max * 0.8);
 					}
 					V.trackedArousal.push(0);
 					break;
@@ -412,7 +412,7 @@ const statChange = (() => {
 	DefineMacro("genitalarousal", amount => arousal(amount, "genitals"));
 
 	function arousalClamp() {
-		V.arousal = Math.clamp(V.arousal, minArousal(), V.arousalmax);
+		V.arousal = Math.clamp(V.arousal, minArousal(), C.arousal.max);
 	}
 	DefineMacro("arousalclamp", arousalClamp);
 

@@ -1232,7 +1232,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Arousal max`, stayOnPassageFn],
-			widgets: [`<<arousal $arousalmax>>`],
+			widgets: [`<<arousal C.arousal.max>>`],
 		},
 		{
 			link: [`Arousal zero`, stayOnPassageFn],

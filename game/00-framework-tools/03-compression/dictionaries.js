@@ -159,7 +159,6 @@ const DoLCompressorDictionaries = (() => {
 		"area",
 		"arousal",
 		"arousalmasochism",
-		"arousalmax",
 		"arrayList",
 		"arrow",
 		"askAction",

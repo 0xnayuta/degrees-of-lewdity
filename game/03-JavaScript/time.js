@@ -1200,8 +1200,10 @@ function minutePassed(minutes) {
 	// Arousal
 	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
-	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
+	V.timeSinceArousal = V.arousal < (C.arousal.max * 0.75) ? V.timeSinceArousal + minutes : 1;
 	if (V.player.vaginaExist) passArousalWetness(minutes);
+
+	// $variablemax: Make arousal code more legible
 
 	passWater(minutes);
 
@@ -2393,10 +2395,10 @@ function passWater(passMinutes) {
 // (Directly converted from passArousalWetness widget - included comments)
 function passArousalWetness(passMinutes) {
 	let wetnessChange = 0;
-	const arousalPercent = Math.clamp(V.arousal / V.arousalmax, 0, 1);
+	const arousalPercent = Math.clamp(V.arousal / C.arousal.max, 0, 1);
 
 	// Vaginal lube is produced at a fairly linear rate, between 1-3 per minute based on arousal.
-	if (V.arousal >= V.arousalmax * (2 / 5)) {
+	if (V.arousal >= (C.arousal.max * 0.4)) {
 		wetnessChange = 1 + arousalPercent * 2;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
@@ -2408,7 +2410,7 @@ function passArousalWetness(passMinutes) {
 	wetnessChange -= 0.1 * V.timeSinceArousal * (1 - arousalPercent);
 
 	// If wetnessChange would go negative and arousal is high enough, wetness instead does not change.
-	if (V.arousal >= V.arousalmax * (3 / 5) && wetnessChange < 0) wetnessChange = 0;
+	if (V.arousal >= (C.arousal.max * 0.6) && wetnessChange < 0) wetnessChange = 0;
 	V.vaginaArousalWetness += Math.round(wetnessChange * passMinutes);
 
 	// Arbitrarily, we'll say that the player's vagina holds up to 60 units of lube, and it begins to leak out above 60.

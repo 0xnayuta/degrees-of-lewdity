@@ -41,6 +41,9 @@ const constants = {
 	 * Instead of:
 	 *   "V.alcohol >= 800"
 	 * 
+	 * Changes to the player's stats through a widget like "<<stress>>" will not have have their values changed to be relative
+	 * to the player's maximum stats. 
+	 * 
 	 * The "$wraith.will" variable will need to be adjusted to depend on a proportion of willpower.max.
 	 */
 
@@ -192,7 +195,7 @@ const constants = {
 	 * It seems there's no upper limit on the amount of fluid a vagina can produce when it orgasms. May be added in
 	 * a future update.
 	 * 
-	 * See "game\base-system\orgasm.twee" for more details.
+	 * See "game\base-system\orgasm.twee" for the code.
 	 */
 
 	// Core Skill Constants

@@ -252,7 +252,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.eyes_bloodshot = (V.pain >= 100 && V.willpowerpain === 0) || V.tiredness >= C.tiredness.max;
 	T.modeloptions.eyes_half =
 		(V.options.halfClosedEnabled &&
-			(V.arousal >= (V.arousalmax / 5) * 4 || V.orgasmdown >= 1) &&
+			(V.arousal >= (C.arousal.max * 0.8) || V.orgasmdown >= 1) &&
 			V.trauma < V.traumamax * 0.9 &&
 			V.pain < 60 &&
 			V.eyelidTEST === true) ||
@@ -264,7 +264,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.brows = "top";
 	} else if (V.pain >= 60) {
 		T.modeloptions.brows = "low";
-	} else if (V.arousal >= (V.arousalmax / 5) * 4 || V.orgasmdown >= 1) {
+	} else if (V.arousal >= (C.arousal.max * 0.8) || V.orgasmdown >= 1) {
 		T.modeloptions.brows = "orgasm";
 	} else if (V.pain >= 20) {
 		T.modeloptions.brows = "mid";
