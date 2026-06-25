@@ -26,7 +26,7 @@ Macro.add("timeInput", {
 			name: "timeInput" + Util.slugify(varName) + "Hour",
 			id: "timeInput" + Util.slugify(varName) + "Hour",
 			type: "number",
-			min: V.options.timestyle === "ampm" ? 1 : 0, // military time is 0:00-23:59, ampm is 12:00-11:59 (12, 1, 2, ... 12)
+			min: V.options.timestyle === "ampm" ? 1 : 0, // military time is 00:00-23:59, ampm is 12:00-11:59 (12, 1, 2, ... 12)
 			max: V.options.timestyle === "ampm" ? 12 : 23, 
 			placeholder: "hh"
 		}).addClass("macro-numberbox");
@@ -59,7 +59,6 @@ Macro.add("timeInput", {
 		function recalculateTimestamp() {
 			if (minuteInput.val() !== "" && hourInput.val() !== "") {
 				// note: DateTime constructor expects year, month, day, hour, minute, second
-				// we fill first 3 with ones (as if 1/1/0001), since we just care about the hours and minutes to use them as an offset to a date's timestamp
 				let adjustedHour = Number(hourInput.val());
 				if (V.options.timestyle === "ampm") {
 					if (ampm.val() === "PM" && adjustedHour !== 12) {
@@ -68,6 +67,7 @@ Macro.add("timeInput", {
 						adjustedHour = 0;
 					}
 				}
+				// we fill first 3 with ones (as if 1/1/0001), since we just care about the hours and minutes to use them as an offset to a date's timestamp
 				dateTime = new DateTime(1, 1, 1, adjustedHour, minuteInput.val(), 0); 
 				State.setVar(varName, dateTime.timeStamp);
 			}
@@ -79,7 +79,7 @@ Macro.add("timeInput", {
 		}
 
 		hourInput.on("change", function handler() {
-			clampAndPad(hourInput, 1);
+			clampAndPad(hourInput, V.options.timestyle === "ampm" ? 1 : 2);
 			// if (hourInput.val() !== "")
 			// 	hourInput.val(Math.clamp(hourInput.val(), hourInput.prop("min"), hourInput.prop("max")));
 			recalculateTimestamp();
