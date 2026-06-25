@@ -796,7 +796,7 @@ function inappropriatePlayerState(check = ["all"]) {
 		if (V.liquidcount >= 1) return true;
 	}
 	if (["all", "drugs"].includesAny(check)) {
-		if (V.drunk >= 240 || V.drugged >= 200) return true;
+		if (V.drunk >= C.alcohol.threshold * 2 || V.drugged >= 200) return true;
 	}
 	return false;
 }

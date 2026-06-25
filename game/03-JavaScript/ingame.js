@@ -1444,9 +1444,9 @@ function drunkSexStatModifier(statValue) {
 	const maxValue = 40; // The maximum value of the curve.
 	const valueAdjust = Math.clamp(maxValue - Math.floor(statValue / 4), 0, maxValue); // The curve is less effective with higher base stat.
 	const growthRate = 3; // How fast the curve grows as the drunk value increases.
-	const midpoint = 500; // Needs to be half of the max drunk value.
+	const midpoint = C.alcohol.max / 2; // Needs to be half of the max drunk value.
 	const shifter = 0.85; // Decreases this value to make lower drunk values give higher results and higher drunk values give lower results.
-	const drunkMod = (V.drunk - midpoint) / 500; // Adjusts the drunk values to be scaled correctly with the equation and max stat value.
+	const drunkMod = (V.drunk - midpoint) / midpoint; // Adjusts the drunk values to be scaled correctly with the equation and max stat value.
 	const denominator = 1 + shifter * Math.E ** (-1 * growthRate * drunkMod);
 
 	return Math.floor(valueAdjust / denominator);
@@ -2010,6 +2010,10 @@ function getColourClassFromPercentage(percentage, stat) {
 		"aggro",
 		"rage",
 	].includes(stat);
+
+	// NOTE: Alcohol only has 4 "Tiers", changing in increments of 120 each. The current color system assumes there are 5 tiers,
+	// so the color changes won't exactly match the change in the text's description.
+
 	if (percentage <= 0) return inverted ? "red" : "green";
 	if (percentage < 20) return inverted ? "pink" : "teal";
 	if (percentage < 40) return inverted ? "purple" : "lblue";

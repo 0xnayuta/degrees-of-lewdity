@@ -32,22 +32,14 @@ const constants = {
 	 * 
 	 * When checking if the player's stats reach a certain threshold, treat it as a percentage of the stat's maximum value.
 	 * So, if a passage needs the player's alcohol to be over 80%, then the if statement should say:
-	 *   "$alcohol gte $alcoholmax * 0.8"
+	 *   "$alcohol gte C.alcohol.max * 0.8"
 	 * Instead of:
 	 *   "$alcohol gte 800"
 	 * 
 	 * And if a function needs the player's alcohol to be over 80%, then the if statement should say:
-	 *   "V.alcohol >= C.state.alcohol.max * 0.8"
+	 *   "V.alcohol >= C.alcohol.max * 0.8"
 	 * Instead of:
 	 *   "V.alcohol >= 800"
-	 * 
-	 * Code that changes a stat based on the value of another stat will be changed to say:
-	 * 	"V.arousal += C.state.alcohol * 0.1 * C.state.arousal.max / C.state.alcohol.max"
-	 * Instead of:
-	 * 	"V.arousal += C.state.alcohol * 0.1"
-	 * 
-	 * This allows any changes to either stat's max or min values to automatically scale how much either stat will be
-	 * influenced by the other.
 	 * 
 	 * The "$wraith.will" variable will need to be adjusted to depend on a proportion of willpower.max.
 	 */
@@ -58,6 +50,12 @@ const constants = {
 	 */
 	alcohol: {
 		max: 1000,
+		/**
+		 * How much the player's $drunk stat needs to increase to qualify for the next Alcohol description tier.
+		 * 
+		 * The description maxes out at 480 and above.
+		 */
+		threshold: 120,
 		min: 0,
 	},
 	arousal: {

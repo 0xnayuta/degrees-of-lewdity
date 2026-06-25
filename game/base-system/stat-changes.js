@@ -258,7 +258,7 @@ const statChange = (() => {
 				if (V.drunk <= 0) {
 					stressMod = 40;
 				} else {
-					const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
+					const drunkMod = Math.clamp(Math.floor(V.drunk / C.alcohol.threshold), 0, 4);
 					stressMod = 30 - drunkMod * 5;
 				}
 				V.stress += amount * stressMod;
@@ -458,7 +458,8 @@ const statChange = (() => {
 				// science reduction
 				pain *= 1 - V.sciencetrait / 10;
 
-				if (V.drunk >= 360) pain *= Math.min(0.95, 0.95 - 0.1 * ((V.drunk - 360) / 640));
+				if (V.drunk >= C.alcohol.threshold * 3) pain *=
+					Math.min(0.95, 0.95 - 0.1 * ((V.drunk - C.alcohol.threshold * 3) / (C.alcohol.max - C.alcohol.threshold * 3)));
 
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
@@ -1023,7 +1024,7 @@ const statChange = (() => {
 		if (amount) {
 			let mod = V.alcoholMod;
 			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
-			V.drunk = Math.clamp(V.drunk + amount * mod, 0, 1000);
+			V.drunk = Math.clamp(V.drunk + amount * mod, C.alcohol.min, C.alcohol.max);
 		}
 	}
 	DefineMacro("alcohol", alcohol);
