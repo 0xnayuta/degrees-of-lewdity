@@ -27,7 +27,7 @@ declare module "twine-sugarcube" {
 		control: number;
 
 		// Max variables moved to the Constants file for centralization
-		arousalmax: number;
+		// arousalmax: number;
 		stressmax: number;
 		traumamax: number;
 		// controlmax: number;
