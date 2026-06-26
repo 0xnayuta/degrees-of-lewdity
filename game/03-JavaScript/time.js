@@ -1192,7 +1192,7 @@ function minutePassed(minutes) {
 		if (minutes < 1200) statChange.tiredness(drunkMod / 12000);
 	}
 	if (V.hallucinogen > 0) statChange.hallucinogen(-minutes);
-	if (V.drugged > 0) statChange.drugs(-minutes);
+	if (V.drugged >= 1) statChange.drugs(-minutes);
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200) statChange.tiredness(minutes / 15);
 	statChange.pain(minutes, -0.5);
@@ -2452,7 +2452,7 @@ function getArousal(passMinutes) {
 	if (V.parasite.right_arm.name) addedArousal += minuteMultiplier;
 	if (V.parasite.left_thigh.name) addedArousal += minuteMultiplier;
 	if (V.parasite.right_thigh.name) addedArousal += minuteMultiplier;
-	if (V.drugged > 1) addedArousal += minuteMultiplier;
+	if (V.drugged >= 1) addedArousal += minuteMultiplier;
 	if (playerHasButtPlug()) addedArousal += minuteMultiplier;
 	if (numberOfEarSlime()) {
 		if (V.parasite.left_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));

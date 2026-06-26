@@ -310,14 +310,12 @@ const statChange = (() => {
 			// adds up to +1 to the arousal modifier when suffocating
 			if (V.choketrait) mod += (V.oxygenmax - V.oxygen) / V.oxygenmax;
 
-			if (V.drugged > 0) {
+			if (V.drugged >= 1) {
 				/*
-					Multiplies the modifier by up to 2x at full bar
-					Comment Akoz: I chose to make it multiply, rather than add to the modifier
-					so that the aphrodisiacs become quite threatening during nonconsensual use,
-					and more thrilling when used intentionally
+					Multiplies the modifier by up to 2x when the player's $drugged stat is at 50%. Past this description
+					tier, the modifier will remain at 2x.
 				*/
-				mod *= 1 + V.drugged / 1000;
+				mod *= 1 + Math.clamp(V.drugged / (C.drugs.max / 2), 0, 1);
 			}
 
 			// Apply effect according to source
@@ -1035,7 +1033,7 @@ const statChange = (() => {
 		if (amount) {
 			let mod = 1;
 			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
-			V.drugged = Math.clamp(V.drugged + amount * mod, 0, 1000);
+			V.drugged = Math.clamp(V.drugged + amount * mod, C.drugs.min, C.drugs.max);
 		}
 	}
 	DefineMacro("drugs", drugs);

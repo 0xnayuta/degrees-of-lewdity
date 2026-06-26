@@ -1244,7 +1244,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drugged`, stayOnPassageFn],
-			widgets: [`<<set $drugged += 600>>`],
+			widgets: [`<<set $drugged += C.drugs.max * 0.6>>`],
 		},
 		{
 			link: [`Hallucinogen`, stayOnPassageFn],

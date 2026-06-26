@@ -3438,7 +3438,7 @@ function masturbationEffectsMouth({
 				const pills = V.player.inventory.sextoys["aphrodisiac pills"][0];
 				pills.uses -= 1;
 				if (pills.uses <= 0) V.player.inventory.sextoys["aphrodisiac pills"].splice(0, 1);
-				if (V.drugged > 0) {
+				if (V.drugged >= 1) {
 					fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. The lewd warmth within you intensifies."));
 				} else {
 					fragment.append(span("You pop an aphrodisiac pill into your mouth and swallow. A lewd warmth begins to spread in your belly."));
