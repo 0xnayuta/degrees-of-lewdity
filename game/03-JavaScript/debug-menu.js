@@ -1232,15 +1232,15 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Arousal max`, stayOnPassageFn],
-			widgets: [`<<arousal C.arousal.max>>`],
+			widgets: [`<<set $arousal to C.arousal.max>>`],
 		},
 		{
 			link: [`Arousal zero`, stayOnPassageFn],
-			widgets: [`<<arousal 0>>`],
+			widgets: [`<<set $arousal to C.arousal.min>><<arousalclamp>>`],
 		},
 		{
 			link: [`Booze`, stayOnPassageFn],
-			widgets: [`<<alcohol 60>>`],
+			widgets: [`<<set $drunk += C.alcohol.max * 0.06>>`],
 		},
 		{
 			link: [`Drugged`, stayOnPassageFn],
