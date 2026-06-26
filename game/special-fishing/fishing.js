@@ -103,43 +103,43 @@ Fishing location images + link icon
 */
 
 function rollFishSize(locationKey, fishKey) {
-	const fishConfig = setup.fishing_fish[fishKey];
+	const fishConfig = setup.fishingFish[fishKey];
 	let preferredMatchCount = 0;
 
-	if (fishConfig.preferred_location.includes(locationKey)) {
+	if (fishConfig.preferredLocation.includes(locationKey)) {
 		preferredMatchCount++;
 	}
-	if (fishConfig.preferred_weather.includes(Weather.name)) {
+	if (fishConfig.preferredWeather.includes(Weather.name)) {
 		preferredMatchCount++;
 	}
-	if (fishConfig.preferred_time.includes(Weather.dayState)) {
+	if (fishConfig.preferredTime.includes(Weather.dayState)) {
 		preferredMatchCount++;
 	}
-	if (Time.isBloodMoon() && fishConfig.preferred_time.includes("bloodMoon")) {
+	if (Time.isBloodMoon() && fishConfig.preferredTime.includes("bloodMoon")) {
 		preferredMatchCount++;
 	}
-	if (fishConfig.preferred_season.includes(Time.season)) {
+	if (fishConfig.preferredSeason.includes(Time.season)) {
 		preferredMatchCount++;
 	}
 
 	const preferenceFactor = Math.clamp(preferredMatchCount / 4, 0, 1);
 	const rollExp = interpolate(2.6, 1.4, preferenceFactor);
 	const sizeRoll = randomExp(rollExp);
-	const size = round(lerp(sizeRoll, fishConfig.min_size, fishConfig.max_size), 2);
-	const range = fishConfig.max_size - fishConfig.min_size;
+	const size = round(lerp(sizeRoll, fishConfig.minSize, fishConfig.maxSize), 2);
+	const range = fishConfig.maxSize - fishConfig.minSize;
 
 	// Rounds 98% to 100% and 2% to 0% so people don't get fish that are super super close to max/min size, but doesn't count.
-	if (size >= fishConfig.min_size + 0.98 * range) return fishConfig.max_size;
+	if (size >= fishConfig.minSize + 0.98 * range) return fishConfig.maxSize;
 	return size;
 }
 
 function rollFish(locationKey) {
 	const pool = [];
 	let totalWeight = 0;
-	for (const [fishKey, fishConfig] of Object.entries(setup.fishing_fish)) {
+	for (const [fishKey, fishConfig] of Object.entries(setup.fishingFish)) {
 		const locationWeight = fishConfig.locations[locationKey];
 		if (locationWeight > 0) {
-			const weight = fishConfig.preferred_weather.includes(Weather.name) ? locationWeight * 2 : locationWeight;
+			const weight = fishConfig.preferredWeather.includes(Weather.name) ? locationWeight * 2 : locationWeight * 0.5;
 			pool.push({ key: fishKey, weight });
 			totalWeight += weight;
 		}
@@ -153,15 +153,15 @@ function rollFish(locationKey) {
 			break;
 		}
 	}
-	const fishConfig = setup.fishing_fish[fishKey];
+	const fishConfig = setup.fishingFish[fishKey];
 	const size = Math.ceil(rollFishSize(locationKey, fishKey));
-	const hugeThreshold = fishConfig.min_size + 0.8 * (fishConfig.max_size - fishConfig.min_size);
+	const hugeThreshold = fishConfig.minSize + 0.8 * (fishConfig.maxSize - fishConfig.minSize);
 	const isHuge = size >= hugeThreshold;
 	return {
 		type: fishKey,
 		size,
 		isHuge,
-		startingStamina: isHuge ? fishConfig.max_stamina + 1 : fishConfig.max_stamina,
+		startingStamina: isHuge ? fishConfig.maxStamina + 1 : fishConfig.maxStamina,
 	};
 }
 window.rollFish = rollFish;
@@ -169,31 +169,31 @@ window.rollFish = rollFish;
 function updateFishRecord(fishKey, fishSize, locationKey) {
 	V.fishing.record ??= {};
 	V.fishing.record[fishKey] ??= {
-		num_caught: 0,
+		numCaught: 0,
 		largest: fishSize,
-		found_in: [],
+		foundIn: [],
 	};
 
 	const fishRecord = V.fishing.record[fishKey];
-	fishRecord.num_caught += 1;
+	fishRecord.numCaught += 1;
 	fishRecord.largest = Math.max(fishRecord.largest, fishSize);
-	if (!fishRecord.found_in.includes(locationKey)) {
-		fishRecord.found_in.push(locationKey);
+	if (!fishRecord.foundIn.includes(locationKey)) {
+		fishRecord.foundIn.push(locationKey);
 	}
 }
 window.updateFishRecord = updateFishRecord;
 
 function numberOfFishCaught() {
 	if (!V.fishing?.record) return 0;
-	return Object.values(V.fishing.record).reduce((sum, r) => sum + r.num_caught, 0);
+	return Object.values(V.fishing.record).reduce((sum, r) => sum + r.numCaught, 0);
 }
 window.numberOfFishCaught = numberOfFishCaught;
 
 function canCookFish(fishKey, fishSize) {
 	const eatableFish = ["trout", "perch", "pike", "chub", "salmon", "bass", "haddock", "cod"];
 	if (!eatableFish.includes(fishKey)) return false;
-	const fishConfig = setup.fishing_fish[fishKey];
-	return fishSize >= fishConfig.max_size - 0.15 * (fishConfig.max_size - fishConfig.min_size) && fishSize >= 80;
+	const fishConfig = setup.fishingFish[fishKey];
+	return fishSize >= fishConfig.maxSize - 0.15 * (fishConfig.maxSize - fishConfig.minSize) && fishSize >= 80;
 }
 window.canCookFish = canCookFish;
 
@@ -211,15 +211,15 @@ function debugDiscoverAllFishing() {
 	V.fishing.record ??= {};
 	V.daily.fishing ??= {};
 
-	for (const [fishKey, fishConfig] of Object.entries(setup.fishing_fish)) {
+	for (const [fishKey, fishConfig] of Object.entries(setup.fishingFish)) {
 		const locationKeys = Object.keys(fishConfig.locations);
 		if (random(1, 2) === 1) {
-			updateFishRecord(fishKey, Math.ceil((fishConfig.min_size + fishConfig.max_size) / 2), locationKeys[0]);
+			updateFishRecord(fishKey, Math.ceil((fishConfig.minSize + fishConfig.maxSize) / 2), locationKeys[0]);
 		} else {
-			updateFishRecord(fishKey, fishConfig.min_size, locationKeys[0]);
-			updateFishRecord(fishKey, fishConfig.max_size, locationKeys[0]);
+			updateFishRecord(fishKey, fishConfig.minSize, locationKeys[0]);
+			updateFishRecord(fishKey, fishConfig.maxSize, locationKeys[0]);
 		}
-		V.fishing.record[fishKey].found_in = locationKeys;
+		V.fishing.record[fishKey].foundIn = locationKeys;
 	}
 }
 window.debugDiscoverAllFishing = debugDiscoverAllFishing;

@@ -1,6 +1,6 @@
 declare module "twine-sugarcube" {
 	export interface SugarCubeSetupObject {
-		fishing_fish: Dict<FishingFishConfigItem>;
+		fishingFish: Dict<FishingFishConfigItem>;
 	}
 }
 
@@ -34,18 +34,18 @@ declare global {
 		| "thunderstorm";
 
 	export interface FishingFishConfigItem {
-		min_size: number; // Minimum fish size.
-		max_size: number; // Maximum fish size.
-		catch_difficulty: number; // Relative difficulty to catch.
-		catch_strategy: FishingCatchStrategy; // Correct response option during the bite minigame.
-		
-		// Preferred params are where/how to catch the largest size of the fish, and does not affect catch frequency.
-		preferred_season: Season[];
-		preferred_time: FishingFishPreferredTime[];
-		preferred_location: FishingLocationKey[];
+		minSize: number; // Minimum fish size.
+		maxSize: number; // Maximum fish size.
+		catchDifficulty: number; // Relative difficulty to catch.
+		catchStrategy: FishingCatchStrategy; // Correct response option during the bite minigame.
 
-		// Preferred weather is also used to weight the spawning of fish with that preferred weather 
-		preferred_weather: FishingFishPreferredWeather[];
+		// Preferred params are where/how to catch the largest size of the fish, and does not affect catch frequency.
+		preferredSeason: Season[];
+		preferredTime: FishingFishPreferredTime[];
+		preferredLocation: FishingLocationKey[];
+
+		// Preferred weather is also used to weight the spawning of fish with that preferred weather
+		preferredWeather: FishingFishPreferredWeather[];
 	}
 }
 

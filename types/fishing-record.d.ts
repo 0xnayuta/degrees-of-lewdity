@@ -12,10 +12,10 @@ declare global {
 	}
 
 	export interface FishingRecordItem {
-		num_caught: number; // Total number caught for this fish.
+		numCaught: number; // Total number caught for this fish.
 		largest: number; // Largest size caught.
 		smallest: number; // Smallest size caught.
-		found_in: FishingLocationKey[]; // Locations where this fish has been caught.
+		foundIn: FishingLocationKey[]; // Locations where this fish has been caught.
 	}
 }
 

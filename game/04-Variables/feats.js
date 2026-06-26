@@ -2405,17 +2405,17 @@ function earnHourlyFeats() {
 	// Bugged in saves that used the "Show them the stolen card" link in many older versions
 	if (V.compound.discovered) earnFeat("Illicit Science");
 
-	const fishKeys = Object.keys(setup.fishing_fish);
-	if (fishKeys.every(key => V.fishing.record[key]?.num_caught > 0)) {
+	const fishKeys = Object.keys(setup.fishingFish);
+	if (fishKeys.every(key => V.fishing.record[key]?.numCaught > 0)) {
 		earnFeat("Wet Rod");
 	}
 
 	if (
 		fishKeys.every(key => {
-			const fishConfig = setup.fishing_fish[key];
+			const fishConfig = setup.fishingFish[key];
 			const fishRecord = V.fishing.record[key];
 			if (!fishRecord) return false;
-			const largestSizePercent = (fishRecord.largest - fishConfig.min_size) / (fishConfig.max_size - fishConfig.min_size);
+			const largestSizePercent = (fishRecord.largest - fishConfig.minSize) / (fishConfig.maxSize - fishConfig.minSize);
 			return largestSizePercent >= 0.98;
 		})
 	) {
