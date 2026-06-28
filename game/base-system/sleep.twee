@@ -23,57 +23,101 @@
 	<</if>>
 
 	<<set $sleepHoursTotal to 0>>
-	<<set $_bonusFatigueLoss to 10>>
+	<<set _bonusFatigueLoss to 0>>
 
-	<!-- sleeping with others -->
+	<!-- Bonus 2% fatigue reduction when sleeping with others. -->
 	<<if $bedGuest or $wolfbed is 1>>
-		<<set $_bonusFatigueLoss += 5>>
+		<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * 0.02)>>
 	<</if>>
 
-	<!-- bonus for sleeping with Love Interests with the Mate For Life trait -->
+	<!-- Additional bonus 2% fatigue reduction when sleeping with Love Interests with the "Mate For Life" trait. -->
 	<<if $bedGuest and $transformationParts.traits.mateForLife isnot "disabled" and isLoveInterest($bedGuest) and !$sleepWraith>>
-		<<set $_bonusFatigueLoss += 3>><<set $stress -= 10>><<set $trauma -= 1>><<set $arousal += 10>>
+		<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * 0.02)>>
 	<</if>>
 
-	<<set $_bonusFatigueLossClothing to 3>>
-
+	<!-- Bonus fatigue reduction when sleeping in clothes that have the "Sleep" trait. Disabled if any non-sleep clothing is
+		worn. -->
+	<<set _bonusFatigueLossClothing to (C.fatigue.hourlyRate * 0.012)>>
+	<<set _inSleepwear to true>>
 	<<for _slot range Object.keys($worn)>>
-		/*
-			Wearing any non-sleep clothing disables the sleep bonus
-			under_upper and under_lower and anything else listed here are exempt from disabling the bonus
-			Non-sleep clothing is defined as anything not tagged with "sleep" or "eerie"
-		 */
+		<!--
+			All prior bonuses are lost if the PC wears any non-sleep clothing.
+
+			Non-sleep clothing is defined as anything that lacks the "Naked", "Sleep", or "Eerie" trait.
+
+			Clothing in the undergarments (under_upper and under_lower) and genital slots are exempt from disabling the bonus.
+		-->
 		<<if !["under_upper", "under_lower", "genitals"].includes(_slot)>>
 			<<if !["naked", "sleep", "eerie"].find((element) => $worn[_slot].type.includes(element))>>
-				<<set $_bonusFatigueLoss to 0>>
+				<<set _bonusFatigueLoss to 0>>
+				<<set _inSleepwear to false>>
 				<<break>>
 			<</if>>
 		<</if>>
 
-		<!-- wearing sleep clothes -->
+		<!--
+			Bonus 1.2% fatigue reduction when wearing clothing with the "Sleep" trait. Each extra piece of sleepwear restores 1
+			fewer point of fatigue, to a minimum of 0.4%.
+		-->
 		<<if $worn[_slot].type.includes("sleep")>>
-			<<set $_bonusFatigueLoss += $_bonusFatigueLossClothing>>
-			<<set $_bonusFatigueLossClothing to Math.clamp($_bonusFatigueLossClothing - 1, 1, 3)>>
+			<<set _bonusFatigueLoss += _bonusFatigueLossClothing>>
+			<<set _bonusFatigueLossClothing -= 1>>
+			<<set _bonusFatigueLossClothing to Math.clamp(_bonusFatigueLossClothing, C.fatigue.hourlyRate * 0.004, C.fatigue.hourlyRate * 0.012)>>
 		<</if>>
 	<</for>>
+	
+	<!-- The player's sleep environment and state of mind affects their fatigue reduction, regardless of clothing. -->
 
-	<!-- sleeping in a poor/regular/comfy bed at home provides a -10/0/+10 bonus regardless of clothing -->
+	<!-- Sleeping while the player is traumatized, at low control, and lacks the "Hypnotic Slumber" trait adds a -20% fatigue
+		reduction. -->
+		<<if $sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber>>
+			<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * -0.2)>>
+		<</if>>
+
+	<!-- Sleeping while the player is traumatized with the "Hypnotic Slumber" trait adds up to a 20% fatigue reduction. -->
+		<<if $hypnosis_traits.slumber>>
+			<<set _bonusFatigueLoss += Math.ceil(C.fatigue.hourlyRate * 0.2 * ($trauma / 5000))>>
+		<</if>>
+
+	<!-- Sleeping in a poor / regular / comfy bed at the Orphanage adds a -4% / 0% / 4% fatigue reduction. -->
 	<<if $location is "home">>
-		<<set $_bed to Furniture.get('bed')>>
-		<<if $_bed.type.includes('comfy')>>
-			<<set $_bonusFatigueLoss += 10>>
-		<<elseif $_bed.type.includes('starter')>>
-			<<set $_bonusFatigueLoss -= 10>>
+		<<set _bed to Furniture.get('bed')>>
+		<<if _bed.type.includes('comfy')>>
+			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.04>>
+		<<elseif _bed.type.includes('starter')>>
+			<<set _bonusFatigueLoss -= C.fatigue.hourlyRate * 0.04>>
 		<</if>>
 	<</if>>
-	<!-- hopeless cycle "poor beds" challenge modifier -->
-	<<if $hc and $hcChallenge and $hcChallenge.timeSleep>>
-		<<set $_bonusFatigueLoss -= 40>>
-	<</if>>
-	<!-- note: every hour of sleep gives a standard 250 fatigue reduction, so this bonus may not be all that much. -->
 
-	<!-- sleephour repeats this until you have slept for the selected number of hours -->
-	<!-- if you select "just sleep", then you wake up when tiredness hits 0, or after 10 hours. -->
+	<!-- Upgrades to the Island's curtains add a 6% / 12% / 18% fatigue reduction. -->
+	<<if $location is "island">>
+		<<if $island[$island.home].curtains is "simple">>
+			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.06>>
+		<<elseif $island[$island.home].curtains is "basic">>
+			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.12>>
+		<<elseif $island[$island.home].curtains is "advanced">>
+			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.18>>
+		<</if>>
+
+	<!-- Upgrades to the Great Hawk's bed add a 6% / 12% / 18% fatigue reduction. -->
+	<<elseif $location is "tower" and $bedGuest isnot "alone">>
+		<<switch $bird.upgrades.nest>>
+			<<case 0>>
+			<<case 1>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.06>>
+			<<case 2>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.12>>
+			<<case 3>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.18>>
+		<</switch>>
+	<</if>>
+	
+	<!-- The Hopeless Cycle's "Poor Beds" challenge adds a -16% fatigue reduction. -->
+	<<if $hc and $hcChallenge and $hcChallenge.timeSleep>>
+		<<set _bonusFatigueLoss -= C.fatigue.hourlyRate * 0.16>>
+	<</if>>
+
+	<!--
+		The "sleephour" widget repeats this loop until the player has slept for their desired number of hours.
+		If "just sleep" was selected, the player will wake when their tiredness hits 0, or after 10 hours.
+	-->
 	<<for $sleephour gte 1 or $sleephour lte -1>>
 		<<set $sleephour -= 1>>
 		<<if $avery_mansion and $bus is "avery_bedroom">>
@@ -312,7 +356,8 @@
 				<</if>>
 				/* ToDo: Gwylan */
 		<</switch>>
-		<!-- this will stop sleep from happening, meaning no fatigue reduction or time passing -->
+
+		<!-- Interrupt the player's sleep with an event. -->
 		<<if _sleepinterrupt>>
 			<<break>>
 		<</if>>
@@ -322,40 +367,35 @@
 			<<break>>
 		<</if>>
 
-		<!-- Keep events above this comment -->
-		<<set $sleepHoursTotal += 1>><<set $sleepStat++>>
+		<!-- Hourly stress reduction, trauma reduction, and arousal increase for sleeping with Love Interests with the
+			"Mate For Life" trait. Disabled when wearing non-sleep clothing. -->
+		<<if _inSleepwear and $bedGuest and $transformationParts.traits.mateForLife isnot "disabled"
+			and isLoveInterest($bedGuest) and !$sleepWraith>>
+			<!-- A player without the "Lustful" trait loses 10 arousal per minute, or 600 arousal per hour. Sleeping with a
+				Love Interest will negate this decay, as if they have a weaker form of the "Lustful" trait. -->
+			<<stress -1>><<trauma -1>>
+			<!-- Not affected by ANY other modifiers. -->
+			<<if !V.backgroundTraits.includes("lustful")>>
+				<<set $arousal += 600>>
+			<</if>>
+			<!-- $variablemax: Fix the arousal code. -->
+		<</if>>
 
-		<!-- for "just sleep" option, if sleep is no longer required OR the player has slept for 10 hours, interrupt it. -->
-		<<if $sleephour lte -1 and ($tiredness lte 0 or $sleephour lte -11)>>
+		<!-- Hourly stress increase if the player is suffering from nightmares at low control. -->
+		<<if $nightmares gte 1 and $controlled is 0>>
+			<<stress 6>>
+		<</if>>
+
+		<!-- Keep events above this comment. -->
+		<<set $sleepHoursTotal += 1>><<set $sleepStat += 1>>
+
+		<!-- For the "just sleep" option, if sleep is no longer required OR the player has slept for 10 hours, interrupt it. -->
+		<<if $sleephour lte -1 and ($tiredness lte C.fatigue.min or $sleephour lte -11)>>
 			<<break>>
 		<</if>>
 
-		<!-- fatigue is lowered by 200 for every hour slept and another 50 more if the player has no trauma. -->
-		<<set $tiredness -= 200>>
-		<<if !($sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber)>>
-			<<set $tiredness -= 50>>
-		<</if>>
-		<<if $hypnosis_traits.slumber>>
-			<<set _traumaToSleep to Math.floor($trauma / 100)>>
-			<<set $tiredness -= _traumaToSleep>>
-		<</if>>
-		<<if $location is "island">>
-			<<if $island[$island.home].curtains is "simple">>
-				<<set $tiredness -= 15>>
-			<<elseif $island[$island.home].curtains is "basic">>
-				<<set $tiredness -= 30>>
-			<<elseif $island[$island.home].curtains is "advanced">>
-				<<set $tiredness -= 45>>
-			<</if>>
-		<<elseif $location is "tower" and $bedGuest isnot "alone">>
-			<<switch $bird.upgrades.nest>>
-				<<case 0>>
-				<<case 1>><<set $tiredness -= 15>>
-				<<case 2>><<set $tiredness -= 30>>
-				<<case 3>><<set $tiredness -= 45>>
-			<</switch>>
-		<</if>>
-		<<set $tiredness -= $_bonusFatigueLoss>>
+		<!-- Sleeping ignores all other modifiers to the $tiredness variable. -->
+		<<set $tiredness -= C.fatigue.hourlyRate + _bonusFatigueLoss>>
 
 		<<set Weather.BodyTemperature.addActivity("sleep")>>
 
@@ -365,20 +405,28 @@
 			<<pass 1 hour>>
 		<</if>>
 
-		<<if $nightmares gte 1 and $controlled is 0>>
-			<<stress 6>>
-		<</if>>
-
-		<<sleep_clamp>>/*Prevents bugged out values affecting events in anyway, -2000 fatigue and -360 stress arnt helpful*/
 	<</for>>
+	<<sleep_clamp>>
 <</widget>>
 
 <<widget "sleepeffects">>
 	<<if $stress gte $stressmax>>
+		<!-- Reduces $stress by 2,000, but increases $trauma by 50. -->
 		<<set $stress -= 2000>>
-		<<trauma 10>>
-		<span class="red">Your stress level reached a peak while you slept and has since subsided, but at cost to your mental health.</span>
-		<<lstress>><<gtrauma>>
+		<<set $trauma += 50>>
+		<span class="red">Your stress level reached a peak while you slept and has since subsided, but at a cost to your mental health.</span>
+		<<if $stress gt $stressmax>>
+			<!-- $stress overflow check for Demon TF's with positive purity and Fallen Angel TF's with negative purity.
+				
+				Assuming the maximum stress is 10,000 and the maximum trauma is 5,000, a player who satisfies one of the above
+				conditions and goes to sleep at 10,000 stress would gain 250-500 trauma, depending on their control. -->
+			<<stressOverflow>>
+
+			<<lllstress>><<gggtrauma>>
+		<<else>>
+			<<llstress>><<ggtrauma>>
+		<</if>>
+				
 		<<ruffleHair>>
 		<<saveTempHairStyle>>
 		<br><br>

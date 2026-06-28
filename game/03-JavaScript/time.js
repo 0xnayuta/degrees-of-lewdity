@@ -153,7 +153,10 @@ const Time = (() => {
 			// it is safe to let secondPassed handle all seconds at once
 			secondPassed(seconds);
 
-			// the pyramid. pass minutes until next hour, then next hour might affect some stats affecting things in minutePassed, so pass hours until next day, then pass the day, then pass the rest of the hours, then minutes
+			/** 
+			 * The pyramid. pass minutes until next hour, then next hour might affect some stats affecting things in
+			 * minutePassed, so pass hours until next day, then pass the day, then pass the rest of the hours, then minutes.
+			 */
 			const minsToNextHour = 60 - prevDate.minute;
 			if (minutes < minsToNextHour) {
 				minutePassed(minutes);
@@ -1055,7 +1058,16 @@ function hourPassed(hours) {
 			});
 		});
 
-		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount) * 10;
+		/**
+		 * Reduces stress by 10 each hour, per goo or semen on the PC.
+		 * 
+		 * The PC naturally gains 60 fatigue each hour. If the PC is at maximum fatigue, the fatigueOverflow() function will
+		 * convert this into 750 stress each hour. The PC needs at least 75 counts of goo across their entire body to
+		 * mitigate the stress increase from never sleeping. This would (theoretically) allow them to skip sleeping, as they
+		 * will no longer be affected by fatigue-related stress.
+		 */
+		if (V.ejactrait >= 1 && V.tiredness < C.fatigue.max) V.stress -= (V.goocount + V.semencount) * 10;
+
 		if (V.kylarwatched) V.kylarwatchedtimer--;
 		if (V.parasite.nipples.name) statChange.milkvolume(1);
 		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
@@ -1180,21 +1192,54 @@ function minutePassed(minutes) {
 	Weather.setIceThickness(minutes);
 
 	// Effects
+
 	V.stress = Math.min(V.stress, V.stressmax);
-	if (V.drunk > 0) {
-		// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
-		const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
-		const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
-		// warning: assumes 1:1 negative alcohol changes, true as of yet
-		statChange.alcohol(-minutes);
-		// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
-		// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
-		if (minutes < 1200) statChange.tiredness(drunkMod / 12000);
-	}
 	if (V.hallucinogen > 0) statChange.hallucinogen(-minutes);
 	if (V.drugged >= 1) statChange.drugs(-minutes);
-	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
-	if (minutes < 1200) statChange.tiredness(minutes / 15);
+	
+	// Fatigue changes will not be applied when passing days (Minimum 20+ hours) at a time.
+
+	// Increase fatigue based on minutes passed.
+	if (minutes < 1200) statChange.tiredness(minutes * C.fatigue.minuteRate, "pass");
+
+	// Each minute at maximum alcohol will add an additional minute of fatigue.
+	if (V.drunk > 0) {
+		/**
+		 * Uses the arithmetic series formula to make sure that "pass(60);" and "pass(30); pass(30);" applies the same amount
+		 * of fatigue, regardless of changes to the V.drunk value.
+		 * 
+		 * Assumes the player's alcohol decay is linear.
+		 */
+
+		/**
+		 * Calculate how long the player will be drunk for. This assumes V.alcoholMod is the only variable that affects how
+		 * quickly the player recovers from alcohol consumption.
+		 */
+		const drunkMin = Math.min(V.drunk / V.alcoholMod, minutes);
+
+		// Get the starting and ending values after drunkMin minutes have passed.
+		const drunkStart = V.drunk;
+		statChange.alcohol(-drunkMin);
+		const drunkEnd = V.drunk;
+
+		// Adds up how long and how drunk the player was during this time.
+		const drunkSum = drunkMin * (drunkStart + drunkEnd) / 2;
+
+		// Increases the player's fatigue, based the player's alcohol levels during this time.
+		if (minutes < 1200) statChange.tiredness((drunkSum / C.alcohol.max) * C.fatigue.minuteRate, "pass");
+	}
+
+	/**
+	 * Calculate the overflow value as heel_reveal - feetskill.
+	 * 
+	 * Each minute, add up to 1 additional minute of fatigue, based on the overflow value, relative to the player's maximum
+	 * feetskill.
+	 */
+	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
+		const heelOverflow = (V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000;
+		if (minutes < 1200) statChange.tiredness(minutes * heelOverflow * C.fatigue.minuteRate, "pass");
+	}
+
 	statChange.pain(minutes, -0.5);
 
 	// Arousal
@@ -1207,6 +1252,36 @@ function minutePassed(minutes) {
 
 	passWater(minutes);
 
+	/**
+		*Strolls innocently*
+		"Oh my! What do we have here?"
+		
+		*Looks down surprised-ly*
+		"Some obfuscated code? How quaint!"
+		
+		*Dips pinkie into code tastefully*
+		"What could this possibly be for?"
+		
+		*Scoops dollop of code into mouth cutely*
+		"Tastes like something related to the game's DEBUG MODE, CHEATS, and FEATS!"
+		
+		*Ponders taste carefully*
+		"Surely hardcoding and then obfuscating these function calls in a way that makes them impossible to find won't cause
+		any problems for coders in the future! It's not like all of this code is open-source and freely available on the
+		internet, and ALSO runs offline, which ALSO makes it impossible to detect when the game's existing code has been
+		modified in a way that makes the game trivially easy, which ALSO allows anyone with enough motivation to download a
+		copy of the official DoL code and modify it in a way that makes the game trivially easy, which would PRETTY MUCH BE
+		THE SAME AS GIVING THEM THE FEATS FOR FREE!"
+
+		*Looks away innocently*
+		"Definitely not. There's absolutely NOTHING to see here, and NOTHING about this code is important."
+
+		*Strolls away randomly*
+		"Hum-dee dum do dee-doo~"
+
+		*Spontenously whistles at nothing, suddenly*
+		"Whistling noises."
+	 */
 	if (
 		V["\x6f\x62\x6a" + "\x65\x63\x74\x56\x65\x72" + "\x73\x69\x6f\x6e"]["\x74\x65\x73" + "\x74"] ||
 		V["\x63" + "\x68\x65" + "\x61\x74\x73\x45" + "\x6e\x61\x62\x6c\x65\x64"] !== !"\x66" ||

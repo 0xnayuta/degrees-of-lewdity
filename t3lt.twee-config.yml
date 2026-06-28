@@ -595,12 +595,22 @@ sugarcube-2:
       description: |-
         Adds alcohol to pc's system
 
-        `$drunk` is a measure of how much alcohol is in the pc's system where 0 is none (0-1,000)
+        `$drunk` measures how much the PC is impacted by the alcohol in their system. Value may not be an integer.
 
         `<<alcohol change>>`
         - **change**: `number` - +/- change to apply
       parameters:
         - number
+    alcoholOverflow:
+      description: |-
+        Converts excess alcohol into fatigue (1-to-1 ratio) and trauma (25% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        These conversions are not affected by ANY other modifiers.
+      name: alcoholOverflow
     alex_baby_interactions:
       name: alex_baby_interactions
     alex_cottage_pregnancy_reveal:
@@ -5542,6 +5552,16 @@ sugarcube-2:
       name: father
     Father:
       name: Father
+    fatigueOverflow:
+      description: |-
+        Converts excess fatigue into stress (12.5x the excess) and trauma (25% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        These conversions are not affected by ANY other modifiers.
+      name: fatigueClamp
     featExplanation:
       name: featExplanation
     featName:
@@ -15585,6 +15605,8 @@ sugarcube-2:
     sleepeffects:
       name: sleepeffects
     sleephour:
+      description: |-
+        Processes and applies changes to the player's $fatigue, considering the player's environment and state of mind.
       name: sleephour
     sleepJanet:
       description: |-
@@ -16228,7 +16250,7 @@ sugarcube-2:
         Each positive point in `change` increases the player's stress by 0.4%, decreasing linearly to 0.1% when the player's
         `$drunk` is greater than or equal to 480.
 
-        Each negative opint in `change` decreases the player's stress by 0.8%.
+        Each negative point in `change` decreases the player's stress by 0.8%.
 
         `<<stress change multiplierOverride?>>`
         - **change**: `number` - +/- change to apply
@@ -16237,6 +16259,16 @@ sugarcube-2:
         - "number |+ number"
     stresscaption:
       name: stresscaption
+    stressOverflow:
+      description: |-
+        Converts excess stress into trauma (2.5% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        This conversion is not affected by ANY other modifiers.
+      name: stressOverflow
     strip:
       name: strip
     stripobject:
@@ -16883,16 +16915,21 @@ sugarcube-2:
       name: tipset
     tiredness:
       description: |-
-        Adds tiredness to pc's state
+        Changes the player's tiredness, where `$tiredness` is a measure of the player's exhaustion. Value may not be an integer.
 
-        `$tiredness` is pc's amount of tiredness where 0 is not-tired (0-2,000)
+        When `source` isn't `"pass"`, each positive point in `change` will increase the player's fatigue by 0.75%. Heavy
+        clothing increases the change by 1.5x, and the player's body temperature being too high increases this change by up
+        to 3x.
 
-        tiredness is unclamped and source is unused. Consider refactoring
+        When `source` isn't `"pass"`, each negative point in `change` decreases the player's fatigue by 1%.
+
+        When `source` is `"pass"`, each point will change the player's fatigue by 0.05%. Assuming the player's maximum fatigue
+        is 2,000, each point will be equal to 1 fatigue.
 
         `<<tiredness change source?>>`
         - **change**: `number` - +/- change to apply
         - **source** _optional_: `string` - source of tiredness change
-          - `"pass"`: tiredness gained from passage of time, not affected by modifiers
+          - `"pass"`: Fatigue gained from the passage of time.
       parameters:
         - 'number |+ "pass"'
       tags: ["refactor"]

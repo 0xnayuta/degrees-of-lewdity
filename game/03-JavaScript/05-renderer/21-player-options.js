@@ -714,7 +714,7 @@ class PlayerCombatMapper {
 		options.filters.leftEye = CombatRenderer.lookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
 		options.filters.rightEye = CombatRenderer.lookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
 
-		options.sclera = V.pain >= 100 || V.tiredness >= C.tiredness.max;
+		options.sclera = V.pain >= 100 || V.tiredness >= C.fatigue.max;
 
 		// Set makeup
 		options.makeup = PlayerCombatMapper.genMakeup();

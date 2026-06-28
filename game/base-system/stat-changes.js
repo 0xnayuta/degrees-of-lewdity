@@ -242,6 +242,27 @@ const statChange = (() => {
 	}
 	DefineMacro("lactation_pressure", lactationPressure);
 
+
+	function stressOverflow() {
+		// Overflow check
+		const overflow = V.stress - V.stressmax;
+		if (overflow > 0) {
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / C.control.max;
+
+			// Add 2.5-5% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.025 * controlMod;
+			
+			// Resets stress to the maximum value.
+			V.stress = V.stressmax;
+		}
+
+		// Clamps for safety.
+		V.stress = Math.clamp(V.stress, 0, V.stressmax);
+		traumaClamp();
+	}
+	DefineMacro("stressOverflow", stressOverflow);
+
 	function stress(amount, multiplierOverride) {
 		if (isNaN(amount)) paramError("stress", "amount", amount, "Expected a number.");
 		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
@@ -383,6 +404,7 @@ const statChange = (() => {
 
 			// Adjusts modifier for body part sensitivity, if applicable
 			if (amount > 0) {
+				// Scaling is +0, +0.25, +1, +2.25 for 1, 2, 3, 4 sensitivity.
 				let sensitivityMod = (sensitivity - 1) ** 2 / 4;
 				// Halve sensitivity boosts during chef job
 				// todo: rebalance chef job better
@@ -425,22 +447,63 @@ const statChange = (() => {
 		return Math.clamp(result, 0, 5000);
 	}
 
+	function fatigueOverflow() {
+		// Overflow check
+		const overflow = V.tiredness - C.fatigue.max;
+		if (overflow > 0) {
+			// Add 12.5x the overflow to the player's stress.
+			V.stress += overflow * 12.5;
+
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / C.control.max;
+
+			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.25 * controlMod;
+			
+			// Resets tiredness to the maximum value.
+			V.tiredness = C.fatigue.max;
+		}
+
+		// Clamps for safety.
+		stressOverflow();
+		traumaClamp();
+		V.tiredness = Math.clamp(V.tiredness, C.fatigue.min, C.fatigue.max);
+	}
+	DefineMacro("fatigueOverflow", fatigueOverflow);
+
 	function tiredness(amount, source) {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (amount > 0 && (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
+		
+		// See "game\03-JavaScript\weather\02-main\02-body-temperature.js" for the effects of body temperature on fatigue.
+
+		// For increases to the player's fatigue.
+		if (amount > 0) {
+			// Wearing clothing with the "Heavy" trait increases the player's fatigue gains by 1.5x.
+			if ((V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
 			amount *= 1.5;
 		}
-		if (amount) {
-			V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
+
+			// The player's body temperature being too high will increase their fatigue gains by up to 3x.
+			amount *= Weather.BodyTemperature.fatigueModifier;
 		}
-		const overflow = V.tiredness - C.tiredness.max;
-		if (overflow > 0) {
-			// channel excessive fatigue into stress and trauma
-			stress(overflow / 3);
-			trauma(overflow / 6);
-			V.tiredness -= overflow;
+
+		// The passage of time changes the player's fatigue by 0.05% per point.
+		if (source === "pass") {
+			// Assuming the player's maximum fatigue is 2,000, this converts "amount" to "fatigue" at a 1-to-1 ratio.
+			V.tiredness += amount * (C.fatigue.max * 0.0005);
 		}
+		// Positive amounts increase the player's fatigue by 0.75% per point.
+		else if (amount > 0) {
+			V.tiredness += amount * (C.fatigue.max * 0.0075);
+		}
+		// Negative amounts decrease the player's fatigue by 1% per point.
+		else if (amount < 0) {
+			V.tiredness += amount * (C.fatigue.max * 0.01);
+		}
+
+		// Check if the player is past their limit.
+		fatigueOverflow();
 	}
 	DefineMacro("tiredness", tiredness);
 
@@ -1016,14 +1079,51 @@ const statChange = (() => {
 	}
 	DefineMacro("locker_suspicion", lockerSuspicion);
 
+	function alcoholOverflow() {
+		// Overflow check
+		const overflow = V.drunk - C.alcohol.max;
+		if (overflow > 0) {
+			// Add 100% of the overflow to fatigue.
+			V.tiredness += overflow;
+
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / C.control.max;
+
+			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.25 * controlMod;
+			
+			// Resets alcohol to the maximum value.
+			V.drunk = C.alcohol.max;
+		}
+
+		// Clamps for safety.
+		fatigueOverflow();
+		V.drunk = Math.clamp(V.drunk, C.alcohol.min, C.alcohol.max);
+	}
+	DefineMacro("alcoholOverflow", alcoholOverflow);
+
 	function alcohol(amount) {
 		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (amount) {
+		/**
+		 * Modify the effect of alcohol on the player, based on their alcohol tolerance.
+		 * 
+		 * Note that their tolerance only changes how much they're IMPACTED by alcohol consumption. A heavyweight may
+		 * be able to drink more than a lightweight, but their bodies will still flush out alcohol at the same rate.
+		 * 
+		 * Because of that, V.alcoholMod is applied to both positive and negative changes to the player's alcohol level.
+		 */
 			let mod = V.alcoholMod;
-			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
-			V.drunk = Math.clamp(V.drunk + amount * mod, C.alcohol.min, C.alcohol.max);
-		}
+
+		/**
+		 * The "Dendrophile" trait amplifies the impact of alcohol consumption, without affecting how quickly the player
+		 * recovers.
+		 */
+		if (V.backgroundTraits.includes("plantlover") && amount > 0) mod *= 1.5;
+
+		V.drunk += amount * mod;
+
+		alcoholOverflow();
 	}
 	DefineMacro("alcohol", alcohol);
 
@@ -1326,6 +1426,7 @@ const statChange = (() => {
 		milkvolume,
 		milkAmount,
 		lactationPressure,
+		stressOverflow,
 		stress,
 		sensitivity,
 		arousal,
@@ -1367,6 +1468,7 @@ const statChange = (() => {
 		skill,
 		prof,
 		lockerSuspicion,
+		alcoholOverflow,
 		alcohol,
 		drugs,
 		hallucinogen,

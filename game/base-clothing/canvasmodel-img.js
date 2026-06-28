@@ -249,7 +249,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.trauma = V.trauma >= V.traumamax * 0.9;
 	}
 	T.modeloptions.blink = V.options.blinkingEnabled;
-	T.modeloptions.eyes_bloodshot = (V.pain >= 100 && V.willpowerpain === 0) || V.tiredness >= C.tiredness.max;
+	T.modeloptions.eyes_bloodshot = (V.pain >= 100 && V.willpowerpain === 0) || V.tiredness >= C.fatigue.max;
 	T.modeloptions.eyes_half =
 		(V.options.halfClosedEnabled &&
 			(V.arousal >= (C.arousal.max * 0.8) || V.orgasmdown >= 1) &&
@@ -257,7 +257,7 @@ DefineMacro("modelprepare-player-body", function () {
 			V.pain < 60 &&
 			V.eyelidTEST === true) ||
 		V.possessed ||
-		V.tiredness >= C.tiredness.max * 0.75;
+		V.tiredness >= (C.fatigue.max * 0.75);
 
 	// Brows
 	if (V.trauma >= V.traumamax || V.possessed) {

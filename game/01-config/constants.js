@@ -3,11 +3,6 @@ const constants = {
 		max: 6,
 		min: 0,
 	},
-	// To be replaced with "C.state.fatigue.max"
-	tiredness: {
-		max: 2000,
-		min: 0,
-	},
 	weather: {
 		fogParticles: {
 			// Caps for fog particle counts after location band scaling. The area where fog can spawn is larger in some locations than others,
@@ -81,6 +76,14 @@ const constants = {
 	 */
 	fatigue: {
 		max: 2000,
+		/**
+		 * How much fatigue is reduced each hour the player is sleeping / resting.
+		 */
+		hourlyRate: 250,
+		/**
+		 * How much fatigue is gained every minute the player is awake.
+		 */
+		minuteRate: 1,
 		min: 0,
 	},
 	/**

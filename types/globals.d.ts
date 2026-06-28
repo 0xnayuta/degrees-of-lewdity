@@ -75,6 +75,8 @@ declare global {
 		 */
 		fatigue: {
 			max: number,
+			hourlyRate: number,
+			minuteRate: number,
 			min: number,
 		},
 		/**
