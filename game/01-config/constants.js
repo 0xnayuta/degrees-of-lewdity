@@ -395,7 +395,7 @@ const constants = {
 		 * If the player commits too much of the same type of crime in one day, they leave behind more evidence.
 		 * 
 		 * The dawnCheck() function in "game\03-JavaScript\time.js" will increase the player's crime by an additional
-		 * 10% if their daily crime stat is creater than "spree".
+		 * 10% if their daily crime stat is greater than "spree".
 		 */
 		spree: 1000,
 	},
