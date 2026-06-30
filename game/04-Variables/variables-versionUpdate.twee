@@ -5520,6 +5520,12 @@
 		<<set $objectVersion.missingChildSkinColors to 3>>
 	<</if>>
 
+	<!-- v0.5.10.12: repair children whose eyeColour was saved as a parent's name (!4578) -->
+	<<if $objectVersion.childEyeColour lt 1 or $objectVersion.childEyeColour is undefined>>
+		<<run fixChildEyeColours()>>
+		<<set $objectVersion.childEyeColour to 1>>
+	<</if>>
+
 	<!-- 0.5 Weather update -->
 	<<if Time.year is 361 and $location is "temple">>
 		<<set $location to "old_temple">>
@@ -6974,9 +6980,9 @@
 	<</if>>
 
 	<!-- Increment in variables-start.twee as well whenever new foodstuff objects are added -->
-	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 5>>
+	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 6>>
 		<<updatePlants>>
-		<<set $objectVersion.foodstuff to 5>>
+		<<set $objectVersion.foodstuff to 6>>
 	<</if>>
 
 	<!-- UFarm variable refactor -->
@@ -7221,8 +7227,8 @@
 	<</if>>
 
 	/* Fixed Butterfly Eyepatch not being unlocked */
-	<<if $specialClothes[125].unlocked is 3>>
-		<<set $specialClothes[133].unlocked to 3>>
+	<<if $specialClothes[$specialClothes.findIndex(x => x.name === "butterfly dress")].unlocked is 3>>
+		<<set $specialClothes[$specialClothes.findIndex(x => x.name === "butterfly eyepatch")].unlocked to 3>>
 	<</if>>
 
 	/* Remove Duplicate Sunflower from $plants_known */
@@ -7272,11 +7278,6 @@
 		})>>
 	<</if>>
 
-	/* Fix for é in V.avery_mansion.food souffle */
-	<<if $avery_mansion?.food is "soufflé">>
-		<<set $avery_mansion.food to "souffle">>
-	<</if>>
-
 	<!-- 5.10.9 -->
 	<<if $monthly is undefined>>
 		<<set $monthly = {}>>
@@ -7304,6 +7305,14 @@
 	<</if>>
 	<<if ["talk","museum","found"].includes($museumAntiques.antiques.antiquegoldchastitybelt)>>
 		<<set $lakeRuin.goldchastityfound to true>> /* Increases danger in the lake once a belt is found at least once. */
+	<</if>>
+
+	<<if $robinSeen is undefined>>
+		<<set $robinSeen to []>>
+	<</if>>
+
+	<<if $specialClothes[$specialClothes.findIndex(x => x.name === "sage witch hat")].unlocked is 3 and !$gwylanSeen?.includes("ritual_sex")>>
+		<<set $specialClothes[$specialClothes.findIndex(x => x.name === "sage witch hat")].unlocked to 0>>
 	<</if>>
 	
 

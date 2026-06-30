@@ -96,6 +96,25 @@ There's a path leading down to the beach.
 <</if>>
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutstreet>>
+<<elseif $stress gte 7000 and Time.dayState isnot "night" and !$daily.cliffDishHandout and $rng gte 91>>
+/* Pick a random food OR drink, excluding tainted (spiked) items */
+<<set _pool to Object.keys(setup.foodstuff).filter(k => setup.foodstuff[k].food
+    and (setup.foodstuff[k].category is "dish" or setup.foodstuff[k].food.tags.includes("drink"))
+    and !setup.foodstuff[k].food.tags.includes("tainted"))>>
+<<set $cliffDish to _pool.random()>>
+<<set $daily.cliffDishHandout to true>>
+
+<<generate1>><<person1>>As you move down the streets, you see a <<person>> holding a <<recipe_name $cliffDish>> walk up to you. "Hey there, <<girl>>!" <<He>> smiles. "Fancy a treat? You look like you could need one!"
+<br><br>
+
+<<He>> holds up the <<recipe_name $cliffDish>> to you. "Our restaurant just opened today, so we're handing out some of our menu items for free! Are you interested?" 
+<br><br>
+
+<<link [[Accept|Cliff Street Dish Handout Accept]]>><</link>>
+<br>
+<<link [[Reject|Cliff Street Dish Handout Reject]]>><</link>>
+<br>
+
 <<elseif $chef_event gte random(1, 100) and $exposed lte 0 and !$possessed>>
 	<<rng>><<run statusCheck("Gwylan")>>
 	<<if $chef_sus gte 100>>
@@ -467,16 +486,25 @@ You shudder and pocket the money.
 			<<link [[Spank prisoner (0:05)|Cliff Street Prisoner]]>><<pass 5>><<set $phase to 2>><</link>><<llstress>><<ltrauma>>
 			<br>
 		<</if>>
-		<<if $pillory.tenant.lowerexposed lte 1 or (($pronoun is "m" and $pillory.tenant.upperexposed lte 1) or ($pronoun is "f" and $pillory.tenant.upperexposed lte 2)) and $stress gte 7000 and $trauma gte (($traumamax / 5) * 2)>>
-			<<link [[Expose prisoner (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 3>><</link>><<llstress>>
+		<<if ($pillory.tenant.lowerexposed lte 1 or (($pronoun is "m" and $pillory.tenant.upperexposed lte 1) or ($pronoun is "f" and $pillory.tenant.upperexposed lte 2))) and $stress gte 7000 and $trauma gte (($traumamax / 5) * 2)>>
+			<!-- 
+				note: $daily.exposedPillory should NOT preclude this interaction from happening multiple times per day. 
+				it is only used to make sure that the player cannot cover the prisoner after exposing them, 
+				to avoid gaining kindness fame for fixing something they did themselves. 
+
+				if an alternate scene is written in Cliff Street Prisoner Night Help to account for covering a prisoner 
+				after having already exposed them in the same day, this gate can be removed, so long as it doesn't reintroduce
+				the problem of allowing players to grind kindness fame by repeatedly exposing and covering the same person.
+			-->
+			<<link [[Expose prisoner (0:02)|Cliff Street Prisoner]]>><<pass 2>><<set $phase to 3>><<set $daily.exposedPillory to true>><</link>><<llstress>>
 			<br>
 		<</if>>
 		<<if $submissive lte 1000 or $fame.good gte 50 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1050)>>
-			<<if ($pillory.tenant.lowerexposed + $pillory.tenant.upperexposed) gte 1>>
+			<<if ($pillory.tenant.lowerexposed + $pillory.tenant.upperexposed) gte 1 and !$daily.exposedPillory>>
 				<<link [[Cover prisoner (0:05)|Cliff Street Prisoner Night Help]]>><<pass 5>><<set $phase to 0>><</link>><<gstress>>
 				<br>
 			<</if>>
-			<<if $speech_attitude is "bratty" or $fame.good gte 150 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1400)>>
+			<<if $submissive lte 850 or $fame.good gte 150 or $stat_police.pillory gte 1 or (($awareness + $purity) gte 1400)>>
 				<<if $pillory.tenant.crowd gte 8>><<set $skulduggerydifficulty to 1350>> /* 50% chance of failure, even at max skulduggery */
 				<<elseif $pillory.tenant.crowd gte 6>><<set $skulduggerydifficulty to 1250>> /* 30% fail at max skul */
 				<<elseif $pillory.tenant.crowd gte 4>><<set $skulduggerydifficulty to 1100>> /* 10% chance of success, even at max skulduggery */
@@ -1086,3 +1114,49 @@ The police officers walk away. The <<person4>><<person>> <<if $phase is 3>>who c
 <<endevent>>
 <br><br>
 <<link [[Next|Pillory]]>><</link>>
+
+:: Cliff Street Dish Handout Accept
+<<effects>>
+<<wearProp $cliffDish>>
+
+You accept <<his>> offer and take the <<recipe_name $cliffDish>> from <<his>> hands.
+<br><br>
+
+<<if $speech_attitude is "meek">>
+	"T-Thanks, I needed that," you say.
+<<elseif $speech_attitude is "bratty">>
+	"Just what I needed. Thanks," you say.
+<<else>>
+	"Thank you, I needed that," you say.
+<</if>>
+<br><br>
+
+You walk away, taking a <<if setup.foodstuff[$cliffDish].food.tags.includes("drink")>>sip<<else>>bite<</if>> of the <<recipe_name $cliffDish>>. It's delicious<<if setup.foodstuff[$cliffDish].food.tags.includes("spicy")>> and spicy<</if>>. You feel your stress melt away. <<stress -6>><<trauma -6>><<lstress>><<ltrauma>><<if setup.foodstuff[$cliffDish].food.tags.includes("spicy")>><<pain 3>><<gpain>><</if>>
+<br><br>
+
+<<unset $cliffDish>> 
+<<link [[Next| Cliff Street]]>><<set $eventskip to 1>><<endevent>><</link>>
+<br>
+
+:: Cliff Street Dish Handout Reject
+<<effects>>
+
+<<if $speech_attitude is "meek">>
+	"Sorry, I have to decline for today," you politely reject.
+<<elseif $speech_attitude is "bratty">>
+	"I'm not in the mood today," you reject.
+<<else>>
+	"I don't think I want to today," you refuse.
+<</if>>
+<br><br>
+
+The <<person>> is surprised, but doesn't push further. "If you say so! Come back if you change your mind!" 
+<br><br>
+
+You watch <<him>> turn around and leave.
+<br><br>
+
+<<unset $cliffDish>> 
+<<link [[Next| Cliff Street]]>><<set $eventskip to 1>><<endevent>><</link>>
+<br>
+
