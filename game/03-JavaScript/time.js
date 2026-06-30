@@ -1252,36 +1252,6 @@ function minutePassed(minutes) {
 
 	passWater(minutes);
 
-	/**
-		*Strolls innocently*
-		"Oh my! What do we have here?"
-		
-		*Looks down surprised-ly*
-		"Some obfuscated code? How quaint!"
-		
-		*Dips pinkie into code tastefully*
-		"What could this possibly be for?"
-		
-		*Scoops dollop of code into mouth cutely*
-		"Tastes like something related to the game's DEBUG MODE, CHEATS, and FEATS!"
-		
-		*Ponders taste carefully*
-		"Surely hardcoding and then obfuscating these function calls in a way that makes them impossible to find won't cause
-		any problems for coders in the future! It's not like all of this code is open-source and freely available on the
-		internet, and ALSO runs offline, which ALSO makes it impossible to detect when the game's existing code has been
-		modified in a way that makes the game trivially easy, which ALSO allows anyone with enough motivation to download a
-		copy of the official DoL code and modify it in a way that makes the game trivially easy, which would PRETTY MUCH BE
-		THE SAME AS GIVING THEM THE FEATS FOR FREE!"
-
-		*Looks away innocently*
-		"Definitely not. There's absolutely NOTHING to see here, and NOTHING about this code is important."
-
-		*Strolls away randomly*
-		"Hum-dee dum do dee-doo~"
-
-		*Spontenously whistles at nothing, suddenly*
-		"Whistling noises."
-	 */
 	if (
 		V["\x6f\x62\x6a" + "\x65\x63\x74\x56\x65\x72" + "\x73\x69\x6f\x6e"]["\x74\x65\x73" + "\x74"] ||
 		V["\x63" + "\x68\x65" + "\x61\x74\x73\x45" + "\x6e\x61\x62\x6c\x65\x64"] !== !"\x66" ||
