@@ -1,0 +1,50 @@
+:: Widgets Fishing Combat [widget]
+<<widget "printFishInfo">>
+	<br>
+	Stamina: <<print $fishing.combat.fishStamina>> / <<print $fishingHookedFish.startingStamina>> 
+	| Distance: <<print $fishing.combat.fishDistance>> 
+	| Line: <<print $fishing.combat.lineHealth>> / 3 
+	| Depth: <<print $fishing.combat.fishDepth>>
+<</widget>>
+
+/* Tells the player what the fish is going to do in its next turn */
+<<widget "fishCombatActionDescription">>
+	<<if $drunk gte 100 and random (1, 2) is 1>>
+		<<switch random(1, 5)>>
+			<<case 1>>
+				<span @class="basicDrunkCss()">Everything tilts. The fish is probably doing fish things.</span>
+			<<case 2>>
+				<span @class="basicDrunkCss()">You squint at the water. Is the fish doing something or just sitting there?</span>
+			<<case 3>>
+				<span @class="basicDrunkCss()">Something's pulling the line around. Or maybe you're just dizzy.</span>
+			<<case 4>>
+				<span @class="basicDrunkCss()">Your hands move. The rod moves. Whether the fish moved first is anyone's guess.</span>
+			<<case 5>>
+				<span @class="basicDrunkCss()">Your hands are moving. The rod's moving. The world's moving. It's all very confusing.</span>
+		<</switch>>
+	<<else>>
+		<<if $fishing.combat.fishAction is "rest">>
+			The fish has stopped struggling.
+		<<elseif $fishing.combat.fishAction is "thrash">>
+			The fish is thrashing about on the surface.
+		<<elseif $fishing.combat.fishAction is "dive">>
+			The fish is diving deeper.
+		<<elseif $fishing.combat.fishAction is "swim">>
+			The fish is pulling against the line.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "fishCombatActions">>
+	<<set _fishingLocationName to _args[0]>>
+	<<set _fishingCombatPassage to "Fishing Combat " + _fishingLocationName>>
+	<<set _fishingCutLinePassage to "Fishing " + _fishingLocationName + " Cut Line">>
+
+	<<link [[Reel in|_fishingCombatPassage]]>><<set $fishing.combat.playerAction to "reel">><</link>>
+	<br>
+	<<link [[Hold the line|_fishingCombatPassage]]>><<set $fishing.combat.playerAction to "hold">><</link>>
+	<br>
+	<<link [[Put slack on the line|_fishingCombatPassage]]>><<set $fishing.combat.playerAction to "slack">><</link>>
+	<br>
+	<<link [[Cut the line|_fishingCutLinePassage]]>><<set $fishing.combat.playerAction to "cut">><</link>>
+<</widget>>

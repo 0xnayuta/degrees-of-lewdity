@@ -1,0 +1,123 @@
+:: Fishing Combat Pier
+<<effects>>
+<<run fishingCombatEffects()>>
+
+/* Player orgasm */
+<<if $arousal gte $arousalmax>>
+	<<if $daily.fishing.pier.whitney.phase is "bet">>
+		<<fishCombatPierOrgasmWhitneyBet>>
+	<<elseif $daily.fishing.pier.fisher.phase is "fishing">>
+		<<fishCombatPierOrgasmFisher>>
+	<<else>>
+		<<fishCombatPierOrgasm>>
+	<</if>>
+
+/* You've caught the fish */
+<<elseif $fishing.combat.fishDistance lte 0>>
+	<<if $daily.fishing.pier.whitney.phase is "bet">>
+		<<fishCombatPierCaughtWhitneyBet>>
+	<<elseif $daily.fishing.pier.whitney.phase is "idle" and $rng gte 90 and !$daily.fishing.pier.whitney.fishKiss>>
+		<<set $daily.fishing.pier.whitney.fishKiss to true>>
+		<<fishCombatPierCaughtWhitneyKiss>>
+	<<elseif $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk gte 4 and $rng gte 80>>
+		<<fishCombatPierCaughtFisherDrunk>>
+	<<elseif Weather.dayState is "day" and [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and [undefined, "finished"].includes($daily.fishing.pier.fisher.phase) and $rng gte 90 and $daily.fishing.seagullSteal is undefined>>
+		<<fishingSeagullCaught "pier">>
+	<<else>>
+		<<fishCombatPierCaught>>
+	<</if>>
+
+/* Your line has snapped */
+<<elseif $fishing.combat.lineHealth lte 0>>
+	<<if $daily.fishing.pier.whitney.phase is "bet">>
+		<<fishCombatPierLineSnappedWhitneyBet>>
+	<<else>>
+		<<fishCombatPierLineSnapped>>
+	<</if>>
+
+/* Still fishing */
+<<else>>
+	<<if $daily.fishing.pier.whitney.phase is "bet">>
+		<<fishCombatPierMainWhitneyBet>>
+	<<else>>
+		<<fishCombatPierMain>>
+	<</if>>
+
+<</if>>
+
+
+:: Fishing Pier Cut Line
+<<effects>>
+<<run endFishingCombat()>>
+You release the tension on the rod, letting the line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, the line breaks free. Through the dark water below, you catch a glimpse of it darting away.
+<<unset $fishingHookedFish>>
+<br><br>
+
+<<if $daily.fishing.pier.whitney.phase is "bet">>
+	<<fishingPierCutLineWhitneyBet>>
+<<else>>
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><</link>>
+<</if>>
+
+
+:: Widgets Fishing Combat Pier [widget]
+<<widget "fishCombatPierMain">>
+	<<run fishCombatAction()>>
+	<<fishCombatActionDescription>>
+	<<printFishInfo>>
+	<br><br>
+
+	<<fishCombatActions "Pier">>
+	<<fishingPierCombatDebugLinks>>
+<</widget>>
+
+<<widget "fishCombatPierCaught">>
+	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "pier")>>
+	<<run endFishingCombat()>>
+	<<set _fishPropName to "caught-" + $fishingHookedFish.type>>
+	<<wearProp _fishPropName>>
+
+	<<fishingCatchFishText "pier">>
+	<br><br>
+
+	<<if $fishingHookedFish.size gt 100 and Time.dayState is "day" and $docks.hired and random(1, 3) is 1>>
+		In the distance, dock workers notice the size of it and a couple cheer for you from the docks.<<dockstatus 1>>
+		<br><br>
+	<</if>>
+
+	<<if _canEatFish>>
+		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
+	<br>
+	<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
+	<<if _canEatFish>>
+		<br>
+		<<link [[Eat the fish|Fishing Pier Cat Eat]]>><</link>>
+	<</if>>
+<</widget>>
+
+<<widget "fishCombatPierLineSnapped">>
+	Your line suddenly goes slack, and the <<print $fishingHookedFish.type>> disappears into the depths.
+	<<run endFishingCombat()>>
+	<<unset $fishingHookedFish>>
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Dock Pier]]>><</link>>
+<</widget>>
+
+<<widget "fishCombatPierOrgasm">>
+	<<orgasmFishingPier>>
+	The rod slips from your grip and the line goes slack. The <<print $fishingHookedFish.type>> is long gone.
+	<<run endFishingCombat()>>
+	<<unset $fishingHookedFish>>
+	<br>
+	<<link [[Next|Fishing Pier Wait]]>><</link>>
+<</widget>>

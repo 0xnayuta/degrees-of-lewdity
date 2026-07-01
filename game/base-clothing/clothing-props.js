@@ -750,6 +750,72 @@ function initProps() {
 		restored_spear: {
 			overUnderSplit: true,
 		},
+		caught_haddock: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_salmon: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_trout: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_cod: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_whiting: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_mackerel: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_flounder: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_sole: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_roach: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_perch: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_chub: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_pike: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_eel: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_grayling: {
+			folder: "fish",
+			armPosition: "clutch",
+		},
+		caught_bass: {
+			folder: "fish",
+			armPosition: "right_hold",
+			overUnderSplit: true,
+		},
+		caught_herring: {
+			folder: "fish",
+			armPosition: "right_hold",
+			overUnderSplit: true,
+		},
 	};
 
 	/*

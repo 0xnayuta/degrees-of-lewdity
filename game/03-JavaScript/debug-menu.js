@@ -76,6 +76,10 @@ setup.debugMenu.eventList = {
 			widgets: [``],
 		},
 		{
+			link: [`Caught Fish Prop Debug`, `Caught Fish Prop Debug`],
+			widgets: [``],
+		},
+		{
 			link: [`Learn all recipes`, stayOnPassageFn],
 			widgets: [`<<learn_recipe_all>>`],
 		},
@@ -1700,6 +1704,10 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Unlock all seeds`, stayOnPassageFn],
 			widgets: [`<<run unlockAllSeeds()>>`],
+		},
+		{
+			link: [`Complete fishing journal`, stayOnPassageFn],
+			widgets: [`<<run debugDiscoverAllFishing()>>`],
 		},
 		{
 			link: [`Super Debug Character`, stayOnPassageFn],

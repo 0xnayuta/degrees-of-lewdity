@@ -1154,6 +1154,22 @@ setup.feats = {
 		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
+	"Wet Rod": {
+		title: "Wet Rod",
+		desc: "Caught one of every fish.",
+		difficulty: 2,
+		series: "fishing",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Complete your fishing records.",
+	},
+	"Master Baiter": {
+		title: "Master Baiter",
+		desc: "Caught the biggest size possible of each fish.",
+		difficulty: 3,
+		series: "fishing",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Catch a giant and tiny specimen of every fish.",
+	},
 	"Pride of the Farm": {
 		title: "Pride of the Farm",
 		desc: "Out-produced all others.",
@@ -2392,6 +2408,23 @@ function earnHourlyFeats() {
 
 	// Bugged in saves that used the "Show them the stolen card" link in many older versions
 	if (V.compound.discovered) earnFeat("Illicit Science");
+
+	const fishKeys = Object.keys(setup.fishingFish);
+	if (fishKeys.every(key => V.fishing.record[key]?.numCaught > 0)) {
+		earnFeat("Wet Rod");
+	}
+
+	if (
+		fishKeys.every(key => {
+			const fishConfig = setup.fishingFish[key];
+			const fishRecord = V.fishing.record[key];
+			if (!fishRecord) return false;
+			const largestSizePercent = (fishRecord.largest - fishConfig.minSize) / (fishConfig.maxSize - fishConfig.minSize);
+			return largestSizePercent >= 0.98;
+		})
+	) {
+		earnFeat("Master Baiter");
+	}
 
 	return fragment;
 }
