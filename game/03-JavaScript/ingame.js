@@ -1440,7 +1440,7 @@ function drunkSexStatModifier(statValue) {
 	const maxValue = 40; // The maximum value of the curve.
 	const valueAdjust = Math.clamp(maxValue - Math.floor(statValue / 4), 0, maxValue); // The curve is less effective with higher base stat.
 	const growthRate = 3; // How fast the curve grows as the drunk value increases.
-	const midpoint = C.alcohol.max / 2; // Needs to be half of the max drunk value.
+	const midpoint = C.stats.alcohol.max / 2; // Needs to be half of the max drunk value.
 	const shifter = 0.85; // Decreases this value to make lower drunk values give higher results and higher drunk values give lower results.
 	const drunkMod = (V.drunk - midpoint) / midpoint; // Adjusts the drunk values to be scaled correctly with the equation and max stat value.
 	const denominator = 1 + shifter * Math.E ** (-1 * growthRate * drunkMod);
@@ -2510,7 +2510,7 @@ function lustfulUpdate() {
 		// stage 3, add lustful trait
 		effectsRef.message = 3;
 		V.backgroundTraits.pushUnique("lustful");
-		V.arousal = C.arousal.max;
+		V.arousal = C.stats.arousal.max;
 		V.timeMessages.pushUnique("bimboMessage3");
 	} else if (effectsRef.total < 1200 && effectsRef.message === 3) {
 		effectsRef.message = 2;

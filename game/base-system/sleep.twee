@@ -27,17 +27,17 @@
 
 	<!-- Bonus 2% fatigue reduction when sleeping with others. -->
 	<<if $bedGuest or $wolfbed is 1>>
-		<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * 0.02)>>
+		<<set _bonusFatigueLoss += (C.stats.fatigue.hourlyRate * 0.02)>>
 	<</if>>
 
 	<!-- Additional bonus 2% fatigue reduction when sleeping with Love Interests with the "Mate For Life" trait. -->
 	<<if $bedGuest and $transformationParts.traits.mateForLife isnot "disabled" and isLoveInterest($bedGuest) and !$sleepWraith>>
-		<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * 0.02)>>
+		<<set _bonusFatigueLoss += (C.stats.fatigue.hourlyRate * 0.02)>>
 	<</if>>
 
 	<!-- Bonus fatigue reduction when sleeping in clothes that have the "Sleep" trait. Disabled if any non-sleep clothing is
 		worn. -->
-	<<set _bonusFatigueLossClothing to (C.fatigue.hourlyRate * 0.012)>>
+	<<set _bonusFatigueLossClothing to (C.stats.fatigue.hourlyRate * 0.012)>>
 	<<set _inSleepwear to true>>
 	<<for _slot range Object.keys($worn)>>
 		<!--
@@ -62,7 +62,7 @@
 		<<if $worn[_slot].type.includes("sleep")>>
 			<<set _bonusFatigueLoss += _bonusFatigueLossClothing>>
 			<<set _bonusFatigueLossClothing -= 1>>
-			<<set _bonusFatigueLossClothing to Math.clamp(_bonusFatigueLossClothing, C.fatigue.hourlyRate * 0.004, C.fatigue.hourlyRate * 0.012)>>
+			<<set _bonusFatigueLossClothing to Math.clamp(_bonusFatigueLossClothing, C.stats.fatigue.hourlyRate * 0.004, C.stats.fatigue.hourlyRate * 0.012)>>
 		<</if>>
 	<</for>>
 	
@@ -71,47 +71,47 @@
 	<!-- Sleeping while the player is traumatized, at low control, and lacks the "Hypnotic Slumber" trait adds a -20% fatigue
 		reduction. -->
 		<<if $sleeptrouble is 1 and $controlled is 0 and !$hypnosis_traits.slumber>>
-			<<set _bonusFatigueLoss += (C.fatigue.hourlyRate * -0.2)>>
+			<<set _bonusFatigueLoss += (C.stats.fatigue.hourlyRate * -0.2)>>
 		<</if>>
 
 	<!-- Sleeping while the player is traumatized with the "Hypnotic Slumber" trait adds up to a 20% fatigue reduction. -->
 		<<if $hypnosis_traits.slumber>>
-			<<set _bonusFatigueLoss += Math.ceil(C.fatigue.hourlyRate * 0.2 * ($trauma / 5000))>>
+			<<set _bonusFatigueLoss += Math.ceil(C.stats.fatigue.hourlyRate * 0.2 * ($trauma / 5000))>>
 		<</if>>
 
 	<!-- Sleeping in a poor / regular / comfy bed at the Orphanage adds a -4% / 0% / 4% fatigue reduction. -->
 	<<if $location is "home">>
 		<<set _bed to Furniture.get('bed')>>
 		<<if _bed.type.includes('comfy')>>
-			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.04>>
+			<<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.04>>
 		<<elseif _bed.type.includes('starter')>>
-			<<set _bonusFatigueLoss -= C.fatigue.hourlyRate * 0.04>>
+			<<set _bonusFatigueLoss -= C.stats.fatigue.hourlyRate * 0.04>>
 		<</if>>
 	<</if>>
 
 	<!-- Upgrades to the Island's curtains add a 6% / 12% / 18% fatigue reduction. -->
 	<<if $location is "island">>
 		<<if $island[$island.home].curtains is "simple">>
-			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.06>>
+			<<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.06>>
 		<<elseif $island[$island.home].curtains is "basic">>
-			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.12>>
+			<<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.12>>
 		<<elseif $island[$island.home].curtains is "advanced">>
-			<<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.18>>
+			<<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.18>>
 		<</if>>
 
 	<!-- Upgrades to the Great Hawk's bed add a 6% / 12% / 18% fatigue reduction. -->
 	<<elseif $location is "tower" and $bedGuest isnot "alone">>
 		<<switch $bird.upgrades.nest>>
 			<<case 0>>
-			<<case 1>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.06>>
-			<<case 2>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.12>>
-			<<case 3>><<set _bonusFatigueLoss += C.fatigue.hourlyRate * 0.18>>
+			<<case 1>><<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.06>>
+			<<case 2>><<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.12>>
+			<<case 3>><<set _bonusFatigueLoss += C.stats.fatigue.hourlyRate * 0.18>>
 		<</switch>>
 	<</if>>
 	
 	<!-- The Hopeless Cycle's "Poor Beds" challenge adds a -16% fatigue reduction. -->
 	<<if $hc and $hcChallenge and $hcChallenge.timeSleep>>
-		<<set _bonusFatigueLoss -= C.fatigue.hourlyRate * 0.16>>
+		<<set _bonusFatigueLoss -= C.stats.fatigue.hourlyRate * 0.16>>
 	<</if>>
 
 	<!--
@@ -390,12 +390,12 @@
 		<<set $sleepHoursTotal += 1>><<set $sleepStat += 1>>
 
 		<!-- For the "just sleep" option, if sleep is no longer required OR the player has slept for 10 hours, interrupt it. -->
-		<<if $sleephour lte -1 and ($tiredness lte C.fatigue.min or $sleephour lte -11)>>
+		<<if $sleephour lte -1 and ($tiredness lte C.stats.fatigue.min or $sleephour lte -11)>>
 			<<break>>
 		<</if>>
 
 		<!-- Sleeping ignores all other modifiers to the $tiredness variable. -->
-		<<set $tiredness -= C.fatigue.hourlyRate + _bonusFatigueLoss>>
+		<<set $tiredness -= C.stats.fatigue.hourlyRate + _bonusFatigueLoss>>
 
 		<<set Weather.BodyTemperature.addActivity("sleep")>>
 
@@ -452,7 +452,7 @@
 	Your sleep <<if _wakingEffect>>was<<else>>is<</if>> plagued by dirty dreams.
 	<<arousal `_lustful.total / 10 * $sleepHoursTotal`>>
 	<<arousal `100 * $sleepHoursTotal`>>
-	<<if $arousal gte C.arousal.max>>
+	<<if $arousal gte C.stats.arousal.max>>
 		They push you over the edge.
 		<<orgasm>>
 		<<set $orgasmcurrent to 0>>

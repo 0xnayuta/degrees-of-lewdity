@@ -1066,7 +1066,7 @@ function hourPassed(hours) {
 		 * mitigate the stress increase from never sleeping. This would (theoretically) allow them to skip sleeping, as they
 		 * will no longer be affected by fatigue-related stress.
 		 */
-		if (V.ejactrait >= 1 && V.tiredness < C.fatigue.max) V.stress -= (V.goocount + V.semencount) * 10;
+		if (V.ejactrait >= 1 && V.tiredness < C.stats.fatigue.max) V.stress -= (V.goocount + V.semencount) * 10;
 
 		if (V.kylarwatched) V.kylarwatchedtimer--;
 		if (V.parasite.nipples.name) statChange.milkvolume(1);
@@ -1200,7 +1200,7 @@ function minutePassed(minutes) {
 	// Fatigue changes will not be applied when passing days (Minimum 20+ hours) at a time.
 
 	// Increase fatigue based on minutes passed.
-	if (minutes < 1200) statChange.tiredness(minutes * C.fatigue.minuteRate, "pass");
+	if (minutes < 1200) statChange.tiredness(minutes * C.stats.fatigue.minuteRate, "pass");
 
 	// Each minute at maximum alcohol will add an additional minute of fatigue.
 	if (V.drunk > 0) {
@@ -1226,7 +1226,7 @@ function minutePassed(minutes) {
 		const drunkSum = drunkMin * (drunkStart + drunkEnd) / 2;
 
 		// Increases the player's fatigue, based the player's alcohol levels during this time.
-		if (minutes < 1200) statChange.tiredness((drunkSum / C.alcohol.max) * C.fatigue.minuteRate, "pass");
+		if (minutes < 1200) statChange.tiredness((drunkSum / C.stats.alcohol.max) * C.stats.fatigue.minuteRate, "pass");
 	}
 
 	/**
@@ -1237,7 +1237,7 @@ function minutePassed(minutes) {
 	 */
 	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
 		const heelOverflow = (V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000;
-		if (minutes < 1200) statChange.tiredness(minutes * heelOverflow * C.fatigue.minuteRate, "pass");
+		if (minutes < 1200) statChange.tiredness(minutes * heelOverflow * C.stats.fatigue.minuteRate, "pass");
 	}
 
 	statChange.pain(minutes, -0.5);
@@ -1245,7 +1245,7 @@ function minutePassed(minutes) {
 	// Arousal
 	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
-	V.timeSinceArousal = V.arousal < (C.arousal.max * 0.75) ? V.timeSinceArousal + minutes : 1;
+	V.timeSinceArousal = V.arousal < (C.stats.arousal.max * 0.75) ? V.timeSinceArousal + minutes : 1;
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 
 	// $variablemax: Make arousal code more legible
@@ -2413,10 +2413,10 @@ function passWater(passMinutes) {
 // (Directly converted from passArousalWetness widget - included comments)
 function passArousalWetness(passMinutes) {
 	let wetnessChange = 0;
-	const arousalPercent = Math.clamp(V.arousal / C.arousal.max, 0, 1);
+	const arousalPercent = Math.clamp(V.arousal / C.stats.arousal.max, 0, 1);
 
 	// Vaginal lube is produced at a fairly linear rate, between 1-3 per minute based on arousal.
-	if (V.arousal >= (C.arousal.max * 0.4)) {
+	if (V.arousal >= (C.stats.arousal.max * 0.4)) {
 		wetnessChange = 1 + arousalPercent * 2;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
@@ -2428,7 +2428,7 @@ function passArousalWetness(passMinutes) {
 	wetnessChange -= 0.1 * V.timeSinceArousal * (1 - arousalPercent);
 
 	// If wetnessChange would go negative and arousal is high enough, wetness instead does not change.
-	if (V.arousal >= (C.arousal.max * 0.6) && wetnessChange < 0) wetnessChange = 0;
+	if (V.arousal >= (C.stats.arousal.max * 0.6) && wetnessChange < 0) wetnessChange = 0;
 	V.vaginaArousalWetness += Math.round(wetnessChange * passMinutes);
 
 	// Arbitrarily, we'll say that the player's vagina holds up to 60 units of lube, and it begins to leak out above 60.

@@ -107,7 +107,7 @@ function masturbationActions() {
 		}
 	});
 
-	if (V.arousal >= C.arousal.max && !V.possessed && !T.noMasturbationOutput) {
+	if (V.arousal >= C.stats.arousal.max && !V.possessed && !T.noMasturbationOutput) {
 		fragment.append(wikifier("orgasm"));
 		fragment.append(wikifier("promiscuity1"));
 		V.masturbationorgasmstat++;
