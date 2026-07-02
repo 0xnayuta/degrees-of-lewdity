@@ -159,7 +159,7 @@ const DoLCompressorDictionaries = (() => {
 		"area",
 		"arousal",
 		"arousalmasochism",
-		"arousalmax",
+		"arousalmax", // No longer used. Left in for save file compatibility.
 		"arrayList",
 		"arrow",
 		"askAction",
@@ -460,7 +460,7 @@ const DoLCompressorDictionaries = (() => {
 		"contrast",
 		"control",
 		"controlled",
-		"controlmax",
+		"controlmax", // No longer used. Left in for save file compatibility.
 		"controlstart",
 		"cool",
 		"coolmax",

@@ -17,6 +17,8 @@ function initCNPC() {
 window.initCNPC = initCNPC;
 
 function initCCrime() {
+	// $variablemax: Move the constants initialized by this function to "game\01-config\constants.js".
+
 	C.crime = {};
 
 	C.crime.max = 10000;

@@ -1004,14 +1004,16 @@ function effects() {
 			V.loveInterestAwareMessage = 2;
 		}
 
+		// Maxes out the player's stress. CAN EXCEED THE STRESS MAXIMUM.
 		if (V.fallenangelmessage) {
-			sWikifier('<span class="red">You feel a dark presence clawing at your skin.</span> <<gstress>>');
+			sWikifier('<span class="red">You feel a dark presence clawing at your skin.</span> <<gggstress>>');
 			V.stress += V.stressmax;
 			delete V.fallenangelmessage;
 		}
 
+		// Maxes out the player's stress. CAN EXCEED THE STRESS MAXIMUM.
 		if (V.demonmessage) {
-			sWikifier('<span class="red">You feel a terrible light sear through you.</span> <<gstress>>');
+			sWikifier('<span class="red">You feel a terrible light sear through you.</span> <<gggstress>>');
 			V.stress += V.stressmax;
 			delete V.demonmessage;
 		}
@@ -1744,10 +1746,6 @@ function effects() {
 	sWikifier("<<bindings>>");
 
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
-
-	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		V.tiredness += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 150;
-	}
 
 	sWikifier("<<exposure>>");
 

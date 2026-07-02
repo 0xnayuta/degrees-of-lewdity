@@ -51,7 +51,7 @@ function lustfulUpdate() {
 		// stage 3, add lustful trait
 		effectsRef.message = 3;
 		V.backgroundTraits.pushUnique("lustful");
-		V.arousal = V.arousalmax;
+		V.arousal = C.stats.arousal.max;
 		V.timeMessages.pushUnique("bimboMessage3");
 	} else if (effectsRef.total < 1200 && effectsRef.message === 3) {
 		effectsRef.message = 2;

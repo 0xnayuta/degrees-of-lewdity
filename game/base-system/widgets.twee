@@ -139,14 +139,16 @@
 	<!-- Consult the 'arousal' widget to see how -->
 	<<if _args[0] and (typeof _args[0]) is "number">>
 
+		<!-- $variablemax: Existing code increases the player's stress by 1/4 of the "stress" widget's default modifier, going
+			down to ~1/13th the default modifier at an alcohol level of 480. Is this intentional? -->
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if $drunk gte 1>>
+				<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+				<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<set _drunkMod to 10>>
 			<</if>>
-			<<stress _args[0] $_stress_multiplier>>
+			<<stress _args[0] _drunkMod>>
 			<<combattrauma _args[0]>>
 		<</if>>
 
@@ -188,13 +190,13 @@
 	<!-- For double penetration, the widget is now called twice. Once for each NPC. -->
 	<<if _args[0] and (typeof _args[0]) is "number">>
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if $drunk gte 1>>
+				<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+				<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<set _drunkMod to 10>>
 			<</if>>
-			<<stress _args[0] $_stress_multiplier>>
+			<<stress _args[0] _drunkMod>>
 			<<combattrauma _args[0]>>
 		<<else>>
 			<<stress _args[0] -10>>
@@ -262,9 +264,9 @@
 		<!-- args[4] - indicates NPC id (but is currently unused) -->
 
 		<<if _violence gt 0 or _violence lt 0>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+			<<if $drunk gte 1>>
+				<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+				<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 			<<else>>
 				<<set _drunkMod to 10>>
 			<</if>>
@@ -316,9 +318,9 @@
 		<<set _arousalMod = _args[4] || 1>>
 
 		<<if _violence gt 0 or _violence lt 0>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+			<<if $drunk gte 1>>
+				<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+				<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 			<<else>>
 				<<set _drunkMod to 10>>
 			<</if>>
@@ -353,13 +355,13 @@
 	<!-- args[1] - the NPC to whom PC is submitting (currently unused) -->
 	<<if _args[0]>>
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if $drunk gte 1>>
+				<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+				<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<set _drunkMod to 10>>
 			<</if>>
-			<<stress _args[0] $_stress_multiplier>>
+			<<stress _args[0] _drunkMod>>
 			<<sub `_args[0] / 4`>>
 		<<else>>
 			<<set $stress -= 10 * _args[0]>>
@@ -382,7 +384,7 @@
 		<<set $enemytrust -= 4>>
 		<<set _defiance_arousal to (_defiance * ($sadism / 40))>>
 		<<arousal _defiance_arousal>>
-		<<if $arousal gte ($arousalmax * 0.8)>>
+		<<if $arousal gte (C.stats.arousal.max * 0.8)>>
 			<<sadism _args[0]>>
 		<</if>>
 		<<set _thedamage to (2 * _defiance * ($physique / 4000))>>
@@ -395,13 +397,13 @@
 
 <<widget "brat">>
 	<<if _args[0]>>
-		<<if $drunk gt 0>>
-			<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-			<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+		<<if $drunk gte 1>>
+			<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+			<<set _drunkMod to [9,8,6,4,3][_drunkLevel]>>
 		<<else>>
-			<<set $_stress_multiplier to 10>>
+			<<set _drunkMod to 10>>
 		<</if>>
-		<<stress _args[0] $_stress_multiplier>>
+		<<stress _args[0] _drunkMod>>
 		<<combattrauma `-1 * _args[0]`>>
 		<<if $NPCList[0].legs isnot "walk">>
 			<<set $enemyanger += 5 * _args[0]>>
@@ -1163,15 +1165,15 @@
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				Fatigue:
 				<<if $options.showCaptionText is true>>
-					<<if $tiredness gte C.tiredness.max>>
+					<<if $tiredness gte C.stats.fatigue.max>>
 						<span class="red">You are exhausted.</span>
-					<<elseif $tiredness gte (C.tiredness.max / 5) * 4>>
+					<<elseif $tiredness gte (C.stats.fatigue.max * 0.8)>>
 						<span class="pink">You are fatigued.</span>
-					<<elseif $tiredness gte (C.tiredness.max / 5) * 3>>
+					<<elseif $tiredness gte (C.stats.fatigue.max * 0.6)>>
 						<span class="purple">You are tired.</span>
-					<<elseif $tiredness gte (C.tiredness.max / 5) * 2>>
+					<<elseif $tiredness gte (C.stats.fatigue.max * 0.4)>>
 						<span class="blue">You are wearied.</span>
-					<<elseif $tiredness gte C.tiredness.max / 5>>
+					<<elseif $tiredness gte (C.stats.fatigue.max * 0.2)>>
 						<span class="lblue">You are alert.</span>
 					<<elseif $tiredness gte 1>>
 						<span class="teal">You are wide awake.</span>
@@ -1181,13 +1183,8 @@
 				<</if>>
 			</div>
 
-			<<if $tiredness gte C.tiredness.max>>
-				<<set $stress += (($tiredness - C.tiredness.max) * 16)>><<set $trauma += (($tiredness - C.tiredness.max) / 3)>>
-			<</if>>
-
-			<<set $tiredness = Math.clamp($tiredness, 0, C.tiredness.max)>>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar 0 $tiredness `C.tiredness.max` _showCaptionText>>
+			<<statbar `C.stats.fatigue.min` $tiredness `C.stats.fatigue.max` _showCaptionText>>
 		</div>
 	<</if>>
 <</widget>>
@@ -1304,15 +1301,15 @@
 				Control:
 				<<if $options.showCaptionText is true>>
 					<<if $possessed>>
-						<<if $control gte $controlmax>>
+						<<if $control gte C.stats.control.max>>
 							<span class="green">You are in control.</span>
-						<<elseif $control gte ($controlmax / 5) * 4>>
+						<<elseif $control gte (C.stats.control.max * 0.8)>>
 							<span class="teal">You are nearly in control.</span>
-						<<elseif $control gte ($controlmax / 5) * 3>>
+						<<elseif $control gte (C.stats.control.max * 0.6)>>
 							<span class="lblue">You are struggling.</span>
-						<<elseif $control gte ($controlmax / 5) * 2>>
+						<<elseif $control gte (C.stats.control.max * 0.4)>>
 							<span class="blue">Your body feels hollow.</span>
-						<<elseif $control gte ($controlmax / 5) * 1>>
+						<<elseif $control gte (C.stats.control.max * 0.2)>>
 							<span class="purple">Your mind is numb.</span>
 						<<elseif $control gte 1>>
 							<span class="pink">You're being puppeteered.</span>
@@ -1320,15 +1317,15 @@
 							<span class="red">You're helpless.</span>
 						<</if>>
 					<<else>>
-						<<if $control gte $controlmax>>
+						<<if $control gte C.stats.control.max>>
 							<span class="green">You are confident.</span>
-						<<elseif $control gte ($controlmax / 5) * 4>>
+						<<elseif $control gte (C.stats.control.max * 0.8)>>
 							<span class="teal">You are insecure.</span>
-						<<elseif $control gte ($controlmax / 5) * 3>>
+						<<elseif $control gte (C.stats.control.max * 0.6)>>
 							<span class="lblue">You are worried.</span>
-						<<elseif $control gte ($controlmax / 5) * 2>>
+						<<elseif $control gte (C.stats.control.max * 0.4)>>
 							<span class="blue">You are anxious.</span>
-						<<elseif $control gte ($controlmax / 5) * 1>>
+						<<elseif $control gte (C.stats.control.max * 0.2)>>
 							<span class="purple">You are scared.</span>
 						<<elseif $control gte 1>>
 							<span class="pink">You are frightened.</span>
@@ -1339,7 +1336,7 @@
 				<</if>>
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbarinverted $control $controlmax _showCaptionText>>
+			<<statbarinverted $control `C.stats.control.max` _showCaptionText>>
 		</div>
 	<</if>>
 <</widget>>
@@ -1350,15 +1347,15 @@
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				Arousal:
 				<<if $options.showCaptionText is true>>
-					<<if $arousal gte $arousalmax>>
+					<<if $arousal gte C.stats.arousal.max>>
 						<span class="red">You shake with arousal.</span>
-					<<elseif $arousal gte ($arousalmax / 5) * 4>>
+					<<elseif $arousal gte (C.stats.arousal.max * 0.8)>>
 						<span class="pink">A heat rises within.</span>
-					<<elseif $arousal gte ($arousalmax / 5) * 3>>
+					<<elseif $arousal gte (C.stats.arousal.max * 0.6)>>
 						<span class="purple">You feel horny.</span>
-					<<elseif $arousal gte ($arousalmax / 5) * 2>>
+					<<elseif $arousal gte (C.stats.arousal.max * 0.4)>>
 						<span class="blue">You feel lustful.</span>
-					<<elseif $arousal gte $arousalmax / 5>>
+					<<elseif $arousal gte (C.stats.arousal.max * 0.2)>>
 						<span class="lblue">You feel aroused.</span>
 					<<elseif $arousal gte 1>>
 						<span class="teal">You feel stimulated.</span>
@@ -1368,7 +1365,7 @@
 				<</if>>
 			</div>
 			<<set _showCaptionText to !$options.showCaptionText>>
-			<<statbar `statChange.minArousal()` $arousal $arousalmax _showCaptionText>>
+			<<statbar `statChange.minArousal()` $arousal `C.stats.arousal.max` _showCaptionText>>
 		</div>
 	<</if>>
 <</widget>>
@@ -1499,22 +1496,22 @@
 <</widget>>
 
 <<widget "drunkcaption">>
-	<<if $drunk gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drunk * (100 / 480), "drunk")>>
+	<<if $drunk gte 1>>
+		<<set $_colour to getColourClassFromPercentage(($drunk / (C.stats.alcohol.threshold * 4)) * 100, "drunk")>>
 		<<set $_barColour to $_colour + "bar">>
-		<<set $_percent to Math.floor(($drunk/1000)*100)>>
+		<<set $_percent to Math.floor(($drunk / C.stats.alcohol.max) * 100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
 
 		<div id="drunkcaption" @title="'Drunk: ' + $drunk.toFixed(2)">
 			<div @class="($options.showCaptionText is true ? '' : 'rightMeterText')">
 				<<if $options.showCaptionText is true>>
-					<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4) * 120>>
-					<<switch $_drunk_level>>
+					<<set _drunkLevel to Math.clamp(Math.floor($drunk / C.stats.alcohol.threshold), 0, 4)>>
+					<<switch _drunkLevel>>
 						<<case 0>><span @class="$_colour">You are woozy.</span>
-						<<case 120>><span @class="$_colour">You are tipsy.</span>
-						<<case 240>><span @class="$_colour">You are drunk.</span>
-						<<case 360>><span @class="$_colour">You are smashed.</span>
-						<<case 480>><span @class="$_colour">You are wasted.</span>
+						<<case 1>><span @class="$_colour">You are tipsy.</span>
+						<<case 2>><span @class="$_colour">You are drunk.</span>
+						<<case 3>><span @class="$_colour">You are smashed.</span>
+						<<case 4>><span @class="$_colour">You are wasted.</span>
 					<</switch>>
 				<<else>>
 					Drunk:
@@ -1528,10 +1525,10 @@
 <</widget>>
 
 <<widget "druggedcaption">>
-	<<if $drugged gt 0>>
-		<<set $_colour to getColourClassFromPercentage($drugged / 5, "drugged")>>
+	<<if $drugged gte 1>>
+		<<set $_colour to getColourClassFromPercentage(($drugged / (C.stats.drugs.max / 2)) * 100, "drugged")>>
 		<<set $_barColour to $_colour + "bar">>
-		<<set $_percent to Math.floor(($drugged/1000)*100)>>
+		<<set $_percent to Math.floor(($drugged / C.stats.drugs.max) * 100)>>
 		<<set $_barWidth to `width:${$_percent}%`>>
 
 		<div id="druggedcaption" @title="'Drugged: ' + $drugged.toFixed(2)">
@@ -1723,11 +1720,11 @@
 			<<if $molesttrait gte 1 and $rapeavoid is 1>>
 			<<else>>
 				<<set $controlstart to $control>><<combatcontrol -25>>
-				<<if $control gte ($controlmax * 0.74)>>
+				<<if $control gte (C.stats.control.max * 0.74)>>
 					<span class="purple">Your sense of control wavers.</span>
-				<<elseif $control gte ($controlmax * 0.49)>>
+				<<elseif $control gte (C.stats.control.max * 0.49)>>
 					<span class="purple">Your sense of control falters.</span>
-				<<elseif $control gte ($controlmax * 0.24)>>
+				<<elseif $control gte (C.stats.control.max * 0.24)>>
 					<span class="pink">Your sense of control cracks.</span>
 				<<elseif $control gte 1>>
 					<span class="pink">Your sense of control breaks down.</span>
@@ -5248,10 +5245,10 @@
 
 	<<set $pain to 0>>
 	<<set $arousal to 0>>
-	<<set $tiredness to 0>>
+	<<set $tiredness to C.stats.fatigue.min>>
 	<<set $stress to 0>>
 	<<set $trauma to 0>>
-	<<set $control to 500>>
+	<<set $control to (C.stats.control.max * 0.5)>>
 
 	<<set $angel to 0>>
 	<<set $angelbuild to 0>>

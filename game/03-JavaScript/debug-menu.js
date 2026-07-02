@@ -1232,19 +1232,19 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Arousal max`, stayOnPassageFn],
-			widgets: [`<<arousal $arousalmax>>`],
+			widgets: [`<<set $arousal to C.stats.arousal.max>>`],
 		},
 		{
 			link: [`Arousal zero`, stayOnPassageFn],
-			widgets: [`<<arousal 0>>`],
+			widgets: [`<<set $arousal to C.stats.arousal.min>><<arousalclamp>>`],
 		},
 		{
 			link: [`Booze`, stayOnPassageFn],
-			widgets: [`<<alcohol 60>>`],
+			widgets: [`<<set $drunk += C.stats.alcohol.max * 0.06>>`],
 		},
 		{
 			link: [`Drugged`, stayOnPassageFn],
-			widgets: [`<<set $drugged += 600>>`],
+			widgets: [`<<set $drugged += C.stats.drugs.max * 0.6>>`],
 		},
 		{
 			link: [`Hallucinogen`, stayOnPassageFn],

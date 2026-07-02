@@ -179,18 +179,69 @@
 	}>>
 	<<npcList>>
 	<<npcNamed>>
-	<<set $controlmax to 1000>>
-	<<set $control to 1000>>
+
+	<!-- Variable max and min values will be removed, and all references to them will be replaced with C.[variable name].max. -->
+	<!--
+		When removing a max variable, perform the following searches:
+			Look for references to $variablemax, V.variablemax
+				Some skills will need to be searched as variableskill
+			Look for references to "variable"
+
+			Search through all uses of $variable and V.variable to change magic number comparisons to a proportion of the new
+			C.[variable name].max.
+
+			After all references have been removed, add an edge case to the "game\base-system\stat-changes.js" file's skill()
+			function to cover the newly added constant value. After all constants are updated, replace the edge cases with a
+			new function that uses the new constant values.
+				This only applies to the stat types that skill() actually accepts.
+
+		After ALL max variables have been removed, comb through Math.clamp for any potential min / max values that have yet
+		to be replaced.
+
+		Parts of the code will be marked with $variablemax to signal that they need attention at a later point in time.
+
+		Division Preferences:
+			"" > "* 1", "/ 1"
+			"/ 2" > 0.5
+			Finite Length Decimal > Rational Fraction > Infinite Length Decimal
+			
+			If there are multiple checks and one of the numbers needs to be a rational fraction, then all related numbers
+			should also be listed as rational fractions.
+	 -->
+	
+	<!--
+		Some of the old $controlmax code uses "<<control $controlmax>>" to max out the player's control, which throws a
+		"Argument is not a number" error when $controlmax is replaced with C.stats.control.max.
+		
+		In those and similar cases, a replacement is used like so:
+			<<set $control to C.stats.control.max>>
+
+		In cases where $controlmax is passed in as a value to more complicated widgets, backticks can be used to disable the
+		error, like so:
+			<<statbarinverted $control `C.stats.control.max` _showCaptionText>>
+	-->
+
+	<!-- TODO: Change the $drunk stat to also affect the player's skill stats. -->
+	
+	<<set $drunk to C.stats.alcohol.min>>
+	<<set $arousal to C.stats.arousal.min>>
+	<<set $control to C.stats.control.max>>
+	<<set $drugged to C.stats.drugs.min>>
+	<<set $tiredness to C.stats.fatigue.min>>
+
 
 	<<clothinginit>>
 	<<parasiteinit>>
 	<<init_names>>
 
+	<!-- Money is tracked to the hundredths place, so this is actually £5.00. -->
 	<<set $money to 500>>
 	<<set $moneyStats to {
 		cheats: { earned: 0, earnedCount: 1 },
 		startingMoney: { earned: 500, earnedCount: 1 },
 	}>>
+
+
 	<<set $timeStats to {}>>
 	<<set $badEndStats to []>>
 	<<set $awareness to 0>>
@@ -202,8 +253,7 @@
 	<<set $fringetype to "default">>
 	<<set $trauma to 0>>
 	<<set $traumamax to 5000>>
-	<<set $stressmax to 10000>>
-	<<set $arousalmax to 10000>>
+	<<set $stressmax to 1000>>
 	<<set $physique to 3500>>
 	<<set $physiquemax to 20000>>
 	<<set $willpower to 200>>
@@ -398,9 +448,7 @@
 	<<set $hygiene to 0>>
 	<<set $hunger to 0>>
 	<<set $thirst to 0>>
-	<<set $tiredness to 0>>
-	<<set $arousal to 0>>
-	<<set $arousalmasochism to 0>>
+	<<set $arousalmasochism to C.stats.arousal.min>>
 	<<set $stress to 0>>
 
 	<<set $pain to 0>>
@@ -602,8 +650,6 @@
 		hypnosis: true
 	}>>
 	<<set $rescue to 0>>
-	<<set $drugged to 0>>
-	<<set $drunk to 0>>
 	<<set $exposed to 0>>
 	<<set $traumagain to 0>>
 	<<set $stressgain to 0>>
@@ -663,7 +709,9 @@
 	<<set $diagnosis to 0>>
 	<<set $asylum to 0>>
 	<<set $audience to 0>>
+	<!-- Audience Excitement has a range from 0-100. -->
 	<<set $audienceexcitement to 0>>
+	<!-- Audience Arousal has a range from 0-100 instead of the player's Arousal from 0-10,000. -->
 	<<set $audiencearousal to 0>>
 	<<set $audiencemod to 1>>
 	<<set $venuemod to 1>>

@@ -714,7 +714,7 @@ class PlayerCombatMapper {
 		options.filters.leftEye = CombatRenderer.lookupColour(setup.colours.eyes_map, options.leftEye, "leftEye", undefined, "eyes");
 		options.filters.rightEye = CombatRenderer.lookupColour(setup.colours.eyes_map, options.rightEye, "rightEye", undefined, "eyes");
 
-		options.sclera = V.pain >= 100 || V.tiredness >= C.tiredness.max;
+		options.sclera = V.pain >= 100 || V.tiredness >= C.stats.fatigue.max;
 
 		// Set makeup
 		options.makeup = PlayerCombatMapper.genMakeup();
@@ -755,7 +755,7 @@ class PlayerCombatMapper {
 	}
 
 	static getMouthState() {
-		return combat.isActive() && V.arousalmax / V.arousal > 0.6;
+		return combat.isActive() && (C.stats.arousal.max / V.arousal) > 0.6;
 	}
 
 	/**

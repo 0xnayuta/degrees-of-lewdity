@@ -548,12 +548,16 @@ sugarcube-2:
         To remove any existing events, use `<<cleareventpool>>`
 
         Usage:
+        `<<addinlineevent name?>> ... <</addinlineevent>>`
+        `<<addinlineevent weight?>> ... <</addinlineevent>>`
         `<<addinlineevent name? weight?>> ... <</addinlineevent>>`
         
         - **name** _optional_: `string` - The name of the event. If not provided, defaults to "".
         - **weight** _optional_: `number` - The relative probability of the event. An event with weight 2 will occur twice as often as an event with weight 1. If not provided, defaults to 1.
       parameters:
-        - "|+ (number|(string |+ number))"
+        - '|+ string'
+        - '|+ number'
+        - '|+ string |+ number'
     addNNPCOutfit:
       name: addNNPCOutfit
     addVaginalWetness:
@@ -595,12 +599,22 @@ sugarcube-2:
       description: |-
         Adds alcohol to pc's system
 
-        `$drunk` is a measure of how much alcohol is in the pc's system where 0 is none (0-1,000)
+        `$drunk` measures how much the PC is impacted by the alcohol in their system. Value may not be an integer.
 
         `<<alcohol change>>`
         - **change**: `number` - +/- change to apply
       parameters:
         - number
+    alcoholOverflow:
+      description: |-
+        Converts excess alcohol into fatigue (1-to-1 ratio) and trauma (25% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        These conversions are not affected by ANY other modifiers.
+      name: alcoholOverflow
     alex_baby_interactions:
       name: alex_baby_interactions
     alex_cottage_pregnancy_reveal:
@@ -662,9 +676,16 @@ sugarcube-2:
       tags: ["text"]
     ampm_text:
       name: ampm_text
-    analdifficulty:
+    analDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of anal action difficulty in current combat
+        Prints the color-coded difficulty of the anal action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<analDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: analDifficultyCombat
+      parameters:
+        - "|+ bool"
       tags: ["text"]
     analdoublestat:
       name: analdoublestat
@@ -809,7 +830,7 @@ sugarcube-2:
         - **source** _optional_: `string` - source of the stimulus
           - `"masturbation"` | `"mouth"` | `"oral"` | `"lips"` | `"masturbationMouth"` | `"masturbationOral"` | `"breast"` | `"breasts"` | `"chest"` | `"nipple"` | `"nipples"` | `"masturbationBreasts"` | `"masturbationNipples"` | `"bottom"` | `"anus"` | `"anal"` | `"ass"` | `"butt"` | `"masturbationAnal"` | `"masturbationAss"` | `"genital"` | `"genitals"` | `"penis"` | `"penile"` | `"pussy"` | `"vaginal"` | `"vagina"` | `"masturbationGenital"` | `"masturbationPenis"` | `"masturbationVagina"` | `"maso"` | `"time"`
       parameters:
-        - 'number|bareword |+ "masturbation"|"mouth"|"oral"|"lips"|"masturbationMouth"|"masturbationOral"|"breast"|"breasts"|"chest"|"nipple"|"nipples"|"masturbationBreasts"|"masturbationNipples"|"bottom"|"anus"|"anal"|"ass"|"butt"|"masturbationAnal"|"masturbationAss"|"genital"|"genitals"|"penis"|"penile"|"pussy"|"vaginal"|"vagina"|"masturbationGenital"|"masturbationPenis"|"masturbationVagina"|"maso"|"time"'
+        - 'number |+ "masturbation"|"mouth"|"oral"|"lips"|"masturbationMouth"|"masturbationOral"|"breast"|"breasts"|"chest"|"nipple"|"nipples"|"masturbationBreasts"|"masturbationNipples"|"bottom"|"anus"|"anal"|"ass"|"butt"|"masturbationAnal"|"masturbationAss"|"genital"|"genitals"|"penis"|"penile"|"pussy"|"vaginal"|"vagina"|"masturbationGenital"|"masturbationPenis"|"masturbationVagina"|"maso"|"time"'
     arousalcaption:
       name: arousalcaption
     arousalclamp:
@@ -1117,7 +1138,7 @@ sugarcube-2:
       description: |-
         Awards virginity loss feat if the NPC gives one.
       parameters:
-        - NPC description
+        - '"Alex"|"Avery"|"Black Wolf"|"Eden"|"Great Hawk"|"Gwylan"|"Harper"|"Kylar"|"Leighton"|"Morgan"|"Robin"|"Whitney"|"Wren"'
     awareness:
       description: |-
         Adds awareness to pc's state, with appropriate modifiers
@@ -1246,6 +1267,8 @@ sugarcube-2:
       tags: ["text"]
     bathroomLink:
       name: bathroomLink
+    baywindowicon:
+      name: baywindowicon
     bboy:
       name: bboy
     bBoy:
@@ -1666,11 +1689,13 @@ sugarcube-2:
       description: |-
         Prints the helper teaching/assisting with changing & bathing the
         newborn(s). Branches on `$first_birth` and `$litter_size`.
+      name: birthAftercareNappy
       tags: ["text"]
     birthBabySleeps:
       description: |-
         Prints the one-line description of the sleeping newborn(s); picks
         "chest"/"chests" from `$litter_size`.
+      name: birthBabySleeps
       tags: ["text"]
     birthChildElement:
       name: birthChildElement
@@ -1679,16 +1704,19 @@ sugarcube-2:
         Prints the player cradling their newborn(s), branching on `$litter_size`.
         Optional arguments: who places the third baby as plain text (e.g. "the midwife");
         omit it to use `<<he>>` for the current person1 NPC.
+      name: birthCradle
       tags: ["text"]
     birthDissociationGlee:
       description: |-
         Prints the rush of post-birth joy shown when the player is dissociating.
         Pairs with birthDissociationVision (which plays earlier, during labour).
+      name: birthDissociationGlee
       tags: ["text"]
     birthDissociationVision:
       description: |-
         Prints the shared "black abyss / white light" dream shown during birth
         when the player is dissociating.
+      name: birthDissociationVision
       tags: ["text"]
     birthUi:
       name: birthUi
@@ -2000,9 +2028,16 @@ sugarcube-2:
 
         Does not take into account over_bottom. Consider refactoring
       tags: ["refactor", "text"]
-    bottomdifficulty:
+    bottomDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of bottom action difficulty in current combat
+        Prints the color-coded difficulty of the bottom action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<bottomDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: bottomDifficultyCombat
+      parameters:
+        - "|+ bool"
       tags: ["text"]
     bottomejacstat:
       name: bottomejacstat
@@ -2714,9 +2749,16 @@ sugarcube-2:
       name: chestActions
     chestActionsTentacle:
       name: chestActionsTentacle
-    chestdifficulty:
+    chestDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of chest action difficulty in current combat
+        Prints the color-coded difficulty of the chest action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<chestDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: chestDifficultyCombat
+      parameters:
+        - "|+ bool"
       tags: ["text"]
     chestejacstat:
       name: chestejacstat
@@ -2753,6 +2795,7 @@ sugarcube-2:
         Prints the full bathe-the-child scene (intro + one of four flavours +
         wrap-up) and sets the right prop. Optional arg: "gentle" | "shampoo" |
         "calm" | "tantrum"; omit for a random flavour.
+      name: childBatheScene
       tags: ["text"]
     childcry:
       name: childcry
@@ -3572,15 +3615,17 @@ sugarcube-2:
       name: continueWraith
     control:
       description: |-
-        Adds control to pc and updates effects of it
+        Adds control to pc and updates effects of it.
 
-        `$control` is pc's control over their life choices where higher numbers are healthy (0-1,000)
+        `$control` is pc's control over their life choices where higher numbers are healthy (0-1,000).
 
-        See `<<combatcontrol>>` for other use cases
+        Each point in `change`` is equivalent to 1% of the player's maximum control, halved to 0.5% when used outside of combat.
 
-        `change` is technically optional but should not be. Consider refactoring
+        See `<<combatcontrol>>` for other use cases.
 
-        `<<trauma change?>>`
+        `change` is technically optional but should not be. Consider refactoring.
+
+        `<<control change?>>`
         - **change** _optional_: `number` - +/- change to apply
           - if not provided, just clamps pc's control
       parameters:
@@ -4186,6 +4231,9 @@ sugarcube-2:
       parameters:
         - number
     drunkcaption:
+      description: |-
+        NOTE- Alcohol only has 4 "Tiers", changing in increments of 120 each. The current color system assumes there are
+        5 tiers, so the color changes won't exactly match the change in the text's description.
       name: drunkcaption
     dry:
       name: dry
@@ -5080,7 +5128,7 @@ sugarcube-2:
       name: fameclamp
     famedance:
       description: |-
-        Increments pc's fame for dancing based on audience size
+        Increments pc's exhibitionism fame for dancing while exposed, based on the final audience size
     fameexhibitionism:
       description: |-
         Changes pc's fame for exhibitionism
@@ -5094,7 +5142,7 @@ sugarcube-2:
         - 'number |+ "none"|"pic"|"vid" |+ bool'
     famegood:
       description: |-
-        Changes pc's fame for being good
+        Changes pc's fame for being a good person
 
         `<<famegood value type? forceChange?>>`
         - **changeValue**: `number` - value to change fame by
@@ -5161,7 +5209,7 @@ sugarcube-2:
       tags: ["text"]
     fameprostitution:
       description: |-
-        Changes pc's fame for prostitution
+        Changes pc's fame for prostituting themself for money
 
         `<<fameprostitution value type? forceChange?>>`
         - **changeValue**: `number` - value to change fame by
@@ -5296,8 +5344,16 @@ sugarcube-2:
     farm_forest_event:
       name: farm_forest_event
     farm_gen:
+      description: |-
+        Re-generates the gender and genitalia of the selected farm animal.
+
+        `<<farm_gen type>>`
+        - **type**: `string` - type of `$farmwork` being performed
+          - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
       name: farm_gen
     farm_gen_all:
+      description: |-
+        Re-generates the gender and genitalia of all farm animals the player can currently have sex with.
       name: farm_gen_all
     farm_guard_paid:
       name: farm_guard_paid
@@ -5312,6 +5368,7 @@ sugarcube-2:
         `<<farm_he type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_he
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5319,9 +5376,14 @@ sugarcube-2:
       description: |-
         Prints capitalised singular pronoun (He/She) for beast on farm, modified by hallucinations
 
+        Can specify an optional forced gender in the second argument ("m" or "f")
+
+        Can specify an optional forced gender in the second argument ("m" or "f")
+
         `<<farm_He type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_He
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5332,6 +5394,7 @@ sugarcube-2:
         `<<farm_him type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_him
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5339,9 +5402,12 @@ sugarcube-2:
       description: |-
         Prints possessive pronoun (his/her) for beast on farm, modified by hallucinations
 
+        Can specify an optional forced gender in the second argument ("m" or "f")
+
         `<<farm_his type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_his
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5349,9 +5415,14 @@ sugarcube-2:
       description: |-
         Prints capitalised possessive pronoun (His/Her) for beast on farm, modified by hallucinations
 
+        Can specify an optional forced gender in the second argument ("m" or "f")
+
+        Can specify an optional forced gender in the second argument ("m" or "f")
+
         `<<farm_His type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_His
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5394,6 +5465,7 @@ sugarcube-2:
         `<<farm_text type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+      name: farm_text
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
       tags: ["text"]
@@ -5406,8 +5478,21 @@ sugarcube-2:
         `<<farm_text type>>`
         - **type**: `string` - type of `$farmwork` being performed
           - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+          - `"m"` | `"f"`
       parameters:
         - '"dog"|"pig"|"horse"|"cattle"'
+      tags: ["text"]
+    farm_text_neutral:
+      description: |-
+        Prints singular genderless type of beast on farm, modified by hallucinations
+
+        English doesn't have a genderless singular form for "cattle". Defaulting to "cow" and "cowperson".
+
+        `<<farm_text type>>`
+        - **type**: `string` - type of `$farmwork` being performed
+          - `"dog"` | `"pig"` | `"horse"` | `"cattle"`
+          - `"m"` | `"f"`
+      name: farm_text_neutral
       tags: ["text"]
     farm_trust:
       name: farm_trust
@@ -5423,8 +5508,20 @@ sugarcube-2:
     farm_work:
       name: farm_work
     farm_work_time:
+      description: |-
+        Sets "_farm_work_time" to the current time on the farm (Based on the farm's work schedule).
+        Alex will be active on the farm while 1 <= _farm_work_time <= 45.
+
+        Work on the farm officially starts at 6:00 AM and ends at 9:00 PM
+
+        Alex gets up at 5:00 AM. If Alex's Cottage is unlocked, he will make breakfast and watch TV until 6:00 AM.
+        After 6:00 AM, he will shower until 7:00 AM (Lol) then start doing farm work.
       name: farm_work_time
     farm_work_update:
+      description: |-
+        Updates variables for the current state of the farm.
+
+        Calls \<\<farm_work_time>> automatically.
       name: farm_work_update
     farm_yield:
       description: |-
@@ -5454,6 +5551,16 @@ sugarcube-2:
       name: father
     Father:
       name: Father
+    fatigueOverflow:
+      description: |-
+        Converts excess fatigue into stress (12.5x the excess) and trauma (25% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        These conversions are not affected by ANY other modifiers.
+      name: fatigueClamp
     featExplanation:
       name: featExplanation
     featName:
@@ -5541,9 +5648,16 @@ sugarcube-2:
       name: feetActionsSwarm
     feetActionsTentacle:
       name: feetActionsTentacle
-    feetdifficulty:
+    feetDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of feet action difficulty in current combat
+        Prints the color-coded difficulty of the feet action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<feetDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: feetDifficultyCombat
+      parameters:
+        - "|+ bool"
       tags: ["text"]
     feetejacstat:
       name: feetejacstat
@@ -5733,6 +5847,24 @@ sugarcube-2:
 
         See `<<food_list>>` for specific category
       tags: ["text", "unused"]
+    foodstuffReport:
+      description: |-
+        Prints a brief description of the given item and quantity, formatted as:
+
+        "[item icon] [item quantity] [item name]"
+
+        Only works with <<foodstufficon>> icons.
+
+        `<<foodstuffReport name quantity icon>>`
+        - **name**: `string` - Name of the item
+        - **quantity**: `number` - Number of items
+        - **icon** _optional_: `string` - Associated icon of the item. If left blank, no icon will be shown.
+
+        Examples:
+        - `<<foodstuffReport "apple" 11>>`
+        - `<<foodstuffReport "peach" 24 "peach">>`
+        - `<<foodstuffReport "carrot" 42 "wild_carrot">>`
+      name: foodstuffReport
     forestBullyLeaves:
       name: forestBullyLeaves
     forestCabinReturnLinks:
@@ -8212,10 +8344,16 @@ sugarcube-2:
       name: hand_section
     hand_section_two:
       name: hand_section_two
-    handdifficulty:
+    handDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of hand action difficulty in current combat
-      tags: ["text"]
+        Prints the color-coded difficulty of the hand action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<handDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: handDifficultyCombat
+      parameters:
+        - "|+ bool"
     handejacstat:
       name: handejacstat
     handheldon:
@@ -8540,6 +8678,8 @@ sugarcube-2:
       description: |-
         Prints `| Heat`
       tags: ["text"]
+    heatericon:
+      name: heatericon
     heatRutDisplay:
       name: heatRutDisplay
     heelsUpdate:
@@ -9060,6 +9200,27 @@ sugarcube-2:
         - "%insecurityTypes% &+ number"
     inspectionexpect:
       name: inspectionexpect
+    insufficientQuantity:
+      description: |-
+        Prints warning that the player has too few items for the task
+
+        Example:
+        ```
+        <<if $foodstuff["potato"].amount gte _requiredPotatoes>>
+          <<link [[Feed them potatoes|Farm Woodland Forage Reward]]>><<set $phase to "potato">><</link>>
+        <<else>>
+          <<insufficientQuantity "potatoes to satisfy them" "blue" "<<foodstufficon 'potato'>>">>
+        <</if>>
+        ```
+
+        `<<insufficientQuantity statement color? icon?>>`
+        - **statement**: `string` - the relevant statement
+        - **color** _optional_: `string` - the colour of the text alert
+          - Defaults to `"blue"`
+        - **icon** _optional_: `string` - the associated icon for the text alert
+          - Leaving the argument blank will prevent an icon from being shown
+      name: insufficientQuantity
+      tags: ["text"]
     insufficientStat:
       description: |-
         Prints warning that a stat is too low for the task
@@ -12257,10 +12418,16 @@ sugarcube-2:
       name: optionsThemeDefault
     oral:
       name: oral
-    oraldifficulty:
+    oralDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of oral action difficulty in current combat
-      tags: ["text"]
+        Prints the color-coded difficulty of the oral action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<oralDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: oralDifficultyCombat
+      parameters:
+        - "|+ bool"
     oralejacstat:
       name: oralejacstat
     oralnew:
@@ -12914,10 +13081,16 @@ sugarcube-2:
       name: pDaughter
     penetrationPainCalculate:
       name: penetrationPainCalculate
-    peniledifficulty:
+    penileDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of penile action difficulty in current combat
-      tags: ["text"]
+        Prints the color-coded difficulty of the penile action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<penileDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: penileDifficultyCombat
+      parameters:
+        - "|+ bool"
     penileejacstat:
       name: penileejacstat
     penileskill:
@@ -13164,6 +13337,24 @@ sugarcube-2:
       name: physiquedifficulty
     pickupSexToy:
       name: pickupSexToy
+    pigsOpinion:
+      description: |-
+        Prints a short blurb of what the pig's think about the player's appearance. Calls the "eventChecks" widget
+        internally, which will overwrite preexisting _checkResults. Helpful for pig-related dangerEvent() checks.
+
+        _checkResults[0] will be for a "uppernaked" check, and _checkResults[1] will be for a "lowernaked" check.
+
+        Only prints if bestiality is enabled or if the farm pigs are in their monster forms. However, the
+        "eventChecks" widget will always be called.
+
+        The descriptions depend on the player's Allure, but if the player's upper and lower clothing slots are
+        naked, the widget is special-cased to use the highest-Allure description.
+
+        Arguments
+        - **silent** _optional_: `boolean` - Disables the printed text if set to True. Defaults to False.
+        - **newlineCount** _optional_: `number` - Number of newlines to print after the statement is printed. Disabled if the
+          statement isn't printed. Defaults to 2.
+      name: pigsOpinion
     pillory_type:
       name: pillory_type
     pillorypeniscomment:
@@ -13870,6 +14061,8 @@ sugarcube-2:
       name: pussyinspectionherm
     pwaitress:
       name: pwaitress
+    questmarker:
+      name: questmarker
     quicksand_actions:
       name: quicksand_actions
     quicksand_end:
@@ -14655,6 +14848,16 @@ sugarcube-2:
       parameters:
         - "|+ bool"
       tags: ["text", "temp", "refactor"]
+    seductionDifficultyCombat:
+      description: |-
+        Prints the color-coded difficulty of the seduction action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<seductionDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: seductionDifficultyCombat
+      parameters:
+        - "|+ bool"
     seductionskill:
       description: |-
         Adds seduction skill to pc's state
@@ -14839,21 +15042,27 @@ sugarcube-2:
       name: sewersstart
     sex:
       name: sex
-    sexactiondifficulty:
-      description: |-
-        Prints colour-coded adjective of sex action difficulty in current combat, for use by [sexskill]actiondifficulty widgets
-
-        `<<sexactiondifficulty skill>>`
-        - **skill**: `"analskill"|"bottomskill"|"chestskill"|"feetskill"|"handskill"|"oralskill"|"penileskill"|"thighskill"|"vaginalskill"` - the skill with which to check action likelihood of success by
-      parameters:
-        - '&+ "analskill"|"bottomskill"|"chestskill"|"feetskill"|"handskill"|"oralskill"|"penileskill"|"thighskill"|"vaginalskill"'
-      tags: ["text"]
     sexcheck:
       name: sexcheck
     sexControl:
       name: sexControl
     sexDefaults:
       name: sexDefaults
+    sexDifficultyCombat:
+      description: |-
+        Prints the color-coded difficulty of the sex action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        Used by the [sex skill]DifficultyCombat widgets.
+
+        `<<sexDifficultyCombat skill noPrint?>>`
+        - **skill**: `"analskill"|"bottomskill"|"chestskill"|"feetskill"|"handskill"|"oralskill"|"penileskill"
+          |"seductionskill"|"thighskill"|"vaginalskill"` - The sex skill to be checked.
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: sexDifficultyCombat
+      parameters:
+        - '"analskill"|"bottomskill"|"chestskill"|"feetskill"|"handskill"|"oralskill"|"penileskill"|"seductionskill"|"thighskill"|"vaginalskill" |+ bool'
+      tags: ["text"]
     sexToysFeatUI:
       name: sexToysFeatUI
     sexToysFeatUIColour:
@@ -15276,7 +15485,7 @@ sugarcube-2:
         - **difficulty**: `number` - prints some grade in {<0: None, 0: F, <=100: F+, <=200: D, <=300: D+, <=400: C, 
           <=500: C+, <=600: B, <=700: B+, <=800: A, <=900: A+, >900: S}
       parameters:
-        - '&+ number'
+        - 'number'
       tags: ["text"]
     skinColourName:
       name: skinColourName
@@ -15385,6 +15594,8 @@ sugarcube-2:
     sleepeffects:
       name: sleepeffects
     sleephour:
+      description: |-
+        Processes and applies changes to the player's $fatigue, considering the player's environment and state of mind.
       name: sleephour
     sleepJanet:
       description: |-
@@ -16025,14 +16236,28 @@ sugarcube-2:
 
         `$stress` is pc's stress amount where 0 is healthy (0-10,000)
 
+        Each positive point in `change` increases the player's stress by 0.4%, decreasing linearly to 0.1% when the player's
+        `$drunk` is greater than or equal to 480.
+
+        Each negative point in `change` decreases the player's stress by 0.8%.
+
         `<<stress change multiplierOverride?>>`
         - **change**: `number` - +/- change to apply
-        - **multiplierOverride** _optional_: `number` - multiplier to use in place of calculated one
-          - Defaults to some modification of `1` or `0.8` if negative
+        - **multiplierOverride** _optional_: `number` - multiplier to use in place of the pre-calculated amount.
       parameters:
         - "number |+ number"
     stresscaption:
       name: stresscaption
+    stressOverflow:
+      description: |-
+        Converts excess stress into trauma (1% of the excess).
+
+        Trauma gains are increased by up to 100% at low control.
+
+        Final values are clamped.
+
+        This conversion is not affected by ANY other modifiers.
+      name: stressOverflow
     strip:
       name: strip
     stripobject:
@@ -16346,13 +16571,33 @@ sugarcube-2:
       name: temple_title
     temple_Title:
       name: temple_Title
+    templeLossLower:
+      description: |-
+        Prints the following text:
+
+        "a hollowness flows through you, reminding you of your loss. The loss of something that was never yours."
+
+      name: templeLossLower
+    templeLossUpper:
+      description: |-
+        Prints the following text:
+
+        "A hollowness flows through you, reminding you of your loss. The loss of something that was never yours."
+
+      name: templeLossUpper
     tending:
       name: tending
     tending_bird_eggs:
       name: tending_bird_eggs
     tending_give:
+      description: |-
+        Gives some amount of a foodstuff item to a player, and the amount is not modified by any other stats.
+
+        Mainly used for giving the player finished recipes.
       name: tending_give
     tending_harvest:
+      description: |-
+        Gives some amount of a crop to a player, after the player finishes growing it from a plot and harvests it.
       name: tending_harvest
     tending_pick:
       description: |-
@@ -16538,10 +16783,16 @@ sugarcube-2:
       name: thighActionInit
     thighactions:
       name: thighactions
-    thighdifficulty:
+    thighDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of thigh action difficulty in current combat
-      tags: ["text"]
+        Prints the color-coded difficulty of the thigh action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<thighDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: thighDifficultyCombat
+      parameters:
+        - "|+ bool"
     thighejacstat:
       name: thighejacstat
     thighskill:
@@ -16651,16 +16902,21 @@ sugarcube-2:
       name: tipset
     tiredness:
       description: |-
-        Adds tiredness to pc's state
+        Changes the player's tiredness, where `$tiredness` is a measure of the player's exhaustion. Value may not be an integer.
 
-        `$tiredness` is pc's amount of tiredness where 0 is not-tired (0-2,000)
+        When `source` isn't `"pass"`, each positive point in `change` will increase the player's fatigue by 0.75%. Heavy
+        clothing increases the change by 1.5x, and the player's body temperature being too high increases this change by up
+        to 3x.
 
-        tiredness is unclamped and source is unused. Consider refactoring
+        When `source` isn't `"pass"`, each negative point in `change` decreases the player's fatigue by 1%.
+
+        When `source` is `"pass"`, each point will change the player's fatigue by 0.05%. Assuming the player's maximum fatigue
+        is 2,000, each point will be equal to 1 fatigue.
 
         `<<tiredness change source?>>`
         - **change**: `number` - +/- change to apply
         - **source** _optional_: `string` - source of tiredness change
-          - `"pass"`: tiredness gained from passage of time, not affected by modifiers
+          - `"pass"`: Fatigue gained from the passage of time.
       parameters:
         - 'number |+ "pass"'
       tags: ["refactor"]
@@ -16878,6 +17134,8 @@ sugarcube-2:
       name: traumacaption
     traumaclamp:
       name: traumaclamp
+    troughicon:
+      name: troughicon
     tryOnInit:
       name: tryOnInit
     tryOnReset:
@@ -17365,10 +17623,16 @@ sugarcube-2:
       name: vaginaFluidPassive
     vaginainit:
       name: vaginainit
-    vaginaldifficulty:
+    vaginalDifficultyCombat:
       description: |-
-        Prints colour-coded adjective of vaginal action difficulty in current combat
-      tags: ["text"]
+        Prints the color-coded difficulty of the vaginal action in the current combat. If `noPrint` is true, the printing is
+        disabled and `_difficultyOutput` is instead set to an uncolored version of the output.
+
+        `<<vaginalDifficultyCombat noPrint?>>`
+        - **noPrint** _optional_: `boolean` - Suppress output and only write to temp (truthy)
+      name: vaginalDifficultyCombat
+      parameters:
+        - "|+ bool"
     vaginaldoublestat:
       name: vaginaldoublestat
     vaginalejacstat:

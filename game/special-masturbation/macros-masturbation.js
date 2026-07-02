@@ -40,7 +40,7 @@ function skipToOrgasm(modifiers = "") {
 			if (modifiers.includes("studentAudience")) masturbationAudienceSkip("student");
 			if (modifiers.includes("audience")) masturbationAudienceSkip();
 		}
-	} while (count < 100 && (V.arousal > startArousal || count <= 6) && V.arousal < V.arousalmax && (V.timer > 0 || !modifiers.includes("timer")));
+	} while (count < 100 && (V.arousal > startArousal || count <= 6) && V.arousal < C.stats.arousal.max && (V.timer > 0 || !modifiers.includes("timer")));
 }
 DefineMacroS("skipToOrgasm", skipToOrgasm);
 
