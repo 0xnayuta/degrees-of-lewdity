@@ -1229,17 +1229,6 @@ function minutePassed(minutes) {
 		if (minutes < 1200) statChange.tiredness((drunkSum / C.stats.alcohol.max) * C.stats.fatigue.minuteRate, "pass");
 	}
 
-	/**
-	 * Calculate the overflow value as heel_reveal - feetskill.
-	 * 
-	 * Each minute, add up to 1 additional minute of fatigue, based on the overflow value, relative to the player's maximum
-	 * feetskill.
-	 */
-	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		const heelOverflow = (V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000;
-		if (minutes < 1200) statChange.tiredness(minutes * heelOverflow * C.stats.fatigue.minuteRate, "pass");
-	}
-
 	statChange.pain(minutes, -0.5);
 
 	// Arousal

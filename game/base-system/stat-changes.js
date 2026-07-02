@@ -250,8 +250,8 @@ const statChange = (() => {
 			// Increase trauma gains by up to 2x if the player is at low control.
 			const controlMod = 2 - V.control / C.stats.control.max;
 
-			// Add 2.5-5% of the overflow to the player's trauma, depending on the controlMod.
-			V.trauma += overflow * 0.025 * controlMod;
+			// Add 1-2% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.01 * controlMod;
 			
 			// Resets stress to the maximum value.
 			V.stress = V.stressmax;
@@ -477,12 +477,21 @@ const statChange = (() => {
 		
 		// See "game\03-JavaScript\weather\02-main\02-body-temperature.js" for the effects of body temperature on fatigue.
 
-		// For increases to the player's fatigue.
+		// For increases to the player's fatigue. Theoretical maximum increase is 1.5 * 2 * 3 = 9x increased fatigue.
 		if (amount > 0) {
 			// Wearing clothing with the "Heavy" trait increases the player's fatigue gains by 1.5x.
 			if ((V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
-			amount *= 1.5;
-		}
+				amount *= 1.5;
+			}
+
+			/**
+			 * Calculate the overflow value as heel_reveal - feetskill. The current minimum and maximum values are 0-1,000.
+			 * 
+			 * All fatigue gains will be increased by up to 2x, depending on the overflow value.
+			 */
+			if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
+				amount *= 1 + ((V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000);
+			}
 
 			// The player's body temperature being too high will increase their fatigue gains by up to 3x.
 			amount *= Weather.BodyTemperature.fatigueModifier;
