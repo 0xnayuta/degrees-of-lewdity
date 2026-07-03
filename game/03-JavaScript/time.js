@@ -153,7 +153,7 @@ const Time = (() => {
 			// it is safe to let secondPassed handle all seconds at once
 			secondPassed(seconds);
 
-			/** 
+			/**
 			 * The pyramid. pass minutes until next hour, then next hour might affect some stats affecting things in
 			 * minutePassed, so pass hours until next day, then pass the day, then pass the rest of the hours, then minutes.
 			 */
@@ -1060,7 +1060,7 @@ function hourPassed(hours) {
 
 		/**
 		 * Reduces stress by 10 each hour, per goo or semen on the PC.
-		 * 
+		 *
 		 * The PC naturally gains 60 fatigue each hour. If the PC is at maximum fatigue, the fatigueOverflow() function will
 		 * convert this into 750 stress each hour. The PC needs at least 75 counts of goo across their entire body to
 		 * mitigate the stress increase from never sleeping. This would (theoretically) allow them to skip sleeping, as they
@@ -1196,7 +1196,7 @@ function minutePassed(minutes) {
 	V.stress = Math.min(V.stress, V.stressmax);
 	if (V.hallucinogen > 0) statChange.hallucinogen(-minutes);
 	if (V.drugged >= 1) statChange.drugs(-minutes);
-	
+
 	// Fatigue changes will not be applied when passing days (Minimum 20+ hours) at a time.
 
 	// Increase fatigue based on minutes passed.
@@ -1207,7 +1207,7 @@ function minutePassed(minutes) {
 		/**
 		 * Uses the arithmetic series formula to make sure that "pass(60);" and "pass(30); pass(30);" applies the same amount
 		 * of fatigue, regardless of changes to the V.drunk value.
-		 * 
+		 *
 		 * Assumes the player's alcohol decay is linear.
 		 */
 
@@ -1223,7 +1223,7 @@ function minutePassed(minutes) {
 		const drunkEnd = V.drunk;
 
 		// Adds up how long and how drunk the player was during this time.
-		const drunkSum = drunkMin * (drunkStart + drunkEnd) / 2;
+		const drunkSum = (drunkMin * (drunkStart + drunkEnd)) / 2;
 
 		// Increases the player's fatigue, based the player's alcohol levels during this time.
 		if (minutes < 1200) statChange.tiredness((drunkSum / C.stats.alcohol.max) * C.stats.fatigue.minuteRate, "pass");
@@ -1234,7 +1234,7 @@ function minutePassed(minutes) {
 	// Arousal
 	const arousalMultiplier = V.backgroundTraits.includes("lustful") ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
-	V.timeSinceArousal = V.arousal < (C.stats.arousal.max * 0.75) ? V.timeSinceArousal + minutes : 1;
+	V.timeSinceArousal = V.arousal < C.stats.arousal.max * 0.75 ? V.timeSinceArousal + minutes : 1;
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 
 	// $variablemax: Make arousal code more legible
@@ -1836,7 +1836,6 @@ function dailyPlayerEffects() {
 		if (playerNormalPregnancyTotal() < 3) {
 			statChange.acceptance("pregnancy", -5);
 		}
-
 	}
 
 	for (const bodypart of setup.bodyparts) {
@@ -2405,7 +2404,7 @@ function passArousalWetness(passMinutes) {
 	const arousalPercent = Math.clamp(V.arousal / C.stats.arousal.max, 0, 1);
 
 	// Vaginal lube is produced at a fairly linear rate, between 1-3 per minute based on arousal.
-	if (V.arousal >= (C.stats.arousal.max * 0.4)) {
+	if (V.arousal >= C.stats.arousal.max * 0.4) {
 		wetnessChange = 1 + arousalPercent * 2;
 		// It also gets harder to build up the closer you get to full wetness
 		const wetnessPercent = Math.clamp(V.vaginaArousalWetness / 100, 0, 1);
@@ -2417,7 +2416,7 @@ function passArousalWetness(passMinutes) {
 	wetnessChange -= 0.1 * V.timeSinceArousal * (1 - arousalPercent);
 
 	// If wetnessChange would go negative and arousal is high enough, wetness instead does not change.
-	if (V.arousal >= (C.stats.arousal.max * 0.6) && wetnessChange < 0) wetnessChange = 0;
+	if (V.arousal >= C.stats.arousal.max * 0.6 && wetnessChange < 0) wetnessChange = 0;
 	V.vaginaArousalWetness += Math.round(wetnessChange * passMinutes);
 
 	// Arbitrarily, we'll say that the player's vagina holds up to 60 units of lube, and it begins to leak out above 60.

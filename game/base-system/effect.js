@@ -288,8 +288,6 @@ function effects() {
 		element("i", "Your innocence has been replaced by trauma.");
 	}
 
-
-
 	if (V.eventskipoverrule) V.eventskipoverrule = 0;
 
 	if (V.underwatercheck > 0) {
@@ -1756,8 +1754,6 @@ function effects() {
 	V.menu = 0;
 
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
-
-
 
 	return fragment;
 }

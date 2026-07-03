@@ -37,10 +37,10 @@ function handleTouchMove(ev) {
 		// allow opening and then closing sidebar without breaking the touch
 		xDown = xUp;
 		yDown = yUp;
-		return;
-	}
-	else {
-		if (yDiff > 0); // up swipe
+	} else {
+		if (
+			yDiff > 0 // up swipe
+		);
 		else; // down swipe
 		// nothing yet, just reset the values
 		xDown = null;

@@ -165,7 +165,7 @@ function pluralise(count, singular, plural) {
 		this: "these",
 		that: "those",
 		is: "are",
-		it: "them"
+		it: "them",
 	});
 
 	count = Wikifier.getValue(count);

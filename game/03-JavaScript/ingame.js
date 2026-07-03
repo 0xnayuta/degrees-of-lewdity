@@ -1219,7 +1219,6 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
-
 function currentSkillValue(skill, disableModifiers = 0) {
 	let result = V[skill];
 	if (!result && result !== 0) {
@@ -1698,12 +1697,10 @@ function isPossibleLoveInterest(name) {
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
 
-window.isPossibleLoveInterestVirginity = function(taker) {
+window.isPossibleLoveInterestVirginity = function (taker) {
 	if (typeof taker !== "string") return false;
 	if (taker.includes(" and ")) {
-		return taker.split(" and ").some(name => 
-			isPossibleLoveInterest(name.trim())
-		);
+		return taker.split(" and ").some(name => isPossibleLoveInterest(name.trim()));
 	}
 	return isPossibleLoveInterest(taker);
 };
@@ -3065,7 +3062,7 @@ function isBeastSceneAllowed() {
 }
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
-/** 
+/**
  * check if event is going to be dangerous based on rng and player allure
  * for consistency, danger rng is rolled once per passage, unless specified otherwise
  *
@@ -3156,7 +3153,7 @@ function averageBunPrice(toSell = T.buns_sold) {
 
 	/* Sells the new buns */
 	while (remaining > 0) {
-		let bunsInBatch = Math.min(20 - doneToday, remaining);
+		const bunsInBatch = Math.min(20 - doneToday, remaining);
 		doneToday = 0;
 
 		totalRevenue += bunsInBatch * pricePerBun;

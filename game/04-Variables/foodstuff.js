@@ -2973,7 +2973,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-ingredient.png",
 			prop_folder: "ingredient",
 			tending: {
-				tags: []
+				tags: [],
 			},
 			shop: {
 				sell_price: 100,
@@ -2991,7 +2991,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-seafood.png",
 			prop_folder: "ingredient",
 			tending: {
-				tags: []
+				tags: [],
 			},
 			shop: {
 				sell_price: 300,

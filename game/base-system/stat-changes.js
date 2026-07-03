@@ -154,7 +154,7 @@ const statChange = (() => {
 		// if you're looking here to fix a bug where an action that should increase control in combat actually lowers it instead - check State.history/State.expired for the combat start passage and look for a missing <<controlloss>> that failed to set $controlstart to the right value
 		if (combat && V.control >= V.controlstart) V.control = V.controlstart;
 		else if (!combat) V.controlstart = Math.min(V.control, C.stats.control.max);
-		
+
 		const threshold = V.controltrait ? C.stats.control.max / 3 : C.stats.control.max / 2;
 		V.controlled = V.control > threshold ? 1 : 0;
 		V.control = Math.clamp(V.control, C.stats.control.min, C.stats.control.max);
@@ -242,7 +242,6 @@ const statChange = (() => {
 	}
 	DefineMacro("lactation_pressure", lactationPressure);
 
-
 	function stressOverflow() {
 		// Overflow check
 		const overflow = V.stress - V.stressmax;
@@ -252,7 +251,7 @@ const statChange = (() => {
 
 			// Add 1-2% of the overflow to the player's trauma, depending on the controlMod.
 			V.trauma += overflow * 0.01 * controlMod;
-			
+
 			// Resets stress to the maximum value.
 			V.stress = V.stressmax;
 		}
@@ -459,7 +458,7 @@ const statChange = (() => {
 
 			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
 			V.trauma += overflow * 0.25 * controlMod;
-			
+
 			// Resets tiredness to the maximum value.
 			V.tiredness = C.stats.fatigue.max;
 		}
@@ -474,7 +473,7 @@ const statChange = (() => {
 	function tiredness(amount, source) {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		
+
 		// See "game\03-JavaScript\weather\02-main\02-body-temperature.js" for the effects of body temperature on fatigue.
 
 		// For increases to the player's fatigue. Theoretical maximum increase is 1.5 * 2 * 3 = 9x increased fatigue.
@@ -486,11 +485,11 @@ const statChange = (() => {
 
 			/**
 			 * Calculate the overflow value as heel_reveal - feetskill. The current minimum and maximum values are 0-1,000.
-			 * 
+			 *
 			 * All fatigue gains will be increased by up to 2x, depending on the overflow value.
 			 */
 			if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-				amount *= 1 + ((V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000);
+				amount *= 1 + (V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000;
 			}
 
 			// The player's body temperature being too high will increase their fatigue gains by up to 3x.
@@ -528,8 +527,8 @@ const statChange = (() => {
 				// science reduction
 				pain *= 1 - V.sciencetrait / 10;
 
-				if (V.drunk >= C.stats.alcohol.threshold * 3) pain *=
-					Math.min(0.95, 0.95 - 0.1 * ((V.drunk - C.stats.alcohol.threshold * 3) / (C.stats.alcohol.max - C.stats.alcohol.threshold * 3)));
+				if (V.drunk >= C.stats.alcohol.threshold * 3)
+					pain *= Math.min(0.95, 0.95 - 0.1 * ((V.drunk - C.stats.alcohol.threshold * 3) / (C.stats.alcohol.max - C.stats.alcohol.threshold * 3)));
 
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
@@ -1100,7 +1099,7 @@ const statChange = (() => {
 
 			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
 			V.trauma += overflow * 0.25 * controlMod;
-			
+
 			// Resets alcohol to the maximum value.
 			V.drunk = C.stats.alcohol.max;
 		}
@@ -1116,13 +1115,12 @@ const statChange = (() => {
 		amount = Number(amount);
 		/**
 		 * Modify the effect of alcohol on the player, based on their alcohol tolerance.
-		 * 
-		 * Note that their tolerance only changes how much they're IMPACTED by alcohol consumption. A heavyweight may
-		 * be able to drink more than a lightweight, but their bodies will still flush out alcohol at the same rate.
-		 * 
+		 *
+		 * Note that their tolerance only changes how much they're IMPACTED by alcohol consumption. A heavyweight may be able to drink more than a lightweight, but their bodies will still flush out alcohol at the same rate.
+		 *
 		 * Because of that, V.alcoholMod is applied to both positive and negative changes to the player's alcohol level.
 		 */
-			let mod = V.alcoholMod;
+		let mod = V.alcoholMod;
 
 		/**
 		 * The "Dendrophile" trait amplifies the impact of alcohol consumption, without affecting how quickly the player

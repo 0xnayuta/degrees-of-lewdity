@@ -20,25 +20,25 @@ const constants = {
 
 	/**
 	 * Minimum and maximum values for the player's stats
-	 * 
+	 *
 	 * Stored in alphabetical order
-	 * 
+	 *
 	 * Use the C.variable_path.max and C.variable_path.min constants when adjusting a stat's value.
-	 * 
+	 *
 	 * When checking if the player's stats reach a certain threshold, treat it as a percentage of the stat's maximum value.
 	 * So, if a passage needs the player's alcohol to be over 80%, then the if statement should say:
 	 *   "$alcohol gte C.stats.alcohol.max * 0.8"
 	 * Instead of:
 	 *   "$alcohol gte 800"
-	 * 
+	 *
 	 * And if a function needs the player's alcohol to be over 80%, then the if statement should say:
 	 *   "V.alcohol >= C.stats.alcohol.max * 0.8"
 	 * Instead of:
 	 *   "V.alcohol >= 800"
-	 * 
+	 *
 	 * Changes to the player's stats through a widget like "<<stress>>" will not have have their values changed to be relative
-	 * to the player's maximum stats. 
-	 * 
+	 * to the player's maximum stats.
+	 *
 	 * The "$wraith.will" variable will need to be adjusted to depend on a proportion of willpower.max.
 	 */
 
@@ -51,7 +51,7 @@ const constants = {
 			max: 1000,
 			/**
 			 * How much the player's $drunk stat needs to increase to qualify for the next Alcohol description tier.
-			 * 
+			 *
 			 * The description maxes out at 480 and above.
 			 */
 			threshold: 120,
@@ -130,7 +130,7 @@ const constants = {
 		// },
 		// /**
 		//  * The player's body can currently be 1 of 4 sizes:
-		//  * 
+		//  *
 		//  * Tiny, Small, Normal, and Large
 		//  */
 		// physique: {
@@ -183,7 +183,7 @@ const constants = {
 		// 	max: 2000,
 		// 	min: 0,
 		// },
-		
+
 		// // Fluid Production Constants
 		// milkVolume: {
 		// 	cowMax: 6000,
@@ -198,7 +198,7 @@ const constants = {
 		// /**
 		//  * It seems there's no upper limit on the amount of fluid a vagina can produce when it orgasms. May be added in
 		//  * a future update.
-		//  * 
+		//  *
 		//  * See "game\base-system\orgasm.twee" for the code.
 		//  */
 
@@ -386,7 +386,7 @@ const constants = {
 	// 		max: 2000,
 	// 		min: 0,
 	// 	},
-		
+
 	// 	// Crime Fame Constants
 	// 	/**
 	// 	 * Original values obtained from "game\03-JavaScript\alias2.js"
@@ -396,7 +396,7 @@ const constants = {
 	// 		min: 0,
 	// 		/**
 	// 		 * If the player commits too much of the same type of crime in one day, they leave behind more evidence.
-	// 		 * 
+	// 		 *
 	// 		 * The dawnCheck() function in "game\03-JavaScript\time.js" will increase the player's crime by an additional
 	// 		 * 10% if their daily crime stat is greater than "spree".
 	// 		 */
