@@ -17,7 +17,6 @@ Macro.add("dateInput", {
 		const varName = this.args[0];
 		// the DateTime constructor, when called with a single argument, constructs a DateTime object from a timeStamp
 		let dateTime = (this.args.length === 2 && Number.isFinite(this.args[1])) ? new DateTime(this.args[1]) : undefined;
-		//const content = this.payload[0].contents;
 
 		// we define all of these elements before adding handlers, so they can reference each other
 		let dayInput = $("<input>").attr({

@@ -19,14 +19,13 @@ Macro.add("timeInput", {
 		// the DateTime constructor, when called with a single argument, constructs a DateTime object from a timeStamp
 		// the timeStamp is modulo'd by 86400, which is the number of seconds in a day, to ensure we only take the hours/minutes/seconds component
 		let dateTime = (this.args.length === 2 && Number.isFinite(this.args[1])) ? new DateTime(this.args[1] % 86400) : undefined;
-		//const content = this.payload[0].contents;
 
 		// we define all of these elements before adding handlers, so they can reference each other
 		let hourInput = $("<input>").attr({
 			name: "timeInput" + Util.slugify(varName) + "Hour",
 			id: "timeInput" + Util.slugify(varName) + "Hour",
 			type: "number",
-			min: V.options.timestyle === "ampm" ? 1 : 0, // military time is 00:00-23:59, ampm is 12:00-11:59 (12, 1, 2, ... 12)
+			min: V.options.timestyle === "ampm" ? 1 : 0, // military time is 00:00-23:59, ampm is 12:00-11:59 (12, 1, 2, ... 11)
 			max: V.options.timestyle === "ampm" ? 12 : 23, 
 			placeholder: "hh"
 		}).addClass("macro-numberbox");
@@ -87,8 +86,6 @@ Macro.add("timeInput", {
 
 		minuteInput.on("change", function handler() {
 			clampAndPad(minuteInput, 2);
-			// if (monthInput.val() !== "")
-			// 	monthInput.val(Math.clamp(monthInput.val(), monthInput.prop("min"), monthInput.prop("max")));
 			recalculateTimestamp();
 		});
 

@@ -20,13 +20,13 @@ class CustomReminder {
 	 * @param {DateTime.timeStamp} timeStamp
 	 *      the precise time at which the reminder should fire. if 0,
 	 *      the reminder never fires or expires.
-	 *      must be in [0, 315569437199]
+	 *      must be in [TimeConstants.MIN_DATE.timeStamp, TimeConstants.MAX_DATE.timeStamp]
 	 * @param {"weeks" | "days" | "hours" | "minutes"} granularity
 	 *      how fine the reminder is (weeks, days, hours, minutes).
 	 *      determines whether 6pm reminder displays
 	 *      as "today" or "in 4 hours", for example.
 	 *      may be undefined if time is 0.
-	 * @param {number} duration
+	 * @param {DateTime.timeStamp} duration
 	 *      number of seconds between when a reminder fires
 	 *      and resets/expires. for use with the .time timeStamp;
 	 *      granularity may not be finer than minutes.
@@ -38,7 +38,7 @@ class CustomReminder {
 	 *      if -1, repeats indefinitely.
 	 *      must be an integer
 	 *      may be undefined if time is 0.
-	 * @param {number} cooldown
+	 * @param {DateTime.timeStamp} cooldown
 	 *      the number of seconds timeStamp should be increased by when
 	 *      the reminder resets after being fired, for use with recurring
 	 *      reminders.
@@ -71,14 +71,14 @@ class CustomReminder {
 				persistent = undefined, entry = "", 
 				colour = undefined) {
 		// some silly little type checking
-		if (!Number.isFinite(timeStamp) || typeof timeStamp !== 'number' || timeStamp < 0 || timeStamp > 315569437199) 
+		if (!Number.isFinite(timeStamp) || typeof timeStamp !== 'number' || timeStamp < TimeConstants.MIN_DATE.timeStamp || timeStamp > TimeConstants.MAX_DATE.timeStamp) 
 			throw new Error(`invalid timeStamp ${timeStamp} passed to CustomReminder constructor`);
 		/**
 		 * @type {DateTime.timeStamp}
 		 * @description 
 		 * the precise time at which the reminder should fire. if 0,
 		 * the reminder never fires or expires.
-		 * must be in [0, 315569437199]
+		 * must be in [TimeConstants.MIN_DATE.timeStamp, TimeConstants.MAX_DATE.timeStamp]
 		 */
 		this.timeStamp = timeStamp;
 
@@ -97,7 +97,7 @@ class CustomReminder {
 		if (this.timeStamp !== 0 && (!Number.isFinite(duration) || typeof duration !== 'number' || duration < 0))
 			throw new Error(`invalid duration ${duration} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp}`);
 		/**
-		 * @type {number}
+		 * @type {DateTime.timeStamp}
 		 * @description 
 		 * number of seconds between when a reminder fires
 		 * and resets/expires. for use with the .time timeStamp;
@@ -151,7 +151,7 @@ class CustomReminder {
 		if (this.timeStamp !== 0 && this.repeats !== 0 && (!Number.isFinite(cooldown) || typeof cooldown !== 'number'))
 			throw new Error(`invalid cooldown ${cooldown} passed to CustomReminder constructor with nonzero timeStamp ${this.timeStamp} and nonzero repeats ${this.repeats}`);
 		/**
-		 * @type {number}
+		 * @type {DateTime.timeStamp}
 		 * @description 
 		 * the number of seconds timeStamp should be increased by when
 		 * the reminder resets after being fired, for use with recurring

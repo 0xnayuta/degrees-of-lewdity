@@ -1640,25 +1640,88 @@
 	hello world<br/>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
-			<!-- nullish assignment here means the reminder won't be lost if the tab is closed, 
-			but it will be lost when moving to a new passage since it's a temporary variable -->
+			<!-- 
+				nullish assignment here means the reminder won't be lost if the journal window is closed, 
+				but it will be lost when moving to a new passage since it's a temporary variable 
+			-->
 			<<set _newReminder ??= {
-				dateStamp: Time.date.timeStamp - (Time.date.timeStamp % 86400),
-				timeStamp: Time.date.timeStamp % 86400,
-				granularity: "minutes",
+				dateStampAbs: Time.date.timeStamp - (Time.date.timeStamp % 86400),
+				timeStampAbs: Time.date.timeStamp % 86400,
+				timeStampRel: 0,
+				absRel: "",
 				duration: 0,
 				repeats: 0,
 				cooldown: 600,
 				behaviour: "unintrusive",
 				entry: "",
-				colour: undefined
+				colour: undefined,
+				
 			}>>
 			<div class="settingsHeader options"><span class="gold">New Reminder</span></div>
+
+			
 			<div class="settingsToggleItem">
 				<span class="gold">Activation time:</span><br>
-				<img class="icon_ui" src="img/ui/sidebar-day.png"><<dateInput "_newReminder.dateStamp" _newReminder.dateStamp>><br>
-				<<clock>><<timeInput "_newReminder.timeStamp" _newReminder.timeStamp>>
+				<label><<radiovar "_newReminder.absRel" "absolute" "Absolute">>
+					<<replace "#reminderInputAbsRel">>
+						<img class="icon_ui" src="img/ui/sidebar-day.png"><<dateInput "_newReminder.dateStampAbs" _newReminder.dateStampAbs>><br>
+						<<clock>><<timeInput "_newReminder.timeStampAbs" _newReminder.timeStampAbs>>
+					<</replace>>
+				<</radiovar>></label> |
+				<label><<radiovar "_newReminder.absRel" "relative" "Relative">>
+						<<replace "#reminderInputAbsRel">>
+						In <<relativeInput "_newReminder.timeStampRel">> 
+					<</replace>>
+				<</radiovar>></label><br>
+				<span id="reminderInputAbsRel"></span>
 			</div>
+
+			<!-- 
+				set up handlers to switch between absolute input and relative input on the same passage
+				<<done>> ensures it only runs once the elements are already rendered
+			-->
+			/* <<script>>
+				$(document).one(':passagerender', function (event) {
+					$("#radiobutton--newreminderabsrel-0").on("click", function handler() {
+						Wikifier.wikifyEval(`
+							<<replace "#reminderInputAbsRel">>
+								<img class="icon_ui" src="img/ui/sidebar-day.png"><<dateInput "_newReminder.dateStamp" _newReminder.dateStamp>><br>
+								<<clock>><<timeInput "_newReminder.timeStamp" _newReminder.timeStamp>>
+							<</replace>>
+						`);
+					});
+					$("#radiobutton--newreminderabsrel-1").on("click", function handler() {
+						Wikifier.wikifyEval(`
+							<<replace "#reminderInputAbsRel">>
+								In <<relativeInput "_newReminder.timeStampRel">> 
+							<</replace>>
+						`);
+					});
+				});
+			<</script>> */
+			/* <<done>>
+				<<script>>
+				// these IDs are a consequence of how sugarcube renders radiobuttons -- they're given to the rendered <input> elements
+				// 0 is the absolute button, 1 is the relative button, since that's the order they're defined in
+				$("#radiobutton--newreminderabsrel-0").on("click", function handler() {
+					Wikifier.wikifyEval(`
+						<<replace "#reminderInputAbsRel">>
+							<img class="icon_ui" src="img/ui/sidebar-day.png"><<dateInput "_newReminder.dateStamp" _newReminder.dateStamp>><br>
+							<<clock>><<timeInput "_newReminder.timeStamp" _newReminder.timeStamp>>
+						<</replace>>
+					`);
+				});
+				$("#radiobutton--newreminderabsrel-1").on("click", function handler() {
+					Wikifier.wikifyEval(`
+						<<replace "#reminderInputAbsRel">>
+							In <<relativeInput "_newReminder.timeStampRel">> 
+						<</replace>>
+					`);
+				});
+				<</script>>
+			<</done>> */
+			
+			
 			<div class="settingsToggleItem">
 				<span class="gold">Time:</span><br>
 			</div>
