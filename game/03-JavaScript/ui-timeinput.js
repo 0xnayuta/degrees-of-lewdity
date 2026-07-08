@@ -44,17 +44,6 @@ Macro.add("timeInput", {
 		.append($(`<option value="AM">AM</option>`))
 		.append($(`<option value="PM">PM</option>`));
 
-		// fill with default values, if we were given a default
-		if (dateTime !== undefined) {
-			let adjustedHour = dateTime.hour;
-			if (V.options.timestyle === "ampm") {
-				ampm.val(adjustedHour >= 12 ? "PM" : "AM");
-				adjustedHour = ((adjustedHour + 11) % 12) + 1;
-			}
-			hourInput.val(adjustedHour);
-			minuteInput.val(dateTime.minute);
-		}
-
 		function recalculateTimestamp() {
 			if (minuteInput.val() !== "" && hourInput.val() !== "") {
 				// note: DateTime constructor expects year, month, day, hour, minute, second
@@ -92,6 +81,20 @@ Macro.add("timeInput", {
 		ampm.on("change", function handler() {
 			recalculateTimestamp();
 		});
+
+		// fill with default values, if we were given a default
+		if (dateTime !== undefined) {
+			let adjustedHour = dateTime.hour;
+			if (V.options.timestyle === "ampm") {
+				ampm.val(adjustedHour >= 12 ? "PM" : "AM");
+				adjustedHour = ((adjustedHour + 11) % 12) + 1;
+			}
+			hourInput.val(adjustedHour);
+			clampAndPad(hourInput, V.options.timestyle === "ampm" ? 1 : 2);
+			minuteInput.val(dateTime.minute);
+			clampAndPad(minuteInput, 2);
+			recalculateTimestamp();
+		}
 
 		hourInput.appendTo(this.output);
 		// $(`<span>:</span>`).appendTo(this.output);

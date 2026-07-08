@@ -44,13 +44,6 @@ Macro.add("dateInput", {
 			placeholder: "yyyy"
 		}).addClass("macro-numberbox");
 
-		// fill with default values, if we were given a default
-		if (dateTime !== undefined) {
-			dayInput.val(dateTime.day);
-			monthInput.val(dateTime.month);
-			yearInput.val(dateTime.year);
-		}
-
 		function recalculateTimestamp() {
 			// we use > 0 to coerce .val() into a number for the comparison, 
 			// since empty vals will convert to 0 (empty strings) and all minimums are at least 1
@@ -111,6 +104,18 @@ Macro.add("dateInput", {
 			recalculateMaxDays();
 			recalculateTimestamp();
 		});
+
+		// fill with default values, if we were given a default
+		if (dateTime !== undefined) {
+			dayInput.val(dateTime.day);
+			clampAndPad(dayInput, 2);
+			monthInput.val(dateTime.month);
+			clampAndPad(monthInput, 2);
+			yearInput.val(dateTime.year);
+			clampAndPad(yearInput, 4);
+			recalculateMaxDays();
+			recalculateTimestamp();
+		}
 
 		switch (V.options.dateFormat) {
 			case "zh-CN":
