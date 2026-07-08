@@ -2,11 +2,6 @@
  * Usage:
  * <<dateInput varname>>
  * creates a 3-input date input, returning its values as a timestamp to varname whenever any of the values updates, as long as no inputs are empty
- * 
- * optionally pre-fills with provided value as default
- * 
- * must be between TimeConstants.MIN_DATE and TimeConstants.MAX_DATE,
- *
  */
 Macro.add("relativeInput", {
 	tags: null,
@@ -24,7 +19,7 @@ Macro.add("relativeInput", {
 			id: "relativeInput" + Util.slugify(varName) + "Num",
 			type: "number",
 			min: 1,
-			max: Math.floor(TimeConstants.MAX_DATE.timeStamp / TimeConstants.secondsPerMinute)
+			max: Math.floor(TimeConstants.MAX_DATE.timeStamp / TimeConstants.secondsPerMinute) // default granularity is minute
 		}).addClass("macro-numberbox");
 		let granularity = $("<select>").attr({
 			name: "relativeInput" + Util.slugify(varName) + "Granularity",
