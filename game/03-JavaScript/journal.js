@@ -262,11 +262,11 @@ class CustomReminder {
 	 */
 	update() {
 		// safety checks
-		if (typeof V.customReminders === 'undefined')
+		if (V.customReminders === undefined)
 			throw new Error(`some CustomReminder with entry ${this.entry} called its update() when V.customReminders was undefined`);
-		if (!Object.hasOwn(V.customReminders, "reminders"))
+		if (V.customReminders?.reminders === undefined)
 			throw new Error(`V.customReminders exists but has no attribute reminders, yet some CustomReminder with entry ${this.entry} exists and called its update()`)
-		if (!Object.hasOwn(V.customReminders, "notifications"))
+		if (V.customReminders?.notifications == undefined)
 			throw new Error(`V.customReminders exists but has no attribute notifications`)
 		// if (!Object.hasOwn(V.customReminders, "colours"))
 		// 	throw new Error(`V.customReminders exists but has no attribute colours`)
@@ -399,3 +399,61 @@ class CustomReminder {
  * other -- invalidate hawker feats when crop yield over 500%?
  * other -- rebalance bun sell profits
  */
+
+
+
+/*
+ * macro to make the input elements for the 'repeats' field, 
+ * because sugarcube makes this type of thing surprisingly difficult
+ * 
+ * necessary because as far as i can tell, it's impossible to reliably add event handlers 
+ * in a sugarcube <<script>> tag without the ":passagerender" event -- which doesn't work for putting
+ * elements into DoL's customOverlay element, which the journal uses, since they use post-render 
+ * <<replace>> calls to put things in the window. so the path of least resistance is to create 
+ * the element with handlers baked in via jquery, put them in a macro, and call that macro where the
+ * elements are wanted.
+ * 
+ */
+Macro.add("journalCustomEntriesRepeatsInput", {
+	tags: null,
+	handler() {
+		if (this.args.length !== 3) 
+			return this.error("<<journalCustomEntriesRepeatsInput>> had bad arguments. bad args: " + JSON.stringify(this.args));
+		
+		const varNameNum = this.args[0];
+		const varNameChecked = this.args[1];
+		const defaultNumber = this.args[2];
+
+		let numberInput = $("<input>").attr({
+			name: "journalCustomEntriesRepeatsInput" + Util.slugify(varNameNum) + "Number",
+			id: "journalCustomEntriesRepeatsInput" + Util.slugify(varNameNum) + "Number",
+			type: "number",
+			min: 0, 
+		}).addClass("macro-numberbox");
+
+		let checkboxInput = $("<input>").attr({
+			name: "journalCustomEntriesRepeatsInput" + Util.slugify(varNameChecked) + "Checkbox",
+			id: "journalCustomEntriesRepeatsInput" + Util.slugify(varNameChecked) + "Checkbox",
+			type: "checkbox",
+		}).addClass("macro-checkbox");
+
+		numberInput.on("change", function handler() {
+			State.setVar(varNameNum, Number(numberInput.val()));
+		});
+
+		numberInput.val(defaultNumber);
+
+		checkboxInput.on("change", function handler() {
+			numberInput.prop('disabled', this.checked);
+			State.setVar(varNameChecked, this.checked);
+		});
+
+		let label = $("<label></label>")
+		.append(checkboxInput)
+		.append(`<span> Repeat forever</span>`);
+
+		numberInput.appendTo(this.output);
+		$(`<span> | </span>`).appendTo(this.output);
+		label.appendTo(this.output);
+	}
+});
