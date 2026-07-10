@@ -1627,13 +1627,14 @@
 				but it will be lost when moving to a new passage since it's a temporary variable 
 			-->
 			<<set _newReminder ??= {
-				dateStampAbs: Time.date.timeStamp - (Time.date.timeStamp % 86400),
-				timeStampAbs: Time.date.timeStamp % 86400,
+				dateStampAbs: Time.date.timeStamp - (Time.date.timeStamp % TimeConstants.secondsPerDay),
+				timeStampAbs: Time.date.timeStamp % TimeConstants.secondsPerDay,
 				timeStampRel: 0,
 				absRel: "",
 				duration: 0,
 				repeats: 0,
-				cooldown: 600,
+				repeatForever: false,
+				cooldown: 0,
 				behaviour: "unintrusive",
 				entry: "",
 				colour: undefined,
@@ -1660,7 +1661,14 @@
 			
 			
 			<div class="settingsToggleItem">
-				<span class="gold">Time:</span><br>
+				<span class="gold">Reminder duration:</span><br>
+				<<relativeInput "_newReminder.duration">> 
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Repeats:</span> <mouse class="tooltip linkBlue">(?)<span>If you don't want the reminder to repeat</span></mouse><br>
+				<input type="number" value="20" disabled />
+				<<numberbox "_newReminder.repeats" 0>>
 			</div>
 			
 
@@ -1684,10 +1692,6 @@
 			</div>
 
 	/**
-	 * @param {DateTime.timeStamp} timeStamp
-	 *      the precise time at which the reminder should fire. if 0,
-	 *      the reminder never fires or expires.
-	 *      must be in [0, 315569437199]
 	 * @param {number} duration
 	 *      number of seconds between when a reminder fires
 	 *      and resets/expires. for use with the .time timeStamp;

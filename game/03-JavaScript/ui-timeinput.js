@@ -17,8 +17,8 @@ Macro.add("timeInput", {
 		
 		const varName = this.args[0];
 		// the DateTime constructor, when called with a single argument, constructs a DateTime object from a timeStamp
-		// the timeStamp is modulo'd by 86400, which is the number of seconds in a day, to ensure we only take the hours/minutes/seconds component
-		let dateTime = (this.args.length === 2 && Number.isFinite(this.args[1])) ? new DateTime(this.args[1] % 86400) : undefined;
+		// the timeStamp is modulo'd by the number of seconds in a day to ensure we only take the hours/minutes/seconds component
+		let dateTime = (this.args.length === 2 && Number.isFinite(this.args[1])) ? new DateTime(this.args[1] % TimeConstants.secondsPerDay) : undefined;
 
 		// we define all of these elements before adding handlers, so they can reference each other
 		let hourInput = $("<input>").attr({
@@ -68,8 +68,6 @@ Macro.add("timeInput", {
 
 		hourInput.on("change", function handler() {
 			clampAndPad(hourInput, V.options.timestyle === "ampm" ? 1 : 2);
-			// if (hourInput.val() !== "")
-			// 	hourInput.val(Math.clamp(hourInput.val(), hourInput.prop("min"), hourInput.prop("max")));
 			recalculateTimestamp();
 		});
 

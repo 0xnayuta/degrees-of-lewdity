@@ -78,29 +78,21 @@ Macro.add("dateInput", {
 				dayInput.prop("max", 31);
 			}
 			clampAndPad(dayInput, 2);
-			// if (dayInput.val() !== "")
-				// dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
 		}
 
 		dayInput.on("change", function handler() {
 			clampAndPad(dayInput, 2);
-			// if (dayInput.val() !== "")
-				// dayInput.val(Math.clamp(dayInput.val(), dayInput.prop("min"), dayInput.prop("max")));
 			recalculateTimestamp();
 		});
 
 		monthInput.on("change", function handler() {
 			clampAndPad(monthInput, 2);
-			// if (monthInput.val() !== "")
-				// monthInput.val(Math.clamp(monthInput.val(), monthInput.prop("min"), monthInput.prop("max")));
 			recalculateMaxDays();
 			recalculateTimestamp();
 		});
 
 		yearInput.on("change", function handler() {
 			clampAndPad(yearInput, 4);
-			// if (yearInput.val() !== "")
-				// yearInput.val(Math.clamp(yearInput.val(), yearInput.prop("min"), yearInput.prop("max")));
 			recalculateMaxDays();
 			recalculateTimestamp();
 		});
