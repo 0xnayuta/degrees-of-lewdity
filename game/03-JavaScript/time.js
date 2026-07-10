@@ -187,6 +187,7 @@ const Time = (() => {
 				// reset BodyTemperature effects
 				delete T.bodyActivity;
 			}
+			/* eslint-disable no-useless-catch */
 		} catch (ex) {
 			// we only need to catch it so "finally" can run, so, right back at you
 			throw ex;
@@ -729,7 +730,7 @@ function dayPassed() {
 	if (V.lake_ice_broken >= 1) V.lake_ice_broken--;
 	if (V.lake_ice_broken < 1) delete V.lake_ice_broken;
 	if (V.community_service >= 1) {
-		if (V.community_service_done !== 1 && !["asylum", "prison"].includes(V.location)) {
+		if (V.community_service_done !== 1 && !["asylum", "prison"].includes(V.location) && !V.daily?.asylumPrison) {
 			wikifier("crimeUp", 200, "obstruction");
 			V.effectsmessage = 1;
 			V.community_message = "missed";
@@ -1027,6 +1028,11 @@ function dayPassed() {
 	}
 
 	localStorage.removeItem("gwylanTalk");
+
+	delete V.daily.asylumPrison;
+	if (["asylum", "prison"].includes(V.location)) {
+		V.daily.asylumPrison = 1;
+	}
 }
 
 function hourPassed(hours) {
@@ -1390,7 +1396,7 @@ function dailyNPCEffects() {
 		V.averyseen = 0;
 		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
-			if (V.averydateattended !== 1 && !$avery_injury) V.averydatemissed = 1;
+			if (V.averydateattended !== 1 && !V.avery_injury) V.averydatemissed = 1;
 			V.averydateattended = 0;
 		}
 		delete V.averydatedone;
@@ -1414,7 +1420,7 @@ function dailyNPCEffects() {
 				}
 
 				// We skipped/missed, if the party is finished properly we handle the next guest SOMEWHERE ELSE
-				if (V.avery_mansion.party_state !== "finished") {
+				if (V.avery_mansion.party_state !== "finished" && V.avery_mansion.party_state !== "started") {
 					// If Bailey is the guest we repeat Bailey, otherwise we rotate, skipping Jordan as appropriate
 					const rotation = {
 						Bailey: "Bailey",
@@ -1429,7 +1435,8 @@ function dailyNPCEffects() {
 				}
 
 				// If the state is still "missed" we don't reset the state. We still need to trigger Avery being angry we missed a party
-				if (V.avery_mansion.party_state !== "missed") {
+				// Do not reset the state if the party is still on going
+				if (V.avery_mansion.party_state !== "missed" && V.avery_mansion.party_state !== "started") {
 					V.avery_mansion.party_state = "waiting";
 				}
 			}
@@ -1677,7 +1684,7 @@ function dailyNPCEffects() {
 }
 
 function dailyPlayerEffects() {
-	if(V.fallenangel < 4){
+	if (V.fallenangel < 4) {
 		V.willpower *= 0.99;
 	}
 
@@ -1802,7 +1809,6 @@ function dailyPlayerEffects() {
 		if (playerNormalPregnancyTotal() < 3) {
 			statChange.acceptance("pregnancy", -5);
 		}
-
 	}
 
 	for (const bodypart of setup.bodyparts) {
@@ -2269,31 +2275,51 @@ function dailyFarmEvents() {
 		V.farm_attack_timer--;
 		if (V.farm_attack_timer < 0) wikifier("farm_attack_auto");
 		if (V.farm.stock) {
-			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.8);
-			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.8);
-			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.8);
-			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.8);
+			/**
+			 * Alex's Cottage can store up to 10 days of food, or up to £2,169 when sold in a Market Stall.
+			 *
+			 * The food should realistically expire at different rates, but doing so would make the mechanic more
+			 * complex without providing a meaningful improvement to gameplay.
+			 */
+			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.9);
+			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.9);
+			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
+			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.9);
 		}
 		if (V.farm.woodland >= 3) {
-			wikifier("farm_stock", "truffles", 6, 12);
-			wikifier("farm_pigs", -2);
-		} else if (V.farm.woodland >= 1) {
-			wikifier("farm_stock", "truffles", 3, 6);
+			// Truffles sell for £8.00 on the market.
+			// This generates £8.00 * 16.5 = £132.00 each day
+			wikifier("farm_stock", "truffles", 9, 24);
 			wikifier("farm_pigs", -1);
+		} else if (V.farm.woodland >= 1) {
+			// This generates £8.00 * 4.5 = £36.00 each day
+			wikifier("farm_stock", "truffles", 3, 6);
+			wikifier("farm_pigs", -0.5);
 		}
 		if (V.farm.barn >= 2) {
-			wikifier("farm_stock", "milk", 12, 24);
-			wikifier("farm_stock", "cream", 12, 24);
+			// Milk and Cream each sell for £1.00 on the market.
+			// This generates £1.00 * (37.5 + 27) = £64.50 each day
+			wikifier("farm_stock", "milk", 27, 48);
+			wikifier("farm_stock", "cream", 18, 36);
 		} else if (V.farm.barn >= 1) {
-			wikifier("farm_stock", "milk", 6, 12);
-			wikifier("farm_stock", "cream", 6, 12);
+			// This generates £1.00 * (10.5 + 7.5) = £18.00 each day
+			wikifier("farm_stock", "milk", 9, 12);
+			wikifier("farm_stock", "cream", 6, 9);
 		}
 		if (V.farm.coop >= 2) {
-			wikifier("farm_stock", "eggs", 12, 24);
+			// Eggs sell for £0.40 on the market.
+			// This generates £0.40 * (51) = £20.40 each day
+			wikifier("farm_stock", "eggs", 30, 72);
 		} else if (V.farm.coop >= 1) {
-			wikifier("farm_stock", "eggs", 6, 12);
+			// This generates £0.40 * (18) = £7.20 each day
+			wikifier("farm_stock", "eggs", 12, 24);
 		}
 		if (V.farm.kennel >= 1) {
+			/**
+			 * I think it would be very funny if the Kennel also gave -1 Horse Respect per day. That way, if the player returns to the farm with every animal at -30 respect, there will be an Animal Farm easter egg saying stuff like, "The animals are plotting." or "You hear singing in the barn +Stress" after midnight.
+			 *
+			 * Probably too political for DOL, though.
+			 */
 			wikifier("farm_dogs", -1);
 			wikifier("farm_cattle", -1);
 		}
