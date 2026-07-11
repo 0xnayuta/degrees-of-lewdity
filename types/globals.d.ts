@@ -47,16 +47,10 @@ declare global {
 		};
 		
 		stats: {
-			// alcohol: {
-			// 	max: number,
-			// 	/**
-			// 	 * How much the player's $drunk stat needs to increase to qualify for the next Alcohol description tier.
-			// 	 * 
-			// 	 * The description maxes out at 480 and above.
-			// 	 */
-			// 	threshold: number,
-			// 	min: number,
-			// },
+			alcohol: {
+				max: number,
+				min: number,
+			},
 			// arousal: {
 			// 	max: number,
 			// 	min: number,
