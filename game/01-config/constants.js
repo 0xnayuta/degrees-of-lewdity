@@ -58,6 +58,26 @@ const constants = {
 			hourlyStress: -120,
 			max: 1000,
 			min: 0,
+			mod: {
+				/**
+				 * How much the player's sex stats will be increased, depending on their current sex stat and level of intoxication.
+				 *
+				 * The breakpoints for max alcohol increasing each sex stat's tier are as follows:
+				 *   Base Stat = 0 (Level 0)  ==> Final Stat = 30 (Level 2)
+				 *   Base Stat = 7 (Level 2) ==> Final Stat = 35 (Level 3)
+				 *   Base Stat = 32 (Level 3) ==> Final Stat = 55 (Level 4)
+				 *   Base Stat = 57 (Level 4) ==> Final Stat = 75 (Level 5)
+				 *   Base Stat = 82 (Level 5) ==> Final Stat = 95 (Level 6)
+				 */
+				minSex: {
+					minAlcohol: 1,
+					maxAlcohol: 30,
+				},
+				maxSex: {
+					minAlcohol: 1,
+					maxAlcohol: 10,
+				},
+			},
 			/**
 			 * How much the PC's stats decrease at maximum alcohol.
 			 *
