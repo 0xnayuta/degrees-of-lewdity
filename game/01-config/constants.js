@@ -40,6 +40,16 @@ const constants = {
 		 * Variable name: "drunk"
 		 */
 		alcohol: {
+			/**
+			 * The PC's required level of intoxication to achieve its maximum effects.
+			 */
+			effectLimit: 480,
+			/**
+			 * How much fatigue the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+			 *
+			 * The fatigue math is handled in the "minutePassed" function.
+			 */
+			hourlyFatigue: 20,
 			max: 1000,
 			min: 0,
 		},
