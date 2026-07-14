@@ -1854,6 +1854,24 @@ setup.feats = {
 		hint: "Hint: Date your way into the town's upper echelons.",
 		softLockable: true,
 	},
+	"Stomping Down The Street": {
+		title: "Stomping Down The Street",
+		desc: "Handed out lots of flyers on the High Street.",
+		difficulty: 1,
+		series: "Flyers",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Work with Niki.",
+		softLockable: true,
+	},
+	"Hear Me Roar": {
+		title: "Hear Me Roar",
+		desc: "Handed out event more flyers on the High Street.",
+		difficulty: 2,
+		series: "Flyers",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Work with Niki.",
+		softLockable: true,
+	},
 	"Max Those Shots": {
 		title: "Max Those Shots",
 		desc: "Holding a lot of pepper spray.",
@@ -2322,9 +2340,9 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	let total_seeds = Object.values(setup.foodstuff).filter(plant => plant.tending?.has_seeds).length;
-	if (V.plants_known.length >= total_seeds / 2) earnFeat("Seedy");
-	if (V.plants_known.length >= total_seeds) earnFeat("Breedy");
+	const totalSeeds = Object.values(setup.foodstuff).filter(plant => plant.tending?.has_seeds).length;
+	if (V.plants_known.length >= totalSeeds / 2) earnFeat("Seedy");
+	if (V.plants_known.length >= totalSeeds) earnFeat("Breedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -2396,7 +2414,7 @@ function earnHourlyFeats() {
 	}
 
 	// Should be last
-	let currentMax = Object.values(setup.feats).reduce((sum, feat) => sum + feat.difficulty, 0);
+	const currentMax = Object.values(setup.feats).reduce((sum, feat) => sum + feat.difficulty, 0);
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
 

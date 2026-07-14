@@ -1697,15 +1697,13 @@ function isPossibleLoveInterest(name) {
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
 
-window.isPossibleLoveInterestVirginity = function(taker) {
+function isPossibleLoveInterestVirginity(taker) {
 	if (typeof taker !== "string") return false;
 	if (taker.includes(" and ")) {
-		return taker.split(" and ").some(name => 
-			isPossibleLoveInterest(name.trim())
-		);
+		return taker.split(" and ").some(name => isPossibleLoveInterest(name.trim()));
 	}
 	return isPossibleLoveInterest(taker);
-};
+}
 window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
 
 function fameTotal() {
@@ -3080,14 +3078,14 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
 	/**
 	 * (mod = 1, floor = 8,000)
-	 * * 8,000 Allure: 100% pass chance
-	 * * 6,000 Allure:  80% pass chance
-	 * *     0 Allure:  20% pass chance
-	 * 
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	80% pass chance
+	 * 0 Allure:		20% pass chance
+	 *
 	 * (mod = 1.25, floor = 9,900)
-	 * * 8,000 Allure: 100% pass chance
-	 * * 6,000 Allure:  76% pass chance
-	 * *     0 Allure:   1% pass chance
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	76% pass chance
+	 * 0 Allure:		1% pass chance
 	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	return T.danger >= floor - allure * mod;
@@ -3156,7 +3154,7 @@ function averageBunPrice(toSell = T.buns_sold) {
 	let harmonics = 1;
 
 	/* Calculates the current divisor for buns */
-	for (let sold_today = 20; sold_today < V.daily.buns_sold; sold_today += 20) {
+	for (let soldToday = 20; soldToday <= V.daily.buns_sold; soldToday += 20) {
 		if (batch === 1) {
 			harmonics += 0.5;
 		} else {
@@ -3166,10 +3164,11 @@ function averageBunPrice(toSell = T.buns_sold) {
 	}
 	let doneToday = V.daily.buns_sold % 20;
 	let pricePerBun = V.bun_value / harmonics;
+	let bunsInBatch = 0;
 
 	/* Sells the new buns */
 	while (remaining > 0) {
-		let bunsInBatch = Math.min(20 - doneToday, remaining);
+		bunsInBatch = Math.min(20 - doneToday, remaining);
 		doneToday = 0;
 
 		totalRevenue += bunsInBatch * pricePerBun;

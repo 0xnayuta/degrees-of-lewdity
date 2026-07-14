@@ -42,12 +42,21 @@ function skipToOrgasm(modifiers = "") {
 			if (modifiers.includes("audience")) masturbationAudienceSkip();
 			if (modifiers.includes("stallInterrupt")) masturbationStallInterrupt();
 		}
-	} while (count < 100 && (V.arousal > startArousal || count <= 6) && V.arousal < V.arousalmax && (V.timer > 0 || !modifiers.includes("timer")) && (V.phase <= 1 || !modifiers.includes("stallInterrupt")));
+	} while (
+		count < 100 &&
+		(V.arousal > startArousal || count <= 6) &&
+		V.arousal < V.arousalmax &&
+		(V.timer > 0 || !modifiers.includes("timer")) &&
+		(V.phase <= 1 || !modifiers.includes("stallInterrupt"))
+	);
 }
 DefineMacroS("skipToOrgasm", skipToOrgasm);
 
 function masturbationStallInterrupt() {
-	if ((V.attractiveness / 6) + (V.fame.business * 2/6) + (currentSkillValue('tending') * 4/6) + (V.masturbationorgasm * V.daily.stall_lewdity * 4000) >= random(1, 300000)) {
+	if (
+		V.attractiveness / 6 + (V.fame.business * 2) / 6 + (currentSkillValue("tending") * 4) / 6 + V.masturbationorgasm * V.daily.stall_lewdity * 4000 >=
+		random(1, 300000)
+	) {
 		V.phase += 2;
 	}
 }
