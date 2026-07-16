@@ -448,7 +448,7 @@
 			<<set $_crimemod to Number(_args[0])>>
 			<<set $_crimeMult to 1>>
 
-			<<if !["coercion", "resisting"].includes(_crimeType)>>
+			<<if !["coercion", "resisting", "food"].includes(_crimeType)>>
 				<!-- ignore stealth (or concealed identity) for crimes where it is irrelevant; -->
 				<!-- resisting arrest where the player's identity is explicitly known and coercion where the player's force of personality is needed -->
 				/* The following commented code contains experimental factors for calculating stealth */
@@ -1181,11 +1181,6 @@
 				<</if>>
 			</div>
 
-			<<if $tiredness gte C.tiredness.max>>
-				<<set $stress += (($tiredness - C.tiredness.max) * 16)>><<set $trauma += (($tiredness - C.tiredness.max) / 3)>>
-			<</if>>
-
-			<<set $tiredness = Math.clamp($tiredness, 0, C.tiredness.max)>>
 			<<set _showCaptionText to !$options.showCaptionText>>
 			<<statbar 0 $tiredness `C.tiredness.max` _showCaptionText>>
 		</div>
@@ -2773,7 +2768,7 @@
 				<span class="lewd">You absorb the sexual essence. You feel soothed.</span>
 			<</if>>
 			<<set $demonabsorb to 0>>
-			<<traumaclamp>>
+			<<traumaClamp>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -3659,12 +3654,11 @@
 <</widget>>
 
 
-<!-- Added a hair and fringe details widget to make hair length discrimination more viable.
-	Not sure if there's another file where this widget would be better placed. Feel free to move.
-	Descriptions based on the values in "game\base-system\overlays\characteristics.twee" and
-	the "game\04-Variables\variables-start2.twee".
+<!--
+	Descriptions based on the values in "game\base-system\overlays\characteristics.twee" and "game\04-Variables\variables-start2.twee".
 
-	See "game\overworld-plains\loc-farm\events.twee" for examples of its use. -->
+	See "game\overworld-plains\loc-farm\events.twee" for examples of its use.
+-->
 <<widget "hairDetails">>
 	<<if $hairlength gte 900>>
 		extremely long <<haircolourtext>> hair\
@@ -4115,7 +4109,7 @@
 		/*Chance of abuse based on crowd and time passed*/
 		<<if $pillory.tenant.crowd lte 1>><<set $pillory.tenant.crowd to 1>><</if>>
 		<<set $_chance to Math.clamp($_firechance, 1, 24)>>
-		 /* If you do not visit for a long time, there is a higher chance for at least one event to happen */
+		/* If you do not visit for a long time, there is a higher chance for at least one event to happen */
 		<<if $_chance gte 1>><<set $_chance to $_chance**1.5>><</if>>
 		<<set $_chance *= $pillory.tenant.crowd>>
 
@@ -5234,6 +5228,14 @@
 	<<if $worn.neck.cursed is 1>>
 		<<set $worn.neck.type.push("broken")>>
 		<<neckruined>>
+	<</if>>
+	<<if $worn.hands.cursed is 1>>
+		<<set $worn.hands.type.push("broken")>>
+		<<handsruined>>
+	<</if>>
+	<<if $worn.feet.cursed is 1>>
+		<<set $worn.feet.type.push("broken")>>
+		<<feetruined>>
 	<</if>>
 
 	<<for _bodypart range $parasite.bodyparts>>

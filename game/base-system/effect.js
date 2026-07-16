@@ -288,8 +288,6 @@ function effects() {
 		element("i", "Your innocence has been replaced by trauma.");
 	}
 
-
-
 	if (V.eventskipoverrule) V.eventskipoverrule = 0;
 
 	if (V.underwatercheck > 0) {
@@ -1745,10 +1743,6 @@ function effects() {
 
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
-	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		V.tiredness += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 150;
-	}
-
 	sWikifier("<<exposure>>");
 
 	if (V.combat) sWikifier("<<pass 10 seconds>>");
@@ -1758,8 +1752,6 @@ function effects() {
 	V.menu = 0;
 
 	if (V.combat === 0 && V.ironmanmode === true) IronMan.scheduledSaves();
-
-
 
 	return fragment;
 }

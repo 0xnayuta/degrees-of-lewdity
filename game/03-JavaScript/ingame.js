@@ -715,7 +715,7 @@ function isInPark(name) {
 		case "sam":
 			// prettier-ignore
 			return C.npc.Sam.init === 1
-				&& (Time.hour >= 6 && Time.hour < 7)
+				&& (Time.hour >= 6 && Time.hour < 7 && Time.minute <= 55)
 				&& Weather.precipitation === "none";
 		default:
 			return false;
@@ -1219,7 +1219,6 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
-
 function currentSkillValue(skill, disableModifiers = 0) {
 	let result = V[skill];
 	if (!result && result !== 0) {
@@ -1698,15 +1697,13 @@ function isPossibleLoveInterest(name) {
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
 
-window.isPossibleLoveInterestVirginity = function(taker) {
+function isPossibleLoveInterestVirginity(taker) {
 	if (typeof taker !== "string") return false;
 	if (taker.includes(" and ")) {
-		return taker.split(" and ").some(name => 
-			isPossibleLoveInterest(name.trim())
-		);
+		return taker.split(" and ").some(name => isPossibleLoveInterest(name.trim()));
 	}
 	return isPossibleLoveInterest(taker);
-};
+}
 window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
 
 function fameTotal() {
@@ -3061,9 +3058,16 @@ function isBeastSceneAllowed() {
 }
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
-/** 
- * check if event is going to be dangerous based on rng and player allure
- * for consistency, danger rng is rolled once per passage, unless specified otherwise
+/**
+ * Check if an event is going to be dangerous based on rng and the player's Allure. Another target's Allure can
+ * be substitued as needed.
+ *
+ * For consistency, danger rng is rolled once per passage, unless specified through the "reroll" parameter.
+ *
+ * Lowering the floor increases the player's flat probability of triggering an event. Changing the mod
+ * increases / decreases the chance of triggering the event with increasing / decreasing Allure.
+ *
+ * For a guaranteed activation at 8,000 Allure, set a mod of 1.25, or a floor of 8,000.
  *
  * @param {number} mod allure multiplier
  * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
@@ -3072,6 +3076,17 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
  * @returns {boolean} whether the roll is dangerous
  */
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	/**
+	 * (mod = 1, floor = 8,000)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	80% pass chance
+	 * 0 Allure:		20% pass chance
+	 *
+	 * (mod = 1.25, floor = 9,900)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	76% pass chance
+	 * 0 Allure:		1% pass chance
+	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	return T.danger >= floor - allure * mod;
 }
@@ -3139,7 +3154,7 @@ function averageBunPrice(toSell = T.buns_sold) {
 	let harmonics = 1;
 
 	/* Calculates the current divisor for buns */
-	for (let sold_today = 0; sold_today < V.daily.buns_sold; sold_today += 20) {
+	for (let soldToday = 20; soldToday <= V.daily.buns_sold; soldToday += 20) {
 		if (batch === 1) {
 			harmonics += 0.5;
 		} else {
@@ -3149,10 +3164,11 @@ function averageBunPrice(toSell = T.buns_sold) {
 	}
 	let doneToday = V.daily.buns_sold % 20;
 	let pricePerBun = V.bun_value / harmonics;
+	let bunsInBatch = 0;
 
 	/* Sells the new buns */
 	while (remaining > 0) {
-		let bunsInBatch = Math.min(20 - doneToday, remaining);
+		bunsInBatch = Math.min(20 - doneToday, remaining);
 		doneToday = 0;
 
 		totalRevenue += bunsInBatch * pricePerBun;
@@ -3166,7 +3182,7 @@ function averageBunPrice(toSell = T.buns_sold) {
 		pricePerBun = V.bun_value / harmonics;
 	}
 
-	V.daily.buns_sold += toSell;
+	V.daily.buns_sold += T.buns_sold;
 
 	return totalRevenue / toSell;
 }

@@ -11,8 +11,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.10.12",
-	versionName: `"Lofts of Clothes" edition`,
+	version: "0.5.11.4",
+	versionName: `"The Great Equaliser" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -744,6 +744,12 @@ Config.navigation.override = function (dest) {
 				return "Sewers Scones Eat";
 			case "Sewers Rats Pretend":
 				return "Sewers Scones Pretend";
+
+			case "Farm Pig Rape":
+				return "Farm Pigs Rape Extreme";
+			case "Farm Pig Rape Finish":
+				return "Farm Pigs Rape Extreme Finish";
+
 			default:
 				return false;
 		}
