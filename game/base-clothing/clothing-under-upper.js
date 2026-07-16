@@ -1936,8 +1936,9 @@ function initUnderUpper() {
 			iconFile: "ruffled-swimsuit.png",
 			accIcon: "ruffled-swimsuit-acc.png",
 			altposition: "none",
-			altdisabled: ["full"],
+			altdisabled: ["full", "breasts"],
 			formfitting: 1,
+			formfittingDisabled: ["acc", "sleeve_acc"],
 			outfitPrimary: { under_lower: "ruffled swimsuit" },
 		}),
 		new ClothesItem({
