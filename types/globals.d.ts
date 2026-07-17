@@ -58,6 +58,12 @@ declare global {
 				 * The fatigue math is handled in the "minutePassed" function.
 				 */
 				hourlyFatigue: number,
+				/**
+				 * How much stress the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+				 *
+				 * The stress math is handled in the "minutePassed" function.
+				 */
+				hourlyStress: number,
 				max: number,
 				min: number,
 			},

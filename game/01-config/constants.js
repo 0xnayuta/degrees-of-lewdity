@@ -50,6 +50,12 @@ const constants = {
 			 * The fatigue math is handled in the "minutePassed" function.
 			 */
 			hourlyFatigue: 20,
+			/**
+			 * How much stress the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+			 *
+			 * The stress math is handled in the "minutePassed" function.
+			 */
+			hourlyStress: -120,
 			max: 1000,
 			min: 0,
 		},
