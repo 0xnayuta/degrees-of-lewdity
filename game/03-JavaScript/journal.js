@@ -396,8 +396,7 @@ class CustomReminder {
  * 
  * nullish assignment
  * 
- * other -- invalidate hawker feats when crop yield over 500%?
- * other -- rebalance bun sell profits
+ * other -- make strange flowers impossible to grow outside of the farm
  */
 
 
