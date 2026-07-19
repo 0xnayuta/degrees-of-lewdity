@@ -228,6 +228,33 @@
 		<<link [[Refuse|Asylum Masturbation]]>><<suspicion 5>><<set $phase to "refuse">><</link>><<ggsuspicion>>
 	<</addinlineevent>>
 
+	<<if $asylumLowerSensitivity is 0>>
+		<!-- likelier than most events, since it's once per visit at most -->
+		<<addinlineevent "asylum_sensitivity_reduction" 3>>
+			<<npc Harper>><<person1>>
+
+			You enter a small windowless room, no larger than a walk-in closet. Doctor Harper sits at a makeshift desk, no more than a folding table and an uncomfortable plastic chair, with an identical chair on the other side of the room across from <<him>>. 
+			<br><br>
+
+			"Thank you for coming," <<he>> says. "I hope you can forgive the slipshod conditions. This procedure is something of a work-in-progress, you see." <<He>> gestures towards the empty chair. "Please, take a seat."
+			<br><br>
+			<!-- 
+			attempt to desensitize the most sensitive part, but if multiple are tied for max then choose randomly 
+			unless all sensitivities are 1: in that case, _maxSensitivity becomes 1.01, so all comparison checks fail and the event is passed 'nothing'
+			-->
+			<<set _maxSensitivity to Math.max($mouthsensitivity, $breastsensitivity, $genitalsensitivity, $bottomsensitivity, 1.01)>>
+			<<set _possibleSensitivities to [
+				$mouthsensitivity >= _maxSensitivity ? "mouth" : "", 
+				$breastsensitivity >= _maxSensitivity ? "breast" : "", 
+				$genitalsensitivity >= _maxSensitivity ? "genital" : "",
+				$bottomsensitivity >= _maxSensitivity ? "bottom" : ""].filter(s => s !== "")>>
+			<<set $phase to _possibleSensitivities.length > 0 ? either(_possibleSensitivities) : "nothing">>
+
+			<<link [[Next|Asylum Sensitivity Reduction]]>><</link>>
+
+		<</addinlineevent>>
+	<</if>>
+
 	<<runeventpool>>
 <</if>>
 <</widget>>
