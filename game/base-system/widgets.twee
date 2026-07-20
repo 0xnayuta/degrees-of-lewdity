@@ -3120,25 +3120,54 @@
 <</widget>>
 
 <<widget "characteristic-box-modifier">><<silently>>
-	<<if _args[0] isnot undefined or _args[0] isnot 100>>
+	<<set $_modTypes to _args[1]>>
+	<<if $_modTypes.good.length gt 0 or $_modTypes.bad.length gt 0>>
 		<<set $_modifier to _args[0] - 100>>
-		<<if $_modifier gt 0>>
+		
+		<!-- Promiscuity / Deviancy checks, as they are affected by both being drunk and being in heat. -->
+		<<if ["Promiscuity", "Deviancy"].includes(_args[2]) and ($drunk gt 0 or heatRutSexStatModifier(_args[2].toLowerCase()) gt 0)>>
+			<<set $_result to " <span class='" + getLargestSexStatModifierCssClasses(_args[2].toLowerCase()) + "'><small class='blue characteristic-modifier'>(???%)</small></span>">>
+		<!--
+			Alcohol checks
+
+			Affected Stats:
+				Willpower, Promiscuity, Exhibitionism, Deviancy
+				Skulduggery, Dancing, Swimming, Athletics, Tending, Housekeeping
+				Seduction, Oral, Chest, Hands, Buttocks, Anal, Vaginal, Feet, Penile, Thighs
+				English, History, Maths, Science
+			
+			Skip the "Promiscuity" and "Deviancy" checks, as they are covered in the prior if statement.
+
+			The "Sprays", "Nets", "Batons", "Whips" should also be affected by alcohol, but the "currentSkillValue" function doesn't currently handle them.
+		-->
+		<<elseif $drunk gt 0
+			and ["Willpower", "Exhibitionism",
+				"Skulduggery", "Dancing", "Swimming", "Athletics", "Tending", "Housekeeping",
+				"Seduction", "Oral", "Chest", "Hands", "Buttocks", "Anal", "Thighs", "Feet",
+				"Penile", "Strap-on use", "Vaginal",
+				"English", "History", "Maths", "Science",
+				].includes(_args[2])>>
+			<<set $_result to " <span class='" + basicDrunkCss() + "'><small class='blue characteristic-modifier'>(???%)</small></span>">>
+		<!-- If no alcohol / heat checks are applicable. -->
+		<<elseif $_modifier gt 0>>
 			<<set $_result to " <small class='green characteristic-modifier'>(+"+$_modifier+"%)</small>">>
 		<<elseif $_modifier lt 0>>
 			<<set $_result to " <small class='red characteristic-modifier'>("+$_modifier+"%)</small>">>
-		<<elseif ["Promiscuity", "Exhibitionism", "Deviancy"].includes(_args[2]) and (drunkSexStatModifier(V[_args[2].toLowerCase()]) gte 1 or heatRutSexStatModifier(_args[2].toLowerCase()) gte 1)>>
-			<<set $_result to " <span class='" + getLargestSexStatModifierCssClasses(_args[2].toLowerCase()) + "'><small class='blue characteristic-modifier'>(???%)</small></span>">>
 		<</if>>
 	<</if>>
 	<</silently>>
 	<<if $_result>>
-		<<set $_good to _args[1].good>>
-		<<set $_bad to _args[1].bad>>
+		<<set $_good to $_modTypes.good>>
+		<<set $_bad to $_modTypes.bad>>
 		<<set $_stat to _args[2].toLowerCase()>>
-		<span @class="$_modifier gt 0 ? 'green' : 'red'"><mouse class = "tooltip-small">
+		<span @class="$_good.length gt 0 ? ($_bad.length gt 0 ? 'blue' : 'green') : 'red'"><mouse class = "tooltip-small">
 			$_result
 			<<if $_good.length gt 0 and $_bad.length gt 0>>
-				<span class="green">Increasing your $_stat: <<print $_good>> <span class="red">Decreasing your $_stat: <<print $_bad>></span></span>
+				<span class="blue">
+					Increasing your $_stat: <<print $_good>>
+					<br>
+					Decreasing your $_stat: <<print $_bad>>
+				</span>
 			<<elseif $_good.length gt 0>>
 				<span class="green">Increasing your $_stat: <<print $_good>></span>
 			<<elseif $_bad.length gt 0>>
