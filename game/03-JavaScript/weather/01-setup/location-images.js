@@ -30,6 +30,9 @@ setup.Locations = {
 	},
 	estate: () => (V.bus === "estate_cottage" ? "estate_cottage" : "estate"),
 	farm: () => (["farmroad6", "farm"].includes(V.bus) ? "farm" : "underground_farm"),
+	scrapyard: () => {
+		return "landfill";
+	},
 	get() {
 		if (typeof this[V.location] === "function") {
 			return this[V.location]();

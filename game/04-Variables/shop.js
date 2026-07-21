@@ -301,6 +301,11 @@ setup.shopDetails = {
 		desc: "Needed to go fishing.",
 		details: "none",
 	},
+	fishing_rod_magnet: {
+		name: "Magnetic Fishing Rod",
+		desc: "Needed to go fishing for magnetic things.",
+		details: "none",
+	},
 };
 
 setup.hairDetails = {

@@ -27,15 +27,39 @@
 <<link [[Leave|SomeParentPassage]]>><<run stopFishingProp()>><</link>>
 
 /* Wait loop passage. Sending the user here will roll an event and send the user to that event. "Nothing" is treated like every other event, and instead of sending the user to an event, it sends the user back to the Fishing LocationName passage. */
-:: Fishing LocationName Wait
-<<pass 5>>
+:: Fishing LocationName Wait Loop
 <<cleareventpool>>
 
-/* Generic bite event. */
-<<addinlineevent "bite" 10>>
-	<<set $fishingHookedFish to rollFish("locationName")>>
-	<<include "Fishing LocationName Bite">>
-<</addinlineevent>>
+<<if fishingUsingMagnetRod()>>
+	<<addinlineevent "magnetScrap" magnetLootWeight("fishingLocationName", 5)>>
+		<<set $fishingMagnetScrap to rollMagnetScrap("fishingLocationName")>>
+		<<include "Fishing LocationName Magnet Scrap Catch">>
+	<</addinlineevent>>
+
+	/* Location-specific unique magnet catches go here (antiques, single-catch items, etc.). */
+
+<<else>>
+	/* Generic bite event. Big fish trigger a fight, small fish are caught without a fight. */
+	<<addinlineevent "bite" fishingCatchEventWeight("fishingLocationName", 10)>>
+		<<set $fishingHookedFish to rollFish("fishingLocationName")>>
+		<<if fishingTriggersReelFight($fishingHookedFish)>>
+			<<include "Fishing LocationName Bite Big">>
+		<<else>>
+			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			<<include "Fishing LocationName Catch">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "trash" 1>>
+		<<set $fishingTrash to rollFishingTrash("fishingLocationName")>>
+		<<include "Fishing LocationName Trash Catch">>
+	<</addinlineevent>>
+
+	<<addinlineevent "clothing" 1>>
+		<<set $fishingClothingName to rollFishingClothing("fishingLocationName")>>
+		<<include "Fishing LocationName Clothing Catch">>
+	<</addinlineevent>>
+<</if>>
 
 /* Danger event. When this event is rolled, it starts the danger event by setting $fishing.locationName.event to the danger event that was rolled (like a wolf sneaking up on you), but also sends the user back to the wait passage, so it is unclear that something has happened. Once $fishing.locationName.event is set to a value, the <<fishingLocationNameWaitAmbient>> has hints added to it that something will attack you soon, allowing the player to pay attention to that if they want so they can leave. When these wait ambient texts appear, they increase the odds of the actual attack being rolled.
 */
@@ -53,7 +77,7 @@
 	<</addinlineevent>>
 <</if>>
 
-/* Nothing bites event */
+/* Nothing happens, wait loop continues. */
 <<addinlineevent "wait" 25>>
 	<<include "Fishing LocationName Wait">>
 <</addinlineevent>>
@@ -74,7 +98,7 @@
 /* Picks the waiting sentence each loop. <<fishingWaitAmbient>> is a set of inlineEvents, no clear/runeventpool, as should be any other widgets placed here. That way, you can have your default set of wait text from <<fishingWaitAmbient>> be added to any event-specific wait text for any active events. */
 <<widget "fishingLocationNameWaitAmbient">>
 	<<cleareventpool>>
-	<<fishingWaitAmbient "locationName">>
+	<<fishingWaitAmbient $bus>>
 
 	<<if $fishing.locationName.event is "dangerName">>
 		/* Widget that should go in the .twee file for the associated event that has the possible text that can appear instead of the normal wait text. event danger (the odds of the actual attack for the active danger event) should be increased by the inline events used to show that a dangerous event is active. */

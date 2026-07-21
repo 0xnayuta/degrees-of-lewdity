@@ -1,0 +1,228 @@
+:: Combat 2 Start
+<<run endCombat2()>>
+My best attempt at a text-based system. Each fish has a behavior, and each behavior has a state machine that determines what the fish does based on what the player does, what the last fish action was, and how much stamina the fish has. The goal is to try to guess what the fish is going to do, and avoid doing things that will make catching the fish harder. There are a general set of rules such as: 
+<br>
+- Picking to reel while the fish will be running on its next turn will cost you stamina
+<br>
+- Picking to reel while the fish will be idle next turn is good
+<br>
+- If your arm fatigue gets too high, you are at risk of getting pulled in or losing your rod, so you want to cut your line if you get to that point
+<br><br>
+So for example, the Charger behavior always thrashes on the turn before running. So you would want to always hold when you see a thrash from a runner, since holding is the best thing to do when a fish is running. 
+<br><br>
+The issue with this combat was that it is too hard to predict what the fish will do. There should probably be fewer behaviors, but at the end of the day it's just a game of picking the correct option, and the only decision making the player can make is how dangerous they want to be with their arm fatigue. And that mechanically boils down to the basic *repeated athletics roll to see if you catch a fish over and over again, player betting on if they are going to get lucky and won't lose the minigame*
+<br><br>
+I feel like this was the closest I got to making a fun text minigame, but alas. 
+<br><br>
+
+<<link [[Haddock - runner|Combat 2]]>><<run startCombat2("haddock")>><</link>>
+<br>
+<<link [[Salmon - sprinter|Combat 2]]>><<run startCombat2("salmon")>><</link>>
+<br>
+<<link [[Trout - bluffer|Combat 2]]>><<run startCombat2("trout")>><</link>>
+<br>
+<<link [[Mackerel - distractable|Combat 2]]>><<run startCombat2("mackerel")>><</link>>
+<br>
+<<link [[Bass - brawler|Combat 2]]>><<run startCombat2("bass")>><</link>>
+<br>
+<<link [[Perch - tense|Combat 2]]>><<run startCombat2("perch")>><</link>>
+<br>
+<<link [[Chub - headstrong|Combat 2]]>><<run startCombat2("chub")>><</link>>
+<br>
+<<link [[Pike - charger|Combat 2]]>><<run startCombat2("pike")>><</link>>
+<br>
+<<link [[Eel - dogged|Combat 2]]>><<run startCombat2("eel")>><</link>>
+<br>
+<<link [[Back|Bathroom]]>><</link>>
+
+
+:: Combat 2
+<<run combat2ResolveTurn()>>
+
+<<if $combat2.fishDistance lte 0>>
+	<<combat2Caught>>
+<<elseif $combat2.playerAction is "cut">>
+	<<combat2CutLine>>
+<<elseif $combat2.armFatigue gte 5 and random(1, 2) is 1>>
+	<<combat2FishLost>>
+<<else>>
+	<<combat2Main>>
+<</if>>
+
+
+:: Widgets Combat 2 [widget]
+<<widget "combat2Main">>
+	<<combat2Status>>
+	<br>
+	<<combat2Distance $combat2.fishDistance>>
+	<<combat2ArmFatigue $combat2.armFatigue>>
+	<<combat2Info>>
+	<br><br>
+
+	<<combat2Actions>>
+<</widget>>
+
+<<widget "combat2Info">>
+	<br>
+	Stamina: <<print $combat2.fishStamina>> / <<print $combat2.startingStamina>>
+	| Distance: <<print $combat2.fishDistance>>
+	| Fatigue: <<print $combat2.armFatigue>>
+	| Behaviour: <<print $combat2.combatBehavior>>
+<</widget>>
+
+<<widget "combat2ArmFatigue">>
+	<<set _fatigue to _args[0]>>
+	<<if _fatigue gte 4>>
+		<span class="red">Your fingers are slipping.</span> You feel like you're about to lose your grip on your rod.
+	<<elseif _fatigue gte 2>>
+		<span class="purple">Your arms are starting to ache.</span>
+	<</if>>
+<</widget>>
+
+<<widget "combat2Distance">>
+	<<set _distance to _args[0]>>
+	<<set _fish to $combat2.fishName>>
+	<<if _distance lte 1>>
+		<span class="green">The <<print _fish>> is right beneath you, ready to land.</span>
+	<<elseif _distance lte 3>>
+		<span class="teal">The <<print _fish>> is very close.</span>
+	<<elseif _distance lte 6>>
+		<span class="lblue">The <<print _fish>> is close.</span>
+	<<elseif _distance lte 9>>
+		<span class="blue">The <<print _fish>> is still a fair way out.</span>
+	<<else>>
+		<span class="red">The <<print _fish>> is far out.</span>
+	<</if>>
+<</widget>>
+
+<<widget "combat2Status">>
+	<<set _fish to $combat2.fishName>>
+
+	<<if $drunk gte 100 and random(1, 2) is 1>>
+		<<switch random(1, 5)>>
+			<<case 1>>
+				<span @class="basicDrunkCss()">Everything tilts. The <<print _fish>> is probably doing fish things.</span>
+			<<case 2>>
+				<span @class="basicDrunkCss()">You squint at the water. Is the <<print _fish>> doing something or just sitting there?</span>
+			<<case 3>>
+				<span @class="basicDrunkCss()">Something's pulling your line around. Or maybe you're just dizzy.</span>
+			<<case 4>>
+				<span @class="basicDrunkCss()">Your hands move. The rod moves. Whether the fish moved first is anyone's guess.</span>
+			<<case 5>>
+				<span @class="basicDrunkCss()">Your hands are moving. The rod's moving. The world's moving. It's all very confusing.</span>
+		<</switch>>
+
+	<<elseif $combat2.playerAction is "">>
+		The <<print _fish>> takes the bait and <span class="red">pulls away</span> from you.
+
+	<<elseif $combat2.playerAction is "reel">>
+		<<if $combat2.fishAction is "run">>
+			<<if $combat2.fishStamina lte 0>>
+				The <<print _fish>> <span class="red">barely pulls</span> as you reel it in.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You reel in the <<print _fish>> as it <span class="red">pulls</span> weakly away from your line.
+			<<else>>
+				The <<print _fish>> <span class="red">swims hard</span> away from your line.
+			<</if>><<gtiredness>><<tiredness 1>>
+		<<elseif $combat2.fishAction is "idle">>
+			<<if $combat2.fishStamina lte 0>>
+				You reel the <<print _fish>> in while it <span class="green">hangs limp and still</span>.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You reel the <<print _fish>> in while it <span class="green">rests</span>, twitching now and then.
+			<<else>>
+				You reel the <<print _fish>> in while it holds itself <span class="green">stiff and still</span>.
+			<</if>>
+		<<elseif $combat2.fishAction is "thrash">>
+			You reel as the <<print _fish>> <span class="blue">thrashes at the surface</span>.
+		<</if>>
+
+	<<elseif $combat2.playerAction is "hold">>
+		<<if $combat2.fishAction is "run">>
+			<<if $combat2.fishStamina lte 0>>
+				You hold your rod steady. The <<print _fish>> <span class="red">pulls weakly</span> against you.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You hold firm, and the <<print _fish>>'s <span class="red">pulls against your line</span> as it tires.
+			<<else>>
+				You hold your rod steady while the <<print _fish>> <span class="red">swims hard</span> against you.
+			<</if>>
+		<<elseif $combat2.fishAction is "idle">>
+			<<if $combat2.fishStamina lte 0>>
+				You hold your line as the <<print _fish>> <span class="green">sits limp and still</span>.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You hold your rod still while the <<print _fish>> <span class="green">rests</span>, twitching now and then.
+			<<else>>
+				You hold steady. The <<print _fish>> <span class="green">rests</span>, but its body is stiff and tense.
+			<</if>>
+		<<elseif $combat2.fishAction is "thrash">>
+			You hold your rod as the <<print _fish>> <span class="blue">thrashes at the surface</span>.
+		<</if>>
+
+	<<elseif $combat2.playerAction is "slack">>
+		<<if $combat2.fishAction is "run">>
+			<<if $combat2.fishStamina lte 0>>
+				You let your line slacken. The <<print _fish>> <span class="red">pulls away weakly</span>, clearly tired.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You let your line go slack. The <<print _fish>> <span class="red">pulls away</span>, but its run is slowing.
+			<<else>>
+				You give the <<print _fish>> slack, resting your arms while it <span class="red">swims off</span>.
+			<</if>>
+		<<elseif $combat2.fishAction is "idle">>
+			<<if $combat2.fishStamina lte 0>>
+				You let your line go slack, resting your arms. The <<print _fish>> <span class="green">hangs limp</span>.
+			<<elseif ($combat2.fishStamina * 2) lte $combat2.startingStamina>>
+				You give your line slack while the <<print _fish>> <span class="green">rests</span>, twitching now and then.
+			<<else>>
+				You let your line go slack to rest your arms. The <<print _fish>> <span class="green">sits still</span> and tense.
+			<</if>>
+		<<elseif $combat2.fishAction is "thrash">>
+			You let your line slacken as the <<print _fish>> <span class="blue">thrashes at the surface</span>.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "combat2Actions">>
+	<<link [[Reel in|Combat 2]]>><<set $combat2.playerAction to "reel">><</link>>
+	<br>
+	<<link [[Hold the line|Combat 2]]>><<set $combat2.playerAction to "hold">><</link>>
+	<br>
+	<<link [[Put slack on the line|Combat 2]]>><<set $combat2.playerAction to "slack">><</link>>
+	<br>
+	<<link [[Cut the line|Combat 2]]>><<set $combat2.playerAction to "cut">><</link>>
+<</widget>>
+
+<<widget "combat2Caught">>
+	<<set _fishName to $combat2.fishName>>
+	<<run endCombat2()>>
+	With a final haul the _fishName breaks the surface and you swing it up out of the water.
+	<br><br>
+
+	<<link [[Fish again|Combat 2 Start]]>><</link>>
+	<br>
+	<<link [[Back|Bathroom]]>><</link>>
+<</widget>>
+
+<<widget "combat2CutLine">>
+	<<set _fishName to $combat2.fishName>>
+	<<run endCombat2()>>
+	You release the tension on your rod, letting your line go slack. The _fishName pulls harder, and with a sudden snap, your line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
+	<br><br>
+
+	<<link [[Fish|Combat 2 Start]]>><</link>>
+	<br>
+	<<link [[Back|Bathroom]]>><</link>>
+<</widget>>
+
+<<widget "combat2FishLost">>
+	<<set _fishName to $combat2.fishName>>
+	<<run endCombat2()>>
+	<<if random(1, 2) is 1>>
+		Your arms give out. The _fishName gives one final lunge and <span class="red">pulls you off your feet</span> before your line snaps and it's gone.
+	<<else>>
+		Your arms give out. The _fishName gives a sharp pull and wrenches your rod from your hands. By the time you recover it, your line is slack and the _fishName is long gone.
+	<</if>>
+	<br><br>
+
+	<<link [[Fish|Combat 2 Start]]>><</link>>
+	<br>
+	<<link [[Back|Bathroom]]>><</link>>
+<</widget>>

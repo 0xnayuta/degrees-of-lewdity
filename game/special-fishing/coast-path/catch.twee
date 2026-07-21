@@ -1,0 +1,94 @@
+:: Fishing Coast Path Catch
+<<effects>>
+<<if Weather.dayState is "day" and $rng gte 90 and $daily.fishing.seagullSteal is undefined>>
+	<<fishingSeagullCaught $fishingHookedFish $bus>>
+<<else>>
+	<<fishingCoastPathCaught>>
+<</if>>
+
+
+:: Fishing Coast Path Reel
+<<effects>>
+<<set $fishingReelAttempts += 1>>
+<<if $athleticsSuccess>>
+	You brace against the rocks and heave, and you <<if $fishingReelAttempts gt 1>>finally<</if>> <span class="green">reel up the fish.</span><<gtiredness>><<tiredness 1>>
+	<br><br>
+
+	<<include "Fishing Coast Path Catch">>
+<<elseif $fishingReelAttempts gte 3 and random(1, 5) gte 4>>
+	<<gtiredness>><<tiredness 1>>
+	<<if $rng gte 80>>
+		<<fishingCoastPathRodLost>>
+	<<else>>
+		<<fishingCoastPathLineSnapped>>
+	<</if>>
+<<else>>
+	<<if $fishingReelAttempts is 1>>
+		You haul back on your rod, but the <<print $fishingHookedFish.type>> strips your line right back off the reel. Your arms burn with the effort.<<gtiredness>><<tiredness 1>>
+	<<else>>
+		You drag it closer, close enough to see its shape beneath the waves, before it dives again, nearly wrenching your rod from your hands.<<gtiredness>><<tiredness 1>>
+	<</if>>
+	<br><br>
+
+	<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
+	<<link [[Keep fighting it|Fishing Coast Path Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
+	<br>
+	<<link [[Cut the line|Fishing Coast Path Cut Line]]>><</link>>
+<</if>>
+
+
+:: Fishing Coast Path Cut Line
+<<effects>>
+You release the tension on your rod, letting your line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, your line breaks free. It disappears into the surf below.
+<<unset $fishingHookedFish>>
+<br><br>
+
+<<link [[Re-hook the line and cast back out (0:03)|Fishing Coast Path Wait]]>><<pass 3>><</link>>
+<br>
+<<link [[Leave|Fishing Coast Path Approach]]>><</link>>
+
+
+:: Widgets Fishing Coast Path Catch [widget]
+<<widget "fishingCoastPathRodLost">>
+	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> gives one last violent pull and your rod is wrenched clean out of your hands, clattering over the rocks and into the surf below.<<gstress>><<stress 4>><<handheldruined>>
+	<<unset $fishingHookedFish>>
+	<<run stopFishingProp()>>
+	<br><br>
+
+	<<link [[Next|Fishing Coast Path Approach]]>><</link>>
+<</widget>>
+
+<<widget "fishingCoastPathLineSnapped">>
+	You lean back with everything you have left. <span class="red">Your line snaps.</span> Your rod springs straight and the <<print $fishingHookedFish.type>> disappears into the surf below.
+	<<unset $fishingHookedFish>>
+	<<run stopFishingProp()>>
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Coast Path Wait]]>><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Fishing Coast Path Approach]]>><</link>>
+<</widget>>
+
+<<widget "fishingCoastPathCaught">>
+	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, $bus)>>
+	<<run stopFishingProp()>>
+	<<set _fishPropName to "caught-" + $fishingHookedFish.type>>
+	<<wearProp _fishPropName>>
+
+	<<fishingCatchFishText $fishingHookedFish>>
+	<br><br>
+
+	<<if _canEatFish>>
+		It's such a small fish, you could probably fit the whole thing in your mouth.
+		<br><br>
+	<</if>>
+
+	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Coast Path Throw Back]]>><</link>>
+	<br>
+	<<link [[Stow it away|Fishing Coast Path Keep]]>><</link>>
+	<<if _canEatFish>>
+		<br>
+		<<link [[Eat the fish|Fishing Coast Path Cat Eat]]>><</link>>
+	<</if>>
+<</widget>>

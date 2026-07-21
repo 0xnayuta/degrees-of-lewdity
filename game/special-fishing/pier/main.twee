@@ -1,7 +1,8 @@
 :: Dock Pier
+A long pier stretches out over the sea, its salt-bleached planks worn smooth by foot traffic. Waves roll below, visible through the gaps between the boards.
 <br><br>
 
-<<if $daily.fishing.pier.whitney.phase is "idle">>
+<<if $daily?.fishing?.pier?.whitney?.phase is "idle">>
 	<<if ["dusk", "night"].includes(Weather.dayState)>>
 		<<set $daily.fishing.pier.whitney.phase to "finished">>
 	<<else>>
@@ -11,11 +12,15 @@
 <</if>>
 
 <<if canStartFishing()>>
-	<<run V.fishing.locationsFound.pushUnique("pier")>>
+	<<if !$fishing.locationsFound.includes("fishingPier")>>
+		<<run V.fishing.locationsFound.pushUnique("fishingPier")>>
+		<span class="gold">Looks like this could be a good spot for fishing</span>.
+		<br>
+	<</if>>
 	<<fishingRodIcon>><<link [[Start fishing|Fishing Pier Wait]]>><</link>>
 	<br>
-<<elseif !$fishing.locationsFound.includes("pier")>>
-	<<run V.fishing.locationsFound.pushUnique("pier")>>
+<<elseif !$fishing.locationsFound.includes("fishingPier")>>
+	<<run V.fishing.locationsFound.pushUnique("fishingPier")>>
 	<span class="gold">If you had a fishing rod, you could probably catch fish from here</span>.
 	<br>
 <</if>>
@@ -24,12 +29,14 @@
 
 /* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Pier Wait
+<<effects>>
 <<run initFishingPier()>>
 <<run startFishingProp()>>
 
 <<set _exhibitionismCheck to Weather.dayState is "night" or (($exposed isnot 1 or hasSexStat("exhibitionism", 3)) and ($exposed lt 2 or hasSexStat("exhibitionism", 5)))>>
 
-<<fishingLocationDescription "pier">><<fishingLocationPopulation "pier">>
+<<fishingLocationDescription $bus>>
+<<fishingLocationPopulation $bus>>
 <<fishingPierLocationAmbient>>
 <br><br>
 
@@ -50,8 +57,12 @@
 	<<if Weather.dayState isnot "night" and !$daily.fishing.pier.whitney.cantLeave and !_exhibitionismCheck>>
 		<<insufficientStat "exhibitionism" "to keep standing around in such an exposed state">>
 	<<else>>
-		<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><<pass 5>><</link>>
-			<<if ["bet", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
+		<<if fishingUsingMagnetRod()>>
+			<<link [[Dredge for metal (0:05)|Fishing Pier Wait Loop]]>><<pass 5>><</link>>
+		<<else>>
+			<<link [[Wait for a bite (0:05)|Fishing Pier Wait Loop]]>><<pass 5>><</link>>
+		<</if>>
+		<<if ["bet", "idle"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.whitney.pcCider gte 1>>
 			<br>
 			<<link [[Take a sip|Fishing Pier Wait]]>><<set $fishingPierWaitAmbientOverride to "sip">><</link>><<galcohol>>
 		<</if>>
@@ -75,10 +86,62 @@
 :: Fishing Pier Wait Loop
 <<cleareventpool>>
 
-<<addinlineevent "bite" fishingCatchEventWeight(10, "pier")>>
-	<<set $fishingHookedFish to rollFish("pier")>>
-	<<include "Fishing Pier Bite">>
-<</addinlineevent>>
+<<if fishingUsingMagnetRod()>>
+	<<addinlineevent "magnetScrap" magnetLootWeight("fishingPier", 5)>>
+		<<set $fishingMagnetScrap to rollMagnetScrap("fishingPier")>>
+		<<include "Fishing Pier Magnet Scrap Catch">>
+	<</addinlineevent>>
+
+	<<if fishingAntiqueAvailable("antiquecoppercompass")>>
+		<<addinlineevent "copperCompass" 0.15>>
+			<<include "Fishing Pier Magnet Pull Compass">>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$fishing.singleCatch.cashRegister>>
+		<<addinlineevent "cashRegister" 0.15>>
+			<<include "Fishing Pier Magnet Pull Cash Register">>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$fishing.singleCatch.chainLength>>
+		<<addinlineevent "chainLength" 0.15>>
+			<<include "Fishing Pier Magnet Pull Chain Length">>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$fishing.singleCatch.shoppingTrolley>>
+		<<addinlineevent "shoppingTrolley" 0.15>>
+			<<include "Fishing Pier Magnet Pull Shopping Trolley">>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$fishing.singleCatch.boatAnchor>>
+		<<addinlineevent "boatAnchor" 0.15>>
+			<<include "Fishing Pier Magnet Pull Boat Anchor">>
+		<</addinlineevent>>
+	<</if>>
+<<else>>
+	<<addinlineevent "bite" fishingCatchEventWeight("fishingPier", 10)>>
+		<<set $fishingHookedFish to rollFish("fishingPier")>>
+		<<if fishingTriggersReelFight($fishingHookedFish)>>
+			<<include "Fishing Pier Bite Big">>
+		<<else>>
+			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			<<include "Fishing Pier Catch">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "trash" 1>>
+		<<set $fishingTrash to rollFishingTrash("fishingPier")>>
+		<<include "Fishing Pier Trash Catch">>
+	<</addinlineevent>>
+
+	<<addinlineevent "clothing" 1>>
+		<<set $fishingClothingName to rollFishingClothing("fishingPier")>>
+		<<include "Fishing Pier Clothing Catch">>
+	<</addinlineevent>>
+<</if>>
 
 /* Whitney bullies Fisher off the pier */
 <<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.whitney.phase is undefined>>
@@ -101,8 +164,8 @@
 	<</addinlineevent>>
 <</if>>
 
-/* Whitney Pier betting event */
-<<if $daily.fishing.pier.whitney.phase is "idle" and !$daily.fishing.pier.whitney.betComplete>>
+/* Whitney Pier betting event. The bet is about the size of the next fish, so it can't start while the player is magnet fishing. */
+<<if $daily.fishing.pier.whitney.phase is "idle" and !$daily.fishing.pier.whitney.betComplete and !fishingUsingMagnetRod()>>
 	<<addinlineevent "whitneyBet" fishingDangerEventWeight(1)>>
 		<<include "Fishing Whitney Pier Bet">>
 	<</addinlineevent>>
@@ -141,20 +204,20 @@
 
 /* fisher event start */
 <<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and $daily.fishing.pier.fisher.phase is undefined and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
-	<<addinlineevent "fisherArrive" 2>>
+	<<addinlineevent "fisherArrive" 1>>
 		<<include "Fishing Pier Fisher Arrive">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher tips event */
-<<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk lte 2 and $daily.fishing.pier.fisher.tipGiven is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name)>>
+<<if $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk lte 2 and $daily.fishing.pier.fisher.tipGiven is undefined and Time.hour lt 20 and !["storm", "thunderstorm"].includes(Weather.name) and !fishingUsingMagnetRod()>>
 	<<addinlineevent "fisherTipsOffer" 0.5>>
 		<<include "Fishing Pier Fisher Tips Offer">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher cliff tip event */
-<<if $daily.fishing.pier.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("coastPath")>>
+<<if $daily.fishing.pier.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("fishingCoastPath")>>
 	<<addinlineevent "fisherCliffTipOffer" 0.5>>
 		<<include "Fishing Pier Fisher Cliff Tip Offer">>
 	<</addinlineevent>>
@@ -181,7 +244,7 @@
 <</if>>
 
 /* Tentacle pulls rod event */
-<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase)>>
+<<if [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and !fishingUsingMagnetRod()>>
 	<<addinlineevent "tentacles" fishingDangerEventWeight(3)>>
 		<<include "Fishing Pier Tentacles">>
 	<</addinlineevent>>
@@ -222,21 +285,21 @@
 <<runeventpool>>
 
 
-:: Fishing Pier Bite
-/* Shortcut the minigame if the fish is small enough */
-<<if $fishingHookedFish.size lt 15 + (currentSkillValue("athletics") / 50)>>
-	<<run startFishingCombat("pier")>>
-	<<set $fishing.combat.fishDistance to 0>>
-	<<include "Fishing Combat Pier">>
-<<else>>
-	Your rod jerks hard in your hands, a <<print $fishingHookedFish.type>> has taken the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
-	<br><br>
-	<<link [[Next|Fishing Combat Pier]]>><<run startFishingCombat("pier")>><</link>>
-<</if>>
+:: Fishing Pier Bite Big
+<<effects>>
+<<set $fishingReelAttempts to 0>>
+Your line goes taut as something grabs the bait. You lean to get a better look and see what looks like <<a $fishingHookedFish.type>><<if $fishingHookedFish.aboveAverageSize>>, and it's <span class="pink">big</span><</if>>, big enough that you're going to need to fight it to get it out of the water.
+<br><br>
+
+<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
+<<link [[Try to reel it in|Fishing Pier Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
+<br>
+<<link [[Cut the line|Fishing Pier Cut Line]]>><</link>>
 
 
 
 :: Fishing Pier Throw Back
+<<effects>>
 You toss the <<print $fishingHookedFish.type>> back into the sea.
 <<unset $fishingHookedFish>>
 <br><br>
@@ -245,6 +308,7 @@ You toss the <<print $fishingHookedFish.type>> back into the sea.
 
 
 :: Fishing Pier Keep
+<<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <<unset $fishingHookedFish>>
@@ -254,6 +318,7 @@ You stow the <<print $fishingHookedFish.type>> away.
 
 
 :: Fishing Pier Cat Eat
+<<effects>>
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
@@ -287,10 +352,9 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 		<<fishingPierWhitneySip>>
 	<<else>>
 		<<cleareventpool>>
-		<<fishingWaitAmbient "pier">>
+		<<fishingWaitAmbient $bus>>
 
 		<<runeventpool>>
 	<</if>>
-	
 	<<unset $fishingPierWaitAmbientOverride>>
 <</widget>>

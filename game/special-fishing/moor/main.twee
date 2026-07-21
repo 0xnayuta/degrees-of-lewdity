@@ -4,7 +4,8 @@
 <<run initFishingMoor()>>
 <<run startFishingProp()>>
 
-<<fishingLocationDescription "moor">><<fishingLocationPopulation "moor">>
+<<fishingLocationDescription $bus>>
+<<fishingLocationPopulation $bus>>
 <<fishingMoorLocationAmbient>>
 <<if $moor_hunt gte 1>>
 	<span class="red">You are still being hunted.</span>
@@ -29,12 +30,21 @@
 	<</if>>
 	<br><br>
 
-	<<link [[Wait for a bite (0:05)|Fishing Moor Wait Loop]]>>
-		<<pass 5>>
-		<<if $moor_hunt gte 1>>
-			<<set $moor_hunt += 0.5>>
-		<</if>>
-	<</link>>
+	<<if fishingUsingMagnetRod()>>
+		<<link [[Dredge for metal (0:05)|Fishing Moor Wait Loop]]>>
+			<<pass 5>>
+			<<if $moor_hunt gte 1>>
+				<<set $moor_hunt += 0.5>>
+			<</if>>
+		<</link>>
+	<<else>>
+		<<link [[Wait for a bite (0:05)|Fishing Moor Wait Loop]]>>
+			<<pass 5>>
+			<<if $moor_hunt gte 1>>
+				<<set $moor_hunt += 0.5>>
+			<</if>>
+		<</link>>
+	<</if>>
 	<br>
 	<<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
 		<<if $daily.fishing.moor.hikers.leaveChance is undefined>>
@@ -78,10 +88,47 @@
 :: Fishing Moor Wait Loop
 <<cleareventpool>>
 
-<<addinlineevent "bite" fishingCatchEventWeight(10, "moor")>>
-	<<set $fishingHookedFish to rollFish("moor")>>
-	<<include "Fishing Moor Bite">>
-<</addinlineevent>>
+<<if fishingUsingMagnetRod()>>
+	<<addinlineevent "magnetScrap" magnetLootWeight("fishingMoor", 5)>>
+		<<set $fishingMagnetScrap to rollMagnetScrap("fishingMoor")>>
+		<<include "Fishing Moor Magnet Scrap Catch">>
+	<</addinlineevent>>
+
+	<<addinlineevent "moorBullet" 0.3>>
+		<<include "Fishing Moor Magnet Pull Bullet">>
+	<</addinlineevent>>
+
+	<<addinlineevent "moorShell" 0.2>>
+		<<include "Fishing Moor Magnet Pull Shell">>
+	<</addinlineevent>>
+
+	<<if !$fishing.singleCatch.shovel>>
+		<<addinlineevent "shovel" 0.15>>
+			<<include "Fishing Moor Magnet Pull Shovel">>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$fishing.singleCatch.oldBicycle>>
+		<<addinlineevent "oldBicycle" 0.15>>
+			<<include "Fishing Moor Magnet Pull Bicycle">>
+		<</addinlineevent>>
+	<</if>>
+<<else>>
+	<<addinlineevent "bite" fishingCatchEventWeight("fishingMoor", 10)>>
+		<<set $fishingHookedFish to rollFish("fishingMoor")>>
+		<<if fishingTriggersReelFight($fishingHookedFish)>>
+			<<include "Fishing Moor Bite Big">>
+		<<else>>
+			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			<<include "Fishing Moor Catch">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "trash" 1>>
+		<<set $fishingTrash to rollFishingTrash("fishingMoor")>>
+		<<include "Fishing Moor Trash Catch">>
+	<</addinlineevent>>
+<</if>>
 
 /* Hawk hunt capture */
 <<if $moor_hunt gte 10>>
@@ -126,7 +173,7 @@
 
 /* Hikers approach events */
 <<if $fishing.moor.event is "none" and !($moor_hunt gte 1)>>
-	<<addinlineevent "moorHikersStart" 2.5>>
+	<<addinlineevent "moorHikersStart" 1.25>>
 		<<set $fishing.moor.event to "moorHikers">>
 		<<fishingMoorStartleAnimals>>
 		<<include "Fishing Moor Wait">>
@@ -202,21 +249,20 @@
 <<runeventpool>>
 
 
-:: Fishing Moor Bite
-/* Shortcut the minigame if the fish is small enough */
-<<if $fishingHookedFish.size lt 15 + (currentSkillValue("athletics") / 50)>>
-	<<run startFishingCombat("moor")>>
-	<<set $fishing.combat.fishDistance to 0>>
-	<<include "Fishing Combat Moor">>
-<<else>>
-	<<run startFishingCombat("moor")>>
-	Your line goes taut and you can see a <<print $fishingHookedFish.type>> thrashing at the end of it.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
-	<br><br>
-	<<link [[Next|Fishing Combat Moor]]>><</link>>
-<</if>>
+:: Fishing Moor Bite Big
+<<effects>>
+<<set $fishingReelAttempts to 0>>
+Your rod bends as something takes your bait. You can't see what it is through the murk of the water, but whatever it is feels like it's going to put up a fight.
+<br><br>
+
+<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
+<<link [[Try to reel it in|Fishing Moor Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
+<br>
+<<link [[Cut the line|Fishing Moor Cut Line]]>><</link>>
 
 
 :: Fishing Moor Throw Back
+<<effects>>
 You throw the <<print $fishingHookedFish.type>> back into the water.
 <<unset $fishingHookedFish>>
 <br><br>
@@ -225,6 +271,7 @@ You throw the <<print $fishingHookedFish.type>> back into the water.
 
 
 :: Fishing Moor Keep
+<<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
 <<unset $fishingHookedFish>>
@@ -234,6 +281,7 @@ You stow the <<print $fishingHookedFish.type>> away.
 
 
 :: Fishing Moor Cat Eat
+<<effects>>
 You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
@@ -261,7 +309,7 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 		<<fishingMoorHikerDrinkSip>>
 	<<else>>
 		<<cleareventpool>>
-		<<fishingWaitAmbient "moor">>
+		<<fishingWaitAmbient $bus>>
 
 		<<if $fishing.moor.event is "lurker">>
 			<<fishingMoorLurkerAttackWaitAmbient>>

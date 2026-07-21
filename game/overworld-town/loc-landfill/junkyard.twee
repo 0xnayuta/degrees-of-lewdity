@@ -1,0 +1,72 @@
+:: Scrapyard
+<<effects>>
+<<set $location to "scrapyard">>
+<<set $outside to 1>>
+<<set $daily.scrapyard ??= {}>>
+
+You are in the scrapyard on Elk Street. Bins of stripped copper and stacked sheet metal line the fence, and a set of battered floor scales sits in front of a portable shack that serves as an office.
+
+<<if !$daily.scrapyard.dealerMet>>
+	<<set $daily.scrapyard.dealerMet to true>>
+	<<clearNPC "scrapyard_scrap_dealer">><<generate1>><<saveNPC 0 "scrapyard_scrap_dealer">><<person1>>
+	A <<person>> in a hi-vis jacket sits lazily inside, looking up as you approach. "If you have any metal, I'll buy it," <<he>> says. "If not, piss off."
+<<else>>
+	<<loadNPC 0 "scrapyard_scrap_dealer">><<person1>>
+	<br><br>
+	The <<person>> in the hi-vis jacket nods to you from beside the scales.
+<</if>>
+<br><br>
+
+<<if $scrapInventory.length gt 0>>
+	<<highicon>><<link [[Sell your scrap (0:10)|Scrapyard Sell Scrap]]>><<pass 10>><</link>>
+	<br>
+<<else>>
+	You don't have any scrap to sell.
+	<br>
+<</if>>
+<<elkicon>><<link [[Leave|Elk Street]]>><<endevent>><</link>>
+<br>
+
+
+:: Scrapyard Sell Scrap
+<<effects>>
+<<set $location to "scrapyard">>
+<<set $outside to 1>>
+<<loadNPC 0 "scrapyard_scrap_dealer">><<person1>>
+<<set _totalScrap to scrapInventoryTotal()>>
+
+<<if $daily.scrapyard.soldToday>>
+	"Back already?" The <<person>> raises an eyebrow as you heave your haul onto the scales.
+<<else>>
+	You heave your haul onto the scales. The <<person>> crouches and picks through it with a practised eye.
+<</if>>
+<br><br>
+
+<<if !$scrapyardDiscovered>>
+	<<set $scrapyardDiscovered to true>>
+	"Where's all this from?" <<he>> asks, turning a piece over in <<his>> hands. Before you can answer, <<he>> waves the question away. "Actually, don't tell me. Metal's metal. Bring me whatever else you find."
+	<br><br>
+<</if>>
+
+<<set _heavyScrapKey to ["boatAnchor", "shoppingTrolley", "oldBicycle", "cashRegister", "shovel"].find(k => $scrapInventory.includes(k))>>
+<<if _heavyScrapKey>>
+	<<He>> stops at the <<= setup.fishing.lootTables.magnetScrap[_heavyScrapKey].name>> and looks up at you. "How were you lugging this around?"
+	<br><br>
+<</if>>
+
+<<if _totalScrap lt 20>>
+	"Light haul," <<he>> says, sorting through the pieces. "But it's metal, I'll take it."
+<<elseif _totalScrap lt 75>>
+	<<He>> weighs each piece in turn, nodding as <<he>> goes. "Not bad at all. Decent amount here."
+<<else>>
+	<<He>> lets out a low whistle as the needle settles. "Now that's a proper haul. You've been busy."
+<</if>>
+<br><br>
+
+The <<personsimple>> hands you <span class="gold">£<<print _totalScrap>></span> and waves you away.
+<<money `_totalScrap * 100` "scrapyardScrap">><<set $scrapInventory to []>>
+<<set $daily.scrapyard.soldToday to true>>
+<br><br>
+
+<<link [[Leave|Elk Street]]>><<set $eventskip to 1>><</link>>
+<br>

@@ -46,7 +46,8 @@ An old wooden dock juts out below, half-rotten and creaking in the wind, it look
 <<run initFishingCoastPath()>>
 <<run startFishingProp()>>
 
-<<fishingLocationDescription "coastPath">><<fishingLocationPopulation "coastPath">>
+<<fishingLocationDescription $bus>>
+<<fishingLocationPopulation $bus>>
 <br><br>
 
 <<if $stress gte $stressmax>>
@@ -67,7 +68,11 @@ An old wooden dock juts out below, half-rotten and creaking in the wind, it look
 	<</if>>
 	<br><br>
 
-	<<link [[Wait for a bite (0:05)|Fishing Coast Path Wait Loop]]>><<pass 5>><</link>>
+	<<if fishingUsingMagnetRod()>>
+		<<link [[Dredge for metal (0:05)|Fishing Coast Path Wait Loop]]>><<pass 5>><</link>>
+	<<else>>
+		<<link [[Wait for a bite (0:05)|Fishing Coast Path Wait Loop]]>><<pass 5>><</link>>
+	<</if>>
 	<br>
 	<<link [[Leave|Fishing Coast Path Approach]]>><<run stopFishingProp()>><</link>>
 <</if>>
@@ -78,10 +83,33 @@ An old wooden dock juts out below, half-rotten and creaking in the wind, it look
 :: Fishing Coast Path Wait Loop
 
 <<cleareventpool>>
-<<addinlineevent "bite" fishingCatchEventWeight(7, "coastPath")>>
-	<<set $fishingHookedFish to rollFish("coastPath")>>
-	<<include "Fishing Coast Path Bite">>
-<</addinlineevent>>
+<<if fishingUsingMagnetRod()>>
+	<<addinlineevent "magnetScrap" magnetLootWeight("fishingCoastPath", 1)>>
+		<<set $fishingMagnetScrap to rollMagnetScrap("fishingCoastPath")>>
+		<<include "Fishing Coast Path Magnet Scrap Catch">>
+	<</addinlineevent>>
+
+<<else>>
+	<<addinlineevent "bite" fishingCatchEventWeight("fishingCoastPath", 8)>>
+		<<set $fishingHookedFish to rollFish("fishingCoastPath")>>
+		<<if fishingTriggersReelFight($fishingHookedFish)>>
+			<<include "Fishing Coast Path Bite Big">>
+		<<else>>
+			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			<<include "Fishing Coast Path Catch">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "trash" .2>>
+		<<set $fishingTrash to rollFishingTrash("fishingCoastPath")>>
+		<<include "Fishing Coast Path Trash Catch">>
+	<</addinlineevent>>
+
+	<<addinlineevent "clothing" .2>>
+		<<set $fishingClothingName to rollFishingClothing("fishingCoastPath")>>
+		<<include "Fishing Coast Path Clothing Catch">>
+	<</addinlineevent>>
+<</if>>
 
 /* Nothing happens, wait loop continues */
 <<addinlineevent "wait" 25>>
@@ -90,18 +118,16 @@ An old wooden dock juts out below, half-rotten and creaking in the wind, it look
 <<runeventpool>>
 
 
-:: Fishing Coast Path Bite
+:: Fishing Coast Path Bite Big
 <<effects>>
-/* Shortcut the minigame if the fish is small enough */
-<<if $fishingHookedFish.size lt 15 + (currentSkillValue("athletics") / 50)>>
-	<<run startFishingCombat("coastPath")>>
-	<<set $fishing.combat.fishDistance to 0>>
-	<<include "Fishing Combat Coast Path">>
-<<else>>
-	Your line pulls sharply away as a <<print $fishingHookedFish.type>> takes the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
-	<br><br>
-	<<link [[Next|Fishing Combat Coast Path]]>><<run startFishingCombat("coastPath")>><</link>>
-<</if>>
+<<set $fishingReelAttempts to 0>>
+The line goes taut and you lean out to look down into the water. You see <<if $fishingHookedFish.aboveAverageSize>>a <span class="pink">big</span> <<print $fishingHookedFish.type>><<else>><<a $fishingHookedFish.type>><</if>> trying to swim away, big enough to give you some trouble reeling it in.
+<br><br>
+
+<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
+<<link [[Try to reel it in|Fishing Coast Path Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
+<br>
+<<link [[Cut the line|Fishing Coast Path Cut Line]]>><</link>>
 
 
 :: Fishing Coast Path Throw Back
@@ -136,6 +162,6 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 /* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingCoastPathWaitAmbient">>
 	<<cleareventpool>>
-	<<fishingWaitAmbient "coastPath">>
+	<<fishingWaitAmbient $bus>>
 	<<runeventpool>>
 <</widget>>

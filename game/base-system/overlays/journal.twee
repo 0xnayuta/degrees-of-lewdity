@@ -1164,7 +1164,7 @@
 
 	<<set _foodstuffKeys to Object.keys($foodstuff)>>
 	<<set _hasProduce to Object.keys($foodstuff).some(key => $foodstuff[key].amount >= 1)>>
-	<<set _carrying to [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth].some(i => i >= 1)>>
+	<<set _carrying to [$antiquemoney, $blackmoney, $scrapInventory.length, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth].some(i => i >= 1)>>
 	<<if _carrying or _hasProduce>>
 		<hr>
 		<h1 class="header gold bold">Inventory</h1>
@@ -1191,6 +1191,9 @@
 			<</if>>
 			<<if $blackmoney gt 0>>
 				<li><<highicon>><span class="green">£<<print $blackmoney>></span> in stolen goods. You can sell them to someone on the black market.</li>
+			<</if>>
+			<<if $scrapInventory.length gt 0>>
+				<li><<scrapyardIcon>>Scrap worth <span class="green">£<<print scrapInventoryTotal()>></span>. You can sell it at the scrapyard on Elk Street.</li>
 			<</if>>
 			<<if $phials_held gt 0>>
 				<li><<icon "aphrodisiac.png">> <span class="green">$phials_held</span> <<pluralise $phials_held "phial">> of aphrodisiac. You can sell <<pluralise $phials_held "it">> on Elk Street.</li>
@@ -1467,14 +1470,14 @@
 		<</if>>
 		<<if $fishing.locationsFound.length>>
 			<br><br>
-			<<set _fishingLocations to ["pier", "beach", "forestLake", "moor", "coastPath"]>>
-			<<set _fishKeys to Object.keys(setup.fishingFish)>>
+			<<set _fishingLocations to ["fishingPier", "fishingBeach", "fishingCoastPath", "fishingForestLake", "fishingMoor"]>>
+			<<set _fishKeys to Object.keys(setup.fishing.lootTables.fish)>>
 			<details class="journal">
 				<summary class="journal">Fishing</summary>
 				<div class="itemCollectible">
 					<<for _location range _fishingLocations>>
 						<<if $fishing.locationsFound.includes(_location)>>
-							<div class="item" @tooltip="camelCaseToTitle(_location)">
+							<div class="item" @tooltip="fishingLocationDisplayName(_location)">
 								<<fishingRodIcon>>
 							</div>
 						<<else>>
@@ -1487,9 +1490,9 @@
 				<<for _location range _fishingLocations>>
 					<<if $fishing.locationsFound.includes(_location)>>
 						<details class="journal" style="margin: .5rem 0.5rem 0;">
-							<summary class="journal"><<= camelCaseToTitle(_location)>></summary>
+							<summary class="journal"><<= fishingLocationDisplayName(_location)>></summary>
 							<div class="itemCollectible">
-								<<set _locationFish to _fishKeys.filter(fish => setup.fishingFish[fish].locations[_location] > 0)>>
+								<<set _locationFish to _fishKeys.filter(fish => setup.fishing.lootTables.fish[fish].locations[_location] > 0)>>
 								<<for _fishKey range _locationFish>>
 									<<set _fishName to setup.foodstuff[_fishKey].name>>
 									<<if $fishing.record[_fishKey]?.foundIn.includes(_location)>>
@@ -1513,7 +1516,7 @@
 							<<set _fishName to setup.foodstuff[_fishKey].name>>
 							<<set _fishRecord to $fishing.record[_fishKey]>>
 							<<if _fishRecord>>
-								<<set _fishConfig to setup.fishingFish[_fishKey]>>
+								<<set _fishConfig to setup.fishing.lootTables.fish[_fishKey]>>
 								<<set _largestSizePercent to (_fishRecord.largest - _fishConfig.minSize) / (_fishConfig.maxSize - _fishConfig.minSize)>>
 								<div class="fishingRecord">
 									<div class="item" @tooltip="_fishName.toUpperFirst()">

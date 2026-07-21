@@ -22,7 +22,6 @@ declare global {
 		| "pike"
 		| "eel"
 		| "grayling";
-	export type FishingCatchStrategy = "steadyPressure" | "pumpAndWind" | "letItRun";
 	export type FishingFishPreferredTime = "dawn" | "day" | "dusk" | "night" | "bloodMoon";
 	export type FishingFishPreferredWeather =
 		| "clear"
@@ -37,7 +36,6 @@ declare global {
 		minSize: number; // Minimum fish size.
 		maxSize: number; // Maximum fish size.
 		catchDifficulty: number; // Relative difficulty to catch.
-		catchStrategy: FishingCatchStrategy; // Correct response option during the bite minigame.
 
 		// Preferred params are where/how to catch the largest size of the fish, and does not affect catch frequency.
 		preferredSeason: Season[];

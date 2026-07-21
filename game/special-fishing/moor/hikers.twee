@@ -16,22 +16,7 @@
 	<<set $fishingMoorHikersCount to 2>>
 <</if>>
 
-You're watching your line when you hear something approaching you from within the heather behind you. Before you can turn, <span class="red">you feel hands grabbing you and throwing you to the ground</span>.
-<br><br>
-
-<<link [[Fight|Fishing Moor Hiker Molestation]]>><<set $molestationstart to 1>><</link>>
-
-
-:: Fishing Moor Hiker Interrupt Attack
-<<effects>>
-<<run endFishingCombat()>>
-<<unset $fishingHookedFish>>
-<<set $fishingMoorHikersCount to 1>>
-<<if $rng gte 70>>
-	<<set $fishingMoorHikersCount to 2>>
-<</if>>
-
-You're focused on your catch when you hear movement in the heather. <span class="red"><<if $fishingMoorHikersCount is 1>>Someone grabs you from behind and slams you to the ground<<else>>Multiple hands are on you before you can turn, dragging you to the ground<</if>></span>.
+You're watching your line when you hear movement in the heather behind you. <span class="red"><<if $fishingMoorHikersCount is 1>>Someone grabs you from behind and slams you to the ground<<else>>Multiple hands are on you before you can turn, dragging you to the ground<</if>></span>.
 <br><br>
 
 <<link [[Fight|Fishing Moor Hiker Molestation]]>><<set $molestationstart to 1>><</link>>
@@ -302,9 +287,9 @@ The pair bid you farewell and pick their way off into the dark.
 	<br><br>
 
 	<<if $daily.fishing.moor.hikers.spike>>
-		<<silently>><<englishdifficulty 300 1000>><</silently>>
+		<<silently>><<englishdifficulty 500 1200>><</silently>>
 		<<if $englishSuccess>>
-			<span class="red">There's something a little too eager in the way they watch you, it's as if this matters more to them than it should.</span>
+			There's something a little too eager in the way they watch you, it's as if this matters more to them than it should.
 			<br><br>
 		<</if>>
 	<</if>>
@@ -818,7 +803,7 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 		The <<person1>><<person>> chuckles at something <<his>> companion says.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
-		The hikers watch your float for a moment, interested, then resume talking.
+		The hikers watch your <<fishingBob>> for a moment, interested, then resume talking.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
 		The <<person1>><<person>> points at something across the moor to <<his>> companion, but they can't seem to agree what it is.
@@ -901,6 +886,7 @@ Both the <<person1>><<person>> and the <<person2>><<person>> go quiet, staring a
 		You take a sip from the can. <<alcohol 17>>
 	<</if>>
 <</widget>>
+
 
 :: Fishing Moor Hiker Exposed Attack
 <<effects>>
@@ -1006,47 +992,20 @@ The <<person1>><<person>> sets down <<his>> can and stands up slowly. <<He>> loo
 <</if>>
 
 
-/* ========================== */
-/* ===== Combat Widgets ===== */
-/* ========================== */
-<<widget "fishCombatMoorOrgasmHikers">>
-	<<loadNPC 0 "moor_hiker_1">><<person1>>
-	<<loadNPC 1 "moor_hiker_2">><<person2>>
-	<<orgasm>>
-	<<print either("You stagger on the uneven boggy ground", "You drive the end of your rod into the earth to keep from falling")>>,
-	struggling to keep upright as your orgasm hits.
-	<<set $orgasmcurrent to 0>>
-	The rod slips from your grip. By the time you find your footing again, the line is slack and the <<print $fishingHookedFish.type>> is gone.
-	<<run endFishingCombat()>>
-	<<unset $fishingHookedFish>>
-	<br><br>
-
-	<<switch random(1, 4)>>
-		<<case 1>>
-			The <<person1>><<person>> lets out a slow whistle. The <<person2>><<person>> claps twice, grinning at you.
-		<<case 2>>
-			The <<person1>><<person>> stares at you. "Oh. Wow." A beat of silence, then <<he>> starts clapping and laughing, wiping a tear from <<his>> eye.
-		<<case 3>>
-			The <<person2>><<person>> coughs. The <<person1>><<person>> just stares for a moment before letting out a long, low whistle.
-		<<case 4>>
-			"Bloody hell." The <<person1>><<person>> starts clapping and the <<person2>><<person>> joins in with a whoop.
-	<</switch>>
-	<<fameexhibitionism 5>>
-	<br>
-	<<link [[Next|Fishing Moor Wait]]>><</link>>
-<</widget>>
-
-<<widget "fishCombatMoorCaughtHikers">>
+/* ========================= */
+/* ===== Catch Widgets ===== */
+/* ========================= */
+<<widget "fishingMoorCaughtHikers">>
 	<<loadNPC 0 "moor_hiker_1">><<person1>>
 	<<loadNPC 1 "moor_hiker_2">><<person2>>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
-	<<set _cookOffer to $rng gte 50 and canCookFish($fishingHookedFish.type, $fishingHookedFish.size) and $daily.fishing.moor.hikers.phase isnot "campfire">>
-	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "moor")>>
-	<<run endFishingCombat()>>
+	<<set _cookOffer to $rng gte 50 and canCookFish($fishingHookedFish.type) and $daily.fishing.moor.hikers.phase isnot "campfire">>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, $bus)>>
+	<<run stopFishingProp()>>
 	<<set _fishPropName to "caught-" + $fishingHookedFish.type>>
 	<<wearProp _fishPropName>>
 	
-	<<fishingCatchFishText "moor">>
+	<<fishingCatchFishText $fishingHookedFish>>
 	<br><br>
 
 	<<if _cookOffer>>
@@ -1081,11 +1040,11 @@ The <<person1>><<person>> sets down <<his>> can and stands up slowly. <<He>> loo
 	<</if>>
 <</widget>>
 
-<<widget "fishCombatMoorLineSnappedHikers">>
+<<widget "fishingMoorLineSnappedHikers">>
 	<<loadNPC 0 "moor_hiker_1">><<person1>>
 	<<loadNPC 1 "moor_hiker_2">><<person2>>
 	Your line suddenly goes slack, and the <<print $fishingHookedFish.type>> disappears into the depths.
-	<<run endFishingCombat()>>
+	<<run stopFishingProp()>>
 	<<unset $fishingHookedFish>>
 	<br><br>
 
@@ -1110,6 +1069,6 @@ The <<person1>><<person>> sets down <<his>> can and stands up slowly. <<He>> loo
 
 		<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
 		<br>
-		<<link [[Leave|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
+		<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 	<</if>>
 <</widget>>

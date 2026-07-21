@@ -1131,6 +1131,11 @@ function hourPassed(hours) {
 				}
 			});
 		}
+
+		// You can pull up evertyhing of value while magnet fishing in a location, the amount of scrap regenerating over time.
+		for (const entry of Object.values(V.fishing.magnetLoot)) {
+			entry.lootPresent = Math.min(8, entry.lootPresent + 1);
+		}
 	}
 	/* changes that can be applied just once. consider if using V.hourly would make better sense before putting things here */
 	calchairlengthstage();

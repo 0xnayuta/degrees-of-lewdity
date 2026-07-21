@@ -1,8 +1,29 @@
-setup.fishingMinigame = {
+// UI based fishing where the movement of the catch box is controlled by a function. My issue with this one is that it is too predictable and cyclical. The roof of the catch container turning red is a leftover from other ideas (hitting the roof -> noise -> attract attention? Hitting the roof damages line, could cause fail state?)
+
+// Each equation takes elapsed seconds and returns a position in [-1, 1] (-1 = top, +1 = bottom);
+// getCatchBoxCenter maps that onto the bar.
+function combat3Sine(timeSeconds) {
+	return Math.sin((Math.PI * 2 * timeSeconds) / 5);
+}
+
+function combat3SlowSine(timeSeconds) {
+	return Math.sin((Math.PI * 2 * timeSeconds) / 8);
+}
+
+function combat3Triangle(timeSeconds) {
+	const x = timeSeconds / 5;
+	return 2 * Math.abs(2 * (x - Math.floor(x + 0.5))) - 1;
+}
+
+function combat3Compound(timeSeconds) {
+	return 0.6 * Math.sin((Math.PI * 2 * timeSeconds) / 5) + 0.4 * Math.sin((Math.PI * 2 * timeSeconds) / 1.7);
+}
+
+setup.combat3Minigame = {
 	config: {
 		containerWidth: 76,
 		containerHeight: 450,
-		catchBoxMovement: fishEquation1,
+		catchBoxMovement: combat3Sine,
 		catchBoxHeight: 86,
 		hookRadius: 13,
 		hookClickAccelerationUp: 2000,
@@ -13,24 +34,21 @@ setup.fishingMinigame = {
 		requiredCatchSeconds: 5,
 		roofFlashSeconds: 0.18,
 	},
-	fishConfigs: {},
+	fishConfigs: {
+		perch: { catchBoxMovement: combat3Sine },
+		carp: { catchBoxMovement: combat3SlowSine },
+		trout: { catchBoxMovement: combat3Triangle },
+		eel: { catchBoxMovement: combat3Compound },
+	},
 	state: null,
 };
 
-function fishEquation1(timeSeconds) {
-	return Math.sin((Math.PI * 2 * timeSeconds) / 5);
+function combat3GetConfig(fishName) {
+	return Object.assign({}, setup.combat3Minigame.config, setup.combat3Minigame.fishConfigs[fishName]);
 }
 
-// function fishEquation2(timeSeconds) {
-// 	return Math.floor(timeSeconds / 3.5) % 2 === 0 ? -1 : 1;
-// }
-
-function getFishingMinigameConfig(fishName) {
-	return Object.assign({}, setup.fishingMinigame.config, setup.fishingMinigame.fishConfigs[fishName] || {});
-}
-
-function createFishingMinigame(root, fishName, barCanvas) {
-	const config = getFishingMinigameConfig(fishName);
+function combat3Create(root, fishName, barCanvas) {
+	const config = combat3GetConfig(fishName);
 	const catchBoxMovement = config.catchBoxMovement;
 	const containerHeight = config.containerHeight;
 
@@ -52,11 +70,13 @@ function createFishingMinigame(root, fishName, barCanvas) {
 	};
 
 	let ctx = barCanvas.ctx;
-	setup.fishingMinigame.state = state;
+	setup.combat3Minigame.state = state;
 
 	function syncCanvasWidth() {
 		const width = Math.round(canvas.getBoundingClientRect().width);
-		if (canvas.width === width && canvas.height === containerHeight) return;
+		if (canvas.width === width && canvas.height === containerHeight) {
+			return;
+		}
 		barCanvas.resize(width, containerHeight);
 		ctx = barCanvas.ctx;
 	}
@@ -84,7 +104,9 @@ function createFishingMinigame(root, fishName, barCanvas) {
 		const min = config.hookRadius;
 		const max = containerHeight - config.hookRadius;
 
-		if (state.clickBoostActive && state.hookVelocity <= -config.hookBoostTargetSpeed) state.clickBoostActive = false;
+		if (state.clickBoostActive && state.hookVelocity <= -config.hookBoostTargetSpeed) {
+			state.clickBoostActive = false;
+		}
 
 		if (state.clickBoostActive) {
 			state.hookVelocity -= config.hookClickAccelerationUp * dtSeconds;
@@ -98,7 +120,9 @@ function createFishingMinigame(root, fishName, barCanvas) {
 		if (next <= min) {
 			const hitRoof = next < min && state.hookVelocity < 0;
 			state.hookPosition = min;
-			if (state.hookVelocity < 0) state.hookVelocity = 0;
+			if (state.hookVelocity < 0) {
+				state.hookVelocity = 0;
+			}
 			state.clickBoostActive = false;
 			if (hitRoof) {
 				state.noiseScore += 1;
@@ -106,7 +130,9 @@ function createFishingMinigame(root, fishName, barCanvas) {
 			}
 		} else if (next >= max) {
 			state.hookPosition = max;
-			if (state.hookVelocity > 0) state.hookVelocity = 0;
+			if (state.hookVelocity > 0) {
+				state.hookVelocity = 0;
+			}
 		} else {
 			state.hookPosition = next;
 		}
@@ -156,25 +182,20 @@ function createFishingMinigame(root, fishName, barCanvas) {
 
 		barCanvas.clear();
 
-		// Containing bar
 		ctx.fillStyle = "#2f89ba";
 		ctx.fillRect(containerLeft, 0, config.containerWidth, containerHeight);
 
-		// Roof
 		ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
 		ctx.fillRect(containerLeft, 0, config.containerWidth, 4);
 
-		// Roof flash
 		if (state.roofFlashSecondsLeft > 0) {
 			ctx.fillStyle = "rgba(220, 40, 40, 0.82)";
 			ctx.fillRect(containerLeft, 0, config.containerWidth, 8);
 		}
 
-		// Catch zone
 		ctx.fillStyle = hookInsideCatchBox() ? "rgba(79, 193, 112, 0.56)" : "rgba(241, 203, 91, 0.5)";
 		ctx.fillRect(containerLeft + 5, catchBoxTop, config.containerWidth - 10, config.catchBoxHeight);
 
-		// Fishing line
 		ctx.strokeStyle = "#473629";
 		ctx.lineWidth = 2;
 		ctx.beginPath();
@@ -182,7 +203,6 @@ function createFishingMinigame(root, fishName, barCanvas) {
 		ctx.lineTo(containerCenterX, state.hookPosition);
 		ctx.stroke();
 
-		// Bob
 		ctx.fillStyle = "#d79c42";
 		ctx.beginPath();
 		ctx.arc(containerCenterX, state.hookPosition, config.hookRadius, 0, Math.PI * 2);
@@ -193,7 +213,9 @@ function createFishingMinigame(root, fishName, barCanvas) {
 
 	function start() {
 		const frame = time => {
-			if (!state.lastUpdateTime) state.lastUpdateTime = time;
+			if (!state.lastUpdateTime) {
+				state.lastUpdateTime = time;
+			}
 			const deltaMs = Math.min(time - state.lastUpdateTime, 50);
 			state.lastUpdateTime = time;
 
@@ -208,8 +230,9 @@ function createFishingMinigame(root, fishName, barCanvas) {
 			}
 
 			if (catchIsComplete()) {
-				disposeFishingMinigame();
-				Engine.play("Bedroom");
+				V.combat3CaughtFish = state.fishName;
+				combat3Dispose();
+				Engine.play("Combat 3 Caught");
 				return;
 			}
 
@@ -228,15 +251,15 @@ function createFishingMinigame(root, fishName, barCanvas) {
 	}
 
 	state.stop = stop;
-	$root.on("mousedown.fishingMinigame touchstart.fishingMinigame", handlePointerDown);
+	$root.on("mousedown.combat3Minigame touchstart.combat3Minigame", handlePointerDown);
 	start();
 	return state;
 }
 
-Macro.add("fishingMinigame", {
+Macro.add("combat3Minigame", {
 	handler() {
 		const fishName = this.args[0];
-		const config = getFishingMinigameConfig(fishName);
+		const config = combat3GetConfig(fishName);
 		const root = document.createElement("div");
 		const barCanvas = new BaseCanvas(1, config.containerHeight);
 
@@ -247,21 +270,24 @@ Macro.add("fishingMinigame", {
 
 		this.output.append(root);
 		root.append(barCanvas.element);
-		disposeFishingMinigame();
-		createFishingMinigame(root, fishName, barCanvas);
+		combat3Dispose();
+		combat3Create(root, fishName, barCanvas);
 	},
 });
 
-function disposeFishingMinigame() {
-	const state = setup.fishingMinigame.state;
-	if (!state) return;
+function combat3Dispose() {
+	const state = setup.combat3Minigame.state;
+	if (!state) {
+		return;
+	}
 
 	state.stop();
-	$(state.root).off(".fishingMinigame");
+	$(state.root).off(".combat3Minigame");
 
-	setup.fishingMinigame.state = null;
+	setup.combat3Minigame.state = null;
 }
+window.combat3Dispose = combat3Dispose;
 
 $(document).on(":passageinit", function () {
-	disposeFishingMinigame();
+	combat3Dispose();
 });

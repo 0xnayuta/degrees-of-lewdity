@@ -256,7 +256,7 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 			<</addinlineevent>>
 		<<elseif $daily.fishing.moor.fox.closeness lte 5>>
 			<<addinlineevent 1>>
-				The <<beasttype>> crouches in the heather nearby, eyes on your float.
+				The <<beasttype>> crouches in the heather nearby, eyes on your <<fishingBob>>.
 			<</addinlineevent>>
 		<<elseif $daily.fishing.moor.fox.closeness lte 7>>
 			<<addinlineevent 1>>
@@ -281,32 +281,20 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 
 
 
-/* ========================== */
-/* ===== Combat Widgets ===== */
-/* ========================== */
+/* ========================= */
+/* ===== Catch Widgets ===== */
+/* ========================= */
 
-<<widget "fishCombatMoorOrgasmFox">>
-	<<effects>>
-	<<orgasmFishingMoor>>
-	The rod slips from your grip. By the time you find your footing again, the line is slack and the <<print $fishingHookedFish.type>> is gone. When you recover, you notice that the <<beasttype>> has crept several paces closer while you were distracted.
-	<<run endFishingCombat()>>
-	<<unset $fishingHookedFish>>
-	<br><br>
-
-	<<set $daily.fishing.moor.fox.closeness to Math.min($daily.fishing.moor.fox.closeness + random(2, 5), 9)>>
-	<<link [[Next|Fishing Moor Wait]]>><</link>>
-<</widget>>
-
-<<widget "fishCombatMoorCaughtFox">>
+<<widget "fishingMoorCaughtFox">>
 	<<effects>>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<set _foxLunges to $daily.fishing.moor.fox.closeness gte 8 and $daily.fishing.moor.fox.anger gte random(2, 4)>>
-	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, "moor")>>
-	<<run endFishingCombat()>>
+	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, $bus)>>
+	<<run stopFishingProp()>>
 	<<set _fishPropName to "caught-" + $fishingHookedFish.type>>
 	<<wearProp _fishPropName>>
 
-	<<fishingCatchFishText "moor">>
+	<<fishingCatchFishText $fishingHookedFish>>
 	<br><br>
 
 	<<if _foxLunges>>
@@ -357,10 +345,10 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 	<</if>>
 <</widget>>
 
-<<widget "fishCombatMoorLineSnappedFox">>
+<<widget "fishingMoorLineSnappedFox">>
 	<<effects>>
 	Your line suddenly goes slack, and the <<print $fishingHookedFish.type>> disappears into the depths.
-	<<run endFishingCombat()>>
+	<<run stopFishingProp()>>
 	<<unset $fishingHookedFish>>
 	<br><br>
 
@@ -376,48 +364,16 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 
 	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
 	<br>
-	<<link [[Leave|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
+	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 <</widget>>
 
-<<widget "fishCombatMoorMainFox">>
-	<<run fishCombatAction()>>
-
-	/* Handle shoo from previous turn */
-	<<if $fishing.moor.playerShooed>>
-		<<set $fishing.moor.playerShooed to false>>
-		<<set $daily.fishing.moor.fox.closeness to Math.max($daily.fishing.moor.fox.closeness - random(1, 2), 0)>>
-		<<set $daily.fishing.moor.fox.anger += 1>>
-		You wave the <<beasttype>> back while keeping your grip on the rod. <<bHe>> skitters away a pace or two, ears flat.
-		<br><br>
-	<</if>>
-	<<fishCombatActionDescription>>
-	<<printFishInfo>>
-	<br><br>
-
-	/* Fox approach countdown, resets each new combat via endFishingCombat clearing $fishing.combat */
-	<<set $fishing.combat.foxApproachCountdown ??= random(3, 4)>>
-	<<set $fishing.combat.foxApproachCountdown -= 1>>
-
-	<<if $daily.fishing.moor.fox.closeness gte 9>>
-		The <<beasttype>> crouches within arm's reach, haunches raised and eyes locked on your line. <<bHis>> entire body is coiled, ready to spring.
-	<<elseif $fishing.combat.foxApproachCountdown lte 0>>
-		<<set $daily.fishing.moor.fox.closeness to Math.min($daily.fishing.moor.fox.closeness + 1, 9)>>
-		<<set $fishing.combat.foxApproachCountdown to random(3, 4)>>
-		The <<beasttype>> bounds forward and drops low in the heather, closing the gap between you, <<bhis>> eyes fixed on your line.
-	<<elseif $daily.fishing.moor.fox.closeness lte 2>>
-		The <<beasttype>> watches from the heather.
-	<<elseif $daily.fishing.moor.fox.closeness lte 5>>
-		The <<beasttype>> has crept closer, crouching low in the grass and watching your line.
-	<<elseif $daily.fishing.moor.fox.closeness lte 7>>
-		The <<beasttype>> is only a few paces away now, <<bhis>> gaze fixed on your float.
-	<<else>>
-		The <<beasttype>> crouches just within arm's reach, watching your line without blinking.
-	<</if>>
-	<br><br>
-
-	<<fishCombatActions "Moor">>
-	<<if $daily.fishing.moor.fox.closeness gte 7>>
-		<br>
-		<<link [[Shoo the fox|Fishing Combat Moor]]>><<set $fishing.moor.playerShooed to true>><<set $fishing.combat.playerAction to "slack">><</link>>
-	<</if>>
+<<widget "fishingMoorFoxTrashReaction">>
+	<<switch random(1, 3)>>
+		<<case 1>>
+			The <<beasttype>> perks up as you swing your catch in, then deflates at the sight of the junk, thoroughly unimpressed.
+		<<case 2>>
+			The <<beasttype>>'s ears prick forward hopefully, but <<bhe>> huffs and settles back down when no fish appears.
+		<<case 3>>
+			The <<beasttype>> cranes <<bhis>> neck to sniff at what you've hauled up, then gives you a flat, disappointed look.
+	<</switch>>
 <</widget>>

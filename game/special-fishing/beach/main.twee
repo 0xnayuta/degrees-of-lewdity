@@ -4,7 +4,8 @@
 <<run initFishingBeach()>>
 <<run startFishingProp()>>
 
-<<fishingLocationDescription "beach">><<fishingLocationPopulation "beach">>
+<<fishingLocationDescription $bus>>
+<<fishingLocationPopulation $bus>>
 <<fishingBeachAmbient>>
 <br><br>
 
@@ -34,7 +35,11 @@
 		<br>
 		<<link [[Return to the beach|Beach]]>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
 	<<else>>
-		<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><<pass 5>><</link>>
+		<<if fishingUsingMagnetRod()>>
+			<<link [[Dredge for metal (0:05)|Fishing Beach Wait Loop]]>><<pass 5>><</link>>
+		<<else>>
+			<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><<pass 5>><</link>>
+		<</if>>
 		<br>
 		<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
 	<</if>>
@@ -45,28 +50,56 @@
 :: Fishing Beach Wait Loop
 <<cleareventpool>>
 
-<<addinlineevent "bite" fishingCatchEventWeight(10, "beach")>>
-	<<set $fishingHookedFish to rollFish("beach")>>
-	<<include "Fishing Beach Bite">>
-<</addinlineevent>>
+<<if fishingUsingMagnetRod()>>
+	<<addinlineevent "magnetScrap" magnetLootWeight("fishingBeach", 5)>>
+		<<set $fishingMagnetScrap to rollMagnetScrap("fishingBeach")>>
+		<<include "Fishing Beach Magnet Scrap Catch">>
+	<</addinlineevent>>
+
+	<<if !$fishing.singleCatch.cannonball>>
+		<<addinlineevent "cannonball" 0.15>>
+			<<include "Fishing Beach Magnet Pull Cannonball">>
+		<</addinlineevent>>
+	<</if>>
+<<else>>
+	<<addinlineevent "bite" fishingCatchEventWeight("fishingBeach", 10)>>
+		<<set $fishingHookedFish to rollFish("fishingBeach")>>
+		<<if fishingTriggersReelFight($fishingHookedFish)>>
+			<<include "Fishing Beach Bite Big">>
+		<<else>>
+			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			<<include "Fishing Beach Catch">>
+		<</if>>
+	<</addinlineevent>>
+
+	<<addinlineevent "trash" 1>>
+		<<set $fishingTrash to rollFishingTrash("fishingBeach")>>
+		<<include "Fishing Beach Trash Catch">>
+	<</addinlineevent>>
+
+	<<addinlineevent "clothing" 1>>
+		<<set $fishingClothingName to rollFishingClothing("fishingBeach")>>
+		<<include "Fishing Beach Clothing Catch">>
+	<</addinlineevent>>
+<</if>>
 
 /* Fisher event start */
 <<if $daily.fishing.beach.fisher.phase is undefined and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
-	<<addinlineevent "fisherArrive" 1>>
+	<<addinlineevent "fisherArrive" 0.5>>
 		<<include "Fishing Beach Fisher Arrive">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher tips */
-<<if $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.tipGiven is undefined>>
+<<if $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.tipGiven is undefined and !fishingUsingMagnetRod()>>
 	<<addinlineevent "fisherTipsOffer" 0.5>>
 		<<include "Fishing Beach Fisher Tips Offer">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher cliff tip */
-<<if $daily.fishing.beach.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("coastPath")>>
-	<<addinlineevent "fisherCliffTipOffer" 0.5>>
+<<if $daily.fishing.beach.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("fishingCoastPath")>>
+	<<addinlineevent "fisherCliffTipOffer" 1>>
 		<<include "Fishing Beach Fisher Cliff Tip Offer">>
 	<</addinlineevent>>
 <</if>>
@@ -104,12 +137,12 @@
 <</if>>
 
 /* Wind blows skirt */
-<<addinlineevent "beachWind" 1>>
+<<addinlineevent "beachWind" .2>>
 	<<beachday4>>
 <</addinlineevent>>
 
 /* Wave soaks the PC */
-<<addinlineevent "beachWave" 1>>
+<<addinlineevent "beachWave" .2>>
 	<<include "Fishing Beach Wave">>
 <</addinlineevent>>
 
@@ -156,21 +189,20 @@
 <<runeventpool>>
 
 
-:: Fishing Beach Bite
+:: Fishing Beach Bite Big
 <<effects>>
-/* Shortcut the minigame if the fish is small enough */
-<<if $fishingHookedFish.size lt 15 + (currentSkillValue("athletics") / 50)>>
-	<<run startFishingCombat("beach")>>
-	<<set $fishing.combat.fishDistance to 0>>
-	<<include "Fishing Combat Beach">>
-<<else>>
-	Your line snaps taut as a <<print $fishingHookedFish.type>> takes the bait.<<if $fishingHookedFish.isHuge>> It's huge!<</if>>
-	<br><br>
-	<<link [[Next|Fishing Combat Beach]]>><<run startFishingCombat("beach")>><</link>>
-<</if>>
+<<set $fishingReelAttempts to 0>>
+Something takes the bait and runs with it, your rod bending toward the surf.<<if $fishingHookedFish.aboveAverageSize>> You can see a <span class="pink">big</span> <<print $fishingHookedFish.type>> below the surface.<<else>> Looks like <<a $fishingHookedFish.type>>, big enough to give you some trouble.<</if>>
+<br><br>
+
+<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
+<<link [[Try to reel it in|Fishing Beach Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
+<br>
+<<link [[Cut the line|Fishing Beach Cut Line]]>><</link>>
 
 
 :: Fishing Beach Throw Back
+<<effects>>
 You toss the <<print $fishingHookedFish.type>> back into the sea.
 <<unset $fishingHookedFish>>
 <br><br>
@@ -182,6 +214,7 @@ You toss the <<print $fishingHookedFish.type>> back into the sea.
 <<effects>>
 You stow the <<print $fishingHookedFish.type>> away.
 <<tending_give $fishingHookedFish.type 1>>
+
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -208,7 +241,7 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 /* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingBeachWaitAmbient">>
 	<<cleareventpool>>
-	<<fishingWaitAmbient "beach">>
+	<<fishingWaitAmbient $bus>>
 
 	<<if beachCampfirePartyPresent()>>
 		<<fishingWaitAmbientCampfireParty>>
