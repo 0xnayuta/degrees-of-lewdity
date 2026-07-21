@@ -89,7 +89,7 @@
 			<<set $storeLocation to "bed">>
 	<</switch>>
 	<<wardrobeSelection true>>
-	<<if $earSlime.alwaysSleepNaked is false or $hypnosis_traits.silence>>
+	<<if !$earSlime.alwaysSleepNaked or $hypnosis_traits.silence>>
 		<<for _index, $_outfit range $outfit>>
 			<<if $_outfit.type.includes("sleep")>>
 				<<if _passage is "Bed">>
@@ -102,7 +102,7 @@
 					<<set _farmbed to (isLoveInterest("Alex")) ? "alex" : "farm">>
 					<<bedicon _farmbed>>
 				<<elseif $location is "avery_mansion">>
-					<<icon "avery_bedroom.png">>
+					<<icon "avery-bedroom.png">>
 				<<else>>
 					<<bedicon>>
 				<</if>>
@@ -162,6 +162,7 @@
 <</widget>>
 
 <<widget "listdancingclothes">>
+	/* todo: convert to using $wardrobes */
 	<<set _store_location to _args[0]>>
 	<<set _slot to "under_upper">>
 	<<for _index, _outfit range $wardrobe[_slot].sort((a, b) => (a.name > b.name) ? 1 : -1)>>
@@ -178,6 +179,10 @@
 					<span class="grey"><<print _outfit.name>> (Equipped)</span>
 				<<else>>
 					<<link [["Wear "+_outfit.name|$passage]]>>
+						/* todo: grey out the option if rent is due and make use of wardrobes in other safehouses when available */
+						/* for now, assume we're in the city and the closest wardrobe is the orphanage and it's always available */
+						<<set _wardrobe_location to $wardrobe_location>>
+						<<set $wardrobe_location to "wardrobe">>
 						<<if clothingInStorage(_store_location).length is 0>>
 							<<storesave _store_location>>
 							<<set $wearoutfittext to _outfit.name>>
@@ -185,6 +190,7 @@
 						<<set $eventskip to 1>>
 						<<set _item_index to $wardrobe[_slot].indexOf(_outfit)>>
 						<<generalWearFromWardrobe _slot _item_index>>
+						<<set $wardrobe_location to _wardrobe_location>>
 					<</link>>
 				<</if>>
 				<br>
@@ -246,12 +252,17 @@
 <</widget>>
 
 <<widget "wearoutfit">>
+	/* Strip worn strap-on before equipping outfit */
+	<<if $wear_outfit isnot "none" and $worn.under_lower.type.includes("strap-on")>>
+		<<set _strap to $player.inventory.sextoys[$worn.under_lower.name].find(toy => toy.worn)>>
+		<<set _strap.worn to false>>
+		<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
+	<</if>>
 	<<set _selectedWardrobe to selectWardrobe()>>
 	<<updateWornClothingLocation $wardrobe_location>>
 	<<deleteoutfit>>
 	<<overwriteoutfit>>
 	<<set $delete_outfit to "none">>
-
 	<<if $wear_outfit is "clotheson">>
 		<<storeon $storeLocation>>
 	<<elseif $wear_outfit isnot "none">>
@@ -285,29 +296,24 @@
 				})>>
 			<</if>>
 
-			/* Strip worn strap-on */
-			<<if $worn[$_slot].type.includes("strap-on")>>
-				<<set _strap to $player.inventory.sextoys[$worn[$_slot].name].find(toy => toy.worn)>>
-				<<set _strap.worn to false>>
-				<<set $worn[$_slot] to clone(setup.clothes[$_slot][0])>>
-			<</if>>
-
-			/* Equip saved outfit's strap-on */
-			<<if $_slot is "under_lower" and $_incomingItemName.includes("strap-on")>>
-				<<set _toy to $player.inventory.sextoys[$_incomingItemName]>>
-				<<set _toySetup to setup.sextoys.find(t => t.name === $_incomingItemName)>>
+			/* Equip saved outfit's strap-on. If saved outfit doesn't have a strap-on or any underwear, and player was wearing a strap, re-equip it */
+			<<if $_slot is "under_lower" and ($_incomingItemName.includes("strap-on") or ($_incomingItemName is "naked" and _strap))>>
+				<<set _equippedStrap to $_incomingItemName is "naked" ? _strap.name : $_incomingItemName>>
+				<<set _toy to $player.inventory.sextoys[_equippedStrap]>>
+				<<set _toySetup to setup.sextoys.find(t => t.name === _equippedStrap)>>
 				<<if !_toy or _toy?.length is 0>>
-					<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "strapon"}>>
+					<<set _notEquipped[$_slot] to {"name": _equippedStrap, "reason": "strapon"}>>
 				<<elseif _toySetup>>
+					<<generalUndress $_storeLocation $_slot>>
 					<<set _index to _toySetup.clothes_index>>
-					<<if $outfit[$wear_outfit].colors>>
-						<<set _strap to _toy.find(toy => toy.colour === $outfit[$wear_outfit].colors.under_lower[0])>>
+					<<if $outfit[$wear_outfit].colors and $_incomingItemName isnot "naked">>
+						<<set _strap to _strap or _toy.find(toy => toy.colour === $outfit[$wear_outfit].colors.under_lower[0])>>
 						<<if _strap>>
 							<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
 							<<set $worn[$_slot].colour to $outfit[$wear_outfit].colors.under_lower[0]>>
 							<<set _strap.worn to true>>
 						<<else>>
-							<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "strapon"}>>
+							<<set _notEquipped[$_slot] to {"name": _equippedStrap, "reason": "strapon"}>>
 						<</if>>
 					<<else>>
 						<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
@@ -315,7 +321,7 @@
 						<<set _toy[0].worn to true>>
 					<</if>>
 				<<else>>
-					<<exit '<span class="red">ERROR: Equipped $_incomingItemName does not exist. Please report.</span>'>>
+					<<exit '<span class="red">ERROR: Equipped _equippedStrap does not exist. Please report.</span>'>>
 				<</if>>
 				<<continue>>
 			<</if>>
@@ -505,10 +511,10 @@
 							<<break>>
 						<</if>>
 						/*Check for slime corruption*/
-						<<if _corruptionEquipSkip.includes($_slot) and $earSlime.corruption gte 10>>
+						<<if _corruptionEquipSkip.includes($_slot) and $earSlime.corruption gte 10 and $hypnosis_traits?.silence isnot 1>>
 							<<if $earSlime.forcedCommando isnot undefined and ($_slot is "under_lower" or ($_wardrobeItem.outfitPrimary and $_wardrobeItem.outfitPrimary.under_lower and !["broken","split"].includes($_wardrobeItem.outfitPrimary.under_lower)))>>
 								<<if $_wardrobeItem.type.includes("naked") or (_earSlimeEnableSwimwear and $_wardrobeItem.type.includes("swim")) or (_earSlimeEnableDancewear and $_wardrobeItem.type.includes("dance"))>>
-								<<elseif $earSlime.forcedCommando gt 0>>
+								<<elseif $earSlime.forcedCommando gte 0>>
 									<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "corruption_slime_deny_commando"}>>
 									<<break>>
 								<<else>>
@@ -643,7 +649,7 @@
 						<</if>>
 					<<else>>
 						<<if $worn[$_slot].name is $_incomingItemName>>
-							<<if !_notEquipped[$_slot]>>
+							<<if $options.clothingReplacementWarning and !_notEquipped[$_slot]>>
 								<<set _notEquipped[$_slot] to {"name": $_incomingItemName, "reason": "not found replacement"}>>
 							<</if>>
 							/*If the worn item was a hoodie, make sure the hood is in the correct position*/
@@ -748,7 +754,7 @@
 						_resultStrings.corruption_slime_deny.names.push(notEquippedItem.name);
 						break;
 					case "corruption_slime_deny_commando":
-						if (_resultStrings.corruption_slime_deny_commando === undefined) {
+						if (_resultStrings.corruption_slime_deny_commando === undefined && V.hypnosis_traits?.silence !== 1) {
 							_resultStrings.corruption_slime_deny_commando = {
 								"start": "You were unable to equip your ",
 								"joiner": "and",
@@ -880,16 +886,9 @@
 
 <<widget "outfitEditor">>
 	<<link "Filter Options">><<toggleclass "#outfitEditorFilter" "hidden">><</link>> |
+	<<link "Import">><<toggleclass "#outfitEditorImport" "hidden">><</link>> |
 	<<link "Help">><<toggleclass "#outfitEditorHelp" "hidden">><</link>>
 
-	<div id="outfitEditorHelp" class="hidden">
-		All options change the settings the moment you change the option, however, they will only save or be updated in the passage only if you first change the passage (Leave the wardrobe or click on 'Update Wardrobe' at the bottom of this overlay).
-		<br><br>
-		Changing the clothing items may result in the colour settings being reset for that item. This is caused from going from an item with colour options to one that doesn't have any colour options. Just because you can change it to some item's doesn't mean you have access to every item.
-		<br><br>
-		Location is where the Outfit is unique to and will only show for that wardrobe. Please note, where it says 'No access', this is either based on the multiple wardrobe setting or may not be available till a later version of the game. In most cases the 'Orphanage' wardrobe will be shared when Multiple wardrobes is set to 'isolated only' or is disabled.
-		<br><br>
-	</div>
 	<<if _outfitEditorFilter is undefined>>
 		<<outfitEditorDefaultFilter>>
 	<</if>>
@@ -899,9 +898,34 @@
 	<div id="outfitEditorFilter" class="hidden">
 		<<outfitEditorFilter>>
 	</div>
+
+	<div id="outfitEditorImport" class="hidden">
+		<h4>Import</h4>
+		<textarea id="outfitEditorImportText"></textarea>
+		<br>
+		<<link "Submit">>
+			<<run importOutfit()>>
+			<<outfitEditorDefaultFilter>>
+			<<outfitEditorPageSetup>>
+			<<replace "#outfitEditorFilter">><<outfitEditorFilter>><</replace>>
+			<<replace "#outfitEditor">><<outfitEditorList>><</replace>>
+		<</link>>
+	</div>
+
+	<div id="outfitEditorHelp" class="hidden">
+		<h4>Help</h4>
+		All options change the settings the moment you change the option, however, they will only save or be updated in the passage only if you first change the passage (Leave the wardrobe or click on 'Update Wardrobe' at the bottom of this overlay).
+		<br><br>
+		Changing the clothing items may result in the colour settings being reset for that item. This is caused from going from an item with colour options to one that doesn't have any colour options. Just because you can change it to some item's doesn't mean you have access to every item.
+		<br><br>
+		Location is where the Outfit is unique to and will only show for that wardrobe. Please note, where it says 'No access', this is either based on the multiple wardrobe setting or may not be available till a later version of the game. In most cases the 'Orphanage' wardrobe will be shared when Multiple wardrobes is set to 'isolated only' or is disabled.
+		<br><br>
+	</div>
+
 	<div id="outfitEditor">
 		<<outfitEditorList>>
 	</div>
+
 	<<link [[Update wardrobe|$passage]]>><</link>>
 <</widget>>
 
@@ -1151,6 +1175,10 @@
 				Hair Style: No sets saved (Check mirror)
 			</div>
 		<</if>>
+
+		<span @id="'outfitItemExport-' + _args[0]"><<link "Export">>
+			<<run exportOutfit(_args[0])>>
+		<</link>></span>
 		<div @id="'outfitItemSub-' + _args[0]"></div>
 	<</capture>>
 <</widget>>

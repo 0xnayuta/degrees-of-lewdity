@@ -1,6 +1,43 @@
 /*ToDo: Pregnancy Story Content: Lacking events. For events that can be picked when random events can be used during player action, say entering the wolf cave*/
 :: ChildrenEvents [widget]
 
+/* The whole bathe-the-child scene: shared intro, one of four flavours
+   (gentle/shampoo/calm/tantrum), shared wrap-up, and the right prop for each.
+   Optional arg picks the flavour; leave it out for a random one. */
+<<widget "childBatheScene">>
+	<<set _flavour to _args[0]>>
+	<<if !_flavour>>
+		<<rng 5>>
+		<<switch $rng>>
+			<<case 1>><<set _flavour to "gentle">>
+			<<case 2>><<set _flavour to "shampoo">>
+			<<case 3>><<set _flavour to "calm">>
+			<<default>><<set _flavour to "tantrum">>
+		<</switch>>
+	<</if>>
+	<<if _flavour is "shampoo" or _flavour is "calm">>
+		<<wearProp "soap">>
+	<<else>>
+		<<wearProp "rag" "white">>
+	<</if>>
+	You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
+	<br><br>
+	<<switch _flavour>>
+		<<case "gentle">>
+			Next, you rub <<childname>> gently with the warm water, making sure to clean between the folds of skin, and holding <<childhis>> little body with one hand. The softness of <<childhis>> skin as you rub makes you feel extremely at ease. The baby seems to be tickled by your touches and swings <<childhis>> legs in the water, making some of it splash on your clothes and face. You can't help but smile at the situation.<<ltrauma>><<trauma -6>>
+		<<case "shampoo">>
+			Next, you gently rub <<childname>>'s head in circular motions with a handful of baby shampoo. The sweet aroma of strawberry fills the ambient, and bubbles begin to appear in the water. Your child seems curious and periodically takes one of <<childhis>> fingers to the bubbles, popping them. <<childHis>> mellow laughter echoes through the room as <<childhe>> is distracted by the foam in the bathtub.<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+		<<case "calm">>
+			Next, you start the bath by trying to soap your baby's body. <<childHe>> doesn't seem to like the feel of water on <<childhis>> skin, let alone seems to be enjoying your attempts to cleanse <<childhim>>. <<childname>> threatens to cry as you continue the bath, but you manage to calm <<childhim>> down after a little effort. <<childHe>> pouts in distaste until the end of the cleaning session. When you're finished, <<childhe>> doesn't seem to want to let you carry <<childhim>> back and makes uncontent sounds when you pick <<childhim>> up.<<gstress>><<stress 6>>
+		<<case "tantrum">>
+			Just touching the water makes <<childname>> let out a high-pitched, incessant cry. <<childHe>> flails <<childhis>> legs and arms into the water trying to get free as you struggle to rub <<childhim>> properly. Water splashes quickly soak your clothes. <<childHe>> continues throwing a tantrum until the end of the bath, leaving you with a headache.<<gstress>><<stress 6>>
+		<<default>>
+			<<run console.warn("childBatheScene: unexpected bath flavour: " + _flavour)>>
+	<</switch>>
+	<br><br>
+	When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gently dry <<childhis>> body with a softer fabric. You carefully finish the moment by changing the baby's nappies and putting <<childhim>> back in <<childhis>> crib.
+<</widget>>
+
 /*args[0] - location, args[1] - passageExit*/
 <<widget "childrenEvents">>
 	<<if _args[0]>>
@@ -90,7 +127,13 @@
 <<widget "wolfCaveSingles">>
 	<<if _args[0]>>
 		<<childSelect _args[0]>>
-		<<switch random(0,0)>>
+		<<set _c to $children[_args[0]]>>
+		<<set _hurtEligible to ["wolf","wolfboy","wolfgirl"].includes(_c.type) and (_c.mother is "Black Wolf" or _c.father is "Black Wolf")>>
+		<<set _scene to 0>>
+		<<if _hurtEligible>>
+			<<set _scene to random(0,1)>>
+		<</if>>
+		<<switch _scene>>
 			<<case 0>>
 				You spot your <<childtype>> <<childname>> lying on a sleeping <<wolf_cave_singular>>, looking at you with <<childhis>> <<childhands>> stretched towards you.
 				<br><br>
@@ -105,6 +148,10 @@
 				<<link [[Talk (0:15)|childTalk]]>><<pass 15>><</link>>
 				<br>
 				<<link [[Play (0:30)|childPlay]]>><<pass 30>><</link>>
+			<<case 1>>
+				<<childHe>>'s whining beside the Black Wolf, who growls at other wolves.
+				<br><br>
+				<<link [[Investigate (0:10)|Wolf Cave Hurt Pup]]>><<pass 10>><</link>>
 		<</switch>>
 	<</if>>
 	<br>
@@ -155,6 +202,45 @@
 		<</switch>>
 	<</if>>
 <</widget>>
+
+:: Wolf Cave Hurt Pup
+<<set _hurtPupId to $childSelected.childId>>
+<<effects>><<npc "Black Wolf">>
+<<childSelect _hurtPupId>>
+
+You decide to investigate and find your <<childtype>> whimpering beside the Black Wolf, who looks aggressive and growls at any other wolf that tries to approach. <<bHe>> growls at you too, until <<bhe>> realises it's you, and calms slightly.
+<br><br>
+
+<<if $monster is 1>>
+
+	"<<childHe>>'s hurt," <<bHe>> says, gesturing at your <<childtype>>. "Tripped." <<bHe>> insistently points to something on the cave floor. A jagged rock lies not too far away from your <<childtype>>.
+	<br><br>
+
+	You kneel down and examine your <<childtype>>. There's a scrape on one of <<childhis>> paws. It's nothing serious, but painful for a young one. The Black Wolf watches you two intently.
+	<br><br>
+
+	You clean the wound as best you can with what you have available, and your <<childtype>> stops whimpering. <<childHe>> nuzzles against you and licks your hand. <<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+	<br><br>
+
+	You three spend a bit of time together in silence until the Black Wolf retreats once again to the outside of the cave.
+
+<<else>>
+
+	The Black Wolf's face turns towards something on the cave floor, huffing insistently. <<bHe>> wants you to look. You find a jagged rock not too far away from where your <<childtype>> is.
+	<br><br>
+
+	You kneel down and examine your <<childtype>>. There's a scrape on one of <<childhis>> paws. Nothing serious, but painful for a young one. The Black Wolf circles around you both.
+	<br><br>
+
+	You clean the wound as best you can with what you have available, and your <<childtype>> stops whimpering. <<childHe>> nuzzles against you and licks your hand. <<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+	<br><br>
+
+	You three spend a bit of time together in silence until the Black Wolf retreats once again to the outside of the cave.
+
+<</if>>
+<br><br>
+
+<<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>
 
 :: childBreastFeed
 <<set $pregnancyStats.childBreastfedInteractions++>>
@@ -296,7 +382,7 @@
 	<<case "wolf" "wolfboy" "wolfgirl">>
 		<<switch _rng>>
 			<<case 1>>
-				You recite a few nursery rhymes you remember from long ago. <<childHe>> looks alert as <<childhe>> listens to your voice. You make a few different tones and wait for <<childhis>> reaction. It seems to you like <<childhe>> recognises certain sounds and changes <<childhis>> expression accordingly. After a few more moments, tilts <<childhis>> head at you.
+				You recite a few nursery rhymes you remember from long ago. <<childHe>> looks alert as <<childhe>> listens to your voice. You make a few different tones and wait for <<childhis>> reaction. It seems to you like <<childhe>> recognises certain sounds and changes <<childhis>> expression accordingly. After a few more moments, <<childhe>> tilts <<childhis>> head at you.
 			<<case 2>>
 				You gently cup <<childname>>'s
 				<<if $cmonster is 1>>
@@ -312,7 +398,7 @@
 	<<case "hawk">>
 		<<switch _rng>>
 			<<case 1>>
-				You recite a few nursery rhymes you remember from long ago. <<childHe>> looks alert as <<childhe>> listens to your voice. You make a few different tones and wait for <<childhis>> reaction. It seems to you like <<childhe>> recognises certain sounds. After a few more moments, tilts <<childhis>> head at you.
+				You recite a few nursery rhymes you remember from long ago. <<childHe>> looks alert as <<childhe>> listens to your voice. You make a few different tones and wait for <<childhis>> reaction. It seems to you like <<childhe>> recognises certain sounds. After a few more moments, <<childhe>> tilts <<childhis>> head at you.
 			<<case 2>>
 				You gently cup <<childname>>'s
 				<<if $cmonster is 1>>
@@ -353,22 +439,7 @@
 <<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>
 
 :: childBathe
-<<wearProp "soap">>
-You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
-<<set _rng to random(1, 5)>>
-<<switch _rng>>
-	<<case 1>>
-		You rub <<childname>> gently with the warm water, making sure to clean between the folds of skin and holding <<childhis>> little body with one hand. The softness of <<childhis>> skin as you rub makes you feel extremely at ease. The baby seems to be tickled by your touches and swings <<childhis>> legs in the water, making some of it splash on your clothes and face. You can't help but smile at the situation.<<ltrauma>><<trauma -6>>
-	<<case 2>>
-		You gently rub <<childname>>'s head in circular motions with a handful of baby shampoo. The sweet aroma of strawberry fills the ambient, and bubbles begin to appear in the water. Your child seems curious and periodically takes one of <<childhis>> fingers to the bubbles, popping them. <<childHis>> mellow laughter echoes through the room as <<childhe>> is distracted by the foam in the bathtub.<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
-	<<case 3>>
-		You start the bath by trying to soap your baby's body. <<childHe>> doesn't seem to like the feel of water on <<childhis>> skin, let alone seems to be enjoying your attempts to cleanse <<childhim>>. <<childname>> threatens to cry as you continue the bath, but you manage to calm <<childhim>> down after a little effort. <<childHe>> pouts in distaste until the end of the cleaning session. When you're finished, <<childhe>> doesn't seem to want to let you carry <<childhim>> back and makes uncontent sounds when you pick <<childhim>> up.<<gstress>><<stress 6>>
-	<<default>>
-		Just by touching the water, <<childname>> lets out a high-pitched, incessant cry. <<childHe>> flails <<childhis>> legs and arms into the water trying to get free as you struggle to rub <<childhim>> properly. Water splashes quickly soak your clothes. <<childHe>> continues throwing a tantrum until the end of the bath, leaving you with a headache.<<gstress>><<stress 6>>
-<</switch>>
-<br><br>
-
-When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gently dry <<childhis>> body with a softer fabric. You carefully finish the moment by changing the baby's nappies and putting <<childhim>> back in <<childhis>> crib.
+<<childBatheScene>>
 <br><br>
 
 <<link [[Next|$childPassageExit]]>><<unset $childPassageExit>><<endevent>><</link>>
@@ -404,7 +475,7 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 		<</switch>>
 	<<case "tower">>
 		<<getChildrenIds `{location: $location, eggTimer: undefined}` "both">>
-		You are in the tower. You look around for your <<pluralise _childrenIds.length "child" "children">>.
+		You are in the tower. You look around for your <<pluralise _childrenIds.length "child">>.
 <</switch>>
 <<if Time.dayState isnot "night" and (!$daily.childrenHomeEvent or !$daily.childrenHomeEvent.includes($location)) and random(1) is 1>>
 	<<if !$daily.childrenHomeEvent>>
@@ -438,8 +509,8 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 	<</if>>
 <</if>>
 <<if $location is "home">>
-	<<tendingicon "babybottle">>
-	<<if V.plants['baby_bottle_of_breast_milk'] and V.plants['baby_bottle_of_breast_milk'].amount gt 0>>
+	<<foodstufficon "baby_bottle_of_breast_milk">>
+	<<if V.foodstuff['baby_bottle_of_breast_milk'] and V.foodstuff['baby_bottle_of_breast_milk'].amount gt 0>>
 		<<link [[Donate breast milk|Childrens Donate Milk]]>><</link>>
 		<<if $pregnancyStats.orphanageMilkBottles gt 0>>
 			(<span class="green"><<print $pregnancyStats.orphanageMilkBottles>></span> bottles remaining)
@@ -461,18 +532,18 @@ When you're done bathing <<childhim>>, you lay <<childhim>> on a towel and gentl
 :: Childrens Donate Milk
 <<effects>>
 
-<label>Number of milk bottles to donate: <<numberslider "$donatedMilk" 1 1 `$plants["baby_bottle_of_breast_milk"].amount` 1>></label>
+<label>Number of milk bottles to donate: <<numberslider "$donatedMilk" 1 1 `$foodstuff["baby_bottle_of_breast_milk"].amount` 1>></label>
 
 <<link [[Donate|Childrens Donate Milk 2]]>><</link>>
 <br>
 <<link [[Back|Childrens Home]]>><<unset $childActivityEvent>><<endevent>><</link>>
 
 :: Childrens Donate Milk 2
-<<effects>><<wearProp "milk bottle" 0 "baby">>
+<<effects>><<wearProp "baby bottle of breast milk">>
 
 <<set $pregnancyStats.orphanageMilkBottles += $donatedMilk>>
 <<set $pregnancyStats.orphanageMilkBottlesTotal += $donatedMilk>>
-<<set $plants["baby_bottle_of_breast_milk"].amount -= $donatedMilk>>
+<<set $foodstuff["baby_bottle_of_breast_milk"].amount -= $donatedMilk>>
 
 You leave behind $donatedMilk bottles of milk for your children with one of Bailey's thugs.
 <br><br>
@@ -584,36 +655,36 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 				<</for>>
 			</div>
 			<div class="containerFooter">
-					<<if $storedChildrenToys[$location].length gt 0>>
+				<<if $storedChildrenToys[$location].length gt 0>>
+					<div class="tab inventory">
+						<<button "<span class='fa-icon fa-trash'></span> Discard">>
+							<<run $storedChildrenToys[$location].deleteAt(_selectedLocationToy)>>
+							<<set _selectedLocationToy to 0>>
+							<<childrenToysUIReplace>>
+						<</button>>
+					</div>
+					<<if $player.inventory.childrenToys.length lt 5>>
 						<div class="tab inventory">
-							<<button "<span class='fa-icon fa-trash'></span> Discard">>
+							<<button "<span class='fa-icon fa-export'></span> Carry">>
+								<<run $player.inventory.childrenToys.push($storedChildrenToys[$location][_selectedLocationToy])>>
 								<<run $storedChildrenToys[$location].deleteAt(_selectedLocationToy)>>
 								<<set _selectedLocationToy to 0>>
 								<<childrenToysUIReplace>>
 							<</button>>
 						</div>
-						<<if $player.inventory.childrenToys.length lt 5>>
-							<div class="tab inventory">
-								<<button "<span class='fa-icon fa-export'></span> Carry">>
-									<<run $player.inventory.childrenToys.push($storedChildrenToys[$location][_selectedLocationToy])>>
-									<<run $storedChildrenToys[$location].deleteAt(_selectedLocationToy)>>
-									<<set _selectedLocationToy to 0>>
-									<<childrenToysUIReplace>>
-								<</button>>
-							</div>
-						<<else>>
-							<div class="tab inventory">
-								<button class="link-internal macro-button no-numberify buttonDisabled" disabled><span class='fa-icon fa-export'></span>Carry</button>
-							</div>
-						<</if>>
 					<<else>>
 						<div class="tab inventory">
-							<button class="link-internal macro-button buttonDisabled" disabled><<="<span class='fa-icon fa-trash'></span> Discard">></button>
-						</div>
-						<div class="tab inventory">
-							<button class="link-internal macro-button buttonDisabled" disabled><<="<span class='fa-icon fa-export'></span> Carry">></button>
+							<button class="link-internal macro-button no-numberify buttonDisabled" disabled><span class='fa-icon fa-export'></span>Carry</button>
 						</div>
 					<</if>>
+				<<else>>
+					<div class="tab inventory">
+						<button class="link-internal macro-button buttonDisabled" disabled><<="<span class='fa-icon fa-trash'></span> Discard">></button>
+					</div>
+					<div class="tab inventory">
+						<button class="link-internal macro-button buttonDisabled" disabled><<="<span class='fa-icon fa-export'></span> Carry">></button>
+					</div>
+				<</if>>
 			</div>
 		</div>
 	</div>
@@ -694,36 +765,16 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 		You sit beside <<childname>> and begin to converse with <<childhim>>. <<childHe>> gives no indication of understanding you, but smiles at your presence and tries to mimic your sounds. <<childHe>> soon becomes distracted by <<childhis>> hands however and falls silent. You get back on your feet.<<llstress>><<stress -12>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "thumbSucking">>
 	<<case "batheGentle">>
-		<<wearProp "rag" "white">>
-		You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
-		<br><br>
-		Next, you rub <<childname>> gently with the warm water, making sure to clean between the folds of skin, and holding <<childhis>> little body with one hand. The softness of <<childhis>> skin as you rub makes you feel extremely at ease. The baby seems to be tickled by your touches and swings <<childhis>> legs in the water, making some of it splash on your clothes and face. You can't help but smile at the situation.<<ltrauma>><<trauma -6>>
-		<br><br>
-		You finish bathing <<childhim>>, lay <<childhim>> on a towel, and dry <<childhis>> body with softer fabric. You finish by changing <<childhis>> nappy and putting <<childhim>> back in <<childhis>> crib.
+		<<childBatheScene "gentle">>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "batheShampoo">>
-		<<wearProp "soap">>
-		You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
-		<br><br>
-		Next, you gently rub <<childname>>'s head in circular motions with a handful of baby shampoo. The sweet aroma of strawberry fills the ambient, and bubbles begin to appear in the water. Your child seems curious and periodically takes one of <<childhis>> fingers to the bubbles, popping them. <<childHis>> mellow laughter echoes through the room as <<childhe>> is distracted by the foam in the bathtub.<<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
-		<br><br>
-		You finish bathing <<childhim>>, lay <<childhim>> on a towel, and dry <<childhis>> body with softer fabric. You finish by changing <<childhis>> nappy and putting <<childhim>> back in <<childhis>> crib.
+		<<childBatheScene "shampoo">>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "BatheCalm">>
-		<<wearProp "soap">>
-		You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
-		<br><br>
-		Next, you start the bath by trying to soap your baby's body. <<childHe>> doesn't seem to like the feel of water on <<childhis>> skin, let alone seems to be enjoying your attempts to cleanse <<childhim>>. <<childname>> threatens to cry as you continue the bath, but you manage to calm <<childhim>> down after a little effort. <<childHe>> pouts in distaste until the end of the cleaning session. When you're finished, <<childhe>> doesn't seem to want to let you carry <<childhim>> back and makes uncontent sounds when you pick <<childhim>> up.<<gstress>><<stress 6>>
-		<br><br>
-		You finish bathing <<childhim>>, lay <<childhim>> on a towel and dry <<childhis>> body with softer fabric. You finish by changing <<childhis>> nappy and putting <<childhim>> back in <<childhis>> crib.
+		<<childBatheScene "calm">>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "batheTantrum">>
-		<<wearProp "rag" "white">>
-		You fill a small tub with warm water and prepare the towels and a new nappy beforehand. You take <<childname>> in your arms gently and carry <<childhim>> to the bathtub, making sure to put <<childhim>> in a safe position.
-		<br><br>
-		Just touching the water makes <<childname>> let out a high-pitched, incessant cry. <<childHe>> flails <<childhis>> legs and arms into the water trying to get free as you struggle to rub <<childhim>> properly. Water splashes quickly soak your clothes. <<childHe>> continues throwing a tantrum until the end of the bath, leaving you with a headache.<<gstress>><<stress 6>>
-		<br><br>
-		You finish bathing <<childhim>>, lay <<childhim>> on a towel and dry <<childhis>> body with softer fabric. You finish by changing <<childhis>> nappy and putting <<childhim>> back in <<childhis>> crib.
+		<<childBatheScene "tantrum">>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "nappyChange">>
 		<<wearProp "rag" "white">>
@@ -740,7 +791,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 		<<childname>> sits alone, wearing a scowl on <<childhis>> infant face. You sit beside <<childhim>>, but <<childhe>> ignores you. Unable to help but smile at the grumpy child's expression, you begin to tickle <<childhim>>. <<childHe>>'s not ticklish, but is amused by your teasing fingers and the silly noises you make as you playfully attack <<childhis>> sides. The scowl is soon gone, and <<childhe>> giggles and smiles instead. Mission accomplished.<<lstress>><<stress -6>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "thumbSucking">>
 	<<case "readingAttempt">>
-		<<wearProp "open book" 0 "storybook">>
+		<<wearProp "open storybook">>
 		You sit beside <<childname>> and pull <<childhim>> and the inverted book into your lap. You flip it open and begin to read the simple words to <<childhim>>. <<childHe>> follows along both your voice and the colourful pictures for a while, until <<childhe>> becomes distracted and rolls off your lap.<<lstress>><<stress -6>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "readingCorrected">>
 	<<case "babyRattle">>
@@ -762,11 +813,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 			<<switch _toyName>>
 				<<case "red robot">><<wearProp "robot" "red">>
 				<<case "green robot">><<wearProp "robot" "green">>
-				<<case "baby doll">><<wearProp "baby doll">>
-				<<case "clown">><<wearProp "clown toy">>
-				<<case "Mr Teddy">><<wearProp "bear" 0 "mr teddy">>
-				<<case "Mrs Teddy">><<wearProp "bear" 0 "mrs teddy">>
-				<<default>><<wearProp "bear" 0 "teddy">>
+				<<default>><<wearProp _toyName>>
 			<</switch>>
 		<</if>>
 	<<case "toyCar">>
@@ -826,7 +873,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 		<</if>>
 	/*NPCs*/
 	<<case "Robin">>
-		<<npc "Robin">><<person1>>
+		<<npc "Robin" 2>><<person2>>
 		You approach Robin. <<childname>> snuggles up to <<him>>. They both giggle.
 		<<if $childSelected.mother is "pc">>
 			<<set _playerRole to "mummy">>
@@ -919,20 +966,29 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 		You pick <<childhim>> up and pet <<childhim>>, keeping the <<childcry>> <<childtype>>'s attention off <<childhis>> hunger. Soon enough, several feeding pups finish, making room. The <<childtype>> latches on, eager and greedy.<<lstress>><<stress -6>>
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "sleeping">>
 	<<case "gnawing">>
+		<<switch $pupToy>>
+			<<case "antler">><<wearProp "antler">>
+			<<case "boot">><<wearProp "boot">>
+			<<case "stick">><<wearProp "stick">>
+			<<default>><<wearProp "chewy bone">>
+		<</switch>>
 		You sit next to <<childname>> and grab ahold of the $pupToy. <<childHe>> growls as you gently pull on the makeshift toy and tugs it back. You continue tugging the $pupToy back and forth before finally letting <<childhim>> win. <<childname>> yips joyfully as <<childhe>> claims <<childhis>> prize and resumes playing with it, tail wagging with excitement.
 		<br><br>
 		Another pup, noticing your game, approaches <<childname>> and attempts to grab the $pupToy. You keep a close eye on the two of them, but thankfully, <<childname>>'s playmate doesn't seem interested in actually stealing the toy from <<childhim>>. You smile as the pups play tug-of-war together before standing up and leaving them to their own devices.
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "playing">>
 	<<case "squeakyToy">>
-		<<switch $phase>>
-			<<case "squeaky sheep">><<wearProp "chew toy" 0 "sheep">><<set _squeakyToy to "squeaky sheep">>
-			<<default>><<wearProp "chew toy" 0 "chicken">><<set _squeakyToy to "squeaky chicken">>
-		<</switch>>
-		You pick up the _squeakyToy and sit next to <<childname>>. <<childHe>> immediately sinks <<childhis>> fangs into it. The toy lets out a loud squeak in protest. You startle at the sudden sound, and <<childname>> yelps in surprise. <<gstress>><<stress 6>>
+		<<wearProp $phase>>
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			You nudge the <<= $phase>> closer to <<childname>> with your foot.
+		<<else>>
+			You pick up the $phase and sit next to <<childname>>.
+		<</if>>
+		<<childHe>> immediately sinks <<childhis>> fangs into it. The toy lets out a loud squeak in protest. You startle at the sudden sound, and <<childname>> yelps in surprise. <<gstress>><<stress 6>>
 		<br><br>
-		<<childHe>> drops the toy and looks at it with distrust. You spend the next several moments trying to reassure <<childhim>>. <<childHe>> calms down, but doesn't want to play with the _squeakyToy anymore. You decide to leave it be for now.
+		<<childHe>> drops the toy and looks at it with distrust. You spend the next several moments trying to reassure <<childhim>>. <<childHe>> calms down, but doesn't want to play with the $phase anymore. You decide to leave it be for now.
 		<<set $children[$childActivityEvent.childid].localVariables.activity to "playing">>
 	<<case "squeakyToy2">>
+		<<wearProp $phase>>
 		<<if $leftarm is "bound" and $rightarm is "bound">>
 			You struggle to pick up the <<= $phase>> with your bound hands, let alone make it squeak. By the time you manage to grasp it, <<childname>> has already left.
 		<<elseif random(1, 3) is 1>>
@@ -965,7 +1021,6 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 			<</if>>
 		<</if>>
 	<<case "chewBone">>
-		<<wearProp "chew toy" 0 "bone">>
 		You sit next to <<childname>> and start digging alongside <<childhim>>. The dirt is hard, but you manage to make a shallow hole. <<childname>> picks up a toy bone and drops it in the hole. You sit back and watch as <<childhe>> buries it. After pushing the unearthed dirt back into the hole, <<childhe>> sits on the mound.
 		<br><br>
 		<<switch random(1, 2)>>
@@ -975,6 +1030,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 				You scritch <<childhis>> ears before standing up, and <<childhe>> gives a happy bark. <<lstress>><<stress -6>>
 		<</switch>>
 	<<case "chewBone2">>
+		<<wearProp "chewy bone">>
 		<<switch random(1, 3)>>
 			<<case 1>>
 				You nudge the bone closer to <<childname>>. <<childHe>> stops and stares at it. You nudge it closer, and <<childhe>> chomps down on it before pulling it away. The <<childtype>> continues to gnaw on it for several minutes. <<stress -6>><<lstress>>
@@ -993,7 +1049,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 				<<exit>>
 		<</switch>>
 	<<case "chewRope">>
-		<<wearProp "chew toy" 0 "rope">>
+		<<wearProp "chewy rope">>
 		You sit next to <<childname>> and grab ahold of the rope. <<childHe>> growls as you gently pull on the toy and tugs it back. You continue tugging the rope back and forth before finally letting <<childhim>> win. <<childname>> yips joyfully as <<childhe>> claims <<childhis>> prize, tail wagging with excitement.
 		<br><br>
 		<<childHe>> rolls onto <<childhis>> back and holds the rope with <<childhis>> <<childhands>>, chewing on it with renewed gusto. You smile as you stand back up. <<lstress>><<stress -6>>
@@ -1025,7 +1081,7 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 			You pull the rope away from <<childname>>. <<childHe>> instantly jumps at it and bites down. You continue to pull, and the <<childtype>> tugs back in return. <<childHe>> gives a little growl as you tow <<childhim>> along. Soon <<childhe>> wears out and drops the rope. <<lstress>><<ltrauma>><<gferocity>><<stress -6>><<trauma -6>>
 		<</if>>
 	<<case "rollBall">>
-		<<wearProp "chew toy" 0 "ball">>
+		<<wearProp "chewy ball">>
 		<<childname>> gives an enthusiastic bark as you pick up the ball. You gently roll it towards <<childhim>>. <<childHe>> <<= either("manages to catch it", "fumbles around with the ball", "stares at it")>> before rolling it back towards you <<if $children[$childSelected.childId].type is "wolf">>with <<childhis>> snout<<else>>with <<childhis>> tiny <<childhands>><</if>>.
 		<br><br>
 		You pass the ball back and forth for a bit, until <<childhe>>'s tuckered out. <<childHe>> curls up around the ball and falls asleep. You pet <<childhis>> head and stand up. <<lstress>><<stress -6>>
@@ -1313,10 +1369,10 @@ You leave behind $donatedMilk bottles of milk for your children with one of Bail
 
 <<switch random(1,2)>>
 	<<case 1>>
-	"I dunno how such a little thing can drink so much!" <<He>> laughs.
+		"I dunno how such a little thing can drink so much!" <<He>> laughs.
 
 	<<case 2>>
-	"Never thought this would be so tiring," <<he>> sighs.
+		"Never thought this would be so tiring," <<he>> sighs.
 
 <</switch>>
 
@@ -1455,7 +1511,7 @@ Alex looks slightly taken aback by the question. <<He>> freezes up before sighin
 	"You got me as your support, you know. We are in this together." You pat <<his>> back which brings a smile to <<his>> face.
 	<br><br>
 
-	Alex looks back up at you and places a kiss on your lips. "What did I do to deserve a <<if $player.gender_appearance is "f">>woman<<else>>man<</if>> like you?"
+	Alex looks back up at you and places a kiss on your lips. "What did I do to deserve a <<woman>> like you?"
 	<br><br>
 
 <<elseif $phase is 2>>
@@ -1504,6 +1560,7 @@ Alex guides you back to bed, giving you one last goodnight kiss before going bac
 <<effects>>
 <<set _child1 to $childActivityEvent.childid>>
 <<set _child2 to $childActivityEvent.childid2>>
+<<wearProp "chewy rope">>
 
 <<if $phase is 0>> /* Play with first wolf child*/
 	"Hey now," you chide <<childSelect _child2>><<childname>>. "You'll have to wait your turn."
@@ -1555,7 +1612,7 @@ Alex guides you back to bed, giving you one last goodnight kiss before going bac
 <br>
 
 :: Wolf Children Roll Ball
-<<effects>>
+<<effects>><<wearProp "chewy ball">>
 
 <<if $phase is 0>> /* Toss gently */
 	<<switch random(1, 2)>>

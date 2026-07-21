@@ -384,8 +384,7 @@ $(() => updateCaptionTooltip());
 window.updateCaptionTooltip = updateCaptionTooltip;
 
 function returnTimeFormat() {
-	if (!V || !V.options) return "en-GB";
-	return V.options.dateFormat;
+	return V?.options?.dateFormat ?? "en-GB";
 }
 window.returnTimeFormat = returnTimeFormat;
 
@@ -479,7 +478,7 @@ function moneyStatsProcess(stats) {
 					case "pubAlcohol":
 						compressTo = "pub";
 						break;
-					case "dockWage":
+					case "docksWage":
 						compressTo = "docks";
 						break;
 					case "stripClubBartender":

@@ -50,7 +50,7 @@ Tulips grow in great patches near the riverbank.
 	<<elseif $robinReunionScene isnot undefined and _robin_location is "park" and $exposed lte 0 and !$possessed>>
 		<<npc Robin>><<person1>>
 		<<if $robinReunionScene is "dungeon">>
-			<<wearProp "hot drink" 0 "cocoa">>
+			<<wearProp "hot cocoa">>
 			<<unset $robinReunionScene>><<set $robinPostMortem to true>>
 			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth falls agape as <<he>> sees you, and <<he>> sprints towards you.
 			<br><br>
@@ -69,7 +69,7 @@ Tulips grow in great patches near the riverbank.
 			<br>
 		<<elseif $robinReunionScene is "dungeonRobin">>
 			<<unset $robinReunionScene>>
-			<<wearProp "hot drink" 0 "cocoa">>
+			<<wearProp "hot cocoa">>
 			You see Robin stood behind <<his>> hot chocolate stand. <<His>> mouth goes falls as <<he>> sees you, and <<he>> sprints towards you.
 			<br><br>
 
@@ -131,15 +131,42 @@ Tulips grow in great patches near the riverbank.
 		<</if>>
 	<<elseif C.npc.Robin.init is 0 and Time.season is "winter" and Time.isWeekEnd() and between(Time.hour, 9, 16) and $exposed lte 0 and !$possessed>>
 		<<set $robindebt to 0>><<set $robindebtlimit to 5>>
-		<<npc Robin>><<person1>>You see someone familiar working at a stand in the park. <<He>> notices you at the same time. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> motions you over, while cleaning a mug. <<He>> puts it down and hugs you when you approach.
+		<<npc Robin>><<person1>>
+		You see someone familiar working at a stand in the park. <<He>> notices you at the same time. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> motions you over, while cleaning a mug. <<He>> puts it down and hugs you when you approach.
 		<br><br>
-			"I haven't seen you at the orphanage in a while. We must keep missing each other. Remember, <span class="gold">you can visit me in my room at home</span> anytime you want. I've been waiting to show you something, I'm so excited!" <<He>> looks behind you, noticing customers approaching. "I've got to get back to work here. You're welcome to stay and help if you want." <<He>> gets back into position behind the stand.
+
+		"I haven't seen you at the orphanage in a while. We must keep missing each other. Remember, <span class="gold">you can visit me in my room at home</span> anytime you want. I've been waiting to show you something, I'm so excited!" <<He>> looks behind you, noticing customers approaching. "I've got to get back to work here. You're welcome to stay and help if you want." <<He>> gets back into position behind the stand.
 		<br><br>
-		<<endevent>>
-		<<link [[Next|Park]]>><<set $eventskip to 1>><</link>>
+
+		<<link [[Next|Park]]>><<set $eventskip to 1>><<endevent>><</link>>
 		<br>
 	<<elseif _robin_location is "park" and $exposed lte 0 and $balloonStand.open is true and $balloonStand.robin.status is "unaffected">>
 		<<balloonRobinIntro>>
+	<<elseif isInPark("doren") and $dorenintro is 1 and $weekly.dorenparkmeet isnot true and C.npc.Doren.love gte 50 and $loft_known is 1 and $loft_doren isnot 1>>
+		<<set $weekly.dorenparkmeet to true>>
+		<<npc "Doren">><<person1>>
+		You spot Doren setting up a little library on the lawn. It's made from a dollhouse, its attic a miniature library. The post is cemented down in a flower-filled planter.
+		<br><br>
+		<<He>> greets you with a smile. "<<Lassie>>! Good <<= Time.hour lt 12 ? `morning` : `afternoon`>>. A few volunteers and I recently ran a book drive, and built this little library. I'm quite proud of it." <<He>> rests <<his>> hands on <<his>> waist with a grin.
+		<br><br>
+		<<if $loft_known is 1 and $loft_doren isnot 1 and C.npc.Doren.love gte 50>>
+			<<lofticon>><<link [[Tell Doren about the orphanage loft|Doren Loft]]>><</link>><<set $phase to 1>>
+			<br>
+		<</if>>
+		<<getouticon>><<link [[Leave|Doren Loft 2]]>><<set $phase to 2>><<set $phase2 to 1>><</link>>
+	<<elseif isInPark("sam") and $Sam_Park_Intro isnot 1 and $exposed lte 0>>
+		<<set $Sam_Park_Intro to 1>>
+		<<npc "Sam">><<person1>>
+		A duck waddles in front of you. It looks up at you, as if expecting something. Before you can react, a hand appears, holding a handful of corn.
+		<br><br>
+		"Give it some of this."
+		<br><br>
+		<i>It's Sam.</i>
+		<br><br>
+
+		<<link [[Feed the duck|Sam Park Intro]]>><<set $phase to "feed">> <</link>>
+		<br>
+		<<link [[Greet Sam|Sam Park Intro]]>><<set $phase to "greet">><</link>>
 	<<else>>
 		<<if $options.mapTop is true>>
 			<<map "park">>
@@ -154,7 +181,7 @@ Tulips grow in great patches near the riverbank.
 			<</if>>
 			<<if !$plants_known.includes("tulip")>>
 				<<if $sciencetrait gte 1>>
-					<<icon "tending/tulip.png">> <<link [[Search for seeds (0:30)|Park Tulip]]>><<set $plants_known.push("tulip")>><<pass 30>><<tending 6>><</link>><<gtending>>
+					<<foodstufficon "tulip">> <<link [[Search for seeds (0:30)|Park Tulip]]>><<set $plants_known.push("tulip")>><<pass 30>><<tending 6>><</link>><<gtending>>
 					<br>
 				<<else>>
 					<span class="blue">A higher science skill would let you harvest tulip seeds.</span>
@@ -164,7 +191,7 @@ Tulips grow in great patches near the riverbank.
 			<<if pcAreArmsBound("both")>>
 				<span class="red">Both of your arms are bound</span>, so you are unable to pick tulips.
 			<<else>>
-				<<icon "tending/tulip.png">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
+				<<foodstufficon "tulip">> <<link [[Pick tulips (0:20)|Park Tulip Pick]]>><<pass 20>><<crimeUp 20 "petty">><</link>><<tendingdifficulty 1 200>><<crime "petty">>
 			<</if>>
 			<br>
 			<<if _robin_location is "park">>
@@ -194,14 +221,23 @@ Tulips grow in great patches near the riverbank.
 				<<parkicon "fountain">><<link [[Approach|Whitney Park]]>><<set $daily.whitney.textTrigger to true>><<if $daily.whitney.text is undefined>><<set $daily.whitney.text to 0>><<else>><<set $daily.whitney.text += 1>><</if>><</link>>
 				<br><br>
 			<</if>>
+			<<if isInPark("sam") and $Sam_Park_Intro is 1>>
+				You see Sam standing beside the bridge.
+				<br>
+				<<parkicon "bridge">><<link [[Walk over to <<nnpc_him "Sam">>|Sam Park]]>><</link>>
+				<br><br>
+			<</if>>
 		<</if>>
-		<<icon "mentoilet.png">><<link [[Men's toilets (0:01)|Men's Toilets]]>><<pass 1>><<endevent>><</link>>
+		<<icon "men-toilet.png">><<link [[Men's toilets (0:01)|Men's Toilets]]>><<pass 1>><<endevent>><</link>>
 		<br>
-		<<icon "womentoilet.png">><<link [[Women's toilets (0:01)|Women's Toilets]]>><<pass 1>><<endevent>><</link>>
+		<<icon "women-toilet.png">><<link [[Women's toilets (0:01)|Women's Toilets]]>><<pass 1>><<endevent>><</link>>
 		<br>
 		<<if $leftleg is "bound" or $rightleg is "bound">>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
 			You cannot go for a run with $_boundType bound.
+			<br>
+		<<elseif $worn.feet.type.includes("shackle")>>
+			You cannot go for a run while shackled.
 			<br>
 		<<elseif $worn.feet.type.includes("heels") and ($exposed is 0 or Time.dayState is "night")>>
 			<<heelsicon>><<link [[Exercise in heels (0:30)|Park Exercise Heels]]>><<athletics 3>><<pass 30>><<tiredness 4>><<stress -1>><<slimeEventEnd "running">><</link>><<ggtiredness>><<gathletics>><<lstress>>
@@ -266,9 +302,9 @@ Tulips grow in great patches near the riverbank.
 				/* none */
 			<<else>>
 				<<add_link "<<schoolicon 'courtyard'>><<link [[Secret tunnel to rear school courtyard (0:05)|School Rear Courtyard]]>><<pass 5>><</link>><br>">>
-				<br>
 			<</if>>
 		<</if>>
+		<br>
 		<<displayLinks>>
 		<<if $options.mapTop isnot true>>
 			<br>
@@ -279,12 +315,12 @@ Tulips grow in great patches near the riverbank.
 <<set $eventskip to 0>>
 
 :: Park Tulip
-<<effects>>
+<<effects>><<wearProp "tulip basket">>
 
 You walk through the tulips, searching for any that are seeding and careful not to tread on the blossoms.
 <br><br>
 
-<span class="gold">You can now grow <<icon "tending/tulip.png">> tulips.</span>
+<span class="gold">You can now grow <<foodstufficon "tulip">> tulips.</span>
 <br><br>
 
 <<link [[Next|Park]]>><</link>>
@@ -293,11 +329,11 @@ You walk through the tulips, searching for any that are seeding and careful not 
 :: Park Tulip Pick
 <<effects>>
 
-You search the riverbank for the prettiest <<icon "tending/tulip.png">> tulips, the ones someone might be willing to pay for. These aren't strictly wild flowers. You try to avoid being seen.
+You search the riverbank for the prettiest <<foodstufficon "tulip">> tulips, the ones someone might be willing to pay for. These aren't strictly wild flowers. You try to avoid being seen.
 <br><br>
 
 <<if $tendingSuccess>>
-	<<wearProp "tulip">>
+	<<wearProp "tulip basket">>
 	<span class="green">You find some particularly vibrant specimens.</span>
 	<<tending_pick tulip>>
 	<br><br>
@@ -307,10 +343,10 @@ You search the riverbank for the prettiest <<icon "tending/tulip.png">> tulips, 
 <</if>>
 
 <<if $rng gte 91>>
-	<<wearProp "soft drink can">>
+	<<wearProp "soft drink">>
 	You search behind an old wall by the river. There are no tulips. Instead you find two empty cans of soda, an empty packet of crisps, and hundreds of used lottery tickets.
 	<br><br>
 <</if>>
 
-<<link [[Next|Park]]>><<handheldon>><</link>>
+<<link [[Next|Park]]>><</link>>
 <br>

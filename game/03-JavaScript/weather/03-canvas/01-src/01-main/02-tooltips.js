@@ -1,5 +1,5 @@
 Weather.Tooltips = (() => {
-	function skybox(element = Weather.sky.skybox) {
+	function skybox(element = Weather.sidebar.skybox) {
 		// Maybe not hardcode this here
 		const key = V.location === "tentworld" ? "tentaclePlains" : Weather.name;
 		const weatherState = Weather.TooltipDescriptions.type[key];
@@ -15,6 +15,7 @@ Weather.Tooltips = (() => {
 			<br><span class="blue">Time:</span> <span class="yellow">${ampm()}</span>
 			<br><span class="blue">Weather:</span> <span class="yellow">${Weather.name}</span>
 			<br><span class="blue">Outside temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.temperature)}</span>
+			<br><span class="blue">Outside apparent temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.apparentTemperature)}</span>
 			<br><span class="blue">Inside temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.insideTemperature)}</span>
 			<br><span class="blue">Water temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.waterTemperature)}</span>
 			<br><span class="blue">Body temperature:</span> <span class="yellow">${Weather.toSelectedString(Weather.bodyTemperature)}</span>

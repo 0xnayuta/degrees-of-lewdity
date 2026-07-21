@@ -1,4 +1,4 @@
-/* global ClothesItem, ClothedSlots */
+/* global ClothesItem, ClothedSlots, paramError */
 
 function mapMove(moveTo) {
 	const currentPassage = V.passage;
@@ -545,10 +545,10 @@ function updateAskColour() {
 }
 DefineMacroS("updateAskColour", updateAskColour);
 
-function bulkProduceValue(plant, quantity = 250) {
-	if (plant != null) {
-		const baseCost = (plant.plant_cost * quantity) / 2;
-		const seasonBoost = !plant.season.includes(Time.season) ? 1.1 : 1;
+function bulkProduceValue(foodstuff, quantity = 250) {
+	if (foodstuff != null) {
+		const baseCost = (foodstuff.shop.sell_price * quantity) / 2;
+		const seasonBoost = foodstuff.tending?.seasons && !foodstuff.tending.seasons.includes(Time.season) ? 1.1 : 1;
 		return Math.floor(baseCost * seasonBoost);
 	}
 }
@@ -606,7 +606,24 @@ function getRobinLocation() {
 		// T.robin_location = "cafe";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
-	} else if (Time.hour === 16 && between(Time.minute, 31, 59)) {
+		// Start bathing time half an hour later if Robin has been asked to water the player's garden
+		// Robin will only water if crops are planted, will not water in the rain at all, and will not water during snow before the greenhouse is built
+	} else if (
+		V.robin.autoWater &&
+		C.npc.Robin.trauma < 50 &&
+		Weather.precipitation !== "rain" &&
+		(Weather.precipitation !== "snow" || V.alex_greenhouse >= 3) &&
+		((Time.hour === 16 && between(Time.minute, 30, 59)) || (Time.hour === 17 && between(Time.minute, 0, 29))) &&
+		orphanagePlotsPlanted()
+	) {
+		if (Time.hour === 16 && between(Time.minute, 30, 59) && !orphanagePlotsWatered()) {
+			T.robin_location = "garden";
+		} else if (!V.daily.robin.bath) {
+			T.robin_location = "bath";
+		} else {
+			T.robin_location = "orphanage";
+		}
+	} else if (Time.hour === 16 && between(Time.minute, 30, 59)) {
 		if (!V.daily.robin.bath) {
 			T.robin_location = "bath";
 		} else {
@@ -614,7 +631,7 @@ function getRobinLocation() {
 		}
 	} else if (V.halloween === 1 && between(Time.hour, 16, 18) && Time.monthDay === 31) {
 		T.robin_location = "halloween";
-	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && C.npc.Robin.trauma < 80) {
+	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && Weather.precipitation !== "rain" && C.npc.Robin.trauma < 80) {
 		T.robin_location = Time.season === "winter" ? "park" : "beach";
 	} else if (V.englishPlay === "ongoing" && V.englishPlayDays === 0 && Time.hour >= 17 && Time.hour < 21) {
 		T.robin_location = "englishPlay";
@@ -680,7 +697,8 @@ function isInPark(name) {
 			// prettier-ignore
 			return C.npc.Kylar.state === "active"
 				&& Weather.precipitation === "none"
-				&& Time.dayState === "day" && V.kylarwatched !== 1;
+				&& Time.dayState === "day" && !Time.schoolTime
+				&& V.kylarwatched !== 1;
 		case "robin":
 			return getRobinLocation() === "park";
 		case "whitney":
@@ -689,6 +707,16 @@ function isInPark(name) {
 				&& C.npc.Whitney.init === 1 && Weather.precipitation !== "none"
 				&& Time.dayState === "day" && !Time.schoolTime
 				&& V.daily.whitney.park === undefined && V.pillory.tenant.special.name !== "Whitney";
+		case "doren":
+			// prettier-ignore
+			return C.npc.Doren.init === 1
+				&& Time.hour >= 9 && Time.hour <= 15
+				&& Time.weekDay === 7;
+		case "sam":
+			// prettier-ignore
+			return C.npc.Sam.init === 1
+				&& (Time.hour >= 6 && Time.hour < 7 && Time.minute <= 55)
+				&& Weather.precipitation === "none";
 		default:
 			return false;
 	}
@@ -884,7 +912,7 @@ window.DefaultActions = {
 
 function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 	let wardrobe = V.wardrobes[targetLocation];
-	if (type !== "return" && wardrobe?.locationRequirement && !wardrobe.locationRequirement.includes(V.location)) {
+	if (type !== "return" && wardrobe?.locationRequirement?.length && !wardrobe.locationRequirement.includes(V.location)) {
 		V.wardrobe_location = "wardrobe";
 		wardrobe = V.wardrobe;
 	}
@@ -1669,6 +1697,15 @@ function isPossibleLoveInterest(name) {
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
 
+function isPossibleLoveInterestVirginity(taker) {
+	if (typeof taker !== "string") return false;
+	if (taker.includes(" and ")) {
+		return taker.split(" and ").some(name => isPossibleLoveInterest(name.trim()));
+	}
+	return isPossibleLoveInterest(taker);
+}
+window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
+
 function fameTotal() {
 	let result = 0;
 	for (const key in V.fame) {
@@ -1703,38 +1740,56 @@ window.checkTFparts = checkTFparts;
 
 /*
 	Might be good to convert the whole TF mechanic, including `transformationStateUpdate` to something like below at some point.
-	Part of the transformationParts is unused right now, but its to account for this potential.
+	Part of the transformationParts is unused right now, but it's to account for this potential.
 */
-function validateTransformations() {
-	if (V.cat >= 1 || V.wolfgirl >= 1 || V.cow >= 1 || V.harpy >= 1) {
-		V.physicalTransform = 1;
-	} else {
-		V.physicalTransform = 0;
-	}
-	if (V.demon >= 1 || V.angel >= 1 || V.fallenangel >= 2) {
-		V.specialTransform = 1;
-	} else {
-		V.specialTransform = 0;
-	}
-
-	const transformationParts = [
+function setupTransformations() {
+	setup.transformations = [
 		{
-			nameOveride: "wolf",
-			level: "wolfgirl",
-			build: "wolfbuild",
+			/*
+			name: tf name, used in V.transformationParts[name], <<tficon name>>, <<transform name>>, etc.
+			level: transformation level getter,
+			build: transformation points counter getter,
+			type: "physicalTransform" or "specialTransform",
+			parts: conditions for unlocking tf parts,
+			traits: same but for traits
+			*/
+			name: "wolf",
+			get level() {
+				return V.wolfgirl;
+			},
+			get build() {
+				return V.wolfbuild;
+			},
 			type: "physicalTransform",
 			parts: [
 				{ name: "ears", tfRequired: 4 },
-				{ name: "pubes", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
-				{ name: "pits", tfRequired: 4, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{
+					name: "pubes",
+					tfRequired: 4,
+					get default() {
+						return V.settings.pubicHairEnabled === true ? "default" : "hidden";
+					},
+				},
+				{
+					name: "pits",
+					tfRequired: 4,
+					get default() {
+						return V.settings.pubicHairEnabled === true ? "default" : "hidden";
+					},
+				},
 				{ name: "cheeks", tfRequired: 5, default: "feral" },
 				{ name: "tail", tfRequired: 6 },
 			],
 			traits: [{ name: "fangs", tfRequired: 2 }],
 		},
 		{
-			level: "cat",
-			build: "catbuild",
+			name: "cat",
+			get level() {
+				return V.cat;
+			},
+			get build() {
+				return V.catbuild;
+			},
 			type: "physicalTransform",
 			parts: [
 				{ name: "ears", tfRequired: 4 },
@@ -1747,8 +1802,13 @@ function validateTransformations() {
 			],
 		},
 		{
-			level: "cow",
-			build: "cowbuild",
+			name: "cow",
+			get level() {
+				return V.cow;
+			},
+			get build() {
+				return V.cowbuild;
+			},
 			type: "physicalTransform",
 			parts: [
 				{ name: "horns", tfRequired: 2 },
@@ -1758,9 +1818,13 @@ function validateTransformations() {
 			traits: [],
 		},
 		{
-			nameOveride: "bird",
-			level: "harpy",
-			build: "birdbuild",
+			name: "bird",
+			get level() {
+				return V.harpy;
+			},
+			get build() {
+				return V.birdbuild;
+			},
 			type: "physicalTransform",
 			parts: [
 				{ name: "eyes", tfRequired: 2 },
@@ -1768,7 +1832,13 @@ function validateTransformations() {
 				{ name: "tail", tfRequired: 4 },
 				{ name: "plumage", tfRequired: 4 },
 				{ name: "wings", tfRequired: 6 },
-				{ name: "pubes", tfRequired: 6, default: V.settings.pubicHairEnabled === true ? "default" : "hidden" },
+				{
+					name: "pubes",
+					tfRequired: 6,
+					get default() {
+						return V.settings.pubicHairEnabled === true ? "default" : "hidden";
+					},
+				},
 			],
 			traits: [
 				{ name: "sharpEyes", tfRequired: 2 },
@@ -1776,8 +1846,13 @@ function validateTransformations() {
 			],
 		},
 		{
-			level: "fox",
-			build: "foxbuild",
+			name: "fox",
+			get level() {
+				return V.fox;
+			},
+			get build() {
+				return V.foxbuild;
+			},
 			type: "physicalTransform",
 			parts: [
 				{ name: "ears", tfRequired: 4 },
@@ -1792,8 +1867,13 @@ function validateTransformations() {
 			],
 		},
 		{
-			level: "angel",
-			build: "angelbuild",
+			name: "angel",
+			get level() {
+				return V.angel;
+			},
+			get build() {
+				return V.angelbuild;
+			},
 			type: "specialTransform",
 			parts: [
 				{ name: "halo", tfRequired: 4 },
@@ -1802,8 +1882,13 @@ function validateTransformations() {
 			traits: [],
 		},
 		{
-			level: "fallen",
-			build: "fallenbuild",
+			name: "fallenangel",
+			get level() {
+				return V.fallenangel;
+			},
+			get build() {
+				return V.fallenbuild;
+			},
 			type: "specialTransform",
 			parts: [
 				{ name: "halo", tfRequired: 2 },
@@ -1812,8 +1897,13 @@ function validateTransformations() {
 			traits: [],
 		},
 		{
-			level: "demon",
-			build: "demonbuild",
+			name: "demon",
+			get level() {
+				return V.demon;
+			},
+			get build() {
+				return V.demonbuild;
+			},
 			type: "specialTransform",
 			parts: [
 				{ name: "horns", tfRequired: 2 },
@@ -1823,22 +1913,37 @@ function validateTransformations() {
 			traits: [],
 		},
 	];
+}
+DefineMacro("setupTransformations", setupTransformations);
+
+function validateTransformations() {
+	const physTFs = setup.transformations.filter(tf => tf.type === "physicalTransform" && tf.level >= 1);
+	if (physTFs.length >= 2)
+		Errors.report(
+			"Too many physical transformations!",
+			physTFs.map(tf => tf.name)
+		);
+	if (V.physicalTransform === 1 && physTFs.length === 0) Errors.report("Couldn't find active physical transformation, modded save?");
+	V.physicalTransform = Math.min(physTFs.length, 1);
+
+	const specTFs = setup.transformations.filter(tf => tf.type === "specialTransform" && tf.level >= (tf.name === "fallenangel" ? 2 : 1));
+	V.specialTransform = Math.min(specTFs.length, 1);
+
 	const confirmedTraits = [];
-	transformationParts.forEach(tf => {
-		const tdLevel = V[tf.level];
-		const name = tf.nameOveride || tf.level;
+	setup.transformations.forEach(tf => {
+		const tfname = tf.name === "fallenangel" ? "fallenAngel" : tf.name;
 		tf.parts.forEach(part => {
-			if (tdLevel >= part.tfRequired && V.transformationParts[name][part.name] === "disabled") {
-				V.transformationParts[name][part.name] = part.default || "default";
-			} else if (tdLevel < part.tfRequired && V.transformationParts[name][part.name] !== "disabled") {
-				V.transformationParts[name][part.name] = "disabled";
+			if (tf.level >= part.tfRequired && V.transformationParts[tfname][part.name] === "disabled") {
+				V.transformationParts[tfname][part.name] = part.default || "default";
+			} else if (tf.level < part.tfRequired && V.transformationParts[tfname][part.name] !== "disabled") {
+				V.transformationParts[tfname][part.name] = "disabled";
 			}
 		});
 		tf.traits.forEach(trait => {
-			if (tdLevel >= trait.tfRequired) confirmedTraits.pushUnique(trait.name);
-			if (tdLevel >= trait.tfRequired && V.transformationParts.traits[trait.name] === "disabled") {
+			if (tf.level >= trait.tfRequired) confirmedTraits.pushUnique(trait.name);
+			if (tf.level >= trait.tfRequired && V.transformationParts.traits[trait.name] === "disabled") {
 				V.transformationParts.traits[trait.name] = trait.default || "default";
-			} else if (tdLevel < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled" && !confirmedTraits.includes(trait.name)) {
+			} else if (tf.level < trait.tfRequired && V.transformationParts.traits[trait.name] !== "disabled" && !confirmedTraits.includes(trait.name)) {
 				V.transformationParts.traits[trait.name] = "disabled";
 			}
 		});
@@ -2213,6 +2318,8 @@ function dailyConvert() {
 			wolfCaveDog: V.wolf_cave_dog,
 			jordan_missing: V.jordan_missing,
 			blackWolfMonsterRoll: V.blackWolfMonsterRoll,
+			greatHawkMonsterRoll: V.greatHawkMonsterRoll,
+			nightMonsterMonsterRoll: V.nightMonsterMonsterRoll,
 			templePray: V.temple_pray,
 			lakeMeditate: V.lake_meditate,
 			masonSpoken: V.mason_spoken,
@@ -2220,7 +2327,6 @@ function dailyConvert() {
 			rocksPoolInvite: V.rocks_pool_invite,
 			birdWash: V.bird_wash,
 			birdDailyGreeting: V.birdDailyGreeting,
-			greatHawkMonsterRoll: V.greatHawkMonsterRoll,
 			estateBluffed: V.estate_bluffed,
 			estateChaos: V.estate_chaos,
 			spaEvent: V.spa_event,
@@ -2262,8 +2368,8 @@ function dailyConvert() {
 		if (V.sewersfeeding === 1) V.daily.morgan.feeding = 1;
 		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[n] = 1));
 		/* `$compoundstate != undefined` is no longer used as an indicator of the access to compound,
-		as it migrated to $daily.compoundState. $compound.card === 2 is used for that instead. */
-		if (V.compoundstate !== undefined) V.compoundcard = 2;
+		as it migrated to $daily.compoundState. $compound.discovered is used for that instead. */
+		if (V.compoundstate !== undefined) V.compound.discovered = true;
 		V.daily.pharm.impatient = V.left_before_nurse_returned;
 
 		/* unset old vars */
@@ -2289,7 +2395,7 @@ function dailyConvert() {
 			// eslint-disable-next-line prettier/prettier
 			/* pharm */ "left_before_nurse_returned", "pharmTriedSeduction", "pharmSexFinished", "pharmClosed", "pharmSeductionFailed", "pharmDaily",
 			// eslint-disable-next-line prettier/prettier
-			/* misc */ "comb", "motherwake", "harpervisit", "policecollarseduceattempt", "tenyclusPlayed", "beachstrip", "compoundstate", "baileyvisit", "lakecouple", "museumgreengemtouch", "fenceclimb", "cafeeaten", "mirrortentacles", "massattended", "dockexhibitionism", "home_event", "leightondanceoffered", "wolf_cave_dog", "jordan_missing", "blackWolfMonsterRoll", "temple_pray", "lake_meditate", "mason_spoken", "stall_rented", "rocks_pool_invite", "bird_wash", "birdDailyGreeting", "greatHawkMonsterRoll", "estate_bluffed", "estate_chaos", "spa_event", "estate_done", "lewd_unlock", "bailey_wake_day", "manor_forage", "manor_garden", "manor_kitchen", "manor_parents", "manor_lab", "promiscuitystress1", "promiscuitystress2", "promiscuitystress3", "promiscuitystress4", "promiscuitystress5", "exhibitionismstress1", "exhibitionismstress2", "exhibitionismstress3", "exhibitionismstress4", "exhibitionismstress5", "deviancystress1", "deviancystress2", "deviancystress3", "deviancystress4", "deviancystress5", "seenPets", "asylumfirsttreatment", "asylumsecondtreatment", "asylumassessment", "asylumexercise", "slimeFarmNaked"
+			/* misc */ "comb", "motherwake", "harpervisit", "policecollarseduceattempt", "tenyclusPlayed", "beachstrip", "compoundstate", "baileyvisit", "lakecouple", "museumgreengemtouch", "fenceclimb", "cafeeaten", "mirrortentacles", "massattended", "dockexhibitionism", "home_event", "leightondanceoffered", "wolf_cave_dog", "jordan_missing", "blackWolfMonsterRoll", "greatHawkMonsterRoll", "nightMonsterMonsterRoll", "temple_pray", "lake_meditate", "mason_spoken", "stall_rented", "rocks_pool_invite", "bird_wash", "birdDailyGreeting", "estate_bluffed", "estate_chaos", "spa_event", "estate_done", "lewd_unlock", "bailey_wake_day", "manor_forage", "manor_garden", "manor_kitchen", "manor_parents", "manor_lab", "promiscuitystress1", "promiscuitystress2", "promiscuitystress3", "promiscuitystress4", "promiscuitystress5", "exhibitionismstress1", "exhibitionismstress2", "exhibitionismstress3", "exhibitionismstress4", "exhibitionismstress5", "deviancystress1", "deviancystress2", "deviancystress3", "deviancystress4", "deviancystress5", "seenPets", "asylumfirsttreatment", "asylumsecondtreatment", "asylumassessment", "asylumexercise", "slimeFarmNaked"
 		].forEach(n => delete V[n]);
 	}
 }
@@ -2334,8 +2440,8 @@ function calculateSemenReleased() {
 	released += V.semen_volume / 30;
 
 	if (V.femaleclimax === 1) released /= 30;
-	if (V.orgasmtrait >= 1) released *= 2.5;
-	if (V.cow >= 6) released *= 2;
+	if (V.orgasmtrait >= 1) released *= 1.5;
+	if (V.cow >= 6) released *= 1.2;
 
 	/* if the player doesn't have enough semen, set $_semen_released to whatever they have left */
 	if (V.semen_amount < released) released = V.semen_amount;
@@ -2419,9 +2525,9 @@ window.npcSemenMod = npcSemenMod;
 
 function maleChance(override) {
 	if (V.settings.maleChanceSplit === false) return V.settings.maleChance;
-	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.settings.maleChanceMale;
-	if (appearence === "f") return V.settings.maleChanceFemale;
+	const appearance = override || V.player.gender_appearance;
+	if (appearance === "m") return V.settings.maleChanceMale;
+	if (appearance === "f") return V.settings.maleChanceFemale;
 	return 50;
 }
 window.maleChance = maleChance;
@@ -2435,9 +2541,9 @@ window.attractedToBothChance = attractedToBothChance;
 
 function beastMaleChance(override) {
 	if (V.settings.beastMaleChanceSplit === false) return V.settings.beastMaleChance;
-	const appearence = override || V.player.gender_appearance;
-	if (appearence === "m") return V.settings.beastMaleChanceMale;
-	if (appearence === "f") return V.settings.beastMaleChanceFemale;
+	const appearance = override || V.player.gender_appearance;
+	if (appearance === "m") return V.settings.beastMaleChanceMale;
+	if (appearance === "f") return V.settings.beastMaleChanceFemale;
 	return 50;
 }
 window.beastMaleChance = beastMaleChance;
@@ -2445,7 +2551,7 @@ window.beastMaleChance = beastMaleChance;
 function penisNames(override) {
 	const names = ["penis"];
 
-	if (V.player.penissize < 0 && !override) return names;
+	if (V.player.penissize < 2 && !override) return names;
 
 	if ((V.awareness >= 100 && !override) || override >= 1) names.push("dick");
 	if ((V.awareness >= 200 && V.purity < 900 && !override) || override >= 2) names.push("cock");
@@ -2569,14 +2675,44 @@ window.fixIntegrityUpdater = fixIntegrityUpdater;
 // Set plots to watered if it rains
 // Temporary solution until a rework
 $(document).on(":onWeatherChange", () => {
-	if (V.daily?.plotsRain || Weather.precipitation !== "rain") return;
+	if (!V.daily || V.daily?.plotsRain || Weather.precipitation !== "rain") return;
 	V.daily.plotsRain = true;
 	Object.entries(V.plots).forEach(([location, plots]) => {
 		// Don't water greenhouse plants from rain - disabled for now
+		// Alternate text about a rainwater harvester was added, so this may not be needed
 		// if (location === "garden" && V.alex_greenhouse === 3) return;
 		plots.forEach(plot => (plot.water = 1));
 	});
 });
+
+// Returns true if one or more orphanage plots have been planted
+// Used to determine whether Robin should automatically water them
+function orphanagePlotsPlanted() {
+	if (V.plots?.garden) {
+		for (let i = 0; i < V.plots.garden.length; i++) {
+			if (V.plots.garden[i].stage >= 1) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+window.orphanagePlotsPlanted = orphanagePlotsPlanted;
+
+// Returns true if all orphanage plots have been watered
+// Used to determine whether Robin sshould automatically water them
+function orphanagePlotsWatered() {
+	if (V.plots?.garden) {
+		for (let i = 0; i < V.plots.garden.length; i++) {
+			if (V.plots.garden[i].water === 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+window.orphanagePlotsWatered = orphanagePlotsWatered;
 
 // Temporary until a rework
 // Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
@@ -2588,7 +2724,7 @@ function tendingDay() {
 			// Growth check
 			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
 				plot.days += 1;
-				if (plot.days >= setup.plants[plot.plant].days * ((plot.stage + 1) / 5)) {
+				if (plot.days >= (setup.foodstuff[plot.plant].tending.growth_days * (plot.stage + 1)) / 5) {
 					plot.stage += 1;
 				}
 			}
@@ -2666,8 +2802,8 @@ window.unableTakeVirginity = unableTakeVirginity;
 function canGiftFood(npc) {
 	let amount = 0;
 
-	Object.values(setup.plants).forEach(plants => {
-		if (plants.type === "food" && V.plants[plants.name] && V.plants[plants.name].amount > 0) {
+	Object.entries(setup.foodstuff).forEach(([key, item]) => {
+		if (item.category === "dish" && V.foodstuff[key]?.amount > 0) {
 			amount++;
 		}
 	});
@@ -2682,9 +2818,9 @@ function ingredientIsAllowed(providedKey) {
 	const isAllowed = key => {
 		if (provided.includes(key) || !exceptions || exceptions.includes(key)) return true;
 
-		const setupObject = setup.plants[key];
-		if (Array.isArray(setupObject?.ingredients) && setupObject.ingredients.length) {
-			return setupObject.ingredients.every(ingredient => {
+		const setupObject = setup.foodstuff[key];
+		if (setupObject.recipe?.ingredients.length) {
+			return setupObject.recipe.ingredients.every(ingredient => {
 				return isAllowed(ingredient);
 			});
 		}
@@ -2696,28 +2832,37 @@ function ingredientIsAllowed(providedKey) {
 window.ingredientIsAllowed = ingredientIsAllowed;
 
 function ingredientAlternativesSetup(recipe) {
-	const alternatives = {
-		bottle_of_milk: [],
-		cream: [],
-		strange_flower: ["blood_lemon"],
-		chicken_egg: ["bird_egg"],
-		beef: [],
+	const alternatives = {};
+	const addAlternative = (ingredient, alternative) => {
+		if (!alternatives[ingredient]) alternatives[ingredient] = [];
+		alternatives[ingredient].pushUnique(alternative);
 	};
-	if (V.chef_state >= 3 && T.allowLewdIngredients && (!V.options.ingredientsAutoManage || V.options.ingredientsAutoManageLewd)) {
-		alternatives.bottle_of_milk.pushUnique("baby_bottle_of_breast_milk");
-		alternatives.cream.pushUnique("bottle_of_semen");
+	const lewdAllowed = V.chef_state >= 3 && T.allowLewdIngredients && (!V.options.ingredientsAutoManage || V.options.ingredientsAutoManageLewd);
+
+	Object.entries(setup.foodstuff).forEach(([key, item]) => {
+		const ingredientAlternatives = item?.ingredient_alternatives;
+		if (!ingredientAlternatives) return;
+		ingredientAlternatives.normal.forEach(alternative => addAlternative(key, alternative));
+		if (lewdAllowed) ingredientAlternatives.lewd.forEach(alternative => addAlternative(key, alternative));
+	});
+
+	const recipeAlternatives = setup.foodstuff[recipe]?.recipe?.ingredient_alternatives;
+	if (recipeAlternatives?.normal) {
+		Object.entries(recipeAlternatives.normal).forEach(([ingredient, list]) => {
+			list.forEach(alternative => addAlternative(ingredient, alternative));
+		});
 	}
-	switch (recipe) {
-		case "lasagne":
-			alternatives.beef.pushUnique("chicken");
-			break;
+	if (lewdAllowed && recipeAlternatives?.lewd) {
+		Object.entries(recipeAlternatives.lewd).forEach(([ingredient, list]) => {
+			list.forEach(alternative => addAlternative(ingredient, alternative));
+		});
 	}
 
 	return alternatives;
 }
 
 function ingredientsProvided(mainIngredient, recipe) {
-	if (!setup.plants[mainIngredient] || !setup.plants[recipe]) return false;
+	if (!setup.foodstuff[mainIngredient] || !setup.foodstuff[recipe]) return false;
 	const alternatives = ingredientAlternativesSetup(recipe);
 	const options = [mainIngredient];
 
@@ -2731,18 +2876,18 @@ function ingredientUsed(mainIngredient, recipe) {
 
 	// When auto management has been disabled
 	if (!V.options.ingredientsAutoManage) {
-		if (Array.isArray(alternatives[mainIngredient]) && alternatives[mainIngredient].includes(V.plants[mainIngredient].alternative)) {
-			return V.plants[mainIngredient].alternative;
+		if (Array.isArray(alternatives[mainIngredient]) && alternatives[mainIngredient].includes(V.foodstuff[mainIngredient].alternative)) {
+			return V.foodstuff[mainIngredient].alternative;
 		}
 		return mainIngredient;
 	}
 
 	// Check for any provided ingredients first
-	if (ingredientsProvided(mainIngredient)) return ingredientsProvided(mainIngredient);
+	if (ingredientsProvided(mainIngredient, recipe)) return ingredientsProvided(mainIngredient, recipe);
 
 	// Check for alternatives if there is none of the normal ingredient
-	if (alternatives[mainIngredient]?.length && V.plants[mainIngredient]?.amount <= 0) {
-		const alternative = alternatives[mainIngredient].find(ingredient => V.plants[ingredient]?.amount > 0);
+	if (alternatives[mainIngredient]?.length && V.foodstuff[mainIngredient]?.amount <= 0) {
+		const alternative = alternatives[mainIngredient].find(ingredient => V.foodstuff[ingredient]?.amount > 0);
 		if (alternative) return alternative;
 	}
 	return mainIngredient;
@@ -2750,12 +2895,12 @@ function ingredientUsed(mainIngredient, recipe) {
 window.ingredientUsed = ingredientUsed;
 
 function ingredientsTotal(mainIngredient, recipe, includeAlternatives) {
-	if (!setup.plants[mainIngredient]) return 0;
+	if (!setup.foodstuff[mainIngredient]) return 0;
 	const alternatives = ingredientAlternativesSetup(recipe);
-	let count = V.plants[mainIngredient].amount;
+	let count = V.foodstuff[mainIngredient].amount;
 	if (includeAlternatives && alternatives[mainIngredient] && !T.ingredientsSupplied?.includes(mainIngredient)) {
 		alternatives[mainIngredient].forEach(ingredient => {
-			count += V.plants[ingredient]?.amount || 0;
+			count += V.foodstuff[ingredient]?.amount || 0;
 		});
 	}
 	return count;
@@ -2771,12 +2916,12 @@ function ingredientsOptions(mainIngredient, recipe) {
 window.ingredientsOptions = ingredientsOptions;
 
 function ingredientsNextAlternative(mainIngredient, recipe) {
-	if (!V.plants[mainIngredient]) return;
+	if (!V.foodstuff[mainIngredient]) return;
 	const options = ingredientsOptions(mainIngredient, recipe);
-	const currentAlt = V.plants[mainIngredient].alternative || mainIngredient;
+	const currentAlt = V.foodstuff[mainIngredient].alternative || mainIngredient;
 	const currentIndex = options.indexOf(currentAlt);
 	const nextIndex = currentIndex === -1 || currentIndex + 1 >= options.length ? 0 : currentIndex + 1;
-	V.plants[mainIngredient].alternative = options[nextIndex];
+	V.foodstuff[mainIngredient].alternative = options[nextIndex];
 }
 window.ingredientsNextAlternative = ingredientsNextAlternative;
 
@@ -2789,17 +2934,17 @@ function kitchenFilter() {
 	let providedIngredients = false;
 	let knownRestrictions = false;
 
-	Object.keys(setup.plants).forEach(recipe => {
-		const item = setup.plants[recipe];
+	Object.keys(setup.foodstuff).forEach(recipe => {
+		const item = setup.foodstuff[recipe];
 
 		if (
 			kitchenFilter &&
 			!kitchenFilter.find(
 				term =>
 					(V.options.ingredientsSearch !== "ingredients" &&
-						(item.name.includes(term) || item.type.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))) ||
+						(item.name.includes(term) || item.category.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))) ||
 					(V.options.ingredientsSearch !== "recipes" &&
-						item.ingredients.find(ingredient => ingredient.includes(term) || ingredientUsed(ingredient)?.includes(term)))
+						item.recipe?.ingredients.find(ingredient => ingredient.includes(term) || ingredientUsed(ingredient)?.includes(term)))
 			)
 		) {
 			return;
@@ -2810,21 +2955,21 @@ function kitchenFilter() {
 			if (!T.recipeKeys.some(recipe => recipe.key === recipe)) T.recipeKeys.push({ key: recipe, group: "Provided Ingredients" });
 			return;
 		}
-		if (!V.plants[recipe].recipe || !item.ingredients) return;
+		if (!V.foodstuff[recipe].knows_recipe || !item.recipe || !item.recipe.ingredients.length) return;
 		let group;
 
-		if (item.special.includes("sweet")) {
+		if (item.food?.tags.includes("sweet")) {
 			group = "sweets";
-		} else if (item.special.includes("drink")) {
+		} else if (item.food?.tags.includes("drink")) {
 			group = "drinks";
-		} else if (item.type.includes("ingredient")) {
+		} else if (item.category === "ingredient") {
 			group = "ingredients";
 		} else {
 			group = "savouries";
 		}
 
 		let missingIngredientsFound = false;
-		item.ingredients.forEach(ingredient => {
+		item.recipe.ingredients.forEach(ingredient => {
 			if (ingredientsTotal(ingredient, recipe, true) <= 0 && !ingredientsProvided(ingredient, recipe)) missingIngredientsFound = true;
 		});
 
@@ -2851,24 +2996,24 @@ function marketFilter() {
 
 	let missingItems = false;
 
-	Object.keys(setup.plants).forEach(product => {
-		const item = setup.plants[product];
+	Object.keys(setup.foodstuff).forEach(product => {
+		const item = setup.foodstuff[product];
 
-		if (V.plants[product].amount <= 0 && V.plants[product].marketStall === undefined) return;
+		if (V.foodstuff[product].amount <= 0 && V.foodstuff[product].marketStall === undefined) return;
 
-		// Makes sure items always get this set for older saves
-		if (V.plants[product].marketStall === undefined) V.plants[product].marketStall = !setup.plants[product]?.shop?.length;
+		// Defaults items to not be displayed in the market stall
+		if (V.foodstuff[product].marketStall === undefined) V.foodstuff[product].marketStall = false;
 
 		if (
 			marketFilter &&
-			!marketFilter.find(term => item.name.includes(term) || item.type.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))
+			!marketFilter.find(term => item.name.includes(term) || item.category.includes(term) || item.plural?.includes(term) || item.singular?.includes(term))
 		) {
 			return;
 		}
 
-		T.marketGroups.pushUnique(item.type);
-		let group = item.type;
-		if (V.plants[product].amount <= 0) {
+		T.marketGroups.pushUnique(item.category);
+		let group = item.category;
+		if (V.foodstuff[product].amount <= 0) {
 			missingItems = true;
 			group = "No Stock";
 		}
@@ -2914,8 +3059,15 @@ function isBeastSceneAllowed() {
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
 /**
- * check if event is going to be dangerous based on rng and player allure
- * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ * Check if an event is going to be dangerous based on rng and the player's Allure. Another target's Allure can
+ * be substitued as needed.
+ *
+ * For consistency, danger rng is rolled once per passage, unless specified through the "reroll" parameter.
+ *
+ * Lowering the floor increases the player's flat probability of triggering an event. Changing the mod
+ * increases / decreases the chance of triggering the event with increasing / decreasing Allure.
+ *
+ * For a guaranteed activation at 8,000 Allure, set a mod of 1.25, or a floor of 8,000.
  *
  * @param {number} mod allure multiplier
  * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
@@ -2924,6 +3076,17 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
  * @returns {boolean} whether the roll is dangerous
  */
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	/**
+	 * (mod = 1, floor = 8,000)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	80% pass chance
+	 * 0 Allure:		20% pass chance
+	 *
+	 * (mod = 1.25, floor = 9,900)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	76% pass chance
+	 * 0 Allure:		1% pass chance
+	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	return T.danger >= floor - allure * mod;
 }
@@ -2953,3 +3116,74 @@ function hasSharpSenses(sense = "any") {
 	return false;
 }
 window.hasSharpSenses = hasSharpSenses;
+
+function displayDefiantOption(amount) {
+	if (isNaN(amount)) paramError("displayDefiantOption", "amount", amount, "Expected a number.");
+	amount = Number(amount);
+	if (amount) {
+		if (V.submissive <= amount || V.wolfgirl >= 6) {
+			return true;
+		}
+		return false;
+	}
+}
+window.displayDefiantOption = displayDefiantOption;
+
+function breakableSoftBinding() {
+	/* Allow unbinding any arm bindings, but limit unbinding legs to soft materials or bugged bound states with no clothing */
+	if (
+		pcAreArmsBound("any") ||
+		((["ropes", "vines"].includes(V.worn.feet.name) || [V.feetuse, V.leftleg, V.rightleg].includes("bound")) &&
+			!["ankle cuffs", "ball and chain"].includes(V.worn.feet.name))
+	) {
+		return true;
+	}
+	return false;
+}
+
+window.breakableSoftBinding = breakableSoftBinding;
+
+function averageBunPrice(toSell = T.buns_sold) {
+	/* Calculates the average price of a bun with diminishing returns */
+	let totalRevenue = 0;
+	let remaining = toSell;
+	if (V.daily.buns_sold === undefined) {
+		V.daily.buns_sold = 0;
+	}
+	let batch = 1;
+	let harmonics = 1;
+
+	/* Calculates the current divisor for buns */
+	for (let soldToday = 20; soldToday <= V.daily.buns_sold; soldToday += 20) {
+		if (batch === 1) {
+			harmonics += 0.5;
+		} else {
+			harmonics += 1 / Math.max(batch / 20, 1);
+		}
+		batch++;
+	}
+	let doneToday = V.daily.buns_sold % 20;
+	let pricePerBun = V.bun_value / harmonics;
+	let bunsInBatch = 0;
+
+	/* Sells the new buns */
+	while (remaining > 0) {
+		bunsInBatch = Math.min(20 - doneToday, remaining);
+		doneToday = 0;
+
+		totalRevenue += bunsInBatch * pricePerBun;
+		remaining -= bunsInBatch;
+		if (batch === 1) {
+			harmonics += 0.5;
+		} else {
+			harmonics += 1 / Math.max(batch / 20, 1);
+		}
+		batch++;
+		pricePerBun = V.bun_value / harmonics;
+	}
+
+	V.daily.buns_sold += T.buns_sold;
+
+	return totalRevenue / toSell;
+}
+window.averageBunPrice = averageBunPrice;

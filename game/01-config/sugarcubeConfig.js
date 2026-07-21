@@ -11,8 +11,8 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.6.10",
-	versionName: `"Love Bites" edition`,
+	version: "0.5.11.6",
+	versionName: `"The Great Equaliser" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
 	sourceLinkEnabled: false,
@@ -20,6 +20,8 @@ const StartConfig = {
 window.StartConfig = StartConfig;
 
 State.prng.init();
+// disable widget performance logs for the release
+Perflog.enabled = false;
 
 window.versionUpdateCheck = true;
 window.onLoadUpdateCheck = false;
@@ -32,7 +34,7 @@ Config.saves.isAllowed = () => {
 };
 
 if (idb.updateSettings) idb.updateSettings("useDelta", true);
-idb.footerHTML = `Support the developers! <a target="_blank" class="link-external" href="https://vrelnir.fanbox.cc/" tabindex="0">Vrelnir</a> <a target="_blank" class="link-external" href="https://purity.fanbox.cc/" tabindex="0">PurityGuy</a>`;
+idb.footerHTML = `Support development: <a target="_blank" class="link-external" href="https://vrelnir.fanbox.cc/" tabindex="0">Fanbox</a>`;
 
 function onLoad(save) {
 	// some flags for version update. ideally, all updating should be done here in onLoad, but we don't live in an ideal world
@@ -100,7 +102,7 @@ function incSavesCount(storyVars = V, type, date) {
 
 function onSave(save, details) {
 	// * update feats * //
-	Wikifier.wikifyEval("<<updateFeats>>");
+	updateFeats();
 
 	// Save the recently loaded version
 	save.state.loadedVersion = StartConfig.version;
@@ -154,8 +156,6 @@ importStyles("style.css")
 
 console.log("Game Version:", StartConfig.version);
 
-l10nStrings.errorTitle = StartConfig.version + " Error";
-
 // delete parser that adds unneeded line breaks -ng
 Wikifier.Parser.delete("lineBreak");
 Wikifier.Parser.delete("emdash");
@@ -172,6 +172,14 @@ Config.navigation.override = function (dest) {
 		if (dest.includes("Playground")) {
 			return dest.replace("Playground", "Courtyard");
 			/* Try not to include "Playground" in any passage names after this. */
+		}
+		if (V.nightMonsterNNPCUpdate === 1) {
+			/* Teleports the player out after Night Monster NNPC update to avoid error cases, particularly when importing mid-combat */
+			V.nightMonsterNNPCUpdate = 2;
+			if (dest.includes("Street Monster") || dest.includes("Monster Tower")) {
+				Wikifier.wikifyEval("<<endcombat>>");
+				return "Domus Street";
+			}
 		}
 		switch (dest) {
 			case "Downgrade Waiting Room":
@@ -199,6 +207,10 @@ Config.navigation.override = function (dest) {
 				return "Commercial Alleyways";
 			case "Industrial alleyways":
 				return "Industrial Alleyways";
+
+			case "English Event2":
+			case "English Event2 Molest":
+				return "English Molest";
 
 			case "Cafe Fruit Salad":
 			case "Cafe Autumn Ale":
@@ -594,6 +606,15 @@ Config.navigation.override = function (dest) {
 			case "Prison Wren Intro Met":
 				return "Prison Wren Intro";
 
+			case "Orphanage Loft Doren":
+				return "Doren Loft 3";
+			case "Orphanage Loft Doren 2":
+				return "Doren Loft 8";
+			case "Orphanage Loft Doren 3":
+				return "Doren Loft 10";
+			case "Orphanage Loft Doren Thank":
+				return "Doren Loft Thank";
+
 			case "Museum Box":
 				return "Museum Waterlogged Ivory Box";
 			case "Museum Silver Ring":
@@ -700,6 +721,34 @@ Config.navigation.override = function (dest) {
 				}
 			case "Street Eden Rage":
 				return "Eden Caged Caught";
+
+			case "Farm Shave":
+			case "Farm shave clean":
+			case "Shave clean":
+			case "Farm shave pubis":
+			case "Shave pubis":
+			case "Farm shave balls":
+			case "Shave balls":
+			case "Farm shave strip":
+			case "Shave strip":
+			case "Farm shave trim":
+			case "Shave trim":
+				return "Shave";
+
+			case "Dye pubic hair":
+			case "Farm Dye":
+			case "Dye pubic hair Finish":
+			case "Farm dye pubic hair Finish":
+				return "Dye Hair";
+			case "Sewers Rats":
+				return "Sewers Scones Eat";
+			case "Sewers Rats Pretend":
+				return "Sewers Scones Pretend";
+
+			case "Farm Pig Rape":
+				return "Farm Pigs Rape Extreme";
+			case "Farm Pig Rape Finish":
+				return "Farm Pigs Rape Extreme Finish";
 
 			default:
 				return false;

@@ -1,4 +1,5 @@
 /* This file contains utility functions for named NPCs. */
+/* globals random */
 
 function statusCheck(name) {
 	if (!V.NPCNameList.includes(name)) {
@@ -184,6 +185,174 @@ function sydneySchedule() {
 }
 window.sydneySchedule = sydneySchedule;
 DefineMacro("sydneySchedule", sydneySchedule);
+
+function averySchedule() {
+	/* ToDo: Divorce schedule from V.avery_mansion entirely */
+	if (C.npc.Avery.init !== 1 || C.npc.Avery.state === "dismissed") return;
+
+	/* PC is not allowed to work with Avery if they're injured. Avery works Sunday from 7am-4pm and Monday-Friday 7am-8pm */
+	const workHours = Time.weekDay !== 7 && Time.hour > 6 && Time.hour <= (Time.weekDay === 1 ? 16 : 20);
+	const workAvailable = V.averySeen?.includes("office") && !V.avery_injury;
+	if (workHours && workAvailable) T.avery_available = "office";
+
+	/* Office job can only be unlocked if Avery's not injured. If PC's never been on a date with Avery, they'll receive a note from the office manager at high enough love. If they have been on dates with Avery, Avery has the artefact, and their rage is low enough, they will be railroaded into unlocking the job when they enter the office at high enough office manager love. The times differ for each approach. We may want to revisit this when we do a full standardisation of NPC schedules. */
+	const jobUnlock1 = V.dateCount.Avery === 0 && Time.hour >= 8 && Time.hour < 10;
+	const jobUnlock2 = V.auriga_artefact && C.npc.Avery.rage <= 40 && Time.hour >= 8 && Time.hour < 15;
+	if (!V.averySeen?.includes("office") && Time.weekDay !== 7 && !V.avery_injury) {
+		if (jobUnlock1) T.avery_available = "office invite";
+		if (jobUnlock2) T.avery_available = "office unlock";
+	}
+
+	/* Avery ignores regular schedule to pick up PC */
+	const love = random(20, 100);
+	const rng = random(1, 100);
+	const schoolPickupChecks =
+		C.npc.Avery.state === "active" && !V.avery_injury && Time.schoolDay && Time.hour === 15 && V.exposed <= 0 && !V.averyschoolpickup;
+	const schoolPickupChance = (C.npc.Avery.love >= love && (rng >= 51 || Weather.precipitation !== "none")) || (C.npc.Avery.love >= 20 && Time.weekDay === 2);
+	if (schoolPickupChecks && schoolPickupChance) T.avery_available = "pickup";
+
+	/* NOTE: not sure if replacing || with && breaks anything, leaving this just in case */
+	if (!V.avery_mansion && T.avery_available === "pickup") {
+		/* Prior to unlocking mansion, Avery can only be found for school pickup, dates, or office job */
+		if (V.averydate === 1 && Time.weekDay === 7 && Time.hour === 20) T.avery_available = "date";
+
+		return T.avery_available;
+	}
+
+	if (!V.avery_mansion) return;
+
+	if (V.avery_mansion.schedule === "away" && V.avery_skyscraper_fire_time <= 0 && V.avery_injury) V.avery_mansion.schedule = "return";
+	else if (
+		V.avery_mansion.schedule === "away" &&
+		V.avery_mansion.away_timer >= 0 &&
+		!V.avery_injury &&
+		Time.hour >= 18 &&
+		V.avery_mansion.party_state === "waiting" &&
+		Time.weekDay === 1
+	) {
+		V.avery_mansion.schedule = "return";
+		V.avery_mansion.away_timer = 0;
+		V.avery_mansion.rage.apologetic = true;
+		V.avery_mansion.rage.work = true;
+	} else if (
+		V.avery_mansion.schedule === "away" &&
+		!V.avery_injury &&
+		V.avery_mansion.away_timer <= 0 &&
+		((Time.weekDay === 7 && Time.hour >= 4) || Time.hour >= 21 || Time.hour <= 6)
+	) {
+		V.avery_mansion.schedule = "return";
+		V.avery_mansion.rage.apologetic = true;
+		V.avery_mansion.rage.work = true;
+	} else if (V.avery_mansion.schedule !== "away") {
+		switch (Time.weekDay) {
+			/* Sunday */
+			case 1:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 16) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 17 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 17 && V.avery_mansion.party_state === "waiting" && !V.avery_valentines?.invite)
+					V.avery_mansion.schedule = "party_prepare";
+				else if (V.avery_mansion.party_state === "waiting") V.avery_mansion.schedule = "party";
+				else V.avery_mansion.schedule = "drink";
+				break;
+
+			/* Monday */
+			case 2:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 20) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 23 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 23 && !V.avery_mansion.rage.dinner_done) V.avery_mansion.schedule = "dinner";
+				else V.avery_mansion.schedule = "study";
+				break;
+
+			/* Tuesday */
+			case 3:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 20) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 23 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 23 && !V.avery_mansion.rage.dinner_done) V.avery_mansion.schedule = "dinner";
+				else V.avery_mansion.schedule = "pool";
+				break;
+
+			/* Wednesday */
+			case 4:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 20) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 23 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 23 && !V.avery_mansion.rage.dinner_done) V.avery_mansion.schedule = "dinner";
+				else V.avery_mansion.schedule = "lounge";
+				break;
+
+			/* Thursday */
+			case 5:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 20) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 23 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 23 && !V.avery_mansion.rage.dinner_done) V.avery_mansion.schedule = "dinner";
+				else V.avery_mansion.schedule = "garden";
+				break;
+
+			/* Friday */
+			case 6:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 20) V.avery_mansion.schedule = "work";
+				else if (Time.hour <= 23 && V.avery_mansion.rage.work === true) V.avery_mansion.schedule = "return";
+				else if (Time.hour <= 23 && !V.avery_mansion.rage.dinner_done) V.avery_mansion.schedule = "dinner";
+				else V.avery_mansion.schedule = "drink";
+				break;
+
+			/* Saturday */
+			case 7:
+				if (Time.hour <= 4) V.avery_mansion.schedule = "sleep";
+				else if (Time.hour <= 5 && V.daily.avery.morning_bath !== "done" && V.daily.avery.morning_bath !== "dressing")
+					V.avery_mansion.schedule = "bath";
+				else if (Time.hour <= 6 && V.timeStamp < V.daily.avery.dressing_timer && V.daily.avery.morning_bath === "dressing")
+					V.avery_mansion.schedule = "dressing";
+				else if (Time.hour <= 6) V.avery_mansion.schedule = "breakfast";
+				else if (Time.hour <= 9) V.avery_mansion.schedule = "garden";
+				else if (Time.hour <= 12) V.avery_mansion.schedule = "pool";
+				else if (Time.hour <= 15) V.avery_mansion.schedule = "study";
+				else if (Time.hour <= 19) V.avery_mansion.schedule = "lounge";
+				else if (Time.hour === 20) V.avery_mansion.schedule = "date";
+				else V.avery_mansion.schedule = "drink";
+				break;
+		}
+	}
+
+	if (!["away", "date", "sleep", "work", "dressing"].includes(V.avery_mansion.schedule)) T.avery_available = "talk";
+}
+window.averySchedule = averySchedule;
+DefineMacro("averySchedule", averySchedule);
 
 function kylarStatusCheck(kylar) {
 	const kylarStatus = [];
@@ -383,7 +552,11 @@ function gwylanSchedule() {
 	} else if (Time.hour === 5 || (Time.hour === 6 && Time.minute < 45)) {
 		return "garden"; // ToDo: Gwylan: watching Gwylan sleep or stretch in the garden during temperate weather
 	} else if (!V.daily.gwylan.cafeSkip && Time.hour === 7 && Time.minute < 20 && !V.daily.gwylan.cafe) {
-		return "walking_to_cafe";
+		if (between(V.chef_state, 7, 8) && V.chef_rework <= 30) {
+			return "cliff";
+		} else {
+			return "walking_to_cafe";
+		}
 	} else if (
 		!V.daily.gwylan.cafeSkip &&
 		((Time.hour === 7 && (Time.minute >= 20 || V.daily.gwylan.cafe)) || Time.hour === 8 || (Time.hour === 9 && Time.minute <= 20))
@@ -401,12 +574,15 @@ function gwylanSchedule() {
 window.gwylanSchedule = gwylanSchedule;
 
 function averyMansionScore() {
-	if (C.npc.Avery.love < 50) return 0; // 50 love is hard requirement
+	if (C.npc.Avery.love < 50) return 0; // 50 love is a hard requirement
+	if (V.housekeeping < 400) return 0; // C housekeeping is a hard requirement
+	if (Object.values(V.foodstuff).filter(food => food.knows_recipe).length < 6) return 0; // 6 recipes is a hard requirement
+	if (V.dateCount.Avery < 6) return 0; // 6 dates is a hard requirement
 	let score = 0;
-	score += Math.floor(V.housekeeping / 20); // 1 point for every 20 housekeeping skill
-	score += C.npc.Avery.love - 50; // 1 point for every point of love above 50
-	score += Object.values(V.plants).filter(food => food.recipe).length * 2; // 2 points for each known recipe
-	if (Object.values(V.plants).some(food => food.knownFavorite?.includes("Avery"))) score += 50; // 50 points if has ever given Avery a favourite food
+	score += V.housekeeping / 20; // 1 point for every 20 housekeeping skill
+	score += C.npc.Avery.love / 2; // 1 point for every 2 points of love
+	score += Object.values(V.foodstuff).filter(food => food.knows_recipe).length * 2; // 2 points for each known recipe
+	score += V.dateCount.Avery * 3; // 3 points per date
 	return score;
 }
 window.averyMansionScore = averyMansionScore;

@@ -4,7 +4,7 @@
 You are on the beach.
 <<if Weather.dayState is "day">>
 	<<if !Weather.isOvercast>>
-		It is awash with visitors, children build sandcastles and play in the water while their parents bask in the sun. A group of students are playing volleyball.
+		It is awash with visitors. Children build sandcastles and play in the water while their parents bask in the sun. A group of students are playing volleyball.
 	<<elseif Weather.precipitation is "rain">>
 		The beach itself is mostly deserted due to the rain, but the violent waves have attracted surfers.
 	<<elseif Weather.isSnow>>
@@ -12,15 +12,27 @@ You are on the beach.
 	<<elseif Weather.isOvercast>>
 		The clouds have driven away most would-be visitors, but there are still people strolling along the water's edge.
 	<</if>>
+	<<if Time.weekDay is 1 and Time.hour is 11>> /* 11-12 */
+		You spot Doren
+		<<switch random(1,2)>>
+			<<case 1>>swimming from afar in
+				<<if C.npc.Doren.gender isnot "m">>
+					a <<= either ("bikini","swimsuit")>>.
+					<<else>>
+					a <<= either ("board shorts","speedo")>>.
+				<</if>>
+			<<case 2>>surfing from far away in a wet suit.
+		<</switch>>
+	<</if>>
 <<elseif Weather.dayState is "dawn">>
 	<<if !Weather.isOvercast>>
-		It is a popular destination for joggers, some have dogs with them. A few families are setting up windbreakers. A group of students are playing volleyball.
+		It is a popular destination for joggers, some of who bring dogs with them. A few families are setting up windbreakers. A group of students are playing volleyball.
 	<<elseif Weather.precipitation is "rain">>
 		The beach itself is mostly deserted due to the rain, but the violent waves have attracted surfers.
 	<<elseif Weather.isSnow>>
 		The snow has kept most away from the beach, but the violent waves have attracted surfers.
 	<<elseif Weather.isOvercast>>
-		It is a popular destination for joggers, some have dogs with them. Fog blocks your view of the ocean.
+		It is a popular destination for joggers, some of who bring dogs with them. Fog blocks your view of the ocean.
 	<</if>>
 <<elseif Weather.dayState is "dusk">>
 	<<if !Weather.isOvercast>>
@@ -56,7 +68,7 @@ You are on the beach.
 	<<elseif $robinReunionScene isnot undefined and _robin_location is "beach">>
 		<<npc Robin>><<person1>>
 		<<if $robinReunionScene is "dungeon">>
-			<<wearProp "lemonade" 0 "default">>
+			<<wearProp "lemonade">>
 			<<unset $robinReunionScene>><<set $robinPostMortem to true>>
 			You see Robin stood behind <<his>> lemonade stand. <<His>> mouth falls agape as <<he>> sees you, and <<he>> sprints closer.
 			<br><br>
@@ -74,7 +86,7 @@ You are on the beach.
 			<<link [[Next|Beach]]>><<set $eventskip to 1>><<endevent>><</link>>
 			<br>
 		<<elseif $robinReunionScene is "dungeonRobin">>
-			<<unset $robinReunionScene>><<wearProp "lemonade" 0 "default">>
+			<<unset $robinReunionScene>><<wearProp "lemonade">>
 			You see Robin stood behind <<his>> lemonade stand. <<His>> mouth goes falls as <<he>> sees you, and <<he>> sprints towards you.
 			<br><br>
 
@@ -134,7 +146,7 @@ You are on the beach.
 			<<link [[Next|Beach]]>><<set $eventskip to 1>><<endevent>><</link>>
 			<br>
 		<</if>>
-	<<elseif C.npc.Robin.init is 0 and Time.season isnot "winter" and Time.isWeekEnd() and between(Time.hour, 9, 16)>>
+	<<elseif C.npc.Robin.init is 0 and Time.season isnot "winter" and Time.isWeekEnd() and between(Time.hour, 9, 16) and Weather.precipitation is "none">>
 		<<set $robindebt to 0>><<set $robindebtlimit to 5>>
 		<<npc Robin>><<person1>>You see someone familiar working at a stand on the beach. <<He>> notices you at the same time. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> motions you over while cleaning a glass pitcher. <<He>> puts it down and hugs you when you approach.
 		<br><br>
@@ -148,7 +160,7 @@ You are on the beach.
 		<<link [[Next|Beach]]>><<set $eventskip to 1>><</link>>
 		<br>
 	<<elseif Time.season is "summer" and Time.hour gt 9 and Time.hour lt 17 and Weather.precipitation isnot "rain" and $balloonStand.open is false and $exposed lte 0>>
-		<<generate1>><<saveNPC 0 stall_owner>><<handheldwear 14>>
+		<<generate1>><<saveNPC 0 stall_owner>><<handheldwear "balloon">>
 		Someone is setting up a new stall on the beach<<if _robin_location is "beach">>, directly across from Robin's lemonade stand. Robin looks somewhat worried<</if>>. The <<person1>><<person>> ties a bunch of colourful balloons to the stall, where they bob invitingly in the air.
 		<br><br>
 		The <<personsimple>> notices you staring and beckons you over. "Hey there!" <<he>> says. "Just getting my wares set up."
@@ -159,11 +171,21 @@ You are on the beach.
 		<br><br>
 		<<set $balloonStand.open to true>>
 		<<link [[Buy something|Balloon Stand]]>><<endevent>><<set $phase to "firstcustomer">><</link>><br>
-		<<link [[Decline|Balloon Decline]]>><<endevent>><</link>>
+		<<link [[Decline|Balloon Decline]]>><</link>>
 		<br>
 	<<elseif _robin_location is "beach" and $balloonStand.open is true and $balloonStand.robin.status is "unaffected">>
 		<<balloonRobinIntro>>
 	<<else>>
+		<<if Time.weekDay is 1 and Time.hour is 9 and !Weather.isOvercast>> /* 9-10 */
+			A group of volunteers are cleaning up the beach. You spot Doren among them.
+			<br>
+			<<if pcAreArmsBound("both")>>
+				You could join in cleaning up the beach, <span class="blue">if your arms weren't bound.</span>
+			<<else>>
+				<<icon "community-service.png">><<link [[Join in (1:00)|Doren Beach Volunteer]]>><<pass 1 hour>><<tiredness 12>><<famegood 5>><</link>><<ggtiredness>>
+			<</if>>
+			<br><br>
+		<</if>>
 		<<if $scienceproject is "ongoing" and $sciencephallusknown is 1 and $sciencephallus lt 10 and Time.dayState isnot "night" and Weather.precipitation is "none">>
 			<<investigateicon>><<link [[Find participant for phallus project (0:15)|Beach Phallus]]>><<pass 15>><</link>>
 			<br>
@@ -191,7 +213,7 @@ You are on the beach.
 			<</if>>
 		<</if>>
 		<<changingroomicon>><<link [[Changing room|Changing Room]]>><</link>>
-		<<if $openinghours is 1 and $balloonStand.open is true>>
+		<<if Time.openingHours() and $balloonStand.open is true>>
 			<br>
 			<<stallicon "balloon">><<link [[Balloon stand|Balloon Stand]]>><</link>>
 		<</if>>
@@ -208,6 +230,9 @@ You are on the beach.
 			<br>
 			<<set $_boundType to ($leftleg is "bound" ? ($rightleg is "bound" ? "both legs" : "your left leg") : "your right leg")>>
 			You cannot go for a run with $_boundType bound.
+		<<elseif $worn.feet.type.includes("shackle")>>
+			<br>
+			You cannot go for a run while shackled.
 		<<elseif $worn.feet.type.includes("heels")>>
 			<br>
 			<<walkicon>><<link [[Take a walk in heels (0:30)|Beach Heel Walk]]>><</link>><<gtiredness>><<lstress>>
@@ -223,6 +248,8 @@ You are on the beach.
 			<br>
 			<<if pcAreArmsBound("both")>>
 				You could join in the game of volleyball, <span class="blue">if your arms weren't bound.</span>
+			<<elseif Time.weekDay is 1 and Time.hour is 10>> /* 10-11 */
+				<<socialiseicon "volleyball">><<link [[Volleyball|Doren Beach Volleyball]]>><</link>>
 			<<else>>
 				<<socialiseicon "volleyball">><<link [[Volleyball|Beach Volleyball]]>><</link>>
 			<</if>>
@@ -231,7 +258,7 @@ You are on the beach.
 				<<skinicon "strip">><<link [[Strip (0:20)|Beach Strip]]>><<pass 20>><</link>><<exhibitionist5>>
 			<</if>>
 		<</if>>
-		<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked")>>
+		<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and $hypnosis_traits?.silence isnot 1>>
 			<br>
 			<span class="red">The slime in your ear refuses to allow you to leave with <<underwearTypeText>> on.</span>
 		<<elseif $exposed gte 1 and Time.dayState isnot "night">>
@@ -307,7 +334,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 				<<gcool>><<status 5>><<garousal>><<gstress>>
 			<<else>>
 				exposing your $worn.under_lower.name. Laughter erupts from both teams and you hasten to protect your dignity.
-				<<lcool>><<status -10>><<garousal>><<gstress>><<gtrauma>><<arousal 100>><<stress 1>><<trauma 1>>
+				<<llcool>><<status -10>><<garousal>><<gstress>><<gtrauma>><<arousal 100>><<stress 1>><<trauma 1>>
 			<</if>>
 		<</if>>
 		<br><br>
@@ -364,7 +391,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 <<if Time.dayState is "night">>
 	With the sun fully set, continuing to play would be difficult. The <<person1>><<person>> tells you they are going to a beach party and invites you to come along.
 	<br><br>
-	<<link [[Accept (0:10)|Beach Party Chat]]>><<pass 10>><<endevent>><<lstress>><<status 1>><</link>><<gcool>><<lstress>>
+	<<link [[Accept (0:10)|Beach Party Chat]]>><<pass 10>><<endevent>><<status 1>><</link>><<gcool>><<lstress>>
 	<br>
 	<<link [[Make excuses and say your goodbyes|Beach]]>><<endevent>><</link>>
 	<br><br>
@@ -376,7 +403,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 <</if>>
 
 :: Beach Party Chat
-<<location "beach">><<effects>>
+<<location "beach">><<effects>><<if $phase2 is "drink">><<wearProp "beer bottle">><</if>>
 
 <<if $phase is 0>>
 	You join the conversation.
@@ -404,7 +431,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<<foodicon "beerbottle">><span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 			<<else>>
-				<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<wearProp "beer bottle">><</link>><<gcool>><<lstress>><<galcohol>>
+				<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<galcohol>>
 			<</if>>
 			<br>
 			<<socialiseicon>><<link [[Just talk (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<set $phase to 1>><<status 1>><</link>><<gcool>><<lstress>>
@@ -431,7 +458,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<<foodicon "beerbottle">><span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 		<<else>>
-			<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<if $propEquipped isnot 1>><<wearProp "beer bottle">><</if>><</link>><<gcool>><<lstress>><<galcohol>>
+			<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<galcohol>>
 		<</if>>
 		<br>
 		<<socialiseicon>><<link [[Just talk (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<set $phase to 1>><<status 1>><</link>><<gcool>><<lstress>>
@@ -471,10 +498,10 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 <<danceaudience>>
 <<danceactions>>
 
-<<if $danceevent is 0 and $exhibitionism lte 74 and $exposed gte 2>>
+<<if $danceevent is 0 and !hasSexStat("exhibitionism", 5) and $exposed gte 2>>
 	There's no way you can continue dancing while so exposed! Face reddening, you flee the scene.
 	<br><br>
-<<elseif $danceevent is 0 and $exhibitionism lte 34 and $exposed gte 1 and !$worn.under_lower.type.includes("dance")>>
+<<elseif $danceevent is 0 and !hasSexStat("exhibitionism", 3) and $exposed gte 1 and !$worn.under_lower.type.includes("dance")>>
 	There's no way you can continue dancing while so exposed! Face reddening, you flee the scene.
 	<br><br>
 <</if>>
@@ -754,6 +781,10 @@ The <<person>> leaves you. <<He>> looks dejected.
 <<athletics 4>>
 <<pass 30>><<location "beach">><<effects>>
 
+<<if $exposed gte 1>>
+	<<slimeEventEnd "running">>
+<</if>>
+
 You run along the shore.
 <<if Time.dayState is "night">>
 	<<if Weather.precipitation is "rain">>
@@ -789,6 +820,11 @@ You run along the shore.
 <</if>>
 <<tiredness 6>><<stress -6>>
 <br><br>
+
+<<if !Time.isWeekEnd() and (Time.hour === 6 && between(Time.minute, 0, 29))>>
+	Doren <<= either ("waves", "nods")>> at you as <<nnpc_he "Doren">> <<= either ("jogs", "runs")>> by.
+	<br><br>
+<</if>>
 
 <<physique 1>>
 <br><br>
@@ -842,7 +878,7 @@ A <<person1>><<person>> looks at you and audibly gasps. A <<person2>><<person>> 
 <<flaunting>> you stroll down the beach, drawing eyes wherever you go.
 <<if $player.penisExist and $player.vaginaExist and !$worn.genitals.type.includesAll("chastity", "hidden") and $rng % 2 == 0>>Many eyes fix on your genitals, awed by your uniqueness.
 <<elseif $player.breastsize gte 6 and $rng % 2 == 0>>Many eyes are drawn to your <<breasts>>.
-<<elseif $player.penisExist and $player.penissize gte 3 and !$worn.genitals.type.includesAll("chastity", "hidden")>>Many eyes fix on your <<penis>>.
+<<elseif $player.penisExist and $player.penissize gte 5 and !$worn.genitals.type.includesAll("chastity", "hidden")>>Many eyes fix on your <<penis>>.
 <<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>Some just stare, open-mouthed, blown away by your naked beauty.
 <<elseif $physique gte (($physiquesize / 7) * 5)>>Some marvel at seeing such a stunning physique so fully displayed.
 <<elseif $worn.genitals.type.includesAll("chastity", "hidden")>>Some stare with a curious look at your $worn.genitals.name.
@@ -934,97 +970,91 @@ You walk closer to the <<person>>. "I could get dressed," you say, leaning again
 :: Beach Strip Camera Snap
 
 <<if $phase is 0>>
-The <<person>> tries to get <<his>> camera ready, barely managing to control <<his>> shaking hands.
-By the time you reach <<him>>, <<his>> camera is just about ready.
-<<if $uncomfortable.nude is false>>
-"W-Wait!" <<he>> gasps, as you parade past <<him>>.
-<<else>>
-"W-Wait!" <<he>> gasps, as you hurry past <<him>>.
-<</if>>
-<br>
-<<His>> camera starts frantically clicking behind your back.
-<br>
-<br>
-"At least I got <<pher>> ass!" <<he>> sighs.
-<<fameexhibitionism 1>>
-
-<br>
-<br>
-<<endevent>>
-<<elseif $phase gte 1>>
-You pause in front of the <<person>> and strike a few poses, showing off your <<lewdness>>.
-<br>
-The camera's shutter clicks frantically.
-The <<person>> tries to keep <<his>> camera steady, barely managing to control <<his>> shaking hands.
-<br><br>
-
-<<if $phase is 2 and $player.breastsize gte 2>>
-	<<set $proud_of_breasts to 0>>
-
-	<<if $acceptance_breasts_small gte 999 and $player.breastsize lte 5>>
-		<<set $proud_of_breasts to 1>>
-	<<elseif $player.breastsize lte 7 and $player.breastsize gte 6>>
-		<<set $proud_of_breasts to 1>>
-	<<elseif $acceptance_breasts_big gte 999 and $player.breastsize gte 8>>
-		<<set $proud_of_breasts to 1>>
-	<</if>>
-
-	<<if $proud_of_breasts is 1>>
-		You push your chest forward and proudly flaunt your <<breasts>>.
-		While the camera clicks endlessly, you show them off in different poses.
-		You cup, fondle, massage and rub them, proudly keeping eye contact with the camera the whole time.
-		The <<person>> seems fixated on taking as many pictures as possible.
-		<br><br>
-	<</if>>
-<</if>>
-
-<<if $exposed gte 2>>
-	You turn around slowly, giving <<him>> a good view of your naked <<bottom>>.
-	You hear <<his>> camera's incessant clicking behind your back, as you strike some poses showing off your behind.
-	<br><br>
-
-	<<if $phase is 2>>
-		Your back still to the camera, you spread your legs and slowly bend over, giving <<him>> a good view of your <<genitals>> and asshole from behind.
-		The clicking of the camera intensifies.
-		<<if $player.bodyliquid.vagina.semen gte 3>>
-			You feel semen dribbling out of your <<pussy>> and running down your leg.
-			<<garousal>><<arousal 200>>
-		<<elseif $player.bodyliquid.anus.semen gte 3>>
-			You feel semen dribbling out of your anus and running down your leg.
-			<<garousal>><<arousal 200>>
-		<<else>>
-			<<garousal>><<arousal 100>>
-		<</if>>
-		<br><br>
-
-		<<if $player.vaginaExist>>
-		You bend your neck to look behind you, and staring straight into the camera you suggest "Why don't you take some closeups?" You grab your <<bottom>> with both hands. Then, still gazing into the camera, you spread your <<pussy>>.
-		<br>
-		<<if $player.bodyliquid.vagina.semen gte 2>>
-		Semen drips from your <<pussy>> onto the sand. The sight proves too much for the <<person>> and <<he>> drops <<his>> camera in the sand. Shaking excitedly, <<he>> quickly picks it up, and eagerly moves closer.
-		<<else>>
-		The <<person>> is clearly shocked but eagerly moves closer.
-		<</if>>
-		<<His>> camera is now so close it almost touches your <<pussy>>. Enraptured, <<he>> keeps snapping pictures non-stop.
-		<br><br>
-		You spread your <<pussy>> with the fingers of one hand, and plunge a finger into your opening with your other hand. You feel excited by the camera's immortalisation of your lewd behaviour.
-		<<garousal>><<arousal 300 "genitals">>
-		<br><br>
-		<</if>>
-
-		Deciding you've given the <<person>> enough pictures, you turn around and blow a kiss to the camera.
+	The <<person>> tries to get <<his>> camera ready, barely managing to control <<his>> shaking hands.
+	By the time you reach <<him>>, <<his>> camera is just about ready.
+	<<if $uncomfortable.nude is false>>
+		"W-Wait!" <<he>> gasps, as you parade past <<him>>.
 	<<else>>
-		Deciding you've given <<him>> enough pictures, you turn around and blow a kiss to the camera.
+		"W-Wait!" <<he>> gasps, as you hurry past <<him>>.
 	<</if>>
 	<br><br>
-
-	As you walk away, <<he>> blurts out a quick "Thank you!" without interrupting <<his>> endless picture snapping.
-	<<fameexhibitionism 15>>
+	<<His>> camera starts frantically clicking behind your back.
+	"At least I got <<pher>> ass!" <<he>> sighs.
+	<<fameexhibitionism 1>>
 <<else>>
-	You decide <<he>> has enough pictures, and blow a kiss to the camera.
-	As you move on, <<he>> mumbles a quick "Thank you.", without interrupting <<his>> endless picture snapping.
-	<<fameexhibitionism 10>>
-<</if>>
+	You pause in front of the <<person>> and strike a few poses, showing off your <<lewdness>>.
+	<br>
+	The camera's shutter clicks frantically.
+	The <<person>> tries to keep <<his>> camera steady, barely managing to control <<his>> shaking hands.
+	<br><br>
+
+	<<if $phase is 2 and $player.breastsize gte 2>>
+		<<set $proud_of_breasts to 0>>
+
+		<<if $acceptance_breasts_small gte 999 and $player.breastsize lte 5>>
+			<<set $proud_of_breasts to 1>>
+		<<elseif $player.breastsize lte 7 and $player.breastsize gte 6>>
+			<<set $proud_of_breasts to 1>>
+		<<elseif $acceptance_breasts_big gte 999 and $player.breastsize gte 8>>
+			<<set $proud_of_breasts to 1>>
+		<</if>>
+
+		<<if $proud_of_breasts is 1>>
+			You push your chest forward and proudly flaunt your <<breasts>>.
+			While the camera clicks endlessly, you show them off in different poses.
+			You cup, fondle, massage and rub them, proudly keeping eye contact with the camera the whole time.
+			The <<person>> seems fixated on taking as many pictures as possible.
+			<br><br>
+		<</if>>
+	<</if>>
+
+	<<if $exposed gte 2>>
+		You turn around slowly, giving <<him>> a good view of your naked <<bottom>>.
+		You hear <<his>> camera's incessant clicking behind your back, as you strike some poses showing off your behind.
+		<br><br>
+
+		<<if $phase is 2>>
+			Your back still to the camera, you spread your legs and slowly bend over, giving <<him>> a good view of your <<genitals>> and asshole from behind.
+			The clicking of the camera intensifies.
+			<<if $player.bodyliquid.vagina.semen gte 3>>
+				You feel semen dribbling out of your <<pussy>> and running down your leg.
+				<<garousal>><<arousal 200>>
+			<<elseif $player.bodyliquid.anus.semen gte 3>>
+				You feel semen dribbling out of your anus and running down your leg.
+				<<garousal>><<arousal 200>>
+			<<else>>
+				<<garousal>><<arousal 100>>
+			<</if>>
+			<br><br>
+
+			<<if $player.vaginaExist>>
+				You bend your neck to look behind you, and staring straight into the camera you suggest "Why don't you take some closeups?" You grab your <<bottom>> with both hands. Then, still gazing into the camera, you spread your <<pussy>>.
+				<br>
+				<<if $player.bodyliquid.vagina.semen gte 2>>
+					Semen drips from your <<pussy>> onto the sand. The sight proves too much for the <<person>> and <<he>> drops <<his>> camera in the sand. Shaking excitedly, <<he>> quickly picks it up, and eagerly moves closer.
+				<<else>>
+					The <<person>> is clearly shocked but eagerly moves closer.
+				<</if>>
+				<<His>> camera is now so close it almost touches your <<pussy>>. Enraptured, <<he>> keeps snapping pictures non-stop.
+				<br><br>
+				You spread your <<pussy>> with the fingers of one hand, and plunge a finger into your opening with your other hand. You feel excited by the camera's immortalisation of your lewd behaviour.
+				<<garousal>><<arousal 300 "genitals">>
+				<br><br>
+			<</if>>
+
+			Deciding you've given the <<person>> enough pictures, you turn around and blow a kiss to the camera.
+		<<else>>
+			Deciding you've given <<him>> enough pictures, you turn around and blow a kiss to the camera.
+		<</if>>
+		<br><br>
+
+		As you walk away, <<he>> blurts out a quick "Thank you!" without interrupting <<his>> endless picture snapping.
+		<<fameexhibitionism 15>>
+	<<else>>
+		You decide <<he>> has enough pictures, and blow a kiss to the camera.
+		As you move on, <<he>> mumbles a quick "Thank you.", without interrupting <<his>> endless picture snapping.
+		<<fameexhibitionism 10>>
+	<</if>>
 <</if>>
 
 <br><br>
@@ -1176,7 +1206,7 @@ Your nudity is the hottest topic of conversation. "We go to school together, you
 Despite the occasional lewd remark, no one tries to grope or molest you.
 <br><br>
 
-You spend the next hour hanging out and enjoying the attention. Several people have their phones out and openly take footage of you. You agree to take several staged photos with the others and a big group photo with the whole party. <br> <<gcool>><<status 10>><<fameexhibitionism 30 "pic">>
+You spend the next hour hanging out and enjoying the attention. Several people have their phones out and openly take footage of you. You agree to take several staged photos with the others and a big group photo with the whole party. <br> <<ggcool>><<status 10>><<fameexhibitionism 30 "pic">>
 <br><br>
 
 As the party begins to die down, you say your goodbyes and leave, returning to your clothes. You get dressed and end your naked day at the beach.
@@ -1196,18 +1226,18 @@ As the party begins to die down, you say your goodbyes and leave, returning to y
 	<<if $player.penisExist and $player.vaginaExist and !$worn.genitals.type.includesAll("chastity", "hidden") and $rng % 2 == 0>>gawking at your <<genitals>>.
 	<<elseif $player.bottomsize gte 4 and $rng % 2 == 0>>leering at your swaying <<bottom>>
 	<<elseif $player.breastsize gte 6 and $rng % 2 == 0>>gawking at your <<breasts>>
-	<<elseif $player.penisExist and $player.penissize gte 3 and !$worn.genitals.type.includesAll("chastity", "hidden")>>gawking at your <<penis>>.
+	<<elseif $player.penisExist and $player.penissize gte 5 and !$worn.genitals.type.includesAll("chastity", "hidden")>>gawking at your <<penis>>.
 	<<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>admiring your beautiful naked body
 	<<elseif $physique gte (($physiquesize / 7) * 5)>>admiring your stunning physique so fully displayed
 	<<else>>leering at you
 	<</if>>
 	as you parade across the sand.
 	<br><br>
-	You stroll into to the changing room. Teasingly slow, you close the door behind your back. Your body trembles briefly as your pulse returns to normal.
+	You stroll into the changing room. Teasingly slow, you close the door behind your back. Your body trembles briefly as your pulse returns to normal.
 <<elseif $uncomfortable.nude is true>>
 	<<if $player.penisExist and $player.vaginaExist and !$worn.genitals.type.includesAll("chastity", "hidden") and $rng % 2 == 0>>You feel embarrassed by the countless eyes ogling your <<genitals>>.
 	<<elseif $player.breastsize gte 6 and $rng % 2 == 0>>You feel embarrassed by the countless eyes ogling your <<breasts>>.
-	<<elseif $player.penisExist and $player.penissize gte 3 and $rng % 2 == 0 and !$worn.genitals.type.includesAll("chastity", "hidden")>>You feel embarrassed by the countless eyes ogling your <<penis>>.
+	<<elseif $player.penisExist and $player.penissize gte 5 and $rng % 2 == 0 and !$worn.genitals.type.includesAll("chastity", "hidden")>>You feel embarrassed by the countless eyes ogling your <<penis>>.
 	<<elseif $beauty gte (($beautymax / 7) * 5) and $rng % 3>>Every inch of your naked body prickles as you feel countless eyes ogling your naked beauty.
 	<<elseif $physique gte (($physiquesize / 7) * 5)>>Every inch of your toned body prickles as you feel countless eyes ogling your stunning physique.
 	<<else>>Every inch of your naked body prickles as you feel countless eyes ogling you.
@@ -1281,8 +1311,10 @@ The <<person>> runs down the beach, passing many other people. It's obvious <<he
 	"It was just a joke, lighten up," <<he>> says meekly.
 	<br><br>
 
-	You ignore <<him>> as you put your clothes on, finally covering yourself again.<<clotheson>>
-	<br>
+	You ignore <<him>> as you put your clothes on, finally covering yourself again.
+	<br><br>
+
+	<<clotheson>>
 
 	<<link [[Next|Beach]]>><<endevent>><</link>>
 	<br>
@@ -1324,7 +1356,7 @@ You are already attracting attention and stares. You decide to turn around and r
 	You think you are about to catch <<him>>, but outside the arcade, <<he>> slips into a crowd of people and disappears. You run past the crowd, trying to find <<him>>, but you see no sign of <<him>> or your clothes.
 	<br><br>
 
-	You spend a minute trying desperately to find out which direction the thief went, but you can no longer make <<him>> out amongst the many people milling about. Meanwhile, everyone can see your fully exposed <<genitals>><<if $player.breastssize gte 3>>, <<breasts>>,<</if>> and <<bottom>>. Hundreds of pictures must have been taken of you, and even more people are showing up and pulling out their phones. You try to find a way to escape.
+	You spend a minute trying desperately to find out which direction the thief went, but you can no longer make <<him>> out amongst the many people milling about. Meanwhile, everyone can see your fully exposed <<genitals>><<if $player.breastsize gte 3>>, <<breasts>>,<</if>> and <<bottom>>. Hundreds of pictures must have been taken of you, and even more people are showing up and pulling out their phones. You try to find a way to escape.
 	<br><br>
 
 	Finally, you spot a gap in the crowd and run through. You run down the street, hearing laughter and shouts behind you. You sprint into the nearest alleyway and escape.

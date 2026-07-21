@@ -3,7 +3,7 @@
 function initGenitals() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "genitals",
 			name: "naked",
@@ -41,8 +41,8 @@ function initGenitals() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "genitals",
 			name: "chastity belt",
@@ -57,7 +57,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
@@ -86,8 +86,8 @@ function initGenitals() {
 			altDamage: "metal",
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "genitals",
 			name: "chastity cage",
@@ -102,7 +102,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
@@ -157,8 +157,8 @@ function initGenitals() {
 			altDamage: "metal",
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "genitals",
 			name: "gold chastity belt",
@@ -173,7 +173,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
@@ -202,8 +202,8 @@ function initGenitals() {
 			altDamage: "metal",
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "genitals",
 			name: "fetish chastity belt",
@@ -221,7 +221,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "white", "yellow", "tangerine", "cyan"],
 			colour_sidebar: 1,
@@ -251,8 +251,8 @@ function initGenitals() {
 			altDamage: "plastic",
 			iconFile: "chastity_belt.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "genitals",
 			name: "fetish chastity cage",
@@ -270,7 +270,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["black", "grey", "blue", "brown", "green", "pink", "purple", "red", "yellow", "tangerine", "cyan"],
 			colour_sidebar: 1,
@@ -324,8 +324,8 @@ function initGenitals() {
 			altDamage: "plastic",
 			iconFile: 0,
 			accIcon: "chastity_cage.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "genitals",
 			name: "small chastity cage",
@@ -340,7 +340,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["pink"],
 			colour_sidebar: 1,
@@ -395,8 +395,8 @@ function initGenitals() {
 			altDamage: "metal",
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "genitals",
 			name: "flat chastity cage",
@@ -411,7 +411,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["pink"],
 			colour_sidebar: 1,
@@ -466,8 +466,8 @@ function initGenitals() {
 			altDamage: "metal",
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "genitals",
 			name: "chastity parasite",
@@ -482,7 +482,7 @@ function initGenitals() {
 			state: "waist",
 			state_base: "waist",
 			warmth: 0,
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["red"],
 			colour_sidebar: 1,
@@ -537,13 +537,13 @@ function initGenitals() {
 			iconFile: 0,
 			accIcon: 0,
 			penisSize: true,
-		},
+		}),
 	];
 	setup.clothes.genitals = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.genitals = [];
 

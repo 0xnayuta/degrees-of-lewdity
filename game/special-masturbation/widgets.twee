@@ -10,7 +10,7 @@
 		<<set _masturbationorgasm to Math.clamp($masturbationorgasm - $masturbationRuinedOrgasm, 0, Infinity)>>
 		<<if _masturbationorgasm is 0 and $masturbationRuinedOrgasm gt 0>>
 			<<if ($earSlime.event is "masturbate and orgasm at least five times" and $masturbationorgasm gte 5) or ($earSlime.event is "masturbate and orgasm at least ten times" and $masturbationorgasm gte 10)>>
-				You didn't cum, every one of them was ruined, <span class="green">but a forgiving warmth fills you.</span> You can tell it's the slime in your ear, rewarding you for having the <<number $masturbationRuinedOrgasm>> ruined orgasms.
+				You didn't cum. Every orgasm was ruined, <span class="green">but a forgiving warmth fills you.</span> You can tell it's the slime in your ear, rewarding you for having the <<number $masturbationRuinedOrgasm>> ruined orgasms.
 				<<pain `$masturbationRuinedOrgasm * -1`>><<trauma `$masturbationRuinedOrgasm * -1`>><<stress `$masturbationRuinedOrgasm * -2`>>
 				<<if $masturbationRuinedOrgasm gte 15>>
 					<<llpain>><<lltrauma>><<llstress>>
@@ -20,7 +20,7 @@
 				<<set $earSlime.event to "">>
 				<<set $earSlime.defyCooldown to 0>>
 			<<else>>
-				<span class="red">You didn't cum, every one of them was ruined by the slime in your ear.</span><<gstress>><<stress 10>>
+				<span class="red">You didn't cum. Every orgasm was ruined by the slime in your ear.</span><<gstress>><<stress 10>>
 			<</if>>
 		<<elseif _masturbationorgasm is 0>>
 			<<if $purity gte 990 and playerChastity()>>
@@ -105,7 +105,7 @@
 	<<elseif $bottledMilk>>
 		<span class="gold">You bottled <<print ($bottledMilk).toFixed(1)>> mL of breast milk.</span>
 		<<if $bottledMilk gte 100>>
-			<<wearProp "milk bottle" 0 "baby">>
+			<<wearProp "baby bottle of breast milk">>
 			<<set $_bottles to Math.floor(parseFloat(($bottledMilk).toFixed(1)) / 100)>>
 			<<tending_give baby_bottle_of_breast_milk $_bottles>>
 			Enough to fill <<print $_bottles>> <<pluralise $_bottles "bottle">>.
@@ -252,6 +252,13 @@
 		<<testicles>><<set $ballsText += _text_output>>
 	<</silently>>
 
+	<<if $orgasmcurrent gte 1>>
+		<span class="red">ERROR: "orgasmcurrent" was $orgasmcurrent at the start of masturbation. <<if def $lastOrgasmPassage>>The passage "$lastOrgasmPassage" does not set the variable back to 0. <</if>>Please inform Vrelnir.</span>
+		<br><br>
+
+		<<set $orgasmcurrent to 0>>
+	<</if>>
+
 	<<selfsuckchecks>>
 
 	<<if $earSlime.event.includes("get your own sperm into your") and $worn.genitals.name is "chastity parasite">>
@@ -305,11 +312,11 @@
 	<<if $options.images is 1>>
 		<<set _masturbation_temp to Math.floor(($masturbation_fluid / 30))>>
 		<div id="divbowl">
-			<img id="map" src="img/misc/prop/masturbationbowl.png">
+			<img id="map" src="img/misc/prop/masturbation-bowl.png">
 			<<if $masturbation_fluid gte 900>>
-				<img id="maparrow" src="img/misc/prop/masturbationbowl30.png">
+				<img id="maparrow" src="img/misc/prop/masturbation-bowl-30.png">
 			<<elseif $masturbation_fluid gte 30>>
-				<img id="maparrow" @src="'img/misc/prop/masturbationbowl' + _masturbation_temp + '.png'">
+				<img id="maparrow" @src="'img/misc/prop/masturbation-bowl-' + _masturbation_temp + '.png'">
 			<</if>>
 		</div>
 	<</if>>
@@ -324,11 +331,11 @@
 		/* <<set setup.penisHeightLevels to ["base", "waist", "midriff", "chest"]>> */
 		/* the above comment is a reminder of how high the player's penis can reach. however, it's not useful in the code at the moment. */
 		<<if $worn.genitals.name is "chastity parasite">>
-			<<set $penisHeight to [0,0,0,0,0,1,2][$player.penissize + 2]>>
+			<<set $penisHeight to [0,0,0,0,0,1,2][$player.penissize]>>
 			<<set $canSelfSuckPenis to $penisHeight gte $_limit>>
 		<<elseif !playerChastity("penis")>>
 			/* lower number means harder to reach; the player has to get their head lower down to reach it. */
-			<<set $penisHeight to [0,0,0,1,1,2,3][$player.penissize + 2]>>
+			<<set $penisHeight to [0,0,0,1,1,2,3][$player.penissize]>>
 			<<set $canSelfSuckPenis to $penisHeight gte $_limit>>
 			<<set $selfsuckLimit to $penisHeight - Math.clamp($_limit, 0, 4)>>
 			<<set $selfsuckDepth to 0>>
@@ -339,7 +346,7 @@
 		<<set $canSelfSuckPenis to false>>
 	<</if>>
 	<<if $player.vaginaExist and !playerChastity("vagina")>>
-		<<set $_pussyLimit to $worn.genitals.name is "chastity parasite" ? Math.clamp($player.penissize * -1, -3, 0) : 0>>
+		<<set $_pussyLimit to $worn.genitals.name is "chastity parasite" ? Math.clamp(($player.penissize - 2) * -1, -3, 0) : 0>>
 		<<set $canSelfSuckVagina to $_pussyLimit gte $_limit>>
 	<<else>>
 		<<set $canSelfSuckVagina to false>>
@@ -367,7 +374,10 @@
 		<span class="red">The slime in your ear will not allow you to stop.</span>
 	<</if>>
 	<div id="masturbationButtons">
-		<<if _args[0] and ((_args[0].includes("timer") and $timer lte 0) or (_args[0].includes("orgasmcurrent") and $orgasmcurrent) or (_args[0].includes("corruptionMasturbation") and $corruptionMasturbationCount lte 0))>>
+		<<if _args[0] and _args[0].includes("stallInterrupt")>>
+			<<silently>><<masturbationStallInterrupt>><</silently>>
+		<</if>>
+		<<if _args[0] and ((_args[0].includes("timer") and $timer lte 0) or (_args[0].includes("orgasmcurrent") and $orgasmcurrent) or (_args[0].includes("corruptionMasturbation") and $corruptionMasturbationCount lte 0) or (_args[0].includes("stallInterrupt") and $phase gte 2))>>
 			<div id="next"><<link [[Continue|$_passage + " Finish"]]>><</link>><<nexttext>></div>
 			<<if !$possessed>>
 				<div id="skip">
@@ -392,7 +402,7 @@
 /* Used in situations with custom continue controls, but standard stop controls. Usage should be similar to <<masturbationControls>> above */
 <<widget "masturbationStopControls">>
 	<<set $_passage to _args[0] or $passage>>
-	<<if $corruptionMasturbation isnot true and random(0,3) gt $orgasmcurrent and $earSlime.corruption gt (currentSkillValue('willpower') / 10)>>
+	<<if $corruptionMasturbation isnot true and random(0,3) gt $orgasmcurrent and $earSlime.corruption gt (currentSkillValue('willpower') / 10) && !$hypnosis_traits.silence>>
 		<div id="stop"><<link [[Stop|$_passage]]>><<set $corruptionMasturbation to true>><</link>></div>
 	<<elseif $corruptionMasturbation isnot true>>
 		<div id="stop"><<link [[Stop|$_passage + " Finish"]]>><<set $finish to 1>><</link>></div>

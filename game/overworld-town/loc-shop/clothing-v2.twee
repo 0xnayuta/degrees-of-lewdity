@@ -50,20 +50,33 @@
 	<<set _iconName to clothingSlotToIconName($clothingShopSlot, _outfits)>>
 	<<shopCategoryTabs _iconName>>
 
-	<!-- Search bar -->
+	<!-- Search bar + items per page options-->
 	<<if !_shopNameFilter>>
 		<<set _shopNameFilter to "">>
 	<</if>>
-	<span class="searchButtons">
-		Search: <<textbox "_shopNameFilterTextbox" _shopNameFilter>>
-		<<button Clear>>
-			<<set _shopNameFilter to "">>
-			<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
-		<</button>>
+	<span class="optionsBar">
+		<span class="searchGroup">
+			<label class="searchBar">
+				Search: <<textbox "_shopNameFilterTextbox" _shopNameFilter>>
+			</label>
+			<<button Clear>>
+				<<set _shopNameFilter to "">>
+				<<shopCategoryReplace `clothingSlotToIconName($clothingShopSlot, _outfits)`>>
+			<</button>>
+		</span>
+			<label class="itemsPerPageLabel">
+			Items per page:
+			<<listbox "$shopItemsPerPage" autoselect>>
+				<<optionsfrom [4, 8, 12, 16, 24, 32]>>
+			<</listbox>>
+			</label>
 	</span>
-	<<set _unavailableItems to !!earSlimeCorruptionClothes() or ($earSlime.forcedCommando and $earSlime.forcedCommando gt 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12 or $location is "forest_shop">>
+	<<set _unavailableItems to !!earSlimeCorruptionClothes() or ($earSlime.forcedCommando and $earSlime.forcedCommando gte 0) or ($earSlime.forcedDressing and $earSlime.forcedDressing.days) or playerBellySize() gte 12 or $location is "forest_shop">>
 	<<if _unavailableItems>>
 		<label><<checkbox "$shopClothingFilter.availableOnly" false true autocheck>> Hide unavailable items</label>
+		<<if $location is "forest_shop">>
+			<label><<checkbox "$shopClothingFilter.unavailableOnly" false true autocheck>> Hide available items</label>
+		<</if>>
 	<<else>>
 		<<set $shopClothingFilter.available to false>>
 	<</if>>
@@ -75,6 +88,13 @@
 			shopTimer = setTimeout(updateShop, 300);
 		});
 		$('#checkbox-shopclothingfilteravailableonly').on('change', e => {
+			updateShop();
+		});
+		$('#checkbox-shopclothingfilterunavailableonly').on('change', e => {
+			updateShop();
+		});
+		$('.itemsPerPageLabel select').on('change', e => {
+		$shopPage = 0;
 			updateShop();
 		});
 		var updateShop = () => {
@@ -97,6 +117,7 @@
 			(playerBellySize() >= 12 and x.type.includes("constricting")) or
 			$specialClothes.find(item => item.name === x.name)?.unlocked is 0
 		))
+		and ($location isnot "forest_shop" or !V.shopClothingFilter.unavailableOnly or $specialClothes.find(item => item.name === x.name)?.unlocked is 0)
 	)>>
 	<<set _items = applyClothingShopFilters(_items)>>
 
@@ -486,12 +507,13 @@
 <<widget "clothingtrait">>
 	<<if $options.images is 1 and (_args[1] or _args[0] isnot "normal") and _shopLocation isnot "mirrorhair">>
 		<<set _traitObj to setup.shopDetails[_args[0]]>>
+		<<set _traitFile to _args[0].replace(/([a-z])([A-Z])/g, "$1-$2").replace(/_/g, "-").toLowerCase()>>
 		<<set _traitName to _traitObj?.name>>
 		<<set _traitDesc to `<span class="black">` + _traitObj?.desc + `</span>`>>
 		<<set _traitDetails to `<i class="green normal">` + (_traitObj?.details isnot "none" ? " " + _traitObj?.details : "") + `</i>`>>
 		<<set $_tooltip to _traitDesc + "<br>" + _traitDetails>>
 		<span class="noDivider" @tooltip-title="_traitName" @tooltip="$_tooltip" tooltip-settings="{delay: 0}">
-			<img @src="'img/ui/clothes/traits/' + _args[0] + '.png'" class="clothing-trait">
+			<img @src="'img/ui/clothes/traits/' + _traitFile + '.png'" class="clothing-trait">
 		</span>
 	<<elseif _shopLocation is "mirrorhair">>
 		<<set _traitObj to setup.hairDetails[_args[0]]>>
@@ -543,20 +565,20 @@
 		<br><br>
 		<<shoptraits>>
 		<<set _slimeSlots to setup.clothingLayer.torso>>
-		<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and !_temp_choice.type.includesAny("swim", "dance", "naked")>>
+		<<if $earSlime.forcedCommando and $earSlime.forcedCommando gte 0 and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and !_temp_choice.type.includesAny("swim", "dance", "naked") and V.hypnosis_traits?.silence isnot 1>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name as it is forcing you to go commando.</span>
 			<br>
-		<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and !_temp_choice.type.includesAny("school","event")>>
+		<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and !_temp_choice.type.includesAny("school","event") and V.hypnosis_traits?.silence isnot 1>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name.</span>
 			<br>
-		<<elseif $earSlime.forcedDressing and $earSlime.forcedDressing.days and _item.gender isnot $earSlime.forcedDressing.type and _item.gender isnot "n" and !_item.type.includesAny("event")>>
+		<<elseif $earSlime.forcedDressing and $earSlime.forcedDressing.days and _item.gender isnot $earSlime.forcedDressing.type and _item.gender isnot "n" and !_item.type.includesAny("event") and V.hypnosis_traits?.silence isnot 1>>
 			<span class="red">The slime in your ear refuses to allow you to try on or buy the _temp_choice.name as it is only permitting more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</span>
 		<<else>>
-			<<if $earSlime.forcedCommando and $earSlime.forcedCommando gt 0 and !_temp_choice.type.includesAny("naked") and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower))>>
+			<<if $earSlime.forcedCommando and $earSlime.forcedCommando gte 0 and !_temp_choice.type.includesAny("naked") and ($clothingShopSlot is "under_lower" or (_temp_choice.outfitPrimary and _temp_choice.outfitPrimary.under_lower)) and V.hypnosis_traits?.silence isnot 1>>
 				<span class="red">The slime in your ear refuses to allow you to try on or wear the _temp_choice.name while not at an appropriate location.</span>
 				<br>
 				<<set _wearingBlocked to true>>
-			<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and (_temp_choice.type.includesAny("school") and !Time.schoolDay) and !_temp_choice.type.includesAny("event")>>
+			<<elseif _slimeSlots.includes($clothingShopSlot) and _temp_choice.reveal lt earSlimeCorruptionClothes() and (_temp_choice.type.includesAny("school") and !Time.schoolDay) and !_temp_choice.type.includesAny("event") and V.hypnosis_traits?.silence isnot 1>>
 				<span class="red">The slime in your ear refuses to allow you to try on or wear the _temp_choice.name when you don't have school today.</span>
 				<br>
 				<<set _wearingBlocked to true>>
@@ -684,7 +706,7 @@
 				<br>
 			<</if>>
 
-			<<if $settings.multipleWardrobes && Object.values($wardrobes).filter(w=>w.unlocked&&w.shopSend && w.isolated).length > 1>>
+			<<if $settings.multipleWardrobes && Object.values($wardrobes).filter(w=>w.unlocked && w.shopSend).length > 1>>
 				<div id="sendItemsTo">
 					<<sendItemsTo>>
 				</div>
@@ -776,7 +798,7 @@
 										<<unset $clothes_choice>>
 									<</if>>
 									<<updateclotheslist>>
-									<<exposedcheck>>
+									<<exposure>>
 									<<updatesidebarimg>>
 									<<updatesidebarmoney>>
 									<<updatesidebardescription>>
@@ -810,7 +832,7 @@
 						<<link "Try On">>
 							<<shopbuyv2 _realSlot "try" null _realIndex>>
 							<<updateclotheslist>>
-							<<exposedcheck>>
+							<<exposure>>
 							<<updatesidebarimg true>>
 							<<updatesidebardescription>>
 							<<updateallure>>
@@ -825,7 +847,7 @@
 								<<shopbuyv2 _realSlot "return" null _realIndex>>
 								<<updatesidebarimg>>
 								<<updateclotheslist>>
-								<<exposedcheck>>
+								<<exposure>>
 								<<updatesidebardescription>>
 								<<updateallure>>
 								<<updatewarmthscale>>
@@ -887,7 +909,7 @@
 	<<set _canAfford = ($money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
 	<div class="buy-button">
 		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
-			<<link `'Buy and send home × ' + $buyMultiple`>>
+			<<link `'Buy and send <<if $wardrobes.shopReturn is "wardrobe">>home<<else>>to $wardrobes[$wardrobes.shopReturn].name<</if>> × ' + $buyMultiple`>>
 				<<if $money >= _clothingCost * $buyMultiple and _spaceLeft >= $buyMultiple>>
 					<<clothingReset _realSlot>>
 					<<shopbuyv2 _realSlot "buy" "send" _realIndex $buyMultiple>>
@@ -1303,11 +1325,25 @@
 						<<if _pat and _item.pattern_options?.includes(_pat)>>
 							<<set _modeloptions.worn[_slot].pattern to _pat>>
 						<</if>>
+						<<set _position to setup.clothes[_slot][_modeloptions.worn[_slot].index]?.holdPosition>>
+						<<if _position or _slot is "handheld">>
+							<<set _modeloptions.arm_right to "hold">>
+							<<switch _position>>
+								<<case "left_cover">>
+									<<set _modeloptions.arm_left to "cover">>
+									<<set _modeloptions.arm_right to "idle">>
+								<<case "right_cover">>
+									<<set _modeloptions.arm_right to "cover">>
+								<<case "clutch">>
+									<<set _modeloptions.arm_left to "cover">>
+								<<case "cover_both">>
+									<<set _modeloptions.arm_left to "cover">>
+									<<set _modeloptions.arm_right to "cover">>
+								<<case "idle_both">>
+									<<set _modeloptions.arm_right to "idle">>
+							<</switch>>
+						<</if>>
 					<</for>>
-					<<if _slot is "handheld">>
-						<<set _position to setup.clothes.handheld[_modeloptions.worn.handheld.index]?.holdPosition>>
-						<<set _modeloptions.arm_right to _position is "right_cover" ? "cover" : _position is "idle" ? "idle" : "hold">>
-					<</if>>
 
 				<<rendermodel "canvas-mannequin">>
 
@@ -1315,8 +1351,8 @@
 				<div class="mannequin-buttons no-numberify">
 					<div class="div-link mannequin-gender-button">
 						<<if $options.images is 1>>
-							<<set _genderIcon = (_mannequinGender == "m" ? "male" : (_mannequinGender == "f" ? "female" : "unisex"))>>
-							<img @src="'img/misc/icon/' + _genderIcon + '.png'">
+							<<set _genderIcon = (_mannequinGender == "m" ? "male.png" : (_mannequinGender == "f" ? "female.png" : "unisex.png"))>>
+							<<icon _genderIcon>>
 						<<else>>
 							<span class="capitalize">_mannequinGender[0]</span>
 						<</if>>
@@ -1721,9 +1757,9 @@
 			<br>
 			<div class="legend-colour-sample" style="background-color: orangered"></div> - you will be way too hot at this temperature
 			<br>
-			<div class="legend-icon"><img src="img/ui/clothes/warmth_indicator.png"></div> - your warmth with your current clothes on
+			<div class="legend-icon"><img src="img/ui/clothes/warmth-indicator.png"></div> - your warmth with your current clothes on
 			<br>
-			<div class="legend-icon"><img src="img/ui/clothes/small_uarrow.png"></div> - warmth you'd have would you put other clothing on instead
+			<div class="legend-icon"><img src="img/ui/clothes/small-arrow.png"></div> - warmth you'd have would you put other clothing on instead
 		</div>
 	</div>
 <</widget>>
@@ -1731,8 +1767,8 @@
 <<widget "warmthscale">>
 	<div class="warmth-scale-container">
 		<div class="warmth-scale-div"></div>
-		<img id="warmthIndicator" class="warmth-indicator" src="img/ui/clothes/warmth_indicator.png" />
-		<img id="warmthIndicatorNew" class="warmth-indicator-arrow" src="img/ui/clothes/small_uarrow.png" />
+		<img id="warmthIndicator" class="warmth-indicator" src="img/ui/clothes/warmth-indicator.png" />
+		<img id="warmthIndicatorNew" class="warmth-indicator-arrow" src="img/ui/clothes/small-arrow.png" />
 	</div>
 	<<updatewarmthscale>>
 <</widget>>
@@ -1745,7 +1781,7 @@
 	<div class="returnOptions no-numberify">
 		Send items to: <<ind>>
 		<<for _label, _value range $wardrobes>>
-			<<if _value.unlocked and _value.shopSend && _value.isolated>>
+			<<if _value.unlocked and _value.shopSend>>
 				<<if $wardrobes.shopReturn is _label>>
 					<div class="try-button div-link">
 						<span class="gold"><<print _value.name>></span>

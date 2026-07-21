@@ -89,7 +89,6 @@ Weather.BodyTemperature = (() => {
 
 		const scaledMinutes = Math.min(minutes, 60 + Math.sqrt(Math.max(minutes - 60, 0)));
 		this.set(calculateTemperatureChange(Weather.BodyTemperature.get(), temperature, scaledMinutes, getTotalWarmth()));
-		resetActivity();
 
 		if (Weather.BodyTemperature.get() < Weather.tempSettings.minTemperature) {
 			V.passout = "cold";
@@ -101,7 +100,7 @@ Weather.BodyTemperature = (() => {
 	}
 
 	function getRestingPoint(iterations = 6, warmth = undefined, bodyTemperature, outside) {
-		let ambientTemperature = outside || V.outside ? Weather.temperature : Weather.insideTemperature;
+		let ambientTemperature = outside || V.outside ? Weather.apparentTemperature : Weather.insideTemperature;
 
 		if (T.inWater) {
 			ambientTemperature = Weather.waterTemperature;
@@ -252,6 +251,7 @@ Weather.BodyTemperature = (() => {
 			if (this.get() < 39) return "warm";
 			return "hot";
 		},
+		// Goes from 1 (no change) to 3 (+200% increase)
 		get fatigueModifier() {
 			const factor = temperatureFactor();
 			return this.get() > settings.baseBodyTemperature ? interpolate(1, settings.effects.maxFatigueGainMultiplier, factor) : 1;

@@ -67,10 +67,11 @@
 					<br><br>
 					They close in around you.
 					<br><br>
-					<<if $submissive lte 500>>
-						<<link [[Threaten|Bully Friends Threaten]]>><<def 1>><</link>><<defianttext>>
+					<<if displayDefiantOption(500)>>
+						<<link [[Threaten|Bully Friends Threaten]]>><<wolfDefiant 500>><<def 1>><</link>><<defianttext 500>>
 						<br>
-					<<elseif $submissive gte 1500>>
+					<</if>>
+					<<if $submissive gte 1500>>
 						<<link [[Submit|Bully Friends Rape]]>><<set $molestationstart to 1>><<set $phase to 1>><<sub 1>><</link>><<submissivetext>>
 						<br>
 					<</if>>
@@ -220,7 +221,7 @@
 		<<generatey1>><<generatey2>><<person1>>
 		You hear approaching footsteps, and hide in a storeroom. Your heart skips a beat when someone rattles the door handle.<<gstress>><<stress 6>>
 		<br><br>
-		"It's stuck," says a <<personsimple>>'s voice. "Gimme a sec."
+		"It's stuck," says a <<personssimple>> voice. "Gimme a sec."
 		<br><br>
 		You glance around the room. There's a small window, though you'd need to climb on something to reach, and you don't know what's on the other side.
 		<br><br>
@@ -232,7 +233,7 @@
 	<</addinlineevent>>
 
 	<<if $hypnosis_traits.suggestion gt 0 and $settings.hypnosisEnabled>>
-		<<addinlineevent "exposed_stairwell_hyposis" 3>>
+		<<addinlineevent "exposed_stairwell_hypnosis" 3>>
 			You hide beneath a stairwell as a crowd descends. <<hypnosisText "You feel something shift in your consciousness, as if you're entering a trance.">> You snap out of it to find yourself about to walk out into the open, with a strong urge to continue.
 			<br><br>
 
@@ -260,18 +261,18 @@
 	<<if $halloween is 1 and !$halloween_lake>>
 		<<halloween_lake_invite>>
 	<<elseif $bullytimer gte $rng and $bullyevent is 0 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
-		/* Runs Whitney's intro, via it's old implimentation in <<schoolbully>> */
+		/* Runs Whitney's intro, via its old implementation in <<schoolbully>> */
 		<<set $bullytimer to 0>>
 		<<schoolbully>>
 	<<elseif Time.days gte 7 and C.npc.Kylar.init isnot 1 and $kylarignored isnot 1>>
-		<<npc Kylar>><<initnpc Kylar>><<generatey2>><<generatey3>><span class="purple">Someone's bag lands in front of you.</span> It spills its contents, scattering pens and books across the floor. You turn the corner and see its owner, a <<nnpc_gendery "Kylar">> held aloft by <<person1>><<his>> collar and pushed against a locker.
+		<<npc Kylar>><<generatey2>><<generatey3>><span class="purple">Someone's bag lands in front of you.</span> It spills its contents, scattering pens and books across the floor. You turn the corner and see its owner, a <<nnpc_gendery "Kylar">> held aloft by <<person1>><<his>> collar and pushed against a locker.
 		<br><br>
 		The <<personsimple>> kicks at the <<person2>><<person>> holding <<person1>><<him>> up, but the <<person2>><<person>> just laughs. "That your best?" <<person2>><<he>> says. <<He>> grasps <<his>> victim's unkempt dark hair with <<his>> free hand. "Lucky you. Hurting me would be stupid."
 		<br><br>
 		Other students ignore what is happening, or watch in amusement.
 		<br><br>
 
-		<<link [[Intervene|Kylar Intro Intervene]]>><<npcset Kylar state "active">><<status -10>><<npcincr Kylar love 1>><</link>><<glove>><<lcool>>
+		<<link [[Intervene|Kylar Intro Intervene]]>><<npcset Kylar state "active">><<status -10>><<npcincr Kylar love 1>><</link>><<glove>><<llcool>>
 		<br>
 		<<link [[Watch but make sure <<person1>><<hes>> okay after|Kylar Intro Help]]>><<npcset Kylar state "active">><<npcincr Kylar love 1>><</link>><<glove>>
 		<br>
@@ -337,6 +338,28 @@
 			<</addinlineevent>>
 		<</if>>
 
+		<<if getRobinLocation("school") and !$daily.robin.bump>>
+			<<addinlineevent "robin_bump">>
+				<<effects>>
+				<<set $daily.robin.bump to true>>
+				<<npc "Robin">><<person1>>
+				<<set _robin to statusCheck("Robin")>>
+				As you walk around, a figure bumps into you. It's Robin. <<He>> stumbles back a step.
+				<br><br>
+				<<if _robin.trauma gte 40>>
+					<<He>> barely reacts to the collision, <<his>> eyes dull. <<He>> moves slowly, and doesn't even look like <<he>> acknowledges you. You try to apologise, but <<he>> isn't paying attention to you, or <<his>> surroundings. You watch <<him>> leave with a horrible feeling in your chest. <<gstress>><<stress 5>><<gtrauma>><<trauma 5>>
+				<<elseif _robin.trauma gte 20>>
+					"S-sorry," <<he>> mutters, keeping <<his>> head down and hunching <<his>> shoulders. <<His>> gaze does not seem to be focused fully on you. "Can't talk," <<he>> mumbles, before scurrying away. <<gstress>><<stress 5>>
+				<<elseif $robin.timer.hurt gte 1>>
+					<<He>> says nothing, not even looking at you. <<He>> fasten <<his>> steps.
+				<<else>>
+					"Oh, it's you!" <<he>> says, feeling embarrassed, "Sorry, I wasn't looking where I was going. I don't have time to chat now, but I will see you later!" <<He>> gives you an apologetic smile, <<if isLoveInterest("Robin") and _robin.dom gte 60>>and quickly kisses your cheek<</if>> before hurrying down the corridor.
+				<</if>>
+				<br><br>
+				<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<</addinlineevent>>
+		<</if>>
+
 		<<if $mathsproject is "ongoing" and $mathsdruggedstudent isnot 1 and $mathsprojectdays lt 20 and $stimdealerknown is 1>>
 			<<addinlineevent "maths_drugged_student" 10>>
 				<<set $mathsdruggedstudent to 1>>
@@ -378,9 +401,9 @@
 			<<addinlineevent "fame_herm">>
 				<<generatey1>><<generatey2>><<generatey3>> You hear three students whispering behind you.
 				<br><br>
-				/* Note: This event could stand to be expanded for pregant PCs, but I am woefully underqualifed
+				/* Note: This event could stand to be expanded for pregnant PCs, but I am woefully underqualifed
 				to even begin to attempt to handle that. I've never played as a herm or had a pregnancy, so I have
-				zero idea how any of that works. If you have the time, inclination, and knowledgee, please expand
+				zero idea how any of that works. If you have the time, inclination, and knowledge, please expand
 				this event. All PCs must be bullied equally! */
 				<<person1>>
 				<<switch random(1,3)>>
@@ -426,14 +449,14 @@
 							<<switch random(1,3)>>
 								<<case 1>>"She dresses like a boy?" a <<person>> asks. "How? She's obviously pregnant."
 								<<case 2>>"You sure she the one that dresses like a boy?" a <<person>> asks. "She couldn't crossdress even if she tried."
-								<<case 3>>"No way she dresses like a boy." a <<person>> asks. "Not with that <<bellyDescription pc>>.""
+								<<case 3>>"No way she dresses like a boy," a <<person>> says. "Not with that <<bellyDescription pc>>."
 							<</switch>>
 							<br>
 							<<person2>>
 							<<switch random(1,3)>>
 								<<case 1>>"She doesn't do all the time," a <<person>> responds. "I bet it's only to sneak into the boys' locker room."
 								<<case 2>>"Maybe she only sometimes does it," a <<person>> replies. "I bet that's how she tricked someone into knocking her up."
-								<<case 3>>"Well, she doesn't always do it," a <<person>> replies. "She probably only does it to get into the boys bathroom."
+								<<case 3>>"Well, she doesn't always do it," a <<person>> replies. "She probably only does it to get into the boys' bathroom."
 							<</switch>>
 							<br>
 							<<person3>>
@@ -500,7 +523,7 @@
 							<<switch random(1,3)>>
 								<<case 1>>"There's no mistake. That's a boy," a <<person>> replies. "I bet he does it to trick people into sex."
 								<<case 2>>"That's the right one. He's a boy," a <<person>> replies. "I bet he's trying to fuck the teachers."
-								<<case 3>>"He's a boy, I'm sure of it." a <<person>> replies. "He's probably just trying to get close to the girls."
+								<<case 3>>"He's a boy, I'm sure of it," a <<person>> replies. "He's probably just trying to get close to the girls."
 							<</switch>>
 							<br>
 							<<person3>>
@@ -546,7 +569,7 @@
 							<<switch random(1,3)>>
 								<<case 1>>"There's no mistake. That's a girl," a <<person>> replies. "I bet she does it to trick people into sex."
 								<<case 2>>"That's the right one. She's a girl," a <<person>> replies. "I bet she's trying to fuck the teachers."
-								<<case 3>>"She's a girl, I'm sure of it." a <<person>> replies. "She's probably just trying to get close to the boys."
+								<<case 3>>"She's a girl, I'm sure of it," a <<person>> replies. "She's probably just trying to get close to the boys."
 							<</switch>>
 							<br>
 							<<person3>>
@@ -710,7 +733,7 @@
 				<<link [[Refuse|Hallways Pregnant Leave]]>><</link>>
 				<br>
 			<<elseif _bodywriting_exposed is 1>>
-				You pass by a group of students. Your face flushes as one points at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. <<lcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 10>>
+				You pass by a group of students. Your face flushes as one points at the <<tattoo _bodypart>> on your <<bodypart _bodypart>>. <<llcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 10>>
 				<br><br>
 
 				<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
@@ -944,7 +967,7 @@
 
 				<<link [[Flirt|Hallways Catcall Flirt]]>><</link>><<promiscuous1>>
 				<br>
-				/* If defiant, 60% stressed, or 40% traumatized */
+				/* If defiant, 60% stressed, or 40% traumatised */
 				<<if $submissive lte 500 or $stress gte (($stressmax / 5) * 3) or $trauma gte (($traumamax / 5) * 2)>>
 					<<link [[Belittle <<him>>|Hallways Catcall Defy]]>><<trauma -3>><<stress -6>><</link>><<llstress>><<ltrauma>>
 					<br>
@@ -994,7 +1017,7 @@
 				A <<person2>><<person>> follows behind, and watches the hall for anyone who might intervene.
 				<br><br>
 
-				<<link [[Struggle|Hallways Rape Struggle]]>><</link>><<physiquedifficulty 1 16000>>
+				<<link [[Struggle|Hallways Rape Struggle]]>><</link>><<physiquedifficulty 1 15000>>
 				<br>
 				<<link [[Let it happen|Hallways Rape Let]]>><</link>>
 				<br>
@@ -1091,6 +1114,51 @@
 			<<else>>
 				<<unset $studentCondomPrank>>
 			<</if>>
+		<</if>>
+
+		<<if $cool lt 60 and getTransformParts(["tail"])>>
+			<<addinlineevent "hallways_tail_pulling">>
+				<<generates1>><<person1>>
+				As you're walking through the halls, something catches your tail and pulls on it.<<pain 4>><<gpain>>
+				<br><br>
+
+				You yelp and whirl around to find a <<person>> right behind you, with a group of <<his>> friends a short distance away. They're all laughing at you.<<trauma 5>><<gtrauma>>
+				<br><br>
+
+				<<if $wolfgirl gte 6>>
+					<<link [[Bark|Hallways Tailpull React]]>><<set $phase to 2>><</link>><<wolfgirl>>
+					<br>
+				<<elseif $cat gte 6>>
+					<<link [[Hiss|Hallways Tailpull React]]>><<set $phase to 3>><</link>><<cat>>
+					<br>
+				<<elseif $fox gte 6>>
+					<<link [[Scream|Hallways Tailpull React]]>><<set $phase to 4>><</link>><<fox>>
+					<br>
+				<<elseif $harpy gte 6>>
+					<<link [[Screech|Hallways Tailpull React]]>><<set $phase to 5>><</link>><<harpy>>
+					<br>
+				<<elseif $cow gte 6>>
+					<<link [[Ram|Hallways Tailpull React]]>><<set $phase to 6>><</link>><<cow>>
+					<br>
+				<</if>>
+				<<if $demon gte 6>>
+					<<link [[Goad|Hallways Tailpull React]]>><<set $phase to 1>><</link>><<demon>>
+					<br>
+				<</if>>
+					<<link [[Keep walking|Hallways Tailpull React]]>><<set $phase to 0>><</link>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<if getTransformParts(["ears", "wings", "tail"])>>
+			<<addinlineevent "hallways_transform_petting">>
+				<<generates1>><<person1>><<set _tfParts to getTransformParts(["ears", "wings", "tail"])>>
+				A <<person>> comes up to you and says hello. You exchange a few pleasantries, but <<hes>> obviously eyeing your inhuman <<if _tfParts.includes("ears") or _tfParts.includes("wings") or _tfParts.length gte 2>>parts<<else>>part<</if>>. <<set $selectedtfpart to _tfParts.pluck()>>"Sorry if this is weird, but can I touch your $selectedtfpart? <<if $selectedtfpart is "tail">>It looks<<else>>They look<</if>> really cool."
+				<br><br>
+
+				<<link [[Agree (0:05)|Hallways Transformation Petting Agree]]>><<pass 5>><</link>>
+				<br>
+				<<link [[Refuse|Hallways Transformation Petting End]]>><<set $phase to 0>><</link>>
+			<</addinlineevent>>
 		<</if>>
 
 		<<runeventpool>>
@@ -1218,6 +1286,7 @@
 			/* TODO: Add more events for being exposed in the school courtyard */
 		<<elseif !["dungeon", "pillory"].includes(C.npc.Whitney.state) and _whitney.love gte 20 and $whitneyromance isnot 1>>
 			<<set $whitneyromance to 1>>
+			<<set $whitney_home_timer to 21>>
 			<<npc Whitney>><<person1>> Whitney approaches you, and shoves you against a wall. <<He>> looks angrier than usual.
 			<br><br>
 			"Stupid slut," <<he>> says. <<He>> pins you with <<his>> arms. "You've been asking for this, don't try to deny it." <<He>> kisses you with surprising tenderness. <<takeKissVirginity "Whitney" "loveInterest">>
@@ -1307,7 +1376,7 @@
 							<<link [[Reveal yourself|Courtyard Flyover Own]]>><<set $phase to 1>><</link>><<exhibitionist5>>
 							<br>
 						<</if>>
-						<<link [[Walk away|Courtyard Flyover Walk]]>><<set $phase to 1>><<status -10>><</link>><<lcool>>
+						<<link [[Walk away|Courtyard Flyover Walk]]>><<set $phase to 1>><<status -10>><</link>><<llcool>>
 						<br>
 					<<else>>
 						You try to walk away, but the <<person2>><<person>> turns and notices you. <span class="lewd">"Wait, that's <<phim>>!"</span> <<he>> exclaims. The rest turn as well, an excited glimmer in their eyes.
@@ -1317,7 +1386,7 @@
 							<<link [[Own it|Courtyard Flyover Own]]>><<set $phase to 0>><</link>><<exhibitionist5>>
 							<br>
 						<</if>>
-						<<link [[Hurry away|Courtyard Flyover Walk]]>><<set $phase to 0>><<status -10>><</link>><<lcool>>
+						<<link [[Hurry away|Courtyard Flyover Walk]]>><<set $phase to 0>><<status -10>><</link>><<llcool>>
 						<br>
 					<</if>>
 				<</addinlineevent>>
@@ -1359,7 +1428,7 @@
 					You hear laughter from a group of nearby students. A <<person1>><<person>> holds out <<his>> phone. <<His>> friends crowd behind <<him>>.
 					<br><br>
 					<<if random(1,3) is 1>>
-						"I know <<person4>><<him>>!" a <<person2>><<person>> says excitedly. "We have a class together." You stand on tiptoe to spy over the crowd. A video plays, of a <<person>> climbing the stairs to a flyover. Naked. <span class="purple">You don't recognise <<him>>.</span>
+						"I know <<person4>><<him>>!" a <<person2>><<person>> says excitedly. "We have a class together." You stand on tiptoe to spy over the crowd. A video plays, of a <<person4>><<person>> climbing the stairs to a flyover. Naked. <span class="purple">You don't recognise <<him>>.</span>
 						<<arousal 9>><<awareness 1>><<garousal>><<gawareness>>
 						<br><br>
 						"That's right outside of school," a <<person3>><<person>> says as you watch the naked <<person4>><<personsimple>> flee across the bridge. "What was <<he>> thinking?"
@@ -1410,7 +1479,7 @@
 					<</if>>
 					<<link [[Refuse|Courtyard Herm Resist]]>><<def 1>><</link>>
 					<br>
-					<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
+					<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<llcool>><<ltrauma>><<lstress>>
 					<br>
 				<</addinlineevent>>
 			<</if>>
@@ -1455,7 +1524,7 @@
 					<</if>>
 					<<link [[Refuse|Courtyard Herm Resist]]>><<def 1>><</link>>
 					<br>
-					<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<lcool>><<ltrauma>><<lstress>>
+					<<link [[Call for help|Courtyard Herm Call]]>><<set $rescued += 1>><<status -10>><<trauma -6>><<stress -6>><</link>><<llcool>><<ltrauma>><<lstress>>
 					<br>
 				<</addinlineevent>>
 			<</if>>
@@ -1469,7 +1538,7 @@
 
 					<<link [[Flip <<him>> the bird|Events Shades Flip]]>><<status 1>><<trauma -6>><<detention 4>><<npcincr River dom -1>><<npcincr River love -1>><</link>><<gcool>><<ltrauma>><<gdelinquency>>
 					<br>
-					<<link [[Hand them over|Events Shades Hand]]>><<status -10>><<trauma 6>><<npcincr River dom 1>><</link>><<lcool>><<gtrauma>>
+					<<link [[Hand them over|Events Shades Hand]]>><<status -10>><<trauma 6>><<npcincr River dom 1>><</link>><<llcool>><<gtrauma>>
 					<br>
 				<</addinlineevent>>
 			<</if>>
@@ -1508,10 +1577,11 @@
 						<br>
 					<</if>>
 
-					<<if $submissive lte 850>>
-						<<link [[Shove|Glasses Shove]]>><<stress -6>><<detention 5>><<def 1>><</link>><<defianttext>><<gdelinquency>><<lstress>>
+					<<if displayDefiantOption(850)>>
+						<<link [[Shove|Glasses Shove]]>><<stress -6>><<detention 5>><<wolfDefiant 850>><<def 1>><</link>><<defianttext 850>><<gdelinquency>><<lstress>>
 						<br>
-					<<elseif $submissive gte 1150>>
+					<</if>>
+					<<if $submissive gte 1150>>
 						<<link [[Plead|Glasses Plead]]>><<sub 1>><<status -3>><</link>><<submissivetext>><<lcool>>
 						<br>
 					<</if>>
@@ -1628,7 +1698,7 @@
 
 						<<link [[Investigate|Courtyard Nude Footage Investigate]]>><<trauma 6>><</link>><<gtrauma>>
 						<br>
-						<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -10>><</link>><<lcool>><<ggstress>>
+						<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -10>><</link>><<llcool>><<ggstress>>
 						<br>
 					<</addinlineevent>>
 				<</if>>
@@ -1644,7 +1714,7 @@
 
 						<<link [[Investigate|Courtyard Assault Footage Investigate]]>><<trauma 12>><</link>><<ggtrauma>>
 						<br>
-						<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -20>><</link>><<llcool>><<ggstress>>
+						<<link [[Ignore|Courtyard Footage Ignore]]>><<stress 12>><<status -20>><</link>><<lllcool>><<ggstress>>
 						<br>
 					<</addinlineevent>>
 				<</if>>
@@ -1732,11 +1802,11 @@
 			the world feel more alive. If, in the future, these events are expanded upon to allow player decisions,
 			consider moving them out of the "courtyard_minor_events" pool. A major influence on my reasoning for
 			putting them all in a single pool was so that "filler" events would be rarer than normal player-engaging
-			events. So they would be set dressing, rather than center stage. */
+			events. So they would be set dressing, rather than centre stage. */
 			<<addinlineevent "courtyard_minor_events" 6>>
 				<<cleareventpool>>
 
-				<<addinlineevent "courtyard_recognized" 6>>
+				<<addinlineevent "courtyard_recognised" 6>>
 					<<if $cool lt 120>>
 						<<generatey1>><<person1>>A <<person>> points at you and whispers to <<his>> friends. They burst into laughter. <<gstress>><<stress 6>>
 					<<else>>
@@ -1836,7 +1906,7 @@
 						<<case 1>>"Did you even <<print either("comb","brush","pay attention to")>> your hair this morning?"
 						<<case 2>>"Do you even know what a mirror is?"
 						<<case 3>>"What happened to your hair?"
-						<<case 4>>"God your hair is a mess,"
+						<<case 4>>"God, your hair is a mess,"
 						<<case 5>>"Am I your mum or something?"
 						<<case 6>>"Did your mum never teach you to <<print either("comb","brush","take care of")>> your hair?"
 						<<case 7>>"Do I have to do this every day?"
@@ -2006,7 +2076,7 @@
 					<<courtyard>>
 				<</addinlineevent>>
 
-				<<addinlineevent "coutyard_couple">>
+				<<addinlineevent "courtyard_couple">>
 					<<generatey1>><<generateyp2>>You pass a <<fullGroup>> sitting on a bench.
 					<<switch random(1,5)>>
 						<<case 1>>The <<person1>><<person>> is holding up pieces of candy, and the <<person2>><<person>> is eating them out of <<person1>><<his>> hand as cutely as possible.
@@ -2150,7 +2220,7 @@
 						<<switch random(1,3)>>
 							<<case 1>>
 								"As long as this cloud cover clears up, yeah."<br>
-								"Nice! I'll tell my <<personsimple>>friend. <<Hes>> been wanting to hang out again."
+								"Nice! I'll tell my <<girlfriend_npc>>. <<Hes>> been wanting to hang out again."
 							<<case 2>>
 								"Not with these clouds overhead. But I'm hoping they clear up before sunset."<br>
 								"Come on, why not? Just this once? It's so boring when we cancel."
@@ -2293,7 +2363,7 @@
 				<br>
 			<</addinlineevent>>
 
-			<<addinlineevent "couryard_guard_shooed">>
+			<<addinlineevent "courtyard_guard_shooed">>
 				<<He>> spots you, and frowns. "I don't think you're supposed to be here," <<he>> says. "Best leave before you get in trouble."
 				<br><br>
 
@@ -2324,7 +2394,7 @@
 	<<npc Whitney>><<person1>>
 	<<outfitChecks>>
 
-	<<if $bullyevent is 0>>
+	<<if $bullyevent is 0>> /* Knee in Crotch */
 		<<set $bullyevent += 1>>
 
 		Someone shoves you against a wall. You turn to face the culprit as <<he>> pins your arms with <<his>> own. It's Whitney, a popular but delinquent student.
@@ -2366,7 +2436,8 @@
 
 		<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
-	<<elseif $bullyevent is 1>>
+
+	<<elseif $bullyevent is 1>> /* Shoved in locker */
 		<<set $bullyevent += 1>>
 
 		Whitney and <<his>> friends surround you, trapping you against the lockers. "You're in my way again. I think you need a time-out," <<he>> says as <<he>> opens the locker beside you. <<He>> tries to push you in.
@@ -2377,7 +2448,60 @@
 		<<link [[Fight|Bully Fight]]>><<def 1>><<npcincr Whitney dom -1>><<set $fightstart to 1>><</link>><<ldom>>
 		<br>
 
-	<<elseif $bullyevent is 2>>
+	<<elseif $bullyevent is 2>> /* Scared into falling over or Kiss if Whitney is LI */
+		<<set $bullyevent += 1>>
+		<<if $whitneyromance is 1>>
+			Whitney and <<his>> friends surround you. Whitney pins you against a locker and kisses you. <<He>> grips your hands in <<his>> own. <<He>> leans to your side as if to whisper something, but just gives your ear a little nip. <<He>> withdraws and gives you a suggestive look before leaving with <<his>> friends.
+			<<npcincr Whitney lust 5>><<glust>><<garousal>><<arousal 600 "mouth">>
+			<br><br>
+
+			<<link [[Ignore|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+			<<if displayDefiantOption(500)>>
+				<<link [[Trip Whitney|Bully Trip]]>><<wolfDefiant 500>><<def 1>><<npcincr Whitney dom -1>><</link>><<defianttext 500>><<ldom>>
+				<br>
+			<</if>>
+		<<else>>
+			Whitney and <<his>> friends surround you. Whitney lunges for you, making you stumble backwards as you <<= pcAreArmsBound("both") ? "try to raise your bound arms" : "raise your arms to defend yourself">>. <<He>> stops short of you, however, and laughs. "You scare too easy. I just want to say hello." Unbalanced, you fall on your <<bottom>>. The laughter redoubles. "You're such a loser. Let's go guys, before <<pshe>> infects us." <<tearful>> you pick yourself off the floor.
+			<<npcincr Whitney lust 5>><<glust>>
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 3>> /* Carrying books on knees */
+		<<set $bullyevent += 1>>
+
+		A pair of hands grab you from behind and give you a shove.
+		<<if currentSkillValue('physique') gte random(4000,15000)>>
+			You barely manage to keep your footing.
+			<br><br>
+
+			A puff of smoke greets you as you turn to face your assailants. You cough and wave it away, giving way to Whitney's smiling face. <<He>> thrusts a stack of textbooks into your arms.
+			<br><br>
+
+			"I'm tired. Carry my books."
+			<br><br>
+
+			<<link [[Comply|Bully Textbooks]]>><<set $phase to 0>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<gdom>>
+			<br>
+			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+			<br>
+		<<else>>
+			The force sends you tumbling down, face-first. You try to brace yourself, but something heavy thuds onto your back. You plummet to the ground, and end up sprawled out on the tile.<<pain 2>><<gpain>>
+			<br><br>
+
+			A burnt cigarette falls by your face, followed by a heel crunching it out. "Hey, slut," barks Whitney from above. "I'm tired. Carry my books."
+			<br><br>
+
+			<<link [[Comply|Bully Textbooks]]>><<set $phase to 1>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<gdom>>
+			<br>
+			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 4>> /* Strip top */
 		<<set $bullyevent += 1>>
 		<<if _shirtless>>
 			Whitney and <<his>> friends surround you, trapping you against the lockers. "Walking around without a shirt on?" <<he>> says. "I bet you love the way it makes older <<nnpc_gendery "Whitney">>s look at you." <<He>> turns to <<his>> friends. "Come on, we've got better things to do than entertain this slut." They leave without molesting you further.
@@ -2400,7 +2524,7 @@
 			<br>
 		<</if>>
 
-	<<elseif $bullyevent is 3>>
+	<<elseif $bullyevent is 5>> /* Strip all overclothes */
 		<<set $bullyevent += 1>>
 		Whitney and <<his>> friends surround you, trapping you against the lockers. "There's a toll for passing through." <<He>> grins evilly as <<he>> grasps your clothing. "Strip down to your underwear and we'll call it even."
 		<br><br>
@@ -2431,7 +2555,7 @@
 		<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 		<br>
 
-	<<elseif $bullyevent is 4>>
+	<<elseif $bullyevent is 6>> /* Strip underwear */
 		<<set $bullyevent += 1>>
 		Whitney and <<his>> friends surround you, trapping you against the lockers. "Look who it is." <<He>> grins evilly and grasps your clothing. "Strip."
 		<br><br>
@@ -2462,114 +2586,13 @@
 		<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 		<br>
 
-	<<elseif $bullyevent is 5>>
-		<<set $bullyevent += 1>>
-		Whitney and <<his>> friends surround you, trapping you against the lockers. "Just the slut I need," <<he>> says. <<He>> puts <<his>> hand on your head and pushes down. "Get on your knees." <<His>> friends whisper to each other.
-		<br><br>
-
-		<<link [[Let it happen|Bully Oral]]>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><<set $molestationstart to 1>><</link>><<gtrauma>><<gstress>><<gdom>>
-		<br>
-		<<if hasSexStat("promiscuity", 4)>>
-			<<link [[Give oral|Bully Oral]]>><<sub 1>><<npcincr Whitney dom 1>><<set $sexstart to 1>><<npcincr Whitney love 1>><</link>><<promiscuous4>><<glove>><<gdom>>
-			<br>
-		<</if>>
-		<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-		<br>
-
-	<<elseif $bullyevent is 6>>
-		<<if $pillory.tenant.special.name is "Leighton">>
-			<!-- does not increase bullyevent counter -->
-			You're not sure why, but you feel like Whitney and <<his>> gang might be taking advantage of Leighton's absence to do something that will land at least one of them in detention once the headteacher returns.
-			<br><br>
-			For better or worse, whatever they're doing apparently doesn't involve you... yet.
-			<br><br>
-
-			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-		<<else>>
-			<<set $bullyevent += 1>>
-			Whitney rounds a corner and walks right into you, forcing you against a locker. "Just the <<bitch>> I need," <<he>> says while pressing a hand against your chest. "I've been sent to Leighton's office. I know I'm gonna be sat and lectured for ages. I'm not gonna be bored though, because you're going to be giving my <<if $NPCList[0].penis isnot "none">>cock<<else>>cunt<</if>> lots of attention." <<He>> grabs you by your collar and pulls. "You lot wait outside," <<he>> says to <<his>> friends.
-			<br><br>
-
-			<<link [[Let it happen (0:10)|Bully Detention]]>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
-			<br>
-			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-			<br>
-		<</if>>
-	<<elseif $bullyevent is 7>>
-		<<set $bullyevent += 1>>
-		<<if $whitneyromance is 1>>
-			Whitney and <<his>> friends surround you. Whitney pins you against a locker and kisses you. <<He>> grips your hands in <<his>> own. <<He>> leans to your side as if to whisper something, but just gives your ear a little nip. <<He>> withdraws and gives you a suggestive look before leaving with <<his>> friends.
-			<<npcincr Whitney lust 5>><<glust>><<garousal>><<arousal 600 "mouth">>
-			<br><br>
-
-			<<link [[Ignore|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-			<br>
-			<<if $submissive lte 500>>
-				<<link [[Trip Whitney|Bully Trip]]>><<def 1>><<npcincr Whitney dom -1>><</link>><<defianttext>><<ldom>>
-				<br>
-			<</if>>
-		<<else>>
-			Whitney and <<his>> friends surround you. Whitney lunges for you, making you stumble backwards as you <<= pcAreArmsBound("both") ? "try to raise your bound arms" : "raise your arms to defend yourself">>. <<He>> stops short of you, however, and laughs. "You scare too easy. I just want to say hello." Unbalanced, you fall on your <<bottom>>. The laughter redoubles. "You're such a loser. Let's go guys, before <<pshe>> infects us." <<tearful>> you pick yourself off the floor.
-			<<npcincr Whitney lust 5>><<glust>>
-			<br><br>
-
-			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-			<br>
-		<</if>>
-	<<elseif $bullyevent is 8>>
-		<<set $bullyevent += 1>>
-		Whitney and <<his>> friends surround you. <<He>> shoves you against a locker. "What will we do with you today?" <<he>> muses. "I know." <<He>> grins. "We'll... pet you." <<His>> friends laugh as <<he>> starts patting your head.
-		<br><br>
-
-		<<link [[Let it happen|Bully Pat]]>><<npcincr Whitney love 1>><<npcincr Whitney dom 1>><<arousal 600>><</link>><<garousal>><<glove>><<gdom>>
-		<br>
-		<<link [[Shake off|Bully Shake]]>><<stress 6>><</link>><<gstress>>
-		<br>
-
-	<<elseif $bullyevent is 9>>
-		<<set $bullyevent += 1>>
-		<<if _whitney.dom gte 20 and ($worn.neck.collared is 1 or $whitneyromance is 1)>>
-			<<if $worn.neck.collared is 1>>
-				Whitney and <<his>> friends surround you. <<He>> shoves you against a locker and brushes <<his>> fingers over the collar around your neck.
-				<<if $worn.neck.name is "familiar collar">>
-					"Who the hell gave you this?" <<he>> asks. "Whatever. Pets don't wear clothes. Strip. Underwear too."
-				<<else>>
-					"Good to see you know your place," <<he>> says. "Pets don't wear clothes. Strip. Underwear too."
-				<</if>>
-				<br><br>
-
-				<<link [[Let it happen|Bully Strip 2]]>><<strip>><<trauma 6>><<stress 3>><<set $submissive += 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
-				<br>
-
-				<<if hasSexStat("exhibitionism", 4)>>
-					<<link [[Flaunt|Bully Strip Flaunt 2]]>><<strip>><<npcincr Whitney dom 1>><<set $submissive += 1>><<npcincr Whitney love 1>><</link>><<exhibitionist4>><<glove>><<gdom>>
-					<br>
-				<</if>>
-				<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<set $submissive -= 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-				<br>
-			<<else>>
-				Whitney and <<his>> friends surround you. <<He>> shoves you into one of <<his>> cronies, who shoves you into another. This repeats, and in the confusion, you feel something clamp around your neck. "How do you like my present?" <<he>> asks, breathing against your ear. "I think you suit it." <<He>> and <<his>> friends saunter off.
-				<<neckwear 21>>
-				<<npcincr Whitney lust 5>><<glust>><<garousal>><<arousal 600>>
-				<br><br>
-
-				<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-				<br>
-			<</if>>
-		<<else>>
-			Whitney and <<his>> friends shove you to the ground as they walk past. "Move, slut," <<he>> laughs without looking back. <<tearful>> you pick yourself up.
-			<<npcincr Whitney lust 5>><<glust>>
-			<br><br>
-
-			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-			<br>
-		<</if>>
-	<<elseif $bullyevent is 10>>
+	<<elseif $bullyevent is 7>> /* Pantycheck (no underwear) */
 		<<set $bullyevent += 1>>
 		<<WhitneyPantyCheck>>
-	<<elseif $bullyevent is 11>>
+
+	<<elseif $bullyevent is 8>> /* Forced to use opposite gender toilets */
 		<<set $bullyevent += 1>>
-		<<if $whitney_toilet is undefined and $genderknown.includes("Whitney") and _whitney.dom gte 18>>
+		<<if $whitney_toilet is undefined and $genderknown.includes("Whitney") and _whitney.dom gte 14>>
 			Whitney and <<his>> friends surround you. Whitney smirks and grasps your shoulders.
 			<!-- dev note: Keep in mind that this scene uses player.gender directly and not player.gender_appearance. That's why we have to do complicated things. -->
 			<<if $player.sex is _whitney.pronoun>>
@@ -2591,7 +2614,7 @@
 			<<link [[Let it happen|Bully Toilets]]>><</link>>
 			<br>
 			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-		<<elseif $settings.forcedCrossdressingEnabled and $whitneyCrossdressSwimwear is 0 and _whitney.dom gte 18>>
+		<<elseif $settings.forcedCrossdressingEnabled and $whitneyCrossdressSwimwear is 0 and _whitney.dom gte 14>>
 			Whitney and <<his>> friends surround you. Whitney smirks and grasps your shoulders. <<He>> tries to push you into the girls' changing room.
 			<br><br>
 			"A new rule, slut," <<he>> says. "I don't want to hear that you've been using the boys' changing room. That means no wearing swimwear meant for boys either. And because I'm so generous, you already got a girl's swimsuit, don't you?"
@@ -2615,82 +2638,9 @@
 			<br>
 		<</if>>
 
-	<<elseif $bullyevent is 12>>
+	<<elseif $bullyevent is 9>> /* Pantycheck - Forced to crossdress */
 		<<set $bullyevent += 1>>
-		/* parasite bully event */
-		<<if $settings.parasitesEnabled>>
-			<<generatey2>><<person1>>
-			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey, slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
-			<br><br>
-			Your skin crawls at the sight, and a <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thought comes to mind. <<Hes>> not going to do what you think <<he>> is with that, is <<he>>?
-			<<if hasSexStat("deviancy", 5)>><<arousal 20>><<garousal>><<else>><<stress 20>><<gstress>><</if>>
-			<br><br>
-
-			<<link [[Let it happen|Bully Parasite]]>><<set $phase to 0>><<npcincr Whitney dom 1>><<sub 1>><</link>><<gdom>>
-			<br>
-			<<link [[Try to escape|Bully Parasite]]>><<set $phase to 1>><<npcincr Whitney dom -1>><</link>><<physiquedifficulty 1 $physiquemax>><<ldom>>
-		<<else>>
-			You see Whitney and <<his>> friends walking in your direction, talking amongst themselves. Whitney appears absorbed in the conversation and doesn't even seem to notice you.
-			<br><br>
-
-			<<if $player.breastsize gte 4>>
-				As <<he>> passes you, Whitney raises a hand up to your chest and palms one of your <<breasts>> without a glance in your direction.
-				<<stress 3>><<gstress>><<arousal 20 "breasts">><<garousal>>
-			<<else>>
-				<<He>> passes you without a glance, and then you feel a sharp spank to your ass.
-				<<pain 3>><<gpain>><<arousal 20 "bottom">><<garousal>>
-			<</if>>
-			<<npcincr Whitney lust 5>><<glust>>
-			<br><br>
-
-			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-			<br>
-		<</if>>
-
-	<<elseif $bullyevent is 13>>
-		<<set $bullyevent += 1>>
-
-		A pair of hands grab you from behind and give you a shove.
-		<<if currentSkillValue('physique') gte random(4000,16000)>>
-			You barely manage to keep your footing.
-			<br><br>
-
-			A puff of smoke greets you as you turn to face your assailants. You cough and wave it away, giving way to Whitney's smiling face. <<He>> thrusts a stack of textbooks into your arms.
-			<br><br>
-
-			"I'm tired. Carry my books."
-			<br><br>
-
-			<<link [[Comply|Bully Textbooks]]>><<set $phase to 0>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<gdom>>
-			<br>
-			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-			<br>
-		<<else>>
-			The force sends you tumbling down, face-first. You try to brace yourself, but something heavy thuds onto your back. You plummet to the ground, and end up sprawled out on the tile.<<pain 2>><<gpain>>
-			<br><br>
-
-			A burnt cigarette falls by your face, followed by a heel crunching it out. "Hey, slut," barks Whitney from above. "I'm tired. Carry my books."
-			<br><br>
-
-			<<link [[Comply|Bully Textbooks]]>><<set $phase to 1>><<trauma 6>><<stress 3>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<gdom>>
-			<br>
-			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-			<br>
-		<</if>>
-	<<elseif $bullyevent is 14>>
-		<<set $bullyevent += 1>>
-		Whitney rounds the corner ahead, flanked by <<his>> friends. <<He>> grins, and forces other students to move as <<he>> strides in a straight line towards you.
-		<br><br>
-		"I've been hearing things," <<he>> says, looking you up and down while wearing a stern expression. "Have you been sleeping around, slut?"
-		<br><br>
-
-		<<link [[Say yes|Bully Accuse Yes]]>><<npcincr Whitney lust 5>><</link>><<promiscuous1>><<gglust>>
-		<br>
-		<<link [[Say no|Bully Accuse No]]>><</link>>
-		<br>
-	<<elseif $bullyevent is 15>>
-		<<set $bullyevent += 1>>
-		<<if !($whitneypantiescheck is 2 and $settings.forcedCrossdressingEnabled and _whitney.dom gte 18)>>
+		<<if !($whitneypantiescheck is 2 and $settings.forcedCrossdressingEnabled and _whitney.dom gte 14)>>
 			<<WhitneyPantyCheck>>
 		<<elseif !$whitneyskirtcheck>>
 			Whitney rounds the corner ahead, flanked by <<his>> friends. <<He>> grins, and forces other students to move as <<he>> strides in a straight line towards you.
@@ -2728,9 +2678,9 @@
 				<<He>> roughly places a hand on your groin, feeling for something. "Where's your cage, <<bitch>>? Need a new one?" <<arousal 10>><<garousal>>
 				<br><br>
 				<<link [[Say yes|Bully Chastity]]>>
-					<<if $player.penissize is -2>>
+					<<if $player.penissize is 0>>
 						<<genitalswear 7 "pink">>
-					<<elseif $player.penissize lte 0>>
+					<<elseif $player.penissize lte 2>>
 						<<genitalswear 6 "pink">>
 					<<else>>
 						<<genitalswear 2>>
@@ -2757,11 +2707,11 @@
 					<</if>>
 				<</if>>
 				<br><br>
-				<<if $player.penissize is -2>>
+				<<if $player.penissize is 0>>
 					<<He>> holds a flat pink chastity cage in <<his>> hands. "Your cock is so tiny that I doubt we'll have any trouble putting this on. Will you wear it for me?"
 					<<set _cageIndex to 7>>
 					<<set _cageColor to "pink">>
-				<<elseif $player.penissize lte 0>>
+				<<elseif $player.penissize lte 2>>
 					<<He>> holds a small and pink chastity cage in <<his>> hands. "With how small your cock is, I doubt we'll have any issues putting this on. Will you wear it for me?"
 					<<set _cageIndex to 6>>
 					<<set _cageColor to "pink">>
@@ -2775,8 +2725,9 @@
 					<<genitalsruined>>
 					<<genitalswear _cageIndex _cageColor>>
 					<<set $worn.genitals.origin to "Whitney">>
-					<<set $phase to 0>><<set $whitneychastity to 1>><<npcincr Whitney dom 1>>
+					<<set $phase to 0>><<npcincr Whitney dom 1>>
 					<<if !$whitneychastity>><<npcincr Whitney love 1>><</if>>
+					<<set $whitneychastity to 1>>
 				<</link>><<gdom>><<if !$whitneychastity>><<glove>><</if>>
 				<br>
 				<<link [[Say no|Bully Chastity]]>><<set $whitneychastity to 2>><<set $phase to 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
@@ -2786,7 +2737,102 @@
 			<<WhitneyPantyCheck>>
 		<</if>>
 
-	<<elseif $bullyevent is 16>>
+	<<elseif $bullyevent is 10>> /* Asks if PC's sleeping around */
+		<<set $bullyevent += 1>>
+		Whitney rounds the corner ahead, flanked by <<his>> friends. <<He>> grins, and forces other students to move as <<he>> strides in a straight line towards you.
+		<br><br>
+		"I've been hearing things," <<he>> says, looking you up and down while wearing a stern expression. "Have you been sleeping around, slut?"
+		<br><br>
+
+		<<link [[Say yes|Bully Accuse Yes]]>><<npcincr Whitney lust 5>><</link>><<promiscuous1>><<gglust>>
+		<br>
+		<<link [[Say no|Bully Accuse No]]>><</link>>
+		<br>
+
+	<<elseif $bullyevent is 11>> /* Oral sex */
+		<<set $bullyevent += 1>>
+		Whitney and <<his>> friends surround you, trapping you against the lockers. "Just the slut I need," <<he>> says. <<He>> puts <<his>> hand on your head and pushes down. "Get on your knees." <<His>> friends whisper to each other.
+		<br><br>
+
+		<<link [[Let it happen|Bully Oral]]>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><<set $molestationstart to 1>><</link>><<gtrauma>><<gstress>><<gdom>>
+		<br>
+		<<if hasSexStat("promiscuity", 4)>>
+			<<link [[Give oral|Bully Oral]]>><<sub 1>><<npcincr Whitney dom 1>><<set $sexstart to 1>><<npcincr Whitney love 1>><</link>><<promiscuous4>><<glove>><<gdom>>
+			<br>
+		<</if>>
+		<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+		<br>
+
+	<<elseif $bullyevent is 12>> /* Leighton's office under desk */
+		<<if $pillory.tenant.special.name is "Leighton">>
+			<!-- does not increase bullyevent counter -->
+			You're not sure why, but you feel like Whitney and <<his>> gang might be taking advantage of Leighton's absence to do something that will land at least one of them in detention once the headteacher returns.
+			<br><br>
+			For better or worse, whatever they're doing apparently doesn't involve you... yet.
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<<else>>
+			<<set $bullyevent += 1>>
+			Whitney rounds a corner and walks right into you, forcing you against a locker. "Just the <<bitch>> I need," <<he>> says while pressing a hand against your chest. "I've been sent to Leighton's office. I know I'm gonna be sat and lectured for ages. I'm not gonna be bored though, because you're going to be giving my <<if $NPCList[0].penis isnot "none">>cock<<else>>cunt<</if>> lots of attention." <<He>> grabs you by your collar and pulls. "You lot wait outside," <<he>> says to <<his>> friends.
+			<br><br>
+
+			<<link [[Let it happen (0:10)|Bully Detention]]>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
+			<br>
+			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 13>> /* Head patting */
+		<<set $bullyevent += 1>>
+		Whitney and <<his>> friends surround you. <<He>> shoves you against a locker. "What will we do with you today?" <<he>> muses. "I know." <<He>> grins. "We'll... pet you." <<His>> friends laugh as <<he>> starts patting your head.
+		<br><br>
+
+		<<link [[Let it happen|Bully Pat]]>><<npcincr Whitney love 1>><<npcincr Whitney dom 1>><<arousal 600>><</link>><<garousal>><<glove>><<gdom>>
+		<br>
+		<<link [[Shake off|Bully Shake]]>><<stress 6>><</link>><<gstress>>
+		<br>
+
+	<<elseif $bullyevent is 14>> /* Collar */
+		<<set $bullyevent += 1>>
+		<<if _whitney.dom gte 20 and ($worn.neck.collared is 1 or $whitneyromance is 1)>>
+			<<if $worn.neck.collared is 1>>
+				Whitney and <<his>> friends surround you. <<He>> shoves you against a locker and brushes <<his>> fingers over the collar around your neck.
+				<<if $worn.neck.name is "familiar collar">>
+					"Who the hell gave you this?" <<he>> asks. "Whatever. Pets don't wear clothes. Strip. Underwear too."
+				<<else>>
+					"Good to see you know your place," <<he>> says. "Pets don't wear clothes. Strip. Underwear too."
+				<</if>>
+				<br><br>
+
+				<<link [[Let it happen|Bully Strip 2]]>><<strip>><<trauma 6>><<stress 3>><<set $submissive += 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<garousal>><<gdom>>
+				<br>
+
+				<<if hasSexStat("exhibitionism", 4)>>
+					<<link [[Flaunt|Bully Strip Flaunt 2]]>><<strip>><<npcincr Whitney dom 1>><<set $submissive += 1>><<npcincr Whitney love 1>><</link>><<exhibitionist4>><<glove>><<gdom>>
+					<br>
+				<</if>>
+				<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<set $submissive -= 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+				<br>
+			<<else>>
+				Whitney and <<his>> friends surround you. <<He>> shoves you into one of <<his>> cronies, who shoves you into another. This repeats, and in the confusion, you feel something clamp around your neck. "How do you like my present?" <<he>> asks, breathing against your ear. "I think you suit it." <<He>> and <<his>> friends saunter off.
+				<<neckwear 21>>
+				<<npcincr Whitney lust 5>><<glust>><<garousal>><<arousal 600>>
+				<br><br>
+
+				<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+				<br>
+			<</if>>
+		<<else>>
+			Whitney and <<his>> friends shove you to the ground as they walk past. "Move, slut," <<he>> laughs without looking back. <<tearful>> you pick yourself up.
+			<<npcincr Whitney lust 5>><<glust>>
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 15>> /* Foot Humiliation */
 		<<set $bullyevent += 1>>
 		<<if $whitneyromance is 1 and $settings.footFetishEnabled>>
 			Someone throws an arm around your shoulder while you're walking. It's Whitney, with several of <<his>> friends clustering around you.
@@ -2819,7 +2865,7 @@
 
 		<</if>>
 
-	<<elseif $bullyevent is 17>>
+	<<elseif $bullyevent is 16>> /* Analingus */
 		<<set $bullyevent += 1>>
 
 		<<if $settings.analingusGivingEnabled>>
@@ -2844,7 +2890,7 @@
 			Whitney's friends hoot and holler as <<he>> turns around, <<if $pronoun is "m">>pulls <<his>> pants down to <<his>> knees<<else>>hikes up <<his>> skirt<</if>>, and thrusts <<his>> bare ass towards your face. <<if !$whitneyromance>>"Show some respect, <<bitch>>. Kiss my ass, and maybe I'll let you off easy."<<else>>"C'mon, <<bitch>>. Gimme a kiss to make it better."<</if>>
 			<br><br>
 
-			<<link [[Kiss|Bully Analingus Punishment]]>><<set $phase to 1>><<sub 1>><<status -10>><<stress 12>><<trauma 3>><</link>><<lcool>><<gstress>><<gtrauma>>
+			<<link [[Kiss|Bully Analingus Punishment]]>><<set $phase to 1>><<sub 1>><<status -10>><<stress 12>><<trauma 3>><</link>><<llcool>><<gstress>><<gtrauma>>
 			<br>
 			<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney love -1>><<npcincr Whitney dom -1>><</link>><<llove>><<ldom>>
 			<br>
@@ -2879,7 +2925,39 @@
 
 		<</if>>
 
-	<<elseif $bullyevent is 18 and C.npc.Robin.init gte 1 and getRobinLocation() is "school" and $robinmissing is 0>>
+	<<elseif $bullyevent is 17>> /* Parasite */
+		<<set $bullyevent += 1>>
+		/* parasite bully event */
+		<<if $settings.parasitesEnabled>>
+			<<generatey2>><<person1>>
+			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey, slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
+			<br><br>
+			Your skin crawls at the sight, and a <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thought comes to mind. <<Hes>> not going to do what you think <<he>> is with that, is <<he>>?
+			<<if hasSexStat("deviancy", 5)>><<arousal 20>><<garousal>><<else>><<stress 20>><<gstress>><</if>>
+			<br><br>
+
+			<<link [[Let it happen|Bully Parasite]]>><<set $phase to 0>><<npcincr Whitney dom 1>><<sub 1>><</link>><<gdom>>
+			<br>
+			<<link [[Try to escape|Bully Parasite]]>><<set $phase to 1>><<npcincr Whitney dom -1>><</link>><<physiquedifficulty 1 $physiquemax>><<ldom>>
+		<<else>>
+			You see Whitney and <<his>> friends walking in your direction, talking amongst themselves. Whitney appears absorbed in the conversation and doesn't even seem to notice you.
+			<br><br>
+
+			<<if $player.breastsize gte 4>>
+				As <<he>> passes you, Whitney raises a hand up to your chest and palms one of your <<breasts>> without a glance in your direction.
+				<<stress 3>><<gstress>><<arousal 20 "breasts">><<garousal>>
+			<<else>>
+				<<He>> passes you without a glance, and then you feel a sharp spank to your ass.
+				<<pain 3>><<gpain>><<arousal 20 "bottom">><<garousal>>
+			<</if>>
+			<<npcincr Whitney lust 5>><<glust>>
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 18 and C.npc.Robin.init gte 1 and getRobinLocation() is "school" and $robinmissing is 0>>/* Robin Pantsed*/
 		<<set $bullyevent += 1>>
 		<<endevent>><<npc "Robin">><<person1>>
 		<<set _lower to C.npc.Robin.clothes.lower.name>>
@@ -2888,7 +2966,7 @@
 		<br><br>
 
 		<<if C.npc.Robin.trauma lte 30>>
-			Robin is stunned for a moment, <<his>> face bright red and on the verge of tears. Whitney and <<nnpc_his "Whitney">> friends burst out laughing and walk away, high fiving each other.
+			Robin is stunned for a moment, <<his>> face bright red and on the verge of tears. Whitney and <<nnpc_his "Whitney">> friends burst out laughing and walk away, high-fiving each other.
 
 		<<else>>
 			<<His>> eyes begin to well up with tears. <<He>> begins to sob loudly, <<his>> face turning bright red.<<gstress>><<lldom>><<ggrtrauma>><<stress 6>><<npcincr "Robin" trauma 2>><<npcincr "Robin" dom -2>>
@@ -2902,8 +2980,9 @@
 		<<link [[Comfort (0:05)|Bully Pantsing Robin]]>><<npcincr "Robin" trauma -2>><<pass 5>><</link>><<llrtrauma>>
 		<br>
 		<<link [[Ignore|Hallways]]>><<endevent>><<set $eventskip to 1>><<stress 6>><</link>><<gstress>>
-	/* [18, 19].includes($bullyevent) and [18, 19, 20].includes($bullyevent) is a temp fix for this event being skiped in cases of Robin being missing, both event 18 and 19 need an alternative for when the event can't be run. The code can then be adjusted to fit with previous checks */
-	<<elseif [18, 19].includes($bullyevent) and C.npc.Whitney.dom gte 18 and ($settings.watersportsEnabled or $pillory.tenant.special.name isnot "Leighton")>>
+
+	/* [18, 19].includes($bullyevent) and [18, 19, 20].includes($bullyevent) is a temp fix for this event being skipped in cases of Robin being missing, both event 18 and 19 need an alternative for when the event can't be run. The code can then be adjusted to fit with previous checks */
+	<<elseif [18, 19].includes($bullyevent) and C.npc.Whitney.dom gte 18 and ($settings.watersportsEnabled or $pillory.tenant.special.name isnot "Leighton")>>/* Watersports*/
 		<<set $bullyevent to 20>>
 
 		You're walking down the hallway when someone <<= $worn.neck.type.includes("leash") ? "jerks your leash back" : $worn.neck.name isnot "naked" ? "hooks a finger into your $worn.neck.name" : "grabs your arm">>, stopping you in your tracks.
@@ -2919,18 +2998,20 @@
 			<<link [[Fight|Bully Fight]]>><<set $phase to 0>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 			<br>
 		<</if>>
-	<<elseif [18, 19, 20].includes($bullyevent)>>
+
+	<<elseif [18, 19, 20].includes($bullyevent)>>/* Pantycheck*/
 		<<set $bullyevent to 21>>
 		<<WhitneyPantyCheck>>
-	<<else>>
-		<<set $bullyevent to 4>>
+
+	<<else>>/* Hair Pull*/
+		<<set $bullyevent to 2>>
 		Someone grabs your hair from behind, tugging your head back. It's Whitney. <<He>> grins as <<his>> friends laugh.
 		<<npcincr Whitney lust 5>><<glust>><<gstress>><<stress 6>><<gtrauma>><<trauma 6>>
 		<br><br>
 
 		<<link [[Endure|Bully Hair]]>><<npcincr Whitney dom 1>><</link>><<gdom>>
 		<br>
-		<<link [[Shove|Bully Hair Shove]]>><<pain 4>><<npcincr Whitney dom -1>><</link>><<ldom>><<gpain>><<ltrauma>><<trauma -6>>
+		<<link [[Shove|Bully Hair Shove]]>><<npcincr Whitney dom -1>><<pain 4>><<trauma -6>><</link>><<ldom>><<gpain>><<ltrauma>>
 		<br>
 
 	<</if>>
@@ -2950,7 +3031,7 @@
 	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") or $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and playerChastity()>>
 		<<WhitneyParasitePenisComment>>
 	<<else>>
-		"Get <<phim>> ready <<nnpc_gendery "Whitney">>s," Whitney commands to <<his>> friends. As <<he>> steps forward with the <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thing, your mind races, wondering what they're going to do with you. With your arms restrained and your body utterly helpless, you can do nothing to stop them as they
+		"Get <<phim>> ready, <<nnpc_gendery "Whitney">>s," Whitney commands to <<his>> friends. As <<he>> steps forward with the <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thing, your mind races, wondering what they're going to do with you. With your arms restrained and your body utterly helpless, you can do nothing to stop them as they
 
 		<<switch _parasite_loc>>
 		<<case "bottom">>
@@ -3054,7 +3135,7 @@
 	<</if>>
 
 	<<if _iscrowd is 1>>
-		Satisfied with having watched you be violated in such a humiliating way the crowd disperses, laughing and joking at your expense along the way. <<status -30>><<llcool>>
+		Satisfied with having watched you be violated in such a humiliating way the crowd disperses, laughing and joking at your expense along the way. <<status -30>><<lllcool>>
 	<</if>>
 	<br><br>
 
@@ -3065,7 +3146,7 @@
 
 <<widget "WhitneyParasitePenisComment">>
 	<<if $player.penisExist>>
-		<<if $player.penissize is 4 or $player.penissize lte 1>>
+		<<if $player.penissize is 6 or $player.penissize lte 3>>
 			A passing student stops and gawks at your exposed genitals before bursting into laughter.
 			<<Penisremarkstopquote>>
 			<<incgpenisinsecurity>>
@@ -3104,6 +3185,14 @@
 
 		<<endevent>><<set $eventskip to 1>>
 		<<courtyard>>
+	<<elseif C.npc.Whitney.dom lte 4 and !$whitneyLowDomOutside>>
+		<<set $whitneyLowDomOutside to 1>>
+		<<npc Whitney>><<person1>><<generatey2>>
+		You walk round a corner, straight into Whitney and <<his>> gang. "Look who it is," <<he>> says. "Good timing. We're just leaving school." <<He>> grabs your arm, then turns to <<his>> friends, <span class="blue">only to find them walking on without <<him>>.</span>
+		<br><br>
+
+		<<link [[Next|Bully Outside Low Dom]]>><</link>>
+		<br>
 	<<elseif $bullyeventoutside is 0>>
 		<<set $bullyeventoutside += 1>>
 		<<npc Whitney>><<person1>>You walk round a corner, straight into Whitney and <<his>> gang. "Look who it is," <<he>> says. <<His>> friends crowd around, penning you in. "Good timing. We're just leaving school. You should come." <<He>> grabs your arm.
@@ -3328,10 +3417,10 @@
 	<<rng>>
 	<<if $kylarReunionScene isnot undefined>>
 		<<kylarReunionScene>>
-	<<elseif _kylarStatus.includes("Love")>>
+	<<elseif _kylarStatus?.includes("Love")>>
 		<<if $rng gte 61>>
 			<<npc Kylar>><<person1>>Kylar appears beside you and clutches your arm. "Hey," <<he>> says, smiling. <<He>> spots a <<generatey2>><<person2>><<person>> watching, and waves at <<him>>. "This is my <<girlfriend>>," <<person1>><<he>> announces. More turn to look. Someone snickers.
-			<<status -10>><<lcool>>
+			<<status -10>><<llcool>>
 			<br><br>
 
 			<<He>> turns to you, "I want everyone to know how much we love each other." <<He>> hugs your arm tight, then strolls down the hallway.
@@ -3358,14 +3447,14 @@
 			Kylar rushes over to you. "T-tell them," <<person1>><<he>> says. "Tell them it's true."
 			<br><br>
 
-			<<link [[Say it's true|Kylar True]]>><<npcincr Kylar love 5>><<npcincr Kylar rage -5>><<status -10>><</link>><<lcool>><<gglove>>
+			<<link [[Say it's true|Kylar True]]>><<npcincr Kylar love 5>><<npcincr Kylar rage -5>><<status -10>><</link>><<llcool>><<gglove>>
 			<br>
 			<<link [[Say it's a lie|Kylar Lie]]>><<npcincr Kylar love -5>><<npcincr Kylar rage 5>><<status 1>><</link>><<lllove>><<ggksuspicion>><<gcool>>
 			<br>
 			<<link [[Walk away|Kylar Walk 2]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 1>><</link>><<llove>><<gksuspicion>>
 			<br>
 			<<if $syndromekylar gte 1>>
-				<<link [[Seize Kylar and kiss|Kylar Kiss]]>><<npcincr Kylar love 10>><<npcincr Kylar rage -10>><<status -20>><</link>><<kissvirginitywarning>><<llcool>><<ggglove>>
+				<<link [[Seize Kylar and kiss|Kylar Kiss]]>><<npcincr Kylar love 10>><<npcincr Kylar rage -10>><<status -20>><</link>><<kissvirginitywarning>><<lllcool>><<ggglove>>
 				<br>
 			<</if>>
 		<<else>>
@@ -3378,7 +3467,7 @@
 
 			<<link [[Bully Kylar|Kylar Bully]]>><<npcincr Kylar love -5>><<status 1>><</link>><<lllove>><<gcool>>
 			<br>
-			<<link [[Defend Kylar|Kylar Defend]]>><<npcincr Kylar love 5>><<status -10>><</link>><<lcool>><<gglove>>
+			<<link [[Defend Kylar|Kylar Defend]]>><<npcincr Kylar love 5>><<status -10>><</link>><<llcool>><<gglove>>
 			<br>
 			<<link [[Walk away|Kylar Walk]]>><<npcincr Kylar love -1>><</link>><<llove>>
 			<br>
@@ -3405,7 +3494,7 @@
 
 			<<link [[Bully Kylar|Kylar Bully]]>><<npcincr Kylar love -5>><<status 1>><</link>><<lllove>><<gcool>>
 			<br>
-			<<link [[Defend Kylar|Kylar Defend]]>><<npcincr Kylar love 5>><<status -10>><</link>><<lcool>><<gglove>>
+			<<link [[Defend Kylar|Kylar Defend]]>><<npcincr Kylar love 5>><<status -10>><</link>><<llcool>><<gglove>>
 			<br>
 			<<link [[Walk away|Kylar Walk]]>><<npcincr Kylar love -1>><</link>><<llove>>
 			<br>
@@ -3464,7 +3553,7 @@
 <</widget>>
 
 <<widget "WhitneyPantyCheck">>
-	<<if $whitneypantiescheck is 0 and C.npc.Whitney.dom gte 18>>
+	<<if $whitneypantiescheck is 0 and C.npc.Whitney.dom gte 14>>
 		Whitney and <<his>> friends surround you. They shove you against the lockers. "New rule, slut." <<He>> grabs your $worn.lower.name. "No underwear."
 		<br><br>
 
@@ -3500,12 +3589,12 @@
 				<br><br>
 			<</if>>
 			"Good <<girl>>," <<he>> says.
-			<<if $settings.forcedCrossdressingEnabled and $player.sex is "m" and C.npc.Whitney.dom gte 18 and !playerChastity("hidden") and ($player.penissize lte 0 or playerChastity("cage"))>>
+			<<if $settings.forcedCrossdressingEnabled and $player.sex is "m" and C.npc.Whitney.dom gte 18 and !playerChastity("hidden") and ($player.penissize lte 2 or playerChastity("cage"))>>
 				<<if $whitneypantiesoffered>>
 					"You know, my offer still stands, you could just wear panties."
 				<<elseif playerChastity("cage")>>
 					"You know, looking at that cage, you could just wear panties instead."
-				<<elseif $player.penissize lte 0>>
+				<<elseif $player.penissize lte 2>>
 					"You know, looking at how small you are, you could just wear panties instead."
 				<<else>>
 					"You know, looking at you now, you could just wear panties instead."
@@ -3577,7 +3666,7 @@
 				<<he>> says just as you're pushed over the edge. <<garousal>>
 				<br><br>
 				<<orgasm>>
-				"Are you seriously cumming from getting a kiss? What a good slut." <<he>> says while turning to leave.
+				"Are you seriously cumming from getting a kiss? What a good slut," <<he>> says while turning to leave.
 				<<npcincr Whitney love 2>><<glove>><<npcincr Whitney lust 10>><<gglust>>
 			<<else>>
 				<<he>> says before leaving with <<his>> friends.
@@ -3600,12 +3689,12 @@
 
 <<widget "WhitneyChastityCheck">>
 	<<if $worn.genitals.origin is "Whitney">>
-		<<if ($player.penissize lte 0 and $worn.genitals.name is "chastity cage") or ($player.penissize is -2 and $worn.genitals.name is "small chastity cage")>>
+		<<if ($player.penissize lte 2 and $worn.genitals.name is "chastity cage") or ($player.penissize is 0 and $worn.genitals.name is "small chastity cage")>>
 			<<He>> inspects the $worn.genitals.name. "Your cock's looking a little small for the chastity cage you got on. Let's go ahead and fix that."
 			<br><br>
 			<<set $worn.genitals.type.push("broken")>>
 			<<genitalsruined>>
-			<<if $player.penissize is -2>>
+			<<if $player.penissize is 0>>
 				<<He>> unlocks the cage and replaces it with a flat pink chastity cage before you're able to say anything. "All sorted."
 				<<genitalswear 7 "pink">>
 			<<else>>

@@ -49,7 +49,7 @@ function effectsWater(waterType = "liquid") {
 			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.upper.name}, exposing your <<undertop>>.</span>`);
 		} else if (V.upperwet < 90 && V.upperwetstage >= 3) {
 			V.upperwetstage = 2;
-			sWikifier(`<span class="green">Your ${V.worn.upper.name} <<upperhas>> dried, concealing your <<undertop>>.</span>`);
+			sWikifier(`<span class="green">Your ${V.worn.upper.name} <<upperhas>> dried, concealing your <<undertop>>. </span>`);
 		} else if (V.upperwet >= 80 && V.upperwetstage < 2) {
 			V.upperwetstage = 2;
 			wetIntro = 1;
@@ -73,7 +73,7 @@ function effectsWater(waterType = "liquid") {
 			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.lower.name}, exposing your <<undies>>.</span>`);
 		} else if (V.lowerwet < 90 && V.lowerwetstage >= 3) {
 			V.lowerwetstage = 2;
-			sWikifier(`<span class="green">Your ${V.worn.lower.name} <<lowerhas>> dried, concealing your <<undies>>.</span>`);
+			sWikifier(`<span class="green">Your ${V.worn.lower.name} <<lowerhas>> dried, concealing your <<undies>>. </span>`);
 		} else if (V.lowerwet >= 80 && V.lowerwetstage < 2) {
 			V.lowerwetstage = 2;
 			wetIntro = 1;
@@ -90,7 +90,7 @@ function effectsWater(waterType = "liquid") {
 		}
 	}
 
-	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
+	if (!V.worn.under_lower.type.includes("naked") && !waterproofCheck(V.worn.under_lower)) {
 		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.pantiesSoaked) {
 			V.underlowerwetstage = 3;
 			if (V.lowerwetstage === 3 || V.worn.lower.type.includes("naked")) {
@@ -110,7 +110,7 @@ function effectsWater(waterType = "liquid") {
 			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>>.</span>`);
 		} else if (V.underlowerwet < 90 && V.underlowerwetstage >= 3) {
 			V.underlowerwetstage = 2;
-			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerhas>> dried, concealing your <<genitals>>.</span>`);
+			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerhas>> dried, concealing your <<genitals>>. </span>`);
 		} else if (V.underlowerwet >= 80 && V.underlowerwetstage < 2) {
 			V.underlowerwetstage = 2;
 			wetIntro = 1;
@@ -134,7 +134,7 @@ function effectsWater(waterType = "liquid") {
 			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>>.</span>`);
 		} else if (V.underupperwet < 90 && V.underupperwetstage >= 3) {
 			V.underupperwetstage = 2;
-			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperhas>> dried, concealing your <<breasts>>.</span>`);
+			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperhas>> dried, concealing your <<breasts>>. </span>`);
 		} else if (V.underupperwet >= 80 && V.underupperwetstage < 2) {
 			V.underupperwetstage = 2;
 			wetIntro = 1;
@@ -169,7 +169,7 @@ function effectsWater(waterType = "liquid") {
 			}
 			sWikifier("<<covered>>");
 			br();
-			br();
+			if (V.makeupWashed) br();
 		} else if (wetIntro >= 1) {
 			if (V.exhibitionism >= 35) {
 				span(
@@ -185,7 +185,7 @@ function effectsWater(waterType = "liquid") {
 				);
 			}
 			br();
-			br();
+			if (V.makeupWashed) br();
 		}
 	}
 	return fragment;
@@ -271,6 +271,11 @@ function effects() {
 	if (V.englishPlay === "ongoing" && V.englishPlayDays === 0 && !V.englishPlayWarning) {
 		V.englishPlayWarning = 1;
 		element("span", `The school plays are being held on Cliff Street tonight from ${ampm(17, 0)} until ${ampm(21, 0)}.`, "gold");
+	}
+
+	if (V.studyBooks?.rented !== "none" && V.book_rent_timer === 0 && !V.studyBookDueWarning && Time.schoolTerm) {
+		V.studyBookDueWarning = 1;
+		element("span", `You have a library book due today.`, "gold");
 	}
 
 	if (V.innocencemessage === "start") {
@@ -403,7 +408,7 @@ function effects() {
 					if (V.gwylan.request.missed) {
 						sWikifier(`<<hypnosisText "You still haven't completed Gwylan's request.">> `);
 					} else {
-						sWikifier(`<<hypnosisText "You didnt't complete Gwylan's request yesterday.">> `);
+						sWikifier(`<<hypnosisText "You didn't complete Gwylan's request yesterday.">> `);
 					}
 					break;
 				case "meetAtShop":
@@ -510,22 +515,22 @@ function effects() {
 
 		if (V.penisgrowthmessage !== undefined) {
 			switch (V.penisgrowthmessage) {
-				case 4:
+				case 6:
 					element("span", "Your penis has grown to a prodigious size.", "purple");
 					break;
-				case 3:
+				case 5:
 					element("span", "Your penis has grown larger.", "purple");
 					break;
-				case 2:
+				case 4:
 					element("span", "Your penis has grown to an unremarkable size.", "purple");
 					break;
-				case 1:
+				case 3:
 					element("span", "Your penis has grown, though it's still small.", "purple");
 					break;
-				case 0:
+				case 2:
 					element("span", "Your penis looks like it's recovering.", "purple");
 					break;
-				case -1:
+				case 1:
 					element("span", "Your penis looks like it's been given another chance.", "purple");
 					break;
 			}
@@ -535,47 +540,43 @@ function effects() {
 		if (V.penisshrinkmessage !== undefined) {
 			if (V.worn.genitals.name === "chastity parasite") {
 				switch (V.penisshrinkmessage) {
+					case 5:
+						element("span", "Your chastity parasite has shrunk, though it still hints at an impressive penis size.", "purple");
+						break;
+					case 4:
+						element("span", "Your chastity parasite has shrunk to an unremarkable size.", "purple");
+						break;
 					case 3:
-						element("span", "Your chastity parasite has shrunk, though it still hints of an impressive penis size.", "purple");
-						break;
-					case 2:
-						element("span", "Your chastity parasite has shrunk, it hints of a much less unremarkable penis size.", "purple");
-						break;
-					case 1:
 						element("span", "Your chastity parasite has become smaller.", "purple");
 						break;
-					case 0:
+					case 2:
 						element("span", "Your chastity parasite has become tiny.", "purple");
 						break;
-					case -1:
-						element("span", "Your chastity parasite looks ridiculously tiny, you briefly wonder if your penis could still work.", "purple");
+					case 1:
+						element("span", "Your chastity parasite looks like it may shrivel up.", "purple");
 						break;
-					case -2:
-						element(
-							"span",
-							"Your chastity parasite looks like it could just have a clit inside, you briefly wonder if you still have a penis.",
-							"purple"
-						);
+					case 0:
+						element("span", "Your chastity parasite looks like it's barely concealing anything.", "purple");
 						break;
 				}
 			} else {
 				switch (V.penisshrinkmessage) {
-					case 3:
+					case 5:
 						element("span", "Your penis has shrunk, though it's still of an impressive size.", "purple");
 						break;
-					case 2:
+					case 4:
 						element("span", "Your penis has shrunk to an unremarkable size.", "purple");
 						break;
-					case 1:
+					case 3:
 						element("span", "Your penis has become smaller.", "purple");
 						break;
-					case 0:
+					case 2:
 						element("span", "Your penis has become tiny.", "purple");
 						break;
-					case -1:
+					case 1:
 						element("span", "Your penis looks like it may shrivel up.", "purple");
 						break;
-					case -2:
+					case 0:
 						element("span", "Your penis looks like it may never be used properly again.", "purple");
 						break;
 				}
@@ -1115,6 +1116,37 @@ function effects() {
 			delete V.pregnancyDailyEvent;
 		}
 
+		// Check if any parasites are present before running events. If not, clear events.
+		// TODO: Clear event messages in the case of "staggered" births where some parasites remain in that category. Otherwise, all events will continue to play until the daily reset, even if some parasites have already been birthed.
+		if (V.daily.parasiteEvent) {
+			if (V.sexStats.vagina.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("vagina"); i++) {
+					if (V.sexStats.vagina.pregnancy.fetus[i] !== undefined) {
+						T.hasVaginaParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (V.sexStats.anus.pregnancy.type === "parasite") {
+				for (let i = 0; i < maxParasites("anus"); i++) {
+					if (V.sexStats.anus.pregnancy.fetus[i] !== undefined) {
+						T.hasAnusParasiteForEvent = true;
+						break;
+					}
+				}
+			}
+			if (!T.hasVaginaParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function (event) {
+					return !event.includes("vagina");
+				});
+			}
+			if (!T.hasAnusParasiteForEvent) {
+				V.daily.parasiteEvent = V.daily.parasiteEvent.filter(function (event) {
+					return !event.includes("anus");
+				});
+			}
+		}
+
 		if (V.daily.parasiteEvent) {
 			let minDaysLeft;
 			if (V.sexStats.vagina.pregnancy.type === "parasite") {
@@ -1223,6 +1255,18 @@ function effects() {
 			V.earSlime.event = "";
 			V.earSlime.noSleep = false;
 		}
+	}
+
+	if (V.cheatClothes) {
+		const slots = ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"];
+		if (V.worn.face.type.includesAny("face_covering", "gag", "mask")) {
+			slots.push("face");
+		}
+		slots.forEach(slot => {
+			if (V.worn[slot].name === "naked") return;
+			V.worn[slot].integrity = clothingData(slot, V.worn[slot], "integrity_max");
+			cheatsUpdateSlider(`#numberslider-input-worn${slot.replace("_", "-")}integrity`, V.worn[slot].integrity);
+		});
 	}
 
 	if (Array.isArray(V.timeMessages) && V.timeMessages.length) {
@@ -1666,6 +1710,18 @@ function effects() {
 					if (V.adultshopcontribution) fragment.append(wikifier("earnFeat", "'Opened Pandoras Box'"));
 					if (V.adultshopcontribution >= 12) fragment.append(wikifier("earnFeat", "'Opened Pandoras Cocks'"));
 					break;
+				case "valentinesTomorrow":
+					sWikifier(
+						`<span class="gold">Tomorrow is Valentine's Day. You find yourself looking forward to spending quality time with someone special.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
+					break;
+				case "valentinesToday":
+					sWikifier(
+						`<span class="gold">Today is Valentine's Day. You look forward to spending quality time with someone special today. You sense that doing so will be extra rewarding.</span> <<stress -6>><<lstress>><<trauma -6>><<ltrauma>>`
+					);
+					br();
+					break;
 				default:
 					// Report error
 					errors.pushUnique(messageKey);
@@ -1676,15 +1732,9 @@ function effects() {
 		V.timeMessages = [];
 	}
 
-	sWikifier("<<integritycheck>><<exposure>>");
+	sWikifier("<<integritycheck>>");
 
 	V.orgasmdown -= 1;
-
-	if (V.exposed >= 1 && V.exposedcheck === 1) {
-		V.exposedcheck = 0;
-		sWikifier("You feel self-conscious about your <<nudity>>.");
-		br();
-	}
 
 	if (V.timer >= 1) V.timer--;
 	// V.turnCount++;
@@ -1693,9 +1743,7 @@ function effects() {
 
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
-	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		V.tiredness += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 150;
-	}
+	sWikifier("<<exposure>>");
 
 	if (V.combat) sWikifier("<<pass 10 seconds>>");
 

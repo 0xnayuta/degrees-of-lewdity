@@ -5,6 +5,10 @@
 	<<set _justEntered to true>>
 	<<unset $enteringForestShop>>
 <</if>>
+<<if $enteringForestShopTogether>>
+	<<set _enteredTogether to true>>
+	<<unset $enteringForestShopTogether>>
+<</if>>
 <<set _shopEvent to (!$robin_in_forest_shop and !$daily.gwylan.eventShop and !Time.isBloodMoon() and ["garden", "shop"].includes(gwylanSchedule()) and C.npc.Gwylan.state is "active")>>
 
 <<if $forest_shop_intro isnot 1>>
@@ -29,6 +33,9 @@
 <<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 85 and C.npc.Gwylan.dom gte 120 and $hypnosis_traits.devotion gte 3 and $gwylanSeen.includesAll("partners", "hypnosis_deepest", "petplay") and !$gwylanSeen.includes("familiar_collar")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Familiar Collar">>
+<<elseif _justEntered and $whitney_familiar_seen is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and C.npc.Whitney.init is 1 and $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+	<<set $daily.gwylan.eventShop to true>>
+	<<include "Forest Shop Familiar Whitney">>
 <<elseif _justEntered and !$gwylan.timer.randomOrgasm and $hypnosis_traits.devotion and ($arousal gte 10000 or $gwylanSeen.includes("ritual_beast") and random(1, 40) is 1)>>
 	<<set $gwylan.timer.randomOrgasm to new DateTime(Time.date).addDays(14).timeStamp>>
 	<<include "Forest Shop Mystery Orgasm">>
@@ -48,7 +55,7 @@
 	<<else>>
 
 		<<if _gwylanLovePercent gte 35 and !$gwylan.punishment and !$gwylan.taken and !$gwylan.timer.wrap and (pcAreArmsBound("any") or $feetuse is "bound")>>
-			Your bindings catch on <<print either("a loose shelf", "a clothes hangar", "a low-hanging branch", "some unpleasantly sticky vines")>>. You try to pull away, and <span class="green">your bindings fall to tatters at your feet.</span>
+			Your bindings catch on <<print either("a loose shelf", "a clothes hanger", "a low-hanging branch", "some unpleasantly sticky vines")>>. You try to pull away, and <span class="green">your bindings fall to tatters at your feet.</span>
 			<<unbind>>
 			<br><br>
 		<</if>>
@@ -115,7 +122,7 @@
 		<</if>>
 		<br>
 
-		<<icon "clothingshop.png">><<link [[Browse clothes|Forest Shop]]>><</link>>
+		<<icon "clothing-shop.png">><<link [[Browse clothes|Forest Shop]]>><</link>>
 		<br>
 
 		<<if $gwylanSeen.includes("lights")>>
@@ -290,7 +297,7 @@ You hear rapid footsteps from the rear of the shop. Gwylan runs into view, holdi
 "You let me in?" you reply.
 <br><br>
 
-"No, I—" <<He>> pauses, looking up to the ceiling with an annoyed expression. "Of course. Apologies, I'm a bit scattered tonight." <<He>> looks back to you with concern. "You shouldn't be out on nights like tonight, especially out here in the forest. It's dangerous." <<He>> returns to the gloom.
+"No, I," <<He>> pauses, looking up to the ceiling with an annoyed expression. "Of course. Apologies, I'm a bit scattered tonight." <<He>> looks back to you with concern. "You shouldn't be out on nights like tonight, especially out here in the forest. It's dangerous." <<He>> returns to the gloom.
 <br><br>
 
 <<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
@@ -303,20 +310,25 @@ You hear rapid footsteps from the rear of the shop. Gwylan runs into view, holdi
 You enter the strange building. The interior is dark and crowded by tall shelves, holding all manner of items.
 <br><br>
 
-The quiet is broken by a scraping, then a thud. A mousy <<personsimple>> holding a stepladder appears at the end of the closest aisle.
-<<if _gwylanStatus.includes("met")>>
-	It's Gwylan.
-	<br><br>
-	<<if $daily.gwylan.firstMet>>
-		"You came! I wasn't expecting you so soon, I would have put some tea on otherwise,"
-	<<else>>
-		"You came!"
-	<</if>>
+<<if _enteredTogether>>
+	Gwylan lets go of your hand and gestures around <<him>>.
 <<else>>
-	<br><br>
-	"A customer!"
+	The quiet is broken by a scraping, then a thud. A mousy <<personsimple>> holding a stepladder appears at the end of the closest aisle.
+	<<if _gwylanStatus.includes("met")>>
+		It's Gwylan.
+		<br><br>
+		<<if $daily.gwylan.firstMet>>
+			"You came! I wasn't expecting you so soon, I would have put some tea on otherwise,"
+		<<else>>
+			"You came!"
+		<</if>>
+	<<else>>
+		<br><br>
+		"A customer!"
+	<</if>>
+	<<he>> says, dropping the ladder and walking over. <<He>> wipes <<his>> hands on <<his>> apron.
 <</if>>
-<<he>> says, dropping the ladder and walking over. <<He>> wipes <<his>> hands on <<his>> apron. "Welcome to my shop."
+"Welcome to my shop."
 <<if $exposed gte 1>>
 	<<He>> seems completely unbothered by your <<lewdness>>.
 <</if>>
@@ -326,19 +338,23 @@ The quiet is broken by a scraping, then a thud. A mousy <<personsimple>> holding
 	<<gwylanRescueApology "shop" "intro">>
 	<br><br>
 
-	"I hope you find something you like," <<he>> says, picking the ladder back up. "But don't worry if you don't. My grand<<father>> would say the objects here hide from people they don't want to be bought by." <<He>> giggles. "I could believe it."
+	"I hope you find something you like," <<he>> says<<if !_enteredTogether>>, picking the ladder back up<</if>>. "But don't worry if you don't. My grand<<father>> would say the objects here hide from people they don't want to be bought by." <<He>> giggles. "I could believe it."
 <<elseif !_gwylanStatus.includes("met")>>
 	<<He>> looks about your age, with mousy hair and a hint of freckles. "I'm older than I look," <<he>> says, as if reading your mind. "<span class="green">I'm Gwylan.</span>" <<He>> reaches forward, lifts your hand, and shakes it in both <<his>> own. "Pleased to meet you. I sell—" <<He>> pauses. "My grand<<father>> sells—" Another pause. "I sell clothes and knick-knacks here. <span class="blue">Things you won't find in normal shops.</span> Even I don't know what I have in stock!" <<He>> sounds proud.
 	<br><br>
 
 	"I hope you find something you like," <<he>> says, picking the ladder back up. "But don't worry if you don't. My grand<<father>> would say the objects here hide from people they don't want to be bought by." <<He>> giggles. "I could believe it."
 <<else>>
-	<<He>> pinches your cheek, and smiles warmly. "I hope you find something you like," <<he>> says, picking the ladder back up. "But don't worry if you don't. My grand<<father>> would say the objects here hide from people they don't want to be bought by." <<He>> giggles. "I could believe it."
+	<<He>> pinches your cheek, and smiles warmly. "I hope you find something you like," <<he>> says<<if !_enteredTogether>>, picking the ladder back up<</if>>. "But don't worry if you don't. My grand<<father>> would say the objects here hide from people they don't want to be bought by." <<He>> giggles. "I could believe it."
 <</if>>
 <br><br>
 
 <<if ["sleep"].includes(gwylanSchedule()) or Time.hour gte 22>>
-	<<He>> then pokes you on the nose. "Sneaky <<pcpetname "Gwylan" "simple">>, coming in at this hour." <<He>> giggles again. "The shop can take care of itself if I'm out. Just leave exact change on the second counter on the left."
+	<<if _enteredTogether>>
+		Gwylan checks the time. "It's rather late, but don't worry, the shop can take care of itself. Just leave exact change on the second counter on the left."
+	<<else>>
+		<<He>> then pokes you on the nose. "Sneaky <<pcpetname "Gwylan" "simple">>, coming in at this hour." <<He>> giggles again. "The shop can take care of itself if I'm out. Just leave exact change on the second counter on the left."
+	<</if>>
 	<br><br>
 <<elseif !["shop", "garden"].includes(gwylanSchedule())>>
 	<<He>> seems to remember something. "I'm actually just about to leave, but don't worry, the shop can take care of itself. Just leave exact change on the second counter on the left." With that, <<he>> grabs an oversized hat from a spindly stand, hangs up <<his>> apron in the same spot, and darts out the door behind you.
@@ -586,7 +602,7 @@ You stumble.
 
 <<if $worn.hands.name isnot "naked" or $worn.handheld.name isnot "naked">>
 	<<if $worn.handheld.name isnot "naked">>
-		You reflexively <span class="red">throw your $worn.handheld.name aside</span>, helplessly grasping 
+		You reflexively <span class="red">throw your $worn.handheld.name aside</span>, helplessly grasping
 		<<handheldruined true>>
 	<<else>>
 		You helplessly grasp
@@ -692,9 +708,9 @@ This place is no better than outside. You back yourself against the door. Your e
 "Take one. It will make you feel better."
 <br><br>
 
-<<link[[Eat one|Forest Shop Trauma 2]]>><<set $phase to 0>><</link>>
+<<link [[Eat one|Forest Shop Trauma 2]]>><<set $phase to 0>><</link>>
 <br>
-<<link[[Ignore|Forest Shop Trauma 2]]>><<set $phase to 1>><</link>>
+<<link [[Ignore|Forest Shop Trauma 2]]>><<set $phase to 1>><</link>>
 <br>
 
 :: Forest Shop Trauma 2
@@ -795,7 +811,7 @@ Your head is in <<his>> lap.
 	You nod your head wordlessly. You really do feel better. You can't remember why you were so upset.
 	<br><br>
 
-	Gwylan lets you up. "Sorry I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
+	Gwylan lets you up. "Sorry, I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
 	<br><br>
 
 	<<if $gwylanSeen.includes("romance")>>
@@ -820,8 +836,8 @@ Your head is in <<his>> lap.
 		gently stroking your head again and carefully trying to move the pieces of your broken halo back into place. They don't stay together.
 	<<elseif _tf.wolfEars or _tf_foxEars>>
 		gently rubbing your <<if _tf.wolfEars>>wolf<<else>>fox<</if>> ears. <<He>> seems to like them a lot.
-	<<elseif _tf.catEars or _tf.cowEars or _tf.foxEars>>
-		gently stroking your head again and rubbing your <<if _tf.catEars>>cat<<elseif _tf.foxEars>>fox<<else>>cow<</if>> ears.
+	<<elseif _tf.catEars or _tf.cowEars>>
+		gently stroking your head again and rubbing your <<if _tf.catEars>>cat<<else>>cow<</if>> ears.
 	<<else>>
 		gently stroking your head again.
 	<</if>>
@@ -834,7 +850,7 @@ Your head is in <<his>> lap.
 		<<gwylanHypnosis "slumber" 10>>
 	<</if>>
 
-	"Sorry I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
+	"Sorry, I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
 	<br><br>
 
 	<<if $gwylanSeen.includes("romance")>>
@@ -1190,7 +1206,7 @@ see Gwylan standing in front of it with <<his>> back to you. <<Hes>> wearing a s
 in a wooden bath.
 <br><br>
 
-<<bHis 1>> eyes are placid and glowing with a gentle green hue. "Roll," Gwylan says. The <<beasttype 1>> dunks <<bhis 1>> head under the water and rolls <<bhis 1>> body around, getting completely soaked. "Good <<if $NPCList[1].gender is "m">>boy<<else>>girl<</if>>," Gwylan whispers, gently patting <<bhim 1>> on the head. The <<beasttype 1>> leans into it, closing <<bhis 1>> glowing eyes. Green streaks of light escape from the corners.
+<<bHis 1>> eyes are placid and glowing with a gentle green hue. "Roll," Gwylan says. The <<beasttype 1>> dunks <<bhis 1>> head under the water and rolls <<bhis 1>> body around, getting completely soaked. "Good <<bboy 1>>," Gwylan whispers, gently patting <<bhim 1>> on the head. The <<beasttype 1>> leans into it, closing <<bhis 1>> glowing eyes. Green streaks of light escape from the corners.
 <br><br>
 
 Gwylan steps around <<bhim 1>>, inspecting <<bhim 1>> while humming softly again. It's soothing. Your body starts to relax, until <span class="red"><<nnpc_he "Gwylan">> looks right in your direction as <<he>> circles.</span> You quickly retreat around the corner, your heart pounding. <<stress 12>><<gstress>>
@@ -1486,7 +1502,7 @@ see Gwylan standing in front of it with <<his>> back to you, <span class="pink">
 </span>
 <br><br>
 
-<<bHis 1>> eyes are placid and glowing with a gentle green hue. "Open," Gwylan says. The <<beasttype 1>> opens <<bhis 1>> mouth obediently, and Gwylan pours a pink fluid from a small glass vial into <<bhis 1>> mouth. "Good <<if $NPCList[1].gender is "m">>boy<<else>>girl<</if>>," <<he>> whispers, gently patting <<bhim 1>> on the head. <<bHe 1>> leans into it, closing <<bhis 1>> glowing eyes. Green streaks of light escape from the corners, and you see those same streaks creeping around Gwylan's face.
+<<bHis 1>> eyes are placid and glowing with a gentle green hue. "Open," Gwylan says. The <<beasttype 1>> opens <<bhis 1>> mouth obediently, and Gwylan pours a pink fluid from a small glass vial into <<bhis 1>> mouth. "Good <<bboy 1>>," <<he>> whispers, gently patting <<bhim 1>> on the head. <<bHe 1>> leans into it, closing <<bhis 1>> glowing eyes. Green streaks of light escape from the corners, and you see those same streaks creeping around Gwylan's face.
 <br><br>
 
 Gwylan kneels down to <<bhis 1>> level, and resumes humming as <<he>> places <<his>> hands on the <<beasttype 1>>'s cheeks. <<He>> speaks again. "Look at me." The <<beasttype 1>> obeys, opening <<bhis 1>> eyes again.
@@ -1510,7 +1526,7 @@ After a moment of staring,
 		<</if>>
 	<</if>>
 </span>
-"Good <<if $NPCList[1].gender is "m">>boy<<else>>girl<</if>>," <<he>> whispers again. <<His>> voice sends chills down your spine, but you can feel yourself letting your guard down.
+"Good <<bboy 1>>," <<he>> whispers again. <<His>> voice sends chills down your spine, but you can feel yourself letting your guard down.
 <<if hasSexStat("deviancy", 3) or $wolfgirl gte 4 or $fox gte 4>>
 	<<arousal 2000>><<ggarousal>>
 <<else>>
@@ -1559,7 +1575,7 @@ Gwylan steps around <<bhim 1>>, inspecting <<bhim 1>> while humming softly again
 You wait there for a moment, frozen. You await the sound of footsteps, or for <<him>> to say something, but it never comes. You peek around the corner again. Despite facing you, <<he>> doesn't seem to actually see you. <<His>> eyes glow the same green, and <<his>> attention is entirely on the <<beasttype 1>>.
 <br><br>
 
-You get an unobstructed view of <<his>> <<npcGenitals 0>>, but there's something just above it. A tattoo, or perhaps several, centered on <<his>> pelvis and belly. The central design is a triangle composed of three interwoven loops. Around it are various esoteric symbols continuing off of each other, bound by jagged roots and vines that stretch around <<his>> hips.
+You get an unobstructed view of <<his>> <<npcGenitals 0>>, but there's something just above it. A tattoo, or perhaps several, centred on <<his>> pelvis and belly. The central design is a triangle composed of three interwoven loops. Around it are various esoteric symbols continuing off of each other, bound by jagged roots and vines that stretch around <<his>> hips.
 <br><br>
 
 <<link [[Keep watching|Forest Shop Caught 5]]>><</link>>
@@ -1576,7 +1592,7 @@ You get an unobstructed view of <<his>> <<npcGenitals 0>>, but there's something
 	<br><br>
 
 	The <<beasttype 1>>'s _partner.penisdesc rubs against Gwylan's tummy, leaving a shiny trail of precum on the tattoo. It twitches in anticipation.
-	Gwylan takes it in <<if _partner.penissize gte 3>>both hands<<else>>one hand<</if>> and begins working the shaft, lubricating it with the plentiful precum that continues to gently leak from the tip.
+	Gwylan takes it in <<if _partner.penissize gte 5>>both hands<<else>>one hand<</if>> and begins working the shaft, lubricating it with the plentiful precum that continues to gently leak from the tip.
 
 	<<if _partner.monster is "monster">>
 		The <<beasttype 1>> grips the quilt harder, and starts breathing heavily.
@@ -1847,7 +1863,7 @@ Gwylan gasps for breath and slowly crawls out from under <<bhim 1>> before stand
 Gwylan stops in front of a small hatch. <<He>> opens it, revealing a mossy hole leading into pitch-blackness. "Go home," <<he>> whispers in <<bhis 1>> ear. The <<beasttype 1>> slowly and awkwardly crawls through the hole. Gwylan shuts and locks the hatch behind it.
 <br><br>
 
-<<He>> walks back to you, still entirely naked save for <<his>> witch hat <<if _gwylan.penis is "none" and $settings.analEnabled>>and 'tail' <</if>>but making no effort to hide <<his>> exposure. "Thanks," <<he>> says flatly, <<his>> face still beetroot-red in embarassment. "I... can explain."
+<<He>> walks back to you, still entirely naked save for <<his>> witch hat <<if _gwylan.penis is "none" and $settings.analEnabled>>and 'tail' <</if>>but making no effort to hide <<his>> exposure. "Thanks," <<he>> says flatly, <<his>> face still beetroot-red in embarrassment. "I... can explain."
 <br><br>
 
 <<link [[Reassure Gwylan|Forest Shop Caught 9]]>><<set $phase2 to 1>><</link>>
@@ -1906,7 +1922,7 @@ Gwylan breathes heavily. <<He>> snaps <<his>> fingers in the <<beasttype 1>>'s f
 Gwylan stops in front of a small hatch. <<He>> opens it, revealing a mossy hole leading into pitch-blackness. "Go home," <<he>> whispers in <<bhis 1>> ear. The <<beasttype 1>> slowly and awkwardly crawls through the hole. Gwylan shuts and locks the hatch behind it.
 <br><br>
 
-<<He>> walks back to you, still entirely naked save for <<his>> witch hat <<if _gwylan.penis is "none">>and 'tail' <</if>>but making no effort to hide <<his>> exposure. "Thanks," <<he>> says flatly, <<his>> face still beetroot-red in embarassment. "That was a bit of a roundabout solution, but I'm the last person to judge. You... probably want an explanation."
+<<He>> walks back to you, still entirely naked save for <<his>> witch hat <<if _gwylan.penis is "none">>and 'tail' <</if>>but making no effort to hide <<his>> exposure. "Thanks," <<he>> says flatly, <<his>> face still beetroot-red in embarrassment. "That was a bit of a roundabout solution, but I'm the last person to judge. You... probably want an explanation."
 <br><br>
 
 <<link [[Reassure Gwylan|Forest Shop Caught 9]]>><<set $phase2 to 1>><</link>>
@@ -1937,7 +1953,7 @@ You stay rooted to the spot, not wanting to risk the <<beasttype 1>>'s ire.
 		Gwylan continues to be relentlessly facefucked by the <<beasttype 1>>. <<bHis 1>> pace starts to even out, and Gwylan begins to relax, letting the <<beasttype 1>> use up <<bhis 1>> energy.
 		<br><br>
 
-		The <<beasttype 1>> thrusts one final time, shooting <<bhis 1>> see down Gwylan's throat. <<He>> seems to be swallowing it all, as <<he>> doesn't make anything resembling a choking sound. The <<beasttype 1>> disengages with a huff.
+		The <<beasttype 1>> thrusts one final time, shooting <<bhis 1>> seed down Gwylan's throat. <<He>> seems to be swallowing it all, as <<he>> doesn't make anything resembling a choking sound. The <<beasttype 1>> disengages with a huff.
 	<<case 3>>
 		Gwylan continues to be relentlessly facefucked by the <<beasttype 1>>. <<bHis 1>> pace starts to even out, and Gwylan begins to relax, letting the <<beasttype 1>> use up <<bhis 1>> energy.
 		<br><br>
@@ -1963,12 +1979,14 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 <<if $phase is 2>>
 	Some of the <<beasttype 0>>'s semen lingers on the corner of <<his>> mouth.
 <</if>>
-"Rude," <<he>> says flatly, grabbing your cheeks. "You interrupted my ritual, <<if $gwylanSeen.includes("caught_masturbate")>>pleasured yourself watching me, <</if>>stood there gawking while I lost control, and wouldn't even clean up your mess." <<His>> face is still beetroot-red in embarassment. "I don't think I even owe you an explanation now." <<He>> huffs and turns away.
+"Rude," <<he>> says flatly, grabbing your cheeks. "You interrupted my ritual, <<if $gwylanSeen.includes("caught_masturbate")>>pleasured yourself watching me, <</if>>stood there gawking while I lost control, and wouldn't even clean up your mess." <<His>> face is still beetroot-red in embarrassment. "I don't think I even owe you an explanation now." <<He>> huffs and turns away.
 <br><br>
 
 <<link [[Reassure Gwylan|Forest Shop Caught 9]]>><<set $phase2 to 1>><</link>>
 <br>
 <<link [[Tease Gwylan|Forest Shop Caught 9]]>><<npcincr Gwylan lust 2>><<set $phase2 to 2>><</link>><<glust>>
+<br>
+<<link [[Remain Silent|Forest Shop Caught 9]]>><<set $phase2 to 4>><</link>>
 <br>
 <<if hasSexStat("deviancy", 2)>>
 	<<link [[Tell Gwylan you like doing things with wolves too|Forest Shop Caught 9]]>><<npcincr Gwylan lust 4>><<set $phase2 to 3>><</link>><<deviant2>><<gglust>>
@@ -1999,10 +2017,12 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 	<br><br>
 
 	"So rude!" <<he>> says, punching you on the shoulder.
-	<<if $gwylanSeen.includes("likes_wolves")>>
-		"I didn't poke fun when you told me about your escapades with the wolf pack, you could at least give me the same courtesy," <<he>> pouts.
+	<<if $gwylanSeen.includes("wolves_known")>>
+		"I didn't poke fun when you told me about your escapades with the wolf pack. You could at least give me the same courtesy," <<he>> pouts.
 	<</if>>
 	Despite that, <<he>> composes <<himself>>.
+<<elseif $phase2 is 4>>
+	You say nothing. Gwylan looks even more embarrassed. "Nothing?" <<he>> asks. "No comment at all? I guess I shouldn't be surprised you're speechless." <<He>> manages to compose <<himself>>.
 <<else>>
 	<<switch $speech_attitude>>
 		<<case "meek">>
@@ -2021,21 +2041,21 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 		Gwylan nods. "I guessed as much, with the way you helped pull <<bhim 1>> off of me.
 		<<if $gwylanSeen.includes("caught_masturbate")>>
 			Not to mention you pleasuring yourself just around the corner.
-			<<if $gwylanSeen.includes("likes_wolves")>>
+			<<if $gwylanSeen.includes("wolves_known")>>
 				Or what you told me about your time with the wolf pack.
 			<</if>>
-		<<elseif $gwylanSeen.includes("likes_wolves")>>
+		<<elseif $gwylanSeen.includes("wolves_known")>>
 			Not to mention what you told me about your time with the wolf pack.
 		<</if>>
 		You seemed to enjoy it." <<He>> smiles at you.
 	<<elseif $gwylanSeen.includes("caught_action_watch")>>
 		Gwylan stares at you for a moment. "I suppose that explains why you were just standing there enjoying the show.
 		<<if $gwylanSeen.includes("caught_masturbate")>> Maybe a little too much.<</if>>
-		<<if $gwylanSeen.includes("likes_wolves")>>
+		<<if $gwylanSeen.includes("wolves_known")>>
 			Not to mention what you told me about your time with the wolf pack.
 		<</if>>
 		I hope it was gratifying." <<He>> loosens up and smiles at you.
-	<<elseif $gwylanSeen.includes("likes_wolves")>>
+	<<elseif $gwylanSeen.includes("wolves_known")>>
 		<<if $gwylanSeen.includes("caught_masturbate")>>
 			Gwylan nods. "I guessed as much, you certainly seemed to enjoy watching. Not to mention what you told me about your time with the wolf pack." <<He>> loosens up.
 		<<else>>
@@ -2287,7 +2307,7 @@ You walk into the forest shop, and-
 <<orgasm>>
 <<silently>><<clotheson>><</silently>>
 
-You steady yourself against a nearby bookshelf, breathing heavily. You mind feels foggy. <<trauma 3>><<gtrauma>>
+You steady yourself against a nearby bookshelf, breathing heavily. Your mind feels foggy. <<trauma 3>><<gtrauma>>
 <br><br>
 
 You look down. There's no sign of what just happened to you. You look around. The shop is silent.
@@ -2329,7 +2349,7 @@ You enter the forest shop.
 	You feel the slightest pinprick in your arm. <<pain 2>><<gpain>>
 	<br><br>
 
-	<span class="purple">The room starts to shift and distort.</span> Gwylan's face remains in perfect clarity at the center of your vision. <<He>> smiles sweetly, holding up a pink rose. Its stem drips red. <<hallucinogen 160>><<ggghallucinogens>>
+	<span class="purple">The room starts to shift and distort.</span> Gwylan's face remains in perfect clarity at the centre of your vision. <<He>> smiles sweetly, holding up a pink rose. Its stem drips red. <<hallucinogen 160>><<ggghallucinogens>>
 	<br><br>
 
 	The floor attacks you from below, but Gwylan guides you down slowly. "Shhh... just... a little longer."
@@ -2439,7 +2459,7 @@ You're stuck to the floor like a squashed insect, although you feel more like on
 	"Oh, <<pcpetname "Gwylan" "simple">>." <<His>> smile threatens to burn the forest down with its smothering warmth. <<He>> caresses your face.
 	"Of course. I'll keep you safe from the world. I'll take care of everything. You'll never have to worry again."
 <<elseif $phase is 2>>
-	You try to move your arms to embrace Gwylan, but they still feel heavy. After a breif struggle, you're just barely able to manage it.
+	You try to move your arms to embrace Gwylan, but they still feel heavy. After a brief struggle, you're just barely able to manage it.
 	<br><br>
 
 	<<He>> trills in satisfaction upon feeling your touch. <<He>> strokes your head. "There's a <<pcpetname "Gwylan" "good">>. I'll take care of everything."
@@ -2471,7 +2491,7 @@ You're stuck to the floor like a squashed insect, although you feel more like on
 		<br><br>
 
 		<<His>> face looks different now. It doesn't look warm and comforting. It looks scolding.
-		"You deny your promise to me, dear? Such insolence, to toy with a <<personsimple>>'s heart like this." <<His>> smile returns, twisted and dark. Almost playful.
+		"You deny your promise to me, dear? Such insolence, to toy with a <<personssimple>> heart like this." <<His>> smile returns, twisted and dark. Almost playful.
 		<<npcincr Gwylan dom -5>><<stress 24>><<lyearning>><<gggstress>>
 		<br><br>
 
@@ -2526,7 +2546,7 @@ Your mind fills with terrifying submission. You don't want to resist anymore, an
 <br><br>
 
 <<hypnosisText "You lay still as <<he>> leans in for <<if $phase is 4 and $willpowerSuccess>>another<<else>>a<</if>> kiss.</span>">> <<His>> emerald eyes, wide open, overtake your vision. <<gwylanKiss>>
-<br>
+<br><br>
 
 You feel something leave you, alongside <<his>> tongue. Gwylan has taken something from you. The thought doesn't scare you anymore, though.
 <<hypnosisText "<<He>> knows what's best for you. This is all for your sake.">>
@@ -2545,7 +2565,7 @@ You may run around and play pretend with whomever you so wish, but in the end, y
 */
 <br><br>
 
-<<He>> lays down beside you again, his eyes still staring into yours. "I love you."
+<<He>> lays down beside you again, <<his>> eyes still staring into yours. "I love you."
 <br><br>
 
 <<He>> snaps <<his>> fingers, and you fall asleep.
@@ -2603,7 +2623,7 @@ Nowhere.
 <<if $worn.under_upper.name isnot "naked">>
 	<<set _underUpperStrippedHere to true>>
 	<<generalUndress "wardrobe" "under_upper">>
-	<<underupperwear 17>>
+	<<underupperwear "chest wrap">>
 <</if>>
 <<if $worn.upper.name isnot "naked">>
 	<<set _upperStrippedHere to true>>
@@ -2971,7 +2991,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 				<<case "divine">>"The divine purpose you claimed to be your anchor must have rusted away. Where did your conviction go?"
 				<<case "lust">>"Pleasure is temporary. This path will leave you empty."
 				<<case "innocent">>"There was an empty innocence behind your eyes, once. It's gone, now."
-				<<case "curiosity">>"This isn't morbid curiosity. this is lunacy."
+				<<case "curiosity">>"This isn't morbid curiosity. This is lunacy."
 				<<default>>
 			<</switch>>
 			<<He>> lifts your head and lays you flat on the floor. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -3036,7 +3056,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 			<br><br>
 
 			<<if $gwylan.triumph is "kind">>
-				<<He>> frowns. "Landry hides much. Someone as kindhearted as you couldn't understand the darkness bubbling up under the surface of this conflict. It's a terrible choice to have to make."
+				<<He>> frowns. "Landry hides much. Someone as kind-hearted as you couldn't understand the darkness bubbling up under the surface of this conflict. It's a terrible choice to have to make."
 			<<elseif $gwylanSeen.includes("yearning")>>
 				<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 				Gwylan frowns, <span class="red">looking disappointed</span>. "You know the stakes. You know that the world can't become clean without us getting dirty."
@@ -3171,14 +3191,14 @@ An identity in shreds. Nameless. Hopeless. Erased. And the antlers. Forever spli
 "I can not trust that your will is your own. Forgive me, but it must be..." <<he>> leans down and kisses you. <<gwylanKiss>>
 <br><br>
 
-<<He>> withdraws. "...suppressed. Your collar will ensure the hypnosis remains in place <span class="red">indefinitely</span>." <<He>> smiles, but it doesn't reach <<his>> ears. "I hope you find it comfortable. I made it just for you." <<He>> flips up the golden heart-shaped plate.
+<<He>> withdraws. "...suppressed. Your collar will ensure the hypnosis remains in place <span class="red">indefinitely</span>." <<He>> smiles, but it doesn't reach <<his>> eyes. "I hope you find it comfortable. I made it just for you." <<He>> flips up the golden heart-shaped plate.
 It has your name engraved on it. <<Hes>> right. It is comfortable. So comfortable that your muscles can't help but relax.
 <br><br>
 
 Your mind fills with terrifying submission. You don't want to resist anymore, and it scares you. Your head then throbs, as if the thought of fearing Gwylan was heresy.
 <br><br>
 
-<<hypnosisText "You lay still as <<he>> leans in for another kiss.</span>">> <<His>> emerald eyes, wide open, overtake your vision.
+<<hypnosisText "You lay still as <<he>> leans in for another kiss.">> <<His>> emerald eyes, wide open, overtake your vision.
 <br>
 
 <<if $hypnosis_traits.devotion lt 5>>
@@ -3201,7 +3221,7 @@ You feel something leave you, alongside <<his>> tongue. Gwylan has taken somethi
 <br><br>
 
 <<He>> smiles. "You'll stay here with me." <<He>> tugs your collar. "Forever. It's the only way to keep everyone safe. It's what we promised each other, my love. And no promise for or against me has ever been broken."
-<<He>> lays down beside you again, his eyes still staring into yours. "I love you."
+<<He>> lays down beside you again, <<his>> eyes still staring into yours. "I love you."
 <br><br>
 
 <<He>> snaps <<his>> fingers, and you fall asleep. You know you won't wake up as the same person.
@@ -3255,7 +3275,7 @@ You feel something leave you, alongside <<his>> tongue. Gwylan has taken somethi
 :: Forest Shop Stolen Wrap
 <<effects>><<set $gwylanSeen.pushUnique("steal_wrap")>>
 
-<<underupperwear 37>><<upperwear 185>><<lowerwear 176>><<bind>><<set $gwylan.timer.wrap to new DateTime(Time.date).addDays(14).timeStamp>><<set $daily.gwylan.locked to true>>
+<<underupperwear "gift wrappings">><<upperwear "gift wrap top">><<lowerwear "gift wrap bottom">><<bind>><<set $gwylan.timer.wrap to new DateTime(Time.date).addDays(14).timeStamp>><<set $daily.gwylan.locked to true>>
 You're blinded as the doors open, revealing the forest. You're harshly spit out on the grass in front of the shop. You hear a door slam shut behind you, <span class="red">and a lock click into place</span>.
 <br><br>
 
@@ -3341,7 +3361,7 @@ You prowl around the shop, looking under cloaks, on top of shelves and behind dr
 
 	<<icon "snowgsnowglobelobe.gif">>
 	<<if $money gte 2000>>
-		<<link [[Purchase the snow globe (£20)|Forest Snowglobe Buy]]>><<money -2000>><</link>>
+		<<link [[Purchase the snow globe (£20)|Forest Snowglobe Buy]]>><<money -2000>><<endevent>><</link>>
 	<<else>>
 		You can't afford it.
 	<</if>>
@@ -3354,6 +3374,7 @@ You prowl around the shop, looking under cloaks, on top of shelves and behind dr
 
 :: Forest Snowglobe Buy
 <<effects>><<wearProp "snowglobe">>
+<<npc Gwylan>><<person1>>
 
 You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 
@@ -3382,7 +3403,7 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 	Many of them are blackened and burnt near the bottom.
 	<<if $world_corruption_hard gte 1>>
 		<<set _charmsCorrupted to Math.ceil($world_corruption_hard / 2)>>
-		<span class="purple"><<Number _charmsCorrupted>></span> of the smaller ones <<pluralise _charmsCorrupted "is" "are">> <span class="purple">stained purple</span>. Some of the others might be too, but it's hard to tell with how damaged they are.
+		<span class="purple"><<Number _charmsCorrupted>></span> of the smaller ones <<pluralise _charmsCorrupted "is">> <span class="purple">stained purple</span>. Some of the others might be too, but it's hard to tell with how damaged they are.
 	<<else>>
 		You don't notice anything unusual about them, though. <span class="green">This fills you with a strange comfort.</span>
 	<</if>>
@@ -3399,8 +3420,8 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 	<br><br>
 
 	<<if $world_corruption_hard gte 1>>
-		<span class="purple"><<Number $world_corruption_hard>></span> of the small charms <<pluralise $world_corruption_hard "is" "are">> <span class="purple">stained purple</span>.
-		A faint mist leaks from <<pluralise $world_corruption_hard "it" "them">>, into the larger charm at the center.
+		<span class="purple"><<Number $world_corruption_hard>></span> of the small charms <<pluralise $world_corruption_hard "is">> <span class="purple">stained purple</span>.
+		A faint mist leaks from <<pluralise $world_corruption_hard "it">>, into the larger charm at the centre.
 	<<else>>
 		<span class="green">None of the small charms have stained purple.</span>
 	<</if>>
@@ -3432,13 +3453,13 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 		You reach out and touch one of the clean charms.
 		<<if $world_corruption_hard gte 3>>
 			Suddenly, you notice more charms hanging all around you. They're all different. Some are made from twigs, others from a thick sinewy substance.
-			<span class="blue">All of them, even those with no discernable edges or points, feel like they're pointing towards the measuring charms. Each one is a mystery, a new uncertainty, a variable unaccounted for.</span>
+			<span class="blue">All of them, even those with no discernible edges or points, feel like they're pointing towards the measuring charms. Each one is a mystery, a new uncertainty, a variable unaccounted for.</span>
 		<<elseif $world_corruption_hard gt 0>>
 			Suddenly, you notice more charms hanging all around you. They're all different, but most are made from twigs.
 			<span class="teal">They remind you of various animals. Some sit in vigilance, while others frolic without a care. The rest are a mystery, something you can't place.</span>
 		<<else>>
 			Suddenly, you notice more charms hanging all around you. They're all made from twigs.
-			<span class="green">They depict faintly familiar scenes of a life you've never known. One of peace. Love. Family. One just out of reach.</span> You shake your head. You know such memories aren't yours, but it's nice to pretend.
+			<span class="green">They depict scenes of a life of peace, love, and family.</span> You feel like you're intruding on someone else's happy memories.
 		<</if>>
 	<<elseif $world_corruption_soft lte 99>>
 		You feel a breeze wash over you. The charms blow with it. It's salty, and mixed with the smell of smoke. It reminds you of the docks, or the industrial alleyways.
@@ -3447,10 +3468,10 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 		You reach out and touch one of the clean charms. Or, perhaps, it settles into your outstretched hand.
 		<<if $world_corruption_hard gte 3>>
 			Suddenly, you notice more charms hanging all around you. They're all different. Some are made from twigs, others from a thick sinewy substance.
-			<span class="purple">All of them, even those with no discernable edges or points, feel like they're pointing towards something outside. Each one is an enigma, or a potential danger.</span>
+			<span class="purple">All of them, even those with no discernible edges or points, feel like they're pointing towards something outside. Each one is an enigma, or a potential danger.</span>
 		<<elseif $world_corruption_hard gt 0>>
 			Suddenly, you notice more charms hanging all around you. They're all different, but most are made from twigs.
-			<span class="teal">They remind you of various animals. Most sit in vigilance, while others hide. The rest are a mystery, something you can't place.</span>
+			<span class="blue">They remind you of various animals. Most sit in vigilance, while others hide. The rest are a mystery, something you can't place.</span>
 		<<else>>
 			Suddenly, you notice more charms hanging all around you. They're all made from twigs.
 			<span class="teal">Together, they depict a gigantic ribcage surrounding you. Your hair stands on end, yet there's a feeling of safety in it.</span>
@@ -3466,7 +3487,7 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 		<span class="red">Is this the way it was always destined to end?</span> You reach for a clean charm, but none of them seem wholly untainted. Your hand burns, as nothing can become clean without another becoming dirty.
 		<<if $world_corruption_hard gte 3>>
 			Suddenly, you notice more charms hanging all around you. They're all different. Some are made from twigs, others from a thick sinewy substance.
-			<span class="red">They depict a world on fire, and the eternal pleasure that will follow. Each one, even those with no discernable edges or points, feel like they're pointing towards you.
+			<span class="red">They depict a world on fire, and the eternal pleasure that will follow. Each one, even those with no discernible edges or points, feel like they're pointing towards you.
 			You feel utterly exposed. They can all see you, they all know you, and they all want to become one with you. Yet, you know nothing about them.</span>
 		<<elseif $world_corruption_hard gt 0>>
 			Suddenly, you notice more charms hanging all around you. They're all different, but most are made from twigs.
@@ -3775,7 +3796,9 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 <<if isPregnancyEnding()>>
 	<<pregnancyPassout "forestShop">>
 <<elseif _gwylanCafeWake>>
-	<<npc Gwylan>><<person1>>
+	<<if !$gwylanbed>> /* Don't generate Gwylan again if they're already generated in _gwylanWake */
+		<<npc Gwylan>><<person1>>
+	<</if>>
 	You wake up to Gwylan gently petting your head. "<<pcPetname "Gwylan" "simple">>, it's breakfast time. Come on, let's go for a walk!" <<He>> kisses you on the cheek.
 	<br><br>
 	<<unset $gwylanbed>>
@@ -3831,3 +3854,102 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	<br>
 	<<unset $gwylanbed>>
 <</if>>
+
+:: Forest Shop Familiar Whitney
+<<effects>>
+
+<<set $gwylanSeen.pushUnique("familiar_whitney")>>
+<<set $whitney_familiar_seen to 2>>
+<<npc Gwylan>><<npc Whitney 2>>
+
+You hear footsteps approach as you near the shop door. <<person2>>It's Whitney, <<his>> entourage in tow.
+<br><br>
+"Fancy seeing you here," Whitney says, wrapping an arm around your shoulder and pulling you into the dark interior. <<His>> friends hesitate before following you inside.
+<br><br>
+
+Gwylan waits behind the counter, and dons a polite smile. Whitney doesn't spare a glance at the shop interior, and marches you straight over, but <<his>> friends roam between the shelves. Whitney pushes two fingers beneath the front of your collar, and pulls your chin against the surface.
+<br><br>
+
+"This collar look familiar to you?" Whitney asks. You hear a thud as one of <<his>> friends knocks over a heavy object, followed by something shattering.
+<br><br>
+
+<<link [[Next|Forest Shop Familiar Whitney 2]]>><</link>>
+<br>
+
+
+:: Forest Shop Familiar Whitney 2
+<<effects>>
+
+Gwylan looks straight at Whitney, giving <<person2>><<his>> friends no notice. "Forgive me," <<person1>><<he>> says, "I thought <<person2>><<pshe>> was a stray. Perhaps this will compensate you, with extra." <<person1>><<He>> reaches beneath the counter. Whitney leans forward to peek, but the others tense up, expecting a weapon.
+<br><br>
+
+Instead, Gwylan produces a small wooden box. <<He>> blows dust off the lid, pries open the copper latch, and flips it open.
+<br><br>
+
+Your eyes are level with the box and you can't see inside, but Whitney grins as a yellow glow bathes <<person2>><<his>> face. <<He>> releases your collar, and snaps the box shut. "This will do," <<he>> says. "For now. Hear that, slut? Gwylan's renting you, so you better bark on command." <<He>> leans close, kisses your cheek, and whispers, "Don't forget who you really belong to."
+<br><br>
+
+<<link [[Next|Forest Shop Familiar Whitney 3]]>><</link>>
+<br>
+
+
+:: Forest Shop Familiar Whitney 3
+<<effects>>
+
+Whitney turns, and finds the shop in disarray. One of <<his>> friends is trapped in a roll of carpet. Another's clothes are snagged on a set of old farming implements. "What the fuck are you guys doing? We're leaving."
+<br><br>
+
+The carpet unfurls, and the farming implements release their grasp. Whitney's friends escape the building ahead of <<him>>. Whitney shoots you another smile from the doorway, box tucked under one arm, before heading out <<himself>>.
+<br><br>
+
+<<person1>>Gwylan exhales. "Is your neck sore?" <<he>> asks, walking around the counter and lifting your chin.
+<br><br>
+
+<<link [[Say it's very sore|Forest Shop Familiar Whitney 4]]>><<set $phase to 0>><<pain -1>><</link>><<lpain>>
+<br>
+<<link [[Say it's a little sore|Forest Shop Familiar Whitney 4]]>><<set $phase to 1>><<pain -1>><</link>><<lpain>>
+<br>
+<<link [[Say nothing|Forest Shop Familiar Whitney 4]]>><<set $phase to 2>><<pain -1>><</link>><<lpain>>
+<br>
+<<link [[Pull away|Forest Shop Familiar Whitney 4]]>><<set $phase to 3>><</link>>
+<br>
+
+
+:: Forest Shop Familiar Whitney 4
+<<effects>>
+
+<<if $phase is 0>>
+	<<if $speech_attitude is "meek">>
+		"I don't want to bother you," you say. "But it is quite sore."
+	<<elseif $speech_attitude is "bratty">>
+		"It would be a miracle if getting jerked around like that didn't leave me sore," you say.
+	<<else>>
+		"It is very sore," you say. "But don't trouble yourself."
+	<</if>>
+	<br><br>
+	"Let me kiss you better," Gwylan says, leaning in and planting a kiss on your throat. "There we go."
+	<br><br>
+<<elseif $phase is 1>>
+	<<if $speech_attitude is "meek">>
+		"A little," you say. "But I'm okay."
+	<<elseif $speech_attitude is "bratty">>
+		"Nothing I'm not used to," you say.
+	<<else>>
+		"Only a little bit," you say.
+	<</if>>
+	<br><br>
+	"Let me kiss you better," Gwylan says, leaning in and planting a kiss on your throat. "There we go."
+	<br><br>
+<<elseif $phase is 2>>
+	You say nothing. "I bet it's sore," Gwylan continues. "Let me kiss you better." <<He>> leans in and plants a kiss on your throat. "There we go."
+	<br><br>
+<<else>>
+	You pull away from Gwylan. "Did that bully really spook you so much?" Gwylan asks. "No matter."
+	<br><br>
+<</if>>
+
+Gwylan sets to work righting the objects Whitney's friends knocked down, and returning smaller items to shelves. Despite the state of the room, it only takes a few moments, as if the objects themselves were helping out.
+<br><br>
+
+<<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
+<br>

@@ -47,7 +47,7 @@ setup.shopDetails = {
 	serving: {
 		name: "Serving",
 		desc: "Encourages tips when working as a bartender, waiter or waitress if visible.",
-		details: "Increases the amount of money gained from each tip by 20% per item with the trait.",
+		details: "Increases the amount of money gained from tips by 25% when wearing an item with the trait. Each additional item is 33% less effective.",
 	},
 	fetish: {
 		name: "Fetish",
@@ -158,11 +158,25 @@ setup.shopDetails = {
 		desc: "Fits around your waist.",
 		details: "Can be used to penetrate others.",
 	},
-	covered: {
-		name: "Covered",
+	face_covering: {
+		name: "Face Covering",
+		desc: "Protects the face.",
+		details: "Protects your mouth against kissing, penetration, and oral activities. Protects your face from being written on.",
+	},
+	torso_covering: {
+		name: "Torso Covering",
+		desc: "Protects the chest and back.",
+		details: "Protects your torso from being written on and will not be considered lewd when exposed.",
+	},
+	lower_covering: {
+		name: "Lower-body Covering",
 		desc: "Protects various body parts.",
-		details:
-			"Concealed skin cannot be written on. Facewear with this trait protects your mouth against kissing, penetration, and oral activities. Underwear with this trait will not be considered lewd when exposed. Lowerwear with this trait will cover your upper half, allowing you to wear them with nothing on top.",
+		details: "Protects your lower body from being written on and will not be considered lewd when exposed.",
+	},
+	overalls: {
+		name: "Overalls",
+		desc: "Also covers the torso.",
+		details: "Covers your upper half, allowing you to wear nothing on top.",
 	},
 	naked: {
 		name: "Naked",

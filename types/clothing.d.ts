@@ -71,6 +71,13 @@ declare module "twine-sugarcube" {
 			[x: string]: SpecialClothesSetsSetup;
 		};
 		sextoys: SexToy[];
+		propDefaults: PropSetup;
+		props: {
+			[x: string]: PropSetup;
+		};
+		moddedProps: {
+			[x: string]: PropSetup;
+		};
 	}
 }
 
@@ -157,13 +164,48 @@ declare global {
 			boundable?: boolean;
 			pattern?: boolean;
 		};
+		/**
+		 * Flimsy <20
+		 *
+		 * Fragile >=20 e.g. babydoll lingerie
+		 *
+		 * Delicate >=50 e.g. crop top
+		 *
+		 * Fine >=100
+		 *
+		 * Firm >=200
+		 *
+		 * Sturdy >=500
+		 *
+		 * Tough >=900 e.g. chastity belts
+		 *
+		 * Exception: gold chastity belt 6000
+		 */
 		integrity?: number;
 		integrity_max?: number;
 		fabric_strength?: number;
+		/**
+		 * Unassuming 0-100
+		 *
+		 * Smart 100-200
+		 *
+		 * Tasteful 200-300
+		 *
+		 * Comfy 300-500
+		 *
+		 * Seductive 500-700
+		 *
+		 * Risque 700-900
+		 *
+		 * Lewd 900-
+		 */
 		reveal?: number;
+		/**Breast size modifier e.g. chest wrap*/
 		bustresize?: number;
 		one_piece?: number;
+		/**For uppers, text flag like 'untie the strap behind your neck.'*/
 		strap?: number;
+		/** Combat related */
 		open?: number;
 		/**
 		 * a: A skirt.
@@ -173,10 +215,12 @@ declare global {
 		 * an: An outfit.
 		 */
 		word: "a" | "n" | "an";
+		/** Combat related */
 		state: ZeroedClothingStates;
 		state_base: 0 | string;
 		state_top?: 0 | string;
 		state_top_base?: 0 | string;
+		/** Whether it's a skirt */
 		skirt?: 0 | 1;
 		skirt_down?: 0 | 1;
 		/**
@@ -187,7 +231,9 @@ declare global {
 		 * 2 - Fully exposed for all else.
 		 */
 		exposed?: 0 | 1 | 2;
+		/** Whether the item is plural */
 		plural: number;
+		/** Starting number of exposed */
 		exposed_base?: number;
 		vagina_exposed?: number;
 		vagina_exposed_base?: number;
@@ -282,6 +328,7 @@ declare global {
 		iconFile?: 0 | string;
 		accIcon?: 0 | string;
 		detailIcon?: 0 | string;
+		/** For clothing sets */
 		outfitPrimary?: object;
 		outfitSecondary?: string[];
 		notuck?: number | "tie";
@@ -298,6 +345,8 @@ declare global {
 		shopGroup?: string;
 		pregType?: 0 | string;
 		formfitting?: 1;
+		// Parts that exclude form formfitting, available options: "acc" "sleeve_acc"
+		formfittingDisabled?: string[];
 		oldVariable?: {
 			name: string;
 			variable: string;
@@ -319,9 +368,10 @@ declare global {
 		hoodposition?: "down" | "up";
 		altDamage?: "metal" | "plastic" | "parasite";
 		penisSize?: boolean;
+		zIndex?: string;
 		hood?: 0 | 1;
 		// Handheld item held over head, or alternate limb position used
-		holdPosition?: "right_cover" | "left_cover" | "cover_both" | "idle" | "clutch" | "over_head" | "hold";
+		holdPosition?: ArmPosition;
 		coverBackImage?: 0 | 1;
 		coverImage?: 0 | 1;
 		leftImage?: 0 | 1;
@@ -365,7 +415,20 @@ declare global {
 		requirements?(): boolean;
 		hint?: string;
 	}
-
+	export interface PropSetup {
+		folder?: string;
+		armPosition?: ArmPosition;
+		zIndex?: string;
+		hasAccessory?: boolean;
+		hasBackAcc?: boolean;
+		hasCoverImg?: boolean;
+		hasLevels?: boolean;
+		overUnderSplit?: boolean;
+		overUnderAccSplit?: boolean;
+		colour?: string[];
+		accColour?: string[];
+		animation?: string;
+	}
 	export interface SpecialClothesSetsSetup {
 		text: string;
 		requirements?(): boolean;
@@ -380,6 +443,7 @@ declare global {
 		iconColor?: string;
 		iconAccColor?: string;
 	}
+	export type ArmPosition = "right_cover" | "right_idle" | "right_hold" | "left_cover" | "left_idle" | "cover_both" | "idle_both" | "clutch" | "handsfree";
 
 	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia = 0): CompositeLayerSpec;
 

@@ -82,7 +82,7 @@ function calculatePenisBulge() {
 		return Math.clamp(V.player.penissize, 0, Infinity);
 	}
 	// Mentioned in combat about npcs `trying to force an erection`, when below the specific arousal checks
-	if ((V.arousal > 9000 && V.player.penissize === -1) || (V.arousal > 9500 && V.player.penissize === -2)) return 1;
+	if ((V.arousal > 9000 && V.player.penissize === 1) || (V.arousal > 9500 && V.player.penissize === 0)) return 1;
 
 	let erectionState = 1;
 	if (V.arousal >= 8000) {
@@ -90,7 +90,7 @@ function calculatePenisBulge() {
 	} else if (V.arousal >= 6000) {
 		erectionState = 2;
 	}
-	return Math.clamp((V.player.penissize + 1) * erectionState, 0, Infinity);
+	return Math.clamp((V.player.penissize - 1) * erectionState, 0, Infinity);
 }
 window.calculatePenisBulge = calculatePenisBulge;
 
@@ -104,7 +104,7 @@ function nudeGenderAppearance() {
 	if (playerChastity("hidden")) {
 		T.apparent_femininity_nude += setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
 	} else if (V.settings.nudeGenderPerception === 1) {
-		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 2.5) * 150;
+		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 0.5) * 150;
 		if (V.player.vaginaExist) T.apparent_femininity_nude += 450;
 	}
 	if (!(V.sexStats === undefined || !playerBellyVisible() || V.settings.nudeGenderPerception === 0)) {
@@ -219,10 +219,10 @@ function genderappearancecheck() {
 	if (T.under_lower_protected && V.settings.nudeGenderPerception > 0) {
 		addfemininityfromfactor(T.bulge_size * -60, "Bulge visible through underwear", "noow");
 	} else if ((T.over_lower_protected || T.lower_protected) && V.settings.nudeGenderPerception > 0) {
-		addfemininityfromfactor(Math.clamp((T.bulge_size - 6) * -60, 0, Infinity), "Bulge visible through clothing", "noow");
+		addfemininityfromfactor(-Math.clamp((T.bulge_size - 6) * 60, 0, Infinity), "Bulge visible through clothing", "noow");
 	} else if (V.worn.genitals.exposed && V.settings.nudeGenderPerception === 1) {
 		if (V.player.penisExist) {
-			addfemininityfromfactor((V.player.penissize + 2.5) * -150, "Penis exposed", "noow");
+			addfemininityfromfactor((V.player.penissize + 0.5) * -150, "Penis exposed", "noow");
 		}
 		if (V.player.vaginaExist) {
 			addfemininityfromfactor(450, "Vagina exposed", "noow");
@@ -247,7 +247,7 @@ function genderappearancecheck() {
 				/* Bare genitals are visible */
 				if (V.settings.nudeGenderPerception === 1) {
 					if (V.player.penisExist) {
-						addfemininityfromfactor((-V.player.penissize - 2.5) * 150, "Penis visible");
+						addfemininityfromfactor((-V.player.penissize - 0.5) * 150, "Penis visible");
 					}
 					if (V.player.vaginaExist) {
 						addfemininityfromfactor(450, "Vagina visible");
@@ -282,7 +282,11 @@ function genderappearancecheck() {
 	if (V.worn.over_upper.exposed >= 2) {
 		addfemininityofclothingarticle("upper", V.worn.upper);
 	}
-	if (V.worn.over_upper.exposed >= 2 && V.worn.upper.exposed >= 2) {
+	if (
+		V.worn.over_upper.exposed >= 2 &&
+		V.worn.upper.exposed >= 2 &&
+		(!V.worn.lower.type.includes("overalls") || V.worn.lower.exposed >= 2 || V.lowerwetstage >= 3)
+	) {
 		/* Upper underwear is visible */
 		addfemininityofclothingarticle("under_upper", V.worn.under_upper);
 		if (V.worn.under_upper.exposed >= 1) {
@@ -453,7 +457,7 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 		if (
 			(V.worn.over_lower.exposed >= 1 || V.worn.over_lower.anus_exposed >= 1) &&
 			(V.worn.lower.exposed >= 1 || V.worn.lower.anus_exposed >= 1) &&
-			(V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("covered"))
+			(V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("lower_covering"))
 		) {
 			T.visible_areas.push("left_bottom", "right_bottom");
 		}
@@ -461,11 +465,11 @@ function bodywritingExposureCheck(overwrite, skipRng) {
 			V.worn.over_lower.exposed >= 1 &&
 			V.worn.lower.exposed >= 1 &&
 			!T.underOutfit &&
-			(V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("covered"))
+			(V.worn.under_lower.exposed >= 1 || !V.worn.under_lower.type.includes("lower_covering"))
 		) {
 			T.visible_areas.push("pubic");
 		}
-		if (V.worn.over_lower.vagina_exposed >= 1 && V.worn.lower.vagina_exposed >= 1 && !V.worn.under_lower.type.includes("covered")) {
+		if (V.worn.over_lower.vagina_exposed >= 1 && V.worn.lower.vagina_exposed >= 1 && !V.worn.under_lower.type.includes("lower_covering")) {
 			T.visible_areas.push("left_thigh", "right_thigh");
 		}
 
@@ -571,8 +575,9 @@ function calculateallure() {
 	if (!V.worn.over_upper.type.includes("naked")) {
 		baseattractiveness += V.worn.over_upper.reveal;
 	} else {
-		baseattractiveness += V.worn.upper.reveal;
-		if (V.worn.upper.type.includes("naked")) baseattractiveness += V.worn.under_upper.reveal;
+		const topmult = V.worn.lower.type.includes("overalls") ? 1 : 1;
+		baseattractiveness += V.worn.upper.reveal * topmult;
+		if (V.worn.upper.type.includes("naked")) baseattractiveness += V.worn.under_upper.reveal * topmult;
 	}
 	if (!V.worn.over_lower.type.includes("naked")) {
 		baseattractiveness += V.worn.over_lower.reveal;
@@ -642,6 +647,8 @@ function exposure() {
 
 	V.exposed = 0;
 	V.exposedRaw = 0;
+	T.exposedUpper = false;
+	T.exposedLower = false;
 
 	// wraith cares not of your exposure
 	if (V.possessed) {
@@ -655,7 +662,7 @@ function exposure() {
 		// wardrobes should not be safe locations though, as they must show what clothes are appropriate outside. if you wanna stop pc from covering themselves - use "don't cover yourself" link in the wardrobes instead of altering the libertine score.
 		safeLocations.some(location => V.passage.includes(location)) &&
 		V.NPCList.every(npc => !npc.fullDescription || Object.values(V.loveInterest).includes(npc.fullDescription)) &&
-		V.audiencepresent === 0
+		!V.audiencepresent
 	) {
 		// alone (or with a li) in safe locations - anything goes
 		V.libertine = 2;
@@ -677,21 +684,26 @@ function exposure() {
 	// If under_upper is not covering or exposing/displaced exposed should be 1 because either it's underwear or PCs breasts are visible
 	if (
 		["over_upper", "upper"].every(slot => itemExposure(slot) >= 1) &&
-		(!V.worn.lower.type.includes("covered") || itemExposure("lower") >= 2) &&
-		(!V.worn.under_upper.type.includes("covered") || itemExposure("lower") >= 1)
+		(!V.worn.lower.type.includes("overalls") || itemExposure("lower") >= 2) &&
+		(!V.worn.under_upper.type.includes("torso_covering") || itemExposure("under_upper") >= 1)
 	) {
 		// the answer is yes
 		// Only non-male appearing PCs should be exposed from underwear/breasts
-		if (V.player.gender_appearance !== "m") {
+		if (V.player.gender_appearance !== "m" || V.player.perceived_breastsize > 2) {
 			V.exposed = 1;
+			T.exposedUpper = itemExposure("under_upper") >= 1 ? 2 : 1;
 		}
 	}
 
 	/*
 		panties
 	*/
-	if (["over_lower", "lower"].every(slot => itemExposure(slot) >= 1) && (!V.worn.under_lower.type.includes("covered") || itemExposure("under_lower") >= 1)) {
+	if (
+		["over_lower", "lower"].every(slot => itemExposure(slot) >= 1) &&
+		(!V.worn.under_lower.type.includes("lower_covering") || itemExposure("under_lower") >= 1)
+	) {
 		V.exposed = 1;
+		T.exposedLower = 1;
 	}
 
 	/*
@@ -699,10 +711,13 @@ function exposure() {
 	*/
 	if (["over_lower", "lower"].every(slot => itemExposure(slot) >= 2) && itemExposure("under_lower") >= 1) {
 		V.exposed = 2;
+		T.exposedLower = 2;
 	}
 
 	V.exposedRaw = V.exposed;
 	if (V.libertine >= V.exposed) V.exposed = 0;
+	if (V.libertine >= T.exposedUpper) T.exposedUpper = 0;
+	if (V.libertine >= T.exposedLower) T.exposedLower = 0;
 }
 DefineMacro("exposure", exposure);
 
@@ -715,11 +730,11 @@ DefineMacro("exposure", exposure);
 function inappropriatePlayerState(check = ["all"]) {
 	if (["all", "clothes"].includesAny(check)) {
 		if (V.exposed > 0 || V.exposedRaw > 0) return true;
-		if (!V.worn.lower.type.includes("covered")) {
+		if (!V.worn.lower.type.includes("overalls")) {
 			if (["slut shirt", "prison shirt", "prison jumpsuit", "unbound straightjacket"].includes(V.worn.upper.name)) {
 				return true;
 			} else if (
-				!V.worn.under_upper.type.includes("covered") ||
+				!V.worn.under_upper.type.includes("torso_covering") ||
 				V.worn.under_upper.reveal >= 700 ||
 				integrityKeyword(V.worn.under_upper, "under_upper") === "tattered" ||
 				["leotard", "unitard", "skimpy leotard", "turtleneck leotard"].includes(V.worn.under_upper.name)
@@ -735,7 +750,7 @@ function inappropriatePlayerState(check = ["all"]) {
 		}
 		if (["prison trousers", "prison jumpsuit trousers", "unbound straightjacket bottom"].includes(V.worn.lower.name)) return true;
 		if (
-			!V.worn.under_lower.type.includes("covered") ||
+			!V.worn.under_lower.type.includes("lower_covering") ||
 			V.worn.under_lower.reveal >= 700 ||
 			integrityKeyword(V.worn.under_lower, "under_lower") === "tattered" ||
 			["leotard bottom", "unitard bottom", "skimpy leotard bottom", "turtleneck leotard bottom"].includes(V.worn.under_lower.name)
@@ -786,3 +801,27 @@ function inappropriatePlayerState(check = ["all"]) {
 	return false;
 }
 window.inappropriatePlayerState = inappropriatePlayerState;
+
+/**
+ * Fetches some or all of the PC's visible transformation parts into an array, depending on input
+ *
+ * @param {Array <"ears" | "wings" | "tail" | "halo" | "horns" | "plumage" | "malar" | "cheeks" | "eyes" | "heterochromia" | "pubes" | "pits">} parts / Which types to check, defaults to all
+ * @returns {Array | false} / Parts that match the criteria
+ */
+function getTransformParts(parts = []) {
+	const tfs = ["wolf", "cat", "fox", "bird", "cow", "demon", "fallenAngel", "angel"];
+	const tfPartsToCheck = ["ears", "wings", "tail", "halo", "horns", "plumage", "malar", "cheeks", "eyes", "heterochromia", "pubes", "pits"];
+	const tfParts = [];
+	for (let i = 0; i < tfs.length; i++) {
+		for (let i2 = 0; i2 < tfPartsToCheck.length; i2++) {
+			if (
+				(parts.includesAny(tfPartsToCheck[i2]) || !parts[0]) &&
+				![undefined, "hidden", "disabled"].includes(V.transformationParts[tfs[i]][tfPartsToCheck[i2]])
+			)
+				tfParts.pushUnique(tfPartsToCheck[i2]);
+		}
+	}
+	if (tfParts.length) return tfParts;
+	else return false;
+}
+window.getTransformParts = getTransformParts;

@@ -124,7 +124,8 @@
 		A <<= $pain gte 100 ? "crying" : $pain gte 40 ? "tearful" : $pain gte 1 ? "frowning" : "cheerful">> <<girl>>
 	<</if>>
 	stares back.
-	<<if ["haunt", "despair"].includes($wraith.state) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+	<<set _wraithMirror to !_wraithMirror && ["haunt", "despair"].includes($wraith.state) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+	<<if _wraithMirror>>
 		<span class="fading">A pale figure stands behind.</span>
 	<</if>>
 	<br><br>
@@ -153,19 +154,16 @@
 	<</if>>
 
 	<<if !$simpleMirror>>
-		<<if $specialTransform is 1 or $physicalTransform is 1>>
+		/* only display the tf menu if there's actually some options that can be changed */
+		<<set $_tfs to setup.transformations.filter(tf => tf.parts?.some(part => tf.level >= part.tfRequired))>>
+		<<if $_tfs.length >= 1>>
 			__Transformation__
 			<br>
-			<<if $demon gte 6>><<tficon "demon">>
-			<<elseif $wolfgirl gte 6>><<tficon "wolf">>
-			<<elseif $angel gte 6>><<tficon "angel">>
-			<<elseif $fallenangel gte 2>><<tficon "fallenangel">>
-			<<elseif $cat gte 6>><<tficon "cat">>
-			<<elseif $cow gte 6>><<tficon "cow">>
-			<<elseif $harpy gte 6>><<tficon "bird">>
-			<<elseif $fox gte 6>><<tficon "fox">>
-			<<else>><<tficon "angel">>
-			<</if>>
+			/* show the icon of the highest levelled transform with parts unlocked */
+			/* assumes maximum of 2 simultaneous transformations */
+			<<set $_icon to ($_tfs[1]?.level gt $_tfs[0].level) ? $_tfs[1].name : $_tfs[0].name>>
+			<<if !$_icon>><<set $_icon to "angel">><</if>>
+			<<tficon $_icon>>
 			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 		<<else>>
 			Obtain otherworldly powers to examine further.
@@ -240,7 +238,7 @@
 					<span @class="$player.gender_posture is _postures[_i].charAt(0) ? 'goldLink no-numberify' : 'unselected no-numberify'">
 						<<link _postures[_i].toUpperFirst()>>
 							<<set $player.gender_posture to _postures[_i].charAt(0)>>
-							<<exposedcheck>>
+							<<exposure>>
 							<<replace "#mirrorGender">><<mirrorGender>><</replace>>
 						<</link>>
 					</span>	<<= _i lt _postures.length - 1 ? "|" : "">>
@@ -280,7 +278,11 @@
 		<</if>>
 		<<run _increaseBoth(`Hair length ${$hairlength gte 333 ? "+".repeat($hairlength gte 666 ? 2 : 1) : ""}`)>>
 		<<if $worn.upper.type.includes("naked")>>
-			<<run _increaseBoth("Topless")>>
+			<<if $worn.lower.type.includes("overalls")>>
+				<<run _increaseBoth("Topless (covered)")>>
+			<<else>>
+				<<run _increaseBoth("Topless")>>
+			<</if>>
 		<<elseif $worn.upper.reveal gte 500>>
 			<<run _increaseBoth("Revealing top")>>
 		<</if>>
@@ -328,7 +330,7 @@
 		<</if>>
 		<<if $worn.upper.reveal + $worn.lower.reveal gte 50>>
 			<<set $_outfit to $worn.lower.name is "naked" or ($worn.upper.name is "naked" and $player.perceived_breastsize gt 2) ? '"outfit"' : 'outfit'>>
-			<<run _increaseAllure.push(`Alluring ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
+			<<run _increaseAllure.push(`Alluring ${$_outfit} ${"+".repeat(Math.floor((($worn.lower.type.includes("overalls") ? $worn.upper.reveal / 2 : $worn.upper.reveal) + $worn.lower.reveal) / 400))}`)>>
 			<<run _increaseAttractive.push(`Attractive ${$_outfit} ${"+".repeat(Math.floor(($worn.upper.reveal + $worn.lower.reveal) / 400))}`)>>
 		<</if>>
 		<<if $worn.head.reveal gte 50>>
@@ -610,7 +612,7 @@
 <</widget>>
 
 <<widget "mirrorSkin">>
-	<<mirroricon>><<link "Back">><<handheldon>><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 
 	<div class="settingsGrid">
@@ -618,6 +620,15 @@
 		<div class="settingsToggleItem">
 			<span class="gold bold">Tanning:</span>
 			<br>
+			Your chosen skin type:
+			<<listbox "$settings.tanningDifficulty" autoselect>>
+				<<option "Tans very easily" 0>>
+				<<option "Tans easily" 1>>
+				<<option "Tans moderately" 2>>
+				<<option "Tans poorly" 3>>
+				<<option "Hardly tans" 4>>
+			<</listbox>>
+			<br><br>
 			<span id="sunscreenDescription">
 				<<sunscreenDesc>>
 			</span>
@@ -760,7 +771,7 @@
 	<<if Skin.Sunscreen.isApplied()>>
 		<br>
 		<<cosmeticsicon "sunscreen">><<link "Remove sunscreen">>
-			<<handheldon>>
+
 			<<set Skin.Sunscreen.autoApply to false>>
 			<<replace #sunscreenDescription>><<sunscreenApply "remove">><</replace>>
 			<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
@@ -769,7 +780,7 @@
 		<<if Skin.Sunscreen.usesLeft gt 0>>
 			<br>
 			<<cosmeticsicon "sunscreen">><<link "Apply sunscreen">>
-				<<handheldon>>
+
 				<<replace #sunscreenDescription>><<sunscreenApply>><</replace>>
 				<<replace #sunscreenLinks>><<sunscreenLinks>><</replace>>
 			<</link>> <<note `Skin.Sunscreen.usesLeft + ' use'+(Skin.Sunscreen.usesLeft > 1 ? 's' : '') + ' left'`>>
@@ -1373,7 +1384,8 @@
 <</widget>>
 
 <<widget "mirrorHair">>
-	<<mirroricon>><<link "Back">><<handheldon>><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<set _wraithMirror to false>>
+	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<<shopClothingFilterSettingsDefault>> /* Due to reusing the traits filtering */
 	<br><br>
 	<div id="hairDescription">
@@ -1828,15 +1840,16 @@
 	<<set _itemType = _args[0]>>
 
 	<<set _items = $makeup.owned[_itemType].filter(x => x.count > 0)>>
+	<<cosmeticsicon _itemType>>	<span class="gold bold"><<= _itemType.toUpperFirst()>>:</span>
 	<<if $makeup.owned[_itemType].length == 0>>
-		<<cosmeticsicon _itemType>> You don't own any _itemType.
+		<br>
+		You don't own any _itemType.
 	<<elseif _items.length == 0>>
+		<br>
 		You ran out of _itemType.
 		<br>
 	<</if>>
 	<<if _items.length != 0 or $makeup[_itemType] != 0>>
-		<<cosmeticsicon _itemType>>
-		<span class="gold bold"><<= _itemType.toUpperFirst()>>:</span>
 		<<if $makeup[_itemType] != 0>>
 			<<capture _itemType>>
 			<span class="no-numberify">
@@ -1863,21 +1876,24 @@
 						`_item.colour <span @class="_itemType+'-'+_item.colour.replace(/ /g, '-')"><span class="colour-sample"></span></span>
 						× _item.count`>>
 						<<button _name>>
-							<<handheldon>>
-							<<if _itemType is "lipstick">>
-								<<set _colour to _item.colour is "dark red" ? "jewel red" : _item.colour is "orange" ? "tangerine" : _item.colour>>
-								<<wearProp _itemType _colour>>
-							<<else>>
-								<<wearProp _itemType>>
-							<</if>>
 							<<if $makeup[_itemType] !== _item.colour>>
 								<<set $makeup[_itemType] = _item.colour>>
 								<<set _item.count -= 1>>
 								<<if _itemType == 'mascara'>>
 									<<set $makeup.mascara_running = 0>>
 								<</if>>
-								<<run Engine.show()>>
 							<</if>>
+							<<set $mirrorMenu to "makeup">>
+							<<replace #mirror>>
+								<<if _itemType is "lipstick">>
+									<<set _colour to _item.colour is "dark red" ? "jewel red" : _item.colour is "orange" ? "tangerine" : _item.colour>>
+									<<wearProp _itemType _colour>>
+								<<else>>
+									<<wearProp _itemType>>
+								<</if>>
+								<<updatesidebarimg>>
+								<<mirrorDisplay>>
+							<</replace>>
 						<</button>>
 					<</capture>>
 				</span>
@@ -2043,8 +2059,11 @@
 						<span class="no-numberify">
 							<<link "Remove">>
 								<<set $makeup.eyelenses = { left: 0, right: 0 }>>
-								<<run Engine.show()>>
-							<</link>>
+									<<replace #mirror>>
+										<<updatesidebarimg>>
+										<<mirrorDisplay>>
+									<</replace>>
+								<</link>>
 						</span>
 						<br>
 						You are wearing
@@ -2073,13 +2092,13 @@
 							<<switch _contact_eye_selected>>
 								<<default>><<set _eye to "left">>
 							<</switch>>
+							<span @class="$makeup.eyelenses.left == _colour || $makeup.eyelenses.right == _colour ? 'makeupWorn' : 'makeupItem'">
 							<span class="makeupItem">
 								<<capture _colour>>
 									<<set _contactName to
 									`_colour <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
 
 									<<button _contactName>>
-										<<handheldon 1>>
 										<<if _contact_eye_selected == "Both">>
 											<<set $makeup.eyelenses = { left: _colour, right: _colour }>>
 										<<elseif _contact_eye_selected == "Left eye">>
@@ -2087,7 +2106,10 @@
 										<<elseif _contact_eye_selected == "Right eye">>
 											<<set $makeup.eyelenses.right = _colour>>
 										<</if>>
-										<<run Engine.show()>>
+										<<replace #mirror>>
+											<<updatesidebarimg>>
+											<<mirrorDisplay>>
+										<</replace>>
 									<</button>>
 								<</capture>>
 							</span>
@@ -2114,59 +2136,18 @@
 										<<elseif _contact_eye_selected == "Right eye">>
 											<<set $makeup.eyelenses.right = _colour>>
 										<</if>>
-										<<run Engine.show()>>
+										<<replace #mirror>>
+											<<updatesidebarimg>>
+											<<mirrorDisplay>>
+										<</replace>>
 									<</button>>
 								<</capture>>
 							</span>
 						<</for>>
-
 					</div>
 				<</if>>
 			</div>
-			/* WHY IS THIS IN THE BEDROOM AND NOT THE BATHROOM WITH THE PUBIC HAIR DYE? WHY IS IT SAVED WITH MAKEUP PRESETS? */
-			<div class="settingsToggleItemWide">
-				<<cosmeticsicon "dyes">>
-				<<set _dyes = $makeup.owned.hairdye.filter(x => x.count > 0)>>
-				<<if _dyes.length == 0>>
-					You have no hair dye to dye your eyebrows with.
-				<<else>>
-					<span class="gold bold">Eyebrow Colour:</span>
-					<br>
-					<<if $mirror_eyebrow_dye is true>>
-						<<handheldon 1>>
-						<<wearProp "hairdye">>
-						<<unset $mirror_eyebrow_dye>>
-						You open up the box with <<= setup.colours.hair_map[$browsDyeOption].name>> dye and prepare the mixture. Using a small brush, you carefully apply the dye to your eyebrows. You wait several minutes for the dye to set and hope you didn't mess up anything.
-						<<set $makeup.owned.hairdye.find(x => x.colour == $browsDyeOption).count -= 1>><<set $makeup.browscolour = $browsDyeOption>><<unset $browsDyeOption>>
-						<hr>
-					<</if>>
 
-					<<if $makeup.browscolour != 0>>
-						Your brows are coloured with <<hairmapcolourtext $makeup.browscolour>> hair dye. Visit a hairdresser to restore them to their natural <<hairmapcolourtext $naturalhaircolour>> colour.
-					<<else>>
-						Your brows are their natural <<hairmapcolourtext $naturalhaircolour>> colour.
-					<</if>>
-					<br><br>
-					Dying your eyebrows will take <span class="gold">0:15</span> minutes.
-					<br>
-					<div class="makeupList no-numberify capitalize">
-						<<for _i to 0; _i lt _dyes.length; _i++>>
-							<<if $makeup.browscolour is _dyes[_i].colour or $naturalhaircolour is _dyes[_i].colour>>
-								<<continue>>
-							<</if>>
-							<<set _displayName = (_dyes[_i].colour in setup.colours.hair_map ? setup.colours.hair_map[_dyes[_i].colour].name : _dyes[_i].colour.charAt(0).toUpperCase() + _dyes[_i].colour.slice(1)) + " ×" + _dyes[_i].count + " ">>
-							<<set _dyeName to _displayName + `<span @class="'hair-' + _dyes[_i].colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-hair colour-hair"></span></span>`>>
-							<<capture _dyes, _i>>
-								<<button _dyeName>>
-									<<set $mirror_eyebrow_dye to true>><<pass 15>>
-									<<set $browsDyeOption to _dyes[_i].colour>>
-									<<run Engine.show()>>
-								<</button>>
-							<</capture>>
-						<</for>>
-					</div>
-				<</if>>
-			</div>
 		<</if>>
 	</div>
 <</widget>>
@@ -2291,7 +2272,7 @@
 			<<if $hypnosis_traits.peace gte 1 and $settings.hypnosisEnabled>>
 				Hiding parts of your inner self lowers your attractiveness and allure. <span class="forest-green">You are at peace with your inner self, and will incur no penalty.</span>
 			<<else>>
-				Hiding parts of your Inner Self lowers your attractiveness and allure, but will also slowly increase your Trauma over time. <<if ["wolfgirl", "harpy", "fox"].includes(_animal)>>Extra bodyhair (pubes, puts) can be hidden without affecting your attractiveness or incurring Trauma.<</if>> If your Trauma gets too high, you will be unable to hide.
+				Hiding parts of your Inner Self lowers your attractiveness and allure, but will also slowly increase your Trauma over time. <<if ["wolfgirl", "harpy", "fox"].includes(_animal)>>Extra bodyhair (pubes, pits) can be hidden without affecting your attractiveness or incurring Trauma.<</if>> If your Trauma gets too high, you will be unable to hide.
 			<</if>>
 		</div>
 		<<if _divine>>
@@ -2356,7 +2337,7 @@
 									<<option "Dark Cherub" "cherub-black">>
 									<<option "Feathered Cherub" "cherub-fallenplus">>
 									<<option "Feathered" "fallenplus">>
-									<<option "Classic Feathered" "classicfallenplus">>
+									<<option "Classic Feathered" "classic-fallenplus">>
 									<<option "Classic" "classic">>
 								<</listbox>>
 							<<else>>
@@ -2479,8 +2460,11 @@
 							<<listbox "_cow.ears" autoselect>>
 								<<option "Hide" "hidden">>
 								<<option "Default" "default">>
-								<<option "Spotted black" "spotted black">>
-								<<option "Spotted brown" "spotted brown">>
+								<<option "Spotted black" "spotted-black">>
+								<<option "Spotted brown" "spotted-brown">>
+								<<option "Classic" "classic">>
+								<<option "Classic spotted" "classic-spotted-black">>
+								<<option "Classic brown" "classic-spotted-brown">>
 							<</listbox>>
 						</div>
 					<</if>>
@@ -2727,7 +2711,7 @@
 				</div>
 			</div>
 		<</if>>
-		<<if !["demon", "cow"].every(transform => T[transform].horns is "disabled") || !["demon", "cat", "cow", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled") || !["angel", "fallen", "demon", "bird"].every(transform => T[transform].wings is "disabled")>>
+		<<if !["demon", "cow"].every(transform => T[transform].horns is "disabled") || !["demon", "cat", "cow", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled") || !["angel", "fallen", "demon", "bird"].every(transform => T[transform].wings is "disabled") || !["fox", "wolf", "cat"].every(transform => T[transform].ears is "disabled")>>
 			<div class="settingsToggleItemWide no-numberify">
 				<span class="gold bold">Layer Adjustments:</span>
 				<br>
@@ -2753,6 +2737,30 @@
 							<</link>>
 					<</switch>>
 					<br>
+				<</if>>
+				/* TF ears position WIP*/
+				<<if !["fox", "wolf", "cat"].every(transform => T[transform].ears is "disabled")>>
+						<<switch $tfearslayer>>
+							<<case "front">>
+								<<link "Position hair in front of animal ears">>
+									<<run State.setVar("$tfearslayer", "back")>>
+									<<run Engine.show()>>
+									<<updatesidebarimg true>>
+								<</link>>
+							<<case "back">>
+								<<link "Tuck hair behind animal ears">>
+									<<run State.setVar("$tfearslayer", "front")>>
+									<<run Engine.show()>>
+									<<updatesidebarimg true>>
+								<</link>>
+							<<default>>
+								<<link "Tuck hair behind animal ears">>
+									<<run State.setVar("$tfearslayer", "front")>>
+									<<run Engine.show()>>
+									<<updatesidebarimg true>>
+								<</link>>
+						<</switch>>
+						<br>
 				<</if>>
 				<<if !["demon", "cat", "cow", "wolf", "bird", "fox"].every(transform => T[transform].tail is "disabled")>>
 					<<switch $taillayer>>

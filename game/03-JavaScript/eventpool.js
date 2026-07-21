@@ -11,12 +11,15 @@
  * <<cleareventpool>>
  *
  * <<addevent WIDGET_NAME [WEIGHT]>>
- * <<addevent WIDGET_NAME [WEIGHT]>>
- * <<addinlineevent [NAME_FOR_DEBUGGING [WEIGHT]]>>
+ * <<addinlineevent [NAME_FOR_DEBUGGING]>>
+ * <<addinlineevent [WEIGHT]>>
+ * <<addinlineevent>>
+ * <<addinlineevent [NAME_FOR_DEBUGGING] [WEIGHT]>>
  *   Content for an event you don't want to define as a widget
  * <</addinlineevent>>
  *
  * <<runeventpool>> - will pick a weighted random event and execute its content.
+ * To force a specific event for one call, set V.eventPoolOverride to an event name before calling.
  *
  * Weight is a relative probability, so event with weight=2 would appear twice as often as event with weight=1.
  * Default weight is 1.
@@ -79,7 +82,7 @@ function rollWeightedRandomFromArray(items) {
 		}
 	}
 	// Should never happen
-	console.warn("Weighted random math went wrong", roll0, sum, items);
+	console.warn("Weighted random maths went wrong", roll0, sum, items);
 	return items[0].item;
 }
 window.rollWeightedRandomFromArray = rollWeightedRandomFromArray;
@@ -94,9 +97,22 @@ Macro.add("cleareventpool", {
 Macro.add("addinlineevent", {
 	tags: null,
 	handler() {
+		let name = "";
+		let weight = 1.0;
+		if (this.args.length === 1) {
+			if (typeof this.args[0] === "string") {
+				name = this.args[0];
+			} else if (typeof this.args[0] === "number") {
+				weight = this.args[0];
+			}
+		} else if (this.args.length > 1) {
+			name = this.args[0];
+			weight = this.args[1];
+		}
+
 		T.eventpool.push({
-			name: this.args[0] || "",
-			weight: this.args.length === 2 ? +this.args[1] : 1.0,
+			name,
+			weight,
 			content: this.payload[0].contents,
 		});
 	},
@@ -129,8 +145,8 @@ Macro.add("runeventpool", {
 		if (!pick) throw new Error("Event pool is empty");
 		// Jimmy: For tracking where in the code you may be.
 		// E.G: ['eventAmbient', >>'autumn_anystreet_2'<<, 'generate1']
-		DOL.Stack.push(pick.name);
+		ExecutionContext.instance.callStack.push(new StackMacroMeta(pick.name));
 		jQuery(this.output).wiki(pick.content);
-		DOL.Stack.pop();
+		ExecutionContext.instance.callStack.pop();
 	},
 });

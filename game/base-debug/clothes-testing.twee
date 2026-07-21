@@ -59,6 +59,7 @@
 			fringePosition: "back",
 			breastSize: 0,
 			penisSize: "none",
+			penisArousal: "soft",
 			penisVirgin: "virgin",
 			ballsExist: true,
 			bellySize: 0,
@@ -331,7 +332,7 @@
 
 <<widget "clothesTestingBodyControls">>
 	<h4>Body</h4>
-	<<set _penisSize to {"None":"none","Micro":"-2", "Mini":"-1", "Tiny":"0", "Small":"1", "Normal":"2", "Large":"3", "Enormous":"4"}>>
+	<<set _penisSize to {"None":"none","Micro":"0", "Mini":"1", "Tiny":"2", "Small":"3", "Normal":"4", "Large":"5", "Enormous":"6"}>>
 	<<set _breastNames to ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"]>>
 	<<set _liquidNames to ["None","Drops","Some","Lots","Dripping","Overflowing"]>>
 	<<link "Reset">>
@@ -339,6 +340,7 @@
 		<<set $characterViewer.skinColour.type to "light">>
 		<<set $characterViewer.skinColour.range to 0>>
 		<<set $characterViewer.bodyState.penisSize to "none">>
+		<<set $characterViewer.bodyState.penisArousal to "soft">>
 		<<set $characterViewer.bodyState.penisVirgin to "virgin">>
 		<<set $characterViewer.bodyState.ballsExist to true>>
 		<<set $characterViewer.bodyState.breastSize to 0>>
@@ -363,6 +365,7 @@
 		<<set $characterViewer.skinColour.type to ["light", "medium", "dark", "gyaru", "rlight", "rmedium", "rdark", "rgyaru", "ylight", "ymedium", "ydark", "ygyaru", "glight", "gmedium", "gdark", "ggyaru", "blight", "bmedium", "bdark", "bgyaru"].random()>>
 		<<set $characterViewer.skinColour.range to random(0, 100)>>
 		<<set $characterViewer.bodyState.penisSize to Object.values(_penisSize).random()>>
+		<<set $characterViewer.bodyState.penisArousal to ["soft", "hard"].random()>>
 		<<set $characterViewer.bodyState.penisVirgin to ["virgin", "default"].random()>>
 		<<set $characterViewer.bodyState.ballsExist to !random(1)>>
 		<<set $characterViewer.bodyState.breastSize to random(0, _breastNames.length - 1)>>
@@ -435,8 +438,14 @@
 			<<print '<<radiobutton "$characterViewer.bodyState.penisSize" "'+_penisSize[_keys[_i]]+'" ' + ($characterViewer.bodyState.penisSize is _penisSize[_keys[_i]] ? "checked" : "") + '>>'>>
 		</label> |
 	<</for>>
-
 	<br><br>
+
+	<span class="gold">Penis Arousal</span>
+	<br>
+	<label>Soft <<radiobutton "$characterViewer.bodyState.penisArousal" "soft" autocheck>></label> |
+	<label>Hard <<radiobutton "$characterViewer.bodyState.penisArousal" "hard" autocheck>></label> |
+	<br><br>
+
 	<span class="gold">Penis Virginity</span>
 	<br>
 	<label>Virgin <<radiobutton "$characterViewer.bodyState.penisVirgin" "virgin" autocheck>></label> |
@@ -931,7 +940,7 @@
 			angelWingsRightType:["idle", "cover"].random(),
 			angelWingsLayer:["front", "back"].random(),
 			fallenAngelHalo:["hidden", "default", "traditional", "celestial-gold", "celestial-black", "celestial-fallenplus"].random(),
-			fallenAngelWings:["hidden", "default", "classic", "fallenplus", "classicfallenplus"].random(),
+			fallenAngelWings:["hidden", "default", "classic", "fallenplus", "classic-fallenplus"].random(),
 			fallenAngelWingsLeftType:["idle", "cover"].random(),
 			fallenAngelWingsRightType:["idle", "cover"].random(),
 			fallenAngelWingsLayer:["front", "back"].random(),
@@ -955,7 +964,7 @@
 			catTailType:["idle", "cover"].random(),
 			cowHorns:["hidden", "default"].random(),
 			cowHornsLayer:["front", "back"].random(),
-			cowEars:["hidden", "default", "spotted black", "spotted brown"].random(),
+			cowEars:["hidden", "default", "spotted-black", "spotted-brown"].random(),
 			cowTail:["hidden", "default", "black"].random(),
 			cowTailLayer:["front", "back"].random(),
 			birdEyes:["hidden", "default"].random(),
@@ -1026,7 +1035,7 @@
 		<<option "Default" "default">>
 		<<option "Classic" "classic">>
 		<<option "Feathered" "fallenplus">>
-		<<option "Classic Feathered" "classicfallenplus">>
+		<<option "Classic Feathered" "classic-fallenplus">>
 	<</listbox>>
 	||
 	Halo:
@@ -1186,8 +1195,8 @@
 	<<listbox "$characterViewer.bodyState.cowEars" autoselect>>
 		<<option "Hide" "hidden">>
 		<<option "Default" "default">>
-		<<option "Spotted black" "spotted black">>
-		<<option "Spotted brown" "spotted brown">>
+		<<option "Spotted black" "spotted-black">>
+		<<option "Spotted brown" "spotted-brown">>
 	<</listbox>>
 	||
 	Tail:
@@ -1336,10 +1345,11 @@
 	<</switch>>
 	<<set _modeloptions.crotch_visible to $characterViewer.bodyState.penisSize !== "none">>
 	<<set _modeloptions.crotch_exposed to $characterViewer.bodyState.penisSize !== "none">>
-	<<set _modeloptions.penis to $characterViewer.bodyState.penisSize !== "none" ? $characterViewer.bodyState.penisVirgin : "">>
-	<<set _modeloptions.penis_size to $characterViewer.bodyState.penisSize !== "none" ? $characterViewer.bodyState.penisSize : "">>
-	<<set _modeloptions.balls to $characterViewer.bodyState.ballsExist>>
-
+	<<if $characterViewer.bodyState.penisSize !== "none">>
+		<<set _modeloptions.penis_size to $characterViewer.bodyState.penisSize>>
+		<<set _modeloptions.balls to $characterViewer.bodyState.ballsExist>>
+		<<set _modeloptions.penis to $characterViewer.bodyState.penisArousal + "-" + ($characterViewer.bodyState.penisVirgin is "virgin" ? "virgin-" : "") + _modeloptions.penis_size>>
+	<</if>>
 	<<set _modeloptions.belly to $characterViewer.bodyState.bellySize>>
 
 	/*Skin & tan*/
@@ -1402,7 +1412,7 @@
 	<</if>>
 
 	/*Fluid*/
-	<<set _baseArray to ["", "Start", "VerySlow", "Slow", "Fast", "VeryFast"]>>
+	<<set _baseArray to ["", "start", "very-slow", "slow", "fast", "very-fast"]>>
 	<<set _modeloptions.drip_vaginal to _baseArray[$characterViewer.bodyState.vaginaCum]>>
 	<<set _modeloptions.drip_anal to _baseArray[$characterViewer.bodyState.anusCum]>>
 	<<set _modeloptions.drip_mouth to _baseArray[$characterViewer.bodyState.mouthCum]>>
@@ -1424,7 +1434,7 @@
 	<<if _modeloptions.worn.handheld.index>>
 		<<set _modeloptions.arm_right to "hold">>
 	<<else>>
-		<<run delete _modeloptions.arm_right>>
+		<<set _modeloptions.arm_right to $characterViewer.bodyState.rightArmCovering ? "cover" : "idle">>
 	<</if>>
 
 	/*tf*/

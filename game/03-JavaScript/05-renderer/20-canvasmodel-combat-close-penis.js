@@ -123,7 +123,7 @@ const combatClosePenis = {
 				return (
 					!!options.showPenis &&
 					!!V.player.ballsExist &&
-					V.player.gender === "m" &&
+					V.player.sex === "m" &&
 					(V.parasite.clit.name === "parasite" || V.parasite.penis.name === "parasite") &&
 					["mixed", "impregnation"].includes(V.earSlime.focus)
 				);
@@ -139,7 +139,7 @@ const combatClosePenis = {
 				return `${options.src}penis/${options.position}/${options.chastity}.png`;
 			},
 			showfn(options) {
-				return !!options.showPenis && !!playerChastity();
+				return !!options.showPenis && !!playerChastity() && !playerHasStrapon();
 			},
 			animationfn(options) {
 				return options.animKeyPenis;

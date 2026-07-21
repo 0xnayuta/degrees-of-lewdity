@@ -15,26 +15,312 @@ const statChange = (() => {
 			}`
 		);
 	}
+	// Overflow (Clamp) Code Section
 
-	function trauma(amount) {
-		if (isNaN(amount)) paramError("trauma", "amount", amount, "Expected a number.");
+	/**
+	 * Alcohol ($drunk) has a maximum value of 1,000.
+	 *
+	 * Fatigue ($tiredness) has a maximum value of 2,000.
+	 * Trauma ($trauma) has a maximum value of 5,000.
+	 *
+	 * Conversion rates for excess alcohol are:
+	 * 1 $drunk ==> 1 $tiredness
+	 * 1 $drunk ==> 0.25 $trauma
+	 *
+	 * Trauma gains increase up to 100% at low $control.
+	 *
+	 * 1 bottle of alcohol gives 60 $drunk. At max $drunk, this overflows into:
+	 * 60 $tiredness (1 hour of time)
+	 * 15-30 $trauma.
+	 */
+	function alcoholClamp() {
+		// Overflow check
+		const overflow = V.drunk - 1000;
+		if (overflow > 0) {
+			// Add 100% of the overflow to fatigue.
+			V.tiredness += overflow;
+
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / 1000;
+
+			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.25 * controlMod;
+		}
+
+		// Clamps for safety.
+		V.drunk = Math.clamp(V.drunk, 0, 1000);
+		fatigueClamp(); // Calls stressClamp() and traumaClamp()
+	}
+	DefineMacro("alcoholClamp", alcoholClamp);
+
+	/**
+	 * Fatigue ($tiredness) has a maximum value of 2,000.
+	 *
+	 * Stress ($stress) has a maximum value of 10,000.
+	 * Trauma ($trauma) has a maximum value of 5,000.
+	 *
+	 * Conversion rates for excess fatigue are:
+	 * 1 $tiredness ==> 15 $stress
+	 * 1 $tiredness ==> 0.25 $trauma
+	 *
+	 * Trauma gains increase up to 100% at low $control.
+	 *
+	 * 1 bottle of alcohol can overflow into 60 $tiredness and 15-30 $trauma. At max $tiredness, this overflows into:
+	 * 900 $stress
+	 * 30-60 $trauma.
+	 */
+	function fatigueClamp() {
+		// Overflow check
+		const overflow = V.tiredness - 2000;
+		if (overflow > 0) {
+			// Add 15x the overflow to the player's stress.
+			V.stress += overflow * 15;
+
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / 1000;
+
+			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.25 * controlMod;
+		}
+
+		// Clamps for safety.
+		V.tiredness = Math.clamp(V.tiredness, 0, 2000);
+		stressClamp(); // Calls traumaClamp()
+	}
+	DefineMacro("fatigueClamp", fatigueClamp);
+
+	/**
+	 * Stress ($stress) has a maximum value of 10,000.
+	 *
+	 * Trauma ($trauma) has a maximum value of 5,000.
+	 *
+	 * Conversion rates for excess stress are:
+	 * 1 $stress ==> 0.01 $trauma
+	 *
+	 * Trauma gains increase up to 100% at low $control.
+	 *
+	 * 1 bottle of alcohol can overflow into 900 $stress and 30-60 $trauma. At max $stress, this overflows into:
+	 * 39-78 $trauma.
+	 *
+	 * Fallen Angel TF's at 0 Purity and Demon TF's at >0 Purity gain 10,000 $stress at midnight. At max $stress, this overflows into:
+	 * 100-200 $trauma.
+	 *
+	 * Under these conditions, PC's with 0 $control can technically max out their $trauma after 25 days.
+	 */
+	function stressClamp() {
+		// Overflow check
+		const overflow = V.stress - V.stressmax;
+		if (overflow > 0) {
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / 1000;
+
+			// Add 1-2% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.01 * controlMod;
+		}
+
+		// Clamps for safety.
+		V.stress = Math.clamp(V.stress, 0, V.stressmax);
+		traumaClamp();
+	}
+	DefineMacro("stressClamp", stressClamp);
+
+	/**
+	 * Trauma ($trauma) has a maximum value of 5,000.
+	 *
+	 * Beauty ($beauty) has a maximum value of 10,000.
+	 *
+	 * Conversion rates for excess trauma are:
+	 * 1 $trauma ==> -0.2 $beauty
+	 *
+	 * 1 bottle of alcohol can overflow into 39-78 $trauma. At max $trauma, this overflows into:
+	 * -7.8-15.6 $beauty.
+	 *
+	 * A regular PC can technically drink 2,000 (fatigue) / 60 (alcohol) = 33 bottles of alcohol before their $tiredness overflows into $stress. After their $tiredness overflows, they can drink 11 more bottles before they pass out from the $stress overflow.
+	 *
+	 * If the PC starts drinking at maximum alcohol, minimum fatigue, minimum stress, maximum trauma, and minimum control, they will be able to drink 44 bottles before passing out. This translates to 44 * 75 = 3,300 $trauma, which would overflow into -660 beauty.
+	 *
+	 * That is, a PC under those circumstances can theoretically reduce their beauty by 6.6% each day without passing out. In comparison, a PC at maximum trauma loses a maximum of 1% beauty at the start of each day.
+	 *
+	 * Fallen Angel TF's at 0 Purity and Demon TF's at >0 Purity gain 10,000 $stress at midnight. At max $stress and $trauma, this overflows into:
+	 * -20-40 $beauty.
+	 */
+	function traumaClamp() {
+		// Innocence check
+		if (V.innocencestate === 1 && V.trauma > 0) {
+			V.innocencetrauma += V.trauma;
+			V.trauma = 0;
+		}
+
+		// Overflow check
+		const overflow = V.trauma - V.traumamax;
+		if (overflow > 0) {
+			// Remove 20% of the overflow from the player's beauty.
+			V.beauty -= overflow * 0.2;
+		}
+
+		// Clamps for safety.
+		V.trauma = Math.clamp(V.trauma, 0, V.traumamax);
+	}
+	DefineMacro("traumaClamp", traumaClamp);
+
+	// Overflow-Using Code Section
+
+	function alcohol(amount) {
+		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		/**
+		 * Modify the effect of alcohol on the player, based on their alcohol tolerance.
+		 *
+		 * Note that their tolerance only changes how much they're IMPACTED by alcohol consumption. A heavyweight may be able to drink more than a lightweight, but their bodies will still flush out alcohol at the same rate.
+		 *
+		 * Because of that, V.alcoholMod is applied to both positive and negative changes to the player's alcohol level.
+		 */
+		let mod = V.alcoholMod;
+
+		/**
+		 * The "Dendrophile" trait amplifies the impact of alcohol consumption, without affecting how quickly the player
+		 * recovers.
+		 */
+		if (V.backgroundTraits.includes("plantlover") && amount > 0) mod *= 1.5;
+
+		V.drunk += amount * mod;
+
+		alcoholClamp();
+	}
+	DefineMacro("alcohol", alcohol);
+
+	function tiredness(amount, source) {
+		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+
+		// See "game\03-JavaScript\weather\02-main\02-body-temperature.js" for the effects of body temperature on fatigue.
+
+		// For increases to the player's fatigue. Theoretical maximum increase is 50% + 100% + 200% = 350% increased fatigue.
+		let fatigueMod = 1;
+		if (amount > 0) {
+			// Wearing clothing with the "Heavy" trait increases the player's fatigue gains by 50%.
+			if ((V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
+				fatigueMod += 0.5;
+			}
+
+			/**
+			 * Calculate the overflow value as heel_reveal - feetskill. The current minimum and maximum values are 0-1,000.
+			 *
+			 * All fatigue gains will be increased by up to 100%, depending on the overflow value.
+			 */
+			if (V.worn.feet.reveal > currentSkillValue("feetskill") && V.worn.feet.type.includes("heels")) {
+				fatigueMod += (V.worn.feet.reveal - currentSkillValue("feetskill")) / 1000;
+			}
+
+			// The player's body temperature being too high will increase their fatigue gains by up to 200%
+			fatigueMod += Weather.BodyTemperature.fatigueModifier - 1;
+		}
+
+		// The passage of time changes the player's fatigue by 0.05% = 1 $tiredness per point.
+		if (source === "pass") {
+			V.tiredness += amount * fatigueMod;
+		}
+		// Positive amounts increase the player's fatigue by 0.75% = 15 $tiredness per point.
+		else if (amount > 0) {
+			V.tiredness += amount * 15 * fatigueMod;
+		}
+		// Negative amounts decrease the player's fatigue by 1% = 20 $tiredness per point.
+		else if (amount < 0) {
+			V.tiredness += amount * 20 * fatigueMod;
+		}
+
+		fatigueClamp();
+	}
+	DefineMacro("tiredness", tiredness);
+
+	function stress(amount, multiplierOverride) {
+		if (isNaN(amount)) paramError("stress", "amount", amount, "Expected a number.");
+		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
+		amount = Number(amount);
+		multiplierOverride = Number(multiplierOverride);
+		if (amount) {
+			if (multiplierOverride) {
+				V.stress += amount * multiplierOverride;
+			} else if (amount < 0) {
+				// if stress is being lowered, and a custom multiplier was not provided, multiply it by 80
+				V.stress += amount * 80;
+			} else {
+				let stressMod;
+				if (V.drunk <= 0) {
+					stressMod = 40;
+				} else {
+					const drunkMod = Math.clamp(V.drunk / 120, 0, 4);
+					stressMod = 30 - drunkMod * 5;
+				}
+				V.stress += amount * stressMod;
+			}
+		}
+		stressClamp();
+	}
+	DefineMacro("stress", stress);
+
+	function trauma(amount, source) {
+		if (isNaN(amount)) return paramError("trauma", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
+			let traumaMod = 1;
 			if (amount >= 0) {
-				let traumaMod = 1;
-
+				// Reduce the PC's trauma gains by 0.7x if they have the "Fucktoy" / "Survivor" trait
 				if (V.rapetrait) traumaMod *= 0.7;
+				// Reduce the PC's trauma gains by 0.7x if they have the "Bitch" / "Tamer" trait while being fucked by beasts.
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
+				// Reduce the PC's trauma gains by 0.7x if they have the "Prey" / "Witch" trait while being fucked by tentacles.
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
 
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc(((amount * 3) - ((amount * 1.5) * (V.control / V.controlmax))) * traumaMod)
+				// Increase trauma gains by up to 2x if the player is at low control.
+				const controlMod = 2 - V.control / V.controlmax;
+
+				// +1 point of "amount" = +1.5 points of $trauma. Amplified by "traumaMod" and "controlMod".
+				V.trauma += amount * 1.5 * traumaMod * controlMod;
 			} else {
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc((amount * 3) + ((amount * 1.5) * (V.control / V.controlmax)));
+				// Increase the PC's trauma losses by 2x if they are at the Asylum or the Hospital, but not during combat.
+				if (["asylum", "hospital"].includes(V.location) && source !== "combat") traumaMod *= 2;
+
+				// Increase trauma losses by up to 2x if the player is at high control.
+				const controlMod = 1 + V.control / V.controlmax;
+
+				// -1 point of "amount" = -1.5 points of $trauma. Amplified by "traumaMod" and "controlMod".
+				V.trauma += amount * 1.5 * traumaMod * controlMod;
 			}
 		}
 
+		traumaClamp();
+		if (source !== "combat") {
+			updatePlayerTraumaState();
+			updateHallucinations();
+		}
+	}
+	DefineMacro("trauma", trauma);
+
+	function combattrauma(amount) {
+		if (isNaN(amount)) paramError("combattrauma", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			if (amount > 0) {
+				trauma(amount / 2, "combat");
+			} else {
+				trauma(amount);
+			}
+		}
+	}
+	DefineMacro("combattrauma", combattrauma);
+
+	function straighttrauma(amount) {
+		if (isNaN(amount)) paramError("straighttrauma", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			V.trauma += amount;
+			traumaClamp();
+		}
+	}
+	DefineMacro("straighttrauma", straighttrauma);
+
+	function updatePlayerTraumaState() {
 		V.sleeptrouble = V.trauma >= 1 ? 1 : 0;
 		V.nightmares = V.trauma >= (V.traumamax / 10) * 1 ? 1 : 0;
 
@@ -56,61 +342,15 @@ const statChange = (() => {
 			V.panicattacks = 0;
 		}
 
-		updateHallucinations();
-
-		if (V.trauma >= V.traumamax) {
+		if (V.trauma >= (V.traumamax / 10) * 9.5) {
 			V.dissociation = 2;
-		} else if (V.trauma >= (V.traumamax / 10) * 9) {
+		} else if (V.trauma >= (V.traumamax / 10) * 8.5) {
 			V.dissociation = 1;
 		} else {
 			V.dissociation = 0;
 		}
-
-		traumaClamp();
 	}
-	DefineMacro("trauma", trauma);
-
-	function combattrauma(amount) {
-		if (isNaN(amount)) paramError("combattrauma", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount) {
-			if (amount >= 0) {
-				let traumaMod = 1;
-
-				if (V.rapetrait) traumaMod *= 0.7;
-				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
-				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
-
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
-			} else {
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc((amount * 1) + ((amount * 0.5) * (V.control / V.controlmax)));
-			}
-			traumaClamp();
-		}
-	}
-	DefineMacro("combattrauma", combattrauma);
-
-	function straighttrauma(amount) {
-		if (isNaN(amount)) paramError("straighttrauma", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount) {
-			V.trauma += amount;
-			traumaClamp();
-		}
-	}
-	DefineMacro("straighttrauma", straighttrauma);
-
-	function traumaClamp() {
-		if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
-		if (V.innocencestate === 1 && V.trauma > 0) {
-			V.innocencetrauma += V.trauma;
-			V.trauma = 0;
-		}
-		V.trauma = Math.clamp(V.trauma, 0, V.traumamax);
-	}
-	DefineMacro("traumaclamp", traumaClamp);
+	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 
 	function updateHallucinations() {
 		if (
@@ -137,17 +377,21 @@ const statChange = (() => {
 	function control(amount, combat) {
 		if (isNaN(amount)) paramError("control", "amount", amount, "Expected a number.");
 		if (V.gamemode === "soft") {
+			// everything is a consensual consensual roleplay
 			V.control = V.controlmax;
 			V.controlled = 1;
 			return;
 		}
 		amount = Number(amount);
-		if (amount) {
-			V.control += amount * 10;
-			if (combat && V.control >= V.controlstart) V.control = V.controlstart;
-			else if (V.controlstart < V.control) V.controlstart = Math.min(V.control, V.controlmax);
-			V.controlled = V.control >= (V.controlmax / 5) * 2 ? 1 : 0;
-		}
+
+		// halve control gains outside of combat
+		if (amount > 0 && !V.combat) amount /= 2;
+		V.control += amount * 10;
+		// if you're looking here to fix a bug where an action that should increase control in combat actually lowers it instead - check State.history/State.expired for the combat start passage and look for a missing <<controlloss>> that failed to set $controlstart to the right value
+		if (combat && V.control >= V.controlstart) V.control = V.controlstart;
+		else if (!combat) V.controlstart = Math.min(V.control, V.controlmax);
+		const threshold = V.controltrait ? V.controlmax / 3 : V.controlmax / 2;
+		V.controlled = V.control > threshold ? 1 : 0;
 		V.control = Math.clamp(V.control, 0, V.controlmax);
 	}
 	DefineMacro("control", amount => control(amount));
@@ -172,10 +416,10 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
-			if (V.cow >= 6) amount *= 2;
+			if (V.cow >= 6) amount *= 1.25;
 
 			/* Prevents those who can only have "female climax" increase their cum volume */
-			if (V.player.penissize > -2 || amount <= 0) V.semen_volume += amount;
+			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount;
 
 			V.semen_volume = Math.clamp(V.semen_volume, 0, V.semen_max);
 		}
@@ -197,7 +441,7 @@ const statChange = (() => {
 		if (amount) {
 			if (amount > 0) lactationPressure(V.cow >= 6 ? 2 : 1);
 			if (V.lactating) {
-				if (V.cow >= 6) amount *= 2;
+				if (V.cow >= 6) amount *= 1.25;
 				V.milk_volume = Math.clamp(V.milk_volume + amount, 24, V.milk_max);
 			}
 		}
@@ -233,30 +477,21 @@ const statChange = (() => {
 	}
 	DefineMacro("lactation_pressure", lactationPressure);
 
-	function stress(amount, multiplierOverride) {
-		if (isNaN(amount)) paramError("stress", "amount", amount, "Expected a number.");
-		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
+	/* See wolfDefiant in twee-config for information */
+	function wolfDefiant(amount) {
+		if (isNaN(amount)) paramError("wolfDefiant", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		multiplierOverride = Number(multiplierOverride);
 		if (amount) {
-			if (multiplierOverride) {
-				V.stress += amount * multiplierOverride;
-			} else if (amount < 0) {
-				// if stress is being lowered, and a custom multiplier was not provided, multiply it by 80
-				V.stress += amount * 80;
-			} else {
-				let stressMod;
-				if (V.drunk <= 0) {
-					stressMod = 40;
-				} else {
-					const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
-					stressMod = 30 - drunkMod * 5;
+			if (V.wolfgirl >= 6) {
+				stress(-6);
+				if (V.submissive > amount) {
+					trauma(30);
+					control(-10);
 				}
-				V.stress += amount * stressMod;
 			}
 		}
 	}
-	DefineMacro("stress", stress);
+	DefineMacro("wolfDefiant", wolfDefiant);
 
 	function sensitivity(amount, key) {
 		if (isNaN(amount)) paramError("sensitivity", "amount", amount, "Expected a number.");
@@ -358,16 +593,16 @@ const statChange = (() => {
 			}
 
 			// Adjusts modifier for body part sensitivity, if applicable
+			// Sensitivity 4: 2x arousal multiplier
+			// Sensitivity 3: 1.66x arousal multiplier
+			// Sensitivity 2: 1.33x arousal multiplier
+			// Sensitivity 1: 1x arousal multiplier (default)
 			if (amount > 0) {
-				let sensitivityMod = (sensitivity - 1) ** 2 / 4;
-				// Halve sensitivity boosts during chef job
-				// todo: rebalance chef job better
-				if (V.masturbation_bowl) sensitivityMod /= 2;
-				mod += sensitivityMod;
+				mod *= 1 + (sensitivity - 1) / 3;
 			}
 
 			// Reduce the mod if masturbating while in heat and/or rut
-			if (source && source.includes("masturbation")) {
+			if (source?.includes("masturbation")) {
 				mod *= 1 - Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, 4000) / 5000;
 			}
 
@@ -402,18 +637,6 @@ const statChange = (() => {
 
 		return Math.clamp(result, 0, 5000);
 	}
-
-	function tiredness(amount, source) {
-		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount > 0 && (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
-			amount *= 1.5;
-		}
-		if (amount) {
-			V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20));
-		}
-	}
-	DefineMacro("tiredness", tiredness);
 
 	function pain(amount, modifier = 4) {
 		if (isNaN(amount)) paramError("pain", "amount", amount, "Expected a number.");
@@ -676,25 +899,25 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			switch (V.player.penissize) {
-				case 4:
+				case 6:
 					insecurity("penis_big", amount);
 					return statDisplay.ginsecurity("penis_big");
-				case 3:
+				case 5:
 					if (V.player.gender !== "m") {
 						insecurity("penis_big", amount);
 						return statDisplay.ginsecurity("penis_big");
 					}
 					break;
-				case 1:
+				case 3:
 					insecurity("penis_small", amount);
 					return statDisplay.ginsecurity("penis_small");
-				case 0:
+				case 2:
 					insecurity("penis_small", Math.floor(amount * 1.5));
 					return statDisplay.ginsecurity("penis_small");
-				case -1:
+				case 1:
 					insecurity("penis_small", Math.floor(amount * 2));
 					return statDisplay.ginsecurity("penis_small");
-				case -2:
+				case 0:
 					insecurity("penis_small", Math.floor(amount * 2.5));
 					return statDisplay.ginsecurity("penis_small");
 			}
@@ -726,8 +949,8 @@ const statChange = (() => {
 
 		return [
 			{
-				penis_small: V.player.penisExist && V.player.penissize <= 1,
-				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 4 : 3),
+				penis_small: V.player.penisExist && V.player.penissize <= 3,
+				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 6 : 5),
 				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
 				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
 				pregnancy: playerBellySize() >= 8,
@@ -809,16 +1032,16 @@ const statChange = (() => {
 		if (amount > 0) {
 			let type;
 			switch (V.player.penissize) {
-				case 4:
+				case 6:
 					type = "penis_big";
 					break;
-				case 3:
+				case 5:
 					if (V.player.gender !== "m") type = "penis_big";
 					break;
+				case 3:
+				case 2:
 				case 1:
 				case 0:
-				case -1:
-				case -2:
 					type = "penis_small";
 					break;
 			}
@@ -895,7 +1118,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("livestockObey", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.livestock_obey = Math.clamp((V.livestock_obey || 0) + amount, 0, 100);
+			V.livestock.obey = Math.clamp((V.livestock.obey || 0) + amount, 0, 100);
 		}
 	}
 	DefineMacro("livestock_obey", livestockObey);
@@ -950,7 +1173,11 @@ const statChange = (() => {
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
 		if (amount) {
-			V[type] = Math.clamp(V[type] + amount, 0, V[type + "max"] || 1000);
+			let maxValue = 1000;
+			if (type === "beauty") {
+				maxValue = V.beautymax; // Special-case for the $beautymax value
+			}
+			V[type] = Math.clamp(V[type] + amount, 0, maxValue);
 		}
 	}
 	DefineMacro("oralskill", amount => skill("oralskill", amount));
@@ -985,17 +1212,6 @@ const statChange = (() => {
 	}
 	DefineMacro("locker_suspicion", lockerSuspicion);
 
-	function alcohol(amount) {
-		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount) {
-			let mod = 1;
-			if (V.backgroundTraits.includes("plantlover") && amount > 0) mod = 1.5;
-			V.drunk = Math.clamp(V.drunk + amount * mod, 0, 1000);
-		}
-	}
-	DefineMacro("alcohol", alcohol);
-
 	function drugs(amount) {
 		if (isNaN(amount)) paramError("drugs", "amount", amount, "Expected a number.");
 		amount = Number(amount);
@@ -1015,6 +1231,15 @@ const statChange = (() => {
 		}
 	}
 	DefineMacro("hallucinogen", hallucinogen);
+
+	function lewdity(amount) {
+		if (isNaN(amount)) paramError("lewdity", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			V.daily.stall_lewdity = Math.clamp(V.daily.stall_lewdity + amount, 0, 4);
+		}
+	}
+	DefineMacro("lewdity", lewdity);
 
 	function wet(type, amount) {
 		if (isNaN(amount)) paramError("wet", "amount", amount, "Expected a number.");
@@ -1191,7 +1416,7 @@ const statChange = (() => {
 		if (startTracking) {
 			V.timeStats[source].trackedStart = Time.date.timeStamp;
 		} else if (V.timeStats[source].trackedStart) {
-			// Clamped to 24 hours to prevent crazy values from occuring
+			// Clamped to 24 hours to prevent crazy values from occurring
 			V.timeStats[source].total += Math.clamp(Time.date.timeStamp - V.timeStats[source].trackedStart, 0, 3600 * 24);
 			V.timeStats[source].trackedStart = 0;
 		}
@@ -1213,7 +1438,7 @@ const statChange = (() => {
 			if (timeType === "hour") amount *= 3600;
 			if (timeType === "minute") amount *= 60;
 
-			// Clamped to 24 hours to prevent crazy values from occuring
+			// Clamped to 24 hours to prevent crazy values from occurring
 			V.timeStats[source].total += Math.clamp(amount, 0, 3600 * 24);
 		}
 	}
@@ -1245,7 +1470,7 @@ const statChange = (() => {
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
 			badEndTrackingEnd(lastBadEnd.source, {
 				reason: "unknown",
-				notes: `Not tracked in passage ${V.passage}, likely from an error`,
+				notes: `A bad end started in passage ${V.passage} while the previous bad end was still active. This is an error. Please report this to Vrelnir.`,
 			});
 		}
 
@@ -1269,7 +1494,8 @@ const statChange = (() => {
 		if (!lastBadEnd || lastBadEnd.source !== source || lastBadEnd.trackedEnd) {
 			badEndTracking(source, {
 				reason: "unknown",
-				notes: `Not correctly tracked in passage ${V.passage}, ${V.badEndStats.length ? "likely from an error" : "likely from loading an old save"}`,
+				notes: `No bad end was considered active in ${V.passage} when badEndTrackingEnd was called. This is
+				 ${V.badEndStats.length ? "an error. Please report this to Vrelnir" : "likely due to loading an old save"}.`,
 			});
 			lastBadEnd = V.badEndStats.last();
 		}
@@ -1281,10 +1507,17 @@ const statChange = (() => {
 	DefineMacro("badEndTrackingEnd", (source, optional) => badEndTrackingEnd(source, optional));
 
 	return {
+		alcoholClamp,
+		fatigueClamp,
+		stressClamp,
+		traumaClamp,
+		alcohol,
+		tiredness,
+		stress,
 		trauma,
 		combattrauma,
 		straighttrauma,
-		traumaClamp,
+		updatePlayerTraumaState,
 		updateHallucinations,
 		control,
 		corruption,
@@ -1293,12 +1526,10 @@ const statChange = (() => {
 		milkvolume,
 		milkAmount,
 		lactationPressure,
-		stress,
 		sensitivity,
 		arousal,
 		arousalClamp,
 		minArousal,
-		tiredness,
 		pain,
 		masopain,
 		painClamp,
@@ -1334,7 +1565,6 @@ const statChange = (() => {
 		skill,
 		prof,
 		lockerSuspicion,
-		alcohol,
 		drugs,
 		hallucinogen,
 		wet,

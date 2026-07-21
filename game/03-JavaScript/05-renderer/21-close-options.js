@@ -9,6 +9,7 @@
  * @property {boolean} showPenis
  * @property {boolean} showVagina
  * @property {boolean} showArse
+ * @property {boolean} showMouth
  * @property {"doggy"|"missionary"} position Doggy or missionary position.
  * @property {number|"topdown"} breasts Breast size, or topdown sprites if size >= 8. (May want to add ability to toggle views.)
  * @property {"parasite"|"herm-balls"|"herm-base"} herm Player penis, used in vagina closeup.
@@ -16,6 +17,7 @@
  * @property {object} penis Player penis and penetrated, used in penis closeup.
  * @property {object} anus Player anus and penetrators, used in arse closeup.
  * @property {object} chest Player chest and titjob.
+ * @property {object} mouth Player face and penetrators, used in mouth close up.
  * @property {string} pcPenis Computed sprite for player penis, taking size/chastity/type into account.
  * @property {"beast"|"penis"|"tentacle"} breastsNpc Type of npc giving boobjob.
  * @property {object} filters The filters for layers.
@@ -27,6 +29,9 @@
  * @property {string} animKeyPenis
  * @property {string} animKeyArse
  * @property {string} animKeyChest
+ * @property {string} animKeyMouth
+ * @property {boolean} breastjobDemo Options -> Performance toggle for changing breastjob sprites to topdown view
+ * @property {boolean} topdownDemo Options -> Performance toggle for changing breastjob sprites to topdown view
  */
 
 class CloseCombatMapper {
@@ -40,6 +45,7 @@ class CloseCombatMapper {
 			animKeyPenis: "sex-1f-idle",
 			animKeyArse: "sex-1f-idle",
 			animKeyChest: "sex-1f-idle",
+			animKeyMouth: "sex-1f-idle",
 			filters: {},
 			vagina: {
 				state: "",
@@ -56,6 +62,10 @@ class CloseCombatMapper {
 				npc: "",
 				condom: false,
 				concealed: false,
+			},
+			mouth: {
+				state: "",
+				npc: "",
 			},
 			chastity: false,
 		};
@@ -83,6 +93,7 @@ class CloseCombatMapper {
 		options.showVagina = V.player.vaginaExist && V.worn.under_lower.vagina_exposed === 1 && V.worn.lower.vagina_exposed === 1;
 		options.showChest = combat.isChestActive() || ((V.worn.under_upper.exposed ?? 0) >= 1 && (V.worn.upper.exposed ?? 0) >= 2);
 		options.showArse = V.worn.under_lower.anus_exposed === 1 && V.worn.lower.anus_exposed === 1;
+		options.showMouth = combat.isMouthActive() && !V.worn.face.type.includes("gag");
 
 		// Genitals
 		const penisType = V.player.sex === "f" ? "parasite" : V.player.ballsExist ? "penis" : "herm";
@@ -99,6 +110,9 @@ class CloseCombatMapper {
 		if (V.player.vaginaExist) {
 			CloseCombatMapper.mapClosePenetrators("vagina", options);
 		}
+		if (options.showMouth) {
+			CloseCombatMapper.mapClosePenetrators("mouth", options);
+		}
 		if (V.player.penisExist || playerHasStrapon()) {
 			CloseCombatMapper.mapClosePenis(options);
 		}
@@ -110,14 +124,15 @@ class CloseCombatMapper {
 		const chastityTypes = {
 			"chastity belt": "belt",
 			"gold chastity belt": "belt-gold",
-			"chastity parasite": `parasite-${V.player.penissize + 2}`,
+			"chastity parasite": `parasite-${V.player.penissize}`,
 			"flat chastity cage": "flat",
 			"small chastity cage": "small",
 		};
 		const chastityDevice = playerChastity() ? chastityTypes[V.worn.genitals.name] || "base" : false;
 		options.chastity = `chastity-${chastityDevice}`;
-		if (playerChastity("cage")) {
-			options.chastity = `chastity-cage-${chastityDevice}`;
+		if (playerChastity("cage") && !playerHasStrapon()) {
+			if (V.worn.genitals.name === "chastity parasite") options.penis.concealed = true;
+			else options.chastity = `chastity-cage-${chastityDevice}`;
 			options.penis.size = `chastity-${chastityDevice}`;
 		}
 
@@ -148,12 +163,13 @@ class CloseCombatMapper {
 		}
 
 		// Set animation speed
-		const framesChest = combat.isChestActive("close") ? (V.player.breastsize >= 8 ? 10 : 6) : 1;
+		const framesChest = combat.isChestActive("close") ? (V.player.breastsize >= 8 && V.options.topdownBreastjob ? 10 : 6) : 1;
 		options.animKeyChest = `sex-${framesChest}f-${combat.isChestActive("close") ? CloseCombatMapper.getCloseAnimationSpeed() : "idle"}`;
 
 		options.animKeyVagina = `${combat.isVaginaActive("close") ? CloseCombatMapper.getCloseAnimation() : "sex-1f-idle"}`;
 		options.animKeyArse = `${combat.isAnusActive("close") ? CloseCombatMapper.getCloseAnimation() : "sex-1f-idle"}`;
 		options.animKeyPenis = `${combat.isPenisActive("close") ? CloseCombatMapper.getCloseAnimation() : "sex-1f-idle"}`;
+		options.animKeyMouth = `${combat.isMouthActive("close") ? CloseCombatMapper.getCloseAnimation() : "sex-1f-idle"}`;
 
 		return options;
 	}
@@ -169,7 +185,7 @@ class CloseCombatMapper {
 		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !["horse", "machine"].includes(npc);
 		options[slot] = {};
 
-		/* check $anusstate or $vaginastate */
+		/* check $anusstate, $vaginastate, or $mouthstate */
 		switch (V[slot + "state"]) {
 			case "tentacle":
 			case "tentacledeep":
@@ -206,7 +222,7 @@ class CloseCombatMapper {
 				}
 				break;
 			default:
-				/* anus or vagina is not actively in use */
+				/* anus, vagina, or mouth is not actively in use */
 				options[slot].state = "entrance";
 				options[slot].npc = null;
 		}
@@ -237,7 +253,7 @@ class CloseCombatMapper {
 				/* filters for npc targeting vagina/anus */
 				if (!["horse", "beast-oral", "machine"].includes(options[slot].npc)) {
 					options.filters[`${slot}Npc`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc);
-					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc.condom).colour;
+					options.filters[`${slot}Condom`] = CombatRenderer.getCondomOptions(targetNpc?.condom).colour;
 				}
 			}
 			if (options[slot].npc2) {
@@ -245,7 +261,7 @@ class CloseCombatMapper {
 
 				/* filters for npc double-penetrating vagina/anus */
 				options.filters[`${slot}Npc2`] = NpcCombatMapper.getNpcPenetratorFilter(targetNpc2);
-				options.filters[`${slot}Condom2`] = CombatRenderer.getCondomOptions(targetNpc2.condom).colour;
+				options.filters[`${slot}Condom2`] = CombatRenderer.getCondomOptions(targetNpc2?.condom).colour;
 			}
 		}
 	}
@@ -283,13 +299,13 @@ class CloseCombatMapper {
 			case "otheranusentrance":
 				/* penis preparing to penetrate npc */
 				options.penis.state = "entrance";
-				options.penis.npc = V.enemytype === "beast" && V.monster !== 1 ? "beast" : "npc";
+				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || V.NPCList[V.active_enemy].type === "centaur") ? "beast" : "npc";
 				break;
 			case "penetrated":
 			case "otheranus":
 				/* penis penetrating npc */
 				options.penis.state = "penetrated";
-				options.penis.npc = V.enemytype === "beast" && V.monster !== 1 ? "beast" : "npc";
+				options.penis.npc = V.enemytype === "beast" && (V.monster !== 1 || V.NPCList[V.active_enemy].type === "centaur") ? "beast" : "npc";
 				break;
 			case "othermouth":
 			case "othermouthentrance":
@@ -329,9 +345,9 @@ class CloseCombatMapper {
 	 */
 	static mapCloseChest(options) {
 		const breastsNpc = V.NPCList[V.chesttarget];
-		const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse.toString());
+		const topdown = V.player.breastsize >= 8 && ["penis", "tentacle"].includes(V.chestuse.toString()) && V.options.topdownBreastjob;
 		options.chest = {
-			base: ["penis", "tentacle"].includes(V.chestuse.toString()) ? (V.player.breastsize >= 8 ? "topdown-job" : "base-job") : V.player.breastsize,
+			base: ["penis", "tentacle"].includes(V.chestuse.toString()) ? (topdown ? "topdown-job" : "base-job") : V.player.breastsize,
 			breasts: V.player.breastsize,
 			npc: topdown ? "penis-topdown" : V.enemytype === "beast" ? "beast" : V.chestuse,
 		};

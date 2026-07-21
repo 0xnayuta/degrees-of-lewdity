@@ -15,7 +15,7 @@ You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind
 	<br><br>
 	"Hey," <<he>> says as you draw close. <<He>> sounds distant, and doesn't greet you further. The silence is made more awkward by the lack of customers.
 <<elseif $robinlemonadeintro isnot 1>><<set $robinlemonadeintro to 1>><<set $daily.robin.freeDrink to 1>>
-	<<wearProp "lemonade" 0 "default">>
+	<<wearProp "lemonade">>
 	<br><br>
 	"Hey," <<he>> says as you draw close. <<He>> <<= $robin.stayup is 2 ? "gives you a tired smile, stifling a yawn" : "beams">>. "It's nice to see you. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you the glass. "On the house." It's very sweet.
 <<elseif $robin.stayup is 2>>
@@ -45,7 +45,7 @@ You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind
 
 :: Robin's Lemonade Purchase
 
-<<location "beach">><<effects>><<wearProp "lemonade" 0 "default">>
+<<location "beach">><<effects>><<wearProp "lemonade">>
 <<npc Robin>><<person1>>
 <<money -100 "robin">>
 
@@ -86,11 +86,10 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 
 <<if Time.hour gte 17>>
 	"I need to start carrying my stuff home," Robin says. "Business drops off around now. Could you please help me pack this up?"
-	<<endevent>>
 	<br><br>
-	<<link [[Accept (0:30)|Orphanage]]>><<handheldon>><<npcincr Robin love 1>><<pass 30>><</link>><<glove>>
+	<<link [[Accept (0:30)|Orphanage]]>><<endevent>><<npcincr Robin love 1>><<pass 30>><</link>><<glove>>
 	<br>
-	<<link [[Refuse|Beach]]>><<handheldon>><</link>>
+	<<link [[Refuse|Beach]]>><<endevent>><</link>>
 	<br>
 <<else>>
 	<<lemonade_stand_options>>
@@ -132,7 +131,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 	<<lemonade_stand_options>>
 <<else>>
 	<<He>> smiles<<if _robin.trauma gte 40>> weakly<</if>>.
-	<<if $rng gte 81 and $cow gte 6 and $livestock_intro isnot undefined>>
+	<<if $rng gte 81 and $cow gte 6 and $livestock.intro isnot undefined>>
 		<<if _robin.trauma gte 40>>
 			"I think I'm okay right now, but could you please stay with me?" Robin asks you as <<he>> fidgets.
 		<<else>>
@@ -204,6 +203,54 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 			<<link [[Flirt with potential customers|Robin's Lemonade Flirt]]>><<famebusiness 1>><</link>><<promiscuous2>>
 			<br>
 		<</if>>
+	<<elseif $rng gte 41 and Time.hour gte 9 and Time.hour lte 12 and !$weekly.dorenlemonadebuy>>
+		<<set _dorenlemonade to 10 + Math.floor(Math.random()*21)>>
+
+		<<set $weekly.dorenlemonadebuy to true>>
+		You walk to the other end of the populated part of the beach, and then back to Robin. <<person1>><<Hes>> servicing a familiar face.
+		<br><br>
+		Doren approaches the stall, wearing
+		<<if Time.hour gte 9 and Time.hour lt 10>> /*volunteering*/
+			a hi-vi vest
+		<<elseif Time.hour gte 10 and Time.hour lt 11>> /*playing volleyball*/
+			<<if C.npc.Doren.gender isnot "m">>
+				a <<= either ("bikini","swimsuit")>>.
+			<<else>>
+				a <<= either ("board shorts","speedo")>>.
+			<</if>>
+		<<elseif Time.hour gte 11 and Time.hour lte 12>> /*swimming/surfing*/
+			<<if random(1,2) is 2>>
+				<<set _dorenocean to "surfing">>
+				a wet suit, surfboard tucked under <<his>> arm.
+			<<else>>
+				<<if C.npc.Doren.gender isnot "m">>
+					a <<= either ("bikini","swimsuit")>>.
+				<<else>>
+					a <<= either ("board shorts","speedo")>>.
+				<</if>>
+			<</if>>
+		<</if>>
+		<br><br>
+		<<npc "Doren" 2>><<person2>>
+		"Hiya, Robin! Can I get <<print _dorenlemonade>> cups of lemonade?" <<He>> turns to a group of people behind <<him>>. "We're parched after
+			<<if Time.hour gte 9 and Time.hour lt 10>>
+				picking up trash on the beach."
+			<<elseif Time.hour gte 10 and Time.hour lt 11>>
+				playing volleyball."
+			<<elseif Time.hour gte 11 and Time.hour lte 12>>
+				<<= _dorenocean isnot "surfing" ? "swimming" : "surfing">>."
+			<</if>>
+		<br><br>
+		<<if _robin.trauma gte 40>>
+			"<<print _dorenlemonade>> pounds please, if that's ok."
+		<<else>>
+			"That'll be <<print _dorenlemonade>> pounds please."
+		<</if>>
+		<br><br>
+		"Thanks!" Doren pays Robin before walking off.
+		<<set $robinmoney += _dorenlemonade>>
+		<br><br>
+		<<lemonade_stand_options>>
 	<<elseif $rng gte 21>>
 		<<if _robin.trauma gte 40>>
 			"I'm out of water. I don't want to be alone but could you buy some more?" Robin says nervously. "There's some on High Street that's cheap, but there's some nearby and I don't want you to be away very long..."
@@ -284,8 +331,8 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 				<<link [[Offer your body|Robin's Lemonade Offer]]>><<famegood 3>><<set $daily.robin.policeBody to 1>><</link>>
 				<br>
 			<</if>>
-			<<if $submissive lte 500>>
-				<<link [[Intimidate|Robin's Lemonade Intimidate]]>><<def 1>><</link>><<defianttext>>
+			<<if displayDefiantOption(500)>>
+				<<link [[Intimidate|Robin's Lemonade Intimidate]]>><<wolfDefiant 500>><<def 1>><</link>><<defianttext 500>>
 				<br>
 			<</if>>
 		<<else>>
@@ -306,40 +353,88 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 :: Robin's Lemonade Sign
 
 <<location "beach">><<effects>>
-<<generate2>><<person2>>
 <<set _robin to statusCheck("Robin")>>
 
-You walk to the other end of the populated part of the beach, and then back to Robin. <<person1>><<Hes>> servicing a <<person2>><<person>>.
-<br><br>
-<<if _robin.trauma gte 40>>
-	"One pound please, if that's ok."
-	<br><br>
+<<if random(1,2) is 1 and Time.hour gte 9 and Time.hour lte 12 and !$weekly.dorenlemonadebuy>>
+		<<set _dorenlemonade to 10 + Math.floor(Math.random()*21)>>
 
-	"Here," the <<person>> says. "You interested in making a little extra? I love the shy ones."
-	<br><br>
-
-	Robin's eyes go wide. "No! No, I-I'm alright." <<person1>><<He>> takes a deep breath and tries to hand the <<person2>><<person>> <<his>> lemonade, but
-	<<person1>><<his>> shaking hands slip. Lemonade spills all over the table and on the <<person2>><<personsimple>>'s shoes.
-	<br><br>
-
-	"Hey! Watch it, brat!" the <<person2>><<person>> fumes. Robin flinches and holds <<person1>><<his>> hands over <<his>> face.
-	<br><br>
-
-	Robin notices you as the <<person2>><<person>> storms off. <<person1>><<He>> sniffles but tries to smile at you. "Thanks for helping."
+		<<set $weekly.dorenlemonadebuy to true>>
+		<<npc "Doren" 2>><<person2>>
+		You walk to the other end of the populated part of the beach, and then back to Robin. <<person1>><<Hes>> servicing a familiar face.
+		<br><br>
+		Doren approaches the stall, wearing
+		<<if Time.hour gte 9 and Time.hour lt 10>> /*volunteering*/
+			a hi-vi vest
+		<<elseif Time.hour gte 10 and Time.hour lt 11>> /*playing volleyball*/
+			<<if C.npc.Doren.gender isnot "m">>
+				a <<= either ("bikini","swimsuit")>>.
+			<<else>>
+				a <<= either ("board shorts","speedo")>>.
+			<</if>>
+		<<elseif Time.hour gte 11 and Time.hour lte 12>> /*swimming/surfing*/
+			<<if random(1,2) is 2>>
+				<<set _dorenocean to "surfing">>
+				a wet suit, surfboard tucked under <<his>> arm.
+			<<else>>
+				<<if C.npc.Doren.gender isnot "m">>
+					a <<= either ("bikini","swimsuit")>>.
+				<<else>>
+					a <<= either ("board shorts","speedo")>>.
+				<</if>>
+			<</if>>
+		<</if>>
+		<br><br>
+		"Hiya, Robin! Can I get <<print _dorenlemonade>> cups of lemonade?" <<He>> turns to a group of people behind <<him>>. "We're parched after
+			<<if Time.hour gte 9 and Time.hour lt 10>>
+				picking up trash on the beach."
+			<<elseif Time.hour gte 10 and Time.hour lt 11>>
+				playing volleyball."
+			<<elseif Time.hour gte 11 and Time.hour lte 12>>
+				<<= _dorenocean isnot "surfing" ? "swimming" : "surfing">>."
+			<</if>>
+		<br><br>
+		<<if _robin.trauma gte 40>>
+			"<<print _dorenlemonade>> pounds please, if that's ok."
+		<<else>>
+			"That'll be <<print _dorenlemonade>> pounds please."
+		<</if>>
+		<br><br>
+		"Thanks!" Doren pays Robin before walking off.
+		<<set $robinmoney += _dorenlemonade>>
 <<else>>
-	"That'll be one pound please."
+	<<generate2>><<person2>>
+	You walk to the other end of the populated part of the beach, and then back to Robin. <<person1>><<Hes>> servicing a <<person2>><<person>>.
 	<br><br>
+	<<if _robin.trauma gte 40>>
+		"One pound please, if that's ok."
+		<br><br>
 
-	"Thanks," the <<person>> says. "You interested in making a little extra? I know a quiet place we could go."
-	<br><br>
+		"Here," the <<person>> says. "You interested in making a little extra? I love the shy ones."
+		<br><br>
 
-	Robin looks confused. "But I need my stand in a busy place so people can see it. Thanks for trying to help though."
-	<br><br>
+		Robin's eyes go wide. "No! No, I-I'm alright." <<person1>><<He>> takes a deep breath and tries to hand the <<person2>><<person>> <<his>> lemonade, but
+		<<person1>><<his>> shaking hands slip. Lemonade spills all over the table and on the <<person2>><<personssimple>> shoes.
+		<br><br>
 
-	"No," the <<person>> says. "You know what, forget it."
-	<br><br>
+		"Hey! Watch it, brat!" the <<person2>><<person>> fumes. Robin flinches and holds <<person1>><<his>> hands over <<his>> face.
+		<br><br>
 
-	Robin notices you as the <<person>> leaves.<<person1>> "Business has improved a lot," <<he>> says. "Thank you."
+		Robin notices you as the <<person2>><<person>> storms off. <<person1>><<He>> sniffles but tries to smile at you. "Thanks for helping."
+	<<else>>
+		"That'll be one pound please."
+		<br><br>
+
+		"Thanks," the <<person>> says. "You interested in making a little extra? I know a quiet place we could go."
+		<br><br>
+
+			Robin looks confused. "But I need my stand in a busy place so people can see it. Thanks for trying to help though."
+			<br><br>
+
+		"No," the <<person>> says. "You know what, forget it."
+		<br><br>
+
+		Robin notices you as the <<person>> leaves.<<person1>> "Business has improved a lot," <<he>> says. "Thank you."
+	<</if>>
 <</if>>
 <br><br>
 <<if $arousal gte $arousalmax>>
@@ -379,7 +474,7 @@ You walk to the other end of the populated part of the beach, and then back to R
 		<br><br>
 
 		Robin's eyes go wide. "No! No, I-I'm alright." <<person1>><<He>> takes a deep breath and tries to hand the <<person2>><<person>> <<his>> lemonade, but
-		<<person1>><<his>> shaking hands slip. Lemonade spills all over the table and on the <<person2>><<personsimple>>'s shoes.
+		<<person1>><<his>> shaking hands slip. Lemonade spills all over the table and on the <<person2>><<personssimple>> shoes.
 		<br><br>
 
 		"Hey! Watch it, brat!" the <<person2>><<person>> fumes. Robin flinches and holds <<person1>><<his>> hands over <<his>> face.
@@ -409,7 +504,7 @@ You walk to the other end of the populated part of the beach, and then back to R
 
 <<location "beach">><<effects>>
 <<set _robin to statusCheck("Robin")>>
-<<wearProp "water bottle" 0 "capped">>
+<<wearProp "water bottle">>
 
 You walk to High Street and buy a large bottle of water. You return to the beach.
 <<if _robin.trauma gte 40>>
@@ -469,6 +564,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 <<endevent>><<generate1>><<person1>>
 <<set _robin to statusCheck("Robin")>>
 <<skulduggerycheck>>
+<<wearProp "trolley">>
 
 <<if $skulduggerysuccess is 1>>
 	You enter the shop and start loading up a trolley with large bottles of water. Once done, you pretend to browse and wait. A talkative customer strikes up a conversation with the <<person>> behind the counter, giving you your chance. You push the trolley from the shop.

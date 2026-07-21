@@ -288,8 +288,11 @@ const Skin = (() => {
 		const sunscreenModifier = Skin.Sunscreen.isApplied() ? 0 : 1;
 		// Halved gain if gyaru
 		const skinType = ["gyaru", "rgyaru", "ygyaru", "ggyaru", "bgyaru"].includes(Skin.color.natural) ? 0.3 : 1;
+		// Tanning difficulty, from tans easiest to hardest
+		const gainMultipliers = [5.0, 3.0, 1.0, 0.5, 0.1];
+		const difficultyModifier = gainMultipliers[V.settings.tanningDifficulty ?? 2] ?? 1.0;
 
-		const result = round(sunIntensity * clothingModifier * sunscreenModifier * skinType, 2);
+		const result = round(sunIntensity * clothingModifier * sunscreenModifier * skinType * difficultyModifier, 2);
 
 		return {
 			sun: sunIntensity,
@@ -322,7 +325,7 @@ const Skin = (() => {
 
 		if (V.outside) {
 			const month = modifiers.month <= 0.6;
-			const dayState = Weather.sky.dayFactor <= 0.6;
+			const dayState = Weather.sidebar.dayFactor <= 0.6;
 			const output = month ? Time.monthName : dayState ? "Sun is low" : "weather";
 			if (modifiers.sun <= 0.3) reasons.push(`Low sun intensity (${output})`);
 			else if (modifiers.sun <= 0.7) reasons.push(`Reduced sun intensity (${output})`);

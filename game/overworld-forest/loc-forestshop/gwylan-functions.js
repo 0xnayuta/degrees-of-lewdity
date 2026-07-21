@@ -48,7 +48,7 @@ function gwylanRequest(override = null) {
 	if (window.npcIsPregnant("Gwylan") && V.farm?.woodland >= 2) allPossibleRequests.push(["plums", 5]);
 
 	// Unlockable events
-	if (V.$gwylanSeen?.includes("ritual_beast") >= 5 && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample) < 7)))
+	if (V.gwylanSeen?.includes("ritual_beast") && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample)) < 7))
 		allPossibleRequests.push(["sample", 1]); // Lewd fluid sample
 	/* ToDo: Gwylan - Asking for a sample of the player's fluids
 	if (V.gwylanSeen.includes("cafe_chef_truth") && (!V.gwylan.timer.samplePlayer || V.gwylan.timer.samplePlayer < Time.date.timeStamp))
@@ -62,8 +62,8 @@ function gwylanRequest(override = null) {
 	) {
 		if (V.harpy >= 6 && V.birdFly >= 1) {
 			allPossibleRequests.push(["preen", 2]); // Preen player's wings
-		} else {
-			allPossibleRequests.push(["preen", 1]); // Feathers from GH, more rare since it's harder without TF
+		} else if (!V.avery_mansion || V.avery_fate) {
+			allPossibleRequests.push(["preen", 1]); // Feathers from GH, more rare since it's harder without TF. Do not request this if Avery's mansion is unlocked but before the end of the skyscraper questline to avoid missing dinner, dates, or parties
 		}
 	}
 	if (
@@ -97,7 +97,7 @@ function gwylanRequest(override = null) {
 			// Should always be the first request
 			V.gwylan.request.event = "ingredients";
 			V.gwylan.request.special = "tutorial";
-			V.gwylan.request.items = [{ category: "tending", name: "wolfshroom", type: "shroom", need: 3, root: true }];
+			V.gwylan.request.items = [{ category: "tending", name: "wolfshroom", type: "mushroom", need: 3, root: true }];
 			V.gwylanTutorialShrooms = 0;
 			V.gwylan.request.timer = null;
 			V.gwylan.request.command = true;
@@ -152,7 +152,7 @@ function gwylanRequest(override = null) {
 			return V.gwylan.request;
 		case "preen":
 			V.gwylan.request.event = "preen";
-			V.gwylan.request.items = [{ category: "other", name: "feathers", need: seedrng.randomInt(4, 8) }];
+			V.gwylan.request.items = [{ category: "other", name: "feathers", need: seedrng.randomInt(3, 6) }];
 			V.gwylan.request.timer =
 				V.harpy >= 6 && V.birdFly >= 1 ? new DateTime(Time.date).addDays(1).timeStamp : new DateTime(Time.date).addDays(10).timeStamp; // 10 day timer if no bird tf
 			V.gwylan.request.special = V.harpy >= 6 ? "harpy" : "feathers";
@@ -172,7 +172,7 @@ function gwylanRequest(override = null) {
 			V.gwylan.request.event = "recipe";
 			V.gwylan.request.special = "wolfbrew";
 			V.gwylan.request.items = [
-				{ category: "tending", name: "wolfshroom", type: "shroom", need: 1 },
+				{ category: "tending", name: "wolfshroom", type: "mushroom", need: 1 },
 				{ category: "tending", name: "red_wine", type: "ingredient", need: 1 },
 				{ category: "tending", name: "strange_flower", type: "flower", need: 1 },
 				{ category: "sample", name: "wolf", type: "any", need: 1, have: 0 },
@@ -183,7 +183,7 @@ function gwylanRequest(override = null) {
 			V.gwylan.request.event = "recipe";
 			V.gwylan.request.special = "ghostbrew";
 			V.gwylan.request.items = [
-				{ category: "tending", name: "ghostshroom", type: "shroom", need: 1 },
+				{ category: "tending", name: "ghostshroom", type: "mushroom", need: 1 },
 				{ category: "tending", name: "white_wine", type: "ingredient", need: 1 },
 				{ category: "tending", name: "strange_flower", type: "flower", need: 1 },
 			];
@@ -431,7 +431,7 @@ function gwylanRequestClothes(override) {
 			!(C.npc.Gwylan.lust >= 50 && clothes.reveal < 300)
 	);
 	const roll = clone(possibleClothes.pluck());
-	V.gwylan.request.details.shops = roll.shop;
+	V.gwylan.request.details.shops = roll.shop.filter(shops => availableShops.includes(shops));
 
 	switch (roll.name) {
 		// Full sets
@@ -593,102 +593,196 @@ function gwylanRequestIngredients() {
 		difficulty: 0,
 	};
 
-	// request difficulty
-	let complexity = seedrng.randomInt(1, 4);
-	if (V.gwylan.requestCount >= 3) complexity += 1;
-	if (V.gwylan.requestCount >= 8) complexity += 1;
-	if (V.gwylan.requestCount >= 15) complexity += 1;
-	V.gwylan.request.timer = new DateTime(Time.date).addDays(complexity).timeStamp;
-	V.gwylan.request.details.difficulty = complexity;
-	const ingredientCount = Math.ceil(1 + complexity / 2);
-	const ingredientAmount = seedrng.randomInt(complexity, complexity + 3);
+	// Request difficulty
+	let requestComplexity = seedrng.randomInt(1, 4);
+	if (V.gwylan.requestCount >= 3) requestComplexity += 1;
+	if (V.gwylan.requestCount >= 8) requestComplexity += 1;
+	if (V.gwylan.requestCount >= 15) requestComplexity += 1;
+	V.gwylan.request.timer = new DateTime(Time.date).addDays(requestComplexity).timeStamp;
+	V.gwylan.request.details.difficulty = requestComplexity;
+	const ingredientSlotCount = Math.ceil(1 + requestComplexity / 2);
+	const ingredientBaseAmount = seedrng.randomInt(requestComplexity, requestComplexity + 3);
 
 	// Scripted
 	if (V.gwylan.request.special === "plums") {
-		const plumsNeeded = ingredientAmount * seedrng.randomInt(3, 5);
-		V.gwylan.request.items.push({ category: "tending", name: "plum", type: setup.plants.plum.type, need: plumsNeeded, root: true });
+		const plumsNeeded = ingredientBaseAmount * seedrng.randomInt(3, 5);
+		V.gwylan.request.items.push({
+			category: "tending",
+			name: "plum",
+			type: setup.foodstuff.plum.category,
+			need: plumsNeeded,
+			root: true,
+		});
 		return V.gwylan.request;
 	}
 
 	// Normal
-	const availableLocations = ["forest", "moor"];
-	if (complexity < 6) availableLocations.push("supermarket");
+	const canRequestSupermarketItems = requestComplexity < 6;
 
-	const difficulties = [1];
-	if (complexity > 2) difficulties.push(2);
-	if (complexity > 4) difficulties.push(3);
-	if (complexity > 6) difficulties.push(4);
+	const allowedForageDifficulties = [1];
+	if (requestComplexity > 2) allowedForageDifficulties.push(2);
+	if (requestComplexity > 4) allowedForageDifficulties.push(3);
+	if (requestComplexity > 6) allowedForageDifficulties.push(4);
 
 	const isSeasonEnding = [2, 5, 8, 11].includes(Time.month) && Time.monthDay > Time.lastDayOfMonth - 22;
 	const nextSeason = Time.month > 11 || Time.month < 3 ? "spring" : Time.month > 8 ? "winter" : Time.month > 5 ? "autumn" : "summer";
 
-	const blockedTypes = ["food", "vegetable", "meat", "fish"]; // enable fish once we have a fishing system. Yes, I am serious.
-	const blockedItems = ["pink_rose", "oyster_pearl", "orange"]; // oyster pearl could be a required ingredient for something powerful later?
-	const blockedSources = ["human"];
-	const seedOnly = ["carnation", "daisy", "lotus", "plumeria", "poppy", "strange_flower", "white_rose"]; // items that can only be asked for if the player has their seeds due to remote location or no wild harvest
-	const allowedProduce = ["bird_egg", "wild_honeycomb"];
-	const allowedIngredients = ["red_wine", "salt", "sugar", "vegetable_oil", "white_wine"];
-	if (!V.syndromekylar) blockedItems.push("ghostshroom");
-	if (complexity < 7 || Time.monthDay < Time.lastDayOfMonth - 7) blockedItems.push("blood_lemon"); // let this get selected only within a week of the end of the month
-	if (!V.farm?.woodland || V.farm?.woodland < 2) blockedItems.push("strawberry", "plum", "peach", "truffle");
-	if (!V.town_projects?.thicket || V.town_projects?.thicket < 4) blockedItems.push("blackberry");
-	if (!V.mason_pond || V.mason_pond < 5) blockedItems.push("lotus");
+	const ingredientWhitelist = [
+		{ key: "apple", difficulty: 1 },
+		{ key: "banana", difficulty: 1 },
+		{ key: "bird_egg", difficulty: 1 },
+		{ key: "blackberry", difficulty: 1 },
+		{ key: "blood_lemon", difficulty: 2 },
+		{ key: "carnation", difficulty: 1 },
+		{ key: "cherry", difficulty: 1 },
+		{ key: "daisy", difficulty: 1 },
+		{ key: "date", difficulty: 1 },
+		{ key: "ghostshroom", difficulty: 1 },
+		{ key: "lemon", difficulty: 1 },
+		{ key: "lily", difficulty: 1 },
+		{ key: "lime", difficulty: 1 },
+		{ key: "lotus", difficulty: 2 },
+		{ key: "mushroom", difficulty: 1 },
+		{ key: "orchid", difficulty: 2 },
+		{ key: "peach", difficulty: 1 },
+		{ key: "pear", difficulty: 1 },
+		{ key: "plum", difficulty: 1 },
+		{ key: "plumeria", difficulty: 1 },
+		{ key: "poppy", difficulty: 2 },
+		{ key: "red_rose", difficulty: 1 },
+		{ key: "red_wine", difficulty: 1 },
+		{ key: "salt", difficulty: 1 },
+		{ key: "strange_flower", difficulty: 3 },
+		{ key: "strawberry", difficulty: 1 },
+		{ key: "sugar", difficulty: 1 },
+		{ key: "truffle", difficulty: 4 },
+		{ key: "tulip", difficulty: 1 },
+		{ key: "vegetable_oil", difficulty: 1 },
+		{ key: "white_rose", difficulty: 1 },
+		{ key: "white_wine", difficulty: 1 },
+		{ key: "wild_honeycomb", difficulty: 3 },
+		{ key: "wolfshroom", difficulty: 1 },
+	];
+	const requiresSeeds = ["carnation", "daisy", "lotus", "plumeria", "poppy", "strange_flower", "white_rose"]; // items that can only be asked for if the player has their seeds due to remote location or no wild harvest
 
-	const blockedByTending = [];
-	if (V.tending < 800) blockedByTending.push("wild_honeycomb");
-	if (V.tending < 300) blockedByTending.push("orchid", "wolfshroom");
+	const removeIngredient = ingredientKey => {
+		const index = eligibleIngredientKeys.indexOf(ingredientKey);
+		if (index !== -1) eligibleIngredientKeys.splice(index, 1);
+	};
 
-	const possibleIngredients = Object.keys(setup.plants).filter(
-		ingredient =>
-			difficulties.includes(setup.plants[ingredient].difficulty) &&
-			!blockedTypes.includes(setup.plants[ingredient].type) &&
-			!blockedItems.includes(ingredient) &&
-			!blockedSources.includes(setup.plants[ingredient].bed) &&
-			!(seedOnly.includes(ingredient) && !V.plants_known.includes(ingredient)) &&
-			!(seedOnly.includes(ingredient) && !setup.plants[ingredient].season.includes(Time.season)) &&
-			!(seedOnly.includes(ingredient) && isSeasonEnding && !setup.plants[ingredient].season.includes(nextSeason)) &&
-			!(setup.plants[ingredient].type === "produce" && !allowedProduce.includes(ingredient)) &&
-			!(setup.plants[ingredient].type === "ingredient" && !allowedIngredients.includes(ingredient)) &&
-			!(setup.plants[ingredient].shop?.includes("supermarket") && !availableLocations.includes("supermarket")) &&
-			!blockedByTending.includes(ingredient)
-	);
+	// Remove ingredients that are too difficult
+	const eligibleIngredientKeys = ingredientWhitelist.filter(entry => allowedForageDifficulties.includes(entry.difficulty)).map(entry => entry.key);
 
-	for (let am = 0; am < ingredientCount; am++) {
-		const roll = possibleIngredients.pluck();
-		const setupItem = clone(setup.plants[roll]);
-		if (!possibleIngredients.length) {
+	// Remove ghostshrooms until the you are bffs with kylar
+	if (!V.syndromekylar) {
+		removeIngredient("ghostshroom");
+	}
+
+	// Let blood lemon get selected only within a week of the end of the month, and only on high-complexity requests.
+	if (requestComplexity < 7 || Time.monthDay < Time.lastDayOfMonth - 7) {
+		removeIngredient("blood_lemon");
+	}
+
+	// Remove woodland ingredients until the woodland upgrade is unlocked.
+	if (!V.farm?.woodland || V.farm?.woodland < 2) {
+		removeIngredient("strawberry");
+		removeIngredient("plum");
+		removeIngredient("peach");
+		removeIngredient("truffle");
+	}
+
+	// Remove blackberry until the thicket project is complete.
+	if (!V.town_projects?.thicket || V.town_projects?.thicket < 4) {
+		removeIngredient("blackberry");
+	}
+
+	// Remove lotus until Mason's pond is fully unlocked.
+	if (!V.mason_pond || V.mason_pond < 5) {
+		removeIngredient("lotus");
+	}
+
+	// Remove honeycomb unless bees are enabled.
+	if (V.tending < 800 || !(V.settings.bestialityEnabled && V.settings.beesEnabled)) {
+		removeIngredient("wild_honeycomb");
+	}
+
+	if (V.tending < 300) {
+		removeIngredient("orchid");
+		removeIngredient("wolfshroom");
+	}
+
+	for (const ingredientKey of [...eligibleIngredientKeys]) {
+		// PC must have the seeds for these plants
+		if (requiresSeeds.includes(ingredientKey) && !V.plants_known.includes(ingredientKey)) {
+			removeIngredient(ingredientKey);
+			continue;
+		}
+
+		// Seed-only items must be in-season. If there is no season, then that means it can't be grown, but is still able to be found throuougt the world regardless of season.
+		if (
+			requiresSeeds.includes(ingredientKey) &&
+			setup.foodstuff[ingredientKey].tending?.seasons &&
+			!setup.foodstuff[ingredientKey].tending.seasons.includes(Time.season)
+		) {
+			removeIngredient(ingredientKey);
+			continue;
+		}
+
+		// Near season end, seed-only items must also be available next season
+		if (
+			requiresSeeds.includes(ingredientKey) &&
+			isSeasonEnding &&
+			setup.foodstuff[ingredientKey].tending?.seasons &&
+			!setup.foodstuff[ingredientKey].tending.seasons.includes(nextSeason)
+		) {
+			removeIngredient(ingredientKey);
+			continue;
+		}
+
+		// Supermarket items are only available on lower-complexity requests
+		if (setup.foodstuff[ingredientKey].shop?.available_in?.includes("supermarket") && !canRequestSupermarketItems) {
+			removeIngredient(ingredientKey);
+			continue;
+		}
+	}
+
+	for (let ingredientIndex = 0; ingredientIndex < ingredientSlotCount; ingredientIndex++) {
+		const ingredientKey = eligibleIngredientKeys.pluck();
+		const setupItem = clone(setup.foodstuff[ingredientKey]);
+		if (!eligibleIngredientKeys.length) {
 			if (!V.gwylan.request.items.length) {
 				Errors.report(`[gwylanRequestClothes]: No available tending items found for request!! Defaulting to wolfshrooms.`, {
 					Stacktrace: Utils.GetStack(),
-					roll,
+					roll: ingredientKey,
 				});
-				V.gwylan.request.items.push({ category: "tending", name: "wolfshroom", type: "shroom", need: 3, root: true });
+				V.gwylan.request.items.push({ category: "tending", name: "wolfshroom", type: "mushroom", need: 3, root: true });
 			}
 			break;
 		}
-		if (!setupItem) {
-			Errors.report(`[gwylanRequestClothes]: Invalid tending item requested!`, { Stacktrace: Utils.GetStack(), roll });
-			continue;
+
+		const requestItem = {
+			category: "tending",
+			name: ingredientKey,
+			type: setupItem.category,
+			need: 1,
+		};
+		if (setupItem.shop.available_in?.includes("supermarket")) {
+			const supermarketMaxNeed = Math.trunc(3000 / setup.foodstuff[ingredientKey].shop.sell_price); // supermarket items are set to this every week, so ensure it can't take more than 1 week to complete request
+			const yieldMultiplier = setupItem.tending?.yield_multiplier ?? 1;
+			requestItem.need = Math.clamp(Math.ceil(ingredientBaseAmount * random(yieldMultiplier, yieldMultiplier + 2)), 1, supermarketMaxNeed);
+		} else if (setupItem.name === "wild honeycomb") {
+			requestItem.need = Math.min(requestItem.need, 3);
+		} else if (setupItem.name === "blood lemon") {
+			requestItem.need = Math.min(requestItem.need, 6); // Ensure that it only takes one succesfull pick to complete the blood lemon request. The 6 comes from the min number of blood lemons you can harvest in one succesful attempt.
 		} else {
-			const newItem = {
-				category: "tending",
-				name: roll,
-				type: setupItem.type,
-				need: 0,
-			};
-			if (setupItem.shop?.includes("supermarket")) {
-				const max = Math.trunc(3000 / setup.plants[roll].plant_cost); // supermarket items are set to this every week, so ensure it can't take more than 1 week to complete request
-				newItem.need = Math.clamp(Math.ceil(ingredientAmount * random(setupItem.multiplier, setupItem.multiplier + 2)), 1, max);
-			} else if (setupItem.name === "wild_honeycomb") {
-				newItem.need = Math.ceil(ingredientAmount / 3);
-			} else {
-				newItem.need = ingredientAmount * random(setupItem.multiplier, setupItem.multiplier + 2);
-			}
-			if (!V.gwylan.request.items.some(thing => thing.root)) newItem.root = true;
-			V.gwylan.request.items.push(newItem);
+			const yieldMultiplier = setupItem.tending?.yield_multiplier ?? 1;
+			requestItem.need = ingredientBaseAmount * random(yieldMultiplier, yieldMultiplier + 2);
 		}
+		if (!V.gwylan.request.items.some(thing => thing.root)) requestItem.root = true;
+		V.gwylan.request.items.push(requestItem);
 	}
 }
+window.gwylanRequestIngredients = gwylanRequestIngredients;
 
 function gwylanRequestSample(override) {
 	const seedrng = new PRNG(V.gwylan.requestSeed);
@@ -724,7 +818,7 @@ function gwylanRequestSample(override) {
 			if (["human", "wolf", "fox", "cat", "dog"].includes(chance[0])) {
 				// bias towards repetition, but less as complexity increases
 				chance[1] += V.gwylan.request.items.find(item => item.name === chance[0])?.need * (20 - complexity) || 0;
-			} else if (["plant"].includes(chance[0] && V.settings.tentaclesEnabled)) {
+			} else if (["plant"].includes(chance[0]) && V.settings.tentaclesEnabled) {
 				// heavy repetition bias. if chosen first, very likely to be single group
 				chance[1] += V.gwylan.request.items.find(item => item.name === chance[0])?.need * 60 || 0;
 			} else if (["bear", "boar", "lizard"].includes(chance[0])) {
@@ -754,6 +848,7 @@ function canCollectSamples() {
 	// Check broadly if sample collection is possible
 	if (!V.gwylan?.request?.event) return false;
 	if (!V.gwylan.request.items?.some(item => item.category === "sample")) return false;
+	if (V.statFreeze) return false;
 	if (pcAreArmsBound("both")) {
 		return "bound";
 	}
@@ -776,6 +871,13 @@ function canCollectSampleSingle(species, modifier = null) {
 	if (species === "harpy") speciesCorrected = "hawk";
 	if (species === "human" && V.npc.includes("Ivory Wraith")) return false; // no bustin
 
+	if (!speciesCorrected) {
+		Errors.report(`[canCollectSampleSingle]: speciesCorrected is undefined! Defaulting to human.`, {
+			Stacktrace: Utils.GetStack(),
+			speciesCorrected,
+		});
+		speciesCorrected = "human";
+	}
 	const hasNeededSample = V.gwylan.request.items?.some(item => item.category === "sample" && speciesCorrected.includes(item.name));
 
 	return hasNeededSample;
@@ -812,8 +914,10 @@ function gwylanRequestClothingSlotCheck(slot) {
 		thing =>
 			thing.category === "clothing" &&
 			V.worn[slot].name === thing.name &&
-			(thing.slot !== "upper" || (V.worn[slot].one_piece === 1 && gwylanRequestClothingSlotCheck("lower")) || V.worn[slot].one_piece === 0) &&
-			(thing.colour_requirement === "any" || V.worn[slot].colour === thing.colour_requirement) &&
+			(thing.slot !== "upper" || (V.worn[slot].one_piece === 1 && V.worn.lower.name !== "naked") || V.worn[slot].one_piece === 0) &&
+			(thing.colour_requirement === "any" ||
+				V.worn[slot].colour === thing.colour_requirement ||
+				window.clothesColour(V.worn[slot]) === thing.colour_requirement) &&
 			(thing.acc_colour_requirement === "any" || V.worn[slot].accessory_colour === thing.acc_colour_requirement) &&
 			(thing.pattern_requirement === "any" || V.worn[slot].pattern === thing.pattern_requirement) &&
 			(thing.integrity_requirement === "any" ||
@@ -832,14 +936,14 @@ function gwylanRequestMet() {
 		case "clothing":
 			return V.gwylan.request.items?.every(item => gwylanRequestClothingSlotCheck(item.slot));
 		case "ingredients":
-			return V.gwylan.request.items?.every(item => V.plants[item.name]?.amount >= item.need);
+			return V.gwylan.request.items?.every(item => V.foodstuff[item.name]?.amount >= item.need);
 		case "sample":
 			return V.gwylan.request.items?.every(item => item.have >= item.need);
 		case "recipe":
 			return V.gwylan.request.items?.every(
 				item =>
 					(item.category === "clothing" && gwylanRequestClothingSlotCheck(item.slot)) ||
-					(item.category === "tending" && V.plants[item.name]?.amount >= item.need) ||
+					(item.category === "tending" && V.foodstuff[item.name]?.amount >= item.need) ||
 					(item.category === "sample" && item.have >= item.need)
 			);
 		case "chastity":
@@ -848,7 +952,7 @@ function gwylanRequestMet() {
 				V.gwylan.request.items?.every(
 					item =>
 						(item.category === "clothing" && gwylanRequestClothingSlotCheck(item.slot)) ||
-						(item.category === "tending" && V.plants[item.name]?.amount >= item.need)
+						(item.category === "tending" && V.foodstuff[item.name]?.amount >= item.need)
 				)
 			);
 		default:
@@ -929,7 +1033,7 @@ window.gwylanHypnoMax = gwylanHypnoMax;
 
 function gwylanForestRescueRange() {
 	if (!V.gwylanSeen?.includes("ritual_sex")) return 25;
-	if (V.worn.neck.name === "familiar collar") return 100;
+	if (V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1) return 100;
 	if (V.fox >= 6) return 50;
 	return 25;
 }

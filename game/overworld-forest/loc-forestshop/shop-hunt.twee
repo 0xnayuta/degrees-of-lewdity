@@ -1,6 +1,6 @@
 :: Forest Shop Hunt Widgets [widget]
 
-/* Todo: Gwylan hunt, organize widgets in file so they make sense, not just order they were written */
+/* Todo: Gwylan hunt, organise widgets in file so they make sense, not just order they were written */
 
 <!-- Location special traits:
 		inside:		Player can hide inside. Guarantees successful hide, but they can't see, only hear
@@ -21,7 +21,7 @@
 	Actor states:
 		roam:		picks a random location they haven't been to in the last fifteen turns and pathfinds to it, inherently searching any areas they cross
 		search:		picks a random location they haven't been to in the last fifteen turns and pathfinds to it, inherently searching their area and any bordering areas. Only moves every second turn
-		check:		pathfinds to a specific area. Used for decoys, etc. They can be distracted out of this. Functionally identical to roam, used  to distinguish behavior
+		check:		pathfinds to a specific area. Used for decoys, etc. They can be distracted out of this. Functionally identical to roam, used to distinguish behaviour
 		statue:		picks a random location they haven't been to in the last fifteen turns and pathfinds to it, inherently searching any areas they cross. Does not move if they were close to the player recently
 		march:		pathfinds to a specific area. Can NOT be distracted away until they reach their destination
 		chase:		pathfinds to the area they last saw the target, constantly updating if they see the target again. If the target successfully damages them, they return to roam.
@@ -86,7 +86,7 @@
 				role: the actor's role in the encounter. "enemy", "neutral" or "ally"
 				team: an actor's allegiance. Used for determining when two enemy actors are also enemies with each other or not
 				pronoun: the actor's pronoun used for writing scenes
-				history: a fifteen-turn log of the actor's positions, states, locations and what they found. Used to determine behavior. Do not update to 18 or longer; actor pathfinding relies on there being at least one location that hasn't been visited in the history log
+				history: a fifteen-turn log of the actor's positions, states, locations and what they found. Used to determine behaviour. Do not update to 18 or longer; actor pathfinding relies on there being at least one location that hasn't been visited in the history log
 				seen: things the actor has seen, used to make sure they only trip over certain hazards once, only fall for the hat stand hiding trick once, etc
 				movement: an array of "steps", used to determine the actor's movement. For example, if the first entry is [-1,0], that will be applied to their position to move them north
 				position: the actor's location, as coordinates
@@ -227,7 +227,7 @@
 
 <<widget "shopHuntShuffle">>
 	<<if $shopHunt.shop.shuffle.count gte $shopHunt.shop.shuffle.max and _args[0] isnot "init">>
-		<span class="red">ERROR: shopHuntShuffle called more than max alloted times! Shuffled <<print $shopHunt.shop.shuffle.count + 1>> times in $shopHunt.context event ($shopHunt.shop.shuffle.max shuffles permitted)</span>
+		<span class="red">ERROR: shopHuntShuffle called more than max allotted times! Shuffled <<print $shopHunt.shop.shuffle.count + 1>> times in $shopHunt.context event ($shopHunt.shop.shuffle.max shuffles permitted)</span>
 		<br><br>
 	<</if>>
 
@@ -643,7 +643,8 @@
 			<<set $shopHunt.actors[$_actorNum].team to "eden">>
 			/* Lee Enfield has a 10 round magazine, but Eden has usually fired a few shots before this event. At least 1, up to 3. */
 			<<set $shopHunt.actors[$_actorNum].ammo to random(5, 7)>>
-			<<set $shopHunt.actors[$_actorNum].grip to { min: 4000, max: 10000, step: 3000 }>>
+			<<set $shopHunt.actors[$_actorNum].grip.min to 4000>>
+			<<set $shopHunt.actors[$_actorNum].grip.step to 3000>>
 		<<case "Gwylan">>
 			<<set $shopHunt.actors[$_actorNum].health to 3>>
 			<<set $shopHunt.actors[$_actorNum].name to "Gwylan">>
@@ -1270,6 +1271,7 @@
 				<<set $_areBy to "hide beside">>
 			<<elseif shopHuntMannequinLocs("ambush").includes(_locRaw)>>
 				<<set $_specialEvent to "mannequinAmbush">>
+				<<set $_manId to $shopHunt.actors.find(x => x.state === "ambush" && doArraysMatch(x.position, $shopHunt.player.position)).id>>
 			<<else>>
 				<<set $_areBy to "hide inside">>
 			<</if>>
@@ -1799,7 +1801,7 @@
 						The way the prongs jut out almost makes it look like a flailing person juggling hats.
 					<</if>>
 				<<case "gnarledWall">>
-					Stubby branches stick out, some of which are resoursefully fitted with accessories on display.
+					Stubby branches stick out, some of which are resourcefully fitted with accessories on display.
 				<<case "glowingBox">>
 					You avoid looking directly at it, not wanting to ruin your eyes' adaptation to the dark.
 				<<case "bentUmbrellaStand">>
@@ -2431,28 +2433,28 @@
 						/* Todo: Gwylan hunt, make this work with only one wall image that gets rotated */
 						<<set $_wall to shopHuntBordering([$_x + $_map.xBorder[0], $_y + $_map.yBorder[0]])>>
 						<<if $_wall.north and $shopHunt.player.map[$_x + $_map.xBorder[0] - 1][$_y + $_map.yBorder[0]].seen is 2>>
-							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0] - 1, $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "south" ? "_doorNorth" : "">>
+							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0] - 1, $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "south" ? "-door-north" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos" @y="$_xPos - $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallHorizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
+							<image @x="$_yPos" @y="$_xPos - $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-horizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
 						<</if>>
 						<<if $_wall.south and $shopHunt.player.map[$_x + $_map.xBorder[0] + 1][$_y + $_map.yBorder[0]].seen is 2>>
-							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0] + 1, $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "north" ? "_doorSouth" : "">>
+							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0] + 1, $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "north" ? "-door-south" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos" @y="$_xPos + 28 + $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallHorizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
+							<image @x="$_yPos" @y="$_xPos + 28 + $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-horizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
 						<</if>>
 						<<if $_wall.west and $shopHunt.player.map[$_x + $_map.xBorder[0]][$_y + $_map.yBorder[0] - 1].seen is 2>>
-							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_y + $_map.yBorder[0] - 1]) and $shopHunt.shop.door.side is "east" ? "_doorWest" : "">>
+							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_y + $_map.yBorder[0] - 1]) and $shopHunt.shop.door.side is "east" ? "-door-west" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos - $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallVertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
+							<image @x="$_yPos - $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-vertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
 						<</if>>
 						<<if $_wall.east and $shopHunt.player.map[$_x + $_map.xBorder[0]][$_y + $_map.yBorder[0] + 1].seen is 2>>
-							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_y + $_map.yBorder[0] + 1]) and $shopHunt.shop.door.side is "west" ? "_doorEast" : "">>
+							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_y + $_map.yBorder[0] + 1]) and $shopHunt.shop.door.side is "west" ? "-door-east" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos + 28 + $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallVertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
+							<image @x="$_yPos + 28 + $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-vertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
 						<</if>>
 					<<elseif typeof $_mapLoc is "string">>
 						/* <<set _canMoveTo = $debug || Object.keys(shopHuntBordering("player")).includes($_mapLoc)>> */
@@ -2465,17 +2467,18 @@
 						<<if $_loc.state.includes("fallen")>>
 							<<set $_mapLoc += "_fallen">>
 						<</if>>
+						<<set $_icon to normaliseFileName($_mapLoc)>>
 
 						<<if $_seen is 2>>
-							<image @x="$_yPos" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/' + $_mapLoc + '.png'" width="32" height="32"> </image>
+							<image @x="$_yPos" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/' + $_icon + '.png'" width="32" height="32"> </image>
 						<<else>>
-							<image @x="$_yPos" @y="$_xPos" class="zoomable" xlink:href="img/misc/icon/shopHunt/unknownLocation.png" width="32" height="32"> </image>
+							<image @x="$_yPos" @y="$_xPos" class="zoomable" xlink:href="img/misc/icon/shop-hunt/unknown-location.png" width="32" height="32"> </image>
 						<</if>>
 						<<if shopHuntFind("player") is $_mapLoc>>
-							<image @x="$_yPos" @y="$_xPos" class="zoomable" xlink:href="img/misc/icon/shopHunt/player.png" width="32" height="32"> </image>
+							<image @x="$_yPos" @y="$_xPos" class="zoomable" xlink:href="img/misc/icon/shop-hunt/player.png" width="32" height="32"> </image>
 						<</if>>
 						<<if $_mapLoc is _shopHuntDecoy>>
-							<image @x="$_yPos - 4" @y="$_xPos - 4" class="zoomable" xlink:href="img/misc/icon/shopHunt/overlay_noise.png" width="40" height="40"> </image>
+							<image @x="$_yPos - 4" @y="$_xPos - 4" class="zoomable" xlink:href="img/misc/icon/shop-hunt/overlay-noise.png" width="40" height="40"> </image>
 						<</if>>
 						/* Todo: Gwylan hunt, make icon clicking work. For the life of me I cannot make it work, it either errors out or causes too much recursion even without clicking
 						 * Something to do with <<add_link>> maybe? @onclick="shopHuntMapMove($_mapLoc);"
@@ -2492,14 +2495,14 @@
 							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x, $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "north" ? "_doorNorth" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos" @y="0 - $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallHorizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
+							<image @x="$_yPos" @y="0 - $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-horizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
 						<</if>>
 					<<elseif $_x is $_length>>
 						<<if typeof $_mapLoc is "string" and $_mapLoc isnot "wall" and $shopHunt.player.map[$_length + $_map.xBorder[0]][$_y + $_map.yBorder[0]].seen is 2>>
 							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_length + $_map.xBorder[0], $_y + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "south" ? "_doorSouth" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yPos" @y="$_xVal - 4 + $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallHorizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
+							<image @x="$_yPos" @y="$_xVal - 4 + $_modOffset / 2" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-horizontal' + $_mod + '.png'" width="32" @height="4 + $_modOffset"> </image>
 						<</if>>
 					<</if>>
 					<<if $_y is 0>>
@@ -2507,14 +2510,14 @@
 							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_y]) and $shopHunt.shop.door.side is "west" ? "_doorWest" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="0 - $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallVertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
+							<image @x="0 - $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-vertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
 						<</if>>
 					<<elseif $_y is $_width>>
 						<<if typeof $_mapLoc is "string" and $_mapLoc isnot "wall" and $shopHunt.player.map[$_x + $_map.xBorder[0]][$_width + $_map.yBorder[0]].seen is 2>>
 							<<set $_mod to doArraysMatch(shopHuntCoords($shopHunt.shop.door.position), [$_x + $_map.xBorder[0], $_width + $_map.yBorder[0]]) and $shopHunt.shop.door.side is "east" ? "_doorEast" : "">>
 							<<set $_mod += $_mod and $shopHunt.shop.door.open ? "Open" : "">>
 							<<set $_modOffset to $_mod.includes("Open") ? 4 : 0>>
-							<image @x="$_yVal - 4 + $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/wallVertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
+							<image @x="$_yVal - 4 + $_modOffset / 2" @y="$_xPos" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/wall-vertical' + $_mod + '.png'" @width="4 + $_modOffset" height="32"> </image>
 						<</if>>
 					<</if>>
 
@@ -2537,7 +2540,7 @@
 
 						<<if $_cornerPos.length gte 1>>
 							<<for $_c to 0; $_c lt $_cornerPos.length; $_c++>>
-								<image @x="$_yPos + $_cornerPos[$_c].x" @y="$_xPos + $_cornerPos[$_c].y" class="zoomable" xlink:href="img/misc/icon/shopHunt/wallCorner.png" width="4" height="4"> </image>
+								<image @x="$_yPos + $_cornerPos[$_c].x" @y="$_xPos + $_cornerPos[$_c].y" class="zoomable" xlink:href="img/misc/icon/shop-hunt/wall-corner.png" width="4" height="4"> </image>
 							<</for>>
 						<</if>>
 						<<run delete $_cornerPos>>
@@ -2565,7 +2568,7 @@
 								<<else>>
 									<<set $_actorImage to $shopHunt.actors[$_actorsPresent[$_a]].type>>
 								<</if>>
-								<image @x="$_yPos + $_actorX" @y="$_xPos + $_actorY" class="zoomable" @xlink:href="'img/misc/icon/shopHunt/debug/' + $_actorImage + '.png'" width="5" height="8"> </image>
+								<image @x="$_yPos + $_actorX" @y="$_xPos + $_actorY" class="zoomable" @xlink:href="'img/misc/icon/shop-hunt/debug/' + $_actorImage + '.png'" width="5" height="8"> </image>
 							<</for>>
 						<</if>>
 					<</if>>
@@ -2677,6 +2680,7 @@
 							<<set _locRaw to shopHuntFind("player")>>
 							<<set _loc to clone($shopHunt.locations[_locRaw])>>
 							<<set _bordering to shopHuntBordering(shopHuntCoords(_locRaw))>>
+							<<run shopHuntSeeLoc()>>
 						<</if>>
 					<<case "chase" "follow">>
 						<<if shopHuntContains(shopHuntLoc($shopHunt.actors[$_i].position)).includes($shopHunt.actors[$_i].target)>>
@@ -3117,7 +3121,7 @@
 					<<if $_playerSeesEden>>
 						A phantasmal voice echoes from around <<shopHuntActorName $_eden.id>>. "<span class="witch">Do you think the forest has forgotten? It never does.</span>"
 						<br>
-						<<shopHuntPronoun "He">> looks around frantically. The sound of small creatures skittering echoes all around <<shopHuntPronoun "him">>.
+						<<shopHuntPronoun "He">> looks around as the voice is replaced with the sound of skittering.
 					<<else>>
 						A phantasmal voice echoes from the $_edenDirection. "<span class="witch">Do you think the forest has forgotten? It never does.</span>"
 						<br>
@@ -3127,37 +3131,37 @@
 					<<if $_playerSeesEden>>
 						A phantasmal voice echoes from around <<shopHuntActorName $_eden.id>>. "<span class="witch">You could never run far enough.</span>"
 						<br>
-						<<shopHuntPronoun "He">> takes aim at nothing. <<shopHuntPronoun "His">> hands lightly tremble. "I'm not running from anything."
+						<<shopHuntPronoun "He">> spins on the spot, pointing <<shopHuntPronoun "his">> gun this way and that. "I'm not the one hiding."
 					<<else>>
 						A phantasmal voice echoes from the $_edenDirection. "<span class="witch">You could never run far enough.</span>"
 						<br>
-						<<shopHuntActorName $_eden.id "cap">> scoffs. "I'm not running from anything."
+						<<shopHuntActorName $_eden.id "cap">> scoffs. "I'm not the one hiding."
 					<</if>>
 				<<case 2>>
 					<<if $_playerSeesEden>>
 						A phantasmal voice echoes from around <<shopHuntActorName $_eden.id>>. "<span class="witch">You're terrified of your inability to keep <<phim>> safe. That feeling is so familiar, isn't it?</span>"
 						<br>
-						<<shopHuntPronoun "He">> yells into the gloom. "You don't know anything about me." A chorus of laughs answers <<shopHuntPronoun "him">>.
+						<<shopHuntPronoun "He">> yells into the gloom. "Are you speaking from experience?" A chorus of laughs answers <<shopHuntPronoun "him">>.
 					<<else>>
 						A phantasmal voice echoes from the $_edenDirection. "<span class="witch">You're terrified of your inability to keep <<phim>> safe. That feeling is so familiar, isn't it?</span>"
 						<br>
-						<<shopHuntActorName $_eden.id "cap">> yells. "You don't know anything about me." A chorus of laughs answers <<shopHuntPronoun "him">>.
+						<<shopHuntActorName $_eden.id "cap">> yells. "Are you speaking from experience?" A chorus of laughs answers <<shopHuntPronoun "him">>.
 					<</if>>
 				<<case 3>>
 					<<if $_playerSeesEden>>
 						A phantasmal voice echoes from around <<shopHuntActorName $_eden.id>>. "<span class="witch">Every tree you've struck with a stray bullet. Every carcass you've left to rot. Your crimes are remembered.</span>"
 						<br>
-						<<shopHuntPronoun "He">> curses as footsteps echo all around <<shopHuntPronoun "him">>.
+						"I'll give you one to really remember," <<shopHuntPronoun "he">> says as footsteps echo all around <<shopHuntPronoun "him">>.
 					<<else>>
 						A phantasmal voice echoes from the $_edenDirection. "<span class="witch">Every tree you've struck with a stray bullet. Every carcass you've left to rot. Your crimes are remembered.</span>"
 						<br>
-						<<shopHuntActorName $_eden.id "cap">> curses. You hear stampeding footsteps from the same direction.
+						"I'll give you one to really remember," <<shopHuntPronoun "he">> says. You hear stampeding footsteps from the same direction.
 					<</if>>
 				<<default>>
 					<<if $_playerSeesEden>>
 						A phantasmal voice echoes from around <<shopHuntActorName $_eden.id>>. "<span class="witch">I still remember the day. The day you damned more than one soul with your selfishness. Do you?</span>" There's a laugh. "<span class="witch">Oh my, that's right. That doesn't narrow it down at all, does it?</span>"
 						<br>
-						<<shopHuntPronoun "He">> flinches as a shadow leaps from the darkness. It fades before it strikes <<shopHuntPronoun "him">>. <span class="red">A screech pierces the gloom, and the darkness becomes tangible. It's suffocating.</span>
+						<<shopHuntPronoun "He">> brings up <<shopHuntPronoun "his">> guns as if to parry as a shadow leaps from the darkness. It fades before it strikes <<shopHuntPronoun "him">>. <span class="red">A screech pierces the gloom, and the darkness becomes tangible. It's suffocating.</span>
 					<<else>>
 						A phantasmal voice echoes from the $_edenDirection. "<span class="witch">I still remember the day. The day you damned more than one soul with your selfishness. Do you?</span>" There's a laugh. "<span class="witch">Oh my, that's right. That doesn't narrow it down at all, does it?</span>"
 						<br>
@@ -3220,7 +3224,7 @@
 							<<if $_playerSeesTarget>>
 								<<shopHuntActorName $_edenTarget.id "cap">> giggles.
 							<<else>>
-								You hear <<shopHuntActorName $_edenTarget.id>> giggle from the $_edenTargetDirection.
+								You hear <<shopHuntActorName $_edenTarget.id>> giggle <<if $_edenTargetDirection is "here">>right in front of you<<else>>from the $_edenTargetDirection<</if>>.
 							<</if>>
 							<<switch random(1,4)>>
 								<<case 1>>"Forgetting to count your shots?"
@@ -3549,7 +3553,7 @@
 	<<if $shopLocs.includes(_args[0])>>
 		<<set $_icon to shopHuntPlayerKnownMap(2).tiles.flat().includes(_args[0]) ? _args[0] : "unknownLocation">>
 		<<if $_icon is "tiltedVanity" and $shopHunt.item.mirror isnot "tiltedVanity">>
-			<<set $_icon += "_noMirror">>
+			<<set $_icon += "-no-mirror">>
 		<</if>>
 		<<if _args[1]>>
 			<<if ["hide"].includes(_args[1])>>
@@ -3559,24 +3563,24 @@
 				<<if $shopHunt.actors.filter(x => x.state is "chase").length gte 1>>
 					<<set $_overlay += "Chase">>
 				<</if>>
-				<<icon `"shopHunt/overlay_" + $_overlay + ".png"` "infront">>
+				<<icon `"shop-hunt/overlay-" + $_overlay + ".png"` "infront">>
 			<</if>>
 		<</if>>
 		<<if $shopHunt.locations[$_icon]?.state.includes("fallen") or _args[1] is "fallen">>
 			<<set $_icon += "_fallen">>
 		<</if>>
-		<<icon `"shopHunt/" + $_icon + ".png"`>>
+		<<icon `"shop-hunt/" + $_icon + ".png"`>>
 	<<else>>
 		<<switch _args[0]>>
 			<<case "ambush" "hide" "light" "scatter" "yell">>
-				<<icon `"shopHunt/action_" + _args[0] + ".png"`>>
+				<<icon `"shop-hunt/action-" + _args[0] + ".png"`>>
 			<<case "mirror">>
-				<<icon `"shopHunt/" + _args[1] + "_mirror.png"`>>
+				<<icon `"shop-hunt/" + _args[1] + "-mirror.png"`>>
 			<<case "search">>
 				<<investigateicon>>
 			<<case "key">>
-				<<icon "maze_key.png">>
-			<<default>><<icon "shopHunt/debug/placeholder.png">>
+				<<icon "maze-key.png">>
+			<<default>><<icon "shop-hunt/debug/placeholder.png">>
 		<</switch>>
 	<</if>>
 <</widget>>
@@ -3645,6 +3649,7 @@
 	<<if _args[0]>>
 		<<set _actorDrag to clone($shopHunt.actors.find(x => x.state is "drag"))>>
 	<</if>>
+	<<set $shopHuntActive to _actorDrag.id>>
 	<<if _actorDrag.type is "eden">>
 		<<if _locRaw is shopHuntFind("door")>>
 			<<if $shopHunt.shop.shuffle.count lt $shopHunt.shop.shuffle.max>>
@@ -3729,7 +3734,7 @@
 <br>
 
 :: Forest Shop Hunt Intro
-<<effects>>
+<<set $location to "forest_shop">><<set $outside to 0>><<effects>>
 
 <<shopHuntInit $phase>>
 <<switch $shopHunt.context>>
@@ -3823,7 +3828,7 @@
 		<span class="orange">Unfinished.</span>
 		<br><br>
 
-		"<span class="wraith">Every year, many birds are caught in netting,</span>" the pale figure says. "<span class="wraith">Ropes and garbage entwined around their legs, chaining them to the ground. Condemning them to a slow end.</span>"
+		"<span class="wraith">Every year, many birds are caught in netting,</span>" the pale figure says. "<span class="wraith">Ropes and rubbish entwined around their legs, chaining them to the ground. Condemning them to a slow end.</span>"
 		<br><br>
 
 		It points a <<= $wraith.state is "haunt" ? "blackened" : "">> finger at Gwylan. "<span class="wraith">The seabird falls to this same fate. You are enchained to the <<pcpetname "Wraith">>, in red strings.</span>"
@@ -3905,7 +3910,7 @@
 	<span class="green">The door to the forest shop flies open, momentarily flooding it with light and banishing the gloom.</span>
 	<br><br>
 
-	Eden sees you and marches up to you, grabbing your arm. <<person2>><<He>> looks down to Gwylan with disgust, and drags you to the entrance.
+	Eden sees you and marches up to you, grabbing your arm. <<person2>><<He>> looks down at Gwylan with disgust, and drags you to the entrance.
 	<br><br>
 
 	<<person1>>
@@ -3924,7 +3929,7 @@
 	<br><br>
 
 	<<person1>>
-	You hear a rattle from the doorframe, like strained breathing. Gwylan emerges from the darkness, frantically inspecting the remains of the door. <<He>> rubs the frame as if <<he>> were comforting a hurt child. <<person2>><<He>> turns and glares at Eden.
+	You hear a rattle from the doorframe, like strained breathing. Gwylan emerges from the darkness, frantically inspecting the remains of the door. <<He>> rubs the frame as if <<he>> were comforting a hurt child. <<He>> turns and glares at Eden.
 	<<if $shopHunt.context is "kidnap" and $gwylanSeen.includes("romance")>>
 		"You wish to take and destroy all I hold dear," <<he>> says in an eerily calm tone. "Soon, I'll have nothing to lose. You must know how that feels, Eden."
 	<<else>>
@@ -3936,7 +3941,7 @@
 <</if>>
 <br><br>
 
-You're dragged deeper into the forest. <<npcincr Eden dom 5>><<ggdom>>
+You're dragged deeper into the forest. <<npcincr Eden dom 5>><<ggdom "Eden">>
 <br><br>
 
 <<set $daily.gwylan.cafeSkip to true>><<set $daily.gwylan.noTalk to true>><<set $daily.gwylan.locked to true>><<set $daily.gwylan.noHunt to true>>
@@ -3983,7 +3988,7 @@ The shop trembles.
 "<span class="witch">Aimless.</span>"
 <br><br>
 
-The shadows become jagged like teeth. The light appears like a maw, ready to swallow <<= _edenName>> in the center.
+The shadows become jagged like teeth. The light appears like a maw, ready to swallow <<= _edenName>> in the centre.
 <br><br>
 
 You don't dare open your own mouth. The gloom presses against your lips.
@@ -3999,13 +4004,13 @@ You don't dare open your own mouth. The gloom presses against your lips.
 Laughter echoes all around <<him>>.
 <br><br>
 
-<<Hes>> surrounded. You can't see the assailants, but you know they're there. <<= _edenName.toUpperFirst()>> knows too. <<He>> fires into the darkness blindly.
+<<Hes>> surrounded. You can't see the assailants, but you know they're there. <<= _edenName.toUpperFirst()>> knows too. <<He>> takes aim, and fires.
 <br><br>
 
 "<span class="witch">Every careless bullet an atrocity without reason. How can one so reliant on aim be aimless?</span>"
 <br><br>
 
-The shadows bite at <<him>>. <<He>> turns and fires again, striking nothing. The bullet never lands.
+The shadows bite at <<him>>. <<He>> turns and fires again. The bullet never lands.
 <br><br>
 
 "<span class="witch">I know how many bodies you've left behind. You kill. You consume. You discard. Aimlessly.</span>"
@@ -4014,13 +4019,7 @@ The shadows bite at <<him>>. <<He>> turns and fires again, striking nothing. The
 More laughter echoes. The word repeats like a curse. "<span class="witch">Aimless. Aimless. Aimless.</span>"
 <br><br>
 
-<<= _edenName.toUpperFirst()>> covers <<his>> ears, only for the shadows to slip between <<his>> fingers.
-<br><br>
-
-"<span class="witch">Aimless! Aimless! Aimless!</span>"
-<br><br>
-
-<<= _edenName.toUpperFirst()>> yells, shoving the barrel of <<his>> rifle into a shadow as it strikes. <<He>> pulls the trigger. <span class="red">You hear a cry of pain, followed by something slumping over.</span>
+<<= _edenName.toUpperFirst()>> shouts, and shoves the barrel of <<his>> rifle into a shadow as it strikes. <<He>> pulls the trigger. <span class="red">You hear a cry of pain, followed by something slumping over.</span>
 <br><br>
 
 <<= _edenName.toUpperFirst()>> grins, panting. "Got you."
@@ -4036,23 +4035,23 @@ More laughter echoes. The word repeats like a curse. "<span class="witch">Aimles
 <<= _edenName.toUpperFirst()>>'s pupils shrink, and <<his>> grin fades. Something crawls into the light.
 <br><br>
 
-<span class="red">A brown fox, struck by <<his>> bullet. Blood trails behind it. It whimpers, and goes still.</span>
+<span class="red">A brown fox, struck by <<his>> bullet. Blood trails behind it. It's motionless.</span>
 <br><br>
 
-"No." Eden reaches down, picking up the fox. "No!"
+"No." <<= _edenName.toUpperFirst()>> reaches down, picking up the fox. "No!"
 <br><br>
 
-The blood washes down <<= _edenName>>'s hands. <<He>> breathes heavily, lightly shaking the fox. "No, no, I didn't... I thought..."
+The blood washes down <<= _edenName>>'s hands. <<He>> breathes heavily, lightly shaking the fox. "No, no, this isn't what I wanted."
 <br><br>
 
-The fox isn't a fox anymore. It's a person, being held in <<= _edenName>>'s arms, but no less still and bloody. A red smile is painted on its neck. It flickers back and forth, between being a fox and a person.
-It's head snaps into an upright position and stares at Eden. It speaks.
+The fox isn't a fox anymore. It's a person, being held in <<= _edenName>>'s arms, but no less still and bloody. <<= _edenName.toUpperFirst()>> jumps back in shock. A red smile is painted on the figure's neck. It flickers back and forth, between being a fox and a person.
+It's head snaps into an upright position and stares at <<= _edenName>>. It speaks.
 <br><br>
 
 "<span class="witch">Aimless.</span>"
 <br><br>
 
-<<= _edenName.toUpperFirst()>> screams, dropping it. It doesn't leave <<his>> hands. Its body extends, becoming a snake that trails up <<his>> arm. No matter how <<he>> struggles, <<he>> can't shake it off.
+<<= _edenName.toUpperFirst()>> reaches for <<his>> gun, but its body extends, becoming a snake that trails up <<his>> arm. No matter how <<he>> struggles, <<he>> can't shake it off.
 It wraps around <<his>> neck, becoming a fox once more and hanging limp about <<his>> shoulders. A blaring voice echoes through the darkness.
 <br><br>
 
@@ -4061,10 +4060,10 @@ Ever deeper, foxbane mine, is the curse in a dead mother's eye!<br>
 Unscored years since the day of sin, yet you still live this rotten lie!</span>"</b>
 <br><br>
 
-<span class="red">Strands of brown fur flutter down from above. The screams of starving kits fills the emptiness, awaiting a mother that will never return. The dead fox becomes a length of rope around <<= _edenName>>'s neck.</span>
+<span class="red">Strands of brown fur flutter down from above. High pitched screams, full of longing, fill the emptiness. The dead fox becomes a length of rope around <<= _edenName>>'s neck.</span>
 <br><br>
 
-The rope leads up into the darkness, which swirls. The head of a colossal, three-eyed fox screams, its tongue the rope. <<= _edenName.toUpperFirst()>>'s own screams are snuffed out as its voice comes from <<his>> mouth.
+The rope leads up into the darkness, which swirls. The head of a colossal, three-eyed fox screams, its tongue the rope. <<= _edenName.toUpperFirst()>> struggles to break free, <<his>> voice drowned out by the scream.
 <br><br>
 
 <b>"<span class="witch">Hid away in solitude, my self-made coffin-box!<br>
@@ -4080,27 +4079,21 @@ Faceless, fateless, restless, aimless, I shot the mother fox!</span>"</b>
 <<set _edenName to C.npc.Eden.name_known ? "Eden" : "the <<= C.npc.Eden.title>>">>
 /* ToDo: Gwylan - account for reunion and bad end start here. */
 
-<span class="teal">Then, suddenly, it all stops.</span> The door of the shop flies open, banishing the gloom. <<= _edenName.toUpperFirst()>> stands still, hyperventilating and clutching <<his>> neck.
+<span class="teal">Then, suddenly, it all stops.</span> The door of the shop flies open, banishing the gloom. <<= _edenName.toUpperFirst()>> stands still, panting and clutching <<his>> neck.
 <br><br>
 
 Below <<him>>, a mannequin lays with a bullet lodged in its torso.
 <br><br>
 
-<<He>> looks around frantically. <<His>> tormented eyes never even land on you, only the exit.
+<<He>> stumbles towards the door, and steps outside.<<npcincr Eden dom -20>><<llldom "Eden">>
 <br><br>
 
 <<if $shopHunt.context is "rescue">>
-	<span class="green"><<He>> flees the shop.</span> <<npcincr Eden dom -20>><<llldom "Eden">>
-	<br><br>
-
 	Gwylan shuffles out from behind a shelf. <<person2>><<He>> smiles sadly. "I'm sorry you had to see that. One day, perhaps <<person1>><<he>> will understand. It's a path only <<he>> can walk."
 	<br><br>
 
 	<<person2>><<He>> pets your head. "The shop knows much. Remembers much. Just look at how much it remembers about you." <<He>> gestures around to the clothes all around the shop. "It remembers triumphs and troubles in equal part, and Eden has much of both."
 <<else>>
-	<span class="red"><<He>> flees the shop.</span> <<npcincr Eden dom -20>><<llldom "Eden">>
-	<br><br>
-
 	Gwylan shuffles out from behind a shelf. <<person2>><<He>> smiles sadly. "I'm sorry you had to see that. I hope you understand how terrible <<person1>><<he>> is by now." <<person2>><<He>> tuts. "You were a <<pcpetname "Gwylan" "naughty">>, but I can forgive that."
 	<br><br>
 

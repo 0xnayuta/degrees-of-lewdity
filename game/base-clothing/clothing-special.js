@@ -3,7 +3,7 @@
 
 function initSpecialClothes() {
 	/* name: should ALWAYS match the clothing item's setup "name" property.
-	 * sets: whoch setup sets the clothes are a part of. Sets are defined in the object after this one.
+	 * sets: which setup sets the clothes are a part of. Sets are defined in the object after this one.
 	 * hint, requirements: Should ONLY be used if item is not part of its own set, and we know for sure it never will be, such as with simple items like the daisy and flower crown.
 	 * Otherwise, hint and requirements should be part of the sets setup further down.
 	*/
@@ -43,6 +43,7 @@ function initSpecialClothes() {
 		{ name: "candy cane", 					sets: ["christmas"] },
 
 		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => V.gwylanSeen?.includes("rose"), hint: "get kissed by a rose" },
+		{ name: "rose eyepatch", 				sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding veil", 			sets: ["valentines", "rose_wedding"] },
 		{ name: "long rose wedding veil", 		sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding dress", 			sets: ["valentines", "rose_wedding"] },
@@ -156,6 +157,7 @@ function initSpecialClothes() {
 
 		{ name: "butterfly dress",				sets: ["butterfly"] },
 		{ name: "butterfly bow",				sets: ["butterfly"] },
+		{ name: "butterfly eyepatch",			sets: ["butterfly"] },
 
 		{ name: "succubus top",					sets: ["succubus"] },
 		{ name: "succubus lower back wings",	sets: ["succubus", "transformation"] },
@@ -185,7 +187,7 @@ function initSpecialClothes() {
 		halloween: {
 			text: "collection of Halloween costumes",
 			requirements: () => Time.hasDatePassed(10, 21),
-			hint: "in stock from the 21st of October",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 10, 21))>>",
 			shop: ["forest"],
 			feat: false,
 			icon: "food/halloween.png",
@@ -263,7 +265,7 @@ function initSpecialClothes() {
 		},
 		pumpkin: {
 			text: "pumpkin costume",
-			requirements: () => Object.values(V.plants).filter(food => food.recipe).length >= 15,
+			requirements: () => Object.values(V.foodstuff).filter(food => food.knows_recipe).length >= 15,
 			hint: "learn 15 recipes",
 			shop: ["forest"],
 			subsetOf: ["halloween"],
@@ -275,7 +277,7 @@ function initSpecialClothes() {
 		christmas: {
 			text: "Christmas clothes",
 			requirements: () => Time.hasDatePassed(12, 18) || V.specialClothesEvents?.includes("skulduggery_gift"),
-			hint: "in stock from the 18th of December, or leave a generous gift for a family in need",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 12, 18))>>, or leave a generous gift for a family in need",
 			shop: ["forest"],
 			feat: true,
 			featCost: 5,
@@ -285,7 +287,7 @@ function initSpecialClothes() {
 		valentines: {
 			text: "collection of Valentine's Day clothes",
 			requirements: () => Time.hasDatePassed(2, 7),
-			hint: "in stock from the 7th of February",
+			hint: "in stock from <<= getFormattedDate(new DateTime(Time.year, 2, 7))>>",
 			shop: ["forest"],
 			feat: false,
 			icon: "gift_vday.png",
@@ -318,9 +320,9 @@ function initSpecialClothes() {
 			iconColor: "pink",
 		},
 
-		// Bad end or stockholm syndrome sets
+		// Bad end or Stockholm syndrome sets
 		bad_end: {
-			text: "collection of clothes from unsavory places",
+			text: "collection of clothes from unsavoury places",
 			shop: ["forest"],
 			feat: false,
 			icon: "cage.png",
@@ -341,13 +343,13 @@ function initSpecialClothes() {
 		},
 		underground_farm: {
 			text: "cow print set",
-			requirements: () => V.livestock_intro !== undefined,
+			requirements: () => V.livestock?.intro !== undefined,
 			hint: "become livestock",
 			shop: ["forest", "adult"],
 			subsetOf: ["bad_end", "transformation"],
 			feat: true,
 			featCost: 15,
-			icon: "tf_cow.png",
+			icon: "tf-cow.png",
 		},
 		loincloth: {
 			text: "loincloth",
@@ -502,7 +504,7 @@ function initSpecialClothes() {
 			subsetOf: ["pendant", "temple"],
 			feat: true,
 			featCost: 15,
-			icon: "clothes/holy_pendant.png",
+			icon: "clothes/holy-pendant.png",
 		},
 		stone_pendant: {
 			text: "stone pendant",
@@ -641,7 +643,7 @@ function initSpecialClothes() {
 			subsetOf: ["mask", "fox"],
 			feat: true,
 			featCost: 5,
-			icon: "clothes/foxmask.png",
+			icon: "clothes/fox_mask.png",
 		},
 		fedora: {
 			text: "fedora",
@@ -679,12 +681,12 @@ function initSpecialClothes() {
 		},
 		dance_studio: {
 			text: "swan lake dress",
-			requirements: () => V.dance_job_intro === 1,
+			requirements: () => V.danceStudio?.jobOffered,
 			hint: "be offered special dancing jobs",
 			shop: ["forest"],
 			feat: true,
 			featCost: 5,
-			icon: "dancestudio.png",
+			icon: "dance-studio.png",
 		},
 		sage_witch_hat: {
 			text: "strange witch hat",
@@ -777,13 +779,13 @@ function initSpecialClothes() {
 			shop: ["forest"],
 			subsetOf: ["fox"],
 			feat: false,
-			icon: "clothes/islander_mask.png"
+			icon: "clothes/islander-mask.png"
 		},
 		fox: {
 			text: "fox-themed items",
 			shop: ["forest"],
 			feat: false,
-			icon: "clothes/foxmask.png",
+			icon: "clothes/fox-mask.png",
 		},
 	};
 }
@@ -812,6 +814,8 @@ function specialClothesUpdate() {
 	if (!V.specialClothes.some(item => item.name === "sage witch hat")) V.specialClothes.push({ name: "sage witch hat", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "jasper pendant")) V.specialClothes.push({ name: "jasper pendant", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "familiar collar")) V.specialClothes.push({ name: "familiar collar", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "butterfly eyepatch")) V.specialClothes.push({ name: "butterfly eyepatch", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "rose eyepatch")) V.specialClothes.push({ name: "rose eyepatch", unlocked: 0 });
 
 	// Delete any entries that do not have a matching setup object.
 	V.specialClothes.forEach((clothing, index) => {

@@ -21,57 +21,70 @@
 		<</if>>
 		<span class="lewd">You absorb the sexual essence. You feel soothed.</span>
 		<<set $demonabsorb to 0>>
-		<<traumaclamp>>
+		<<traumaClamp>>
 		<<set _br to true>>
 		<br>
 	<</if>>
 
-	<<if ($enemyarousal gte $enemyarousalmax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1)>>
-		<<set $_samplesCollected to 0>>
-		<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 2 : 1>>
-		<<for $_sample to 0; $_sample lt $enemyno; $_sample++>>
-			<<if canCollectSampleSingle(V.NPCList[$_sample]?.type)>>
-				<<if canCollectSamples() is "bound">>
-					/* Ensures the bound message only shows if the player could have collected samples otherwise */
-					<<set $_samplesCollected to "bound">>
-					<<break>>
-				<<else>>
-					<<set $_samplesToCollect to collectSample(V.NPCList[$_sample]?.type, $_sampleMod)>>
-					<<if $_samplesToCollect>>
-						<<set $_samplesCollected += $_samplesToCollect>>
+	/* Unbind any leg shackles applied during consensual sex via <<shackle_legs>>. Last check avoids removing a shackle that was destroyed before end of combat */
+	<<if $legsShackledDuringCombat and $consensual is 1 and ($worn.feet.type.includes("shackle") and $worn.feet.name isnot "vines")>>
+		You hear the click of a key as your $worn.feet.name are removed.
+		<<remove_shackle>>
+		<<set _br to true>>
+		<br>
+	<</if>>
+
+	/* Check if combat is active before collecting samples to avoid collecting samples when endcombat is called while combat is not active */
+	<<if $combat is 1>>
+		<<if ($enemyarousal gte $enemyarousalmax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1) and !$beastRitual>>
+			<<set $_samplesCollected to 0>>
+			<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 2 : 1>>
+			<<for $_sample to 0; $_sample lt $enemyno; $_sample++>>
+				<<if canCollectSampleSingle(V.NPCList[$_sample]?.type)>>
+					<<if canCollectSamples() is "bound">>
+						/* Ensures the bound message only shows if the player could have collected samples otherwise */
+						<<set $_samplesCollected to "bound">>
+						<<break>>
+					<<else>>
+						<<set $_samplesToCollect to collectSample(V.NPCList[$_sample]?.type, $_sampleMod)>>
+						<<if $_samplesToCollect>>
+							<<set $_samplesCollected += $_samplesToCollect>>
+						<</if>>
 					<</if>>
 				<</if>>
+			<</for>>
+			<<if $_samplesCollected is "bound">>
+				<span class="red">With your arms bound, you're unable to take a sample of lewd fluid.</span>
+				<<set _br to true>>
+				<br>
+			<<elseif $_samplesCollected>>
+				<<if $location is "forest_shop_garden">>
+					<span class="green">Gwylan helps you collect the fluids in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+				<<else>>
+					<span class="lewd">You collect as much lewd fluid as you can in the vials Gwylan gave you.</span>
+				<</if>>
+				You obtain <span class="gold"><<number $_samplesCollected>></span> <<pluralise $_samplesCollected "sample">> of fluid.
+				<<set _br to true>>
+				<br>
 			<</if>>
-		<</for>>
-		<<if $_samplesCollected is "bound">>
-			<span class="red">With your arms bound, you're unable to take a sample of lewd fluid.</span>
-		<<elseif $_samplesCollected>>
-			<<if $location is "forest_shop_garden" and $beastRitual>>
-				<span class="green">Gwylan helps you collect the fluids in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+		<<elseif ($enemytype is "plant" and $abomination is 1 or $enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and canCollectSamples() and canCollectSampleSingle("plant") and !$beastRitual>>
+			<<if canCollectSamples() is "bound">>
+				<span class="red">With your arms bound, you're unable to take a sample of nectar.</span>
 			<<else>>
-				<span class="lewd">You collect as much lewd fluid as you can in the vials Gwylan gave you.</span>
+				<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 1.3 : 1>>
+				<<set $_fromTentacles to $combat_tentacle_record.fluid || 1>>
+				<<set $_nectarCollected to Math.ceil((1 + $_fromTentacles / 9) * $_sampleMod)>>
+				<<set $_samplesToCollect to collectSample("plant", $_nectarCollected)>>
+				<<if $location is "forest_shop_garden">>
+					<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+				<<else>>
+					<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
+				<</if>>
+				You obtain <span class="gold"><<number $_nectarCollected>></span> <<pluralise $_nectarCollected "sample">> of nectar.
 			<</if>>
-			You obtain <span class="gold"><<number $_samplesCollected>></span> <<pluralise $_samplesCollected "sample" "samples">> of fluid.
 			<<set _br to true>>
 			<br>
 		<</if>>
-	<<elseif ($enemytype is "plant" and $abomination is 1 or $enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and canCollectSamples() and canCollectSampleSingle("plant")>>
-		<<if canCollectSamples() is "bound">>
-			<span class="red">With your arms bound, you're unable to take a sample of nectar.</span>
-		<<else>>
-			<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 1.3 : 1>>
-			<<set $_fromTentacles to $combat_tentacle_record.fluid || 1>>
-			<<set $_nectarCollected to Math.ceil((1 + $_fromTentacles / 9) * $_sampleMod)>>
-			<<set $_samplesToCollect to collectSample("plant", $_nectarCollected)>>
-			<<if $location is "forest_shop_garden" and $beastRitual>>
-				<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
-			<<else>>
-				<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
-			<</if>>
-			You obtain <span class="gold"><<number $_nectarCollected>></span> <<pluralise $_nectarCollected "sample" "samples">> of nectar.
-		<</if>>
-		<<set _br to true>>
-		<br>
 	<</if>>
 
 	<<if $transformationParts.traits.mateForLife isnot "disabled" and $sexavoid is 0>>
@@ -110,7 +123,7 @@
 				<<set $trauma -= $assertive>>
 				<span class="meek">I'm so naughty.</span>
 				<<ltrauma>>
-				<<traumaclamp>>
+				<<traumaClamp>>
 				<br>
 			<<elseif $assertiveaction is "stress">>
 				<<set $stress -= ($assertive * 10)>>
@@ -165,6 +178,7 @@
 	<</if>>
 
 	<<unset $enemytype>>
+	<<updatePlayerTraumaState>>
 
 	<<endevent _args[0]>>
 	<<struggle_end>>
@@ -177,6 +191,7 @@
 	<<set $mouthsubmit to 0>>
 	<<set $breastbitten to 0>>
 	<<set $apologised to 0>>
+	<<unset $removed>>
 	<<unset $bodywriting_special>>
 	<<unset $machine_tattoo_success>>
 	<<unset $dodging>>
@@ -252,10 +267,11 @@
 		<<set $head to 0>>
 	<</if>>
 	<<unset $neckuse>>
+	<<if $legsShackledDuringCombat>>
+		<<unset $legsShackledDuringCombat>>
+	<</if>>
 	<<set $position to 0>>
-
-	<<set $walltype to 0>>
-
+	<<set $walltype to "wall">>
 	<<set $underlowerstruggle to 0>>
 	<<set $lowerstruggle to 0>>
 	<<set $upperstruggle to 0>>
@@ -294,7 +310,6 @@
 		<</if>>
 		<<set $suffocating to 0>>
 	<</if>>
-	<<set $walltype to "wall">>
 	<<set $angelforgive to 0>>
 	<<unset $banishDisable>>
 	<<unset $penisfucked>>
@@ -308,6 +323,7 @@
 	<<unset $handGuideRight>>
 	<<unset $easySteal>>
 	<<unset $canRescue>>
+	<<unset $handOnButtPlug>>
 
 
 	<<set $leftactiondefault to $leftaction>>
@@ -715,17 +731,14 @@
 	<<set $index to 0>>
 	<<set $modeloptionsOverride to {}>>
 
-	<<if $propEquipped is 1>>
-		<<handheldon>>
-		<<set $propEquipped to 0>>
-	<</if>>
-
 	<<if $worn.neck.name is "familiar collar">>
 		/* ToDo: Gwylan - the "leash" type could be used to determine whether the player is allowed to stray from the forest shop. If that is done, remove this whole block. */
 		<<if $worn.neck.type.includes("leash") and !["forest_shop", "forest_shop_garden"].includes($location) and !$beastRitual and !$sexRitual>>
 			<<run $worn.neck.type.delete("leash")>>
 			<<if $familiarLeash>>
 				<<run Errors.report("Magic leash spell misfired! Leash granted on passage: " + $familiarLeash + " and destroyed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
+			<<elseif $magicLeashPassage>>
+				<<run Errors.report("Magic leash spell misfired! An origin passage could not be determined. The leash has been removed on passage: " + $passage + " from passage: " + $passagePrev + ". magicLeash was last seen in passage: " + $magicLeashPassage + " with the previous passage: " + $magicLeashPassagePrev + ". Please report this.")>>
 			<<else>>
 				<<run Errors.report("Magic leash spell misfired! An origin passage could not be determined. The leash has been removed on passage: " + $passage + " from passage: " + $passagePrev + ". Please report this.")>>
 			<</if>>

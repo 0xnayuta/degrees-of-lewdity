@@ -22,7 +22,7 @@
 <</if>>
 <<addinlineevent "chef_thief" 0.7>>
 		You hear the back door squeak.
-		<<if random(1, 1000) gte $skulduggery>>
+		<<if random(1, 1000) gte currentSkillValue('skulduggery')>>
 			You turn to look, <span class="red">but don't see anything out of the ordinary.</span>
 			<br><br>
 			<<chefwork>>
@@ -148,19 +148,27 @@
 	<br><br>
 
 	<<if $chef_job is "special">>
-		<<link [[Next|Chef Work Masturbation]]>><<handheldon>><<set $masturbationstart to 1>><</link>>
+		<<link [[Next|Chef Work Masturbation]]>><<endevent>><<handheldon>><<set $masturbationstart to 1>><</link>>
 		<br>
 	<<else>>
-		<<link [[Next|Chef Work Regular]]>><<handheldon>><</link>>
+		<<link [[Next|Chef Work Regular]]>><<endevent>><<handheldon>><</link>>
 		<br>
 	<</if>>
 <</widget>>
 
 <<widget "sellbuns">>
-	<<set _bun_money to (1000 + (($bun_value * $bun_cut) * _buns_sold))>>
+	<<if _buns_sold gt 0>>
+		<<set _bun_effective_value to Math.max(100,averageBunPrice(_buns_sold))>> /* We dont want buns below £1 */
+	<<else>>
+		<<set _bun_effective_value to $bun_value>>
+	<</if>>
+	<<set _bun_money to 10 * (Math.floor((1000 + ((_bun_effective_value * $bun_cut) * _buns_sold)) / 10))>> /* We don't want to be paid £0.3333 */
 	Buns sold: _buns_sold
 	<br>
-	Bun Value: £<<print ($bun_value / 100)>>
+	Bun Value: £<<print (Math.floor(_bun_effective_value / 100))>> /* The bun value must be an integer */
+	<<if _bun_effective_value lt $bun_value>> 
+		| <span class="gold">You made so many buns today that Sam had to lower their price to sell them all!</span>
+	<</if>>
 	<br>
 	Your cut: <<print ($bun_cut * 100)>>%
 	<br>
@@ -261,7 +269,7 @@
 	<<if ($worn.under_lower.exposed and $uncomfortable.nude is true) or (!$worn.under_lower.exposed and $uncomfortable.underwear is true)>>
 		extremely embarrassed letting so many strangers see your <<undies>> in public like this, but despite the feeling of <<print ["embarrassment", "humiliation", "vulnerability", "exposure"].pluck()>> you crave more.
 	<<else>>
-		<<print ["excited", "exhillerated", "turned on", "thrilled", "horny", "lewd"].pluck()>> showing so many strangers your <<undies>> in public like this.
+		<<print ["excited", "exhilarated", "turned on", "thrilled", "horny", "lewd"].pluck()>> showing so many strangers your <<undies>> in public like this.
 		<<if $assertiveaction is "trauma">> You're so naughty. <<trauma -2>><<ltrauma>><<if $phase isnot 4>><br><br><</if>><</if>>
 	<</if>>
 
@@ -353,4 +361,16 @@
 
 <<widget "timeTrackingEndCafe">>
 	<<timeTrackingEnd "cafe">><<timeTrackingEnd "cafeWaiter">><<timeTrackingEnd "cafeChef">><<timeTrackingEnd "cafeBuns">>
+<</widget>>
+
+<<widget "waiter_default">>
+	<<if random(1,6) lte (1+($chef_state gte 9)+($chef_state gte 1))>>
+		<<set $tipmod to 0.1>><<tipset "serving">>
+		<<set $tip += 500>>
+		<<set $tip += 100>>
+
+		The rest of the shift passes uneventfully. Someone left you a tip.<<tipreceive "cafeWaiter">>
+	<<else>>
+		The rest of the shift passes uneventfully. You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
+	<</if>>
 <</widget>>

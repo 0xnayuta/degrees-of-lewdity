@@ -85,7 +85,7 @@ You are inside the hospital foyer. <<if $harper_appointments.enabled>>You see a 
 			<</if>>
 			<br><br>
 
-			<<icon "access_card.png">><<link [[Approach a receptionist (0:05)|Hospital Keycard Receptionist]]>><<pass 5>><</link>>
+			<<icon "access-card.png">><<link [[Approach a receptionist (0:05)|Hospital Keycard Receptionist]]>><<pass 5>><</link>>
 			<br><br>
 		<</if>>
 
@@ -132,11 +132,11 @@ You are inside the hospital foyer. <<if $harper_appointments.enabled>>You see a 
 			<<procedureicon "breast reduce">><<link [[Enquire about breast reduction (0:10)|Hospital Breast Reduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.penisExist and $player.penissize lt 4>>
+		<<if $player.penisExist and $player.penissize lt 6>>
 			<<procedureicon "penis enlarge">><<link [[Enquire about penis enlargement (0:10)|Hospital Penis Enlargement]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
-		<<if $player.penisExist and $player.penissize gt -2>>
+		<<if $player.penisExist and $player.penissize gt 0>>
 			<<procedureicon "penis reduce">><<link [[Enquire about penis reduction (0:10)|Hospital Penis Reduction]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
@@ -254,17 +254,19 @@ The nurse explains that you have suffered <<= $passoutReason || "a severe stress
 You don't have to wait long.
 
 <<npc Harper>><<person1>>
-<<if $hospitalintro isnot 1>>
+<<if !$harperSeen.includes("hospital")>>
 	A <<personsimple>> wearing a white medical coat and carrying a clipboard enters.
 	<br><br>
 
-	<<if $hospitalintro is 0>>
-		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
-	<<else>>
+	<<if $harperSeen.includes("livestock")>>
 		It's the doctor from the farm. The one who experimented on you. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. <<He>> takes a seat by your bedside.
+	<<elseif $harperSeen.includes("party")>>
+		It's the doctor from Avery's party. The one with the pink powder. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile. <<He>> takes a seat by your bedside.
+	<<else>>
+		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
 	<</if>>
 
-	<<set $hospitalintro to 1>>
+	<<set $harperSeen.pushUnique("hospital")>>
 <<else>>
 	Doctor Harper enters, carrying <<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
 <</if>>
@@ -395,6 +397,9 @@ You've pushed yourself too much.
 	<<faceruined>>
 <</if>>
 <<if $exposed gte 1>>
+	<<if !$worn.upper.type.includes("naked") and !$worn.under_upper.type.includes("naked")>>
+		<<undressmid "wardrobe">>
+	<</if>>
 	<<if $player.sex is "m" and $backgroundTraits.includes("crossdresser")>>
 		<<set $clothingselector to "f">><!-- PCs with Crossdresser trait are only PC type with a specific known clothing preference and can presumably ask for it here -->
 	<<elseif $player.sex is "f" and $backgroundTraits.includes("crossdresser")>>
@@ -403,12 +408,12 @@ You've pushed yourself too much.
 		<<set $clothingselector to $player.gender_appearance>>
 	<</if>>
 	<<if $clothingselector is "m">>
-		<<underlowerwear 4>>
-		<<upperwear 4>>
-		<<lowerwear 5>>
+		<<underlowerwear "briefs">>
+		<<upperwear "t-shirt">>
+		<<lowerwear "shorts">>
 	<<else>>
-		<<upperwear 1>>
-		<<underlowerwear 1>>
+		<<upperwear "sundress">>
+		<<underlowerwear "plain panties">>
 	<</if>>
 <</if>>
 
@@ -694,11 +699,11 @@ The heavy doors slam shut. You're at the top of a staircase leading down into da
 	<<elseif $rng gte 61>>
 		Robin tells you not to give up.
 	<<elseif $rng gte 41>>
-		Robin is kicking at the <<person>>'s heels.
+		Robin is kicking at the <<persons>> heels.
 	<<elseif $rng gte 21>>
 		Robin tells you not to worry about <<nnpc_him "Robin">>.
 	<<else>>
-		Robin bites the <<person>>'s hand holding <<nnpc_him "Robin">>.
+		Robin bites the <<persons>> hand holding <<nnpc_him "Robin">>.
 	<</if>></span>
 <<elseif $timer is 1>>
 	The <<person>> manages to wrap <<his>> arm around Robin's throat. <span class="red">Robin cries out in pain.</span>
@@ -1322,7 +1327,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 		After a closer examination, <<he>> continues, "You should get that <<print $worn.genitals.name>> unlocked and removed. I'm afraid we don't have the tools to work with such a small device."
 	<</if>>
 	<br>
-<<elseif $player.penissize is -1>>
+<<elseif $player.penissize is 1>>
 	"This would normally be a simple procedure..." <<He>> pulls a chart of penis sizes from <<his>> desk. "You're about here." <<He>> points at the bottom picture labelled "<span class="lewd"><<penissize>> penis</span>".
 	<br><br>
 	While taking a closer look, <<he>> continues, "We are unable to adjust it further than this. You could head to our Pharmacy and buy some penis shrinking pills. I personally recommend taking two doses per day to start with, however, I'm not quite sure if that would have much of an effect on it."
@@ -1330,38 +1335,38 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 <<else>>
 	"This is a very simple procedure." <<He>> pulls a chart of penis sizes from <<his>> desk. "You're about here." <<He>> points at
 	<<switch $player.penissize>>
-		<<case 4>>the top
-		<<case -1>>the bottom
+		<<case 6>>the top
+		<<case 1>>the bottom
 		<<default>>a
 	<</switch>>
-	picture labelled "<span class="lewd"><<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis</span>".
+	picture labelled "<span class="lewd"><<print ($player.penissize is 4 ? "average" : "<<penissize>>")>> penis</span>".
 	<br><br>
 
 	"It costs £2000 to decrease your penis by a single size, and a further £2000 for each size beyond that."
 	<br><br>
 
-	<<if $player.penissize gte 4>>
-		<<set _penis4 to Math.round(($player.penissize - 3) * 200000)>>
+	<<if $player.penissize gte 6>>
+		<<set _penis4 to Math.round(($player.penissize - 5) * 200000)>>
 		<<procedureicon "penis reduce">><<link [[Make your penis large|Hospital Penis Reduction 2]]>><<set $phase to 3>><</link>> | <<printmoney _penis4>>
 		<br>
 	<</if>>
-	<<if $player.penissize gte 3>>
-		<<set _penis3 to Math.round(($player.penissize - 2) * 200000)>>
+	<<if $player.penissize gte 5>>
+		<<set _penis3 to Math.round(($player.penissize - 4) * 200000)>>
 		<<procedureicon "penis reduce">><<link [[Make your penis average|Hospital Penis Reduction 2]]>><<set $phase to 2>><</link>> | <<printmoney _penis3>>
 		<br>
 	<</if>>
-	<<if $player.penissize gte 2>>
-		<<set _penis2 to Math.round(($player.penissize - 1) * 200000)>>
+	<<if $player.penissize gte 4>>
+		<<set _penis2 to Math.round(($player.penissize - 3) * 200000)>>
 		<<procedureicon "penis reduce">><<link [[Make your penis small|Hospital Penis Reduction 2]]>><<set $phase to 1>><</link>> | <<printmoney _penis2>>
 		<br>
 	<</if>>
-	<<if $player.penissize gte 1>>
-		<<set _penis1 to Math.round(($player.penissize) * 200000)>>
+	<<if $player.penissize gte 3>>
+		<<set _penis1 to Math.round(($player.penissize - 2) * 200000)>>
 		<<procedureicon "penis reduce">><<link [[Make your penis tiny|Hospital Penis Reduction 2]]>><<set $phase to 0>><</link>> | <<printmoney _penis1>>
 		<br>
 	<</if>>
-	<<if $player.penissize gte 0 and $penissizemin lt 0>>
-		<<set _penis0 to Math.round(($player.penissize + 1) * 200000)>>
+	<<if $player.penissize gte 2 and $penissizemin lt 0>>
+		<<set _penis0 to Math.round(($player.penissize - 1) * 200000)>>
 		<<procedureicon "penis reduce">><<link [[Make your penis mini|Hospital Penis Reduction 2]]>><<set $phase to -1>><</link>> | <<printmoney _penis0>>
 		<br>
 	<</if>>
@@ -1374,10 +1379,10 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 :: Hospital Penis Reduction 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-"This will cost <span class="gold">£<<print (($player.penissize - $phase) * 2000)>></span>," <<he>> says. "And take four hours."
+"This will cost <span class="gold">£<<print ((($player.penissize - 2) - $phase) * 2000)>></span>," <<he>> says. "And take four hours."
 <br><br>
 
-<<if $money gte (($player.penissize - $phase) * 200000)>>
+<<if $money gte ((($player.penissize - 2) - $phase) * 200000)>>
 	<<ind>><<link [[Accept (4:00)|Hospital Penis Reduction 3]]>><<pass 4 hours>><</link>>
 	<br>
 <<else>>
@@ -1391,7 +1396,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 :: Hospital Penis Reduction 3
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-<<money `-(($player.penissize - $phase) * 200000)` "hospitalPenisReduction">>
+<<money `-((($player.penissize - 2) - $phase) * 200000)` "hospitalPenisReduction">>
 <<set $penisgrowthtimer to 700>>
 
 <<upperstrip>>
@@ -1419,22 +1424,22 @@ You remove your clothing and stand waiting, feeling more than a little exposed.
 :: Hospital Penis Done
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-<<set $player.penissize to $phase>>
+<<set $player.penissize to $phase + 2>>
 
 You awaken in the same room you passed out in. You don't feel any different, until you look down and see your <<penissize>> penis. Harper enters the room.
 <br><br>
 
 "The operation was a success," <<he>> says. <<He>> looks at your groin.
 
-<<if $player.penissize gte 4>>
+<<if $player.penissize gte 6>>
 	Stares, in fact. <<He>> blushes and looks away.
 	<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
-<<elseif $player.penissize gte 3>>
+<<elseif $player.penissize gte 5>>
 	Stares, in fact. <<He>> blushes and looks away.
 	<<insecurity "penis_big" 1>><<ginsecurity "penis_big">>
-<<elseif $player.penissize is 2>>
+<<elseif $player.penissize is 4>>
 	"No one would look twice at it now." <<He>> blushes. "N-not that it doesn't look nice."
-<<elseif $player.penissize is 1>>
+<<elseif $player.penissize is 3>>
 	"Such a manageable size."
 	<<insecurity "penis_small" 1>><<ginsecurity "penis_small">>
 <<else>>
@@ -1469,41 +1474,41 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 		After a closer examination, <<he>> continues, "You should get that <<print $worn.genitals.name>> unlocked and removed. I'm afraid we don't have the tools to work with such a small device."
 	<</if>>
 	<br>
-<<elseif $player.penissize gte -1>>
+<<elseif $player.penissize gte 1>>
 	"This is a simple procedure." <<He>> pulls a chart of penis sizes from <<his>> desk. "You're about here." <<He>> points at
 	<<switch $player.penissize>>
-		<<case 4>>the top
-		<<case -1>>the bottom
+		<<case 6>>the top
+		<<case 1>>the bottom
 		<<default>>a
 	<</switch>>
-	picture labelled "<span class="lewd"><<print ($player.penissize is 2 ? "average" : "<<penissize>>")>> penis</span>".
+	picture labelled "<span class="lewd"><<print ($player.penissize is 4 ? "average" : "<<penissize>>")>> penis</span>".
 	<br><br>
 
 	"It costs £5000 to increase your penis by a single size, and a further £5000 for each size beyond that."
 	<br><br>
 
-	<<if $player.penissize lt 4>>
-		<<set _penis4 to Math.round((4 - $player.penissize) * 500000)>>
+	<<if $player.penissize lt 6>>
+		<<set _penis4 to Math.round((4 - ($player.penissize - 2)) * 500000)>>
 		<<procedureicon "penis enlarge">><<link [[Make your penis enormous|Hospital Penis Enlargement 2]]>><<set $phase to 4>><</link>> | <<printmoney _penis4>>
 		<br>
 	<</if>>
-	<<if $player.penissize lt 3>>
-		<<set _penis3 to Math.round((3 - $player.penissize) * 500000)>>
+	<<if $player.penissize lt 5>>
+		<<set _penis3 to Math.round((3 - ($player.penissize - 2)) * 500000)>>
 		<<procedureicon "penis enlarge">><<link [[Make your penis large|Hospital Penis Enlargement 2]]>><<set $phase to 3>><</link>> | <<printmoney _penis3>>
 		<br>
 	<</if>>
-	<<if $player.penissize lt 2>>
-		<<set _penis2 to Math.round((2 - $player.penissize) * 500000)>>
+	<<if $player.penissize lt 4>>
+		<<set _penis2 to Math.round((2 - ($player.penissize - 2)) * 500000)>>
 		<<procedureicon "penis enlarge">><<link [[Make your penis average|Hospital Penis Enlargement 2]]>><<set $phase to 2>><</link>> | <<printmoney _penis2>>
 		<br>
 	<</if>>
-	<<if $player.penissize lt 1>>
-		<<set _penis1 to Math.round((1 - $player.penissize) * 500000)>>
+	<<if $player.penissize lt 3>>
+		<<set _penis1 to Math.round((1 - ($player.penissize - 2)) * 500000)>>
 		<<procedureicon "penis enlarge">><<link [[Make your penis small|Hospital Penis Enlargement 2]]>><<set $phase to 1>><</link>> | <<printmoney _penis1>>
 		<br>
 	<</if>>
-	<<if $player.penissize lt 0>>
-		<<set _penis0 to Math.round((0 - $player.penissize) * 500000)>>
+	<<if $player.penissize lt 2>>
+		<<set _penis0 to Math.round((0 - ($player.penissize - 2)) * 500000)>>
 		<<procedureicon "penis enlarge">><<link [[Make your penis tiny|Hospital Penis Enlargement 2]]>><<set $phase to 0>><</link>> | <<printmoney _penis0>>
 		<br>
 	<</if>>
@@ -1520,10 +1525,10 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 :: Hospital Penis Enlargement 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-"This will cost <span class="gold">£<<print (($phase - $player.penissize) * 5000)>></span>," <<he>> says. "And take four hours."
+"This will cost <span class="gold">£<<print (($phase - ($player.penissize -2)) * 5000)>></span>," <<he>> says. "And take four hours."
 <br><br>
 
-<<if $money gte (($phase - $player.penissize) * 500000)>>
+<<if $money gte (($phase - ($player.penissize - 2)) * 500000)>>
 	<<ind>><<link [[Accept (4:00)|Hospital Penis Enlargement 3]]>><<pass 4 hours>><</link>>
 	<br>
 <<else>>
@@ -1537,7 +1542,7 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 :: Hospital Penis Enlargement 3
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-<<money `-(($phase - $player.penissize) * 500000)` "hospitalPenisEnlargement">>
+<<money `-(($phase - ($player.penissize - 2)) * 500000)` "hospitalPenisEnlargement">>
 <<set $penisgrowthtimer to 300>>
 
 <<upperstrip>>
@@ -1572,13 +1577,13 @@ The receptionist taps something into <<his>> computer and instructs you to take 
 
 <<harper_intro>>
 
-"So you have ink you'd like removed," <<he>> says. "We can facilitate that. The procedure costs £3000, and will take three hours."
+"So you have ink you'd like removed," <<he>> says. "We can facilitate that. The procedure costs £2000, and will take three hours."
 <br><br>
 
-<<if $money gte 300000>>
+<<if $money gte 200000>>
 	<<for _active_bodypart range setup.bodyparts>>
 		<<if $skin[_active_bodypart].pen is "tattoo">>
-			<<capture _active_bodypart>><<link [[Remove|Hospital Tattoo Removal 2]]>><<pass 3 hours>><<money -300000 "hospitalTattooRemoval">><<set $remove_tattoo to _active_bodypart>><</link>><</capture>> the <<tattoo _active_bodypart>> on your <<bodypart _active_bodypart>>.
+			<<capture _active_bodypart>><<link [[Remove|Hospital Tattoo Removal 2]]>><<pass 3 hours>><<money -200000 "hospitalTattooRemoval">><<set $remove_tattoo to _active_bodypart>><</link>><</capture>> the <<tattoo _active_bodypart>> on your <<bodypart _active_bodypart>>.
 			<br>
 		<</if>>
 	<</for>>
@@ -1674,8 +1679,11 @@ You're quietly led through the corridor. Some shapes seem to glance your way. Th
 
 :: Ambulance Sydney
 <<set $outside to 0>><<effects>>
-<<set $worn.face.type.push("broken")>><<faceruined>><<set $worn.neck.type.push("broken")>><<neckruined>>
-<<remove_shackle>><<unbind>><<storeon "duopunish">><<unset $punishmentCounter>><<unset $punishmentTimer>><<unset $sydneyPain>><<unset $sydneyArousal>>
+<<if !$worn.neck.name.includes("familiar collar")>>
+	<<set $worn.neck.type.push("broken")>><<neckruined>>
+<</if>>
+<<set $worn.face.type.push("broken")>><<faceruined>><<remove_shackle>><<unbind>>
+<<storeon "duopunish">><<unset $punishmentCounter>><<unset $punishmentTimer>><<unset $sydneyPain>><<unset $sydneyArousal>>
 <<unset $sydneyHold>><<unset $sydneyStop>><<unset $sydneyHit>><<unset $sydneyPlead>><<unset $sydneyTouch>>
 <<set $daily.sydney.punish to 1>>
 
@@ -1713,17 +1721,19 @@ The nurse explains that you have suffered a severe stress response, but you are 
 You don't have to wait long.
 
 <<npc "Harper" 1>><<person1>><<npc "Sydney" 2>><<person2>>
-<<if $hospitalintro isnot 1>>
+<<if !$harperSeen.includes("hospital")>>
 	A <<person1>><<personsimple>> wearing a white medical coat and carrying a clipboard enters.
 	<br><br>
 
-	<<if $hospitalintro is 0>>
-		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
-	<<else>>
+	<<if $harperSeen.includes("livestock")>>
 		It's the doctor from the farm. The one who experimented on you. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. There's no recognition on <<his>> face. <<He>> takes a seat by your bedside.
+	<<elseif $harperSeen.includes("party")>>
+		It's the doctor from Avery's party. The one with the pink powder. <<He>> smiles at you. "Hello, I'm Doctor Harper," <<he>> says. <<He>> dons an innocent smile. <<He>> takes a seat by your bedside.
+	<<else>>
+		<<He>> smiles at you. "Hello, I'm Doctor Harper." <<He>> takes a seat by your bedside and pulls <<his>> blond fringe away from <<his>> eyes. <<He>> looks young for a doctor, can't be older than 25.
 	<</if>>
 
-	<<set $hospitalintro to 1>>
+	<<set $harperSeen.pushUnique("hospital")>>
 <<else>>
 	Doctor Harper enters, carrying <<person1>><<his>> usual clipboard. <<He>> assures you that there is no immediate concern, but <<he>> would like to examine you further.
 <</if>>
@@ -1747,7 +1757,7 @@ You hear Sydney yawn. <<person2>><<His>> eyes flutter open, and <<he>> smiles. "
 	"Let's not do this again. We can get this over with professionally."
 <</if>>
 <br><br>
-Sydney moves in front of you, as if to guard you. "I'm invoking my right to refuse treatment. My <<sydneymum>> will handle the paperwork."
+Sydney moves in front of you, as if to guard you. "I'm invoking my right to refuse treatment. My <<nnpc_mum "Sirris">> will handle the paperwork."
 <br><br>
 Doctor Harper sighs. "Very well. But I must still evaluate <<phim>>."
 <<person1>>

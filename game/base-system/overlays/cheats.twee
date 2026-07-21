@@ -181,7 +181,7 @@
 			</span>
 			<br>
 			<<set _gender_body_words to {"m": "Masculine", "f": "Feminine", "a": "Androgynous"}>>
-			Body type: <mouse class="tooltip linkBlue">(?)<span>Contributes to how feminine or masculine you appear. In normal gameplay, the player's body type does not contribute to gender appearance, unless it has been feminised or masculinised via special clothing.</span></mouse>:
+			Body type <mouse class="tooltip linkBlue">(?)<span>Contributes to how feminine or masculine you appear. In normal gameplay, the player's body type does not contribute to gender appearance, unless it has been feminised or masculinised via special clothing.</span></mouse>:
 			<span id="statsBodyType">
 				<<cheatsBody>>
 			</span>
@@ -283,7 +283,7 @@
 				},
 				step: 10,
 				valueFormat: value => Math.round(value) + "ml",
-				percentage: false, min: 24, max: 3000
+				percentage: false, min: 24, max: (V.cow >= 6 ? 6000 : 3000)
 			}>>
 			<<if $player.penisExist>>
 				<<numberStepper "Semen Volume" $semen_volume {
@@ -294,7 +294,7 @@
 					},
 					step: 10,
 					valueFormat: value => Math.round(value) + "ml",
-					percentage: false, max: 3000
+					percentage: false, max: (V.cow >= 6 ? 4000 : 3000)
 				}>>
 			<</if>>
 		</div>
@@ -311,7 +311,7 @@
 			<br>
 		</div>
 		<<set _cl_slots to ["upper", "lower", "under_upper", "under_lower", "over_upper", "over_lower", "genitals"]>>
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<<run _cl_slots.push("face")>>
 		<</if>>
 		<<set $_clothes to []>>
@@ -452,7 +452,7 @@
 			<<set $_clothes.push("a chastity belt")>>
 		<</if>>
 
-		<<if $worn.face.type.includesAny("covered", "gag", "mask")>>
+		<<if $worn.face.type.includesAny("face_covering", "gag", "mask")>>
 			<div class="settingsToggleItemWide numberslider-inline">
 				<span class="gold"><<clothingicon $worn.face "face">><<= $worn.face.name.toUpperFirst()>> integrity:</span>
 
@@ -469,9 +469,10 @@
 		<div class="settingsToggleItemWide">
 			You are not wearing <span class="gold"><<= $_clothes.join(", ")>></span>.
 
+			<br>
+			<label>Auto repair <<checkbox "$cheatClothes" false true autocheck>></label> |
 			/* Don't show links if player doesn't have anything to fix/destroy */
 			<<if $_clothes.length lt 8>>
-				<br>
 				<<link "Fix all">>
 					<<run _cl_slots.forEach((slot) => {
 						if (V.worn[slot].name === "naked") return;
@@ -524,7 +525,7 @@
 			<br>
 			<span class="description"> Binding your arms will destroy handheld items. Shackling your feet will destroy shoes.</span>
 			<br>
-			<<icon "clothes/gag.png">><<link "Gag">><<facewear 4>><<updatesidebarimg>><</link>> | <<link "Blindfold">><<facewear 5>><<updatesidebarimg>><</link>> | <<link "Gag and blindfold">><<facewear 6>><<updatesidebarimg>><</link>> | <<link "Bind arms">><<bind>><<updatesidebarimg>><</link>> | <<link "Shackle feet">><<shackle_feet>><<updatesidebarimg>><</link>>
+			<<icon "clothes/gag.png">><<link "Gag">><<facewear "gag">><<updatesidebarimg>><</link>> | <<link "Blindfold">><<facewear "blindfold">><<updatesidebarimg>><</link>> | <<link "Gag and blindfold">><<facewear "gag and blindfold">><<updatesidebarimg>><</link>> | <<link "Bind arms">><<bind>><<updatesidebarimg>><</link>> | <<link "Shackle feet">><<shackle_feet>><<updatesidebarimg>><</link>>
 			<br>
 			<<undobindingsicon>> <<link "Unbind all">><<unbind>><<if $worn.face.type.includes("gag") or $worn.face.type.includes("blindfold")>><<set $worn.face.type.push("broken")>><<faceruined>><</if>><<updatesidebarimg>><</link>>
 
@@ -537,11 +538,11 @@
 				<<listbox "_slot" autoselect>>
 					<<optionsfrom setup.clothingLayer.body>>
 				<</listbox>>
-				<<set _clothesID to "1">>
-				<<textbox "_clothesID" "1">>
+				<<set _clothesID to 1>>
+				<<numberbox "_clothesID" 1>>
 				<br>
 				<<link "Send">>
-					<<if !between(+_clothesID, 1, setup.clothes[_slot].length)>>
+					<<if !between(_clothesID, 1, setup.clothes[_slot].length - 1)>>
 						<<replace "#ClothesSendResult">>That didn't work!<</replace>>
 					<<else>>
 						<<shopbuyv2 _slot "buy" "send" _clothesID 1>>
@@ -1037,14 +1038,19 @@
 			<span class="gold">Eye Colour</span>
 			<br>
 			<<set _bar to false>>
+			<<set _temp_list to []>>
 			<<for _i = 0; _i < setup.colours.eyes.length; _i++>>
-				<<if setup.colours.eyes[_i].natural>>
+				<<if setup.colours.eyes[_i].natural and !_temp_list.includes(setup.colours.eyes[_i].name)>>
 					<<if _bar>>|<</if>>
-					<label><span @class="setup.colours.eyes[_i].csstext">
-						<<= setup.colours.eyes[_i].name>></span>
+					<label>
+						<span @class="setup.colours.eyes[_i].csstext">
+							<<= setup.colours.eyes[_i].name>>
+						</span>
 						<<radiovar "$eyeselected" setup.colours.eyes[_i].variable>>
 							<<cheatMenuEyesSelected>>
-						<</radiovar>></label>
+						<</radiovar>>
+						<<set _temp_list.push(setup.colours.eyes[_i].name)>>
+					</label>
 					<<set _bar to true>>
 				<</if>>
 			<</for>>
@@ -1083,12 +1089,12 @@
 				<br><br>
 				<span class="gold">Penis Size</span>
 				<<set _penisText to ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"]>>
-				<<numberslider "$player.penissize" $player.penissize  -2 4 1 {
+				<<numberslider "$player.penissize" $player.penissize 0 6 1 {
 				onInputChange: value => {
 					wikifier("<<updatesidebarimg false>>");
 				},
 				value: v => {
-					return T.penisText[v + 2];
+					return T.penisText[v];
 				}
 			}>>
 				<<if $debug is 1>>
@@ -1100,8 +1106,8 @@
 				<</if>>
 			<</if>>
 			<br><br>
-			Cover nudity (only if embarrassed): <<checkbox "$dontHide" true false autocheck>>
-			<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>>
+			<label>Cover nudity (only if embarrassed): <<checkbox "$dontHide" true false autocheck>>
+			<<run $(() => $('#checkbox-donthide').on('change', e => wikifier('<<updatesidebarimg>>')))>></label>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Sensitivity</span>
@@ -1396,10 +1402,10 @@
 				<</if>>
 			</div>
 		<</if>>
-		<<if $dockwork is 2>>
+		<<if $docks.hired>>
 			<div class="settingsToggleItem">
 				<<docksicon>><span class="gold">Docks</span>
-				<<numberStepper "Status" $dockstatus "dockstatus">>
+				<<numberStepper "Status" $docks.status { callback: value => { V.docks.status = value } }>>
 			</div>
 		<</if>>
 		<<if $pirate_rank gte 0>>
@@ -1558,6 +1564,10 @@
 					<<dooricon "doren">><<link [[Doren's Flat|Doren Entrance]]>><<cheats-teleport-function>><</link>>
 					<br>
 				<</if>>
+				<<if $whitney_home_stage gte 3 and (C.npc.Whitney.state is "active" or C.npc.Whitney.state is "rescued")>>
+					<<dooricon "whitney">><<link [[Whitney's Flat|Whitney Home Knock]]>><<set $daily.whitney.home_dawn to 1>><<cheats-teleport-function>><</link>>
+					<br>
+				<</if>>
 				<<dancestudioicon>><<link [[Dance Studio]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<policeicon>><<link [[Police Station]]>><<cheats-teleport-function>><</link>>
@@ -1566,10 +1576,31 @@
 				<br>
 				<<spaicon>><<link [[Spa]]>><<cheats-teleport-function>><</link>>
 				<br>
+				<<if $avery_mansion>>
+					<<if $avery_fate is "fallen" or $avery_fate is "kicked">>
+						<<if $avery_mansion_fire_time gte 1>>
+							<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Fire]]>><<cheats-teleport-function>><</link>>
+							<br>
+						<<else>>
+							<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Ruin]]>><<cheats-teleport-function>><</link>>
+							<br>
+						<</if>>
+					<<else>>
+						<<icon "front-gate.png">><<link [[Avery's mansion|Mansion Enter]]>><<cheats-teleport-function>><</link>>
+						<br>
+					<</if>>
+				<</if>>
 				<<wolficon>><<link [[Temple]]>><<cheats-teleport-function>><</link>>
 				<br>
-				<<kitchenicon "soup">><<link [[Soup Kitchen]]>><<cheats-teleport-function>><</link>>
-				<br>
+				<<if $soup_kitchen_known is 1 and $exposed lte 0>>
+					<!-- take passage of time into account -->
+					<<if Time.betweenHours(18, 20, 1)>>
+						<<kitchenicon "soup">><<link [[Soup Kitchen]]>><<cheats-teleport-function>><</link>>
+					<<else>>
+						<<kitchenicon "soup">><<link [[Soup Kitchen|Soup Kitchen Closed]]>><<cheats-teleport-function>><</link>>
+					<</if>>
+					<br>
+				<</if>>
 				<<stripclubicon>><<link [[Strip Club]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<hospitalicon>><<link [[Hospital|Hospital front]]>><<cheats-teleport-function>><</link>>
@@ -1602,9 +1633,16 @@
 				<br>
 				<<foresticon>><<link [[Forest]]>><<cheats-teleport-function>><</link>>
 				<br>
+				<<lakeicon>><<link [[Lake|Lake Shore]]>><<cheats-teleport-function>><</link>>
+				<br>
 				<<roadicon>><<link [[Farm Road 1]]>><<cheats-teleport-function>><</link>>
 				<br>
 				<<farmicon "barn">><<link [[Farmlands|Farmland]]>><<cheats-teleport-function>><</link>>
+				<br>
+				<<if $syndromebird is 1>>
+					<<birdicon "tower">><<link [[Bird Tower]]>><<cheats-teleport-function>><</link>>
+					<br>
+				<</if>>
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold">Town Streets</span>
@@ -1735,6 +1773,15 @@
 			<br>
 			<span id="cheatsWeather"><<cheatsWeather>></span>
 			<br>
+			<br>
+			<<numberStepper "Fog" `Weather.FogGeneration.getFog()` {
+				callback: value => {
+					Weather.FogGeneration.setFog(value);
+				},
+				min: 0, max: 1, step: 0.1, colorArr: ["--blue"], percentage: false,
+				valueFormat: value => round(value, 1),
+				activeButtons: ["single", "double"]
+			}>>
 			<span class="description">Changing this setting will change the weather for at least 6 hours, before returning to the original weather simulation.</span>
 		</div>
 		<div class="settingsToggleItemWide">
@@ -1834,7 +1881,7 @@
 
 		<span class="gold"><<= _anal.toUpperFirst()>> Parasitic Pregnancy</span>
 		<br>
-		You can have up to <<number _slots>> _anal <<= _slots is 1 ? "parasite" : "parasites">>.
+		You can have up to <<number _slots>> _anal <<pluralise _slots "parasite">>.
 		<<if $_pregnancy.fetus.length lt maxParasites(_args[0])>>
 			<br><br>
 			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
@@ -1927,21 +1974,23 @@
 	<<if $player.vaginaExist or canBeMPregnant()>>
 		<<set _menstruation to $sexStats.vagina.menstruation>>
 		<<set $_pregnancy to getPregnancyObject()>>
-		<<if !playerIsPregnant() and $settings.fertilityCycleEnabled>>
+		<<if !playerIsPregnant()>>
 			You aren't pregnant.
 			<<if $settings.pregnancyType is "realistic">>
 				You have <span id="cheatSpermSources"><span class="gold"><span class="gold">$sexStats[_womb].sperm.length</span></span> <<pluralise $sexStats[_womb].sperm.length "sperm source">></span> contributing to your chances of getting pregnant.
 			<</if>>
 			<br><br>
-			Menstruation:
-			<br>
-			<<link "<<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
-			<<link "<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
-			Day <span id="cheatMenstruationDay"><<= Math.trunc(_menstruation.currentDay)>></span> of _menstruation.currentDaysMax
-			| <<link "Ovulate">><<set _menstruation.currentDay to _menstruation.stages[2]>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			| <<link ">">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			| <<link ">>">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			<br><br>
+			<<if $settings.fertilityCycleEnabled>>
+				Menstruation:
+				<br>
+				<<link "<<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
+				<<link "<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
+				Day <span id="cheatMenstruationDay"><<= Math.trunc(_menstruation.currentDay)>></span> of _menstruation.currentDaysMax
+				| <<link "Ovulate">><<set _menstruation.currentDay to _menstruation.stages[2]>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
+				| <<link ">">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
+				| <<link ">>">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
+				<br><br>
+			<</if>>
 		<</if>>
 		<<if playerIsPregnant()>>
 			You are pregnant.
@@ -2063,7 +2112,7 @@
 					<<if $settings.playerPregnancyHumanEnabled>>
 						<<link "An anonymous donor">> /* The sperm owner is always the same, anonymous donor, so it helps pregnancy from only one source */
 							<<recordSperm `{target: "pc", spermOwner: "anonymous donor", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 						| <<link "A random person">> /* checks if males or females have penises, if there is no people with penises a foreigner inseminates PC */
 							<<set _impregnator to either("arbitrary", "aimless", "by-the-way", "casual", "driftless", "hit-or-miss", "fluky", "promiscuous", "slapdash", "irresponsible", "careless", "negligent") + " cheater ">>
@@ -2077,7 +2126,7 @@
 								<<set _impregnator += "foreigner">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 					<<if $settings.playerPregnancyBeastEnabled>>
@@ -2105,7 +2154,7 @@
 								<<set _spermType to "wolf">>
 							<</if>>
 							<<recordSperm `{target: "pc", spermOwner: _impregnator, spermType: _spermType, genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 					<<for _pregEnabled range _impregnatorNPC>>
@@ -2131,14 +2180,14 @@
 						<<capture _actor, _spermType, _womb>>
 						| <<link _actor.nam>>
 							<<recordSperm `{target: "pc", spermOwner: _actor.nam, spermType: _spermType, genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 						<</capture>>
 					<</for>>
 					<<if $player.penisExist>>
 						| <<link "Yourself">>
 							<<recordSperm `{target: "pc", spermOwner: "pc", spermType: "human", genital: _womb}`>>
-							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<= $sexStats[_womb].sperm.length is 1 ? "sperm source" : "sperm sources">><</replace>>
+							<<replace "#cheatSpermSources">><span class="gold">$sexStats[_womb].sperm.length</span> <<pluralise $sexStats[_womb].sperm.length "sperm source">><</replace>>
 						<</link>>
 					<</if>>
 				<</if>>
@@ -2153,7 +2202,7 @@
 	<span class="gold">Impregnation</span>
 	<<if $player.penisExist and _impregnatableNPC.length>>
 		<br>
-		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<= _impregnatableNPC.length is 1 ? "NPC" : "NPCs">>.
+		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<pluralise _impregnatableNPC.length "NPC">>.
 		<br><br>
 		<<set _fertileNPC to 0>>
 		<<for _pregEnabled range _impregnatableNPC>>
@@ -2294,7 +2343,7 @@
 <</widget>>
 
 <<widget "cheatsBodySize">>
-	<<set _size = [6000, 10000, 12000, 16000]>>
+	<<set _size = [6000, 9000, 12000, 15000]>>
 	<<set _label = ["Tiny", "Small", "Normal", "Large"]>>
 
 	<<capture _i, _size, _label>>
@@ -2371,7 +2420,7 @@
 <</widget>>
 
 <<widget "cheatsWeather">>
-	<<set _weatherTypes to ["clear", "lightClouds", "heavyClouds", "lightPrecipitation", "heavyPrecipitation"]>>
+	<<set _weatherTypes to ["clear", "lightClouds", "heavyClouds", "lightPrecipitation", "heavyPrecipitation", "storm", "thunderstorm"]>>
 	<<set _dayState to Weather.bloodMoon ? "blood" : Weather.dayState === "night" ? "night" : "day">>
 	<<capture _i, _weatherState, _dayState, _name, _iconType, _weatherIcon>>
 		<<for _i = 0; _i < _weatherTypes.length; _i++>>
@@ -2505,7 +2554,7 @@
 			<<numberStepper "Exhibitionism" $fame.exhibitionism { callback: value => { V.fame.exhibitionism = value }, max: 2000, reverse: true}>>
 			<<if playerNormalPregnancyTotal() lt 8>>
 				<span class="description"><<set _pregsNeeded to Math.trunc(8-playerNormalPregnancyTotal())>>
-				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<= _pregsNeeded is 1 ? "time" : "times">> to reach maximum pregnancy fame.</span>
+				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<pluralise _pregsNeeded "time">> to reach maximum pregnancy fame.</span>
 			<</if>>
 		<<case "positive">>
 			<<numberStepper "Combat" $fame.scrap { callback: value => { V.fame.scrap = value }, max: 2000}>>

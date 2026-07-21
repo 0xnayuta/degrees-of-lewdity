@@ -205,7 +205,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 						colour: "sub",
 					});
 				}
-				if (V.player.ballsExist && ballsExposed() && V.ballssize >= -1 && (V.ballssize >= 1 || V[otherArm + "arm"] !== "mballs")) {
+				if (V.player.ballsExist && ballsExposed() && V.ballssize >= 0 && (V.ballssize >= 3 || V[otherArm + "arm"] !== "mballs")) {
 					result.options.push({
 						action: "mballsentrance",
 						text: "Fondle your balls",
@@ -277,7 +277,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			}
 			break;
 		case "mpenisentrance":
-			result.text = `You hold your <<penis>> ${V.player.penissize >= 0 ? `in your ${arm} hand.` : `with your ${arm} thumb and fingers.`}`;
+			result.text = `You hold your <<penis>> ${V.player.penissize >= 2 ? `in your ${arm} hand.` : `with your ${arm} thumb and fingers.`}`;
 			if (V.mouth !== "mpenis") {
 				result.options.push({
 					action: "mpenisglans",
@@ -352,7 +352,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.options.push(stop("mvaginastop"));
 			break;
 		case "mvagina":
-			result.text = `You have <<number $fingersInVagina>> ${V.fingersInVagina === 1 ? "finger" : "fingers"} in your <<pussy>>.${
+			result.text = `You have <<number $fingersInVagina>> <<pluralise $fingersInVagina "finger">> in your <<pussy>>.${
 				V.fingersInVagina === V.vaginaFingerLimit ? " You cannot fit any more." : ""
 			}`;
 			if (V.fingersInVagina < V.vaginaFingerLimit - 1 && V.fingersInVagina < 4 && currentSkillValue("vaginalskill") >= 300) {
@@ -693,7 +693,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			}
 			break;
 		case "mballs":
-			result.text = `You hold ${V.ballssize >= 1 ? "one of " : ""} your ${V.ballsText} with your ${arm} hand.`;
+			result.text = `You hold ${V.ballssize >= 3 ? "one of " : ""} your ${V.ballsText} with your ${arm} hand.`;
 			result.options.push({
 				action: "mballsfondle",
 				text: "Fondle",

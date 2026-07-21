@@ -79,7 +79,7 @@ class CombatSystem {
 		if (V.orgasmdown > 0) {
 			return true;
 		}
-		return V.enemyarousal > V.enemyarousalmax;
+		return V.enemyarousal >= V.enemyarousalmax;
 	}
 
 	isActive() {
@@ -155,8 +155,9 @@ class CombatSystem {
 		return !!activeState;
 	}
 
-	isMouthActive() {
+	isMouthActive(canvas) {
 		const activeState = V.mouthstate && ["penetrated", "kiss", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.mouthstate);
+		if (canvas === "close" && V.mouthstate && ["entrance", "imminent"].includes(V.mouthstate)) return true;
 		return !!activeState;
 	}
 

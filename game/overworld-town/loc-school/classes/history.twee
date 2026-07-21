@@ -7,6 +7,7 @@
 	<<set $robinhistory to "missing">>
 <</if>>
 <<if $schoolstate is "fourth">>
+	<<lockerClothesAutoEquip>>
 	<<classRoomEarSlime "history">>
 	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked")>>
 		<<outfitChecks>>
@@ -27,7 +28,7 @@
 		<br><br> good starting point for when you can go to class naked-->
 		<<link [[Next|Hallways]]>><<endevent>><</link>>
 		<br><br>
-	<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and !pcAreArmsBound("right")>>
+	<<elseif wearingSchoolOutfit() and !pcAreArmsBound("right")>>
 		<<if $daily.school.attended.history>>
 			You rejoin the history lesson,
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
@@ -147,6 +148,7 @@
 		<br><br>
 	<</if>>
 <<elseif $schoolstate is "lunch">>
+	<<lockerClothesAutoEquip>>
 	<<classRoomEarSlime "history">>
 	<<print $withRobin ? "You and Robin" : "You">> enter the history classroom.
 	<<if $withRobin is "hurt">>
@@ -158,7 +160,7 @@
 		<<unset $withRobin>><<endevent>>
 	<<elseif $withRobin is "yes">>
 		<<npc Robin>><<person1>>
-		<<if !$worn.upper.type.includes("school") and !$worn.lower.type.includes("school")>>
+		<<if !wearingSchoolOutfit()>>
 			Robin glances at your clothes. "I don't think Winter will let you attend class like that... do you have a spare uniform in your pool locker? If not, the <<nnpc_title "Leighton">> might have one!" Robin sits down at <<his>> desk and pulls <<his>> textbook out of <<his>> bookbag.
 		<<elseif !$worn.handheld.type.includes("bookbag")>>
 			Robin sits down at <<his>> desk and pulls <<his>> textbook out of <<his>> bookbag. <<He>> glances over at you. "Oh, did you forget your bookbag in your locker? You should go grab it! I think the school library sells backpacks too, if you don't have anything to carry your books in."
@@ -202,6 +204,7 @@
 	<<getouticon>><<link [[Leave|Hallways]]>><</link>>
 	<br>
 <<elseif $schoollesson is 1>>
+	<<lockerClothesAutoEquip>>
 	<<if $daily.school.historyInterrupted is 1>>
 		<<npc Winter>><<person1>>You enter the history classroom. Winter stops speaking abruptly and looks your way. "Every time you interrupt me, you damage your fellow student's chances. I'll mark you down for detention." <<He>> guides you to the door.
 		<<gdelinquency>>
@@ -298,25 +301,23 @@
 	<br>
 	<<socialiseicon>><<link [[Socialise with classmates|History Lesson Socialise]]>><</link>><<gcool>><<ltrauma>><<lstress>><<gharass>>
 	<br>
-	<<daydreamicon>><<link [[Daydream|History Lesson Daydream]]>><</link>><<lstress>> <<lharass>>
+	<<daydreamicon>><<link [[Daydream|History Lesson Daydream]]>><</link>><<lstress>><<lharass>>
 	<br>
 	<<if $tiredness gte (C.tiredness.max / 5) * 3>>
 		<<bedicon "zzz">><<link [[Sleep at your desk|History Lesson Sleep]]>><</link>><<ltiredness>>
 		<br>
 	<</if>>
-	<<if hasSexStat("exhibitionism", 5)>>
-		<<if $robinhistory is "seat">>
-			<<if C.npc.Robin.dom gte 60>>
-				<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate Robin]]>><</link>>
-				<br>
-			<<else>>
-				<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist5>>
-				<br>
-			<</if>>
+	<<if $robinhistory is "seat" and hasSexStat("exhibitionism", 5)>>
+		<<if C.npc.Robin.dom gte 60>>
+			<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate Robin]]>><</link>><<exhibitionist5>>
+			<br>
 		<<else>>
-			<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+			<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist5>>
 			<br>
 		<</if>>
+	<<elseif hasSexStat("exhibitionism", 4)>>
+		<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate]]>><<set $masturbationstart to 1>><</link>><<exhibitionist4>>
+		<br>
 	<</if>>
 <</if>>
 
@@ -450,16 +451,39 @@ You rest your head on the desk while Winter <<print either("elaborates on the si
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<run statusCheck("Robin")>>
 <<if $phase is 1>>
-	<<wearProp "open textbook" "yellow" "history">>
+	<<wearProp "open history">>
 <</if>>
+<<set _robin_active to C.npc.Robin.init>>
 <<npc Robin>><<person1>>
 <<if $robinhistory is "seat">>
-	You sit beside Robin <<if $phase is 1>>and read<<else>>while <<he>> reads<</if>> a history textbook.
+	<<if !_robin_active>>
+		<<set $robindebt to 0>><<set $robindebtlimit to 5>>
+		In one of the desks you see a familiar face. It's Robin. <<Hes>> another resident at the orphanage.
+		<<Hes>> always looked up to you, despite being about the same age.
+		<<He>> looks up at you and smiles. "Hey!" <<he>> says.
+		"I didn't see you this morning. Remember, <span class="gold">you can visit me in my room at home</span> anytime you want.
+		I've been waiting to show you something. I'm so excited!"
+		<br><br>
+		You sit beside <<him>> <<if $phase is 1>>and read<<else>>while <<he>> reads<</if>> a history textbook.
+	<<else>>
+		You sit beside Robin <<if $phase is 1>>and read<<else>>while <<he>> reads<</if>> a history textbook.
+	<</if>>
 <<else>>
 	You take a seat and <<if $phase is 1>>read a history textbook<<else>>wait for class to start<</if>>.
 	<<if _robin_location is "school" and $daily.school.lunchEaten isnot 1>>
-		Robin is the next to arrive and takes the seat beside you.
-		<<set $robinhistory to "seat">>
+		<<if !_robin_active>>
+			<<set $robindebt to 0>><<set $robindebtlimit to 5>>
+			You hear a voice shout behind you. "Hey!" It's Robin. <<Hes>> another resident at the orphanage.
+			<<Hes>> always looked up to you, despite being about the same age. <<He>> runs towards you.
+			"I didn't see you this morning. Remember, <span class="gold">you can visit me in my room at home</span> anytime you want.
+			I've been waiting to show you something. I'm so excited!"
+			<br><br>
+			<<He>> quickly takes the seat beside you.
+			<<set $robinhistory to "seat">>
+		<<else>>
+			Robin is the next to arrive and takes the seat beside you.
+			<<set $robinhistory to "seat">>
+		<</if>>
 	<</if>>
 <</if>>
 <br><br>
@@ -473,7 +497,7 @@ You rest your head on the desk while Winter <<print either("elaborates on the si
 
 	<<link [[Next|Hallways]]>><<endevent>><</link>>
 	<br><br>
-<<elseif $worn.upper.type.includes("school") and $worn.lower.type.includes("school")>>
+<<elseif wearingSchoolOutfit()>>
 	<<link [[Next|History Lesson]]>><<endevent>><</link>>
 	<br>
 <<else>>
@@ -526,8 +550,8 @@ You rest your head on the desk while Winter <<print either("elaborates on the si
 		<<link [[Beg|History Robin Beg]]>><<sub 1>><</link>><<submissivetext>>
 		<br>
 	<</if>>
-	<<if $submissive lte 500>>
-		<<link [[Get physical|History Robin Fight]]>><<def 1>><</link>><<defianttext>>
+	<<if displayDefiantOption(500)>>
+		<<link [[Get physical|History Robin Fight]]>><<wolfDefiant 500>><<def 1>><</link>><<defianttext 500>>
 		<br>
 	<</if>>
 <<else>>

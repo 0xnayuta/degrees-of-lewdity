@@ -10,7 +10,7 @@
 	<<else>>
 		<!-- Note: Don't try to move the <<endevent>> outside these links, that would make this widget less portable. -->
 		<<if $money gte 200>>
-			<<foodicon "cocoa">><<link [[Buy hot chocolate (0:15)|Robin Chocolate Purchase]]>><<stress -6>><<trauma -1>><<pass 15>><<clotheson>><<endevent>><</link>><<lstress>><<ltrauma>>
+			<<foodicon "cocoa">><<link [[Buy hot chocolate (0:15 £2)|Robin Chocolate Purchase]]>><<stress -6>><<trauma -1>><<pass 15>><<clotheson>><<endevent>><</link>><<lstress>><<ltrauma>>
 			<br>
 		<</if>>
 		<<robinicon "cocoa">><<link [[Offer help (0:30)|Robin Chocolate Help]]>><<endevent>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<pass 30>><<clotheson>><</link>><<glove>><<lrtrauma>>
@@ -36,7 +36,7 @@
 :: Robin Chocolate Purchase
 <<effects>><<npc Robin>><<person1>>
 <<money -200>>
-<<wearProp "hot drink" 0 "cocoa">>
+<<wearProp "hot cocoa">>
 
 "<<print $robin.timer.hurt gte 1 ? "I guess." : "Sure!">> One hot chocolate, coming right up!" Robin says, turning to warm up the milk.
 <br><br>
@@ -75,11 +75,10 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 
 <<if Time.hour gte 17>>
 	"It's getting nippy out," Robin says. "Could you help me carry my stuff home?"
-	<<endevent>>
 	<br><br>
-	<<link [[Accept (0:30)|Orphanage]]>><<npcincr Robin love 1>><<pass 30>><<clotheson>><</link>><<glove>>
+	<<link [[Accept (0:30)|Orphanage]]>><<endevent>><<npcincr Robin love 1>><<pass 30>><<clotheson>><</link>><<glove>>
 	<br>
-	<<link [[Refuse|Park]]>><<clotheson>><</link>>
+	<<link [[Refuse|Park]]>><<clotheson>><<endevent>><</link>>
 	<br>
 
 <<else>>
@@ -119,7 +118,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 	<<robinChocolateOfferHelp>>
 <<else>>
 	<<He>> smiles.
-	<<if $rng gte 81 and $cow gte 6 and $livestock_intro isnot undefined>>
+	<<if $rng gte 81 and $cow gte 6 and $livestock.intro isnot undefined>>
 		<<if _robin.trauma gte 40>>
 			"I think I'm okay right now, but could you please stay with me?" Robin asks you as <<he>> fidgets.
 		<<else>>
@@ -198,12 +197,29 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 				<<case 5>> A lot of people weren't prepared for the cold.
 			<</switch>>
 			<br><br>
+			<<if isInPark("doren") and !$weekly.dorenchocolatebuy and random(0,50) gte 25>>
+				<<set $weekly.dorenchocolatebuy to true>><<set _dorenjustbought to true>>
+				<<npc "Doren" 3>><<person3>>
+				"Hiya, <<lassie>>!" Doren takes a cup, looking at the stand, "Helping Robin out, eh?"
+				<br><br>
+				<<He>> turns to the group behind <<him>>; you recognise River among them. "Oi, see that chocolate stand over there? My treat!"
+				<br><br>
+				Quickly, they form a line before Robin, buying hot chocolate.
+				<br><br>
+				"See ya, <<lassie>>." Doren says before joining them.
+				<br><br>
+				<<set $robinmoney += 30>>
+			<</if>>
 			<<person1>>
 			Robin smiles when you return to <<him>>.
 			<<if _robin.trauma gte 40>>
 				<<He>> hugs you the moment you place the tray down. "Thank you."
 			<<else>>
 				"Business has improved a lot," <<he>> says. "Thank you."
+				<<if _dorenjustbought is true>>
+					<br><br>
+					<<He>> shows you <<his>> recent profits, "Look! Doren just came by and treated a bunch of people to a cup!"
+				<</if>>
 			<</if>>
 			<br><br>
 			<<robinChocolateOfferHelp>>
@@ -247,6 +263,23 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 			<br><br>
 			<<robinChocolateOfferHelp>>
 		<</if>>
+	<<elseif $rng gte 21 and isInPark("doren") and !$weekly.dorenchocolatebuy>>
+		<<set $dorenhotchocoprice to 40 + Math.floor(Math.random()*31)*2>>
+		<<set $dorenhotchocoamount to $dorenhotchocoprice/2>>
+
+		<<set $weekly.dorenchocolatebuy to true>>
+		<<npc "Doren" 2>><<person2>>
+		Doren stops by the stall. "Good <<= Time.hour lt 12 ? "morning" : "afternoon">>. I know this is a tall order, but could you make me $dorenhotchocoamount cups of hot chocolate? I'm planning to give them out to the homeless." <<he>> hands Robin £$dorenhotchocoprice.
+		<br><br>
+		Robin shakes <<person1>><<his>> head, returning the money to Doren. "If it's for people in need, then I'll give them for free—"
+		<br><br>
+		"No, no, Robin. I'll pay." Doren insists firmly.
+		<br><br>
+		<<print '<<link [[Offer to pay for the hot chocolate (£'+$dorenhotchocoprice+')|Hot Chocolate Doren]]>><<set $phase to 1>><</link>>'>>
+		<br>
+		<<link [[Convince Robin|Hot Chocolate Doren]]>><<set $phase to 2>><<npcincr Doren love 1>><</link>><<glove Doren>> /*Doren's love */
+		<br>
+		<<link [[Support Robin's point|Hot Chocolate Doren]]>><<set $phase to 3>><<npcincr Robin love 1>><</link>><<glove Robin>> /*Robin's love */
 	<<else>>
 		<<if _robin.trauma gte 40>>
 			"I need some more milk. I'm sorry. I know it's heavy, but could you buy some more?" <<He>> shivers even through <<his>> warm attire. "Harvest Street has some." <<He>> hands you £5 and a large bottle. "That should be enough."
@@ -270,7 +303,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 		<<link [[Steal the milk|Robin Milk Steal]]>><<crimeUp 5 "petty">><</link>><<skulduggerydifficulty>><<crime "petty">>
 		<br>
 		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[Flirt for cheaper milk|Robin Milk Seduction]]>><</link>><<promiscuous2>>
+			<<link [[Flirt for cheaper milk|Robin Milk Seduction]]>><<endevent>><</link>><<promiscuous2>>
 			<br>
 		<</if>>
 	<</if>>
@@ -513,7 +546,7 @@ Robin smiles when you return to <<him>>.
 <<npc Robin>><<person1>>
 <<set _robin to statusCheck("Robin")>>
 <<if $masturbation_fluid gte 500>>
-	<<wearProp "milk bottle" 0 "breast milk">>
+	<<wearProp "bottle of breast milk">>
 	<span class="green">The bottle filled with milk,</span> you leave the toilets.
 	<br><br>
 	Robin smiles when <<he>> sees you.
@@ -527,7 +560,7 @@ Robin smiles when you return to <<him>>.
 	<br><br>
 
 <<else>>
-	<<wearProp "milk bottle" 0 "milk">>
+	<<wearProp "bottle of milk">>
 	You stop masturbating.
 	<<if $finish isnot 1>>
 		You've been trying a while, and Robin is waiting.
@@ -535,7 +568,7 @@ Robin smiles when you return to <<him>>.
 
 	<<if $masturbation_fluid gte 400>>
 		<span class="teal">You almost gathered enough fluid,</span> but you'll need to buy the rest.
-	<<elseif $masturbatoin_fluid gte 300>>
+	<<elseif $masturbation_fluid gte 300>>
 		<span class="lblue">You gathered a lot of fluid,</span> but you'll need to buy the rest.
 	<<elseif $masturbation_fluid gte 200>>
 		<span class="blue">You gathered some fluid,</span> but you'll need to buy the rest.
@@ -569,7 +602,7 @@ Robin smiles when you return to <<him>>.
 
 :: Robin Milk Seduction
 <<effects>>
-<<wearProp "milk bottle" 0 "milk">>
+<<wearProp "bottle of milk">>
 <<endevent>><<generate1>><<generate2>><<person1>>
 You arrive at Harvest Street, and enter a rustic shop. The proprietor, a <<person>>, is willing to sell milk by the millilitre. You lean over the counter while <<he>> fills the bottle.
 <br><br>
@@ -905,4 +938,57 @@ You let Robin stand, surprising the customer with <<his>> sudden appearance. You
 	<<person2>><<He>> would work out what you were up to, and Robin would be terribly embarrassed.
 <</if>>
 <br><br>
+<<robinChocolateOfferHelp>>
+
+:: Hot Chocolate Doren
+<<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<pass 60>><<famegood 1>>
+<<if $phase is 1>> /* offer to pay*/
+	<<if $speech_attitude is "meek">>
+		"Maybe I can pay for them?"
+	<<elseif $speech_attitude is "bratty">>
+		"Let me pay for them!"
+	<<else>>
+		"I'll pay for them,"
+	<</if>>
+	you suggest.
+	<br><br>
+	"No." Doren and Robin unanimously say.
+	<br><br>
+	However, after much more convincing from Doren, Robin nods,
+<<elseif $phase is 2>> /* convince Robin*/
+	<<if $speech_attitude is "meek">>
+		"It wouldn't be wise to give away for free when you need the money yourself, Robin."
+	<<elseif $speech_attitude is "bratty">>
+		"Robin. Why would you give away hot chocolate when you yourself also are in need?"
+	<<else>>
+		"<<Hes>> right, Robin. You need the money yourself. That's why you're out here, selling hot chocolate."
+	<</if>>
+	<br><br>
+	After much more convincing from you and Doren, Robin nods,
+<<else>> /*support Robin's point*/
+	<<if $speech_attitude is "meek">>
+		"We can't possibly take money from you for this!"
+	<<elseif $speech_attitude is "bratty">>
+		"No, we can't take money if you plan to do that!"
+	<<else>>
+		"Robin's right. We can't take money from you!"
+	<</if>>
+	you protest alongside Robin.
+	<br><br>
+	However, after much more convincing from Doren, Robin nods,
+<</if>>
+<<if _robin.trauma gte 40>>
+	"Okay, if you say so..."
+<<else>>
+	"Alright. Let's do this!"
+<</if>>
+<br><br>
+You and Doren help Robin make the hot chocolate and pour it into $dorenhotchocoamount cups.
+<br><br>
+"Thanks a lot, you two!" Handing Robin £$dorenhotchocoprice, Doren packs them in <<person2>><<his>> bag, then waves goodbye with a smile before walking away.
+<br><br>
+<<set $robinmoney += $dorenhotchocoprice>>
+<<unset $dorenhotchocoprice>><<unset $dorenhotchocoamount>>
 <<robinChocolateOfferHelp>>

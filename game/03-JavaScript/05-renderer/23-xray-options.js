@@ -198,7 +198,7 @@ class XrayCombatMapper {
 			}
 		} else {
 			if (T.knotted || T.knotted_short) options.animKeyBase = "mid";
-			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 4) options.animKeyBase = "vfast";
+			else if (V.orgasmdown > 0 || V.enemyarousal >= (V.enemyarousalmax / 5) * 4) options.animKeyBase = "vfast";
 			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 3) options.animKeyBase = "fast";
 			else if (V.enemyarousal >= (V.enemyarousalmax / 5) * 1) options.animKeyBase = "mid";
 			else options.animKeyBase = "slow";
@@ -318,7 +318,7 @@ class XrayCombatMapper {
 			case "wolf":
 			case "wolfgirl":
 			case "wolfboy":
-				penetrator.penetratorSprite = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knottedFull" : "knotted";
+				penetrator.penetratorSprite = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knotted-full" : "knotted";
 				penetrator.size = penetrator.npcType.includes("wolf") ? 3 : 2;
 				penetrator.base = V.ejaculating === 1 && (T.knotted || T.knotted_short) ? "knotting" : penetrator.base;
 				options.filters[slot + "Penetrator"] = {
@@ -361,8 +361,8 @@ class XrayCombatMapper {
 			case "beargirl":
 			case "bearboy":
 			case "creature":
-			case "horned girl":
-			case "horned boy":
+			case "horned woman":
+			case "horned man":
 				penetrator.penetratorSprite = "tentacle";
 				penetrator.size = 3;
 				options.filters[slot + "Penetrator"] = {
@@ -417,7 +417,7 @@ class XrayCombatMapper {
 		if (npcHasStrapon(options[slot][npc])) {
 			penetrator[npc + "Strapon"] = true;
 			if (npcSource.penisdesc.includes("horse") && !penetrator.doublePen) {
-				penetrator["penetratorSprite" + index] = "horseGray";
+				penetrator["penetratorSprite" + index] = "horse-strapon";
 				penetrator["size" + index] = 5;
 			} else if (npcSource.penisdesc.includes("knotted") && !penetrator.doublePen) {
 				penetrator["penetratorSprite" + index] = "knotted";
@@ -457,7 +457,7 @@ class XrayCombatMapper {
 		penetrator.penetratedType =
 			V.enemytype === "machine"
 				? "machine"
-				: V.penisstate !== 0 && ["tentacle", "tentacledeep"].includes(V.penisstate)
+				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
 				? "tentacle"
 				: V.NPCList[V.penistarget].type;
 

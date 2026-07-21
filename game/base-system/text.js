@@ -1,12 +1,12 @@
 /* eslint-disable no-undef */
 const statDisplay = {
-	statChange(statType, amount, colorClass, condition = () => true) {
+	statChange(statType, amount, textClasses, condition = () => true) {
 		amount = Number(amount);
 		if (V.settings.blindStatsEnabled || !condition()) return document.createDocumentFragment();
 
 		const fragment = document.createDocumentFragment();
 		const span = document.createElement("span");
-		span.className = colorClass;
+		span.className = textClasses;
 		const prefix = amount < 0 ? "- " : "+ ";
 
 		span.textContent = `${prefix.repeat(Math.abs(amount))}${statType}`;
@@ -103,12 +103,12 @@ statDisplay.create("gpain", () => statDisplay.statChange("Pain", 1, "red"));
 statDisplay.create("ggpain", () => statDisplay.statChange("Pain", 2, "red"));
 statDisplay.create("gggpain", () => statDisplay.statChange("Pain", 3, "red"));
 
-statDisplay.create("lpurity", () => statDisplay.statChange("Purity", -1, "red"));
-statDisplay.create("llpurity", () => statDisplay.statChange("Purity", -2, "red"));
-statDisplay.create("lllpurity", () => statDisplay.statChange("Purity", -3, "red"));
-statDisplay.create("gpurity", () => statDisplay.statChange("Purity", 1, "green"));
-statDisplay.create("ggpurity", () => statDisplay.statChange("Purity", 2, "green"));
-statDisplay.create("gggpurity", () => statDisplay.statChange("Purity", 3, "green"));
+statDisplay.create("lpurity", () => statDisplay.statChange("Purity", -1, V.demon >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("llpurity", () => statDisplay.statChange("Purity", -2, V.demon >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("lllpurity", () => statDisplay.statChange("Purity", -3, V.demon >= 6 ? "green demon-tf-purity" : "red"));
+statDisplay.create("gpurity", () => statDisplay.statChange("Purity", 1, V.demon >= 6 ? "red demon-tf-purity" : "green"));
+statDisplay.create("ggpurity", () => statDisplay.statChange("Purity", 2, V.demon >= 6 ? "red demon-tf-purity" : "green"));
+statDisplay.create("gggpurity", () => statDisplay.statChange("Purity", 3, V.demon >= 6 ? "red demon-tf-purity" : "green"));
 
 statDisplay.create("ldelinquency", () => statDisplay.statChange("Delinquency", -1, "green"));
 statDisplay.create("lldelinquency", () => statDisplay.statChange("Delinquency", -2, "green"));
@@ -219,7 +219,7 @@ statDisplay.create("ggglove", (npc, simple) => {
 });
 
 statDisplay.create("lperlove", (npc, simple) => {
-	const selectedNPC = npc || V.per_npc[V.NPCList[V.index].per];
+	const selectedNPC = npc || V.NPCList[V.index].per;
 	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
 	const NPCName = `${(selectedNPC && setup.perName[selectedNPC]()) || ""}`;
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, -1, "red");
@@ -243,13 +243,13 @@ statDisplay.create("gperlove", (npc, simple) => {
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, 1, "green");
 });
 statDisplay.create("ggperlove", (npc, simple) => {
-	const selectedNPC = npc || V.per_npc[V.NPCList[V.index].per];
+	const selectedNPC = npc || V.NPCList[V.index].per;
 	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
 	const NPCName = `${(selectedNPC && setup.perName[selectedNPC]()) || ""}`;
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, 2, "green");
 });
 statDisplay.create("gggperlove", (npc, simple) => {
-	const selectedNPC = npc || V.per_npc[V.NPCList[V.index].per];
+	const selectedNPC = npc || V.NPCList[V.index].per;
 	const loveAlias = `${(selectedNPC && setup.loveAlias[selectedNPC]()) || "Love"}`;
 	const NPCName = `${(selectedNPC && setup.perName[selectedNPC]()) || ""}`;
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, 3, "green");
@@ -661,10 +661,19 @@ statDisplay.create("ghousekeeping", amount => statDisplay.statChange("Housekeepi
 statDisplay.create("gghousekeeping", amount => statDisplay.statChange("Housekeeping", 2, "green", () => amount === undefined || V.housekeeping < amount));
 statDisplay.create("ggghousekeeping", amount => statDisplay.statChange("Housekeeping", 3, "green", () => amount === undefined || V.housekeeping < amount));
 
+statDisplay.create("gstray_happiness", () => statDisplay.statChange("Stray contentment", 1, "green"));
+statDisplay.create("ggstray_happiness", () => statDisplay.statChange("Stray contentment", 2, "green"));
+statDisplay.create("gggstray_happiness", () => statDisplay.statChange("Stray contentment", 3, "green"));
+statDisplay.create("lstray_happiness", () => statDisplay.statChange("Stray contentment", -1, "red"));
+statDisplay.create("llstray_happiness", () => statDisplay.statChange("Stray contentment", -2, "red"));
+statDisplay.create("lllstray_happiness", () => statDisplay.statChange("Stray contentment", -3, "red"));
+
 statDisplay.create("ldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -1, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -1, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -1, "lblue");
@@ -673,6 +682,8 @@ statDisplay.create("lldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -2, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -2, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -2, "lblue");
@@ -681,6 +692,8 @@ statDisplay.create("llldom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", -3, "lblue");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", -3, "lblue");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, -3, "lblue");
@@ -689,6 +702,8 @@ statDisplay.create("gdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 1, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 1, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 1, "purple");
@@ -697,6 +712,8 @@ statDisplay.create("ggdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 2, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 2, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 2, "purple");
@@ -705,6 +722,8 @@ statDisplay.create("gggdom", npc => {
 	let targetName = "";
 	if ((V.npc.includes("Robin") && !npc) || npc === "Robin") {
 		return statDisplay.statChange("Robin's Confidence", 3, "purple");
+	} else if ((V.npc.includes("Doren") && !npc) || npc === "Doren") {
+		return statDisplay.statChange("Doren's Protectiveness", 3, "purple");
 	} else if (npc) targetName = npc + "'s";
 	else if (V.npc.length >= 2) targetName = V.npc[0] + "'s";
 	return statDisplay.statChange(`${targetName} Dominance`, 3, "purple");
@@ -837,6 +856,13 @@ statDisplay.create("lworldcorruptionhard", () =>
 statDisplay.create("gworldcorruptionhard", () =>
 	statDisplay.statChange("A new hole forms in the world...", 0, "tentacle", () => V.temple_confessor_intro || V.gwylanSeen?.includes("ritual_beast"))
 );
+
+statDisplay.create("lheat", () => statDisplay.statChange("Heat", -1, "green"));
+statDisplay.create("llheat", () => statDisplay.statChange("Heat", -2, "green"));
+statDisplay.create("lllheat", () => statDisplay.statChange("Heat", -3, "green"));
+statDisplay.create("gheat", () => statDisplay.statChange("Heat", 1, "red"));
+statDisplay.create("ggheat", () => statDisplay.statChange("Heat", 2, "red"));
+statDisplay.create("gggheat", () => statDisplay.statChange("Heat", 3, "red"));
 
 // These rely on the 'statChange' function in 'stat-changes.js'
 statDisplay.create("gharmony", (amount = 1) => statChange.harmony(amount));

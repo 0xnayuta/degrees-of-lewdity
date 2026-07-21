@@ -1,4 +1,5 @@
 :: School Front Courtyard
+<<lockerClothesAutoStore>>
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>><<set $bus to "schoolfrontcourtyard">>
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
@@ -115,6 +116,7 @@
 <<set $eventskip to 0>>
 
 :: School Rear Courtyard
+<<lockerClothesAutoStore>>
 <<set $outside to 1>><<set $location to "school_rear_courtyard">><<schooleffects>><<effects>><<set $bus to "schoolrearcourtyard">>
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
@@ -284,11 +286,11 @@ Some are eating their lunch.
 	<br><br>
 
 	<<if !$plants_known.includes("carnation")>>
-		<<icon "tending/carnation.png">> <<link [[Search for seeds|School Green Seeds]]>><<set $plants_known.push("carnation")>><</link>>
+		<<foodstufficon "carnation">> <<link [[Search for seeds|School Green Seeds]]>><<set $plants_known.push("carnation")>><</link>>
 	<<elseif pcAreArmsBound("both")>>
 		<span class="red">Both of your arms are bound</span>, so you are unable to pick carnations.
 	<<else>>
-		<<icon "tending/carnation.png">> <<link [[Pick carnations|School Green Pick]]>><<stress -6>><</link>><<lstress>>
+		<<foodstufficon "carnation">> <<link [[Pick carnations|School Green Pick]]>><<stress -6>><</link>><<lstress>>
 	<</if>>
 	<br>
 	<<getouticon>><<link [[Ignore|School Rear Courtyard]]>><<endevent>><</link>>
@@ -296,7 +298,7 @@ Some are eating their lunch.
 <</if>>
 
 :: School Green Seeds
-<<effects>>
+<<effects>><<wearProp "carnation basket">>
 
 You crouch beside the <<person1>><<person>>. <<He>> smiles at you, and helps search among the flowers for seedlings.
 <br><br>
@@ -304,7 +306,7 @@ You crouch beside the <<person1>><<person>>. <<He>> smiles at you, and helps sea
 You find a bunch, enough to grow your own.
 <br><br>
 
-<span class="gold">You can now grow <<icon "tending/carnation.png">> carnations.</span>
+<span class="gold">You can now grow <<foodstufficon "carnation">> carnations.</span>
 <br><br>
 
 <<link [[Next|School Rear Courtyard]]>><<endevent>><</link>>
@@ -312,9 +314,9 @@ You find a bunch, enough to grow your own.
 
 
 :: School Green Pick
-<<effects>><<wearProp "carnation">>
+<<effects>><<wearProp "carnation basket">>
 
-You join the <<person>> in picking <<icon "tending/carnation.png">> carnations. <<He>> smiles at you, but doesn't speak, as you search for flowers in bloom.
+You join the <<person>> in picking <<foodstufficon "carnation">> carnations. <<He>> smiles at you, but doesn't speak as you search for flowers in bloom.
 <br><br>
 
 <<tending_pick carnation 5 30>>
@@ -415,7 +417,7 @@ You haul yourself atop it, and shimmy along until another is within reach. Stude
 	You grasp the branch with one hand, then the other, and haul yourself higher. You keep climbing from branch to branch, <span class="green">until you reach the top.</span>
 	<br><br>
 	<<npc Doren>><<person1>>
-	The students cheer at your success. Doren pokes <<his>> head from the staff room window. "Nicely done <<lass>>," <<he>> shouts. "Now get down before you get in trouble."<<gcool>><<status 1>><<ltrauma>><<trauma -6>>
+	The students cheer at your success. Doren pokes <<his>> head from the staff room window. "Nicely done, <<lassie>>!" <<he>> shouts. "Now get down before you get in trouble."<<gcool>><<status 1>><<ltrauma>><<trauma -6>>
 	<br><br>
 
 	<<link [[Next|School Rear Courtyard]]>><<endevent>><</link>>
@@ -445,14 +447,14 @@ The school gate is shut and sealed by a sturdy padlock.
 		<<wearProp "lockpick">>
 		<span class="green">The lock looks easy to pick.</span>
 		<br><br>
-		<<lockicon "pick">><<link [[Pick it (0:10)|School Front Courtyard]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<<lockicon "pick">><<link [[Pick it (0:10)|School Front Courtyard]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 		<br>
 	<</if>>
 <<else>>
 	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
 	<br><br>
 <</if>>
-<<getouticon>><<link [[Leave|Oxford Street]]>><<handheldon>><</link>>
+<<getouticon>><<link [[Leave|Oxford Street]]>><</link>>
 <br>
 
 :: School Pool Entrance
@@ -468,7 +470,7 @@ The school gate is shut and sealed by a sturdy padlock.
 
 <<if !$settings.forcedCrossdressingEnabled>>
 <<elseif $whitneyCrossdressSwimwear and $daily.school.attended.swimming and $daily.whitney.whitneyCrossdressSwimwear>>
-	/* Always has a 10% chance of occuring, but it can only occur right after ending the lesson */
+	/* Always has a 10% chance of occurring, but it can only occur right after ending the lesson */
 	<<if $daily.whitney.whitneyCrossdressSwimwear.includesAny("boys entrance", "boys swimwear", "boys exit") and C.npc.Whitney.dom gte 18 and Math.max(10, $bullytimer) gte $rng and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and _cameFrom>>
 		<<set $bullytimer to 0>>
 		<<npc Whitney>><<person1>>
@@ -690,7 +692,7 @@ You haul yourself over the fence and drop down on the other side.
 	You knock on the <<nnpc_title "Leighton">>'s door. You hear <<his>> voice on the other side. "Enter."
 	<br><br>
 
-	<<if $worn.upper.type.includes("school") and $worn.lower.type.includes("school") and !pcAreArmsBound("any") and $feetuse isnot "bound" or Time.hour gte 14>>
+	<<if wearingSchoolOutfit() and !pcAreArmsBound("any") and !$worn.feet.type.includes("shackle") or Time.hour gte 14>>
 		<<if $daily.school.headInterrupted isnot 1>>
 			Leighton looks up from <<his>> desk as you enter. "How can I help you?"
 			<br><br>
@@ -753,12 +755,12 @@ You haul yourself over the fence and drop down on the other side.
 	<<else>>
 		Leighton looks up from <<his>> desk as you enter. "Oh. This won't do at all."
 
-		<<if pcAreArmsBound("any") or $feetuse is "bound">>
+		<<if pcAreArmsBound("any") or $worn.feet.type.includes("shackle")>>
 			<br><br>
 			"How did you get yourself in this state," <<he>> mutters as <<he>> walks behind you. <span class="green">You feel your limbs fall free.</span>
 			<br><br>
 			<<unbind>>
-			<<if (!$worn.upper.type.includes("school") or !$worn.lower.type.includes("school")) and $schoolstate isnot "fifth">> /*clothes don't matter for swim*/
+			<<if !wearingSchoolOutfit() and $schoolstate isnot "fifth">> /*clothes don't matter for swim*/
 				"These clothes won't do either." <<He>> pulls some clothing out of a drawer. "Here you go."
 				<br><br>
 			<<else>>
@@ -769,7 +771,7 @@ You haul yourself over the fence and drop down on the other side.
 			<<He>> pulls some clothing out of a drawer. "Here you go."
 			<br><br>
 		<</if>>
-		<<if !$worn.upper.type.includes("school") and !$worn.lower.type.includes("school") and $schoolstate isnot "fifth">>
+		<<if !wearingSchoolOutfit() and $schoolstate isnot "fifth">>
 			<<if $player.gender_appearance is "m">>
 				<<if $rng gte 51 or !$settings.forcedCrossdressingEnabled>>
 					<<set $clothingselector to "m">>
@@ -976,7 +978,7 @@ You haul yourself over the fence and drop down on the other side.
 	And perhaps more importantly, <span class="lewd">there's a strange sensation of fullness in your anus</span>.
 	<br><br>
 
-	A group of students round the corner and stop when they see you, eyes wide. You feel your face turn red as they behold you. They walk past, giggling and whispering to one another.<<lcool>><<gtrauma>><<gstress>><<stress 1>><<trauma 1>><<status -10>>
+	A group of students round the corner and stop when they see you, eyes wide. You feel your face turn red as they behold you. They walk past, giggling and whispering to one another.<<llcool>><<gtrauma>><<gstress>><<stress 1>><<trauma 1>><<status -10>>
 	<br><br>
 
 	<<link [[Endure|School Passout Exhibit]]>><<set $phase to 1>><</link>>
@@ -1308,7 +1310,7 @@ The school gate is shut and sealed by a sturdy padlock.
 		<span class="green">The lock looks easy to pick.</span>
 		<br><br>
 
-		<<lockicon "pick">><<link [[Pick it (0:10)|Oxford Street]]>><<handheldon>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Oxford Street]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
 		<br>
 	<</if>>
 <<else>>
@@ -1316,7 +1318,7 @@ The school gate is shut and sealed by a sturdy padlock.
 	<br><br>
 <</if>>
 
-<<getouticon>><<link [[Leave|School Front Courtyard]]>><<handheldon>><</link>>
+<<getouticon>><<link [[Leave|School Front Courtyard]]>><</link>>
 
 :: Rear Courtyard Dog
 <<if $molestationstart is 1>>
@@ -1411,7 +1413,7 @@ On your way out, you notice a shirt folded on a small table, with a sheet of pap
 <br><br>
 <<set $headdrive to 1>>
 <<specialClothesUnlock "set" "foreign_school">>
-<<link [[Wear the shirt and leave|Hallways]]>><<upperwear 20>><<endevent>><</link>>
+<<link [[Wear the shirt and leave|Hallways]]>><<upperwear "classic serafuku">><<endevent>><</link>>
 <br>
 <<link [[Just leave|Hallways]]>><<endevent>><</link>>
 
@@ -1427,7 +1429,7 @@ Looking under the head's desk, you find a small but solid box with a door. It's 
 	<br><br>
 <<else>>
 	<<wearProp "lockpick">>
-	<<link [[Pick the lock (0:30)|Head's Stash 2]]>><<handheldon>><<pass 30>><</link>><<skulduggerydifficulty>>
+	<<link [[Pick the lock (0:30)|Head's Stash 2]]>><<pass 30>><</link>><<skulduggerydifficulty>>
 	<br>
 <</if>>
 <<link [[Leave it alone|Head's Office]]>><<endevent>><</link>>
@@ -1666,7 +1668,7 @@ You look into the <<persons>> eyes pleadingly. "Please," you say with a sob.<<if
 :: School Stump Ignore
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 
-You turn away from the pervert and shut your eyes. "You're no fun," <<he>> says. You peek a few moment's later. <<Hes>> gone.
+You turn away from the pervert and shut your eyes. "You're no fun," <<he>> says. You peek a few moments later. <<Hes>> gone.
 <br><br>
 
 <<endevent>>
@@ -1793,7 +1795,7 @@ You walk over to the <<person1>><<person>>, and sit beside <<him>>.
 		<<He>> holds out a hand, which you take. You sit together for a little while as <<his>> friend gently pokes fun at you both.
 		<<takeHandholdingVirginity $NPCList[0] "consensual">>
 	<<case 2>>
-		"Th-thank you," <<he>> says. <<He>> gives you a nervous smile. <<His>> friend sits on <<his>> other side, and encourages <<him>> to be more assertive through the use of pokes. <<person2>><<He>> has mild success.
+		"Th-thank you," <<he>> says. <<He>> gives you a nervous smile. <<His>> friend sits on <<his>> other side, and encourages <<him>> to be more assertive through the use of pokes. <<person2>><<He>> has mild success.<<person1>>
 	<<case 3>>
 		"Of course you like me," <<he>> says, grinning. <<Hes>> leaning at an odd angle. "Who wouldn't like—" <<he>> begins, before losing <<his>> balance. <<He>> tumbles to the ground, <<his>> legs flailing in the air.
 		<<if $pronoun is "f">>
@@ -1955,7 +1957,7 @@ After chatting for a bit, you lean in a whisper in the <<person1>><<persons>> ea
 	<<set $rescued += 1>>
 	Someone bashes on the door. "What's going on in there?" says a strong voice. It's <<generateRandomTeacher 2>>.
 	<br><br>
-	The <<person>> hurriedly fixes <<his>> clothing and opens the door. "This- This isn't what you think!" <<he>> starts, but <<he>> isn't fooling anyone. _teacher grabs <<him>> by the arms and hauls <<him>> away.
+	The <<person1>><<person>> hurriedly fixes <<his>> clothing and opens the door. "This- This isn't what you think!" <<he>> starts, but <<he>> isn't fooling anyone. _teacher grabs <<him>> by the arms and hauls <<him>> away.
 	<br><br>
 	<<tearful>> you leave the cupboard.
 	<br><br>
@@ -2061,7 +2063,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
-		<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<lstress>>
+		<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<gstress>>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -2069,7 +2071,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 	<br>
-	<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<lstress>>
+	<<link [[Walk away|Courtyard Crush Robin Walk]]>><<stress 6>><</link>><<gstress>>
 <</if>>
 
 :: Courtyard Crush Robin Ignore
@@ -2123,7 +2125,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><<def 1>><</link>>
 		<br>
-		<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<lstress>>
+		<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<gstress>>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -2131,7 +2133,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><<def 1>><</link>>
 	<br>
-	<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<lstress>>
+	<<link [[Walk away|Courtyard Crush Whitney Walk]]>><<stress 6>><</link>><<gstress>>
 <</if>>
 
 :: Courtyard Crush Whitney Ignore
@@ -2185,7 +2187,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 		<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
-		<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<lstress>>
+		<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<gstress>>
 	<</if>>
 <<else>>
 	"You're fucking crazy. Back off before you get fucked up."
@@ -2193,7 +2195,7 @@ You march over to the pair, who look at you. You must look angry, given their st
 
 	<<link [[Fight them both|Courtyard Crush Fight]]>><<set $fightstart to 1>><</link>>
 	<br>
-	<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<lstress>>
+	<<link [[Walk away|Courtyard Crush Sydney Walk]]>><<stress 6>><</link>><<gstress>>
 <</if>>
 
 :: Courtyard Crush Sydney Ignore
@@ -2688,7 +2690,7 @@ The <<person>> stammers an incoherent response, so you take <<his>> hand and pul
 <<else>>
 	You try to ignore the urging voice, <span class="red">but it's a struggle</span>. You manage to tear yourself away from the <<person>> before you say anything, and almost stumble as you escape.
 	<br><br>
-	You hide around the corner, and the coercive feelings dissipate. Your strange behaviour was noticed by others.<<lcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 6>>
+	You hide around the corner, and the coercive feelings dissipate. Your strange behaviour was noticed by others.<<llcool>><<status -10>><<gtrauma>><<trauma 6>><<gstress>><<stress 6>>
 	<br><br>
 <</if>>
 
@@ -2726,7 +2728,7 @@ You stare at the phone, suddenly very aware of other students looking at their o
 	<<link [[Own it|Courtyard Nude Footage Own]]>><</link>><<exhibitionist5>>
 	<br>
 <</if>>
-<<link [[Walk away|Courtyard Footage Walk]]>><<status -10>><</link>><<lcool>>
+<<link [[Walk away|Courtyard Footage Walk]]>><<status -10>><</link>><<llcool>>
 <br>
 
 :: Courtyard Assault Footage Investigate
@@ -2751,7 +2753,7 @@ You stare blankly at the phone, suddenly very aware of other students looking at
 	<<link [[Own it|Courtyard Assault Footage Own]]>><</link>><<promiscuous5>>
 	<br>
 <</if>>
-<<link [[Walk away|Courtyard Footage Walk]]>><<status -20>><</link>><<llcool>>
+<<link [[Walk away|Courtyard Footage Walk]]>><<status -20>><</link>><<lllcool>>
 <br>
 
 
@@ -2780,7 +2782,7 @@ You perform one of the lewder poses from the video and give the crowd a wink.
 You feel cathartic as you step down from the bench<<if $pain gte 20>>, though you're still crying<</if>>.
 <br><br>
 
-<<wearProp "phone" 0 "mobile">>
+<<wearProp "mobile phone">>
 <<courtyard>>
 
 :: Courtyard Assault Footage Own
@@ -2808,7 +2810,7 @@ You make a lewd motion with your hand and give the crowd a wink.
 You feel cathartic as you step down from the bench<<if $pain gte 20>>, though you're still crying<</if>>. The <<person3>><<person>> stares at you in shock.
 <br><br>
 
-<<wearProp "phone" 0 "mobile">>
+<<wearProp "mobile phone">>
 <<courtyard>>
 
 

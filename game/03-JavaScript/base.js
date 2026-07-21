@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-// adjust mousetrap behavior, see mousetrap.js
+// adjust mousetrap behaviour, see mousetrap.js
 Mousetrap.prototype.stopCallback = function (e, element, combo) {
 	// game uses V.tempDisable to indicate when the keyboard shortcuts shouldn't trigger
 	// e.g. when typing a name of a new outfit
@@ -152,11 +152,40 @@ function DefineMacroS(macroName, macroFunction, tags, skipArgs, maintainContext)
  */
 
 function pluralise(count, singular, plural) {
+	const irregulars = Object.freeze({
+		child: "children",
+		baby: "babies",
+		person: "people",
+		man: "men",
+		woman: "women",
+		penis: "penises",
+		foot: "feet",
+		leaf: "leaves",
+		watch: "watches",
+		this: "these",
+		that: "those",
+		is: "are",
+		it: "them",
+		potato: "potatoes",
+	});
+
 	count = Wikifier.getValue(count);
-	if (plural === undefined) {
-		plural = singular + "s";
+	if (!Number.isFinite(count)) throw new TypeError(`Pluralise: invalid value for 'count': ${count}`);
+
+	if (count === 1) return singular;
+
+	if (plural == null) {
+		const key = singular.toLowerCase();
+		const irregularForm = Object.hasOwn(irregulars, key) ? irregulars[key] : undefined;
+
+		plural = irregularForm ?? singular + "s";
+
+		if (singular[0] === singular[0].toUpperCase()) {
+			plural = plural.toUpperFirst();
+		}
 	}
-	return count === 1 ? singular : plural;
+
+	return plural;
 }
 window.pluralise = pluralise;
 DefineMacroS("pluralise", pluralise);
@@ -416,15 +445,15 @@ function outfitChecks() {
 			setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1) ||
 		(setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].skirt === 1 && V.worn.lower.type.includes("naked")) ||
 		(V.worn.over_lower.type.includes("naked") && setup.clothes.lower[clothesIndex("lower", V.worn.lower)].skirt === 1);
-	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("covered");
+	T.bottomExposed = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && !V.worn.under_lower.type.includes("lower_covering");
 	T.shirtless =
 		V.worn.over_upper.name === "naked" &&
 		V.worn.upper.name === "naked" &&
-		!V.worn.lower.type.includes("covered") &&
-		!V.worn.under_upper.type.includes("covered");
+		!V.worn.lower.type.includes("overalls") &&
+		!V.worn.under_upper.type.includes("torso_covering");
 
 	T.topless =
-		V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked" && !V.worn.lower.type.includes("covered");
+		V.worn.over_upper.name === "naked" && V.worn.upper.name === "naked" && V.worn.under_upper.name === "naked" && !V.worn.lower.type.includes("overalls");
 	T.bottomless = V.worn.over_lower.name === "naked" && V.worn.lower.name === "naked" && V.worn.under_lower.name === "naked";
 	T.overNaked = V.worn.over_lower.name === "naked" && V.worn.over_upper.name === "naked";
 	T.middleNaked = T.shirtless && T.bottomExposed;
@@ -434,7 +463,10 @@ function outfitChecks() {
 	/* Temporary $worn[slot] variables. Generally called as _bottom.integrity or _top.name */
 	const topLayers = [V.worn.over_upper, V.worn.upper, V.worn.under_upper];
 	const bottomLayers = ["over_lower", "lower", "under_lower"];
-	T.top = topLayers.find(item => item.name !== "naked" && (!V.worn.lower || item !== V.worn.lower || item.type.includes("covered"))) || null;
+	T.top =
+		topLayers.find(
+			item => item.name !== "naked" && (!V.worn.lower || item !== V.worn.lower || item.type.includes("torso_covering") || item.type.includes("overalls"))
+		) || null;
 	T.topUnder = topLayers.slice(topLayers.indexOf(T.top) + 1).find(item => item.name !== "naked") || null;
 	T.bottom =
 		V.worn[
@@ -644,7 +676,7 @@ window.resolveValue = resolveValue;
 
 /**
  * This macro sets $rng. If the variable $rngOverride is set, $rng will always be set to that.
- * Set $rngOverride in the console for bugtesting purposes. Remember to unset it after testing is finished.
+ * Set $rngOverride in the console for bug testing purposes. Remember to unset it after testing is finished.
  * With two arguments, it sets $rng to a random value between the first arg and the second arg. This can be used to guarantee $rng is set to a specific value.
  * With one argument, it sets $rng to a random value between 1 and the arg.
  * With no arguments, it sets $rng to a random value between 1 and 100.
@@ -685,17 +717,18 @@ window.nullable = nullable;
  * This inputs an icon img tag, using the given filename.
  * Example: <<icon "bed.png">>
  * <<icon "bed.png" "nowhitespace">> does not add a trailing whitespace for formatting.
- * <<icon "bed.png" "infront">> will cause the icon to layer ontop of the next one
+ * <<icon "bed.png" "infront">> will cause the icon to layer on top of the next one
  */
 Macro.add("icon", {
 	handler() {
 		if (!V.options.images) return;
+		if (typeof this.args[0] !== "string") return this.error(`bad evaluation: icon type '${this.args[0]}' is not a string`);
 		const basePath = this.name === "iconUi" ? "img/ui/" : "img/misc/icon/";
-		const name = typeof this.args[0] === "string" ? this.args[0] : "error";
+		const name = normaliseFileName(this.args[0]);
 		const iconImg = document.createElement("img");
 		iconImg.className = [
 			"icon",
-			this.name === "iconUi" && (this.args?.[1] === "with-text" ? "icon-container-with-text" : "icon-container"),
+			(this.name === "iconUi" || name.includes("clothes/")) && (this.args?.[1] === "with-text" ? "icon-container-with-text" : "icon-container"),
 			this.args.includes("infront") && "infront",
 			this.args.includes("flip") && "flip",
 		]
@@ -703,7 +736,7 @@ Macro.add("icon", {
 			.join(" ");
 		iconImg.src = basePath + name;
 		this.output.append(iconImg);
-		// append a whitespace for compatibility with old icon behavior
+		// append a whitespace for compatibility with old icon behaviour
 		if (!this.args.includes("nowhitespace")) this.output.append(" ");
 	},
 });

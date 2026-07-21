@@ -359,14 +359,14 @@ function playerEndWaterProgress() {
 		pregnancy.waterBreakingTimer--;
 		if (pregnancy.waterBreakingTimer <= 0) {
 			pregnancy.waterBreaking = true;
-			// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+			// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 			V.eventskip = 1;
 			return true;
 		}
 		return false;
 	} else if (!isNaN(pregnancy.waterBreakingTimer) && !pregnancy.waterBreaking && pregnancy.waterBreakingTimer <= 0) {
 		pregnancy.waterBreaking = true;
-		// To prevent new events from occuring, allowing players to more easily go to the hospital or similar locations
+		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		return true;
 	}
@@ -585,14 +585,14 @@ function namedNpcPregnancy(mother, father, fatherSpecies, fatherKnown = false, t
 	let namedNpcType;
 	switch (mother) {
 		case "Black Wolf":
-			if ((V.settings.monsterChance > random(0, 100) && (V.hallucinations >= 1 || !V.settings.monsterHallucinationsOnly)) || V.blackwolfmonster === 2) {
+			if ((V.settings.monsterChance >= random(1, 100) && (V.hallucinations >= 1 || !V.settings.monsterHallucinationsOnly)) || V.blackwolfmonster === 2) {
 				namedNpcType = "wolfgirl";
 			} else {
 				namedNpcType = namedNpc.type;
 			}
 			break;
 		case "Great Hawk":
-			if ((V.settings.monsterChance > random(0, 100) && (V.hallucinations >= 1 || !V.settings.monsterHallucinationsOnly)) || V.greathawkmonster === 2) {
+			if ((V.settings.monsterChance >= random(1, 100) && (V.hallucinations >= 1 || !V.settings.monsterHallucinationsOnly)) || V.greathawkmonster === 2) {
 				namedNpcType = "harpy";
 			} else {
 				namedNpcType = namedNpc.type;
@@ -892,7 +892,7 @@ function recordSperm({
 	if (V.settings.pregnancyType === "silly") {
 		if (!["hand", "kiss"].includes(genital)) return null;
 		if ((target === "pc" || spermOwner === "pc") && genital === "hand" && V.worn.hands.name !== "naked") return null;
-		if ((target === "pc" || spermOwner === "pc") && genital === "kiss" && V.worn.face.type.includes("covered")) return null;
+		if ((target === "pc" || spermOwner === "pc") && genital === "kiss" && V.worn.face.type.includes("face_covering")) return null;
 		if (Object.values(V.loveInterest).find(name => V.NPCNameList.includes(name))) rngModifier = Math.clamp(rngModifier + 100, 0, 200);
 	}
 

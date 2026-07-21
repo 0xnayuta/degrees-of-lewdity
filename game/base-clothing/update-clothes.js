@@ -26,6 +26,7 @@ function updateClothingColours(item, itemRef) {
 		case "mesh shirt":
 		case "fishnet stockings":
 		case "fishnet tights":
+		case "combat boots":
 			if (!item.colour || item.colour === 0) item.colour = "black";
 			break;
 		case "square shades":
@@ -36,7 +37,7 @@ function updateClothingColours(item, itemRef) {
 			break;
 		case "aviators":
 			if (!item.colour || item.colour === 0) item.colour = "grey";
-			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "original";
+			if (!item.accessory_colour || item.accessory_colour === 0 || item.accessory_colour === "original") item.accessory_colour = "black";
 			break;
 		case "glasses":
 			if (!item.colour || item.colour === 0) item.colour = "silver";
@@ -88,6 +89,7 @@ function updateClothingColours(item, itemRef) {
 		case "school swim shorts":
 		case "futuristic bodysuit":
 		case "argyle sweater vest":
+		case "diving suit":
 			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = item.colour;
 			if (item.colourCustom) item.accessory_colourCustom = item.colourCustom;
 			break;
@@ -176,6 +178,31 @@ function updateClothingColours(item, itemRef) {
 		case "classic gothic skirt":
 			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = item.colour;
 			break;
+		case "shadbelly coat":
+			if (!item.colour || item.colour === 0) item.colour = "black";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "yellow";
+			if (!item.pattern || item.pattern === 0) item.pattern = "shirt";
+			break;
+		case "cheerleading top":
+		case "cheerleading skirt":
+		case "gym bloomers":
+		case "cheerleader gloves":
+		case "pom poms":
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "white";
+			break;
+		case "tam o' shanter":
+			if (!item.colour || item.colour === 0) item.colour = "green";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "red";
+			if (!item.pattern || item.pattern === 0) item.pattern = "pompom";
+			break;
+		case "cowboy chaps":
+		case "cowboy print chaps":
+			if (!item.colour || item.colour === 0) item.colour = "denim";
+			break;
+		case "hairpin":
+			if (!item.colour || item.colour === 0) item.colour = "white";
+			if (!item.accessory_colour || item.accessory_colour === 0) item.accessory_colour = "white";
+			break;
 		default:
 			if ((item.colour === 0 || !item.colour) && itemRef.colour_options?.length) item.colour = itemRef.colour_options[0];
 			if ((item.pattern === 0 || !item.pattern) && itemRef.pattern_options?.length) item.pattern = itemRef.pattern_options[0];
@@ -233,10 +260,10 @@ const remapColours = {
 };
 // .variable must be the same across all outfit pieces, correct wrongly assigned props here
 const remapVariables = {
-	"vintageskirt": "vintageskirtsuit",
-	"vintagepants": "vintagepantsuit",
+	vintageskirt: "vintageskirtsuit",
+	vintagepants: "vintagepantsuit",
 	"chain tunic skirt": "chain tunic",
-}
+};
 
 /**
  * Updates a single clothes object
@@ -288,6 +315,7 @@ function updateClothesItem(slot, item, debug) {
 		}
 		item[key] = clone(itemRef[key]);
 	}
+	item.index = itemRef.index;
 	item.colour = remapColours[item.colour] || item.colour;
 	item.accessory_colour = remapColours[item.accessory_colour] || item.accessory_colour;
 	item.pattern = remapColours[item.pattern] || item.pattern;
@@ -315,6 +343,23 @@ function updateClothesItem(slot, item, debug) {
 	if (slot === "genitals") return;
 
 	// put renamed clothes and updated types here
+	if (item.type.includes("covered")) {
+		switch (item.slot) {
+			case "under_upper":
+				item.type.splice(item.type.indexOf("covered"), 1, "torso_covering");
+				break;
+			case "under_lower":
+				item.type.splice(item.type.indexOf("covered"), 1, "lower_covering");
+				break;
+			case "lower":
+				item.type.splice(item.type.indexOf("covered"), 1, "overalls");
+				break;
+			case "face":
+				item.type.splice(item.type.indexOf("covered"), 1, "face_covering");
+				break;
+		}
+	}
+
 	switch (item.name) {
 		case "Crop top":
 			item.name = "crop top";
@@ -341,11 +386,11 @@ function updateClothesItem(slot, item, debug) {
 			item.name_cap = "Punk leather jacket";
 			break;
 		case "swim shirt":
-			item.type = ["swim", "school", "chest_bind", "constricting", "covered"];
+			item.type = ["swim", "school", "chest_bind", "constricting", "torso_covering"];
 			break;
 		case "undershirt":
 		case "long johns":
-			item.type = ["normal", "covered"];
+			item.type = ["normal", "lower_covering"];
 			break;
 		case "unitard bottom":
 		case "leotard bottom":
@@ -353,14 +398,14 @@ function updateClothesItem(slot, item, debug) {
 		case "leotard":
 		case "turtleneck leotard":
 		case "skimpy leotard":
-			item.type = ["dance", "covered"];
+			item.type = ["dance", "torso_covering"];
 			break;
 		case "turtleneck leotard bottom":
 		case "skimpy leotard bottom":
 			item.type = ["dance"];
 			break;
 		case "sports bra":
-			item.type = ["normal", "athletic", "covered"];
+			item.type = ["normal", "athletic", "torso_covering"];
 			break;
 		case "witch dress":
 		case "scarecrow shirt":
@@ -465,6 +510,12 @@ function updateClothesItem(slot, item, debug) {
 			item.one_piece = 0;
 			item.type.pushUnique("waterproof");
 			break;
+		case "school skirt":
+			if (item.variable === "schoolskirt2") {
+				item.name = "simple school skirt";
+				item.name_cap = "Simple school skirt";
+			}
+			break;
 		case "catsuit":
 		case "catsuit bottoms":
 		case "cropped leather jacket":
@@ -485,6 +536,11 @@ function updateClothesItem(slot, item, debug) {
 		case "zipped leather top":
 			item.type.pushUnique("waterproof");
 			break;
+		case "starry witch hat":
+			item.accessory = 0;
+			break;
+		case "slacks":
+			item.type = ["formal", "school"];
 	}
 
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -564,9 +620,9 @@ function wardrobesUpdate() {
 		under_upper: [],
 		upper: [],
 		unlocked: false,
-		shopSend: false,
-		transfer: true,
-		isolated: false,
+		shopSend: false, // whether to allow sending or transferring clothes to location. the wardrobe MUST be isolated!!
+		transfer: true, // whether to allow transfering clothes from location
+		isolated: false, // whether the wardrobe has separate inventory from the default wardrobe
 		locationRequirement: [],
 		space: 5,
 	};
@@ -578,6 +634,7 @@ function wardrobesUpdate() {
 				NOTE: "DO NOT USE THIS OBJECT TO STORE CLOTHES",
 				unlocked: true,
 				shopSend: true,
+				transfer: true,
 				name: "Orphanage",
 			},
 			changingRoom: clone(defWardrobe),
@@ -596,7 +653,12 @@ function wardrobesUpdate() {
 		V.wardrobes.changingRoom.unlocked = true;
 		/* eden's */
 		V.wardrobes.edensCabin.name = "Eden's Cabin";
+		V.wardrobes.edensCabin.isolated = true;
 		V.wardrobes.edensCabin.space = 10;
+		// allow sending clothes to the cabin when pc can leave for a day
+		V.wardrobes.edensCabin.shopSend = V.edenfreedom >= 1;
+		// allow transferring clothes from the cabin when pc can leave for a week
+		V.wardrobes.edensCabin.transfer = V.edenfreedom >= 2;
 		if (V.syndromeeden) V.wardrobes.edensCabin.unlocked = true;
 		/* asylum */
 		V.wardrobes.asylum.locationRequirement.push("asylum");
@@ -606,6 +668,7 @@ function wardrobesUpdate() {
 		/* alex's */
 		V.wardrobes.alexFarm.name = "Alex's Farm";
 		V.wardrobes.alexFarm.shopSend = true;
+		V.wardrobes.alexFarm.isolated = true;
 		V.wardrobes.alexFarm.space = 40;
 		if (V.farm_stage >= 7) V.wardrobes.alexFarm.unlocked = true;
 		/* strip club */
@@ -639,7 +702,7 @@ function wardrobesUpdate() {
 		V.wardrobes.avery_mansion.shopSend = true;
 		V.wardrobes.avery_mansion.space = 80;
 		if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
-		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
+		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion", "alley");
 		/* add .lastTaken prop to everything */
 		if (V.worn !== undefined) Object.keys(V.worn).forEach(s => (V.worn[s].lastTaken = "wardrobe"));
 		if (V.carried !== undefined) Object.keys(V.carried).forEach(s => (V.carried[s].lastTaken = "wardrobe"));
@@ -729,5 +792,17 @@ function wardrobesUpdate() {
 		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
 	}
 	if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
+	if (V.objectVersion.wardrobes < 16) {
+		V.wardrobes.alexFarm.isolated = true;
+		V.wardrobes.edensCabin.isolated = true;
+		V.wardrobes.edensCabin.shopSend = V.edenfreedom >= 1;
+		V.wardrobes.edensCabin.transfer = V.edenfreedom >= 2;
+		V.wardrobes.wardrobe.transfer = true;
+	}
+	if (V.objectVersion.wardrobes < 17) {
+		V.wardrobes.avery_mansion.locationRequirement.pushUnique("alley");
+		/* remove broken temporary clothes creeped into main wardrobe */
+		V.wardrobe.lower = V.wardrobe.lower.filter(s => !s.temp);
+	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);

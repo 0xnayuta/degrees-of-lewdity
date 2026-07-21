@@ -10,8 +10,7 @@ Weather.Temperature = (() => {
 		if (V.weatherObj.monthlyTemperatures.length < 1) return;
 		const modifiers = calculateModifiers(temperature, date);
 		V.weatherObj.monthlyTemperatures[0].t[date.day - 1] = temperature - modifiers;
-		const baseTemperature = interpolateDailyTemperature(date);
-		T.baseTemperature = round(baseTemperature, 2);
+		return updateTemperature(date);
 	}
 
 	/**
@@ -24,8 +23,7 @@ Weather.Temperature = (() => {
 		date = new DateTime(date ?? Time.date);
 		if (V.weatherObj.monthlyTemperatures.length < 1) return;
 		V.weatherObj.monthlyTemperatures[0].t[date.day - 1] += temperature;
-		const baseTemperature = interpolateDailyTemperature(date);
-		T.baseTemperature = round(baseTemperature, 2);
+		return updateTemperature(date);
 	}
 
 	/**
@@ -60,10 +58,7 @@ Weather.Temperature = (() => {
 	 */
 	function getBaseTemperature(date) {
 		if (T.baseTemperature === undefined) {
-			// Will only generate if the array doesn't already exist, or if the month doesn't match
-			generateMonthlyTemperatures();
-			const baseTemperature = interpolateDailyTemperature(date);
-			T.baseTemperature = round(baseTemperature, 2);
+			return round(interpolateDailyTemperature(date), 2);
 		}
 		return T.baseTemperature;
 	}
@@ -79,9 +74,26 @@ Weather.Temperature = (() => {
 			const date = new DateTime(Time.date);
 			const baseTemperature = getBaseTemperature(date);
 			const modifiers = calculateModifiers(baseTemperature, date);
-			T.currentTemperature = round(baseTemperature + modifiers, 2);
+			return round(baseTemperature + modifiers, 2);
 		}
 		return T.currentTemperature;
+	}
+
+	function updateTemperature(date = new DateTime(Time.date)) {
+		generateMonthlyTemperatures(date);
+
+		const prevCurrent = T.currentTemperature;
+		const base = round(interpolateDailyTemperature(date), 2);
+		T.baseTemperature = base;
+
+		const current = round(base + calculateModifiers(base, date), 2);
+		T.currentTemperature = current;
+
+		if (prevCurrent === undefined || current !== prevCurrent) {
+			$.event.trigger(":onTemperatureChange");
+		}
+
+		return { base, current };
 	}
 
 	/*
@@ -185,8 +197,7 @@ Weather.Temperature = (() => {
 	function interpolateDailyTemperature(date) {
 		// Check for monthly data mismatch
 		if (!V.weatherObj.monthlyTemperatures.some(monthObj => monthObj.m === date.month)) {
-			console.error("Warning: Cannot interpolate between dates outside the current monthlyTemperature array.");
-			return V.weatherObj.monthlyTemperatures[0].t[0];
+			return null;
 		}
 		// Calculate the temperature for tomorrow, adjusting for month boundaries
 		const tomorrowDate = new DateTime(date).addDays(1);
@@ -201,22 +212,21 @@ Weather.Temperature = (() => {
 	}
 
 	/*
-		Calculates additional temperature modifiers based on sun, season, current weather conditions, and location.
+		Calculates additional temperature modifiers based on sun, season and current weather conditions.
 	*/
 	function calculateModifiers(baseTemperature, date) {
 		const precipitationModifier = calculatePrecipitationModifier(baseTemperature);
 		const dayModifier = calculateDayModifier(date) * setup.WeatherTemperature.dayMultiplier;
-		const locationModifier = getLocationModifier();
-		return round(precipitationModifier + dayModifier + locationModifier, 2);
+		return round(precipitationModifier + dayModifier, 2);
 	}
 
 	function calculatePrecipitationModifier(baseTemperature) {
 		if (baseTemperature <= 0) return 0;
-		return Weather.type.precipitationIntensity * setup.WeatherTemperature.precipitationEffect;
+		return Weather.current.precipitationIntensity * setup.WeatherTemperature.precipitationEffect;
 	}
 
 	function calculateDayModifier(date) {
-		const factor = Weather.activeRenderer?.orbitals?.sun.getFactor(date) ?? 0;
+		const factor = Weather.activeRenderer?.orbitals?.sun?.getFactor(date) ?? 0;
 		return factor * getWeatherModifier();
 	}
 
@@ -224,46 +234,6 @@ Weather.Temperature = (() => {
 		const maxVariation = setup.WeatherTemperature.maxDiurnalVariation * 0.5;
 		const minVariation = setup.WeatherTemperature.minDiurnalVariation * 0.5;
 		return interpolate(minVariation, maxVariation, 1 - Weather.overcast);
-	}
-
-	function getLocationModifier() {
-		// Location modifiers placeholder
-		// Placeholder
-		const townLocations = [
-			"alley",
-			"brothel",
-			"canal",
-			"compound",
-			"dance_studio",
-			"dilapitaded_shop",
-			"estate",
-			"factory",
-			"home",
-			"hospital",
-			"kylar_manor",
-			"landfill",
-			"market",
-			"museum",
-			"office",
-			"avery_skyscraper",
-			"park",
-			"police_station",
-			"pool",
-			"pub",
-			"school",
-			"sewers",
-			"shopping_centre",
-			"spa",
-			"studio",
-			"strip_club",
-			"temple",
-			"town",
-		];
-		// +3 in town
-		if (townLocations.includes(V.location)) {
-			return 3;
-		}
-		return 0;
 	}
 
 	/*
@@ -406,8 +376,10 @@ Weather.Temperature = (() => {
 		isFreezing,
 		getBaseTemperature,
 		getCelsius,
+		updateTemperature,
 		getInsideTemperature,
 		getWaterTemperature,
+		interpolateDailyTemperature,
 		toFahrenheit,
 		toCelsius,
 		set,
@@ -417,39 +389,23 @@ Weather.Temperature = (() => {
 				inside(value, tooltip) {
 					T.temperatureOverride = {
 						inside: (T.temperatureOverride?.inside ?? Weather.insideTemperature) + value,
-						insideTooltip: tooltip ? `<span class="orange">${tooltip}</span>` : "",
+						insideTooltip: tooltip ? `<span class="${value < 0 ? "teal" : "orange"}">${tooltip}</span>` : "",
 					};
 				},
-				outside(value, tooltip) {
+				outside(value, tooltip, modifyWeather = false) {
 					T.temperatureOverride = {
-						outside: (T.temperatureOverride?.outside ?? Weather.temperature) + value,
-						outsideTooltip: tooltip ? `<span class="orange">${tooltip}</span>` : "",
+						outsideTooltip: tooltip ? `<span class="${value < 0 ? "teal" : "orange"}">${tooltip}</span>` : "",
 					};
+					if (modifyWeather) {
+						T.temperatureOverride.outside = (T.temperatureOverride?.outside ?? Weather.temperature) + value;
+					} else {
+						T.temperatureOverride.outsideApparent = Weather.temperature + value;
+					}
 				},
 				water(value, tooltip) {
 					T.temperatureOverride = {
 						water: (T.temperatureOverride?.water ?? Weather.waterTemperature) + value,
-						waterTooltip: tooltip ? `<span class="orange">${tooltip}</span>` : "",
-					};
-				},
-			},
-			decrease: {
-				inside(value, tooltip) {
-					T.temperatureOverride = {
-						inside: (T.temperatureOverride?.inside ?? Weather.insideTemperature) - value,
-						insideTooltip: tooltip ? `<span class="teal">${tooltip}</span>` : "",
-					};
-				},
-				outside(value, tooltip) {
-					T.temperatureOverride = {
-						outside: (T.temperatureOverride?.outside ?? Weather.temperature) - value,
-						outsideTooltip: tooltip ? `<span class="teal">${tooltip}</span>` : "",
-					};
-				},
-				water(value, tooltip) {
-					T.temperatureOverride = {
-						water: (T.temperatureOverride?.water ?? Weather.waterTemperature) - value,
-						waterTooltip: tooltip ? `<span class="teal">${tooltip}</span>` : "",
+						waterTooltip: tooltip ? `<span class="${value < 0 ? "teal" : "orange"}">${tooltip}</span>` : "",
 					};
 				},
 			},
@@ -458,6 +414,12 @@ Weather.Temperature = (() => {
 			},
 			set outside(value) {
 				T.temperatureOverride = { outside: value };
+			},
+			get outsideApparent() {
+				return T.temperatureOverride?.outsideApparent;
+			},
+			set outsideApparent(value) {
+				T.temperatureOverride = { outsideApparent: value };
 			},
 			get inside() {
 				return T.temperatureOverride?.inside;
@@ -477,6 +439,17 @@ Weather.Temperature = (() => {
 				Weather.genSettings.months[Time.month - 1].temperatureRange.average[0] > Weather.temperature ||
 				Weather.genSettings.months[Time.month - 1].temperatureRange.average[1] < Weather.temperature
 			);
+		},
+		/* Returns 1 if temperature is higher than the norm, -1 if it's lower than the norm, otherwise returns 0 */
+		extremeTemperature(temperature, date) {
+			temperature ??= Weather.temperature;
+			date ??= Time.date;
+
+			const [low, high] = Weather.genSettings.months[date.month - 1].temperatureRange.average;
+
+			if (temperature < low) return -1;
+			if (temperature > high) return 1;
+			return 0;
 		},
 	});
 })();

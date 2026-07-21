@@ -41,7 +41,10 @@ You have an opportunity to escape, but the <<person>> is aware of that, and keep
 <<set $outside to 1>><<set $location to "town">><<effects>>
 <<earnFeat "You're the Laughingstock">>
 <<set _hours to Math.round(Math.clamp(8, 30, ((crimeSumCurrent() - 500) / 250) * 2))>>
-<<set $pillory.time.end to new DateTime(Time.date).addHours(_hours).addMinutes(60 - Time.date.minute).timeStamp>>
+<<set $pillory.time to {
+	start: Time.date.timeStamp,
+	end: new DateTime(Time.date).addHours(_hours).addMinutes(60 - Time.date.minute).timeStamp
+}>>
 <<crimeDown 5000>>
 
 The <<person>> moves your arms and head into position before lifting the top into place, restraining you. <<He>> locks it shut and attaches the key to a chain on <<his>> belt.
@@ -100,6 +103,13 @@ With <<him>> gone, some onlookers lose interest and return to their routines. Ot
 <<set $pillory.audience to 1>>
 <</if>>
 
+<<if $pillory.time?.end is undefined>>
+	<<set $pillory.time to {
+		start: Time.date.timeStamp,
+		end: new DateTime(Time.date).addMinutes(60 - Time.date.minute).timeStamp
+	}>>
+<</if>>
+
 <<set _endTime to new DateTime($pillory.time.end)>>
 <<set _timeLeft to Math.round(Time.date.compareWith(_endTime, true) / TimeConstants.secondsPerHour)>>
 
@@ -111,51 +121,22 @@ You have <<number _timeLeft>> hours left until release.
 You should be released any moment from now.
 <</if>>
 
-<<if $pillory.audience + $exposed is 1>>
-
-<span class="teal">A few people stop to look at you but most just glance then continue their business.</span>
-
-<<elseif $pillory.audience + $exposed is 2>>
-
-<span class="lblue">You've attracted a small crowd of onlookers.</span>
-
-<<elseif $pillory.audience + $exposed is 3>>
-
-<span class="blue">You've attracted a growing crowd of onlookers.</span>
-
-<<elseif $pillory.audience + $exposed is 4>>
-
-<span class="purple">A large group has gathered around you, big enough that the crowd itself is attracting more people to see what the fuss is about.</span>
-
-<<elseif $pillory.audience + $exposed is 5>>
-
-<span class="pink">A large crowd has gathered around you. People throw jeers and insults your way.</span>
-
-<<else>>
-
-<span class="red">A huge crowd has gathered around you. People jeer and insult you. Some throw litter.</span>
-
-<</if>>
+<<switch $pillory.audience + $exposed>>
+<<case 1>><span class="teal">A few people stop to look at you but most just glance then continue their business.</span>
+<<case 2>><span class="lblue">You've attracted a small crowd of onlookers.</span>
+<<case 3>><span class="blue">You've attracted a growing crowd of onlookers.</span>
+<<case 4>><span class="purple">A large group has gathered around you, big enough that the crowd itself is attracting more people to see what the fuss is about.</span>
+<<case 5>><span class="pink">A large crowd has gathered around you. People throw jeers and insults your way.</span>
+<<default>><span class="red">A huge crowd has gathered around you. People jeer and insult you. Some throw litter.</span>
+<</switch>>
 
 <<if $exposed gte 1>>
-
-You can do nothing about your <<lewdness>> displayed for everyone to see, humiliating you further.
-<<if $exposed gte 2>> <<trauma 1>><<gtrauma>><</if>>
-
-	<<if $exposed is 1>>
-		<<if $pillory.audience gte 1>>
-			<<fameexhibitionism $pillory.audience>>
-		<</if>>
-	<</if>>
-	<<if $exposed is 2>>
-		<<if $pillory.audience gte 1>>
-			<<set _audienceFactor to $pillory.audience * 2>>
-			<<fameexhibitionism _audienceFactor>>
-		<</if>>
-	<</if>>
+	You can do nothing about your <<lewdness>> displayed for everyone to see, humiliating you further.<<if $exposed gte 2>> <<trauma 1>><<gtrauma>><</if>>
+	<<fameexhibitionism `$pillory.audience * 2`>>
 <</if>>
 
 <<if $exposed gte 1 and $pillory.audience and random(0, 9) gte 7>>
+	<br><br>
 	A person pulls out their <<print ["camera", "phone"].pluck()>> and takes a photo.
 	"<<print [
 		"Now your <<undies 2>> can be exposed forever.",
@@ -173,23 +154,21 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 		"I bet <<pshe>> gets off on the humiliation anyway.",
 		"Do you like having your <<undies 2>> photographed?"
 	].pluck()>>"
-	<<if $exposed is 1>>
-		<<trauma 1>><<gtrauma>>
-	<<else>>
-		<<trauma 2>><<gtrauma>>
-	<</if>>
+	<<trauma `$exposed===1 ? 1 : 2`>><<gtrauma>>
 	<<fameexhibitionism 10 "pic">>
 <</if>>
-<<if $exposed gte 2 and $pillory.audience and $player.penisExist and random(0, 9) gte 7>><<pillorypeniscomment>><</if>>
+<<if $exposed gte 2 and $pillory.audience and $player.penisExist and random(0, 9) gte 7>><br><br><<pillorypeniscomment>><</if>>
 
 <br><br>
 
 <<if _endTime.timeStamp lte Time.date.timeStamp>>
 	A <<generatePolice 1>><<person1>><<person>> in a police uniform arrives.
-	<<if $worn.neck.collaredpolice>>
-		<<set $worn.neck.cursed to 0>><<neckruined>>
+	<<if $worn.neck.collaredpolice and !$community_service>>
+		<<if ["collar", "collar with leash"].includes($worn.neck.name)>>
+			<<set $worn.neck.cursed to 0>><<neckruined>>
+			<<He>> removes your collar and unlocks the pillory, freeing you.
+		<</if>>
 		<<set $worn.neck.collaredpolice to 0>>
-		<<He>> removes your collar and unlocks the pillory, freeing you.
 	<<else>>
 		<<He>> unlocks the pillory, freeing you.
 	<</if>>
@@ -479,7 +458,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 	<br>
 	<span class="pink">The crowd becomes larger and bolder.</span>
 	<<set $pillory.audience += 1>>
-	<br>
+	<br><br>
 
 	<<endcombat>>
 
@@ -552,7 +531,7 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 	<br>
 	<span class="pink">The crowd becomes larger and bolder.</span>
 	<<set $pillory.audience += 1>>
-	<br>
+	<br><br>
 
 	<<endcombat>>
 
@@ -581,9 +560,9 @@ You can do nothing about your <<lewdness>> displayed for everyone to see, humili
 <<He>> cracks the whip a couple of times on the pavement before lashing out at you.
 <br><br>
 <<if $phase is 1>>
-	<<if $danceskill gte random(1, 1000)>>
+	<<if currentSkillValue('danceskill') gte random(1, 1000)>>
 		A couple of blows land on your <<bottom>> with a sharp sting, <span class="green">but you're able to avoid most of them.</span>
-		A few of the audience members murmur to one another. It's clear you're ruining the <<personsimple>>'s act.
+		A few of the audience members murmur to one another. It's clear you're ruining the <<personssimple>> act.
 		Eventually <<he>> gives up, takes <<his>> hat, and storms off. The crowd boos, and a couple of delinquents throw fruit at <<him>>.
 		<<violence_noncombat 5 0.3>>
 		<br><br>
@@ -955,7 +934,7 @@ You brace for the impact as the fruit comes flying towards you.
 	<br>
 	<span class="pink">The crowd becomes larger and bolder.</span>
 	<<set $pillory.audience += 1>>
-	<br>
+	<br><br>
 
 	<<endcombat>>
 

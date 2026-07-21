@@ -7,7 +7,7 @@
 		/*
 		* Switched all instances of skill checks, that simply repeat themselves with a different variable, for the JS function combatSkillCheck()
 		* The function can be found at "game/03-JavaScript/ingame.js". It takes one required argument and three optional arguments.
-		* Argument 0 is for the skill being used. For simplycity at writing, you only pass the important part of the skill, E.g. "hand", or "feet", or "oral".
+		* Argument 0 is for the skill being used. For simplicity at writing, you only pass the important part of the skill, E.g. "hand", or "feet", or "oral".
 		* Argument 1 (optional) is used for the target of that action. This is used to future-proof the possibility of using the target's specific arousal/trust/anger in calculation.
 		* Argument 2 (optional) is the base difficulty used for the action. Most actions use 1000 base difficulty, which is the default if left blank, but some actions take different chances (like undressing).
 		* Argument 3 (optional) is the extra multiplier for the arousal side. This is only used in undressing so far, but might as well add it as an option.
@@ -67,9 +67,7 @@
 		<</if>>
 
 		<<if $position is "wall">>
-			<<if $walltype is "pillory">>
-				You are trapped in a pillory with your posterior stuck out and unprotected.
-			<<elseif $walltype is "cleanpillory">>
+			<<if $walltype is "pillory" or $walltype is "cleanpillory">>
 				You are trapped in a pillory with your posterior stuck out and unprotected.
 			<<elseif $walltype is "horse_pillory">>
 				Your legs and neck are shackled by cold iron, preventing movement.
@@ -412,11 +410,28 @@
 			<</if>>
 		<</if>>
 
+		/* Merge action text if resting a combination of arms and feet for better writing flow */
+		<<if $leftaction is "rest" and $rightaction is "rest" and $feetaction is "rest">>
+			<<set $leftaction to 0>><<set $rightaction to 0>><<set $feetaction to 0>><<set $leftactiondefault to "rest">><<set $rightactiondefault to "rest">><<set $feetactiondefault to "rest">>
+			You rest your arms and legs.
+		<</if>>
+
 		<<if $leftaction is "rest" and $rightaction is "rest">>
 			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "rest">><<set $rightactiondefault to "rest">>
 			You rest your arms.
 		<</if>>
 
+		<<if $leftaction is "rest" and $feetaction is "rest">>
+			<<set $leftaction to 0>><<set $feetaction to 0>><<set $leftactiondefault to "rest">><<set $feetactiondefault to "rest">>
+			You rest your legs and left arm.
+		<</if>>
+
+		<<if $rightaction is "rest" and $feetaction is "rest">>
+			<<set $rightaction to 0>><<set $feetaction to 0>><<set $rightactiondefault to "rest">><<set $feetactiondefault to "rest">>
+			You rest your legs and right arm.
+		<</if>>
+
+		/* Back to individual arm actions */
 		<<if $leftaction is "rest">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
 			You rest your left arm.
@@ -544,7 +559,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your hands, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your hands, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -560,7 +575,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your left hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your left hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -576,7 +591,7 @@
 			<<if $uncomfortable.hypnosis is false and $hypnosis_traits.cover gte random(1,5)>>
 				<<hypnosisText 'You intend to cover your face, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> You stroke your face with your right hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>>
-			<<elseif $hypnosis_traits.cover gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.cover))>>
+			<<elseif $hypnosis_traits.cover gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.cover))>>
 				<<hypnosisText 'You intend to cover your face, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> You stroke your face with your right hand, winking and teasing around your lips.'>>
 				<<submission 1>><<set $speechcamerapose to 1>><<hypnotised 1>><<willpower 1>>
 			<<else>>
@@ -737,7 +752,7 @@
 
 		<<if $rightaction is "rightstopanus">>
 			<<set $rightaction to 0>><<set $rightactiondefault to "rightstopanus">>
-			You stop covering you anus with your right hand.
+			You stop covering your anus with your right hand.
 			<<set $rightarm to 0>>
 			<<if $leftarm isnot "anus">>
 				<<set $anususe to 0>>
@@ -1503,7 +1518,7 @@
 				<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1>>
 
 				<<if $_genitals_exposed>>
-					<<if $arousal gt ($arousalmax/5)*4>>
+					<<if $arousal gte ($arousalmax/5)*4>>
 						You run your fingers over your exposed <<pussy>> and shiver in anticipation.
 					<<else>>
 						You run your fingers over your exposed <<pussy>>.
@@ -1533,7 +1548,7 @@
 				<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1>>
 
 				<<if $_genitals_exposed>>
-					<<if $arousal gt ($arousalmax/5)*4>>
+					<<if $arousal gte ($arousalmax/5)*4>>
 						You run your fingers over your exposed <<pussy>> and shiver in anticipation.
 					<<else>>
 						You run your fingers over your exposed <<pussy>>.
@@ -1563,7 +1578,7 @@
 				<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1>>
 
 				<<if $_genitals_exposed>>
-					<<if $arousal gt ($arousalmax/5)*4>>
+					<<if $arousal gte ($arousalmax/5)*4>>
 						You stroke your exposed <<penis>> and shiver in anticipation.
 					<<else>>
 						You stroke your exposed <<penis>>.
@@ -1593,7 +1608,7 @@
 				<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1>>
 
 				<<if $_genitals_exposed>>
-					<<if $arousal gt ($arousalmax/5)*4>>
+					<<if $arousal gte ($arousalmax/5)*4>>
 						You stroke your exposed <<penis>> and shiver in anticipation.
 					<<else>>
 						You stroke your exposed <<penis>>.
@@ -1624,13 +1639,13 @@
 
 				<<if $_genitals_exposed>>
 					<<if playerHasButtPlug()>>
-						<<if $arousal gt ($arousalmax/5)*4>>
+						<<if $arousal gte ($arousalmax/5)*4>>
 							You pull your $worn.butt_plug.name in and out of your exposed anus and shiver in anticipation.
 						<<else>>
 							You pull your $worn.butt_plug.name in and out of your exposed anus.
 						<</if>>
 					<<else>>
-						<<if $arousal gt ($arousalmax/5)*4>>
+						<<if $arousal gte ($arousalmax/5)*4>>
 							You run your fingers in and out of your exposed anus and shiver in anticipation.
 						<<else>>
 							You run your fingers in and out of your exposed anus.
@@ -1678,13 +1693,13 @@
 
 				<<if $_genitals_exposed>>
 					<<if playerHasButtPlug()>>
-						<<if $arousal gt ($arousalmax/5)*4>>
+						<<if $arousal gte ($arousalmax/5)*4>>
 							You pull your $worn.butt_plug.name in and out of your exposed anus and shiver in anticipation.
 						<<else>>
 							You pull your $worn.butt_plug.name in and out of your exposed anus.
 						<</if>>
 					<<else>>
-						<<if $arousal gt ($arousalmax/5)*4>>
+						<<if $arousal gte ($arousalmax/5)*4>>
 							You run your fingers in and out of your exposed anus and shiver in anticipation.
 						<<else>>
 							You run your fingers in and out of your exposed anus.
@@ -1776,7 +1791,7 @@
 			<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1 and $worn.genitals.vagina_exposed gte 1>>
 			<<set $_dildo to $selectedItemLeft.name>>
 			<<if $_genitals_exposed>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You run your $_dildo over your exposed <<pussy>> and shiver in pleasure.
 				<<else>>
 					You run your $_dildo over your exposed <<pussy>>.
@@ -1803,7 +1818,7 @@
 			<<set $_genitals_exposed to $worn.over_lower.vagina_exposed gte 1 and ($worn.lower.vagina_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.vagina_exposed gte 1 and $worn.genitals.vagina_exposed gte 1>>
 			<<set $_dildo to $selectedItemRight.name>>
 			<<if $_genitals_exposed>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You run your $_dildo over your exposed <<pussy>> and shiver in pleasure.
 				<<else>>
 					You run your $_dildo over your exposed <<pussy>>.
@@ -1829,13 +1844,13 @@
 			<<set $leftaction to 0>><<set $leftactiondefault to "dildoSelfPussy">><<set $leftarm to "dildoSelfPussy">>
 			<<set $_dildo to $currentSexToyLeft.name>>
 			<<if $player.virginity.vaginal is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the entrance of your <<pussy>> with the $_dildo and shiver in pleasure.
 				<<else>>
 					You gently fuck the entrance of your <<pussy>> with the $_dildo.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your <<pussy>> with the $_dildo and shiver in pleasure.
 				<<else>>
 					You fuck your <<pussy>> with the $_dildo.
@@ -1847,13 +1862,13 @@
 			<<set $rightaction to 0>><<set $rightactiondefault to "dildoSelfPussy">><<set $rightarm to "dildoSelfPussy">>
 			<<set $_dildo to $currentSexToyRight.name>>
 			<<if $player.virginity.vaginal is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the entrance of your <<pussy>> with the $_dildo and shiver in pleasure.
 				<<else>>
 					You gently fuck the entrance of your <<pussy>> with the $_dildo.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your <<pussy>> with the $_dildo and shiver in pleasure.
 				<<else>>
 					You fuck your <<pussy>> with the $_dildo.
@@ -1867,7 +1882,7 @@
 			<<set $_anus_exposed to $worn.over_lower.anus_exposed gte 1 and ($worn.lower.anus_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.anus_exposed gte 1 and $worn.genitals.anus_exposed gte 1>>
 			<<set $_dildo to $currentSexToyLeft.name>>
 			<<if $_anus_exposed>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You run your $_dildo over your exposed anus and shiver in pleasure.
 				<<else>>
 					You run your $_dildo over your exposed anus.
@@ -1894,7 +1909,7 @@
 			<<set $_anus_exposed to $worn.over_lower.anus_exposed gte 1 and ($worn.lower.anus_exposed gte 1 or setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt gte 1) and $worn.under_lower.anus_exposed gte 1 and $worn.genitals.anus_exposed gte 1>>
 			<<set $_dildo to $currentSexToyRight.name>>
 			<<if $_anus_exposed>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You run your $_dildo over your exposed anus and shiver in pleasure.
 				<<else>>
 					You run your $_dildo over your exposed anus.
@@ -1920,13 +1935,13 @@
 			<<set $leftaction to 0>><<set $leftactiondefault to "dildoSelfAnus">><<set $leftarm to "dildoSelfAnus">>
 			<<set $_dildo to $currentSexToyLeft.name>>
 			<<if $player.virginity.anal is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the entrance of your anus with the $_dildo and shiver in pleasure.
 				<<else>>
 					You gently fuck the entrance of your anus with the $_dildo.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your anus with the $_dildo and shiver in pleasure.
 				<<else>>
 					You fuck your anus with the $_dildo.
@@ -1938,13 +1953,13 @@
 			<<set $rightaction to 0>><<set $rightactiondefault to "dildoSelfAnus">><<set $rightarm to "dildoSelfAnus">>
 			<<set $_dildo to $currentSexToyRight.name>>
 			<<if $player.virginity.anal is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the entrance of your anus with the $_dildo and shiver in pleasure.
 				<<else>>
 					You gently fuck the entrance of your anus with the $_dildo.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your anus with the $_dildo and shiver in pleasure.
 				<<else>>
 					You fuck your anus with the $_dildo.
@@ -1980,13 +1995,13 @@
 			<<set $penisuse to "strokerSelfPenis">><<set $penisstate to "strokerSelfPenis">><<set $penisactiondefault to "strokerSelfPenis">>
 			<<set _stroker to $currentSexToyLeft.name>>
 			<<if $player.virginity.penile is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the glans of your <<penis>> with the _stroker and shiver in pleasure.
 				<<else>>
 					You gently fuck the glans of your <<penis>> with the _stroker.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your <<penis>> with the _stroker and shiver in pleasure.
 				<<else>>
 					You fuck your <<penis>> with the _stroker.
@@ -2022,13 +2037,13 @@
 			<<set $penisuse to "strokerSelfPenis">><<set $penisstate to "strokerSelfPenis">><<set $penisactiondefault to "strokerSelfPenis">>
 			<<set _stroker to $currentSexToyRight.name>>
 			<<if $player.virginity.penile is true>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You gently fuck the glans of your <<penis>> with the _stroker and shiver in pleasure.
 				<<else>>
 					You gently fuck the glans of your <<penis>> with the _stroker.
 				<</if>>
 			<<else>>
-				<<if $arousal gt ($arousalmax/5)*4>>
+				<<if $arousal gte ($arousalmax/5)*4>>
 					You fuck your <<penis>> with the _stroker and shiver in pleasure.
 				<<else>>
 					You fuck your <<penis>> with the _stroker.
@@ -2507,7 +2522,8 @@
 		<</if>>
 
 		<<if $feetaction is "rest">>
-			<<set $feetaction to 0>><<set $feetactiondefault to "rest">>You rest your legs.
+			<<set $feetaction to 0>><<set $feetactiondefault to "rest">>
+			You rest your legs.
 		<</if>>
 
 		<<if $feetaction is "kick">>
@@ -3024,10 +3040,12 @@
 					the <<person>>.
 				<</if>>
 				<<set $stalk_assess to true>>
-				<<if $npcrow.includes(0)>>
-					<<actionsconfrontNNPC>>
-				<<else>>
-					<<actionsconfront>>
+				<<if !$worn.face.type.includes("gag")>>
+					<<if $npcrow.includes(0)>>
+						<<actionsconfrontNNPC>>
+					<<else>>
+						<<actionsconfront>>
+					<</if>>
 				<</if>>
 				<br><br>
 				<<if $combatgoal is "confront">>
@@ -3065,7 +3083,7 @@
 						<<elseif $NPCList[0].traits.includes("relaxed")>>
 							"Best play along," <<he>> says. "It'll be easier for you."
 						<<elseif $NPCList[0].traits.includes("sociable")>>
-							"That's no way to talk to a <<if $pronoun is "m">>gentleman<<else>>lady<</if>> like me," <<he>> says. "I know how you can make it up to me."
+							"That's no way to talk to a <<gentleman_npc>> like me," <<he>> says. "I know how you can make it up to me."
 						<<elseif $NPCList[0].traits.includes("brooding")>>
 							"This is the way of the world," <<he>> says. "It'll be over soon."
 						<<else>>
@@ -3340,13 +3358,28 @@
 
 		<<if $mouthaction is "demand">>
 			<<set $mouthaction to 0>><<set _sound to 1>>
+			<<if $wolfgirl gte 6>>
+				<<stress -1>>
+				<<if $submissive gte 850>>
+					<<trauma 6>><<control -1>>
+				<</if>>
+			<</if>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
-				<<wheeze "demand something">>
+				<<if $submissive gte 850 and $wolfgirl gte 6>>
+					<span @class=basicJitterCss()><<wheeze "demand something">></span>
+				<<else>>
+					<<wheeze "demand something">>
+				<</if>>
 			<<else>>
 				<<set $mouthactiondefault to "demand">>
-				<<actionsdemand>><<set $speechdemand to 1>>
+				<<if $submissive gte 850 and $wolfgirl gte 6>>
+					<span @class=basicJitterCss()><<actionsdemand>></span>
+				<<else>>
+					<<actionsdemand>>
+				<</if>>
+				<<set $speechdemand to 1>>
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
-					<<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words, but <<if $enemyno gte 2>>flinch<<else>>flinches<</if>> at your tone.
+					<<if $enemyno gte 2>>They don't understand your words, but flinch<<else>><<He>> doesn't understand your words, but flinches<</if>> at your tone.
 				<</if>>
 				<<defiance `1 + $englishtrait`>>
 			<</if>>
@@ -3529,7 +3562,7 @@
 				You bite down on the nipple, <<he>> <<if $enemytype is "man">>yelps<<elseif $enemytype is "beast">>growls<<else>>shrieks<</if>> and recoils in agony.
 				<<defiance 20 $mouthtarget>><<attackstat>><<set $mouthuse to 0>><<set $breastbitten to 1>><<set $mouthstate to 0>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 40 $mouthtarget>>
+					<<defiance 20 $mouthtarget>>
 					You lick your fangs clean.
 				<</if>>
 				<<if $head is "breasts">>
@@ -3584,13 +3617,13 @@
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
 				<<wheeze "scream for help">>
 			<<elseif $drugged gt 0 or $arousal gte $arousalmax * 0.9>>
-				You try to scream for help, <span class="pink">but your arousal makes it sound like a lewd moan.</span>
+				You try to scream for help, <span class="pink">but <<= $drugged gt 0 ? "your drugged state of mind" : "your arousal">> makes it sound like a lewd moan.</span>
 				<<neutral 1>><<set $speechmoan to 1>>
 			<<elseif $uncomfortable.hypnosis is false and $hypnosis_traits.scream gte random(1,5)>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, but a lewd thought intrudes <span class="lewd">and your mind immediately accepts it.</span> <<askrough>>'>>
 				<<hypnotised 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
-			<<elseif $hypnosis_traits.scream gte 1 and $willpower lt random(1, (200 * $hypnosis_traits.scream))>>
+			<<elseif $hypnosis_traits.scream gte 1 and currentSkillValue('willpower') lt random(1, (200 * $hypnosis_traits.scream))>>
 				<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
 				<<hypnosisText 'You intend to scream for help, <span class="pink">but the thought is snatched from your mind and replaced with another.</span> <<askrough>>'>>
 				<<hypnotised 1>><<willpower 1>><<submission 1>><<set $enemyanger += (10 * $englishtrait)>>
@@ -3656,11 +3689,16 @@
 			<<elseif $enemytype is "beast">>
 				You tell <<him>> you're sorry for being bad.
 				<<set $mouthactiondefault to "plead">>
-				<<if $NPCList[$mouthtarget] is _unforgiver>>
+				<<if $NPCList[$mouthtarget] is _unforgiver and $apologised is 0>>
+					<!-- apology to an unforgiving character, instead add 25 anger at no english, remove maximum of 50 at excellent english -->
 					<<bHe>> ignores you.
 					<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
-				<<elseif !!_unforgiver>>
+					<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+				<<elseif $NPCList[$mouthtarget] is _unforgiver>>
+					<!-- repeated apology, now it's just more anger -->
+					<span class = red><<bHe>> only looks more annoyed.</span>
+					<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+				<<elseif !!_unforgiver and $apologised is 0>>
 					<<bHe>> looks towards
 					<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
 					<<= _unforgiver.fullDescription>>,
@@ -3710,9 +3748,13 @@
 					<<set $mouthactiondefault to "plead">>
 					<<if $NPCList[$mouthtarget] is _unforgiver>>
 						<span class="red"><<He>> scoffs.</span>
-						<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
-						<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -2, $enemyangermax / 2)>>
-					<<elseif !!_unforgiver>>
+						<<if $apologised is 0>>
+							<<set $enemyanger += Math.clamp(25 - $englishtrait * 20, $enemyangermax / -4, $enemyangermax / 2)>>
+							<<set $apologised to 1>><<set $speechapologiseunforgiving to 1>>
+						<<else>>
+							<<set $enemyanger += Math.clamp(100 - $englishtrait * 20, 0, $enemyangermax / 2)>>
+						<</if>>
+					<<elseif !!_unforgiver and $apologised is 0>>
 						<<He>> looks over at
 						<<= /^[A-Z]/.test(_unforgiver.fullDescription) ? "" : "the ">>
 						<<= _unforgiver.fullDescription>>,
@@ -3746,7 +3788,7 @@
 			<<else>>
 				<<set $mouthactiondefault to "plead">>
 				<<set $trauma -= $traumagain>><<set $traumagain to 0>><<set $speechforgive to 1>><<set $angelforgive to 1>>
-				<<traumaclamp>>
+				<<traumaClamp>>
 				<<if $enemytype is "beast">>
 					"You don't know any better. You're just a <<beasttype>>," you say. "I forgive you."
 				<<else>>
@@ -3856,7 +3898,7 @@
 					<<set $NPCList[$mouthtarget].penis to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
 					<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>>
 					<<if $transformationParts.traits.fangs isnot "disabled">>
-						<<defiance 20 $mouthtarget>><<defiance 20 $mouthtarget>>
+						<<defiance 20 $mouthtarget>>
 						You lick your fangs clean.
 					<</if>>
 				<</if>>
@@ -3874,7 +3916,7 @@
 				<<set $NPCList[$mouthtarget].vagina to 0>><<set $NPCList[$mouthtarget].location.genitals to 0>>
 				<<defiance 20 $mouthtarget>><<attackstat>><<control 15>><<set $mouthuse to 0>><<set $penisbitten to 1>><<set $mouthstate to 0>><<set $speechhit to 1>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 40 $mouthtarget>>
+					<<defiance 20 $mouthtarget>>
 					You lick your fangs clean.
 				<</if>>
 			<</if>>
@@ -3959,11 +4001,11 @@
 				<<set $mouthaction to 0>><<set $mouthactiondefault to "handbite">><<personselect $mouthtarget>>
 				<<actionshandbite $mouthtarget>>
 				<<if $transformationParts.traits.fangs isnot "disabled">>
-					<<defiance 6 $mouthtarget>>
+					<<defiance 4 $mouthtarget>>
 				<<else>>
 					<<defiance 2 $mouthtarget>>
 				<</if>>
-				<<if random(1, 5) gte 3 and ($transformationParts.traits.fangs isnot "disabled") or random(1, 5) gte 5>>
+				<<if ($transformationParts.traits.fangs is "disabled" and random(1, 5) gte 5) or ($transformationParts.traits.fangs isnot "disabled" and random(1, 5) gte 4)>>
 					<<set $mouthuse to 0>>
 					<<if $NPCList[$mouthtarget].lefthand is "mouth">>
 						<<set $NPCList[$mouthtarget].lefthand to 0>>
@@ -3995,9 +4037,6 @@
 				<span class="purple"><<His>> glasses shatter.</span>
 			<</if>>
 			<<defiance 10 $mouthtarget>><<attackstat>><<set $mouthuse to 0>><<set $mouthstate to 0>>
-			<<if $cow gte 2 and $demon gte 2>>
-				<<defiance 10 $mouthtarget>><<defiance 10 $mouthtarget>>
-			<</if>>
 			<<if $demon gte 2>>
 				<<defiance 10 $mouthtarget>>
 				<<if !pcAreArmsBound("both")>>
@@ -4544,7 +4583,12 @@
 									<<case "acceptGive">>
 										<<He_Short>> shrugs. "I don't usually need them. If you have one, I won't stop you."
 									<<case "reject">>
-										<<He_Short>> tilts <<his>> head at you. <span class="lewd">"That won't be necessary. I've already taken precautions."</span>
+										<<He_Short>> tilts <<his>> head at you.
+										<<if pregnancyCompatible("Gwylan") and $settings.pregnancySpeechEnabled>>
+											<span class="lewd">"Sorry dear, I need to breed you."</span>
+										<<else>>
+											<span class="lewd">"That won't be necessary. I've already taken precautions."</span>
+										<</if>>
 								<</switch>>
 							<<case "Morgan">>
 								/*Default pregnancyAvoidance is random every encounter. I am so, so sorry.*/

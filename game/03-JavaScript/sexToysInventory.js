@@ -139,14 +139,14 @@ function sexToysInventoryOnCarryClick(index, category) {
 	const setupToy = setup.sextoys[toy.index];
 	const setupCategory = setupToy.category;
 	const colour = toy.colour === "lime-green" ? "lime" : toy.colour || "";
-	const handheld = setup.clothes.handheld.find(item => item.variable === toy.name);
+	const handheld = setup.props.find(item => item === toy.name);
 
 	if (handheld) Wikifier.wikifyEval(`<<wearProp '${toy.name}' '${colour.replace("-", " ")}'>><<updatesidebarimg>>`);
 
 	// if player has reached maximum item carried, stop the function
 	if (!toy.carried && countCarriedSextoys() >= maxCarried) return;
 	toy.carried = !toy.carried;
-	if (!toy.carried) Wikifier.wikifyEval("<<handheldon>><<updatesidebarimg>>");
+	if (!toy.carried) Wikifier.wikifyEval("<<updatesidebarimg>>");
 
 	// if player chose "Put back in the cupboard", also unwear the item
 	if (!toy.carried && toy.worn) {
@@ -308,7 +308,7 @@ function updateNumberInString(element, indexMin, category) {
 	if (index < indexMin || index <= 0) return;
 
 	element.id = element.id.replace(/\d+/, index - 1);
-	if (element.getAttribute("onclick")) element.setAttribute("onclick", `window.sexToysInventoryOnItemClick(${index - 1},\`${category}\`)`);
+	if (element.onclick) element.onclick = () => window.sexToysInventoryOnItemClick(index - 1, category);
 }
 
 function checkSextoysGift(npcName) {

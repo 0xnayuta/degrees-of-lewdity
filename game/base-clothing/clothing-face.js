@@ -16,7 +16,7 @@ Warmth checklist:
 function initFace() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "face",
 			name: "naked",
@@ -46,8 +46,8 @@ function initFace() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "face",
 			name: "glasses",
@@ -80,8 +80,8 @@ function initFace() {
 			location: 0,
 			iconFile: "glasses.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "face",
 			name: "cool shades",
@@ -114,8 +114,8 @@ function initFace() {
 			location: 0,
 			iconFile: "cool_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "face",
 			name: "surgical mask",
@@ -132,7 +132,7 @@ function initFace() {
 			colour: 0,
 			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
-			type: ["mask", "covered"],
+			type: ["mask", "face_covering"],
 			gender: "n",
 			warmth: 1,
 			cost: 2000,
@@ -145,8 +145,8 @@ function initFace() {
 			location: 0,
 			iconFile: "surgical_mask.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "face",
 			name: "gag",
@@ -180,8 +180,8 @@ function initFace() {
 			location: 0,
 			iconFile: "",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "face",
 			name: "blindfold",
@@ -211,8 +211,8 @@ function initFace() {
 			location: 0,
 			iconFile: "",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "face",
 			name: "gag and blindfold",
@@ -229,7 +229,7 @@ function initFace() {
 			fabric_strength: 20,
 			reveal: 1000,
 			word: "a",
-			plural: 0,
+			plural: 1,
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
@@ -237,7 +237,7 @@ function initFace() {
 			gender: "n",
 			warmth: 1,
 			cost: 3000,
-			description: "Keeps your mouth shut and eyes covered.",
+			description: "Keeps your mouth shut and eyes covered_face.",
 			shop: [""],
 			accessory: 0,
 			accessory_colour: 0,
@@ -246,8 +246,8 @@ function initFace() {
 			location: 0,
 			iconFile: "",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "face",
 			name: "skulduggery mask",
@@ -280,8 +280,8 @@ function initFace() {
 			location: 0,
 			iconFile: "skulduggery_mask.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "face",
 			name: "low frame glasses",
@@ -313,8 +313,8 @@ function initFace() {
 			location: 0,
 			iconFile: "low_frame_glasses.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 9,
 			slot: "face",
 			name: "half moon glasses",
@@ -349,8 +349,8 @@ function initFace() {
 			location: 0,
 			iconFile: "half_moon_glasses.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 10,
 			slot: "face",
 			name: "deep frame glasses",
@@ -382,8 +382,8 @@ function initFace() {
 			location: 0,
 			iconFile: "deep_frame_glasses.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 11,
 			slot: "face",
 			name: "square shades",
@@ -417,8 +417,8 @@ function initFace() {
 			location: 0,
 			iconFile: "square_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 12,
 			slot: "face",
 			name: "round shades",
@@ -451,8 +451,8 @@ function initFace() {
 			location: 0,
 			iconFile: "round_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 13,
 			slot: "face",
 			name: "shield shades",
@@ -486,8 +486,8 @@ function initFace() {
 			location: 0,
 			iconFile: "shield_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 14,
 			slot: "face",
 			name: "cat eye shades",
@@ -520,8 +520,8 @@ function initFace() {
 			location: 0,
 			iconFile: "cat_eye_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 15,
 			slot: "face",
 			name: "aviators",
@@ -547,7 +547,7 @@ function initFace() {
 			shop: ["clothing", "adult"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["original", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "pale white", "yellow", "custom"],
+			accessory_colour_options: ["blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "pale white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			altposition: "none",
 			altdisabled: [],
@@ -555,8 +555,8 @@ function initFace() {
 			location: 0,
 			iconFile: "aviators.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 16,
 			slot: "face",
 			name: "punk shades",
@@ -590,8 +590,8 @@ function initFace() {
 			location: 0,
 			iconFile: "punk_shades.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 17,
 			slot: "face",
 			name: "muzzle",
@@ -621,8 +621,8 @@ function initFace() {
 			location: 0,
 			iconFile: "",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 18,
 			slot: "face",
 			name: "mummy facewrap",
@@ -652,8 +652,8 @@ function initFace() {
 			location: 0,
 			iconFile: "mummy_facewrap.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 19,
 			slot: "face",
 			name: "swimming goggles",
@@ -686,8 +686,8 @@ function initFace() {
 			location: 0,
 			iconFile: "swimming_goggles.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 20,
 			slot: "face",
 			name: "belly dancer's veil",
@@ -718,8 +718,8 @@ function initFace() {
 			location: 0,
 			iconFile: "belly_dancers_veil.png",
 			accIcon: "belly_dancers_veil_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 21,
 			slot: "face",
 			name: "muzzle",
@@ -740,7 +740,7 @@ function initFace() {
 			colour_options: ["grey", "black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
-			type: ["gag", "fetish", "covered"],
+			type: ["gag", "fetish", "face_covering"],
 			gender: "n",
 			warmth: 0,
 			cost: 12000,
@@ -753,8 +753,8 @@ function initFace() {
 			location: 0,
 			iconFile: "muzzle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 22,
 			slot: "face",
 			name: "gag",
@@ -788,8 +788,8 @@ function initFace() {
 			location: 0,
 			iconFile: "gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 23,
 			slot: "face",
 			name: "bit gag",
@@ -819,8 +819,8 @@ function initFace() {
 			location: 0,
 			iconFile: "bit_gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 24,
 			slot: "face",
 			name: "wolf muzzle",
@@ -851,8 +851,8 @@ function initFace() {
 			location: 0,
 			iconFile: "wolf_muzzle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 25,
 			slot: "face",
 			name: "kitty muzzle",
@@ -883,8 +883,8 @@ function initFace() {
 			location: 0,
 			iconFile: "kitty_muzzle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 26,
 			slot: "face",
 			name: "cloth gag",
@@ -915,8 +915,8 @@ function initFace() {
 			location: 0,
 			iconFile: "cloth_gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 27,
 			slot: "face",
 			name: "panty gag",
@@ -947,8 +947,8 @@ function initFace() {
 			location: 0,
 			iconFile: "panty_gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 28,
 			slot: "face",
 			name: "tape gag",
@@ -978,8 +978,8 @@ function initFace() {
 			location: 0,
 			iconFile: "tape_gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 29,
 			slot: "face",
 			name: "penis gag",
@@ -1012,8 +1012,8 @@ function initFace() {
 			location: 0,
 			iconFile: "penis_gag.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 30,
 			slot: "face",
 			name: "skeleton mask",
@@ -1025,8 +1025,8 @@ function initFace() {
 			integrity_max: 20,
 			fabric_strength: 20,
 			reveal: 1,
-			word: "n",
-			plural: 1,
+			word: "a",
+			plural: 0,
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
@@ -1043,8 +1043,8 @@ function initFace() {
 			location: 0,
 			iconFile: "skeleton_mask.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 31,
 			slot: "face",
 			name: "esoteric spectacles",
@@ -1074,8 +1074,8 @@ function initFace() {
 			location: 0,
 			iconFile: "esoteric_spectacles.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 32,
 			slot: "face",
 			name: "gas mask",
@@ -1093,7 +1093,7 @@ function initFace() {
 			colour_options: ["black", "brown", "tan", "olive", "sand", "grey", "white", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
-			type: ["mask", "covered", "costume"],
+			type: ["mask", "face_covering", "costume"],
 			gender: "n",
 			warmth: 3,
 			cost: 20000,
@@ -1107,8 +1107,8 @@ function initFace() {
 			location: 0,
 			iconFile: "gas_mask.png",
 			accIcon: "gas_mask_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 33,
 			slot: "face",
 			name: "eyepatch",
@@ -1141,8 +1141,8 @@ function initFace() {
 			location: 0,
 			iconFile: "eyepatch.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 34,
 			slot: "face",
 			name: "medical eyepatch",
@@ -1154,8 +1154,8 @@ function initFace() {
 			integrity_max: 20,
 			fabric_strength: 20,
 			reveal: 1,
-			word: "an",
-			plural: 1,
+			word: "a",
+			plural: 0,
 			colour: 0,
 			colour_options: ["black", "white", "grey", "custom"],
 			colour_sidebar: 1,
@@ -1175,8 +1175,8 @@ function initFace() {
 			location: 0,
 			iconFile: "medical_eyepatch.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 35,
 			slot: "face",
 			name: "doggy muzzle",
@@ -1194,7 +1194,7 @@ function initFace() {
 			colour_options: [],
 			colour_sidebar: 0,
 			colour_combat: 0,
-			type: ["gag", "fetish", "covered"],
+			type: ["gag", "fetish", "face_covering"],
 			gender: "n",
 			warmth: 1,
 			cost: 16000,
@@ -1205,15 +1205,18 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "doggymuzzle.png",
+			iconFile: "doggy-muzzle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 36,
 			slot: "face",
-			name: "bamboo muzzle",
-			name_cap: "Bamboo muzzle",
-			variable: "bamboomuzzle",
+			name: "wood muzzle",
+			name_cap: "Wood muzzle",
+			variable: "wood muzzle",
+			combat: {
+				reference: "bitgag",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 30,
@@ -1226,7 +1229,7 @@ function initFace() {
 			colour_options: [],
 			colour_sidebar: 0,
 			colour_combat: 0,
-			type: ["gag", "fetish", "covered"],
+			type: ["gag", "fetish", "face_covering"],
 			gender: "n",
 			warmth: 0,
 			cost: 10000,
@@ -1237,10 +1240,10 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "bamboomuzzle.png",
+			iconFile: "wood-muzzle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 37,
 			slot: "face",
 			name: "monocle",
@@ -1273,8 +1276,8 @@ function initFace() {
 			location: 0,
 			iconFile: "monocle.png",
 			accIcon: "monocle_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 38,
 			slot: "face",
 			name: "islander mask",
@@ -1286,11 +1289,11 @@ function initFace() {
 			integrity_max: 50,
 			fabric_strength: 20,
 			reveal: 1,
-			word: "a",
+			word: "an",
 			plural: 0,
 			colour: 0,
 			colour_options: [],
-			type: ["mask", "covered", "costume"],
+			type: ["mask", "face_covering", "costume"],
 			colour_combat: 0,
 			gender: "n",
 			warmth: 2,
@@ -1302,10 +1305,10 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "islander_mask.png",
+			iconFile: "islander-mask.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 39,
 			slot: "face",
 			name: "reading glasses",
@@ -1338,8 +1341,8 @@ function initFace() {
 			location: 0,
 			iconFile: "reading_glasses.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 40,
 			slot: "face",
 			name: "bandanna",
@@ -1352,12 +1355,12 @@ function initFace() {
 			fabric_strength: 20,
 			reveal: 1,
 			word: "a",
-			plural: 1,
+			plural: 0,
 			colour: 0,
 			colour_options: ["black", "light blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "pale white", "yellow", "silver", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
-			type: ["mask", "covered"],
+			type: ["mask", "face_covering"],
 			gender: "n",
 			warmth: 1,
 			cost: 500,
@@ -1370,8 +1373,8 @@ function initFace() {
 			location: 0,
 			iconFile: "bandanna.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 41,
 			slot: "face",
 			name: "heart sunglasses",
@@ -1423,8 +1426,8 @@ function initFace() {
 			location: 0,
 			iconFile: "heart_sunglasses.png",
 			accIcon: "heart_sunglasses_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 42,
 			slot: "face",
 			name: "fox mask",
@@ -1452,15 +1455,18 @@ function initFace() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "foxmask.png",
+			iconFile: "fox-mask.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 43,
 			slot: "face",
 			name: "futuristic shades",
 			name_cap: "Futuristic shades",
 			variable: "futureshades",
+			combat: {
+				reference: "coolshades",
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 30,
@@ -1489,13 +1495,202 @@ function initFace() {
 			location: 0,
 			iconFile: "futureshades.png",
 			accIcon: "futureshades_acc.png",
-		},
+		}),
+		new ClothesItem({
+			index: 44,
+			slot: "face",
+			name: "plaster",
+			name_cap: "Plaster",
+			variable: "plaster",
+			state: 0,
+			state_base: 0,
+			integrity: 5,
+			integrity_max: 5,
+			fabric_strength: 1,
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: [],
+			colour_combat: 0,
+			type: ["normal"],
+			gender: "n",
+			warmth: 0,
+			cost: 500,
+			description: "Great for scrapes.",
+			shop: ["clothing"],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			altposition: "none",
+			altdisabled: [],
+			cursed: 0,
+			location: 0,
+			iconFile: "plaster.png",
+			accIcon: 0,
+		}),
+		new ClothesItem({
+			index: 45,
+			slot: "face",
+			name: "butterfly eyepatch",
+			name_cap: "Butterfly eyepatch",
+			variable: "butterfly eyepatch",
+			combat: {
+				reference: "eyepatch",
+			},
+			description: "A delicate touch.",
+			cost: 7000,
+			shop: ["forest"],
+			type: ["formal", "serving", "costume"],
+			state: 0,
+			state_base: 0,
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 200,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			colour_sidebar: 1,
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			gender: "n",
+			warmth: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "butterfly-eyepatch.png",
+			accIcon: "butterfly-eyepatch-acc.png",
+			altposition: "none",
+			altdisabled: [],
+		}),
+		new ClothesItem({
+			index: 46,
+			slot: "face",
+			name: "rose eyepatch",
+			name_cap: "Rose eyepatch",
+			variable: "rose eyepatch",
+			combat: {
+				reference: "eyepatch",
+			},
+			description: "Every rose hides its thorns.",
+			cost: 9500,
+			shop: ["forest"],
+			type: ["formal", "costume"],
+			state: 0,
+			state_base: 0,
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 200,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			colour_sidebar: 1,
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory_colour_sidebar: 1,
+			gender: "n",
+			warmth: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "rose-eyepatch.png",
+			accIcon: "rose-eyepatch-acc.png",
+			altposition: "none",
+			altdisabled: [],
+		}),
+		new ClothesItem({
+			index: 47,
+			slot: "face",
+			name: "sleeping mask",
+			name_cap: "Sleeping mask",
+			variable: "sleeping mask",
+			combat: {
+				reference: "blindfold",
+			},
+			description: "Ensures uninterrupted rest. Anytime, anywhere.",
+			cost: 3500,
+			shop: ["clothing"],
+			type: ["sleep"],
+			state: 0,
+			state_base: 0,
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 200,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			colour_sidebar: 1,
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			pattern: 0,
+			pattern_options: ["blank", "aloof", "anime", "cat", "disapproving", "frilled", "quilted", "sleeping"],
+			pattern_layer: "primary",
+			gender: "n",
+			warmth: 1,
+			set: "face",
+			altposition: "none",
+			altdisabled: [],
+			cursed: 0,
+			location: 0,
+			iconFile: "sleeping-mask.png",
+			accIcon: 0,
+		}),
+		new ClothesItem({
+			index: 48,
+			slot: "face",
+			name: "swirly glasses",
+			variable: "swirly glasses",
+			combat: {
+				reference: "glasses",
+			},
+			description: "Nothing suspicious at all.",
+			cost: 5000,
+			shop: ["clothing"],
+			type: ["glasses", "mask"],
+			integrity: 20,
+			integrity_max: 20,
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			gender: "n",
+			warmth: 0,
+			iconFile: "swirly-glasses.png",
+		}),
+		new ClothesItem({
+			index: 49,
+			slot: "face",
+			name: "teardrop glasses",
+			variable: "teardrop glasses",
+			combat: {
+				reference: "glasses",
+			},
+			description: "Trendy tear-shaped frames.",
+			cost: 5000,
+			shop: ["clothing"],
+			type: ["glasses"],
+			integrity: 20,
+			integrity_max: 20,
+			reveal: 100,
+			word: "a",
+			plural: 0,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			gender: "n",
+			warmth: 0,
+			iconFile: "teardrop-glasses.png",
+		}),
 	];
 	setup.clothes.face = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.face = [];
 

@@ -6,10 +6,10 @@
 	<<set $location to "home">>
 
 	<<if $hairselect is "random">>
-		<<set $hairselect to ["red","jetblack","black","brown","softbrown","lightbrown","burntorange","blond","softblond","platinumblond","ashyblond","strawberryblond","ginger"].random()>>
+		<<set $hairselect to ["red","jetblack","black","darkbrown","brown","softbrown","lightbrown","burntorange","blond","softblond","platinumblond","ashyblond","strawberryblond","ginger"].random()>>
 	<</if>>
 	<<if $eyeselect is "random">>
-		<<set $eyeselect to ["purple","dark blue","light blue","amber","hazel","green","red","pink","grey", "light grey", "lime green"].random()>>
+		<<set $eyeselect to ["purple","dark blue","light blue","amber","hazel","brown","green","red","pink","black","grey", "light grey", "lime green"].random()>>
 	<</if>>
 	<<if $background is "random">>
 		<<set _backgroundOptions to ["waif","nerd","athlete","delinquent","promiscuous","exhibitionist","deviant","beautiful","lustful","plantlover"]>>
@@ -21,9 +21,9 @@
 
 	<<switch $bodysize>>
 		<<case 0>><<set $physiquesize to 6000>>
-		<<case 1>><<set $physiquesize to 10000>>
+		<<case 1>><<set $physiquesize to 9000>>
 		<<case 2>><<set $physiquesize to 12000>>
-		<<case 3>><<set $physiquesize to 16000>>
+		<<case 3>><<set $physiquesize to 15000>>
 	<</switch>>
 
 	<<clamp>>
@@ -58,7 +58,7 @@
 	<<set $hairFringeColourStyle to "simple">>
 	<<set $hairFringeColourGradient to { style: "split", colours: ["red", "black"]}>>
 
-	<<if $cheatsEnabled is true and !$debug or $settings.rentCostModifier lt 1 and !$debug>>
+	<<if $cheatsEnabled is true and !$debug or $settings.rentCostModifier lt 1 and !$debug or $settings.tendingYieldModifier gt 5 and !$debug>>
 		<<set $feats.locked to true>>
 	<</if>>
 
@@ -125,15 +125,14 @@
 
 	/* Do not use this object directly - use the Weather singleton instead */
 	<<set $weatherObj to {
-		name: "clear",
 		snow: 0,
 		ice: {},
-		fog: 0,
-		overcast: 0,
-		targetOvercast: 0,
 		monthlyTemperatures: [],
-		keypointsArr: []
+		keypointsArr: [],
+		previousWeatherIndex: 0,
+		fogKeypoints: [],
 	}>>
+
 
 	/* Default start date: 6 sept (sunday), 2020, 07:00 */
 	/* Do not change start date during gameplay as time is relative to the start date */
@@ -153,8 +152,11 @@
 	<<unset $startingseason>>
 	<<set $timeStamp to 0>>
 	<<set Time.set()>>
-	<<run Weather.activeRenderer = Weather.sky>>
-	<<run Weather.sky.initialize()>>
+	<<run Weather.WeatherGeneration.updateWeather()>>
+	<<run Weather.Temperature.updateTemperature()>>
+	<<run Weather.FogGeneration.generateFogKeypoints(V.weatherObj.keypointsArr)>>
+	<<run Weather.activeRenderer = Weather.sidebar>>
+	<<run Weather.sidebar.initialize()>>
 	<<set $hourly to {}>>
 
 	<<if $background is "nerd">>
@@ -303,8 +305,6 @@
 		rng: random(0,1000)
 	}>>
 
-	<<set $propEquipped to 0>>
-
 	<<set $balloonStand to {
 		open: false,
 		owner: "friendly",
@@ -410,10 +410,13 @@
 		sewers: {},
 		maze: {}
 	}>>
+
+	<<set $monthly to { }>>
+
 	<<set $yearly to { }>>
 
 	<<if $feats.allSaves.points gt 0>>
-		<<applyFeatsBoost>>
+		<<applyFeatBoosts>>
 	<</if>>
 
 	<<set $school to $science + $english + $maths + $history>>
@@ -434,7 +437,9 @@
 	<<set $compound to {
 		alarm: 0,
 		bluff: false,
-		card: 0,
+		card: false,
+		discovered: false,
+		allowed: false,
 		interrogation: {},
 		theft: {
 			centre: false,
@@ -445,6 +450,67 @@
 	}>>
 
 	<<set $transformationHistory to []>>
+
+	<<set $docks to {
+		askedForWork: false,
+		hired: false,
+		wage: 1500,
+		status: 30,
+		firstDay: true,
+		dayType: "normal",
+		suspicion: 0,
+		fakeID: "not considered",
+		dailyHours: {
+			shift: {
+				total: 0,
+				workedHard: 0,
+				slacked: 0,
+				unpaid: 0,
+			},
+			overtime: {
+				total: 0,
+				workedHard: 0,
+				slacked: 0,
+				unpaid: 0,
+			}
+		},
+		slave: {
+			seen: false,
+			money: 0,
+		},
+		pub: {
+			count: 0,
+			cooldown: 0,
+		},
+		quiz: {
+			bet: "nothing",
+			home: 0,
+			away: 0,
+		}
+	}>>
+
+	<<set $danceStudio to {
+		intro: false,
+		jobOffered: false,
+		anger: 0,
+		handVirginProtected: false,
+	}>>
+
+	<<set $nightMonsterNNPCUpdate to 2>>
+
+	<<set $livestock to {
+		seen: [],
+		dig: {},
+		horse: {},
+		jobs: {},
+		lock: {},
+		winter: {
+			active: (Time.season is "winter" ? true : false),
+			exam: false,
+			trigger: 0
+		}
+	}>>
+
 
 	<<generateTipsList>>
 <</widget>>

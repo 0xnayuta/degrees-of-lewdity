@@ -3,7 +3,7 @@
 function initOverHead() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "over_head",
 			name: "naked",
@@ -34,9 +34,8 @@ function initOverHead() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "over_head",
 			name: "froggy hood",
@@ -68,13 +67,46 @@ function initOverHead() {
 			cursed: 0,
 			location: 0,
 			outfitSecondary: ["over_upper", "froggy coat"],
-		},
+		}),
+		new ClothesItem({
+			index: 2,
+			slot: "over_head",
+			name: "kaiju hood",
+			name_cap: "Kaiju hood",
+			variable: "kaiju",
+			state: 0,
+			state_base: 0,
+			integrity: 500,
+			integrity_max: 500,
+			fabric_strength: 20,
+			reveal: 200,
+			word: "a",
+			plural: 0,
+			hood: 1,
+			colour: 0,
+			colour_options: [],
+			colour_combat: 0,
+			type: ["costume", "rainproof"],
+			set: "kaiju",
+			gender: "n",
+			warmth: 5,
+			cost: 0,
+			description: "It's Godazaur!",
+			shop: [],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			back_img: 1,
+			cursed: 0,
+			location: 0,
+			outfitSecondary: ["over_upper", "kaiju costume"],
+		}),
 	];
 	setup.clothes.over_head = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.over_head = [];
 

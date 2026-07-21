@@ -17,7 +17,7 @@ Warmth checklist:
 function initUnderUpper() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "under_upper",
 			name: "naked",
@@ -58,9 +58,8 @@ function initUnderUpper() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "under_upper",
 			name: "bikini top",
@@ -74,7 +73,7 @@ function initUnderUpper() {
 			fabric_strength: 20,
 			reveal: 900,
 			bustresize: 0,
-			word: "n",
+			word: "a",
 			one_piece: 0,
 			strap: 1,
 			open: 1,
@@ -107,8 +106,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "bikini_top.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "under_upper",
 			name: "school swimsuit",
@@ -156,9 +155,8 @@ function initUnderUpper() {
 			iconFile: "school_swimsuit.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "school swimsuit bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "under_upper",
 			name: "leotard",
@@ -184,7 +182,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["dance", "covered"],
+			type: ["dance", "torso_covering"],
 			set: "leotard",
 			gender: "n",
 			formfitting: 1,
@@ -202,9 +200,8 @@ function initUnderUpper() {
 			iconFile: "leotard.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "leotard bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "under_upper",
 			name: "unitard",
@@ -236,7 +233,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["dance", "covered"],
+			type: ["dance", "torso_covering"],
 			set: "unitard",
 			gender: "n",
 			formfitting: 1,
@@ -254,9 +251,8 @@ function initUnderUpper() {
 			iconFile: "unitard.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "unitard bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "under_upper",
 			name: "skimpy leotard",
@@ -285,7 +281,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["dance", "covered"],
+			type: ["dance", "torso_covering"],
 			set: "skimpy leotard",
 			gender: "n",
 			formfitting: 1,
@@ -303,9 +299,8 @@ function initUnderUpper() {
 			iconFile: "skimpy_leotard.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "skimpy leotard bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "under_upper",
 			name: "foreign school swimsuit",
@@ -354,9 +349,8 @@ function initUnderUpper() {
 			iconFile: "foreign_school_swimsuit.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "foreign school swimsuit bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "under_upper",
 			name: "swimsuit",
@@ -400,9 +394,8 @@ function initUnderUpper() {
 			iconFile: "swimsuit.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "swimsuit bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "under_upper",
 			name: "bunny leotard",
@@ -450,9 +443,8 @@ function initUnderUpper() {
 			iconFile: "bunny_leotard.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "bunny leotard bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 9,
 			slot: "under_upper",
 			name: "catgirl bra",
@@ -498,9 +490,8 @@ function initUnderUpper() {
 			iconFile: "catgirl_bra.png",
 			accIcon: 0,
 			mainImage: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 10,
 			slot: "under_upper",
 			name: "lace bra",
@@ -546,9 +537,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "lace_bra.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 11,
 			slot: "under_upper",
 			name: "microkini top",
@@ -594,9 +584,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "microkini_top.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 12,
 			slot: "under_upper",
 			name: "plain bra",
@@ -631,7 +620,7 @@ function initUnderUpper() {
 			warmth: 1,
 			cost: 500,
 			description: "No-nonsense.",
-			shop: ["clothing", "school"],
+			shop: ["clothing", "school", "adult"],
 			accessory: 0,
 			accessory_colour: 0,
 			accessory_colour_options: [],
@@ -642,9 +631,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "plain_bra.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 13,
 			slot: "under_upper",
 			name: "sports bra",
@@ -672,7 +660,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["normal", "athletic", "covered"],
+			type: ["normal", "athletic", "torso_covering"],
 			set: "under_upper",
 			gender: "f",
 			femininity: 300,
@@ -690,9 +678,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "sports_bra.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 14,
 			slot: "under_upper",
 			name: "mesh shirt",
@@ -735,9 +722,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "mesh_shirt.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 15,
 			slot: "under_upper",
 			name: "corset",
@@ -784,9 +770,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "corset.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 16,
 			slot: "under_upper",
 			name: "striped bra",
@@ -837,9 +822,8 @@ function initUnderUpper() {
 			accImage: 0,
 			iconFile: "striped_bra.png",
 			accIcon: "striped_bra_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 17,
 			slot: "under_upper",
 			name: "chest wrap",
@@ -864,7 +848,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["chest_bind", "constricting", "covered"],
+			type: ["chest_bind", "constricting", "torso_covering"],
 			set: "under_upper",
 			gender: "n",
 			femininity: 0,
@@ -882,9 +866,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "chest_wrap.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 18,
 			slot: "under_upper",
 			name: "arm sleeves",
@@ -938,9 +921,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "pattern",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 19,
 			slot: "under_upper",
 			name: "classic bikini top",
@@ -954,7 +936,7 @@ function initUnderUpper() {
 			fabric_strength: 20,
 			reveal: 900,
 			bustresize: 0,
-			word: "n",
+			word: "a",
 			one_piece: 0,
 			strap: 1,
 			open: 1,
@@ -986,9 +968,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "classic_bikini_top.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 20,
 			slot: "under_upper",
 			name: "classic school swimsuit",
@@ -1036,9 +1017,8 @@ function initUnderUpper() {
 			iconFile: "classic_school_swimsuit.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "classic school swimsuit bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 21,
 			slot: "under_upper",
 			name: "swim shirt",
@@ -1067,7 +1047,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["swim", "school", "chest_bind", "constricting", "covered"],
+			type: ["swim", "school", "chest_bind", "constricting", "torso_covering"],
 			set: "under_upper",
 			gender: "m",
 			femininity: -100,
@@ -1086,9 +1066,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "swim_shirt.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 22,
 			slot: "under_upper",
 			name: "vest",
@@ -1117,7 +1096,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["normal", "covered"],
+			type: ["normal", "torso_covering"],
 			set: "under_upper",
 			gender: "m",
 			femininity: -200,
@@ -1135,9 +1114,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "vest.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 23,
 			slot: "under_upper",
 			name: "strapless bra",
@@ -1183,9 +1161,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "strapless_bra.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 24,
 			slot: "under_upper",
 			name: "school swim top",
@@ -1231,9 +1208,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "school_swim_top.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 25,
 			slot: "under_upper",
 			name: "tape",
@@ -1281,9 +1257,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "tape.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 26,
 			slot: "under_upper",
 			name: "cow bra",
@@ -1294,7 +1269,7 @@ function initUnderUpper() {
 			fabric_strength: 30,
 			reveal: 500,
 			bustresize: 0,
-			word: "n",
+			word: "a",
 			one_piece: 0,
 			strap: 1,
 			open: 1,
@@ -1327,9 +1302,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "cow_bra.png",
 			accIcon: "cow_bra_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 27,
 			slot: "under_upper",
 			name: "chest binder",
@@ -1357,7 +1331,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["chest_bind", "constricting", "covered"],
+			type: ["chest_bind", "constricting", "torso_covering"],
 			set: "under_upper",
 			gender: "n",
 			femininity: 0,
@@ -1374,9 +1348,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "chest_binder.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 28,
 			slot: "under_upper",
 			name: "undershirt",
@@ -1394,7 +1367,7 @@ function initUnderUpper() {
 			fabric_strength: 20,
 			reveal: 200,
 			bustresize: 0,
-			word: "a",
+			word: "an",
 			one_piece: 0,
 			strap: 0,
 			open: 0,
@@ -1408,7 +1381,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["normal", "covered"],
+			type: ["normal", "torso_covering"],
 			set: "under_upper",
 			gender: "m",
 			femininity: -100,
@@ -1428,9 +1401,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "undershirt.png",
 			accIcon: "undershirt_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 29,
 			slot: "under_upper",
 			name: "see-through swimsuit",
@@ -1477,9 +1449,8 @@ function initUnderUpper() {
 			iconFile: "see-through_swimsuit.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "see-through swim bottoms" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 30,
 			slot: "under_upper",
 			name: "push up bra",
@@ -1525,9 +1496,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "pushup_bra.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 31,
 			slot: "under_upper",
 			name: "shibari ropes",
@@ -1538,7 +1508,7 @@ function initUnderUpper() {
 			fabric_strength: 30,
 			reveal: 600,
 			bustresize: 0,
-			word: "a",
+			word: "n",
 			one_piece: 1,
 			strap: 0,
 			open: 0,
@@ -1570,9 +1540,8 @@ function initUnderUpper() {
 			iconFile: "shibari_ropes.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "shibari ropes bottom" },
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 32,
 			slot: "under_upper",
 			name: "turtleneck leotard",
@@ -1601,7 +1570,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["dance", "covered"],
+			type: ["dance", "torso_covering"],
 			set: "turtleneck leotard",
 			gender: "n",
 			formfitting: 1,
@@ -1619,8 +1588,8 @@ function initUnderUpper() {
 			iconFile: "leotardturtleneck.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "turtleneck leotard bottom" },
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 33,
 			slot: "under_upper",
 			name: "camisole",
@@ -1649,7 +1618,7 @@ function initUnderUpper() {
 			colour_sidebar: 1,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["normal", "covered"],
+			type: ["normal", "torso_covering"],
 			set: "under_upper",
 			gender: "f",
 			femininity: 200,
@@ -1682,8 +1651,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "camisole.png",
 			accIcon: "camisole_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 34,
 			slot: "under_upper",
 			name: "latex leotard",
@@ -1730,8 +1699,8 @@ function initUnderUpper() {
 			iconFile: "bunny_leotard.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "latex leotard bottom" },
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 35,
 			slot: "under_upper",
 			name: "bunny-tie bikini top",
@@ -1745,7 +1714,7 @@ function initUnderUpper() {
 			fabric_strength: 20,
 			reveal: 900,
 			bustresize: 0,
-			word: "n",
+			word: "a",
 			one_piece: 0,
 			strap: 1,
 			open: 1,
@@ -1777,8 +1746,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "bunny_tie_bikini_top.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 36,
 			slot: "under_upper",
 			name: "nipple pasties",
@@ -1829,8 +1798,8 @@ function initUnderUpper() {
 			location: 0,
 			iconFile: "heart_pasties.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 37,
 			slot: "under_upper",
 			name: "gift wrappings",
@@ -1875,13 +1844,135 @@ function initUnderUpper() {
 			iconFile: "giftwrap_top.png",
 			accIcon: 0,
 			outfitPrimary: { under_lower: "gift wrapping bottom" },
-		},
+		}),
+		new ClothesItem({
+			index: 38,
+			slot: "under_upper",
+			name: "harnessbra",
+			name_cap: "Harnessbra",
+			variable: "harnessbra",
+			description: "For strap enjoyers.",
+			cost: 8000,
+			shop: ["adult"],
+			type: ["fetish", "naked", "bellyShow"],
+			combat: {
+				reference: "shibari",
+			},
+			state: "midriff",
+			state_base: "midriff",
+			state_top: "chest",
+			state_top_base: "chest",
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 900,
+			exposed: 1,
+			exposed_base: 1,
+			word: "a",
+			one_piece: 0,
+			plural: 0,
+			breast_img: { 0: 0, 1: 0, 2: 0, 3: 3, 4: 4, 5: 5, 6: 6 },
+			breast_acc_img: 1,
+			colour: 0,
+			colour_options: [
+				"black",
+				"navy blue",
+				"wine",
+				"brown",
+				"olive",
+				"pink",
+				"light pink",
+				"purple",
+				"lilac",
+				"red",
+				"tangerine",
+				"teal",
+				"white",
+				"yellow",
+				"custom",
+			],
+			colour_sidebar: 1,
+			colour_combat: 0,
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			gender: "f",
+			femininity: 200,
+			warmth: 1,
+			set: "under_upper",
+			cursed: 0,
+			location: 0,
+			mainImage: 0,
+			iconFile: "harnessbra.png",
+			accIcon: 0,
+		}),
+		new ClothesItem({
+			index: 39,
+			slot: "under_upper",
+			name: "ruffled swimsuit",
+			variable: "ruffled swimsuit",
+			description: "Frills for the beach.",
+			cost: 5500,
+			shop: ["clothing"],
+			type: ["swim", "school", "dance"],
+			combat: {
+				reference: "swimsuit",
+			},
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 300,
+			word: "a",
+			plural: 0,
+			breast_img: { 0: null, 1: null, 2: null, 3: 3, 4: 4, 5: 5, 6: 5 },
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory: 1,
+			accessory_colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory_integrity_img: 1,
+			sleeve_acc_img: 1,
+			gender: "f",
+			feminity: 200,
+			warmth: 1,
+			iconFile: "ruffled-swimsuit.png",
+			accIcon: "ruffled-swimsuit-acc.png",
+			altposition: "none",
+			altdisabled: ["full", "breasts"],
+			formfitting: 1,
+			formfittingDisabled: ["acc", "sleeve_acc"],
+			outfitPrimary: { under_lower: "ruffled swimsuit" },
+		}),
+		new ClothesItem({
+			index: 40,
+			slot: "under_upper",
+			name: "shell bikini top",
+			variable: "shell bikini",
+			description: "Made with handpicked shells.",
+			cost: 4500,
+			shop: ["clothing", "adult"],
+			type: ["swim"],
+			combat: {
+				reference: "bikini",
+			},
+			integrity: 50,
+			integrity_max: 50,
+			fabric_strength: 25,
+			reveal: 500,
+			word: "a",
+			plural: 0,
+			breast_img: { 0: 0, 1: 0, 2: 0, 3: 3, 4: 4, 5: 5, 6: 5 },
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			gender: "f",
+			feminity: 200,
+			warmth: 0,
+			iconFile: "shell-bikini-top.png",
+			mainImage: 0,
+		}),
 	];
 	setup.clothes.under_upper = clothing;
 
 	/*
-		Clothes that modders add go into this array, this should be empty in the base game at all times.
-		These items should have a `modder` variable with a the modders name in a short string
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.under_upper = [];
 

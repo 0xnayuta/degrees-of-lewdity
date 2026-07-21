@@ -390,6 +390,7 @@ function pregnancyNameCorrection(name, caps = false) {
 	switch (name) {
 		case "Black Wolf":
 		case "Great Hawk":
+		case "Night Monster":
 		case "Ivory Wraith":
 		case "cum bucket":
 			name = (caps ? "The " : "the ") + name;
@@ -522,7 +523,7 @@ function playerHeatMinArousal() {
 window.playerHeatMinArousal = playerHeatMinArousal;
 
 function playerRutMinArousal() {
-	if (!V.player.penisExist || V.player.penissize < -1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
+	if (!V.player.penisExist || V.player.penissize < 1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 
 	const pills = V.sexStats.pills.pills;
 	let minArousal = 0;
@@ -720,6 +721,24 @@ function setKnowsAboutPregnancyInLocation(motherOrFather, whoNowKnows, location,
 }
 DefineMacro("setKnowsAboutPregnancyInLocation", setKnowsAboutPregnancyInLocation);
 
+/*
+	Groups every child under a "mother|birthId" key so the totals below can look one
+	up instantly, instead of rescanning all of V.children for every birth the player's
+	aware of (a loop-in-loop that got slow on big families). Children keep their
+	V.children order, so the first of a group acts like the old .find() and the whole
+	group like the old .filter(). The map is made with Object.create(null) so a parent
+	named something like "toString" can't accidentally break the lookup.
+*/
+function childrenByBirth() {
+	const map = Object.create(null);
+	for (const child of Object.values(V.children)) {
+		const key = child.mother + "|" + child.birthId;
+		if (!map[key]) map[key] = [];
+		map[key].push(child);
+	}
+	return map;
+}
+
 function knowsAboutPregnancyTotal(motherOrFather, whoToCheck, location) {
 	let whoToCheckConverted;
 	if (whoToCheck === "pc") {
@@ -730,10 +749,13 @@ function knowsAboutPregnancyTotal(motherOrFather, whoToCheck, location) {
 		return false;
 	}
 	const awareOfBirthId = Object.entries(V.pregnancyStats.awareOfBirthId).filter(awareOf => awareOf[1].includes(whoToCheckConverted));
+	if (!awareOfBirthId.length) return 0; // nothing to count — skip building the lookup entirely
+	const childrenByMotherBirth = childrenByBirth();
 
 	return awareOfBirthId.reduce((prev, curr) => {
 		const splitId = curr[0].split(/(\d+)/);
-		const child = Object.values(V.children).find(child => child.mother === splitId[0] && child.birthId === parseInt(splitId[1]));
+		const group = childrenByMotherBirth[splitId[0] + "|" + parseInt(splitId[1])];
+		const child = group && group[0]; // first child of this birth — matches the old .find()
 		if (child && (child.mother === motherOrFather || child.father === motherOrFather) && (!location || child.location === location)) return prev + 1;
 		return prev;
 	}, 0);
@@ -765,10 +787,12 @@ function knowsAboutChildrenTotal(motherOrFather, whoToCheck, location) {
 		return false;
 	}
 	const awareOfBirthId = Object.entries(V.pregnancyStats.awareOfBirthId).filter(awareOf => awareOf[1].includes(whoToCheckConverted));
+	if (!awareOfBirthId.length) return 0; // nothing to count — skip building the lookup entirely
+	const childrenByMotherBirth = childrenByBirth();
 
 	return awareOfBirthId.reduce((prev, curr) => {
 		const splitId = curr[0].split(/(\d+)/);
-		const children = Object.values(V.children).filter(child => child.mother === splitId[0] && child.birthId === parseInt(splitId[1]));
+		const children = childrenByMotherBirth[splitId[0] + "|" + parseInt(splitId[1])] || []; // all children of this birth — matches the old .filter()
 		let count = 0;
 		children.forEach(child => {
 			if (child && (child.mother === motherOrFather || child.father === motherOrFather) && (!location || child.location === location)) count++;
