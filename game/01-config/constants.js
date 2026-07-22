@@ -41,6 +41,10 @@ const constants = {
 		 */
 		alcohol: {
 			/**
+			 * How much allure the PC gains at maximum alcohol. Can be amplified by other allure modifiers.
+			 */
+			allureBonus: 500,
+			/**
 			 * The PC's required level of intoxication to achieve its maximum effects.
 			 */
 			effectLimit: 480,
@@ -69,13 +73,13 @@ const constants = {
 				 *   Base Stat = 57 (Level 4) ==> Final Stat = 75 (Level 5)
 				 *   Base Stat = 82 (Level 5) ==> Final Stat = 95 (Level 6)
 				 */
-				minSex: {
-					minAlcohol: 1,
-					maxAlcohol: 30,
-				},
 				maxSex: {
 					minAlcohol: 1,
 					maxAlcohol: 10,
+				},
+				minSex: {
+					minAlcohol: 1,
+					maxAlcohol: 30,
 				},
 			},
 			/**

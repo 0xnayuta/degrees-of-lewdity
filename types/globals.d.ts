@@ -49,6 +49,10 @@ declare global {
 		stats: {
 			alcohol: {
 				/**
+				 * How much allure the PC gains at maximum alcohol. Can be amplified by other allure modifiers.
+				 */
+				allureBonus: number,
+				/**
 				 * The PC's required level of intoxication to achieve its maximum effects.
 				 */
 				effectLimit: number,
@@ -67,14 +71,11 @@ declare global {
 				max: number,
 				min: number,
 				mod: {
-					/**
-					 * How much the player's sex stats will be increased, depending on their current sex stat and level of intoxication.
-					 */
-					minSex: {
+					maxSex: {
 						minAlcohol: number,
 						maxAlcohol: number,
 					},
-					maxSex: {
+					minSex: {
 						minAlcohol: number,
 						maxAlcohol: number,
 					},
