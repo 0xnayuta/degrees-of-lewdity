@@ -666,10 +666,11 @@ const statChange = (() => {
 			let pain = amount * modifier;
 
 			if (pain > 0) {
-				// science reduction
+				// Decrease pain by 1.0-0.6x, depending on the PC's Science level.
 				pain *= 1 - V.sciencetrait / 10;
 
-				if (V.drunk >= 360) pain *= Math.min(0.95, 0.95 - 0.1 * ((V.drunk - 360) / 640));
+				// Increase the PC's pain tolerance by up to 20%, depending on their intoxication.
+				pain /= 1 + 0.2 * drunkModifier();
 
 				// Including masochism effect for all pain NG v2.7
 				if (V.masochism >= 100) {
