@@ -613,6 +613,44 @@ window.getLargestSexStatModifierCssClasses = getLargestSexStatModifierCssClasses
 /**
  * Used to display the drunk text, with animations if enabled, otherwise just the glow effect.
  *
+ * Drunk effect disabled if $drunk <= 0.
+ *
+ * Animation scales with the PC's intoxication, from 1 to 3.
+ *
+ * @param {boolean} randomOffset
+ * @returns {string}
+ */
+function variableDrunkCss(randomOffset = false) {
+	const level = Math.clamp(Math.floor(3 * (V.drunk / C.stats.alcohol.effectLimit)), 0, 3);
+	let output = "";
+	if (level > 0) {
+		output += "drunk-text"
+
+		if (V.options.textAnimsAll && V.options.textAnimsDrunk) {
+			switch (level) {
+				case 3:
+					output += " drunk-3";
+					break;
+				case 2:
+					output += " drunk-2";
+					break;
+				case 1:
+					output += " drunk-1";
+					break;
+			}
+
+			if (randomOffset) {
+				output += ` animation-offset-${Math.floor(Math.random() * 10)}`;
+			}
+		}
+	}
+	return output;
+}
+window.variableDrunkCss = variableDrunkCss;
+
+/**
+ * Used to display the drunk text, with animations if enabled, otherwise just the glow effect.
+ *
  * @returns {string}
  */
 function basicDrunkCss() {
