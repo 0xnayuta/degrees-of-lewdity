@@ -47,9 +47,9 @@ declare global {
 		};
 		
 		stats: {
-			alcohol: {
+			drunk: {
 				/**
-				 * How much allure the PC gains at maximum alcohol. Can be amplified by other allure modifiers.
+				 * How much allure the PC gains at the drunk effect limit. Can be amplified by other allure modifiers.
 				 */
 				allureBonus: number,
 				/**
@@ -57,13 +57,13 @@ declare global {
 				 */
 				effectLimit: number,
 				/**
-				 * How much fatigue the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+				 * How much fatigue the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
 				 *
 				 * The fatigue math is handled in the "minutePassed" function.
 				 */
 				hourlyFatigue: number,
 				/**
-				 * How much stress the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+				 * How much stress the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
 				 *
 				 * The stress math is handled in the "minutePassed" function.
 				 */
@@ -72,21 +72,23 @@ declare global {
 				min: number,
 				mod: {
 					maxSex: {
-						minAlcohol: number,
-						maxAlcohol: number,
+						minDrunk: number,
+						maxDrunk: number,
 					},
 					minSex: {
-						minAlcohol: number,
-						maxAlcohol: number,
+						minDrunk: number,
+						maxDrunk: number,
 					},
 				},
 				/**
-				 * How much the PC's stats decrease at maximum alcohol.
+				 * How much the PC's stats decrease at the drunk effect limit.
 				 *
 				 * Affected stats:
 				 *   Willpower, Skulduggery, Dancing, Swimming, Athletics, Tending, Housekeeping
 				 *   Seduction, Oral, Chest, Hands, Buttocks, Anal, Vaginal, Feet, Thighs
 				 *   English, History, Maths, Science
+				 *
+				 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by drunk, but the "currentSkillValue" function doesn't currently handle them.
 				 */
 				skillPenalty: number,
 			},

@@ -635,9 +635,9 @@ function calculateallure() {
 	// Allure calculations
 	let allure = attractiveness;
 
-	// Allure changes from alcohol
+	// Allure changes from being drunk
 	if (V.drunk > 0) {
-		allure += C.stats.alcohol.allureBonus * drunkModifier();
+		allure += C.stats.drunk.allureBonus * drunkModifier();
 	}
 	// Allure changes from the time of day and the PC's exposure. Max increase of 2.1x.
 	const nightMod = Weather.dayState === "night" ? 1.5 : 1;
@@ -838,7 +838,7 @@ function inappropriatePlayerState(check = ["all"]) {
 		if (V.liquidcount >= 1) return true;
 	}
 	if (["all", "drugs"].includesAny(check)) {
-		if (V.drunk >= 0.5 * C.stats.alcohol.effectLimit || V.drugged >= 200) return true;
+		if (V.drunk >= 0.5 * C.stats.drunk.effectLimit || V.drugged >= 200) return true;
 	}
 	return false;
 }

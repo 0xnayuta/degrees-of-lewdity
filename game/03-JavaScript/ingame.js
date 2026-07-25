@@ -1455,7 +1455,7 @@ function currentSkillValue(skill, disableModifiers = false) {
 	}
 
 	/**
-	 * Alcohol applies a flat penalty to the PC's skills, scaling with the PC's intoxication, that reduces the PC's skill to a minimum of 0.
+	 * Drunk applies a flat penalty to the PC's skills, scaling with the PC's intoxication, that reduces the PC's skill to a minimum of 0.
 	 *
 	 * Affected Skills:
 	 *   Willpower, Athletics, Dancing, Housekeeping, Skulduggery, Swimming, Tending
@@ -1464,7 +1464,7 @@ function currentSkillValue(skill, disableModifiers = false) {
 	 *
 	 * "Strap-on Use" uses "penileskill".
 	 *
-	 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by alcohol, but the "currentSkillValue" function doesn't currently handle them.
+	 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by drunk, but the "currentSkillValue" function doesn't currently handle them.
 	 */
 	if (
 		[
@@ -1492,9 +1492,9 @@ function currentSkillValue(skill, disableModifiers = false) {
 		].includes(skill)
 	) {
 		/**
-		 * Subtract the alcohol's skill penalty from the PC's result after all other calculations have been made. Alcohol will not be able to reduce the PC's skills below 0.
+		 * Subtract the drunk's skill penalty from the PC's result after all other calculations have been made. Drunk will not be able to reduce the PC's skills below 0.
 		 */
-		result = Math.max(0, result - C.stats.alcohol.skillPenalty * drunkModifier());
+		result = Math.max(0, result - C.stats.drunk.skillPenalty * drunkModifier());
 	}
 
 	return Math.round(result);
@@ -1528,21 +1528,21 @@ window.sexStatNameMapper = sexStatNameMapper;
  * @param {number} statValue
  */
 function drunkSexStatModifier(statValue) {
-	if (V.drunk <= C.stats.alcohol.min) return 0;
+	if (V.drunk <= C.stats.drunk.min) return 0;
 
 	// Modifiers are between 0 and 1.
 	const statMod = statValue / 100;
 
-	// Alcohol past the limit will get clamped back down
+	// Drunk past the limit will get clamped back down
 	const drunkMod = drunkModifier();
 
 	/**
 	 * Can think of the following code as a square piece of fabric being pulled in 4 different directions.
 	 *
-	 * At (Sex = 1, Alcohol = 1), Bonus = C.stats.alcohol.mod.minSex.minAlcohol
-	 * At (Sex = 1, Alcohol = Max), Bonus = C.stats.alcohol.mod.minSex.maxAlcohol
-	 * At (Sex = Max, Alcohol = 1), Bonus = C.stats.alcohol.mod.maxSex.minAlcohol
-	 * At (Sex = Max, Alcohol = Max), Bonus = C.stats.alcohol.mod.maxSex.maxAlcohol
+	 * At (Sex = 1, Drunk = 1), Bonus = C.stats.drunk.mod.minSex.minDrunk
+	 * At (Sex = 1, Drunk = Max), Bonus = C.stats.drunk.mod.minSex.maxDrunk
+	 * At (Sex = Max, Drunk = 1), Bonus = C.stats.drunk.mod.maxSex.minDrunk
+	 * At (Sex = Max, Drunk = Max), Bonus = C.stats.drunk.mod.maxSex.maxDrunk
 	 *
 	 * The formulas below pull the cloth so that each corner of the cloth touches one of those points. The PC's bonus sex stats from their intoxication and existing sex stats then scale linearly between the 4 points as they move around the cloth.
 	 */
@@ -1559,22 +1559,22 @@ function drunkSexStatModifier(statValue) {
 	 * a = a_v * d + a_0
 	 * b = b_v * d + b_0
 	 *
-	 * d = Alcohol Modifer (Clamped to 0.0 - 1.0) = $drunk / Alcohol Limit
-	 * a_v = Scaling Sex Stat increase, scales with Alcohol
-	 * a_0 = Scaling Sex Stat increase, does not scale with Alcohol
-	 * b_v = Scaling Alcohol increase, does not scale with Sex Stat
-	 * b_0 = Base Alcohol Increase, does not scale with Sex Stat
+	 * d = Drunk Modifer (Clamped to 0.0 - 1.0) = $drunk / Drunk Effect Limit
+	 * a_v = Scaling Sex Stat increase, scales with Drunk
+	 * a_0 = Scaling Sex Stat increase, does not scale with Drunk
+	 * b_v = Scaling Drunk increase, does not scale with Sex Stat
+	 * b_0 = Base Drunk Increase, does not scale with Sex Stat
 	 */
 
 	const aV =
 		// eslint-disable-next-line prettier/prettier
-		(C.stats.alcohol.mod.maxSex.maxAlcohol - C.stats.alcohol.mod.maxSex.minAlcohol) -
-		(C.stats.alcohol.mod.minSex.maxAlcohol - C.stats.alcohol.mod.minSex.minAlcohol);
-	const a0 = C.stats.alcohol.mod.maxSex.minAlcohol - C.stats.alcohol.mod.minSex.minAlcohol;
+		(C.stats.drunk.mod.maxSex.maxDrunk - C.stats.drunk.mod.maxSex.minDrunk) -
+		(C.stats.drunk.mod.minSex.maxDrunk - C.stats.drunk.mod.minSex.minDrunk);
+	const a0 = C.stats.drunk.mod.maxSex.minDrunk - C.stats.drunk.mod.minSex.minDrunk;
 	const a = aV * drunkMod + a0;
 
-	const bV = C.stats.alcohol.mod.minSex.maxAlcohol - C.stats.alcohol.mod.minSex.minAlcohol;
-	const b0 = C.stats.alcohol.mod.minSex.minAlcohol;
+	const bV = C.stats.drunk.mod.minSex.maxDrunk - C.stats.drunk.mod.minSex.minDrunk;
+	const b0 = C.stats.drunk.mod.minSex.minDrunk;
 	const b = bV * drunkMod + b0;
 
 	const y = a * statMod + b;

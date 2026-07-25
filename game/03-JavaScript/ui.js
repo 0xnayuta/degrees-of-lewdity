@@ -550,7 +550,7 @@ function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
 	// Code may break if drunkValue or heatValue ever becomes negative.
 
 	// Scales between 0 and 30, depending on the PC's intoxication and existing sex stat value.
-	const drunkValue = C.stats.alcohol.mod.minSex.maxAlcohol * drunkModifier();
+	const drunkValue = C.stats.drunk.mod.minSex.maxDrunk * drunkModifier();
 	// Scales between 0 and 30, depending on the PC's heat.
 	const heatValue = heatRutSexStatModifier(statName);
 
@@ -621,7 +621,7 @@ window.getLargestSexStatModifierCssClasses = getLargestSexStatModifierCssClasses
  * @returns {string}
  */
 function variableDrunkCss(randomOffset = false) {
-	const level = Math.clamp(Math.floor(3 * (V.drunk / C.stats.alcohol.effectLimit)), 0, 3);
+	const level = Math.clamp(Math.floor(3 * (V.drunk / C.stats.drunk.effectLimit)), 0, 3);
 	let output = "";
 	if (level > 0) {
 		output += "drunk-text"

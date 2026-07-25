@@ -39,9 +39,9 @@ const constants = {
 		/**
 		 * Variable name: "drunk"
 		 */
-		alcohol: {
+		drunk: {
 			/**
-			 * How much allure the PC gains at maximum alcohol. Can be amplified by other allure modifiers.
+			 * How much allure the PC gains at the drunk effect limit. Can be amplified by other allure modifiers.
 			 */
 			allureBonus: 500,
 			/**
@@ -49,13 +49,13 @@ const constants = {
 			 */
 			effectLimit: 480,
 			/**
-			 * How much fatigue the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+			 * How much fatigue the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
 			 *
 			 * The fatigue math is handled in the "minutePassed" function.
 			 */
 			hourlyFatigue: 20,
 			/**
-			 * How much stress the PC gains per hour at maximum alcohol. This is also applied while the PC is sleeping.
+			 * How much stress the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
 			 *
 			 * The stress math is handled in the "minutePassed" function.
 			 */
@@ -66,7 +66,7 @@ const constants = {
 				/**
 				 * How much the player's sex stats will be increased, depending on their current sex stat and level of intoxication.
 				 *
-				 * The breakpoints for max alcohol increasing each sex stat's tier are as follows:
+				 * The breakpoints for max drunk increasing each sex stat's tier are as follows:
 				 *   Base Stat = 0 (Level 0)  ==> Final Stat = 30 (Level 2)
 				 *   Base Stat = 7 (Level 2) ==> Final Stat = 35 (Level 3)
 				 *   Base Stat = 32 (Level 3) ==> Final Stat = 55 (Level 4)
@@ -74,21 +74,23 @@ const constants = {
 				 *   Base Stat = 82 (Level 5) ==> Final Stat = 95 (Level 6)
 				 */
 				maxSex: {
-					minAlcohol: 1,
-					maxAlcohol: 10,
+					minDrunk: 1,
+					maxDrunk: 10,
 				},
 				minSex: {
-					minAlcohol: 1,
-					maxAlcohol: 30,
+					minDrunk: 1,
+					maxDrunk: 30,
 				},
 			},
 			/**
-			 * How much the PC's stats decrease at maximum alcohol.
+			 * How much the PC's stats decrease at the drunk effect limit.
 			 *
 			 * Affected stats:
 			 *   Willpower, Skulduggery, Dancing, Swimming, Athletics, Tending, Housekeeping
 			 *   Seduction, Oral, Chest, Hands, Buttocks, Anal, Vaginal, Feet, Thighs
 			 *   English, History, Maths, Science
+			 *
+			 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by drunk, but the "currentSkillValue" function doesn't currently handle them.
 			 */
 			skillPenalty: 100,
 		},

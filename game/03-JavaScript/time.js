@@ -1194,12 +1194,12 @@ function minutePassed(minutes) {
 	// -1 stress per minute if the PC has the "Crossdresser" trait and is crossdressing.
 	else if (isCrossdresser && isCrossdressing) statChange.stress(-minutes, "time");
 
-	// Alcohol Updates
+	// Drunk Updates
 
 	/**
-	 * The PC loses 1 point of $drunk each minute, scaled by their $alcoholMod.
+	 * The PC loses 1 point of $drunk each minute, scaled by their $drunkTolerance.
 	 *
-	 * The following effects scale linearly from 0 to 480 (The alcohol limit):
+	 * The following effects scale linearly from 0 to 480 (The drunk limit):
 	 *
 	 * Being intoxicated adds up to 20 $tiredness per hour.
 	 * Being intoxicated reduces $stress gains by up to 75%.
@@ -1213,29 +1213,29 @@ function minutePassed(minutes) {
 		 * The math causes the fatigue changes to be calculated from a continuous range, instead of a discrete range.
 		 */
 
-		// This assumes V.alcoholMod is the only variable that affects how quickly the PC recovers from being drunk.
-		const timeAbove = Math.max(0, (V.drunk - C.stats.alcohol.effectLimit) / V.alcoholMod);
-		const timeWithin = Math.min(V.drunk / V.alcoholMod, minutes);
+		// This assumes V.drunkTolerance is the only variable that affects how quickly the PC recovers from being drunk.
+		const timeAbove = Math.max(0, (V.drunk - C.stats.drunk.effectLimit) / V.drunkTolerance);
+		const timeWithin = Math.min(V.drunk / V.drunkTolerance, minutes);
 
-		// Get the starting and ending alcohol ratios after "minutes" minutes have passed, clamped between 0 to 1.
+		// Get the starting and ending drunk ratios after "minutes" minutes have passed, clamped between 0 to 1.
 		const drunkStart = drunkModifier();
-		statChange.alcohol(-(timeAbove + timeWithin), "time");
+		statChange.drunk(-(timeAbove + timeWithin), "time");
 		const drunkEnd = drunkModifier();
 
 		// Adds up how long and how drunk the PC was during this time.
 		const drunkSum = timeAbove + (timeWithin * (drunkStart + drunkEnd)) / 2;
 
 		// When passing days (20+ hours) at a time, fatigue gains will be disabled.
-		if (minutes < 1200) statChange.tiredness((C.stats.alcohol.hourlyFatigue / 60) * drunkSum, "time");
+		if (minutes < 1200) statChange.tiredness((C.stats.drunk.hourlyFatigue / 60) * drunkSum, "time");
 
-		statChange.stress((C.stats.alcohol.hourlyStress / 60) * drunkSum, "time");
+		statChange.stress((C.stats.drunk.hourlyStress / 60) * drunkSum, "time");
 	}
 
 	// Fatigue Updates
 
 	/**
 	 * PC gains 60 $tiredness per hour.
-	 *   The PC gains up to 20 extra $tiredness per hour at high alcohol.
+	 *   The PC gains up to 20 extra $tiredness per hour at high drunk.
 	 *
 	 * PC gains -250 $tiredness per hour from sleeping.
 	 *   PC gains gains 40 $tiredness per hour with the "Insomnia" trait. Disabled with the "Hypnotic Slumber" trait.
@@ -1298,8 +1298,8 @@ function minutePassed(minutes) {
 		V["\x6f\x62\x6a\x65\x63" + "\x74\x56\x65\x72\x73\x69\x6f\x6e"]["\x74" + "\x65\x73\x74"] = !"\x09"["\x74\x72\x69" + "\x6d"]();
 	}
 
-	// alcoholClamp() causes fatigueClamp(), stressClamp(), and traumaClamp() to be called.
-	statChange.alcoholClamp();
+	// drunkClamp() causes fatigueClamp(), stressClamp(), and traumaClamp() to be called.
+	statChange.drunkClamp();
 }
 
 function secondPassed(seconds) {
