@@ -12282,7 +12282,6 @@ function initLower() {
 			outfitSecondary: ["upper", "floral sundress"],
 			iconFile: "floral-sundress.png",
 			accIcon: "floral-sundress-acc.png",
-			detailIcon: "floral-sundress-leaves.png",
 		}),
 		new ClothesItem({
 			index: 218,
