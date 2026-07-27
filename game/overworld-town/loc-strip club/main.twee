@@ -131,7 +131,7 @@ You are in the strip club on Connudatus Street.<<if Time.dayState isnot "day" an
 		<<if $stripclubfailed is 1>>
 			<<connudatusicon>><<link [[Leave|Strip Club Proposition]]>><</link>>
 			<br>
-		<<elseif $brothel_rivalry isnot undefined and $brothel_rivalry_timer lte 0>>
+		<<elseif $brothel_rivalry isnot undefined and $brothel_rivalry_timer lte 0 and $exposed lte 0>>
 			<<connudatusicon>><<link [[Leave|Strip Club Goon]]>><</link>>
 			<br>
 		<<elseif $stripclubintro isnot 1>>
@@ -140,11 +140,15 @@ You are in the strip club on Connudatus Street.<<if Time.dayState isnot "day" an
 		<<elseif $exposed lte 0 or Time.dayState isnot "night" and Time.dayState isnot "dusk">>
 			<<connudatusicon>><<link [[Leave|Connudatus Street]]>><</link>>
 			<br>
-		<<elseif $exposed gte 2 and hasSexStat("exhibitionism", 4)>>
-			<<connudatusicon>><<link [[Leave|Strip Club Leave Naked]]>><</link>><<if $daily.ex.day isnot 1>><<exhibitionist4>><</if>>
-			<br>
-		<<elseif $exposed gte 1 and hasSexStat("exhibitionism", 2)>>
-			<<connudatusicon>><<link [[Leave|Strip Club Leave Undies]]>><</link>><<if $daily.ex.day isnot 1>><<exhibitionist2>><</if>>
+		<<elseif ($exposed gte 2 and hasSexStat("exhibitionism", 4)) or ($exposed gte 1 and hasSexStat("exhibitionism", 2))>>
+			<<connudatusicon>><<link [[Leave|Strip Club Leave Exposed]]>><</link>>
+			<<if $daily.ex.day isnot 1>>
+				<<if $exposed gte 2>>
+					<<exhibitionist4>>
+				<<else>>
+					<<exhibitionist2>>
+				<</if>>
+			<</if>>
 			<br>
 		<</if>>
 	<</if>>
@@ -190,21 +194,29 @@ You are in the strip club's dressing room.<<if Time.dayState isnot "day" and Tim
 <<mirror>>
 <br><br>
 
-
-:: Strip Club Leave Naked
+:: Strip Club Leave Exposed
 <<effects>>
 
 You walk past the bemused bouncer guarding the door, and peek outside. It's <<if Time.dayState is "night">>dark<<else>>getting dark<</if>>, but neon light bathes the whole street. It'll be hard to avoid being seen. You don't care. <<flaunting>> you step outside. <<covered>>
 <<if $daily.ex.day isnot 1>>
 	<<set $daily.ex.day to 1>>
+	<<if $exposed gte 2>>
+	<<exhibitionism4>>
+	<<else>>
 	<<exhibitionism2>>
+	<</if>>
 <<else>>
 	<br><br>
 <</if>>
 
 <<if $rng gte 51>>
 	<<generate1>><<person1>>
-	An arm grasps your shoulder. "Where do you think you're going, <<girl>>?" asks the bouncer, a <<person>>. "You can't go out naked. You'll get hurt, and get us in trouble."
+	An arm grasps your shoulder. "Where do you think you're going, <<girl>>?" asks the bouncer, a <<person>>. 
+	<<if $exposed gte 2>>
+		"You can't go out naked. You'll get hurt, and get us in trouble."
+	<<else>>
+		"Dress properly before you go home. You'll get in trouble."
+	<</if>>
 	<br><br>
 
 	<<He>> tries to steer you inside.
@@ -214,33 +226,8 @@ You walk past the bemused bouncer guarding the door, and peek outside. It's <<if
 	<br>
 	<<link [[Go inside|Strip Club Leave Inside]]>><</link>>
 	<br>
-<<else>>
-	<<link [[Next|Connudatus Street]]>><<set $eventskip to 1>><</link>>
-	<br>
-<</if>>
-
-:: Strip Club Leave Undies
-<<effects>>
-
-You walk past the bemused bouncer guarding the door, and peek outside. It's <<if Time.dayState is "night">>dark<<else>>getting dark<</if>>, but neon light bathes the whole street. It'll be hard to avoid being seen. You don't care. <<flaunting>> you step outside. <<covered>>
-<<if $daily.ex.day isnot 1>>
-	<<set $daily.ex.day to 1>>
-	<<exhibitionism2>>
-<<else>>
-	<br><br>
-<</if>>
-
-<<if $rng gte 51>>
-	<<generate1>><<person1>>
-	An arm grasps your shoulder. "Where do you think you're going, <<girl>>?" asks the bouncer, a <<person>>. "Dress properly before you go home. You'll get in trouble."
-	<br><br>
-
-	<<He>> tries to steer you inside.
-	<br><br>
-
-	<<link [[Run|Strip Club Leave Run]]>><</link>><<athleticsdifficulty 1 400>>
-	<br>
-	<<link [[Go inside|Strip Club Leave Inside]]>><</link>>
+<<elseif $brothel_rivalry isnot undefined and $brothel_rivalry_timer lte 0>>
+	<<connudatusicon>><<link [[Next|Strip Club Goon]]>><</link>>
 	<br>
 <<else>>
 	<<link [[Next|Connudatus Street]]>><<set $eventskip to 1>><</link>>
@@ -1088,6 +1075,10 @@ You leave the club, but don't get far. You're accosted by a <<person>>, who step
 	"Easy there," <<he>> says. "Briar sent me. Says you had an arrangement."
 <<else>>
 	"Just here for information," <<he>> says. "Briar's information."
+<</if>>
+<<if $exposed gte 1>>
+	<br><br>
+	<<He>> is clearly unbothered by your state of undress.
 <</if>>
 <br><br>
 <<He>> wants information on Darryl's security and clientele.
