@@ -2952,7 +2952,7 @@ function initFeet() {
 			description: "For bite-sized feet.",
 			cost: 3500,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["sleep"],
 			combat: {
 				reference: "wedgesandals",
 			},
@@ -3065,7 +3065,7 @@ function initFeet() {
 			description: "Comfortable daily wear.",
 			cost: 2500,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["sleep"],
 			combat: {
 				reference: "wedgesandals",
 			},
@@ -3101,7 +3101,7 @@ function initFeet() {
 			description: "Unfortunately not edible.",
 			cost: 3500,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["sleep"],
 			combat: {
 				reference: "wedgesandals",
 			},
