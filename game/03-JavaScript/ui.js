@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals hasSexStat, sexStatNameMapper, heatRutSexStatModifier, drunkSexStatModifier */
+/* globals hasSexStat, sexStatNameMapper, heatRutSexStatModifier, drunkModifier */
 
 function overlayShowHide(elementId) {
 	const div = document.getElementById(elementId);
@@ -525,7 +525,7 @@ function moneyStatsProcess(stats) {
 window.moneyStatsProcess = moneyStatsProcess;
 
 /**
- * If hasSexStat() modifiers are allowing the player to see an aditional option, return the css class for the largest individual modifier.
+ * If hasSexStat() modifiers are allowing the player to see an additional option, return the CSS class for the largest individual modifier.
  * If the modifiers are not high enough to show a new option, don't return a class.
  * Passing in 0 or nothing for requiredLevel returns the classes for the largest modifier regardless of if the player is being shown an aditional option.
  *
@@ -547,39 +547,60 @@ function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
 		return "";
 	}
 
-	const drunkSexStatModifierValue = drunkSexStatModifier(V[statName]);
-	const heatRutSexStatModifierValue = heatRutSexStatModifier(statName);
+	// Code may break if drunkValue or heatValue ever becomes negative.
 
-	// If there is a modifier and either requiredLevel is 0 or the modifiers put the player up a level of the sexStat.
-	if (
-		drunkSexStatModifierValue + heatRutSexStatModifierValue > 0 &&
-		(requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, true)))
-	) {
-		const modifiers = [
-			{ value: drunkSexStatModifierValue, class: "drunk" },
-			{ value: heatRutSexStatModifierValue, class: "jitter" },
-		];
+	// Scales between 0 and 30, depending on the PC's intoxication and existing sex stat value.
+	const drunkValue = C.stats.drunk.mod.minSex.maxDrunk * drunkModifier();
+	// Scales between 0 and 30, depending on the PC's heat.
+	const heatValue = heatRutSexStatModifier(statName);
 
-		// Gets the largest modifier.
-		const largestModifier = modifiers.reduce((max, current) => (current.value > max.value ? current : max), modifiers[0]);
+	/**
+	 * Requirements:
+	 *   PC is drunk or in heat
+	 *
+	 *   requiredLevel is 0
+	 *   OR the stat boost the PC gains from being drunk and / or in heat allows them to qualify for the next sex action level.
+	 */
+	if (drunkValue + heatValue > 0 && (requiredLevel === 0 || (!hasSexStat(statName, requiredLevel, false) && hasSexStat(statName, requiredLevel, true)))) {
+		// Prioritize the PC's jitter CSS animation over the drunk animation. Only use the drunk animation when its level is at least 1 level higher than the jitter animation's level.
+		let largestModifier = "jitter";
+		if ((drunkValue > 20 && heatValue <= 20) || (drunkValue > 10 && heatValue <= 10) || (drunkValue > 0 && heatValue <= 0)) {
+			largestModifier = "drunk";
+		}
 
-		// Gets the base class for effect.
-		let modifierClasses = `${largestModifier.class}-text`;
+		// Adds the base effect.
+		let modifierClasses = "";
+		if (largestModifier === "jitter") {
+			modifierClasses += "jitter-text";
+		} else {
+			modifierClasses += "drunk-text";
+		}
 
-		if (
-			V.options.textAnimsAll &&
-			((largestModifier.class === "jitter" && V.options.textAnimsHeat) || (largestModifier.class === "drunk" && V.options.textAnimsDrunk))
-		) {
-			// Sets the animation based on how large the modifier is.
-			if (largestModifier.value > 20) {
-				modifierClasses += ` ${largestModifier.class}-3`;
-			} else if (largestModifier.value > 10) {
-				modifierClasses += ` ${largestModifier.class}-2`;
+		/**
+		 * Adds the effect animations, if they're enabled.
+		 *
+		 * The jitter animations will have a randomized offset to make them less predictable.
+		 *
+		 * However, after some testing, randomized drunk animations only made the GUI look confusing, so their animations will be synchronized.
+		 */
+		if (V.options.textAnimsAll && largestModifier === "jitter" && V.options.textAnimsHeat) {
+			if (heatValue > 20) {
+				modifierClasses += " jitter-3";
+			} else if (heatValue > 10) {
+				modifierClasses += " jitter-2";
 			} else {
-				modifierClasses += ` ${largestModifier.class}-1`;
+				modifierClasses += " jitter-1";
 			}
 
 			modifierClasses += ` animation-offset-${Math.floor(Math.random() * 10)}`;
+		} else if (V.options.textAnimsAll && largestModifier === "drunk" && V.options.textAnimsDrunk) {
+			if (drunkValue > 20) {
+				modifierClasses += " drunk-3";
+			} else if (drunkValue > 10) {
+				modifierClasses += " drunk-2";
+			} else {
+				modifierClasses += " drunk-1";
+			}
 		}
 
 		return modifierClasses;
@@ -592,10 +613,60 @@ window.getLargestSexStatModifierCssClasses = getLargestSexStatModifierCssClasses
 /**
  * Used to display the drunk text, with animations if enabled, otherwise just the glow effect.
  *
+ * Drunk effect disabled if $drunk <= 0.
+ *
+ * Animation scales with the PC's intoxication, from 1 to 3.
+ *
+ * @param {boolean} randomOffset
  * @returns {string}
  */
-function basicDrunkCss() {
-	return V.options.textAnimsAll && V.options.textAnimsDrunk ? "drunk-text drunk-1" : "drunk-text";
+function variableDrunkCss(randomOffset = false) {
+	const level = Math.clamp(Math.floor(3 * (V.drunk / C.stats.drunk.effectLimit)), 0, 3);
+	let output = "";
+	if (level > 0) {
+		output += "drunk-text"
+
+		if (V.options.textAnimsAll && V.options.textAnimsDrunk) {
+			switch (level) {
+				case 3:
+					output += " drunk-3";
+					break;
+				case 2:
+					output += " drunk-2";
+					break;
+				case 1:
+					output += " drunk-1";
+					break;
+			}
+
+			if (randomOffset) {
+				output += ` animation-offset-${Math.floor(Math.random() * 10)}`;
+			}
+		}
+	}
+	return output;
+}
+window.variableDrunkCss = variableDrunkCss;
+
+/**
+ * Used to display the drunk text, with animations if enabled, otherwise just the glow effect.
+ *
+ * Use "level" to set the strength of the effect (1-3). Defaults to 1.
+ *
+ * @param {number} level
+ * @returns {string}
+ */
+function basicDrunkCss(level = 1) {
+	switch (level) {
+		case 3:
+			return V.options.textAnimsAll && V.options.textAnimsDrunk ? "drunk-text drunk-3" : "drunk-text";
+		case 2:
+			return V.options.textAnimsAll && V.options.textAnimsDrunk ? "drunk-text drunk-2" : "drunk-text";
+		case 1:
+			return V.options.textAnimsAll && V.options.textAnimsDrunk ? "drunk-text drunk-1" : "drunk-text";
+		default:
+			return "";
+	}
 }
 window.basicDrunkCss = basicDrunkCss;
 
