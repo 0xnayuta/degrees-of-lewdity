@@ -58,6 +58,15 @@ const constants = {
 			hourlyStress: -120,
 			max: 1000,
 			min: 0,
+			/**
+			 * How much the PC's stats decrease at maximum alcohol.
+			 *
+			 * Affected stats:
+			 *   Willpower, Skulduggery, Dancing, Swimming, Athletics, Tending, Housekeeping
+			 *   Seduction, Oral, Chest, Hands, Buttocks, Anal, Vaginal, Feet, Thighs
+			 *   English, History, Maths, Science
+			 */
+			skillPenalty: 100,
 		},
 		// arousal: {
 		// 	max: 10000,
