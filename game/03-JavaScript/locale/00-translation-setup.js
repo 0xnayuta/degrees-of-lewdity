@@ -12,8 +12,8 @@ setup.t = function (key) {
 	}
 
 	// No localization key in language - return english variant
-	if (lang !== "en-US" && setup.i18n && setup.i18n["en-US"] && setup.i18n["en-US"][key] !== undefined) {
-		return setup.i18n["en-US"][key];
+	if (lang !== defaultLang && setup.i18n && setup.i18n[defaultLang] && setup.i18n[defaultLang][key] !== undefined) {
+		return setup.i18n[defaultLang][key];
 	}
 
 	// Key isn't present
