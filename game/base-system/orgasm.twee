@@ -80,15 +80,13 @@
 					<<if $abomination is 1>>
 						/*ToDo: Pregnancy, figure out how the Wraith, plantpeople, etc will handle pregnancy.*/
 					<<elseif $npcrow.includes($penistarget)>>
-						<<recordSperm `{target: $NPCList[$penistarget].fullDescription, spermOwner: "pc", spermType: "human", rngModifier: _orgasmSpermRng}`>>
+						<<npcPregnancyRoll $NPCList[$penistarget].fullDescription `($enemytype is "man" ? "human" : $NPCList[$penistarget].type)` "pc" "human" "vagina">>
 					<<elseif $NPCList[$penistarget].pregnancy is 0 and ["realistic", "fetish"].includes($settings.pregnancyType)>>
-						/* Pregnancy Count */
-						<<set $_count to Object.values($storedNPCs).reduce((prev, curr) => {
-							if(curr.pregnancy) return prev + 1;
-							return prev;
-						},0)>>
+						/* Pregnancy Count - stored NPCs currently carrying a records pregnancy */
+						<<set $_count to Object.keys($storedNPCs).reduce((prev, key) => getActivePregnancies(key).length ? prev + 1 : prev, 0)>>
 						/* Pregnancy chance checks */
-						<<set $_impregnatedChance to 200 / (20 - $settings.baseNpcPregnancyChance)>>
+						/* baseNpcPregnancyChance is a percent, double it to match the random(0,200) roll below */
+						<<set $_impregnatedChance to $settings.baseNpcPregnancyChance * 2>>
 						<<if V.sexStats.pills.pills["fertility booster"].doseTaken gt 0>>
 							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * (1 + (V.sexStats.pills.pills["fertility booster"].doseTaken * 0.5)))>>
 						<</if>>
@@ -96,19 +94,15 @@
 							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * 0.1)>>
 						<</if>>
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
-						/*If random NPC is impregnated, store NPC and fetus*/
+						/*If random NPC is impregnated, store the NPC and start a records pregnancy keyed on the stored NPC*/
 						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
-							<<switch $NPCList[$penistarget].type>>
-								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(V.NPCList[$penistarget], "pc", true)>>
-								<<case "wolf">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", false)>>
-								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", true)>>
-							<</switch>>
-							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
+							<<if ["human", "wolf", "wolfgirl", "wolfboy"].includes($NPCList[$penistarget].type)>>
 								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
 									<<storeNPC $penistarget "pregnancy">>
-									<<set $storedNPCs[_lastStoredName].pregnancy to $_pregnancy>>
+									<<set _offspringSpecies to $NPCList[$penistarget].type>>
+									<<run createPregnancy(_lastStoredName, $NPCList[$penistarget].type, "pc", _offspringSpecies, [{name:"pc", species:"human"}], Time.date.timeStamp, "vagina", $location)>>
 								<</if>>
-								<<if $settings.pregnancyType is "fetish">><<set _npcIsNowPregnant to $NPCList[$penistarget].fullDescription>><</if>>
+								<<if $settings.pregnancyType is "fetish">><<set _pregnantNpc to $NPCList[$penistarget].fullDescription>><</if>>
 								<<set $NPCList[$penistarget].pregnancy to 1>>
 							<</if>>
 						<</if>>
