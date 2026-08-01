@@ -998,7 +998,7 @@
 		<<foldout false "_parasitePregnancyFoldout">>
 			<span class="gold">Parasite Pregnancy</span>
 			<<set $_aPregnancy to $sexStats.anus.pregnancy>>
-			<<if $_aPregnancy.type is "parasite" or $_aPregnancy.type is null>>
+			<<if $_aPregnancy.type is "parasite" or ($_aPregnancy.type is null and !getActivePregnancy("pc", "anus"))>>
 				<<for _i to 0; _i lt maxParasites("anus"); _i++>>
 					<<if $_aPregnancy.fetus[_i] isnot undefined>>
 						<<if $_aPregnancy.fetus[_i].fertilised>>
@@ -1027,7 +1027,7 @@
 					<</if>>
 				<</for>>
 			<<else>>
-				<<if getPregnancyObject().awareOf>>
+				<<if playerAwareTheyArePregnant()>>
 					Unable to host parasites due to other type of anal pregnancy.
 				<<else>>
 					<<for _i to 0; _i lt maxParasites("anus"); _i++>>
@@ -1037,7 +1037,7 @@
 			<</if>>
 			<<set $_vPregnancy to $sexStats.vagina.pregnancy>>
 			<<if $player.vaginaExist>>
-				<<if $_vPregnancy.type is "parasite" or $_vPregnancy.type is null>>
+				<<if $_vPregnancy.type is "parasite" or ($_vPregnancy.type is null and !getActivePregnancy("pc", "vagina"))>>
 					<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
 						<<if $_vPregnancy.fetus[_i] isnot undefined>>
 							<<if $_vPregnancy.fetus[_i].fertilised>>
@@ -1066,7 +1066,7 @@
 						<</if>>
 					<</for>>
 				<<else>>
-					<<if getPregnancyObject().awareOf>>
+					<<if playerAwareTheyArePregnant()>>
 						Unable to host parasites due to other type of vaginal pregnancy.
 					<<else>>
 						<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
@@ -1081,14 +1081,28 @@
 		<<if $settings.fertilityCycleEnabled>>
 			<<foldout false "_menstruationFoldout">>
 				<span class="gold">Menstruation cycle</span>
-				Running: <<print $_menstruation.running ? "true" : "false">>
 				<<if $_menstruation.running>>
+					<<set _fertile to menstrualFertileDates()>>
+					<br>
+					Risky days: <<print _fertile.risky>>
+					<br>
+					Dangerous days: <<print _fertile.dangerous>>
+					<br>
+					<<if _fertile.today is "dangerous">>
+						Today is a dangerous day.
+					<<elseif _fertile.today is "risky">>
+						Today is a risky day.
+					<<else>>
+						Today is safe.
+					<</if>>
 					<br>
 					Current day in cycle: <<print $_menstruation.currentDay>>
 					<br>
 					Last day in cycle: <<print $_menstruation.currentDaysMax>>
 					<br>
-					Most risky day: <<print $_menstruation.stages[2]>>
+				<<else>>
+					<br>
+					Your cycle isn't active right now.
 					<br>
 				<</if>>
 				<br>
@@ -1102,115 +1116,9 @@
 			Total days knowingly being pregnant: <<print Math.floor($pregnancyStats.totalDaysPregnancyKnown)>>
 			<br>
 			<<if !canBeMPregnant() and ($_aPregnancy.type is null or $_aPregnancy.type is "parasite")>>
-				<<if $_vPregnancy.type is "parasite">>
-					Parasites in the womb are preventing normal pregnancy from occurring.
-				<<elseif $_vPregnancy.type isnot null>>
-					Currently pregnant with: <<print $_vPregnancy.fetus.length>>
-						<<extraStatisticsPregnancyType $_vPregnancy.type>>
-					<br>
-					<<set $_days to pregnancyDaysEta($_vPregnancy)>>
-					<<if $_days lt 1>>
-						ETA: Anytime.
-					<<elseif $_days>>
-						ETA: <<print $_days>> <<pluralise $_days "day">>.
-					<</if>>
-					<br>
-				<<elseif !$player.vaginaExist or !$_menstruation.running>>
-					You cannot currently get pregnant.
-				<<elseif $_menstruation.currentState is "recovering">>
-					You are not quite ready to get pregnant so soon after your last one.
-				<<else>>
-					Not currently pregnant.
-					<br>
-					<<if $harpy gte 4>>
-						<<if $harpyEggs>>
-							You are carrying $harpyEggs.count eggs.
-						<<elseif $harpyEggsPrevent>>
-							You cannot currently produce eggs.
-						<<else>>
-							You are able to produce eggs.
-						<</if>>
-						<br>
-					<</if>>
-					<<if $settings.pregnancyType is "realistic">>
-						<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.vagina.sperm, true, true)>>
-						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
-						<br>
-						<<if _trackedNPCs.length>>
-							Those whose sperm you have inside you currently:
-							<ul>
-								<<for _name range _trackedNPCs>>
-									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
-									<li>
-										<<print pregnancyNameCorrection(_name.source)>>
-										<<if $_count gt 1>>
-											(x<<print $_count>>)
-										<</if>>
-									</li>
-								<</for>>
-							</ul>
-						<<else>>
-							<br> /* For formating the break after the foldout if realistic but no list*/
-						<</if>>
-					<<else>>
-						<br> /* For formating the break after the foldout if not realistic */
-					<</if>>
-				<</if>>
+				<<pregnancyStatusBlock "vagina">>
 			<<else>>
-				<<if $_aPregnancy.type is "parasite">>
-					Parasites in the womb are preventing normal pregnancy from occurring.
-				<<elseif $_aPregnancy.type isnot null>>
-					Currently pregnant with: <<print $_aPregnancy.fetus.length>>
-					<<extraStatisticsPregnancyType $_aPregnancy.type>>
-					<br>
-					<<set $_days to pregnancyDaysEta($_aPregnancy)>>
-					<<if $_days lt 1>>
-						ETA: Anytime.
-					<<elseif $_days>>
-						ETA: <<print $_days>> <<pluralise $_days "day">>.
-					<</if>>
-					<br>
-				<<elseif !$_menstruation.running>>
-					You cannot currently get pregnant.
-				<<elseif $_menstruation.currentState is "recovering">>
-					You are not quite ready to get pregnant so soon after your last one.
-				<<else>>
-					Not currently pregnant.
-					<br>
-					<<if $harpy gte 4>>
-						<<if $harpyEggs>>
-							You are carrying $harpyEggs.count eggs.
-						<<elseif $harpyEggsPrevent>>
-							You cannot currently produce eggs.
-						<<else>>
-							You are able to produce eggs.
-						<</if>>
-						<br>
-					<</if>>
-					<<if $settings.pregnancyType is "realistic">>
-						<<set [_trackedNPCs, _spermArray] to spermObjectToArray($sexStats.anus.sperm, true, true)>>
-						Number of sources of sperm that can get you pregnant: <<print _spermArray.length>>
-						<br>
-						<<if _trackedNPCs.length>>
-							Those whose sperm you have inside you currently:
-							<ul>
-								<<for _name range _trackedNPCs>>
-									<<set $_count to _spermArray.filter(s => s.source === T.name.source).length>>
-									<li>
-										<<print pregnancyNameCorrection(_name.source)>>
-										<<if $_count gt 1>>
-											(x<<print $_count>>)
-										<</if>>
-									</li>
-								<</for>>
-							</ul>
-						<<else>>
-							<br> /* For formating the break after the foldout if realistic but no list*/
-						<</if>>
-					<<else>>
-						<br> /* For formating the break after the foldout if not realistic */
-					<</if>>
-				<</if>>
+				<<pregnancyStatusBlock "anus">>
 			<</if>>
 		<</foldout>>
 		<<if $NPCName.find(npc => npc.pregnancy and npc.pregnancy.enabled isnot undefined)>>
@@ -1219,14 +1127,15 @@
 				<<for $_npc range $NPCName.filter(npc => npc.pregnancy and npc.pregnancy.enabled isnot undefined)>>
 					<div>
 						<<print $_npc.nam>>:
-						<<if !$_npc.pregnancy.enabled and !$_npc.pregnancy.fetus.length>>
+						<<set _active to getActivePregnancies($_npc.nam)[0]>>
+						<<if !$_npc.pregnancy.enabled and !_active>>
 							Pregnancy for NPC disabled by the player.
-						<<elseif !$_npc.pregnancy.fetus.length>>
+						<<elseif !_active>>
 							Not pregnant.
-						<<elseif $_npc.pregnancy.fetus.length>>
-							Pregnant with <<print $_npc.pregnancy.fetus.length>>
-							<<extraStatisticsPregnancyType $_npc.pregnancy.type>>
-							<<set $_days to pregnancyDaysEta($_npc.pregnancy)>>
+						<<else>>
+							Pregnant with <<print getChildrenOf(_active.pregnancyId).length>>
+							<<extraStatisticsPregnancyType childBaseSpecies(_active.donorSpecies)>>
+							<<set $_days to pregnancyDaysEta(_active)>>
 							<<if $_days lt 1>>
 								ETA: Anytime.
 							<<elseif $_days>>
@@ -1238,6 +1147,69 @@
 			<</foldout>>
 		<</if>>
 	</div>
+<</widget>>
+
+<<widget "pregnancyStatusBlock">>
+	/* Pregnancy status for one orifice. _args[0] is "vagina" or "anus". */
+	<<set _orifice to _args[0]>>
+	<<set _preg to $sexStats[_orifice].pregnancy>>
+	<<set _menstruation to $sexStats.vagina.menstruation>>
+	<<set _record to getActivePregnancy("pc", _orifice)>>
+	<<if _preg.type is "parasite">>
+		Parasites in the womb are preventing normal pregnancy from occurring.
+	<<elseif _record>>
+		Currently pregnant with: <<print getChildrenOf(_record.pregnancyId).length>>
+		<<extraStatisticsPregnancyType childBaseSpecies(_record.donorSpecies)>>
+		<br>
+		<<set _days to pregnancyDaysEta(_record)>>
+		<<if _days lt 1>>
+			ETA: Anytime.
+		<<elseif _days>>
+			ETA: <<print _days>> <<pluralise _days "day">>.
+		<</if>>
+		<br>
+	<<elseif (_orifice is "vagina" and !$player.vaginaExist) or !_menstruation.running>>
+		You cannot currently get pregnant.
+	<<elseif _menstruation.currentState is "recovering">>
+		You are not quite ready to get pregnant so soon after your last one.
+	<<else>>
+		Not currently pregnant.
+		<br>
+		<<if $harpy gte 4>>
+			<<if $harpyEggs>>
+				You are carrying $harpyEggs.count eggs.
+			<<elseif $harpyEggsPrevent>>
+				You cannot currently produce eggs.
+			<<else>>
+				You are able to produce eggs.
+			<</if>>
+			<br>
+		<</if>>
+		<<if $settings.pregnancyType is "realistic">>
+			<<set _loads to $cumLoads[_orifice].filter(l => loadIsLive(l))>>
+			Loads of cum that can get you pregnant <<if _orifice is "vagina">>vaginally<<else>>anally<</if>>: <<print _loads.length>>
+			<br>
+			<<if _loads.length>>
+				Cum inside you currently:
+				<ul>
+					<<set _donors to _loads.map(l => l.donor).filter((d, i, a) => a.indexOf(d) === i)>>
+					<<for _donor range _donors>>
+						<<set _count to _loads.filter(l => l.donor === T.donor).length>>
+						<li>
+							<<print pregnancyNameCorrection(_donor)>>
+							<<if _count gt 1>>
+								(x<<print _count>>)
+							<</if>>
+						</li>
+					<</for>>
+				</ul>
+			<<else>>
+				<br> /* For formating the break after the foldout if realistic but no list*/
+			<</if>>
+		<<else>>
+			<br> /* For formating the break after the foldout if not realistic */
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "extraStatisticsPregnancyType">>

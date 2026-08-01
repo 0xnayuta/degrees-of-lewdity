@@ -355,7 +355,7 @@ setup.debugMenu.eventList = {
 		{
 			text_only: `Player is already pregnant\n`,
 			condition() {
-				return V.player.penisExist === false && getPregnancyObject().fetus.length !== 0;
+				return V.player.penisExist === false && playerIsPregnant();
 			},
 		},
 		{
@@ -366,7 +366,7 @@ setup.debugMenu.eventList = {
 				},
 			],
 			condition() {
-				return V.player.penisExist === false && getPregnancyObject().fetus.length === 0;
+				return V.player.penisExist === false && !playerIsPregnant();
 			},
 		},
 		{
@@ -377,21 +377,27 @@ setup.debugMenu.eventList = {
 				},
 			],
 			condition() {
-				return V.player.penisExist === false && getPregnancyObject().fetus.length === 0;
+				return V.player.penisExist === false && !playerIsPregnant();
 			},
 		},
 		{
 			link: [`Progress Pregnancy to the end`, stayOnPassageFn],
-			widgets: [`<<set $sexStats.vagina.pregnancy.timer to $sexStats.vagina.pregnancy.timerEnd>>`],
+			widgets: [
+				() => {
+					const preg = getPlayerPregnancy();
+					if (preg) preg.conceivedDate = Time.date.timeStamp - gestationSeconds(preg.donorSpecies);
+					return "";
+				},
+			],
 			condition() {
-				return V.player.penisExist === false && getPregnancyObject().fetus.length !== 0;
+				return V.player.penisExist === false && playerIsPregnant();
 			},
 		},
 		{
 			link: [`End pregnancy and send children to default locations`, stayOnPassageFn],
 			widgets: [
 				() => {
-					switch (getPregnancyObject().type) {
+					switch (playerNormalPregnancyType()) {
 						case "human":
 							endPlayerPregnancy("hospital", "home");
 							break;
@@ -406,7 +412,7 @@ setup.debugMenu.eventList = {
 				},
 			],
 			condition() {
-				return V.player.penisExist === false && getPregnancyObject().fetus.length !== 0;
+				return V.player.penisExist === false && playerIsPregnant();
 			},
 		},
 		{
@@ -417,11 +423,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Get Robin Pregnant with PCs children`, stayOnPassageFn],
-			widgets: [`<<namedNpcPregnancy "Robin" "pc" "human" true undefined true>>`],
+			widgets: [`<<namedNpcPregnancy "Robin" "pc" "human" true true>>`],
 		},
 		{
 			link: [`Get Whitney Pregnant with Black Wolf pups`, stayOnPassageFn],
-			widgets: [`<<namedNpcPregnancy "Whitney" "Black Wolf" "wolf" true undefined true>>`],
+			widgets: [`<<namedNpcPregnancy "Whitney" "Black Wolf" "wolf" true true>>`],
 		},
 		{
 			link: [`Basic NPC Compression Test`, stayOnPassageFn],

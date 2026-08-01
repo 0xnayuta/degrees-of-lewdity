@@ -1,19 +1,8 @@
 /* eslint-disable jsdoc/require-returns-type */
 // Format for storing the parents of a child.
 const parentList = {
-	mothers: [{ name: "pc", npc: false, births: 0, kids: 0, id: 0 }],
-	fathers: [{ name: "pc", npc: false, kids: 0, id: 0 }],
-};
-
-// basic constructor for the parent list.
-const parent = ({ name = null, npc = false, kids = 0, id = null, births = undefined }) => {
-	return {
-		name,
-		npc,
-		kids,
-		id,
-		births,
-	};
+	mothers: [{ name: "pc", npc: false, id: 0 }],
+	fathers: [{ name: "pc", npc: false, id: 0 }],
 };
 
 /**
@@ -68,36 +57,6 @@ function findParent(parentId, parentType = 0, byName = false) {
 }
 
 /**
- * @description Finds the number of kids a passed parent has.
- * @param {number} parentId The id of the parent.
- * @param {number} parentType The part of the parent list that is being looked in. Use 0 for mothers or 1 for fathers. Defaults to mothers if no value is entered.
- * @param {boolean} byName If true, searches the parent list type using the name instead of the id. This will then return the first match.
- * @returns Returns the number of kids the passed parent has.
- */
-function totalKids(parentId, parentType = 0, byName = false) {
-	const parent = parentType === 0 ? "mothers" : "fathers";
-	const pListLen = V.parentList[parent].length;
-
-	if (!byName) {
-		if (parentId < 0) return -1;
-
-		for (let i = 0; i < pListLen; i++) {
-			if (V.parentList[parent][i].id === parentId) {
-				return V.parentList[parent][i].kids;
-			}
-		}
-	} else {
-		for (let i = 0; i < pListLen; i++) {
-			if (V.parentList[parent][i].name === parentId) {
-				return V.parentList[parent][i].kids;
-			}
-		}
-	}
-
-	return -1;
-}
-
-/**
  * @description Adds a new parent to the parent list on the passed side.
  * @param {string} name The name of the passed NPC.
  * @param {object} npcObject The object containing the NPC's information.
@@ -106,7 +65,6 @@ function totalKids(parentId, parentType = 0, byName = false) {
  */
 function addToParentList(name, npcObject, parentType = 0, passedID = null) {
 	let npc = false;
-	const births = parentType === 0 ? 0 : undefined;
 	const parent = parentType === 0 ? "mothers" : "fathers";
 	if (npcObject) {
 		npc = {
@@ -134,43 +92,13 @@ function addToParentList(name, npcObject, parentType = 0, passedID = null) {
 	}
 	const idNum = passedID && findParent(passedID) === -1 ? passedID : findMaxParentId(parentType) + 1;
 
-	V.parentList[parent].push({ name, npc, kids: 0, id: idNum, births });
+	V.parentList[parent].push({ name, npc, id: idNum });
 	return V.parentList[parent].last();
-}
-
-/**
- * @description Increases the kid count of the passed parent.
- * @param {number} parentId The id of the parent.
- * @param {number} parentType The part of the parent list that is being looked in. Use 0 for mothers or 1 for fathers. Defaults to mothers if no value is entered.
- * @param {number} otherParentId The id of the other parent of the child. If passed a number, it will look in the other list for this parent and increase it's kid count as well.
- */
-function increaseKids(parentId, parentType = 0, otherParentId = null) {
-	parentType = parentType === 0 ? "mothers" : "fathers";
-	if (V.parentList[parentType][parentId]) V.parentList[parentType][parentId].kids++;
-
-	if (otherParentId || otherParentId === 0) {
-		parentType = parentType === "fathers" ? "mothers" : "fathers";
-		if (V.parentList[parentType][otherParentId]) V.parentList[parentType][otherParentId].kids++;
-	}
-}
-
-/**
- * @description Increases the kid count of the passed parent.
- * @param {number} parentId The id of the parent.
- * @param {number} parentType The part of the parent list that is being looked in. Use 0 for mothers or 1 for fathers. Defaults to mothers if no value is entered.
- */
-function increaseBirths(parentId, parentType = 0) {
-	parentType = parentType === 0 ? "mothers" : "fathers";
-	if (parentType === "mothers" && V.parentList[parentType][parentId]) V.parentList[parentType][parentId].births++;
 }
 
 window.parentFunction = {
 	parentList,
-	parent,
 	findMaxParentId,
 	findParent,
-	totalKids,
 	addToParentList,
-	increaseKids,
-	increaseBirths,
 };

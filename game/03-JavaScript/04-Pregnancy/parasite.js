@@ -103,7 +103,7 @@ function impregnateParasite(parasiteType, chance, genital = "anus", hermParasite
 		}
 
 		const newPregnancy = pregnancyGenerator.parasite({
-			mother: "pc",
+			carrier: "pc",
 			parasiteType,
 			genital,
 			hermParasite,

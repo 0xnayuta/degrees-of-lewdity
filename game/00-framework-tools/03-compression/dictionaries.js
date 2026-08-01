@@ -1974,9 +1974,63 @@ const DoLCompressorDictionaries = (() => {
 		d => !["clothing_number", "nextWeather", "sidebarRenderer", "startday", "starthour", "startingseason"].includes(d)
 	);
 
+	// Pregnancy rework keys
+	const dict_v4 = [
+		...dict_v3,
+		"pregnancies",
+		"childRecords",
+		"cumLoads",
+		"pendingPregnancies",
+		"pregnancyId",
+		"carrier",
+		"carrierSpecies",
+		"donor",
+		"donorSpecies",
+		"possibleDonors",
+		"conceivedDate",
+		"conceivedLocation",
+		"orifice",
+		"deliveredDate",
+		"deliveredLocation",
+		"awareOfPregnancy",
+		"awareOfCarrier",
+		"awareOfDonor",
+		"talkedAbout",
+		"playerLearnedFrom",
+		"hatchDelay",
+		"childId",
+		"species",
+		"features",
+		"identical",
+		"development",
+		"bornDate",
+		"coParents",
+		"awareOfChild",
+		"awareOfGender",
+		"birthLocation",
+		"activity",
+		"event",
+		"activityDay",
+		"activityHour",
+		"crawling",
+		"talking",
+		"toy",
+		"acceptsDummy",
+		"firstWord",
+		"interactions",
+		"interactionsTotal",
+		"adoptedDate",
+		"skinColour",
+		"divineTransform",
+		"beastTransform",
+		"weight",
+		"canWash",
+		"lifespan",
+	];
+
 	// template for next versions
-	// const dict_v4 = [
-	// 	...dict_v3,
+	// const dict_v5 = [
+	// 	...dict_v4,
 	// 	"newKey1", "newKey2"
 	// ]
 
@@ -1985,6 +2039,7 @@ const DoLCompressorDictionaries = (() => {
 		v1: dict_v1,
 		v2: dict_v2,
 		v3: dict_v3,
+		v4: dict_v4,
 	};
 })();
 for (const k in DoLCompressorDictionaries) {
