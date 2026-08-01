@@ -1910,6 +1910,7 @@ function initUnderUpper() {
 			index: 39,
 			slot: "under_upper",
 			name: "ruffled swimsuit",
+			name_cap: "Ruffled swimsuit",
 			variable: "ruffled swimsuit",
 			description: "Frills for the beach.",
 			cost: 5500,
@@ -1917,6 +1918,7 @@ function initUnderUpper() {
 			type: ["swim", "school", "dance"],
 			combat: {
 				reference: "swimsuit",
+				hasSleevesAcc: false,
 			},
 			integrity: 100,
 			integrity_max: 100,
@@ -1945,6 +1947,7 @@ function initUnderUpper() {
 			index: 40,
 			slot: "under_upper",
 			name: "shell bikini top",
+			name_cap: "Shell bikini top",
 			variable: "shell bikini",
 			description: "Made with handpicked shells.",
 			cost: 4500,
