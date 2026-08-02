@@ -4,28 +4,23 @@
 // You CAN delete WARNINGS if you are sure
 // that translation IS CORRECT
 Object.assign(setup.i18n["ru-RU"], {
-	// WARNING: original text changed. Rereview translation
 	// base-system/text.twee:638
 	// he
 	"text-2a279fc3": "он",
 
-	// WARNING: original text changed. Rereview translation
 	// base-system/text.twee:640
 	// she
 	"text-ca9f911a": "она",
 
-	// WARNING: original text changed. Rereview translation
 	// base-system/text.twee:642
 	// it
 	"text-c90f958e": "оно",
 
 	// Seems "он" best fits here
-	// WARNING: original text changed. Rereview translation
 	// base-system/text.twee:644
 	// one
 	"text-538c30b1": "он",
 
-	// WARNING: original text changed. Rereview translation
 	// base-system/text.twee:646
 	// they
 	"text-626a6172": "они",
