@@ -1,16 +1,24 @@
 Macro.add("t", {
+	tags: null,
 	handler() {
-		if (this.args.length === 0) return;
+		const defaultLang = "en-US";
+		let text;
 
-		const key = this.args[0];
+		if (V.options.language === defaultLang) {
+			text = this.payload[0].contents;
+		} else {
+			if (this.args.length !== 1) {
+				return;
+			}
 
-		let translatedText = setup.t(key);
+			text = setup.t(this.args[0]);
 
-		if (typeof translatedText !== "string") {
-			translatedText = String(translatedText);
+			if (typeof text !== "string") {
+				text = String(text);
+			}
 		}
 
 		/* eslint-disable-next-line no-unused-vars */
-		const _wikifier = new Wikifier(this.output, translatedText);
+		const _wikifier = new Wikifier(this.output, text);
 	},
 });
