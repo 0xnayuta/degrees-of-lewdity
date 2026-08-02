@@ -25,7 +25,7 @@ class LocaleEntry:
     comments: str = ""
     warning: bool = False
 
-    def copy(self) -> LocaleEntry:
+    def copy(self) -> LocaleEntry:  # noqa F821 # everything is fine
         return LocaleEntry(
             original=self.original,
             id=self.id,
@@ -206,9 +206,6 @@ class LocalizationManager:
                 new_locale.comments = current_locale.comments
 
             new_locales[key] = new_locale
-
-        if new_locales:
-            print(new_locales)
 
         return new_locales
 
