@@ -52,4 +52,9 @@ Object.assign(setup.i18n["ru-RU"], {
 	// base-combat/state.twee:12
 	// is
 	"state-939c41d8": "",
+
+	// Empty as not used in Russian grammar
+	// base-combat/state.twee:12
+	// are
+	"state-78ed6efe": "",
 });
