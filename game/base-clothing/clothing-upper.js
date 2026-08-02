@@ -2579,7 +2579,7 @@ function initUpper() {
 			word: "a",
 			one_piece: 0,
 			strap: 0,
-			open: 0,
+			open: 1,
 			state: "waist",
 			state_base: "waist",
 			state_top: "chest",
