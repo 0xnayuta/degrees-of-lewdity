@@ -6,21 +6,22 @@
 Object.assign(setup.i18n["ru-RU"], {
 	// base-system/text.twee:638
 	// base-system-text-pronouns-he
-	"text-2a279fc3": "",
+	"text-2a279fc3": "он",
 
 	// base-system/text.twee:640
 	// base-system-text-pronouns-she
-	"text-ca9f911a": "",
+	"text-ca9f911a": "она",
 
 	// base-system/text.twee:642
 	// base-system-text-pronouns-it
-	"text-c90f958e": "",
+	"text-c90f958e": "оно",
 
+	// Seems "он" best fits here
 	// base-system/text.twee:644
 	// base-system-text-pronouns-one
-	"text-538c30b1": "",
+	"text-538c30b1": "он",
 
 	// base-system/text.twee:646
 	// base-system-text-pronouns-they
-	"text-626a6172": "",
+	"text-626a6172": "они",
 });

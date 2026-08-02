@@ -6,48 +6,49 @@
 Object.assign(setup.i18n["ru-RU"], {
 	// base-combat/state.twee:82
 	// <<He>> _is incredibly pissed off.
-	"state-75d9fb3d": "",
+	"state-75d9fb3d": "<<He>> в бешенстве.",
 
 	// base-combat/state.twee:84
 	// <<He>> _is furious.
-	"state-2b90a6db": "",
+	"state-2b90a6db": "<<He>> _looks яростно.",
 
 	// base-combat/state.twee:86
 	// <<He>> _looks angry.
-	"state-8a9b9f55": "",
+	"state-8a9b9f55": "<<He>> _looks злобно.",
 
 	// base-combat/state.twee:88
 	// <<He>> _looks frustrated.
-	"state-e8b6e181": "",
+	"state-e8b6e181": "<<He>> _looks разочарованно.",
 
 	// base-combat/state.twee:90
 	// <<He>> _looks irritated.
-	"state-92f58d68": "",
+	"state-92f58d68": "<<He>> _looks раздражённо.",
 
 	// base-combat/state.twee:92
 	// <<He>> _looks tense.
-	"state-db35ca18": "",
+	"state-db35ca18": "<<He>> _looks напражённо.",
 
 	// base-combat/state.twee:94
 	// <<He>> _looks calm.
-	"state-675de89b": "",
+	"state-675de89b": "<<He>> _looks спокойно.",
 
 	// base-combat/state.twee:10
 	// looks
-	"state-a996b4d9": "",
+	"state-a996b4d9": "выглядит",
 
 	// base-combat/state.twee:10
 	// look
-	"state-24fd0501": "",
+	"state-24fd0501": "выглядят",
 
 	// base-combat/state.twee:11
 	// doesn't look
-	"state-ea2e2d79": "",
+	"state-ea2e2d79": "не выглядит",
 
 	// base-combat/state.twee:11
 	// don't look
-	"state-64bf682e": "",
+	"state-64bf682e": "не выглядят",
 
+	// Empty as not used in Russian grammar
 	// base-combat/state.twee:12
 	// is
 	"state-939c41d8": "",

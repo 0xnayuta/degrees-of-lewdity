@@ -6,25 +6,29 @@
 Object.assign(setup.i18n["ru-RU"], {
 	// 01-config/start.twee:62
 	// Welcome to the alpha of Degrees of Lewdity!
-	"start-6e6f3444": "",
+	"start-6e6f3444": "Добро пожаловать в Degrees of Lewdity!",
 
 	// 01-config/start.twee:65
 	// If you want to avoid trouble, <span class="gold">keep your allure low</span> by dressing modestly and sticking to safe, well-lit areas. Nights are particularly dangerous. Dressing lewd will attract attention, both good and bad, and the more vulnerable you look, the more danger you are in. Be careful!
-	"start-f1c85163": "",
+	"start-f1c85163":
+		"Если ты хочешь избежать проблем, <span class='gold'>не поднимай привлекательность высоко</span>, для этого скромно одевайся и не покидай безопасные хорошо освещённые места. Ночи особо опасны. Откровенная одежда привлекает внимаие, как хорошее, так и плохое, и чем более уязвимо ты выглядишь, тем в большей опасности находишься. Береги себя.",
 
 	// 01-config/start.twee:71
 	// The school year starts on the first Monday of January at <<ampm 9 0>>. The bus service is the easiest way to get around town. Don't forget your uniform and backpack!
-	"start-347568c4": "",
+	"start-347568c4":
+		"Учебный год начинается завтра в <<ampm 9 00>>. По городу легче всего передвигаться на автобусе. Не забудь надеть школьную одежду и взять рюкзак!",
 
 	// 01-config/start.twee:73
 	// School starts tomorrow at <<ampm 9 0>>. The bus service is the easiest way to get around town. Don't forget your uniform and backpack!
-	"start-86f8beea": "",
+	"start-86f8beea":
+		"Школа открывается завтра в <<ampm 9 00>>. По городу легче всего передвигаться на автобусе. Не забудь надеть школьную одежду и взять рюкзак!",
 
 	// 01-config/start.twee:75
 	// The new school year starts tomorrow at <<ampm 9 00>>. The bus service is the easiest way to get around town. Don't forget your uniform and backpack!
-	"start-4824f77a": "",
+	"start-4824f77a":
+		"Учебный год начнётся в первый понедельник января в <<ampm 9 00>>. По городу легче всего передвигаться на автобусе. Не забудь надеть школьную одежду и взять рюкзак!",
 
 	// 01-config/start.twee:81
 	// <<link [[Next|Orphanage Intro]]>><</link>>
-	"start-b80082b5": "",
+	"start-b80082b5": "<<link [[Далее|Orphanage Intro]]>><</link>>",
 });
