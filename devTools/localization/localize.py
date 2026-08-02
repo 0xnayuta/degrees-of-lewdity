@@ -21,6 +21,7 @@ class LocaleEntry:
     line: int
 
     translation: str = ""
+    separator: str = ""
     comments: str = ""
     warning: bool = False
 
@@ -113,7 +114,8 @@ class LocaleFilesParser:
     )
     \s*//\s*(?P<path>[^:\n]+):(?P<line>\d+)\n
     \s*//\s*(?P<original>.*)\n
-    \s*"(?P<id>[^"]+)"\s*:\s*"(?P<translation>(?:\\.|[^"])*)"
+    \s*"(?P<id>[^"]+)"(?P<separator>\s*:\s*)"
+    (?P<translation>(?:\\.|[^"])*)"
     """,
         re.MULTILINE | re.VERBOSE,
     )
@@ -141,6 +143,7 @@ class LocaleFilesParser:
                 line=int(match.group("line")),
                 comments=match.group("comments") or "",
                 translation=match.group("translation"),
+                separator=match.group("separator"),
             )
 
         return locales
@@ -196,6 +199,7 @@ class LocalizationManager:
                 new_locale.warning = True
 
             new_locale.translation = current_locale.translation
+            new_locale.separator = current_locale.separator
 
             # Don't save if there is no comments
             if current_locale.comments.strip():
@@ -245,7 +249,9 @@ class LocalizationManager:
                 relative_path = locale.filepath.relative_to(self.game_dir)
                 _ = f.write(f"\t// {relative_path.as_posix()}:{locale.line}\n")
                 _ = f.write(f"\t// {locale.original}\n")
-                _ = f.write(f'\t"{locale.id}": "{locale.translation}",\n')
+                _ = f.write(
+                    f'\t"{locale.id}"{locale.separator}"{locale.translation}",\n'
+                )
 
             _ = f.write("});\n")
 
