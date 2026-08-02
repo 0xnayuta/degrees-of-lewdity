@@ -2,19 +2,18 @@ Macro.add("t", {
 	tags: null,
 	handler() {
 		const defaultLang = "en-US";
+		const defaultText = this.payload[0].contents;
+		const translationKey = this.args[0];
 		let text;
 
 		if (V.options.language === defaultLang) {
-			text = this.payload[0].contents;
+			text = defaultText;
 		} else {
-			if (this.args.length !== 1) {
-				return;
-			}
-
-			text = setup.t(this.args[0]);
-
-			if (typeof text !== "string") {
-				text = String(text);
+			if (translationKey) {
+				const translated = setup.t(defaultText, translationKey);
+				text = translated !== undefined && translated !== null ? String(translated) : defaultText;
+			} else {
+				text = defaultText;
 			}
 		}
 
