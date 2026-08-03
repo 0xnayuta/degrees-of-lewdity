@@ -21,7 +21,7 @@ class LocaleEntry:
     line: int
 
     translation: str = ""
-    separator: str = ""
+    separator: str = ": "
     comments: str = ""
     warning: bool = False
 
