@@ -310,10 +310,10 @@ setup.debugMenu.eventList = {
 			link: [() => `Set all pregnancy events to next `, stayOnPassageFn],
 			widgets: [
 				`<<set _pregnancy to $sexStats.anus.pregnancy>>`,
-				() => (T.pregnancy[0] == null ? "" : `<<set _pregnancy.fetus[0].timeLeft to 1>>`),
-				() => (T.pregnancy[1] == null ? "" : `<<set _pregnancy.fetus[1].timeLeft to 1>>`),
-				() => (T.pregnancy[2] == null ? "" : `<<set _pregnancy.fetus[2].timeLeft to 1>>`),
-				() => (T.pregnancy[3] == null ? "" : `<<set _pregnancy.fetus[3].timeLeft to 1>>`),
+				() => (T.pregnancy.fetus[0] == null ? "" : `<<set _pregnancy.fetus[0].timeLeft to 1>>`),
+				() => (T.pregnancy.fetus[1] == null ? "" : `<<set _pregnancy.fetus[1].timeLeft to 1>>`),
+				() => (T.pregnancy.fetus[2] == null ? "" : `<<set _pregnancy.fetus[2].timeLeft to 1>>`),
+				() => (T.pregnancy.fetus[3] == null ? "" : `<<set _pregnancy.fetus[3].timeLeft to 1>>`),
 			],
 		},
 		{
@@ -340,7 +340,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Repair Pregnancy Objects`, stayOnPassageFn],
-			widgets: [`<<prenancyObjectRepair>>`],
+			widgets: [`<<pregnancyObjectRepair>>`],
 		},
 		{
 			link: [`Reset Pregnancy Objects`, stayOnPassageFn],

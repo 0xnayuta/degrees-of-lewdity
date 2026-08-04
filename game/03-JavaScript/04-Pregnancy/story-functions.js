@@ -44,12 +44,10 @@ function playerBellySize(pregnancyOnly = false) {
 		if (!pregnancyOnly) {
 			if (V.sexStats.vagina.pregnancy.type === "parasite") bellySize += Math.clamp(V.sexStats.vagina.pregnancy.fetus.length, 0, 4);
 			if (V.sexStats.anus.pregnancy.type === "parasite") bellySize += Math.clamp(V.sexStats.anus.pregnancy.fetus.length, 0, 4);
+			if (V.daily.bloated) bellySize += Math.clamp(V.daily.bloated, 1, 2);
+			if (V.parasite.tummy.name === "urchin") bellySize += 2;
+			if (V.parasite.tummy.name === "slime") bellySize -= 2;
 		}
-	}
-	if (!V.statFreeze && !pregnancyOnly) {
-		if (V.daily.bloated) bellySize += Math.clamp(V.daily.bloated, 1, 2);
-		if (V.parasite.tummy.name === "urchin") bellySize += 2;
-		if (V.parasite.tummy.name === "slime") bellySize -= 2;
 	}
 
 	return Math.floor(Math.clamp(bellySize, 0, PregnancyConstants.belly.maxSize));
@@ -627,7 +625,7 @@ function childrenCountBetweenParents(parent1, parent2, carrierAndDonor = false) 
 	if (carrierAndDonor) {
 		return getBornChildren().reduce((prev, curr) => {
 			const pregnancy = getPregnancyOf(curr);
-			if (pregnancy.donor !== pregnancy.carrier && [parent1].includes(pregnancy.carrier) && [parent2].includes(pregnancy.donor)) return prev + 1;
+			if (pregnancy.donor !== pregnancy.carrier && pregnancy.carrier === parent1 && pregnancy.donor === parent2) return prev + 1;
 			return prev;
 		}, 0);
 	}
@@ -644,7 +642,7 @@ function pregnancyCountBetweenParents(parent1, parent2, carrierAndDonor = false)
 	if (carrierAndDonor) {
 		return getBornChildren().reduce((prev, curr) => {
 			const pregnancy = getPregnancyOf(curr);
-			if (pregnancy.donor !== pregnancy.carrier && [parent1].includes(pregnancy.carrier) && [parent2].includes(pregnancy.donor))
+			if (pregnancy.donor !== pregnancy.carrier && pregnancy.carrier === parent1 && pregnancy.donor === parent2)
 				prev.pushUnique(pregnancy.carrier + curr.pregnancyId);
 			return prev;
 		}, []).length;
@@ -679,21 +677,15 @@ function setBabyIntro(carrier, introFor, birthId) {
 	if (birthId !== undefined) {
 		// Player already gave birth
 		const children = getBornChildren().filter(child => getPregnancyOf(child).carrier === carrier && child.pregnancyId === birthId);
-		if (children.length && !V.babyIntros[introFor].find(intro => intro.birthId === birthId && intro.mother === carrier)) {
-			V.babyIntros[introFor].push({ birthId: children[0].pregnancyId, mother: getPregnancyOf(children[0]).carrier, children: children.length });
-		}
+		if (children.length) addBabyIntro(introFor, carrier, birthId, children.length);
 	} else if (carrier === "pc") {
 		const pregnancy = getLabouringPregnancy("pc");
 		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
-		if (litter.length && !V.babyIntros[introFor].find(intro => intro.birthId === pregnancy.pregnancyId && intro.mother === "pc")) {
-			V.babyIntros[introFor].push({ birthId: pregnancy.pregnancyId, mother: "pc", children: litter.length });
-		}
+		if (litter.length) addBabyIntro(introFor, "pc", pregnancy.pregnancyId, litter.length);
 	} else {
 		const pregnancy = getActivePregnancies(carrier)[0] || getLabouringPregnancy(carrier);
 		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
-		if (litter.length && !V.babyIntros[introFor].find(intro => intro.birthId === pregnancy.pregnancyId && intro.mother === pregnancy.carrier)) {
-			V.babyIntros[introFor].push({ birthId: pregnancy.pregnancyId, mother: pregnancy.carrier, children: litter.length });
-		}
+		if (litter.length) addBabyIntro(introFor, pregnancy.carrier, pregnancy.pregnancyId, litter.length);
 	}
 }
 DefineMacro("setBabyIntro", setBabyIntro);

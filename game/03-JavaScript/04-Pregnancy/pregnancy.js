@@ -51,11 +51,7 @@ window.generateBabyName = generateBabyName;
  * @returns {boolean} true if a pregnancy was created
  */
 const playerPregnancy = (npc, npcType, donorKnown = false, genital = "vagina", trackedNPCs, awareOf = false) => {
-	if (V.settings.playerPregnancyHumanEnabled === false && npcType === "human") return false; // Human player pregnancy disabled
-	if (V.settings.playerPregnancyBeastEnabled === false && npcType !== "human") return false; // Beast player pregnancy disabled
-	if (V.settings.playerPregnancyEggLayingEnabled === false && ["hawk", "harpy"].includes(npcType)) return false; // Egg laying player pregnancy disabled
-
-	if (!["human", "wolf", "wolfboy", "wolfgirl", "hawk", "harpy"].includes(npcType)) return false; // an unknown species can't conceive
+	if (!playerSpeciesPregnancyEnabled(npcType)) return false; // species disabled in settings, or a species that can't conceive
 	const donors = trackedNPCs ? trackedNPCs.map(t => ({ name: t.source, species: t.type })) : [{ name: npc, species: npcType }];
 	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, genital, V.location);
 	if (awareOf) setKnowsPregnancy(pregnancyId, "pc"); // this pregnancy only, not every active one
@@ -321,13 +317,8 @@ function npcPregnancyCycle() {
 							location = "wolf_cave";
 							break;
 						case "Alex":
-							if (!C.npc.Alex.pregnancy.missedBirth) {
-								C.npc.Alex.pregnancy.missedBirth = true;
-								C.npc.Alex.pregnancy.missedBirthCount = 1;
-							} else {
-								C.npc.Alex.pregnancy.missedBirth = true;
-								C.npc.Alex.pregnancy.missedBirthCount += 1;
-							}
+							C.npc.Alex.pregnancy.missedBirthCount = (C.npc.Alex.pregnancy.missedBirthCount || 0) + 1;
+							C.npc.Alex.pregnancy.missedBirth = true;
 							if (C.npc.Alex.pregnancy.nursery === true) {
 								birthLocation = "alex_cottage";
 								location = "alex_cottage";
@@ -607,25 +598,7 @@ function playerPregnancyPossibleWith(NPC) {
 		return false;
 	}
 	if (playerIsPregnant() || getParasiteObject().fetus.length) return false;
-	switch (npc.type) {
-		case "human":
-			if (V.settings.playerPregnancyHumanEnabled === false) return false;
-			break;
-		case "wolf":
-		case "wolfboy":
-		case "wolfgirl":
-		case "hawk":
-		case "harpy":
-			if (
-				V.settings.playerPregnancyBeastEnabled === false ||
-				(V.settings.playerPregnancyEggLayingEnabled === false && ["hawk", "harpy"].includes(npc.type))
-			) {
-				return false;
-			}
-			break;
-		default:
-			return false;
-	}
+	if (!playerSpeciesPregnancyEnabled(npc.type)) return false;
 	if (!((V.player.vaginaExist || canBeMPregnant()) && npc.gender === "m") || "strapon" in npc) return false;
 	return true;
 }

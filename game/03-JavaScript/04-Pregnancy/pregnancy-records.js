@@ -27,9 +27,10 @@ function pushPregnancyRecord(fields) {
 		talkedAbout: fields.talkedAbout ?? {},
 		playerLearnedFrom: fields.playerLearnedFrom ?? null,
 	};
-	// egg pregnancies get hatchDelay
+	// egg pregnancies get hatchDelay + layCare
 	// labouring pregnancies get waterBreaking
 	if (fields.hatchDelay !== undefined) record.hatchDelay = fields.hatchDelay;
+	if (fields.layCare !== undefined) record.layCare = fields.layCare;
 	if (fields.waterBreaking !== undefined) record.waterBreaking = fields.waterBreaking;
 	V.pregnancies.push(record);
 	return pregnancyId;
@@ -77,8 +78,11 @@ window.pushChildRecord = pushChildRecord;
  * @returns {number} the new pregnancyId
  */
 function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation) {
-	// Each clutch rolls extra time before it hatches. addEggCare subtracts from it.
-	const hatchDelay = donorSpecies === "hawk" || donorSpecies === "harpy" ? random(0, PregnancyConstants.birdHatchDelay) : undefined;
+	// layCare brings laying time down and hatchDelay brings hatching time down.
+	// addEggCare feeds whichever stage the clutch is currently in.
+	const isEggClutch = donorSpecies === "hawk" || donorSpecies === "harpy";
+	const hatchDelay = isEggClutch ? random(0, PregnancyConstants.birdHatchDelay) : undefined;
+	const layCare = isEggClutch ? 0 : undefined;
 	const pregnancyId = pushPregnancyRecord({
 		carrier,
 		carrierSpecies,
@@ -89,6 +93,7 @@ function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleD
 		conceivedLocation,
 		orifice,
 		hatchDelay,
+		layCare,
 	});
 	generateChildren(pregnancyId);
 	// A PC pregnancy pauses the menstrual cycle until birth flips it to "recovering"
@@ -134,13 +139,12 @@ function gestationSeconds(species) {
 window.gestationSeconds = gestationSeconds;
 
 /**
- * When a pregnancy is due to deliver (the lay, for an egg species), per its gestation setting.
- * Computed fresh on every read, so setting changes apply to pregnancies already underway.
+ * When a pregnancy is due to deliver (the lay, for an egg species), per its gestation setting. Can be sped up by layCare.
  *
  * @param {Pregnancy} pregnancy its donorSpecies picks which gestation setting applies
  */
 function getDueDate(pregnancy) {
-	return pregnancy.conceivedDate + gestationSeconds(pregnancy.donorSpecies);
+	return pregnancy.conceivedDate + gestationSeconds(pregnancy.donorSpecies) - (pregnancy.layCare ?? 0);
 }
 window.getDueDate = getDueDate;
 
@@ -240,6 +244,18 @@ function getLabouringLitter(carrier) {
 window.getLabouringLitter = getLabouringLitter;
 
 /**
+ * The orifice of the player's labouring pregnancy, or a sensible default when they aren't labouring
+ * (their vagina if they have one, otherwise anus). Used to place laid eggs on the right orifice.
+ *
+ * @returns {"vagina"|"anus"}
+ */
+function playerLabouringOrifice() {
+	const pregnancy = getLabouringPregnancy("pc");
+	return pregnancy ? pregnancy.orifice : V.player.vaginaExist ? "vagina" : "anus";
+}
+window.playerLabouringOrifice = playerLabouringOrifice;
+
+/**
  * Mark the player's labouring pregnancy as actively giving birth.
  */
 function beginPlayerBirth() {
@@ -310,15 +326,20 @@ function beginRearing(child, location, birthLocation) {
 window.beginRearing = beginRearing;
 
 /**
- * Brings a clutch's hatch forward by shaving time off its hatchDelay. Brooding the laid nest and
- * eating a lurker while carrying a clutch both call this.
+ * Speeds an egg clutch along by seconds towards layCare or hatchDelay.
+ * Called when eating a lurker, feeding the Great Hawk, or brooding the nest.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
- * @param {number} seconds how much sooner the clutch hatches
+ * @param {number} seconds how much sooner the clutch reaches its next stage
  */
 function addEggCare(pregnancyId, seconds) {
 	const pregnancy = V.pregnancies[pregnancyId];
-	pregnancy.hatchDelay = Math.max(0, pregnancy.hatchDelay - seconds);
+	if (pregnancy.deliveredDate === null) {
+		const cap = gestationSeconds(pregnancy.donorSpecies) * PregnancyConstants.maxLayCareFraction;
+		pregnancy.layCare = Math.min((pregnancy.layCare ?? 0) + seconds, cap);
+	} else {
+		pregnancy.hatchDelay = Math.max(0, pregnancy.hatchDelay - seconds);
+	}
 }
 window.addEggCare = addEggCare;
 
@@ -546,7 +567,8 @@ window.knowsPregnancy = knowsPregnancy;
  * @param {string} who "pc", or an NPC's name
  */
 function knowsCarrier(pregnancyId, who) {
-	return V.pregnancies[pregnancyId].awareOfCarrier.includes(who);
+	const record = V.pregnancies[pregnancyId];
+	return record.awareOfCarrier.includes(who) || (record.carrier === who && knowsPregnancy(pregnancyId, who));
 }
 window.knowsCarrier = knowsCarrier;
 

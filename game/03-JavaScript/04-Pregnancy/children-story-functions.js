@@ -61,17 +61,8 @@ function getChildDays(childId) {
 	const child = V.childRecords[childId];
 	if (!child) return null;
 
-	let childTotalDaysCap = 0;
-	switch (child.species) {
-		case "human":
-		case "wolf":
-		case "hawk":
-			childTotalDaysCap = 200;
-			break;
-		default:
-			throw new Error(`getChildDays: child ${childId} has non-base species "${child.species}"`);
-	}
-	return Math.clamp(childAgeOf(child), 0, childTotalDaysCap);
+	if (!["human", "wolf", "hawk"].includes(child.species)) throw new Error(`getChildDays: child ${childId} has non-base species "${child.species}"`);
+	return Math.clamp(childAgeOf(child), 0, 200);
 }
 window.getChildDays = getChildDays;
 
@@ -176,13 +167,8 @@ function humanChildActivity(childId) {
 		}
 	*/
 
-	if (activity.length) {
-		child.development.activity = activity[random(0, activity.length - 1)];
-		child.development.event = true;
-	} else {
-		child.development.activity = "noEvent";
-		child.development.event = true;
-	}
+	child.development.activity = activity.length ? activity[random(0, activity.length - 1)] : "noEvent";
+	child.development.event = true;
 }
 
 function wolfChildActivity(childId) {
@@ -237,13 +223,8 @@ function wolfChildActivity(childId) {
 		}
 	}
 
-	if (activity.length) {
-		child.development.activity = activity[random(0, activity.length - 1)];
-		child.development.event = true;
-	} else {
-		child.development.activity = "noEvent";
-		child.development.event = true;
-	}
+	child.development.activity = activity.length ? activity[random(0, activity.length - 1)] : "noEvent";
+	child.development.event = true;
 }
 
 function hawkChildActivity(childId) {
@@ -272,11 +253,6 @@ function hawkChildActivity(childId) {
 		activity.push("preen");
 	}
 
-	if (activity.length) {
-		child.development.activity = activity[random(0, activity.length - 1)];
-		child.development.event = true;
-	} else {
-		child.development.activity = "noEvent";
-		child.development.event = true;
-	}
+	child.development.activity = activity.length ? activity[random(0, activity.length - 1)] : "noEvent";
+	child.development.event = true;
 }

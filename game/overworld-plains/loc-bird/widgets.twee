@@ -2032,8 +2032,9 @@
 	<<if $bird.injured gt 1>>
 		<<set $bird.injured-->>
 	<</if>>
-	<<if getActivePregnancies("Great Hawk").some(p => childBaseSpecies(p.donorSpecies) is "hawk")>>
-		<<run addEggCare(getActivePregnancies("Great Hawk").find(p => childBaseSpecies(p.donorSpecies) is "hawk").pregnancyId, 6 * TimeConstants.secondsPerHour)>>
+	<<set _hawkPregnancy to getActivePregnancies("Great Hawk").find(p => childBaseSpecies(p.donorSpecies) is "hawk")>>
+	<<if _hawkPregnancy>>
+		<<run addEggCare(_hawkPregnancy.pregnancyId, 6 * TimeConstants.secondsPerHour)>>
 	<</if>>
 <</widget>>
 
@@ -2875,8 +2876,9 @@
 <</widget>>
 
 <<widget "playerEggLayEvent">>
-	<<set $_eggnantGenital to getLabouringPregnancy("pc") ? getLabouringPregnancy("pc").orifice : (V.player.vaginaExist ? "vagina" : "anus")>>
+	<<set $_eggnantGenital to playerLabouringOrifice()>>
 	<<set $_eggnantGenital to $_eggnantGenital is "vagina" ? "cervix" : "ass">>
+	<<set _litter to getLabouringLitter("pc")>>
 	<<if $passage is "Bird Tower Sleep" and ($bedGuest is "Great Hawk" or $bird.state is "home" or (playerIsPregnant() and playerNormalPregnancyType() is "hawk" and $bird.state is "hunting"))>>
 		<<set _eggLayingWake to true>>
 	<<elseif ($passage is "Robin Sleep" or $passage is "Sleep") and $robinbed>>
@@ -2884,14 +2886,14 @@
 	<<else>>
 		<<if playerIsPregnant() and playerNormalPregnancyType() is "hawk">>
 			<<if $location is "tower">>
-				<<set _eggIcon to getLabouringLitter("pc").length>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
+				<<set _eggIcon to _litter.length>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 				Something big is moving around inside of you, sending waves of both pain and pleasure as it rubs against your walls. <<arousal 4000>><<pain 12>><<gggarousal>><<ggpain>>
 				<br><br>
 
 				You gasp as you feel
 				<<if $_eggnantGenital is "cervix">>
-					<<if getLabouringLitter("pc").length gte 2>>
+					<<if _litter.length gte 2>>
 						the eggs pass through your cervix. They send shivers through your whole body as they glide down your vaginal canal. You grip the nest as the eggs begin to crown.
 						The first one is the hardest. Your passage repeatedly contracts, sending even more waves of pleasure through you. It escapes partially, before going back in. You push for a full minute, and it finally pops out. <<arousal 4000>><<garousal>>
 						<br>
@@ -2900,9 +2902,9 @@
 						<<else>>
 							<br>
 						<</if>>
-						<<if getLabouringLitter("pc").length is 2>>
+						<<if _litter.length is 2>>
 							The second egg passes much easier, joining its sibling in your nest.
-						<<elseif getLabouringLitter("pc").length is 3>>
+						<<elseif _litter.length is 3>>
 							The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 						<<else>>
 							The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
@@ -2912,8 +2914,8 @@
 						It's only one, but it might as well be a regular human baby with how large it feels. You spread your legs further. Your <<pussy>> stretches more, trying to make room for it to escape. After several minutes of tortured pushing, it finally escapes you. You pant in exertion, feeling dizzy.
 					<</if>>
 				<<else>>
-					<<if getLabouringLitter("pc").length gte 2>>
-						<span class="lewd"><<= getLabouringLitter("pc").length>> fertilised bird eggs</span> pass through your $_eggnantGenital, each one slowly spreading your entrance before plopping out and landing in your nest.
+					<<if _litter.length gte 2>>
+						<span class="lewd"><<= _litter.length>> fertilised bird eggs</span> pass through your $_eggnantGenital, each one slowly spreading your entrance before plopping out and landing in your nest.
 					<<else>>
 						<span class="lewd">a fertilised bird egg</span> pass through your $_eggnantGenital, slowly spreading your entrance before plopping out and landing in your nest.
 					<</if>>
@@ -2924,21 +2926,21 @@
 					<br><br>
 				<</if>>
 
-				You're filled with a sense of maternal bliss. Your spouse will be excited. <<Number `getLabouringLitter("pc").length`>> <<birdicon "eggs">> fertilised bird <<pluralise `getLabouringLitter("pc").length` "egg has" "eggs have">> been added to the nest.
-				<<if getLabouringLitter("pc").length gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
-				<<set $bird.eggReact to getLabouringLitter("pc").length>>
+				You're filled with a sense of maternal bliss. Your spouse will be excited. <<Number `_litter.length`>> <<birdicon "eggs">> fertilised bird <<pluralise `_litter.length` "egg has" "eggs have">> been added to the nest.
+				<<if _litter.length gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
+				<<set $bird.eggReact to _litter.length>>
 				<<pregnancyFeats "pc">>
 				<<endPlayerPregnancy "tower" "tower">>
 				<<set $harpyEggsPrevent to 28>>
 			<<else>>
-				<<set _eggIcon to getLabouringLitter("pc").length>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
+				<<set _eggIcon to _litter.length>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 				You awaken feeling disoriented, and feel a building pressure in your abdomen. A bestial instinct washes over you. You <<if $harpy gte 6 and V.transformationParts.bird.plumage isnot "hidden">>ruffle your feathers and <</if>>get on your hands and knees.
 				Something big is moving around inside of you, sending waves of both pain and pleasure through you as it rubs against your walls. <<arousal 4000>><<garousal>>
 				<br><br>
 
 				You gasp as you feel
 				<<if $_eggnantGenital is "cervix">>
-					<<if getLabouringLitter("pc").length gte 2>>
+					<<if _litter.length gte 2>>
 						the eggs pass through your cervix. They send shivers through your whole body as they glide down your vaginal canal. You grip your bedsheets as the eggs begin to crown.
 						The first one is the hardest. Your passage repeatedly contracts, sending even more waves of pleasure through you. It escapes partially, before going back in. You push for a full minute, and it finally pops out. <<arousal 4000>><<garousal>>
 						<br>
@@ -2947,9 +2949,9 @@
 						<<else>>
 							<br>
 						<</if>>
-						<<if getLabouringLitter("pc").length is 2>>
+						<<if _litter.length is 2>>
 							The second egg passes much easier, joining its sibling on your bed.
-						<<elseif getLabouringLitter("pc").length is 3>>
+						<<elseif _litter.length is 3>>
 							The second egg passes easily, but the third one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
 						<<else>>
 							The next eggs pass easily, but the last one gets stuck, having nothing behind it to help push. You sit there pushing for more agonising minutes, but eventually you manage to push it out. Your <<pussy>> remains slightly opened. You pant in exertion, feeling dizzy.
@@ -2959,8 +2961,8 @@
 						It's only one, but it might as well be a regular human baby with how large it feels. You spread your legs further. Your <<pussy>> stretches more, trying to make room for it to escape. After several minutes of tortured pushing, it finally escapes you. You pant in exertion, feeling dizzy.
 					<</if>>
 				<<else>>
-					<<if getLabouringLitter("pc").length gte 2>>
-						<span class="lewd"><<= getLabouringLitter("pc").length>> fertilised bird eggs</span> pass through your $_eggnantGenital, each one slowly spreading your entrance before plopping out and landing in your nest.
+					<<if _litter.length gte 2>>
+						<span class="lewd"><<= _litter.length>> fertilised bird eggs</span> pass through your $_eggnantGenital, each one slowly spreading your entrance before plopping out and landing in your nest.
 					<<else>>
 						<span class="lewd">a fertilised bird egg</span> pass through your $_eggnantGenital, slowly spreading your entrance before plopping out and landing in your nest.
 					<</if>>
@@ -2971,8 +2973,8 @@
 					<br><br>
 				<</if>>
 
-				You're filled with a sense of maternal bliss, as well as a nagging sense of urgency. <span class="blue">You need to bring <<if getLabouringLitter("pc").length gte 2>>them<<else>>it<</if>> to your nest.</span> You pick up <<number `getLabouringLitter("pc").length`>> <<birdicon "eggs">> fertilised bird <<pluralise `getLabouringLitter("pc").length` "egg">>.
-				<<if getLabouringLitter("pc").length gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
+				You're filled with a sense of maternal bliss, as well as a nagging sense of urgency. <span class="blue">You need to bring <<if _litter.length gte 2>>them<<else>>it<</if>> to your nest.</span> You pick up <<number `_litter.length`>> <<birdicon "eggs">> fertilised bird <<pluralise `_litter.length` "egg">>.
+				<<if _litter.length gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
 				/* Might be best changing the location variable here */
 				<<pregnancyFeats "pc">>
 				<<endPlayerPregnancy $location "inventory">>

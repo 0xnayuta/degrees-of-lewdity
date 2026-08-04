@@ -26,11 +26,13 @@ declare global {
 		conceivedLocation: string;
 		orifice: "vagina" | "anus";
 		hatchDelay?: number;
+		layCare?: number;
 		deliveredDate: number | null;
 		deliveredLocation: string | null;
 		waterBreaking?: boolean;
 		birthInProgress?: boolean;
 		termEffectsDone?: boolean;
+		ultrasoundDone?: boolean;
 		awareOfPregnancy: string[];
 		awareOfCarrier: string[];
 		awareOfDonor: string[];
@@ -83,6 +85,7 @@ declare global {
 		firstWord?: string | null;
 		interactions?: number;
 		interactionsTotal?: number;
+		adoptedDate?: { day: number; month: string; year: number };
 	}
 
 	export interface Load {

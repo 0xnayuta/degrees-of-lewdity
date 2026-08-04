@@ -133,5 +133,7 @@ const PregnancyConstants = ConstantsLoader.init({
 	birdNestTime: 604800, // 7 days
 	// Egg pregnancies hatch up to this much later (in seconds), rolled per clutch when the record is created.
 	birdHatchDelay: 259200, // 3 days
+	// Maximum amount of time egg laying can be reduced
+	maxLayCareFraction: 0.5,
 });
 window.PregnancyConstants = PregnancyConstants;

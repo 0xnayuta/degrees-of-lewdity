@@ -162,9 +162,10 @@ window.fetishConception = fetishConception;
  * @param {"vagina"|"anus"} orifice where the cum went
  * @param {"outside"|"imminent"|"deep"} [depth="deep"] where it landed. Can be left out for a creampie, a spill scales the chance down
  * @param {string} [location] where it happened. Left out reads the player's location, pass one when the scene runs off-screen
+ * @param {number} [donorFertility=1] extra multiplier on the conception chance from the donor's side (e.g. the pc's low-semen or earSlime state)
  * @returns {number|null} the new pregnancyId, or null when nothing took
  */
-function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice, depth = "deep", location = V.location) {
+function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice, depth = "deep", location = V.location, donorFertility = 1) {
 	const depthWeight = PregnancyConstants.depthWeight[depth];
 	if (depthWeight === undefined) throw new Error(`unknown depth "${depth}"`);
 	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // a species that can't impregnate
@@ -180,7 +181,8 @@ function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice,
 	// A forced impregnation skips the chance roll entirely.
 	if (
 		!T.npcForceImpregnation &&
-		State.random() >= (V.settings.baseNpcPregnancyChance / 100) * depthWeight * npcMenstrualFertility(carrier) * npcConceptionModifier(carrier)
+		State.random() >=
+			(V.settings.baseNpcPregnancyChance / 100) * depthWeight * npcMenstrualFertility(carrier) * npcConceptionModifier(carrier) * donorFertility
 	)
 		return null;
 

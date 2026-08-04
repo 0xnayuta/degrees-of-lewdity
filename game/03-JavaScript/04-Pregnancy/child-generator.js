@@ -191,26 +191,45 @@ function inheritTrait(carrierVal, donorVal, fallback) {
 }
 
 /**
- * A child's colours. Eye and human hair inherit from a parent, or a colour pool for an unknown parent.
- * Skin inherits or falls back to darkSkinChance. Wolf and hawk hair is fur or feathers.
+ * A child's eye colour: inherit from a parent, or roll the eye-colour pool for an unknown parent.
+ *
+ * @param {object} carrierParent carrier parent
+ * @param {object} donorParent donor parent
+ * @returns {string}
+ */
+function rollChildEyeColour(carrierParent, donorParent) {
+	return inheritTrait(carrierParent.eyeColour, donorParent.eyeColour, () => PregnancyConstants.genePool.eyeColour.random());
+}
+window.rollChildEyeColour = rollChildEyeColour;
+
+/**
+ * A child's skin colour: inherit from a parent, or fall back to the darkSkinChance roll.
+ *
+ * @param {object} carrierParent carrier parent
+ * @param {object} donorParent donor parent
+ * @returns {string}
+ */
+function rollChildSkinColour(carrierParent, donorParent) {
+	return inheritTrait(carrierParent.skinColour, donorParent.skinColour, () => (random(1, 100) <= V.settings.darkSkinChance ? "dark" : "light"));
+}
+window.rollChildSkinColour = rollChildSkinColour;
+
+/**
+ * A child's hair colour. Wolf pups take a fur colour, hawk chicks take a feather colour,
+ * and humans inherits a parent's hair or rolls the hair pool.
  *
  * @param {"human"|"wolf"|"hawk"} base
  * @param {object} carrierParent carrier parent
  * @param {object} donorParent donor parent
  * @param {string[]} wolfFur the fur colours a wolf pup can be this litter
- * @returns {{hairColour: string, eyeColour: string, skinColour: string}}
+ * @returns {string}
  */
-function rollChildColours(base, carrierParent, donorParent, wolfFur) {
-	const { eyeColour: eyeColourPool, hawkFeather: hawkFeatherPool, hairColour: hairColourPool } = PregnancyConstants.genePool;
-	const eyeColour = inheritTrait(carrierParent.eyeColour, donorParent.eyeColour, () => eyeColourPool.random());
-	const skinColour = inheritTrait(carrierParent.skinColour, donorParent.skinColour, () => (random(1, 100) <= V.settings.darkSkinChance ? "dark" : "light"));
-	let hairColour;
-	if (base === "wolf") hairColour = wolfFur.random();
-	else if (base === "hawk") hairColour = hawkFeatherPool.random();
-	else hairColour = inheritTrait(carrierParent.hairColour, donorParent.hairColour, () => hairColourPool.random());
-	return { hairColour, eyeColour, skinColour };
+function rollChildHairColour(base, carrierParent, donorParent, wolfFur) {
+	if (base === "wolf") return wolfFur.random();
+	if (base === "hawk") return PregnancyConstants.genePool.hawkFeather.random();
+	return inheritTrait(carrierParent.hairColour, donorParent.hairColour, () => PregnancyConstants.genePool.hairColour.random());
 }
-window.rollChildColours = rollChildColours;
+window.rollChildHairColour = rollChildHairColour;
 
 /**
  * Create the child/children for a new pregnancy record. Called once per pregnancy from createPregnancy.
@@ -250,13 +269,15 @@ function generateChildren(pregnancyId) {
 	}
 
 	const rollChildTraits = () => {
-		const colours = rollChildColours(base, carrierParent, donorParent, wolfFur);
+		const eyeColour = rollChildEyeColour(carrierParent, donorParent);
+		const skinColour = rollChildSkinColour(carrierParent, donorParent);
+		const hairColour = rollChildHairColour(base, carrierParent, donorParent, wolfFur);
 		const features = {
 			beastTransform: heritage.beast,
 			divineTransform: heritage.divine,
-			hairColour: colours.hairColour,
-			eyeColour: colours.eyeColour,
-			skinColour: colours.skinColour,
+			hairColour,
+			eyeColour,
+			skinColour,
 			size: rollChildSize(bodySize),
 		};
 		if (isMonster) features.monster = "monster";

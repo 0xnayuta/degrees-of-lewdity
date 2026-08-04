@@ -16,20 +16,8 @@ function canConceive(orifice, donorSpecies, carrier, infertile) {
 
 	const carrierIsPlayer = carrier === "pc";
 	if (carrierIsPlayer) {
-		// Each species answers to its own pregnancy setting.
-		switch (childBaseSpecies(donorSpecies)) {
-			case "human":
-				if (!V.settings.playerPregnancyHumanEnabled) return false;
-				break;
-			case "wolf":
-				if (!V.settings.playerPregnancyBeastEnabled) return false;
-				break;
-			case "hawk":
-				// Birds are beasts that lay eggs, so both switches have a say.
-				if (!V.settings.playerPregnancyBeastEnabled) return false;
-				if (!V.settings.playerPregnancyEggLayingEnabled) return false;
-				break;
-		}
+		childBaseSpecies(donorSpecies);
+		if (!playerSpeciesPregnancyEnabled(donorSpecies)) return false;
 	} else if (!V.settings.npcPregnancyEnabled) {
 		return false;
 	}
@@ -47,6 +35,29 @@ function canConceive(orifice, donorSpecies, carrier, infertile) {
 	return true;
 }
 window.canConceive = canConceive;
+
+/**
+ * Whether the player's pregnancy settings permit carrying a pregnancy of this species.
+ *
+ * @param {string} species the donor's species
+ * @returns {boolean}
+ */
+function playerSpeciesPregnancyEnabled(species) {
+	switch (species) {
+		case "human":
+			return V.settings.playerPregnancyHumanEnabled !== false;
+		case "wolf":
+		case "wolfboy":
+		case "wolfgirl":
+			return V.settings.playerPregnancyBeastEnabled !== false;
+		case "hawk":
+		case "harpy":
+			return V.settings.playerPregnancyBeastEnabled !== false && V.settings.playerPregnancyEggLayingEnabled !== false;
+		default:
+			return false;
+	}
+}
+window.playerSpeciesPregnancyEnabled = playerSpeciesPregnancyEnabled;
 
 /**
  * Does the carrier have a womb to carry in? The player, a named NPC, or a generated one from the scene.
