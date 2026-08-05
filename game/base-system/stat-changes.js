@@ -649,6 +649,8 @@ const statChange = (() => {
 	function minArousal() {
 		let result = playerHeatMinArousal() + playerRutMinArousal();
 
+		if (V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy") result += 2000;
+
 		result += Object.values(V.worn).reduce((prev, curr) => {
 			if (curr.type.includes("fetish")) return prev + 150;
 			return prev;

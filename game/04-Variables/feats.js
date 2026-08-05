@@ -1551,7 +1551,7 @@ setup.feats = {
 	},
 	"More than a Number": {
 		title: "More than a Number",
-		desc: "Learned five names in prison.",
+		desc: "Learned six names in prison.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Discoveries-Other"],
