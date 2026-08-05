@@ -1454,6 +1454,49 @@ function currentSkillValue(skill, disableModifiers = false) {
 		}
 	}
 
+	/**
+	 * Alcohol applies a flat penalty to the PC's skills, scaling with the PC's intoxication, that reduces the PC's skill to a minimum of 0.
+	 *
+	 * Affected Skills:
+	 *   Willpower, Athletics, Dancing, Housekeeping, Skulduggery, Swimming, Tending
+	 *   Anal, Buttocks, Chest, Feet, Hands, Oral, Penile, Seduction, Strap-on Use, Thighs, Vaginal
+	 *   English, History, Maths, Science
+	 *
+	 * "Strap-on Use" uses "penileskill".
+	 *
+	 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by alcohol, but the "currentSkillValue" function doesn't currently handle them.
+	 */
+	if (
+		[
+			"willpower",
+			"skulduggery",
+			"danceskill",
+			"swimmingskill",
+			"athletics",
+			"tending",
+			"housekeeping",
+			"seductionskill",
+			"oralskill",
+			"chestskill",
+			"handskill",
+			"bottomskill",
+			"analskill",
+			"thighskill",
+			"feetskill",
+			"penileskill",
+			"vaginalskill",
+			"science",
+			"maths",
+			"english",
+			"history",
+		].includes(skill)
+	) {
+		/**
+		 * Subtract the alcohol's skill penalty from the PC's result after all other calculations have been made. Alcohol will not be able to reduce the PC's skills below 0.
+		 */
+		result = Math.max(0, result - C.stats.alcohol.skillPenalty * drunkModifier());
+	}
+
 	return Math.round(result);
 }
 window.currentSkillValue = currentSkillValue;
