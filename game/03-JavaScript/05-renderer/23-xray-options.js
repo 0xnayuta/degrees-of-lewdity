@@ -279,6 +279,11 @@ class XrayCombatMapper {
 				);
 				break;
 			case "human":
+				if (V[slot + "state"] === "otherhand") {
+					penetrator.penetratorSprite = "finger";
+					penetrator.size = 1;
+					break;
+				}
 			case "plant":
 				/* For DP, bigger penis MUST be the primary target sprite. */
 				if (penetrator.doublePen) {
@@ -388,7 +393,7 @@ class XrayCombatMapper {
 		}
 
 		penetrator.isCumActive = false;
-		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep") {
+		if ((V.ejaculating === 1 && V[slot + "state"] !== "otherhand") || V[slot + "state"] === "tentacledeep") {
 			const npc1HasSperm =
 				V[slot + "state"] === "tentacledeep" ||
 				(combat.isNpcActive(penetrator.npc) && wearingCondom(penetrator.npc) !== "worn" && !npcHasStrapon(penetrator.npc));
