@@ -298,7 +298,7 @@ function beginRearingDefaults() {
 	return {
 		location: null,
 		birthLocation: null,
-		activity: null,
+		activity: "noEvent",
 		event: false,
 		activityDay: Time.days,
 		activityHour: Time.hour,

@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-// Should a name type for species be setup, say, human/wolf specific names
 /**
  * Generates a baby's name from name pools.
  *
@@ -83,10 +82,10 @@ function advancePregnancy(genital = "vagina") {
 	if (between(progress, PregnancyConstants.morningSickness.earlyStart, PregnancyConstants.morningSickness.earlyEnd)) {
 		/* Early Morning sickness */
 		/* Light Nausea/dizzyness at any time of day, but mostly when waking up */
-		if (weightedRandom([true, 70], [false, 30])) {
+		if (random(1, 100) <= 70) {
 			V.pregnancyStats.morningSicknessWaking = 1;
 		}
-		if (weightedRandom([true, 70], [false, 30])) {
+		if (random(1, 100) <= 70) {
 			V.pregnancyStats.morningSicknessGeneral = 1;
 		}
 	} else if (between(progress, PregnancyConstants.morningSickness.mainStart, PregnancyConstants.morningSickness.mainEnd)) {
@@ -306,8 +305,9 @@ function npcPregnancyCycle() {
 			) {
 				setKnowsAboutPregnancy(npcName, npcName);
 			}
-			if (Time.date.timeStamp >= getDueDate(record)) {
-				if (Time.date.timeStamp >= getDueDate(record) + PregnancyConstants.npcGestation.offscreenBirthGraceDays * TimeConstants.secondsPerDay) {
+			const dueDate = getDueDate(record);
+			if (Time.date.timeStamp >= dueDate) {
+				if (Time.date.timeStamp >= dueDate + PregnancyConstants.npcGestation.offscreenBirthGraceDays * TimeConstants.secondsPerDay) {
 					/* Player has not seen the npc recently, sort out the pregnancy in another way */
 					let birthLocation = "";
 					let location = "";

@@ -1,4 +1,4 @@
-/** The player's old-shape pregnancy object, where parasites still live (real pregnancies are records). */
+/** The player's parasite pregnancy on $sexStats. Real pregnancies live on records. */
 function getParasiteObject() {
 	return V.player.vaginaExist ? V.sexStats.vagina.pregnancy : V.sexStats.anus.pregnancy;
 }
@@ -99,6 +99,15 @@ function npcPregnancyEnding(npc) {
 }
 window.npcPregnancyEnding = npcPregnancyEnding;
 
+/**
+ * Whether a bird NPC has an egg ready and if its fertilised.
+ * "fertilised" = an active hawk pregnancy that's due to lay.
+ * "unfertilised" = not pregnant but in the fertile window.
+ * undefined = nothing ready r egg laying is disabled.
+ *
+ * @param {string} npc the NPC's name
+ * @returns {"fertilised"|"unfertilised"|undefined}
+ */
 function birdEggsReady(npc) {
 	if (V.settings.playerPregnancyEggLayingEnabled === false || !C.npc[npc] || C.npc[npc].vagina === "none") return undefined;
 	const pregnancy = C.npc[npc].pregnancy;
@@ -621,40 +630,67 @@ function knowsAboutChildrenTotal(parent, whoToCheck, location) {
 }
 window.knowsAboutChildrenTotal = knowsAboutChildrenTotal;
 
-function childrenCountBetweenParents(parent1, parent2, carrierAndDonor = false) {
-	if (carrierAndDonor) {
-		return getBornChildren().reduce((prev, curr) => {
-			const pregnancy = getPregnancyOf(curr);
-			if (pregnancy.donor !== pregnancy.carrier && pregnancy.carrier === parent1 && pregnancy.donor === parent2) return prev + 1;
-			return prev;
-		}, 0);
-	}
-	return getBornChildren().reduce((prev, curr) => {
-		const pregnancy = getPregnancyOf(curr);
-		if (pregnancy.donor !== pregnancy.carrier && [parent1, parent2].includes(pregnancy.carrier) && [parent1, parent2].includes(pregnancy.donor))
-			return prev + 1;
-		return prev;
-	}, 0);
+/**
+ * Every born child carrier carried and donor sired, across all their shared pregnancies.
+ * Directional. A self-pregnancy never counts.
+ *
+ * @param {string} carrier who carried, "pc" or an NPC name
+ * @param {string} donor who sired, "pc" or an NPC name
+ * @returns {Child[]}
+ */
+function childrenFromParents(carrier, donor) {
+	return getBornChildren().filter(child => {
+		const pregnancy = getPregnancyOf(child);
+		return pregnancy.carrier !== pregnancy.donor && pregnancy.carrier === carrier && pregnancy.donor === donor;
+	});
+}
+
+/**
+ * Born children two people share, whichever of them carried.
+ *
+ * @param {string} parent1
+ * @param {string} parent2
+ * @returns {Child[]}
+ */
+function childrenBetweenParents(parent1, parent2) {
+	return [...childrenFromParents(parent1, parent2), ...childrenFromParents(parent2, parent1)];
+}
+
+/**
+ * How many born children two people share, regardless of who carried.
+ *
+ * @param {string} parent1
+ * @param {string} parent2
+ * @returns {number}
+ */
+function childrenCountBetweenParents(parent1, parent2) {
+	return childrenBetweenParents(parent1, parent2).length;
 }
 window.childrenCountBetweenParents = childrenCountBetweenParents;
 
-function pregnancyCountBetweenParents(parent1, parent2, carrierAndDonor = false) {
-	if (carrierAndDonor) {
-		return getBornChildren().reduce((prev, curr) => {
-			const pregnancy = getPregnancyOf(curr);
-			if (pregnancy.donor !== pregnancy.carrier && pregnancy.carrier === parent1 && pregnancy.donor === parent2)
-				prev.pushUnique(pregnancy.carrier + curr.pregnancyId);
-			return prev;
-		}, []).length;
-	}
-	return getBornChildren().reduce((prev, curr) => {
-		const pregnancy = getPregnancyOf(curr);
-		if (pregnancy.donor !== pregnancy.carrier && [parent1, parent2].includes(pregnancy.carrier) && [parent1, parent2].includes(pregnancy.donor))
-			prev.pushUnique(pregnancy.carrier + curr.pregnancyId);
-		return prev;
-	}, []).length;
+/**
+ * How many distinct pregnancies two people share, regardless of who carried.
+ *
+ * @param {string} parent1
+ * @param {string} parent2
+ * @returns {number}
+ */
+function pregnancyCountBetweenParents(parent1, parent2) {
+	return new Set(childrenBetweenParents(parent1, parent2).map(child => child.pregnancyId)).size;
 }
 window.pregnancyCountBetweenParents = pregnancyCountBetweenParents;
+
+/**
+ * How many distinct pregnancies carrier carried that donor sired. Directional.
+ *
+ * @param {string} carrier who carried
+ * @param {string} donor who sired
+ * @returns {number}
+ */
+function pregnancyCountFromParents(carrier, donor) {
+	return new Set(childrenFromParents(carrier, donor).map(child => child.pregnancyId)).size;
+}
+window.pregnancyCountFromParents = pregnancyCountFromParents;
 
 /**
  * Whether the player has ever conceived a pregnancy with an NPC, active or already delivered.
@@ -683,7 +719,7 @@ function setBabyIntro(carrier, introFor, birthId) {
 		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
 		if (litter.length) addBabyIntro(introFor, "pc", pregnancy.pregnancyId, litter.length);
 	} else {
-		const pregnancy = getActivePregnancies(carrier)[0] || getLabouringPregnancy(carrier);
+		const pregnancy = getActivePregnancies(carrier)[0];
 		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
 		if (litter.length) addBabyIntro(introFor, pregnancy.carrier, pregnancy.pregnancyId, litter.length);
 	}

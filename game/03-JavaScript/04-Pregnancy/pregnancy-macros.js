@@ -58,6 +58,7 @@ function combatInseminate(slot, beast = false) {
 	}
 	return load;
 }
+window.combatInseminate = combatInseminate;
 
 /**
  * Conceive from a load right now. Creates the PC's pregnancy and displays the fetish mode banner.
@@ -98,7 +99,6 @@ function forceCarrierConception(orifice, load) {
 	conceiveNow(orifice, load);
 }
 window.forceCarrierConception = forceCarrierConception;
-window.combatInseminate = combatInseminate;
 
 /**
  * Call this when a scene puts cum inside the player outside of combat.

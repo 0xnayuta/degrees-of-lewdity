@@ -138,7 +138,7 @@ function migrateChildrenToRecords() {
 
 		const pregnancyId = pushPregnancyRecord({
 			carrier: representative.mother,
-			carrierSpecies: species,
+			carrierSpecies: representative.mother === "pc" ? "human" : C.npc[representative.mother]?.type ?? species,
 			donor: representative.father,
 			donorSpecies: species,
 			possibleDonors: [],
@@ -168,7 +168,7 @@ function migrateChildrenToRecords() {
 					...pickLegacyDev(oldChild.localVariables),
 					location: oldChild.location,
 					birthLocation: oldChild.birthLocation,
-					firstWord: oldChild.localVariables?.firstWord?.word ?? null, // old shape was { word, date, ... }
+					firstWord: oldChild.localVariables?.firstWord?.word ?? null, // source firstWord is a { word, date, ... } object
 					...(oldChild.adopted ? { adoptedDate: oldChild.adopted } : {}),
 				},
 				bornDate: oldChild.eggTimer ? null : oldDateToTimestamp(oldChild.born),
@@ -282,7 +282,7 @@ function inflightConceivedDate(timer, timerEnd, species) {
 window.inflightConceivedDate = inflightConceivedDate;
 
 /**
- * Converts any in-flight old-shape pregnancy on the player's own body into records, one orifice
+ * Converts any in-flight pregnancy on the player's own body ($sexStats) into records, one orifice
  * at a time. Runs once, driven by variables-versionUpdate.twee. A parasite pregnancy, or an
  * orifice with nothing in progress, is left alone.
  */

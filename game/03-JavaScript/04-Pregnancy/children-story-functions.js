@@ -25,14 +25,6 @@ function updateChildActivity(childId) {
 	const child = V.childRecords[childId];
 	if (!child) return null;
 
-	// Make sure the child has all the required development fields for all the relevant events
-	if (!child.development.activity) {
-		child.development.activity = "noEvent";
-		child.development.activityDay = Time.days;
-		child.development.activityHour = Time.hour;
-		child.development.crawling = 0;
-		child.development.talking = 0;
-	}
 	const daysFromLastActivity = Math.clamp(Time.days - child.development.activityDay, 0, Infinity);
 	const hoursFromLastActivity = Time.hour - (child.development.activityHour - 24 * daysFromLastActivity);
 

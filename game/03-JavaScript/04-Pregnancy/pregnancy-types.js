@@ -1,3 +1,9 @@
+/**
+ * How many parasites this orifice can hold at once.
+ *
+ * @param {"anus"|"vagina"} genital which orifice
+ * @returns {number} 1, 2, or 4
+ */
 function maxParasites(genital = "anus") {
 	switch (V.sexStats[genital].pregnancy.motherStatus) {
 		case 1:
@@ -10,10 +16,16 @@ function maxParasites(genital = "anus") {
 }
 window.maxParasites = maxParasites;
 
+/**
+ * Whether pc can take a new parasite in this orifice right now: parasites enabled, no anti-parasite
+ * cream active, no real pregnancy there, and a free slot left.
+ *
+ * @param {"anus"|"vagina"} genital which orifice
+ * @returns {boolean}
+ */
 function canImpregnateParasite(genital = "anus") {
 	if (V.settings.parasitePregnancyEnabled === false || (genital === "vagina" && !V.player.vaginaExist)) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken) return false;
-	// A real pregnancy lives in records now, not on this old-shape object, so check it directly.
 	if (getActivePregnancy("pc", genital)) return false;
 	const pregnancy = V.sexStats[genital].pregnancy;
 
@@ -23,6 +35,12 @@ function canImpregnateParasite(genital = "anus") {
 }
 window.canImpregnateParasite = canImpregnateParasite;
 
+/**
+ * Whether pc can carry an anal pregnancy through an acquired method like the magic tattoo
+ * or ear-slime. Always false while pc has a vagina.
+ *
+ * @returns {boolean}
+ */
 function canBeMPregnant() {
 	return (
 		!V.player.vaginaExist &&
@@ -32,130 +50,45 @@ function canBeMPregnant() {
 }
 window.canBeMPregnant = canBeMPregnant;
 
-function npcPregObject(person, isCarrier) {
-	let result = "Invalid input";
-	const parentType = isCarrier ? 0 : 1;
+/**
+ * Checks if pc can host a pregnancy in this orifice and returns the parasite pregnancy object
+ * ($sexStats[genital].pregnancy) to add to or an error string when something blocks it.
+ *
+ * @param {string|null} parasiteType the parasite to add, or null for a non-parasitic pregnancy (mpreg in the anus)
+ * @param {"anus"|"vagina"} genital which orifice
+ * @returns {object|string} the pregnancy object to add to, or an error string when blocked
+ */
+function parasitePrep(parasiteType, genital) {
+	if (!["anus", "vagina"].includes(genital)) return `Invalid genital '${genital}' set`;
+	if (genital === "vagina" && !V.player.vaginaExist) return "Player doesn't have a vagina for pregnancy";
+	// A non-parasitic anal pregnancy needs mpreg (magic tattoo/ear slime); a parasite doesn't.
+	if (genital === "anus" && !canBeMPregnant() && !parasiteType) return "MPreg is not currently available to the player";
 
-	if (typeof person === "string" || person instanceof String) {
-		let parentId = parentFunction.findParent(person, parentType, true);
-		if (parentId === -1) {
-			parentId = parentFunction.addToParentList(person, undefined, parentType);
-		}
-		if (person === "pc") {
-			// pregnancy isn't required for the player
-			result = {
-				name: "pc",
-				gender: V.player.sex,
-				type: "human",
-				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: Skin.color.natural,
-				hairColour: V.naturalhaircolour,
-				eyeColour: V.eyeselect,
-			};
-		} else if (C.npc[person]) {
-			result = {
-				name: C.npc[person].nam,
-				pregnancy: C.npc[person].pregnancy,
-				type: C.npc[person].type,
-				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: C.npc[person].skincolour,
-				hairColour: C.npc[person].hairColour,
-				eyeColour: C.npc[person].eyeColour,
-			};
-			if (C.npc[person].vagina !== "none" && C.npc[person].penis !== "none") {
-				result.gender = "h";
-			} else if (C.npc[person].vagina !== "none") {
-				result.gender = "f";
-			} else if (C.npc[person].penis !== "none") {
-				result.gender = "m";
-			} else {
-				// No Gender detected
-				return "Gender for Named NPC not found";
-			}
-		} else {
-			// No NPC found, likely found from sperm name string
-			return {
-				name: person,
-				type: "unknown",
-				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: random(1, 100) <= V.settings.darkSkinChance ? "dark" : "light",
-			};
-		}
-	} else {
-		if (person.fullDescription) {
-			let parentId = parentFunction.findParent(person.fullDescription, parentType, true);
-			if (parentId === -1) {
-				parentId = parentFunction.addToParentList(person.fullDescription, C.npc[person.fullDescription] ? undefined : person, parentType);
-			}
-			result = {
-				name: person.fullDescription,
-				pregnancy: person.pregnancy,
-				type: person.type,
-				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
-				skinColour: person.skincolour,
-				hairColour: person.hairColour,
-				eyeColour: person.eyeColour,
-			};
-			if (C.npc[person.fullDescription]) {
-				if (!result.hairColour) result.hairColour = C.npc[person.fullDescription].hairColour;
-				if (!result.eyeColour) result.eyeColour = C.npc[person.fullDescription].eyeColour;
-			}
-			if (person.vagina !== undefined && person.vagina !== "none" && person.penis !== undefined && person.penis !== "none") {
-				result.gender = "h";
-			} else if (person.vagina !== undefined && person.vagina !== "none") {
-				result.gender = "f";
-			} else if (person.penis !== undefined && person.penis !== "none") {
-				result.gender = "m";
-			} else {
-				// No Gender detected
-				return "Gender for object not found";
-			}
-		}
-	}
-	return result;
+	const pregnancy = V.sexStats[genital].pregnancy;
+	if (getActivePregnancy("pc", genital)) return "Player currently pregnant and cannot support other types";
+	// A parasite can't coexist with a non-parasitic pregnancy
+	if (pregnancy.type !== "parasite" && pregnancy.fetus.length) return "Player currently pregnant and cannot support other types";
+	if (pregnancy.type === "parasite" && !parasiteType) return "Player currently pregnant with parasite and cannot support other types";
+	if (parasiteType && pregnancy.fetus.length >= maxParasites(genital)) return "Player does not have room for more parasites";
+
+	return pregnancy;
 }
 
-function parasitePrep({ carrierObject, parasiteType = null, genital = null }) {
-	let pregnancy;
-	if (!carrierObject) {
-		return [`carrier object not provided`];
-	} else if (!["anus", "vagina"].includes(genital)) {
-		return [`Invalid genital '${genital}' set`];
-	} else if (carrierObject.name === "pc") {
-		if (genital === "vagina" && !V.player.vaginaExist) return ["Player doesn't have a vagina for pregnancy"];
-
-		// Prevent Non-parasitic pregnancy in the anus unless the player is male with a magic tattoo
-		if (genital === "anus" && !canBeMPregnant() && !parasiteType) return ["MPreg is not currently available to the player"];
-
-		pregnancy = V.sexStats[genital].pregnancy;
-
-		if (getActivePregnancy("pc", genital)) return ["Player currently pregnant and cannot support other types"];
-
-		// Prevent a parasite if a non-parasitic pregnancy already exists
-		if (pregnancy.type !== "parasite" && pregnancy.fetus.length) return ["Player currently pregnant and cannot support other types"];
-
-		// Prevent any non-parasitic pregnancy a parasitic pregnancy already exists
-		if (pregnancy.type === "parasite" && !parasiteType) return ["Player currently pregnant with parasite and cannot support other types"];
-
-		// Prevent a parasitic pregnancy if there is not enough space
-		if (parasiteType && pregnancy.fetus.length >= maxParasites(genital)) return ["Player does not have room for more parasites"];
-	}
-
-	return [pregnancy];
-}
-
+/**
+ * Returns colour if given, otherwise a random eye colour from the gene pool.
+ *
+ * @param {string} [colour] a specific eye colour, or falsy to roll one
+ * @returns {string}
+ */
 function eyeColourCalc(colour) {
 	if (colour) return colour;
 	return PregnancyConstants.genePool.eyeColour.random();
 }
-window.eyeColourCalc = eyeColourCalc; // used cross-file by eyes-related.js
+window.eyeColourCalc = eyeColourCalc;
 
 window.pregnancyGenerator = {
-	parasite: ({ carrier = null, parasiteType = null, hermParasite = null, genital = "anus" }) => {
-		const carrierObject = npcPregObject(carrier, true);
-		if (typeof carrierObject === "string" || carrierObject instanceof String) return carrierObject;
-
-		const [pregnancy] = parasitePrep({ carrierObject, parasiteType, genital });
+	parasite: ({ parasiteType = null, hermParasite = null, genital = "anus" }) => {
+		const pregnancy = parasitePrep(parasiteType, genital);
 		if (typeof pregnancy === "string" || pregnancy instanceof String) return pregnancy;
 
 		if (pregnancy) {

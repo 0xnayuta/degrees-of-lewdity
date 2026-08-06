@@ -997,83 +997,9 @@
 
 		<<foldout false "_parasitePregnancyFoldout">>
 			<span class="gold">Parasite Pregnancy</span>
-			<<set $_aPregnancy to $sexStats.anus.pregnancy>>
-			<<if $_aPregnancy.type is "parasite" or ($_aPregnancy.type is null and !getActivePregnancy("pc", "anus"))>>
-				<<for _i to 0; _i lt maxParasites("anus"); _i++>>
-					<<if $_aPregnancy.fetus[_i] isnot undefined>>
-						<<if $_aPregnancy.fetus[_i].fertilised>>
-							Anal slot <<=_i+1>> is pregnant with a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature.
-							<<if $_aPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
-								<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_aPregnancy.fetus[_i].daysLeft is 0>>
-									Dr Harper will be able to help you to deliver at any time.
-								<<elseif $pregnancyStats.parasiteDoctorEvents gte 4>>
-									Dr Harper will be able to help you to deliver in <<=$_aPregnancy.fetus[_i].daysLeft>> days.
-								<<else>>
-									You will need to see Dr Harper to deliver.
-								<</if>>
-							<<else>>
-								<<if $_aPregnancy.fetus[_i].daysLeft is 0>>
-									It will be ready to deliver at any time soon.
-								<<else>>
-									It will be ready to deliver in less than <<=$_aPregnancy.fetus[_i].daysLeft>> days.
-								<</if>>
-							<</if>>
-							<br>
-						<<else>>
-							Anal slot <<=_i+1>> has a $_aPregnancy.fetus[_i].stats.gender $_aPregnancy.fetus[_i].creature egg ready to be fertilised.<br>
-						<</if>>
-					<<else>>
-						Anal slot <<=_i+1>> is empty.<br>
-					<</if>>
-				<</for>>
-			<<else>>
-				<<if playerAwareTheyArePregnant()>>
-					Unable to host parasites due to other type of anal pregnancy.
-				<<else>>
-					<<for _i to 0; _i lt maxParasites("anus"); _i++>>
-						Anal slot <<=_i+1>> is empty.<br>
-					<</for>>
-				<</if>>
-			<</if>>
-			<<set $_vPregnancy to $sexStats.vagina.pregnancy>>
+			<<parasiteSlotBlock "anus">>
 			<<if $player.vaginaExist>>
-				<<if $_vPregnancy.type is "parasite" or ($_vPregnancy.type is null and !getActivePregnancy("pc", "vagina"))>>
-					<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
-						<<if $_vPregnancy.fetus[_i] isnot undefined>>
-							<<if $_vPregnancy.fetus[_i].fertilised>>
-								Vaginal slot <<=_i+1>> is pregnant with a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature.
-								<<if $_vPregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
-									<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_vPregnancy.fetus[_i].daysLeft is 0>>
-										Dr Harper will be able to help you to deliver at any time.
-									<<elseif $pregnancyStats.parasiteDoctorEvents gte 4>>
-										Dr Harper will be able to help you to deliver in <<=$_vPregnancy.fetus[_i].daysLeft + 1>> days.
-									<<else>>
-										You will need to see Dr Harper to deliver.
-									<</if>>
-								<<else>>
-									<<if $_vPregnancy.fetus[_i].daysLeft is 0>>
-										It will be ready to deliver at any time soon.
-									<<else>>
-										It will be ready to deliver in less than <<=$_vPregnancy.fetus[_i].daysLeft>> days.
-									<</if>>
-								<</if>>
-								<br>
-							<<else>>
-								Vaginal slot <<=_i+1>> has a $_vPregnancy.fetus[_i].stats.gender $_vPregnancy.fetus[_i].creature egg ready to be fertilised.<br>
-							<</if>>
-						<<else>>
-							Vaginal slot <<=_i+1>> is empty.<br>
-						<</if>>
-					<</for>>
-				<<else>>
-					<<if playerAwareTheyArePregnant()>>
-						Unable to host parasites due to other type of vaginal pregnancy.
-					<<else>>
-						<<for _i to 0; _i lt maxParasites("vagina"); _i++>>
-							Vaginal slot <<=_i+1>> is empty.<br>
-						<</for>>
-					<</if>>
-				<</if>>
+				<<parasiteSlotBlock "vagina">>
 			<</if>>
 			<br>
 		<</foldout>>
@@ -1148,6 +1074,50 @@
 			<</foldout>>
 		<</if>>
 	</div>
+<</widget>>
+
+<<widget "parasiteSlotBlock">>
+	/* One orifice's parasite slots. _args[0] is "anus" or "vagina". */
+	<<set _orifice to _args[0]>>
+	<<set _label to _orifice is "anus" ? "Anal" : "Vaginal">>
+	<<set $_pregnancy to $sexStats[_orifice].pregnancy>>
+	<<if $_pregnancy.type is "parasite" or ($_pregnancy.type is null and !getActivePregnancy("pc", _orifice))>>
+		<<for _i to 0; _i lt maxParasites(_orifice); _i++>>
+			<<if $_pregnancy.fetus[_i] isnot undefined>>
+				<<if $_pregnancy.fetus[_i].fertilised>>
+					_label slot <<=_i+1>> is pregnant with a $_pregnancy.fetus[_i].stats.gender $_pregnancy.fetus[_i].creature.
+					<<if $_pregnancy.fetus[_i].stats.gender is "Hermaphrodite">>
+						<<if $pregnancyStats.parasiteDoctorEvents gte 4 and $_pregnancy.fetus[_i].daysLeft is 0>>
+							Dr Harper will be able to help you to deliver at any time.
+						<<elseif $pregnancyStats.parasiteDoctorEvents gte 4>>
+							Dr Harper will be able to help you to deliver in <<=$_pregnancy.fetus[_i].daysLeft>> days.
+						<<else>>
+							You will need to see Dr Harper to deliver.
+						<</if>>
+					<<else>>
+						<<if $_pregnancy.fetus[_i].daysLeft is 0>>
+							It will be ready to deliver at any time soon.
+						<<else>>
+							It will be ready to deliver in less than <<=$_pregnancy.fetus[_i].daysLeft>> days.
+						<</if>>
+					<</if>>
+					<br>
+				<<else>>
+					_label slot <<=_i+1>> has a $_pregnancy.fetus[_i].stats.gender $_pregnancy.fetus[_i].creature egg ready to be fertilised.<br>
+				<</if>>
+			<<else>>
+				_label slot <<=_i+1>> is empty.<br>
+			<</if>>
+		<</for>>
+	<<else>>
+		<<if playerAwareTheyArePregnant()>>
+			Unable to host parasites due to other type of <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy.
+		<<else>>
+			<<for _i to 0; _i lt maxParasites(_orifice); _i++>>
+				_label slot <<=_i+1>> is empty.<br>
+			<</for>>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "pregnancyStatusBlock">>
