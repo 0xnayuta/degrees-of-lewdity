@@ -1,78 +1,17 @@
 :: Fishing Beach Catch
 <<effects>>
-<<if Weather.dayState is "day" and ($daily.fishing.beach.fisher.phase is "finished" or $daily.fishing.beach.fisher.phase is undefined) and $rng gte 92 and $daily.fishing.seagullSteal is undefined>>
+<<if Weather.dayState is "day" and ($daily.fishing.fishingBeach.fisher.phase is "finished" or $daily.fishing.fishingBeach.fisher.phase is undefined) and $rng gte 92 and $daily.fishing.seagullSteal is undefined>>
 	<<fishingSeagullCaught $fishingHookedFish $bus>>
-<<elseif $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.drunk gte 1 and $rng gte 80>>
+<<elseif $daily.fishing.fishingBeach.fisher.phase is "fishing" and fishingArrivalTimePassed(60) and $daily.fishing.fishingBeach.fisher.drunk gte 1 and $rng gte 80>>
 	<<fishingBeachCaughtFisherDrunk>>
-<<elseif beachCampfirePartyPresent() and $rng gte 75 and $daily.fishing.beach.partyFeed is undefined and canCookFish($fishingHookedFish.type)>>
+<<elseif beachCampfirePartyPresent() and $rng gte 75 and $daily.fishing.fishingBeach.partyFeed is undefined and canCookFish($fishingHookedFish.type)>>
 	<<fishingBeachCaughtCampfireCook>>
 <<else>>
 	<<fishingBeachCaught>>
 <</if>>
 
 
-:: Fishing Beach Reel
-<<effects>>
-<<set $fishingReelAttempts += 1>>
-
-<<if $athleticsSuccess>>
-	You brace against the rocks and heave, and you <<if $fishingReelAttempts gt 1>>finally<</if>> <span class="green">reel up the fish.</span><<gtiredness>><<tiredness 1>>
-	<br><br>
-
-	<<include "Fishing Beach Catch">>
-<<elseif $fishingReelAttempts gte 3 and random(1, 5) gte 4>>
-	<<if $rng gte 80>>
-		<<fishingBeachRodLost>>
-	<<else>>
-		<<fishingBeachLineSnapped>>
-	<</if>>
-<<else>>
-	<<if $fishingReelAttempts is 1>>
-		You haul back on your rod, but the <<print $fishingHookedFish.type>> strips your line right back off the reel. Your arms burn with the effort.<<gtiredness>><<tiredness 1>>
-	<<else>>
-		You drag it closer, close enough to see its shape in the breakers, before it dives again, nearly pulling you off your feet.<<gtiredness>><<tiredness 1>>
-	<</if>>
-	<br><br>
-
-	<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-	<<link [[Keep fighting it|Fishing Beach Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-	<br>
-	<<link [[Cut the line|Fishing Beach Cut Line]]>><</link>>
-<</if>>
-
-
-:: Fishing Beach Cut Line
-<<effects>>
-You release the tension on your rod, letting your line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, your line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
-<br>
-<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
-
-
 :: Widgets Fishing Beach Catch [widget]
-<<widget "fishingBeachRodLost">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> gives one last violent pull and your rod is wrenched clean out of your hands, tumbling away into the waves.<<gstress>><<stress 4>><<handheldruined>>
-	<<unset $fishingHookedFish>>
-	<<run stopFishingProp()>>
-	<br><br>
-
-	<<link [[Next|Beach]]>><<set $eventskip to 1>><</link>>
-<</widget>>
-
-<<widget "fishingBeachLineSnapped">>
-	You lean back with everything you have left, but your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone, and your line goes slack.
-	<<unset $fishingHookedFish>>
-	<<run stopFishingProp()>>
-	<br><br>
-
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<pass 3>><</link>>
-	<br>
-	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
-<</widget>>
-
 <<widget "fishingBeachCaught">>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, $bus)>>
@@ -88,11 +27,15 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 		<br><br>
 	<</if>>
 
-	<<link [[Stow it away|Fishing Beach Keep]]>><</link>>
+	<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Beach Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 	<br>
-	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Beach Throw Back]]>><</link>>
+	<<link [[Throw it back|Fishing Beach Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 	<<if _canEatFish>>
 		<br>
-		<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>>
+		<<if $daily.fishing.fishingBeach.fisher.phase is "fishing">>
+			<<link [[Eat the fish|Fishing Beach Cat Eat Fisher]]>><</link>><<cat>>
+		<<else>>
+			<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>><<cat>>
+		<</if>>
 	<</if>>
 <</widget>>

@@ -1,0 +1,50 @@
+:: Fishing Coast Path Minigame Loop
+<<effects>>
+<<set _fishingOutcome to fishingMinigameTurnOutcome()>>
+<<if _fishingOutcome is "lost">>
+	<<fishingMinigameLostText>>
+	<<unset $fishingHookedFish>>
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Coast Path Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Fishing Coast Path Approach]]>><</link>>
+<<elseif _fishingOutcome is "caught">>
+	<br>
+	<<fishingMinigameUi 0 "caught">>
+	You swing the <<print $fishingHookedFish.type>> out of the water.
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<include "Fishing Coast Path Catch">>
+<<else>>
+	<<if $fishingMinigame.lastFishAction>>
+		<<fishingMinigameTurnResult>>
+		<br>
+		<<fishingMinigameArmFatigue>>
+		<br><br>
+	<<else>>
+		Something takes the bait and pulls away.<<if $fishingHookedFish.aboveAverageSize>> You can see a <span class="pink">big</span> <<print $fishingHookedFish.type>> below the surface.<<else>> Looks like <<a $fishingHookedFish.type>>.<</if>>
+		<br><br>
+	<</if>>
+
+	<<fishingMinigameBoard>>
+	<br><br>
+
+	<<link [[Reel in|Fishing Coast Path Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+		<<run fishingMinigameResolveTurn("reel")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+	<br>
+	<<link [[Hold the line|Fishing Coast Path Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+		<<run fishingMinigameResolveTurn("hold")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+	<br>
+	<<link [[Put slack on the line|Fishing Coast Path Minigame Loop]]>>
+		<<run fishingMinigameResolveTurn("slack")>>
+	<</link>>
+	<br>
+	<<link [[Cut the line|Fishing Coast Path Minigame Loop]]>><<set $fishingMinigame.lossReason to "cut">><</link>>
+<</if>>

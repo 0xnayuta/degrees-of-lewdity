@@ -1,17 +1,3 @@
-/*
- * While fishing, you'll see a description of the location and weather at the top of the passage. (fishingWaitAmbient)
- * 
- * When you start fishing, you'll see the text "Your hook hasn't attracted anything yet." as you click the wait for a
- *  bite link. That text is replaced by one of the fishingIdleThoughts. There are many variations based on weather,
- *  location, time, etc, but mostly should reference, ya know, fishing. As I was writing, I didn't add a reference
- *  to fishing to some of them, I lost the plot a bit while making this huge list. So some of them are "You reposition
- *  your hands on the rod." while others are "Thunder booms in the distance". I have the ones related to fishing
- *  with a higher eventpool weight.
- * There are also many idle thoughts about the state of the world or the player, which I think even though they don't
- *  check the fishing checkbox, they check the "what does the player think about when alone with their thoughts"
- *  checkbox, which I think is fine. Find these under the "SPECIFIC" comment separator.
- * Fishing TODO: Fix this comment to not contain my thoughts
- */
 :: Widgets Fishing [widget]
 <<widget "fishingLocationDescription">>
 	<<set _fishingLocation to _args[0]>>
@@ -23,11 +9,13 @@
 			<<case "fishingBeach">>
 				<<set _fishingLocationText to "Foam slides in and out along the shoreline, blurred by fog">>
 			<<case "fishingForestLake">>
-				<<set _fishingLocationText to "Fog sits low across the water, only nearby ripples clear">>
+				<<set _fishingLocationText to "Fog sits low across the water.">>
 			<<case "fishingCoastPath">>
 				<<set _fishingLocationText to "Waves crash against rocks hidden by fog">>
 			<<case "fishingMoor">>
 				<<set _fishingLocationText to "Dark pools sit between roots and reeds in thick fog">>
+			<<default>>
+				<<error { message: "fishingLocationDescription: unhandled location: " + _fishingLocation }>>
 		<</switch>>
 	<<else>>
 		<<switch _fishingLocation>>
@@ -41,6 +29,8 @@
 				<<set _fishingLocationText to "Waves crash against the rocks nearby">>
 			<<case "fishingMoor">>
 				<<set _fishingLocationText to "Dark pools stir between roots and reeds">>
+			<<default>>
+				<<error { message: "fishingLocationDescription: unhandled location: " + _fishingLocation }>>
 		<</switch>>
 	<</if>>
 
@@ -180,25 +170,13 @@
 <</widget>>
 
 <<widget "fishingLocationPopulation">>
-	<<set _isFirstView to $daily.fishing[_args[0]]?.fishPopulation is undefined>>
-
-	<<if _isFirstView>>
-		<<if !$daily.fishing[_args[0]]>>
-			<<set $daily.fishing[_args[0]] to {}>>
-		<</if>>
-		<<if $rng lte 10>>
-			<<set $daily.fishing[_args[0]].fishPopulation to "teeming">>
-		<<elseif $rng lte 30>>
-			<<set $daily.fishing[_args[0]].fishPopulation to "quiet">>
-		<<else>>
-			<<set $daily.fishing[_args[0]].fishPopulation to "normal">>
-		<</if>>
-	<</if>>
+	<<set _firstView to $daily.fishing[_args[0]]?.fishPopulation is undefined>>
+	<<run ensureFishingDailyPool(_args[0])>>
 
 	<<if $daily.fishing[_args[0]]?.fishPopulation is "teeming">>
-		<<if _isFirstView>><span class="green">Fish are jumping all over the place today.</span><<else>>Fish are jumping all over the place today.<</if>>
+		<<if _firstView>><span class="green">Fish are jumping all over the place today.</span><<else>>Fish are jumping all over the place today.<</if>>
 	<<elseif $daily.fishing[_args[0]]?.fishPopulation is "quiet">>
-		<<if _isFirstView>><span class="red">The water looks quiet today, not many fish about.</span><<else>>The water looks quiet today, not many fish about.<</if>>
+		<<if _firstView>><span class="red">The water looks quiet today, not many fish about.</span><<else>>The water looks quiet today, not many fish about.<</if>>
 	<</if>>
 <</widget>>
 
@@ -213,13 +191,13 @@
 	<<elseif _isBiggest>>
 		(The biggest <<print _fish.type>> you've ever caught!)<<lstress>><<stress -5>>
 	<<elseif not _skipCatchModifier>>
-		<<if $rng gte 92 and $world_corruption_soft gte 40>>
+		<<if $rng gte 94 and $world_corruption_soft gte 40>>
 			The <<print _fish.type>> hangs limp on the hook, eyes clouded and grey. It looks like it's been dead for a while, but that doesn't make sense.<<gstress>><<stress 4>>
-		<<elseif $rng gte 85>>
-			The <<print _fish.type>> thrashes wildly as you lift it clear of the water, whipping spray all over you.<<wet_upper 80>><<gstress>><<stress 3>>
-		<<elseif $rng gte 77 and $world_corruption_soft gte 40>>
+		<<elseif $rng gte 91>>
+			The <<print _fish.type>> thrashes wildly as you lift it up, whipping spray all over you.<<wet_upper 80>><<gstress>><<stress 3>>
+		<<elseif $rng gte 87 and $world_corruption_soft gte 40>>
 			Something's wrong with this <<print _fish.type>>. Its scales grow in uneven spirals, and pale growths cluster along its spine.<<gstress>><<stress 4>>
-		<<elseif $rng gte 60 and Time.isBloodMoon()>>
+		<<elseif $rng gte 80 and Time.isBloodMoon()>>
 			The <<print _fish.type>> has too many eyes, and they all swivel to fix on you at once, reflecting the red light of the moon.<<ggstress>><<stress 8>>
 		<<else>>
 			<<lstress>><<stress -2>>
@@ -229,11 +207,18 @@
 	<</if>>
 <</widget>>
 
+<<widget "fishingEatFishCatProgress">>
+	<<if not $daily.fishing.eatenFishCatTf>>
+		<<transform cat 1>>
+		<<set $daily.fishing.eatenFishCatTf to true>>
+	<</if>>
+<</widget>>
+
 <<widget "fishingBob">>
 	<<if fishingUsingMagnetRod()>>
 		line
 	<<else>>
-		<<= either("float", "bob")>>
+		<<print either("float", "bob")>>
 	<</if>>
 <</widget>>
 
@@ -281,6 +266,14 @@
 	<<addinlineevent 3>>
 		You notice your line catching the light as it angles into the water.
 	<</addinlineevent>>
+
+	<<set _fishingSurfacingFish to fishingSurfacingFish(_fishingLocation)>>
+	<<if _fishingSurfacingFish.length gt 0>>
+		<<addinlineevent 10>>
+			<<set _fishingSurfacer to _fishingSurfacingFish.random()>>
+			You see <<a _fishingSurfacer>> break the surface for a moment.
+		<</addinlineevent>>
+	<</if>>
 
 	<<if fishingUsingMagnetRod()>>
 		<<addinlineevent 3>>

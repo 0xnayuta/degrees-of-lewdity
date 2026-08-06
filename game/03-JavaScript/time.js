@@ -1120,21 +1120,21 @@ function hourPassed(hours) {
 			Time.set(V.timeStamp + 3600);
 		}
 
-		// Decrease fishing danger values by 0.5 per hour, and remove the event if the danger is 0.
 		if (V.fishing) {
+			// Decrease fishing danger values by 0.5 per hour, and remove the event if the danger is 0.
 			Object.values(V.fishing).forEach(location => {
-				if (location.eventDanger !== undefined) {
+				if (location?.eventDanger > 0) {
 					location.eventDanger = Math.max(0, location.eventDanger - 0.5);
 					if (location.eventDanger === 0) {
 						location.event = "none";
 					}
 				}
 			});
-		}
 
-		// You can pull up evertyhing of value while magnet fishing in a location, the amount of scrap regenerating over time.
-		for (const entry of Object.values(V.fishing.magnetLoot)) {
-			entry.lootPresent = Math.min(8, entry.lootPresent + 1);
+			// You can pull up evertyhing of value while magnet fishing in a location, the amount of scrap regenerating over time.
+			for (const entry of Object.values(V.fishing.magnetLoot)) {
+				entry.lootPresent = Math.min(8, entry.lootPresent + 1);
+			}
 		}
 	}
 	/* changes that can be applied just once. consider if using V.hourly would make better sense before putting things here */

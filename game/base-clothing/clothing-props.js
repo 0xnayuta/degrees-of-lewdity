@@ -760,7 +760,8 @@ function initProps() {
 		},
 		caught_trout: {
 			folder: "fish",
-			armPosition: "clutch",
+			armPosition: "right_hold",
+			overUnderSplit: true,
 		},
 		caught_cod: {
 			folder: "fish",
@@ -768,11 +769,13 @@ function initProps() {
 		},
 		caught_whiting: {
 			folder: "fish",
-			armPosition: "clutch",
+			armPosition: "right_hold",
+			overUnderSplit: true,
 		},
 		caught_mackerel: {
 			folder: "fish",
-			armPosition: "clutch",
+			armPosition: "right_hold",
+			overUnderSplit: true,
 		},
 		caught_flounder: {
 			folder: "fish",
@@ -784,11 +787,8 @@ function initProps() {
 		},
 		caught_roach: {
 			folder: "fish",
-			armPosition: "clutch",
-		},
-		caught_perch: {
-			folder: "fish",
-			armPosition: "clutch",
+			armPosition: "right_hold",
+			overUnderSplit: true,
 		},
 		caught_chub: {
 			folder: "fish",
@@ -802,16 +802,27 @@ function initProps() {
 			folder: "fish",
 			armPosition: "clutch",
 		},
-		caught_grayling: {
-			folder: "fish",
-			armPosition: "clutch",
-		},
 		caught_bass: {
 			folder: "fish",
 			armPosition: "right_hold",
 			overUnderSplit: true,
 		},
 		caught_herring: {
+			folder: "fish",
+			armPosition: "right_hold",
+			overUnderSplit: true,
+		},
+		caught_grayling: {
+			folder: "fish",
+			armPosition: "right_hold",
+			overUnderSplit: true,
+		},
+		caught_perch: {
+			folder: "fish",
+			armPosition: "right_hold",
+			overUnderSplit: true,
+		},
+		caught_baitfish: {
 			folder: "fish",
 			armPosition: "right_hold",
 			overUnderSplit: true,

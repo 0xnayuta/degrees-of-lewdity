@@ -1,0 +1,271 @@
+:: Fishing Minigame Select
+
+
+<<link [[Haddock - runner|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("haddock")>><</link>>
+<br>
+<<link [[Salmon - bolter|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("salmon")>><</link>>
+<br>
+<<link [[Trout - darter|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("trout")>><</link>>
+<br>
+<<link [[Mackerel - bolter|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("mackerel")>><</link>>
+<br>
+<<link [[Bass - runner|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("bass")>><</link>>
+<br>
+<<link [[Perch - darter|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("perch")>><</link>>
+<br>
+<<link [[Chub - bolter|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("chub")>><</link>>
+<br>
+<<link [[Pike - thrasher|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("pike")>><</link>>
+<br>
+<<link [[Cod - anchor|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("cod")>><</link>>
+<br>
+<<link [[Eel - slipper|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("eel")>><</link>>
+<br>
+<<link [[Flounder - runner|Fishing Minigame Debug Loop]]>><<run fishingMinigameStart("flounder")>><</link>>
+<br>
+<<link [[Back|Bathroom]]>><</link>>
+
+
+:: Fishing Minigame Debug Loop
+<<set _fishingOutcome to fishingMinigameTurnOutcome()>>
+
+<<if _fishingOutcome is "lost">>
+	<<fishingMinigameLostText>>
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<link [[Fish again|Fishing Minigame Select]]>><</link>>
+	<br>
+	<<link [[Back|Bathroom]]>><</link>>
+<<elseif _fishingOutcome is "caught">>
+	<br>
+	<<fishingMinigameUi 0 "caught">>
+	You lean back and pull the <<print $fishingMinigame.fishName>> out of the water.
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<link [[Fish again|Fishing Minigame Select]]>><</link>>
+	<br>
+	<<link [[Back|Bathroom]]>><</link>>
+<<elseif _fishingOutcome is "fighting">>
+	<<if $fishingMinigame.lastFishAction>>
+		<<fishingMinigameTurnResult>>
+		<br>
+		<<fishingMinigameArmFatigue>>
+		<br><br>
+	<<else>>
+		The <<print $fishingMinigame.fishName>> takes the bait.
+		<br><br>
+	<</if>>
+
+	<<fishingMinigameBoard>>
+	<br><br>
+
+	<<link [[Reel in|Fishing Minigame Debug Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+		<<run fishingMinigameResolveTurn("reel")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+	<br>
+	<<link [[Hold the line|Fishing Minigame Debug Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+		<<run fishingMinigameResolveTurn("hold")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+	<br>
+	<<link [[Put slack on the line|Fishing Minigame Debug Loop]]>>
+		<<run fishingMinigameResolveTurn("slack")>>
+	<</link>>
+	<br>
+	<<link [[Cut the line|Fishing Minigame Debug Loop]]>><<set $fishingMinigame.lossReason to "cut">><</link>>
+<</if>>
+
+
+:: Widgets Fishing Minigame [widget]
+
+<<widget "fishingMinigameBoard">>
+	<<fishingMinigameInfo>>
+	<br><br>
+
+	<<fishingMinigameUi $fishingMinigame.fishDistance $fishingMinigame.fishAction $fishingMinigame.armFatigue>>
+	<br>
+
+	<<fishingMinigameFishStatus>>
+<</widget>>
+
+<<widget "fishingMinigameInfo">>
+	(Debug) | Stamina: <<print $fishingMinigame.fishStamina>> / <<print $fishingMinigame.maxStamina>>
+	| Distance: <<print $fishingMinigame.fishDistance>>
+	| ArmFatigue: <<print $fishingMinigame.armFatigue>>
+	| Escape timer: <<print $fishingMinigame.fishEscapeTimer>>
+	| Behaviour: <<print $fishingMinigame.behavior>>
+<</widget>>
+
+<<widget "fishingMinigameArmFatigue">>
+	<<if $fishingMinigame.armFatigue gte 4>>
+		Your arms are burning.
+	<<elseif $fishingMinigame.armFatigue gte 2>>
+		Your arms are starting to ache.
+	<</if>>
+<</widget>>
+
+<<widget "fishingMinigameLostText">>
+	<<switch $fishingMinigame.lossReason>>
+		<<case "fishTooFar">>
+			The <<print $fishingMinigame.fishName>> strips out the last of your line, and with a sharp snap it breaks free.
+		<<case "fishOutOfTime">>
+			The <<print $fishingMinigame.fishName>> works the hook loose and slips away. Your line drifts slack in the water.
+		<<case "cut">>
+			You let the line go slack. The <<print $fishingMinigame.fishName>> pulls harder and the line snaps free, and it's gone.
+		<<default>>
+			<<error { message: "fishingMinigameLostText: unexpected loss reason \"" + $fishingMinigame.lossReason + "\"" }>>
+	<</switch>>
+<</widget>>
+
+/* The result of the last turn, where the player is told if they successfully reeled/held the fish or not */
+<<widget "fishingMinigameTurnResult">>
+	<<switch $fishingMinigame.lastFishAction>>
+		<<case "run">>
+			<<switch $fishingMinigame.lastPlayerAction>>
+				<<case "reel">>
+					<<if $athleticsSuccess>>
+						You reel the <<print $fishingMinigame.fishName>> in as it tries to swim away.<<gtiredness>><<tiredness 0.5>>
+					<<else>>
+						You try to reel in the <<print $fishingMinigame.fishName>>, but it pulls away.<<gtiredness>><<tiredness 0.5>>
+					<</if>>
+				<<case "hold">>
+					<<if $athleticsSuccess>>
+						You hold the <<print $fishingMinigame.fishName>> still as it tries to swim away.<<gtiredness>><<tiredness 0.5>>
+					<<else>>
+						You struggle to hold the line as the <<print $fishingMinigame.fishName>> swims further out.<<gtiredness>><<tiredness 0.5>>
+					<</if>>
+				<<case "slack">>
+					You let the line go slack and the <<print $fishingMinigame.fishName>> swims further out.
+				<<default>>
+					<<error { message: "fishingMinigameTurnResult: unexpected player action \"" + $fishingMinigame.lastPlayerAction + "\"" }>>
+			<</switch>>
+		<<case "idle">>
+			<<switch $fishingMinigame.lastPlayerAction>>
+				<<case "reel">>
+					You reel the <<print $fishingMinigame.fishName>> in while it rests.
+				<<case "hold">>
+					You hold the line while the <<print $fishingMinigame.fishName>> rests.
+				<<case "slack">>
+					You let the line go slack while the <<print $fishingMinigame.fishName>> rests.
+				<<default>>
+					<<error { message: "fishingMinigameTurnResult: unexpected player action \"" + $fishingMinigame.lastPlayerAction + "\"" }>>
+			<</switch>>
+		<<case "thrash">>
+			<<switch $fishingMinigame.lastPlayerAction>>
+				<<case "reel">>
+					<<if $athleticsSuccess>>
+						You reel the <<print $fishingMinigame.fishName>> in while it thrashes.<<gtiredness>><<tiredness 0.5>>
+					<<else>>
+						You try to reel but the <<print $fishingMinigame.fishName>>'s thrashing stops you.<<gtiredness>><<tiredness 0.5>>
+					<</if>>
+				<<case "hold">>
+					<<if $athleticsSuccess>>
+						You hold the line against the <<print $fishingMinigame.fishName>>'s thrashing and it tires a little.<<gtiredness>><<tiredness 0.5>>
+					<<else>>
+						You try and fail to hold the <<print $fishingMinigame.fishName>> still as it thrashes.<<gtiredness>><<tiredness 0.5>>
+					<</if>>
+				<<case "slack">>
+					You let the line go slack while the <<print $fishingMinigame.fishName>> thrashes.
+				<<default>>
+					<<error { message: "fishingMinigameTurnResult: unexpected player action \"" + $fishingMinigame.lastPlayerAction + "\"" }>>
+			<</switch>>
+		<<default>>
+			<<error { message: "fishingMinigameTurnResult: unexpected fish action \"" + $fishingMinigame.lastFishAction + "\"" }>>
+	<</switch>>
+<</widget>>
+
+/* What the fish is doing right now */
+<<widget "fishingMinigameFishStatus">>
+	<<switch $fishingMinigame.fishAction>>
+		<<case "run">>
+			<<if $fishingMinigame.lastFishAction is "idle">>
+				The <<print $fishingMinigame.fishName>> suddenly takes off again, fighting hard.
+			<<elseif $fishingMinigame.lastFishAction is "thrash">>
+				The <<print $fishingMinigame.fishName>> stops thrashing and makes another break for it.
+			<<else>>
+				The <<print $fishingMinigame.fishName>> is running hard.
+			<</if>>
+		<<case "idle">>
+			<<if $fishingMinigame.lastFishAction is "idle">>
+				The <<print $fishingMinigame.fishName>> sits motionless.
+			<<else>>
+				The <<print $fishingMinigame.fishName>> has stopped to rest.
+			<</if>>
+		<<case "thrash">>
+			<<if $fishingMinigame.lastFishAction is "idle">>
+				The <<print $fishingMinigame.fishName>> starts to thrash violently.
+			<<else>>
+				The <<print $fishingMinigame.fishName>> is thrashing on the hook.
+			<</if>>
+		<<default>>
+			<<error { message: "fishingMinigameFishStatus: unexpected fish action \"" + $fishingMinigame.fishAction + "\"" }>>
+	<</switch>>
+
+	<<if $fishingMinigame.fishDistance lte 1>>
+		<<set _closeness to "almost within reach">>
+	<<elseif $fishingMinigame.fishDistance lte 3>>
+		<<set _closeness to "close">>
+	<<elseif $fishingMinigame.fishDistance lte 6>>
+		<<set _closeness to "a fair way out">>
+	<<elseif $fishingMinigame.fishDistance gte 7>>
+		<<set _closeness to "far out">>
+	<</if>>
+
+	<<if $fishingMinigame.fishAction is "idle">>
+		<<set _tiring to "">>
+	<<elseif $fishingMinigame.fishStamina is 0>>
+		<<set _tiring to ", and completely worn out">>
+	<<elseif $fishingMinigame.fishStamina lte 1>>
+		<<set _tiring to ", and almost worn out">>
+	<<elseif $fishingMinigame.fishStamina lte Math.ceil($fishingMinigame.maxStamina / 2)>>
+		<<set _tiring to ", and starting to tire">>
+	<<else>>
+		<<set _tiring to "">>
+	<</if>>
+	It's <<print _closeness>><<print _tiring>>.
+<</widget>>
+
+<<widget "fishingMinigameAthleticsCheck">>
+	<<athleticsdifficulty -250 `fishingMinigameAthleticsCheckDifficulty(_args[0])`>>
+<</widget>>
+
+<<widget "fishingMinigameUi">>
+	<<if $options.images is 1>>
+		<<set _fishingFishDistance to Math.clamp(_args[0], 0, 6)>>
+		<<switch _args[1]>>
+			<<case "run">>
+				<<set _fishingFishImg to "pc-run.png">>
+				<<set _fishingFishState to "submerged">>
+			<<case "thrash">>
+				<<set _fishingFishImg to "pc-run-exposed.png">>
+				<<set _fishingFishState to "thrashing">>
+			<<case "idle">>
+				<<set _fishingFishImg to "pc.png">>
+				<<set _fishingFishState to "submerged">>
+			<<case "caught">>
+				<<set _fishingFishImg to "ambush.png">>
+				<<set _fishingFishState to "caught">>
+			<<default>>
+				<<error { message: "fishingMinigameUi: unexpected fish action \"" + _args[1] + "\"" }>>
+		<</switch>>
+		<<set _fishingArmFatigue to _args[2] ?? 0>>
+		<<if _fishingArmFatigue gte 4>>
+			<<set _fishingPlayerImg to "npc-run-friendly.png">>
+		<<elseif _fishingArmFatigue gte 2>>
+			<<set _fishingPlayerImg to "npc-friendly.png">>
+		<<else>>
+			<<set _fishingPlayerImg to "npc-safe.png">>
+		<</if>>
+		<div class="fishing_distance">
+			<img class="fishing_distance_0" src="img/misc/stalk/base-grass.png">
+			<img class="fishing_distance_0" @src="'img/misc/stalk/' + _fishingPlayerImg">
+			<<for _i to 0; _i lt 7; _i++>>
+				<img @class="'fishing_distance_' + (_i + 1)" src="img/misc/stalk/base-sand.png">
+			<</for>>
+			<img @class="'fishing_distance_' + (_fishingFishDistance + 1) + ' fishing_distance_fish fishing_distance_fish_' + _fishingFishState" @src="'img/misc/stalk/' + _fishingFishImg">
+		</div>
+	<</if>>
+<</widget>>

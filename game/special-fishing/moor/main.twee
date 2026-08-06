@@ -1,12 +1,13 @@
-/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen. */
 :: Fishing Moor Wait
 <<effects>>
 <<run initFishingMoor()>>
 <<run startFishingProp()>>
 
+<<set _fishingEditBaitEnabled to true>>
 <<fishingLocationDescription $bus>>
 <<fishingLocationPopulation $bus>>
 <<fishingMoorLocationAmbient>>
+
 <<if $moor_hunt gte 1>>
 	<span class="red">You are still being hunted.</span>
 <</if>>
@@ -46,39 +47,38 @@
 		<</link>>
 	<</if>>
 	<br>
-	<<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
-		<<if $daily.fishing.moor.hikers.leaveChance is undefined>>
-			<<set $daily.fishing.moor.hikers.leaveChance to -2>>
+	<<if ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase)>>
+		<<if $daily.fishing.fishingMoor.hikers.leaveChance is undefined>>
+			<<set $daily.fishing.fishingMoor.hikers.leaveChance to -2>>
 		<<else>>
-			<<set $daily.fishing.moor.hikers.leaveChance += 0.3>>
+			<<set $daily.fishing.fishingMoor.hikers.leaveChance += 0.3>>
 		<</if>>
 
-		<br>
-		<<if !$daily.fishing.moor.hikers.flirt>>
+		<<if !$daily.fishing.fishingMoor.hikers.flirt>>
 			<<link [[Flirt|Fishing Moor Hiker Flirt]]>><</link>><<promiscuous1>>
 			<br>
 		<</if>>
 	<</if>>
 
-	<<if $daily.fishing.moor.hikers.drinkCount gte 1>>
-		<<if $daily.fishing.moor.hikers.spike and $rng gte 50>>
+	<<if $daily.fishing.fishingMoor.hikers.drinkCount gte 1>>
+		<<if $daily.fishing.fishingMoor.hikers.spike and $rng gte 50>>
 			<<link [[Take a sip|Fishing Moor Spiked Drink 1]]>><<alcohol 10>><</link>><<galcohol>>
 		<<else>>
-			<<link [[Take a sip|Fishing Moor Wait]]>><<set $fishingMoorWaitAmbientOverride to "sip">><<alcohol 10>><</link>><<galcohol>>
+			<<link [[Take a sip|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "sip">><<alcohol 10>><</link>><<galcohol>>
 		<</if>>
 		<br>
 	<</if>>
 
-	<<if $daily.fishing.moor.fox.closeness gte 7 and $daily.fishing.moor.fox.phase is "watching">>
-		<<link [[Shoo the fox away|Fishing Moor Fox Shoo]]>><</link>>
-		<br>
-	<</if>>
-
-	<<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
+	<<if ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase)>>
 		<<link [[Return to the moor|Fishing Moor Hikers Drink Offer On PC Leave]]>><</link>>
 	<<else>>
-		<<link [[Return to the moor|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
+		<<link [[Return to the moor|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><<endevent>><</link>>
 	<</if>>
+<</if>>
+
+<<if $options.images isnot 1 and _fishingEditBaitEnabled>>
+	<br>
+	<<link "Change bait">><<run openBaitOverlay()>><</link>>
 <</if>>
 
 <<fishingMoorDebugLinks>>
@@ -116,10 +116,12 @@
 <<else>>
 	<<addinlineevent "bite" fishingCatchEventWeight("fishingMoor", 10)>>
 		<<set $fishingHookedFish to rollFish("fishingMoor")>>
+		<<run onBaitLoss()>>
 		<<if fishingTriggersReelFight($fishingHookedFish)>>
-			<<include "Fishing Moor Bite Big">>
+			<<run fishingMinigameStart($fishingHookedFish.type)>>
+			<<include "Fishing Moor Minigame Loop">>
 		<<else>>
-			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			You feel a tug on your line, then haul back, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
 			<<include "Fishing Moor Catch">>
 		<</if>>
 	<</addinlineevent>>
@@ -139,65 +141,65 @@
 
 /* Lurkers */
 <<if $settings.lurkersEnabled>>
-	<<if $fishing.moor.event is "none">>
+	<<if $fishing.fishingMoor.event is "none">>
 		<<addinlineevent "lurkerStart" fishingDangerEventWeight(4.5)>>
-			<<set $fishing.moor.event to "lurker">>
+			<<set $fishing.fishingMoor.event to "lurker">>
 			<<fishingMoorStartleAnimals>>
 			<<include "Fishing Moor Wait">>
 		<</addinlineevent>>
-	<<elseif $fishing.moor.event is "lurker">>
-		<<set _attackProbability to Math.max(0, $fishing.moor.eventDanger - 1)>>
+	<<elseif $fishing.fishingMoor.event is "lurker">>
+		<<set _attackProbability to Math.max(0, $fishing.fishingMoor.eventDanger - 1)>>
 		<<addinlineevent "lurkerAttack" _attackProbability>>
-			<<set $fishing.moor.eventDanger to 0>>
-			<<set $fishing.moor.event to "none">>
+			<<set $fishing.fishingMoor.eventDanger to 0>>
+			<<set $fishing.fishingMoor.event to "none">>
 			<<include "Fishing Moor Lurker Attack">>
 		<</addinlineevent>>
 	<</if>>
 <</if>>
 
 /* Cat Attack Event */
-<<if $fishing.moor.event is "none">>
+<<if $fishing.fishingMoor.event is "none">>
 	<<addinlineevent "catStart" fishingDangerEventWeight(4.5)>>
-		<<set $fishing.moor.event to "cat">>
+		<<set $fishing.fishingMoor.event to "cat">>
 		<<fishingMoorStartleAnimals>>
 		<<include "Fishing Moor Wait">>
 	<</addinlineevent>>
-<<elseif $fishing.moor.event is "cat">>
-	<<set _catAttackProbability to Math.max(0, $fishing.moor.eventDanger - 1)>>
+<<elseif $fishing.fishingMoor.event is "cat">>
+	<<set _catAttackProbability to Math.max(0, $fishing.fishingMoor.eventDanger - 1)>>
 	<<addinlineevent "catAttack" _catAttackProbability>>
-		<<set $fishing.moor.eventDanger to 0>>
-		<<set $fishing.moor.event to "none">>
+		<<set $fishing.fishingMoor.eventDanger to 0>>
+		<<set $fishing.fishingMoor.event to "none">>
 		<<include "Fishing Moor Cat Attack">>
 	<</addinlineevent>>
 <</if>>
 
 /* Hikers approach events */
-<<if $fishing.moor.event is "none" and !($moor_hunt gte 1)>>
+<<if $fishing.fishingMoor.event is "none" and !($moor_hunt gte 1)>>
 	<<addinlineevent "moorHikersStart" 1.25>>
-		<<set $fishing.moor.event to "moorHikers">>
+		<<set $fishing.fishingMoor.event to "moorHikers">>
 		<<fishingMoorStartleAnimals>>
 		<<include "Fishing Moor Wait">>
 	<</addinlineevent>>
-<<elseif $fishing.moor.event is "moorHikers">>
-	<<set _moorHikersProbability to Math.max(0, $fishing.moor.eventDanger - 1)>>
+<<elseif $fishing.fishingMoor.event is "moorHikers">>
+	<<set _moorHikersProbability to Math.max(0, $fishing.fishingMoor.eventDanger - 1)>>
 	<<addinlineevent "moorHikersAttack" fishingDangerEventWeight(_moorHikersProbability)>>
-		<<set $fishing.moor.eventDanger to 0>>
-		<<set $fishing.moor.event to "none">>
+		<<set $fishing.fishingMoor.eventDanger to 0>>
+		<<set $fishing.fishingMoor.event to "none">>
 		<<include "Fishing Moor Hiker Attack">>
 	<</addinlineevent>>
 	<<if !["storm", "thunderstorm", "lightPrecipitation", "heavyPrecipitation", "heavyClouds"].includes(Weather.name) and !["dusk", "night"].includes(Weather.dayState)>>
 		<<addinlineevent "moorHikersArrive" `$exposed gte 1 ? 0 : _moorHikersProbability + 1.5`>>
-			<<set $fishing.moor.eventDanger to 0>>
+			<<set $fishing.fishingMoor.eventDanger to 0>>
 			/* Setting the moor.event to this in order to prevent other moor events from triggering */
-			<<set $fishing.moor.event to "blocked">>
+			<<set $fishing.fishingMoor.event to "blocked">>
 			<<include "Fishing Moor Hiker Arrive">>
 		<</addinlineevent>>
 	<</if>>
 <</if>>
 
 /* Hikers sitting around events */
-<<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
-	<<if !$daily.fishing.moor.hikers.drinkOffered and $daily.fishing.moor.hikers.drinkCount lte 0 and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
+<<if ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase)>>
+	<<if !$daily.fishing.fishingMoor.hikers.drinkOffered and $daily.fishing.fishingMoor.hikers.drinkCount lte 0 and fishingArrivalTimePassed(60) and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
 		<<addinlineevent "hikerDrinkOffer" 1>>
 			<<include "Fishing Moor Hiker Drink Offer">>
 		<</addinlineevent>>
@@ -206,37 +208,37 @@
 	<<if ["storm", "thunderstorm", "lightPrecipitation", "heavyPrecipitation"].includes(Weather.name)>>
 		<<addinlineevent "hikerLeaveWeather" 10>>
 			<<include "Fishing Moor Hiker Leave Weather">>
-			<<set $fishing.moor.event to "none">>
+			<<set $fishing.fishingMoor.event to "none">>
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $daily.fishing.moor.hikers.phase is "sit" and Weather.dayState is "dusk">>
+	<<if $daily.fishing.fishingMoor.hikers.phase is "sit" and Weather.dayState is "dusk">>
 		<<addinlineevent "hikerLeaveDusk" 10>>
 			<<include "Fishing Moor Hiker Leave Dusk">>
-			<<set $fishing.moor.event to "none">>
+			<<set $fishing.fishingMoor.event to "none">>
 		<</addinlineevent>>
 	<<elseif Time.hour gte 20>>
 		<<addinlineevent "hikerLeaveNight" 10>>
 			<<include "Fishing Moor Hiker Leave Night">>
-			<<set $fishing.moor.event to "none">>
+			<<set $fishing.fishingMoor.event to "none">>
 		<</addinlineevent>>
 	<</if>>
 
-	<<addinlineevent "hikerLeave" $daily.fishing.moor.hikers.leaveChance>>
+	<<addinlineevent "hikerLeave" $daily.fishing.fishingMoor.hikers.leaveChance>>
 		<<include "Fishing Moor Hiker Leave">>
-		<<set $fishing.moor.event to "none">>
+		<<set $fishing.fishingMoor.event to "none">>
 	<</addinlineevent>>
 
 	/* Hikers attack if player is exposed */
 	<<if $exposed gte 1>>
-		<<addinlineevent "hikersExposedAttack" $daily.fishing.moor.hikersOgle>>
+		<<addinlineevent "hikersExposedAttack" $daily.fishing.fishingMoor.hikersOgle>>
 			<<include "Fishing Moor Hiker Exposed Attack">>
 		<</addinlineevent>>
 	<</if>>
 <</if>>
 
 /* Fox event */
-<<if $daily.fishing.moor.fox.phase is undefined and $fishing.moor.event is "none" and [undefined, "finished"].includes($daily.fishing.moor.hikers.phase)>>
+<<if $daily.fishing.fishingMoor.fox.phase is undefined and $fishing.fishingMoor.event is "none" and [undefined, "finished"].includes($daily.fishing.fishingMoor.hikers.phase)>>
 	<<addinlineevent "foxArrive" 5>>
 		<<include "Fishing Moor Fox Arrive">>
 	<</addinlineevent>>
@@ -249,40 +251,9 @@
 <<runeventpool>>
 
 
-:: Fishing Moor Bite Big
-<<effects>>
-<<set $fishingReelAttempts to 0>>
-Your rod bends as something takes your bait. You can't see what it is through the murk of the water, but whatever it is feels like it's going to put up a fight.
-<br><br>
-
-<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-<<link [[Try to reel it in|Fishing Moor Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-<br>
-<<link [[Cut the line|Fishing Moor Cut Line]]>><</link>>
-
-
-:: Fishing Moor Throw Back
-<<effects>>
-You throw the <<print $fishingHookedFish.type>> back into the water.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Next|Fishing Moor Wait]]>><</link>>
-
-
-:: Fishing Moor Keep
-<<effects>>
-You stow the <<print $fishingHookedFish.type>> away.
-<<tending_give $fishingHookedFish.type 1>>
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Next|Fishing Moor Wait]]>><</link>>
-
-
 :: Fishing Moor Cat Eat
 <<effects>>
-You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<fishingEatFishCatProgress>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -293,41 +264,62 @@ You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth
 /* Text that appears above the description of the PC waiting for a bite. Used for describing what other NPCs or animals are doing if they are present next to the player. */
 <<widget "fishingMoorLocationAmbient">>
 	<<if _foxStartled>>
-		The <<beasttype>> perks up, ears pricked forward, then quickly scampers away into the heather.
-	<<elseif $daily.fishing.moor.fox.phase is "watching">>
+		The <<beasttype>> perks up, ears pricked forward, then quickly scampers away into the heather.<<clearnpc>>
+	<<elseif $daily.fishing.fishingMoor.fox.phase is "watching">>
 		<<fishingMoorFoxAmbient>>
-	<<elseif $daily.fishing.moor.hikers.phase is "sit">>
+	<<elseif $daily.fishing.fishingMoor.hikers.phase is "sit">>
 		<<fishingMoorHikerSitAmbient>>
-	<<elseif $daily.fishing.moor.hikers.phase is "campfire">>
+	<<elseif $daily.fishing.fishingMoor.hikers.phase is "campfire">>
 		<<fishingMoorHikerCampfireAmbient>>
 	<</if>>
 <</widget>>
 
 /* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingMoorWaitAmbient">>
-	<<if $fishingMoorWaitAmbientOverride is "sip">>
+	<<if $fishingAmbientOverride is "throwBack">>
+		<<if $fishing.currentBait>>
+			You throw the fish back into the water before <<fishingRebaitMid>>
+		<<else>>
+			You throw the fish back into the water.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "stowAway">>
+		<<if $fishing.currentBait>>
+			You stow the fish away before <<fishingRebaitMid>>
+		<<else>>
+			You stow the fish away and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "reHook">>
+		<<if $fishing.currentBait>>
+			<<fishingRebaitStart>>
+		<<else>>
+			You re-hook your line and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "sip">>
 		<<fishingMoorHikerDrinkSip>>
+		<<unset $fishingAmbientOverride>>
 	<<else>>
 		<<cleareventpool>>
 		<<fishingWaitAmbient $bus>>
 
-		<<if $fishing.moor.event is "lurker">>
+		<<if $fishing.fishingMoor.event is "lurker">>
 			<<fishingMoorLurkerAttackWaitAmbient>>
-		<<elseif $fishing.moor.event is "cat">>
+		<<elseif $fishing.fishingMoor.event is "cat">>
 			<<fishingMoorCatAttackWaitAmbient>>
-		<<elseif $fishing.moor.event is "moorHikers" and $daily.fishing.moor.hikers.phase is undefined>>
+		<<elseif $fishing.fishingMoor.event is "moorHikers" and $daily.fishing.fishingMoor.hikers.phase is undefined>>
 			<<fishingMoorHikersAttackWaitAmbient>>
 		<</if>>
 
 		<<runeventpool>>
 	<</if>>
 
-	<<unset $fishingMoorWaitAmbientOverride>>
 <</widget>>
 
 <<widget "fishingMoorStartleAnimals">>
-	<<if $daily.fishing.moor.fox.phase is "watching">>
-		<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<if $daily.fishing.fishingMoor.fox.phase is "watching">>
+		<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
 		<<set _foxStartled to true>>
 	<</if>>
 <</widget>>

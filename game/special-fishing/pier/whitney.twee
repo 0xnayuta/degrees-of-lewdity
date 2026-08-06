@@ -1,20 +1,7 @@
-/* 
- * The idea is that whitney and co will force you to play a game, where depending on the size of  the next fish you catch, either whitney or one of their 
- * 	friends gets to have a turn with you. You can attempt to nudge the outcome after you catch a fish. If you fail to catch a fish twice, you get thrown in.
- *  After the betting game is over, the gang might leave, but they might not. Or you can try to get whitney to kick all of them out so it's just the two of you.
- *  After that, I was going to go with idea of there be a holding state like there is with Robin in their room, where whitney is holding on to you while... you 
- *  fish, but the more I wrote the more stupid that felt, and also just the physicality of it doesn't make sense, imagine trying to fish while someone is holding  
- *  you. Now I need to figure out how to end this whole thing in a way that isn't whitney and the gang leaving after the betting game is over.  Really, I just 
- *  need to have writing done for what goes on while it's just you and whitney.
- *
- * Before the betting game starts, whitney and co are sitting around, messing around, fishing. I'd like to add some more little events where they bully you. They
- *  can already force you to kiss a fish, but I want more. Using small or large fish to make fun of your insecurities? Meh.
- */
-
 :: Fishing Whitney Pier Init
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "idle">>
-<<set $daily.fishing.pier.whitney.age to 0>>
+<<set $daily.fishing.fishingPier.whitney.phase to "idle">>
+<<set $daily.fishing.fishingPier.whitney.age to 0>>
 <<set $whitneyFishingSeen to true>>
 <<run initFishingPier()>>
 
@@ -34,8 +21,9 @@ Whitney's already on the pier when you arrive, a case of hard cider cracked open
 
 :: Fishing Pier Whitney Arrive
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "idle">>
-<<set $daily.fishing.pier.whitney.age to 0>>
+<<set $daily.fishing.fishingPier.whitney.phase to "idle">>
+<<set $daily.fishing.fishingPier.whitney.age to 0>>
+<<run fishingRecordEventArrival()>>
 
 You see Whitney walking up the pier with a case of cider, a couple of <<nnpc_his "Whitney">> friends are trailing behind <<nnpc_him "Whitney">>, carrying fishing rods.
 
@@ -51,7 +39,7 @@ You see Whitney walking up the pier with a case of cider, a couple of <<nnpc_his
 
 <<set $whitneyFishingSeen to true>>
 
-<<link [[Continue fishing|Fishing Pier Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 <br>
 <<link [[Leave|Fishing Pier Whitney Bully Fisher Player Leave]]>><</link>>
 
@@ -59,13 +47,13 @@ You see Whitney walking up the pier with a case of cider, a couple of <<nnpc_his
 /* Whitney proposes a bet on the size of the next fish caught, winner gets to have sex with PC */
 :: Fishing Whitney Pier Bet
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "bet">>
+<<set $daily.fishing.fishingPier.whitney.phase to "bet">>
 <<set $fishing.whitney.betFails to 0>>
 
 One of Whitney's friends tosses their rod aside and lets out a long, theatrical groan. "I'm bored." Whitney glances over at you, then back at <<nnpc_his "Whitney">> friends. "Yeah?" <<nnpc_He "Whitney">> tips back <<nnpc_his "Whitney">> cider. "I know what'll fix that."
 <br><br>
 
-<<nnpc_He "Whitney">> stands, rolling <<nnpc_his "Whitney">> shoulders. "Alright. New game." <<nnpc_He "Whitney">> saunters over until <<nnpc_he "Whitney">>'s right beside you, close enough that you can smell the alcohol on <<nnpc_his "Whitney">> breath. "Next fish you pull up, if it's a big one, I get to have some fun with you." A grin spreads across <<nnpc_his "Whitney">> face. "Small one, one of them gets the prize instead," <<nnpc_he "Whitney">> says, jerking <<nnpc_his "Whitney">> thumb at one of <<nnpc_his "Whitney">> friends.
+<<nnpc_He "Whitney">> stands, rolling <<nnpc_his "Whitney">> shoulders. "Alright. New game." <<nnpc_He "Whitney">> steps towards you, close enough that you can smell the alcohol on <<nnpc_his "Whitney">> breath. "Next fish you pull up, if it's a big one, I get to have some fun with you." A grin spreads across <<nnpc_his "Whitney">> face. "Small one, one of them gets the prize instead," <<nnpc_he "Whitney">> says, jerking <<nnpc_his "Whitney">> thumb at one of <<nnpc_his "Whitney">> friends.
 <br><br>
 
 <<nnpc_He "Whitney">> tilts <<nnpc_his "Whitney">> head back at you. "What do you think, slut?" You're pretty sure it doesn't matter what you think.
@@ -152,6 +140,7 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 /* PC caught a small fish but tries to lie and claim it's big using, either succeeding or failing */
 :: Fishing Whitney Pier Bet Lie Small
 <<effects>>
+<<loadNPC 1 "fishing_date_friend1">>
 <<if $englishSuccess is 1>>
 	You hold the fish up.
 	<<if $speech_attitude is "meek">>
@@ -187,15 +176,15 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 
 <<else>>
 	<<if $speech_attitude is "meek">>
-		"It's... not that small, I think? " <span class="red">Your voice trails off uselessly.</span>
+		"It's... not that small, I think?" <span class="red">Your voice trails off uselessly.</span>
 	<<elseif $speech_attitude is "bratty">>
-		"That's clearly above average." <span class="red">But the confidence doesn't reach your voice and you know it.</span>
+		"That's clearly above average." <span class="red">But the confidence doesn't reach your voice.</span>
 	<<else>>
 		"It's at least bigger than average." <span class="red">Your words don't come out as convincing as you'd like.</span>
 	<</if>>
 	<br><br>
 
-	"Stop." Whitney doesn't even look up. <<nnpc_He "Whitney">> waves a hand at one of <<nnpc_his "Whitney">> friends. "Go on."
+	"Just shut up," Whitney says with a dismissive wave, before pointing <<nnpc_his "Whitney">> thumb towards one of <<nnpc_his "Whitney">> friends. "Go on."
 	<br><br>
 	
 	The <<person2>><<person>> is already stepping toward you.
@@ -256,7 +245,7 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 /* After Whitney finishes with PC, the group packs up and leaves */
 :: Fishing Whitney Pier Won Sex Finish
 <<effects>>
-<<set $daily.fishing.pier.whitney.betComplete to true>>
+<<set $daily.fishing.fishingPier.whitney.betComplete to true>>
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 
@@ -264,9 +253,9 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Return to Fishing|Fishing Pier Wait]]>><<set $daily.fishing.pier.whitney.phase to "idle">><</link>>
+	<<link [[Return to Fishing|Fishing Pier Wait]]>><<set $daily.fishing.fishingPier.whitney.phase to "idle">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.pier.whitney.phase to "finished">><</link>>
+	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.fishingPier.whitney.phase to "finished">><</link>>
 <<elseif $finish is 1>> /* Asked to stop */
 	<<if $speech_attitude is "meek">>
 		"Sorry," you manage, getting your breath back.
@@ -285,15 +274,15 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 
 	<<clotheson>>
 	<<endcombat>>
-	<<link [[Return to Fishing|Fishing Pier Wait]]>><<set $daily.fishing.pier.whitney.phase to "idle">><</link>>
+	<<link [[Return to Fishing|Fishing Pier Wait]]>><<set $daily.fishing.fishingPier.whitney.phase to "idle">><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.pier.whitney.phase to "finished">><</link>>
+	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.fishingPier.whitney.phase to "finished">><</link>>
 <<elseif $enemyhealth lte 0>>
 	Whitney stumbles back against the railing, catching <<nnpc_himself "Whitney">> with one hand.
 	<<npcincr Whitney dom -1>><<ldom>>
 
 	<<nnpc_He "Whitney">> stares at you for a moment. "Fine." <<nnpc_He "Whitney">> waves <<nnpc_his "Whitney">> friends off. They gather their things without a word and head off down the pier.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you catch your breath.
@@ -358,7 +347,7 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 	<br><br>
 
 	"Alright." Whitney jerks <<nnpc_his "Whitney">> head at <<nnpc_his "Whitney">> friends. "Pack up." <<nnpc_He "Whitney">> looks at you one last time, expression unreadable. <<nnpc_He "Whitney">> then walks off along the pier, friends falling into step behind.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<clotheson>>
@@ -383,7 +372,7 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 	<br><br>
 
 	Whitney jerks <<nnpc_his "Whitney">> head at <<nnpc_his "Whitney">> friends. "Pack it up." They gather their things and head off down the pier without a word.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<clotheson>>
@@ -392,8 +381,8 @@ One of Whitney's friends tosses their rod aside and lets out a long, theatrical 
 	<br>
 	<<link [[Leave|Dock Pier]]>><<clearNPC "fishing_date_friend1">><</link>>
 <<elseif $enemyhealth lte 0>>
-	The <<person>> staggers back, caught off guard. Whitney is already on <<nnpc_his "Whitney">> feet. "Enough." <<nnpc_He "Whitney">> drops <<nnpc_his "Whitney">> can and waves <<nnpc_his "Whitney">> friends off. They gather their things and leave without a word.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	The <<person>> staggers back, caught off guard, Whitney watching with surprise, which turns into a scowl. "You let <<phim>> put you down?" <<nnpc_He "Whitney">> scoffs. "Pathetic." <<nnpc_He "Whitney">> drops <<nnpc_his "Whitney">> can and waves <<nnpc_his "Whitney">> friends off. They gather their things and leave without another word, the <<person>> giving you an angry look.
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you catch your breath.
@@ -465,7 +454,7 @@ For a moment Whitney doesn't move. Then <<nnpc_he "Whitney">> sets down <<nnpc_h
 	<br><br>
 
 	"Fine." <<nnpc_He "Whitney">> says it quietly. <<nnpc_He "Whitney">> jerks <<nnpc_his "Whitney">> chin at <<nnpc_his "Whitney">> friends and they pack up without a word.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you gather yourself.
@@ -480,7 +469,7 @@ For a moment Whitney doesn't move. Then <<nnpc_he "Whitney">> sets down <<nnpc_h
 
 <<elseif $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation "short">>
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 	Whitney catches <<nnpc_his "Whitney">> breath and swears under <<nnpc_his "Whitney">> breath. <<nnpc_He "Whitney">> shoves <<nnpc_his "Whitney">> clothes back in place and stands, jaw tight.
 	<br><br>
@@ -496,13 +485,13 @@ For a moment Whitney doesn't move. Then <<nnpc_he "Whitney">> sets down <<nnpc_h
 
 	<<link [[Next|Fishing Pier Wait]]>><</link>>
 	<br>
-	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.pier.whitney.phase to "finished">><</link>>
+	<<link [[Leave|Dock Pier]]>><<set $daily.fishing.fishingPier.whitney.phase to "finished">><</link>>
 
 <<elseif $pain gte 100 and $willpowerpain is 0>>
 	<<tearful>> you're picked up by Whitney and shoved back towards the railing. "And now, you're going to play along."
 	<br><br>
 	
-	<<set $daily.fishing.pier.whitney.phase to "bet">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "bet">>
 
 	<<clotheson>>
 	<<endcombat>>
@@ -527,7 +516,7 @@ For a moment Whitney doesn't move. Then <<nnpc_he "Whitney">> sets down <<nnpc_h
 Whitney regards you quietly for a moment, then sets down <<nnpc_his "Whitney">> cider. <<nnpc_He "Whitney">> steps closer, holds your gaze for a beat. "Alright." <<nnpc_He "Whitney">> tips <<nnpc_his "Whitney">> chin at <<nnpc_his "Whitney">> friends. "Pack it up." The four of them gather their things with barely a complaint, shooting you curious glances as they head back down the pier. 
 <br><br>
 
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
 
@@ -591,7 +580,7 @@ Whitney's expression shifts from smug to flat. <<nnpc_He "Whitney">> glances at 
 	<<ejaculation>>
 
 	"Deal's a deal, slut." <<nnpc_He "Whitney">> adjusts <<nnpc_his "Whitney">> clothes and jerks <<nnpc_his "Whitney">> chin at <<nnpc_his "Whitney">> friends. "Pack it up." <<npcincr Whitney lust -20>><<llust>>
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you watch them go.
@@ -607,7 +596,7 @@ Whitney's expression shifts from smug to flat. <<nnpc_He "Whitney">> glances at 
 	<br><br>
 
 	After a moment, <<nnpc_he "Whitney">> straightens. "We're done here," <<nnpc_he "Whitney">> says, jaw tight. <<nnpc_He "Whitney">> jerks <<nnpc_his "Whitney">> chin at <<nnpc_his "Whitney">> friends. They gather their things without a word.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you pick yourself up off the ground.
@@ -680,7 +669,7 @@ Whitney raises an eyebrow and takes a slow sip of cider. The <<person>> glances 
 	<br><br>
 
 	Whitney pushes off the railing. <<nnpc_He "Whitney">> glances at the two of you, then drops <<nnpc_his "Whitney">> empty can into the water. "Alright. Pack it up." <<nnpc_His "Whitney">> friends gather their things without a word.
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you watch Whitney and <<nnpc_his "Whitney">> gang walk off the pier.
@@ -698,7 +687,7 @@ Whitney raises an eyebrow and takes a slow sip of cider. The <<person>> glances 
 	You watch as Whitney and <<nnpc_his "Whitney">> friends walk off down the pier.
 	<br><br>
 
-	<<set $daily.fishing.pier.whitney.phase to "finished">>
+	<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 	<<clotheson>>
 	<<endcombat>>
 
@@ -735,7 +724,7 @@ Whitney sets down <<nnpc_his "Whitney">> cider and gives you a withering look.
 /* PC tries to not be thrown into the sea */
 :: Fishing Whitney Pier Bet Fail Struggle
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 Hands grab at you from three directions. You throw yourself sideways, twisting against the grip on your arm. 
 
 <<if $athleticsSuccess>>
@@ -762,7 +751,7 @@ Hands grab at you from three directions. You throw yourself sideways, twisting a
 /* PC doesn't resist being thrown into the sea */
 :: Fishing Whitney Pier Bet Fail Submit
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 <<if $speech_attitude is "meek">>
 	You lower your head and don't move.
@@ -788,13 +777,13 @@ The drop is short. The water is cold.<<stress 4>><<gstress>>
 Whitney leans over and holds out a cold can of cider toward you without a word.
 <br><br>
 
-<<link [[Accept|Fishing Pier Wait]]>><<set $daily.fishing.pier.whitney.pcCider to 10>><</link>>
+<<link [[Accept|Fishing Pier Wait]]>><<set $daily.fishing.fishingPier.whitney.pcCider to 10>><</link>>
 <br>
 <<link [[Decline|Fishing Pier Wait]]>><</link>>
 
 :: Widgets Fishing Pier Whitney Ambient [widget]
 <<widget "fishingPierWhitneyIdleAmbient">>
-	<<set $daily.fishing.pier.whitney.age += 1>>
+	<<set $daily.fishing.fishingPier.whitney.age += 1>>
 	<<cleareventpool>>
 	<<addinlineevent 20>>
 		Whitney and <<nnpc_his "Whitney">> friends talk amongst themselves.
@@ -817,10 +806,7 @@ Whitney leans over and holds out a cold can of cider toward you without a word.
 <<widget "fishingPierWhitneyBetAmbient">>
 	<<cleareventpool>>
 	<<addinlineevent 15>>
-		No one is talking. The usual banter, the clinking cans, all gone quiet. Just the sea beneath the pier and everyone watching your line.
-	<</addinlineevent>>
-	<<addinlineevent 1>>
-		Whitney stands a few paces behind you, arms crossed, eyes fixed on where your line drops into the water below.
+		Whitney and <<nnpc_his "Whitney">> friends lean against the railing, watching your line.
 	<</addinlineevent>>
 	<<addinlineevent 1>>
 		Whitney leans closer to your ear. "Don't keep us waiting," <<nnpc_he "Whitney">> says quietly. "One way or another, this is going to be fun."
@@ -856,23 +842,20 @@ You turn to leave, but one of Whitney's friends steps into your path before you'
 	<br>
 	<<link [[Leave|Dock Pier]]>><<run stopFishingProp()>><</link>>
 <<else>>
-	<span class="red">Whitney's grip on your arm tightens.</span> <<nnpc_His "Whitney">> friends close in, laughing.
-	<br>
-	<<link [[Next|Fishing Whitney Pier Kiss Fish Force]]>><</link>>
+	<<if $player.virginity.kiss is true>><<takeVirginity "a fish" "kiss">><</if>>
+	Whitney grabs the back of your head and shoves the fish against your face. The cold, wet body drags across your lips as <<nnpc_he "Whitney">> twists it around. <<nnpc_His "Whitney">> friends are howling with laughter.<<stress 3>><<gstress>>
+	<br><br>
+
+	Whitney pulls the fish back with a laugh, then tosses it back into the water.
+	<<unset $fishingHookedFish>>
+	<br><br>
+
+	<<link [[Next|Fishing Pier Wait]]>><</link>>
 <</if>>
 
 
 :: Fishing Whitney Pier Kiss Fish Force
 <<effects>>
-<<if $player.virginity.kiss is true>><<takeVirginity "a fish" "kiss">><</if>>
-Whitney grabs the back of your head and shoves the fish against your face. The cold, wet body drags across your lips as <<nnpc_he "Whitney">> twists it around. <<nnpc_His "Whitney">> friends are howling with laughter.<<stress 3>><<gstress>>
-<br><br>
-
-Whitney pulls back, then tosses the fish back into the water.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Next|Fishing Pier Wait]]>><</link>>
 
 
 :: Fishing Whitney Pier Kiss Fish Accept
@@ -883,9 +866,9 @@ Whitney tosses the <<print $fishingHookedFish.type>> back to you, and you press 
 Whitney watches with a wide grin. "I think it likes you!"
 <br><br>
 
-<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
+<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Pier Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 <br>
-<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
+<<link [[Throw it back|Fishing Pier Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 
 
 /* Fishing Pier Whitney Catch Widgets */
@@ -978,16 +961,16 @@ Whitney watches with a wide grin. "I think it likes you!"
 		<br><br>
 	<</if>>
 
-	<<link [[Refuse|Fishing Whitney Pier Kiss Fish Refuse]]>><</link>><<athleticsdifficulty 600 1200>>
+	<<link [[Refuse|Fishing Whitney Pier Kiss Fish Refuse]]>><<npcincr Whitney dom -1>><</link>><<ldom>><<athleticsdifficulty 600 1200>>
 	<br>
-	<<link [[Kiss the <<print $fishingHookedFish.type>>|Fishing Whitney Pier Kiss Fish Accept]]>><<npcincr Whitney dom 1>><</link>><<deviant1>><<ldom>><<if $player.virginity.kiss is true>><<kissvirginitywarning>><</if>>
+	<<link [[Kiss the <<print $fishingHookedFish.type>>|Fishing Whitney Pier Kiss Fish Accept]]>><<npcincr Whitney dom 1>><</link>><<deviant1>><<gdom>><<if $player.virginity.kiss is true>><<kissvirginitywarning>><</if>>
 <</widget>>
 
 <<widget "fishingPierPulledInWhitney">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're dragged over the railing and into the water below,</span> your rod torn from your hands as you fall.<<gstress>><<stress 5>><<handheldruined>>
+	The <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're dragged over the railing into the water below,</span> though you keep hold of your rod as you fall.<<gstress>><<stress 5>>
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
-	<<set $daily.fishing.pier.whitney.playerFellOff to true>>
+	<<set $daily.fishing.fishingPier.whitney.playerFellOff to true>>
 	<br><br>
 
 	You surface to the sound of Whitney and <<nnpc_his "Whitney">> friends howling with laughter above you.
@@ -998,7 +981,7 @@ Whitney watches with a wide grin. "I think it likes you!"
 
 <<widget "fishingPierLineSnappedWhitneyBet">>
 	<<effects>>
-	You lean back with everything you have left. <span class="red">The line snaps,</span> and you stumble back into the railing.
+	<span class="red">The line snaps,</span> and you stumble back into the railing.
 	<br><br>
 
 	Everyone watches as the <<print $fishingHookedFish.type>> disappears into the depths.
@@ -1028,40 +1011,24 @@ Whitney watches with a wide grin. "I think it likes you!"
 <</widget>>
 
 <<widget "fishingPierWhitneySip">>
-	<<if $daily.fishing.pier.whitney.pcCider is 10>>
+	<<if $daily.fishing.fishingPier.whitney.pcCider is 10>>
 		You take a sip of the cider. It's cold, sweet, and has a touch of alcohol in it. <<alcohol 10>><<galcohol>>
-	<<elseif $daily.fishing.pier.whitney.pcCider is 1>>
+	<<elseif $daily.fishing.fishingPier.whitney.pcCider is 1>>
 		You drain the last of the cider and put the can down. <<alcohol 10>><<galcohol>>
 	<<else>>
 		You take a sip of the cider. <<alcohol 10>><<galcohol>>
 	<</if>>
-	<<set $daily.fishing.pier.whitney.pcCider -= 1>>
-	<<if $daily.fishing.pier.whitney.pcCider is 0>>
-		<<set $daily.fishing.pier.whitney.pcCiderTotal += 1>>
+	<<set $daily.fishing.fishingPier.whitney.pcCider -= 1>>
+	<<if $daily.fishing.fishingPier.whitney.pcCider is 0>>
+		<<set $daily.fishing.fishingPier.whitney.pcCiderTotal += 1>>
 	<</if>>
 <</widget>>
 
-/* Whitney turns to the PC after bullying the NPC fisher off the pier */
-:: Fishing Pier Whitney Bully Fisher Greet Player
-<<effects>>
-<<if $exposed gte 1>>
-	Whitney turns from the <<person>> to you, eyes dropping to your <<lewdness>>. "And <<if $whitneyromance is 1>>my<<else>>the<</if>> slut decided to dress up for us," <<nnpc_he "Whitney">> says with a leering grin.
-	<<fameexhibitionism 2>>
-<<else>>
-	Whitney turns from the <<person>> to you. "And <<if $whitneyromance is 1>>my<<else>>the<</if>> slut is here too."
-<</if>>
-<br><br>
-
-<<link [[Next|Fishing Pier Wait]]>><</link>>
-<br>
-<<link [[Leave|Fishing Pier Whitney Bully Fisher Player Leave]]>><</link>>
-
-
 :: Fishing Pier Whitney Idle Leave
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
-Whitney drains the last of the cider and chucks the empty. "Alright, I'm done here." <<nnpc_He "Whitney">> stretches and nods to <<nnpc_his "Whitney">> friends and they all start packing up. <<nnpc_He "Whitney">> passes you on the way out, giving your <<bottom>> a firm smack. "Later, slut." <<arousal 300 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
+Whitney drains the last of the cider and chucks the empty can over the railing. "Alright, I'm done here." <<nnpc_He "Whitney">> stretches and nods to <<nnpc_his "Whitney">> friends and they all start packing up. <<nnpc_He "Whitney">> passes you on the way out, giving your <<bottom>> a smack. "Later, slut." <<arousal 300 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1069,9 +1036,9 @@ Whitney drains the last of the cider and chucks the empty. "Alright, I'm done he
 
 :: Fishing Pier Whitney Leave Night
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
-One of <<nnpc_his "Whitney">> friends checks their watch and starts packing up their rod. The others follow without much discussion. Whitney drains <<nnpc_his "Whitney">> can and tosses it into the water. "That's us." <<nnpc_He "Whitney">> passes you on the way out, giving your <<bottom>> a firm smack. "Later, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
+One of <<nnpc_his "Whitney">> friends checks their watch and starts packing up their rod. The others follow without much discussion. Whitney drains <<nnpc_his "Whitney">> can and tosses it into the water. "That's us." <<nnpc_He "Whitney">> passes you on the way out, giving your <<bottom>> a smack. "Later, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1079,12 +1046,12 @@ One of <<nnpc_his "Whitney">> friends checks their watch and starts packing up t
 
 :: Fishing Pier Whitney Idle Leave Weather Heavy
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 Whitney glances at the sky. "Tch." <<nnpc_He "Whitney">> tosses <<nnpc_his "Whitney">> can into the water and starts packing up <<nnpc_his "Whitney">> things, <<nnpc_his "Whitney">> friends following suit.
 <br><br>
 
-Whitney passes you on the way out, giving your <<bottom>> a firm smack. "Later, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
+Whitney passes you on the way out, giving your <<bottom>> a smack. "Later, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1092,12 +1059,12 @@ Whitney passes you on the way out, giving your <<bottom>> a firm smack. "Later, 
 
 :: Fishing Pier Whitney Bet Leave Weather Heavy
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 Whitney glances at the rain. "Tch." <<nnpc_He "Whitney">> tosses <<nnpc_his "Whitney">> can into the water and starts packing up <<nnpc_his "Whitney">> things, <<nnpc_his "Whitney">> friends following suit.
 <br><br>
 
-<<nnpc_He "Whitney">> passes you on the way out, pausing long enough to give your <<bottom>> a firm smack. "You got off easy, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
+<<nnpc_He "Whitney">> passes you on the way out, giving your <<bottom>> a smack. "You got off easy, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1105,12 +1072,12 @@ Whitney glances at the rain. "Tch." <<nnpc_He "Whitney">> tosses <<nnpc_his "Whi
 
 :: Fishing Pier Whitney Bet Weather Light
 <<effects>>
-<<set $daily.fishing.pier.whitney.rainLeave to true>>
+<<set $daily.fishing.fishingPier.whitney.rainLeave to true>>
 
 One of Whitney's friends starts pulling in their line as the first drops begin to fall. "It's starting to rain. We gonna pack it up?"
 <br><br>
 
-"No," Whitney says, looking at you, "this is worth getting a little wet."
+"Nah," Whitney says, looking at you, "this is worth getting a little wet."
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1118,12 +1085,12 @@ One of Whitney's friends starts pulling in their line as the first drops begin t
 
 :: Fishing Pier Whitney Bet Leave Night
 <<effects>>
-<<set $daily.fishing.pier.whitney.phase to "finished">>
+<<set $daily.fishing.fishingPier.whitney.phase to "finished">>
 
 Whitney glances at the darkening sky. "Tch." <<nnpc_He "Whitney">> tosses <<nnpc_his "Whitney">> can into the water and starts packing up <<nnpc_his "Whitney">> things, <<nnpc_his "Whitney">> friends following suit.
 <br><br>
 
-<<nnpc_He "Whitney">> passes you on the way out, pausing long enough to give your <<bottom>> a firm smack. "You got off easy, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
+<<nnpc_He "Whitney">> passes you on the way out, pausing long enough to give your <<bottom>> a smack. "You got off easy, slut." <<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 2>><<glust>>
 <br><br>
 
 <<link [[Next|Fishing Pier Wait]]>><</link>>
@@ -1132,19 +1099,7 @@ Whitney glances at the darkening sky. "Tch." <<nnpc_He "Whitney">> tosses <<nnpc
 /* PC tries to leave after Whitney shows up */
 :: Fishing Pier Whitney Bully Fisher Player Leave
 <<effects>>
-You start to gather your things.
-<br><br>
-
-<<if $speech_attitude is "meek">>
-	"I think I'll go," you say quietly.
-<<elseif $speech_attitude is "bratty">>
-	"I'm out of here." You don't bother looking at <<nnpc_him "Whitney">>.
-<<else>>
-	"I'm going to head off."
-<</if>>
-<br><br>
-
-Whitney turns to you. "You can't go running off just yet, we just got here."<<gstress>><<stress 3>>
+You start to gather your things when Whitney steps towards you. "You can't go running off just yet, we just got here."<<gstress>><<stress 3>>
 <br><br>
 <<link [[Leave anyway|Fishing Pier Whitney Bully Fisher Player Leave 2]]>><<run stopFishingProp()>><<npcincr Whitney dom -1>><</link>><<llove>><<ldom>>
 <br>
@@ -1156,7 +1111,7 @@ Whitney turns to you. "You can't go running off just yet, we just got here."<<gs
 You turn to go. Whitney's hand connects with your <<bottom>> as you step away.<<arousal 200 "bottom">><<garousal>><<npcincr Whitney lust 1>><<glust>>
 <br><br>
 
-<<nnpc_He "Whitney">> calls after you, laughing. "See you around."
+<<nnpc_He "Whitney">> calls after you, laughing. "See you around slut."
 <br><br>
 
 <<link [[Next|Dock Pier]]>><</link>>
@@ -1168,5 +1123,5 @@ You turn to go. Whitney's hand connects with your <<bottom>> as you step away.<<
 You set your things back down. Whitney doesn't say anything, <<nnpc_he "Whitney">> just turns back to the water with a grin.
 <br><br>
 
-<<link [[Continue fishing|Fishing Pier Wait]]>><</link>>
+<<link [[Next|Fishing Pier Wait]]>><</link>>
 

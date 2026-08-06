@@ -1,33 +1,14 @@
-/* 
- * The idea is that a fox shows up and starts watching you, moving closer occasionally. Once it gets close enough, you can give it your catch,
- *  or it might take it from you. This event is mostly flavor, and I wonder if it's worth the complexity. If a dangerous event does trigger, 
- *  the fox will react to it and leave. 
- * Reuses the great hawk rescue event, but I need to test it and think about having the code not be just copy-pasted from its original source. I'll either 
- *  do something different for the rescue, or pull out that great hawk rescue into a shared widget.
- */
 :: Fishing Moor Fox Arrive
 <<effects>>
 <<beastNEWinit 1 fox>>
-<<set $daily.fishing.moor.fox.phase to "watching">>
-<<set $daily.fishing.moor.fox.closeness to 0>>
-<<set $daily.fishing.moor.fox.anger to 0>>
+<<set $daily.fishing.fishingMoor.fox.phase to "watching">>
+<<set $daily.fishing.fishingMoor.fox.closeness to 0>>
 
 A <<beasttype>> trots out of the heather and stops a short distance away, watching you with bright, curious eyes.<<stress -2>><<lstress>>
 <br><br>
 
 <<link [[Next|Fishing Moor Wait]]>><</link>>
 
-
-
-:: Fishing Moor Fox Shoo
-<<effects>>
-You wave the <<beasttype>> away. <<bHe>> skitters back a few paces, crouches, and watches you.
-<<set $daily.fishing.moor.fox.closeness -= random(2, 3)>>
-<<if $daily.fishing.moor.fox.closeness lt 0>><<set $daily.fishing.moor.fox.closeness to 0>><</if>>
-<<set $daily.fishing.moor.fox.anger += random(0, 1)>>
-<br><br>
-
-<<link [[Next|Fishing Moor Wait]]>><</link>>
 
 
 :: Fishing Moor Fox Feed
@@ -37,7 +18,7 @@ You wave the <<beasttype>> away. <<bHe>> skitters back a few paces, crouches, an
 <<else>>
 	You toss the <<print $fishingHookedFish.type>> to the <<beasttype>>. <<bHe>> catches it neatly and bolts off into the heather.
 <</if>>
-<<set $daily.fishing.moor.fox.phase to "finished">>
+<<set $daily.fishing.fishingMoor.fox.phase to "finished">><<endevent>>
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -47,7 +28,7 @@ You wave the <<beasttype>> away. <<bHe>> skitters back a few paces, crouches, an
 :: Fishing Moor Fox Angry Feed
 <<effects>>
 You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>> snatches it from your hands and bolts off across the moor without looking back.
-<<set $daily.fishing.moor.fox.phase to "finished">>
+<<set $daily.fishing.fishingMoor.fox.phase to "finished">><<endevent>>
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -63,15 +44,8 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 	<<molested>>
 	<<beastCombatInit>>
 	<<set $NPCList[0].stance to "top">>
-	<<if $fishingMoorFoxPhase is 2>>
-		/* You ate the fish in front of the fox, you monster */
-		<<set $enemytrust to -200>>
-		<<set $enemyanger to 200>>
-	<<else>>
-		/* Fox wants fish */
-		<<set $enemytrust to -50>>
-		<<set $enemyanger to 100>>
-	<</if>>
+	<<set $enemytrust to -200>>
+	<<set $enemyanger to 200>>
 	<<hawkRescueSetup>>
 <</if>>
 
@@ -86,7 +60,7 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 
 <<actionsman>>
 
-<<if _combatend>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
 	<span id="next"><<link [[Next|Fishing Moor Fox Molestation Finish]]>><</link>></span>
 <<else>>
 	<span id="next"><<link [[Next|Fishing Moor Fox Molestation]]>><</link>></span>
@@ -103,7 +77,7 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 		<<tending_give $fishingHookedFish.type 1>>
 		<<unset $fishingHookedFish>>
 	<</if>>
-	<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
 	<br><br>
 
 	<<tearful>> you gather yourself.
@@ -123,7 +97,7 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 		<<tending_give $fishingHookedFish.type 1>>
 		<<unset $fishingHookedFish>>
 	<</if>>
-	<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
 	<<clotheson>>
 	<<endcombat>>
 	<<unset $fishingMoorFoxPhase>>
@@ -146,14 +120,31 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 		<<tending_give $fishingHookedFish.type 1>>
 		<<unset $fishingHookedFish>>
 	<</if>>
-	<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
 	<br><br>
 
-	<<tearful>> you gather yourself.
+	<<tearful>> you wonder if all that was worth if for a <<print $fishingHookedFish.type>>.
+
 	<<clotheson>>
 	<<endcombat>>
 	<<unset $fishingMoorFoxPhase>>
 	<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+	<br>
+	<<link [[Leave|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
+<<elseif $pain gte 100 and $willpowerpain is 0>>
+	<<if $fishingMoorFoxPhase is 1>>
+		You're too battered to continue fighting as the <<beasttype>> grabs your <<print $fishingHookedFish.type>> and darts off into the heather.
+	<</if>>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
+	<br><br>
+	
+	<<tearful>> you wonder if all that was worth if for a <<print $fishingHookedFish.type>>.
+	<<unset $fishingHookedFish>>
+
+	<<clotheson>>
+	<<endcombat>>
+
+		<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 	<br>
 	<<link [[Leave|Moor]]>><<set $eventskip to 1>><<run stopFishingProp()>><</link>>
 <</if>>
@@ -161,7 +152,7 @@ You shove the <<print $fishingHookedFish.type>> toward the <<beasttype>>. <<bHe>
 
 :: Fishing Moor Cat Eat Fox
 <<effects>>
-You glance at the fox, then open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+You glance at the fox, then open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<fishingEatFishCatProgress>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -172,6 +163,7 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 	<<link [[Next|Fishing Moor Fox Molestation]]>><<set $molestationstart to 1>><<set $fishingMoorFoxPhase to 2>><</link>>
 <<else>>
 	You scramble back and shoo <<bhim>> off before <<bhe>> can attack you further, <<bhis>> claws scratching you before you force <<bhim>> away.<<beastescape>>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">><<endevent>>
 	<br><br>
 
 	<<link [[Next|Fishing Moor Wait]]>><</link>>
@@ -186,12 +178,12 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 	<br><br>
 
 	You stow the <<print $fishingHookedFish.type>> away, and the <<beasttype>> scampers back, ears flat against <<bhis>> head.
-	<<set $daily.fishing.moor.fox.closeness -= random(3, 4)>>
+	<<set $daily.fishing.fishingMoor.fox.closeness -= random(3, 4)>>
 	<<tending_give $fishingHookedFish.type 1>>
 	<<unset $fishingHookedFish>>
 <<else>>
 	As you unhook the <<print $fishingHookedFish.type>>, the <<beasttype>> lunges and snatches it, and scampering off into the heather.
-	<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">><<endevent>>
 	<<unset $fishingHookedFish>>
 <</if>>
 <br><br>
@@ -209,7 +201,7 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 	<<link [[Next|Fishing Moor Fox Molestation]]>><<set $molestationstart to 1>><<set $fishingMoorFoxPhase to 2>><</link>>
 <<elseif $rng lt 30>>
 	As you throw the <<print $fishingHookedFish.type>> back into the water, the <<beasttype>> darts forward and snatches it from the shallows before bounding off into the moor.
-	<<set $daily.fishing.moor.fox.phase to "finished">>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">><<endevent>>
 	<<unset $fishingHookedFish>>
 	<br><br>
 
@@ -226,21 +218,21 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 :: Widgets Fishing Moor Fox [widget]
 <<widget "fishingMoorFoxAmbient">>
 	<<set _foxMoved to false>>
-	<<if $rng gte 50 and $daily.fishing.moor.fox.closeness lt 9 and !$daily.fishing.moor.fox.movedLastLoop>>
-		<<set $daily.fishing.moor.fox.closeness += 1>>
+	<<if $rng gte 70 and $daily.fishing.fishingMoor.fox.closeness lt 9 and !$daily.fishing.fishingMoor.fox.movedLastLoop>>
+		<<set $daily.fishing.fishingMoor.fox.closeness += 1>>
 		<<set _foxMoved to true>>
 	<</if>>
 	<<cleareventpool>>
 	<<if _foxMoved>>
-		<<if $daily.fishing.moor.fox.closeness lte 2>>
+		<<if $daily.fishing.fishingMoor.fox.closeness lte 2>>
 			<<addinlineevent 1>>
 				The <<beasttype>> pads closer and settles down to watch you.
 			<</addinlineevent>>
-		<<elseif $daily.fishing.moor.fox.closeness lte 5>>
+		<<elseif $daily.fishing.fishingMoor.fox.closeness lte 5>>
 			<<addinlineevent 1>>
 				The <<beasttype>> creeps nearer, crouching low in the heather.
 			<</addinlineevent>>
-		<<elseif $daily.fishing.moor.fox.closeness lte 7>>
+		<<elseif $daily.fishing.fishingMoor.fox.closeness lte 7>>
 			<<addinlineevent 1>>
 				The <<beasttype>> slides closer, settling now only a few paces away.
 			<</addinlineevent>>
@@ -250,15 +242,15 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 			<</addinlineevent>>
 		<</if>>
 	<<else>>
-		<<if $daily.fishing.moor.fox.closeness lte 2>>
+		<<if $daily.fishing.fishingMoor.fox.closeness lte 2>>
 			<<addinlineevent 1>>
 				The <<beasttype>> watches you from the edge of the heather.
 			<</addinlineevent>>
-		<<elseif $daily.fishing.moor.fox.closeness lte 5>>
+		<<elseif $daily.fishing.fishingMoor.fox.closeness lte 5>>
 			<<addinlineevent 1>>
-				The <<beasttype>> crouches in the heather nearby, eyes on your <<fishingBob>>.
+				The <<beasttype>> crouches in the heather nearby, eyes on your float.
 			<</addinlineevent>>
-		<<elseif $daily.fishing.moor.fox.closeness lte 7>>
+		<<elseif $daily.fishing.fishingMoor.fox.closeness lte 7>>
 			<<addinlineevent 1>>
 				The <<beasttype>> sits a few paces away, completely absorbed in watching you.
 			<</addinlineevent>>
@@ -269,14 +261,14 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 		<</if>>
 	<</if>>
 	<<runeventpool>>
-	<<if $daily.fishing.moor.fox.closeness gte 6 and $daily.fishing.moor.fox.anger gte 2>>
-		<<if $daily.fishing.moor.fox.closeness lte 7>>
+	<<if $daily.fishing.fishingMoor.fox.closeness gte 6 and dangerEvent()>>
+		<<if $daily.fishing.fishingMoor.fox.closeness lte 7>>
 			The <<beasttype>>'s tail twitches and <<bhis>> ears are pinned back.
 		<<else>>
 			The <<beasttype>>'s ears are flat and <<bhis>> tail is rigid, <<bhis>> body coiled low.
 		<</if>>
 	<</if>>
-	<<set $daily.fishing.moor.fox.movedLastLoop to _foxMoved>>
+	<<set $daily.fishing.fishingMoor.fox.movedLastLoop to _foxMoved>>
 <</widget>>
 
 
@@ -288,7 +280,7 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 <<widget "fishingMoorCaughtFox">>
 	<<effects>>
 	<<set _canEatFish to canEatFishTf($fishingHookedFish)>>
-	<<set _foxLunges to $daily.fishing.moor.fox.closeness gte 8 and $daily.fishing.moor.fox.anger gte random(2, 4)>>
+	<<set _foxLunges to $daily.fishing.fishingMoor.fox.closeness gte 8 and dangerEvent()>>
 	<<run updateFishRecord($fishingHookedFish.type, $fishingHookedFish.size, $bus)>>
 	<<run stopFishingProp()>>
 	<<set _fishPropName to "caught-" + $fishingHookedFish.type>>
@@ -301,16 +293,16 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 		But before you can do anything, the <<beasttype>> lunges for the <<print $fishingHookedFish.type>>.
 		<br><br>
 	<<else>>
-		<<if $daily.fishing.moor.fox.closeness gte 8>>
+		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
 			The <<beasttype>> watches your <<print $fishingHookedFish.type>> intently.
 			<br><br>
-		<<elseif $daily.fishing.moor.fox.closeness gte 7>>
-			The <<beasttype>> perks up as you pull out your <<print $fishingHookedFish.type>>.
+		<<else>>
+			The <<beasttype>> perks up as you pull up the <<print $fishingHookedFish.type>>.
 			<br><br>
 		<</if>>
 
 		<<if _canEatFish>>
-			It's such a small fish, you could probably fit the whole thing in your mouth, right in front of <<bhim>>.
+			It's such a small fish, you could probably fit the whole thing in your mouth.
 			<br><br>
 		<</if>>
 	<</if>>
@@ -322,27 +314,38 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 			<<link [[Hold on to the fish|Fishing Moor Fox Molestation]]>><<set $molestationstart to 1>><<set $fishingMoorFoxPhase to 1>><</link>>
 		<</if>>
 	<<else>>
-		<<if $daily.fishing.moor.fox.closeness gte 8>>
-			<<link [[Stow it away|Fishing Moor Keep Fox]]>><</link>>
+		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
+			<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Moor Keep Fox]]>><</link>>
 		<<else>>
-			<<link [[Stow it away|Fishing Moor Keep]]>><</link>>
+			<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Moor Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 		<</if>>
 		<br>
-		<<if $daily.fishing.moor.fox.closeness gte 8>>
-			<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Moor Throw Back Fox]]>><</link>>
+		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
+			<<link [[Throw it back|Fishing Moor Throw Back Fox]]>><</link>>
 		<<else>>
-			<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Moor Throw Back]]>><</link>>
+			<<link [[Throw it back|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 		<</if>>
 		<<if _canEatFish>>
 			<br>
-			<<link [[Eat the fish|Fishing Moor Cat Eat Fox]]>><</link>>
+			<<link [[Eat the fish|Fishing Moor Cat Eat Fox]]>><</link>><<cat>>
 		<</if>>
 
-		<<if $daily.fishing.moor.fox.closeness gte 8>>
+		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
 			<br>
 			<<link [["Give the " + $fishingHookedFish.type + " to the fox"|Fishing Moor Fox Feed]]>><</link>>
 		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "fishingMoorFoxFishLostReaction">>
+	<<switch random(1, 3)>>
+		<<case 1>>
+			The <<beasttype>> stares at the ripples where the fish was, then looks up at you. <<bHe>> lets out a short huff and lies down, chin on <<bhis>> paws.
+		<<case 2>>
+			The <<beasttype>>'s ears droop. <<bHe>> watches the water for a moment before looking away, clearly unimpressed.
+		<<case 3>>
+			The <<beasttype>> sniffs at the water's edge, then turns to look at you with an expression that can only be described as disappointed.
+	<</switch>>
 <</widget>>
 
 <<widget "fishingMoorLineSnappedFox">>
@@ -352,17 +355,10 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 	<<unset $fishingHookedFish>>
 	<br><br>
 
-	<<switch random(1, 3)>>
-		<<case 1>>
-			The <<beasttype>> stares at the ripples where the fish was, then looks up at you. <<bHe>> lets out a short huff and lies down, chin on <<bhis>> paws.
-		<<case 2>>
-			The <<beasttype>>'s ears droop. <<bHe>> watches the water for a moment before looking away, clearly unimpressed.
-		<<case 3>>
-			The <<beasttype>> sniffs at the water's edge, then turns to look at you with an expression that can only be described as disappointed.
-	<</switch>>
+	<<fishingMoorFoxFishLostReaction>>
 	<br><br>
 
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
 	<br>
 	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 <</widget>>
@@ -370,9 +366,9 @@ The <<beasttype>> stares at you, stunned. Then <<bhis>> expression darkens, <<bh
 <<widget "fishingMoorFoxTrashReaction">>
 	<<switch random(1, 3)>>
 		<<case 1>>
-			The <<beasttype>> perks up as you swing your catch in, then deflates at the sight of the junk, thoroughly unimpressed.
+			The <<beasttype>> perks up as you pull your line up, then deflates at the sight of the junk.
 		<<case 2>>
-			The <<beasttype>>'s ears prick forward hopefully, but <<bhe>> huffs and settles back down when no fish appears.
+			The <<beasttype>>'s ears prick up hopefully, but <<bhe>> huffs and settles back down when no fish appears.
 		<<case 3>>
 			The <<beasttype>> cranes <<bhis>> neck to sniff at what you've hauled up, then gives you a flat, disappointed look.
 	<</switch>>

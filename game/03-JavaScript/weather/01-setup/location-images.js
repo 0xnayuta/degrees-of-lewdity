@@ -25,9 +25,11 @@ setup.Locations = {
 	castle: () => {
 		return "tower";
 	},
+	coastpath: () => (V.bus === "fishingCoastPath" ? "cliff-dock" : "coastpath"),
 	hotel: () => {
 		return "town";
 	},
+	lake: () => (["fishingForestLake", "lakefishingrock"].includes(V.bus) ? "lake-rock" : "lake"),
 	estate: () => (V.bus === "estate_cottage" ? "estate_cottage" : "estate"),
 	farm: () => (["farmroad6", "farm"].includes(V.bus) ? "farm" : "underground_farm"),
 	scrapyard: () => {
@@ -1299,6 +1301,60 @@ setup.LocationImages = {
 			},
 		},
 	},
+	"cliff-dock": {
+		folder: "cliff-dock",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => random(5, 15, true) * 1000,
+				},
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => random(5, 15, true) * 1000,
+				},
+			},
+		},
+		reflective: {
+			mask: {
+				image: "reflective.png",
+				compositeOperation: "overlay",
+				verticalFactor: 4,
+				amplitude: 20,
+				frequency: 15,
+			},
+			overlay: {
+				image: "water.png",
+				compositeOperation: "overlay",
+				animation: {
+					frameDelay: 250,
+					cycleDelay: () => 0,
+				},
+			},
+		},
+		weather: {
+			// fishing todo
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 0,
+					bottom: 0,
+				},
+			},
+		},
+	},
 	com_alley: {
 		folder: "com-alley",
 		base: {
@@ -2478,6 +2534,104 @@ setup.LocationImages = {
 				},
 				fog: {
 					top: 30,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	"lake-rock": {
+		folder: "lake-rock",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				condition: () => Weather.lightsOn && Time.season !== "winter" && Time.season !== "autumn",
+				animation: {
+					frameDelay: 300,
+					cycleDelay: () => 0,
+				},
+				color: "#deae66",
+				strength: 2,
+			},
+			blood0: {
+				condition: () => Weather.bloodMoon,
+				image: "blood-0.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => random(2, 7, true) * 1000,
+				},
+				color: "#e63e3e",
+			},
+			blood1: {
+				condition: () => Weather.bloodMoon,
+				image: "blood-1.png",
+				animation: {
+					frameDelay: 2000,
+					cycleDelay: () => random(4, 10, true) * 1000,
+				},
+				color: "#e63e3e",
+			},
+			blood2: {
+				condition: () => Weather.bloodMoon,
+				image: "blood-2.png",
+				animation: {
+					frameDelay: 200,
+					cycleDelay: () => random(4, 11, true) * 1000,
+				},
+				color: "#e63e3e",
+			},
+		},
+		reflective: {
+			mask: {
+				animationCondition: () => !Weather.isFrozen("lake"),
+				image: "reflective.png",
+				horizon: 18,
+				blur: 0.4,
+				verticalDirection: 1,
+			},
+			water: {
+				condition: () => !Weather.isFrozen("lake"),
+				image: "water.png",
+				alpha: () => (!Weather.isFrozen("lake") ? 0.35 : 0.8),
+			},
+			glimmer: {
+				condition: () => V.options.reflections && !Weather.isFrozen("lake"),
+				image: "glimmer.png",
+				compositeOperation: "overlay",
+				alpha: 0.5,
+				gradientMask: true,
+				animation: {
+					slider: true,
+					frames: 150,
+					frameDelay: 150,
+				},
+			},
+			ice: {
+				condition: () => Weather.isFrozen("lake"),
+				image: "ice.png",
+			},
+		},
+		weather: {
+			// fishing todo
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 0,
 					bottom: 0,
 				},
 			},

@@ -1,0 +1,66 @@
+:: Fishing Beach Minigame Loop
+<<effects>>
+<<set _fishingOutcome to fishingMinigameTurnOutcome()>>
+<<if _fishingOutcome is "lost">>
+	<<set _fishingLossReason to $fishingMinigame.lossReason>>
+	<<run fishingMinigameEnd()>>
+	<<include "Fishing Beach Loss">>
+<<elseif _fishingOutcome is "caught">>
+	<br>
+	<<fishingMinigameUi 0 "caught">>
+	You swing the <<print $fishingHookedFish.type>> out of the water.
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<include "Fishing Beach Catch">>
+<<else>>
+	<<if $fishingMinigame.lastFishAction>>
+		<<fishingMinigameTurnResult>>
+		<br>
+		<<fishingMinigameArmFatigue>>
+		<br><br>
+	<<else>>
+		Something takes the bait and pulls away.<<if $fishingHookedFish.aboveAverageSize>> You can see a <span class="pink">big</span> <<print $fishingHookedFish.type>> below the surface.<<else>> Looks like <<a $fishingHookedFish.type>>.<</if>>
+		<br><br>
+	<</if>>
+
+	<<fishingMinigameBoard>>
+	<br><br>
+
+	<<link [[Reel in|Fishing Beach Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+		<<run fishingMinigameResolveTurn("reel")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+	<br>
+	<<link [[Hold the line|Fishing Beach Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+		<<run fishingMinigameResolveTurn("hold")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+	<br>
+	<<link [[Put slack on the line|Fishing Beach Minigame Loop]]>>
+		<<run fishingMinigameResolveTurn("slack")>>
+	<</link>>
+	<br>
+	<<link [[Cut the line|Fishing Beach Minigame Loop]]>><<set $fishingMinigame.lossReason to "cut">><</link>>
+<</if>>
+
+
+:: Fishing Beach Loss
+<<if _fishingLossReason is "cut">>
+	You let the line go slack. The <<print $fishingHookedFish.type>> pulls harder and the line snaps free, and it's gone.
+	<<unset $fishingHookedFish>>
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
+<<else>>
+	Your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone.
+	<<unset $fishingHookedFish>>
+	<<run stopFishingProp()>>
+	<br><br>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Beach Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
+<</if>>

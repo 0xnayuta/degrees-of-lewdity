@@ -1,0 +1,70 @@
+:: Fishing Moor Minigame Loop
+<<effects>>
+<<set _fishingOutcome to fishingMinigameTurnOutcome()>>
+<<if _fishingOutcome is "lost">>
+	<<set _fishingLossReason to $fishingMinigame.lossReason>>
+	<<run fishingMinigameEnd()>>
+	<<include "Fishing Moor Loss">>
+<<elseif _fishingOutcome is "caught">>
+	<br>
+	<<fishingMinigameUi 0 "caught">>
+	You swing the <<print $fishingHookedFish.type>> out of the water.
+	<<run fishingMinigameEnd()>>
+	<br><br>
+
+	<<include "Fishing Moor Catch">>
+<<else>>
+	<<if $fishingMinigame.lastFishAction>>
+		<<fishingMinigameTurnResult>>
+		<br>
+		<<fishingMinigameArmFatigue>>
+		<br><br>
+	<<else>>
+		Something takes the bait and pulls away.<<if $fishingHookedFish.aboveAverageSize>> You can see a <span class="pink">big</span> <<print $fishingHookedFish.type>> below the surface.<<else>> Looks like <<a $fishingHookedFish.type>>.<</if>>
+		<br><br>
+	<</if>>
+
+	<<fishingMinigameBoard>>
+	<br><br>
+
+	<<link [[Reel in|Fishing Moor Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+		<<run fishingMinigameResolveTurn("reel")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("reel")>><<fishingMinigameAthleticsCheck "reel">><</if>>
+	<br>
+	<<link [[Hold the line|Fishing Moor Minigame Loop]]>>
+		<<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+		<<run fishingMinigameResolveTurn("hold")>>
+	<</link>><<if fishingMinigameActionRequiresAthletics("hold")>><<fishingMinigameAthleticsCheck "hold">><</if>>
+	<br>
+	<<link [[Put slack on the line|Fishing Moor Minigame Loop]]>>
+		<<run fishingMinigameResolveTurn("slack")>>
+	<</link>>
+	<br>
+	<<link [[Cut the line|Fishing Moor Minigame Loop]]>><<set $fishingMinigame.lossReason to "cut">><</link>>
+<</if>>
+
+
+:: Fishing Moor Loss
+<<if _fishingLossReason is "cut">>
+	You let the line go slack. The <<print $fishingHookedFish.type>> pulls harder and the line snaps free, and it's gone.
+	<<unset $fishingHookedFish>>
+	<br><br>
+
+	<<if $daily.fishing.fishingMoor.fox.phase is "watching">>
+		<<fishingMoorFoxFishLostReaction>>
+		<br><br>
+	<</if>>
+
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
+	<br>
+	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
+<<else>>
+	<<if $daily.fishing.fishingMoor.fox.phase is "watching">>
+		<<fishingMoorLineSnappedFox>>
+	<<elseif ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase) and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
+		<<fishingMoorLineSnappedHikers>>
+	<<else>>
+		<<fishingMoorLineSnapped>>
+	<</if>>
+<</if>>

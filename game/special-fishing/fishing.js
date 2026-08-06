@@ -2,16 +2,23 @@
 ====== Main Fishing Todo ======  
 - Test screaming for gwa rescue in forest fishing attack
 - Add npc fisher catch events for the beach, same as on the pier.
-- Either unify the two npc fisher events and make them reuse code, or justify their separation by adding specific location descriptions
 - The beach npc fisher has no rescue events, so a huge fish dragging the PC into the surf resolves without them. Maybe give them a save + coercion chain like the pier fisher has.
-- The magnet fishing rod isn't a rod, it's just a big magnet on a rope. Needs new art.
-- Fishing bait system. Some foodstuff can be used for bait, and can be used to catch fish. You can also catch baitfish on the non-cliff locations, and then use the baitfish to catch big fish. 
 - Old, smelly, rundown store on the pier where you can buy dead worms (basic bait, not as good as foodstuff bait) and also where you can buy a fishing rod and a magnet for fishing (or maybe move the magnet somewhere else). Maybe you can get fishing tips there too.
 - Revisit fish size system
 - Journal stars fish are squished, revisit how fishing journal is constructed
 - Move fishing records to the pier shack? 
 - Test all fishing events to make sure that they make sense with the new no-minigame fishing system
 - Investigate reusing a passage for the heavy magnet events
+- Slip events should have a warning, and should be mitigated by having good shoes.
+- Keep a tally of how many fish you caught in a sitting, let you use fish to avoid cat encounters when walking back from the moor. Use fish as payment for hitchhiking.
+- Walking around with fresh fish in the forest or moor could attract things
+- Throw fresh fish at something attacking you to get it to go away
+- The odds of negative events in general need a pass, it's pretty dangerous to fish even though there isn't that much reward.
+- Remove fish from the market?
+- Add Gwylan request
+- Rename files to catch-fish, catch-clothing...
+- Normalize fish order in journal
+- See if I can use fewer inline events in fishing-text and in general
 
 ====== Fishing Nice to haves ====
 - You should be able to add fish you caught today to your fishing tank
@@ -32,6 +39,8 @@
 - Make magnet fishing something that you need to stumble on? Make it an "oh shit a whole new part of fishing"
 - Lurker attack bait and switch for moor
 - "I've heard tale of a monster fish off the cliff, catch it and I'll buy it from you for $$$" -> catching would be a "pick-the-correct-option" minigame over maybe 3 rounds, with the player having to recognize what to do in order to catch this big, unique fish.
+- Make the fish contents of the market be randomized each week 
+- Add icon for what fish you've got hooked when you hook a fish
 
 ====== Random fishing notes ====
 - Avery: yacht fishing location, unique?
@@ -40,73 +49,6 @@
 - Descriptions of how fish-populated the fishing spots are, meaning that if you want to fish, you can look around a bit
 - The Whitney Pier should have text that appears if you've run into it before. A friend could say "oh I like this game", or something
 - Kylar: Your lines get caught together. "that could be us"
-
-
-====== Needed images ======
-Caught fish handheld props:
-- /img/clothes/props/fish/caught-haddock.png
-- /img/clothes/props/fish/caught-salmon.png
-- /img/clothes/props/fish/caught-trout.png
-- /img/clothes/props/fish/caught-cod.png
-- /img/clothes/props/fish/caught-whiting.png
-- /img/clothes/props/fish/caught-mackerel.png
-- /img/clothes/props/fish/caught-sole.png
-- /img/clothes/props/fish/caught-roach.png
-- /img/clothes/props/fish/caught-perch.png
-- /img/clothes/props/fish/caught-chub.png
-- /img/clothes/props/fish/caught-pike.png
-- /img/clothes/props/fish/caught-grayling.png
-
-Ingredient handheld props:
-- /img/clothes/props/ingredient/herring.png
-- /img/clothes/props/ingredient/whiting.png
-- /img/clothes/props/ingredient/mackerel.png
-- /img/clothes/props/ingredient/flounder.png
-- /img/clothes/props/ingredient/sole.png
-- /img/clothes/props/ingredient/bass.png
-- /img/clothes/props/ingredient/roach.png
-- /img/clothes/props/ingredient/perch.png
-- /img/clothes/props/ingredient/chub.png
-- /img/clothes/props/ingredient/pike.png
-- /img/clothes/props/ingredient/eel.png
-- /img/clothes/props/ingredient/grayling.png
-
-Caught fish UI icons for the journal:
-- /img/misc/icon/fish/haddock.png
-- /img/misc/icon/fish/salmon.png
-- /img/misc/icon/fish/trout.png
-- /img/misc/icon/fish/cod.png
-- /img/misc/icon/fish/herring.png
-- /img/misc/icon/fish/whiting.png
-- /img/misc/icon/fish/mackerel.png
-- /img/misc/icon/fish/flounder.png
-- /img/misc/icon/fish/sole.png
-- /img/misc/icon/fish/bass.png
-- /img/misc/icon/fish/roach.png
-- /img/misc/icon/fish/perch.png
-- /img/misc/icon/fish/chub.png
-- /img/misc/icon/fish/pike.png
-- /img/misc/icon/fish/eel.png
-- /img/misc/icon/fish/grayling.png
-
-Foodstuff UI icons:
-- /img/misc/icon/tending/herring.png
-- /img/misc/icon/tending/whiting.png
-- /img/misc/icon/tending/mackerel.png
-- /img/misc/icon/tending/flounder.png
-- /img/misc/icon/tending/bass.png
-- /img/misc/icon/tending/roach.png
-- /img/misc/icon/tending/perch.png
-- /img/misc/icon/tending/chub.png
-- /img/misc/icon/tending/pike.png
-- /img/misc/icon/tending/eel.png
-
-Fishing rod clothing trait icon
-- /img/ui/clothes/traits/fishing-rod.png
-
-Fishing location images + link icon
-- Pier
-- Bottom of a cliff with an old, small, broken pier and a path leading back up to the top of the cliff.
 
 */
 
@@ -133,7 +75,7 @@ function rollFishSize(bus, fishKey) {
 	const slope = Math.clamp(preferredMatchCount, 0, 4) - 2;
 	const rand = State.random();
 	const sizeRoll = slope === 0 ? rand : (slope / 2 - 1 + Math.sqrt((1 - slope / 2) ** 2 + 2 * slope * rand)) / slope;
-	const size = round(lerp(sizeRoll, fishConfig.minSize, fishConfig.maxSize), 2);
+	const size = lerp(sizeRoll, fishConfig.minSize, fishConfig.maxSize);
 
 	// Rounds 98%+ sized to 100% so people don't get fish that are super super close to max size, but aren't the max size.
 	if (size >= fishConfig.minSize + 0.98 * (fishConfig.maxSize - fishConfig.minSize)) {
@@ -142,16 +84,107 @@ function rollFishSize(bus, fishKey) {
 	return size;
 }
 
+/**
+ * Without bait of any sort, you are more likely to catch baitfish than other fish.
+ * With foodstuff bait that isn't baitfish, you are less likely to catch baitfish and more likely to catch normal fish.
+ * While using baitfish as bait, you are able to catch Bass (saltwater), Pike (freshwater) and Eel (moor), which require those baitfish to catch.
+ *
+ * @param {string} fishKey
+ */
+function fishingBaitWeightMultiplier(fishKey) {
+	const bait = V.fishing.currentBait;
+	const fishInfo = setup.fishing.lootTables.fish[fishKey];
+
+	if (!bait) {
+		if (fishInfo.requiresBaitFish) {
+			return 0;
+		} else if (fishInfo.isBaitFish) {
+			return 1;
+		} else {
+			return 0.5;
+		}
+	} else if (bait === "baitfish") {
+		if (fishInfo.requiresBaitFish) {
+			return 1;
+		} else if (fishInfo.isBaitFish) {
+			return 0;
+		} else {
+			return 1;
+		}
+	} else {
+		if (fishInfo.requiresBaitFish) {
+			return 0.1;
+		} else if (fishInfo.isBaitFish) {
+			return 0.5;
+		} else {
+			return 1;
+		}
+	}
+}
+window.fishingBaitWeightMultiplier = fishingBaitWeightMultiplier;
+
+/**
+ * Rolls a per-day, per-location weighting for each fish available at the location.
+ *
+ * @param {string} location
+ */
+function rollLocalFishPoolModifiers(location) {
+	V.daily.fishing[location].fishPoolModifiers = {};
+	for (const [fishKey, fishConfig] of Object.entries(setup.fishing.lootTables.fish)) {
+		const locationWeight = fishConfig.locations[location];
+		if (locationWeight > 0) {
+			V.daily.fishing[location].fishPoolModifiers[fishKey] = [0.2, 1, 1, 1, 1.4].random();
+		}
+	}
+}
+window.rollLocalFishPoolModifiers = rollLocalFishPoolModifiers;
+
+/**
+ * Rolls how populated the location is today.
+ *
+ * @param {string} location
+ */
+function rollFishPopulation(location) {
+	const roll = random(1, 100);
+	if (roll <= 10) {
+		V.daily.fishing[location].fishPopulation = "teeming";
+	} else if (roll <= 30) {
+		V.daily.fishing[location].fishPopulation = "quiet";
+	} else {
+		V.daily.fishing[location].fishPopulation = "normal";
+	}
+}
+window.rollFishPopulation = rollFishPopulation;
+
+/**
+ * Ensures today's per-location fishing pool has been rolled.
+ *
+ * @param {string} location
+ */
+function ensureFishingDailyPool(location) {
+	V.daily.fishing ??= {};
+	V.daily.fishing[location] ??= {};
+	if (V.daily.fishing[location].fishPoolModifiers === undefined) {
+		rollLocalFishPoolModifiers(location);
+		rollFishPopulation(location);
+	}
+}
+window.ensureFishingDailyPool = ensureFishingDailyPool;
+
 function rollFish(bus) {
-	const options = [];
+	ensureFishingDailyPool(bus);
+	const possibleFish = [];
 	for (const [fishKey, fishConfig] of Object.entries(setup.fishing.lootTables.fish)) {
 		const locationWeight = fishConfig.locations[bus];
 		if (locationWeight > 0) {
-			const weight = fishConfig.preferredWeather.includes(Weather.name) ? locationWeight * 2 : locationWeight * 0.5;
-			options.push([fishKey, weight]);
+			const weatherMultiplier = fishConfig.preferredWeather.includes(Weather.name) ? 2 : 0.5;
+			const poolModifier = V.daily.fishing[bus].fishPoolModifiers[fishKey];
+			const baitMultiplier = fishingBaitWeightMultiplier(fishKey);
+
+			possibleFish.push([fishKey, locationWeight * weatherMultiplier * poolModifier * baitMultiplier]);
 		}
 	}
-	const fishKey = weightedRandom(...options);
+	const fishKey = weightedRandom(...possibleFish);
 	const fishConfig = setup.fishing.lootTables.fish[fishKey];
 	const size = Math.ceil(rollFishSize(bus, fishKey));
 	const aboveAverageSize = size > (fishConfig.minSize + fishConfig.maxSize) / 2;
@@ -163,14 +196,42 @@ function rollFish(bus) {
 }
 window.rollFish = rollFish;
 
+/**
+ * Fishing locations will roll each day for the rarity fo the different fish at the location. For fish that roll as more common than usual, there is a wait ambient added that shows the player them surfacing.
+ *
+ * @param {string} location
+ */
+function fishingSurfacingFish(location) {
+	ensureFishingDailyPool(location);
+	const modifiers = V.daily.fishing[location].fishPoolModifiers;
+	return Object.keys(modifiers).filter(
+		fishKey => modifiers[fishKey] === 1.4 && setup.fishing.lootTables.fish[fishKey].preferredWeather.includes(Weather.name)
+	);
+}
+window.fishingSurfacingFish = fishingSurfacingFish;
+
 function fishingUsingMagnetRod() {
 	return V.worn.handheld.type.includes("fishing_rod_magnet");
 }
 window.fishingUsingMagnetRod = fishingUsingMagnetRod;
 
+/**
+ * If a fish you just hooked should be caught with the minigame.
+ *
+ * @param {object} fish
+ */
 function fishingTriggersReelFight(fish) {
-	// Fishing todo: Make this take into account athletics
-	return fish.size >= setup.fishing.reelFightMinSize;
+	const fishConfig = setup.fishing.lootTables.fish[fish.type];
+	if (fishConfig.requiresBaitFish) {
+		return true;
+	}
+
+	if (!fishConfig.minigame) {
+		return false;
+	}
+
+	const athleticsSizeBonus = Math.round(20 * Math.clamp(V.athletics / 1000, 0, 1));
+	return fish.size >= setup.fishing.reelFightMinSize + athleticsSizeBonus;
 }
 window.fishingTriggersReelFight = fishingTriggersReelFight;
 
@@ -180,23 +241,23 @@ function rollFishingLootKey(lootTable, bus) {
 		if (loot.locations && !loot.locations.includes(bus)) {
 			continue;
 		}
-		// Heavy single-catch items live on the scrap table for value/name lookups, but are
-		// only ever obtained through their own inline events.
-		if (loot.big) continue;
 		options.push([lootKey, loot.weight]);
 	}
 	return weightedRandom(...options);
 }
 window.rollFishingLootKey = rollFishingLootKey;
 
+/**
+ * Heavy scrap items can only be found caught once, and have their own event in the fishing loop. But since they are scrap, they still need to use the scrap table, since the scrap table is the source of truth for scrap information. So we exclude the big loot from the roll for normal events.
+ *
+ * @param {string} bus
+ */
 function rollMagnetScrap(bus) {
-	const lootKey = rollFishingLootKey(setup.fishing.lootTables.magnetScrap, bus);
-	const loot = setup.fishing.lootTables.magnetScrap[lootKey];
-	return { type: lootKey, name: loot.name, value: loot.value };
+	const rollableScrap = Object.fromEntries(Object.entries(setup.fishing.lootTables.magnetScrap).filter(([, loot]) => !loot.big));
+	return rollFishingLootKey(rollableScrap, bus);
 }
 window.rollMagnetScrap = rollMagnetScrap;
 
-// A one-off antique inline event should only fire while its antique hasn't been found yet.
 function fishingAntiqueAvailable(antiqueKey) {
 	const status = V.museumAntiques?.antiques?.[antiqueKey];
 	return !status || status === "notFound";
@@ -204,7 +265,7 @@ function fishingAntiqueAvailable(antiqueKey) {
 window.fishingAntiqueAvailable = fishingAntiqueAvailable;
 
 function rollFishingTrash(bus) {
-	return { type: rollFishingLootKey(setup.fishing.lootTables.fishingTrash, bus) };
+	return rollFishingLootKey(setup.fishing.lootTables.fishingTrash, bus);
 }
 window.rollFishingTrash = rollFishingTrash;
 
@@ -253,7 +314,7 @@ window.canCookFish = canCookFish;
 
 function canStartFishing() {
 	// fishing todo
-	// return !pcAreArmsBound("any") && V.worn.handheld.type.includes("fishing_rod");
+	// return !pcAreArmsBound("any") && (V.worn.handheld.type.includes("fishing_rod") || V.worn.handheld.type.includes("fishing_rod_magnet"););
 
 	return true;
 }
@@ -282,7 +343,6 @@ function resetFishingCatchState() {
 	delete V.fishingMagnetTrash;
 	delete V.fishingTrash;
 	delete V.fishingClothingName;
-	delete V.fishingReelAttempts;
 }
 window.resetFishingCatchState = resetFishingCatchState;
 
@@ -304,59 +364,62 @@ function decrementMagnetLoot(locationKey) {
 window.decrementMagnetLoot = decrementMagnetLoot;
 
 function initFishingBeach() {
+	if (V.bus !== "fishingBeach") delete V.fishing.currentBait;
 	V.bus = "fishingBeach";
-	V.fishing.beach ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.magnetLootCaught ??= 0;
 	V.daily.fishing.trashCaught ??= 0;
-	V.daily.fishing.beach ??= {};
-	V.daily.fishing.beach.fisher ??= {};
-	V.daily.fishing.beach.fisher.drunk ??= 0;
+	V.daily.fishing.fishingBeach ??= {};
+	V.daily.fishing.fishingBeach.fisher ??= {};
+	V.daily.fishing.fishingBeach.fisher.drunk ??= 0;
+	V.daily.fishing.fishingBeach.fisherOgle ??= 1;
 	resetFishingCatchState();
 }
 window.initFishingBeach = initFishingBeach;
 
 function initFishingCoastPath() {
+	if (V.bus !== "fishingCoastPath") delete V.fishing.currentBait;
 	V.bus = "fishingCoastPath";
-	V.fishing.coastPath ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.magnetLootCaught ??= 0;
 	V.daily.fishing.trashCaught ??= 0;
-	V.daily.fishing.coastPath ??= {};
+	V.daily.fishing.fishingCoastPath ??= {};
 	resetFishingCatchState();
 }
 window.initFishingCoastPath = initFishingCoastPath;
 
 function initFishingForestLake() {
+	if (V.bus !== "fishingForestLake") delete V.fishing.currentBait;
 	V.bus = "fishingForestLake";
-	V.fishing.forestLake ??= {};
-	V.fishing.forestLake.event ??= "none";
-	V.fishing.forestLake.eventDanger ??= 0;
+	V.fishing.fishingForestLake ??= {};
+	V.fishing.fishingForestLake.event ??= "none";
+	V.fishing.fishingForestLake.eventDanger ??= 0;
 	V.daily.fishing ??= {};
 	V.daily.fishing.magnetLootCaught ??= 0;
 	V.daily.fishing.trashCaught ??= 0;
-	V.daily.fishing.forestLake ??= {};
+	V.daily.fishing.fishingForestLake ??= {};
 	resetFishingCatchState();
 }
 window.initFishingForestLake = initFishingForestLake;
 
 function initFishingMoor() {
+	if (V.bus !== "fishingMoor") delete V.fishing.currentBait;
 	V.bus = "fishingMoor";
-	V.fishing.moor ??= {};
-	V.fishing.moor.event ??= "none";
-	V.fishing.moor.eventDanger ??= 0;
+	V.fishing.fishingMoor ??= {};
+	V.fishing.fishingMoor.event ??= "none";
+	V.fishing.fishingMoor.eventDanger ??= 0;
 	V.daily.fishing ??= {};
 	V.daily.fishing.magnetLootCaught ??= 0;
 	V.daily.fishing.trashCaught ??= 0;
-	V.daily.fishing.moor ??= {};
-	V.daily.fishing.moor.fox ??= {};
-	V.daily.fishing.moor.hikers ??= {};
-	V.daily.fishing.moor.hikers.drinkCount ??= 0;
+	V.daily.fishing.fishingMoor ??= {};
+	V.daily.fishing.fishingMoor.fox ??= {};
+	V.daily.fishing.fishingMoor.hikers ??= {};
+	V.daily.fishing.fishingMoor.hikers.drinkCount ??= 0;
 	if (V.moor_hunt >= 1) {
-		V.fishing.moor.event = "none";
-		V.fishing.moor.eventDanger = 0;
-		if (["sit", "campfire"].includes(V.daily.fishing.moor.hikers?.phase)) {
-			V.daily.fishing.moor.hikers.phase = "finished";
+		V.fishing.fishingMoor.event = "none";
+		V.fishing.fishingMoor.eventDanger = 0;
+		if (["sit", "campfire"].includes(V.daily.fishing.fishingMoor.hikers.phase)) {
+			V.daily.fishing.fishingMoor.hikers.phase = "finished";
 			wikifier("clearNPC", "moor_hiker_1");
 			wikifier("clearNPC", "moor_hiker_2");
 		}
@@ -366,18 +429,19 @@ function initFishingMoor() {
 window.initFishingMoor = initFishingMoor;
 
 function initFishingPier() {
+	if (V.bus !== "fishingPier") delete V.fishing.currentBait;
 	V.bus = "fishingPier";
-	V.fishing.pier ??= {};
 	V.fishing.whitney ??= {};
 	V.daily.fishing ??= {};
 	V.daily.fishing.magnetLootCaught ??= 0;
 	V.daily.fishing.trashCaught ??= 0;
-	V.daily.fishing.pier ??= {};
-	V.daily.fishing.pier.fisher ??= {};
-	V.daily.fishing.pier.fisher.drunk ??= 0;
-	V.daily.fishing.pier.whitney ??= {};
-	V.daily.fishing.pier.whitney.pcCider ??= 0;
-	V.daily.fishing.pier.whitney.pcCiderTotal ??= 0;
+	V.daily.fishing.fishingPier ??= {};
+	V.daily.fishing.fishingPier.fisher ??= {};
+	V.daily.fishing.fishingPier.fisher.drunk ??= 0;
+	V.daily.fishing.fishingPier.fisherOgle ??= 1;
+	V.daily.fishing.fishingPier.whitney ??= {};
+	V.daily.fishing.fishingPier.whitney.pcCider ??= 0;
+	V.daily.fishing.fishingPier.whitney.pcCiderTotal ??= 0;
 	resetFishingCatchState();
 }
 window.initFishingPier = initFishingPier;
@@ -385,18 +449,20 @@ window.initFishingPier = initFishingPier;
 function isPlayerFishingAlone() {
 	switch (V.bus) {
 		case "fishingBeach":
-			return [undefined, "finished"].includes(V.daily?.fishing?.beach?.fisher?.phase);
+			return [undefined, "finished"].includes(V.daily?.fishing?.fishingBeach?.fisher?.phase);
 		case "fishingPier":
 			return (
-				[undefined, "finished"].includes(V.daily?.fishing?.pier?.fisher?.phase) &&
-				[undefined, "finished"].includes(V.daily?.fishing?.pier?.whitney?.phase)
+				[undefined, "finished"].includes(V.daily?.fishing?.fishingPier?.fisher?.phase) &&
+				[undefined, "finished"].includes(V.daily?.fishing?.fishingPier?.whitney?.phase)
 			);
 		case "fishingMoor":
-			return [undefined, "finished"].includes(V.daily?.fishing?.moor?.hikers?.phase);
+			return [undefined, "finished"].includes(V.daily?.fishing?.fishingMoor?.hikers?.phase);
 		case "fishingCoastPath":
 			return true;
 		case "fishingForestLake":
 			return true;
+		default:
+			throw new Error(`isPlayerFishingAlone: unknown bus "${V.bus}"`);
 	}
 }
 window.isPlayerFishingAlone = isPlayerFishingAlone;
@@ -409,7 +475,9 @@ function startFishingProp() {
 }
 window.startFishingProp = startFishingProp;
 
-// Some events are reused for fishing, such as some events on the beach that can also happen while fishing on the beach. So if you see this somewhere in an event that is unrelated to fishing, it is there for the case where you get into that event through fishing.
+/**
+ * Some events are reused for fishing, such as some events on the beach that can also happen while fishing on the beach. So if you see this somewhere in an event that is unrelated to fishing, it is there for the case where you get into that event through fishing.
+ */
 function stopFishingProp() {
 	if (V.worn.handheld.type.includes("fishing_rod") || V.worn.handheld.type.includes("fishing_rod_magnet")) {
 		V.worn.handheld.holdPosition = 0;
@@ -418,10 +486,48 @@ function stopFishingProp() {
 }
 window.stopFishingProp = stopFishingProp;
 
+function openBaitOverlay() {
+	if (!T.fishingEditBaitEnabled) return;
+	wikifier("overlayReplace", '"bait"');
+}
+window.openBaitOverlay = openBaitOverlay;
+
+function onBaitLoss() {
+	const bait = V.fishing.currentBait;
+	delete V.fishing.currentBait;
+	if (V.fishing.autoRebait && bait && V.foodstuff[bait]?.amount >= 1) {
+		V.foodstuff[bait].amount -= 1;
+		V.fishing.currentBait = bait;
+		V.fishing.lastBait = bait;
+	}
+}
+window.onBaitLoss = onBaitLoss;
+
 function canEatFishTf(fish) {
-	return V.cat >= 5 && fish.size <= 20;
+	return V.cat >= 5 && fish.size <= 30;
 }
 window.canEatFishTf = canEatFishTf;
+
+/**
+ * Records the current in-game time as the arrival of a fishing event NPC so some of their interactions can be gated until some time has elapsed.
+ */
+function fishingRecordEventArrival() {
+	V.daily.fishing.eventArrivalTime = Time.date.timeStamp;
+}
+window.fishingRecordEventArrival = fishingRecordEventArrival;
+
+/**
+ * Whether at least `minutes` of in-game time have elapsed since the last recorded fishing event NPC arrival.
+ *
+ * @param {number} minutes
+ * @returns {boolean}
+ */
+function fishingArrivalTimePassed(minutes) {
+	const arrival = V.daily.fishing.eventArrivalTime;
+	if (arrival === undefined) return false;
+	return Time.date.timeStamp - arrival >= minutes * 60;
+}
+window.fishingArrivalTimePassed = fishingArrivalTimePassed;
 
 function fishingLocationWaterBodyName(bus) {
 	switch (bus) {
@@ -439,17 +545,31 @@ function fishingLocationWaterBodyName(bus) {
 }
 window.fishingLocationWaterBodyName = fishingLocationWaterBodyName;
 
-// Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), x2 at max allure (8000).
+/**
+ * Used to scale the likelihood of dangerous fishing events. x1 at allure <2000 (arbitrary), x2 at max allure (8000).
+ *
+ * @param {number} defaultEventWeight
+ */
 function fishingDangerEventWeight(defaultEventWeight) {
 	const allureMultiplier = Math.clamp(1 + (V.allure - 2000) / 6000, 1, 2);
 	return defaultEventWeight * allureMultiplier;
 }
 window.fishingDangerEventWeight = fishingDangerEventWeight;
 
-// Used to scale the likelihood of catching a fish. x2 when teeming, x0.5 when quiet, 1 otherwise.
+/**
+ * Used to scale the likelihood of catching a fish. x2 when teeming, x0.5 when quiet, 1 otherwise.
+ *
+ * @param {string} location
+ * @param {number} defaultEventWeight
+ */
 function fishingCatchEventWeight(location, defaultEventWeight) {
 	const population = V.daily.fishing[location]?.fishPopulation;
-	const multiplier = population === "teeming" ? 2 : population === "quiet" ? 0.5 : 1;
+	let multiplier = 1;
+	if (population === "teeming") {
+		multiplier = 2;
+	} else if (population === "quiet") {
+		multiplier = 0.5;
+	}
 	return defaultEventWeight * multiplier;
 }
 window.fishingCatchEventWeight = fishingCatchEventWeight;

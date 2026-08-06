@@ -13,6 +13,11 @@ function initFishingFishConfig() {
 				fishingCoastPath: 0.5,
 			},
 			cookable: true,
+			minigame: {
+				behavior: "runner",
+				maxStamina: 6,
+				armFatigueDifficulty: 220,
+			},
 			icon: "fish/haddock.png",
 		},
 		salmon: {
@@ -28,6 +33,11 @@ function initFishingFishConfig() {
 				fishingForestLake: 0.5,
 			},
 			cookable: true,
+			minigame: {
+				behavior: "bolter",
+				maxStamina: 5,
+				armFatigueDifficulty: 220,
+			},
 			icon: "fish/salmon.png",
 		},
 		trout: {
@@ -42,22 +52,12 @@ function initFishingFishConfig() {
 				fishingMoor: 1,
 			},
 			cookable: true,
-			icon: "fish/trout.png",
-		},
-		cod: {
-			minSize: 40,
-			maxSize: 140,
-			preferredSeason: ["winter"],
-			preferredTime: ["dusk"],
-			preferredLocation: ["fishingCoastPath"],
-			preferredWeather: ["heavyClouds", "storm", "thunderstorm"],
-			locations: {
-				fishingBeach: 1,
-				fishingPier: 1,
-				fishingCoastPath: 1,
+			minigame: {
+				behavior: "darter",
+				maxStamina: 5,
+				armFatigueDifficulty: 220,
 			},
-			cookable: true,
-			icon: "fish/cod.png",
+			icon: "fish/trout.png",
 		},
 		herring: {
 			minSize: 20,
@@ -117,22 +117,12 @@ function initFishingFishConfig() {
 				fishingCoastPath: 1,
 			},
 			cookable: false,
-			icon: "fish/flounder.png",
-		},
-		sole: {
-			minSize: 24,
-			maxSize: 65,
-			preferredSeason: ["summer", "autumn"],
-			preferredTime: ["night", "dusk"],
-			preferredLocation: ["fishingPier", "fishingCoastPath"],
-			preferredWeather: ["heavyClouds", "storm", "thunderstorm"],
-			locations: {
-				fishingBeach: 1,
-				fishingPier: 1,
-				fishingCoastPath: 1,
+			minigame: {
+				behavior: "runner",
+				maxStamina: 5,
+				armFatigueDifficulty: 220,
 			},
-			cookable: false,
-			icon: "fish/sole.png",
+			icon: "fish/flounder.png",
 		},
 		bass: {
 			minSize: 35,
@@ -147,6 +137,11 @@ function initFishingFishConfig() {
 				fishingCoastPath: 1,
 			},
 			cookable: true,
+			minigame: {
+				behavior: "runner",
+				maxStamina: 5,
+				armFatigueDifficulty: 220,
+			},
 			icon: "fish/bass.png",
 		},
 		roach: {
@@ -175,6 +170,11 @@ function initFishingFishConfig() {
 				fishingMoor: 1,
 			},
 			cookable: true,
+			minigame: {
+				behavior: "darter",
+				maxStamina: 4,
+				armFatigueDifficulty: 220,
+			},
 			icon: "fish/perch.png",
 		},
 		chub: {
@@ -189,7 +189,33 @@ function initFishingFishConfig() {
 				fishingMoor: 0.25,
 			},
 			cookable: true,
+			minigame: {
+				behavior: "bolter",
+				maxStamina: 4,
+				armFatigueDifficulty: 220,
+			},
 			icon: "fish/chub.png",
+		},
+		cod: {
+			minSize: 40,
+			maxSize: 140,
+			preferredSeason: ["winter"],
+			preferredTime: ["dusk"],
+			preferredLocation: ["fishingCoastPath"],
+			preferredWeather: ["heavyClouds", "storm", "thunderstorm"],
+			locations: {
+				fishingBeach: 0.5,
+				fishingPier: 0.65,
+				fishingCoastPath: 0.8,
+			},
+			requiresBaitFish: true,
+			cookable: true,
+			minigame: {
+				behavior: "anchor",
+				maxStamina: 5,
+				armFatigueDifficulty: 450,
+			},
+			icon: "fish/cod.png",
 		},
 		pike: {
 			minSize: 45,
@@ -200,9 +226,14 @@ function initFishingFishConfig() {
 			preferredWeather: ["heavyClouds", "storm", "thunderstorm"],
 			locations: {
 				fishingForestLake: 1,
-				fishingMoor: 0.75,
 			},
+			requiresBaitFish: true,
 			cookable: true,
+			minigame: {
+				behavior: "thrasher",
+				maxStamina: 4,
+				armFatigueDifficulty: 250,
+			},
 			icon: "fish/pike.png",
 		},
 		eel: {
@@ -213,10 +244,15 @@ function initFishingFishConfig() {
 			preferredLocation: ["fishingForestLake", "fishingMoor"],
 			preferredWeather: ["heavyClouds", "lightPrecipitation", "storm", "thunderstorm"],
 			locations: {
-				fishingForestLake: 1,
 				fishingMoor: 0.5,
 			},
+			requiresBaitFish: true,
 			cookable: false,
+			minigame: {
+				behavior: "slipper",
+				maxStamina: 2,
+				armFatigueDifficulty: 250,
+			},
 			icon: "fish/eel.png",
 		},
 		grayling: {
@@ -232,9 +268,24 @@ function initFishingFishConfig() {
 			cookable: false,
 			icon: "fish/grayling.png",
 		},
+		baitfish: {
+			minSize: 4,
+			maxSize: 14,
+			preferredSeason: ["spring", "summer", "autumn", "winter"],
+			preferredTime: ["dawn", "day"],
+			preferredLocation: ["fishingForestLake", "fishingBeach"],
+			preferredWeather: ["clear", "lightClouds"],
+			locations: {
+				fishingForestLake: 1,
+				fishingBeach: 1,
+			},
+			cookable: false,
+			icon: "fish/baitfish.png",
+			isBaitFish: true,
+		},
 	};
 
-	setup.fishing.reelFightMinSize = 80;
+	setup.fishing.reelFightMinSize = 60;
 
 	setup.fishing.lootTables.magnetScrap = {
 		horseshoe: { name: "old horseshoe", value: 3, weight: 2 },
@@ -262,13 +313,11 @@ function initFishingFishConfig() {
 	setup.fishing.lootTables.fishingTrash = {
 		boot: { weight: 1, isLitter: true },
 		plasticBag: { weight: 1.5, isLitter: true },
-
 		fishingLine: { weight: 1, isLitter: true },
 		netting: { weight: 0.75, isLitter: true },
 		seaweed: { weight: 1.5, isLitter: false, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
 		conchShell: { weight: 0.75, isLitter: false, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
 		mussel: { weight: 1, isLitter: false, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
-		driftwood: { weight: 1, isLitter: false },
 		pondweed: { weight: 1.5, isLitter: false, locations: ["fishingForestLake", "fishingMoor"] },
 	};
 

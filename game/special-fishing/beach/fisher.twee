@@ -1,13 +1,10 @@
-/*
- * A random NPC fisher arrives on the beach and fishes nearby. They can slowly get drunk over the course of the session, making them more belligerent. If you catch
- * something while they're drunk, they might try to take it from you.
- */
 :: Fishing Beach Fisher Arrive
 <<effects>>
 <<generate1>><<saveNPC 0 "fishing_beach_npc_fisher">><<person1>>
-<<set $daily.fishing.beach.fisher.phase to "fishing">>
-<<set $daily.fishing.beach.fisher.age to 0>>
-<<set $daily.fishing.beach.fisher.drunk to 0>>
+<<set $daily.fishing.fishingBeach.fisher.phase to "fishing">>
+<<set $daily.fishing.fishingBeach.fisher.age to 0>>
+<<set $daily.fishing.fishingBeach.fisher.drunk to 0>>
+<<run fishingRecordEventArrival()>>
 
 Another fisher, a <<person>>, walks down to the shore and sets up a short distance away.
 <<if $exposed gte 1>>
@@ -22,7 +19,7 @@ Another fisher, a <<person>>, walks down to the shore and sets up a short distan
 :: Fishing Beach Fisher Tips Offer
 <<effects>>
 <<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
-<<set $daily.fishing.beach.fisher.tipGiven to true>>
+<<set $daily.fishing.fishingBeach.fisher.tipGiven to true>>
 
 <<switch random(1, 3)>>
 	<<case 1>>
@@ -105,7 +102,7 @@ The <<person>> reels in and glances over at you. "You've been at this for a whil
 :: Fishing Beach Fisher Leave Night
 <<effects>>
 <<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
-<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
 
 The <<person>> glances up at the darkening sky and starts to pack up <<his>> fishing gear. "I'm not a fan of night fishing around these parts. You should head home too."
 <br><br>
@@ -118,7 +115,7 @@ The <<person>> glances up at the darkening sky and starts to pack up <<his>> fis
 :: Fishing Beach Fisher Leave Weather
 <<effects>>
 <<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
-<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
 
 The <<person>> looks up as it begins to rain, then begins to pack up <<his>> fishing gear. "The weather is turning, I'm going to head home before it gets any worse. You should head out too."
 <br><br>
@@ -128,10 +125,28 @@ The <<person>> looks up as it begins to rain, then begins to pack up <<his>> fis
 <<link [[Next|Fishing Beach Wait]]>><<endevent>><</link>>
 
 
+:: Fishing Beach Cat Eat Fisher
+<<effects>>
+<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<fishingEatFishCatProgress>><<lstress>><<stress -6>>
+<<unset $fishingHookedFish>>
+<br><br>
+
+The <<person>> goes quiet, staring at you with a confused look on <<his>> face.
+<<if $rng gte 80>>
+	Without a word, <<he>> starts packing up <<his>> things, giving you a look that's a mix of concern and confusion as <<he>> leaves.
+	<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
+	<<clearNPC "fishing_beach_npc_fisher">>
+<</if>>
+<br><br>
+
+<<link [[Next|Fishing Beach Wait]]>><<endevent>><</link>>
+
+
 :: Fishing Beach Events [widget]
 <<widget "fishingBeachFisherAmbient">>
 	<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
-	<<set $daily.fishing.beach.fisher.age += 1>>
+	<<set $daily.fishing.fishingBeach.fisher.age += 1>>
 	<<cleareventpool>>
 
 	<<addinlineevent 1>>
@@ -150,7 +165,7 @@ The <<person>> looks up as it begins to rain, then begins to pack up <<his>> fis
 		The <<personsimple>> picks a clump of seaweed off <<his>> line and casts back out.
 	<</addinlineevent>>
 
-	<<if $daily.fishing.beach.fisher.drunk gte 3>>
+	<<if $daily.fishing.fishingBeach.fisher.drunk gte 3>>
 		<<addinlineevent 15>>
 			The <<personsimple>> sways slightly on <<his>> feet, rod dipping toward the water.
 		<</addinlineevent>>
@@ -177,22 +192,22 @@ The <<person>> looks up as it begins to rain, then begins to pack up <<his>> fis
 
 	<<addinlineevent 1>>
 		The <<personsimple>> reaches into <<his>> bag, pulls out a flask, and takes a long drink before tucking it away.
-		<<set $daily.fishing.beach.fisher.drunk += 1>>
+		<<set $daily.fishing.fishingBeach.fisher.drunk += 1>>
 	<</addinlineevent>>
 	<<addinlineevent 1>>
 		The <<personsimple>> pulls out a flask and drinks from it, then goes back to <<his>> rod.
-		<<set $daily.fishing.beach.fisher.drunk += 1>>
+		<<set $daily.fishing.fishingBeach.fisher.drunk += 1>>
 	<</addinlineevent>>
 
-	<<if $daily.fishing.beach.fisher.age gte 4>>
+	<<if $daily.fishing.fishingBeach.fisher.age gte 4>>
 		<<addinlineevent 7>>
-			<<set $daily.fishing.beach.fisher.age to 0>>
+			<<set $daily.fishing.fishingBeach.fisher.age to 0>>
 			The <<personsimple>> suddenly braces, struggling with the line as <<his>> rod bends around. After a tense moment, <<he>> reels in and pulls out a fish with a satisfied grunt. <<He>> holds it up briefly before unhooking it and dropping it in <<his>> cooler.
 		<</addinlineevent>>
 		<<addinlineevent 12>>
-			<<set $daily.fishing.beach.fisher.age to 0>>
+			<<set $daily.fishing.fishingBeach.fisher.age to 0>>
 			The <<personsimple>> suddenly braces, fighting with the line as it pulls <<his>> rod around. Then <<he>> jolts back as whatever was on the line escapes.
-			<<if $daily.fishing.beach.fisher.drunk gte 3>>
+			<<if $daily.fishing.fishingBeach.fisher.drunk gte 3>>
 				<<He>> swears under <<his>> breath, fumbling with <<his>> line before eventually getting it hooked and cast back out.
 			<<else>>
 				With a sigh, <<he>> re-hooks <<his>> line and casts back out.
@@ -201,23 +216,23 @@ The <<person>> looks up as it begins to rain, then begins to pack up <<his>> fis
 	<</if>>
 
 	<<if $exposed gte 1>>
-		<<set $daily.fishing.beach.fisherOgle ??= 1>>
-		<<addinlineevent $daily.fishing.beach.fisherOgle>>
-			<<set $daily.fishing.beach.fisherOgle += 1>>
+		<<set $daily.fishing.fishingBeach.fisherOgle ??= 1>>
+		<<addinlineevent $daily.fishing.fishingBeach.fisherOgle>>
+			<<set $daily.fishing.fishingBeach.fisherOgle += 1>>
 			The <<personsimple>>'s gaze drifts towards your <<lewdness>> before <<he>> turns back to <<his>> line.
 		<</addinlineevent>>
-		<<addinlineevent $daily.fishing.beach.fisherOgle>>
-			<<set $daily.fishing.beach.fisherOgle += 1>>
+		<<addinlineevent $daily.fishing.fishingBeach.fisherOgle>>
+			<<set $daily.fishing.fishingBeach.fisherOgle += 1>>
 			The <<personsimple>> glances over your <<lewdness>> with a long, slow look before turning back to <<his>> rod.
 		<</addinlineevent>>
 	<</if>>
 	<<if $exposed gte 2>>
-		<<addinlineevent $daily.fishing.beach.fisherOgle>>
-			<<set $daily.fishing.beach.fisherOgle += 2>>
+		<<addinlineevent $daily.fishing.fishingBeach.fisherOgle>>
+			<<set $daily.fishing.fishingBeach.fisherOgle += 2>>
 			The <<personsimple>> stares openly at your <<lewdness>>, not bothering to look away when you catch <<him>> looking.
 		<</addinlineevent>>
-		<<addinlineevent $daily.fishing.beach.fisherOgle>>
-			<<set $daily.fishing.beach.fisherOgle += 2>>
+		<<addinlineevent $daily.fishing.fishingBeach.fisherOgle>>
+			<<set $daily.fishing.fishingBeach.fisherOgle += 2>>
 			The <<personsimple>> looks over your <<lewdness>> with a slow, deliberate stare, not paying any attention to <<his>> rod.
 		<</addinlineevent>>
 	<</if>>
@@ -234,7 +249,7 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 <<unset $fishingHookedFish>>
 <br><br>
 
-<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
 <<clearNPC "fishing_beach_npc_fisher">>
 
 <<link [[Next|Fishing Beach Wait]]>><<endevent>><</link>>
@@ -288,7 +303,7 @@ The <<person>> snatches it from your hands and staggers off, muttering about "re
 
 :: Fishing Beach Fisher Molestation Finish
 <<effects>>
-<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
@@ -363,7 +378,7 @@ The <<person>> reels in <<his>> line and props <<his>> rod in the sand. <<He>> t
 
 :: Fishing Beach Fisher Exposed Molestation Finish
 <<effects>>
-<<set $daily.fishing.beach.fisher.phase to "finished">>
+<<set $daily.fishing.fishingBeach.fisher.phase to "finished">>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>

@@ -826,6 +826,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 100,
 			},
+			bait: true,
 			recipe: {
 				recipe_name: "bread",
 				difficulty: 1,
@@ -948,6 +949,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 500,
 			},
+			bait: true,
 			recipe: {
 				recipe_name: "cheese",
 				difficulty: 1,
@@ -1245,6 +1247,7 @@ function initFoodstuff() {
 				sell_price: 200,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		mince_pie: {
 			index: 60,
@@ -1322,6 +1325,7 @@ function initFoodstuff() {
 				sell_price: 200,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		potato_pancake: {
 			index: 64,
@@ -1453,6 +1457,7 @@ function initFoodstuff() {
 				sell_price: 300,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		pepper: {
 			index: 70,
@@ -2564,7 +2569,7 @@ function initFoodstuff() {
 				ingredients: ["cod", "chips", "vegetable_oil", "flour"],
 				ingredient_alternatives: {
 					normal: {
-						cod: ["haddock", "whiting", "flounder", "sole", "bass", "perch", "pike"],
+						cod: ["haddock", "whiting", "flounder", "bass", "perch", "pike"],
 					},
 					lewd: {},
 				},
@@ -2591,6 +2596,7 @@ function initFoodstuff() {
 				sell_price: 400,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		clam_chowder: {
 			index: 119,
@@ -3082,6 +3088,7 @@ function initFoodstuff() {
 				sell_price: 1000,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		pork: {
 			index: 140,
@@ -3100,6 +3107,7 @@ function initFoodstuff() {
 				sell_price: 700,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		cauliflower: {
 			index: 141,
@@ -3159,6 +3167,7 @@ function initFoodstuff() {
 				sell_price: 300,
 				available_in: ["supermarket"],
 			},
+			bait: true,
 		},
 		omelette: {
 			index: 144,
@@ -3462,19 +3471,6 @@ function initFoodstuff() {
 				sell_price: 400,
 			},
 		},
-		sole: {
-			index: 161,
-			name: "sole",
-			singular: "sole",
-			plural: "sole",
-			icon: "haddock-alt.png",
-			category: "seafood",
-			kitchen_item_type_icon: "recipe-seafood.png",
-			prop_folder: "ingredient",
-			shop: {
-				sell_price: 1000,
-			},
-		},
 		eel: {
 			index: 162,
 			name: "eel",
@@ -3499,6 +3495,20 @@ function initFoodstuff() {
 			prop_folder: "ingredient",
 			shop: {
 				sell_price: 900,
+			},
+		},
+		baitfish: {
+			index: 164,
+			name: "baitfish",
+			singular: "baitfish",
+			plural: "baitfish",
+			icon: "baitfish.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			bait: true,
+			shop: {
+				sell_price: 10,
 			},
 		},
 	};

@@ -1,77 +1,23 @@
 :: Fishing Pier Catch
 <<effects>>
-<<if $daily.fishing.pier.whitney.phase is "bet">>
+<<if $daily.fishing.fishingPier.whitney.phase is "bet">>
 	<<fishingPierCaughtWhitneyBet>>
-<<elseif $daily.fishing.pier.whitney.phase is "idle" and $rng gte 90 and !$daily.fishing.pier.whitney.fishKiss>>
-	<<set $daily.fishing.pier.whitney.fishKiss to true>>
+<<elseif $daily.fishing.fishingPier.whitney.phase is "idle" and $rng gte 90 and !$daily.fishing.fishingPier.whitney.fishKiss>>
+	<<set $daily.fishing.fishingPier.whitney.fishKiss to true>>
 	<<fishingPierCaughtWhitneyKiss>>
-<<elseif $daily.fishing.pier.fisher.phase is "fishing" and $daily.fishing.pier.fisher.drunk gte 4 and $rng gte 80>>
+<<elseif $daily.fishing.fishingPier.fisher.phase is "fishing" and $daily.fishing.fishingPier.fisher.drunk gte 4 and $rng gte 80>>
 	<<fishingPierCaughtFisherDrunk>>
-<<elseif Weather.dayState is "day" and [undefined, "finished"].includes($daily.fishing.pier.whitney.phase) and [undefined, "finished"].includes($daily.fishing.pier.fisher.phase) and $rng gte 90 and $daily.fishing.seagullSteal is undefined>>
+<<elseif Weather.dayState is "day" and [undefined, "finished"].includes($daily.fishing.fishingPier.whitney.phase) and [undefined, "finished"].includes($daily.fishing.fishingPier.fisher.phase) and $rng gte 90 and $daily.fishing.seagullSteal is undefined>>
 	<<fishingSeagullCaught $fishingHookedFish $bus>>
 <<else>>
 	<<fishingPierCaught>>
 <</if>>
 
 
-:: Fishing Pier Reel
-<<effects>>
-<<set $fishingReelAttempts += 1>>
-<<if $athleticsSuccess>>
-	You brace against the rocks and heave, and you <<if $fishingReelAttempts gt 1>>finally<</if>> <span class="green">reel up the fish.</span><<gtiredness>><<tiredness 1>>
-	<br><br>
-
-	<<include "Fishing Pier Catch">>
-<<elseif $fishingReelAttempts gte 3 and random(1, 5) gte 4>>
-	<<if $daily.fishing.pier.whitney.phase is "bet">>
-		<<fishingPierLineSnappedWhitneyBet>>
-	<<elseif $rng gte 80>>
-		<<if $daily.fishing.pier.fisher.phase is "fishing" and random(1, 2) is 1>>
-			<<fishingPierPulledInFisherSaved>>
-		<<elseif $daily.fishing.pier.whitney.phase is "idle">>
-			<<fishingPierPulledInWhitney>>
-		<<else>>
-			<<fishingPierPulledIn>>
-		<</if>>
-	<<elseif $rng gte 60>>
-		<<fishingPierRodLost>>
-	<<else>>
-		<<fishingPierLineSnapped>>
-	<</if>>
-<<else>>
-	<<if $fishingReelAttempts is 1>>
-		You haul back on your rod, but the <<print $fishingHookedFish.type>> strips your line right back off the reel. Your arms burn with the effort.<<gtiredness>><<tiredness 1>>
-	<<else>>
-		You drag it closer, close enough to see its shape beneath the dark water, before it dives again, wrenching you against the railing.<<gtiredness>><<tiredness 1>>
-	<</if>>
-	<br><br>
-
-	<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-	<<link [[Keep fighting it|Fishing Pier Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-	<br>
-	<<link [[Cut the line|Fishing Pier Cut Line]]>><</link>>
-<</if>>
-
-
-:: Fishing Pier Cut Line
-<<effects>>
-You release the tension on your rod, letting your line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, your line breaks free. Through the dark water below, you catch a glimpse of it darting away.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<if $daily.fishing.pier.whitney.phase is "bet">>
-	<<fishingPierCutLineWhitneyBet>>
-<<else>>
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
-	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
-<</if>>
-
-
 :: Widgets Fishing Pier Catch [widget]
 <<widget "fishingPierPulledInFisherSaved">>
 	<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're hauled over the railing,</span> but the <<person>> next to you grabs you before you can be pulled in. Your rod slips from your hands and disappears into the sea.<<gstress>><<stress 3>><<handheldruined>>
+	The <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're hauled over the railing,</span> but the <<person>> next to you grabs you before you can be pulled in.<<gstress>><<stress 3>>
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
 	<br><br>
@@ -79,13 +25,15 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 	"You okay?" <<he>> asks, breathing hard.
 	<br><br>
 
-	<<link [[Next|Fishing Pier Fisher Saved On Pier]]>><<set $phase to 1>><</link>>
+	<<link [[Say nothing|Fishing Pier Fisher Saved On Pier]]>><<set $phase to 0>><</link>>
 	<br>
-	<<link [[Thank with a kiss|Fishing Pier Fisher Thank Kiss]]>><<set $phase to 1>><<promiscuous1>><<kissvirginitywarning>><</link>>
+	<<link [[Thank <<him>>|Fishing Pier Fisher Saved On Pier]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[Thank with a kiss|Fishing Pier Fisher Thank Kiss]]>><<set $phase to 2>><<promiscuous1>><<kissvirginitywarning>><</link>>
 <</widget>>
 
 <<widget "fishingPierPulledIn">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're dragged over the railing and into the water below,</span> your rod torn from your hands as you fall.<<gstress>><<stress 5>><<handheldruined>>
+	The <<print $fishingHookedFish.type>> pulls harder. <span class="red">You're dragged over the railing into the water below,</span> though you keep hold of your rod as you fall.<<gstress>><<stress 5>>
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
 	<br><br>
@@ -93,24 +41,13 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 	<<link [[Next|Sea Docks]]>><<set $eventskip to 1>><</link>>
 <</widget>>
 
-<<widget "fishingPierRodLost">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> gives one last violent pull and your rod is wrenched clean out of your hands, clattering over the railing into the sea.<<gstress>><<stress 4>><<handheldruined>>
-	<<unset $fishingHookedFish>>
-	<<run stopFishingProp()>>
-	<br><br>
-
-	<<link [[Return to fishing|Fishing Pier Wait]]>><</link>>
-	<br>
-	<<link [[Leave|Dock Pier]]>><</link>>
-<</widget>>
-
 <<widget "fishingPierLineSnapped">>
-	You lean back with everything you have left, but your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone, and your line goes slack.
+	Your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone.
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
 	<br><br>
 
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<pass 3>><</link>>
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Pier Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
 	<br>
 	<<link [[Leave|Dock Pier]]>><</link>>
 <</widget>>
@@ -135,11 +72,15 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 		<br><br>
 	<</if>>
 
-	<<link [[Stow it away|Fishing Pier Keep]]>><</link>>
+	<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Pier Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 	<br>
-	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Pier Throw Back]]>><</link>>
+	<<link [[Throw it back|Fishing Pier Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 	<<if _canEatFish>>
 		<br>
-		<<link [[Eat the fish|Fishing Pier Cat Eat]]>><</link>>
+		<<if $daily.fishing.fishingPier.fisher.phase is "fishing">>
+			<<link [[Eat the fish|Fishing Pier Cat Eat Fisher]]>><</link>><<cat>>
+		<<else>>
+			<<link [[Eat the fish|Fishing Pier Cat Eat]]>><</link>><<cat>>
+		<</if>>
 	<</if>>
 <</widget>>

@@ -1,9 +1,9 @@
-/* The PC gets sent here any time they start fishing or after an event. From here, they get sent into the wait loop, where events can happen.  */
 :: Fishing Beach Wait
 <<effects>>
 <<run initFishingBeach()>>
 <<run startFishingProp()>>
 
+<<set _fishingEditBaitEnabled to true>>
 <<fishingLocationDescription $bus>>
 <<fishingLocationPopulation $bus>>
 <<fishingBeachAmbient>>
@@ -44,6 +44,10 @@
 		<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<run stopFishingProp()>><<set $bus to "beach">><</link>>
 	<</if>>
 <</if>>
+<<if $options.images isnot 1 and _fishingEditBaitEnabled>>
+	<br>
+	<<link "Change bait">><<run openBaitOverlay()>><</link>>
+<</if>>
 <<fishingBeachDebugLinks>>
 
 /* Core fishing event loop. Sending the user here rolls for an event within the eventpool. */
@@ -64,10 +68,12 @@
 <<else>>
 	<<addinlineevent "bite" fishingCatchEventWeight("fishingBeach", 10)>>
 		<<set $fishingHookedFish to rollFish("fishingBeach")>>
+		<<run onBaitLoss()>>
 		<<if fishingTriggersReelFight($fishingHookedFish)>>
-			<<include "Fishing Beach Bite Big">>
+			<<run fishingMinigameStart($fishingHookedFish.type)>>
+			<<include "Fishing Beach Minigame Loop">>
 		<<else>>
-			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			You feel a tug on your line, then haul back, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
 			<<include "Fishing Beach Catch">>
 		<</if>>
 	<</addinlineevent>>
@@ -84,28 +90,28 @@
 <</if>>
 
 /* Fisher event start */
-<<if $daily.fishing.beach.fisher.phase is undefined and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
+<<if $daily.fishing.fishingBeach.fisher.phase is undefined and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
 	<<addinlineevent "fisherArrive" 0.5>>
 		<<include "Fishing Beach Fisher Arrive">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher tips */
-<<if $daily.fishing.beach.fisher.phase is "fishing" and $daily.fishing.beach.fisher.tipGiven is undefined and !fishingUsingMagnetRod()>>
+<<if $daily.fishing.fishingBeach.fisher.phase is "fishing" and fishingArrivalTimePassed(30) and $daily.fishing.fishingBeach.fisher.tipGiven is undefined and !fishingUsingMagnetRod()>>
 	<<addinlineevent "fisherTipsOffer" 0.5>>
 		<<include "Fishing Beach Fisher Tips Offer">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher cliff tip */
-<<if $daily.fishing.beach.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("fishingCoastPath")>>
+<<if $daily.fishing.fishingBeach.fisher.phase is "fishing" and numberOfFishCaught() gte 50 and !$fishing.locationsFound.includes("fishingCoastPath")>>
 	<<addinlineevent "fisherCliffTipOffer" 1>>
 		<<include "Fishing Beach Fisher Cliff Tip Offer">>
 	<</addinlineevent>>
 <</if>>
 
 /* Fisher leaves */
-<<if $daily.fishing.beach.fisher.phase is "fishing">>
+<<if $daily.fishing.fishingBeach.fisher.phase is "fishing">>
 	<<if Time.hour gte 20>>
 		<<addinlineevent "fisherLeaveNight" 10>>
 			<<include "Fishing Beach Fisher Leave Night">>
@@ -118,8 +124,8 @@
 <</if>>
 
 /* Fisher attacks if player is exposed */
-<<if $daily.fishing.beach.fisher.phase is "fishing" and $exposed gte 1>>
-	<<addinlineevent "fisherExposedAttack" fishingDangerEventWeight($daily.fishing.beach.fisherOgle)>>
+<<if $daily.fishing.fishingBeach.fisher.phase is "fishing" and fishingArrivalTimePassed(60) and $exposed gte 1>>
+	<<addinlineevent "fisherExposedAttack" fishingDangerEventWeight($daily.fishing.fishingBeach.fisherOgle)>>
 		<<include "Fishing Beach Fisher Exposed Attack">>
 	<</addinlineevent>>
 <</if>>
@@ -147,7 +153,7 @@
 <</addinlineevent>>
 
 /* Dog tearing at clothing */
-<<if [undefined, "finished"].includes($daily.fishing.beach.fisher.phase)>>
+<<if [undefined, "finished"].includes($daily.fishing.fishingBeach.fisher.phase)>>
 	<<addinlineevent "beachDog" fishingDangerEventWeight(3.5)>>
 		<<beachday2>>
 	<</addinlineevent>>
@@ -155,7 +161,7 @@
 
 <<if Weather.dayState is "day">>
 	/* Beach molestation */
-	<<if [undefined, "finished"].includes($daily.fishing.beach.fisher.phase)>>
+	<<if [undefined, "finished"].includes($daily.fishing.fishingBeach.fisher.phase)>>
 		<<addinlineevent "beachMolestation" fishingDangerEventWeight(3.5)>>
 			<<include "Fishing Beach Molestation">>
 		<</addinlineevent>>
@@ -189,62 +195,54 @@
 <<runeventpool>>
 
 
-:: Fishing Beach Bite Big
-<<effects>>
-<<set $fishingReelAttempts to 0>>
-Something takes the bait and runs with it, your rod bending toward the surf.<<if $fishingHookedFish.aboveAverageSize>> You can see a <span class="pink">big</span> <<print $fishingHookedFish.type>> below the surface.<<else>> Looks like <<a $fishingHookedFish.type>>, big enough to give you some trouble.<</if>>
-<br><br>
-
-<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-<<link [[Try to reel it in|Fishing Beach Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-<br>
-<<link [[Cut the line|Fishing Beach Cut Line]]>><</link>>
-
-
-:: Fishing Beach Throw Back
-<<effects>>
-You toss the <<print $fishingHookedFish.type>> back into the sea.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Next|Fishing Beach Wait]]>><</link>>
-
-
-:: Fishing Beach Keep
-<<effects>>
-You stow the <<print $fishingHookedFish.type>> away.
-<<tending_give $fishingHookedFish.type 1>>
-
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Next|Fishing Beach Wait]]>><</link>>
-
 
 :: Fishing Beach Cat Eat
 <<effects>>
-You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<transform cat 1>><<lstress>><<stress -6>>
+You open wide and drop the whole <<print $fishingHookedFish.type>> in your mouth. <<fishingEatFishCatProgress>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
 
 <<link [[Next|Fishing Beach Wait]]>><</link>>
-
 
 :: Widgets Fishing Beach Wait Flavor [widget]
 /* Text that appears above the description of the PC waiting for a bite. Used for describing what other NPCs or animals are doing if they are present next to the player. */
 <<widget "fishingBeachAmbient">>
-	<<if $daily.fishing.beach.fisher.phase is "fishing">>
+	<<if $daily.fishing.fishingBeach.fisher.phase is "fishing">>
 		<<fishingBeachFisherAmbient>>
 	<</if>>
 <</widget>>
 
 /* Text that is used to generally describe the PC waiting for a bite. Also includes the PC being alone with their thoughts, and descriptions of the PC noticing things around them, like the weather or noises around them that could signify that something dangerous about to happen. Also used to describe the player when they take an action other than waiting for a bite. */
 <<widget "fishingBeachWaitAmbient">>
-	<<cleareventpool>>
-	<<fishingWaitAmbient $bus>>
+	<<if $fishingAmbientOverride is "throwBack">>
+		<<if $fishing.currentBait>>
+			You toss the fish back into the sea before <<fishingRebaitMid>>
+		<<else>>
+			You toss the fish back into the sea and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "stowAway">>
+		<<if $fishing.currentBait>>
+			You stow the fish away before <<fishingRebaitMid>>
+		<<else>>
+			You stow the fish away and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "reHook">>
+		<<if $fishing.currentBait>>
+			<<fishingRebaitStart>>
+		<<else>>
+			You re-hook your line and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<else>>
+		<<cleareventpool>>
+		<<fishingWaitAmbient $bus>>
 
-	<<if beachCampfirePartyPresent()>>
-		<<fishingWaitAmbientCampfireParty>>
+		<<if beachCampfirePartyPresent()>>
+			<<fishingWaitAmbientCampfireParty>>
+		<</if>>
+		<<runeventpool>>
 	<</if>>
-	<<runeventpool>>
+
 <</widget>>

@@ -1,54 +1,12 @@
 :: Fishing Moor Catch
 <<effects>>
-<<if ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase)>>
+<<if ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase)>>
 	<<fishingMoorCaughtHikers>>
-<<elseif $daily.fishing.moor.fox.phase is "watching">>
+<<elseif $daily.fishing.fishingMoor.fox.phase is "watching">>
 	<<fishingMoorCaughtFox>>
 <<else>>
 	<<fishingMoorCaught>>
 <</if>>
-
-
-:: Fishing Moor Reel
-<<effects>>
-<<set $fishingReelAttempts += 1>>
-<<if $athleticsSuccess>>
-	You brace against the rocks and heave, and you <<if $fishingReelAttempts gt 1>>finally<</if>> <span class="green">reel up the fish.</span><<gtiredness>><<tiredness 1>>
-	<br><br>
-
-	<<include "Fishing Moor Catch">>
-<<elseif $fishingReelAttempts gte 3 and $rng gte 80>>
-	<<if $daily.fishing.moor.fox.phase is "watching">>
-		<<fishingMoorLineSnappedFox>>
-	<<elseif ["sit", "campfire"].includes($daily.fishing.moor.hikers.phase) and !(playerIsPregnant() and playerAwareTheyArePregnant())>>
-		<<fishingMoorLineSnappedHikers>>
-	<<else>>
-		<<fishingMoorLineSnapped>>
-	<</if>>
-<<else>>
-	<<if $fishingReelAttempts is 1>>
-		You haul back on your rod, but the <<print $fishingHookedFish.type>> strips your line right back off the reel. Your arms burn with the effort.<<gtiredness>><<tiredness 1>>
-	<<else>>
-		You drag it closer, close enough to see it thrash between the reeds, before it dives again, nearly wrenching your rod from your hands.<<gtiredness>><<tiredness 1>>
-	<</if>>
-	<br><br>
-
-	<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-	<<link [[Keep fighting it|Fishing Moor Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-	<br>
-	<<link [[Cut the line|Fishing Moor Cut Line]]>><</link>>
-<</if>>
-
-
-:: Fishing Moor Cut Line
-<<effects>>
-You release the tension on your rod, letting your line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, your line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
-<br>
-<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 
 
 :: Widgets Fishing Moor Catch [widget]
@@ -67,22 +25,22 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 		<br><br>
 	<</if>>
 
-	<<link [[Stow it away|Fishing Moor Keep]]>><</link>>
+	<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Moor Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 	<br>
-	<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Moor Throw Back]]>><</link>>
+	<<link [[Throw it back|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 	<<if _canEatFish>>
 		<br>
-		<<link [[Eat the fish|Fishing Moor Cat Eat]]>><</link>>
+		<<link [[Eat the fish|Fishing Moor Cat Eat]]>><</link>><<cat>>
 	<</if>>
 <</widget>>
 
 <<widget "fishingMoorLineSnapped">>
-	Your line <span class="red">snaps,</span> suddenly going slack as the fish disappears into the murk.
+	Your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone.
 	<<run stopFishingProp()>>
 	<<unset $fishingHookedFish>>
 	<br><br>
 
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<pass 3>><</link>>
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Moor Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
 	<br>
 	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
 <</widget>>

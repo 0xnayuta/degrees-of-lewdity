@@ -1,0 +1,79 @@
+:: Fishing Bait Widgets [widget]
+
+<<widget "baitOverlay">>
+	<<fishingBaitList>>
+	<label class="fishing-select-bait-radio">
+		<<checkbox "$fishing.autoRebait" false true autocheck>> Automatically re-bait
+	</label>
+	<br><br>
+
+	<<if _fishingHaveBait is true>>
+		<<link "Bait hook">>
+			<<set $foodstuff[$fishingSelectedBait].amount -= 1>>
+			<<set $fishing.currentBait to $fishingSelectedBait>>
+			<<set $fishing.lastBait to $fishingSelectedBait>>
+			<<unset $fishingSelectedBait>>
+			<<if elementExists(".bait-sidebar-row")>>
+				<<replace ".bait-sidebar-row">><<baitSidebar>><</replace>>
+			<</if>>
+			<<run closeOverlay()>>
+		<</link>>
+		<br>
+	<</if>>
+	<<link "Close">><<unset $fishingSelectedBait>><<run closeOverlay()>><</link>>
+	<br>
+<</widget>>
+
+<<widget "fishingBaitHelp">>
+	Fishing todo: lol
+<</widget>>
+
+<<widget "fishingRebaitMid">>
+	<<if $foodstuff[$fishing.currentBait].amount lte 0>>
+		baiting your last piece of <<recipe_name $fishing.currentBait>> on the hook and casting back out.
+	<<else>>
+		re-baiting your line and casting back out. You have <<print $foodstuff[$fishing.currentBait].amount>> <<recipe_name $fishing.currentBait>> left.
+	<</if>>
+<</widget>>
+
+<<widget "fishingRebaitStart">>
+	<<if $foodstuff[$fishing.currentBait].amount lte 0>>
+		You bait your last piece of <<recipe_name $fishing.currentBait>> on the hook and cast back out.
+	<<else>>
+		You re-bait your line and cast back out. You have <<print $foodstuff[$fishing.currentBait].amount>> <<recipe_name $fishing.currentBait>> left.
+	<</if>>
+<</widget>>
+
+<<widget "fishingBaitList">>
+	<<unset $fishingSelectedBait>>
+
+	<<set _canReuseLastBait to false>>
+	<<if $fishing.lastBait and setup.foodstuff[$fishing.lastBait]?.bait is true and $foodstuff[$fishing.lastBait]?.amount gte 1>>
+		<<set _canReuseLastBait to true>>
+		<<set $fishingSelectedBait to $fishing.lastBait>>
+	<</if>>
+
+	<<set _foodKeys to Object.keys(setup.foodstuff)>>
+	<<for _i to 0; _i lt _foodKeys.length; _i++>>
+		<<set _food to _foodKeys[_i]>>
+		<<if setup.foodstuff[_food].bait is true and $foodstuff[_food]?.amount gte 1>>
+			<<set _fishingHaveBait to true>>
+			<<if !$fishingSelectedBait>>
+				<<set $fishingSelectedBait to _food>>
+			<</if>>
+			<label class="fishing-select-bait-radio">
+				<<foodstufficon _food>><<recipe_name _food "cap">> (<<print $foodstuff[_food].amount>>)
+				<<if _food is $fishingSelectedBait>>
+					<<radiobutton "$fishingSelectedBait" _food checked>>
+				<<else>>
+					<<radiobutton "$fishingSelectedBait" _food>>
+				<</if>>
+				|
+			</label>
+		<</if>>
+	<</for>>
+	<<if !_fishingHaveBait>>
+		You don't have anything to use as bait.
+	<</if>>
+	<br><br>
+<</widget>>

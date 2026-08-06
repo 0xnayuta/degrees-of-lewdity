@@ -42,10 +42,11 @@
 	/* Generic bite event. Big fish trigger a fight, small fish are caught without a fight. */
 	<<addinlineevent "bite" fishingCatchEventWeight("fishingLocationName", 10)>>
 		<<set $fishingHookedFish to rollFish("fishingLocationName")>>
+		<<run onBaitLoss()>>
 		<<if fishingTriggersReelFight($fishingHookedFish)>>
 			<<include "Fishing LocationName Bite Big">>
 		<<else>>
-			You feel a tug on your line, then haul back on your rod, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
+			You feel a tug on your line, then haul back, pulling <<a $fishingHookedFish.type>> out of the water without a fight.
 			<<include "Fishing LocationName Catch">>
 		<</if>>
 	<</addinlineevent>>
@@ -97,15 +98,31 @@
 
 /* Picks the waiting sentence each loop. <<fishingWaitAmbient>> is a set of inlineEvents, no clear/runeventpool, as should be any other widgets placed here. That way, you can have your default set of wait text from <<fishingWaitAmbient>> be added to any event-specific wait text for any active events. */
 <<widget "fishingLocationNameWaitAmbient">>
-	<<cleareventpool>>
-	<<fishingWaitAmbient $bus>>
+	<<if $fishingAmbientOverride is "throwBack">>
+		<<if $fishing.currentBait>>
+			You throw the fish back into the water before <<fishingRebaitMid>>
+		<<else>>
+			You throw the fish back into the water.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<elseif $fishingAmbientOverride is "stowAway">>
+		<<if $fishing.currentBait>>
+			You stow the fish away before <<fishingRebaitMid>>
+		<<else>>
+			You stow the fish away and cast back out.
+		<</if>>
+		<<unset $fishingAmbientOverride>>
+	<<else>>
+		<<cleareventpool>>
+		<<fishingWaitAmbient $bus>>
 
-	<<if $fishing.locationName.event is "dangerName">>
-		/* Widget that should go in the .twee file for the associated event that has the possible text that can appear instead of the normal wait text. event danger (the odds of the actual attack for the active danger event) should be increased by the inline events used to show that a dangerous event is active. */
-		<<fishingLocationNameDangerWaitAmbient>>
+		<<if $fishing.locationName.event is "dangerName">>
+			/* Widget that should go in the .twee file for the associated event that has the possible text that can appear instead of the normal wait text. event danger (the odds of the actual attack for the active danger event) should be increased by the inline events used to show that a dangerous event is active. */
+			<<fishingLocationNameDangerWaitAmbient>>
+		<</if>>
+
+		<<runeventpool>>
 	<</if>>
-
-	<<runeventpool>>
 <</widget>>
 
 

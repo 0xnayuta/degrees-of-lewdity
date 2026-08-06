@@ -1,48 +1,6 @@
-:: Fishing Forest Lake Reel
-<<effects>>
-<<set $fishingReelAttempts += 1>>
-<<if $athleticsSuccess>>
-	You brace against the rocks and heave, and you <<if $fishingReelAttempts gt 1>>finally<</if>> <span class="green">reel up the fish.</span><<gtiredness>><<tiredness 1>>
-	<br><br>
-
-	<<include "Fishing Forest Lake Catch">>
-<<elseif $fishingReelAttempts gte 3 and random(1, 5) gte 4>>
-	<<if $rng gte 80>>
-		<<fishingForestLakePulledIn>>
-	<<elseif $rng gte 60>>
-		<<fishingForestLakeRodLost>>
-	<<else>>
-		<<fishingForestLakeLineSnapped>>
-	<</if>>
-<<else>>
-	<<if $fishingReelAttempts is 1>>
-		You haul back on your rod, but the <<print $fishingHookedFish.type>> strips your line right back off the reel. Your arms burn with the effort.<<gtiredness>><<tiredness 1>>
-	<<else>>
-		You drag it closer, close enough to see its shape beneath the surface, before it dives again, nearly pulling you off the rocks.<<gtiredness>><<tiredness 1>>
-	<</if>>
-	<br><br>
-
-	<<set _reelDifficultyMax to Math.clamp($fishingHookedFish.size * 10, 600, 1400)>>
-	<<link [[Keep fighting it|Fishing Forest Lake Reel]]>><</link>><<athleticsdifficulty -250 _reelDifficultyMax>>
-	<br>
-	<<link [[Cut the line|Fishing Forest Lake Cut Line]]>><</link>>
-<</if>>
-
-
-:: Fishing Forest Lake Cut Line
-<<effects>>
-You release the tension on your rod, letting your line go slack. The <<print $fishingHookedFish.type>> pulls harder, and with a sudden snap, your line breaks free. Through the ripples, you catch a glimpse of it darting deeper, finally free.
-<<unset $fishingHookedFish>>
-<br><br>
-
-<<link [[Re-hook the line and cast back out (0:03)|Fishing Forest Lake Wait]]>><<pass 3>><</link>>
-<br>
-<<link [[Leave|Lake Fishing Rock]]>><<set $eventskip to 1>><</link>>
-
-
 :: Widgets Fishing Forest Lake Catch [widget]
 <<widget "fishingForestLakePulledIn">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> pulls harder. <span class="red">Your feet slip on the wet rock and it drags you headfirst into the lake,</span> your rod torn from your hands as you go under.<<gstress>><<stress 4>><<handheldruined>>
+	The <<print $fishingHookedFish.type>> pulls harder. <span class="red">Your feet slip on the wet rock and it drags you into the lake,</span> though you keep hold of your rod as you go under.<<gstress>><<stress 4>>
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
 	<br><br>
@@ -50,24 +8,13 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 	<<link [[Next|Lake Depths]]>><<set $eventskip to 1>><</link>>
 <</widget>>
 
-<<widget "fishingForestLakeRodLost">>
-	You lean back with everything you have left, but the <<print $fishingHookedFish.type>> gives one last violent pull and your rod is wrenched clean out of your hands, vanishing into the dark water.<<gstress>><<stress 3>><<handheldruined>>
-	<<unset $fishingHookedFish>>
-	<<run stopFishingProp()>>
-	<br><br>
-
-	<<link [[Return to fishing|Fishing Forest Lake Wait]]>><</link>>
-	<br>
-	<<link [[Leave|Lake Fishing Rock]]>><<set $eventskip to 1>><</link>>
-<</widget>>
-
 <<widget "fishingForestLakeLineSnapped">>
-	You lean back with everything you have left, but your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone, and your line goes slack.
+	Your line goes taut, then <span class="red">snaps.</span> The <<print $fishingHookedFish.type>> is gone.
 	<<unset $fishingHookedFish>>
 	<<run stopFishingProp()>>
 	<br><br>
 
-	<<link [[Re-hook the line and cast back out (0:03)|Fishing Forest Lake Wait]]>><<pass 3>><</link>>
+	<<link [[Re-hook the line and cast back out (0:03)|Fishing Forest Lake Wait]]>><<set $fishingAmbientOverride to "reHook">><<pass 3>><</link>>
 	<br>
 	<<link [[Leave|Lake Fishing Rock]]>><<set $eventskip to 1>><</link>>
 <</widget>>
@@ -88,10 +35,10 @@ You release the tension on your rod, letting your line go slack. The <<print $fi
 	<br><br>
 <</if>>
 
-<<link [[Stow it away|Fishing Forest Lake Keep]]>><</link>>
+<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Forest Lake Wait]]>><<tending_give $fishingHookedFish.type 1>><<set $fishingAmbientOverride to "stowAway">><</link>>
 <br>
-<<link [["Throw the " + $fishingHookedFish.type + " back"|Fishing Forest Lake Throw Back]]>><</link>>
+<<link [[Throw it back|Fishing Forest Lake Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 <<if _canEatFish>>
 	<br>
-	<<link [[Eat the fish|Fishing Forest Lake Cat Eat]]>><</link>>
+	<<link [[Eat the fish|Fishing Forest Lake Cat Eat]]>><</link>><<cat>>
 <</if>>
