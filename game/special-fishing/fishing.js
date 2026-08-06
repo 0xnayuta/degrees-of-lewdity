@@ -19,6 +19,8 @@
 - Rename files to catch-fish, catch-clothing...
 - Normalize fish order in journal
 - See if I can use fewer inline events in fishing-text and in general
+- Normalize my usages of <<=...>>, <<print ...>> and ... inline
+- Do a pass over magnet fishing wording. Maybe make the result of magnet fishing be placed in the wait ambiant?
 
 ====== Fishing Nice to haves ====
 - You should be able to add fish you caught today to your fishing tank
@@ -468,7 +470,7 @@ function isPlayerFishingAlone() {
 window.isPlayerFishingAlone = isPlayerFishingAlone;
 
 function startFishingProp() {
-	if (V.worn.handheld.type.includes("fishing_rod") || V.worn.handheld.type.includes("fishing_rod_magnet")) {
+	if (V.worn.handheld.type.includes("fishing_rod")) {
 		V.worn.handheld.holdPosition = "right_cover";
 		wikifier("updatesidebarimg");
 	}
@@ -479,7 +481,7 @@ window.startFishingProp = startFishingProp;
  * Some events are reused for fishing, such as some events on the beach that can also happen while fishing on the beach. So if you see this somewhere in an event that is unrelated to fishing, it is there for the case where you get into that event through fishing.
  */
 function stopFishingProp() {
-	if (V.worn.handheld.type.includes("fishing_rod") || V.worn.handheld.type.includes("fishing_rod_magnet")) {
+	if (V.worn.handheld.type.includes("fishing_rod")) {
 		V.worn.handheld.holdPosition = 0;
 		wikifier("updatesidebarimg");
 	}
@@ -498,7 +500,6 @@ function onBaitLoss() {
 	if (V.fishing.autoRebait && bait && V.foodstuff[bait]?.amount >= 1) {
 		V.foodstuff[bait].amount -= 1;
 		V.fishing.currentBait = bait;
-		V.fishing.lastBait = bait;
 	}
 }
 window.onBaitLoss = onBaitLoss;
