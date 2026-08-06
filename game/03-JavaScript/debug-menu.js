@@ -80,6 +80,10 @@ setup.debugMenu.eventList = {
 			widgets: [``],
 		},
 		{
+			link: [`Fishing Minigame Select`, `Fishing Minigame Select`],
+			widgets: [``],
+		},
+		{
 			link: [`Learn all recipes`, stayOnPassageFn],
 			widgets: [`<<learn_recipe_all>>`],
 		},
