@@ -437,7 +437,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
-			if (V.cow >= 6) amount *= 1.25;
+			if (V.cow >= 6) amount *= 2;
 
 			/* Prevents those who can only have "female climax" increase their cum volume */
 			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount;
