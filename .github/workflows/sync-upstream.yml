@@ -1,0 +1,65 @@
+# 定时同步上游 gitgud.io/Vrelnir/degrees-of-lewdity
+# 设计要点：
+# 1. schedule 触发器要求本文件位于默认分支 master（因此 master 含一个上游没有的 .github 提交，
+#    上游推进后无法快进 —— 策略为"能快进则快进，否则自动合并，绝不 force"）
+# 2. 仅当上游有更新时才 push（master/dev 均先比较哈希）
+# 3. 不删除任何分支、不反向推送、不动本地主题分支
+name: Sync upstream
+
+on:
+  schedule:
+    # 每 6 小时（UTC）；上游发布节奏为数天一次，冗余足够
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {} # 手动触发
+
+permissions:
+  contents: write
+
+# 防止定时与手动运行重叠
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://gitgud.io/Vrelnir/degrees-of-lewdity.git
+          git fetch --prune origin
+          git fetch --prune upstream
+
+      - name: Sync master (ff 优先，否则自动合并；仅上游有更新才 push)
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse upstream/master)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            before=$(git rev-parse HEAD)
+            git merge --no-edit upstream/master
+            if [ "$(git rev-parse HEAD)" != "$before" ]; then
+              git push origin master
+            else
+              echo "master: already up to date"
+            fi
+          else
+            echo "master: already up to date"
+          fi
+
+      - name: Sync dev (仅上游有更新才 push；非快进会被远端拒绝并告警)
+        run: |
+          if [ "$(git rev-parse -q --verify origin/dev)" != "$(git rev-parse -q --verify upstream/dev)" ]; then
+            git push origin upstream/dev:dev
+          else
+            echo "dev: already up to date"
+          fi
+
+      - name: Sync tags (幂等：只推送远端缺失的 tag；同名冲突会被拒绝并告警)
+        run: git push origin --tags
