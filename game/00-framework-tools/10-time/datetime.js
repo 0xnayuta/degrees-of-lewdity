@@ -570,15 +570,15 @@ class DateTime {
 			this.timeStamp < summerSolstice.timeStamp
 				? new DateTime(this.year - 1, 12, 21)
 				: this.timeStamp < winterSolstice.timeStamp
-				? summerSolstice
-				: winterSolstice;
+					? summerSolstice
+					: winterSolstice;
 
 		const nextSolstice =
 			this.timeStamp < summerSolstice.timeStamp
 				? summerSolstice
 				: this.timeStamp < winterSolstice.timeStamp
-				? winterSolstice
-				: new DateTime(this.year + 1, 6, 21);
+					? winterSolstice
+					: new DateTime(this.year + 1, 6, 21);
 
 		const nextSolsticeFactor = nextSolstice === winterSolstice ? 1 : 0;
 

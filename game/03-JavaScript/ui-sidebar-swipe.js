@@ -34,7 +34,8 @@ function handleTouchMove(ev) {
 
 	if (Math.abs(xDiff) > Math.abs(yDiff)) {
 		// most significant
-		if (xDiff > 0) UIBar.stow(); // left swipe
+		if (xDiff > 0)
+			UIBar.stow(); // left swipe
 		else UIBar.unstow(); // right swipe
 		// allow opening and then closing sidebar without breaking the touch
 		xDown = xUp;

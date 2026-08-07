@@ -214,7 +214,7 @@ Macro.add("canvasColoursEditor", {
 																			},
 																		},
 																		" " + colour.name_cap
-																  )
+																	)
 																: " " + colour.name_cap,
 														]),
 													]) // colour div

@@ -261,7 +261,7 @@ Object.defineProperty(Object.prototype, "isEqual", {
 			if (Array.isArray(a)) {
 				length = a.length;
 				if (length !== b.length) return false;
-				for (i = length; i-- !== 0; ) if (!a[i].isEqual(b[i])) return false;
+				for (i = length; i-- !== 0;) if (!a[i].isEqual(b[i])) return false;
 				return true;
 			}
 
@@ -284,7 +284,7 @@ Object.defineProperty(Object.prototype, "isEqual", {
 			if (ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
 				length = a.length;
 				if (length !== b.length) return false;
-				for (i = length; i-- !== 0; ) if (a[i] !== b[i]) return false;
+				for (i = length; i-- !== 0;) if (a[i] !== b[i]) return false;
 				return true;
 			}
 
@@ -294,9 +294,9 @@ Object.defineProperty(Object.prototype, "isEqual", {
 			length = keys.length;
 			if (length !== Object.keys(b).length) return false;
 
-			for (i = length; i-- !== 0; ) if (!Object.hasOwn(b, keys[i])) return false;
+			for (i = length; i-- !== 0;) if (!Object.hasOwn(b, keys[i])) return false;
 
-			for (i = length; i-- !== 0; ) {
+			for (i = length; i-- !== 0;) {
 				const key = keys[i];
 				const aValue = a[key];
 				const bValue = b[key];

@@ -125,10 +125,10 @@ Macro.add("rangeslider", {
 				minClampReached && clickX > thumbs.min.position
 					? false
 					: maxClampReached && clickX < thumbs.max.position
-					? true
-					: Math.abs(state.minVal - state.maxVal) < 1e-9
-					? clickX < thumbs.min.position
-					: Math.abs(rawVal - state.minVal) < Math.abs(rawVal - state.maxVal);
+						? true
+						: Math.abs(state.minVal - state.maxVal) < 1e-9
+							? clickX < thumbs.min.position
+							: Math.abs(rawVal - state.minVal) < Math.abs(rawVal - state.maxVal);
 
 			const thumb = draggingThumbMin ? thumbs.min : thumbs.max;
 			const snappedVal = validateAndApply(draggingThumbMin, rawVal);

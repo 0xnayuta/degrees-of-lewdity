@@ -124,7 +124,7 @@
 					} else if (object[0] === 1) {
 						// object
 						const result = {};
-						for (let i = 1; i < object.length; ) {
+						for (let i = 1; i < object.length;) {
 							const k = this.decompress1(object[i++]);
 							const v = this.decompress1(object[i++]);
 							result[k] = v;

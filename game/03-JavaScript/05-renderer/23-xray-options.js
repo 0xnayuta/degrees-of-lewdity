@@ -458,8 +458,8 @@ class XrayCombatMapper {
 			V.enemytype === "machine"
 				? "machine"
 				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
-				? "tentacle"
-				: V.NPCList[V.penistarget].type;
+					? "tentacle"
+					: V.NPCList[V.penistarget].type;
 
 		const playerPenisType = playerHasStrapon() ? "strapon" : V.player.sex === "f" ? "parasite" : "penis";
 		penetrator.type = playerPenisType;

@@ -721,7 +721,7 @@ function sexShopOnItemClick(index) {
 				canAfford
 					? `<a id="ssmBuyButton" onclick="window.sexShopOnBuyClick(${item.index})" class="ssm_buy_button">Buy it</a> (<span class="gold">£${(
 							item.cost / 100
-					  ).toFixed(2)}</span>)`
+						).toFixed(2)}</span>)`
 					: `<span class="ssm_not_enough_money">Not enough money</span> (<span class="gold">£${(item.cost / 100).toFixed(2)}</span>)`
 			}
 			${item.type.includes("strap-on") ? determineRecipient(item.index) : ""}
@@ -807,9 +807,8 @@ function sexShopOnGiftClick(index) {
 
 	/* fade in/out bought green text indicator */
 	if (document.getElementById("ssmGiftButton")) {
-		document.getElementById(
-			"ssmGiftButton"
-		).outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
+		document.getElementById("ssmGiftButton").outerHTML =
+			`<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
 	}
 
 	document.getElementById("recipientList").remove();

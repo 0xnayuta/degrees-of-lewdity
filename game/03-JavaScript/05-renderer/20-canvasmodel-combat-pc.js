@@ -882,8 +882,8 @@ const combatMainPc = {
 				return options.position === "doggy"
 					? CombatRenderer.indices.base + 24
 					: options.position === "missionary" && options.bellyState === "clothed"
-					? CombatRenderer.indices.base + 24
-					: CombatRenderer.indices.base + 14;
+						? CombatRenderer.indices.base + 24
+						: CombatRenderer.indices.base + 14;
 			},
 		},
 		pregnantBellyOverlay: {
@@ -907,8 +907,8 @@ const combatMainPc = {
 				return options.position === "doggy"
 					? CombatRenderer.indices.base + 23
 					: options.position === "missionary" && options.bellyState === "clothed"
-					? CombatRenderer.indices.base + 23
-					: CombatRenderer.indices.base + 13;
+						? CombatRenderer.indices.base + 23
+						: CombatRenderer.indices.base + 13;
 			},
 		},
 		pregnantBellyLowerMask: {

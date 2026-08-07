@@ -786,7 +786,8 @@ function onTakeClick(itemName) {
 
 	for (const item of setup.pills) {
 		if (item.name === itemName) {
-			for (const widget of item.effects) // run the widgets associated with a pill
+			for (const widget of item.effects)
+				// run the widgets associated with a pill
 				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
 			V.sexStats.pills.lastTaken[item.type] = item.subtype; // keep track of the category of pill we last took
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);

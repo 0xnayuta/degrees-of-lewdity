@@ -72,13 +72,13 @@ Macro.add(["button", "link"], {
 				this.createShadowWrapper(
 					this.payload[0].contents !== ""
 						? /* don't execute linked code unless they don't lead to another passage (menus, etc) */
-						  () => {
+							() => {
 								if (!(passage && V.nextPassage)) {
 									window.ironmanFlag = true;
 									Wikifier.wikifyEval(this.payload[0].contents.trim());
 									delete window.ironmanFlag;
 								}
-						  }
+							}
 						: null,
 					passage != null // lazy equality for null
 						? () => {
@@ -95,7 +95,7 @@ Macro.add(["button", "link"], {
 								window.scrollMain = document.scrollingElement.scrollTop;
 								// finally, play the passage
 								Engine.play(passage);
-						  }
+							}
 						: null
 				)
 			)

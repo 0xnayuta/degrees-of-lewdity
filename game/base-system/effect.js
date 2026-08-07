@@ -769,7 +769,7 @@ function effects() {
 							? ` to the ${V.wardrobes[location].name}`
 							: `. (Likely One-off update error, no need to report unless seen multiple times in the same save) ${
 									Array.isArray(V.rebuy_success) ? JSON.stringify(V.rebuy_success) : ""
-							  }`
+								}`
 					}.
 				`,
 					"lblue"
@@ -1538,7 +1538,7 @@ function effects() {
 										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary)
 											? `the ${V.loveInterest.primary},`
 											: `${V.loveInterest.primary},`
-								  } and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
+									} and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
 								: "You suddenly crave a true partner to be with."
 						}`,
 						"gold"
@@ -1601,7 +1601,7 @@ function effects() {
 										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary)
 											? `the ${V.loveInterest.primary},`
 											: `${V.loveInterest.primary},`
-								  } and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
+									} and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
 								: "You suddenly crave a true partner to be with."
 						}`,
 						"gold"

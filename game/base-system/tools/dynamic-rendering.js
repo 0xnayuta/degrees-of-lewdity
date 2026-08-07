@@ -70,14 +70,17 @@ Dynamic.eventBinder = (...valuesToInject) => {
 };
 Dynamic.eventBinderWithId = (id, ...valuesToInject) => {
 	/** We must let SugarCube finish rendering. Our element won't exist yet */
-	Dynamic.task(() => {
-		const elm = document.getElementById(id);
-		if (!elm) {
-			console.warn(`Unable to find Dynamic id ${id} on page. Page maybe rendered incorrectly`);
-		} else {
-			Dynamic.bindEvents(elm, {}, valuesToInject);
-		}
-	}, `Dynamic.bindEvents(${id}, {}, ${JSON.stringify(valuesToInject)})`);
+	Dynamic.task(
+		() => {
+			const elm = document.getElementById(id);
+			if (!elm) {
+				console.warn(`Unable to find Dynamic id ${id} on page. Page maybe rendered incorrectly`);
+			} else {
+				Dynamic.bindEvents(elm, {}, valuesToInject);
+			}
+		},
+		`Dynamic.bindEvents(${id}, {}, ${JSON.stringify(valuesToInject)})`
+	);
 	return id;
 };
 

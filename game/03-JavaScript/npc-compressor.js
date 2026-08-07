@@ -213,8 +213,8 @@ const { npcDecompressor } = (function () {
 			penis === "none"
 				? "none"
 				: beast
-				? penisDescList.beast[Number(expandedNPC.slice(position, position + 2))]
-				: penisDescList.human[Number(expandedNPC.slice(position, position + 2))];
+					? penisDescList.beast[Number(expandedNPC.slice(position, position + 2))]
+					: penisDescList.human[Number(expandedNPC.slice(position, position + 2))];
 		position += 2;
 
 		// Sets the breast size of the NPC
