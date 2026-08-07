@@ -368,6 +368,9 @@ module.exports = {
 
 		/* eslint-plugin-jsdoc */
 
+		// Rule added to plugin:jsdoc/recommended after v39; keeping the ruleset
+		// of the pinned pre-upgrade plugin version (the codebase does not follow it)
+		"jsdoc/tag-lines": "off",
 		// Descriptions should be sentence-like not comment-like
 		"jsdoc/require-description-complete-sentence": "off",
 		"jsdoc/require-hyphen-before-param-description": ["error", "never", { tags: { property: "never" } }],

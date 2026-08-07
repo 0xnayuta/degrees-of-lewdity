@@ -24,6 +24,16 @@ module.exports = {
 		"order/properties-order": null,
 		"comment-empty-line-before": null,
 
+		/* Rules added by stylelint-config-standard 40 (stylelint 17); keeping
+		   the ruleset of the previous version (the codebase does not follow them) */
+		"at-rule-empty-line-before": null,
+		"color-function-alias-notation": null,
+		"declaration-block-no-duplicate-properties": null,
+		"declaration-block-no-redundant-longhand-properties": null,
+		"declaration-property-value-no-unknown": null,
+		"media-feature-range-notation": null,
+		"property-no-deprecated": null,
+
 		// Modified kebab-case for numbered CSS vars
 		"custom-property-pattern": [
 			"^([a-z0-9]*)(-[a-z0-9]+)*$",

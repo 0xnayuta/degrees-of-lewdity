@@ -1,7 +1,6 @@
 /* globals normaliseFileName */
 /* eslint-disable jsdoc/check-tag-names */
 /* eslint-disable jsdoc/no-undefined-types */
-/* eslint-disable jsdoc/newline-after-description */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 /* eslint-disable eqeqeq */
 /* eslint-disable camelcase */
