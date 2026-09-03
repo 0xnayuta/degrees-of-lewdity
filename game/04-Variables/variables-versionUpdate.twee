@@ -1985,7 +1985,11 @@
 	<</if>>
 
 
-	<<childrenSetup>>
+	<!-- $children only exists on pre-records saves. The old-save migrations below read it
+	directly, so make sure it is an object before they run. -->
+	<<if $children is undefined and !$objectVersion.pregnancyRecords>>
+		<<set $children to {}>>
+	<</if>>
 	<<if $basePlayerPregnancyChance is undefined>>
 		<<set $basePlayerPregnancyChance to 50>>
 		<<set $humanPregnancyMonths to 3>>
@@ -3416,7 +3420,7 @@
 	<</if>>
 
 	<!-- To update the player and named npc pregnancy objects from numbers to a single array -->
-	<<if $sexStats.vagina.pregnancy.fetus is undefined or $sexStats.anus.pregnancy.fetus is undefined or $sexStats.anus.pregnancy.type is undefined or $sexStats.anus.pregnancy.nonCycleRng is undefined or !Array.isArray($sexStats.vagina.sperm) or !$parentList>>
+	<<if $sexStats.vagina.pregnancy.fetus is undefined or $sexStats.anus.pregnancy.fetus is undefined or $sexStats.anus.pregnancy.type is undefined>>
 		<<physicalAdjustmentsInit>>
 	<</if>>
 
@@ -3510,7 +3514,7 @@
 	/* Code that should not be moved into a check like above */
 	<<set $runWardrobeSanityChecker to true>>
 
-	<<if $objectVersion.updateClothes lt 84 or $objectVersion.updateClothes is undefined>>
+	<<if $objectVersion.updateClothes lt 85 or $objectVersion.updateClothes is undefined>>
 		<<updateClothes>>
 		<<if $objectVersion.updateClothes lt 38>>
 			<!-- V0.4.0.7 return items stuck in $store without proper .location -->
@@ -3552,7 +3556,7 @@
 
 		<!-- do NOT forget to bump this version in variables-start.twee, too -->
 
-		<<set $objectVersion.updateClothes to 84>>
+		<<set $objectVersion.updateClothes to 85>>
 	<</if>>
 
 	<<if !$specialClothesEffects?.pimp>>
@@ -3606,9 +3610,9 @@
 		<<set $objectVersion.feats to 2>>
 	<</if>>
 
-	<<if $objectVersion.wardrobes lt 17 or $objectVersion.wardrobes is undefined>>
+	<<if $objectVersion.wardrobes lt 18 or $objectVersion.wardrobes is undefined>>
 		<<wardrobesUpdate>>
-		<<set $objectVersion.wardrobes to 17>>
+		<<set $objectVersion.wardrobes to 18>>
 	<</if>>
 
 	<<if $objectVersion.museumAntiques lte 14 and $museumAntiques.antiques.antiquewhitescrystal isnot undefined>>
@@ -3730,10 +3734,20 @@
 			"side tail left": "sidetail left",
 			"side tail right": "sidetail right",
 			"side thicktail": "thick sidetail",
+			"curly pigtails": "fluffy pigtails",
+			"half-up": "half up",
+			"half up twintail": "half up twintails",
+			"left fishtail": "fishtail left",
+			"right fishtail": "fishtail right",
+			"swept left": "swept right",
 		}>>
 		<<set _fringeUpdate to {
 			"blunt sidelocks": "blunt locks",
 			"french bob": "tied back",
+			"short air vents": "air vents",
+			"side-pinned": "side pinned",
+			"swept left": "swept right",
+			"dread bun": "curtain locks",
 		}>>
 		<<if _hairUpdate[$hairtype]>><<set $hairtype to _hairUpdate[$hairtype]>><</if>>
 		<<if _fringeUpdate[$fringetype]>><<set $fringetype to _fringeUpdate[$fringetype]>><</if>>
@@ -4297,7 +4311,8 @@
 	<<if $weekly is undefined>>
 		<<set $weekly to {
 		theft: {},
-		sewers: {}
+		sewers: {},
+		fishing: {}
 	}>>
 	<</if>>
 	<<if $robinBrothelWeekly isnot undefined>>
@@ -4556,14 +4571,7 @@
 	<</if>>
 
 	<!-- V0.4.0.3 SNEAKY - V0.4.0.6 empty NPC name arrays -->
-	<<if !$NPC_names_m or $NPC_names_m.length is 0 or !$NPC_names_f or $NPC_names_f.length is 0>>
-		<<init_names>>
-		<<set $_per_k to Object.keys($per_npc)>>
-		<<for $_per_c range $_per_k>>
-			<<set $NPC_names_m.delete($per_npc[$_per_c].name)>>
-			<<set $NPC_names_f.delete($per_npc[$_per_c].name)>>
-		<</for>>
-	<</if>>
+	<<regenerateNPCNameLists>>
 
 	<<if $combat is 1>>
 		<!-- Update the index attached to NPC properties if they exist. -->
@@ -4702,15 +4710,6 @@
 	<!-- To fix issue where Dr Harper failed to remove both hermaphrodite parasites -->
 	<<if $sexStats.vagina.pregnancy.type is "parasite" and $sexStats.vagina.pregnancy.fetus.find(parasite => parasite.stats.gender === "Hermaphrodite")>>
 		<<set $sexStats.vagina.pregnancy.motherStatus to 2>>
-	<</if>>
-
-	<<if !$objectVersion.wardForceUnlock>>
-		<<if !$objectVersion.wardForceUnlock and !$ward_unlocked and Object.values($children).find(child => child.location is "home" and child.birthLocation isnot "hospital")>>
-			<<set $_childrenToIntro to Object.values($children).filter(child => child.location is "home" and child.birthLocation isnot "hospital")>>
-			<<run console.log($_childrenToIntro)>>
-			<<run $_childrenToIntro.forEach(child => wikifier("setBabyIntro", child.mother, "Bailey", child.birthId))>>
-		<</if>>
-		<<set $objectVersion.wardForceUnlock to 1>>
 	<</if>>
 
 	<<if $maleChanceMale is undefined>>
@@ -4933,11 +4932,11 @@
 
 	<!-- Fix for alex pregnancy to allow for both the pc and Alex to be pregnant at the same time -->
 	<<if C.npc.Alex.pregnancy and C.npc.Alex.pregnancy.knowledge>>
-		<<set _pregnancyUpdate to getPregnancyObject()>>
+		<<set _pregnancyUpdate to getParasiteObject()>>
 		<<if _pregnancyUpdate.type is "human" and _pregnancyUpdate.fetus.length and _pregnancyUpdate.fetus[0].father is "Alex">>
 			<<set C.npc.Alex.pregnancy.pcKnowledge to true>>
 		<</if>>
-		<<set _pregnancyUpdate to getPregnancyObject("Alex")>>
+		<<set _pregnancyUpdate to C.npc.Alex.pregnancy>>
 		<<if _pregnancyUpdate.type is "human" and _pregnancyUpdate.fetus.length>>
 			<<set C.npc.Alex.pregnancy.selfKnowledge to true>>
 		<</if>>
@@ -5265,10 +5264,6 @@
 		<<set $managerGift to 1>>
 	<</if>>
 
-	/* Stat tracking for unsafe sex */
-	<<if $unsafeSexTimeStat is undefined>>
-		<<set $unsafeSexTimeStat to {}>>
-	<</if>>
 
 	<!-- V0.4.6.0 Draggletail fix -->
 	<<if $hairtype is "draggletail">>
@@ -5503,8 +5498,8 @@
 				if (child.features.skinColour === "black") child.features.skinColour = "dark";
 				if (child.features.skinColour === "white") child.features.skinColour = "light";
 			};
-			Object.values(V.children).forEach(child => fixChild(child));
-			getPregnancyObject().fetus.forEach(child => fixChild(child));
+			if (V.children) Object.values(V.children).forEach(child => fixChild(child));
+			getParasiteObject().fetus.forEach(child => fixChild(child));
 			Object.values(V.NPCName).forEach(npc => {
 				if (npc.pregnancy.fetus) {
 					npc.pregnancy.fetus.forEach(child => fixChild(child));
@@ -5699,38 +5694,6 @@
 			delete $storedNPCs[key];
 		})>>
 		<<set $objectVersion.npcCompressorDisable to 1>>
-	<</if>>
-	<<if $objectVersion.npcCompressorDisable lt 2>>
-		<<script>>
-			const decompress = (parent) => {
-				let result = parent;
-				try {
-					result = npcDecompressor(parent);
-				} catch (e) {
-					result = null;
-				}
-				return result;
-			};
-			V.parentList.fathers.forEach(parent => {
-				if (parent.compressed && parent.compressed !== "none") {
-					parent.npc = decompress(parent.compressed);
-					delete parent.compressed;
-				} else {
-					parent.npc = false;
-					delete parent.compressed;
-				}
-			});
-			V.parentList.mothers.forEach(parent => {
-				if (parent.compressed && parent.compressed !== "none") {
-					parent.npc = decompress(parent.compressed);
-					delete parent.compressed;
-				} else {
-					parent.npc = false;
-					delete parent.compressed;
-				}
-			});
-		<</script>>
-		<<set $objectVersion.npcCompressorDisable to 2>>
 	<</if>>
 
 	<!-- Fix for named npcs whose gender could be changed by the randomizer -->
@@ -6306,11 +6269,13 @@
 	<<unset $danger>>
 
 	<!-- Change all of PCs children with "gray" hair to "grey" hair -->
-	<<for _child range $children>>
-		<<if $children[_child.childId].features.hairColour is "gray">>
-			<<set $children[_child.childId].features.hairColour to "grey">>
-		<</if>>
-	<</for>>
+	<<if $children>>
+		<<for _child range $children>>
+			<<if $children[_child.childId].features.hairColour is "gray">>
+				<<set $children[_child.childId].features.hairColour to "grey">>
+			<</if>>
+		<</for>>
+	<</if>>
 
 	<<unset $topless>>
 
@@ -6680,10 +6645,13 @@
 		<<set $daily.avery.talk.limit to false>>
 		<<set $daily.avery.talk.flirt to false>>
 		<<set $daily.avery.talk.seduce to false>>
-		<<set $daily.avery.talk.count to 0>>
 		<<set $daily.avery.talk.annoyed to 0>>
 		<<set $daily.avery.talk.chat to 0>>
-
+		<<if Time.weekDay is 1 or Time.weekDay is 7>>
+			<<set $daily.avery.talk.chat_limit to 6>>
+		<<else>>
+			<<set $daily.avery.talk.chat_limit to 3>>
+		<</if>>
 		<<set $daily.avery.ask to {}>>
 		<<set $daily.avery.ask.science to false>>
 		<<set $daily.avery.ask.maths to false>>
@@ -6817,8 +6785,9 @@
 	/* Replaced with $phase */
 	<<unset $lakeswim>>
 
-	<<if $alcoholMod is undefined>>
-		<<set $alcoholMod to 1>>
+	<!-- Renamed "alcoholMod" to "drunkSensitivity" in Version 0.5.12. -->
+	<<if $alcoholMod is undefined and $drunkSensitivity is undefined>>
+		<<set $drunkSensitivity to 1>>
 	<</if>>
 
 	/* Fix corrupted variable */
@@ -6979,11 +6948,10 @@
 	<</if>>
 
 	<!-- Increment in variables-start.twee as well whenever new foodstuff objects are added -->
-	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 6>>
+	<<if !$objectVersion.foodstuff or $objectVersion.foodstuff lt 7>>
 		<<updatePlants>>
-		<<set $objectVersion.foodstuff to 6>>
+		<<set $objectVersion.foodstuff to 7>>
 	<</if>>
-
 	<!-- UFarm variable refactor -->
 	<<if $livestock is undefined>>
 		<<set $livestock to {}>>
@@ -7175,12 +7143,14 @@
 		<<set $settings.tanningDifficulty to 2>>
 	<</if>>
 
-	/* Fixed the amount of Honeycomb and Blood Lemons that Gwylan asks for */
+	/* Fixed the amount of Honeycomb, Blood Lemons, and Wolfshrooms that Gwylan asks for */
 	<<if $gwylan?.request?.items?.length>>
 		<<for _item range $gwylan.request.items>>
 			<<if _item.name is "wild_honeycomb" and _item.need gt 3>>
 				<<set _item.need to 3>>
 			<<elseif _item.name is "blood_lemon" and _item.need gt 6>>
+				<<set _item.need to 6>>
+			<<elseif _item.name is "wolfshroom" and _item.need gt 6>>
 				<<set _item.need to 6>>
 			<</if>>
 		<</for>>
@@ -7317,7 +7287,7 @@
 	<</if>>
 
 	<!-- 0.5.11.3 -->
-	<!-- These variables were used in Woodland update's sneaky release, but have since been patched out. -->
+	<!-- These variables were used in the Woodland update's sneaky release, but have since been patched out. -->
 	<<unset $tempConsensual>>
 	<<unset $tempPigsLeft>>
 
@@ -7357,5 +7327,182 @@
 		<</for>>
 	<</if>>
 
-<</widget>>
+	<<if $settings>>
+		<<if !Number.isFinite($settings.humanPregnancyMonths)>>
+			<<set $settings.humanPregnancyMonths to 3>>
+		<<else>>
+			<<set $settings.humanPregnancyMonths to Math.clamp($settings.humanPregnancyMonths, 1, 9)>>
+		<</if>>
+		<<if !Number.isFinite($settings.wolfPregnancyWeeks)>>
+			<<set $settings.wolfPregnancyWeeks to 4>>
+		<<else>>
+			<<set $settings.wolfPregnancyWeeks to Math.clamp($settings.wolfPregnancyWeeks, 2, 12)>>
+		<</if>>
+		<<if !Number.isFinite($settings.birdPregnancyWeeks)>>
+			<<set $settings.birdPregnancyWeeks to 3>>
+		<</if>>
+		<<if $settings.analPregnancy is undefined>>
+			<<set $settings.analPregnancy to false>>
+			<<set $settings.npcAnalPregnancyEnabled to false>>
+			<<run delete $settings.analPregnancyEnabled>>
+			<<run delete $settings.mpregEnabled>>
+		<</if>>
+	<</if>>
 
+	<!-- Pregnancy chance settings are stored as percentages. Convert the "1 in N" scale values
+	(player slider displayed "1 in (100 - value)", NPC "1 in (20 - value)") to the equivalent percent. -->
+	<<if $settings and !$objectVersion.pregnancyChancePercent>>
+		<<set $settings.basePlayerPregnancyChance to legacyPregnancyChanceToPercent($settings.basePlayerPregnancyChance, 100)>>
+		<<set $settings.baseNpcPregnancyChance to legacyPregnancyChanceToPercent($settings.baseNpcPregnancyChance, 20)>>
+		<<set $objectVersion.pregnancyChancePercent to 1>>
+	<</if>>
+	<<run delete $sexStats.vagina.menstruation.nonCycleRng>>
+	<<run delete $sexStats.vagina.menstruation.nonCycleFertility>>
+	<<run $NPCNameList.forEach(name => {
+		const pregnancy = C.npc[name] && C.npc[name].pregnancy;
+		if (!pregnancy) return;
+		delete pregnancy.nonCycleRng;
+		delete pregnancy.nonCycleRngHasEggs;
+		delete pregnancy.nonCycleFertility;
+		delete pregnancy.nonCycleHasEggs;
+	})>>
+	<<run Object.values($storedNPCs ?? {}).forEach(stored => {
+		if (stored && stored.pregnancy) {
+			delete stored.pregnancy.nonCycleRng;
+			delete stored.pregnancy.nonCycleRngHasEggs;
+		}
+	})>>
+
+	<!-- Init the records arrays outside migratePregnancyData, so a rolled-back migration
+	failure can't leave them undefined for every later reader. -->
+	<<if !Array.isArray($pregnancies)>><<set $pregnancies to []>><</if>>
+	<<if !Array.isArray($childRecords)>><<set $childRecords to []>><</if>>
+
+	<<if !$objectVersion.gestationVariance>>
+		<<run $pregnancies.forEach(pregnancy => {
+			if (pregnancy.gestationVariance === undefined) pregnancy.gestationVariance = 1;
+		})>>
+		<<set $objectVersion.gestationVariance to 1>>
+	<</if>>
+
+	<<if !$objectVersion.adoptedDateTimestamp>>
+		<<run $childRecords.forEach(child => {
+			const adopted = child.development.adoptedDate;
+			if (typeof adopted === "object") child.development.adoptedDate = oldDateToTimestamp(adopted);
+		})>>
+		<<set $objectVersion.adoptedDateTimestamp to 1>>
+	<</if>>
+
+	<<if $cumLoads is undefined>>
+		<<set $cumLoads to { vagina: [], anus: [] }>>
+	<</if>>
+
+	<<if $pendingPregnancies is undefined>>
+		<<set $pendingPregnancies to { vagina: null, anus: null }>>
+	<</if>>
+
+	<<if !$objectVersion.pregnancyRecords>>
+		<<run migratePregnancyData()>>
+	<</if>>
+
+	<!-- One-time ward unlock. Introduce the orphanage's non-hospital-born children to Bailey. Runs
+	after the records migration above so getChildrenAt reads the new records. -->
+	<<if !$objectVersion.wardForceUnlock>>
+		<<if !$ward_unlocked>>
+			<<run getChildrenAt("home").filter(child => child.development.birthLocation isnot "hospital").forEach(child => setBabyIntro(getPregnancyOf(child).carrier, "Bailey", child.pregnancyId))>>
+		<</if>>
+		<<set $objectVersion.wardForceUnlock to 1>>
+	<</if>>
+
+	<!-- Silly is not a supported pregnancy type; fold silly saves into fetish and drop its feat lock. -->
+	<<if $settings and $settings.pregnancyType is "silly">>
+		<<set $settings.pregnancyType to "fetish">>
+	<</if>>
+	<<if $feats.pregnancySillyLocked isnot undefined>>
+		<<run delete $feats.pregnancySillyLocked>>
+	<</if>>
+
+	<!-- Old saves have no fertileLeadDays. Seed the midpoint for the PC and cycle-bearing NPCs
+	so their current cycle has a value. Fresh cycles roll their own. -->
+	<<if $sexStats and $sexStats.vagina.menstruation and $sexStats.vagina.menstruation.fertileLeadDays is undefined>>
+		<<set $sexStats.vagina.menstruation.fertileLeadDays to Math.round((PregnancyConstants.menstrualCycle.fertileLeadDaysMin + PregnancyConstants.menstrualCycle.fertileLeadDaysMax) / 2)>>
+	<</if>>
+	<<run Object.values(C.npc).forEach(npc => {
+		if (npc && npc.pregnancy && npc.pregnancy.enabled && npc.pregnancy.fertileLeadDays === undefined) {
+			npc.pregnancy.fertileLeadDays = Math.round((PregnancyConstants.menstrualCycle.fertileLeadDaysMin + PregnancyConstants.menstrualCycle.fertileLeadDaysMax) / 2);
+		}
+	})>>
+
+	<<if $objectVersion.NPCTrustFix is undefined>>
+		<<for _i = 0; _i lt $NPCName.length; _i++>>
+			<<set $NPCName[_i].trust to Math.trunc($NPCName[_i].trust)>>
+		<</for>>
+		<<set $objectVersion.NPCTrustFix to 1>>
+	<</if>>
+
+	<!-- 0.5.12 -->
+	<!-- Added a new "drunkmax" variable. -->
+	<<if $drunkmax is undefined>>
+		<<set $drunkmax to 1000>>
+	<</if>>
+
+	<!-- Renamed "alcoholMod" to "drunkSensitivity" in Version 0.5.12. -->
+	<<if $alcoholMod isnot undefined>>
+		<<set $drunkSensitivity to $alcoholMod>>
+		<<unset $alcoholMod>>
+	<</if>>
+	<<if $fishing is undefined>>
+		<<set $fishing to {}>>
+		<<set $fishing.locationsFound to []>>
+		<<set $fishing.baitShopRequestsCompleted to 0>>
+	<</if>>
+	<<if $fishing.record is undefined>>
+		<<set $fishing.record to {}>>
+	<</if>>
+	<<if $fishing.autoRebait is undefined>>
+		<<set $fishing.autoRebait to false>>
+	<</if>>
+	<<if $fishing.waitsSinceLastCatch is undefined>>
+		<<set $fishing.waitsSinceLastCatch to 0>>
+	<</if>>
+	<<if $weekly.fishing is undefined>>
+		<<set $weekly.fishing to {}>>
+	<</if>>
+
+	/* For anyone testing prior to when the fishing update was merged into dev */
+	<<updateFoodstuffVariables "baitworm" "bait_worm">>
+	<<updateFoodstuffVariables "baitWorm" "bait_worm">>
+	<<if $fishing?.currentBait is "baitworm" or $fishing?.currentBait is "baitWorm">>
+		<<set $fishing.currentBait to "bait_worm">>
+	<</if>>
+	<<if $per_npc.fishing_shack_owner>>
+		<<set $per_npc.bait_shop_owner to $per_npc.fishing_shack_owner>>
+		<<unset $per_npc.fishing_shack_owner>>
+	<</if>>
+	
+	<<if V.whitney is undefined>>
+		<<set V.whitney to {}>>
+		<<set V.whitney.daysSinceCapture to 0>>
+	<</if>>
+
+	/* Fixed finding antique watches instead of regular watches during tower hunt */
+	<<if $bird?.materials?.valuables["antique watch"] gte 0>>
+		<<if !$bird.materials.valuables.watch>>
+			<<set $bird.materials.valuables.watch to 0>>
+		<</if>>
+		<<set $bird.materials.valuables.watch += $bird?.materials?.valuables["antique watch"]>>
+		<<unset $bird?.materials?.valuables["antique watch"]>>
+	<</if>>
+
+	<<if $settings.nnpcPregnancyEnabled is undefined>>
+		<<set $settings.nnpcPregnancyEnabled to $settings.npcPregnancyEnabled isnot false>>
+	<</if>>
+
+	<<if $options.fishingBaitSelection is undefined>>
+		<<set $options.fishingBaitSelection to "sidebar">>
+	<</if>>
+
+	<<if $foodstuff.cod?.supermarket>>
+		<<unset $foodstuff.cod.supermarket>>
+	<</if>>
+<</widget>>

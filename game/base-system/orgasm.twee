@@ -79,39 +79,8 @@
 					<</if>>
 					<<if $abomination is 1>>
 						/*ToDo: Pregnancy, figure out how the Wraith, plantpeople, etc will handle pregnancy.*/
-					<<elseif $npcrow.includes($penistarget)>>
-						<<recordSperm `{target: $NPCList[$penistarget].fullDescription, spermOwner: "pc", spermType: "human", rngModifier: _orgasmSpermRng}`>>
-					<<elseif $NPCList[$penistarget].pregnancy is 0 and ["realistic", "fetish"].includes($settings.pregnancyType)>>
-						/* Pregnancy Count */
-						<<set $_count to Object.values($storedNPCs).reduce((prev, curr) => {
-							if(curr.pregnancy) return prev + 1;
-							return prev;
-						},0)>>
-						/* Pregnancy chance checks */
-						<<set $_impregnatedChance to 200 / (20 - $settings.baseNpcPregnancyChance)>>
-						<<if V.sexStats.pills.pills["fertility booster"].doseTaken gt 0>>
-							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * (1 + (V.sexStats.pills.pills["fertility booster"].doseTaken * 0.5)))>>
-						<</if>>
-						<<if V.sexStats.pills.pills["contraceptive"].doseTaken gt 0>>
-							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * 0.1)>>
-						<</if>>
-						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
-						/*If random NPC is impregnated, store NPC and fetus*/
-						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
-							<<switch $NPCList[$penistarget].type>>
-								<<case "human">><<set $_pregnancy to pregnancyGenerator.human(V.NPCList[$penistarget], "pc", true)>>
-								<<case "wolf">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", false)>>
-								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(V.NPCList[$penistarget], "pc", true, "vagina", true)>>
-							<</switch>>
-							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
-								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
-									<<storeNPC $penistarget "pregnancy">>
-									<<set $storedNPCs[_lastStoredName].pregnancy to $_pregnancy>>
-								<</if>>
-								<<if $settings.pregnancyType is "fetish">><<set _npcIsNowPregnant to $NPCList[$penistarget].fullDescription>><</if>>
-								<<set $NPCList[$penistarget].pregnancy to 1>>
-							<</if>>
-						<</if>>
+					<<else>>
+						<<npcPregnancyRoll $NPCList[$penistarget].fullDescription `($enemytype is "man" ? "human" : $NPCList[$penistarget].type)` "pc" "human" "vagina" "deep" $location `_orgasmSpermRng / 100` $penistarget>>
 					<</if>>
 				<<elseif $NPCList[$penistarget].vagina is "penisimminent" or $NPCList[$penistarget].vagina is "penisentrance">>
 					<<personselect $penistarget>>
@@ -124,6 +93,19 @@
 						<<penileejacstat>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
 						<<internalejac>><<creampie "npc" "anus">><<fillOther>>
+						<<if $abomination isnot 1>>
+							<<if $earSlime.focus is "pregnancy" and $earSlime.growth gte 75>>
+								<<set _orgasmSpermRng to 25>>
+							<<elseif $earSlime.focus is "impregnation" and $earSlime.growth gte 75>>
+								<<set _orgasmSpermRng to 200>>
+							<<else>>
+								<<set _orgasmSpermRng to 100>>
+							<</if>>
+							<<if $semen_amount lte ($semen_volume * (6 / 24))>>
+								<<set _orgasmSpermRng to Math.floor(_orgasmSpermRng / 2)>>
+							<</if>>
+							<<npcPregnancyRoll $NPCList[$_i].fullDescription `($enemytype is "man" ? "human" : $NPCList[$_i].type)` "pc" "human" "anus" "deep" $location `_orgasmSpermRng / 100` $_i>>
+						<</if>>
 					<<elseif $NPCList[$_i].penis is "otheranusimminent" or $NPCList[$_i].penis is "otheranusentrance" or $NPCList[$_i].vagina is "otheranusimminent" or $NPCList[$_i].vagina is "otheranusentrance">>
 						<<personselect $_i>>
 						<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> on <<his>> ass.</span>
@@ -445,7 +427,7 @@
 	<!-- Chance to get "dick drunk" after 3rd orgasm, chance is 45% for consensual and 15% otherwise, +5% for each following orgasm, but aphrodisiacs make it 100% -->
 	<<if $orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm>>
 		<<if $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
-			<<alcohol 25>>
+			<<drunk 25>>
 			<span class="purple"><<print either("You feel dizzy.", "You feel lightheaded.", "You can't think straight.")>></span>
 		<</if>>
 	<</if>>
@@ -902,6 +884,85 @@
 		Your loud moans echo through the empty <<print $_quiet>>. As your spasms subside, you hope the noise hasn't attracted attention.
 	<</if>>
 	<br><br>
+	<<set $orgasmcurrent to 0>>
+<</widget>>
+
+<<widget "orgasmFishingPier">>
+	<<orgasm>>
+	<<set _orgasmText to either("You grab the pier railing with your free hand", "You press yourself hard against the railing")>>
+	
+	<<if ["bet", "idle"].contains($daily.fishing.fishingPier.whitney.phase)>>
+		<<npcincr Whitney lust 2>>
+		<<= _orgasmText>> as your body convulses in climax. Whitney's friends whoop while Whitney watches you, grinning. "Hell of a show." <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<elseif $daily.fishing.fishingPier.whitney.phase is "alone">>
+		<<npcincr Whitney lust 2>>
+		<<= _orgasmText>> as your spasms crest. Whitney watches you with a grin, "hell of a show." <<fameexhibitionism 10>>
+	<<elseif $daily.fishing.fishingPier.fisher.phase is "fishing">>
+		<<loadNPC 0 "fishing_pier_npc_fisher">><<person1>>
+		<<= _orgasmText>> as your body convulses in climax. As you steady yourself, you find the <<person>> watching you. "Hell of a catch," <<he>> calls over, laughing as <<he>> reels in an empty hook. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<elseif ["dawn", "day"].includes(Time.dayState)>>
+		<<= _orgasmText>> as your body convulses in climax, and as you regain control you find yourself stared at from all along the pier.
+		<<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<else>>
+		<<= _orgasmText>> as your spasms subside. Fortunately, there's no one around right now to see you in such a state.
+	<</if>>
+
+	<<set $orgasmcurrent to 0>>
+<</widget>>
+
+<<widget "orgasmFishingBeach">>
+	<<orgasm>>
+	<<set _orgasmText to either("You dig the end of your rod into the sand to keep upright", "Your knees nearly buckle, your rod dragging furrows in the wet sand")>>
+	
+	<<if $daily.fishing.fishingBeach.fisher.phase is "fishing">>
+		<<loadNPC 0 "fishing_beach_npc_fisher">><<person1>>
+		<<= _orgasmText>> as your body convulses. As you steady yourself, you find the <<person>> watching you. "Hell of a catch," <<he>> calls over, laughing as <<he>> reels in an empty hook. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+		<<endevent>>
+	<<elseif beachCampfirePartyPresent()>>
+		<<= _orgasmText>> as your body convulses in climax. The students around the campfire notice, cheering and whistling at the show. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<elseif Time.dayState isnot "night">>
+		<<= _orgasmText>> as your spasms peak. As you regain control, you find yourself stared at from all across the beach. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>	
+	<<else>>
+		<<= _orgasmText>>, then steady your breathing as your spasms subside. The shoreline is empty, and there's no one around right now to see you in such a state.
+	<</if>>
+
+	<<set $orgasmcurrent to 0>>
+<</widget>>
+
+<<widget "orgasmFishingForestLake">>
+	<<orgasm>>
+	<<set _orgasmText to either("You brace against the rock beneath you", "You clutch at the mossy ground to keep yourself steady")>>
+	
+	<<if teensPresentCheck("lake")>>
+		<<= _orgasmText>> when the climax hits, and as you regain control you see people looking at you from accross the lake. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 10>>
+	<<else>>
+		<<= _orgasmText>> as your spasms subside. The lake is quiet around you, and there's no one to see you in such a state.
+	<</if>>
+
+	<<set $orgasmcurrent to 0>>
+<</widget>>
+
+<<widget "orgasmFishingMoor">>
+	<<orgasm>>
+	<<set _orgasmText to either("You stagger on the uneven boggy ground", "You drive the end of your rod into the earth to keep from falling")>>
+	
+	<<if $daily.fishing.fishingMoor.fox.phase is "watching">>
+		<<= _orgasmText>>, struggling to keep upright as your orgasm hits. When you recover, you notice the <<beasttype>> has crept several paces closer while you were distracted.
+		<<set $daily.fishing.fishingMoor.fox.closeness to Math.min($daily.fishing.fishingMoor.fox.closeness + random(2, 5), 9)>>
+	<<elseif ["sit", "campfire"].includes($daily.fishing.fishingMoor.hikers.phase)>>
+		<<loadNPC 0 "moor_hiker_1">><<person1>>
+		<<loadNPC 1 "moor_hiker_2">><<person2>>
+		<<= _orgasmText>>, struggling to keep upright as your orgasm hits. "Bloody hell." The <<person1>><<person>> starts clapping and the <<person2>><<person>> joins in with a whoop. <<gtrauma>><<gstress>><<trauma 6>><<stress 6>><<fameexhibitionism 5>>
+	<<else>>
+		<<= _orgasmText>>, and manage to steady yourself as your orgasm subsides. The open moor offers nowhere to hide, but there's no one out here to see it.
+	<</if>>
+	
+	<<set $orgasmcurrent to 0>>
+<</widget>>
+
+<<widget "orgasmFishingCoastPath">>
+	<<orgasm>>
+	<<print either("You lean on your fishing rod to keep from stumbling on the rocks", "You stagger on the rocks, barely keeping hold of your fishing rod")>> as your spasms subside.
 	<<set $orgasmcurrent to 0>>
 <</widget>>
 

@@ -729,6 +729,8 @@ function dayPassed() {
 	if (V.bell_timer) V.bell_timer--;
 	if (V.lake_ice_broken >= 1) V.lake_ice_broken--;
 	if (V.lake_ice_broken < 1) delete V.lake_ice_broken;
+	if (V.lake_fishing_ice_broken >= 1) V.lake_fishing_ice_broken--;
+	if (V.lake_fishing_ice_broken < 1) delete V.lake_fishing_ice_broken;
 	if (V.community_service >= 1) {
 		if (V.community_service_done !== 1 && !["asylum", "prison"].includes(V.location) && !V.daily?.asylumPrison) {
 			wikifier("crimeUp", 200, "obstruction");
@@ -769,28 +771,22 @@ function dayPassed() {
 	if (V.valentines && Time.monthDay === 13) V.timeMessages.pushUnique("valentinesTomorrow");
 	if (V.valentines && Time.monthDay === 14) V.timeMessages.pushUnique("valentinesToday");
 
-	if (V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked") {
-		// Avery takes on the PC's debt, but stops if unsatisfied
-		if (Time.weekDay !== 1) {
-			V.avery_mansion.days_absent++;
-		}
-		if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) {
-			V.renttime--;
-			// Not seen bailey for more than 2 weeks, tracks missed rent
-			if (V.renttime < 0 && V.renttime % 7 === 0) {
-				V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-				V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+	// Avery takes on the PC's debt, but stops if unsatisfied
+	const rentPaused = inRentPausedBadEnd();
+	const hasMansion = V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked";
+	if (!rentPaused) {
+		if (hasMansion) {
+			if (Time.weekDay !== 1) {
+				V.avery_mansion.days_absent++;
 			}
-		}
-		V.avery_mansion.study_unlocked = 0;
-	} else {
-		V.renttime--;
-		// Not seen bailey for more than 2 weeks, tracks missed rent
-		if (V.renttime < 0 && V.renttime % 7 === 0) {
-			V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-			V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+			if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) {
+				passRentTick();
+			}
+		} else {
+			passRentTick();
 		}
 	}
+	if (hasMansion) V.avery_mansion.study_unlocked = 0;
 
 	if (V.flashbacktown > 0) V.flashbacktown--;
 	if (V.flashbackhome > 0) V.flashbackhome--;
@@ -930,8 +926,8 @@ function dayPassed() {
 	}
 
 	wikifier("menstruationCycle", "daily");
-	pregnancyProgress();
-	pregnancyProgress("anus");
+	advancePregnancy("vagina");
+	advancePregnancy("anus");
 	wikifier("rutCycle");
 	npcPregnancyCycle();
 	randomPregnancyProgress();
@@ -970,6 +966,10 @@ function dayPassed() {
 				delete V.whitneyRescueStatus;
 			}
 		}
+	}
+
+	if (C.npc.Whitney.state === "dungeon") {
+		V.whitney.daysSinceCapture++;
 	}
 
 	if (V.pirate_journey > 1) {
@@ -1075,8 +1075,6 @@ function hourPassed(hours) {
 			if (numberOfEarSlime() > 1 && V.earSlime.growth < 100) V.earSlime.defyCooldown--;
 			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
 		}
-		playerEndWaterProgress();
-
 		if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
 		if (C.npc.Sydney.init === 1) {
@@ -1125,9 +1123,35 @@ function hourPassed(hours) {
 			minutePassed(60);
 			Time.set(V.timeStamp + 3600);
 		}
+		// Pregnancy uses the current time, so it runs after the clock moves forward above.
+		if (V.settings.pregnancyType !== "realistic") {
+			// Fetish mode. Pending conceptions from realistic mode are thrown out.
+			V.pendingPregnancies.vagina = null;
+			V.pendingPregnancies.anus = null;
+		}
+		hourlyPregnancyUpdate();
+		checkLabour();
+		if (V.settings.pregnancyType === "realistic") {
+			rollAndRecordConception("vagina");
+			rollAndRecordConception("anus");
+		}
+
+		if (V.fishing) {
+			// Decrease fishing danger values by 0.5 per hour, and remove the event if the danger is 0.
+			Object.values(V.fishing).forEach(location => {
+				if (location?.eventDanger > 0) {
+					location.eventDanger = Math.max(0, location.eventDanger - 0.5);
+					if (location.eventDanger === 0) {
+						location.event = "none";
+					}
+				}
+			});
+		}
 	}
 	/* changes that can be applied just once. consider if using V.hourly would make better sense before putting things here */
 	calchairlengthstage();
+
+	window.baileyConfiscationTick();
 
 	if (
 		V.sexStats.vagina.menstruation.running &&
@@ -1192,8 +1216,8 @@ function minutePassed(minutes) {
 		// use fancy math to ensure that `pass(60);` and `pass(30);pass(30);` apply the same amount of tiredness regardless of changed V.drunk value
 		const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
 		const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
-		// warning: assumes 1:1 negative alcohol changes, true as of yet
-		statChange.alcohol(-minutes);
+		// warning: assumes 1:1 negative drunk changes, true as of yet
+		statChange.drunk(-minutes);
 		// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
 		// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
 		if (minutes < 1200) statChange.tiredness(drunkMod / 12000);
@@ -1255,8 +1279,8 @@ function noonCheck() {
 	if (V.edenNightmareWake) delete V.edenNightmareWake;
 
 	wikifier("menstruationCycle");
-	pregnancyProgress();
-	pregnancyProgress("anus");
+	advancePregnancy("vagina");
+	advancePregnancy("anus");
 
 	if (V.weekly.schoolNightPoolParty && V.weekly.schoolNightPoolParty !== "intro") V.weekly.schoolNightPoolParty = false;
 	delete V.birdSleep;
@@ -1401,6 +1425,7 @@ function dailyNPCEffects() {
 	if (C.npc.Avery.state !== "dismissed") {
 		V.averyschoolpickup = 0;
 		V.averyseen = 0;
+		V.averyBodyWritingSeen = false;
 		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
 			if (V.averydateattended !== 1 && !V.avery_injury) V.averydatemissed = 1;
@@ -1420,7 +1445,7 @@ function dailyNPCEffects() {
 		if (V.avery_mansion) {
 			V.avery_mansion.days++;
 			V.avery_mansion.date_ready = false;
-			if (Time.weekDay === 2 && !V.avery_injury) {
+			if (Time.weekDay === 2 && !V.avery_injury && !inRentPausedBadEnd()) {
 				if (["waiting", "skipped"].includes(V.avery_mansion.party_state)) {
 					V.avery_mansion.party_state = "missed";
 					V.avery_mansion.party_missed_guest = V.avery_mansion.guest;
@@ -1448,7 +1473,7 @@ function dailyNPCEffects() {
 				}
 			}
 
-			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7) && !V.avery_injury) {
+			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7) && !V.avery_injury && !inRentPausedBadEnd()) {
 				if (V.avery_valentines?.done && Time.monthDay === 15 && Time.monthName === "February") {
 					// do not spoil the valentines
 				} else {
@@ -2140,7 +2165,9 @@ function dailySchoolEffects() {
 		V.schoolLessonsMissed.english += !Number(V.daily.school.attended.english);
 		V.schoolLessonsMissed.history += !Number(V.daily.school.attended.history);
 		V.schoolLessonsMissed.swimming += !Number(V.daily.school.attended.swimming);
-		V.lessonmissed += 5 - attended * 2; // Reduce lessonmissed if lessons are attended
+		const BREAKPOINTS = [200, 400, 700, 1000];
+		const bonus = BREAKPOINTS.filter(t => V.school / 4 >= t).length;
+		V.lessonmissed += 5 - attended * (2 + bonus); // Reduce lessonmissed if lessons are attended
 		V.lessonmissed = Math.max(0, V.lessonmissed);
 		V.lessonmissedtext = 5 - attended;
 	}
@@ -2508,7 +2535,7 @@ function getArousal(passMinutes) {
 			} else if (V.earSlime.vibration > 0) {
 				addedArousal += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * V.genitalsensitivity;
 				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
-				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
+				V.earSlime.lastVibration = Math.max(passMinutes - V.earSlime.vibration, 0);
 			}
 		}
 	} else {
@@ -2673,3 +2700,18 @@ function supermarketWeekly() {
 	});
 }
 DefineMacro("supermarketWeekly", supermarketWeekly);
+
+function inRentPausedBadEnd() {
+	const badEnd = V.badEndStats?.last();
+	if (!Number.isFinite(badEnd?.trackedStart) || badEnd.trackedEnd !== undefined) return false;
+	return window.Constants.badEndsThatPauseRent.includes(badEnd.source);
+}
+
+/* Not seen bailey for more than 2 weeks, tracks missed rent */
+function passRentTick() {
+	V.renttime--;
+	if (V.renttime < 0 && V.renttime % 7 === 0) {
+		V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
+		V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+	}
+}

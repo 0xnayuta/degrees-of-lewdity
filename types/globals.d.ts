@@ -45,18 +45,87 @@ declare global {
 		tiredness: {
 			max: number;
 		};
-		
+
+		/**
+		 * Minimum and maximum values for the player's stats
+		 *
+		 * Grouped by category, then sorted in alphabetical order
+		 *
+		 * Code that references a variable's max value should be relative to "V.variablemax" / "$variablemax".
+		 * - The Awareness variable has an exception, where its innocence stat is called "V.innocenceMin" / "$innocenceMin".
+		 *
+		 * Magic numbers that appear in multiple functions will be stored as "C.stats.variable.name".
+		 *
+		 * Magic numbers that affect each other in complicated ways will be stored as "C.stats.variable.group.name".
+		 *
+		 * Magic numbers that appear in only 1 function will stay in the function, with a comment marking their current value and where they are used.
+		 *
+		 * The "$wraith.will" variable will need to be adjusted to depend on a proportion of V.willpowermax.
+		 */
 		stats: {
-			// alcohol: {
-			// 	max: number,
-			// 	/**
-			// 	 * How much the player's $drunk stat needs to increase to qualify for the next Alcohol description tier.
-			// 	 * 
-			// 	 * The description maxes out at 480 and above.
-			// 	 */
-			// 	threshold: number,
-			// 	min: number,
-			// },
+			drunk: {
+				/**
+				 * How much allure the PC gains at the drunk effect limit. Can be amplified by other allure modifiers.
+				 *
+				 * The drunk allure math is handled in the "calculateallure" function.
+				 */
+				// allureBonus: number,
+				/**
+				 * The PC's required level of intoxication to achieve its maximum effects.
+				 */
+				effectLimit: number;
+				/**
+				 * How much fatigue the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
+				 *
+				 * The fatigue math is handled in the "minutePassed" function.
+				 */
+				// hourlyFatigue: number,
+				/**
+				 * How much stress the PC gains at the drunk effect limit. This is also applied while the PC is sleeping.
+				 *
+				 * The stress math is handled in the "minutePassed" function.
+				 */
+				// hourlyStress: number,
+				/**
+				 * The maximum value that the PC's $drunk stat can reach, before it begins to overflow.
+				 *
+				 * Initialized as "$drunkmax" in "game\04-Variables\variables-start.twee".
+				 */
+				// max: number,
+				mod: {
+					maxSex: {
+						minDrunk: number;
+						maxDrunk: number;
+					};
+					minSex: {
+						minDrunk: number;
+						maxDrunk: number;
+					};
+				};
+				/**
+				 * How much more pain the PC can tolerate at the drunk effect limit.
+				 *
+				 * The pain tolerance math is handled in the "pain" function.
+				 */
+				// painTolerance: number,
+				/**
+				 * How much the PC's stats decrease at the drunk effect limit.
+				 *
+				 * Affected stats:
+				 *   Willpower, Skulduggery, Dancing, Swimming, Athletics, Tending, Housekeeping
+				 *   Seduction, Oral, Chest, Hands, Buttocks, Anal, Vaginal, Feet, Thighs
+				 *   English, History, Maths, Science
+				 *
+				 * The "Sprays", "Nets", "Batons", "Whips" should also be affected by drunk, but the "currentSkillValue" function doesn't currently handle them.
+				 */
+				skillPenalty: number;
+				/**
+				 * How much more stress the PC can tolerate at the drunk effect limit.
+				 *
+				 * The stress tolerance math is handled in the "stress" function.
+				 */
+				// stressTolerance: number,
+			};
 			// arousal: {
 			// 	max: number,
 			// 	min: number,
@@ -100,7 +169,7 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-
+			//
 			// // Core Characteristic Constants
 			// /**
 			//  * Awareness has a negative range where it turns into Innocence. "Base" will refer to 0 Awareness.
@@ -124,7 +193,7 @@ declare global {
 			// },
 			// /**
 			//  * The player's body can currently be 1 of 4 sizes:
-			//  * 
+			//  *
 			//  * Tiny, Small, Normal, and Large
 			//  */
 			// physique: {
@@ -148,7 +217,7 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-
+			//
 			// // Secondary Characteristic Constants
 			// fringeLength: {
 			// 	max: number,
@@ -177,7 +246,7 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-			
+			//
 			// // Fluid Production Constants
 			// milkVolume: {
 			// 	cowMax: number,
@@ -192,10 +261,10 @@ declare global {
 			// /**
 			//  * It seems there's no upper limit on the amount of fluid a vagina can produce when it orgasms. May be added in
 			//  * a future update.
-			//  * 
+			//  *
 			//  * See "game\base-system\orgasm.twee" for the code.
 			//  */
-
+			//
 			// // Core Skill Constants
 			// athletics: {
 			// 	max: number,
@@ -227,7 +296,7 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-
+			//
 			// // School Skill Constants
 			// english: {
 			// 	max: number,
@@ -245,7 +314,7 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-
+			//
 			// // Sex Skill Constants
 			// /**
 			//  * Variable name: "analskill"
@@ -310,9 +379,9 @@ declare global {
 			// 	max: number,
 			// 	min: number,
 			// },
-		},
+		};
 
-		fames: {
+		// fames: {
 		// 	// Negative Fame Constants
 		// 	bestiality: {
 		// 		max: number,
@@ -349,7 +418,7 @@ declare global {
 		// 		max: number,
 		// 		min: number,
 		// 	},
-
+		//
 		// 	// Positive Fame Constants
 		// 	business: {
 		// 		max: number,
@@ -380,23 +449,23 @@ declare global {
 		// 		max: number,
 		// 		min: number,
 		// 	},
-		
-		// // Crime Fame Constants
-		// /**
-		//  * Original values obtained from "game\03-JavaScript\alias2.js"
-		//  */
-		// crime: {
-		// 	max: number,
-		// 	min: number,
+		//
+		// 	// Crime Fame Constants
 		// 	/**
-		// 	 * If the player commits too much of the same type of crime in one day, they leave behind more evidence.
-		// 	 * 
-		// 	 * The dawnCheck() function in "game\03-JavaScript\time.js" will increase the player's crime by an additional
-		// 	 * 10% if their daily crime stat is creater than "spree".
+		// 	 * Original values obtained from "game\03-JavaScript\alias2.js"
 		// 	 */
-		// 	spree: number,
+		// 	crime: {
+		// 		max: number,
+		// 		min: number,
+		// 		/**
+		// 		 * If the player commits too much of the same type of crime in one day, they leave behind more evidence.
+		// 		 *
+		// 		 * The dawnCheck() function in "game\03-JavaScript\time.js" will increase the player's crime by an additional
+		// 		 * 10% if their daily crime stat is creater than "spree".
+		// 		 */
+		// 		spree: number,
+		// 	},
 		// },
-		},
 	};
 	const ExecutionContext: {
 		instance: {

@@ -33,6 +33,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 350,
@@ -55,6 +56,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 350,
@@ -77,6 +79,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["summer"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 500,
@@ -99,6 +102,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
 				tags: [],
+				featCost: 1,
 			},
 			shop: {
 				sell_price: 150,
@@ -121,6 +125,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 200,
@@ -143,6 +148,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 300,
@@ -165,6 +171,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 200,
@@ -187,6 +194,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 200,
@@ -208,6 +216,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 50,
 			},
+			is_fishing_bait: true,
 		},
 		orange: {
 			index: 9,
@@ -226,6 +235,7 @@ function initFoodstuff() {
 				sell_price: 300,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		banana: {
 			index: 10,
@@ -244,6 +254,7 @@ function initFoodstuff() {
 				sell_price: 100,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		lemon: {
 			index: 11,
@@ -261,6 +272,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 120,
 			},
+			is_fishing_bait: true,
 		},
 		blood_lemon: {
 			index: 12,
@@ -281,6 +293,7 @@ function initFoodstuff() {
 			food: {
 				tags: ["aphrodisiac"],
 			},
+			is_fishing_bait: true,
 		},
 		pear: {
 			index: 13,
@@ -298,6 +311,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 80,
 			},
+			is_fishing_bait: true,
 		},
 		strawberry: {
 			index: 14,
@@ -315,6 +329,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 180,
 			},
+			is_fishing_bait: true,
 		},
 		peach: {
 			index: 15,
@@ -332,6 +347,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 65,
 			},
+			is_fishing_bait: true,
 		},
 		plum: {
 			index: 16,
@@ -349,6 +365,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 80,
 			},
+			is_fishing_bait: true,
 		},
 		mushroom: {
 			index: 17,
@@ -418,10 +435,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 80,
 			},
+			is_fishing_bait: true,
 		},
 		onion: {
 			index: 21,
@@ -440,10 +459,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 120,
 			},
+			is_fishing_bait: true,
 		},
 		garlic_bulb: {
 			index: 22,
@@ -462,10 +483,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["autumn"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 100,
 			},
+			is_fishing_bait: true,
 		},
 		potato: {
 			index: 23,
@@ -484,10 +507,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn", "winter"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 50,
 			},
+			is_fishing_bait: true,
 		},
 		strange_flower: {
 			index: 24,
@@ -626,6 +651,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "winter"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 90,
@@ -648,6 +674,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 130,
@@ -670,6 +697,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 100,
@@ -709,6 +737,7 @@ function initFoodstuff() {
 				sell_price: 7,
 				stall_size: "small",
 			},
+			is_fishing_bait: true,
 		},
 		carnation: {
 			index: 35,
@@ -727,6 +756,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["autumn"],
 				tags: [],
+				featCost: 20,
 			},
 			shop: {
 				sell_price: 200,
@@ -779,6 +809,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 250,
@@ -810,6 +841,7 @@ function initFoodstuff() {
 			shop: {
 				sell_price: 100,
 			},
+			is_fishing_bait: true,
 			recipe: {
 				recipe_name: "bread",
 				difficulty: 1,
@@ -915,6 +947,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["summer", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 70,
@@ -1035,6 +1068,7 @@ function initFoodstuff() {
 				seed_name: "wheat",
 				seasons: ["spring", "summer", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 40,
@@ -1229,6 +1263,7 @@ function initFoodstuff() {
 				sell_price: 200,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		mince_pie: {
 			index: 60,
@@ -1306,6 +1341,7 @@ function initFoodstuff() {
 				sell_price: 200,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		potato_pancake: {
 			index: 64,
@@ -1371,10 +1407,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["summer", "autumn"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 80,
 			},
+			is_fishing_bait: true,
 		},
 		samosa: {
 			index: 67,
@@ -1437,6 +1475,7 @@ function initFoodstuff() {
 				sell_price: 300,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		pepper: {
 			index: 70,
@@ -1455,10 +1494,12 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "winter"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 100,
 			},
+			is_fishing_bait: true,
 		},
 		kedgeree: {
 			index: 71,
@@ -1478,6 +1519,12 @@ function initFoodstuff() {
 				cook_minutes: 40,
 				servings: 1,
 				ingredients: ["haddock", "rice", "chicken_egg", "butter", "vegetable_oil", "lemon", "cream"],
+				ingredient_alternatives: {
+					normal: {
+						haddock: ["cod", "herring", "mackerel", "salmon", "trout", "whiting", "eel"],
+					},
+					lewd: {},
+				},
 				tags: [],
 			},
 			food: {
@@ -1502,6 +1549,7 @@ function initFoodstuff() {
 				seed_name: "rice",
 				seasons: ["spring", "summer", "autumn"],
 				tags: [],
+				featCost: 20,
 			},
 			shop: {
 				sell_price: 50,
@@ -2249,6 +2297,7 @@ function initFoodstuff() {
 				sell_price: 50,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		sticky_toffee_pudding: {
 			index: 105,
@@ -2340,6 +2389,7 @@ function initFoodstuff() {
 				sell_price: 20,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		belgian_bun: {
 			index: 109,
@@ -2382,6 +2432,7 @@ function initFoodstuff() {
 				sell_price: 250,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		linguine: {
 			index: 111,
@@ -2518,8 +2569,8 @@ function initFoodstuff() {
 				tags: [],
 			},
 			shop: {
-				sell_price: 600,
-				available_in: ["supermarket"],
+				sell_price: 700,
+				available_in: [],
 			},
 		},
 		fish_and_chips: {
@@ -2540,6 +2591,12 @@ function initFoodstuff() {
 				cook_minutes: 30,
 				servings: 1,
 				ingredients: ["cod", "chips", "vegetable_oil", "flour"],
+				ingredient_alternatives: {
+					normal: {
+						cod: ["haddock", "whiting", "flounder", "bass", "perch", "pike"],
+					},
+					lewd: {},
+				},
 				tags: [],
 			},
 			food: {
@@ -2816,6 +2873,7 @@ function initFoodstuff() {
 			food: {
 				tags: ["vegetarian", "sweet"],
 			},
+			is_fishing_bait: true,
 		},
 		red_wine: {
 			index: 129,
@@ -2936,6 +2994,7 @@ function initFoodstuff() {
 				seed_name: "spinach",
 				seasons: ["spring", "autumn"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 60,
@@ -3054,6 +3113,7 @@ function initFoodstuff() {
 				sell_price: 1000,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		pork: {
 			index: 140,
@@ -3072,6 +3132,7 @@ function initFoodstuff() {
 				sell_price: 700,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		cauliflower: {
 			index: 141,
@@ -3090,6 +3151,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
 				tags: [],
+				featCost: 10,
 			},
 			shop: {
 				sell_price: 400,
@@ -3131,6 +3193,7 @@ function initFoodstuff() {
 				sell_price: 300,
 				available_in: ["supermarket"],
 			},
+			is_fishing_bait: true,
 		},
 		omelette: {
 			index: 144,
@@ -3266,6 +3329,7 @@ function initFoodstuff() {
 				has_seeds: true,
 				seasons: ["summer"],
 				tags: [],
+				featCost: 5,
 			},
 			shop: {
 				sell_price: 300,
@@ -3315,6 +3379,177 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["strawberry", "sugar"],
 				tags: [],
+			},
+		},
+		herring: {
+			index: 152,
+			name: "herring",
+			singular: "herring",
+			plural: "herring",
+			icon: "herring.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 150,
+			},
+		},
+		whiting: {
+			index: 153,
+			name: "whiting",
+			singular: "whiting",
+			plural: "whiting",
+			icon: "whiting.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 300,
+			},
+		},
+		mackerel: {
+			index: 154,
+			name: "mackerel",
+			singular: "mackerel",
+			plural: "mackerel",
+			icon: "mackerel.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 200,
+			},
+		},
+		flounder: {
+			index: 155,
+			name: "flounder",
+			singular: "flounder",
+			plural: "flounder",
+			icon: "flounder.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 400,
+			},
+		},
+		bass: {
+			index: 156,
+			name: "bass",
+			singular: "bass",
+			plural: "bass",
+			icon: "bass.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 800,
+			},
+		},
+		roach: {
+			index: 157,
+			name: "roach",
+			singular: "roach",
+			plural: "roach",
+			icon: "roach.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 80,
+			},
+		},
+		perch: {
+			index: 158,
+			name: "perch",
+			singular: "perch",
+			plural: "perch",
+			icon: "perch.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 250,
+			},
+		},
+		chub: {
+			index: 159,
+			name: "chub",
+			singular: "chub",
+			plural: "chub",
+			icon: "chub.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 150,
+			},
+		},
+		pike: {
+			index: 160,
+			name: "pike",
+			singular: "pike",
+			plural: "pike",
+			icon: "pike.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 800,
+			},
+		},
+		eel: {
+			index: 162,
+			name: "eel",
+			singular: "eel",
+			plural: "eels",
+			icon: "eel.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 700,
+			},
+		},
+		grayling: {
+			index: 163,
+			name: "grayling",
+			singular: "grayling",
+			plural: "grayling",
+			icon: "grayling.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			shop: {
+				sell_price: 900,
+			},
+		},
+		baitfish: {
+			index: 164,
+			name: "baitfish",
+			singular: "baitfish",
+			plural: "baitfish",
+			icon: "baitfish.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			is_fishing_bait: true,
+			shop: {
+				sell_price: 0,
+			},
+		},
+		bait_worm: {
+			index: 165,
+			name: "bait worm",
+			singular: "bait worm",
+			plural: "bait worms",
+			icon: "bait-worm.png",
+			category: "seafood",
+			kitchen_item_type_icon: "recipe-seafood.png",
+			prop_folder: "ingredient",
+			is_fishing_bait: true,
+			shop: {
+				sell_price: 0,
 			},
 		},
 	};

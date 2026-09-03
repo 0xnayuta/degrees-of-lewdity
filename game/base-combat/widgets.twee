@@ -1,5 +1,20 @@
 :: Widgets Combat [widget]
 
+
+<<widget "countBrokenVows">>
+	<<if $brokenVowCount is undefined>>
+		/* Instanciating the object */
+		<<set $brokenVowCount to Object.fromEntries(V.NPCNameList.map(k => [k.split(" ").join(""), 0]))>>
+		/* Undefined is for unnamed npcs and beasts */
+		<<set $brokenVowCount.Undefined to 0>>
+	<</if>>
+	<<if _args[0] in $brokenVowCount>>
+		<<set $brokenVowCount[_args[0]] += 1>>
+	<<else>>
+		<<set $brokenVowCount.Undefined += 1>>
+	<</if>>
+<</widget>>
+
 <<widget "takeVirginity">>
 	<<if Array.isArray(_args[0])>>
 		/* Array of NPCList index's, should only be used for double penetration */
@@ -112,6 +127,8 @@
 			<<if $player.virginity.temple is true and (_args[1] is "vaginal" or _args[1] is "penile") and $templePromised isnot $_taker>>
 				<<set $virginityProtected to false>>
 				<<set $player.virginity.temple to $_taker>>
+				<<countBrokenVows $_taker>>
+				<<set $speechtemplevirgin to 1>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -143,6 +160,8 @@
 			<<if $player.virginity.temple is true and (_args[1] is "vaginal" or _args[1] is "penile") and $templePromised isnot _args[0]>>
 				<<set $virginityProtected to false>>
 				<<set $player.virginity.temple to _args[0]>>
+				<<countBrokenVows _args[0]>>
+				<<set $speechtemplevirgin to 1>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -190,9 +209,6 @@
 		<<if _args[3]>><br><br><</if>>
 		<<takeVirginity $_fullDescription "handholding">>
 	<</if>>
-	<<recordSperm `{target: "pc", spermOwner: _args[0], spermType: $_type, genital: "hand"}`>>
-	<<recordSperm `{target: _args[0], spermOwner: "pc", spermType: "human", genital: "hand"}`>>
-	<<if !$combat>><<fetishPregnancyImg>><</if>>
 <</widget>>
 
 <<widget "takeKissVirginity">>
@@ -225,7 +241,7 @@
 		<</if>>
 		<<switch $_kissType>>
 			<<case "loveInterest">>
-				<span class="lewd">You're happy your first kiss went to a love interest.</span><<arousal 3000>><<stress -12>><<trauma -12>><<ggarousal>><<llstress>>
+				<span class="lewd">You're happy your first kiss went to a love interest.</span><<arousal 3000>><<stress -12>><<trauma -12>><<ggarousal>><<llstress>><<lltrauma>>
 				<<if ($wraith.mimic isnot $_fullDescription)>><<earnFeat "First Kiss">><</if>>
 				<<set _consensualOverride to true>>
 			<<case "romantic">>
@@ -252,9 +268,6 @@
 	<<else>>
 		<<set _pcKissVirginityTaken to 0>>
 	<</if>>
-	<<recordSperm `{target: "pc", spermOwner: _args[0], spermType: $_type, genital: "kiss"}`>>
-	<<recordSperm `{target: _args[0], spermOwner: "pc", spermType: "human", genital: "kiss"}`>>
-	<<if !$combat>><<fetishPregnancyImg>><</if>>
 <</widget>>
 
 <<widget "takeKissVirginityNamed">>
