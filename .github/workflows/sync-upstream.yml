@@ -4,8 +4,8 @@
 #    上游推进后无法快进 —— 策略为"能快进则快进，否则自动合并，绝不 force"）
 # 2. 仅当上游有更新时才 push（master/dev 均先比较哈希）
 # 3. 同步后跑 sanityCheck.sh：该脚本无失败退出码、且上游树本身带数百条既有告警，
-#    因此做成"门禁"——只把【本次同步实际改动文件】里出现的【结构性破坏类】发现当作失败，
-#    其余类别仅记录到日志
+#    因此做成"门禁"——过滤本次改动文件中的发现，对结构性破坏类问题生成警告与摘要，
+#    默认放行推送以确保镜像不断流，支持手动触发严格模式阻断
 # 4. 不删除任何分支、不反向推送、不动本地主题分支
 name: Sync upstream
 
@@ -13,7 +13,12 @@ on:
   schedule:
     # 每 6 小时（UTC）；上游发布节奏为数天一次，冗余足够
     - cron: "0 */6 * * *"
-  workflow_dispatch: {} # 手动触发
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: "是否在发现结构性错误时中止推送 (默认 false，仅告警写入摘要并放行)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -65,33 +70,49 @@ jobs:
           echo "== Running sanityCheck.sh (changed files only) =="
           out="$(echo | ./sanityCheck.sh 2>&1 | sed 's/\x1b\[[0-9;]*m//g' || true)"
 
-          # 结构性破坏类检查（阻断推送）；其余（拼写/一次性变量/时间标注等）仅记录
-          BLOCKING_RE='^\[(TripleOpen|TripleClose|TooManyAngleBrackets|TooManyAngleBrackets2|MissingClosingAngleBracket|MissingClosingAngleBracket2|MissingOpeningAngleBracket2|MissingOpeningBracket|MissingOpeningBracket2|MissingClosingBracket|MissingClosingBracket2|AccidentalAssignmentInIf|AccidentalAssignmentInElseIf|MissingDollar|MissingDollar2|DoubleSlash|ShouldBeElseIf|ElseForAnIf|EqualAndTo|DoubleEqualsInSet|BadCommand|MissingSemicolonBeforeStatement|TypeofNotComparedToString|VarSignMidWord|VarSignAtMacroStart|MissingSpaceInMacro|MissingColonInMacro)\] '
+          # 结构性破坏类检查（排除因箭头函数/多行条件/字符串字面量引发高误报的规则）
+          BLOCKING_RE='^\[(TripleOpen|TripleClose|TooManyAngleBrackets|TooManyAngleBrackets2|MissingClosingAngleBracket|MissingOpeningAngleBracket2|MissingOpeningBracket|MissingOpeningBracket2|MissingClosingBracket|MissingClosingBracket2|AccidentalAssignmentInIf|AccidentalAssignmentInElseIf|MissingDollar|MissingDollar2|DoubleSlash|ShouldBeElseIf|ElseForAnIf|EqualAndTo|DoubleEqualsInSet|BadCommand|MissingSemicolonBeforeStatement|TypeofNotComparedToString|VarSignMidWord|MissingSpaceInMacro|MissingColonInMacro)\] '
 
-          allhits=""
-          blocking=""
+          rm -f /tmp/sync-changed.txt /tmp/sync-allhits.txt /tmp/sync-blocking.txt
+          touch /tmp/sync-allhits.txt /tmp/sync-blocking.txt
+
           git diff --name-only "$before" "$after" > /tmp/sync-changed.txt
           while IFS= read -r f; do
             [ -z "$f" ] && continue
             # sanityCheck 的发现行以 [检查名] 开头；check.py 的报告行以空格开头
             fhits="$(printf '%s\n' "$out" | grep -E '^(\[| )' | grep -F "$f:" || true)"
             [ -z "$fhits" ] && continue
-            allhits="$allhits$fhits"
-            blocking="$blocking$(printf '%s\n' "$fhits" | grep -E "$BLOCKING_RE" || true)"
+            printf '%s\n' "$fhits" >> /tmp/sync-allhits.txt
+            bhits="$(printf '%s\n' "$fhits" | grep -E "$BLOCKING_RE" || true)"
+            if [ -n "$bhits" ]; then
+              printf '%s\n' "$bhits" >> /tmp/sync-blocking.txt
+            fi
           done < /tmp/sync-changed.txt
 
-          if [ -n "$allhits" ]; then
+          if [ -s /tmp/sync-allhits.txt ]; then
             echo "== sanityCheck findings in synced files =="
-            printf '%s\n' "$allhits"
+            cat /tmp/sync-allhits.txt
           fi
 
-          if [ -n "$blocking" ]; then
-            echo "::error::sanityCheck 发现本次同步引入的结构性错误，中止推送："
-            printf '%s\n' "$blocking"
-            exit 1
+          strict="${{ inputs.strict || 'false' }}"
+          if [ -s /tmp/sync-blocking.txt ]; then
+            count=$(wc -l < /tmp/sync-blocking.txt)
+            echo "### ⚠️ sanityCheck 门禁报告（发现 $count 处潜在结构性问题）" >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+            echo '```' >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+            cat /tmp/sync-blocking.txt >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+            echo '```' >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+
+            if [ "$strict" = "true" ]; then
+              echo "::error::sanityCheck 发现本次同步引入的结构性错误，严格模式下中止推送："
+              cat /tmp/sync-blocking.txt
+              exit 1
+            else
+              echo "::warning title=sanityCheck 发现结构性问题 (放行推送)::本次同步引入 $count 处结构性破坏类告警，已写入 Job Summary，保持镜像同步未中断。"
+            fi
+          else
+            echo "sanityCheck: no structural issues in synced files"
           fi
 
-          echo "sanityCheck: no structural issues in synced files"
           git push origin master
 
       - name: Sync dev (仅上游有更新才 push；非快进会被远端拒绝并告警)
