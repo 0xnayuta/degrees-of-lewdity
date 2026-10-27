@@ -235,7 +235,6 @@ const skip = [
 	"colour_options",
 	"accessory_colour_options",
 	"pattern_options",
-	"fabric_strength",
 	"integrity_max",
 	"bustresize",
 	"sleeve_img",

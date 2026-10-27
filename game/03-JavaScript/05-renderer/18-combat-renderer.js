@@ -146,7 +146,6 @@ class CombatRenderer {
 			state_base: 0,
 			integrity: 10,
 			integrity_max: 10,
-			fabric_strength: 20,
 			reveal: 1,
 			word: "a",
 			plural: 0,

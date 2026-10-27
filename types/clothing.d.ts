@@ -183,7 +183,6 @@ declare global {
 		 */
 		integrity?: number;
 		integrity_max?: number;
-		fabric_strength?: number;
 		/**
 		 * Unassuming 0-100
 		 *
