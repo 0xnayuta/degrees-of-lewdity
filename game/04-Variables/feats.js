@@ -640,7 +640,7 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
-		altDesc: "You gave your virginity to <<if $blackwolfmonster>><<nnpc_him 'Black Wolf'>><<else>>it<</if>>.",
+		altDesc: "You gave your virginity to <<if resolveIfNamedBeastIsMonster('blackwolf')>><<nnpc_him 'Black Wolf'>><<else>>it<</if>>.",
 		altDescCond: "true",
 	},
 	"Encroaching Civilisation": {
