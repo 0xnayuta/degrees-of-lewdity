@@ -1653,8 +1653,8 @@ function dailyNPCEffects() {
 	// Wraith
 	if (V.wraith.state) {
 		if (V.wraithAngerCooldown) {
-			if (V.wraithAngerCooldown > 0) V.wraithAngerCooldown--;
-			else {
+			V.wraithAngerCooldown--;
+			if (V.wraithAngerCooldown <= 0) {
 				V.wraith.offspring = "";
 				delete V.wraithAngerCooldown;
 			}
@@ -2049,7 +2049,7 @@ function yearlyEventChecks() {
 		V.avery_valentines.invite = false;
 		V.avery_valentines.ready = false;
 		V.avery_valentines.done = false;
-		V.avery_valentines.reservation = false;
+		V.avery_valentines.reservations = false;
 		V.avery_valentines.chocolate = false;
 		V.avery_valentines.chocolate_asked = false;
 		V.avery_valentines.opinion = "none";
@@ -2739,6 +2739,7 @@ DefineMacro("supermarketWeekly", supermarketWeekly);
 
 /**
  * Returns true on and after the day rent is due until the player is confronted by Bailey, unless Avery is paying for them.
+ *
  * @returns {boolean} Rent due, yes or no?
  */
 function isRentDue() {
@@ -2748,6 +2749,7 @@ window.isRentDue = isRentDue;
 
 /**
  * Returns true whenever rent is late and unpaid until the player pays Bailey, unless Avery is paying for them.
+ *
  * @returns {boolean} Bailey looking for player, yes or no?
  */
 function isBaileyLookingForPlayer() {
@@ -2757,6 +2759,7 @@ window.isBaileyLookingForPlayer = isBaileyLookingForPlayer;
 
 /**
  * Returns true if player is adopted by Avery. Can also check specifically for if Avery is currently paying Bailey or not.
+ *
  * @returns {0|1|2} 0 = Not adopted | 1 = Adopted, Avery refusing to pay Bailey | 2 = Adopted, Avery paying Bailey
  */
 function isAveryPayingBailey() {
