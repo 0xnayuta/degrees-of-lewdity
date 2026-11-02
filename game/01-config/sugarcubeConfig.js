@@ -11,7 +11,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.13.7",
+	version: "0.5.13.8",
 	versionName: `"Dark History" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
