@@ -586,13 +586,19 @@ window.knowsPregnancy = knowsPregnancy;
 /**
  * Whether someone knows who's carrying a pregnancy. Knowing the pregnancy exists is enough, because
  * awareness is always recorded against one carrier's record. Knowing only the donor is not.
+ * The carrier always knows once their children are born.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  * @param {string} who "pc", or an NPC's name
  */
 function knowsCarrier(pregnancyId, who) {
 	const record = V.pregnancies[pregnancyId];
-	return record.awareOfCarrier.includes(who) || record.awareOfPregnancy.includes(who) || (record.carrier === who && knowsPregnancy(pregnancyId, who));
+	const hasGivenBirth = record.litterBorn || record.deliveredDate !== null;
+	return (
+		record.awareOfCarrier.includes(who) ||
+		record.awareOfPregnancy.includes(who) ||
+		(record.carrier === who && (hasGivenBirth || knowsPregnancy(pregnancyId, who)))
+	);
 }
 window.knowsCarrier = knowsCarrier;
 
