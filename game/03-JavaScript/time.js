@@ -2217,8 +2217,9 @@ function dailySchoolEffects() {
 		if (C.npc.Mason.love >= V.npclovehigh) delinquencyDecay++;
 		if (V.lessonmissedtext) delinquencyDecay = Math.floor(delinquencyDecay / 2);
 		statChange.delinquency(-delinquencyDecay / 4);
-		if (V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
 	}
+
+	if (Time.schoolDay && V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
 
 	if (V.science_star >= 1) {
 		wikifier("scienceskill", Math.clamp(V.science_star, 0, 3));
