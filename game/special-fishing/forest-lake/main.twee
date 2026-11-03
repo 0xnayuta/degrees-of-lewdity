@@ -7,6 +7,7 @@
 <<fishingLocationDescription $bus>>
 <<fishingLocationPopulation $bus>>
 <br><br>
+<<wPersist "forest">>
 
 <<if $stress gte $stressmax>>
 	<<if isPregnancyEnding()>>
@@ -68,6 +69,17 @@
 	<<set $fishingTrash to rollFishingTrash("fishingForestLake")>>
 	<<include "Fishing Forest Lake Trash Catch">>
 <</addinlineevent>>
+
+/* Ivory Wraith hunt start */
+<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and isPlayerFishingAlone()>>
+	<<addinlineevent "wraithHuntStart" `fishingDangerEventWeight(2 * Math.clamp($wraith.timer / 10, 0, 1))`>>
+		<<set $fishingAmbientOverride to "wraithHuntStart">>
+		<<include "Fishing Forest Lake Wait">>
+		<<set $forestHunter to "Ivory Wraith">>
+		<<set $wraith.hunt to 1>>
+		<<set $foresthunt to $wraith.hunt>>
+	<</addinlineevent>>
+<</if>>
 
 /* Wolf Attack */
 <<if $fishing.fishingForestLake.event is "none">>
@@ -206,6 +218,12 @@ You open wide and drop the whole $fishingHookedFish.type in your mouth. <<fishin
 		You use the butt of your rod to chip open the hole in the ice again then cast back out into the water.
 	<<elseif $fishingAmbientOverride is "castOut">>
 		You cast out into the water.
+	<<elseif $fishingAmbientOverride is "wraithHuntStart">>
+		Your ears begin to ring, and you feel like you're being watched. Out of instinct, you turn around.
+		<br><br>
+		For a moment, you think you see the shape of a pale face between the trees. <<stress 6>><<gstress>>
+		<br><br>
+		<span class="red">You're trespassing. Something is hunting you.</span>
 	<<else>>
 		<<cleareventpool>>
 		<<fishingWaitAmbient $bus>>
