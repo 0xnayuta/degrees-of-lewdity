@@ -179,6 +179,7 @@ module.exports = {
 		masturbationEffects: "readonly",
 		masturbationSlimeControl: "readonly",
 		maxParasites: "readonly",
+		Memories: "readonly",
 		migrateBeastSettings: "readonly",
 		migrateNamedBeastSettings: "readonly",
 		monsterCanAppearForType: "readonly",
