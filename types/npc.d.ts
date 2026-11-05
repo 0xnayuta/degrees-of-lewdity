@@ -76,11 +76,15 @@ declare global {
 		title: string;
 
 		/**
-		 * The sex of the NPC. Not gender.
+		 * The sex of the NPC. Not gender. Decides their genitals.
+		 *
+		 * - m: penis
+		 * - f: vagina
+		 * - h: both
 		 */
-		gender: "m" | "f";
+		gender: "m" | "f" | "h";
 		/**
-		 * The gender of the NPC.
+		 * The gender of the NPC. Decides their breasts: "m" has none.
 		 *
 		 * - m: male
 		 * - f: female

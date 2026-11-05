@@ -89,7 +89,7 @@
 <</widget>>
 
 <!-- Named NPC aka NNPC notes -->
-<!-- $NPCNameList.indexOf("Eden") returns the index value of Eden array, allowing name-friendly calls -->
+<!-- C.npc.Eden (or C.npc["Great Hawk"] for names with spaces) returns Eden's entry in $NPCName, allowing name-friendly calls -->
 <!-- To call NNPC Eden, use <<npc Eden>>. To put them away, use <<endnpc>>. -->
 
 /*Gender neutral names for future reference
@@ -398,31 +398,30 @@ Zohar
 
 <<widget "initnpc">>
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
-	<<if $NPCName[_i].init is 0>> <!-- This prevents double-init from wiping variables -->
-		<<set $NPCName[_i].init to 1>>
+	<<if C.npc[_nam].init is 0>> <!-- This prevents double-init from wiping variables -->
+		<<set C.npc[_nam].init to 1>>
 
-		<<set $NPCName[_i].trust to 0>>
-		<<set $NPCName[_i].love to 0>>
-		<<set $NPCName[_i].dom to 0>>
-		<<set $NPCName[_i].lust to 0>>
-		<<set $NPCName[_i].trauma to 0>>
-		<<set $NPCName[_i].rage to 0>>
-		<<set $NPCName[_i].state to "active">>
-		<<set $NPCName[_i].purity to 0>>
-		<<set $NPCName[_i].corruption to 0>>
-		<<set $NPCName[_i].chastity to {penis:"", vagina:"", anus:""}>>
-		<<set $NPCName[_i].name_known to 1>>
-		<<if $NPCName[_i].skincolour is undefined>>
-			<<set $NPCName[_i].skincolour to randomSkinTone()>>
+		<<set C.npc[_nam].trust to 0>>
+		<<set C.npc[_nam].love to 0>>
+		<<set C.npc[_nam].dom to 0>>
+		<<set C.npc[_nam].lust to 0>>
+		<<set C.npc[_nam].trauma to 0>>
+		<<set C.npc[_nam].rage to 0>>
+		<<set C.npc[_nam].state to "active">>
+		<<set C.npc[_nam].purity to 0>>
+		<<set C.npc[_nam].corruption to 0>>
+		<<set C.npc[_nam].chastity to {penis:"", vagina:"", anus:""}>>
+		<<set C.npc[_nam].name_known to 1>>
+		<<if C.npc[_nam].skincolour is undefined>>
+			<<set C.npc[_nam].skincolour to randomSkinTone()>>
 		<</if>>
-		<<generatePronouns $NPCName[_i]>>
+		<<generatePronouns `C.npc[_nam]`>>
 		<<initNNPCClothes _nam>>
-		<<initNNPCstrapon $NPCName[_i]>>
+		<<initNNPCstrapon `C.npc[_nam]`>>
 
 		/* initnpc doesn't modify $NPCList or do anything <<personselect>> does, but we still want to use pronoun-based widgets for intro text */
 		<<set _lastPronoun to $pronoun>>
-		<<set $pronoun to $NPCName[_i].pronoun>>
+		<<set $pronoun to C.npc[_nam].pronoun>>
 
 		<!-- Special Cases NNPC Variables, Introductions, Adjustments -->
 		<<switch _nam>>
@@ -430,17 +429,17 @@ Zohar
 				<<set C.npc.Kylar.state to 0>>
 			<<case Robin>>
 				<<set $robinSeen to []>>
-				<<set $NPCName[_i].cdquest to 0>>
+				<<set C.npc[_nam].cdquest to 0>>
 			<<case River>>
 				//River teaches maths and housekeeping at the local school. <<His>> <<if $pronoun is "m">>short<<else>>long<</if>> brown hair is flecked with grey and <<his>> piercing blue eyes scrutinise <<his>> surroundings. Students tend to be well-behaved in <<his>> class.//<br><br>
 			<<case Leighton>>
-				<<set $NPCName[_i].title to $pronoun is "m" ? "headmaster" : "headmistress">>
+				<<set C.npc[_nam].title to $pronoun is "m" ? "headmaster" : "headmistress">>
 				//Leighton is the head<<master>> of the local school. <<He>> has green eyes and <<if $pronoun is "m">>well-kept greying black hair<<else>>greying black hair, held behind her head in a bun<</if>>. Tall and stately, <<he>> has a firm attitude towards the students at <<his>> school.//<br><br>
 			<<case Mason>>
 				//Mason is the swimming teacher at the local school. <<Hes>> the youngest teacher, only a few years older than some of the students. <<His>> toned body is naturally shown off during class, but if <<he>> notices the way <<hes>> leered at, <<he>> gives no indication.//
-				<<set $NPCName[_i].chastityKeyCarried to 0>> /* Mason is carrying the key to unlock Winter's Chastity belt. 1 is carried, 2 player knows it is carried */
-				<<set $NPCName[_i].chastityRemoved to 0>> /* Number of chastity devices Mason has removed */
-				<<set $NPCName[_i].chastityRemovalDeclined to 0>> /* Whether you've declined Mason's offer to remove it (prompts more passive checking). Resets when a device is removed */
+				<<set C.npc[_nam].chastityKeyCarried to 0>> /* Mason is carrying the key to unlock Winter's Chastity belt. 1 is carried, 2 player knows it is carried */
+				<<set C.npc[_nam].chastityRemoved to 0>> /* Number of chastity devices Mason has removed */
+				<<set C.npc[_nam].chastityRemovalDeclined to 0>> /* Whether you've declined Mason's offer to remove it (prompts more passive checking). Resets when a device is removed */
 			<<case Winter>>
 				//Winter teaches history at the local school. <<Hes>> an older <<gentleman_npc>>, well-groomed and sophisticated.//<br><br>
 			<<case Doren>>
@@ -449,11 +448,11 @@ Zohar
 			<<case Sirris>>
 				//Sirris teaches science at the local school. <<Hes>> calm and patient, which sometimes leads to a disordered classroom.//<br><br>
 			<<case Eden>>
-				<<set $NPCName[_i].title to $pronoun is "m" ? "hunter" : "huntress">>
-				<<set $NPCName[_i].name_known to 0>>
+				<<set C.npc[_nam].title to $pronoun is "m" ? "hunter" : "huntress">>
+				<<set C.npc[_nam].name_known to 0>>
 				<<set $edenSeen to []>>
 			<<case Avery>>
-				<<set $NPCName[_i].title to $pronoun is "m" ? "businessman" : "businesswoman">>
+				<<set C.npc[_nam].title to $pronoun is "m" ? "businessman" : "businesswoman">>
 				<<if $averySeen is undefined>>
 					<<set $averySeen to []>>
 				<</if>>
@@ -462,7 +461,7 @@ Zohar
 					<<set $weekly.averyRejected to {}>>
 				<</if>>
 			<<case Jordan>>
-				<<set $NPCName[_i].title to $pronoun is "m" ? "priest" : "priestess">>
+				<<set C.npc[_nam].title to $pronoun is "m" ? "priest" : "priestess">>
 			<<case Whitney>>
 				<<set C.npc.Whitney.dom to 10>>
 				<<set $whitneySeen to []>>
@@ -471,8 +470,8 @@ Zohar
 			<<case "Great Hawk">>
 				<<set C.npc["Great Hawk"].dom to 50>>
 			<<case Sydney>>
-				<<set $NPCName[_i].purity to 100>>
-				<<set $NPCName[_i].chastity to {penis:"chastity belt", vagina:"chastity belt", anus:"anal shield"}>>
+				<<set C.npc[_nam].purity to 100>>
+				<<set C.npc[_nam].chastity to {penis:"chastity belt", vagina:"chastity belt", anus:"anal shield"}>>
 				<<set $sydneySeen to []>>
 				<<set $sydneyFirstSeen to "">>
 				<<set $sydney to {
@@ -541,71 +540,70 @@ Zohar
 
 <<widget "initNNPCClothes">>
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 	<<set $_generation to (_args[1] ? _args[1] : "none")>>
-	<<if !$NPCName[_i].outfits or $_generation is "reset" or $_generation is "update">>
+	<<if !C.npc[_nam].outfits or $_generation is "reset" or $_generation is "update">>
 		<<if $_generation isnot "update">>
-			<<set $NPCName[_i].outfits to ["naked", "maleDefault", "femaleDefault"]>>
+			<<set C.npc[_nam].outfits to ["naked", "maleDefault", "femaleDefault"]>>
 		<</if>>
 		<<switch _nam>>
 			<<case Kylar>>
-				<<set $NPCName[_i].outfits.pushUnique(
+				<<set C.npc[_nam].outfits.pushUnique(
 					"maleSchool", "femaleSchool",
 					"maleSchoolSwim", "femaleSchoolSwim",
 					"maleTown1", "femaleTown1", "maleWarm1", "femaleWarm1", "coldHoodie"
 				)>>
 			<<case Robin>>
-				<<set $NPCName[_i].outfits.pushUnique(
+				<<set C.npc[_nam].outfits.pushUnique(
 					"maleSchool", "femaleSchool", "maleSchoolLong", "femaleSchoolLong",
 					"maleSchoolSwimShirt", "femaleSchoolSwim",
 					"maleTown1", "femaleTown1", "maleWarm1", "femaleWarm1", "coldPuffer", "pyjamas"
 				)>>
 			<<case Whitney>>
-				<<set $NPCName[_i].outfits.pushUnique(
+				<<set C.npc[_nam].outfits.pushUnique(
 					"Whitney", "maleSchoolBlazer", "femaleSchoolBlazer",
 					"maleSchoolSwim", "femaleSchoolSwim", "coldHoodie"
 				)>>
 			<<case Sydney>>
-				<<set $NPCName[_i].outfits.pushUnique(
+				<<set C.npc[_nam].outfits.pushUnique(
 					"maleSchoolLong", "femaleSchoolLong",
 					"maleSchoolSwimShirt", "femaleSchoolSwim",
 					"neutralRobe", "coldTrench"
 				)>>
 			<<case Gwylan>>
-				<<set $NPCName[_i].outfits.pushUnique(
+				<<set C.npc[_nam].outfits.pushUnique(
 					"gwylanTown", "gwylanCold", "maleWarm2", "femaleWarmTank",
 					"witch", "gloomyTunic", "ritualRobes", "vintageMale", "vintageFemale"
 				)>>
-			<<case Alex>><<set $NPCName[_i].outfits.pushUnique("wildsFlannel", "AlexJorts", "AlexSkirt", "coldCoat")>>
-			<<case Avery>><<set $NPCName[_i].outfits.pushUnique("business", "maleFormal1", "femaleFormal1", "pyjamas")>>
-			<<case Eden>><<set $NPCName[_i].outfits.pushUnique("Eden")>>
-			<<case Morgan>><<set $NPCName[_i].outfits.pushUnique("Morgan")>>
-			<<case Briar>><<set $NPCName[_i].outfits.pushUnique("maleBriar", "femaleBriar")>>
-			<<case Darryl>><<set $NPCName[_i].outfits.pushUnique("maleFormal1", "femaleFormal1")>>
-			<<case Remy>><<set $NPCName[_i].outfits.pushUnique("ridingFormal")>>
-			<<case Landry>><<set $NPCName[_i].outfits.pushUnique("maleLandry", "femaleLandry")>>
-			<<case Charlie>><<set $NPCName[_i].outfits.pushUnique("dance")>>
-			<<case Harper>><<set $NPCName[_i].outfits.pushUnique("doctor")>>
-			<<case Jordan>><<set $NPCName[_i].outfits.pushUnique("jordanHabit")>>
-			<<case Sirris>><<set $NPCName[_i].outfits.pushUnique("teacher", "townTurtleneck", "townCollar")>>
-			<<case Doren>><<set $NPCName[_i].outfits.pushUnique("teacher", "townTrack", "townCollar")>>
-			<<case River>><<set $NPCName[_i].outfits.pushUnique("teacher", "neutralRobe", "townCollar")>>
-			<<case Winter>><<set $NPCName[_i].outfits.pushUnique("teacher")>>
-			<<case Mason>><<set $NPCName[_i].outfits.pushUnique("teacher", "maleSchoolSwim", "neutralSwim", "townTrack")>>
-			<<case Leighton>><<set $NPCName[_i].outfits.pushUnique("teacher", "maleFormal1", "femaleFormal1")>>
-			<<case "Black Wolf" "Great Hawk" "Night Monster">><<set $NPCName[_i].outfits to ["naked"]>>
-			<<case "Ivory Wraith">><<set $NPCName[_i].outfits to ["naked", "moonRobe"]>>
-			<<case Bailey>><<set $NPCName[_i].outfits.pushUnique("townTurtleneck", "baileyJacket")>>
-			<<case Niki>><<set $NPCName[_i].outfits.pushUnique("nikiCoat")>>
-			<<case Quinn>><<set $NPCName[_i].outfits.pushUnique("quinnSuit", "quinnSkirtSuit", "quinnCoat", "quinnFurCoat")>>
-			<<case Sam>><<set $NPCName[_i].outfits.pushUnique("samCardigan")>>
-			<<case Wren>><<set $NPCName[_i].outfits.pushUnique("maleWren", "femaleWren")>>
-			<<case Zephyr>><<set $NPCName[_i].outfits.pushUnique("Zephyr")>>
+			<<case Alex>><<set C.npc[_nam].outfits.pushUnique("wildsFlannel", "AlexJorts", "AlexSkirt", "coldCoat")>>
+			<<case Avery>><<set C.npc[_nam].outfits.pushUnique("business", "maleFormal1", "femaleFormal1", "pyjamas")>>
+			<<case Eden>><<set C.npc[_nam].outfits.pushUnique("Eden")>>
+			<<case Morgan>><<set C.npc[_nam].outfits.pushUnique("Morgan")>>
+			<<case Briar>><<set C.npc[_nam].outfits.pushUnique("maleBriar", "femaleBriar")>>
+			<<case Darryl>><<set C.npc[_nam].outfits.pushUnique("maleFormal1", "femaleFormal1")>>
+			<<case Remy>><<set C.npc[_nam].outfits.pushUnique("ridingFormal")>>
+			<<case Landry>><<set C.npc[_nam].outfits.pushUnique("maleLandry", "femaleLandry")>>
+			<<case Charlie>><<set C.npc[_nam].outfits.pushUnique("dance")>>
+			<<case Harper>><<set C.npc[_nam].outfits.pushUnique("doctor")>>
+			<<case Jordan>><<set C.npc[_nam].outfits.pushUnique("jordanHabit")>>
+			<<case Sirris>><<set C.npc[_nam].outfits.pushUnique("teacher", "townTurtleneck", "townCollar")>>
+			<<case Doren>><<set C.npc[_nam].outfits.pushUnique("teacher", "townTrack", "townCollar")>>
+			<<case River>><<set C.npc[_nam].outfits.pushUnique("teacher", "neutralRobe", "townCollar")>>
+			<<case Winter>><<set C.npc[_nam].outfits.pushUnique("teacher")>>
+			<<case Mason>><<set C.npc[_nam].outfits.pushUnique("teacher", "maleSchoolSwim", "neutralSwim", "townTrack")>>
+			<<case Leighton>><<set C.npc[_nam].outfits.pushUnique("teacher", "maleFormal1", "femaleFormal1")>>
+			<<case "Black Wolf" "Great Hawk" "Night Monster">><<set C.npc[_nam].outfits to ["naked"]>>
+			<<case "Ivory Wraith">><<set C.npc[_nam].outfits to ["naked", "moonRobe"]>>
+			<<case Bailey>><<set C.npc[_nam].outfits.pushUnique("townTurtleneck", "baileyJacket")>>
+			<<case Niki>><<set C.npc[_nam].outfits.pushUnique("nikiCoat")>>
+			<<case Quinn>><<set C.npc[_nam].outfits.pushUnique("quinnSuit", "quinnSkirtSuit", "quinnCoat", "quinnFurCoat")>>
+			<<case Sam>><<set C.npc[_nam].outfits.pushUnique("samCardigan")>>
+			<<case Wren>><<set C.npc[_nam].outfits.pushUnique("maleWren", "femaleWren")>>
+			<<case Zephyr>><<set C.npc[_nam].outfits.pushUnique("Zephyr")>>
 			<<default>>
 				<!-- Maybe should be left as a default case for futureproofing?
 				Assigns area-appropriate clothes without saving them to the NPC.
 				If this does not run, named NPC will only have default and naked clothes.
-				<<set $NPCName[_i].outfits to undefined>> -->
+				<<set C.npc[_nam].outfits to undefined>> -->
 		<</switch>>
 	<</if>>
 	<<getNNPCClothes _nam>>
@@ -613,123 +611,121 @@ Zohar
 
 <<widget "getNNPCClothes">>
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
-	<<if !$NPCName[_i].outfits>>
-		<<generateNPCClothes $NPCName[_i]>>
-		<<run console.log('Named NPC [', $NPCName[_i], '] generated with area-appropriate clothes due to a lack of outfits.')>>
+	<<if !C.npc[_nam].outfits>>
+		<<generateNPCClothes `C.npc[_nam]`>>
+		<<run console.log('Named NPC [', C.npc[_nam], '] generated with area-appropriate clothes due to a lack of outfits.')>>
 	<<else>>
 		<<switch _nam>>
 			<<case Alex>>
 				<<if $location is "alex_cottage" and Time.betweenHours(21, 5)>>
-					<<if $NPCName[_i].pronoun is "m">>
-						<<npcClothesName $NPCName[_i] "maleAlexSleep">>
+					<<if C.npc[_nam].pronoun is "m">>
+						<<npcClothesName `C.npc[_nam]` "maleAlexSleep">>
 					<<else>>
-						<<npcClothesName $NPCName[_i] "femaleAlexSleep">>
+						<<npcClothesName `C.npc[_nam]` "femaleAlexSleep">>
 					<</if>>
 				<<else>>
-					<<generateNPCClothes $NPCName[_i]>>
+					<<generateNPCClothes `C.npc[_nam]`>>
 				<</if>>
 			<<case Avery>>
 				<<if $location is "avery_mansion" and $avery_mansion.schedule is "sleep">>
-					<<npcClothesType $NPCName[_i] "sleep">>
+					<<npcClothesType `C.npc[_nam]` "sleep">>
 				<<elseif Time.hour gte 18>>
-					<<npcClothesType $NPCName[_i] "formal">>
+					<<npcClothesType `C.npc[_nam]` "formal">>
 				<<else>>
-					<<npcClothesType $NPCName[_i] "business">>
+					<<npcClothesType `C.npc[_nam]` "business">>
 				<</if>>
 			<<case Robin>>
-				<<run getRobinCrossdressingStatus($NPCName[_i].crossdress)>>
-				<<set $NPCName[_i].crossdressing to _robin_cd>>
+				<<run getRobinCrossdressingStatus(C.npc[_nam].crossdress)>>
+				<<set C.npc[_nam].crossdressing to _robin_cd>>
 				<<run statusCheck("Robin")>>
 				<<switch _robin_location>>
 					<<case "sleep">>
-						<<npcClothesType $NPCName[_i] "sleep">>
+						<<npcClothesType `C.npc[_nam]` "sleep">>
 					<<case "school">>
-						<<npcClothesType $NPCName[_i] "school">>
+						<<npcClothesType `C.npc[_nam]` "school">>
 					<<case "park">>
-						<<npcClothesType $NPCName[_i] "cold">>
+						<<npcClothesType `C.npc[_nam]` "cold">>
 					<<case "halloween">>
 						<<if $halloween_robin_costume>>
-							<<npcClothesName $NPCName[_i] $halloween_robin_costume>>
+							<<npcClothesName `C.npc[_nam]` $halloween_robin_costume>>
 						<<else>>
-							<<generateNPCClothes $NPCName[_i]>>
+							<<generateNPCClothes `C.npc[_nam]`>>
 						<</if>>
 					<<default>>
-						<<generateNPCClothes $NPCName[_i]>>
+						<<generateNPCClothes `C.npc[_nam]`>>
 				<</switch>>
 			<<case Sydney>>
 				<<sydneySchedule>>
 				<<switch _sydney_location>>
 					<<case "temple">>
-						<<npcClothesType $NPCName[_i] "temple">>
+						<<npcClothesType `C.npc[_nam]` "temple">>
 					<<case "school" "class" "lunch" "library">>
-						<<npcClothesType $NPCName[_i] "school">>
+						<<npcClothesType `C.npc[_nam]` "school">>
 					<<default>>
-						<<generateNPCClothes $NPCName[_i]>>
+						<<generateNPCClothes `C.npc[_nam]`>>
 				<</switch>>
 			<<case Kylar>>
 				<<if $kylar_clothes is "formal">>
-					<<npcClothesType $NPCName[_i] "formal">>
+					<<npcClothesType `C.npc[_nam]` "formal">>
 				<<elseif $kylar_clothes is "goth">>
-					<<npcClothesType $NPCName[_i] "formalRare">>
+					<<npcClothesType `C.npc[_nam]` "formalRare">>
 				<<elseif $kylar_clothes is "swimsuit">>
-					<<npcClothesType $NPCName[_i] "beach">>
+					<<npcClothesType `C.npc[_nam]` "beach">>
 				<<else>>
-					<<generateNPCClothes $NPCName[_i]>>
+					<<generateNPCClothes `C.npc[_nam]`>>
 				<</if>>
 			<<case Gwylan>>
 				<<if gwylanSchedule() is "shop">>
 					<<if $location is "forest_shop_garden" and ($beastRitual or $sexRitual)>>
-						<<npcClothesName $NPCName[_i] "ritualRobes">>
+						<<npcClothesName `C.npc[_nam]` "ritualRobes">>
 					<<else>>
-						<<npcClothesName $NPCName[_i] "gloomyTunic">>
+						<<npcClothesName `C.npc[_nam]` "gloomyTunic">>
 					<</if>>
 				<<else>>
 					<<if Time.season is "winter">>
-						<<npcClothesType $NPCName[_i] "cold">>
+						<<npcClothesType `C.npc[_nam]` "cold">>
 					<<else>>
-						<<generateNPCClothes $NPCName[_i]>>
+						<<generateNPCClothes `C.npc[_nam]`>>
 					<</if>>
 				<</if>>
 			<<case Eden Morgan Briar Landry Remy Zephyr>>
-				<<npcClothesType $NPCName[_i] _nam>>
+				<<npcClothesType `C.npc[_nam]` _nam>>
 			<<case Darryl>>
-				<<npcClothesType $NPCName[_i] "formal">>
+				<<npcClothesType `C.npc[_nam]` "formal">>
 			<<case Charlie>>
-				<<npcClothesType $NPCName[_i] "dance_studio">>
+				<<npcClothesType `C.npc[_nam]` "dance_studio">>
 			<<case Harper>>
-				<<npcClothesType $NPCName[_i] "hospital">>
+				<<npcClothesType `C.npc[_nam]` "hospital">>
 			<<case Jordan>>
-				<<npcClothesName $NPCName[_i] "jordanHabit">>
+				<<npcClothesName `C.npc[_nam]` "jordanHabit">>
 			<<case Mason>>
-				<<npcClothesType $NPCName[_i] "beach">>
+				<<npcClothesType `C.npc[_nam]` "beach">>
 			<<case "Black Wolf" "Great Hawk" "Night Monster">>
-				<<npcClothesType $NPCName[_i] "naked">>
+				<<npcClothesType `C.npc[_nam]` "naked">>
 			<<case "Ivory Wraith">>
-				<<npcClothesType $NPCName[_i] "Wraith">>
+				<<npcClothesType `C.npc[_nam]` "Wraith">>
 			<<case Bailey>>
 				<<if $location is "home">>
-					<<npcClothesName $NPCName[_i] "townTurtleneck">>
+					<<npcClothesName `C.npc[_nam]` "townTurtleneck">>
 				<<else>>
-					<<npcClothesName $NPCName[_i] "baileyJacket">>
+					<<npcClothesName `C.npc[_nam]` "baileyJacket">>
 				<</if>>
 			<<default>>
-				<<generateNPCClothes $NPCName[_i]>>
+				<<generateNPCClothes `C.npc[_nam]`>>
 		<</switch>>
 	<</if>>
-	<<if $NPCName[_i].penis isnot "none">>
-		<<set $NPCName[_i].penis to ($NPCName[_i].clothes.lower.name is "naked" ? 0 : "clothed")>>
+	<<if C.npc[_nam].penis isnot "none">>
+		<<set C.npc[_nam].penis to (C.npc[_nam].clothes.lower.name is "naked" ? 0 : "clothed")>>
 	<</if>>
-	<<if $NPCName[_i].vagina isnot "none">>
-		<<set $NPCName[_i].vagina to ($NPCName[_i].clothes.lower.name is "naked" ? 0 : "clothed")>>
+	<<if C.npc[_nam].vagina isnot "none">>
+		<<set C.npc[_nam].vagina to (C.npc[_nam].clothes.lower.name is "naked" ? 0 : "clothed")>>
 	<</if>>
-	<<set $NPCName[_i].chest to ($NPCName[_i].clothes.upper.name is "naked" ? 0 : "clothed")>>
+	<<set C.npc[_nam].chest to (C.npc[_nam].clothes.upper.name is "naked" ? 0 : "clothed")>>
 <</widget>>
 
 <!-- addNNPCOutfit and removeNNPCOutfit should only ever be used on named NPCs! -->
 <<widget "addNNPCOutfit">>
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 	<<set $_newNPCOutfit to _args[1]>>
 	<<if _args[0] and _args[1]>>
 		<<if !setup.npcClothesSets.some(set => set.name.includes($_newNPCOutfit))>>
@@ -737,44 +733,43 @@ Zohar
 				message	: `NPC (${_nam}) was given invalid outfit (Outfit name: ${$_newNPCOutfit}). Please inform PurityGuy.`,
 				source	: Utils.GetStack()
 			}>>
-		<<elseif _i lt 0>>
+		<<elseif !C.npc[_nam]>>
 			<<error {
 				message	: `NPC (${_nam}) ${"is"} invalid (Must be a named NPC. check for typos!). Please inform PurityGuy.`,
 				source	: Utils.GetStack()
 			}>>
 		<<else>>
-			<<if !$NPCName[_i].outfits>>
-				<<set $NPCName[_i].outfits to ["naked", "maleDefault", "femaleDefault"]>>
+			<<if !C.npc[_nam].outfits>>
+				<<set C.npc[_nam].outfits to ["naked", "maleDefault", "femaleDefault"]>>
 			<</if>>
-			<<set $NPCName[_i].outfits.pushUnique($_newNPCOutfit)>>
+			<<set C.npc[_nam].outfits.pushUnique($_newNPCOutfit)>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "removeNNPCOutfit">>
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 	<<set $_newNPCOutfit to _args[1]>>
 	<<if _args[0] and _args[1]>>
-		<<if _i lt 0>>
+		<<if !C.npc[_nam]>>
 			<<error {
 				message	: `NPC (${_nam}) ${"is"} invalid (Must be a named NPC. Check for typos!). Please inform PurityGuy.`,
 				source	: Utils.GetStack()
 			}>>
-		<<elseif !$NPCName[_i].outfits>>
+		<<elseif !C.npc[_nam].outfits>>
 			<<error {
 				message	: `NPC (${_nam}) attempted to remove outfit (Outfit name: ${$_newNPCOutfit}) while having no outfits. Please inform PurityGuy.`,
 				source	: Utils.GetStack()
 			}>>
-		<<elseif !$NPCName[_i].outfits.some(x => x.includes($_newNPCOutfit))>>
+		<<elseif !C.npc[_nam].outfits.some(x => x.includes($_newNPCOutfit))>>
 			<<error {
 				message	: `NPC (${_nam}) had non-existent outfit removed (Outfit name: ${$_newNPCOutfit}). Please inform PurityGuy.`,
 				source	: Utils.GetStack()
 			}>>
 		<<else>>
-			<<set $NPCName[_i].outfits.delete($_newNPCOutfit)>>
-			<<if $NPCName[_i].outfits.length is 0>>
-				<<set $NPCName[_i].outfits to undefined>>
+			<<set C.npc[_nam].outfits.delete($_newNPCOutfit)>>
+			<<if C.npc[_nam].outfits.length is 0>>
+				<<set C.npc[_nam].outfits to undefined>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -852,24 +847,23 @@ Zohar
 	<<set $lastgenerated to $passage>>
 
 	<<set _nam to _args[0]>>
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 
 	<!-- Initialise NPC on first time called, introducing them to PC -->
-	<<if $NPCName[_i].init isnot 1>>
+	<<if C.npc[_nam].init isnot 1>>
 		<<initnpc _nam>>
 	<</if>>
 
 	<!-- Determine what outfit the NPC should be wearing -->
-	<<if !$NPCName[_i].outfits>>
+	<<if !C.npc[_nam].outfits>>
 		<<initNNPCClothes _nam>>
 	<<else>>
 		<<getNNPCClothes _nam>>
 	<</if>>
 
-	<<if !$NPCName[_i].strapons>>
-		<<initNNPCstrapon $NPCName[_i]>>
+	<<if !C.npc[_nam].strapons>>
+		<<initNNPCstrapon `C.npc[_nam]`>>
 	<</if>>
-	<<set $NPCList[_npcno].virginity to $NPCName[_i].virginity>>
+	<<set $NPCList[_npcno].virginity to C.npc[_nam].virginity>>
 
 	<!-- Set global variables -->
 	/* Both $npc and $npcnum will keep defined NPCs in the order they were defined.
@@ -877,7 +871,7 @@ Zohar
 	* Since when defining an NPC one can choose in which row of $NPCList to put it, comparing them could result in mismatches.
 	*/
 	<<set $npc.push(_nam)>>
-	<<set $npcnum.push(_i)>>
+	<<set $npcnum.push($NPCNameList.indexOf(_nam))>>
 	<<set $NPCList[_npcno].fullDescription to _nam>>
 	<!-- Set a variable to be compared to $NPCList, for simplicity. The row indicates which NPC it is, value is where in $NPCList it was defined. -->
 	<<set $npcrow.push(_npcno)>>
@@ -885,7 +879,7 @@ Zohar
 	<<if $npc.length gt 1>>
 		<<set $pronoun to "t">> <!-- In case more than 1 Named NPC is defined, we set pronoun to "they". -->
 	<<else>>
-		<<set $pronoun to $NPCName[_i].pronoun>>
+		<<set $pronoun to C.npc[_nam].pronoun>>
 	<</if>>
 	/*Sets up multiple orgasms, code needs work*/
 	/*<<set $NPCList[0].maxOrgasms to 1>>
@@ -900,10 +894,10 @@ Zohar
 
 
 
-	<<set $NPCList[_npcno].pronoun to $NPCName[_i].pronoun>>
-	<<set $NPCList[_npcno].pronouns to clone($NPCName[_i].pronouns)>>
-	<<set $NPCList[_npcno].gender to $NPCName[_i].gender>>
-	<<set $NPCList[_npcno].type to $NPCName[_i].type>>
+	<<set $NPCList[_npcno].pronoun to C.npc[_nam].pronoun>>
+	<<set $NPCList[_npcno].pronouns to clone(C.npc[_nam].pronouns)>>
+	<<set $NPCList[_npcno].gender to C.npc[_nam].gender>>
+	<<set $NPCList[_npcno].type to C.npc[_nam].type>>
 
 	<<set $NPCList[_npcno].lefthand to 0>>
 	<<set $NPCList[_npcno].righthand to 0>>
@@ -980,42 +974,42 @@ Zohar
 		<<set $NPCList[_npcno].healthmax to 200>>
 	<</switch>>
 
-	<<set $NPCList[_npcno].breastsize to $NPCName[_i].breastsize>>
-	<<set $NPCList[_npcno].breastsdesc to $NPCName[_i].breastsdesc>>
-	<<set $NPCList[_npcno].breastdesc to $NPCName[_i].breastdesc>>
-	<<set $NPCList[_npcno].vagina to $NPCName[_i].vagina>>
+	<<set $NPCList[_npcno].breastsize to C.npc[_nam].breastsize>>
+	<<set $NPCList[_npcno].breastsdesc to C.npc[_nam].breastsdesc>>
+	<<set $NPCList[_npcno].breastdesc to C.npc[_nam].breastdesc>>
+	<<set $NPCList[_npcno].vagina to C.npc[_nam].vagina>>
 
-	<<if $settings.breastFeedingEnabled and (_nam is "Morgan" or _nam is "Gwylan" or npcIsPregnant(_nam)) and $NPCName[_i].pronoun is "f" and $NPCName[_i].breastsize gt 0>>
+	<<if $settings.breastFeedingEnabled and (_nam is "Morgan" or _nam is "Gwylan" or npcIsPregnant(_nam)) and C.npc[_nam].pronoun is "f" and C.npc[_nam].breastsize gt 0>>
 		<<set $NPCList[_npcno].lactation to 1>>
 	<</if>>
 
-	<<set $NPCList[_npcno].penis to $NPCName[_i].penis>>
-	<<set $NPCList[_npcno].penissize to $NPCName[_i].penissize>>
-	<<set $NPCList[_npcno].penisdesc to $NPCName[_i].penisdesc>>
+	<<set $NPCList[_npcno].penis to C.npc[_nam].penis>>
+	<<set $NPCList[_npcno].penissize to C.npc[_nam].penissize>>
+	<<set $NPCList[_npcno].penisdesc to C.npc[_nam].penisdesc>>
 
-	<<set $NPCList[_npcno].chastity to clone($NPCName[_i].chastity)>>
-	<<set $NPCList[_npcno].clothes to clone($NPCName[_i].clothes)>>
-	<<set $NPCList[_npcno].chest to clone($NPCName[_i].chest)>>
+	<<set $NPCList[_npcno].chastity to clone(C.npc[_nam].chastity)>>
+	<<set $NPCList[_npcno].clothes to clone(C.npc[_nam].clothes)>>
+	<<set $NPCList[_npcno].chest to clone(C.npc[_nam].chest)>>
 
-	<<if $NPCList[_npcno].penis is "none" and $NPCName[_i].strapons?.length gt 0 and random(0,99) lt $settings.straponChance>>
+	<<if $NPCList[_npcno].penis is "none" and C.npc[_nam].strapons?.length gt 0 and random(0,99) lt $settings.straponChance>>
 		<<set $NPCList[_npcno].penis to $NPCList[_npcno].vagina>>
 		<<set $NPCList[_npcno].vagina to "none">>
 		<<set $NPCList[_npcno].gender to "m">>
-		<<set $_strapon to clone($NPCName[_i].strapons.random())>>
+		<<set $_strapon to clone(C.npc[_nam].strapons.random())>>
 		<<setNPCStrapon $NPCList[_npcno] $_strapon>>
 	<</if>>
 
-	<<set $NPCList[_npcno].skincolour to $NPCName[_i].skincolour>>
-	<<set $NPCList[_npcno].skinType to $NPCName[_i].skinType>>
+	<<set $NPCList[_npcno].skincolour to C.npc[_nam].skincolour>>
+	<<set $NPCList[_npcno].skinType to C.npc[_nam].skinType>>
 
-	<<set $NPCList[_npcno].insecurity to $NPCName[_i].insecurity>>
-	<<set $NPCList[_npcno].description to $NPCName[_i].title>>
+	<<set $NPCList[_npcno].insecurity to C.npc[_nam].insecurity>>
+	<<set $NPCList[_npcno].description to C.npc[_nam].title>>
 
-	<<set $NPCList[_npcno].insecurity to $NPCName[_i].insecurity>>
-	<<set $NPCList[_npcno].description to $NPCName[_i].title>>
+	<<set $NPCList[_npcno].insecurity to C.npc[_nam].insecurity>>
+	<<set $NPCList[_npcno].description to C.npc[_nam].title>>
 
-	<<set $NPCList[_npcno].adult to $NPCName[_i].adult>>
-	<<set $NPCList[_npcno].teen to $NPCName[_i].teen>>
+	<<set $NPCList[_npcno].adult to C.npc[_nam].adult>>
+	<<set $NPCList[_npcno].teen to C.npc[_nam].teen>>
 
 	<<set $NPCList[_npcno].location to {
 		head: 0,
@@ -1024,8 +1018,8 @@ Zohar
 
 	<<set $NPCList[_npcno].bold to 0>>
 	<<set $NPCList[_npcno].condom to false>>
-	<<set $NPCList[_npcno].pregnancyAvoidance to $NPCName[_i].pregnancyAvoidance>>
-	<<set $NPCList[_npcno].name_known to $NPCName[_i].name_known>>
+	<<set $NPCList[_npcno].pregnancyAvoidance to C.npc[_nam].pregnancyAvoidance>>
+	<<set $NPCList[_npcno].name_known to C.npc[_nam].name_known>>
 
 	<<if $settings.condomLevel gte 2>>
 		<!-- 50 is the threshold for named NPCs bringing their own condoms, do not change -->
@@ -1181,33 +1175,32 @@ Zohar
 		<<error { message: "NNPC '" + _nam + "' is not whitelisted for use with <<npcincr>>"}>>
 	<</if>>
 
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 
 	<<switch _var>>
 	<<case love>>
 		<<if $valentines and Time.monthDay is 14 and setup.loveInterestNpc.includes(_nam)>>
 			<<set _val += _val>>
 		<</if>>
-		<<set $NPCName[_i].love += _val>>
+		<<set C.npc[_nam].love += _val>>
 	<<case dom>>
 		<<if ["Sydney", "Black Wolf", "Ivory Wraith"].includes(_nam)>>
 			<<error { message: "<<npcincr>> attempted to modify dom for " + _nam + ", who has no dom clamp" }>>
 		<</if>>
 		<<if _nam is "Gwylan" and _val gt 0>>
-			<<set $_stage to Math.floor($NPCName[_i].dom / 25)>>
+			<<set $_stage to Math.floor(C.npc[_nam].dom / 25)>>
 			<<if $_stage gte 1 and !$gwylanSeen?.includes("yearning") or $_stage gte 3 and !$gwylanSeen?.includes("partners") or $gwylan?.wary gt 1>>
 				<!-- No increase -->
 			<<else>>
-				<<set $NPCName[_i].dom += _val>>
+				<<set C.npc[_nam].dom += _val>>
 			<</if>>
 		<<else>>
-			<<set $NPCName[_i].dom += _val>>
+			<<set C.npc[_nam].dom += _val>>
 		<</if>>
 	<<case trust>>
 		<<if _nam isnot "Eden">>
 			<<error { message: "<<npcincr>> attempted to modify trust for someone other than Eden (" + _nam + ")" }>>
 		<</if>>
-		<<set $NPCName[_i].trust += _val>>
+		<<set C.npc[_nam].trust += _val>>
 	<<case lust>>
 		<<set _lustwhitelist to ["Robin", "Whitney", "Eden", "Kylar", "Avery",
 								 "Alex", "Sydney", "Gwylan", "Bailey",
@@ -1219,64 +1212,64 @@ Zohar
 			<<set _val += _val>>
 		<</if>>
 		<<if _nam is "Sydney" and !_sydneyChastity and _val gt 0 and !_cheat>>
-			<<set $NPCName[_i].lust += (_val + 1)>>
+			<<set C.npc[_nam].lust += (_val + 1)>>
 		<<else>>
-			<<set $NPCName[_i].lust += _val>>
+			<<set C.npc[_nam].lust += _val>>
 		<</if>>
 		<<set _lustincr to 1>>
 	<<case rage>>
 		<<if !["Avery", "Kylar"].includes(_nam)>>
 			<<error { message: "<<npcincr>> attempted to modify rage for someone other than Avery or Kylar (" + _nam + ")" }>>
 		<</if>>
-		<<set $NPCName[_i].rage += _val>>
+		<<set C.npc[_nam].rage += _val>>
 	<<case trauma>>
 		<<if !["Robin", "Whitney"].includes(_nam)>>
 			<<error { message: "<<npcincr>> attempted to modify trauma for someone other than Robin or Whitney (" + _nam + ")" }>>
 		<</if>>
 		<<if _nam is "Robin" and _val lt 0>>
-			<<set $NPCName[_i].trauma += Math.round(_val * ($robinTraumaMultiplier || 1))>>
-			<<if $NPCName[_i].trauma lt 0>>
-				<<set $NPCName[_i].trauma = 0>>
+			<<set C.npc[_nam].trauma += Math.round(_val * ($robinTraumaMultiplier || 1))>>
+			<<if C.npc[_nam].trauma lt 0>>
+				<<set C.npc[_nam].trauma = 0>>
 			<</if>>
 		<<else>>
-			<<set $NPCName[_i].trauma += _val>>
-			<<if $NPCName[_i].trauma gt 100>>
-				<<set $NPCName[_i].trauma = 100>>
+			<<set C.npc[_nam].trauma += _val>>
+			<<if C.npc[_nam].trauma gt 100>>
+				<<set C.npc[_nam].trauma = 100>>
 			<</if>>
 		<</if>>
 	<<case purity>>
 		<<if _nam isnot "Sydney">>
 			<<error { message: "<<npcincr>> attempted to modify purity for someone other than Sydney (" + _nam + ")" }>>
 		<</if>>
-		<<if $NPCName[_i].corruption gt 0>>
-			<<set $NPCName[_i].corruption -= _val>>
-			<<if $NPCName[_i].corruption lte 0>>
+		<<if C.npc[_nam].corruption gt 0>>
+			<<set C.npc[_nam].corruption -= _val>>
+			<<if C.npc[_nam].corruption lte 0>>
 				<<if $purityEvent is 1>>
-					<<set _rollover to -$NPCName[_i].corruption>>
-					<<set $NPCName[_i].purity += (_rollover + 4)>>
-					<<set $NPCName[_i].corruption = 0>>
+					<<set _rollover to -C.npc[_nam].corruption>>
+					<<set C.npc[_nam].purity += (_rollover + 4)>>
+					<<set C.npc[_nam].corruption = 0>>
 					<<set $purityRollover to 1>>
 				<<else>>
-					<<set $NPCName[_i].corruption = 1>>
+					<<set C.npc[_nam].corruption = 1>>
 				<</if>>
 			<</if>>
 		<<else>>
-			<<set $NPCName[_i].purity += _val>>
-			<<if $NPCName[_i].purity lte 0>>
+			<<set C.npc[_nam].purity += _val>>
+			<<if C.npc[_nam].purity lte 0>>
 				<<if $corruptionEvent is 1>>
-					<<set _rollover to -$NPCName[_i].purity>>
-					<<set $NPCName[_i].corruption += (_rollover + 10)>>
-					<<set $NPCName[_i].purity = 0>>
+					<<set _rollover to -C.npc[_nam].purity>>
+					<<set C.npc[_nam].corruption += (_rollover + 10)>>
+					<<set C.npc[_nam].purity = 0>>
 					<<set $corruptionRollover to 1>>
 				<<else>>
-					<<set $NPCName[_i].purity = 1>>
+					<<set C.npc[_nam].purity = 1>>
 				<</if>>
 			<</if>>
-			<<if $NPCName[_i].purity gte 100 and ($NPCName[_i].virginity.vaginal isnot true or $NPCName[_i].virginity.penile isnot true)>>
-				<<set $NPCName[_i].purity = 99>>
+			<<if C.npc[_nam].purity gte 100 and (C.npc[_nam].virginity.vaginal isnot true or C.npc[_nam].virginity.penile isnot true)>>
+				<<set C.npc[_nam].purity = 99>>
 			<</if>>
 		<</if>>
-		<<if $NPCName[_i].purity lte 50 and _val lt 0 and _lustincr isnot 1>>
+		<<if C.npc[_nam].purity lte 50 and _val lt 0 and _lustincr isnot 1>>
 			<<npcincr Sydney lust 1>>
 		<</if>>
 		<<unset $purityEvent>>
@@ -1296,29 +1289,28 @@ Zohar
 	<<set _var to _args[1]>>
 	<<set _val to _args[2]>>
 
-	<<set _i to $NPCNameList.indexOf(_nam)>>
 
 	<<switch _var>>
 		<<case love>>
-			<<set $NPCName[_i].love to _val>>
+			<<set C.npc[_nam].love to _val>>
 		<<case dom>>
-			<<set $NPCName[_i].dom to _val>>
+			<<set C.npc[_nam].dom to _val>>
 		<<case trust>>
-			<<set $NPCName[_i].trust to _val>>
+			<<set C.npc[_nam].trust to _val>>
 		<<case lust>>
-			<<set $NPCName[_i].lust to _val>>
+			<<set C.npc[_nam].lust to _val>>
 		<<case rage>>
-			<<set $NPCName[_i].rage to _val>>
+			<<set C.npc[_nam].rage to _val>>
 		<<case state>>
-			<<set $NPCName[_i].state to _val>>
+			<<set C.npc[_nam].state to _val>>
 		<<case init>>
-			<<set $NPCName[_i].init to _val>>
+			<<set C.npc[_nam].init to _val>>
 		<<case trauma>>
-			<<set $NPCName[_i].trauma to _val>>
+			<<set C.npc[_nam].trauma to _val>>
 		<<case purity>>
-			<<set $NPCName[_i].purity to _val>>
+			<<set C.npc[_nam].purity to _val>>
 		<<case corruption>>
-			<<set $NPCName[_i].corruption to _val>>
+			<<set C.npc[_nam].corruption to _val>>
 		<<default>>
 			<span class="red">NPCSET error - Unknown value _var</span>
 			<br><br>

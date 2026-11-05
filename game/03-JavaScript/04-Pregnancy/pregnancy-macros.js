@@ -29,7 +29,7 @@ const randomCarrierTypes = ["human", "wolf", "wolfboy", "wolfgirl"];
  * Called by the ejaculation widgets when an NPC climaxes in combat.
  * The fight fills in every detail of the load.
  *
- * `<<combatInseminate _nn>>` or `<<combatInseminate _jj true _pregnancyBoost>>` (beast)
+ * `<<combatInseminate _npcSlot>>` or `<<combatInseminate _beastSlot true _pregnancyBoost>>` (beast)
  *
  * @param {0|1|2|3|4|5} slot which $NPCList slot climaxed
  * @param {boolean} [beast=false] pass true from the beast widget to keep the beast's species
@@ -165,7 +165,7 @@ function rememberRandomCarrier(slot, location) {
  * For a spill that never went in, `<<npcPregnancyRoll "Robin" "human" "someone" "human" "vagina" "imminent">>`
  *
  * From a fight, pass the slot and it sorts named from generated NPCs itself:
- * `<<npcPregnancyRoll $NPCList[_nn].fullDescription $NPCList[_nn].type "pc" "human" "vagina" "deep" $location 1 _nn>>`
+ * `<<npcPregnancyRoll $NPCList[_npcSlot].fullDescription $NPCList[_npcSlot].type "pc" "human" "vagina" "deep" $location 1 _npcSlot>>`
  *
  * @param {string} carrier the NPC who might get pregnant: a name, or a generated one like "lissome man"
  * @param {string} carrierSpecies what the carrier is, e.g. "human"

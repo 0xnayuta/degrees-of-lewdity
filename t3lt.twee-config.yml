@@ -2343,7 +2343,14 @@ sugarcube-2:
     bookRentalOptions:
       name: bookRentalOptions
     bottom:
-      name: bottom
+      description: |-
+        Prints the PC's bottom with its size ("round ass", "plump bum"). Adds a sensitivity descriptor ("tender", "receptive", etc.) the first time it is used in a passage.
+
+        `<<bottom fromOverlay?>>`
+        - **fromOverlay** _optional_: `bool` - pass `true` from overlays like Characteristics
+      parameters:
+        - "|+ bool"
+      tags: ["text"]
     bottom_sensitivity:
       description: |-
         Changes sensitivity of bottom by provided amount
@@ -2470,7 +2477,14 @@ sugarcube-2:
     breastFlavorText:
       name: breastFlavorText
     breasts:
-      name: breasts
+      description: |-
+        Prints the PC's breasts with their size ("small breasts", etc.), or "nipples" when flat. Unless flat, adds a sensitivity descriptor ("receptive", "tender", etc.) the first time it is used in a passage.
+
+        `<<breasts showSensitivity?>>`
+        - **showSensitivity** _optional_: `bool` - adds the sensitivity descriptor even if it was already used
+      parameters:
+        - "|+ bool"
+      tags: ["text"]
     breastsaside:
       description: |-
         Prints name of innermost top clothing layer that can be seen or `<<breasts>>` if everything is exposed
@@ -3769,12 +3783,12 @@ sugarcube-2:
         strap-ons, contained condoms, chastity, or species that can't impregnate.
 
         `<<combatInseminate slot beast? knotBoost?>>`
-        - **slot**: `number` - which $NPCList slot climaxed, usually `_nn`
+        - **slot**: `number` - which $NPCList slot climaxed, usually `_npcSlot`
         - **beast** _optional_: `bool` - pass `true` from the beast widget so a beast keeps its own species in a mixed fight
         - **knotBoost** _optional_: `number` - percent added to the load's potency, from the beast widget's knot
 
-        The NPC in slot _nn came: `<<combatInseminate _nn>>`
-        From the beast widget: `<<combatInseminate _jj true _pregnancyBoost>>`
+        The NPC in slot _npcSlot came: `<<combatInseminate _npcSlot>>`
+        From the beast widget: `<<combatInseminate _beastSlot true _pregnancyBoost>>`
       parameters:
         - "number |+ bool |+ number"
     combatListColor:
@@ -7463,7 +7477,27 @@ sugarcube-2:
         - **change**: `number` - +/- change to apply
       tags: ["unused"]
     genitals:
-      name: genitals
+      description: |-
+        Prints the PC's genitals: penis, vagina, or "penis and vagina" for a bigenital PC.
+
+        Adds descriptors for sensitivity, "caged" or "sealed" for chastity, "virgin", and "visibly aroused" or "bushy" for the vagina.
+
+        A chastity belt hides the genitals, so with no argument it prints the belt instead. Chastity cages and the chastity parasite don't hide genitals the same way.
+
+        `<<genitals detail?>>`
+        - **detail** _optional_: leave out to describe what can be seen
+          - `true`: describes the genitals themselves, even under a chastity belt
+          - `1`: the same, leaving out "caged" and "sealed"
+          - `2`: the same, with the name only
+
+        For example, for a PC with a tender virgin penis:
+        - `<<genitals>>`: "chastity belt" in a belt, "tender caged virgin penis" in a cage
+        - `<<genitals true>>`: "tender virgin penis" in a belt, "tender caged virgin penis" in a cage
+        - `<<genitals 1>>`: "tender virgin penis" in either
+        - `<<genitals 2>>`: "penis" in either
+      parameters:
+        - "|+ (number|bool)"
+      tags: ["text"]
     genitals_are:
       name: genitals_are
     genitalsandbreasts:
@@ -8425,7 +8459,9 @@ sugarcube-2:
         Prints `| + Interest`
       tags: ["text"]
     girl:
-      name: girl
+      description: |-
+        Prints "girl" or "boy" by how the PC appears, not by their sex
+      tags: ["text"]
     Girl:
       name: Girl
     girl_npc:
@@ -9338,7 +9374,15 @@ sugarcube-2:
       name: Hers
       tags: ["unused"]
     hes:
-      name: hes
+      description: |-
+        Prints current npc's possessive pronoun (he's/she's/they're)
+
+        `<<hes namedNPC?>>`
+        - **namedNPC** _optional_: `string` - name of npc to override pronoun for
+          - %namedNPCDesc%
+      parameters:
+        - "|+ %namedNPC%"
+      tags: ["text"]
     Hes:
       name: Hes
     hideDisplay:
@@ -9384,7 +9428,15 @@ sugarcube-2:
     highQuick:
       name: highQuick
     him:
-      name: him
+      description: |-
+        Prints singular objective pronoun of current npc (him/her/them)
+
+        `<<him namedNPC?>>`
+        - **namedNPC** _optional_: `string` - name of npc to override pronoun for
+          - %namedNPCDesc%
+      parameters:
+        - "|+ %namedNPC%"
+      tags: ["text"]
     Him:
       name: Him
     himself:
@@ -12239,7 +12291,15 @@ sugarcube-2:
       parameters:
         - string
     namedNpcEjaculation:
-      name: namedNpcEjaculation
+      description: |-
+        Plays the named NPC's unique ejaculation text. NPCs without an ejaculation widget set `_noNamedNpcEjaculation`, so the position or generic text plays instead.
+
+        `<<namedNpcEjaculation npc ejacType?>>`
+        - **npc**: `string` - the NPC's `fullDescription`
+        - **ejacType** _optional_: `string` - passed on from `<<ejaculation>>`
+          - `"short"`: Skips scene aftermath
+      parameters:
+        - 'string |+ "short"'
     namedNpcGenderApply:
       name: namedNpcGenderApply
     namedNpcGenderConfirm:
@@ -14143,7 +14203,18 @@ sugarcube-2:
         Takes combat state into account to display starting pipe `| `
       tags: ["text"]
     penis:
-      name: penis
+      description: |-
+        Prints a name for the PC's penis, with descriptors in front the first time any genital text is used in a passage. Descriptors include size, state ("twitching", "spent") and sensitivity ("tender", "sensitive").
+
+        The names to pick from ("penis", "dick", "cock") depend on penis size, awareness and purity. While the PC wears a strap-on, prints "strap-on" instead, usually with a size in front ("large strap-on").
+
+        `<<penis skipSensitivity? fromOverlay?>>`
+        - **skipSensitivity** _optional_: `bool`, `number` or `"strap-on"` - leaves out the sensitivity descriptor
+          - `"strap-on"`: names the PC's real penis, if they have one, instead of the strap-on they're wearing, for text about the penis itself (TODO: it's confusing that labelling it a strap-on outputs actual genitals...)
+        - **fromOverlay** _optional_: `bool` - pass `true` from overlays like Characteristics
+      parameters:
+        - '|+ (bool|number|"strap-on") |+ bool'
+      tags: ["text"]
     penis_lube_amount:
       description: |-
         Prints the amount of lube around player penis
@@ -15182,7 +15253,17 @@ sugarcube-2:
     pussies:
       name: pussies
     pussy:
-      name: pussy
+      description: |-
+        Prints a name for the PC's vagina, with its descriptors in front the first time any genital text is used in a passage. Descriptors include state ("twitching", "spent") and sensitivity ("tender", "sensitive").
+
+        The names to pick from ("vagina", "pussy", "quim", "slit") depend on awareness and purity.
+
+        `<<pussy skipSensitivity? fromOverlay?>>`
+        - **skipSensitivity** _optional_: `bool` or `number` - leaves out the sensitivity descriptor
+        - **fromOverlay** _optional_: `bool` - pass `true` from overlays like Characteristics
+      parameters:
+        - "|+ (bool|number) |+ bool"
+      tags: ["text"]
     pussyinspection:
       name: pussyinspection
     pussyinspectionherm:
@@ -18977,6 +19058,16 @@ sugarcube-2:
     violence:
       description: |-
         Increases / decreases the player's stress, trauma, and pain based on the violence level. Positive violence = increase stress, trauma, and pain, while negative violence has the opposite effect.
+
+        As a rough guide to how hard a hit is:
+        - `1`: a hand over the mouth
+        - `3`: grabbing the throat
+        - `4`: yanking hair
+        - `5`: strangling
+        - `10`: a punch or kick to the thigh
+        - `20`: a punch to the gut
+
+        Show effect with `<<gstress>><<gtrauma>><<gpain>>` or `<<lstress>><<ltrauma>><<lpain>>`.
       name: violence
     violence_noncombat:
       name: violence_noncombat

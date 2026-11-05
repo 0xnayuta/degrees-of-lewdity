@@ -1024,16 +1024,16 @@
 
 		<!-- NPC strap-on descriptors added: 0.3.6.2 -->
 		/* Other names: anal beads, barbed, ribbed, corkscrew, butt plug, unicorn horn, bovine */
-		<<set $_i to $NPCNameList.indexOf($NPCList[_xx].fullDescription)>>
+		<<set $_namedNpc to C.npc[$NPCList[_xx].fullDescription]>>
 		<<if _args[1]>>
 			<<run console.log("assign strapon from args", _args[1])>>
 			<<set $_strapon to _args[1]>>
 			<<setNPCStrapon $NPCList[_xx] $_strapon>>
 			<<set $NPCList[_xx].strapon.temp to true>>
-		<<elseif $_i isnot -1 and $NPCName[$_i].strapons?.length gte 1>>
+		<<elseif $_namedNpc and $_namedNpc.strapons?.length gte 1>>
 			<!-- If the NPC owns at least one strapon, they'll choose one they own and put it on. -->
-			<<run console.log("assign strapon from collection", $NPCName[$_i].strapons)>>
-			<<set $_strapon to clone($NPCName[$_i].strapons.random())>>
+			<<run console.log("assign strapon from collection", $_namedNpc.strapons)>>
+			<<set $_strapon to clone($_namedNpc.strapons.random())>>
 			<<setNPCStrapon $NPCList[_xx] $_strapon>>
 		<<else>>
 			/* Generate random */
@@ -1061,16 +1061,16 @@
 			<</switch>>
 			<!-- Set up like this for futureproofing -->
 			<<set $NPCList[_xx].strapon to {state:"worn",color:_straponColor,description:$NPCList[_xx].penisdesc,size:$NPCList[_xx].penissize}>>
-			<<if $_i isnot -1>>
+			<<if $_namedNpc>>
 				<!-- Give this named npc this strapon temporarily so that they will use it in future appearances (note: they are removed in the <<day>> widget) -->
 				<<set $NPCList[_xx].strapon.temp to true>>
 				<<set $randomNNPCStraponsToClear to true>>
-				<<if !$NPCName[$_i].strapons or $NPCName[$_i].strapons.length is 0>>
-					<<set $NPCName[$_i].strapons to [$NPCList[_xx].strapon]>>
+				<<if !$_namedNpc.strapons or $_namedNpc.strapons.length is 0>>
+					<<set $_namedNpc.strapons to [$NPCList[_xx].strapon]>>
 				<<else>>
 					<!-- This may not make sense? Why would a strapon be randomly generated if they already had one? -->
-					<<run console.debug("Random strapon added to "+$NPCName[$_i].nam+"'s strapon collection when they already had one")>>
-					<<set $NPCName[$_i].strapons.push($NPCList[_xx].strapon)>>
+					<<run console.debug("Random strapon added to "+$_namedNpc.nam+"'s strapon collection when they already had one")>>
+					<<set $_namedNpc.strapons.push($NPCList[_xx].strapon)>>
 				<</if>>
 			<</if>>
 		<</if>>
