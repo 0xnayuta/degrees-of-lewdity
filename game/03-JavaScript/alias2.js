@@ -1,4 +1,4 @@
-/* simple alias C.npc.Robin => V.NPCName[V.NPCNameList.indexOf("Robin")]
+/* simple alias C.npc.Robin => V.NPCName[setup.NPCNameList.indexOf("Robin")]
  * `C.npc.Black Hawk` won't work however, use `C.npc["Great Wolf"]` instead
  * run this after V.NPCName exists */
 function initCNPC() {

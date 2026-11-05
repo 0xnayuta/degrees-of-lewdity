@@ -1,9 +1,25 @@
 declare module "twine-sugarcube" {
 	export interface SugarCubeStoryVariables {
 		combat: boolean;
+		/**
+		 * The PC's body position in combat.
+		 * - "missionary": on their back
+		 * - "doggy": on their front
+		 * - "wall": stuck in a wall or pillory, see $walltype
+		 */
 		position: 0 | "doggy" | "missionary" | "wall" | "stalk" | "wall";
 
-		walltype?: "pillory" | "cleanpillory" | "horse_pillory" | "wall";
+		/**
+		 * What the PC is stuck in while $position is "wall". Mostly for picking the combat image.
+		 * - "wall": stuck through a wall
+		 * - "front": stuck through a wall, on the side with the PC's head
+		 * - "pillory": a public pillory, with the head and arms locked in and the audience throwing things
+		 * - "cleanpillory": the school pillory, drawn clean
+		 * - "horse_pillory": a pillory with a horse
+		 */
+		walltype?: "pillory" | "cleanpillory" | "horse_pillory" | "wall" | "front" | "lift";
+		/** Set during gloryhole and wall punishment scenes, consensual or not. 0 when not in one. */
+		punishmentposition?: 0 | "gloryhole" | "wall";
 		pilloryaudience?: number;
 
 		arousalmax: number;
@@ -23,7 +39,15 @@ declare module "twine-sugarcube" {
 		front: number | string;
 		back: number | string;
 		chest: number | string;
+		/**
+		 * - "bound": tied up
+		 * - "grappled": held down by an NPC
+		 */
 		leftarm: number | string;
+		/**
+		 * - "bound": tied up
+		 * - "grappled": held down by an NPC
+		 */
 		rightarm: number | string;
 		leftleg: number | string;
 		rightleg: number | string;
@@ -54,6 +78,7 @@ declare module "twine-sugarcube" {
 		leftaction: string | 0;
 		mouthtarget: number;
 		mouthuse: number;
+		/** What the PC's mouth is doing, such as "kiss", "entrance" or "penetrated". 0 when it is free. */
 		mouthstate: string | 0;
 		penistarget: number | "tentacles";
 		penisuse: string | 1 | 0;

@@ -1,53 +1,16 @@
 :: npcNamed [widget]
 <<widget "npcNamed">>
-	<!-- To add new Named NPCs, add the new NPC name to setup.NPCNameList in variables-static.twee and the tag values to the end. The rest of the code should automatically scope based on the size of the list. -->
-	<!-- NPC descriptions are set as names, and their titles are being established for compatibility with general NPCs -->
-	<<if $npcNamedVersion is 1>>
-		<<set _tempNPCName to clone($NPCName)>>
-	<</if>>
-
-	<<set $NPCName = []>>
-	<<for _npc range setup.NPCNameList>>
-		<<run $NPCName.push(clone(setup.baseNNPC))>>
+	<!-- To add a new Named NPC, add an entry to the end of setup.namedNpcDefaults in variables-static.twee. -->
+	<<set $NPCName to []>>
+	<<for _npcDefaults range setup.namedNpcDefaults>>
+		<<set _npc to Object.assign(clone(setup.baseNNPC), _npcDefaults)>>
+		<<set _npc.description to _npc.nam>>
+		<<set _npc.purity to 0>>
+		<<set _npc.corruption to 0>>
+		<<run $NPCName.push(_npc)>>
 	<</for>>
 
 	<<set $NPCNameList to setup.NPCNameList>> /* temporary compatibility layer before full C.npc conversion */
-
-	<!-- Draft default pronoun list. Random selection is part of initNPCgender widget -->
-	/% <<set _pro to ["m","f","f","m","m","m","m","m","f","f","m","m","f","m","f","m","m","m","f","m","m","m","m","m","f","m","m"]>> %/
-
-	<<set _tit to ["businessperson", "caretaker", "brothel owner", "dance coach", "club owner", "English teacher", "hunter", "shopkeeper", "doctor", "pious", "loner", "criminal", "headteacher", "swimming teacher", "sewer dweller", "maths teacher", "orphan", "cafe owner", "science teacher", "bully", "history teacher", "alpha", "photographer", "mayor", "farmer", "farmhand", "terror", "smuggler", "faithful", "reflection", "pirate", "horror"]>>
-
-	<<set _ins to ["weak", "weak", "looks", "ethics", "ethics", "ethics", "looks", "weak", "skill", "ethics", "weak", "skill", "skill", "ethics", "weak", "ethics", "ethics", "ethics", "ethics", "looks", "skill", "weak", "skill", "looks", "looks", "weak", "looks", "ethics", "skill", "looks", "skill", "weak"]>>
-
-	<!-- Type needs to conform to beast type: wolf, dog, etc. -->
-	<<set _tpe to ["human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "human", "wolf", "human", "human", "human", "human", "hawk", "human", "human", "human", "human", "creature"]>>
-
-	<<set _swi to ["a","a","a","a","a","a","a","t","a","a","t","a","a","a","a","a","t","a","a","t","a","a","a","a","a","t","a","a","t","a","a","a"]>>
-
-	<<for _i to 0; _i lt $NPCName.length; _i++>>
-
-		<<set $NPCName[_i].nam to $NPCNameList[_i]>>
-		<<set $NPCName[_i].description to $NPCNameList[_i]>>
-		<<set $NPCName[_i].title to _tit[_i]>>
-		<<set $NPCName[_i].chastity to {penis:"", vagina:"", anus:""}>>
-		<<set $NPCName[_i].insecurity to _ins[_i]>>
-		<<if _swi[_i] is "t">>
-			<<set $NPCName[_i].adult to 0>>
-			<<set $NPCName[_i].teen to 1>>
-		<<else>>
-			<<set $NPCName[_i].adult to 1>>
-			<<set $NPCName[_i].teen to 0>>
-		<</if>>
-		<<set $NPCName[_i].type to _tpe[_i]>>
-		<<set $NPCName[_i].purity to 0>>
-		<<set $NPCName[_i].corruption to 0>>
-		<<if _tpe[_i] is "wolf">>
-			<<set $NPCName[_i].claws to "claws">> <!-- Adjusted Wolf and Hawk for the changes converting $claws to .claws -->
-		<<elseif _tpe[_i] is "hawk">>
-			<<set $NPCName[_i].claws to "talons">>
-		<</if>>
-	<</for>>
 	<<generateNPCNameHairAndEyeColors true>>
 	<<npcPregnancyUpdater>>
 <</widget>>
@@ -121,22 +84,9 @@
 
 <<widget "updateNewNamedNpcs">>
 	<<if $npcListVersion gte 1>>
-		<<set _newNNPCs to {
-			"blackwolf": {nam : "Black Wolf", title: "alpha", insecurity: "weak", adult: 1, type: "wolf", claws: "claws"},
-			"niki": {nam : "Niki", title: "photographer", insecurity: "skill", adult: 1},
-			"quinn": {nam : "Quinn", title: "mayor", insecurity: "looks", adult: 1},
-			"remy": {nam : "Remy", title: "farmer", insecurity: "looks", adult: 1},
-			"alex": {nam : "Alex", title: "farmhand", insecurity: "weak", teen: 1},
-			"greathawk": {nam : "Great Hawk", title: "terror", insecurity: "looks", adult: 1, type: "hawk", claws: "talons"},
-			"wren": {nam : "Wren", title: "smuggler", insecurity: "ethics", adult: 1},
-			"sydney": {nam : "Sydney", title: "faithful", insecurity: "skill", teen: 1},
-			"ivorywraith": {nam : "Ivory Wraith", title: "reflection", insecurity: "looks", adult: 1},
-			"zephyr": {nam : "Zephyr", title: "captain", insecurity: "skill", adult: 1},
-			"nightmonster": {nam : "Night Monster", title: "horror", insecurity: "weak", adult: 1, type: "creature", claws: "claws"}
-		}>>
-		<<for _npc range Object.keys(_newNNPCs)>>
-			<<if !$NPCNameList.includes(_newNNPCs[_npc].nam)>>
-				<<newNamedNpc _newNNPCs[_npc]>>
+		<<for _npcDefaults range setup.namedNpcDefaults>>
+			<<if !$NPCNameList.includes(_npcDefaults.nam)>>
+				<<newNamedNpc _npcDefaults>>
 				<<set _npcsAdded to true>>
 			<</if>>
 		<</for>>

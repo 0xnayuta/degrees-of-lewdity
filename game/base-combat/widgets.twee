@@ -26,9 +26,8 @@
 	<</if>>
 	<<if !$_taker>>
 		<<set $_taker to _args[0]>>
-		<<set $_npcIndex to $NPCNameList.indexOf($_taker)>>
-		<<if $_npcIndex isnot -1>>
-			<<set $_npc to $NPCName[$_npcIndex]>>
+		<<if C.npc[$_taker]>>
+			<<set $_npc to C.npc[$_taker]>>
 		<<else>>
 			<<run $NPCList.forEach(npc => {
 				if (npc.fullDescription is $_taker) $_npc to npc;
@@ -311,8 +310,8 @@
 	<<if $_npc and $_vType and $_npc.virginity and $_npc.virginity[$_vType] and ($wraith.mimic isnot $_npc.fullDescription) and !$_straponvirginityIgnore>>
 		<<if ($_vType is "vaginal" or $_vType is "penile") and $_npc.virginity.temple is true and $templePromised isnot $_npc.fullDescription>>
 			<<set $_npc.virginity.temple to false>>
-			<<if !$activeNightmare and $NPCNameList.indexOf($_npc.fullDescription) isnot -1>>
-				<<set $NPCName[$NPCNameList.indexOf($_npc.fullDescription)].virginity.temple to false>>
+			<<if !$activeNightmare and C.npc[$_npc.fullDescription]>>
+				<<set C.npc[$_npc.fullDescription].virginity.temple to false>>
 			<</if>>
 		<</if>>
 
@@ -369,33 +368,33 @@
 					/* non-named npcs' descriptions are not unique. ~15kb of uncompressed save bloat per 1000 virginities taken. acceptable until npc rework */
 					<<run $virginTaken[$_vType].push($_npc.fullDescription)>>
 				<</if>>
-				<<set $_i to $NPCNameList.indexOf($_npc.fullDescription)>>
-				<<if $_i isnot -1>>
+				<<set $_namedNpc to C.npc[$_npc.fullDescription]>>
+				<<if $_namedNpc>>
 					<<if $_npc.fullDescription is "Sydney" and ($_vType is "vaginal" or $_vType is "penile")>>
 						<<earnFeat "Sydney the Pure Hearted">>
 					<</if>>
-					<<set $NPCName[$_i].virginity to $_npc.virginity>>
-					<<if !$NPCName[$_i].virginityDetails>>
-						<<set $NPCName[$_i].virginityDetails to {}>>
+					<<set $_namedNpc.virginity to $_npc.virginity>>
+					<<if !$_namedNpc.virginityDetails>>
+						<<set $_namedNpc.virginityDetails to {}>>
 					<</if>>
-					<<set $NPCName[$_i].virginityDetails[$_vType] to {
+					<<set $_namedNpc.virginityDetails[$_vType] to {
 						timestamp: Time.date.timeStamp,
 						taker: "pc",
 						passage: $passage,
 					}>>
 					<<if $combat>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].consensual to !!$consensual>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].position to $position>>
+						<<set $_namedNpc.virginityDetails[$_vType].consensual to !!$consensual>>
+						<<set $_namedNpc.virginityDetails[$_vType].position to $position>>
 					<<elseif _npcConsensualOverride isnot undefined>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].consensual to _npcConsensualOverride>>
+						<<set $_namedNpc.virginityDetails[$_vType].consensual to _npcConsensualOverride>>
 						<<unset _npcConsensualOverride>>
 					<</if>>
 					<<if $_vType is "penile">>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to $NPCName[$_i].penissize>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $NPCName[$_i].penisdesc>>
+						<<set $_namedNpc.virginityDetails[$_vType].npcPenisSize to $_namedNpc.penissize>>
+						<<set $_namedNpc.virginityDetails[$_vType].npcPenisdesc to $_namedNpc.penisdesc>>
 					<<elseif ["vaginal", "anal", "oral"].includes($_vType)>>
 						<<if playerHasStrapon() or $player.penisExist>>
-							<<set $NPCName[$_i].virginityDetails[$_vType].playerPenisSize to playerPenisSize()>>
+							<<set $_namedNpc.virginityDetails[$_vType].playerPenisSize to playerPenisSize()>>
 						<</if>>
 					<</if>>
 				<</if>>
@@ -447,10 +446,10 @@
 			<<set $_npc.virginityDetails[$_vType].npcPenisSize to $_npc.penissize>>
 			<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $_npc.penisdesc>>
 		<<elseif ["vaginal", "anal", "oral"].includes($_vType)>>
-			<<set $_npcIndex to $NPCNameList.indexOf($_takerDesc)>>
-			<<if $_npcIndex isnot -1>>
-				<<set $_npc.virginityDetails[$_vType].npcPenisSize to $NPCName[$_npcIndex].penissize>>
-				<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $NPCName[$_npcIndex].penisdesc>>
+			<<set $_namedTaker to C.npc[$_takerDesc]>>
+			<<if $_namedTaker>>
+				<<set $_npc.virginityDetails[$_vType].npcPenisSize to $_namedTaker.penissize>>
+				<<set $_npc.virginityDetails[$_vType].npcPenisdesc to $_namedTaker.penisdesc>>
 			<<else>>
 				<<run $NPCList.forEach(npc => {
 					if (npc.fullDescription is $_takerDesc) $_npc.virginityDetails[$_vType].npcPenisSize to npc.penissize;
@@ -461,34 +460,34 @@
 
 		<!-- if the npc is named, this will find and update their entry in $NPCName -->
 		<<if !$_isNamedOnly>>
-			<<set $_i to $NPCNameList.indexOf($_npc.fullDescription)>>
-			<<if $_i isnot -1>>
-				<<set $NPCName[$_i].virginity to $_npc.virginity>>
-				<<set $NPCName[$_i].virginityDetails ||= {}>>
+			<<set $_namedNpc to C.npc[$_npc.fullDescription]>>
+			<<if $_namedNpc>>
+				<<set $_namedNpc.virginity to $_npc.virginity>>
+				<<set $_namedNpc.virginityDetails ||= {}>>
 
 				<!-- Doubled up due to the way this widget works -->
-				<<set $NPCName[$_i].virginityDetails[$_vType] to {
+				<<set $_namedNpc.virginityDetails[$_vType] to {
 					timestamp: Time.date.timeStamp,
 					taker: $_takerDesc,
 					passage: $passage,
 				}>>
 				<<if $combat>>
-					<<set $NPCName[$_i].virginityDetails[$_vType].consensual to !!$consensual>>
-					<<set $NPCName[$_i].virginityDetails[$_vType].position to $position>>
+					<<set $_namedNpc.virginityDetails[$_vType].consensual to !!$consensual>>
+					<<set $_namedNpc.virginityDetails[$_vType].position to $position>>
 				<</if>>
 				<<if $_vType is "penile">>
-					<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to $NPCName[$_i].penissize>>
-					<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $NPCName[$_i].penisdesc>>
+					<<set $_namedNpc.virginityDetails[$_vType].npcPenisSize to $_namedNpc.penissize>>
+					<<set $_namedNpc.virginityDetails[$_vType].npcPenisdesc to $_namedNpc.penisdesc>>
 				<<elseif ["vaginal", "anal", "oral"].includes($_vType)>>
 					<<run console.log($_takerDesc)>>
-					<<set $_npcIndex to $NPCNameList.indexOf($_takerDesc)>>
-					<<if $_npcIndex isnot -1>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to $NPCName[$_npcIndex].penissize>>
-						<<set $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to $NPCName[$_npcIndex].penisdesc>>
+					<<set $_namedTaker to C.npc[$_takerDesc]>>
+					<<if $_namedTaker>>
+						<<set $_namedNpc.virginityDetails[$_vType].npcPenisSize to $_namedTaker.penissize>>
+						<<set $_namedNpc.virginityDetails[$_vType].npcPenisdesc to $_namedTaker.penisdesc>>
 					<<else>>
 						<<run $NPCList.forEach(npc => {
-							if (npc.fullDescription is $_takerDesc) $NPCName[$_i].virginityDetails[$_vType].npcPenisSize to npc.penissize;
-							if (npc.fullDescription is $_takerDesc) $NPCName[$_i].virginityDetails[$_vType].npcPenisdesc to npc.penisdesc;
+							if (npc.fullDescription is $_takerDesc) $_namedNpc.virginityDetails[$_vType].npcPenisSize to npc.penissize;
+							if (npc.fullDescription is $_takerDesc) $_namedNpc.virginityDetails[$_vType].npcPenisdesc to npc.penisdesc;
 						})>>
 					<</if>>
 				<</if>>

@@ -176,9 +176,9 @@ window.pregnancyCompatible = pregnancyCompatible;
 function resolvePregnancyNpc(NPC) {
 	// A $NPCList entry carries its name as fullDescription. Named NPCs in combat do too.
 	const name = typeof NPC === "string" ? NPC : NPC.fullDescription;
-	// A named NPC is one listed in NPCNameList, with its entry in NPCName at the same index.
-	const index = V.NPCNameList.indexOf(name);
-	if (index !== -1) return { npc: V.NPCName[index], name, named: true };
+	// A named NPC is one with an entry in C.npc.
+	const npc = C.npc[name];
+	if (npc) return { npc, name, named: true };
 	if (typeof NPC === "string") return { npc: null, name: "", named: false };
 	return { npc: NPC, name, named: false };
 }

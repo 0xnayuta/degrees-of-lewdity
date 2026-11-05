@@ -38,6 +38,13 @@ declare module "twine-sugarcube" {
 		willpower: number;
 		willpowerpain?: 0;
 		willpowermax: number;
+		/**
+		 * How submissive the PC is. Starts at 1000.
+		 * - lte 500: Defiant
+		 * - lte 850: Bratty
+		 * - gte 1150: Meek
+		 * - gte 1500: Submissive
+		 */
 		submissive: number;
 		beauty: number;
 		delinquency: number;
@@ -304,6 +311,7 @@ declare global {
 	}
 
 	export interface Player {
+		/** How the PC appears, "m" or "f". Not based on sex. */
 		gender_appearance: string;
 		ballsExist: any;
 		breastsize: number;
