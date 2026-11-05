@@ -20,9 +20,6 @@ class ClothesItem {
 	/* Maximum Integrity of clothing | SHOULD BE THE SAME AS INTEGRITY | INT */
 	integrity_max = 100;
 
-	/* Currently not used much | INT */
-	fabric_strength = 25;
-
 	/* */
 	reveal;
 
