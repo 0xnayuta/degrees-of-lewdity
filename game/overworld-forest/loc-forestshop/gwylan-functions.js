@@ -1087,3 +1087,15 @@ function gwylanForestRescueRange() {
 	return 25;
 }
 window.gwylanForestRescueRange = gwylanForestRescueRange;
+
+/**
+ * How a PC lost the orphanage photo, used so Gwylan's shop can return it.
+ *
+ * @returns {"avery"|"fire"|"burnedUnread"|"thrown"|"noFolder"}
+ */
+function getOrphanagePhotoLoss() {
+	if (V.saved_orphanage_picture === 0) return V.avery_mansion.folder_gone ? "avery" : "fire";
+	if (V.avery_mansion_robin === 2) return V.avery_mansion.folder >= 1 ? "burnedUnread" : "thrown";
+	return "noFolder";
+}
+window.getOrphanagePhotoLoss = getOrphanagePhotoLoss;

@@ -118,6 +118,19 @@
 				<</if>>
 				<br>
 				<<socialiseicon>><<link [[Look for Gwylan|Gwylan Talk Shop]]>><</link>>
+				<<if gwylanSchedule() is "shop" and !$daily.gwylan.noTalk and !Time.isBloodMoon()
+				and $avery_fate and !$saved_orphanage_picture and !$gwylanSeen.includes("orphanagePhoto")
+				and !(["ascended", "saved"].includes($avery_fate) and $avery_mansion.folder gte 1)
+				and ($avery_mansion_robin is 2 or ["fallen", "kicked"].includes($avery_fate))>>
+					<br>
+					<<if $saved_orphanage_picture is 0>>
+						<span class="blue">A photo is pinned high on a shelf.</span> It looks familiar.
+					<<else>>
+						<span class="blue">A photo is pinned high on a shelf.</span> You think you can make out the orphanage in it.
+					<</if>>
+					<br>
+					<<investigateicon>><<link [[Examine it|Forest Shop Photo]]>><</link>>
+				<</if>>
 			<</if>>
 		<</if>>
 		<br>
@@ -3953,3 +3966,181 @@ Gwylan sets to work righting the objects Whitney's friends knocked down, and ret
 
 <<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
 <br>
+
+:: Forest Shop Photo
+<<effects>>
+<<set $gwylanSeen.pushUnique("orphanagePhoto")>>
+<<set _photoLoss to getOrphanagePhotoLoss()>>
+<<if ["avery", "fire"].includes(_photoLoss)>>
+	You approach the shelf<<if $bodysize lte 1>> and stand on your toes<</if>> to get a better look at the small laminated photo. You've seen it before. You, Robin, Bailey, and a fourth person stand in front of the orphanage. Bailey is staring right at the blurred stranger standing behind you and Robin. The stranger rests a hand each on your and Robin's shoulders. Their face is marred beyond recognition, but their smile is clear.
+	<br><br>
+	The last time you saw it, it was tucked between the letters Robin brought you from the orphanage.
+	<<if _photoLoss is "avery">>
+		Avery threw it away.
+	<<else>>
+		You thought it burned with the rest of Avery's mansion.
+	<</if>>
+	You don't know how it got here.
+<<else>>
+	You approach the shelf<<if $bodysize lte 1>> and stand on your toes<</if>> to get a better look at the small laminated photo. The orphanage's front door fills the background. A group of four stand before it. It takes you a moment to recognise the two children standing in the front as you and Robin.
+	<br><br>
+	Bailey stands beside the two of you. <<nnpc_He "Bailey">> faces the camera, but <<nnpc_his "Bailey">> eyes are on the person behind you. They rest a hand each on your and Robin's shoulders. Their face is blurred beyond recognition, but their smile is clear.
+	<br><br>
+	The smile is so warm and comforting. You don't remember this picture being taken, yet a lump forms in your throat all the same. <<trauma -3>><<ltrauma>><<tearup>>
+<</if>>
+<br><br>
+
+<<link [[Next|Forest Shop Photo 2]]>><</link>>
+<br>
+
+:: Forest Shop Photo 2
+<<effects>>
+<<npc Gwylan>><<person1>>
+<<set _photoLoss to getOrphanagePhotoLoss()>>
+A hand drops on to your shoulder and another reaches past it to lift the photo from its pin. It's Gwylan. <<He>> holds the photo close to <<his>> face, wearing a small smile. "What a lovely photo," <<he>> says. "You and <<if $gwylan.robin gte 10>>Robin<<else>>your friend<</if>> look so cute, <<pcpetname "Gwylan" "name">>."
+<br><br>
+
+<<if $chef_speech is "bailey">>
+	Upon meeting eyes with Bailey in the photo, Gwylan frowns. "Bailey's a hypocrite. <<nnpc_Hes "Bailey">> become the very thing <<nnpc_he "Bailey">>..." <<He>> pauses. "A serpent will have to shed its skin eventually."
+<<else>>
+	Upon meeting eyes with Bailey in the photo, Gwylan's smile softens. "Even serpents hatch soft. The scales come in later."
+<</if>>
+<br><br>
+
+<<He>> stares at the photo for a long moment. Then <<he>> looks at you. "Do you know how it got here?"
+<br><br>
+
+<<if _photoLoss is "avery">>
+	<<link [[Say Avery threw it away|Forest Shop Photo 3]]>><<set $phase to "avery">><</link>>
+	<br>
+<<elseif _photoLoss is "fire">>
+	<<link [[Say it burned with Avery's mansion|Forest Shop Photo 3]]>><<set $phase to "fire">><</link>>
+	<br>
+<</if>>
+<<link [[Say you've never seen it before|Forest Shop Photo 3]]>><<set $phase to "neverSeen">><</link>>
+<br>
+
+:: Forest Shop Photo 3
+<<effects>>
+<<person1>>
+<<set _photoLoss to getOrphanagePhotoLoss()>>
+<<switch $phase>>
+	<<case "avery">>
+		<<switch $speech_attitude>>
+			<<case "meek">>
+				"I-I left it in a folder of letters from the orphanage," you say. "Avery threw the folder out."
+			<<case "bratty">>
+				"Avery threw it out," you say. "Along with all the letters Robin gave me from the orphanage."
+			<<default>>
+				"I left it in a folder of letters from the orphanage," you say. "Avery threw it out."
+		<</switch>>
+	<<case "fire">>
+		<<switch $speech_attitude>>
+			<<case "meek">>
+				"I l-left it in a folder at Avery's mansion," you say. "I thought it burned with it."
+			<<case "bratty">>
+				"It was in a folder at Avery's mansion," you say. "Then Bailey set the whole place on fire."
+			<<default>>
+				"I left it in a folder at Avery's mansion," you say. "I thought it burned with everything else."
+		<</switch>>
+	<<default>>
+		<<switch $speech_attitude>>
+			<<case "meek">>
+				"N-no," you say. "I've never seen it before."
+			<<case "bratty">>
+				"No idea," you say. "I've never seen it before today."
+			<<default>>
+				"I've never seen it before," you say.
+		<</switch>>
+<</switch>>
+<br><br>
+
+<<if $phase is "neverSeen" and ["avery", "fire"].includes(_photoLoss)>>
+	Gwylan frowns slightly at your words.
+<<else>>
+	Gwylan holds onto the photo for a while longer.
+<</if>>
+
+<<switch _photoLoss>>
+	<<case "avery">>
+		Then <<he>> reaches down and presses it into your palm, folding your fingers over it. <span class="green">A warmth spreads through your chest.</span>
+		<br><br>
+
+		"You almost lost this. How lucky that this found its way back to you." <<His>> hand lingers on yours.
+	<<case "fire">>
+		Then <<he>> thumbs away a smudge of soot from the photo before pressing it into your palm. <span class="green">A warmth spreads through your chest.</span>
+		<br><br>
+
+		"You almost lost this. How lucky that this found its way to you." <<His>> hand lingers on yours.
+	<<case "burnedUnread">>
+		Then <<he>> thumbs away a smudge of soot from the photo before pressing it into your palm. "You're lucky, you know. This nearly went up in flames before you had a chance to find it."
+		<br><br>
+
+		<<He>> pulls <<his>> hands away, leaving the photo in your hand. <span class="green">A warmth spreads through your chest.</span>
+		<br><br>
+
+		Gwylan smiles at you.
+	<<case "thrown">>
+		Then <<he>> turns the photo over. <<His>> smile stiffens at the faint stain spreading across the back. "Seems like this was thrown into the rubbish."
+		<br><br>
+
+		<<He>> flips the photo back over and holds it out for you. You take the photo from <<him>>. <span class="green">A warmth spreads through your chest.</span>
+		<br><br>
+
+		"A tree that forgets its roots is the first to fall in a storm," <<he>> says.
+	<<default>> /* noFolder: Robin never brought the folder */
+		Then <<he>> holds the photo out to you with a wistful look. You take the photo from <<him>>. <span class="green">A warmth spreads through your chest.</span>
+		<br><br>
+
+		"The people who knew us before are the ones who remember who we were." <<He>> squeezes your shoulder.
+<</switch>>
+"Hold on to this. Where you've been is the only map you have to where you're going. Not everyone gets to keep theirs."
+<br><br>
+
+<<He>> lets go of you and returns to <<his>> counter, humming <<if $seabird_lullaby gte 2>><span class="teal">Seabird's Lullaby</span><<else>>a <span class="teal">faintly familiar melody</span><</if>>.
+<br><br>
+
+<<set $saved_orphanage_picture to 1>>
+<<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
+<br>
+
+:: Gwylan Talk Photo
+<<effects>><<run statusCheck("Gwylan")>><<set $daily.gwylan.clothesTalk++>>
+<<if $saved_orphanage_picture is 2>>
+	<<set $gwylanTalked.pushUnique("orphanagePhotoCut")>>
+<<else>>
+	<<set $gwylanTalked.pushUnique("orphanagePhoto")>>
+<</if>>
+You show Gwylan the photo from the folder. <<He>> goes still, then takes it from you, holding it carefully by the edges. <<He>> looks at the photo for a long moment,
+<<if $saved_orphanage_picture is 2>>
+	before holding it up. <<His>> eye lines up with the cut edge, right where Bailey used to stand. "Oh, dear. Snipped clean. Someone has a steady hand."
+	<br><br>
+
+	<<switch $speech_attitude>>
+		<<case "meek">>
+			"I-it wasn't me," you say. "Bailey cut <<nnpc_himself "Bailey">> out of it."
+		<<case "bratty">>
+			"Bailey took scissors to it," you say. "Didn't even ask."
+		<<default>>
+			"Bailey cut <<nnpc_himself "Bailey">> out," you say.
+	<</switch>>
+	<br><br>
+
+	<<He>>
+<<else>>
+	scanning it. Upon meeting eyes with Bailey in the photo, <<he>>
+<</if>>
+<<if $chef_speech is "bailey">>
+	frowns. "Bailey's a hypocrite. <<nnpc_Hes "Bailey">> become the very thing <<nnpc_he "Bailey">>..." <<He>> pauses. "A serpent will have to shed its skin eventually."
+<<else>>
+	smiles softly<<if $saved_orphanage_picture is 2>> at the mention of your caretaker<</if>>. "Even serpents hatch soft. The scales come in later."
+<</if>>
+<br><br>
+
+<<He>> hands the photo back to you. "Hold on to this. Where you've been is the only map you have to where you're going. Not everyone gets to keep theirs."
+<br><br>
+
+<<He>> returns to <<his>> sewing, humming <<if $seabird_lullaby gte 2>><span class="teal">Seabird's Lullaby</span><<else>>a <span class="teal">faintly familiar melody</span><</if>> under <<his>> breath.
+<br><br>
+
+<<gwylanOptions>>

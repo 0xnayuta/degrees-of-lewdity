@@ -3679,6 +3679,49 @@ setup.LocationImages = {
 			},
 		},
 	},
+	quinn_mansion: {
+		folder: "quinn-mansion",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+		},
+		emissive: {
+			bloodmoon: {
+				condition: () => Weather.bloodMoon,
+				image: "emissive-blood.png",
+				color: "#e63e3e66",
+				size: 15,
+			},
+			lights: {
+				condition: () => !Weather.bloodMoon && Weather.lightsOn,
+				image: "emissive.png",
+				color: "#deae66",
+				size: 4,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: false,
+			fogEnabled: true,
+
+			groundBounds: {
+				splashes: {
+					top: 0,
+					bottom: 0,
+				},
+				fog: {
+					top: 20,
+					bottom: 0,
+				},
+			},
+		},
+	},
 	res_alley: {
 		folder: "res-alley",
 		base: {

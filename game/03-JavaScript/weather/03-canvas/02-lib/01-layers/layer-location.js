@@ -153,6 +153,7 @@ Weather.Renderer.Layers.add({
 					"police_station",
 					"pool",
 					"pub",
+					"quinn_mansion",
 					"school",
 					"sewers",
 					"shopping_centre",
