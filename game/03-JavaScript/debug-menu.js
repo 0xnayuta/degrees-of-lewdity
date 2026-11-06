@@ -2169,10 +2169,10 @@ function checkEventCondition() {
 				if (Object.hasOwn(ev[i], "condition")) {
 					if ((typeof ev[i].condition === "function" && ev[i].condition()) || (typeof ev[i].condition !== "function" && ev[i].condition)) {
 						if (document.getElementById(section + "-" + i) == null) return;
-						document.getElementById(section + "-" + i).classList.remove("condhide");
+						document.getElementById(section + "-" + i).classList.remove("hidden");
 					} else {
 						if (document.getElementById(section + "-" + i) == null) return;
-						document.getElementById(section + "-" + i).classList.add("condhide");
+						document.getElementById(section + "-" + i).classList.add("hidden");
 					}
 				}
 			}

@@ -73,7 +73,7 @@ function advancePregnancy(orifice) {
 		if (V.lactating !== 1 && V.settings.breastFeedingEnabled === true && V.player.breastsize > 0) {
 			V.lactating = 1;
 			V.lactation_pressure = 100;
-			Wikifier.wikifyEval("<<milkvolume 50>>");
+			Wikifier.wikifyEval("<<milkVolume 50>>");
 			V.effectsmessage = 1;
 			V.lactationmessage = 1;
 		}

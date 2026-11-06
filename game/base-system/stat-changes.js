@@ -411,8 +411,8 @@ const statChange = (() => {
 	}
 	DefineMacro("corruption", corruption);
 
-	function semenvolume(amount) {
-		if (isNaN(amount)) paramError("semenvolume", "amount", amount, "Expected a number.");
+	function semenVolume(amount) {
+		if (isNaN(amount)) paramError("semenVolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
@@ -424,7 +424,7 @@ const statChange = (() => {
 			V.semen_volume = Math.clamp(V.semen_volume, 0, V.semen_max);
 		}
 	}
-	DefineMacro("semenvolume", semenvolume);
+	DefineMacro("semenVolume", semenVolume);
 
 	function semenAmount(amount) {
 		if (isNaN(amount)) paramError("semenAmount", "amount", amount, "Expected a number.");
@@ -435,8 +435,8 @@ const statChange = (() => {
 	}
 	DefineMacro("semen_amount", semenAmount);
 
-	function milkvolume(amount) {
-		if (isNaN(amount)) paramError("milkvolume", "amount", amount, "Expected a number.");
+	function milkVolume(amount) {
+		if (isNaN(amount)) paramError("milkVolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
 			if (amount > 0) lactationPressure(V.cow >= 6 ? 2 : 1);
@@ -446,7 +446,7 @@ const statChange = (() => {
 			}
 		}
 	}
-	DefineMacro("milkvolume", milkvolume);
+	DefineMacro("milkVolume", milkVolume);
 
 	function milkAmount(amount) {
 		if (isNaN(amount)) paramError("milkAmount", "amount", amount, "Expected a number.");
@@ -1582,9 +1582,9 @@ const statChange = (() => {
 		updateHallucinations,
 		control,
 		corruption,
-		semenvolume,
+		semenVolume,
 		semenAmount,
-		milkvolume,
+		milkVolume,
 		milkAmount,
 		lactationPressure,
 		sensitivity,

@@ -166,10 +166,10 @@ function getPeopleYoung() {
 	}
 }
 /**
- * ?peopley - Returns the pronoun based on whatever $pronoun is set to.
- *		   Call ?peopley in TwineScript after calling <<person1>> to use.
+ * ?boysAndGirls - Returns the pronoun based on whatever $pronoun is set to.
+ *		   Call ?boysAndGirls in TwineScript after calling <<person1>> to use.
  */
-/** ?Peopley - Capitalised version of above. */
-Template.add(["peopley", "Peopley"], function () {
-	return this.name === "Peopley" ? getPeopleYoung.call(this).toUpperFirst() : getPeopleYoung.call(this);
+/** ?BoysAndGirls - Capitalised version of above. */
+Template.add(["boysAndGirls", "BoysAndGirls"], function () {
+	return this.name === "BoysAndGirls" ? getPeopleYoung.call(this).toUpperFirst() : getPeopleYoung.call(this);
 });

@@ -1076,7 +1076,7 @@ function hourPassed(hours) {
 
 		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount) * 10;
 		if (V.kylarwatched) V.kylarwatchedtimer--;
-		if (V.parasite.nipples.name) statChange.milkvolume(1);
+		if (V.parasite.nipples.name) statChange.milkVolume(1);
 		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
 			let count = 0 + (V.worn.head.name === "hairpin" && random(0, 100) >= 75 ? 1 : 0);
 			count += V.sexStats.pills.pills["Hair Growth Formula"].doseTaken ? 1 : 0;
@@ -1971,7 +1971,7 @@ function dailyLiquidEffects() {
 		let amount = V.player.penissize - 1;
 		if (V.semen_volume <= 24) amount++;
 		amount -= Math.floor(V.semen_volume / 250);
-		statChange.semenvolume(amount);
+		statChange.semenVolume(amount);
 	} else {
 		V.semen_volume = 0;
 		V.semen_amount = 0;
@@ -1981,11 +1981,11 @@ function dailyLiquidEffects() {
 	if (V.earSlime.growth >= 75 && V.earSlime.focus === "impregnation") pressureReduction -= 2;
 	if (V.earSlime.growth >= 75 && V.earSlime.focus === "pregnancy") pressureReduction += 2;
 	if (pressureReduction < 0) {
-		statChange.milkvolume(pressureReduction * 2);
+		statChange.milkVolume(pressureReduction * 2);
 		statChange.lactationPressure(pressureReduction);
 	}
 
-	if (V.purity + V.semen_volume < 980) statChange.semenvolume(3);
+	if (V.purity + V.semen_volume < 980) statChange.semenVolume(3);
 	if (V.purity + V.milk_volume < 1000) V.milk_volume += 10;
 
 	if (V.lactating) {

@@ -183,7 +183,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 						action: "msemencover",
 						text: "Cover your fingers in semen",
 						colour: "sub",
-						otherElements: V.earSlime.event.includes("get your own sperm into your") ? undefined : "<<combataware 5>>",
+						otherElements: V.earSlime.event.includes("get your own sperm into your") ? undefined : "<<combatAwareness 5>>",
 					});
 				}
 				if (!playerChastity("penis")) {
@@ -233,14 +233,14 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					action: "mbreasthold",
 					text: `Hold your${V[otherArm + "arm"] === "mbreasthold" ? " other" : ""} breast`,
 					colour: "sub",
-					otherElements: "<<combataware 3>>",
+					otherElements: "<<combatAwareness 3>>",
 				});
 			} else if (V.awareness >= 100) {
 				result.options.push({
 					action: "mchest",
 					text: "Fondle your chest",
 					colour: "sub",
-					otherElements: "<<combataware 2>>",
+					otherElements: "<<combatAwareness 2>>",
 				});
 			}
 			if (V.awareness >= 200) {
@@ -249,7 +249,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 						action: "manusentrance",
 						text: "Stroke your anus",
 						colour: "sub",
-						otherElements: "<<combataware 3>>",
+						otherElements: "<<combatAwareness 3>>",
 					});
 				}
 				if (["home", "brothel", "cafe"].includes(V.location) || T.enableSexToys) {
@@ -259,7 +259,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 							action: "mpickupdildo",
 							text: "Use Toy:",
 							colour: "green",
-							otherElements: `${altText.toyDropDown} <<combataware 3>>`,
+							otherElements: `${altText.toyDropDown} <<combatAwareness 3>>`,
 						});
 					}
 				}
@@ -626,7 +626,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 							action: "mvaginaentrancedildofloor",
 							text: "Place on the floor by your vagina",
 							colour: "sub",
-							otherElements: "<<combataware 4>>",
+							otherElements: "<<combatAwareness 4>>",
 						});
 					}
 				}
@@ -643,7 +643,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 							action: "manusentrancedildofloor",
 							text: "Place on the floor by your anus",
 							colour: "sub",
-							otherElements: "<<combataware 4>>",
+							otherElements: "<<combatAwareness 4>>",
 						});
 					}
 				}
@@ -835,7 +835,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 				result.options.push({
 					action: "maphropill",
 					text: "Swallow an aphrodisiac pill",
-					otherElements: "<<combataware 3>>",
+					otherElements: "<<combatAwareness 3>>",
 				});
 			}
 			result.options.push(rest());
@@ -847,7 +847,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					result.options.push({
 						action: "maphropill",
 						text: "Swallow an aphrodisiac pill",
-						otherElements: "<<combataware 3>>",
+						otherElements: "<<combatAwareness 3>>",
 					});
 				}
 				if (
@@ -861,7 +861,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 						action: "mbreastentrance",
 						text: `Take your nipple${V.leftarm === "mbreasthold" && V.rightarm === "mbreasthold" ? "s" : ""} into your mouth`,
 						colour: "sub",
-						otherElements: "<<combataware 3>>",
+						otherElements: "<<combatAwareness 3>>",
 					});
 				}
 				if (genitalsExposed()) {
@@ -871,14 +871,14 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 								action: "mchastityparasiteentrance",
 								text: "Lick your chastity parasite",
 								colour: "sub",
-								otherElements: "<<combataware 3>>",
+								otherElements: "<<combatAwareness 3>>",
 							});
 						} else {
 							result.options.push({
 								action: "mpenisentrance",
 								text: "Lick your penis",
 								colour: "sub",
-								otherElements: "<<combataware 3>>",
+								otherElements: "<<combatAwareness 3>>",
 							});
 						}
 					}
@@ -887,7 +887,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 							action: "mvaginaentrance",
 							text: "Lick your pussy",
 							colour: "sub",
-							otherElements: "<<combataware 3>>",
+							otherElements: "<<combatAwareness 3>>",
 						});
 					}
 				}
@@ -910,13 +910,13 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					action: "mpenislick",
 					text: "Lick your penis",
 					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 				});
 				result.options.push({
 					action: "mpenistakein",
 					text: "Take it into your mouth",
 					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 				});
 			}
 			result.options.push(stop("mpenisstop"));
@@ -931,7 +931,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					action: "mchastityparasitelick",
 					text: "Lick your chastity parasite",
 					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 				});
 			}
 			result.options.push(stop("mchastityparasitestop"));
@@ -946,7 +946,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					action: "mvaginalick",
 					text: "Lick your pussy",
 					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 				});
 				if (!playerChastity("vagina")) {
 					if (!V.parasite.clit.name) {
@@ -954,14 +954,14 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 							action: "mvaginaclit",
 							text: "Focus on your clit",
 							colour: "sub",
-							otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+							otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 						});
 					} else if (V.parasite.clit.name !== "parasite") {
 						result.options.push({
 							action: "mvaginaclitparasite",
 							text: `Focus on the clitoral ${V.parasite.clit.name}`,
 							colour: "sub",
-							otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+							otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 						});
 					}
 				}
@@ -996,14 +996,14 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					action: "mpenissuck",
 					text: "Suck on your penis",
 					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 				});
 				if (V.selfsuckDepth < V.selfsuckLimit) {
 					result.options.push({
 						action: "mpenisdeepthroat",
 						text: "Take it deeper",
 						colour: "sub",
-						otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+						otherElements: !corruptionCheck ? "<<combatAwareness 3>>" : undefined,
 					});
 				}
 			}

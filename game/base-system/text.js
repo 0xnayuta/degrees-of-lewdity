@@ -518,7 +518,7 @@ statDisplay.create("lspurity", () => {
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
 		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
-	T.warnstate = -1;
+	T.warnState = -1;
 	return result;
 });
 statDisplay.create("llspurity", () => {
@@ -531,7 +531,7 @@ statDisplay.create("llspurity", () => {
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
 		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
-	T.warnstate = -2;
+	T.warnState = -2;
 	return result;
 });
 statDisplay.create("lllspurity", () => {
@@ -544,25 +544,25 @@ statDisplay.create("lllspurity", () => {
 	if (C.npc.Sydney.purity <= 50 && T.lustincrdisplay !== 1) {
 		result.append(statDisplay.statChange("Lust", 1, "lewd"));
 	}
-	T.warnstate = -3;
+	T.warnState = -3;
 	return result;
 });
 statDisplay.create("gspurity", () => {
-	T.warnstate = 1;
+	T.warnState = 1;
 	if (C.npc.Sydney.purity >= 1) {
 		return statDisplay.statChange("Sydney's Purity", 1, "teal");
 	}
 	return statDisplay.statChange("Sydney's Corruption", -1, "teal");
 });
 statDisplay.create("ggspurity", () => {
-	T.warnstate = 2;
+	T.warnState = 2;
 	if (C.npc.Sydney.purity >= 1) {
 		return statDisplay.statChange("Sydney's Purity", 2, "teal");
 	}
 	return statDisplay.statChange("Sydney's Corruption", -2, "teal");
 });
 statDisplay.create("gggspurity", () => {
-	T.warnstate = 3;
+	T.warnState = 3;
 	if (C.npc.Sydney.purity >= 1) {
 		return statDisplay.statChange("Sydney's Purity", 3, "teal");
 	}
