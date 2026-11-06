@@ -972,6 +972,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["flour", "chicken_egg", "vegetable_oil", "salt"],
 				tags: [],
+				also_teaches: ["macaroni_cheese"],
 			},
 			food: {
 				tags: ["vegetarian"],
@@ -1536,6 +1537,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["beef", "onion", "pastry", "chicken_egg", "salt", "mushroom"],
 				tags: [],
+				also_teaches: ["salmon_wellington"],
 			},
 			food: {
 				tags: [],
@@ -1582,6 +1584,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["beef", "bread", "onion", "tomato"],
 				tags: [],
+				also_teaches: ["cheeseburger"],
 			},
 			food: {
 				tags: [],
@@ -1605,6 +1608,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["beef", "bread", "onion", "tomato", "cheese"],
 				tags: [],
+				also_teaches: ["hamburger"],
 			},
 			food: {
 				tags: [],
@@ -1628,6 +1632,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["potato", "vegetable_oil", "salt"],
 				tags: [],
+				also_teaches: ["fish_and_chips"],
 			},
 			food: {
 				tags: ["vegan"],
@@ -2480,6 +2485,7 @@ function initFoodstuff() {
 					lewd: {},
 				},
 				tags: [],
+				also_teaches: ["chips"],
 			},
 			food: {
 				tags: ["seafood"],
@@ -2694,6 +2700,7 @@ function initFoodstuff() {
 				servings: 2,
 				ingredients: ["orange", "sugar"],
 				tags: [],
+				also_teaches: ["lemonade"],
 			},
 			food: {
 				tags: ["vegan", "drink"],
@@ -2717,6 +2724,7 @@ function initFoodstuff() {
 				servings: 2,
 				ingredients: ["lemon", "sugar"],
 				tags: [],
+				also_teaches: ["orange_juice"],
 			},
 			food: {
 				tags: ["vegan", "drink"],
@@ -3159,6 +3167,7 @@ function initFoodstuff() {
 				servings: 1,
 				ingredients: ["butter", "bottle_of_milk", "cocoa_powder", "pear"],
 				tags: [],
+				also_teaches: ["chocolate"],
 			},
 			food: {
 				tags: ["vegetarian", "sweet"],
@@ -3203,6 +3212,7 @@ function initFoodstuff() {
 				servings: 5,
 				ingredients: ["flour", "sugar", "butter", "chicken_egg", "jam"],
 				tags: [],
+				also_teaches: ["shortbread"],
 			},
 			food: {
 				handheld_gift: true,
