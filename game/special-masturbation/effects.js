@@ -619,7 +619,7 @@ function masturbationEffectsArms(
 			break;
 		case "mchest":
 			wikifier("playWithBreasts", handsOn);
-			wikifier("milkvolume", handsOn);
+			wikifier("milkVolume", handsOn);
 			wikifier("arousal", 100 * handsOn, "masturbationBreasts");
 
 			// The text output currently does not care which hand is used or if both hands are used
@@ -747,7 +747,7 @@ function masturbationEffectsArms(
 				// Player briefly stops fondling their breasts
 			} else {
 				wikifier("playWithBreasts", handsOn);
-				wikifier("milkvolume", handsOn);
+				wikifier("milkVolume", handsOn);
 				wikifier("arousal", 100 * handsOn, "masturbationBreasts");
 				if (V.worn.over_upper.exposed >= 2 && V.worn.upper.exposed >= 2 && V.worn.under_upper.exposed >= 1) {
 					wikifier("arousal", 150 * handsOn, "masturbationBreasts");
@@ -1948,7 +1948,7 @@ function masturbationEffectsArms(
 				if ((!V.daily.lactatingPressure || V.daily.lactatingPressure <= 5) && random(0, 100) >= 90) {
 					if (!V.daily.lactatingPressure) V.daily.lactatingPressure = 0;
 					V.daily.lactatingPressure++;
-					wikifier("milkvolume", handsOn);
+					wikifier("milkVolume", handsOn);
 				}
 			}
 			clearAction(); // Needs to run after any breastfeed widget

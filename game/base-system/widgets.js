@@ -1,5 +1,4 @@
-/* eslint-disable no-new */
-/* eslint-disable jsdoc/require-description-complete-sentence */
+/* global isBaileyLookingForPlayer */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -386,7 +385,7 @@ function apparentbreastsizecheck() {
 		T.tempbreast += clothingData("over_upper", V.worn.over_upper, "bustresize");
 	}
 	// using the default values of $breastsizemin and $breastsizemax, to avoid issues with the values changing during the game
-	V.player.perceived_breastsize = Math.clamp(T.tempbreast, 0, setup.breastsizes.length - 1);
+	V.player.perceived_breastsize = Math.clamp(T.tempbreast, 0, setup.breastSizes.length - 1);
 }
 window.apparentbreastsizecheck = apparentbreastsizecheck;
 
