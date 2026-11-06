@@ -67,6 +67,7 @@ declare global {
 			lewd: Record<string, string[]>; // Available if chef_state >= 3 and if the current kitchen allows lewd ingredients.
 		};
 		tags: string[]; // Any recipe/cooking related tags related to the recipe, but not the foodstuff itself. If you want to put a tag about the item as a piece of food that can be eat, put it on the FoodstuffFoodData.tags. The dish might be spicy, but the recipe is not. The recipe might be messy, but the dish is not.
+		also_teaches?: string[]; // The recipe for any foodstuffs in this list will also be learned when you learn the recipe for this foodstuff.
 	}
 
 	export interface FoodstuffFoodData {

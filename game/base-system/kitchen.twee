@@ -285,32 +285,61 @@
 <</widget>>
 
 <<widget "learn_recipe">>
-	/* checks if object exists in $foodstuff */
-	<<if !$foodstuff[_args[0]]>>
-		<<set $foodstuff[_args[0]] to {amount: 0}>>
+	<<set $_recipesToCheck to [_args[0]]>>
+	<<if setup.foodstuff[_args[0]].recipe and setup.foodstuff[_args[0]].recipe.also_teaches>>
+		<<set $_recipesToCheck to $_recipesToCheck.concat(setup.foodstuff[_args[0]].recipe.also_teaches)>>
 	<</if>>
 
-	<<if $foodstuff[_args[0]].knows_recipe isnot true>>
-		<span class="gold">You have learned how to make <<recipe_name _args[0] "article">>!</span>
-		<<foodstufficon _args[0]>>
-	<</if>>
-	<<set $foodstuff[_args[0]].knows_recipe to true>>
-
-	<<set _recipes_known to 0>>
-	<<set _food_keys_recipes to Object.keys(setup.foodstuff)>>
-	<<for _e to 0; _e lt _food_keys_recipes.length; _e++>>
-		<<set _food_recipes to _food_keys_recipes[_e]>>
-		<<if $foodstuff[_food_recipes]?.knows_recipe is true>>
-			<<set _recipes_known++>>
+	<<set $_listOfRecipesToLearn to []>>
+	<<for $_r range $_recipesToCheck>>
+		<<if !$foodstuff[$_r] or $foodstuff[$_r].knows_recipe isnot true>>
+			<<run $_listOfRecipesToLearn.push($_r)>>
 		<</if>>
 	<</for>>
-	<<if _recipes_known gte 5>>
+
+	<<for $_r range $_listOfRecipesToLearn>>
+		<<if !$foodstuff[$_r]>>
+			<<set $foodstuff[$_r] to { amount: 0 }>>
+		<</if>>
+		<<set $foodstuff[$_r].knows_recipe to true>>
+	<</for>>
+
+	<<if $_listOfRecipesToLearn.length is 1>>
+		<span class="gold">You have learned how to make <<recipe_name $_listOfRecipesToLearn[0] "article">>!</span>
+	<<elseif $_listOfRecipesToLearn.length is 2>>
+		<span class="gold">You have learned how to make <<recipe_name $_listOfRecipesToLearn[0] "article">> and <<recipe_name $_listOfRecipesToLearn[1] "article">>!</span>
+	<<elseif $_listOfRecipesToLearn.length gte 3>>
+		<span class="gold">You have learned how to make 
+			<<for $_i, $_r range $_listOfRecipesToLearn>>
+				<<if $_i is 0>>
+					<<recipe_name $_r "article">>,
+				<<elseif $_i is $_listOfRecipesToLearn.length - 1>>
+					and <<recipe_name $_r "article">>!
+				<<else>>
+					<<recipe_name $_r "article">>,
+				<</if>>
+			<</for>>
+		</span>
+	<</if>>
+	<<for $_r range $_listOfRecipesToLearn>>
+		<<foodstufficon $_r>>
+	<</for>>
+
+	<<set $_recipes_known to 0>>
+	<<set $_food_keys_recipes to Object.keys(setup.foodstuff)>>
+	<<for $_e to 0; $_e lt $_food_keys_recipes.length; $_e++>>
+		<<set $_food_recipes to $_food_keys_recipes[$_e]>>
+		<<if $foodstuff[$_food_recipes]?.knows_recipe is true>>
+			<<set $_recipes_known++>>
+		<</if>>
+	<</for>>
+	<<if $_recipes_known gte 5>>
 		<<earnFeat "Chef de Tournant">>
 	<</if>>
-	<<if _recipes_known gte 20>>
+	<<if $_recipes_known gte 20>>
 		<<earnFeat "Chef de Partie">>
 	<</if>>
-	<<if _recipes_known gte 50>>
+	<<if $_recipes_known gte 50>>
 		<<earnFeat "Sous Chef">>
 	<</if>>
 <</widget>>
@@ -482,13 +511,13 @@ Should probably be removed once said feature has been implemented
 	<<set $_foodOptions to Object.entries(clone(setup.foodstuff)).filter(([key, item]) => !$foodstuff[key]?.knows_recipe and item.recipe?.ingredients.length)>>
 	<<for $_difficulty to 1; $_difficulty lt 5; $_difficulty++>>
 		<<run $_foodOptions.forEach(([key, item]) => {
-			if (item.recipe.difficulty is $_difficulty and item.recipe.ingredients.every(ingredient => !setup.foodstuff[ingredient].recipe?.ingredients.length or $foodstuff[ingredient].knows_recipe)) {
+			if (item.recipe.difficulty is $_difficulty and item.recipe.ingredients.every(ingredient => !setup.foodstuff[ingredient]?.recipe?.ingredients.length or $foodstuff[ingredient]?.knows_recipe)) {
 				_possible_recipes.pushUnique(key);
 			}
 		})>>
 		<<if _possible_recipes.length>>
-			<<if Object.keys($foodstuff).filter(key => !$foodstuff[key].knows_recipe and setup.foodstuff[key].recipe?.ingredients.length and setup.foodstuff[key].recipe.difficulty is $_difficulty).length
-				is Object.keys($foodstuff).filter(key => setup.foodstuff[key].recipe?.ingredients.length and setup.foodstuff[key].recipe.difficulty is $_difficulty).length>>
+			<<if Object.keys($foodstuff).filter(key => !$foodstuff[key].knows_recipe and setup.foodstuff[key]?.recipe?.ingredients.length and setup.foodstuff[key].recipe.difficulty is $_difficulty).length
+				is Object.keys($foodstuff).filter(key => setup.foodstuff[key]?.recipe?.ingredients.length and setup.foodstuff[key].recipe.difficulty is $_difficulty).length>>
 				<<set _difficultyNotice to $_difficulty>>
 			<</if>>
 			<<set $chosen_recipe to _possible_recipes.pluck()>>
@@ -535,7 +564,7 @@ Should probably be removed once said feature has been implemented
 	<<unset $chosen_recipe>>
 	<<set _food_keys to Object.keys(setup.foodstuff)>>
 	<<set _possible_recipes to []>>
-	<<set $_foodOptions to Object.entries(clone(setup.foodstuff)).filter(([key, item]) => !$foodstuff[key].knows_recipe and item.recipe?.ingredients.length)>>
+	<<set $_foodOptions to Object.entries(clone(setup.foodstuff)).filter(([key, item]) => !$foodstuff[key]?.knows_recipe and item.recipe?.ingredients.length)>>
 
 	<<if random(0,50) gte 25>>
 		<<set $_difficulty to 2>>
@@ -544,7 +573,7 @@ Should probably be removed once said feature has been implemented
 	<</if>>
 
 	<<run $_foodOptions.forEach(([key, item]) => {
-		if (item.recipe.difficulty is $_difficulty and item.recipe.ingredients.every(ingredient => !setup.foodstuff[ingredient].recipe?.ingredients.length or $foodstuff[ingredient].knows_recipe)) {
+		if (item.recipe.difficulty is $_difficulty and item.recipe.ingredients.every(ingredient => !setup.foodstuff[ingredient]?.recipe?.ingredients.length or $foodstuff[ingredient]?.knows_recipe)) {
 			_possible_recipes.pushUnique(key);
 			}
 		})>>
