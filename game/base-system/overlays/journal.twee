@@ -392,7 +392,7 @@
 		<</for>>
 	<</if>>
 
-	<<if !$statFreeze and (($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $docks.hired || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $exhibitionismrun || $robindebtevent gte 1 and $robinmissing isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || getChildrenAt("inventory").filter(child => child.species === "hawk").length gt 0 || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || $gwylan?.request.event || _museumItemsFound?.length gte 1 || _museumItemsTalk?.length gte 1)>>
+	<<if !$statFreeze and (($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21))) || $temple_spear_mission gte 1 || $docks.hired || ($brothelshowdata.intro and $brothelshowdata.type is "none") || $exhibitionismrun || $robin.punishment.daysLeft gte 1 and $robin.punishment.current isnot 0 || $pubtask2 is 1 || $pubtask || $police_hack is 1 || $pub_hack_job gte 1 || $pubfame ||( $earSlime.event and !_tempEventHide) || $earSlime.forcedCommando isnot undefined || $earSlime.forcedDressing isnot undefined || $temple_rank is "prospective" || $chef_state gte 4 || $mason_pond gte 1 || ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3) || ($harpy gte 6 and $birdFly isnot 1) || getChildrenAt("inventory").filter(child => child.species === "hawk").length gt 0 || $adultshopgrandopening || ($adultshopintro is 1 and $adultshopunlocked is undefined) || $gwylan?.request.event || _museumItemsFound?.length gte 1 || _museumItemsTalk?.length gte 1)>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<h1 class="header gold bold">Reminders</h1>
@@ -531,15 +531,15 @@
 				<</if>>
 			<</if>>
 
-			<<if $robindebtevent gte 1 and $robinmissing is "docks" and $docksrobinintro isnot 1>>
+			<<if $robin.punishment.daysLeft gte 1 and $robin.punishment.current is "docks" and !Memories.Robin.has("foundAtDocks")>>
 				<li><<docksicon>> Robin is missing. <<nnpc_He "Robin">> was taken to the docks on Mer Street.</li>
 			<</if>>
 
-			<<if $robindebtevent gte 1 and $robinmissing is "landfill" and $mistrobinintro isnot 1 and $robinmistknown>>
+			<<if $robin.punishment.daysLeft gte 1 and $robin.punishment.current is "landfill" and !Memories.Robin.has("foundAtLandfill") and $robin.punishment.pcKnowsRobinAtLandfill>>
 				<li><<landfillicon>> Robin is missing. <<nnpc_He "Robin">> was taken to the landfill on Elk Street.</li>
 			<</if>>
 
-			<<if $robindebtevent gte 1 and $robinmissing is "pillory" and $robinPillory.known is 1>>
+			<<if $robin.punishment.daysLeft gte 1 and $robin.punishment.current is "pillory" and $robin.punishment.pillory.known>>
 				<li><<pilloryicon>> Robin is missing.
 					<<if Time.hour lte 14>>
 						<<nnpc_Hes "Robin">> scheduled to be put in the pillory on Cliff Street at <<ampm 15 00>>.
@@ -824,7 +824,7 @@
 			<<if $halloween_whitney is 1 and C.npc.Whitney.state isnot "dungeon">>
 				<li>Whitney will be trick-or-treating on Domus Street from <<ampm 19 00>>.</li>
 			<</if>>
-			<<if $halloween_robin is 1 and $robinmissing is 0>>
+			<<if $robin.halloween.firstRoomVisit and $robin.punishment.current is 0>>
 				<li>Robin wants to go trick-or-treating between <<ampm 16 00>> and <<ampm 19 00>>.</li>
 			<</if>>
 			<<if $halloween_kylar is 1 and C.npc.Kylar.state isnot "prison">>
@@ -857,9 +857,9 @@
 				<</if>>
 			</li>
 
-			<<if $christmas_gift_robin is undefined and C.npc.Robin.init is 1>>
+			<<if $robin.christmas.giftFromPc is undefined and C.npc.Robin.init is 1>>
 				<li>You can buy Robin a gift at the shopping centre<<if $forest_shop_intro is 1>> or forest shop<</if>>.</li>
-			<<elseif $christmas_gift_robin and $christmas_gift_robin_wrapped isnot 1 and C.npc.Robin.init is 1>>
+			<<elseif $robin.christmas.giftFromPc and !$robin.christmas.pcWrappedGift and C.npc.Robin.init is 1>>
 				<li>You can wrap Robin's gift in your room.</li>
 			<</if>>
 			<<if !$christmas_wrap>>

@@ -1,0 +1,333 @@
+:: Widgets NNPC Cleanup Migration Robin [widget]
+<<widget "nnpcCleanupMigrationRobin">>
+	<!-- Robin's variables renamed to camelCase -->
+	<<if $robin.stayup isnot undefined>>
+		<<set $robin.stayedUp to $robin.stayup>>
+		<<run delete $robin.stayup>>
+	<</if>>
+
+	<!-- Robin's one-time flags and $robinSeen moved into Robin's memories -->
+	<<if $robinSeen>>
+		<<set _robinSeenRenames to {
+			avery_skyscraper_rescue: "joinedSkyscraperRescue",
+			breastsBig: "sawPcBigBreasts",
+			favouriteFlower: "toldFavouriteFlower",
+			flowerCrown: "madeFlowerCrowns",
+			forestMilking: "drankPcMilkInForest",
+			homeBandage: "bandagedOrphan",
+			hospitalMummy: "mummyJoke",
+			pilloryNaked: "strippedInPillory",
+			pilloryRescue: "rescuedFromPillory",
+			robinRape: "rapedPcUnderLandfillMist",
+			ubDouble: "ubPunishedTogether",
+			ubEscapeAlone: "ubEscapedAlone",
+			ubEscapeTogether: "ubEscapedTogether",
+			ubHuntEscape: "ubEscapedThroughHunt",
+			ubMachine: "ubMachineTogether",
+			ubMachineRobinBegged: "ubBeggedMachineSlower",
+			ubMetal: "ubMetalTogether",
+			ubMetalEscape: "ubEscapedFromMetal",
+			unwrap: "pcUnwrappedRobin",
+			vaginaFlaunt: "flauntedVagina",
+		}>>
+		<<for _memory range $robinSeen>>
+			<<run $npcMemories.Robin.pushUnique(_robinSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $robinSeen>>
+	<</if>>
+	<<if $robindebtknown>><<run Memories.Robin.add("pcKnowsRobinPaysBailey")>><</if>>
+	<<if $robindebtintro>><<run Memories.Robin.add("firstDebtPunishment")>><</if>>
+	<<if $robinconsoleintro>><<run Memories.Robin.add("firstConsoleReveal")>><</if>>
+	<<if $robinconsolelost>><<run Memories.Robin.add("lostConsole")>><</if>>
+	<<if $robinhugbreak>><<run Memories.Robin.add("pcBrokeDownCrying")>><</if>>
+	<<if $robinnote>><<run Memories.Robin.add("confessionNoteRead")>><</if>>
+	<<if $robinthank>><<run Memories.Robin.add("thankedForEverything")>><</if>>
+	<<if $robincat>><<run Memories.Robin.add("firstCatHeadpats")>><</if>>
+	<<if $robininfirmarypromise>><<run Memories.Robin.add("promisedToProtectPc")>><</if>>
+	<<if $robinTraumaVisit>><<run Memories.Robin.add("pcHeardRobinCrying")>><</if>>
+	<<if $robin_naked_room>><<run Memories.Robin.add("pcVisitedRoomNaked")>><</if>>
+	<<if $robin_forest_visited>><<run Memories.Robin.add("visitedForestShop")>><</if>>
+	<<if $robinchocolateintro>><<run Memories.Robin.add("firstHotChocolateStandVisit")>><</if>>
+	<<if $robinlemonadeintro>><<run Memories.Robin.add("firstLemonadeStandVisit")>><</if>>
+	<<if $robinsignintro>><<run Memories.Robin.add("firstLemonadeSign")>><</if>>
+	<<if $robinaverybeat>><<run Memories.Robin.add("hitAveryWithBag")>><</if>>
+	<<if $robinPickupTrauma>><<run Memories.Robin.add("comfortedAfterAveryPickup")>><</if>>
+	<<if $robinBrothelVisit>><<run Memories.Robin.add("confrontedPcAtBrothel")>><</if>>
+	<<if $docksrobinintro>><<run Memories.Robin.add("foundAtDocks")>><</if>>
+	<<if $mistrobinintro>><<run Memories.Robin.add("foundAtLandfill")>><</if>>
+	<<if $robinfirstrentfight>><<run Memories.Robin.add("baileyUsedRobinAsLeverage")>><</if>>
+	<<if $robinPayoutIntro isnot undefined>><<run Memories.Robin.add("firstSavingsPayout")>><</if>>
+	<<if $robin.wateringIntro>><<run Memories.Robin.add("offeredToWaterGarden")>><</if>>
+	<<if $robinbaileyhelp gte 1>><<run Memories.Robin.add("toldBaileyAboutPcBreakdown")>><</if>>
+	<<if $robinbaileyhelp is 2>><<run Memories.Robin.add("apologisedForTellingBailey")>><</if>>
+	<<if $robin_photo_stage gte 1>><<run Memories.Robin.add("criedAtOrphanagePhoto")>><</if>>
+	<<if $robin_photo_stage is 2>><<run Memories.Robin.add("toldOrphanagePhotoDream")>><</if>>
+	<<unset $robindebtknown $robindebtintro $robinconsoleintro $robinconsolelost $robinhugbreak $robinnote $robinthank $robincat $robininfirmarypromise $robinTraumaVisit $robin_naked_room $robin_forest_visited $robinchocolateintro $robinlemonadeintro $robinsignintro $robinaverybeat $robinPickupTrauma $robinBrothelVisit $docksrobinintro $mistrobinintro $robinfirstrentfight $robinPayoutIntro $robinbaileyhelp $robin_photo_stage>>
+	<<run delete $robin.wateringIntro>>
+
+	<!-- Robin's weekly flags moved into $weekly.robin. -->
+	<<set $weekly.robin ??= {}>>
+	<<for _oldName, _newName range { robinBrothel: "cameToBrothel", robinCafeVisit: "hadCafeVisitChance", robinGift: "gavePcThermos", robinMemory: "punishmentTalkHealed", gardenBirdRobin: "pcSawRobinWithBird" }>>
+		<<if $weekly[_oldName] isnot undefined>>
+			<<set $weekly.robin[_newName] to $weekly[_oldName]>>
+			<<run delete $weekly[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robinPayout>>
+		<<set $weekly.robin.gavePcSavings to true>>
+	<</if>>
+	<<unset $robinPayout>>
+
+	<!-- $withRobin split into $robin.punishment.atDanubeMeal and Robin's daily History flags -->
+	<<unset $withRobin>>
+
+	<!-- Unused or removed -->
+	<<unset $robin_kicked_out $robinInit $robinstunned $overflow>>
+
+	<!-- Robin's variables moved onto $robin -->
+	<<if $robinromance is 1>>
+		<<set $robin.romance to true>>
+	<</if>>
+	<<for _oldName, _newName range { robinlocationoverride: "locationOverride", robinTraumaMultiplier: "traumaHealMultiplier" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin[_newName] to V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<unset $robinromance $robinlocationoverride $robinTraumaMultiplier>>
+	<<if $robin.timer isnot undefined>>
+		<<set $robin.hurt to { daysLeft: $robin.timer.hurt, reason: $robin.hurtReason }>>
+		<<set $robin.money to { savings: $robinmoney, balloonStandBonus: $robin.moneyModifier, balloonStandDaysUntilTalk: $robin.timer.customer }>>
+		<<run delete $robin.timer>>
+		<<run delete $robin.hurtReason>>
+		<<run delete $robin.moneyModifier>>
+		<<unset $robinmoney>>
+	<</if>>
+
+	<<set $robin.rent ??= {}>>
+	<<set _robinRentMoves to {
+		robinpaid: "pcPaysForRobin",
+		robindebt: "missedPayments",
+		robindebtlimit: "missedPaymentLimit",
+		robindebtwake: "willRevealDebtToPcTonight",
+		robineventnote: "pcThinksOfPayingBaileyForRobin",
+		robinRentEvent: "inFightWithBaileyOverRobin",
+		inRobinsRoom: "collectedInRobinsRoom",
+	}>>
+	<<for _oldName, _newName range _robinRentMoves>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.rent[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.weeksSinceProtector isnot undefined>>
+		<<set $robin.rent.weeksPcPaidForRobin to $robin.weeksSinceProtector>>
+		<<run delete $robin.weeksSinceProtector>>
+	<</if>>
+	<<for _name range ["pcPaysForRobin", "willRevealDebtToPcTonight", "pcThinksOfPayingBaileyForRobin", "inFightWithBaileyOverRobin"]>>
+		<<if $robin.rent[_name] is 1>>
+			<<set $robin.rent[_name] to true>>
+		<<elseif $robin.rent[_name] is 0>>
+			<<set $robin.rent[_name] to false>>
+		<</if>>
+	<</for>>
+
+	<<set $robin.punishment ??= {}>>
+	<<set _robinPunishmentMoves to {
+		robinmissing: "current",
+		robindebtevent: "daysLeft",
+		robinLastPunishment: "last",
+		robinPunishments: "placesSentTo",
+		robin_injured: "injuredAtDocks",
+		robinmist: "inLandfillMistFight",
+		robinmistknown: "pcKnowsRobinAtLandfill",
+		robinPillory: "pillory",
+	}>>
+	<<for _oldName, _newName range _robinPunishmentMoves>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.punishment[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.abandoned isnot undefined>>
+		<<set $robin.punishment.abandonedByPcAtDocks to $robin.abandoned>>
+		<<run delete $robin.abandoned>>
+	<</if>>
+	<<for _name range ["injuredAtDocks", "inLandfillMistFight", "pcKnowsRobinAtLandfill", "abandonedByPcAtDocks"]>>
+		<<if $robin.punishment[_name] is 1>>
+			<<set $robin.punishment[_name] to true>>
+		<<elseif $robin.punishment[_name] is 0>>
+			<<set $robin.punishment[_name] to false>>
+		<</if>>
+	<</for>>
+	<<if $robin.punishment.pillory>>
+		<<if $robinPilloryFail>>
+			<<set $robin.punishment.pillory.rescueFailed to true>>
+		<</if>>
+		<<if $trackedHour isnot undefined>>
+			<<set $robin.punishment.pillory.sceneViewerLastHour to $trackedHour>>
+		<</if>>
+		<<for _name range ["known", "distracted", "lockpicked"]>>
+			<<if $robin.punishment.pillory[_name] is 1>>
+				<<set $robin.punishment.pillory[_name] to true>>
+			<<elseif $robin.punishment.pillory[_name] is 0>>
+				<<set $robin.punishment.pillory[_name] to false>>
+			<</if>>
+		<</for>>
+	<</if>>
+	<<unset $robinPilloryFail $trackedHour>>
+
+	<<set $robin.room ??= {}>>
+	<<set $robin.room.visit ??= {}>>
+	<<for _oldName, _newName range { robinconsole: "hasConsole", robincrycount: "timesPcCried", robin_naked_fail: "refusedNakedPc", fromRobinRoom: "pcJustLeft", robindestination: "whereToGoAfterHearingRobinCrying" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.room[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _oldName, _newName range { robinhugging: "pcHuggingRobin", robinroomentered: "doneGreeting", study_inside: "pcStartedStudy" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.room.visit[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _name range ["hasConsole", "refusedNakedPc"]>>
+		<<if $robin.room[_name] is 1>>
+			<<set $robin.room[_name] to true>>
+		<<elseif $robin.room[_name] is 0>>
+			<<set $robin.room[_name] to false>>
+		<</if>>
+	<</for>>
+	<<for _name range ["pcHuggingRobin", "doneGreeting", "pcStartedStudy"]>>
+		<<if $robin.room.visit[_name] is 1>>
+			<<set $robin.room.visit[_name] to true>>
+		<<elseif $robin.room.visit[_name] is 0>>
+			<<set $robin.room.visit[_name] to false>>
+		<</if>>
+	<</for>>
+
+	<<set $robin.orphanage ??= {}>>
+	<<for _oldName, _newName range { robinwakeday: "climbedIntoPcBed", passageRobinKitchen: "kitchenToReturnTo", robinBathKnown: "pcKnowsRobinInBath", robinbed: "whoseBedTonight" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.orphanage[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.autoWater isnot undefined>>
+		<<set $robin.orphanage.watersGarden to $robin.autoWater>>
+		<<run delete $robin.autoWater>>
+	<</if>>
+	<<if $robin.orphanage.climbedIntoPcBed is 1>>
+		<<set $robin.orphanage.climbedIntoPcBed to true>>
+	<<elseif $robin.orphanage.climbedIntoPcBed is 0>>
+		<<set $robin.orphanage.climbedIntoPcBed to false>>
+	<</if>>
+
+	<<set $robin.outings ??= {}>>
+	<<for _oldName, _newName range { robin_amusements: "amusements", robinBrothel: "canShowUpAtBrothel", robin_in_forest_shop: "inForestShop", robin_oxford_bare: "timesPcWalkedHomeTopless" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.outings[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.outings.amusements?.slot_win isnot undefined>>
+		<<set $robin.outings.amusements.slotWin to $robin.outings.amusements.slot_win>>
+		<<run delete $robin.outings.amusements.slot_win>>
+	<</if>>
+	<<if $robin.outings.amusements?.slotWin is 1>>
+		<<set $robin.outings.amusements.slotWin to true>>
+	<<elseif $robin.outings.amusements?.slotWin is 0>>
+		<<set $robin.outings.amusements.slotWin to false>>
+	<</if>>
+
+	<<set $robin.school ??= {}>>
+	<<for _oldName, _newName range { robinhistory: "historyClassStatus", robinexit: "canteenGoodbye", robinCDI: "infirmaryCrossdressingScene" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.school[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.stopmastur is 1>>
+		<<set $robin.school.stoppedPcMasturbatingInHistory to true>>
+	<<elseif $robin.stopmastur is 0>>
+		<<set $robin.school.stoppedPcMasturbatingInHistory to false>>
+	<</if>>
+	<<run delete $robin.stopmastur>>
+
+	<<set $robin.sex ??= {}>>
+	<<for _oldName, _newName range { robinUniqueComments: "encounterLinesSaid", robinWatchingMasturbation: "pcOrgasmsWhileWatched", robinWatchingMasturbationCount: "timesWatchedPcMasturbate" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.sex[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<<set $robin.reunion ??= {}>>
+	<<for _oldName, _newName range { robinReunionScene: "whichToPlay", robinPostMortem: "pcCanTellAboutUb" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.reunion[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<<set $robin.ub ??= {}>>
+	<<for _oldName, _newName range { robinTattoo: "tattoos", robinBeast: "huntBeast", robinDice: "numberOfDiceApproachers", robinDungeonKiss: "inKissEncounter", robinFucked: "beingRapedBesidePc", robinMachineSpeed: "machineSpeed", robinMetal: "inMetalScene", undergroundbrothelwithRobin: "arrivedWithPc" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.ub[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<set $robin.ub.tattoos ??= []>>
+	<<if $robin.ub.beingRapedBesidePc is 1>>
+		<<set $robin.ub.beingRapedBesidePc to true>>
+	<<elseif $robin.ub.beingRapedBesidePc is 0>>
+		<<set $robin.ub.beingRapedBesidePc to false>>
+	<</if>>
+
+	<<set $robin.christmas ??= {}>>
+	<<for _oldName, _newName range { christmas_gift_robin: "giftFromPc", christmas_gift_robin_wrapped: "pcWrappedGift", christmas_gift_robin_given: "pcGaveGift", christmas_robin_gift_received: "pcFoundCookies", christmas_robin_lewd: "invitedPcToUnwrap" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.christmas[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _name range ["pcWrappedGift", "invitedPcToUnwrap"]>>
+		<<if $robin.christmas[_name] is 1>>
+			<<set $robin.christmas[_name] to true>>
+		<</if>>
+	<</for>>
+	<!-- Bug fix: Robin's Christmas morning visit was never cleared after Christmas so it only played the first year -->
+	<<if $christmas_robin_visit isnot undefined>>
+		<<if $christmas is 1>>
+			<<set $robin.christmas.visitedPcInMorning to true>>
+		<</if>>
+		<<unset $christmas_robin_visit>>
+	<</if>>
+
+	<<set $robin.halloween ??= {}>>
+	<<for _oldName, _newName range { halloween_robin: "firstRoomVisit", halloween_robin_costume: "costumeWorn", halloween_robin_scare: "scarePlayed", forest_costume: "costumeBeingTriedOn" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $robin.halloween[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $robin.halloween.firstRoomVisit is 1>>
+		<<set $robin.halloween.firstRoomVisit to true>>
+	<</if>>
+	<<if $robin.halloween.costumeBeingTriedOn?.cd isnot undefined>>
+		<<set $robin.halloween.costumeBeingTriedOn.crossdressing to $robin.halloween.costumeBeingTriedOn.cd>>
+		<<run delete $robin.halloween.costumeBeingTriedOn.cd>>
+	<</if>>
+
+	<!-- Bug fix: Robin's punishment days kept counting after the pillory, so Robin was inactive in town and couldn't be punished for rent -->
+	<<if $robin.punishment.current is 0 and $robin.punishment.daysLeft gt 0>>
+		<<set $robin.punishment.daysLeft to 0>>
+	<</if>>
+	<!-- Bug fix: Robin stayed missing forever after escaping the underground brothel alone -->
+	<<if $robin.punishment.current is "underground" and !$baileySold>>
+		<<set $robin.punishment.current to 0>>
+	<</if>>
+	<!-- Bug fix: Robin's landfill note was never cleared when Robin came home from the landfill on their own, so it didn't replay the next time -->
+	<<if $robin.punishment.current isnot "landfill">>
+		<<run delete $robin.punishment.pcKnowsRobinAtLandfill>>
+	<</if>>
+<</widget>>

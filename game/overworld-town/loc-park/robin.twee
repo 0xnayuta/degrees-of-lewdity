@@ -1,7 +1,7 @@
 :: Robin Chocolate Widgets [widget]
 
 <<widget "robinChocolateOfferHelp">>
-	<<if ["helped", "sabotaged"].includes($balloonStand.robin.status) and $balloonStand.robin.talked is false and $robin.timer.customer is 0>>
+	<<if ["helped", "sabotaged"].includes($balloonStand.robin.status) and $balloonStand.robin.talked is false and $robin.money.balloonStandDaysUntilTalk is 0>>
 		<<balloonRobinTalk>>
 		<br><br>
 		<<link [[Tell Robin the truth|Balloon Robin Check-In]]>><<endevent>><<set $phase to ("confess_"+$balloonStand.robin.status)>><</link>>
@@ -23,12 +23,12 @@
 <<set $outside to 0>><<set $location to "park">><<effects>>
 <<npc Robin>><<person1>>
 
-<<if $robinchocolateintro isnot 1>>
-	<<set $robinchocolateintro to 1>><<set $daily.robin.freeDrink to 1>>
+<<if !Memories.Robin.has("firstHotChocolateStandVisit")>>
+	<<run Memories.Robin.add("firstHotChocolateStandVisit")>><<set $daily.robin.gavePcFreeDrink to true>>
 
 	Robin waves when <<he>> sees you. <<He>> stirs a steaming pot with <<his>> other hand. "Hey," <<he>> says. "People don't buy much lemonade when it's so cold. I'm selling hot chocolate instead. Here." <<He>> mixes warm milk from the pot with cocoa powder and sugar, then hands you the mug. It's very sweet.<<lstress>><<stress -6>>
 <<else>>
-	You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind <<his>> hot chocolate stand, wrapped up warm against the cold. <<print $robin.timer.hurt gte 1 ? "<<He>> glances away when <<he>> sees you." : C.npc.Robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : $robin.stayup is 2 ? "<<He>> startles awake when you approach <<him>>." : "<<He>> waves when <<he>> sees you.">>
+	You see Robin <<if $robin.stayedUp isnot 2>>stood<<else>>nodding off<</if>> behind <<his>> hot chocolate stand, wrapped up warm against the cold. <<print $robin.hurt.daysLeft gte 1 ? "<<He>> glances away when <<he>> sees you." : C.npc.Robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : $robin.stayedUp is 2 ? "<<He>> startles awake when you approach <<him>>." : "<<He>> waves when <<he>> sees you.">>
 <</if>>
 <br><br>
 <<robinChocolateOfferHelp>>
@@ -39,27 +39,27 @@
 <<wearProp "hot cocoa">>
 <<if Weather.bodyTemperature lte 39.0>><<set Weather.bodyTemperature to Weather.bodyTemperature + 1.0>><</if>>
 
-"<<print $robin.timer.hurt gte 1 ? "I guess." : "Sure!">> One hot chocolate, coming right up!" Robin says, turning to warm up the milk.
+"<<print $robin.hurt.daysLeft gte 1 ? "I guess." : "Sure!">> One hot chocolate, coming right up!" Robin says, turning to warm up the milk.
 <br><br>
 
 You slip £2 across the counter to <<him>>, and accept the offered mug once it's ready.
 <br><br>
 
-<<if $robin.timer.hurt gte 1>>
-	<<set $robinmoney += 2>>
+<<if $robin.hurt.daysLeft gte 1>>
+	<<set $robin.money.savings += 2>>
 	<<balloonRobinAngryPurchase>>
 
-<<elseif $robinpaid is 1 and $daily.robin.freeDrink isnot 1>>
-	<<set $daily.robin.freeDrink to 1>>
+<<elseif $robin.rent.pcPaysForRobin and !$daily.robin.gavePcFreeDrink>>
+	<<set $daily.robin.gavePcFreeDrink to true>>
 	"I-I can't take this from you..." <<he>> says, sliding the money back across the counter to you. "You're already paying Bailey for me. Besides, I'd just end up giving it back to you."
 	<<money 200>>
 
-<<elseif $robinpaid is 1>>
-	<<set $robinmoney += 2>>
+<<elseif $robin.rent.pcPaysForRobin>>
+	<<set $robin.money.savings += 2>>
 	"I... do have to take it from you this time," <<he>> says, frowning as <<he>> looks down at the money. "I have to pay for the powder and milk. I can't keep giving it away, even if I want to."
 
 <<else>>
-	<<set $robinmoney += 2>>
+	<<set $robin.money.savings += 2>>
 	"Thanks for your purchase!" <<he>> says with a smile, putting the money somewhere under the counter.
 
 <</if>>
@@ -114,7 +114,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 	<<endevent>>
 	<<link [[Next|Orphanage]]>><</link>>
 	<br>
-<<elseif $robin.timer.hurt gte 1>>
+<<elseif $robin.hurt.daysLeft gte 1>>
 	<<balloonRobinAngryHelp>>
 	<<robinChocolateOfferHelp>>
 <<else>>
@@ -164,7 +164,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 		<</if>>
 		<br><br>
 		You take the tray, and walk through the park. You find no shortage of cold and thirsty hands, and make sure to mention Robin's stand.
-		<<set $robinmoney += 5>>
+		<<set $robin.money.savings += 5>>
 		<<generate2>><<person2>>
 
 		<<if dangerEvent()>>
@@ -209,7 +209,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 				<br><br>
 				"See ya, <<lassie>>." Doren says before joining them.
 				<br><br>
-				<<set $robinmoney += 30>>
+				<<set $robin.money.savings += 30>>
 			<</if>>
 			<<person1>>
 			Robin smiles when you return to <<him>>.
@@ -236,8 +236,8 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 		<<npcincr Robin love 1>><<glove>><<ltrauma>><<lstress>><<trauma -3>><<stress -6>>
 		<br><br>
 
-		<<if dangerEvent() and !$daily.robin.parkSnow>>
-			<<set $daily.robin.parkSnow to 1>>
+		<<if dangerEvent() and !$daily.robin.snowballsThrownAtStand>>
+			<<set $daily.robin.snowballsThrownAtStand to true>>
 			A snowball hurtles through the air.
 			<<if _robin.trauma gte 40>>
 				Robin sees the snowball but freezes, only managing to flinch before <<hes>> hit with a faceful of snow. You duck and pull <<him>> down.
@@ -255,7 +255,7 @@ You take your time with the mug, letting it warm your hands as you sip away at t
 			<br>
 			<<link [[Take them all on|Robin Chocolate Take]]>><</link>>
 			<br>
-			<<if $robinromance is 1>>
+			<<if $robin.romance>>
 				<<link [[Make out|Robin Chocolate Kiss]]>><<npcincr Robin love 1>><<npcincr Robin lust 1>><</link>><<promiscuous1>><<glove>><<glust>>
 				<br>
 			<</if>>
@@ -495,7 +495,7 @@ Robin smiles when you return to <<him>>.
 <<He>> takes a mug of hot chocolate, thanks you, and walks away.
 <br><br>
 
-<<set $robinmoney += 5>>
+<<set $robin.money.savings += 5>>
 <<person1>>
 Robin smiles when you return to <<him>>.
 <<if _robin.trauma gte 40>>
@@ -585,7 +585,7 @@ Robin smiles when you return to <<him>>.
 	<br><br>
 
 	<<set _moneySaved to Math.round($masturbation_fluid / 100)>>
-	<<set $robinmoney += _moneySaved>>
+	<<set $robin.money.savings += _moneySaved>>
 
 	You walk to Harvest Street, to a rustic shop advertising fresh farm produce. They sell milk by the millilitre, and the proprietor is willing to top up your bottle.
 	<br><br>
@@ -990,6 +990,6 @@ You and Doren help Robin make the hot chocolate and pour it into $dorenhotchocoa
 <br><br>
 "Thanks a lot, you two!" Handing Robin £$dorenhotchocoprice, Doren packs them in <<person2>><<his>> bag, then waves goodbye with a smile before walking away.
 <br><br>
-<<set $robinmoney += $dorenhotchocoprice>>
+<<set $robin.money.savings += $dorenhotchocoprice>>
 <<unset $dorenhotchocoprice>><<unset $dorenhotchocoamount>>
 <<robinChocolateOfferHelp>>

@@ -3,17 +3,17 @@
 <<location "beach">><<effects>>
 <<set _robin to statusCheck("Robin")>>
 <<npc Robin>><<person1>>
-<<set _scandalous to ($robinromance is 1 and $worn.under_upper.type.includesAny("swim", "naked") and $worn.under_lower.type.includesAny("swim", "naked") and $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_upper.reveal gte 800 and $worn.under_lower.reveal gte 800)>>
+<<set _scandalous to ($robin.romance and $worn.under_upper.type.includesAny("swim", "naked") and $worn.under_lower.type.includesAny("swim", "naked") and $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_upper.reveal gte 800 and $worn.under_lower.reveal gte 800)>>
 
-<<if $daily.robin.passout gte 1 and !$daily.robin.passoutTalk>>
+<<if $daily.robin.foundPcPassedOut and !$daily.robin.askedAboutPcPassout>>
 	"Hey," <<he>> says as you draw close. "Are you feeling better? You had me worried, you know."
-	<<set $daily.robin.passoutTalk to 1>>
-<<elseif $robin.timer.hurt gte 1>>
+	<<set $daily.robin.askedAboutPcPassout to true>>
+<<elseif $robin.hurt.daysLeft gte 1>>
 	"Hey," <<he>> says as you draw close. <<He>> sounds distant, and doesn't greet you further. The silence is made more awkward by the lack of customers.
-<<elseif $robinlemonadeintro isnot 1>><<set $robinlemonadeintro to 1>><<set $daily.robin.freeDrink to 1>>
+<<elseif !Memories.Robin.has("firstLemonadeStandVisit")>><<run Memories.Robin.add("firstLemonadeStandVisit")>><<set $daily.robin.gavePcFreeDrink to true>>
 	<<wearProp "lemonade">>
-	"Hey," <<he>> says as you draw close. <<He>> <<= $robin.stayup is 2 ? "gives you a tired smile, stifling a yawn" : "beams">>. "It's nice to see you. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you the glass. "On the house." It's very sweet.
-<<elseif $robin.stayup is 2>>
+	"Hey," <<he>> says as you draw close. <<He>> <<= $robin.stayedUp is 2 ? "gives you a tired smile, stifling a yawn" : "beams">>. "It's nice to see you. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you the glass. "On the house." It's very sweet.
+<<elseif $robin.stayedUp is 2>>
 	"It's you," <<he>> says with a big yawn. "I should be trying to get more customers, but I'm too tired."
 <<elseif _robin.crossdressing is 2>>
 	<<if _robin.pronoun is "f">>
@@ -33,8 +33,8 @@
 		<<His>> <<npcClothesText _robin "upper">> and big smile makes <<him>> look like a happy girl.
 	<</if>>
 <<else>>
-	You see Robin <<if $robin.stayup isnot 2>>stood<<else>>nodding off<</if>> behind <<his>> lemonade stand.
-	<<print $robin.timer.hurt gte 1 ? "<<He>> glances away when <<he>> sees you." : _robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : _scandalous ? "<<He>> stares at you with <<his>> mouth agape, scandalised by your swimwear. <<He>> raises <<his>> hand in a tentative wave." : $robin.stayup is 2 ? "<<He>> startles awake when <<he>> sees you." : "<<He>> waves when <<he>> sees you.">>
+	You see Robin <<if $robin.stayedUp isnot 2>>stood<<else>>nodding off<</if>> behind <<his>> lemonade stand.
+	<<print $robin.hurt.daysLeft gte 1 ? "<<He>> glances away when <<he>> sees you." : _robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : _scandalous ? "<<He>> stares at you with <<his>> mouth agape, scandalised by your swimwear. <<He>> raises <<his>> hand in a tentative wave." : $robin.stayedUp is 2 ? "<<He>> startles awake when <<he>> sees you." : "<<He>> waves when <<he>> sees you.">>
 <</if>>
 <br><br>
 <<lemonade_stand_options>>
@@ -46,27 +46,27 @@
 <<money -100 "robin">>
 <<if Weather.bodyTemperature gte 36.5>><<set Weather.bodyTemperature to Math.max(Weather.bodyTemperature - 1.0, 36.5)>><</if>>
 
-"<<print $robin.timer.hurt gte 1 ? "I guess." : "Sure!">> Just give me a minute..." Robin says, pouring the lemonade into a glass.
+"<<print $robin.hurt.daysLeft gte 1 ? "I guess." : "Sure!">> Just give me a minute..." Robin says, pouring the lemonade into a glass.
 <br><br>
 
-<<He>> hands you the glass with a <<print $robin.timer.hurt gte 1 ? "blank expression" : "smile">>, and you slide £1 across the counter.
+<<He>> hands you the glass with a <<print $robin.hurt.daysLeft gte 1 ? "blank expression" : "smile">>, and you slide £1 across the counter.
 <br><br>
 
-<<if $robin.timer.hurt gte 1>>
-	<<set $robinmoney += 1>>
+<<if $robin.hurt.daysLeft gte 1>>
+	<<set $robin.money.savings += 1>>
 	<<balloonRobinAngryPurchase>>
 
-<<elseif $robinpaid is 1 and $daily.robin.freeDrink isnot 1>>
-	<<set $daily.robin.freeDrink to 1>>
+<<elseif $robin.rent.pcPaysForRobin and !$daily.robin.gavePcFreeDrink>>
+	<<set $daily.robin.gavePcFreeDrink to true>>
 	"I-I can't take this from you..." <<he>> says, pushing the money back across to you. "You're already paying Bailey for me. Besides, I'd just end up giving it back to you."
 	<<money 100 "robin">>
 
-<<elseif $robinpaid is 1>>
-	<<set $robinmoney += 1>>
+<<elseif $robin.rent.pcPaysForRobin>>
+	<<set $robin.money.savings += 1>>
 	"I... do have to take it from you this time," <<he>> says, frowning as <<he>> looks down at the money. "I have to pay for the ingredients. I can't keep giving it away, even if I want to."
 
 <<else>>
-	<<set $robinmoney += 1>>
+	<<set $robin.money.savings += 1>>
 	"Thanks for your purchase!" <<he>> says with a smile, putting the money under the counter.
 
 <</if>>
@@ -123,7 +123,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 	<<endevent>>
 	<<link [[Next|Orphanage]]>><</link>>
 	<br>
-<<elseif $robin.timer.hurt gte 1>>
+<<elseif $robin.hurt.daysLeft gte 1>>
 	<<balloonRobinAngryHelp>>
 	<<lemonade_stand_options>>
 <<else>>
@@ -176,8 +176,8 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 			<<lemonade_stand_options>>
 		<</if>>
 	<<elseif $rng gte 61>>
-		<<if $robinsignintro isnot 1>>
-			<<set $robinsignintro to 1>>
+		<<if !Memories.Robin.has("firstLemonadeSign")>>
+			<<run Memories.Robin.add("firstLemonadeSign")>>
 			<<He>> crouches behind the stand, and emerges holding a sign. It has "Robin's Lemonade" written on it, with directions beneath.
 			<<if _robin.trauma gte 40>>
 				"Hey... can you hold this sign and walk around a bit? Just to help get some more customers."
@@ -192,7 +192,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 		You take the sign and walk down the beach.
 		<br><br>
 		You see people read the sign, but don't know if any are convinced by it.
-		<<famebusiness 1>><<set $robinmoney += 5>>
+		<<famebusiness 1>><<set $robin.money.savings += 5>>
 		<br><br>
 		<<link [[Keep trying|Robin's Lemonade Sign]]>><</link>>
 		<br>
@@ -245,7 +245,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 		<</if>>
 		<br><br>
 		"Thanks!" Doren pays Robin before walking off.
-		<<set $robinmoney += _dorenlemonade>>
+		<<set $robin.money.savings += _dorenlemonade>>
 		<br><br>
 		<<lemonade_stand_options>>
 	<<elseif $rng gte 21>>
@@ -253,10 +253,10 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 			"I'm out of water. I don't want to be alone but could you buy some more?" Robin says nervously. "There's some on High Street that's cheap, but there's some nearby and I don't want you to be away very long..."
 			<<He>> places <<his>> hand in yours, giving you £20. <<His>> hand lingers longer than necessary. "Please, hurry back."
 			<<set _extramoney to true>>
-			<<set $robinmoney -= 20>>
+			<<set $robin.money.savings -= 20>>
 		<<else>>
 			"I need more water. I go through it so quickly. I don't like asking because it's heavy, but could you buy some more? You'll need to go to High Street to find it cheap. They charge too much nearby." <<He>> hands you £2. "That's enough for a large bottle."
-			<<set $robinmoney -= 2>>
+			<<set $robin.money.savings -= 2>>
 		<</if>>
 		<br><br>
 		<<if _robin.trauma gte 40>>
@@ -297,8 +297,8 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 		<<npcincr Robin love 1>><<glove>><<ltrauma>><<lstress>><<trauma -3>><<stress -6>>
 		<br><br>
 
-		<<if dangerEvent() and $daily.robin.beachPolice isnot 1>>
-			<<set $daily.robin.beachPolice to 1>>
+		<<if dangerEvent() and !$daily.robin.policeCheckedPermit>>
+			<<set $daily.robin.policeCheckedPermit to true>>
 			<<endevent>><<generatePolice 1>><<generatePolice 2>>A <<fullGroup>>, both dressed in police uniforms, approach the stand.
 			<<if _robin.trauma gte 40>>
 				Robin looks intimidated by them, "O-one pound fo—"
@@ -321,11 +321,11 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 			<<link [[Comfort Robin|Robin's Lemonade Comfort]]>><</link>>
 			<br>
 			<<if $money gte 10000>>
-				<<link [[Pay for Robin|Robin's Lemonade Pay]]>><<money -10000 "robin">><<set $daily.robin.policePay to 1>><<famegood 3>><</link>>
+				<<link [[Pay for Robin|Robin's Lemonade Pay]]>><<money -10000 "robin">><<set $daily.robin.pcPaidPolice to true>><<famegood 3>><</link>>
 				<br>
 			<</if>>
 			<<if hasSexStat("promiscuity", 3)>>
-				<<link [[Offer your body|Robin's Lemonade Offer]]>><<famegood 3>><<set $daily.robin.policeBody to 1>><</link>>
+				<<link [[Offer your body|Robin's Lemonade Offer]]>><<famegood 3>><<set $daily.robin.pcOfferedPoliceBody to true>><</link>>
 				<br>
 			<</if>>
 			<<if displayDefiantOption(500)>>
@@ -397,7 +397,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 		<</if>>
 		<br><br>
 		"Thanks!" Doren pays Robin before walking off.
-		<<set $robinmoney += _dorenlemonade>>
+		<<set $robin.money.savings += _dorenlemonade>>
 <<else>>
 	<<generate2>><<person2>>
 	You walk to the other end of the populated part of the beach, and then back to Robin. <<person1>><<Hes>> servicing a <<person2>><<person>>.
@@ -456,7 +456,7 @@ You down the glass almost in one go, listening to the waves as you watch the tid
 	You decide to be more assertive, flirting with potential customers and disarming them with charm. When you return to Robin there's a queue. <<He>> smiles at you.
 	<br><br>
 	"I don't know how you did it, but thank you." <<He>> kisses you on the cheek.
-	<<glove>><<npcincr Robin love 1>><<ltrauma>><<lstress>><<trauma -3>><<stress -6>><<set $robinmoney += 5>>
+	<<glove>><<npcincr Robin love 1>><<ltrauma>><<lstress>><<trauma -3>><<stress -6>><<set $robin.money.savings += 5>>
 	<br><br>
 	<<lemonade_stand_options>>
 <<else>>
@@ -518,7 +518,7 @@ You walk to High Street and buy a large bottle of water. You return to the beach
 <</if>>
 <<if _robin.trauma gte 40>>
 	You quietly put Robin's change back on <<his>> table.
-	<<set $robinmoney += 18>>
+	<<set $robin.money.savings += 18>>
 	<br><br>
 <</if>>
 <<lemonade_stand_options>>
@@ -536,7 +536,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 		<br><br>
 
 		You quietly leave the £20 <<he>> gave you on the stand.
-		<<set $robinmoney += 20>>
+		<<set $robin.money.savings += 20>>
 	<</if>>
 <<else>>
 	"How did you—" <<He>> pauses. "You can't have carried these all that way."
@@ -546,7 +546,7 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 	<br><br>
 
 	"You're so good with money. Thank you." You quietly leave the £2 <<he>> gave you on the stand.
-	<<set $robinmoney += 2>>
+	<<set $robin.money.savings += 2>>
 <</if>>
 <<npcincr Robin love 1>><<glove>>
 <br><br>
@@ -571,10 +571,10 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 	<<if _robin.trauma gte 40>>
 		"Thank you so much! I'm glad you weren't gone that long, I was starting to get worried." Robin looks like a load has been taken off <<his>> back.
 		When you get back to <<his>> stand <<he>> hugs you tightly. You quietly leave the £20 <<he>> gave you on the counter.
-		<<set $robinmoney += 20>>
+		<<set $robin.money.savings += 20>>
 	<<else>>
 		"I've never thought of that," <<he>> says. "You're so clever." You quietly leave the £2 <<he>> gave you on the counter.
-		<<set $robinmoney += 2>>
+		<<set $robin.money.savings += 2>>
 	<</if>>
 	<<npcincr Robin love 1>><<glove>>
 	<br><br>
@@ -696,12 +696,12 @@ You buy four large bottles of water and haul them back to Robin. Their weight ma
 <</if>>
 <<if _robin.trauma gte 40>>
 	You quietly leave the £20 <<he>> gave you on the stand.
-	<<set $robinmoney += 20>>
+	<<set $robin.money.savings += 20>>
 <<else>>
 	"I found it discounted at a closer shop," you say.
 	<br><br>
 	"You're so good with money. Thank you." You quietly leave the £2 <<he>> gave you on the stand.
-	<<set $robinmoney += 2>>
+	<<set $robin.money.savings += 2>>
 <</if>>
 <<npcincr Robin love 1>><<glove>>
 <br><br>

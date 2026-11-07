@@ -137,8 +137,8 @@ You are in your bedroom.
 
 /* Events */
 <br><br>
-<<if $robinbed is "yours" and Time.dayState !== "night" and !$possessed>>
-	<<unset $robinbed>><<unset $bedGuest>>
+<<if $robin.orphanage.whoseBedTonight is "yours" and Time.dayState !== "night" and !$possessed>>
+	<<unset $robin.orphanage.whoseBedTonight>><<unset $bedGuest>>
 	<<npc Robin>><<person1>>Robin yawns and heads to <<his>> own room.<<endevent>>
 	<<if Time.hour is 6 and Time.minute lte 20>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
 	<br><br>
@@ -182,8 +182,8 @@ You are in your bedroom.
 	<<exit>>
 <</if>>
 
-<<if $christmas is 1 and Time.monthDay is 25 and $christmas_robin_visit is undefined and $christmas_robin_gift_received is undefined and Time.dayState isnot "night" and C.npc.Robin.init is 1 and !$possessed>>
-	<<set $christmas_robin_visit to true>>
+<<if $christmas is 1 and Time.monthDay is 25 and !$robin.christmas.visitedPcInMorning and $robin.christmas.pcFoundCookies is undefined and Time.dayState isnot "night" and C.npc.Robin.init is 1 and !$possessed>>
+	<<set $robin.christmas.visitedPcInMorning to true>>
 	<<christmas_robin_visit>>
 	<<exit>>
 <</if>>
@@ -201,10 +201,10 @@ You are in your bedroom.
 	<br><br>
 <</if>>
 
-<<if $robinpaid is 1 and $robinmissing is 0 and $robinnote isnot 1 and C.npc.Robin.lust gte 10 and C.npc.Robin.love gte 60 and C.npc.Robin.trauma lt 10>>
+<<if $robin.rent.pcPaysForRobin and $robin.punishment.current is 0 and !Memories.Robin.has("confessionNoteRead") and C.npc.Robin.lust gte 10 and C.npc.Robin.love gte 60 and C.npc.Robin.trauma lt 10>>
 	<span class="gold">There's a note by the window.</span>
 	<br>
-	<<mysteryicon>><<link [[Read it|Robin Note]]>><<set $robinnote to 1>><</link>>
+	<<mysteryicon>><<link [[Read it|Robin Note]]>><<run Memories.Robin.add("confessionNoteRead")>><</link>>
 	<br><br>
 <</if>>
 
@@ -224,7 +224,7 @@ Your bed takes up most of the room.
 <<set _bed to Furniture.get('bed')>>
 <<if $nextPassageCheck is "Bed">>
 	<br>
-	<<if $robinbed is "yours" or $robinbed is "theirs">>
+	<<if $robin.orphanage.whoseBedTonight is "yours" or $robin.orphanage.whoseBedTonight is "theirs">>
 		<span class="nextLink"><<furnitureicon _bed.iconFile>><<link [[Robin.|Bed]]>><</link>></span>
 	<<else>>
 		<span class="nextLink"><<furnitureicon _bed.iconFile>><<link [[Kylar.|Bed]]>><</link>></span>
@@ -384,7 +384,7 @@ The hallway outside connects to the rest of the orphanage.
 		<br>
 		<<robinroom_link>>
 		<br>
-		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
+		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robin.punishment.current is 0 and !Memories.Robin.has("pcHeardRobinCrying")>>
 			<<main_hall_icon>><<link [[Main hall (0:01)|Robin Trauma Visit]]>><<set $phase to 1>><<pass 1>><</link>>
 			<br>
 		<<else>>
@@ -429,7 +429,7 @@ The hallway outside connects to the rest of the orphanage.
 	<br>
 	<<robinroom_link>>
 	<br>
-	<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
+	<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robin.punishment.current is 0 and !Memories.Robin.has("pcHeardRobinCrying")>>
 		<<main_hall_icon>><<link [[Main hall (0:01)|Robin Trauma Visit]]>><<set $phase to 1>><<pass 1>><</link>>
 		<br>
 	<<else>>
@@ -765,7 +765,7 @@ You stare right at the lens. "I wonder who I'll invite over," you say. You stick
 	<<getouticon>><<link [[Get out of bed|Bedroom Bailey]]>><<endevent>><</link>>
 	<br><br>
 
-<<elseif $robinmissing is "landfill" and !$robinmistknown>>
+<<elseif $robin.punishment.current is "landfill" and !$robin.punishment.pcKnowsRobinAtLandfill>>
 	<<getouticon>><<link [[Get out of bed|Bedroom Robin Mist Note]]>><<endevent>><</link>>
 	<br><br>
 <<else>>
@@ -777,7 +777,7 @@ You stare right at the lens. "I wonder who I'll invite over," you say. You stick
 <<set _robin to statusCheck("Robin")>>
 <<bedclotheson "bed">><<wearProp "paper sheet">>
 
-<<set $robinmistknown to 1>>
+<<set $robin.punishment.pcKnowsRobinAtLandfill to true>>
 When you wake up, you notice a note pushed under your door. You read it.
 <br><br>
 
@@ -786,7 +786,7 @@ When you wake up, you notice a note pushed under your door. You read it.
 <br>They told me to tell you to come to <span class="gold">the landfill on Elk Street</span>.
 <br></i>
 <<if _robin.dom gte 80>>
-	<i>Please be careful.<<if $robinromance>> I love you.<</if>></i>"
+	<i>Please be careful.<<if $robin.romance>> I love you.<</if>></i>"
 <<else>>
 	<i>Please help. I'm scared.</i>"
 	<br><br>
@@ -986,7 +986,7 @@ You are in the bathroom.
 <<effects>>
 <<sleepeffects>><<rngWraith 2 "noBlood">>
 <<if $sleepWraith>>
-	<<set $wraith.mimic to "Robin">><<set $wraith.exit to "sleep">><<unset $sleepWraith>><<unset $robinbed>><<unset $bedGuest>>
+	<<set $wraith.mimic to "Robin">><<set $wraith.exit to "sleep">><<unset $sleepWraith>><<unset $robin.orphanage.whoseBedTonight>><<unset $bedGuest>>
 	You sleep soundly, and wake up refreshed.
 	<br><br>
 
@@ -1009,8 +1009,8 @@ You are in the bathroom.
 	<br><br>
 
 	<<link [[Next|Wraith Mimic Fight]]>><</link>>
-<<elseif $robindebtwake is 1 and $robinbed is undefined>>
-	<<set $robindebtwake to 0>><<set $robindebtknown to 1>>
+<<elseif $robin.rent.willRevealDebtToPcTonight and $robin.orphanage.whoseBedTonight is undefined>>
+	<<set $robin.rent.willRevealDebtToPcTonight to false>><<run Memories.Robin.add("pcKnowsRobinPaysBailey")>>
 	<<npc Robin>><<person1>>You're awoken by your door opening. You freeze in fear, until you see Robin peek through the gap. "Can I come in?" <<he>> asks.
 	<br><br>
 	<<if $exposed gte 1>>
@@ -1026,8 +1026,8 @@ You are in the bathroom.
 	<<endevent>>
 	<<link [[Next|Bed]]>><</link>>
 	<br>
-<<elseif _wraithEvent and _robin.lovewake is 1 and $robinromance is 1 and C.npc["Ivory Wraith"].lust gte 14 and $rng gte 61>>
-	<<set _robin.lovewake to 0>><<set $wraith.mimic to "Robin">><<set $wraith.exit to "home">><<set $robinbed to "yours">>
+<<elseif _wraithEvent and _robin.lovewake is 1 and $robin.romance and C.npc["Ivory Wraith"].lust gte 14 and $rng gte 61>>
+	<<set _robin.lovewake to 0>><<set $wraith.mimic to "Robin">><<set $wraith.exit to "home">><<set $robin.orphanage.whoseBedTonight to "yours">>
 	<<npc Robin>><<person1>>You feel a presence. Robin wraps <<his>> arms around you.
 	<br><br>
 
@@ -1035,7 +1035,7 @@ You are in the bathroom.
 	<br>
 	<<link [[Kiss|Wraith Mimic Fight]]>><<set $sexstart to 1>><</link>>
 <<elseif _robin.lovewake is 1>>
-	<<set _robin.lovewake to 0>><<set $robinbed to "yours">><<set $bedGuest to "Robin">>
+	<<set _robin.lovewake to 0>><<set $robin.orphanage.whoseBedTonight to "yours">><<set $bedGuest to "Robin">>
 	<<npc Robin>><<person1>>You feel a familiar presence. Robin wraps <<his>> arms around you.
 	<<if _robin.trauma gte 50>>
 		"I'm sorry," you hear <<his>> voice whisper into your ear. "I keep having nightmares..."
@@ -1064,7 +1064,7 @@ You are in the bathroom.
 	It's surrounded by trees, all bending inwards, and floating above a lake. Everything moves around you, and you find yourself hanging above a large ruin. You can't breathe.
 	<br><br>
 	You slowly open your eyes, and sluggishly stand from your bed.
-	<<if $robinbed is "yours" or $robinbed is "theirs">>
+	<<if $robin.orphanage.whoseBedTonight is "yours" or $robin.orphanage.whoseBedTonight is "theirs">>
 		You make sure not to wake Robin.
 	<<elseif $kylarbed is 1>>
 		You make sure not to wake Kylar.
@@ -1077,8 +1077,8 @@ You are in the bathroom.
 <<elseif $baileyrapewake is 1>>
 	<<set $baileyrapewake to 0>>
 	<<generate1>><<person1>>You awaken to a shape looming over you and hands pulling off your covers. It's a <<person>>. "Don't struggle," <<he>> says.
-	<<if $robinbed is "yours" or $kylarbed is 1>>
-		"We wouldn't want to wake up your friend." <<if $robinbed is "yours">>Robin<<else>>Kylar<</if>> lies beside you, still asleep.
+	<<if $robin.orphanage.whoseBedTonight is "yours" or $kylarbed is 1>>
+		"We wouldn't want to wake up your friend." <<if $robin.orphanage.whoseBedTonight is "yours">>Robin<<else>>Kylar<</if>> lies beside you, still asleep.
 	<</if>>
 	"You looked so cute, cosy and safe sleeping. I couldn't help myself."
 	<br><br>
@@ -1237,14 +1237,14 @@ You are in the bathroom.
 		<</if>>
 	<</if>>
 	<!-- writers please do something for when kylar goes to your bed and finds that it is already occupied by robin. this will be here until then -->
-	<<if $kylarbed is 1 and $robinbed is "yours">>
-		<<unset $robinbed>>
+	<<if $kylarbed is 1 and $robin.orphanage.whoseBedTonight is "yours">>
+		<<unset $robin.orphanage.whoseBedTonight>>
 	<</if>>
-	<<if $robinbed is "yours">>
-		<<unset $robinbed>><<unset $bedGuest>>
+	<<if $robin.orphanage.whoseBedTonight is "yours">>
+		<<unset $robin.orphanage.whoseBedTonight>><<unset $bedGuest>>
 		<<npc Robin>><<person1>>
 		<<if _eggLayingWake>>
-			<<set $robinbed to "yours">>
+			<<set $robin.orphanage.whoseBedTonight to "yours">>
 			You awaken a bit earlier than you expected, feeling disoriented. There's a building pressure in your abdomen. You <<if $transformationParts.bird.wings isnot "hidden">>ruffle your wings as you <</if>>feel a wild, bestial instinct take over.
 			<br><br>
 
@@ -1301,11 +1301,11 @@ You are in the bathroom.
 
 			<<link [[Next|Kylar Orphanage Cuddle]]>><<unset $kylarbed>><</link>>
 
-		<<elseif $rng gte 81 and $robinmissing is 0 and C.npc.Robin.init is 1>>
+		<<elseif $rng gte 81 and $robin.punishment.current is 0 and C.npc.Robin.init is 1>>
 			You awaken to the sound of your door creaking open. You hear somebody gasp, before they hurriedly shut the door.
 			<br><br>
 
-			"Who was that...?" you yawn, slowly untangling from Kylar. <<if $robinromance is 1>><<lllove "Robin">><<npcincr Robin love -5>><</if>>
+			"Who was that...?" you yawn, slowly untangling from Kylar. <<if $robin.romance>><<lllove "Robin">><<npcincr Robin love -5>><</if>>
 			<br><br>
 
 			"Don't know," Kylar says, rubbing <<his>> eyes. "Probably nobody important."
@@ -1355,7 +1355,7 @@ You are in the bathroom.
 			<<getouticon>><<link [[Get out of bed|Bedroom Bailey]]>><</link>>
 			<br><br>
 
-		<<elseif $robinmissing is "landfill" and !$robinmistknown>>
+		<<elseif $robin.punishment.current is "landfill" and !$robin.punishment.pcKnowsRobinAtLandfill>>
 			<<getouticon>><<link [[Get out of bed|Bedroom Robin Mist Note]]>><</link>>
 			<br><br>
 		<<else>>
@@ -1464,7 +1464,7 @@ You are in the bathroom.
 			<</if>>
 		<</if>>
 	<</if>>
-	<<unset $robinbed>>
+	<<unset $robin.orphanage.whoseBedTonight>>
 	<<npc Robin>><<person1>>
 	<<if $rentTime gte 1>> <!-- If Rent is not due -->
 		<<if _robin_location is "orphanage" or _robin_location is "sleep">>
@@ -1472,7 +1472,7 @@ You are in the bathroom.
 				<<set _robinSleepyChance to ((Time.hour * 60) - 360) * 4/3>> <!-- 0% at 6, 80% at 7, and 100% starting at 7:15 -->
 				<<set _robinAwakeChance to ((Time.hour * 60) - 420) * 5/3>> <!-- 0% at 7, then increases to 100% by 8 -->
 				<<if _eggLayingWake>>
-					<<set $robinbed to "theirs">>
+					<<set $robin.orphanage.whoseBedTonight to "theirs">>
 					You awaken a bit earlier than you expected, feeling disoriented. There's a building pressure in your abdomen. You <<if $transformationParts.bird.wings isnot "hidden">>ruffle your wings as you <</if>>feel a wild, bestial instinct take over.
 					<br><br>
 
@@ -1519,7 +1519,7 @@ You are in the bathroom.
 	<<endevent "phaseless">>
 	<<if $rentTime lte 0>>
 		<<set $bus to "home">>
-		<<set $inRobinsRoom to true>>
+		<<set $robin.rent.collectedInRobinsRoom to true>>
 		<<link [[Next|Bedroom Bailey]]>><<set $wardrobe_location to "wardrobe">><</link>>
 		<br><br>
 	<<else>>
@@ -1719,7 +1719,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 <<run statusCheck("Kylar")>>
 
 <<if getRobinLocation() is "bath" and C.npc.Robin.trauma lt 40 and $halloween isnot 1>>
-	<<set $daily.robin.bath to true>><<npc Robin>>
+	<<set $daily.robin.metPcInBath to true>><<npc Robin>>
 
 	As you enter the bath, you hear footsteps from the hallway. The door flings open, and
 	<<if $exhibitionism lte 55>>
@@ -1727,7 +1727,7 @@ The water's getting cold. "I'm squeaky clean," you say. "Thanks for the help." T
 	<<else>>
 		you see Robin walk in.
 	<</if>>
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		<<if C.npc.Robin.dom gte 60>>
 			"Oh, I didn't think anyone would be in here," <<he>> says. "Would you mind if I joined you?" <<Hes>> already starting to undress.
 			<br><br>
@@ -2118,7 +2118,7 @@ You've pushed yourself too much.
 :: Bed
 <<effects>>
 <<wearoutfit>>
-<<if $robinbed is "yours">>
+<<if $robin.orphanage.whoseBedTonight is "yours">>
 	You snuggle under the covers with Robin.
 <<else>>
 	<<if numberOfEarSlime() and $location is "home" and random(0,100) lt 3 + Math.floor($earSlime.growth / 100) - $earSlime.eventTimer and !$earSlime.event>>
@@ -2347,8 +2347,8 @@ You snuggle under the covers with Kylar.
 <<wearoutfit>>
 <<npc Robin>><<person1>>
 
-You snuggle under the covers with Robin. You can feel the heat from <<his>> <<print ($robinromance is 1 and C.npc.Robin.trauma lte 20 ? "naked " : "")>>body warming the bed.
-<<set $robinbed to "theirs">><<set $bedGuest to "Robin">>
+You snuggle under the covers with Robin. You can feel the heat from <<his>> <<print ($robin.romance and C.npc.Robin.trauma lte 20 ? "naked " : "")>>body warming the bed.
+<<set $robin.orphanage.whoseBedTonight to "theirs">><<set $bedGuest to "Robin">>
 
 <<if $wraith.state and $wraithPrison and ($moonstate is "evening" or $moonstate is _nightstate)>>
 	You feel anxious, and your eyes dart over to the mirror.
@@ -2372,7 +2372,7 @@ You are in the main hall of the orphanage.
 <<if $christmas is 1 and Time.monthDay is 25 and Time.dayState isnot "night">>
 	The room is alive with festive merriment.
 <<elseif $halloween is 1 and Time.monthDay is 31 and Time.hour gte 15 and Time.dayState isnot "night">>
-	<<if !$halloween_robin_costume and !$halloween_robin_scare and ($wraith.state isnot "" and $wraithIntro and $hallucinations gte 1 and $rng lte 70)>>
+	<<if !$robin.halloween.costumeWorn and !$robin.halloween.scarePlayed and ($wraith.state isnot "" and $wraithIntro and $hallucinations gte 1 and $rng lte 70)>>
 		<!-- This event happens if Robin is wearing the ghost costume, but you don't know that it's Robin. -->
 		<!-- The odds are 70% if you meet the conditions, much higher than normal, bc this is a non-repeatable event -->
 		<<set _wraithEvent to true>>
@@ -2423,7 +2423,7 @@ You are in the main hall of the orphanage.
 	<<if isRentDue() or isBaileyLookingForPlayer()>>
 		"Pay your dues next time so we won't have to go through this again. Speaking of which..." <<He>> holds out <<his>> hand.
 		<<endevent>>
-		<<if $robinfirstrentfight and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
+		<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
 			<<rentduerobin 0>>
 		<<else>>
 			<<rentdue 0>>
@@ -2436,7 +2436,7 @@ You are in the main hall of the orphanage.
 
 		Bailey walks back into <<his>> office. You rub your cheek as you trudge to your bedroom.
 		<br>
-		<<if $robinReunionScene is "dungeon" or $robinReunionScene is "dungeonRobin">>
+		<<if $robin.reunion.whichToPlay is "dungeon" or $robin.reunion.whichToPlay is "dungeonRobin">>
 			<span class="blue"><i>Robin's probably worried sick about you. You should check on <<nnpc_him "Robin">> when you get the chance.</i></span>
 			<br>
 		<</if>>
@@ -2450,7 +2450,7 @@ You are in the main hall of the orphanage.
 
 		Bailey walks back into <<his>> office. You rub your cheek as you trudge to your bedroom.
 		<br>
-		<<if $robinReunionScene is "dungeon" or $robinReunionScene is "dungeonRobin">>
+		<<if $robin.reunion.whichToPlay is "dungeon" or $robin.reunion.whichToPlay is "dungeonRobin">>
 			<span class="blue"><i>Robin's probably worried sick about you. You should check on <<nnpc_him "Robin">> when you get the chance.</i></span>
 			<br>
 		<</if>>
@@ -2465,7 +2465,7 @@ You are in the main hall of the orphanage.
 <<elseif isRentDue() or isBaileyLookingForPlayer()>>
 	<<set $bus to "home">>
 	A hand rests on your shoulder from behind. <span class="red">It's Bailey.</span>
-	<<if $robinfirstrentfight and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
+	<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
 		<<rentduerobin 0>>
 	<<else>>
 		<<rentdue 0>>
@@ -2500,7 +2500,7 @@ You are in the main hall of the orphanage.
 	<<else>>
 		<<bedroomEntryEvent "forced">>
 	<</if>>
-<<elseif $robinmissing is "pillory" and !$robinPillory.known and $robinPillory.active and Time.hour gte 7 and Time.hour lte 15>>
+<<elseif $robin.punishment.current is "pillory" and !$robin.punishment.pillory.known and $robin.punishment.pillory.active and Time.hour gte 7 and Time.hour lte 15>>
 	<<generatey1>><<person1>>
 	<<npc Robin 2>>
 
@@ -2537,9 +2537,9 @@ You are in the main hall of the orphanage.
 
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>
 
-<<elseif Time.dayState isnot "night" and $robin.abandoned is 1 and $robinmissing is 0 and C.npc.Robin.init is 1>>
+<<elseif Time.dayState isnot "night" and $robin.punishment.abandonedByPcAtDocks and $robin.punishment.current is 0 and C.npc.Robin.init is 1>>
 	<<npc Robin>><<person1>>
-	<<unset $robin.abandoned>>
+	<<unset $robin.punishment.abandonedByPcAtDocks>>
 	A pair of orphans approach you to let you know that Robin has come back from the docks. They say that <<he>> headed straight to <<his>> room. <<He>> hasn't left for hours now. <<lhope>><<hope -1>>
 	<br><br>
 
@@ -2551,7 +2551,7 @@ You are in the main hall of the orphanage.
 
 
 <<elseif Time.days gte 1 and _robin.init is 0 and Time.hour gte 7 and Time.hour lte 20 and !(Time.schoolDay and between(Time.hour, 8, 15))>>
-	<<set $robindebt to 0>><<set $robindebtlimit to 5>>
+	<<set $robin.rent.missedPayments to 0>><<set $robin.rent.missedPaymentLimit to 5>>
 	<<npc Robin>><<person1>>You hear a voice shout behind you. "Hey!" It's Robin. <<Hes>> another resident at the orphanage. <<Hes>> always looked up to you, despite being about the same age. <<He>> runs towards you and fails to slow down in time, colliding with you and almost falling over. You hold <<his>> arm to steady <<him>>. "Thanks," <<he>> says, looking embarrassed though still smiling.
 	<br><br>
 	"I didn't see you yesterday. Remember, <span class="gold">you can visit me in my room</span> anytime you want. I have something to show you. I'm so excited!" <<He>> hugs you, then runs off before you can respond.
@@ -2608,8 +2608,8 @@ You are in the main hall of the orphanage.
 
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>
 	<br>
-<<elseif $christmas is 1 and Time.monthDay is 25 and $robinmissing is 0 and _robin.init is 1 and $christmas_robin_gift_received is undefined and Time.hour gte 7>>
-	<<set $christmas_robin_gift_received to true>>
+<<elseif $christmas is 1 and Time.monthDay is 25 and $robin.punishment.current is 0 and _robin.init is 1 and $robin.christmas.pcFoundCookies is undefined and Time.hour gte 7>>
+	<<set $robin.christmas.pcFoundCookies to true>>
 	<<wearProp "choc chip cookie gift">><<canvas-model-override "mouth" "chew">>
 	You spot a present laid under the tree with your name on it. It's from Robin.
 	<br><br>
@@ -2618,8 +2618,8 @@ You are in the main hall of the orphanage.
 
 	<<link [[Next|Orphanage]]>><</link>>
 	<br>
-<<elseif $christmas is 1 and Time.monthDay is 25 and $robinmissing is 0 and $christmas_gift_robin_wrapped is 1 and $christmas_gift_robin_given is undefined and Time.dayState isnot "night">>
-	<<set $christmas_gift_robin_given to true>>
+<<elseif $christmas is 1 and Time.monthDay is 25 and $robin.punishment.current is 0 and $robin.christmas.pcWrappedGift and $robin.christmas.pcGaveGift is undefined and Time.dayState isnot "night">>
+	<<set $robin.christmas.pcGaveGift to true>>
 	<<christmas_robin>>
 <<elseif $valentines is 1 and Time.monthDay is 14 and Time.hour gte 16 and !$daily.orphan_valentine>>
 		<<set $daily.orphan_valentine to true>>
@@ -2642,7 +2642,7 @@ You are in the main hall of the orphanage.
 <<elseif $daily.homeEvent isnot 1 and Time.hour gte 6 and Time.hour lte 21>>
 	<<set $daily.homeEvent to 1>>
 	<<homeevent>>
-<<elseif getRobinLocation() is "orphanage" and $avery_mansion and !$avery_mansion_robin and Time.hour gte 6 and Time.hour lte 21 and !$fromRobinRoom and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
+<<elseif getRobinLocation() is "orphanage" and $avery_mansion and !$avery_mansion_robin and Time.hour gte 6 and Time.hour lte 21 and !$robin.room.pcJustLeft and $avery_fate isnot "fallen" and $avery_fate isnot "kicked">>
 	<<set $avery_mansion_robin to 1>>
 	<<npc Robin>><<person1>>
 	<<generatey2>>
@@ -2669,8 +2669,8 @@ You are in the main hall of the orphanage.
 		<br>
 	<</if>>
 <<elseif Time.hour gte 16 and Time.hour lte 21 and getRobinLocation() is "orphanage"
-and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily.robin.cdevent>>
-	<<set $daily.robin.cdevent to 1>>
+and !$robin.room.pcJustLeft and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily.robin.crossdressingStoryAdvanced>>
+	<<set $daily.robin.crossdressingStoryAdvanced to true>>
 	<<npc Robin>><<person1>>
 	<<generatey2>><<person2>>
 
@@ -2716,10 +2716,11 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 		<br>
 		<br>
 	<</if>>
-	<<if $halloween is 1 and Time.monthDay is 31 and !$fromRobinRoom and $robinmissing is 0 and Time.hour gte 16 and Time.hour lt 19 and _robin.init is 1>>
-		<<if $halloween_robin_costume>>
-			You see Robin, dressed as a $halloween_robin_costume and surrounded by excited orphans.
+	<<if $halloween is 1 and Time.monthDay is 31 and !$robin.room.pcJustLeft and $robin.punishment.current is 0 and Time.hour gte 16 and Time.hour lt 19 and _robin.init is 1>>
+		<<if $robin.halloween.costumeWorn>>
+			You see Robin, dressed as a $robin.halloween.costumeWorn and surrounded by excited orphans.
 		<<elseif _wraithEvent>>
+			<<set $robin.halloween.scarePlayed to true>>
 			You see someone wearing a bedsheet over their head. They're completely motionless, and the hall is empty and silent. <span class="red">The bedsheet is a terrible, familiar pale.</span>
 			<br><br>
 
@@ -2771,8 +2772,8 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 	<br>
 <</if>>
 
-<<if $fromRobinRoom>>
-	<<unset $fromRobinRoom>>
+<<if $robin.room.pcJustLeft>>
+	<<unset $robin.room.pcJustLeft>>
 <</if>>
 
 :: Orphanage Handheld
@@ -2850,7 +2851,7 @@ You celebrate Christmas with the other residents.
 	<<elseif $rng gte 71>>
 		A <<generatey1>><<person1>><<person>> passes a gift to a <<generatey2>><<person2>><<person>>. <<He>> looks delighted, but is patient enough to resist unwrapping it on the spot.
 	<<elseif $rng gte 61>>
-		<<if $robinmissing is 0>>
+		<<if $robin.punishment.current is 0>>
 			<<wearProp "packet of sweets">>
 			Robin passes out small bags of snacks. A <<generatey1>><<person1>><<person>> keeps watch for Bailey.
 		<<else>>
@@ -3309,7 +3310,7 @@ You return to your tiny bedroom and wonder what to do.
 <<effects>><<run statusCheck("Robin")>>
 <!-- Bailey catches you by surprise, no time to get dressed -->
 
-<<if $inRobinsRoom>>
+<<if $robin.rent.collectedInRobinsRoom>>
 	Robin's bedroom door bursts open without warning. <span class="red">It's Bailey.</span>
 	<br><br>
 
@@ -3324,16 +3325,16 @@ You return to your tiny bedroom and wonder what to do.
 <</if>>
 <br><br>
 
-<<if $robinfirstrentfight and ["orphanage","bath","sleep"].includes(_robin_location)>> <!-- the first robin fight has already happened -->
+<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ["orphanage","bath","sleep"].includes(_robin_location)>> <!-- the first robin fight has already happened -->
 	<<rentduerobin `!["sleep", "orphanage"].includes(_robin_location)`>>
 <<else>>
-	<<if ["sleep", "orphanage"].includes(_robin_location) and $inRobinsRoom>>
+	<<if ["sleep", "orphanage"].includes(_robin_location) and $robin.rent.collectedInRobinsRoom>>
 		<<rentdue 1>> <!-- Robin is in the room with the PC -->
 	<<else>>
 		<<rentdue 0>>
 	<</if>>
 <</if>>
-<<unset $inRobinsRoom>>
+<<unset $robin.rent.collectedInRobinsRoom>>
 
 :: Mirror
 <<effects>>
@@ -3419,7 +3420,7 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<<neutral 1>>
 	<<molested>>
 	<<maninit>>
-	<<if $robinbed isnot undefined or $kylarbed is 1>>
+	<<if $robin.orphanage.whoseBedTonight isnot undefined or $kylarbed is 1>>
 		<<enable_rescue>>
 	<</if>>
 <</if>>
@@ -3451,7 +3452,7 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<if $robinbed is "theirs">>
+	<<if $robin.orphanage.whoseBedTonight is "theirs">>
 		<<link [[Next|Robin Bed]]>><</link>>
 	<<else>>
 		<<link [[Next|Bed]]>><</link>>
@@ -3465,12 +3466,12 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
-	<<if $robinbed is "theirs">>
+	<<if $robin.orphanage.whoseBedTonight is "theirs">>
 		<<link [[Next|Robin Bed]]>><</link>>
 	<<else>>
 		<<link [[Next|Bed]]>><</link>>
 	<</if>>
-<<elseif $robinbed isnot undefined>>
+<<elseif $robin.orphanage.whoseBedTonight isnot undefined>>
 	Robin's eyes flutter open in response to your cry. Robin sees the <<person>> pawing at you, and kicks <<him>> in the face. <<He>> falls off the bed. "Fucking brat," <<he>> says, then turns to Bailey. "I want my money back."
 	<br><br>
 	Bailey gives <<him>> a level stare. "You got what you paid for. Not my fault you couldn't handle them."
@@ -3483,7 +3484,7 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 	<br><br>
 	<<npcincr Robin dom 1>>
 	<<endevent>>
-	<<if $robinbed is "theirs">>
+	<<if $robin.orphanage.whoseBedTonight is "theirs">>
 		<<link [[Next|Robin Bed]]>><</link>>
 	<<else>>
 		<<link [[Next|Bed]]>><</link>>
@@ -4461,7 +4462,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 :: Robin Bed Egg Laying End
 <<effects>>
 
-<<if $robinbed is "yours">>
+<<if $robin.orphanage.whoseBedTonight is "yours">>
 	<<He>> tries to put on a sympathetic look, but <<his>>
 	<<if C.npc.Robin.dom lte 40>>
 		meek
@@ -4484,7 +4485,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 	<<storeon "bed">>
 <</if>>
 <<if Time.hour is 6>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
-<<unset $robinbed>><<unset $bedGuest>><<unset $eggLayNumber>>
+<<unset $robin.orphanage.whoseBedTonight>><<unset $bedGuest>><<unset $eggLayNumber>>
 <<endevent>>
 <br><br>
 

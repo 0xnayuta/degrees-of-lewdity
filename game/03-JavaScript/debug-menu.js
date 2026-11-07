@@ -537,7 +537,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Start Robin Event`, stayOnPassageFn],
-			widgets: [`<<set $robindebt to 9>>`],
+			widgets: [`<<set $robin.rent.missedPayments to 9>>`],
 		},
 		{
 			link: [`School Start`, `Oxford Street`],
@@ -721,11 +721,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Robin Pillory Watch`, `Robin Pillory Watch`],
-			widgets: [`<<robinPunishment "pillory">>`, `<<set $robinmissing to "pillory">>`, `<<set $robinPillory.known to 1>>`],
+			widgets: [`<<robinPunishment "pillory">>`, `<<set $robin.punishment.current to "pillory">>`, `<<set $robin.punishment.pillory.known to true>>`],
 		},
 		{
 			link: [`Distract Robin Crowd`, stayOnPassageFn],
-			widgets: [`<<set $robinPillory.distracted to 1>>`],
+			widgets: [`<<set $robin.punishment.pillory.distracted to true>>`],
 		},
 		{
 			link: [`Briar Pay Refuse`, `Brothel Pay Refuse`],
@@ -974,8 +974,8 @@ setup.debugMenu.eventList = {
 			widgets: [
 				`<<set $rentTime to 0>>`,
 				`<<set $baileydefeatedchain to 3>>`,
-				`<<set $robinpaid to 1>>`,
-				`<<set $robinromance to 1>>`,
+				`<<set $robin.rent.pcPaysForRobin to true>>`,
+				`<<set $robin.romance to true>>`,
 				`<<set $bus to "home">>`,
 				`<<set $location to "home">>`,
 			],
@@ -1644,11 +1644,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Robin Note`, stayOnPassageFn],
-			widgets: [`<<set $robinnote to 1>>`],
+			widgets: [`<<run Memories.Robin.add("confessionNoteRead")>>`],
 		},
 		{
 			link: [`Robin Romance`, stayOnPassageFn],
-			widgets: [`<<set $robinromance to 1>>`],
+			widgets: [`<<set $robin.romance to true>>`],
 		},
 		{
 			text_only: "\n\n",

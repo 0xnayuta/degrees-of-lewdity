@@ -4,7 +4,7 @@
 	<<set $_robinWasInRoom to _args[0]>><<set $baileyRefusedToPay to 0>>
 
 	"Time to pay up," <<he>> says.
-	<<if $baileydefeatedchain gte 3 or ($robinpaid is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and ($rentTime lte -14 or $rentThug?.anger gte 4))>>
+	<<if $baileydefeatedchain gte 3 or ($robin.rent.pcPaysForRobin and $bus is "home" and !Memories.Robin.has("baileyUsedRobinAsLeverage") and ($rentTime lte -14 or $rentThug?.anger gte 4))>>
 		<<generateRole 1 0 "thug">><<generateRole 2 0 "thug">>
 		A rough-looking <<person2>><<person>> and <<person3>><<person>> stand next to <<person1>><<him>>.
 		The <<person2>><<person>> cracks <<his>> knuckles, and the <<person3>><<person>> grins darkly.
@@ -186,8 +186,8 @@
 	<</if>>
 	<<babyRent>>
 	<<if $money gte $rentMoney + ($babyRent or 0)>>
-		<<if $inRobinsRoom>>
-			<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
+		<<if $robin.rent.collectedInRobinsRoom>>
+			<<link [[Pay|Rent Pay Robin]]>><<set $robin.rent.collectedInRobinsRoom to true>><</link>>
 		<<else>>
 			<<link [[Pay|Rent Pay Robin]]>><</link>>
 		<</if>>
@@ -340,8 +340,8 @@
 		<<set $baileyRefusedToPayTotal += $rentMoney + ($babyRent || 0)>>
 		<<set $baileyRefusedToPayTotalStat += $rentMoney + ($babyRent || 0)>>
 	<</if>>
-	<<if $robinpaid is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and !isPregnancyEnding() and ($baileydefeatedchain gte 3 or $rentTime lte -14 or $rentThug?.anger gte 4)>>
-		<<set $robinfirstrentfight to 1>>
+	<<if $robin.rent.pcPaysForRobin and $bus is "home" and !Memories.Robin.has("baileyUsedRobinAsLeverage") and !isPregnancyEnding() and ($baileydefeatedchain gte 3 or $rentTime lte -14 or $rentThug?.anger gte 4)>>
+		<<run Memories.Robin.add("baileyUsedRobinAsLeverage")>>
 		Bailey is silent for a few seconds, before shrugging. "That's okay," <<person1>><<he>> says.
 		"I've learned my lesson. Trying to get value out of you directly is fruitless."
 		<br><br>
@@ -357,7 +357,7 @@
 		<</if>>
 		<br><br>
 
-		<<link [[Next|Rent First Robin Fight]]>><<set $fightstart to 1>><<set $combatPhase to "talk">><<set $robinRentEvent to 1>><<set $timer to 5>><</link>>
+		<<link [[Next|Rent First Robin Fight]]>><<set $fightstart to 1>><<set $combatPhase to "talk">><<set $robin.rent.inFightWithBaileyOverRobin to true>><<set $timer to 5>><</link>>
 	<<else>>
 		<<person1>>
 		<<if $phase2 is "thug">>
@@ -421,7 +421,7 @@
 
 <<widget "rentmod">>
 	<<set $rentMoney to Math.floor($rentMoney * $settings.rentCostModifier)>>
-	<<if $robinpaid is 1>>
+	<<if $robin.rent.pcPaysForRobin>>
 		<<set $rentMoney *= 2>>
 	<</if>>
 <</widget>>
@@ -444,7 +444,7 @@
 	<<set $baileypaychain to ($baileypaychain || 0) + 1>>
 	<<unset $bailey_encroach>>
 	<<set $rentStage += 1>>
-	<<if $robinpaid>>
+	<<if $robin.rent.pcPaysForRobin>>
 		<<npcincr Robin trauma -7>>
 	<</if>>
 	<<if $bailey_confiscation>>
@@ -457,7 +457,7 @@
 <<widget "rentRobinPunishment">>
 	You journey for some time until you feel that you're walking on grass. A small breeze flows by you. Another set of footsteps approach.
 
-	<<if !$robinPunishments.includes("docks") and $debug>>/* locked behind debug until further improvements */
+	<<if !$robin.punishment.placesSentTo.includes("docks") and $debug>>/* locked behind debug until further improvements */
 		<<generate2>><<generate3>>
 		"Oh, <<nnpc_hes "Robin">> cute. A perfect little travel companion," an unfamiliar <<person2>><<personsSimple>> voice says.
 		<<if C.npc.Robin.pronoun is $player.gender_appearance>>
@@ -483,7 +483,7 @@
 
 	You hear a rustle of paper.
 	<<if _robin.dom gte 60>>
-		"Let go of me!" Robin yells. <<if $robinromance is 1>>"<<pShe>> needs me, stop it!"<<else>>"<<pShe>>'s my friend! You can't do this!"<</if>>
+		"Let go of me!" Robin yells. <<if $robin.romance>>"<<pShe>> needs me, stop it!"<<else>>"<<pShe>>'s my friend! You can't do this!"<</if>>
 		<br><br>
 
 		The sounds of Robin's protests fade off into the distance.
@@ -764,7 +764,7 @@
 			<<link [[Next|Hospital front]]>><<pass 10>><<endevent>><</link>>
 		<</if>>
 	<<else>>
-		<<if $inRobinsRoom>>
+		<<if $robin.rent.collectedInRobinsRoom>>
 			<<He>> sits down on <<his>> bed. "That was scary."
 			<br><br>
 
@@ -779,7 +779,7 @@
 			<<link [[Next|Bedroom]]>><<endevent>><</link>>
 		<</if>>
 	<</if>>
-	<<unset $inRobinsRoom>>
+	<<unset $robin.rent.collectedInRobinsRoom>>
 <</if>>
 <br>
 
@@ -1015,7 +1015,7 @@ Bailey finally drags <<his>> gaze from the nursery back to you.
 		it's about time we resume where we'd left off."
 	<</if>>
 <</if>>
-<<if $baileydefeatedchain gte 3 or ($robinpaid is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and ($rentTime lte -14 or $rentThug?.anger gte 4))>>
+<<if $baileydefeatedchain gte 3 or ($robin.rent.pcPaysForRobin and $bus is "home" and !Memories.Robin.has("baileyUsedRobinAsLeverage") and ($rentTime lte -14 or $rentThug?.anger gte 4))>>
 	<<generateRole 1 0 "thug">><<generateRole 2 0 "thug">>
 	Two thugs flank <<him>> on either side.
 <<elseif $baileydefeatedchain gte 1>>
@@ -1024,7 +1024,7 @@ Bailey finally drags <<his>> gaze from the nursery back to you.
 <</if>>
 <br><br>
 <<if $rentPregInterruption is "broke">>
-	<<if $robinfirstrentfight is 1>>
+	<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>>
 		<<He>> smiles as <<he>> produces a hood and length of rope. "Hold still."
 		<br><br>
 
@@ -1033,8 +1033,8 @@ Bailey finally drags <<his>> gaze from the nursery back to you.
 		<<link [[Fight|Rent Robin Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 	<<else>>
-		<<if $robinpaid is 1 and $bus is "home" and $robinfirstrentfight isnot 1 and ($baileydefeatedchain gte 3 or $rentTime lte -14 or $rentThug?.anger gte 4)>>
-			<<set $robinfirstrentfight to 1>>
+		<<if $robin.rent.pcPaysForRobin and $bus is "home" and !Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileydefeatedchain gte 3 or $rentTime lte -14 or $rentThug?.anger gte 4)>>
+			<<run Memories.Robin.add("baileyUsedRobinAsLeverage")>>
 			"I've learned my lesson. Trying to get value out of you directly is fruitless."
 			<br><br>
 
@@ -1043,7 +1043,7 @@ Bailey finally drags <<his>> gaze from the nursery back to you.
 			The <<person3>><<person>> grabs your other arm, and they hold you there.
 			<br><br>
 
-			<<link [[Next|Rent First Robin Fight]]>><<set $fightstart to 1>><<set $combatPhase to "talk">><<set $robinRentEvent to 1>><<set $timer to 5>><</link>>
+			<<link [[Next|Rent First Robin Fight]]>><<set $fightstart to 1>><<set $combatPhase to "talk">><<set $robin.rent.inFightWithBaileyOverRobin to true>><<set $timer to 5>><</link>>
 		<<else>>
 			<<He>> smiles as <<he>> produces a hood and length of rope. "Hold still."
 			<br><br>
@@ -1413,7 +1413,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 		The <<person2>><<person>> slinks out after <<person1>><<him>>.
 		<br><br>
 	<</if>>
-	You walk over to Robin and undo <<nnpc_his "Robin">> bindings. <<nnpc_He "Robin">> pulls you into a hug. "Thank you, my hero!" With a peck on your <<if _robin.lust gte 60 and $robinromance is 1>>lips<<else>>cheek<</if>>, <<nnpc_he "Robin">> walks away.
+	You walk over to Robin and undo <<nnpc_his "Robin">> bindings. <<nnpc_He "Robin">> pulls you into a hug. "Thank you, my hero!" With a peck on your <<if _robin.lust gte 60 and $robin.romance>>lips<<else>>cheek<</if>>, <<nnpc_he "Robin">> walks away.
 	<br><br>
 
 	The orphans cheer your defeat of the tyrant. <<He>> will be back, but for now you're in the clear.
@@ -1441,7 +1441,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 	You walk over to Robin and undo <<nnpc_his "Robin">> bindings. <<nnpc_He "Robin">> pulls you into a hug, "Thank you, my hero!"
 	<br><br>
 
-	<<if _robin.lust gte 60 and $robinromance is 1>>
+	<<if _robin.lust gte 60 and $robin.romance>>
 		With a peck on your lips, Robin walks away.
 	<<else>>
 		With a peck on your cheek, Robin walks away.
@@ -1673,7 +1673,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 
 :: Rent First Robin Fight Finish
 <<effects>>
-<<unset $robinRentEvent>>
+<<unset $robin.rent.inFightWithBaileyOverRobin>>
 <<set _robin to statusCheck("Robin")>>
 <<npc Robin 1>><<person1>>
 
@@ -1690,7 +1690,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 	<</if>>
 	<br><br>
 
-	You gently hold <<his>> hand, and <<if $robinromance is 1>>give <<him>> a comforting kiss on the forehead.<<else>>wrap your other arm around <<his>> shoulder comfortingly.<</if>>
+	You gently hold <<his>> hand, and <<if $robin.romance>>give <<him>> a comforting kiss on the forehead.<<else>>wrap your other arm around <<his>> shoulder comfortingly.<</if>>
 	<<takeHandholdingVirginity "Robin">>
 	<br><br>
 
@@ -1749,7 +1749,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 		<<case 3>><<He>> roughly pulls you out of the car while the <<person2>><<person>> and <<person3>><<person>> keep a close eye on you. They watch the <<person1>><<person>> lead you all the way to the front door before getting back into the car.
 	<</switch>>
 	<br><br>
-	You see Bailey waiting for you in the main hall<<if $robinfirstrentfight is 1>> along with a tied-up Robin<</if>>.
+	You see Bailey waiting for you in the main hall<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>> along with a tied-up Robin<</if>>.
 <<elseif $phase is "willing">>
 	After some time, the car comes to a stop in front of the orphanage. "We're here. Get going, you've kept <<nnpc_him "Bailey">> waiting long enough," the <<person1>><<person>> says.
 	<<if $exposed gte 1>>
@@ -1762,7 +1762,7 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 		<<case 3>>You step out of the car and are led into the orphanage under the watchful eye of the <<person2>><<person>> and <<person3>><<person>>. Once you make it to the front door, they get back into the car.
 	<</switch>>
 	<br><br>
-	You see Bailey is already waiting for you in the main hall<<if $robinfirstrentfight is 1>> with a tied-up Robin<</if>>.
+	You see Bailey is already waiting for you in the main hall<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>> with a tied-up Robin<</if>>.
 <<elseif $phase is "unwilling van">>
 	After some time, the van comes to a stop. "Looks like we've arrived," the <<person1>><<person>> says, putting away <<his>> phone. "Get up. And don't even think about running, it's way too late for that."
 	<<if $exposed gte 1>>
@@ -1770,11 +1770,11 @@ With your head covered by a hood and your arms bound behind your back, you _andR
 		<<towelup>>
 	<</if>>
 	<br><br>
-	All of them walk you to the orphanage door, but only you and the <<person>> enter. You see Bailey is already waiting for you in the main hall<<if $robinfirstrentfight is 1>> with a tied-up Robin<</if>>.
+	All of them walk you to the orphanage door, but only you and the <<person>> enter. You see Bailey is already waiting for you in the main hall<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>> with a tied-up Robin<</if>>.
 <</if>>
 <<saveNPC 0 "rent_thug">><<endevent>>
 
-<<if $robinfirstrentfight is 1>>
+<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>>
 	<<thugrentduerobin>>
 <<else>>
 	<<thugrentdue>> 
@@ -1810,7 +1810,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 	<<set _bundle to baileyConfiscationBundle(_weekRent)>>
 	<<if _bundle.items.length is 0>>
 		A hand rests on your shoulder from behind. <span class="red">It's Bailey.</span>
-		<<if $robinfirstrentfight and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
+		<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
 			<<rentduerobin 0>>
 		<<else>>
 			<<rentdue 0>>

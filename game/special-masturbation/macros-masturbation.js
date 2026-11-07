@@ -63,22 +63,22 @@ function masturbationStallInterrupt() {
 DefineMacroS("masturbationStallInterrupt", masturbationStallInterrupt);
 
 function masturbationRobinWatching() {
-	if (V.daily.robin.masturbation) {
+	if (V.daily.robin.walkedInOnPcMasturbating) {
 		if (V.timer > 0) V.timer -= 1;
 	} else if (
 		C.npc.Robin.init === 1 &&
-		!V.daily.robin.masturbation &&
+		!V.daily.robin.walkedInOnPcMasturbating &&
 		random(0, 100) >= 91 &&
 		T.robin_location === "orphanage" &&
 		T.robin.lust >= 2 &&
 		T.robin.love >= 50 &&
 		T.robin.trauma < 20
 	) {
-		V.daily.robin.masturbation = true;
-		if (V.robinromance && T.robin.lust >= 30 && T.robin.love >= 80 && V.daily.test) {
+		V.daily.robin.walkedInOnPcMasturbating = true;
+		if (V.robin.romance && T.robin.lust >= 30 && T.robin.love >= 80 && V.daily.test) {
 			V.timer = 20;
-			V.robinWatchingMasturbation = 1;
-			V.robinWatchingMasturbationCount = (V.robinWatchingMasturbationCount || 0) + 1;
+			V.robin.sex.pcOrgasmsWhileWatched = 1;
+			V.robin.sex.timesWatchedPcMasturbate = (V.robin.sex.timesWatchedPcMasturbate || 0) + 1;
 		} else if (V.worn.over_lower.vagina_exposed >= 1 && V.worn.lower.vagina_exposed >= 1 && V.worn.under_lower.vagina_exposed >= 1) {
 			wikifier("arousal", 500);
 			wikifier("npcincr", "Robin", "lust", 2);

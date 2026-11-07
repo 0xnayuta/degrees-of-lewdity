@@ -123,8 +123,8 @@ You are in the garden behind the orphanage.
 	<<else>>
 		<<bedroomEntryEvent "forced">>
 	<</if>>
-<<elseif !$weekly.gardenBirdRobin and Weather.precipitation is "none" and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lte 25 and C.npc.Robin.dom lte 60 and $rng gte 81>>
-	<<set $weekly.gardenBirdRobin to true>>
+<<elseif !$weekly.robin.pcSawRobinWithBird and Weather.precipitation is "none" and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lte 25 and C.npc.Robin.dom lte 60 and $rng gte 81>>
+	<<set $weekly.robin.pcSawRobinWithBird to true>>
 
 	<<npc Robin>><<person1>>
 	Stepping into the fenced garden, your eyes land on someone. <span class="gold">It's Robin.</span>
@@ -142,16 +142,16 @@ You are in the garden behind the orphanage.
 		<<link [[Pounce on Robin|Robin Bird Visit]]>><<set $phase to 3>><</link>><<cat>>
 		<br>
 	<</if>>
-<<elseif !$robin.wateringIntro and $robinpaid gte 1 and Weather.precipitation isnot "rain" and (Weather.precipitation isnot "snow" or $alex_greenhouse gte 3) and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lt 20 and orphanagePlotsPlanted() and !orphanagePlotsWatered() and $robin.weeksSinceProtector gte 2 and ($baileypaychain gte 1 or $baileydefeatedchain gte 1)>>
+<<elseif !Memories.Robin.has("offeredToWaterGarden") and $robin.rent.pcPaysForRobin and Weather.precipitation isnot "rain" and (Weather.precipitation isnot "snow" or $alex_greenhouse gte 3) and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lt 20 and orphanagePlotsPlanted() and !orphanagePlotsWatered() and $robin.rent.weeksPcPaidForRobin gte 2 and ($baileypaychain gte 1 or $baileydefeatedchain gte 1)>>
 	<<npc Robin>><<person1>>
-	<<set $robin.wateringIntro to true>>
+	<<run Memories.Robin.add("offeredToWaterGarden")>>
 	You see someone watering the plants in <<= $alex_greenhouse gte 3 ? "the greenhouse" : "your garden">>. <span class="gold">It's Robin.</span>
 	<br><br>
 
 	<<for _plot range $plots["garden"]>>
 		<<set _plot.water to 1>>
 	<</for>>
-	<<set $daily.robin.watered to "alone">>
+	<<set $daily.robin.whoWateredGarden to "alone">>
 
 	"Oh, <<if Time.hour lte 11>>good morning<<else>>hello<</if>>!" <<he>> says. "I saw that your plot was dry." <<He>> gestures at the plants. "Now that you're paying Bailey for us, I figured that helping you with the garden is the least I could do."
 	<br><br>
@@ -542,8 +542,8 @@ You decide not to investigate the source of the noise; you have your own things 
 <</if>>
 
 <<set _robin to statusCheck("Robin")>>
-<<if _robin_location is "garden" and _robin.trauma lt 50 and $daily.robin.tending isnot 1>>
-	<<set $daily.robin.tending to 1>><<set $phase to 2>>
+<<if _robin_location is "garden" and _robin.trauma lt 50 and !$daily.robin.joinedPcGardening>>
+	<<set $daily.robin.joinedPcGardening to true>><<set $phase to 2>>
 
 	<<set _time_to_pass to 60 - Time.minute>>
 	<<if _time_to_pass gte 10>>
@@ -601,8 +601,8 @@ You decide not to investigate the source of the noise; you have your own things 
 	<</if>>
 	<<addevent "gardenScent" 3>>
 	<<runeventpool>>
-<<elseif $phase2 is "watered" and $rng lte (C.npc.Robin.love - 50) and _robin_location is "orphanage" and _robin.trauma lt 80 and Weather.precipitation isnot "rain" and (Weather.precipitation isnot "snow" or $alex_greenhouse gte 3) and $daily.robin.tending isnot 1>>
-	<<set $daily.robin.tending to 1>><<set $phase to 1>><<set $phase2 to 0>>
+<<elseif $phase2 is "watered" and $rng lte (C.npc.Robin.love - 50) and _robin_location is "orphanage" and _robin.trauma lt 80 and Weather.precipitation isnot "rain" and (Weather.precipitation isnot "snow" or $alex_greenhouse gte 3) and !$daily.robin.joinedPcGardening>>
+	<<set $daily.robin.joinedPcGardening to true>><<set $phase to 1>><<set $phase2 to 0>>
 	<<npc Robin>><<person1>>
 	<<if _robin.trauma gte 40>>
 		You hear a gentle patter of footsteps disturbing the grass. It's Robin.
@@ -966,13 +966,13 @@ You squeeze <<his>> hips between your thighs for a moment and lean closer. "You'
 <<effects>>
 <<set _robin to statusCheck("Robin")>><<wearProp "watering can">>
 
+<<set $daily.robin.whoWateredGarden to "together">>
 <<if $phase is 1>>
 	<<for _plot range $plots["garden"]>>
 		<<set _plot.water to 1>>
 	<</for>>
 	You hand Robin your watering can, and <<he>> gets to work while you find another.
 <<else>>
-	<<set $daily.robin.watered to "together">>
 	You grab a spare watering can and get to work helping Robin.
 <</if>>
 
@@ -996,17 +996,17 @@ Job well done, Robin sits on the grass and watches the flowers sway in the breez
 :: Garden Robin Sit
 <<effects>>
 <<set _robin to statusCheck("Robin")>>
-<<if $robinromance is 1 and _robin.dom gte 40>>
+<<if $robin.romance and _robin.dom gte 40>>
 	You sit beside Robin. <<He>> rests <<his>> hand on yours and gives it a little squeeze.
 <<else>>
 	You sit beside Robin and together watch as bees float between the glistening petals.
 <</if>>
 <br><br>
 
-<<if !$robinSeen?.includes("favouriteFlower")>>
-	<<set $robinSeen.pushUnique("favouriteFlower")>>
+<<if !Memories.Robin.has("toldFavouriteFlower")>>
+	<<run Memories.Robin.add("toldFavouriteFlower")>>
 	You ask Robin what <<his>> favourite flowers are.
-	<<if $robinromance is 1 and C.npc.Robin.dom gte 40>>
+	<<if $robin.romance and C.npc.Robin.dom gte 40>>
 		<<wearProp "daisy">>
 		<<if $worn.head.name is "naked">>
 			<<He>> tucks a daisy behind your ear.
@@ -1015,7 +1015,7 @@ Job well done, Robin sits on the grass and watches the flowers sway in the breez
 		"Daisies and you." <<Hes>> a bit bashful after saying that and even more so when you return the gesture. With a daisy tucked in your hair, you two can't help but giggle. "What are yours?" <<he>> asks. You tell <<him>>, and <<he>> smiles.
 	<<elseif C.npc.Robin.trauma gte 70>>
 		Unfeelingly, <<he>> points at the cheery flowers.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			You tuck a daisy behind <<his>> ear. <<He>> gives you a smile. It doesn't reach <<his>> eyes. "What are yours?" <<he>> asks.
 		<<else>>
 			"What are yours?"
@@ -1023,7 +1023,7 @@ Job well done, Robin sits on the grass and watches the flowers sway in the breez
 		You tell <<him>>, and <<he>> nods.
 	<<elseif C.npc.Robin.trauma gte 40>>
 		"Daisies are nice," <<he>> mumbles.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			You tuck a daisy behind <<his>> ear. <<He>> lowers <<his>> face, smiling softly the gesture. "What are yours?" <<he>> asks.
 		<<else>>
 			"What are yours?"
@@ -1031,7 +1031,7 @@ Job well done, Robin sits on the grass and watches the flowers sway in the breez
 		You tell <<him>>, and <<he>> nods.
 	<<else>>
 		With a smile as cheery as the flowers, <<he>> points at them.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			"Daisies are my favourite." You tuck a daisy behind <<his>> ear, which turns red as <<he>> blushes and mumbles a soft "Th-thanks." You tell <<him>> yours, and <<he>> smiles.
 		<<else>>
 			"Daisies are my favourite. What are yours?" You tell <<him>>, and <<he>> smiles.
@@ -1058,14 +1058,14 @@ A few minutes pass, until an argument breaks out inside the orphanage. Robin loo
 	<<toggleHood>>
 <</if>>
 
-<<set $robinSeen.pushUnique("flowerCrown")>>
+<<run Memories.Robin.add("madeFlowerCrowns")>>
 You sit on the grass beside Robin and rummage among the wild flowers for suitable specimens. Robin watches a moment, then gasps in excitement. <<He>> joins in. "I'm making one for you too."
 <br><br>
 
-<<if !$robinSeen?.includes("favouriteFlower")>>
-	<<set $robinSeen.pushUnique("favouriteFlower")>>
+<<if !Memories.Robin.has("toldFavouriteFlower")>>
+	<<run Memories.Robin.add("toldFavouriteFlower")>>
 	You ask Robin what <<his>> favourite flowers are.
-	<<if $robinromance is 1 and C.npc.Robin.dom gte 40>>
+	<<if $robin.romance and C.npc.Robin.dom gte 40>>
 		<<wearProp "daisy">>
 		<<if $worn.head.name is "naked">>
 			<<He>> tucks a daisy behind your ear.
@@ -1074,7 +1074,7 @@ You sit on the grass beside Robin and rummage among the wild flowers for suitabl
 		"Daisies and you." <<Hes>> a bit bashful after saying that and even more so when you return the gesture. With a daisy tucked in your hair, you two can't help but giggle. "What are yours?" <<he>> asks. You tell <<him>>, and <<he>> smiles.
 	<<elseif C.npc.Robin.trauma gte 70>>
 		Unfeelingly, <<he>> points at the cheery flowers.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			You tuck a daisy behind <<his>> ear. <<He>> gives you a smile. It doesn't reach <<his>> eyes. "What are yours?" <<he>> asks.
 		<<else>>
 			"What are yours?"
@@ -1082,7 +1082,7 @@ You sit on the grass beside Robin and rummage among the wild flowers for suitabl
 		You tell <<him>>, and <<he>> nods.
 	<<elseif C.npc.Robin.trauma gte 40>>
 		"Daisies are nice," <<he>> mumbles.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			You tuck a daisy behind <<his>> ear. <<He>> lowers <<his>> face, smiling softly the gesture. "What are yours?" <<he>> asks.
 		<<else>>
 			"What are yours?"
@@ -1090,7 +1090,7 @@ You sit on the grass beside Robin and rummage among the wild flowers for suitabl
 		You tell <<him>>, and <<he>> nods.
 	<<else>>
 		With a smile as cheery as the flowers, <<he>> points at them.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			"Daisies are my favourite." You tuck a daisy behind <<his>> ear, which turns red as <<he>> blushes and mumbles a soft "Th-thanks." You tell <<him>> yours, and <<he>> smiles.
 		<<else>>
 			"Daisies are my favourite. What are yours?" You tell <<him>>, and <<he>> smiles.
@@ -1318,7 +1318,7 @@ You call for help as the shoots tighten around you.
 	<br>
 <<else>>
 	<<run statusCheck("Robin")>>
-	<<if $rng gte 51 and _robin_location is "orphanage" and C.npc.Robin.trauma lt 80 and $daily.robin.tending isnot 1>>
+	<<if $rng gte 51 and _robin_location is "orphanage" and C.npc.Robin.trauma lt 80 and !$daily.robin.joinedPcGardening>>
 		<<npc Robin>><<person1>>
 		"I'm coming!" shouts a voice in response. It's Robin. <<He>> emerges from the orphanage and gasps when <<he>> sees you. "You're all tangled. Here." <<He>> drops to <<his>> knees and loosens the entangling shoots. <<Hes>> careful not to damage any.
 		<br><br>

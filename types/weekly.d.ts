@@ -52,6 +52,9 @@ declare global {
 			antiqueCandlestick?: boolean;
 			antiqueHorn?: boolean;
 		};
+
+		/** Robin's once-a-week flags, unset when the week ends. */
+		robin: RobinWeekly;
 	}
 }
 

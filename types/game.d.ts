@@ -60,23 +60,6 @@ declare module "twine-sugarcube" {
 			tertiary: string;
 		};
 
-		robin: {
-			timer: {
-				customer: number;
-				hurt: number;
-			};
-			hurtReason: "nothing";
-			stayup: 0 | 1 | 2;
-			moneyModifier: number;
-		};
-		robinpaid: undefined | 1;
-		robinPayout?: 0 | 1;
-		robinmoney: number;
-		robindebt: number;
-		robindebtlimit: number;
-		robindebtevent: number;
-		robineventnote?: 0 | 1;
-
 		loft_kylar: number;
 		loft_spray: number;
 
