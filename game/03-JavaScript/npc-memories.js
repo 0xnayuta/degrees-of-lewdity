@@ -199,6 +199,11 @@ const VALID_MEMORIES = {
 		// Used for a Bailey line about Leighton after Avery's card game
 		"pillory",
 	],
+	Quinn: [
+		// If Quinn won Avery's card game and made the PC watch their movies at their mansion
+		// Used to unlock praising or insulting Quinn's movies when Quinn is the guest at Avery's party
+		"madePcWatchMovies",
+	],
 };
 
 /**
@@ -264,6 +269,11 @@ const Memories = {
 		add: memory => addMemory("Leighton", memory),
 		has: memory => hasMemory("Leighton", memory),
 		delete: memory => deleteMemory("Leighton", memory),
+	},
+	Quinn: {
+		add: memory => addMemory("Quinn", memory),
+		has: memory => hasMemory("Quinn", memory),
+		delete: memory => deleteMemory("Quinn", memory),
 	},
 };
 window.Memories = Memories;
