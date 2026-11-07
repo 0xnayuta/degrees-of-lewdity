@@ -4630,7 +4630,10 @@ function genlayer_clothing_main(slot, overrideOptions) {
 
 			const pattern = options.worn[slot].pattern && !["secondary", "tertiary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
-			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
+			let end = isAltPosition ? '-alt' : '';
+			
+			end = isHoodDown ? `${end}-down` : end;
+
 			return `img/clothes/${folder}/${setup.variable}/${options.worn[slot].integrity}${pattern}${end}.png`;
 		},
 		masksrcfn(options) {
@@ -4691,7 +4694,11 @@ function genlayer_clothing_fitted_left_acc(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
+
+			let end = isAltPosition ? '-alt' : '';
+			
+			end = isHoodDown ? `${end}-down` : end;
+
 			const folder = normaliseFileName(slot);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
@@ -4723,7 +4730,11 @@ function genlayer_clothing_fitted_right_acc(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
+
+			let end = isAltPosition ? '-alt' : '';
+			
+			end = isHoodDown ? `${end}-down` : end;
+
 			const folder = normaliseFileName(slot);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
@@ -4758,7 +4769,10 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
+			
+			let end = isAltPosition ? '-alt' : '';
+			
+			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
@@ -4952,11 +4966,12 @@ function genlayer_clothing_belly_split_acc(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const end = isAltPosition ? '-alt' : '';
-			const hoodDown = isHoodDown ? '-down' : end;
+			let end = isAltPosition ? '-alt' : '';
+			
+			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
-			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${hoodDown}.png`;
+			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
 	}, overrideOptions));
 }
@@ -5015,11 +5030,12 @@ function genlayer_clothing_belly_acc(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const end = isAltPosition ? '-alt' : '';
-			const hoodDown = isHoodDown ? '-down' : end;
+			let end = isAltPosition ? '-alt' : '';
+
+			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
-			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${hoodDown}.png`;
+			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
 		dxfn(options) {
 			if (options.belly >= 24) return 10;
