@@ -238,6 +238,14 @@ const VALID_MEMORIES = {
 		// Used to unlock escaping the lair
 		"pcLookedOutOfLair",
 	],
+	Zephyr: [
+		// If Zephyr met PC at the smuggler pub and offered them passage to the island
+		// Used so the meeting only plays once, to unlock speaking to Zephyr, and so the PC recognises Zephyr in future scenes
+		"metPcAtSmugglerPub",
+		// If the Ivory Wraith possessed PC beat Zephyr on deck and took the PC over the railing through the whirlpool
+		// Not currently used
+		"watchedPossessedPcJumpOverboard",
+	],
 };
 
 /**
@@ -318,6 +326,11 @@ const Memories = {
 		add: memory => addMemory("Night Monster", memory),
 		has: memory => hasMemory("Night Monster", memory),
 		delete: memory => deleteMemory("Night Monster", memory),
+	},
+	Zephyr: {
+		add: memory => addMemory("Zephyr", memory),
+		has: memory => hasMemory("Zephyr", memory),
+		delete: memory => deleteMemory("Zephyr", memory),
 	},
 };
 window.Memories = Memories;
