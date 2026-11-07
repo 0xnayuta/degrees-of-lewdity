@@ -145,20 +145,9 @@ window.semenCountsAsHuman = semenCountsAsHuman;
 function resolveIfNamedBeastIsMonster(beast) {
 	if (V.settings.namedBeasts[beast].monsterChance === 0) return false;
 	if (V.settings.namedBeasts[beast].monsterChance === 100) return true;
-	const rollMonster = () => V.settings.namedBeasts[beast].monsterChance >= random(1, 100);
-	switch (beast) {
-		case "blackwolf":
-			V.daily.bwMonsterRoll ??= rollMonster();
-			return V.daily.bwMonsterRoll && (V.hallucinations >= 1 || !V.settings.namedBeasts[beast].hallucinationsOnly);
-		case "greathawk":
-			V.daily.ghMonsterRoll ??= rollMonster();
-			return V.daily.ghMonsterRoll && (V.hallucinations >= 1 || !V.settings.namedBeasts[beast].hallucinationsOnly);
-		case "nightmonster":
-			V.daily.nmMonsterRoll ??= rollMonster();
-			return V.daily.nmMonsterRoll && (V.hallucinations >= 1 || !V.settings.namedBeasts[beast].hallucinationsOnly);
-		default:
-			throw new Error(`resolveIfNamedBeastIsMonster: unknown named beast "${beast}"`);
-	}
+	V.daily.namedBeastIsMonster ??= {};
+	V.daily.namedBeastIsMonster[beast] ??= V.settings.namedBeasts[beast].monsterChance >= random(1, 100);
+	return V.daily.namedBeastIsMonster[beast] && (V.hallucinations >= 1 || !V.settings.namedBeasts[beast].hallucinationsOnly);
 }
 window.resolveIfNamedBeastIsMonster = resolveIfNamedBeastIsMonster;
 

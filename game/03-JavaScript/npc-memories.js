@@ -230,6 +230,14 @@ const VALID_MEMORIES = {
 		// Used with Niki's other memories to tell whether the PC has met Niki
 		"volunteeredForWinter",
 	],
+	"Night Monster": [
+		// If the Night Monster has carried the PC off to its lair
+		// Used to change its lines when it carries the PC off again
+		"carriedPcToLair",
+		// If the PC looked out of the hole in the Night Monster's lair
+		// Used to unlock escaping the lair
+		"pcLookedOutOfLair",
+	],
 };
 
 /**
@@ -305,6 +313,11 @@ const Memories = {
 		add: memory => addMemory("Niki", memory),
 		has: memory => hasMemory("Niki", memory),
 		delete: memory => deleteMemory("Niki", memory),
+	},
+	NightMonster: {
+		add: memory => addMemory("Night Monster", memory),
+		has: memory => hasMemory("Night Monster", memory),
+		delete: memory => deleteMemory("Night Monster", memory),
 	},
 };
 window.Memories = Memories;
