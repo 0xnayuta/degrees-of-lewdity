@@ -141,7 +141,7 @@ function initSpecialClothes() {
 		{ name: "catsuit", 						sets: ["catsuit"] },
 
 		{ name: "daisy", 						sets: ["flowers"], requirements: () => V.plants_known?.includes("daisy"), hint: "find daisy seeds" },
-		{ name: "flower crown", 				sets: ["flowers"], requirements: () => V.robinSeen?.includes("flowerCrown") || V.specialClothesEvents?.includes("flowerCrownGH"), hint: "make one with someone special to you" },
+		{ name: "flower crown", 				sets: ["flowers"], requirements: () => Memories.Robin.has("madeFlowerCrowns") || V.specialClothesEvents?.includes("flowerCrownGH"), hint: "make one with someone special to you" },
 
 		{ name: "janet dress",					sets: ["janet"] },
 
@@ -309,7 +309,7 @@ function initSpecialClothes() {
 		},
 		wrap: {
 			text: "gift wrappings",
-			requirements: () => V.robinSeen?.includes("unwrap") || V.gwylanSeen?.includes("steal_wrap"),
+			requirements: () => Memories.Robin.has("pcUnwrappedRobin") || V.gwylanSeen?.includes("steal_wrap"),
 			hint: "face a unique punishment for stealing clothes",
 			shop: ["forest"],
 			subsetOf: ["valentines"],

@@ -591,17 +591,17 @@ window.numbersBetween = numbersBetween;
 function getRobinLocation() {
 	if (C.npc.Robin.init !== 1) {
 		return;
-	} else if (V.robinlocationoverride && V.robinlocationoverride.during.includes(Time.hour)) {
-		T.robin_location = V.robinlocationoverride.location;
-	} else if (["docks", "landfill", "dinner", "pillory", "mansion"].includes(V.robinmissing)) {
-		T.robin_location = V.robinmissing;
+	} else if (V.robin.locationOverride && V.robin.locationOverride.during.includes(Time.hour)) {
+		T.robin_location = V.robin.locationOverride.location;
+	} else if (["docks", "landfill", "dinner", "pillory", "mansion"].includes(V.robin.punishment.current)) {
+		T.robin_location = V.robin.punishment.current;
 	} else if (!between(Time.hour, 7, 20)) {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
 	} else if (
 		V.gwylanSeen?.includes("cafe_walk_robin") &&
-		V.robin.timer.hurt === 0 &&
-		V.daily.robin_in_cafe &&
+		V.robin.hurt.daysLeft === 0 &&
+		V.daily.robin.inCafe &&
 		!between(V.chef_state, 7, 8) &&
 		Time.schoolDay &&
 		Time.hour === 8 &&
@@ -614,7 +614,7 @@ function getRobinLocation() {
 		// Start bathing time half an hour later if Robin has been asked to water the player's garden
 		// Robin will only water if crops are planted, will not water in the rain at all, and will not water during snow before the greenhouse is built
 	} else if (
-		V.robin.autoWater &&
+		V.robin.orphanage.watersGarden &&
 		C.npc.Robin.trauma < 50 &&
 		Weather.precipitation !== "rain" &&
 		(Weather.precipitation !== "snow" || V.alex_greenhouse >= 3) &&
@@ -623,13 +623,13 @@ function getRobinLocation() {
 	) {
 		if (Time.hour === 16 && between(Time.minute, 30, 59) && !orphanagePlotsWatered()) {
 			T.robin_location = "garden";
-		} else if (!V.daily.robin.bath) {
+		} else if (!V.daily.robin.metPcInBath) {
 			T.robin_location = "bath";
 		} else {
 			T.robin_location = "orphanage";
 		}
 	} else if (Time.hour === 16 && between(Time.minute, 30, 59)) {
-		if (!V.daily.robin.bath) {
+		if (!V.daily.robin.metPcInBath) {
 			T.robin_location = "bath";
 		} else {
 			T.robin_location = "orphanage";
@@ -655,7 +655,7 @@ function setRobinLocationOverride(loc, hour) {
 	if (Array.isArray(hour)) override.during = hour;
 	else override.during = [hour];
 	// note: overrides get reset at midnight (in the <<day>> widget)
-	V.robinlocationoverride = override;
+	V.robin.locationOverride = override;
 }
 window.setRobinLocationOverride = setRobinLocationOverride;
 
@@ -1723,7 +1723,7 @@ window.isLoveInterest = isLoveInterest;
 function isPossibleLoveInterest(name) {
 	switch (name) {
 		case "Robin":
-			return V.robinromance === 1;
+			return V.robin.romance === true;
 		case "Whitney":
 			return V.whitneyromance === 1 && C.npc.Whitney.state !== "dungeon";
 		case "Kylar":
@@ -2286,17 +2286,17 @@ function dailyConvert() {
 				text: V.whitney_text,
 			},
 			robin: {
-				walk: V.robinwalk,
-				hugCry: V.robinhugcry,
-				hugComplain: V.robinhugcomplain,
-				blame: V.robinblame,
-				persecute: V.robinpersecute,
-				policeBody: V.robinpolicebody,
-				policePay: V.robinpolicepay,
-				tending: V.robin_tending,
-				beachPolice: V.robinbeachpolice,
-				parkSnow: V.robinparksnow,
-				debtAsk: V.robinDebtAsk,
+				forestWalkUsed: V.robinwalk,
+				pcCried: V.robinhugcry,
+				pcComplained: V.robinhugcomplain,
+				pcBlamedRobin: V.robinblame,
+				pcPersecutedRobin: V.robinpersecute,
+				pcOfferedPoliceBody: V.robinpolicebody,
+				pcPaidPolice: V.robinpolicepay,
+				joinedPcGardening: V.robin_tending,
+				policeCheckedPermit: V.robinbeachpolice,
+				snowballsThrownAtStand: V.robinparksnow,
+				pcAskedBaileyAboutDebt: V.robinDebtAsk,
 			},
 			kylar: V.kylarDaily || {},
 			morgan: {},

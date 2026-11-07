@@ -196,16 +196,16 @@ End of '<<print $replayScene.name>>' scene.
 			case 1: $scenePassages.pushUnique("RobinCrossdressing1");
 		}
 	>>
-	<<if $robinfirstrentfight is 1>>
+	<<if Memories.Robin.has("baileyUsedRobinAsLeverage")>>
 		<<run $scenePassages.pushUnique("RentFirstRobinFight")>>
 	<</if>>
-	<<if $robinPunishments.includes("docks")>>
+	<<if $robin.punishment.placesSentTo.includes("docks")>>
 		<<run $scenePassages.pushUnique("RobinDocks")>>
 	<</if>>
-	<<if $robinPunishments.includes("landfill")>>
+	<<if $robin.punishment.placesSentTo.includes("landfill")>>
 		<<run $scenePassages.pushUnique("RobinLandfill")>>
 	<</if>>
-	<<if $robinPunishments.includes("pillory")>>
+	<<if $robin.punishment.placesSentTo.includes("pillory")>>
 		<<run $scenePassages.pushUnique("RobinPillory")>>
 	<</if>>
 	<<if $kylarSeen.includes("basement")>>
@@ -739,7 +739,7 @@ End of '<<print $replayScene.name>>' scene.
 				name:"Rent First Robin Fight",
 				startPassage:"Rent First Robin SV",
 				passages:["Rent Pay","Rent Seduce","Rent Refuse","Rent First Robin Fight","Rent First Robin Fight Finish"],
-				manualVariableChanges:"<<set $robinpaid to 1>><<set $robinromance to 1>><<set $bus to \"home\">><<set $robinfirstrentfight to 0>><<set $baileydefeatedchain to 3>><<unset $baileyReunionScene>><<set $rentTime to 0>><<set $robinmissing to 0>><<set $hoursGoneFromHome to 0>>",
+				manualVariableChanges:"<<set $robin.rent.pcPaysForRobin to true>><<set $robin.romance to true>><<set $bus to \"home\">><<run Memories.Robin.delete(\"baileyUsedRobinAsLeverage\")>><<set $baileydefeatedchain to 3>><<unset $baileyReunionScene>><<set $rentTime to 0>><<set $robin.punishment.current to 0>><<set $hoursGoneFromHome to 0>>",
 				unlocked: $scenePassages.includes("RentFirstRobinFight")
 			},
 			"RobinDocks":{
@@ -760,14 +760,14 @@ End of '<<print $replayScene.name>>' scene.
 				name:"Robin Pillory Intro",
 				startPassage:"Robin Pillory Intro",
 				passages:["Robin Pillory Intro","Robin Pillory Truth","Robin Pillory Evade"],
-				manualVariableChanges:"<<set $robinPillory to {}>>",
+				manualVariableChanges:"<<set $robin.punishment.pillory to {}>>",
 				unlocked: $scenePassages.includes("RobinPillory")
 			},
 			"RobinPillory":{
 				name:"Robin Pillory",
 				startPassage:"Robin Pillory Watch",
 				passages:["Robin Pillory Watch","Robin Pillory Failure","Robin Pillory Failure 2","Robin Pillory Failure 3","Robin Pillory Failure Optimism","Robin Pillory Failure Pessimism","Robin Pillory Lockpick","Robin Pillory Distractions","Robin Pillory Speech","Robin Pillory Fruit","Robin Pillory Money","Robin Pillory Crime","Robin Pillory Flower","Robin Pillory Escape","Robin Pillory Escape End","Robin Pillory Escape Sex","Robin Pillory Escape Sex Finish","Robin Pillory Escape Orphanage","Robin Pillory Bath","Robin Pillory Bath Wait","Robin Pillory Finish"],
-				manualVariableChanges:"<<set $robinPillory to {locks: 3, danger: 0, distractions: [], known: true}>><<run Time.setTime(15,0)>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
+				manualVariableChanges:"<<set $robin.punishment.pillory to {locks: 3, danger: 0, distractions: [], known: true}>><<run Time.setTime(15,0)>><<set C.npc.Robin.virginity.vaginal to true>><<set C.npc.Robin.virginity.anal to true>>",
 				unlocked: $scenePassages.includes("RobinPillory")
 			},
 			"RobinUndergroundDice":{
@@ -1493,7 +1493,7 @@ You are in the main hall of the orphanage.
 
 A hand rests on your shoulder from behind. <span class="red">It's Bailey.</span>
 <br><br>
-<<if $robinfirstrentfight and ($baileypaychain lt 2 or $rentTime lte -1)>>
+<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1)>>
 	<<rentduerobin 0>>
 <<else>>
 	<<rentdue 0>>
@@ -1508,7 +1508,7 @@ You go to Robin's room. There's a note on the door. "Please don't enter!"
 
 <<link [[Enter|Robin Caught CD]]>><</link>>
 <br>
-<<link [[Leave|Orphanage]]>><<set $fromRobinRoom to true>><<endevent>><</link>>
+<<link [[Leave|Orphanage]]>><<set $robin.room.pcJustLeft to true>><<endevent>><</link>>
 <br>
 
 :: Robin CD Door SV Start
@@ -1575,7 +1575,7 @@ Robin looks at the clock on the wall and sighs. "I need to get my _stand set up.
 	<<link [[Offer to help set up (0:30)|Robin's Lemonade Set]]>><<pass 30>><<npcincr Robin love 1>><</link>><<glove>>
 <</if>>
 <br>
-<<link [[Leave|Orphanage]]>><<set $fromRobinRoom to true>><<endevent>><</link>>
+<<link [[Leave|Orphanage]]>><<set $robin.room.pcJustLeft to true>><<endevent>><</link>>
 <br>
 
 :: Robin School CD SV Intro
@@ -1586,7 +1586,7 @@ You enter Robin's room, <<hes>> standing in front of <<his>> mirror holding a
 <<He>> seems focused on how <<he>> looks and doesn't notice you at first.
 <br><br>
 
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Compliment|Robin School CD Compliment]]>><</link>>
 <<else>>
 	<<link [[Interrupt|Robin School CD Interrupt]]>><</link>>

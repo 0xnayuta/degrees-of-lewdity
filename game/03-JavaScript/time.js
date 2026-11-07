@@ -519,27 +519,26 @@ function weekPassed() {
 		V.history_exam = Math.clamp(V.history_exam - 7, -107, 200);
 		wikifier("exam_difficulty");
 	}
-	if (V.robinpaid === 1) {
-		V.robinPayout = 0;
-		if (V.robin.weeksSinceProtector) {
-			V.robin.weeksSinceProtector++;
+	if (V.robin.rent.pcPaysForRobin) {
+		if (V.robin.rent.weeksPcPaidForRobin) {
+			V.robin.rent.weeksPcPaidForRobin++;
 		} else {
-			V.robin.weeksSinceProtector = 1;
+			V.robin.rent.weeksPcPaidForRobin = 1;
 		}
 	} else {
-		V.robinmoney -= 400;
-		if (V.robinmoney <= 0 && V.robindebt >= 0) {
-			V.robinmoney = 0;
-			V.robindebt++;
+		V.robin.money.savings -= 400;
+		if (V.robin.money.savings <= 0 && V.robin.rent.missedPayments >= 0) {
+			V.robin.money.savings = 0;
+			V.robin.rent.missedPayments++;
 		}
 	}
-	if (V.robinpaid !== 1 && V.robindebt >= V.robindebtlimit && V.robindebtevent <= 0) {
+	if (!V.robin.rent.pcPaysForRobin && V.robin.rent.missedPayments >= V.robin.rent.missedPaymentLimit && V.robin.punishment.daysLeft <= 0) {
 		wikifier("robinPunishment", "docks");
-		V.robineventnote = 1;
-		V.robindebt = 0;
+		V.robin.rent.pcThinksOfPayingBaileyForRobin = true;
+		V.robin.rent.missedPayments = 0;
 	}
-	V.robinmoney += (V.robin.stayup >= 1 ? 250 : 300) + V.robin.moneyModifier;
-	if (V.robinmoney > 4000) V.robinmoney = 4000;
+	V.robin.money.savings += (V.robin.stayedUp >= 1 ? 250 : 300) + V.robin.money.balloonStandBonus;
+	if (V.robin.money.savings > 4000) V.robin.money.savings = 4000;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 	if (V.loft_kylar) V.loft_spray = 0;
 	if (V.farm) {
@@ -713,11 +712,11 @@ function dayPassed() {
 		}
 	}
 	if (V.balloonStand.robin.status === "closed") V.balloonStand.robin.status = "sabotaged";
-	if (V.robin.timer.customer >= 1) V.robin.timer.customer--;
-	if (V.robin.timer.hurt >= 1) V.robin.timer.hurt--;
-	if (V.robin.timer.hurt === 0) V.robin.hurtReason = "nothing";
+	if (V.robin.money.balloonStandDaysUntilTalk >= 1) V.robin.money.balloonStandDaysUntilTalk--;
+	if (V.robin.hurt.daysLeft >= 1) V.robin.hurt.daysLeft--;
+	if (V.robin.hurt.daysLeft === 0) V.robin.hurt.reason = "nothing";
 
-	V.robin.stayup = V.robin.stayup === 1 ? 2 : 0;
+	V.robin.stayedUp = V.robin.stayedUp === 1 ? 2 : 0;
 
 	if (numberOfEarSlime()) {
 		// Daily Corruption
@@ -989,7 +988,8 @@ function dayPassed() {
 	}
 
 	// Activate the robin pillory
-	if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;
+	if (V.robin.punishment.pillory && V.robin.punishment.pillory.danger !== undefined && (V.robin.punishment.daysLeft <= 1 || !V.baileySold))
+		V.robin.punishment.pillory.active = true;
 
 	// Save today's HC ending in local storage
 	if (V.daily.winterStoryTime && V.hcEndings)
@@ -1008,7 +1008,7 @@ function dayPassed() {
 	/* Set flag to determine Kylar's position at lunch */
 	V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
-	if (random(1, 8) === 1) V.daily.robin.orphanageKitchen = true;
+	if (random(1, 8) === 1) V.daily.robin.canHaveKitchenEvent = true;
 
 	if (V.avery_skyscraper_fire_time >= 1) {
 		V.avery_skyscraper_fire_time--;
@@ -1117,7 +1117,7 @@ function hourPassed(hours) {
 		// Include "bath" as a location since bathing is from 17:00-17:29
 		if (
 			Time.hour === 17 &&
-			V.robin.autoWater &&
+			V.robin.orphanage.watersGarden &&
 			C.npc.Robin.trauma < 50 &&
 			["orphanage", "garden", "bath"].includes(getRobinLocation()) &&
 			Weather.precipitation !== "rain" &&
@@ -1126,10 +1126,10 @@ function hourPassed(hours) {
 			!orphanagePlotsWatered()
 		) {
 			V.plots.garden?.forEach(plot => (plot.water = 1));
-			V.daily.robin.watered = "alone";
+			V.daily.robin.whoWateredGarden = "alone";
 		}
 		// robin pillory
-		if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
+		if (V.robin.punishment.pillory && V.robin.punishment.pillory.danger !== undefined && V.robin.punishment.pillory.active) wikifier("robinPilloryHour");
 
 		// time checks
 		if (Time.hour === 6) dawnCheck();
@@ -1181,7 +1181,7 @@ function hourPassed(hours) {
 
 	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) wikifier("clear_pillory");
 
-	if (V.robinbed === "yours" && !["sleep", "orphanage"].includes(getRobinLocation())) delete V.robinbed;
+	if (V.robin.orphanage.whoseBedTonight === "yours" && !["sleep", "orphanage"].includes(getRobinLocation())) delete V.robin.orphanage.whoseBedTonight;
 
 	// todo: why is it here? look for a better way to handle it
 	if (V.per_npc.pubfame_receptionist) {
@@ -1283,8 +1283,7 @@ function noonCheck() {
 
 	if (V.statFreeze) return;
 
-	V.robinwakeday = 0;
-	delete V.robin_kicked_out;
+	V.robin.orphanage.climbedIntoPcBed = false;
 	delete V.bartend_info;
 	delete V.bartend_info_other;
 	if (V.per_npc.bartend) wikifier("clearNPC", "bartend");
@@ -1353,7 +1352,7 @@ function dawnCheck() {
 }
 
 function dailyNPCEffects() {
-	delete V.robinlocationoverride;
+	delete V.robin.locationOverride;
 
 	// Winter
 	if (Time.weekDay === 7) V.winterHint = "notGiven";
@@ -1365,9 +1364,9 @@ function dailyNPCEffects() {
 	}
 
 	// Robin
-	if (V.robindebtevent > 0) {
-		V.robindebtevent--;
-		switch (V.robinmissing) {
+	if (V.robin.punishment.daysLeft > 0) {
+		V.robin.punishment.daysLeft--;
+		switch (V.robin.punishment.current) {
 			case "dinner":
 				wikifier("npcincr", "Robin", "trauma", 40);
 				break;
@@ -1375,23 +1374,20 @@ function dailyNPCEffects() {
 				wikifier("npcincr", "Robin", "trauma", 15);
 				break;
 			case "landfill":
-				wikifier("npcincr", "Robin", "trauma", V.robindebtevent >= 1 ? 10 : 25);
+				wikifier("npcincr", "Robin", "trauma", V.robin.punishment.daysLeft >= 1 ? 10 : 25);
 				break;
 		}
 	}
 	if (C.npc.Robin.trauma > 0) wikifier("npcincr", "Robin", "trauma", -1);
 
-	if (V.robindebtevent === 0) V.robinmissing = 0;
-	if (V.robinpaid >= 1) {
+	if (V.robin.punishment.daysLeft === 0) V.robin.punishment.current = 0;
+	if (V.robin.rent.pcPaysForRobin) {
 		// Edge case for when the PC is in combat at midnight.
 		if (V.combat === 1) statChange.trauma(-25, "combat");
 		else statChange.trauma(-25);
 	}
-	if (V.robinromance === 1 && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
-	if (V.robinPilloryFail) {
-		delete V.robinPilloryFail;
-		delete V.robinPillory;
-	}
+	if (V.robin.romance && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
+	if (V.robin.punishment.pillory?.rescueFailed) delete V.robin.punishment.pillory;
 
 	// Alex
 	if (V.farm_stage >= 7 && C.npc.Alex.dom >= 40) wikifier("npcincr", "Alex", "lust", 1);
@@ -2071,14 +2067,12 @@ function yearlyEventChecks() {
 		V.halloween = 1;
 		V.halloweenClothesMessage = 1;
 	} else if (V.halloween) {
-		if (V.halloween_robin_costume && C.npc.Robin.outfits && C.npc.Robin.outfits.includes(V.halloween_robin_costume))
-			wikifier("removeNNPCOutfit", "Robin", V.halloween_robin_costume);
+		if (V.robin.halloween.costumeWorn && C.npc.Robin.outfits && C.npc.Robin.outfits.includes(V.robin.halloween.costumeWorn))
+			wikifier("removeNNPCOutfit", "Robin", V.robin.halloween.costumeWorn);
 		delete V.halloween;
 		delete V.halloween_whitney;
 		delete V.halloween_whitney_proposed;
-		delete V.halloween_robin;
-		delete V.halloween_robin_scare;
-		delete V.halloween_robin_costume;
+		V.robin.halloween = {};
 		delete V.halloween_winter_key;
 		delete V.halloween_eden;
 		delete V.halloween_eden_bought;
@@ -2106,12 +2100,8 @@ function yearlyEventChecks() {
 		delete V.christmas_event;
 		delete V.christmas_event_2;
 		delete V.christmas_gift;
-		delete V.christmas_gift_robin;
+		V.robin.christmas = {};
 		delete V.christmas_wrap;
-		delete V.christmas_gift_robin_wrapped;
-		delete V.christmas_robin_lewd;
-		delete V.christmas_robin_gift_received;
-		delete V.christmas_gift_robin_given;
 		delete V.christmas_gift_eden;
 		delete V.christmas_gift_eden_given;
 		delete V.christmas_kylar;

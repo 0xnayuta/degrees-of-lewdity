@@ -16,21 +16,21 @@
 	"Good idea," Robin says. "Where do you want to go?"
 	<br><br>
 <</if>>
-<<if !$daily.robin.walk>>
-	<<foresticon>><<link [[Forest (0:30)|Robin Forest]]>><<pass 30>><<set $daily.robin.walk to 1>><</link>>
+<<if !$daily.robin.forestWalkUsed>>
+	<<foresticon>><<link [[Forest (0:30)|Robin Forest]]>><<pass 30>><<set $daily.robin.forestWalkUsed to true>><</link>>
 	<br>
 <</if>>
-<<if C.npc.Robin.love gte 20 and $money gte 1500 and !$daily.robin.cinema>>
+<<if C.npc.Robin.love gte 20 and $money gte 1500 and !$daily.robin.wentOnOuting>>
 	<<socialiseicon "cinema">><<link [[Cinema (£15 2:00)|Robin Walk Cinema]]>><<if Time.hour lt 12 and (Time.schoolDay or Time.isWeekEnd())>><<pass 15>><</if>><</link>>
 	<br>
 <</if>>
-<<if C.npc.Robin.love gte 40 and $money gte 2100 and !$daily.robin.amusements>>
+<<if C.npc.Robin.love gte 40 and $money gte 2100 and !$daily.robin.wentOnOuting>>
 	<<starfishicon>><<link [[Amusements (£21 1:15)|Robin Amusements]]>><<pass 15>><</link>>
 	<br>
 <</if>>
-<<if $halloween_robin is 1 and $halloween_robin_costume is "ghost" and !(Time.monthDay is 31 and Time.hour gte 16)>>
+<<if $robin.halloween.firstRoomVisit and $robin.halloween.costumeWorn is "ghost" and !(Time.monthDay is 31 and Time.hour gte 16)>>
 	<!-- SANITY: Intentional mismatch between stated time and actual time. Extra time is passed later on in the event -->
-	<<if !$robin_forest_visited>>
+	<<if !Memories.Robin.has("visitedForestShop")>>
 		<<foodicon "halloween">><<link [[Go shopping for Halloween costumes (0:30)|Robin Forest Shop]]>><<pass 10>><</link>>
 	<<else>>
 		<<foodicon "halloween">><<link [[Go shopping for Halloween costumes (0:20)|Robin Forest Shop]]>><<pass 10>><</link>>
@@ -58,7 +58,7 @@
 	<<robinoptions>>
 <<else>>
 	<<set $outside to 0>><<set $location to "town">><<effects>>
-	<<set $daily.robin.cinema to 1>>
+	<<set $daily.robin.wentOnOuting to true>>
 	<!-- note: changes to _robin *will* affect C.npc.Robin -->
 	<!-- does not use the new NPC clothes system completely, needs Robin crossdressing events to better determine when Robin will crossdress -->
 	<<if _robin.outfits isnot undefined>>
@@ -68,17 +68,17 @@
 			<<npcClothesName _robin _robinOutfits>><<npcClothesName $NPCList[0] _robin.clothes.set>>
 		<</if>>
 	<</if>>
-	<<set $daily.robin.walk to 2>><<money -1500 "robin">>
+	<<set $daily.robin.forestWalkUsed to true>><<money -1500 "robin">>
 	<<if (["robinGiftTuxedo", "robinGiftShirt"].includes(_robin.clothes.set) and _robin.pronoun is "m") or (["robinGiftSundress", "robinGiftGown"].includes(_robin.clothes.set) and _robin.pronoun is "f") or ["robinGiftKimono"].includes(_robin.clothes.set)>>
 		<<His>> eyes light up and <<he>> jumps to <<his>> feet. "Let me get changed first", as <<he>> pulls out <<his>> <<print _robin.clothes.upper.name>>.
-		<<if $robinromance is 1>>
+		<<if $robin.romance>>
 			<<He>> looks at you, blushing, "I don't mind if you want to watch me change."<<glust>><<npcincr Robin lust 1>>
 		<<else>>
 			<<He>> looks at you, blushing, "Can you turn around while I change, please?"
 		<</if>>
 		<br><br>
 	<<elseif ((["robinGiftTuxedo", "robinGiftShirt"].includes(_robin.clothes.set) and _robin.pronoun is "f") or (["robinGiftSundress", "robinGiftGown"].includes(_robin.clothes.set) and _robin.pronoun is "m"))
-	and $robinromance is 1 and _robin.crossdress gte 5>>
+	and $robin.romance and _robin.crossdress gte 5>>
 		<<His>> eyes light up and <<he>> jumps to <<his>> feet. "Let me get changed first," <<he>> says as <<he>> pulls out <<his>> <<print _robin.clothes.upper.name>>.
 		"I wonder if anyone will recognise me." <<He>> looks at you, blushing. "I don't mind if you want to watch me change."<<glust>><<npcincr Robin lust 1>>
 		<br><br>
@@ -88,7 +88,7 @@
 	"What will we see?" <<he>> asks. <<His>> smile falters a moment. "Nothing scary I hope."
 	<br><br>
 
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		You walk hand in hand to High Street. The cinema stands beside the shopping centre. Three films are showing.
 		<br><br>
 	<<else>>
@@ -133,7 +133,7 @@ _popcornIntro
 		The person who runs it seems nice. I'm happy to support another entrepreneur." Robin smiles.
 	<<elseif $balloonStand.robin.status is "sabotaged">>
 		<<if $balloonStand.robin.knows is false>>
-			Why would you give them your custom?" Robin asks, sounding wounded. "I'm struggling as is, and I don't need my <<print $robinromance is 1 ? "<<girlfriend>>" : "best friend">> shopping at the competitor."
+			Why would you give them your custom?" Robin asks, sounding wounded. "I'm struggling as is, and I don't need my <<print $robin.romance ? "<<girlfriend>>" : "best friend">> shopping at the competitor."
 		<<else>>
 			You're shopping there too?" Robin asks, sounding aghast. "Giving them business ideas wasn't enough?"
 		<</if>>
@@ -158,8 +158,8 @@ _popcornIntro
 			"I'm sorry," you say. "I can't afford it."
 		<</if>>
 		<br><br>
-		<<if $robinmoney gte 10>>
-			"That's okay," Robin assures you. "My treat!" <<He>> purchases a bag of popcorn for the two of you to share. <<set $robinmoney -= 10>><<set $popcorn += 1>>
+		<<if $robin.money.savings gte 10>>
+			"That's okay," Robin assures you. "My treat!" <<He>> purchases a bag of popcorn for the two of you to share. <<set $robin.money.savings -= 10>><<set $popcorn += 1>>
 			<br><br>
 			<<socialiseicon "cinema">><<link [[Enter theatre|"Robin Cinema " + _theatreLink]]>><<set $phase2 to "popcorn">><</link>>
 		<<else>>
@@ -182,7 +182,7 @@ Robin runs ahead of you into the theatre. You find <<him>> waiting by the attend
 The film soon starts. It's pretty good. Robin enjoys it, and laughs along with the rest of the audience.
 <br><br>
 
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Fondle|Robin Cinema Fondle]]>><<npcincr Robin lust 1>><</link>><<promiscuous1>><<glust>>
 	<br>
 <</if>>
@@ -257,7 +257,7 @@ You watch the film to its satisfying conclusion.
 <<if $phase is "purchase">>You purchase a bag of overpriced, if tasty, popcorn.<</if>>
 <<if $phase2 is "popcorn">><<wearProp "popcorn">><</if>>
 
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<set $dateCount.Total++>><<set $dateCount.Robin++>>
 
 	You enter the theatre. Robin picks seats near the back. "I hope it's good," <<he>> says. You don't have to wait long.
@@ -322,7 +322,7 @@ You lean into Robin and lower your hands to <<his>> hips, right as the film's pr
 You move closer and closer to Robin. <<He>> turns to you just in time, but you still catch <<him>> by surprise.
 <br><br>
 
-You wrap your arms around <<him>> as your lips meet. <<takeKissVirginity "Robin" `($robinromance is 1?"loveInterest":"romantic")`>>
+You wrap your arms around <<him>> as your lips meet. <<takeKissVirginity "Robin" `($robin.romance?"loveInterest":"romantic")`>>
 <<if _pcKissVirginityTaken>>
 	<br><br>
 <</if>>
@@ -564,7 +564,7 @@ You strip yourself naked. You barely have enough time to remove the last piece b
 	<br><br>
 <</if>>
 
-<<He>> gazes into your eyes. "I love you." <<He>> kisses you again. <<takeKissVirginity "Robin" `($robinromance is 1?"loveInterest":"romantic")`>>
+<<He>> gazes into your eyes. "I love you." <<He>> kisses you again. <<takeKissVirginity "Robin" `($robin.romance?"loveInterest":"romantic")`>>
 <<if _pcKissVirginityTaken>>
 	<br><br>
 <</if>>
@@ -772,8 +772,8 @@ Robin applauds when the credits roll, and talks about the film on the way home.
 You quote one of the film's leads, from the part right before the two protagonists first kiss. Robin smiles and takes the other role. You think you get the lines right. <<He>> says the final line.
 <br><br>
 
-<<if $robinromance is 1>>
-	<<He>> hugs you and leans close. "We have to kiss now," <<he>> says. "Or it won't be proper." <<He>> kisses you with more vigour than usual, trying to replicate the movie. <<Hes>> blushing when <<he>> pulls away, and continues to until you make it back to <<his>> room.<<takeKissVirginity "Robin" `($robinromance is 1?"loveInterest":"romantic")`>>
+<<if $robin.romance>>
+	<<He>> hugs you and leans close. "We have to kiss now," <<he>> says. "Or it won't be proper." <<He>> kisses you with more vigour than usual, trying to replicate the movie. <<Hes>> blushing when <<he>> pulls away, and continues to until you make it back to <<his>> room.<<takeKissVirginity "Robin" `($robin.romance?"loveInterest":"romantic")`>>
 	<br><br>
 
 	<<link [[Next|Robin Options]]>><</link>>
@@ -942,11 +942,11 @@ The film starts. It's quite frightening. You think you're getting used to it whe
 	There's not much food in the basket. "I took what I could get away with," <<he>> says. "It's more for the fun of it anyway."
 	<br><br>
 
-	<<if $milk_amount gte 100 and $lactating gte 1 and hasSexStat("exhibitionism", 5) and $robinromance is 1 and $settings.breastFeedingEnabled>>
+	<<if $milk_amount gte 100 and $lactating gte 1 and hasSexStat("exhibitionism", 5) and $robin.romance and $settings.breastFeedingEnabled>>
 		<<link [[Get milked|Robin Forest Milking]]>><<npcincr Robin lust 1>><<npcincr Robin love 1>><</link>><<glove>><<glust>><<exhibitionist5>>
 		<br>
 	<</if>>
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		<<link [[Kiss|Robin Forest Kiss]]>><<npcincr Robin lust 1>><<npcincr Robin love 1>><</link>><<glove>><<glust>><<promiscuous1>>
 		<br>
 	<</if>>
@@ -1032,7 +1032,7 @@ You spot it caught under a root. As you bend over to free it, you feel something
 		<br><br>
 	<</if>>
 
-	<<link [[Next|Robin Forest Double Vore]]>><<set $daily.robin.walk to 2>><</link>>
+	<<link [[Next|Robin Forest Double Vore]]>><<set $daily.robin.forestWalkUsed to true>><</link>>
 <<else>>
 	<<wearProp "picnic basket">>
 	<<tearful>> you escape the snake's ravenous maw, then remember what you came here for. The picnic basket is still where you last saw it, so you dash away from the snake, now too slow without the element of surprise, and bring the basket back to Robin.
@@ -1158,7 +1158,7 @@ Robin hugs you but doesn't say anything. The ordeal must have been as traumatisi
 You reach your hand towards where you think Robin is trapped in the snake's gullet, searching for the entrance to the stomach. You push your hand through a fleshy valve and feel <<his>> slime-covered head. You tell <<him>> to take your hand. "I'm glad I'm not alone in here," <<he>> says. "These slimy walls keep squeezing me." <<He>> takes your hand.
 <br><br>
 
-You pull <<him>> towards you. "W-wait," <<he>> cries. "What are you doing? Don't pull me deeper!" Before <<he>> can complain any more, you pull <<him>> into the stomach headfirst and kiss <<him>>. <<He>> fidgets at first, but starts to calm down. You break the kiss, and explain that you've been through situations like this before, and that you're not in any real danger of being digested. Robin gives you an incredulous look before the snake's stomach shifts and the rest of <<his>> body slides into the stomach.<<deviancy5>>
+You pull <<him>> towards you. "W-wait," <<he>> cries. "What are you doing? Don't pull me deeper!" Before <<he>> can complain any more, you pull <<him>> into the stomach headfirst and kiss <<him>>. <<He>> fidgets at first, but starts to calm down. You break the kiss, and explain that you've been through situations like this before, and that you're not in any real danger of being digested. Robin gives you an incredulous look before the snake's stomach shifts and the rest of <<his>> body slides into the stomach. <<takeKissVirginity "Robin" `($robin.romance?"loveInterest":"romantic")`>><<deviancy5>>
 
 The stomach is now even tighter than before with two people stuck in it. You feel the smooth skin of Robin's legs press against your face. You can feel <<his>> breath on your crotch. The walls of the stomach close in again and your mouth is pressed against <<his>> <<if $NPCList[0].penis isnot "none">>penis<<else>>pussy<</if>>, eliciting a gasp. You take the chance to start licking and sucking on <<his>> crotch through the fabric, trying to help <<him>> enjoy this situation as much as you are.
 <br><br>
@@ -1400,6 +1400,7 @@ The rest of the picnic is uneventful. Robin seems less embarrassed by the end.
 
 :: Robin Forest Milking Source
 <<location "forest">><<effects>>
+<<set $phase to 0>>
 
 <<if $milk_amount gte 100 and $milk_amount lt 400>>
 	You squeeze your <<breasts>>, squirting milk into Robin's mouth. <<He>> pulls away and squints as <<he>> swallows.
@@ -1421,7 +1422,7 @@ The rest of the picnic is uneventful. Robin seems less embarrassed by the end.
 	<<milk_amount -1400>>
 	You squeeze your <<breasts>>, shooting milk into Robin's mouth. It spills from <<his>> mouth as <<he>> pulls away and swallows.
 	<br><br>
-	<<set $overflow to true>>
+	<<set $phase to 1>>
 <</if>>
 <<Hes>> a little overwhelmed by the situation, but you can tell <<hes>> keen to please you.
 <br><br>
@@ -1430,10 +1431,9 @@ The rest of the picnic is uneventful. Robin seems less embarrassed by the end.
 
 :: Robin Forest Milking End
 <<location "forest">><<effects>>
-<<set $robinSeen.pushUnique("forestMilking")>>
+<<run Memories.Robin.add("drankPcMilkInForest")>>
 
-<<if $overflow is true>>
-	<<unset $overflow>>
+<<if $phase is 1>>
 	Robin cleans <<his>> chin with tissues, and tries to dry <<his>> shirt. <<He>> pushes them against your <<breasts>> next, trying to dry you as well.
 	<br><br>
 <<else>>
@@ -1461,7 +1461,7 @@ You sit together for several minutes, before packing up the picnic and walking b
 
 <<widget "robinForestCostumePose">>
 	<<He>> turns back to the mirror and
-	<<switch $forest_costume.name>>
+	<<switch $robin.halloween.costumeBeingTriedOn.name>>
 		<<case "witch">> swishes the skirt around.
 		<<case "vampire">> strikes a menacing pose.
 	<</switch>>
@@ -1469,7 +1469,7 @@ You sit together for several minutes, before packing up the picnic and walking b
 
 <<widget "robinForestCostumeBuy">>
 	<<if $money gte 8000>>
-		<<link [[Buy the costume for Robin (£80)|Robin Forest Costume Buy]]>><<npcincr Robin love 3>><<money -8000 "robin">><<set $halloween_robin_costume to $forest_costume.name>><<set $forest_costume.bought to true>><</link>><<gglove>>
+		<<link [[Buy the costume for Robin (£80)|Robin Forest Costume Buy]]>><<npcincr Robin love 3>><<money -8000 "robin">><<set $robin.halloween.costumeWorn to $robin.halloween.costumeBeingTriedOn.name>><<set $robin.halloween.costumeBeingTriedOn.bought to true>><</link>><<gglove>>
 		<br>
 	<<else>>
 		You don't have enough money to buy the costume. (£80)
@@ -1478,7 +1478,7 @@ You sit together for several minutes, before packing up the picnic and walking b
 <</widget>>
 
 <<widget "robinForestCostumeOptions">>
-	<<if !$forest_costume.bought>>
+	<<if !$robin.halloween.costumeBeingTriedOn.bought>>
 		<<if _args[0] isnot "witch">>
 			<<link [[Ask Robin to try on the girl's witch costume|Robin Forest Costume]]>><<set $phase to "witch">><</link>>
 			<br>
@@ -1497,7 +1497,7 @@ You sit together for several minutes, before packing up the picnic and walking b
 :: Robin Forest Shop
 
 <<set $outside to 1>><<set $location to "town">><<effects>>
-<<if !$robin_forest_visited>>
+<<if !Memories.Robin.has("visitedForestShop")>>
 	"Would you like to go look at Halloween costumes?" you ask. Robin's eyes light up, and <<he>> nods.
 	<br><br>
 	Together you walk to High Street. Robin knows exactly where to visit and rushes ahead of you. <<He>> has <<his>> hands and nose pressed against a shop window when you catch up. <<He>> turns to you, looking disappointed. "They're sold out," <<he>> says. <<His>> frown vanishes in an instant. "I know another shop." <<He>> rushes away again.
@@ -1557,12 +1557,12 @@ You arrive at Wolf Street just in time to see the <<personSimple>> disappear int
 :: Robin Forest Shop 4
 
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
-<<set $robin_in_forest_shop to true>><<set $forest_costume to {}>>
+<<set $robin.outings.inForestShop to true>><<set $robin.halloween.costumeBeingTriedOn to {}>>
 <<npc "Gwylan" 2>><<run statusCheck("Gwylan")>>
 
 /* ToDo: Gwylan - account for Gwylan being absent or nobody */
-<<if !$robin_forest_visited>>
-	<<set $robin_forest_visited to 1>>
+<<if !Memories.Robin.has("visitedForestShop")>>
+	<<run Memories.Robin.add("visitedForestShop")>>
 	You catch occasional glimpses of the <<person2>><<personSimple>> through the trees, until at last you come to a strange building.
 	<<person1>>
 	<<if $forest_shop_intro isnot 1>>
@@ -1647,13 +1647,13 @@ Gwylan pauses. "You could wear them as such," <<he>> decides. "They're behind th
 <<set $outside to 0>><<set $location to "home">><<effects>>
 <<npc "Robin">><<person1>>
 You bid Gwylan farewell. Together you and Robin walk back to the orphanage.
-<<if $forest_costume.bought>>
-	Robin is <<if $forest_costume.cd>>nervous but<</if>> excited, and clutches the $forest_costume.name costume close to <<his>> chest the entire time.
+<<if $robin.halloween.costumeBeingTriedOn.bought>>
+	Robin is <<if $robin.halloween.costumeBeingTriedOn.crossdressing>>nervous but<</if>> excited, and clutches the $robin.halloween.costumeBeingTriedOn.name costume close to <<his>> chest the entire time.
 <<else>>
 	Robin is excited the whole way, and talks about how cool the Halloween costumes were.
 <</if>>
 <br><br>
-<<unset $forest_costume>><<unset $robin_in_forest_shop>>
+<<unset $robin.halloween.costumeBeingTriedOn>><<unset $robin.outings.inForestShop>>
 
 <<if Time.monthDay is 31 and Time.hour is 16>>
 	Robin sees the orphans gathered in costumes once you reach the main hall. "I'm going to be late. I'd better go change into my costume," <<he>> hurriedly says.
@@ -1679,28 +1679,28 @@ You catch up with Robin, and find <<him>> admiring two outfits. A witch costume 
 
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
 <<switch $phase>>
-	<<case "witch">> <<set $forest_costume to {"name": "witch", "gender": "f"}>>
-	<<case "vampire">> <<set $forest_costume to {"name": "vampire", "gender": "m"}>>
+	<<case "witch">> <<set $robin.halloween.costumeBeingTriedOn to {"name": "witch", "gender": "f"}>>
+	<<case "vampire">> <<set $robin.halloween.costumeBeingTriedOn to {"name": "vampire", "gender": "m"}>>
 <</switch>>
-<<set $forest_costume.cd to (C.npc.Robin.pronoun isnot $forest_costume.gender)>>
+<<set $robin.halloween.costumeBeingTriedOn.crossdressing to (C.npc.Robin.pronoun isnot $robin.halloween.costumeBeingTriedOn.gender)>>
 
-"You should try this on," you say, holding the $forest_costume.name outfit against <<him>>.
+"You should try this on," you say, holding the $robin.halloween.costumeBeingTriedOn.name outfit against <<him>>.
 <br><br>
-<<if $forest_costume.cd>>
-	"But it's for <<print ($forest_costume.gender is "m" ? "boys" : "girls")>>," Robin says.
+<<if $robin.halloween.costumeBeingTriedOn.crossdressing>>
+	"But it's for <<print ($robin.halloween.costumeBeingTriedOn.gender is "m" ? "boys" : "girls")>>," Robin says.
 	<br><br>
 	"So?" you respond. "You're only dressing up for fun."
 	<br><br>
 	<<if C.npc.Robin.love lt 60>>
 		Robin hesitates, then shakes <<his>> head. "It's a really cool outfit," <<he>> says. "But I'd be too embarrassed."
 		<br><br>
-		<<robinForestCostumeOptions $forest_costume.name>>
+		<<robinForestCostumeOptions $robin.halloween.costumeBeingTriedOn.name>>
 		<br>
 	<<else>>
 		Robin hesitates, then takes the outfit. You leave the screen to give <<him>> some privacy.
 		<br><br>
 		"Promise you won't laugh," Robin says after a minute. <<He>> doesn't wait for your response before stepping out,
-		<<switch $forest_costume.name>>
+		<<switch $robin.halloween.costumeBeingTriedOn.name>>
 			<<case "witch">> still adjusting <<his>> hat. The costume is oddly tight around <<his>> waist, giving the impression of feminine contours. It fits well.
 			<<case "vampire">> still adjusting <<his>> collar. It fits well.
 		<</switch>>
@@ -1716,7 +1716,7 @@ You catch up with Robin, and find <<him>> admiring two outfits. A witch costume 
 	"Okay," Robin says, taking the outfit. You leave the screen to give <<him>> some privacy.
 	<br><br>
 	"I'm ready," Robin says after a minute. <<He>> doesn't wait for your response before stepping out,
-	<<switch $forest_costume.name>>
+	<<switch $robin.halloween.costumeBeingTriedOn.name>>
 		<<case "witch">> still adjusting <<his>> hat. The costume is tight around <<his>> waist, and shows off <<his>> feminine contours. It fits well.
 		<<case "vampire">> still adjusting <<his>> collar. It fits well.
 	<</switch>>
@@ -1733,12 +1733,12 @@ You catch up with Robin, and find <<him>> admiring two outfits. A witch costume 
 
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
 
-<<if $forest_costume.cd>>
-	"You make such a <<print ($forest_costume.gender is "m" ? "handsome boy" : "cute girl")>>," you laugh. "It suits you."
+<<if $robin.halloween.costumeBeingTriedOn.crossdressing>>
+	"You make such a <<print ($robin.halloween.costumeBeingTriedOn.gender is "m" ? "handsome boy" : "cute girl")>>," you laugh. "It suits you."
 	<br><br>
 	"No, I don't," <<he>> says, blushing yet smiling.
 <<else>>
-	"You make such a <<print ($forest_costume.gender is "m" ? "handsome" : "cute")>> $forest_costume.name," you laugh. "It suits you."
+	"You make such a <<print ($robin.halloween.costumeBeingTriedOn.gender is "m" ? "handsome" : "cute")>> $robin.halloween.costumeBeingTriedOn.name," you laugh. "It suits you."
 	<br><br>
 	"Does it?" <<he>> asks, smiling.
 <</if>>
@@ -1746,27 +1746,27 @@ You catch up with Robin, and find <<him>> admiring two outfits. A witch costume 
 <br><br>
 
 <<robinForestCostumeBuy>>
-<<robinForestCostumeOptions $forest_costume.name>>
+<<robinForestCostumeOptions $robin.halloween.costumeBeingTriedOn.name>>
 
 :: Robin Forest Costume Compliment
 
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
-"It suits you," you say. "You look like a scary $forest_costume.name."
+"It suits you," you say. "You look like a scary $robin.halloween.costumeBeingTriedOn.name."
 <br><br>
 "Really?" <<he>> asks, smiling.
 <<robinForestCostumePose>>
 <br><br>
 
 <<robinForestCostumeBuy>>
-<<robinForestCostumeOptions $forest_costume.name>>
+<<robinForestCostumeOptions $robin.halloween.costumeBeingTriedOn.name>>
 
 :: Robin Forest Costume Buy
 
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
 "I'm going to buy it," you announce. "You need a proper costume for Halloween."
 <br><br>
-<<if $forest_costume.cd>>
-	"But I can't dress as a <<print ($forest_costume.gender is "m" ? "boy" : "girl")>>," Robin says. "I'm not brave enough."
+<<if $robin.halloween.costumeBeingTriedOn.crossdressing>>
+	"But I can't dress as a <<print ($robin.halloween.costumeBeingTriedOn.gender is "m" ? "boy" : "girl")>>," Robin says. "I'm not brave enough."
 	<br><br>
 	"Yes, you are," you reply. "You like the outfit, don't you?"
 	<br><br>
@@ -1828,11 +1828,11 @@ Robin doesn't say anything more as <<he>> sets out the food. You keep glancing a
 <</if>>
 <br><br>
 
-Robin clears <<his>> throat. "Thank you for coming out with me," <<he>> says. "It's better <<= $robinromance is 1 ? "when I'm with you." : "if I'm not alone.">>"
+Robin clears <<his>> throat. "Thank you for coming out with me," <<he>> says. "It's better <<= $robin.romance ? "when I'm with you." : "if I'm not alone.">>"
 <br><br>
 
 <<link [[Offer to share food|Robin Forest Crash Food]]>><</link>>
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<br>
 	<<link [[Kiss|Robin Forest Crash Kiss]]>><</link>><<promiscuous1>>
 <</if>>
@@ -1865,7 +1865,7 @@ You break a piece of bread in half and hand <<him>> the bigger piece. <<He>> smi
 
 <<link [[Go home|Robin Forest Crash Home]]>><</link>>
 <br>
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Kiss|Robin Forest Crash Kiss]]>><</link>><<promiscuous1>><<kissvirginitywarning>>
 	<br>
 <</if>>
@@ -1882,7 +1882,7 @@ You only relax when you're safe in Robin's room.
 :: Robin Forest Crash Kiss
 <<effects>>
 
-You lean forwards and kiss Robin. <<He>> kisses back, pulling you closer. "I feel so safe with you," <<he>> says.<<takeKissVirginity "Robin" `($robinromance is 1?"loveInterest":"romantic")`>>
+You lean forwards and kiss Robin. <<He>> kisses back, pulling you closer. "I feel so safe with you," <<he>> says.<<takeKissVirginity "Robin" `($robin.romance?"loveInterest":"romantic")`>>
 <<if _pcKissVirginityTaken>>
 	<br><br>
 <</if>>
@@ -2095,7 +2095,7 @@ After a moment, Robin pulls back.
 <br><br>
 "Who was that?" <<he>> asks. "<<nnpc_He "Eden">> acted like <<nnpc_he "Eden">> knew you."
 <br><br>
-You hesitate, unsure how to explain. Robin waits for an answer. When it becomes apparent you won't—or can't—answer, <<he>> heads to <<his>> bed and <<= $robinconsole is 1 ? "picks up <<his>> controller" : "sits down">>.
+You hesitate, unsure how to explain. Robin waits for an answer. When it becomes apparent you won't—or can't—answer, <<he>> heads to <<his>> bed and <<= $robin.room.hasConsole ? "picks up <<his>> controller" : "sits down">>.
 <br><br>
 <<endevent>>
 
@@ -2142,12 +2142,12 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 	<<robinoptions>>
 <<else>>
 	<<set $outside to 0>><<set $location to "town">><<effects>>
-	<<set $daily.robin.cinema to 1>>
+	<<set $daily.robin.wentOnOuting to true>>
 	<<robin_amusements_init>>
 	Robin clasps <<his>> hands together. "That would be wonderful," <<he>> says. "I can't wait to see the prizes."
 	<br><br>
 
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		You walk hand in hand to Starfish Street, and hear the dinging of the machines before you arrive, even over the sound of the waves.
 	<<else>>
 		You walk together to Starfish Street, and hear the dinging of the machines before you arrive, even over the sound of the waves.
@@ -2159,17 +2159,17 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 	<br><br>
 
 	<<robin_amusements_list>>
-	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin.outings.amusements.choice to $robin.outings.amusements.games.pluck()>><</link>>
 <</if>>
 
 :: Robin Amusements Main
 <<effects>>
 
-<<if $robin_amusements.games.length gte 4>>
+<<if $robin.outings.amusements.games.length gte 4>>
 	"What do you want to play next?" Robin asks.
 	<br><br>
 	<<robin_amusements_list>>
-	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin.outings.amusements.choice to $robin.outings.amusements.games.pluck()>><</link>>
 	<br>
 <<else>>
 	Robin looks at the window, at the clocktower on the promenade.
@@ -2184,35 +2184,35 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 	<br>
 	<i>Small bag of sweets: 50 tickets.</i>
 	<br>
-	You have <span class="gold"><<print $robin_amusements.tickets>></span> tickets.
+	You have <span class="gold"><<print $robin.outings.amusements.tickets>></span> tickets.
 	<br><br>
-	<<if $robin_amusements.tickets lt 50>>
+	<<if $robin.outings.amusements.tickets lt 50>>
 		Unfortunately, you don't have enough tickets for anything.
 		<br><br>
 		You leave the amusements, stepping into the wind.
 		<<robin_amusements_end_links>>
 	<<else>>
-		<<if $robin_amusements.tickets gte 300>>
+		<<if $robin.outings.amusements.tickets gte 300>>
 			<<link [[A giant lollipop for both of you (300 tickets)|Robin Amusements Lollipop 2]]>><<npcincr Robin love 3>><<trauma -6>><<control 6>><</link>><<gglove>><<gcontrol>><<ltrauma>>
 			<br>
 		<</if>>
-		<<if $robin_amusements.tickets gte 150>>
+		<<if $robin.outings.amusements.tickets gte 150>>
 			<<link [[A giant lollipop to share (150 tickets)|Robin Amusements Lollipop]]>><<npcincr Robin love 3>><<trauma -6>><</link>><<gglove>><<ltrauma>>
 			<br>
 		<</if>>
-		<<if $robin_amusements.tickets gte 200>>
+		<<if $robin.outings.amusements.tickets gte 200>>
 			<<link [[A bubble blower each (200 tickets)|Robin Amusements Bubble 2]]>><<npcincr Robin love 3>><</link>><<gglove>>
 			<br>
 		<</if>>
-		<<if $robin_amusements.tickets gte 100>>
+		<<if $robin.outings.amusements.tickets gte 100>>
 			<<link [[A bubble blower to share (100 tickets)|Robin Amusements Bubble]]>><<npcincr Robin love 1>><<stress -6>><</link>><<glove>><<lstress>>
 			<br>
 		<</if>>
-		<<if $robin_amusements.tickets gte 100>>
+		<<if $robin.outings.amusements.tickets gte 100>>
 			<<link [[A small bag of sweets each (100 tickets)|Robin Amusements Sweets 2]]>><<npcincr Robin love 1>><<stress -6>><</link>><<glove>><<lstress>>
 			<br>
 		<</if>>
-		<<if $robin_amusements.tickets gte 50>>
+		<<if $robin.outings.amusements.tickets gte 50>>
 			<<link [[A small bag of sweets to share (50 tickets)|Robin Amusements Sweets]]>><<npcincr Robin love 1>><</link>><<glove>>
 			<br>
 		<</if>>
@@ -2226,33 +2226,33 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 
 Robin walks a loop around the amusements, examining each in turn, before settling on
 
-<<if $robin_amusements.choice is "claw">>
+<<if $robin.outings.amusements.choice is "claw">>
 	the claw machine.
 	<br><br>
 
 	<<link [[Next|Robin Amusements Claw]]>><<money -700 "robin">><<pass 15>><</link>>
 	<br>
-<<elseif $robin_amusements.choice is "coin">>
+<<elseif $robin.outings.amusements.choice is "coin">>
 	the coin pusher.
 	<br><br>
 	<<link [[Next|Robin Amusements Coin]]>><<money -700 "robin">><<pass 15>><</link>>
 	<br>
-<<elseif $robin_amusements.choice is "shooting">>
+<<elseif $robin.outings.amusements.choice is "shooting">>
 	the shooting gallery.
 	<br><br>
 	<<link [[Next|Robin Amusements Shooting]]>><<money -700 "robin">><<pass 15>><</link>>
 	<br>
-<<elseif $robin_amusements.choice is "ring">>
+<<elseif $robin.outings.amusements.choice is "ring">>
 	the ring toss.
 	<br><br>
 	<<link [[Next|Robin Amusements Ring]]>><<money -700 "robin">><<pass 15>><</link>>
 	<br>
-<<elseif $robin_amusements.choice is "slot">>
+<<elseif $robin.outings.amusements.choice is "slot">>
 	the slot machines.
 	<br><br>
 	<<link [[Next|Robin Amusements Slot]]>><<money -700 "robin">><<pass 15>><</link>>
 	<br>
-<<elseif $robin_amusements.choice is "dance">>
+<<elseif $robin.outings.amusements.choice is "dance">>
 	the dance platform.
 	<br><br>
 	<<link [[Next|Robin Amusements Dance]]>><<money -700 "robin">><<pass 15>><</link>>
@@ -2306,7 +2306,7 @@ The toy rolls to a stop by your knee.
 
 <<link [[Give it to Robin|Robin Amusements Claw Robin]]>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
-<<link [[Suggest giving it to an orphan|Robin Amusements Claw Orphan]]>><<set $robin_amusements.toy to true>><<npcincr Robin love 1>><</link>><<glove>>
+<<link [[Suggest giving it to an orphan|Robin Amusements Claw Orphan]]>><<set $robin.outings.amusements.toy to true>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
 
 :: Robin Amusements Claw Keep
@@ -2340,7 +2340,7 @@ Robin nods. "It will look nice in your room," <<he>> says.
 <</if>>
 <br><br>
 
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	Robin clasps <<his>> hands together. "Thank you so much," <<he>> says, stepping closer than necessary to take the toy, and planting a kiss on your cheek. "You're too good to me."
 <<else>>
 	Robin clasps <<his>> hands together. "Thank you so much," <<he>> says, taking the toy and holding it close. "You're so kind."
@@ -2400,7 +2400,7 @@ Robin smiles and nods.
 
 Robin puts a reassuring hand on your back. "It's okay! I didn't succeed either. I worry you put too much on yourself."
 
-<<if $robinromance>>
+<<if $robin.romance>>
 	<<He>> presses <<his>> forehead against your shoulder.
 <</if>>
 <br><br>
@@ -2445,7 +2445,7 @@ You approach the coin pushers with Robin. "This one looks ready to fall," <<he>>
 The coins indeed look ready to fall, but no matter how many additional coins you add, you're never able to get more than a few to fall at once. Robin's luck is no better. <<He>> occasionally dips to check <<his>> winnings, but <<his>> funds grow ever smaller.
 <br><br>
 
-<<if $robinromance>>
+<<if $robin.romance>>
 	You crouch to check on yourself, and find more than you were expecting. Almost enough to replace your losses.
 	<br><br>
 
@@ -2520,14 +2520,14 @@ You approach the shooting gallery. Robin takes one of the guns, eager, and pushe
 
 	When it's over, a long ream of tickets trails across the floor. "You're so good at this," Robin says. "Sorry, I didn't help much." <span class="teal">You win many prize tickets.</span>
 	<br><br>
-	<<set $robin_amusements.tickets += 100>>
+	<<set $robin.outings.amusements.tickets += 100>>
 <<else>>
 	A series of electronic targets spring to life. Together, you and Robin take down each target in turn, though they come thick and fast, and you notice you're missing hits.
 	<br><br>
 
 	The game ends, and a ream of tickets emerges from the machine. "That was fun," Robin says. <span class="blue">You win some prize tickets.</span>
 	<br><br>
-	<<set $robin_amusements.tickets += 50>>
+	<<set $robin.outings.amusements.tickets += 50>>
 <</if>>
 
 
@@ -2554,7 +2554,7 @@ Robin pushes a coin into the ring toss machine, and a number of rings roll to <<
 
 	The music reaches a crescendo, and the pins retract, leaving the rings to slide down into the machine. Robin looks up at the score, and a modest line of tickets emerges by your knees. <span class="blue">You win some prize tickets.</span>
 	<br><br>
-	<<set $robin_amusements.tickets += 50>>
+	<<set $robin.outings.amusements.tickets += 50>>
 
 	<<link [[Next|Robin Amusements Main]]>><</link>>
 	<br>
@@ -2568,7 +2568,7 @@ You throw your rings at the top pin on Robin's side of the machine. It's a bit m
 
 The pins retract, leaving the rings to slide down into the machine. Robin looks up at the score, and a considerable line of tickets emerges by your knees. <span class="green">You win a lot of prize tickets.</span>
 <br><br>
-<<set $robin_amusements.tickets += 150>>
+<<set $robin.outings.amusements.tickets += 150>>
 
 Robin applauds. "I usually do best at ring toss," Robin says. "When I come with my friends. But you're so much better than anyone."
 <br><br>
@@ -2585,7 +2585,7 @@ You focus on filling the rings on your side, landing each one. The music reaches
 
 Robin looks up at the score, and a long line of tickets emerges by your knees. <span class="teal">You win many prize tickets.</span>
 <br><br>
-<<set $robin_amusements.tickets += 100>>
+<<set $robin.outings.amusements.tickets += 100>>
 
 Robin looks at the tickets with awe. "You're so good! I'll have to pay more attention to how you throw."
 <br><br>
@@ -2619,7 +2619,7 @@ They come to a stop on a <<robin_amusements_slots_stop>>, <<robin_amusements_slo
 	<br><br>
 	"The machine says there's <span class="gold">£200</span> here." <<He>> says. "It's heavy."<<gdom>><<npcincr Robin dom 1>>
 	<br><br>
-	<<set $robin_amusements.slot_win to 1>>
+	<<set $robin.outings.amusements.slotWin to true>>
 	<<link [[Next|Robin Amusements Main]]>><</link>>
 	<br>
 <<else>>
@@ -2670,7 +2670,7 @@ Music begins, and the figures on the screen tap their feet. Arrows scroll down t
 		<<link [[Lick Robin's face|Robin Amusements Dance Lick]]>><<npcincr Robin lust 1>><</link>><<wolfgirl>><<glust>>
 		<br>
 	<</if>>
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		<<link [[Kiss|Robin Amusements Dance Kiss]]>><<npcincr Robin love 1>><<npcincr Robin lust 1>><</link>><<kissvirginitywarning>><<glust>><<glove>>
 	<</if>>
 <<else>>
@@ -2682,7 +2682,7 @@ Music begins, and the figures on the screen tap their feet. Arrows scroll down t
 
 	<span class="blue">You win some prize tickets.</span>
 	<br><br>
-	<<set $robin_amusements.tickets += 50>>
+	<<set $robin.outings.amusements.tickets += 50>>
 	<<link [[Next|Robin Amusements Main]]>><</link>>
 	<br>
 <</if>>
@@ -2705,7 +2705,7 @@ Music begins, and the figures on the screen tap their feet. Arrows scroll down t
 A ream of tickets emerge from the machine. <span class="teal">You win many prize tickets.</span>
 <br><br>
 
-<<set $robin_amusements.tickets += 100>>
+<<set $robin.outings.amusements.tickets += 100>>
 
 <<link [[Next|Robin Amusements Main]]>><</link>>
 <br>
@@ -2719,7 +2719,7 @@ You rise to your feet. Robin rolls to get out of your way, then does likewise.
 A ream of tickets emerge from the machine. <span class="teal">You win many prize tickets.</span>
 <br><br>
 
-<<set $robin_amusements.tickets += 100>>
+<<set $robin.outings.amusements.tickets += 100>>
 
 <<link [[Next|Robin Amusements Main]]>><</link>>
 <br>
@@ -2733,7 +2733,7 @@ You assault Robin's face with a barrage of licks. <<He>> starts giggling. "Why a
 A ream of tickets emerge from the machine. <span class="teal">You win many prize tickets.</span>
 <br><br>
 
-<<set $robin_amusements.tickets += 100>>
+<<set $robin.outings.amusements.tickets += 100>>
 
 <<link [[Next|Robin Amusements Main]]>><</link>>
 <br>
@@ -2751,7 +2751,7 @@ You lean forwards, and plant a kiss on Robin's lips. You both close your eyes fo
 "Sorry," Robin says. <<He>> pulls away, and you both rise to your feet as a ream of tickets emerges from the machine. <span class="teal">You win many prize tickets.</span>
 <br><br>
 
-<<set $robin_amusements.tickets += 100>>
+<<set $robin.outings.amusements.tickets += 100>>
 
 <<link [[Next|Robin Amusements Main]]>><</link>>
 <br>
@@ -2835,9 +2835,9 @@ looks at you.
 
 <<link [[Deluxe sandwich (Expensive)|Robin Amusements Cafe Sandwich]]>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
 <br>
-<<link [[Scones (Not so expensive)|Robin Amusements Cafe Scones]]>><<set $robinmoney += 20>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
+<<link [[Scones (Not so expensive)|Robin Amusements Cafe Scones]]>><<set $robin.money.savings += 20>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
 <br>
-<<link [[Salad (Relatively cheap)|Robin Amusements Cafe Salad]]>><<set $robinmoney += 40>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
+<<link [[Salad (Relatively cheap)|Robin Amusements Cafe Salad]]>><<set $robin.money.savings += 40>><<trauma -6>><<stress -6>><</link>><<ltrauma>><<lstress>>
 <br>
 
 :: Robin Amusements Cafe Sandwich
@@ -2862,7 +2862,7 @@ Robin places <<his>> cutlery on the plate when finished.
 <br>
 <<link [[Thank Robin for the meal|Robin Amusements Cafe Meal]]>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Thank Robin for the date|Robin Amusements Cafe Date]]>><<npcincr Robin love 1>><<npcincr Robin dom 1>><</link>><<glove>><<gdom>>
 	<br>
 <</if>>
@@ -2886,7 +2886,7 @@ Robin seems to enjoy <<his>> sandwich, as well as the accompanying chips. <<He>>
 <br>
 <<link [[Thank Robin for the meal|Robin Amusements Cafe Meal]]>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Thank Robin for the date|Robin Amusements Cafe Date]]>><<npcincr Robin love 1>><<npcincr Robin dom 1>><</link>><<glove>><<gdom>>
 	<br>
 <</if>>
@@ -2910,7 +2910,7 @@ Robin seems to enjoy <<his>> sandwich, as well as the accompanying chips. Robin 
 <br>
 <<link [[Thank Robin for the meal|Robin Amusements Cafe Meal]]>><<npcincr Robin love 1>><</link>><<glove>>
 <br>
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	<<link [[Thank Robin for the date|Robin Amusements Cafe Date]]>><<npcincr Robin love 1>><<npcincr Robin dom 1>><</link>><<glove>><<gdom>>
 	<br>
 <</if>>
@@ -2979,12 +2979,12 @@ Robin tips out <<his>> winnings to pay for the meal. The one pound coins clatter
 flashes a knowing smile.
 <br><br>
 
-<<if $robinromance is 1>>
+<<if $robin.romance>>
 	Bill paid, you return to the orphanage with Robin, hand in hand.
 <<else>>
 	Bill paid, you return to the orphanage with Robin.
 <</if>>
-<<if $robin_amusements.toy>>
+<<if $robin.outings.amusements.toy>>
 	You make a detour to deliver the toy you won from the claw machine to the orphans. Robin seems as happy as they.<<ghope>><<hope 1>>
 	<br><br>
 <</if>>
@@ -3010,8 +3010,8 @@ You find Robin's room as you left it.
 Robin opens <<his>> mouth, then closes it and nods. "You're right. Let's get back to the orphanage."
 <br><br>
 
-<<if $robin_amusements.toy>>
-	<<if $robinromance is 1>>
+<<if $robin.outings.amusements.toy>>
+	<<if $robin.romance>>
 		You return to the orphanage with Robin, hand in hand.
 	<<else>>
 		You return to the orphanage with robin.
@@ -3021,7 +3021,7 @@ Robin opens <<his>> mouth, then closes it and nods. "You're right. Let's get bac
 	<<His>> room is as you left it.
 	<br><br>
 <<else>>
-	<<if $robinromance is 1>>
+	<<if $robin.romance>>
 		You return to the orphanage with Robin, hand in hand. <<His>> room is as you left it.
 	<<else>>
 		You return to the orphanage with robin. <<His>> room is as you left it.

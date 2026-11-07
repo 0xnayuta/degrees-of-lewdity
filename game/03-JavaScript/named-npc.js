@@ -547,7 +547,7 @@ function gwylanSchedule() {
 		} else {
 			return "sulking";
 		}
-	} else if (V.robin_in_forest_shop) {
+	} else if (V.robin.outings.inForestShop) {
 		return "shop";
 	} else if (Time.hour === 5 || (Time.hour === 6 && Time.minute < 45)) {
 		return "garden"; // ToDo: Gwylan: watching Gwylan sleep or stretch in the garden during temperate weather

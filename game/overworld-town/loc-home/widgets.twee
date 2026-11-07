@@ -24,10 +24,10 @@
 		<</if>>
 		<br>
 	<<else>>
-		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
+		<<if Time.hour gte 18 and Time.hour lte 20 and C.npc.Robin.trauma gte 40 and $robin.punishment.current is 0 and !Memories.Robin.has("pcHeardRobinCrying")>>
 			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Robin Trauma Visit]]>><<set $phase to 2>><<pass 1>><</link>>
-		<<elseif $robinpaid gte 1 and Time.isWeekEnd() and $weekly.robinGift isnot 1 and Time.hour gte 7 and Time.hour lt 9 and C.npc.Robin.trauma lt 80 and random(1, 10) lte 3 and $robin.timer.hurt lt 1 and $robinmissing is 0>>
-			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Robin Weekend Gift]]>><<pass 1>><<set $weekly.robinGift to 1>><</link>>
+		<<elseif $robin.rent.pcPaysForRobin and Time.isWeekEnd() and !$weekly.robin.gavePcThermos and Time.hour gte 7 and Time.hour lt 9 and C.npc.Robin.trauma lt 80 and random(1, 10) lte 3 and $robin.hurt.daysLeft lt 1 and $robin.punishment.current is 0>>
+			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Robin Weekend Gift]]>><<pass 1>><<set $weekly.robin.gavePcThermos to true>><</link>>
 		<<else>>
 			<<dooricon "orphanage">><<link [[Leave orphanage (0:01)|Domus Street]]>><<pass 1>><</link>>
 		<</if>>
@@ -73,7 +73,7 @@
 	<<effects>>
 	<<sleepeffects>>
 
-	You wake up in a confused and disoriented state. The last thing you recall is getting into bed <<if $robinbed is "theirs">>with Robin<<else>>like normal<</if>>. However, you're clearly not in it anymore. You have a feeling that the slime in your ear is involved in some way.
+	You wake up in a confused and disoriented state. The last thing you recall is getting into bed <<if $robin.orphanage.whoseBedTonight is "theirs">>with Robin<<else>>like normal<</if>>. However, you're clearly not in it anymore. You have a feeling that the slime in your ear is involved in some way.
 	<br><br>
 	<<if $tutorial or $debug>>
 		<<set _newLocation to ["Residential Alleyways", "Commercial Alleyways", "Park", "Industrial Alleyways"].random()>>
@@ -192,14 +192,14 @@
 
 <<widget "bathroomLink">>
 	<<if getRobinLocation() is "bath" and $halloween isnot 1>>
-		<<if $robinBathKnown>>
+		<<if $robin.orphanage.pcKnowsRobinInBath>>
 			Robin is in the bath.
 			<br>
 		<</if>>
 		<<bathroomicon>><<link [[Bathroom (0:01)|Robin Bath]]>><<pass 1>><</link>>
 	<<else>>
-		<<if $robinBathKnown>>
-			<<unset $robinBathKnown>>
+		<<if $robin.orphanage.pcKnowsRobinInBath>>
+			<<unset $robin.orphanage.pcKnowsRobinInBath>>
 		<</if>>
 		<<bathroomicon>><<link [[Bathroom (0:01)|Bathroom]]>><<pass 1>><</link>>
 	<</if>>
@@ -252,7 +252,7 @@
 <<widget "bedroomEntryEvent">>
 	<<set _forcedBedroomEntry to _args[0] is "forced">>
 	<<set _linkText to _forcedBedroomEntry ? "Next" : "Bedroom (0:01)">>
-	<<if !_forcedBedroomEntry and Time.hour gte 18 and Time.hour lte 20 and statusCheck("Robin").trauma gte 40 and $robinmissing is 0 and !$robinTraumaVisit>>
+	<<if !_forcedBedroomEntry and Time.hour gte 18 and Time.hour lte 20 and statusCheck("Robin").trauma gte 40 and $robin.punishment.current is 0 and !Memories.Robin.has("pcHeardRobinCrying")>>
 		<<bedicon>><<link _linkText "Robin Trauma Visit">><<set $phase to 0>><<pass 1>><</link>>
 	<<elseif $kylar.timer.home gte 100 and $kylar.home is undefined>>
 		<<bedicon>><<link _linkText "Kylar Bedroom 1">><<pass 1>><<set $kylar.timer.home to 0>><<set $kylar.home to 0>><</link>>

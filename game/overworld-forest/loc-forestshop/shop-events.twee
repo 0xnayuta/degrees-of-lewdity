@@ -9,7 +9,7 @@
 	<<set _enteredTogether to true>>
 	<<unset $enteringForestShopTogether>>
 <</if>>
-<<set _shopEvent to (!$robin_in_forest_shop and !$daily.gwylan.eventShop and !Time.isBloodMoon() and ["garden", "shop"].includes(gwylanSchedule()) and C.npc.Gwylan.state is "active")>>
+<<set _shopEvent to (!$robin.outings.inForestShop and !$daily.gwylan.eventShop and !Time.isBloodMoon() and ["garden", "shop"].includes(gwylanSchedule()) and C.npc.Gwylan.state is "active")>>
 
 <<if $forest_shop_intro isnot 1>>
 	<<set $daily.gwylan.eventShop to true>>
@@ -17,14 +17,14 @@
 <<elseif _justEntered and _shopEvent and _gwylanStatus.includes("reunion")>>
 	<<set $daily.gwylan.eventShop to true>><<unset $gwylanSteal>>
 	<<include "Forest Shop Reunion">>
-<<elseif _justEntered and !$robin_in_forest_shop and _gwylanStatus.includes("aurigaScarConfront")>>
+<<elseif _justEntered and !$robin.outings.inForestShop and _gwylanStatus.includes("aurigaScarConfront")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Nowhere">>
 	/* ToDo: Gwylan bad end - walking into the shop after escaping  */
 <<elseif _justEntered and _shopEvent and $dissociation gte 1 and !$weekly.gwylanTrauma>>
 	<<set $daily.gwylan.eventShop to true>><<set $weekly.gwylanTrauma to true>>
 	<<include "Forest Shop Trauma">>
-<<elseif _justEntered and !$robin_in_forest_shop and $gwylanSteal and !Time.isBloodMoon()>>
+<<elseif _justEntered and !$robin.outings.inForestShop and $gwylanSteal and !Time.isBloodMoon()>>
 	<<set $daily.gwylan.eventShop to true>><<unset $gwylanSteal>>
 	<<include "Forest Shop Thief">>
 <<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 10 and !$gwylanSeen.includes("intruder")>>
@@ -60,7 +60,7 @@
 			<br><br>
 		<</if>>
 
-		<<if !$robin_in_forest_shop and (gwylanSchedule() isnot "shop" or $daily.gwylan.noTalk)>>
+		<<if !$robin.outings.inForestShop and (gwylanSchedule() isnot "shop" or $daily.gwylan.noTalk)>>
 			<<if Weather.precipitation === "rain">>
 				The shop is silent, save for the gentle rhythm of the rain.
 			<<else>>
@@ -88,10 +88,10 @@
 				<</if>>
 			<</if>>
 		<<else>>
-			<<if $robin_in_forest_shop>>
+			<<if $robin.outings.inForestShop>>
 				Robin is busy admiring the costumes.
 				<br>
-				<<if !$halloween_robin_costume or $halloween_robin_costume is "ghost">>
+				<<if !$robin.halloween.costumeWorn or $robin.halloween.costumeWorn is "ghost">>
 					<<socialiseicon>><<link [[Talk to Robin|Robin Forest Costume Intro]]>><</link>>
 				<</if>>
 			<<elseif _snoopEvent and _gwylanLovePercent gte 20 and $gwylanSeen.includesAll("intruder", "clothes_intro") and !$gwylanSeen.includes("hat_found")>>
@@ -156,7 +156,7 @@
 			<</if>>
 		<</if>>
 
-		<<if !$robin_in_forest_shop and $gwylanSeen.includes("doggy_bed")>>
+		<<if !$robin.outings.inForestShop and $gwylanSeen.includes("doggy_bed")>>
 			<<if !$gwylan.timer.petBed>>
 				<<bedicon "gwylanpet">><span class="purple">You can't find <<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>your pet bed<<else>>the bed Gwylan left out for you<</if>>.</span>
 			<<else>>
@@ -166,7 +166,7 @@
 			<br>
 		<</if>>
 
-		<<if $christmas_gift_robin is undefined and $christmas is 1 and C.npc.Robin.init is 1>>
+		<<if $robin.christmas.giftFromPc is undefined and $christmas is 1 and C.npc.Robin.init is 1>>
 			<<if isLoveInterest("Robin")>><<gifticon "love">><<else>><<gifticon "christmas">><</if>><<link [[Find a gift for Robin (0:10)|Forest Christmas Robin]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
@@ -180,7 +180,7 @@
 		<</if>>
 
 		<br>
-		<<if $robin_in_forest_shop>>
+		<<if $robin.outings.inForestShop>>
 			<<getouticon>><<link [[Leave with Robin (0:10)|Robin Forest Shop Home]]>><<pass 10>><<endevent>><</link>>
 		<<else>>
 			<<getouticon>><<link [[Leave the shop|Forest]]>><<endevent>><<set $eventskip to 1>><<set $forest to 0>><</link>>
@@ -3309,7 +3309,7 @@ You search through an assortment of strange clothes, before finding a Christmas-
 <br><br>
 
 <<if $money gte 8000>>
-	<<gifticon "christmas hat">><<link [[Buy it|Forest Christmas Robin Buy]]>><<money -8000>><<set $christmas_gift_robin to "christmas_unwrapped">><</link>>
+	<<gifticon "christmas hat">><<link [[Buy it|Forest Christmas Robin Buy]]>><<money -8000>><<set $robin.christmas.giftFromPc to "christmas_unwrapped">><</link>>
 	<br>
 <</if>>
 <<getouticon>><<link [[Leave|Forest Shop Entrance]]>><<endevent>><</link>>
