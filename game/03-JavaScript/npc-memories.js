@@ -204,6 +204,32 @@ const VALID_MEMORIES = {
 		// Used to unlock praising or insulting Quinn's movies when Quinn is the guest at Avery's party
 		"madePcWatchMovies",
 	],
+	Niki: [
+		// If the PC has knocked at Niki's studio and asked for work, or modelled there
+		// Used so the PC's photos appear on the studio wall once their model fame is high enough
+		"firstStudioVisit",
+		// If the PC ran into Briar leaving Niki's studio
+		// Used so the scene only plays once
+		"pcMetBriarAtStudio",
+		// If Niki photographed the PC on display at the adult shop opening
+		// Used so Sirris reminds the PC of the opening when Niki turns up at Winter's lake office
+		"photographedAdultShopOpening",
+		// If Niki photographed the PC at Remy's farm
+		// Used so the PC recognises Niki from the farm when they meet again, and so the PC hurries away when Niki pulls up in the street
+		"photographedPcAtFarm",
+		// If Sam sent the PC to Niki's studio to shoot the cafe advert
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"photographedPcForCafeAdvert",
+		// If Avery paid Niki to photograph the PC and Avery on the boulevard
+		// Used so Niki and Avery greet each other next time
+		"photographedPcWithAvery",
+		// If Niki pulled up beside the PC in the street and told them about the studio
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"stoppedPcInStreet",
+		// If Niki came to Winter's lake office as a volunteer
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"volunteeredForWinter",
+	],
 };
 
 /**
@@ -274,6 +300,11 @@ const Memories = {
 		add: memory => addMemory("Quinn", memory),
 		has: memory => hasMemory("Quinn", memory),
 		delete: memory => deleteMemory("Quinn", memory),
+	},
+	Niki: {
+		add: memory => addMemory("Niki", memory),
+		has: memory => hasMemory("Niki", memory),
+		delete: memory => deleteMemory("Niki", memory),
 	},
 };
 window.Memories = Memories;
