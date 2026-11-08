@@ -2209,7 +2209,7 @@ function dailySchoolEffects() {
 		statChange.delinquency(-delinquencyDecay / 4);
 	}
 
-	if (Time.schoolDay && V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
+	if (Time.schoolDay && V.leighton.schoolDaysSincePhotoshoot !== undefined) V.leighton.schoolDaysSincePhotoshoot++;
 
 	if (V.science_star >= 1) {
 		wikifier("scienceskill", Math.clamp(V.science_star, 0, 3));

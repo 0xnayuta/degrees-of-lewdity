@@ -591,7 +591,7 @@ function initSpecialClothes() {
 		// Special event sets
 		foreign_school: {
 			text: "foreign school clothes",
-			requirements: () => V.headdrive === 1,
+			requirements: () => Memories.Leighton.has("pcCopiedDarrylPhotos"),
 			hint: "discover the headteacher's secret",
 			shop: ["forest", "school"],
 			feat: true,

@@ -23,6 +23,8 @@ declare global {
 		morgan: MorganDaily;
 		/** Whether the named beasts are a monster person today. Rolled when it's needed from its monster chance setting. */
 		namedBeastIsMonster?: Partial<Record<NamedBeastType, boolean>>;
+		/** Leighton's once-a-day flags, unset at midnight. */
+		leighton: LeightonDaily;
 	}
 }
 
