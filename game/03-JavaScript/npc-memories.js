@@ -337,6 +337,14 @@ const VALID_MEMORIES = {
 		// Used so Charlie remembers the PC is shy about it the next time they pull away
 		"pcRefusedHandholding",
 	],
+	Briar: [
+		// If Briar's thugs grabbed the PC for selling sex outside the brothel and drove them to Briar in a van
+		// Used so the van only comes once
+		"abductedPcFromPub",
+		// If Briar had the PC pulled into a car and asked them to keep an eye on Darryl's strip club
+		// Used so the car only comes once, and so Briar's goon waits outside the strip club for reports
+		"askedPcToSpyOnDarryl",
+	],
 };
 
 /**
@@ -437,6 +445,11 @@ const Memories = {
 		add: memory => addMemory("Charlie", memory),
 		has: memory => hasMemory("Charlie", memory),
 		delete: memory => deleteMemory("Charlie", memory),
+	},
+	Briar: {
+		add: memory => addMemory("Briar", memory),
+		has: memory => hasMemory("Briar", memory),
+		delete: memory => deleteMemory("Briar", memory),
 	},
 };
 window.Memories = Memories;
