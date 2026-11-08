@@ -36,23 +36,12 @@ declare module "twine-sugarcube" {
 		rentTime: number;
 		babyRent: number;
 		rentMoney: number;
-		baileyRefusedToPayTotal: number;
-		baileyRefusedToPayTotalStat: number;
 
 		rentThug: {
 			anger: number;
 			angerCountdown: number;
 			traps: [];
 		} | null;
-
-		bailey_confiscation: {
-			items: Array<
-				| { source: "clothing"; slot: string; name: string; value: number; item: object }
-				| { source: "furniture"; category: string; id: string; name: string; value: number }
-			>;
-			day: number;
-		} | null;
-		bailey_confiscation_lost: 0 | 1;
 
 		loveInterest: {
 			primary: string;

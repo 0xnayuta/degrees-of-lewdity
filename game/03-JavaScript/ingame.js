@@ -2298,6 +2298,10 @@ function dailyConvert() {
 				snowballsThrownAtStand: V.robinparksnow,
 				pcAskedBaileyAboutDebt: V.robinDebtAsk,
 			},
+			bailey: {
+				timesPcVisitedOffice: V.baileyvisit,
+				wokePcForSchool: V.bailey_wake_day,
+			},
 			kylar: V.kylarDaily || {},
 			morgan: {},
 			eden: {
@@ -2356,7 +2360,6 @@ function dailyConvert() {
 			tenyclusPlayed: V.tenyclusPlayed,
 			beachStrip: V.beachstrip,
 			compoundState: V.compoundstate,
-			baileyVisit: V.baileyvisit,
 			lakeCouple: V.lakecouple,
 			museumGreenGemTouch: V.museumgreengemtouch,
 			fenceClimb: V.fenceclimb,
@@ -2382,7 +2385,6 @@ function dailyConvert() {
 			estateChaos: V.estate_chaos,
 			spaEvent: V.spa_event,
 			estateDone: V.estate_done,
-			baileyWake: V.bailey_wake_day,
 			manorForage: V.manor_forage,
 			manorGarden: V.manor_garden,
 			manorKitchen: V.manor_kitchen,

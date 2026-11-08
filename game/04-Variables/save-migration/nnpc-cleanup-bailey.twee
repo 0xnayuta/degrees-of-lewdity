@@ -1,0 +1,83 @@
+:: Widgets NNPC Cleanup Migration Bailey [widget]
+<<widget "nnpcCleanupMigrationBailey">>
+	<<set $bailey ??= {
+		timesPickedUpPcFromHospital: 0,
+		fights: {
+			timesPcWon: 0,
+			timesPcMadeBaileyCum: 0,
+			pcWinsSinceLastPaid: 0
+		},
+		rent: {
+			safehouseRefusals: 0,
+			unpaidRentMoney: 0,
+			unpaidRentMoneyLifetime: 0,
+			timesSoldPc: 0,
+			confiscation: null,
+			pawnedConfiscation: false
+		}
+	}>>
+	<<set $daily.bailey ??= {}>>
+	<<set $weekly.bailey ??= {}>>
+	<<set $monthly.bailey ??= {}>>
+
+	<!-- Bailey's variables moved onto $bailey -->
+	<<for _oldName, _newName range { baileyhospital: "timesPickedUpPcFromHospital", baileyReunionScene: "reunionToPlay" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $bailey[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<switch $bailey_pound>>
+		<<case 1>><<set $bailey.poundDocument to "found">>
+		<<case 2>><<set $bailey.poundDocument to "baileyKnows">>
+		<<case 3>><<set $bailey.poundDocument to "sawAmbulances">>
+	<</switch>>
+	<<unset $bailey_pound>>
+
+	<<for _oldName, _newName range { baileydefeated: "timesPcWon", baileydefeatedlewd: "timesPcMadeBaileyCum", baileydefeatedchain: "pcWinsSinceLastPaid" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $bailey.fights[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<<set _baileyRentMoves to {
+		baileypaychain: "paymentsInARow",
+		baileyRefusedToPay: "safehouseRefusals",
+		baileyRefusedToPayTotal: "unpaidRentMoney",
+		baileyRefusedToPayTotalStat: "unpaidRentMoneyLifetime",
+		soldCount: "timesSoldPc",
+		baileySold: "pcCurrentlySold",
+		bailey_encroach: "timesPcRefusedBaileyAtFarm",
+		bailey_confiscation: "confiscation",
+		baileySpoke: "robinFightLinesSaid",
+		rentPregCount: "timesPcWentIntoLabour",
+		rentPregInterruption: "labourInterruption",
+	}>>
+	<<for _oldName, _newName range _baileyRentMoves>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $bailey.rent[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<!-- Bailey's 0/1 flags turned into booleans -->
+	<<for _oldName, _newName range { baileyrapewake: "soldPcWhileAsleep", bailey_confiscation_lost: "pawnedConfiscation" }>>
+		<<if V[_oldName] is 1>>
+			<<set $bailey.rent[_newName] to true>>
+		<<elseif V[_oldName] is 0>>
+			<<set $bailey.rent[_newName] to false>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+
+	<!-- Bailey's one-off flags became memories -->
+	<<if $baileyseduced is 1>><<run Memories.Bailey.add("pcOfferedSexForRent")>><</if>>
+	<<if $bailey_avery_met is 1>><<run Memories.Bailey.add("metAvery")>><</if>>
+	<<if $temple_bailey is 1>><<run Memories.Bailey.add("firstTempleVisit")>><</if>>
+	<<if $bailey_partner is 1>><<run Memories.Bailey.add("pcSawWithPartnerAtFlats")>><</if>>
+	<<unset $baileyseduced $bailey_avery_met $temple_bailey $bailey_partner>>
+
+	<!-- The office seduce option that set this is disabled -->
+	<<unset $baileyOfficeSeduced>>
+<</widget>>

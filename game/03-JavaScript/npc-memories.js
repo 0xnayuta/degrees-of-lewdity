@@ -187,12 +187,24 @@ const VALID_MEMORIES = {
 		"adultShopIntro",
 	],
 	Bailey: [
-		// If the PC helped another orphan fight off an attacker at the orphanage
+		// If Bailey first came to collect rent from the PC at the temple
+		// Used so Bailey's temple intro only plays once. Also a general marker that Bailey and the temple are aware of one another. Bailey "knows" who Sydney is after this, and will have an encounter line for them.
+		"firstTempleVisit",
+		// If Bailey has met Avery, at the cafe opening or at Avery's card game
+		// Used so Avery's handshake introduction at the cafe opening plays if they have not met. Allows Bailey to say an encounter line for them.
+		"metAvery",
+		// If the PC offered Bailey sex instead of rent money, which Bailey turns down
+		// Not accessible. Used for the Seduce option.
+		"pcOfferedSexForRent",
+		// If the PC saw Bailey kissing a one night stand at the flats
+		// Used so the next time it says it's a different partner
+		"pcSawWithPartnerAtFlats",
+		// If the PC helped another orphan fight off an attacker at the orphanage, with Bailey watching
 		// Used so Bailey only reacts and gains respect the first time
-		"homeScream",
+		"pcStoppedOrphanAttack",
 		// If Bailey took the PC to the docks after winning Avery's card game
 		// Used so Bailey drives straight to the orphanage in later games
-		"cardsDocks",
+		"tookPcToDocksAfterCards",
 	],
 	Leighton: [
 		// If Leighton agreed to pay the PC £50 for each photoshoot, whether the PC offered or demanded it when blackmailing Leighton

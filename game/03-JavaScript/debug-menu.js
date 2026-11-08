@@ -973,7 +973,7 @@ setup.debugMenu.eventList = {
 			link: [`Bailey selling Robin`, `Orphanage`],
 			widgets: [
 				`<<set $rentTime to 0>>`,
-				`<<set $baileydefeatedchain to 3>>`,
+				`<<set $bailey.fights.pcWinsSinceLastPaid to 3>>`,
 				`<<set $robin.rent.pcPaysForRobin to true>>`,
 				`<<set $robin.romance to true>>`,
 				`<<set $bus to "home">>`,

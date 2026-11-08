@@ -987,7 +987,7 @@ function dayPassed() {
 	}
 
 	// Activate the robin pillory
-	if (V.robin.punishment.pillory && V.robin.punishment.pillory.danger !== undefined && (V.robin.punishment.daysLeft <= 1 || !V.baileySold))
+	if (V.robin.punishment.pillory && V.robin.punishment.pillory.danger !== undefined && (V.robin.punishment.daysLeft <= 1 || !V.bailey.rent.pcCurrentlySold))
 		V.robin.punishment.pillory.active = true;
 
 	// Save today's HC ending in local storage
@@ -2336,8 +2336,8 @@ function dailyFarmEvents() {
 		wikifier("farm_work_update", "midnight");
 	}
 	if (V.farm_stage >= 5) {
-		if (V.bailey_encroach >= 1) wikifier("farm_aggro", 15);
-		if (V.bailey_encroach >= 2) wikifier("farm_aggro", V.bailey_encroach * 3);
+		if (V.bailey.rent.timesPcRefusedBaileyAtFarm >= 1) wikifier("farm_aggro", 15);
+		if (V.bailey.rent.timesPcRefusedBaileyAtFarm >= 2) wikifier("farm_aggro", V.bailey.rent.timesPcRefusedBaileyAtFarm * 3);
 		if (V.farm_stage >= 7) wikifier("farm_aggro", 5);
 		wikifier("farm_aggro", 5);
 	}
@@ -2739,7 +2739,7 @@ window.isRentDue = isRentDue;
  * @returns {boolean} Bailey looking for player, yes or no?
  */
 function isBaileyLookingForPlayer() {
-	return (isRentDue() && V.rentTime < 0) || (V.baileyRefusedToPay && isAveryPayingBailey() !== 2);
+	return (isRentDue() && V.rentTime < 0) || (V.bailey.rent.safehouseRefusals && isAveryPayingBailey() !== 2);
 }
 window.isBaileyLookingForPlayer = isBaileyLookingForPlayer;
 
@@ -2766,7 +2766,7 @@ function passRentTick() {
 	V.rentTime--;
 	wikifier("thuganger", "passive");
 	if (V.rentTime < 0 && V.rentTime % 7 === 0) {
-		V.baileyRefusedToPayTotal += V.rentMoney + (V.babyRent || 0);
-		V.baileyRefusedToPayTotalStat += V.rentMoney + (V.babyRent || 0);
+		V.bailey.rent.unpaidRentMoney += V.rentMoney + (V.babyRent || 0);
+		V.bailey.rent.unpaidRentMoneyLifetime += V.rentMoney + (V.babyRent || 0);
 	}
 }

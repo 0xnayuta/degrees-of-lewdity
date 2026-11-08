@@ -831,7 +831,7 @@ window.baileyConfiscationBundle = function (target) {
 // Dye and colours are maintained
 window.baileyConfiscationApply = function (bundle) {
 	if (!bundle.items.length) return;
-	if (V.bailey_confiscation) return;
+	if (V.bailey.rent.confiscation) return;
 	Furniture.in("bedroom");
 
 	const clothing = bundle.items.filter(i => i.source === "clothing").sort((a, b) => b.index - a.index);
@@ -841,7 +841,7 @@ window.baileyConfiscationApply = function (bundle) {
 	clothing.forEach(c => held.push({ source: "clothing", slot: c.slot, item: clone(V.wardrobe[c.slot][c.index]), name: c.name, value: c.value }));
 	furniture.forEach(f => held.push({ source: "furniture", category: f.category, id: f.id, name: f.name, value: f.value }));
 
-	V.bailey_confiscation = { items: held, day: Time.days };
+	V.bailey.rent.confiscation = { items: held, day: Time.days };
 
 	clothing.forEach(c => V.wardrobe[c.slot].deleteAt(c.index));
 	furniture.forEach(f => {
@@ -858,9 +858,9 @@ window.baileyConfiscationApply = function (bundle) {
 };
 
 window.baileyConfiscationRestore = function () {
-	const hold = V.bailey_confiscation;
+	const hold = V.bailey.rent.confiscation;
 	if (!hold) {
-		V.bailey_confiscation = null;
+		V.bailey.rent.confiscation = null;
 		return;
 	}
 	Furniture.in("bedroom");
@@ -880,7 +880,7 @@ window.baileyConfiscationRestore = function () {
 	});
 
 	Furniture.wardrobeUpdate();
-	V.bailey_confiscation = null;
+	V.bailey.rent.confiscation = null;
 };
 
 function finalizeParts(parts) {
@@ -893,7 +893,7 @@ function finalizeParts(parts) {
 }
 
 window.baileyConfiscationParts = function () {
-	const items = V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items) ? V.bailey_confiscation.items : [];
+	const items = V.bailey.rent.confiscation && Array.isArray(V.bailey.rent.confiscation.items) ? V.bailey.rent.confiscation.items : [];
 	const furniture = items.filter(i => i.source === "furniture");
 	const clothing = items.filter(i => i.source === "clothing").sort((a, b) => b.value - a.value);
 	const shown = clothing.slice(0, 5);
@@ -911,7 +911,7 @@ window.baileyConfiscationParts = function () {
 };
 
 window.baileyConfiscationGrouped = function () {
-	const items = V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items) ? V.bailey_confiscation.items : [];
+	const items = V.bailey.rent.confiscation && Array.isArray(V.bailey.rent.confiscation.items) ? V.bailey.rent.confiscation.items : [];
 	const parts = [];
 
 	items
@@ -935,9 +935,9 @@ window.baileyConfiscationGrouped = function () {
 };
 
 window.baileyConfiscationTick = function () {
-	const hold = V.bailey_confiscation;
+	const hold = V.bailey.rent.confiscation;
 	if (hold && Time.days >= hold.day + 8) {
-		V.bailey_confiscation = null;
-		V.bailey_confiscation_lost = 1;
+		V.bailey.rent.confiscation = null;
+		V.bailey.rent.pawnedConfiscation = true;
 	}
 };

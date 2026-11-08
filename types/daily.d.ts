@@ -27,6 +27,8 @@ declare global {
 		leighton: LeightonDaily;
 		/** Jordan's once-a-day flags, unset at midnight. */
 		jordan: JordanDaily;
+		/** Bailey's once-a-day flags, unset at midnight. */
+		bailey: BaileyDaily;
 	}
 }
 
