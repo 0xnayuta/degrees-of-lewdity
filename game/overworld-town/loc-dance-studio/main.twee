@@ -46,7 +46,7 @@ You are in the dance studio. Here you can pay for lessons to improve your dancin
 		<</if>>
 		<<if $exposed lt 1>>
 			<<if $money gte 1200>>
-				<<if $danceskill gte 800 and $danceStudio.intro and !$danceStudio.jobOffered>>
+				<<if $danceskill gte 800 and Memories.Charlie.has("firstLesson") and !$danceStudio.jobOffered>>
 					<<dancestudioicon>><<link [[Take a dance lesson (£12 1:00)|Dancing Lesson Job Intro]]>><</link>><<gtiredness>><<note "+ + Dancing Skill" "green">>
 					<br>
 				<<else>>
@@ -166,10 +166,10 @@ The dance studio is closed. <<openinghours>>
 
 :: Dancing Lesson
 
-<<if $danceStudio.intro and $phase is 0>><<pass 20>><</if>>
+<<if Memories.Charlie.has("firstLesson") and $phase is 0>><<pass 20>><</if>>
 <<set $outside to 0>><<set $location to "dance_studio">><<effects>>
 
-<<if !$danceStudio.intro>>
+<<if !Memories.Charlie.has("firstLesson")>>
 	<<danceStudioIntro "Dancing Lesson">>
 <<elseif $danceStudio.stage gte 2>>
 	<<tiredness 4>><<danceskill 14>><<danceskilluse>><<wearandtear "dance">><<physique 2>>
@@ -240,7 +240,7 @@ The dance studio is closed. <<openinghours>>
 				<br><br>
 			<</if>>
 		<</if>>
-	<<elseif $rng lte 80 and !$daily.danceStudioHandVirginPrompt>>
+	<<elseif $rng lte 80 and !$daily.charlie.reachedForPcHands>>
 		<<set $danceStudio.lesson to "instructor">>
 		Charlie gives you some personal attention.
 		<<if currentSkillValue('danceskill') lte 200>>
@@ -317,7 +317,7 @@ The dance studio is closed. <<openinghours>>
 		<<link [[Next|Dancing Lesson]]>><<endevent>><</link>>
 	<<elseif $danceStudio.lesson is "instructor">>
 		<<if $player.virginity.handholding is true>>
-			<<set $daily.danceStudioHandVirginPrompt to true>>
+			<<set $daily.charlie.reachedForPcHands to true>>
 			<<He>> presses <<his>> body against your back and moves <<his>> hands to yours, about to hold them.
 			<br><br>
 			<<link [[Allow|Dance Studio Instructor]]>><<set $phase to 3>><</link>><<handholdingvirginitywarning>>
@@ -479,12 +479,12 @@ Charlie immediately recognises that something is wrong. <<He>> pulls you aside a
 	<br><br>
 <<elseif $phase is 4>>
 	You pull away before Charlie can hold your hands.
-	<<if $danceStudio.handVirginProtected>>
+	<<if Memories.Charlie.has("pcRefusedHandholding")>>
 		"I forgot you were shy about that," <<he>> says. <<He>> looks embarrassed. "That's alright. We can continue working on your form without contact. Now, where were we..."
 	<<else>>
 		"What's wrong?" <<he>> asks. "Are you afraid of being touched? Holding your partner is an important part of dancing." <<He>> gives you a sympathetic look. "I understand if you have your boundaries. Let's keep working on your form, but with less contact this time. Now, where were we..."
 	<</if>>
-	<<set $danceStudio.handVirginProtected to true>>
+	<<run Memories.Charlie.add("pcRefusedHandholding")>>
 	<br><br>
 <</if>>
 <<link [[Next|Dancing Lesson]]>><<endevent>><</link>>
@@ -664,11 +664,11 @@ You enter the changing room, and think about how you would like to dress for the
 <br><br>
 <<dancingclothes>>
 <<if _store_check is 1 and $exposed is 0>>
-	<<getinicon>><<link [[Enter|Yoga Classes Enter]]>><</link>>
+	<<getinicon>><<link [[Enter|Yoga Classes Enter]]>><<run delete $danceStudio.nudeYoga>><</link>>
 	<br>
 <</if>>
 <<if hasSexStat("exhibitionism", 5)>>
-	<<getinicon>><<link [[Go naked|Yoga Classes Enter]]>><<strip>><<set $danceStudio.nudeYoga to 1>><</link>><<exhibitionist5>>
+	<<getinicon>><<link [[Go naked|Yoga Classes Enter]]>><<strip>><<set $danceStudio.nudeYoga to true>><</link>><<exhibitionist5>>
 	<br>
 <<else>>
 	<<insufficientStat "exhibitionism" "to take the class while exposed">><br>
@@ -678,8 +678,8 @@ You enter the changing room, and think about how you would like to dress for the
 
 :: Yoga Classes Enter
 <<effects>>
-<<set $danceStudio.stage to 0>><<unset $danceStudio.nudeYoga>>
-<<if !$danceStudio.intro>>
+<<set $danceStudio.stage to 0>>
+<<if !Memories.Charlie.has("firstLesson")>>
 	<<danceStudioIntro "Yoga Classes Start 2">>
 <<elseif $worn.under_upper.type.includes("dance")>>
 	In your yoga clothes, you enter the classroom. Several mats are scattered on the floor, many of them already taken by the other students. No one pays attention to you, and you choose a mat closer to the back of the class to sit down.
@@ -882,7 +882,7 @@ The receptionist looks you up and down. "We offer high heel classes every Tuesda
 :: Heel Lesson
 <<set $outside to 0>><<set $location to "dance_studio">><<effects>>
 
-<<if !$danceStudio.intro>>
+<<if !Memories.Charlie.has("firstLesson")>>
 	<<danceStudioIntro "Heel Lesson">>
 <<else>>
 	<<if $arousal gte $arousalmax>>

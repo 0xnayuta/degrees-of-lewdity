@@ -326,6 +326,17 @@ const VALID_MEMORIES = {
 		// Used so Darryl's introduction and the question about their lost spectacles only play the first time
 		"firstOfficeVisit",
 	],
+	Charlie: [
+		// If the PC has had their first class at the dance studio and met Charlie
+		// Used so Charlie's introduction plays before the first lesson, so the dance lesson only takes its 20 minutes after it, and so Charlie can offer dance jobs
+		"firstLesson",
+		// If the PC broke down in Charlie's car and talked about Bailey after breaking down at a dance job
+		// Used to unlock asking Charlie for more dangerous work, and so Charlie offers a lift straight away after later break downs.
+		"pcToldAboutBailey",
+		// If the PC pulled their hands away when Charlie went to hold them in a dance lesson
+		// Used so Charlie remembers the PC is shy about it the next time they pull away
+		"pcRefusedHandholding",
+	],
 };
 
 /**
@@ -421,6 +432,11 @@ const Memories = {
 		add: memory => addMemory("Darryl", memory),
 		has: memory => hasMemory("Darryl", memory),
 		delete: memory => deleteMemory("Darryl", memory),
+	},
+	Charlie: {
+		add: memory => addMemory("Charlie", memory),
+		has: memory => hasMemory("Charlie", memory),
+		delete: memory => deleteMemory("Charlie", memory),
 	},
 };
 window.Memories = Memories;
