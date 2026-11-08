@@ -309,6 +309,11 @@ const VALID_MEMORIES = {
 		// Used so Jordan starts to question Bailey at Bailey's first temple visit, before the Bishop's Hands stop them
 		"pcWarnedAboutBailey",
 	],
+	Darryl: [
+		// If the PC has met Darryl in the strip club office
+		// Used so it only plays the first time
+		"firstOfficeVisit",
+	],
 };
 
 /**
@@ -399,6 +404,11 @@ const Memories = {
 		add: memory => addMemory("Jordan", memory),
 		has: memory => hasMemory("Jordan", memory),
 		delete: memory => deleteMemory("Jordan", memory),
+	},
+	Darryl: {
+		add: memory => addMemory("Darryl", memory),
+		has: memory => hasMemory("Darryl", memory),
+		delete: memory => deleteMemory("Darryl", memory),
 	},
 };
 window.Memories = Memories;
