@@ -200,7 +200,7 @@ const VALID_MEMORIES = {
 		"agreedToPayForPhotoshoots",
 
 		// If Leighton first met the PC working at the brothel
-		// Used so the meeting only plays once, so Leighton can turn up as a customer while the PC dances, and so Leighton's blackmail starts
+		// Used so the meeting only plays once, so Leighton can turn up as a customer while the PC dances, and to halve the fame needed for Leighton's photo blackmail
 		"metPcAtBrothel",
 
 		// If the PC found Leighton's computer password in the maths class envelope delivery
@@ -219,7 +219,7 @@ const VALID_MEMORIES = {
 		// Not currently used
 		"pcDemandedWatch",
 		// If the PC's blackmail price was no more detention
-		// Used so Leighton stops enforcing detention at the gate and after class, and for Leighton's and Sydney's lines about it
+		// Used so Leighton stops enforcing detention at the school gate and when leaving in the afternoon, and for Leighton's, Sydney's and fishing lines about it
 		"pcDemandedNoDetention",
 		// If the PC's blackmail price was no more photoshoots
 		// Used to stop the blackmail photoshoots and the journal reminder, and so the photos never go up on the notice board
@@ -305,13 +305,13 @@ const VALID_MEMORIES = {
 		// Not currently used
 		"pcMasturbatedWatchingShower",
 
-		// If the PC told Jordan, after rescuing them from Kylar, that Bailey beats and extorts the orphans
+		// If the PC told Jordan, after Jordan rescued them from Kylar, that Bailey beats and extorts the orphans
 		// Used so Jordan starts to question Bailey at Bailey's first temple visit, before the Bishop's Hands stop them
 		"pcWarnedAboutBailey",
 	],
 	Darryl: [
 		// If the PC has met Darryl in the strip club office
-		// Used so it only plays the first time
+		// Used so Darryl's introduction and the question about their lost spectacles only play the first time
 		"firstOfficeVisit",
 	],
 };

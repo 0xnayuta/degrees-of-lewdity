@@ -9,7 +9,8 @@ declare global {
 	export interface LeightonState {
 		/** Leighton's genital inspection scene in Sirris's science class. Only exists while the scene plays. */
 		inspection?: LeightonInspection;
-		/** If Leighton photographed the PC with a penis grown by the ear slime at the boys' inspection. Leighton then expects the PC during the girls' inspection too. Unset at an inspection where the PC doesn't have a penis. */
+		/** If Leighton photographed the PC with a penis grown by the ear slime at the boys' inspection. Leighton then expects the PC during the girls' inspection too.
+		 * Unset at the girls' inspection if the PC no longer has a penis and isn't wearing a chastity device that hides their genitals. */
 		photographedPcParasitePenis?: true;
 		/** School days since the PC's last photoshoot for Leighton's photo blackmail. Unset until the blackmail starts.
 		 *
