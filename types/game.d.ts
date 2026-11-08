@@ -33,16 +33,6 @@ declare module "twine-sugarcube" {
 		physiquechange: 1;
 		home_event_timer: number;
 
-		rentTime: number;
-		babyRent: number;
-		rentMoney: number;
-
-		rentThug: {
-			anger: number;
-			angerCountdown: number;
-			traps: [];
-		} | null;
-
 		loveInterest: {
 			primary: string;
 			secondary: string;

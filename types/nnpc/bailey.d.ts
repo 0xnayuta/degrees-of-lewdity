@@ -38,8 +38,37 @@ declare global {
 			 * Also one of the ways Bailey starts using Robin as leverage when the PC pays Robin's rent. */
 			pcWinsSinceLastPaid: number;
 		};
+		/** Bailey's thugs will hunt the PC down if they keep dodging rent. Unset until the PC first triggers them. */
+		thugs?: {
+			/** How angry the thugs are, 0 to 5. Rises by 1 each day while rent is more than a day overdue, up to 4.
+			 * Higher anger means more ambushes, tougher thugs and more allure in town. */
+			anger: 0 | 1 | 2 | 3 | 4 | 5;
+			/** Days before anger can rise again on its own. */
+			angerCountdown: 0 | 1 | 2;
+			/** Places the thugs are lying in wait, and when they give up. At most 3. */
+			traps: Array<{ location: string; endTime: number }>;
+		} | null;
 		/** Bailey collecting the PC's rent, and what Bailey does when they don't pay. */
 		rent: {
+			/** Days until Bailey next collects. 0 means rent is due. Below 0 means rent is overdue.
+			 * Set to 7 whenever Bailey collects, and goes down by 1 each day, except while Avery is paying or during certain bad ends. */
+			daysUntilDue: number;
+			/** What Bailey charges per collection (in pence) times the rent cost setting.
+			 * Doubled while the PC pays Robin's rent. */
+			amount: number;
+			/** Starts at 1 and goes up by 1 each time the PC pays.
+			 * Picks the next price: £300, £500, £700, £1,000, £1,500. Caps at £2,000. */
+			timesRaised: number;
+			/** Bailey's extra charge for the PC's children at the orphanage (in pence).
+			 * £100 for each child the PC interacted with fewer than 6 times since the last collection, with one child's fee taken off for every 7 milk bottles given to the orphanage. */
+			extraForChildren?: number;
+			/** Which buyer Bailey sells the PC to next. Cycles 0 to 3.
+			 *
+			 * - `0`: Danube Street mansion, or tutorial guy if PC has not left the orphanage
+			 * - `1`: Eden, or Gwylan if the PC wears the familiar's collar.
+			 * - `2`: Remy's farm
+			 * - `3`: the underground brothel. */
+			nextBuyer?: 0 | 1 | 2 | 3;
 			/** Payments the PC has made in a row. Reset to 0 when they refuse or can't pay.
 			 * Below 2, or while rent is overdue, Bailey brings Robin to collections if Robin is home and Bailey has already used Robin as leverage.
 			 * Unset until the PC first pays, refuses or can't pay. */

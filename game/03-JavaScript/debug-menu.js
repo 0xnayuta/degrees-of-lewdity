@@ -115,11 +115,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Make Rent Due`, stayOnPassageFn],
-			widgets: [`<<set $rentTime to -1>>`],
+			widgets: [`<<set $bailey.rent.daysUntilDue to -1>>`],
 		},
 		{
 			link: [`Max Thug Anger`, stayOnPassageFn],
-			widgets: [`<<set $rentThug to { anger: 5, angerCountdown: 0, traps: [] }>>`],
+			widgets: [`<<set $bailey.thugs to { anger: 5, angerCountdown: 0, traps: [] }>>`],
 		},
 		{
 			link: [`Enemy Trust +++`, stayOnPassageFn],
@@ -972,7 +972,7 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Bailey selling Robin`, `Orphanage`],
 			widgets: [
-				`<<set $rentTime to 0>>`,
+				`<<set $bailey.rent.daysUntilDue to 0>>`,
 				`<<set $bailey.fights.pcWinsSinceLastPaid to 3>>`,
 				`<<set $robin.rent.pcPaysForRobin to true>>`,
 				`<<set $robin.romance to true>>`,

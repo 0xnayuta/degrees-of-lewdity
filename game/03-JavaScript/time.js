@@ -1209,8 +1209,8 @@ function minutePassed(minutes) {
 	}
 
 	// Thug traps
-	for (let i = 0; i < V.rentThug?.traps.length; i++) {
-		if (Time.date.timeStamp >= V.rentThug.traps[i].endTime) V.rentThug.traps.deleteAt([i]);
+	for (let i = 0; i < V.bailey.thugs?.traps.length; i++) {
+		if (Time.date.timeStamp >= V.bailey.thugs.traps[i].endTime) V.bailey.thugs.traps.deleteAt([i]);
 	}
 
 	// Tanning
@@ -2729,7 +2729,7 @@ DefineMacro("supermarketWeekly", supermarketWeekly);
  * @returns {boolean} Rent due, yes or no?
  */
 function isRentDue() {
-	return V.rentTime <= 0 && isAveryPayingBailey() !== 2 && !inRentPausedBadEnd();
+	return V.bailey.rent.daysUntilDue <= 0 && isAveryPayingBailey() !== 2 && !inRentPausedBadEnd();
 }
 window.isRentDue = isRentDue;
 
@@ -2739,7 +2739,7 @@ window.isRentDue = isRentDue;
  * @returns {boolean} Bailey looking for player, yes or no?
  */
 function isBaileyLookingForPlayer() {
-	return (isRentDue() && V.rentTime < 0) || (V.bailey.rent.safehouseRefusals && isAveryPayingBailey() !== 2);
+	return (isRentDue() && V.bailey.rent.daysUntilDue < 0) || (V.bailey.rent.safehouseRefusals && isAveryPayingBailey() !== 2);
 }
 window.isBaileyLookingForPlayer = isBaileyLookingForPlayer;
 
@@ -2763,10 +2763,10 @@ function inRentPausedBadEnd() {
 
 /* Not seen bailey for more than 2 weeks, tracks missed rent */
 function passRentTick() {
-	V.rentTime--;
+	V.bailey.rent.daysUntilDue--;
 	wikifier("thuganger", "passive");
-	if (V.rentTime < 0 && V.rentTime % 7 === 0) {
-		V.bailey.rent.unpaidRentMoney += V.rentMoney + (V.babyRent || 0);
-		V.bailey.rent.unpaidRentMoneyLifetime += V.rentMoney + (V.babyRent || 0);
+	if (V.bailey.rent.daysUntilDue < 0 && V.bailey.rent.daysUntilDue % 7 === 0) {
+		V.bailey.rent.unpaidRentMoney += V.bailey.rent.amount + (V.bailey.rent.extraForChildren || 0);
+		V.bailey.rent.unpaidRentMoneyLifetime += V.bailey.rent.amount + (V.bailey.rent.extraForChildren || 0);
 	}
 }
