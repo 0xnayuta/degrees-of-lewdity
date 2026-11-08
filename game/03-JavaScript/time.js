@@ -692,7 +692,6 @@ function dayPassed() {
 	}
 	if (V.wolfcavebreast >= 1) delete V.wolfcavebreast;
 	if (V.wolfcavepatrol === 1) V.wolfcavepatrolchance = random(1, 3);
-	if (V.temple_jordan_prayer === 1) delete V.temple_jordan_prayer;
 	if (V.temple_event !== undefined) V.temple_event = 1;
 	if (V.school_crossdress_message >= 1 || V.school_herm_message >= 1) V.effectsmessage = 1;
 	if (V.syndromewolves === 1) {

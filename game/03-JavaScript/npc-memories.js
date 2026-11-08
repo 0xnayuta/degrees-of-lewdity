@@ -290,6 +290,25 @@ const VALID_MEMORIES = {
 		// Not currently used
 		"watchedPossessedPcJumpOverboard",
 	],
+	Jordan: [
+		// If a Fallen Angel PC asked Jordan for forgiveness and was told it takes a £10,000 donation
+		// Used to swap "Request forgiveness" for "Buy forgiveness", and so Jordan speaks up for the PC's honesty during Sydney's purity evaluation
+		"pcAskedForForgiveness",
+
+		// If the PC crawled into Jordan's room and heard Jordan singing in the shower
+		// Used to bring up the song to Gwylan
+		"pcHeardSingingInShower",
+		// If the PC peeked behind the curtain at Jordan showering
+		// Not currently used
+		"pcPeekedInShower",
+		// If the PC masturbated while watching Jordan shower
+		// Not currently used
+		"pcMasturbatedWatchingShower",
+
+		// If the PC told Jordan, after rescuing them from Kylar, that Bailey beats and extorts the orphans
+		// Used so Jordan starts to question Bailey at Bailey's first temple visit, before the Bishop's Hands stop them
+		"pcWarnedAboutBailey",
+	],
 };
 
 /**
@@ -375,6 +394,11 @@ const Memories = {
 		add: memory => addMemory("Zephyr", memory),
 		has: memory => hasMemory("Zephyr", memory),
 		delete: memory => deleteMemory("Zephyr", memory),
+	},
+	Jordan: {
+		add: memory => addMemory("Jordan", memory),
+		has: memory => hasMemory("Jordan", memory),
+		delete: memory => deleteMemory("Jordan", memory),
 	},
 };
 window.Memories = Memories;

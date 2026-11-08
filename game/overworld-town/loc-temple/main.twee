@@ -116,7 +116,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<br>
 	<</if>>
 
-<<elseif $danceStudio.jobOffered and $jordan_ritual_dance is undefined and ($grace gte 80 and $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest") and $exposed lte 0>>
+<<elseif $danceStudio.jobOffered and $jordan.missingFlockQuest is undefined and ($grace gte 80 and $temple_rank is "initiate" or $temple_rank is "monk" or $temple_rank is "priest") and $exposed lte 0>>
 	<<npc Jordan>><<person1>>
 	"My child," says a voice from the side. It's Jordan, looking more haggard than usual. A rogue strand of hair falls between <<his>> eyes. "I must ask a favour. <span class="gold">Do you know Charlie?</span> Forgive me my enquiry, but you have something of a reputation as a dancer."
 	<br><br>
@@ -124,7 +124,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 	"One of our flock recently found work at a manor on Danube Street. They've since disappeared. This manor is known to hire entertainers. Should your work take you there, keep an eye out for anything unusual, but be careful. I'm not asking you to put yourself at risk. If you find anything, please just report back to me. Thank you."
 	<br><br>
 
-	<<link [[Next|Temple]]>><<set $jordan_ritual_dance to 1>><<endevent>><</link>>
+	<<link [[Next|Temple]]>><<set $jordan.missingFlockQuest to "askedPc">><<endevent>><</link>>
 	<br>
 <<elseif $adultshopgrandopening is true and !$adultshopopeningsydney and _sydneyTemple is true and C.npc.Sydney.init is 1 and $adultshopunlocked isnot true and $exposed lte 0>>
 	<<set $adultshopopeningsydney to true>>
@@ -211,7 +211,7 @@ You are in the main hall of the temple. Stone walls and pillars tower into darkn
 		<<scienceicon "pink lichen">><<link [[Search for lichen (0:30)|Temple Lichen]]>><<pass 30>><<set $sciencelichentemple to 1>><</link>>
 		<br>
 	<</if>>
-	<<if Time.dayState isnot "night" and $exposed is 0 and $daily.jordanMissing isnot 1>>
+	<<if Time.dayState isnot "night" and $exposed is 0 and !$daily.jordan.leftAfterRitualReport>>
 		<<templeicon "altar">><<link [[Approach the figure|Temple Jordan]]>><</link>>
 		<br>
 	<</if>>
@@ -956,7 +956,7 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 		<<ind>><<link [[Have parasites removed (£20 0:05)|Temple Parasite]]>><<money -2000>><<pass 5>><</link>>
 		<br>
 	<</if>>
-	<<if $forgiveintro isnot 1 and $fallenangel gte 2>>
+	<<if !Memories.Jordan.has("pcAskedForForgiveness") and $fallenangel gte 2>>
 		<<templeicon "pray">><<link [[Request forgiveness|Temple Forgiveness]]>><</link>><<fallenangel>>
 		<br>
 	<<elseif $money gte 1000000 and $fallenangel gte 2>>
@@ -988,8 +988,8 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 		<<schoolicon "library">><<link [[Enquire about the book (0:05)|Temple Book Ask]]>><</link>>
 		<br>
 	<</if>>
-	<<if $jordan_ritual_dance is 2>>
-		<<danubeicon>><<link [[Inform Jordan of what you found beneath the Danube manor|Temple Ritual Inform]]>><<set $jordan_ritual_dance to 3>><</link>>
+	<<if $jordan.missingFlockQuest is "pcFoundRitual">>
+		<<danubeicon>><<link [[Inform Jordan of what you found beneath the Danube manor|Temple Ritual Inform]]>><<set $jordan.missingFlockQuest to "pcReportedRitual">><</link>>
 		<br>
 	<</if>>
 	<<if $spear_vessel is "sea" and !($temple_spear_mission gte 2)>>
@@ -1077,7 +1077,7 @@ You hear a door open, and a <<monk>> emerges from a staircase, leading up from s
 Jordan listens in silence, without moving an inch. "Thank you," <<he>> says, looking through you. "You've saved more than one person today." <<He>> produces a leather whip from beneath <<his>> vestments, then tightens it. "Forgive me, but I must leave at once." <<He>> strides away and disappears down a staircase leading underground.
 <br><br>
 
-<<link [[Next|Temple]]>><<set $daily.jordanMissing to 1>><<endevent>><</link>>
+<<link [[Next|Temple]]>><<set $daily.jordan.leftAfterRitualReport to true>><<endevent>><</link>>
 <br>
 
 :: Temple Harass Inform
@@ -1195,7 +1195,7 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 	<br><br>
 <<else>>
 	<<if playerBellyVisible()>>
-		<<setKnowsAboutPregnancy("pc", "Jordan")>>
+		<<setKnowsAboutPregnancy "pc" "Jordan">>
 		<<if playerChastity("vagina") and $worn.genitals.name is "chastity belt">>
 			"We should remove yours immediately. It's unsafe to wear one while pregnant."
 		<<elseif playerChastity("vagina")>>
@@ -1894,7 +1894,7 @@ You fight through the shame and speak.
 	That's a lot of money, but you can't think of any other way.
 <</if>>
 <br><br>
-<<set $forgiveintro to 1>>
+<<run Memories.Jordan.add("pcAskedForForgiveness")>>
 <<endevent>>
 <<link [[Next|Temple]]>><</link>>
 <br>

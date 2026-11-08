@@ -25,6 +25,8 @@ declare global {
 		namedBeastIsMonster?: Partial<Record<NamedBeastType, boolean>>;
 		/** Leighton's once-a-day flags, unset at midnight. */
 		leighton: LeightonDaily;
+		/** Jordan's once-a-day flags, unset at midnight. */
+		jordan: JordanDaily;
 	}
 }
 

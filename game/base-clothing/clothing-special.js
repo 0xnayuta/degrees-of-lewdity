@@ -461,7 +461,7 @@ function initSpecialClothes() {
 		},
 		temple_exorcist: {
 			text: "exorcist's uniforms",
-			requirements: () => V.jordan_ritual_dance === 4,
+			requirements: () => V.jordan?.missingFlockQuest === "pcRescuedFlockMember",
 			hint: "interrupt a heretical ritual",
 			shop: ["forest", "temple"],
 			subsetOf: ["temple"],
