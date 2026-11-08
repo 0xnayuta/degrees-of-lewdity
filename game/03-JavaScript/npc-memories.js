@@ -345,6 +345,32 @@ const VALID_MEMORIES = {
 		// Used so the car only comes once, and so Briar's goon waits outside the strip club for reports
 		"askedPcToSpyOnDarryl",
 	],
+	Remy: [
+		/* These are all the different ways to meet Remy.
+		Apart from meeting Remy at riding school, most of these allow you to identify Remy's goons during bird hunt. */
+		// If Remy rode into Alex's farm when the farm reached stage 5
+		// Used for Remy's greeting at the riding school intro, for PC to think about exposing Remy's crimes
+		"cameToAlexFarm",
+		// If Remy was the guest at Avery's mansion party
+		// Used to tell whether the PC has met Remy
+		"guestAtAveryMansionParty",
+		// If the PC was taken in and kept as livestock at Remy's Underground Farm
+		// Used for the PC to remember when meeting Remy elsewhere
+		"keptPcAtUndergroundFarm",
+		// If the PC met Remy at the manor party after Avery won the card game
+		// Used for Remy's greeting at the riding school intro, and to stop Bailey from taking a detour to the docks after winning the card game
+		"metAfterAveryCardGame",
+		// If the PC met Remy at the riding school
+		// Used so the riding school intro only plays once, for Remy's greeting and invite at Alex's farm, Mickey's directions and the journal
+		"metAtRidingSchool",
+
+		// If the PC has seen Remy wearing the white mask after the skyscraper
+		// Used so the mask scene only plays once, and so Remy clutches the mask on seeing the PC's familiar collar
+		"pcSawMask",
+		// If Remy saw the PC arrive at the Underground Farm in the familiar collar
+		// Used so the PC can recognise Remy's voice after Avery's card game win
+		"sawPcFamiliarCollar",
+	],
 };
 
 /**
@@ -450,6 +476,11 @@ const Memories = {
 		add: memory => addMemory("Briar", memory),
 		has: memory => hasMemory("Briar", memory),
 		delete: memory => deleteMemory("Briar", memory),
+	},
+	Remy: {
+		add: memory => addMemory("Remy", memory),
+		has: memory => hasMemory("Remy", memory),
+		delete: memory => deleteMemory("Remy", memory),
 	},
 };
 window.Memories = Memories;

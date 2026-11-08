@@ -1,0 +1,45 @@
+:: Widgets NNPC Cleanup Migration Remy [widget]
+<<widget "nnpcCleanupMigrationRemy">>
+	<<set $remy ??= {}>>
+	<<set $daily.remy ??= {}>>
+
+	<!-- Remy's $remySeen and one-time flags moved into Remy's memories -->
+	<<if $remySeen>>
+		<<set _remySeenRenames to {
+			avery_mansion: "guestAtAveryMansionParty",
+			farm: "cameToAlexFarm",
+			livestock: "keptPcAtUndergroundFarm",
+			livestock_familiar_collar: "sawPcFamiliarCollar",
+			manor: "metAfterAveryCardGame",
+			riding_school: "metAtRidingSchool",
+		}>>
+		<<for _memory range $remySeen>>
+			<<run $npcMemories.Remy.pushUnique(_remySeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $remySeen>>
+	<</if>>
+	<<if $remy_mask>><<run Memories.Remy.add("pcSawMask")>><</if>>
+	<<if $ridingschoolintro isnot undefined>><<run Memories.Remy.add("metAtRidingSchool")>><</if>>
+	<<unset $remy_mask $ridingschoolintro>>
+
+	<!-- Remy's last meeting place and escape steed moved onto $remy -->
+	<<if $remySeenLast isnot undefined>>
+		<<set _remySeenLastRenames to {
+			farm: "alexFarm",
+			livestock: "undergroundFarm",
+			manor: "afterAveryCardGame",
+			riding_school: "ridingSchool",
+		}>>
+		<<set $remy.lastMetAt to _remySeenLastRenames[$remySeenLast]>>
+	<</if>>
+	<<if $remyEscapeSteed isnot undefined>>
+		<<set $remy.escapeSteed to $remyEscapeSteed>>
+	<</if>>
+	<<unset $remySeenLast $remyEscapeSteed>>
+
+	<!-- Remy's daily flag moved into $daily.remy -->
+	<<if $daily.livestock?.remyEvent>>
+		<<set $daily.remy.pcSawBridlingHorse to true>>
+		<<run delete $daily.livestock.remyEvent>>
+	<</if>>
+<</widget>>

@@ -31,6 +31,8 @@ declare global {
 		bailey: BaileyDaily;
 		/** Charlie's once-a-day flags, unset at midnight. */
 		charlie: CharlieDaily;
+		/** Remy's once-a-day flags, unset at midnight. */
+		remy: RemyDaily;
 	}
 }
 
