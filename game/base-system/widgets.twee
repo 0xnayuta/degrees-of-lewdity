@@ -2891,7 +2891,7 @@
 	<</if>>
 <</widget>>
 
-<<widget "rentday">><<print new DateTime(Time.date).addDays($rentTime).weekDayName>><</widget>>
+<<widget "rentday">><<print new DateTime(Time.date).addDays($bailey.rent.daysUntilDue).weekDayName>><</widget>>
 
 <<widget "tearup">>
 	<<if $pain lte 20>>
@@ -4944,9 +4944,9 @@
 
 <<widget "cheatStart">>
 	<<set $cheatsEnabled to true>><<money 500000 "debug">>
-	<<set $rentMoney to 10000>><<rentmod>>
-	<<set $rentTime to 7>>
-	<<set $rentStage to 1>>
+	<<set $bailey.rent.amount to 10000>><<rentmod>>
+	<<set $bailey.rent.daysUntilDue to 7>>
+	<<set $bailey.rent.timesRaised to 1>>
 <</widget>>
 
 <<widget "cheatAveryMansion">>
@@ -5635,49 +5635,49 @@
 <</widget>>
 
 <<widget "thuganger">>
-	<<if $rentThug>>
-		<<if _args[0] is "passive" and $rentTime lt -1>>
-			<<if $rentThug.anger lt 4 and $rentThug.angerCountdown lte 0>>
-				<<set $rentThug.anger++>>
-				<<switch $rentThug.anger>>
+	<<if $bailey.thugs>>
+		<<if _args[0] is "passive" and $bailey.rent.daysUntilDue lt -1>>
+			<<if $bailey.thugs.anger lt 4 and $bailey.thugs.angerCountdown lte 0>>
+				<<set $bailey.thugs.anger++>>
+				<<switch $bailey.thugs.anger>>
 					<<case 2>>
-						<<set $rentThug.angerCountdown to 1>>
+						<<set $bailey.thugs.angerCountdown to 1>>
 					<<case 3>>
-						<<set $rentThug.angerCountdown to 2>>
+						<<set $bailey.thugs.angerCountdown to 2>>
 					<<default>>
 				<</switch>>
-			<<elseif $rentThug.angerCountdown gt 0>>
-				<<set $rentThug.angerCountdown-->>
+			<<elseif $bailey.thugs.angerCountdown gt 0>>
+				<<set $bailey.thugs.angerCountdown-->>
 			<</if>>
 		<<elseif Number.isInteger(_args[0])>>
-			<<set $rentThug.anger to Math.clamp($rentThug.anger + _args[0], 0, 5)>>
-			<<switch $rentThug.anger>>
+			<<set $bailey.thugs.anger to Math.clamp($bailey.thugs.anger + _args[0], 0, 5)>>
+			<<switch $bailey.thugs.anger>>
 				<<case 1 2>>
-					<<set $rentThug.angerCountdown to 1>>
+					<<set $bailey.thugs.angerCountdown to 1>>
 				<<case 3>>
-					<<set $rentThug.angerCountdown to 2>>
+					<<set $bailey.thugs.angerCountdown to 2>>
 				<<default>>
 			<</switch>>
-			<<set $rentThug.traps to []>>
+			<<set $bailey.thugs.traps to []>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "createThugTrap">>
-	<<if $rentThug>>
+	<<if $bailey.thugs>>
 		<<set _location to _args[0] or $bus>>
 		/* Deletes existing trap at location */
-		<<if $rentThug.traps.find(trap => trap.location === _location)>>
+		<<if $bailey.thugs.traps.find(trap => trap.location === _location)>>
 			<<set _refreshTrap to true>>
-			<<set $rentThug.traps.deleteAt([$rentThug.traps.findIndex(trap => trap.location === _location)])>>
+			<<set $bailey.thugs.traps.deleteAt([$bailey.thugs.traps.findIndex(trap => trap.location === _location)])>>
 		<</if>>
 		/* Sets new trap */
-		<<set $rentThug.traps.push({
+		<<set $bailey.thugs.traps.push({
 			location: _location,
-			endTime: new DateTime(Time.date).addHours(($rentThug.anger is 5 ? 3 : 2) / (Time.dayState is "night" ? 2 : 1)).timeStamp
+			endTime: new DateTime(Time.date).addHours(($bailey.thugs.anger is 5 ? 3 : 2) / (Time.dayState is "night" ? 2 : 1)).timeStamp
 		})>>
 		/* Clears old traps if needed */
-		<<if $rentThug.traps.length gte 4>><<set $rentThug.traps.deleteAt([0])>><</if>>
+		<<if $bailey.thugs.traps.length gte 4>><<set $bailey.thugs.traps.deleteAt([0])>><</if>>
 
 		<<if !$settings.blindStatsEnabled>>
 			<<if _refreshTrap>>

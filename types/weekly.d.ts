@@ -59,6 +59,8 @@ declare global {
 		leighton: LeightonWeekly;
 		/** Jordan's once-a-week flags, unset when the week ends. */
 		jordan: JordanWeekly;
+		/** Bailey's once-a-week flags, unset when the week ends. */
+		bailey: BaileyWeekly;
 	}
 }
 

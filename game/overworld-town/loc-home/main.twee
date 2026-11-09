@@ -760,7 +760,7 @@ You stare right at the lens. "I wonder who I'll invite over," you say. You stick
 <<wardrobeSelection true>>
 <<radiooutfits>>
 <br><br>
-<<if $rentTime lte 0>>
+<<if $bailey.rent.daysUntilDue lte 0>>
 	<<set $bus to "home">>
 	<<getouticon>><<link [[Get out of bed|Bedroom Bailey]]>><<endevent>><</link>>
 	<br><br>
@@ -1074,8 +1074,8 @@ You are in the bathroom.
 	<<storeon "bed" "wardrobe">><<wraithPossess "home">>
 	<span class="nextLink"><<link [[Walk.|Bedroom]]>><</link>></span>
 	<br>
-<<elseif $baileyrapewake is 1>>
-	<<set $baileyrapewake to 0>>
+<<elseif $bailey.rent.soldPcWhileAsleep>>
+	<<set $bailey.rent.soldPcWhileAsleep to false>>
 	<<generate1>><<person1>>You awaken to a shape looming over you and hands pulling off your covers. It's a <<person>>. "Don't struggle," <<he>> says.
 	<<if $robin.orphanage.whoseBedTonight is "yours" or $kylarbed is 1>>
 		"We wouldn't want to wake up your friend." <<if $robin.orphanage.whoseBedTonight is "yours">>Robin<<else>>Kylar<</if>> lies beside you, still asleep.
@@ -1350,7 +1350,7 @@ You are in the bathroom.
 		<<wardrobeSelection true>>
 		<<radiooutfits>>
 		<br><br>
-		<<if $rentTime lte 0>>
+		<<if $bailey.rent.daysUntilDue lte 0>>
 			<<set $bus to "home">>
 			<<getouticon>><<link [[Get out of bed|Bedroom Bailey]]>><</link>>
 			<br><br>
@@ -1376,8 +1376,8 @@ You are in the bathroom.
 <<sleepeffects>>
 <<set $wear_outfit to "clotheson">>
 
-<<if $baileyrapewake>>
-	<<set $baileyrapewake to 0>>
+<<if $bailey.rent.soldPcWhileAsleep>>
+	<<set $bailey.rent.soldPcWhileAsleep to false>>
 	<<generate1>><<person1>>You awaken to a shape looming over you and hands pulling off your covers. It's a <<person>>. "Don't struggle," <<he>> says.
 	"We wouldn't want to wake up your friend." Robin lies beside you, still asleep.
 	"You looked so cute, cosy and safe sleeping. I couldn't help myself."
@@ -1466,7 +1466,7 @@ You are in the bathroom.
 	<</if>>
 	<<unset $robin.orphanage.whoseBedTonight>>
 	<<npc Robin>><<person1>>
-	<<if $rentTime gte 1>> <!-- If Rent is not due -->
+	<<if $bailey.rent.daysUntilDue gte 1>> <!-- If Rent is not due -->
 		<<if _robin_location is "orphanage" or _robin_location is "sleep">>
 			<<if Time.hour lte 21>>
 				<<set _robinSleepyChance to ((Time.hour * 60) - 360) * 4/3>> <!-- 0% at 6, 80% at 7, and 100% starting at 7:15 -->
@@ -1517,7 +1517,7 @@ You are in the bathroom.
 	<</if>>
 	<<if Time.hour is 6>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
 	<<endevent "phaseless">>
-	<<if $rentTime lte 0>>
+	<<if $bailey.rent.daysUntilDue lte 0>>
 		<<set $bus to "home">>
 		<<set $robin.rent.collectedInRobinsRoom to true>>
 		<<link [[Next|Bedroom Bailey]]>><<set $wardrobe_location to "wardrobe">><</link>>
@@ -2401,9 +2401,9 @@ You are in the main hall of the orphanage.
 
 <<if $stress gte $stressmax>>
 	<<passouthome>>
-<<elseif $baileyReunionScene is "dungeon">>
+<<elseif $bailey.reunionToPlay is "dungeon">>
 	<<npc Bailey>><<person1>>
-	<<unset $baileyReunionScene>>
+	<<unset $bailey.reunionToPlay>>
 
 	<<if $hoursGoneFromHome gte 24>>
 		Bailey leans against a wall. A missing person's poster with a picture of you on it is pinned next to <<him>>.
@@ -2423,7 +2423,7 @@ You are in the main hall of the orphanage.
 	<<if isRentDue() or isBaileyLookingForPlayer()>>
 		"Pay your dues next time so we won't have to go through this again. Speaking of which..." <<He>> holds out <<his>> hand.
 		<<endevent>>
-		<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
+		<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($bailey.rent.paymentsInARow lt 2 or $bailey.rent.daysUntilDue lte -1) and _robinAtOrphanage>>
 			<<rentduerobin 0>>
 		<<else>>
 			<<rentdue 0>>
@@ -2459,13 +2459,13 @@ You are in the main hall of the orphanage.
 		<<link [[Next|Bedroom]]>><<endevent>><</link>>
 		<br>
 	<</if>>
-<<elseif isBaileyLookingForPlayer() and $rentTime lte -21 and !$bailey_confiscation>> /* Bailey Confiscation System */
+<<elseif isBaileyLookingForPlayer() and $bailey.rent.daysUntilDue lte -21 and !$bailey.rent.confiscation>> /* Bailey Confiscation System */
 	<<set $bus to "home">>
 	<<baileyRentConfiscation>>
 <<elseif isRentDue() or isBaileyLookingForPlayer()>>
 	<<set $bus to "home">>
 	A hand rests on your shoulder from behind. <span class="red">It's Bailey.</span>
-	<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($baileypaychain lt 2 or $rentTime lte -1) and _robinAtOrphanage>>
+	<<if Memories.Robin.has("baileyUsedRobinAsLeverage") and ($bailey.rent.paymentsInARow lt 2 or $bailey.rent.daysUntilDue lte -1) and _robinAtOrphanage>>
 		<<rentduerobin 0>>
 	<<else>>
 		<<rentdue 0>>
@@ -3278,14 +3278,14 @@ The last of the water drains from the bath, taking the slime with it. <<tearful>
 
 :: Orphanage Intro
 <<set $outside to 0>><<set $location to "home">><<effects>>
-<<set $rentMoney to 10000>><<rentmod>>
-<<set $rentTime to 7>>
-<<set $rentStage to 1>>
+<<set $bailey.rent.amount to 10000>><<rentmod>>
+<<set $bailey.rent.daysUntilDue to 7>>
+<<set $bailey.rent.timesRaised to 1>>
 
 <<npc Bailey>><<person1>>
 You enter Bailey's office. "I know why you're here," <<he>> says, running a hand through <<his>> dark hair. "You want me to release you from my protection, so you'll be an independent citizen. I could do that. But there's a problem. You've been living under my roof without giving anything in return. You owe me. Until you pay me back, I'm not letting you go."
 <br><br>
-<<He>> lifts an envelope from <<his>> desk and thumbs through the contents. You glimpse your name. <<He>> smiles as <<he>> hides your identification documents in <<his>> jacket. "<<printmoney $rentMoney "pink">> should do. To start with. I don't care how you get it. Knock on doors and ask for work. Rent yourself as a footstool. Steal it even. Just have it a week from now. Or I'll find a way to <span class="red">extract value</span> from you."
+<<He>> lifts an envelope from <<his>> desk and thumbs through the contents. You glimpse your name. <<He>> smiles as <<he>> hides your identification documents in <<his>> jacket. "<<printmoney $bailey.rent.amount "pink">> should do. To start with. I don't care how you get it. Knock on doors and ask for work. Rent yourself as a footstool. Steal it even. Just have it a week from now. Or I'll find a way to <span class="red">extract value</span> from you."
 <br><br>
 
 You return to your tiny bedroom and wonder what to do.
@@ -4489,7 +4489,7 @@ You shake your head and <<if $transformationParts.bird.plumage isnot "hidden">>p
 <<endevent>>
 <br><br>
 
-<<if $rentTime lte 0>>
+<<if $bailey.rent.daysUntilDue lte 0>>
 	<<set $bus to "home">>
 	<<getouticon>><<link [[Next|Bedroom Bailey]]>><</link>>
 <<else>>

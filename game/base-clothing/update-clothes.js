@@ -580,8 +580,9 @@ function updateClothes() {
 		}
 
 		/* Bailey Confiscation System */
-		if (V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items)) {
-			for (const held of V.bailey_confiscation.items) {
+		const confiscation = V.bailey?.rent.confiscation ?? V.bailey_confiscation;
+		if (confiscation && Array.isArray(confiscation.items)) {
+			for (const held of confiscation.items) {
 				if (held.source === "clothing" && held.slot === slot && held.item) updateClothesItem(slot, held.item);
 			}
 		}
