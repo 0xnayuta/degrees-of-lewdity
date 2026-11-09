@@ -2415,9 +2415,17 @@ function dailyConvert() {
 		if (V.robinDaily) Object.keys(V.robinDaily).forEach(n => (V.daily.robin[n] = V.robinDaily[n]));
 		if (V.sydneyDaily) Object.keys(V.sydneyDaily).forEach(n => (V.daily.sydney[n] = V.sydneyDaily[n]));
 		/* $sewersDaily to $daily.morgan. somehow, it's an array */
-		if (V.sewerssex === 1) V.daily.morgan.sex = 1;
-		if (V.sewersfeeding === 1) V.daily.morgan.feeding = 1;
-		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[n] = 1));
+		const morganDailyNames = {
+			feeding: "fedPc",
+			history: "taughtHistory",
+			maths: "taughtMaths",
+			english: "taughtEnglish",
+			science: "taughtScience",
+			sex: "sexEdUsed",
+		};
+		if (V.sewerssex === 1) V.daily.morgan.sexEdUsed = true;
+		if (V.sewersfeeding === 1) V.daily.morgan.fedPc = true;
+		if (V.sewersDaily) V.sewersDaily.forEach(n => (V.daily.morgan[morganDailyNames[n]] = true));
 		/* `$compoundstate != undefined` is no longer used as an indicator of the access to compound,
 		as it migrated to $daily.compoundState. $compound.discovered is used for that instead. */
 		if (V.compoundstate !== undefined) V.compound.discovered = true;

@@ -461,7 +461,7 @@ function initSpecialClothes() {
 		},
 		temple_exorcist: {
 			text: "exorcist's uniforms",
-			requirements: () => V.jordan_ritual_dance === 4,
+			requirements: () => V.jordan?.missingFlockQuest === "pcRescuedFlockMember",
 			hint: "interrupt a heretical ritual",
 			shop: ["forest", "temple"],
 			subsetOf: ["temple"],
@@ -591,7 +591,7 @@ function initSpecialClothes() {
 		// Special event sets
 		foreign_school: {
 			text: "foreign school clothes",
-			requirements: () => V.headdrive === 1,
+			requirements: () => Memories.Leighton.has("pcCopiedDarrylPhotos"),
 			hint: "discover the headteacher's secret",
 			shop: ["forest", "school"],
 			feat: true,

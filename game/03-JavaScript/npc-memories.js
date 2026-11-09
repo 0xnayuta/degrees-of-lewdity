@@ -195,9 +195,53 @@ const VALID_MEMORIES = {
 		"cardsDocks",
 	],
 	Leighton: [
+		// If Leighton agreed to pay the PC £50 for each photoshoot, whether the PC offered or demanded it when blackmailing Leighton
+		// Used to turn the office photoshoot into a paid one, prevents the photos from going up on the notice board, and for journal reminders
+		"agreedToPayForPhotoshoots",
+
+		// If Leighton first met the PC working at the brothel
+		// Used so the meeting only plays once, so Leighton can turn up as a customer while the PC dances, and to halve the fame needed for Leighton's photo blackmail
+		"metPcAtBrothel",
+
+		// If the PC found Leighton's computer password in the maths class envelope delivery
+		// Used to let the PC break into Leighton's computer when the office is empty
+		"pcFoundComputerPassword",
+		// If the PC copied Leighton's photos of Darryl onto a flash drive
+		// Used so the PC only breaks into the computer once, lets the PC hand the photos to the police or blackmail Leighton, unlocks the foreign school clothes, and sets relationship text to "has a folder devoted to you"
+		"pcCopiedDarrylPhotos",
+		// If the PC gave the photos of Darryl to the police
+		// Used so it can only happen once, lets the PC frame Leighton on the police computer, and for Gwylan's reply
+		"pcGavePhotosToPolice",
+		// If the PC blackmailed Leighton with the photos of Darryl
+		// Used to hide the blackmail option afterwards, to make Leighton unforgiving in encounters, unlocks some scenes with Leighton at the brothel, used for Leighton's lines when offering money at the brothel and when starting the photo blackmail, and for Gwylan's reply
+		"pcBlackmailedWithDarrylPhotos",
+		// If the PC took Leighton's watch as the blackmail price
+		// Not currently used
+		"pcDemandedWatch",
+		// If the PC's blackmail price was no more detention
+		// Used so Leighton stops enforcing detention at the school gate and when leaving in the afternoon, and for Leighton's, Sydney's and fishing lines about it
+		"pcDemandedNoDetention",
+		// If the PC's blackmail price was no more photoshoots
+		// Used to stop the blackmail photoshoots and the journal reminder, and so the photos never go up on the notice board
+		"pcDemandedPhotoshootStop",
+
+		// If the PC punched Leighton in the library to protect Sydney
+		// Used so Leighton catches the PC's arm the next time, and so Leighton takes revenge in the library later
+		"pcPunchedToProtectSydney",
+		// If Leighton punished the PC and Sydney in the library for the punch
+		// Used so the revenge only plays once
+		"punishedPcAndSydneyForPunch",
+
+		// If the PC refused Leighton's photo blackmail
+		// Used so the photos will go up on the notice board
+		"pcRefusedPhotoshoots",
+		// If Leighton's photos of the PC were put up on the school notice board
+		// Used so the board scene only plays once, to stop the blackmail photoshoots, and to hide the PC's photoshoot demands when blackmailing Leighton
+		"postedPhotosOnNoticeBoard",
+
 		// If Leighton has been put in the pillory
 		// Used for a Bailey line about Leighton after Avery's card game
-		"pillory",
+		"putInPillory",
 	],
 	Quinn: [
 		// If Quinn won Avery's card game and made the PC watch their movies at their mansion
@@ -245,6 +289,30 @@ const VALID_MEMORIES = {
 		// If the Ivory Wraith possessed PC beat Zephyr on deck and took the PC over the railing through the whirlpool
 		// Not currently used
 		"watchedPossessedPcJumpOverboard",
+	],
+	Jordan: [
+		// If a Fallen Angel PC asked Jordan for forgiveness and was told it takes a £10,000 donation
+		// Used to swap "Request forgiveness" for "Buy forgiveness", and so Jordan speaks up for the PC's honesty during Sydney's purity evaluation
+		"pcAskedForForgiveness",
+
+		// If the PC crawled into Jordan's room and heard Jordan singing in the shower
+		// Used to bring up the song to Gwylan
+		"pcHeardSingingInShower",
+		// If the PC peeked behind the curtain at Jordan showering
+		// Not currently used
+		"pcPeekedInShower",
+		// If the PC masturbated while watching Jordan shower
+		// Not currently used
+		"pcMasturbatedWatchingShower",
+
+		// If the PC told Jordan, after Jordan rescued them from Kylar, that Bailey beats and extorts the orphans
+		// Used so Jordan starts to question Bailey at Bailey's first temple visit, before the Bishop's Hands stop them
+		"pcWarnedAboutBailey",
+	],
+	Darryl: [
+		// If the PC has met Darryl in the strip club office
+		// Used so Darryl's introduction and the question about their lost spectacles only play the first time
+		"firstOfficeVisit",
 	],
 };
 
@@ -331,6 +399,16 @@ const Memories = {
 		add: memory => addMemory("Zephyr", memory),
 		has: memory => hasMemory("Zephyr", memory),
 		delete: memory => deleteMemory("Zephyr", memory),
+	},
+	Jordan: {
+		add: memory => addMemory("Jordan", memory),
+		has: memory => hasMemory("Jordan", memory),
+		delete: memory => deleteMemory("Jordan", memory),
+	},
+	Darryl: {
+		add: memory => addMemory("Darryl", memory),
+		has: memory => hasMemory("Darryl", memory),
+		delete: memory => deleteMemory("Darryl", memory),
 	},
 };
 window.Memories = Memories;

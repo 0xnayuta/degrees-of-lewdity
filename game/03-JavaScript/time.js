@@ -692,7 +692,6 @@ function dayPassed() {
 	}
 	if (V.wolfcavebreast >= 1) delete V.wolfcavebreast;
 	if (V.wolfcavepatrol === 1) V.wolfcavepatrolchance = random(1, 3);
-	if (V.temple_jordan_prayer === 1) delete V.temple_jordan_prayer;
 	if (V.temple_event !== undefined) V.temple_event = 1;
 	if (V.school_crossdress_message >= 1 || V.school_herm_message >= 1) V.effectsmessage = 1;
 	if (V.syndromewolves === 1) {
@@ -2209,7 +2208,7 @@ function dailySchoolEffects() {
 		statChange.delinquency(-delinquencyDecay / 4);
 	}
 
-	if (Time.schoolDay && V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
+	if (Time.schoolDay && V.leighton.schoolDaysSincePhotoshoot !== undefined) V.leighton.schoolDaysSincePhotoshoot++;
 
 	if (V.science_star >= 1) {
 		wikifier("scienceskill", Math.clamp(V.science_star, 0, 3));

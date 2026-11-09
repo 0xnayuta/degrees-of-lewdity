@@ -19,8 +19,14 @@ declare global {
 		robin: RobinDaily;
 		/** The Night Monster's once-a-day flags, unset at midnight. */
 		nightMonster: NightMonsterDaily;
+		/** Morgan's once-a-day flags, unset at midnight. */
+		morgan: MorganDaily;
 		/** Whether the named beasts are a monster person today. Rolled when it's needed from its monster chance setting. */
 		namedBeastIsMonster?: Partial<Record<NamedBeastType, boolean>>;
+		/** Leighton's once-a-day flags, unset at midnight. */
+		leighton: LeightonDaily;
+		/** Jordan's once-a-day flags, unset at midnight. */
+		jordan: JordanDaily;
 	}
 }
 

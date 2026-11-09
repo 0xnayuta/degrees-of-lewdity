@@ -1,0 +1,39 @@
+:: Widgets NNPC Cleanup Migration Morgan [widget]
+<<widget "nnpcCleanupMigrationMorgan">>
+	<!-- Morgan's hunt through the old sewers moved onto $morgan.hunt -->
+	<<set $morgan ??= {}>>
+	<<set $morgan.hunt ??= {}>>
+	<<if $sewerschased is 1>>
+		<<set $morgan.hunt.inProgress to true>>
+	<<elseif $sewerschased is 0>>
+		<<set $morgan.hunt.inProgress to false>>
+	<</if>>
+	<<if $sewerschasedstep isnot undefined>>
+		<<set $morgan.hunt.stepsLeft to $sewerschasedstep>>
+	<</if>>
+	<<if $morgantext isnot undefined>>
+		<<set $morgan.hunt.nextLine to $morgantext>>
+	<</if>>
+	<<set $morgan.hunt.nextLine ??= 0>>
+	<<unset $sewerschased $sewerschasedstep $morgantext>>
+
+	<!-- Morgan's once-a-day flags renamed -->
+	<<set _morganDailyRenames to {
+		feeding: "fedPc",
+		history: "taughtHistory",
+		maths: "taughtMaths",
+		english: "taughtEnglish",
+		science: "taughtScience",
+		sex: "sexEdUsed",
+		bath: "bathedPc"
+	}>>
+	<<for _oldName, _newName range _morganDailyRenames>>
+		<<if $daily.morgan[_oldName]>>
+			<<set $daily.morgan[_newName] to true>>
+			<<run delete $daily.morgan[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<!-- Replaced by $daily.morgan.rapedPcTonight, C.npc.Morgan.init and $phase -->
+	<<unset $sewersSleepSex $sewersintro $sewers_bath_redress>>
+<</widget>>

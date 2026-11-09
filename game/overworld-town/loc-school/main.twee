@@ -14,7 +14,7 @@
 		<<elseif Time.weekDay is 6 and $framed is "leighton" and $pillory.tenant.special.name isnot "Leighton">>
 			<br>
 			You hear some loud protests and arrive just in time to see <span class="gold">Leighton being led away by police.</span><<imprison_leighton>>
-		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
+		<<elseif $detention gte 1 and $daily.school.detentionAttended isnot 1 and !Memories.Leighton.has("pcDemandedNoDetention") and $pillory.tenant.special.name isnot "Leighton">>
 			<span class="purple">You see the head guarding the gate.</span> You're meant to be in detention, so if you leave that way, you'll be apprehended.
 		<<elseif $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
 			<span class="purple">You see Whitney hanging out by the gate.</span>
@@ -95,7 +95,7 @@
 			<br>
 			<<schoolicon "courtyard">><<link [[Rear courtyard (0:02)|School Rear Courtyard]]>><<pass 2>><</link>>
 			<br><br>
-			<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and $headnodetention isnot 1 and $pillory.tenant.special.name isnot "Leighton">>
+			<<if $schoolstate is "afternoon" and $detention gte 1 and $daily.school.detentionAttended isnot 1 and !Memories.Leighton.has("pcDemandedNoDetention") and $pillory.tenant.special.name isnot "Leighton">>
 				<<oxfordicon>><<link [[Leave the school|School Leave Stop]]>><<schoolclothesreset>><</link>>
 				<br>
 			<<elseif $schoolstate is "afternoon" and $bullytimer gte 1 and $bullytimeroutside gte 1 and $daily.whitney.bullyGate isnot 1 and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state)>>
@@ -719,37 +719,37 @@ You haul yourself over the fence and drop down on the other side.
 	<br><br>
 
 	<<if (wearingSchoolOutfit() or ["fifth", "afternoon"].includes($schoolstate)) and !pcAreArmsBound("any") and !$worn.feet.type.includes("shackle")>>
-		<<if $daily.school.headInterrupted isnot 1>>
+		<<if !$daily.leighton.pcWastedTime>>
 			Leighton looks up from <<his>> desk as you enter. "How can I help you?"
 			<br><br>
 
-			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1 and $headphotoshoot isnot 1>>
+			<<if Memories.Leighton.has("pcCopiedDarrylPhotos") and !Memories.Leighton.has("pcBlackmailedWithDarrylPhotos")>>
 				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
-			<<if $schoolfameblackmail gte 1>>
-				<<if $schoolfameboard is 1>>
-					<<if $schoolfameconsensual is 1>>
-						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
+			<<if $leighton.schoolDaysSincePhotoshoot gte 1>>
+				<<if Memories.Leighton.has("postedPhotosOnNoticeBoard") or Memories.Leighton.has("pcDemandedPhotoshootStop") or Memories.Leighton.has("agreedToPayForPhotoshoots")>>
+					<<if Memories.Leighton.has("agreedToPayForPhotoshoots")>>
+						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $leighton.schoolDaysSincePhotoshoot to 0>><</link>>
 						<br>
-					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
-						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
+					<<elseif hasSexStat("exhibitionism", 4) and $leighton.schoolDaysSincePhotoshoot gte 3>>
+						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
 				<<else>>
-					<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot Blackmail]]>><<set $schoolfameblackmail to 0>><<trauma 6>><<stress 6>><<npcincr Leighton dom 1>><</link>><<gtrauma>><<gstress>>
+					<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot Blackmail]]>><<set $leighton.schoolDaysSincePhotoshoot to 0>><<trauma 6>><<stress 6>><<npcincr Leighton dom 1>><</link>><<gtrauma>><<gstress>>
 					<br>
 				<</if>>
 			<</if>>
 			<br>
-			<<getouticon>><<link [[Leave the office (0:01)|Hallways]]>><<endevent>><<pass 1>><<set $daily.school.headInterrupted to 1>><</link>>
+			<<getouticon>><<link [[Leave the office (0:01)|Hallways]]>><<endevent>><<pass 1>><<set $daily.leighton.pcWastedTime to true>><</link>>
 
 		<<else>>
 			<<if $exposed gte 1>>
 				<<fameexhibitionism 1>>
 			<</if>>
 
-			<<if $headnodetention isnot 1>>
+			<<if !Memories.Leighton.has("pcDemandedNoDetention")>>
 				Leighton looks up from <<his>> desk as you enter. "You again? It's rude to keep bothering me without purpose. I'll have to flag you for punishment if this isn't important."
 				<br><br>
 			<<else>>
@@ -757,21 +757,21 @@ You haul yourself over the fence and drop down on the other side.
 				<br><br>
 			<</if>>
 
-			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1 and $headphotoshoot isnot 1>>
+			<<if Memories.Leighton.has("pcCopiedDarrylPhotos") and !Memories.Leighton.has("pcBlackmailedWithDarrylPhotos")>>
 				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
-			<<if $schoolfameblackmail gte 1>>
-				<<if $schoolfameboard is 1>>
-					<<if $schoolfameconsensual is 1>>
-						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $schoolfameblackmail to 0>><</link>>
+			<<if $leighton.schoolDaysSincePhotoshoot gte 1>>
+				<<if Memories.Leighton.has("postedPhotosOnNoticeBoard") or Memories.Leighton.has("pcDemandedPhotoshootStop") or Memories.Leighton.has("agreedToPayForPhotoshoots")>>
+					<<if Memories.Leighton.has("agreedToPayForPhotoshoots")>>
+						<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot]]>><<set $leighton.schoolDaysSincePhotoshoot to 0>><</link>>
 						<br>
-					<<elseif hasSexStat("exhibitionism", 4) and $schoolfameblackmail gte 3>>
-						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><<set $schoolfameblackmail to 0>><<set $schoolfameconsensual to 1>><</link>><<exhibitionist4>>
+					<<elseif hasSexStat("exhibitionism", 4) and $leighton.schoolDaysSincePhotoshoot gte 3>>
+						<<photographystudioicon>><<link [[Offer to do photoshoots for money|Head's Office Photoshoot Offer]]>><</link>><<exhibitionist4>>
 						<br>
 					<</if>>
 				<<else>>
-					<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot Blackmail]]>><<set $schoolfameblackmail to 0>><<trauma 6>><<stress 6>><<npcincr Leighton dom 1>><</link>><<gtrauma>><<gstress>>
+					<<photographystudioicon>><<link [[Photoshoot (0:20)|Head's Office Photoshoot Blackmail]]>><<set $leighton.schoolDaysSincePhotoshoot to 0>><<trauma 6>><<stress 6>><<npcincr Leighton dom 1>><</link>><<gtrauma>><<gstress>>
 					<br>
 				<</if>>
 			<</if>>
@@ -892,7 +892,7 @@ You haul yourself over the fence and drop down on the other side.
 	The office is empty.
 	<br><br>
 
-	<<if $headpasswordknown is 1 and $headdrive isnot 1>>
+	<<if Memories.Leighton.has("pcFoundComputerPassword") and !Memories.Leighton.has("pcCopiedDarrylPhotos")>>
 		<<if pcAreArmsBound("both")>>
 			You think you'd be able to break into Leighton's computer, <span class="blue">if your arms weren't bound.</span>
 			<br><br>
@@ -1437,7 +1437,7 @@ You copy the files. Now to decide what to do with them.
 <br><br>
 On your way out, you notice a shirt folded on a small table, with a sheet of paper sat atop it. It's a letter addressed to Leighton. It says the shirt is a new school uniform design.
 <br><br>
-<<set $headdrive to 1>>
+<<run Memories.Leighton.add("pcCopiedDarrylPhotos")>>
 <<specialClothesUnlock "set" "foreign_school">>
 <<link [[Wear the shirt and leave|Hallways]]>><<upperwear "classic serafuku">><<endevent>><</link>>
 <br>
@@ -1523,7 +1523,7 @@ You settle under the desk and set to work on the lock.
 <br>
 <<link [[No detention|Head's Office No Detention]]>><</link>>
 <br>
-<<if $schoolfameboard isnot 1 and $schoolfameblackmail isnot undefined>>
+<<if !Memories.Leighton.has("postedPhotosOnNoticeBoard") and $leighton.schoolDaysSincePhotoshoot isnot undefined>>
 	<<link [[No more photoshoots|Head's Office No Photoshoots]]>><</link>>
 	<br>
 
@@ -1542,7 +1542,7 @@ This watch should be worth a fair bit if you could find a buyer.
 <<ggcontrol>>
 <br><br>
 
-<<set $blackmoney += 5000>><<set $headmoney to 1>><<set $headblackmailed to 1>><<control 25>><<endevent>><<def 3>>
+<<set $blackmoney += 5000>><<run Memories.Leighton.add("pcDemandedWatch")>><<run Memories.Leighton.add("pcBlackmailedWithDarrylPhotos")>><<control 25>><<endevent>><<def 3>>
 
 <<link [[Next|Hallways]]>><</link>>
 
@@ -1553,7 +1553,7 @@ This watch should be worth a fair bit if you could find a buyer.
 <br><br>
 
 You leave the office. That's one less problem to worry about.
-<<set $headnodetention to 1>><<set $headblackmailed to 1>><<control 25>><<def 3>><<ggcontrol>>
+<<run Memories.Leighton.add("pcDemandedNoDetention")>><<run Memories.Leighton.add("pcBlackmailedWithDarrylPhotos")>><<control 25>><<def 3>><<ggcontrol>>
 <br><br>
 
 <<endevent>>

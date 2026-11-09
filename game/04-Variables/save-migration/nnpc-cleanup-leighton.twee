@@ -1,0 +1,69 @@
+:: Widgets NNPC Cleanup Migration Leighton [widget]
+<<widget "nnpcCleanupMigrationLeighton">>
+	<<set $leighton ??= {}>>
+	<<set $daily.leighton ??= {}>>
+	<<set $weekly.leighton ??= {}>>
+
+	<!-- Leighton's one-off flags became memories -->
+	<<if $leightonbrothel is 1>><<run Memories.Leighton.add("metPcAtBrothel")>><</if>>
+	<<if $headpasswordknown is 1>><<run Memories.Leighton.add("pcFoundComputerPassword")>><</if>>
+	<<if $headdrive is 1>><<run Memories.Leighton.add("pcCopiedDarrylPhotos")>><</if>>
+	<<if $headpolice is 1>><<run Memories.Leighton.add("pcGavePhotosToPolice")>><</if>>
+	<<if $headblackmailed is 1>><<run Memories.Leighton.add("pcBlackmailedWithDarrylPhotos")>><</if>>
+	<<if $headmoney is 1>><<run Memories.Leighton.add("pcDemandedWatch")>><</if>>
+	<<if $headnodetention is 1>><<run Memories.Leighton.add("pcDemandedNoDetention")>><</if>>
+	<<if $schoolfamerefused is 1>><<run Memories.Leighton.add("pcRefusedPhotoshoots")>><</if>>
+	<<if $schoolfameconsensual is 1>><<run Memories.Leighton.add("agreedToPayForPhotoshoots")>><</if>>
+
+	<!-- Both photoshoot demands set $headphotoshoot and $schoolfameboard. Only the pay demand also set $schoolfameconsensual. -->
+	<<if $headphotoshoot is 1>>
+		<<if $schoolfameconsensual isnot 1>>
+			<<run Memories.Leighton.add("pcDemandedPhotoshootStop")>>
+		<</if>>
+	<<elseif $schoolfameboard is 1>>
+		<<run Memories.Leighton.add("postedPhotosOnNoticeBoard")>>
+	<</if>>
+
+	<<if $leightonAssaulted gte 1>>
+		<<run Memories.Leighton.add("pcPunchedToProtectSydney")>>
+	<</if>>
+	<<if $leightonAssaulted is 2>>
+		<<run Memories.Leighton.add("punishedPcAndSydneyForPunch")>>
+	<</if>>
+
+	<!-- Moved onto $leighton, $daily.leighton and $weekly.leighton -->
+	<<if $schoolfameblackmail isnot undefined>>
+		<<set $leighton.schoolDaysSincePhotoshoot to $schoolfameblackmail>>
+	<</if>>
+	<<if $leightonParasitePenisInspection>>
+		<<set $leighton.photographedPcParasitePenis to true>>
+	<</if>>
+	<<if $daily.leightonDanceOffered is 1>>
+		<<set $daily.leighton.offeredPcPrivateDance to true>>
+	<</if>>
+	<<if $daily.school.headInterrupted is 1>>
+		<<set $daily.leighton.pcWastedTime to true>>
+	<</if>>
+	<<if $weekly.leightonDanceRefused isnot undefined>>
+		<<set $weekly.leighton.waitingInBrothelDressingRoom to $weekly.leightonDanceRefused>>
+	<</if>>
+	<<run delete $daily.leightonDanceOffered>>
+	<<run delete $daily.school.headInterrupted>>
+	<<run delete $weekly.leightonDanceRefused>>
+
+	<<unset $leightonbrothel $headpasswordknown $headdrive $headpolice $headblackmailed $headmoney $headnodetention $headphotoshoot>>
+	<<unset $schoolfamerefused $schoolfameconsensual $schoolfameboard $schoolfameblackmail $leightonAssaulted $leightonParasitePenisInspection>>
+
+	<!-- Only exists while an inspection scene plays -->
+	<<if $inspection isnot undefined>>
+		<<set $leighton.inspection to {
+			actualAction: $inspection.choice,
+			expectedAction: $inspection.expect,
+			genderAppearance: $inspection.gender_appearance
+		}>>
+		<<unset $inspection>>
+	<</if>>
+
+	<!-- Was set but never read -->
+	<<unset $leightonseduce>>
+<</widget>>
