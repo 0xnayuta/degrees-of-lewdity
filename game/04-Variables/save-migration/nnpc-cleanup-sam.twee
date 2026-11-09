@@ -1,0 +1,46 @@
+:: Widgets NNPC Cleanup Migration Sam [widget]
+<<widget "nnpcCleanupMigrationSam">>
+	<<set $daily.sam ??= {}>>
+	<<set $weekly.sam ??= {}>>
+
+	<!-- Sam's $samSeen and one-time flags moved into Sam's memories -->
+	<<if $samSeen>>
+		<<set _samSeenRenames to {
+			gift: "offeredPcOrphanageGift",
+			love_gwy: "pcSaidInLoveWithGwylan",
+			love_rob: "pcSaidInLoveWithRobin",
+			origin: "toldCafeOrigin",
+			spa: "pcMassagedAtSpa",
+		}>>
+		<<for _memory range $samSeen>>
+			<<run $npcMemories.Sam.pushUnique(_samSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $samSeen>>
+	<</if>>
+	<<if $Sam_Park_Intro is 1>><<run Memories.Sam.add("firstParkMeeting")>><</if>>
+	<<unset $Sam_Park_Intro>>
+
+	<<unset $loft_sam_refuse>>
+
+	<!-- Sam's daily and weekly flags moved into $daily.sam and $weekly.sam -->
+	<<if $daily.sam_walk>>
+		<<set $daily.sam.wentOnParkWalk to true>>
+	<</if>>
+	<<if $daily.sam_duck>>
+		<<set $daily.sam.fedDucksWithPc to true>>
+	<</if>>
+	<<run delete $daily.sam_walk>>
+	<<run delete $daily.sam_duck>>
+	<<if $weekly.sam_talk_gwy>>
+		<<set $weekly.sam.askedPcAboutGwylan to true>>
+	<</if>>
+	<<if $weekly.sam_talk_rob>>
+		<<set $weekly.sam.askedPcAboutRobin to true>>
+	<</if>>
+	<<if $weekly.sam_talk_love>>
+		<<set $weekly.sam.askedPcAboutCrush to true>>
+	<</if>>
+	<<run delete $weekly.sam_talk_gwy>>
+	<<run delete $weekly.sam_talk_rob>>
+	<<run delete $weekly.sam_talk_love>>
+<</widget>>

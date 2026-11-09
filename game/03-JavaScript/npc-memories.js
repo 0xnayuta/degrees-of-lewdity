@@ -371,6 +371,33 @@ const VALID_MEMORIES = {
 		// Used so the PC can recognise Remy's voice after Avery's card game win
 		"sawPcFamiliarCollar",
 	],
+	Sam: [
+		// If the PC has met Sam feeding the ducks in the park
+		// Used so the duck intro only plays once, and to show Sam at the park from then on
+		"firstParkMeeting",
+
+		// If Sam offered the PC a gift for the orphanage while chatting in the park
+		// Used so the offer only comes up once, and to let the PC tell Sam about the loft
+		"offeredPcOrphanageGift",
+
+		// If the PC massaged Sam at the spa
+		// Used so Sam can bring up PC being their "private masseuse" at the park
+		// TODO: Needs a spa scene where the PC massages Sam
+		"pcMassagedAtSpa",
+
+		// If the PC told Sam they're in love with Gwylan
+		"pcSaidInLoveWithGwylan",
+		// If the PC told Sam that they and Robin are lovers
+		// Used so Sam is glad the PC's feelings haven't changed when told again, and is left speechless if the PC later says they love Gwylan
+		"pcSaidInLoveWithRobin",
+
+		// If Sam saw the PC run past naked while streaking in the park
+		// TODO: Not currently used but looks like it was planned. Sam leaves the park before PC can streak.
+		"sawPcStreaking",
+		// If Sam told the PC how the cafe started
+		// Used so Sam only tells the story once
+		"toldCafeOrigin",
+	],
 };
 
 /**
@@ -481,6 +508,11 @@ const Memories = {
 		add: memory => addMemory("Remy", memory),
 		has: memory => hasMemory("Remy", memory),
 		delete: memory => deleteMemory("Remy", memory),
+	},
+	Sam: {
+		add: memory => addMemory("Sam", memory),
+		has: memory => hasMemory("Sam", memory),
+		delete: memory => deleteMemory("Sam", memory),
 	},
 };
 window.Memories = Memories;
