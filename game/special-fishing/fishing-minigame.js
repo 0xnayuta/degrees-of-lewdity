@@ -711,6 +711,7 @@ function fishingMinigameStart(fishKey) {
 		fishAction: setup.fishingMinigame.behaviors[minigame.behavior].initialAction,
 		armFatigue: 0,
 		armFatigueDifficulty: minigame.armFatigueDifficulty,
+		turnCount: 0,
 	};
 
 	if (V.debug) {
@@ -819,6 +820,7 @@ window.fishingMinigameState = fishingMinigameState;
  */
 function fishingMinigameResolveTurn(playerAction) {
 	V.fishingMinigame.lastPlayerAction = playerAction;
+	V.fishingMinigame.turnCount++;
 
 	updateStateFromPlayerActions(playerAction);
 	updateArmFatigue(playerAction);

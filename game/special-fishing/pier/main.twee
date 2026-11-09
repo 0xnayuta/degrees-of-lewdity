@@ -9,6 +9,7 @@
 <<fishingLocationDescription $bus>>
 <<fishingLocationPopulation $bus>>
 <<fishingPierLocationAmbient>>
+<<fishingTownWraithHuntStep>>
 <br><br>
 
 <<set _exhibitionismCheck to Weather.dayState is "night" or (($exposed isnot 1 or hasSexStat("exhibitionism", 3)) and ($exposed lt 2 or hasSexStat("exhibitionism", 5)))>>
@@ -90,6 +91,15 @@
 	<<set $clothingItem to rollFishingClothing("fishingPier")>>
 	<<include "Fishing Pier Clothing Catch">>
 <</addinlineevent>>
+
+/* Ivory Wraith hunt start */
+<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and isPlayerFishingAlone()>>
+	<<addinlineevent "wraithHuntStart" `fishingDangerEventWeight(2 * Math.clamp($wraith.timer / 60, 0, 1))`>>
+		<<set $fishingAmbientOverride to "wraithHuntStart">>
+		<<include "Fishing Pier Wait">>
+		<<set $wraith.hunt to 1>>
+	<</addinlineevent>>
+<</if>>
 
 /* Whitney arrive events */
 <<if  $daily.fishing.fishingPier.whitney.phase is undefined and C.npc.Whitney.init is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and !Time.schoolTime and !isInPark("whitney") and Time.hour gte (Time.schoolDay ? 15 : 7) and Time.hour lt 20 and !["heavyPrecipitation", "storm", "thunderstorm"].includes(Weather.name)>>
@@ -296,6 +306,17 @@ You open wide and drop the whole $fishingHookedFish.type in your mouth. <<fishin
 		<<fishingPierWhitneySip>>
 	<<elseif $fishingAmbientOverride is "castOut">>
 		You cast out into the water.
+	<<elseif $fishingAmbientOverride is "wraithHuntStart">>
+		A wave of dizziness and confusion washes over you. Every time you blink, you see a blurred image.
+		<br><br>
+		You hold your eyes shut, and it begins to come into focus. You see a tall robed figure, bathed in red moonlight, its skin as pale as ivory. As soon as you see it, you can't help but think that it sees you too.
+		The sound of a chain breaking echoes in your ears. <<stress 6>><<gstress>><<trauma 6>><<gtrauma>>
+		<br><br>
+		<<if $wraith.state is "haunt">>
+			<span class="red">You are being hunted.</span>
+		<<else>>
+			<span class="red">Dread lingers in the air.</span>
+		<</if>>
 	<<else>>
 		<<set $daily.fishing.fishingPier.sheltered ??= Weather.precipitation is "rain">>
 		<<if (Weather.precipitation is "rain") isnot $daily.fishing.fishingPier.sheltered>>

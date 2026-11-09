@@ -1178,6 +1178,24 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`, `<<set $location to "forest">>`, `<<badEndTracking "Eden" { reason: "edenHuntedSubmitted" }>>`],
 		},
 		{
+			link: [`Teleport to forest and start Ivory Wraith hunt`, `Forest`],
+			widgets: [
+				`<<run Time.timeTravel(new DateTime(Time.year, Time.month, Time.lastDayOfMonth, 21, 0))>>`,
+				`<<set $moonstate to "evening">>`,
+				`<<checkWraith>>`,
+				`<<set $wraith.state ||= "active">>`,
+				`<<set $forest to 50>>`,
+				`<<set $forestHunter to "Ivory Wraith">>`,
+				`<<set $wraith.hunt to 1>>`,
+				`<<set $foresthunt to $wraith.hunt>>`,
+				`<<set $eventskip to 1>>`,
+			],
+		},
+		{
+			link: [`Teleport to forest and start Eden hunt`, `Forest`],
+			widgets: [`<<set $forest to 50>>`, `<<set $forestHunter to "Eden">>`, `<<set $foresthunt to 1>>`, `<<set $eventskip to 1>>`],
+		},
+		{
 			link: [`Captured by The Great Hawk`, `Moor`],
 			widgets: [`<<set $moor to 50>>`, `<<set $eventskip to 1>>`, `<<moor_hunt_start>>`, `<<set $moor_hunt to 10>>`],
 		},
