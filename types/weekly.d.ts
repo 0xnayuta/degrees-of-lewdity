@@ -61,6 +61,8 @@ declare global {
 		jordan: JordanWeekly;
 		/** Bailey's once-a-week flags, unset when the week ends. */
 		bailey: BaileyWeekly;
+		/** Sam's once-a-week flags, unset when the week ends. */
+		sam: SamWeekly;
 	}
 }
 

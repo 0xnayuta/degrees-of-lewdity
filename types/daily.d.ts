@@ -29,6 +29,12 @@ declare global {
 		jordan: JordanDaily;
 		/** Bailey's once-a-day flags, unset at midnight. */
 		bailey: BaileyDaily;
+		/** Charlie's once-a-day flags, unset at midnight. */
+		charlie: CharlieDaily;
+		/** Remy's once-a-day flags, unset at midnight. */
+		remy: RemyDaily;
+		/** Sam's once-a-day flags, unset at midnight. */
+		sam: SamDaily;
 	}
 }
 

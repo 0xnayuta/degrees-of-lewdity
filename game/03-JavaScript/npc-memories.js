@@ -326,6 +326,78 @@ const VALID_MEMORIES = {
 		// Used so Darryl's introduction and the question about their lost spectacles only play the first time
 		"firstOfficeVisit",
 	],
+	Charlie: [
+		// If the PC has had their first class at the dance studio and met Charlie
+		// Used so Charlie's introduction plays before the first lesson, so the dance lesson only takes its 20 minutes after it, and so Charlie can offer dance jobs
+		"firstLesson",
+		// If the PC broke down in Charlie's car and talked about Bailey after breaking down at a dance job
+		// Used to unlock asking Charlie for more dangerous work, and so Charlie offers a lift straight away after later break downs.
+		"pcToldAboutBailey",
+		// If the PC pulled their hands away when Charlie went to hold them in a dance lesson
+		// Used so Charlie remembers the PC is shy about it the next time they pull away
+		"pcRefusedHandholding",
+	],
+	Briar: [
+		// If Briar's thugs grabbed the PC for selling sex outside the brothel and drove them to Briar in a van
+		// Used so the van only comes once
+		"abductedPcFromPub",
+		// If Briar had the PC pulled into a car and asked them to keep an eye on Darryl's strip club
+		// Used so the car only comes once, and so Briar's goon waits outside the strip club for reports
+		"askedPcToSpyOnDarryl",
+	],
+	Remy: [
+		/* These are all the different ways to meet Remy.
+		Apart from meeting Remy at riding school, most of these allow you to identify Remy's goons during bird hunt. */
+		// If Remy rode into Alex's farm when the farm reached stage 5
+		// Used for Remy's greeting at the riding school intro, for PC to think about exposing Remy's crimes
+		"cameToAlexFarm",
+		// If Remy was the guest at Avery's mansion party
+		// Used to tell whether the PC has met Remy
+		"guestAtAveryMansionParty",
+		// If the PC was taken in and kept as livestock at Remy's Underground Farm
+		// Used for the PC to remember when meeting Remy elsewhere
+		"keptPcAtUndergroundFarm",
+		// If the PC met Remy at the manor party after Avery won the card game
+		// Used for Remy's greeting at the riding school intro, and to stop Bailey from taking a detour to the docks after winning the card game
+		"metAfterAveryCardGame",
+		// If the PC met Remy at the riding school
+		// Used so the riding school intro only plays once, for Remy's greeting and invite at Alex's farm, Mickey's directions and the journal
+		"metAtRidingSchool",
+
+		// If the PC has seen Remy wearing the white mask after the skyscraper
+		// Used so the mask scene only plays once, and so Remy clutches the mask on seeing the PC's familiar collar
+		"pcSawMask",
+		// If Remy saw the PC arrive at the Underground Farm in the familiar collar
+		// Used so the PC can recognise Remy's voice after Avery's card game win
+		"sawPcFamiliarCollar",
+	],
+	Sam: [
+		// If the PC has met Sam feeding the ducks in the park
+		// Used so the duck intro only plays once, and to show Sam at the park from then on
+		"firstParkMeeting",
+
+		// If Sam offered the PC a gift for the orphanage while chatting in the park
+		// Used so the offer only comes up once, and to let the PC tell Sam about the loft
+		"offeredPcOrphanageGift",
+
+		// If the PC massaged Sam at the spa
+		// Used so Sam can bring up PC being their "private masseuse" at the park
+		// TODO: Needs a spa scene where the PC massages Sam
+		"pcMassagedAtSpa",
+
+		// If the PC told Sam they're in love with Gwylan
+		"pcSaidInLoveWithGwylan",
+		// If the PC told Sam that they and Robin are lovers
+		// Used so Sam is glad the PC's feelings haven't changed when told again, and is left speechless if the PC later says they love Gwylan
+		"pcSaidInLoveWithRobin",
+
+		// If Sam saw the PC run past naked while streaking in the park
+		// TODO: Not currently used but looks like it was planned. Sam leaves the park before PC can streak.
+		"sawPcStreaking",
+		// If Sam told the PC how the cafe started
+		// Used so Sam only tells the story once
+		"toldCafeOrigin",
+	],
 };
 
 /**
@@ -421,6 +493,26 @@ const Memories = {
 		add: memory => addMemory("Darryl", memory),
 		has: memory => hasMemory("Darryl", memory),
 		delete: memory => deleteMemory("Darryl", memory),
+	},
+	Charlie: {
+		add: memory => addMemory("Charlie", memory),
+		has: memory => hasMemory("Charlie", memory),
+		delete: memory => deleteMemory("Charlie", memory),
+	},
+	Briar: {
+		add: memory => addMemory("Briar", memory),
+		has: memory => hasMemory("Briar", memory),
+		delete: memory => deleteMemory("Briar", memory),
+	},
+	Remy: {
+		add: memory => addMemory("Remy", memory),
+		has: memory => hasMemory("Remy", memory),
+		delete: memory => deleteMemory("Remy", memory),
+	},
+	Sam: {
+		add: memory => addMemory("Sam", memory),
+		has: memory => hasMemory("Sam", memory),
+		delete: memory => deleteMemory("Sam", memory),
 	},
 };
 window.Memories = Memories;

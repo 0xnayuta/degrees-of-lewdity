@@ -77,14 +77,14 @@ You spark up a conversation with <<him>>.
 <br>
 <<link [[Ask about work|Sam Park Talk 2]]>><<set $phase to "work">><</link>>
 <br>
-<<if $loft_known is 1 and $loft_sam isnot 1 and C.npc.Sam.love gte 45 and $chef_state and $samSeen?.includes("gift")>>
+<<if $loft_known is 1 and $loft_sam isnot 1 and C.npc.Sam.love gte 45 and $chef_state and Memories.Sam.has("offeredPcOrphanageGift")>>
 	<<link [[Tell Sam about the orphanage loft|Sam Loft 2]]>><</link>>
 <</if>>
 
 
 :: Sam Park Talk 2
 <<effects>>
-<<set _loftConditions to $loft_sam isnot 1 and C.npc.Sam.love gte 45 and $chef_state and !$samSeen.includes("gift")>>
+<<set _loftConditions to $loft_sam isnot 1 and C.npc.Sam.love gte 45 and $chef_state and !Memories.Sam.has("offeredPcOrphanageGift")>>
 
 <<cleareventpool>>
 <<if $phase is "work">>
@@ -153,7 +153,7 @@ You spark up a conversation with <<him>>.
 		<</if>>
 	<</addinlineevent>>
 
-	<<if !$samSeen?.includes("origin")>>
+	<<if !Memories.Sam.has("toldCafeOrigin")>>
 		<<addinlineevent "sam_chat_origin" .7>>
 			<<set _no_options to true>>
 
@@ -400,7 +400,7 @@ You spark up a conversation with <<him>>.
 		"Ah. You know, I love going to the spa," <<he>> says. "It's one of my favourite ways to unwind, I always get so stiff after work."
 		<br><br>
 
-		<<if $samSeen?.includes("spa")>>
+		<<if Memories.Sam.has("pcMassagedAtSpa")>>
 			"You already know that, though. Last time you did such a good job on me. I might just hire you as my private masseuse!"
 			<br><br>
 
@@ -471,9 +471,9 @@ You spark up a conversation with <<him>>.
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $gwylan_cafe_intro and !$weekly.sam_talk_gwy>>
+	<<if $gwylan_cafe_intro and !$weekly.sam.askedPcAboutGwylan>>
 		<<addinlineevent "sam_chat_shopkeeper" .7>>
-			<<set $weekly.sam_talk_gwy to true>>
+			<<set $weekly.sam.askedPcAboutGwylan to true>>
 			<<if isGwylanAbsent() is "nobody">>
 				Sam asks how you feel about nobody. You look at <<him>> confused, and <<he>> looks at you just as perplexed.
 			<<else>>
@@ -570,10 +570,10 @@ You spark up a conversation with <<him>>.
 		<</addinlineevent>>
 	<</if>>
 
-	<<if !$weekly.sam_talk_rob>>
+	<<if !$weekly.sam.askedPcAboutRobin>>
 		<<addinlineevent "sam_chat_orphan_friend" .5>>
 			<<set _no_options to true>>
-			<<set $weekly.sam_talk_rob to true>>
+			<<set $weekly.sam.askedPcAboutRobin to true>>
 			"Robin, is it?" Sam says suddenly. "I've seen <<nnpc_him "Robin">> a few times at the cafe. What a sweet kid! Are you two close?"
 			<br><br>
 
@@ -589,10 +589,10 @@ You spark up a conversation with <<him>>.
 		<</addinlineevent>>
 	<</if>>
 
-	<<if $loveInterest.primary isnot "None" and !$weekly.sam_talk_love and $oceanbreezejob is 1>>
+	<<if $loveInterest.primary isnot "None" and !$weekly.sam.askedPcAboutCrush and $oceanbreezejob is 1>>
 		<<addinlineevent "sam_chat_love" .5>>
 			<<set _no_options to true>>
-			<<set $weekly.sam_talk_love to true>>
+			<<set $weekly.sam.askedPcAboutCrush to true>>
 			"I notice you've been in a daze while at work, and I know exactly what's up! You gotta have a crush on someone," <<he>> says with a grin. "Tell me all about it!"
 			<br><br>
 
@@ -622,7 +622,7 @@ You spark up a conversation with <<him>>.
 
 <<if $phase is "listen">>
 	<<if C.npc.Sam.love gte 30>>
-		<<set $samSeen.pushUnique("origin")>>
+		<<run Memories.Sam.add("toldCafeOrigin")>>
 		Sam pauses for a long while before speaking up.
 		<br><br>
 
@@ -687,13 +687,13 @@ You feel as though you've learned a bit more about Sam, something you would have
 
 	Sam's eyes widen,
 
-	<<if $samSeen?.includes("love_rob")>>
+	<<if Memories.Sam.has("pcSaidInLoveWithRobin")>>
 		and <<he>> seems speechless. "Really...? I thought—"
 		<br><br>
 
 		<<He>> shakes <<his>> head. "No. Never mind."
 
-	<<elseif $samSeen?.includes("love_gwy")>>
+	<<elseif Memories.Sam.has("pcSaidInLoveWithGwylan")>>
 		and <<he>> gives you a big smile. "Glad to know your feelings haven't changed."
 		<br><br>
 
@@ -703,7 +703,7 @@ You feel as though you've learned a bit more about Sam, something you would have
 		<br><br>
 
 		Sam jokes around with you, <<he>> pokes your side a few times.
-		<<set $samSeen.pushUnique("love_gwy")>>
+		<<run Memories.Sam.add("pcSaidInLoveWithGwylan")>>
 	<</if>>
 <<elseif $phase is "hate">>
 	You tell <<him>> that you hate Gwylan.
@@ -752,18 +752,18 @@ You feel as though you've learned a bit more about Sam, something you would have
 	You tell <<him>> that you and Robin are lovers.
 	<br><br>
 
-	<<if $samSeen?.includes("love_gwy")>>
+	<<if Memories.Sam.has("pcSaidInLoveWithGwylan")>>
 		<<He>> seems speechless. "Really...? I thought—"
 		<br><br>
 
 		<<He>> shakes <<his>> head. "No. Never mind."
-	<<elseif $samSeen?.includes("love_rob")>>
+	<<elseif Memories.Sam.has("pcSaidInLoveWithRobin")>>
 		<<He>> gives you a big smile. "Glad to know your feelings haven't changed."
 		<br><br>
 
 		Sam jokes around with you, <<he>> pokes your side a few times.
 	<<else>>
-		<<set $samSeen.pushUnique("love_rob")>>
+		<<run Memories.Sam.add("pcSaidInLoveWithRobin")>>
 		"Really?" Sam pats your back. "That's adorable! You're both such sweet kids, you really are meant for each other. I can see the wedding now, be sure to invite me to cater!"
 		<br><br>
 
@@ -911,7 +911,7 @@ You decide to go on a walk together.
 <<addinlineevent "sam_walk_5" 1>>
 	<<generate2>><<person2>>
 	While on your walk with Sam,
-	<<switch random(1,4)>>
+	<<switch random(1,5)>>
 		<<case 1>>a <<person>> whistles in your direction.
 		<<case 2>>you feel someone's gaze on your bottom.
 		<<case 3>>you notice the lingering gaze of a <<person>>.
@@ -1193,7 +1193,7 @@ Sam pouts, looking visibly defeated.
 	<<lofticon>><<link [[Tell Sam about the orphanage loft|Sam Loft 2]]>><</link>>
 	<br>
 <</if>>
-<<icon "cross.png">><<link [[Say No|Sam Loft Refuse]]>><<set $loft_sam_refuse to 1>><</link>>
+<<icon "cross.png">><<link [[Say No|Sam Loft Refuse]]>><</link>>
 
 :: Sam Loft Refuse
 <<effects>>

@@ -661,7 +661,7 @@ function dayPassed() {
 
 	if (V.medicated) V.medicated = Math.max(Math.trunc((V.medicated - 1) * 0.5), 0);
 	if (V.asylummedicated) V.asylummedicated = Math.max(Math.trunc((V.asylummedicated - 1) * 0.5), 0);
-	if (V.brothel_rivalry_timer !== undefined) V.brothel_rivalry_timer--;
+	if (V.briar.daysUntilGoonAtStripClub !== undefined) V.briar.daysUntilGoonAtStripClub--;
 	if (V.orphanageWardIntro) V.home_event_ward_timer--;
 	if (V.location === "asylum") V.asylumbound--;
 

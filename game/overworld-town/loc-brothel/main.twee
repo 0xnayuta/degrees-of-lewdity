@@ -17,8 +17,8 @@ You are in the brothel. Several stages dot the crowded room. The staff look flus
 
 <<if $stress gte $stressmax>>
 	<<passoutshop "brothel">>
-<<elseif $briarPunishment gte 1>>
-	<<set $briarPunishReason to "default">>
+<<elseif $briar.punishment.customersOwed gte 1>>
+	<<set $briar.punishment.reason to "pcHackedLaptop">>
 	<<npc Briar>><<generate2>><<generate3>><<person1>>
 	Briar storms towards you as two of <<his>> thugs block the entrance. "I'm surprised you had the nerve to come back," <<he>> says. "Don't think I'm letting you off for what you did." <<He>> nods at <<his>> thugs and advances. If you want to escape, now's your only chance. There are three of them however.<<person1>>
 	<br><br>
@@ -628,14 +628,9 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 		<br>
 	<</if>>
 	<<if $brothelshowdata.intro is 2>>
-		<<if $brothel_escortjob is undefined>>
+		<<if $brothel_escortjob?.accept isnot true and $weekly.escortjob isnot 1>>
 			<<danubeicon>><<link [[Work for wealthy client|Brothel Escort Job Accept]]>><</link>>
 			<br>
-
-		<<elseif $brothel_escortjob.accept isnot true and $weekly.escortjob isnot 1>>
-			<<danubeicon>><<link [[Work for wealthy client|Brothel Escort Job Accept]]>><</link>>
-			<br>
-
 		<</if>>
 	<</if>>
 	<<if $id is 0>>
@@ -1132,7 +1127,7 @@ You've made <<moneyGain 2000>>.
 :: Brothel Punishment
 
 <<set $outside to 1>><<set $location to "brothel">><<effects>>
-<<set $briarPunishReason to "whore">>
+<<set $briar.punishment.reason to "pcSoldSexOutsideBrothel">>
 You're sat down on a bench, and hear the engine start. The hood is pulled off you.<<npc Briar>><<generate2>><<generate3>>
 <<if $brothelintro is 1>>
 	On the seat opposite sits Briar, owner of the brothel. <<person1>><<Hes>> flanked by a <<person2>><<person>> and <<person3>><<person>>.<<person1>>
@@ -1161,22 +1156,21 @@ The van halts and the <<person2>><<person>> and <<person3>><<person>> haul you o
 :: Brothel Punishment 2
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
-<<if $briarPunishment>>
-	<<set $punishmenthole to $briarPunishment>>
-	<<unset $briarPunishment>>
+<<if $briar.punishment.customersOwed>>
+	<<set $briar.punishment.customersLeft to $briar.punishment.customersOwed>>
+	<<run delete $briar.punishment.customersOwed>>
 <<else>>
-	<<set $punishmenthole to 5>>
+	<<set $briar.punishment.customersLeft to 5>>
 <</if>>
 You are led down a dim corridor. You can hear music playing somewhere above. The <<person2>><<person>> shoves you through a door into a tiny cell with a hole in the wall, then <<he>> and the <<person3>><<person>> start coiling rope around you. Once your arms and legs are held behind you in a hogtie, they hoist you into the air and tie you to the ceiling, leaving you suspended.
 <br><br>
-"There," says Briar. "Now you're ready to service our customers. Because I'm kind, you'll only need to help <<number $punishmenthole>> of them." <<person1>><<He>> ties your neck to a peg beneath the hole, leaving your mouth pressed against it. "Have fun!" <<he>> says as <<he>> shuts the door, leaving you in darkness.
+"There," says Briar. "Now you're ready to service our customers. Because I'm kind, you'll only need to help <<number $briar.punishment.customersLeft>> of them." <<person1>><<He>> ties your neck to a peg beneath the hole, leaving your mouth pressed against it. "Have fun!" <<he>> says as <<he>> shuts the door, leaving you in darkness.
 <br><br>
 <<set $leftarm to "bound">>
 <<set $rightarm to "bound">>
 <<set $head to "bound">>
 <<set $feetuse to "bound">>
 <<set $punishmentposition to "gloryhole">>
-<<set $punishmenthole to 5>>
 <<endevent>>
 <<link [[Next|Brothel Punishment Gloryhole]]>><</link>>
 <br>
@@ -1211,7 +1205,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-	<<unset $briarPunishment>>
+	<<run delete $briar.punishment.customersOwed>>
 	<<ejaculation "short">>
 	"Don't let the <<girl>> escape!" shouts Briar to <<person1>><<his>> goons once <<he>> stops shuddering, but you're already gone. <<tearful>> you flee down the road.
 	<br><br>
@@ -1219,7 +1213,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 	<<endcombat>>
 	<<harvestQuick>>
 <<elseif $enemyhealth lte 0>>
-	<<unset $briarPunishment>>
+	<<run delete $briar.punishment.customersOwed>>
 	You knock the <<person2>><<person>> aside, giving you the chance you need. <<tearful>> you run through the gap created and flee down the road. You hear Briar shout at <<person1>><<his>> subordinates.
 	<<ltrauma>><<lstress>><<trauma -6>><<stress -12>>
 	<br><br>
@@ -1237,15 +1231,15 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 
-<<if $punishmenthole lte 0>>
+<<if $briar.punishment.customersLeft lte 0>>
 
 	<<endevent>><<npc Briar>><<person1>>The cell door opens and Briar steps in, holding a knife. <<He>> severs the rope holding you to the ceiling and you fall to the ground. "Now we're even," <<he>> says as <<he>> cuts more rope.
-	<<if $briarPunishReason is "whore">>
+	<<if $briar.punishment.reason is "pcSoldSexOutsideBrothel">>
 		"If you want to sell that body of yours in the future, you do so under my roof."
 	<<else>>
 		"Maybe now you'll think twice before crossing me."
 	<</if>>
-	<<unset $briarPunishReason>>
+	<<run delete $briar.punishment.reason>>
 	<<He>> finishes cutting and steps back. "Is that understood? Good." <<He>> steps aside and a <<generate2>><<person2>><<person>> enters the cell. <<He>> drags you out the way you came in and slams the door behind you. They left your arms bound.
 	<br><br>
 
@@ -1265,7 +1259,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 <<elseif $punishmentposition is "wall">><!-- Wall outcome with $position = "wall" -->
 	You're suspended by rope in a cell, your legs, ass and <<genitals>> poking through a hole in the wall. Strain as you might, you can't move your body an inch.
 	<br><br>
-	<<set $punishmenthole -= 1>>
+	<<set $briar.punishment.customersLeft -= 1>>
 
 	<<generate1>><<person1>>
 
@@ -1286,7 +1280,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 <<else>><!-- Gloryhole outcome with $punishmentposition = "gloryhole" -->
 	You're suspended by rope in a cell, your mouth held against a hole in the wall. Strain as you might, you can't move your body an inch.
 	<br><br>
-	<<set $punishmenthole -= 1>>
+	<<set $briar.punishment.customersLeft -= 1>>
 
 	<<generate1>><<person1>>
 
@@ -1353,7 +1347,7 @@ You are led down a dim corridor. You can hear music playing somewhere above. The
 	The <<person>> recoils from the hole. You hear <<him>> shout at someone, then silence. <<endevent>><<npc Briar>><<person1>>A minute later Briar opens your cell. "I was so trying to be nice," <<he>> says. "But if you're going to behave so poorly, there's only one option." <<He>> unclips your neck, then pulls a lever at the base of the wall. The hole expands several times in size. <<He>> shoves you through the hole, leaving your legs and bottom exposed, before clipping you in place once more. "There. Now our customers get to enjoy a less violent part of you." <<He>> slams the door shut this time.
 	<br><br>
 	<<endcombat>>
-	<<set $punishmenthole += 1>><<pass 1>><<set $punishmentposition to "wall">>
+	<<set $briar.punishment.customersLeft += 1>><<pass 1>><<set $punishmentposition to "wall">>
 
 	<<link [[Next|Brothel Punishment Gloryhole]]>><</link>>
 	<br>
@@ -1696,9 +1690,9 @@ You examine the sex machine. A large phallus protrudes from the main body, besid
 
 <</if>>
 
-<<set $punishmenthole -= 1>>
+<<set $briar.punishment.customersLeft -= 1>>
 
-<<if $punishmenthole lte 0>>
+<<if $briar.punishment.customersLeft lte 0>>
 
 	<<npc Briar>><<person1>>
 	The door swings open. Briar walks in. "I hope you've had fun," <<he>> says. <<He>> pulls the lever and the grip around your waist lessens. You wiggle into the room and drop to the floor.
@@ -1713,7 +1707,7 @@ You examine the sex machine. A large phallus protrudes from the main body, besid
 	<<link [[Next|Harvest Street]]>><<set $eventskip to 1>><</link>>
 	<br>
 
-<<elseif $punishmenthole is 5>>
+<<elseif $briar.punishment.customersLeft is 5>>
 	<<npc Briar>><<person1>>
 	The door swings open. Briar walks in and kneels in front of you, holding a card. It's a picture of your face, with your age and "£10" marked on it. "I thought you'd want to see how they see you," <<he>> says, nodding at the wall your <<bottom>> is stuck in. "If you don't want to be sold so cheap, stop being such a greedy <<girl>>." <<He>> rises to <<his>> feet. "Break's over." <<He>> slams the door shut on <<his>> way out.
 	<br><br>
@@ -2460,7 +2454,7 @@ You wait until you're sure Briar is gone, then rush to the laptop. You plug the 
 
 		<<link [[Next|Harvest Street]]>><<endevent>><</link>>
 	<<else>>
-		<<set $briarPunishment to 3>>
+		<<set $briar.punishment.customersOwed to 3>>
 		You walk down the staircase, emerging in the main room of the brothel. The dancers are slowly returning to the stage, and the customers are chattering at the bar. You notice one of the windows being replaced.
 		<br><br>
 
@@ -2484,7 +2478,7 @@ You wait until you're sure Briar is gone, then rush to the laptop. You plug the 
 	<br><br>
 
 	<<if $pubfame.briar.escape is 2>>
-		<<set $briarPunishment to 5>>
+		<<set $briar.punishment.customersOwed to 5>>
 		The guards advance on you, and you run to the window. "That's a two storey drop," <<he>> laughs. "Go ahead, though. It might still be better than what I've in mind."
 		<br><br>
 
@@ -2495,7 +2489,7 @@ You wait until you're sure Briar is gone, then rush to the laptop. You plug the 
 
 		<<link [[Next|Harvest Street]]>><<endevent>><</link>>
 	<<elseif $cat gte 6>>
-		<<set $briarPunishment to 5>><<set $pubfame.detail to "briarWindow">>
+		<<set $briar.punishment.customersOwed to 5>><<set $pubfame.detail to "briarWindow">>
 		The guards advance on you, and you run to the window. "That's a two storey drop," <<he>> laughs. "Go ahead, though. It might still be better than what I've in mind."
 		<br><br>
 
