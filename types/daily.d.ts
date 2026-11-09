@@ -17,6 +17,10 @@ declare global {
 		graceUp: boolean;
 		/** Robin's once-a-day flags, unset at midnight. */
 		robin: RobinDaily;
+		/** The Night Monster's once-a-day flags, unset at midnight. */
+		nightMonster: NightMonsterDaily;
+		/** Whether the named beasts are a monster person today. Rolled when it's needed from its monster chance setting. */
+		namedBeastIsMonster?: Partial<Record<NamedBeastType, boolean>>;
 	}
 }
 

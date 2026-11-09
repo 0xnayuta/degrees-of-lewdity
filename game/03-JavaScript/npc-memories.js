@@ -199,6 +199,53 @@ const VALID_MEMORIES = {
 		// Used for a Bailey line about Leighton after Avery's card game
 		"pillory",
 	],
+	Quinn: [
+		// If Quinn won Avery's card game and made the PC watch their movies at their mansion
+		// Used to unlock praising or insulting Quinn's movies when Quinn is the guest at Avery's party
+		"madePcWatchMovies",
+	],
+	Niki: [
+		// If the PC has knocked at Niki's studio and asked for work, or modelled there
+		// Used so the PC's photos appear on the studio wall once their model fame is high enough
+		"firstStudioVisit",
+		// If the PC ran into Briar leaving Niki's studio
+		// Used so the scene only plays once
+		"pcMetBriarAtStudio",
+		// If Niki photographed the PC on display at the adult shop opening
+		// Used so Sirris reminds the PC of the opening when Niki turns up at Winter's lake office
+		"photographedAdultShopOpening",
+		// If Niki photographed the PC at Remy's farm
+		// Used so the PC recognises Niki from the farm when they meet again, and so the PC hurries away when Niki pulls up in the street
+		"photographedPcAtFarm",
+		// If Sam sent the PC to Niki's studio to shoot the cafe advert
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"photographedPcForCafeAdvert",
+		// If Avery paid Niki to photograph the PC and Avery on the boulevard
+		// Used so Niki and Avery greet each other next time
+		"photographedPcWithAvery",
+		// If Niki pulled up beside the PC in the street and told them about the studio
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"stoppedPcInStreet",
+		// If Niki came to Winter's lake office as a volunteer
+		// Used with Niki's other memories to tell whether the PC has met Niki
+		"volunteeredForWinter",
+	],
+	"Night Monster": [
+		// If the Night Monster has carried the PC off to its lair
+		// Used to change its lines when it carries the PC off again
+		"carriedPcToLair",
+		// If the PC looked out of the hole in the Night Monster's lair
+		// Used to unlock escaping the lair
+		"pcLookedOutOfLair",
+	],
+	Zephyr: [
+		// If Zephyr met PC at the smuggler pub and offered them passage to the island
+		// Used so the meeting only plays once, to unlock speaking to Zephyr, and so the PC recognises Zephyr in future scenes
+		"metPcAtSmugglerPub",
+		// If the Ivory Wraith possessed PC beat Zephyr on deck and took the PC over the railing through the whirlpool
+		// Not currently used
+		"watchedPossessedPcJumpOverboard",
+	],
 };
 
 /**
@@ -264,6 +311,26 @@ const Memories = {
 		add: memory => addMemory("Leighton", memory),
 		has: memory => hasMemory("Leighton", memory),
 		delete: memory => deleteMemory("Leighton", memory),
+	},
+	Quinn: {
+		add: memory => addMemory("Quinn", memory),
+		has: memory => hasMemory("Quinn", memory),
+		delete: memory => deleteMemory("Quinn", memory),
+	},
+	Niki: {
+		add: memory => addMemory("Niki", memory),
+		has: memory => hasMemory("Niki", memory),
+		delete: memory => deleteMemory("Niki", memory),
+	},
+	NightMonster: {
+		add: memory => addMemory("Night Monster", memory),
+		has: memory => hasMemory("Night Monster", memory),
+		delete: memory => deleteMemory("Night Monster", memory),
+	},
+	Zephyr: {
+		add: memory => addMemory("Zephyr", memory),
+		has: memory => hasMemory("Zephyr", memory),
+		delete: memory => deleteMemory("Zephyr", memory),
 	},
 };
 window.Memories = Memories;
