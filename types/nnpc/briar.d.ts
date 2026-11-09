@@ -42,7 +42,7 @@ declare global {
 		customersLeft?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 		/** Why Briar is punishing the PC, which picks Briar's parting line.
 		 * Unset after it. */
-		reason?: "pcHackedLaptop" | "pcSoldSexAtPub";
+		reason?: "pcHackedLaptop" | "pcSoldSexOutsideBrothel";
 	}
 }
 
