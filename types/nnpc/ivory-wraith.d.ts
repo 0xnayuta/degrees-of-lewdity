@@ -141,9 +141,9 @@ declare global {
 		progress: number;
 		/** How likely a hunt is to start. Grows during a blood moon while the Ivory Wraith isn't hunting, each time `<<wTimerProgress>>` runs, and each turn fishing. It's set to its obsession (`C.npc["Ivory Wraith"].lust`) when a blood moon starts if it's 0 or below.
 		 *
-		 * A hunt starts once this beats a random roll. The roll goes up to 60 in town and the sewers (town also needs a second roll of up to 50), 40 in the forest (20 in one spot), and 10 at the lake.
+		 * A hunt starts once this beats a random roll. The roll goes up to 60 in town and the sewers, 40 in the forest (20 in one spot), and 10 at the lake.
 		 *
-		 * Set to -30 when the PC wins "Wraith Caught Finish".
+		 * Set to -30 when the PC wins "Wraith Caught Finish", and to -50 when the PC removes ear slimes.
 		 *
 		 * Lowered by 20 when the Ivory Wraith gets what it wanted after an encounter and leaves.
 		 *
