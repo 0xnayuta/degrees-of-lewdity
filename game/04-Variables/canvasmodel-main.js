@@ -4319,7 +4319,7 @@ Renderer.CanvasModels.main = {
 				return !!T.wraithMirror;
 			},
 			srcfn() {
-				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith?.state);
+				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith.state);
 				return hasBlueEyes ? "img/misc/ambient/wraith/wraith-flash-blue.png" : "img/misc/ambient/wraith/wraith-flash-red.png";
 			},
 			scale: false,

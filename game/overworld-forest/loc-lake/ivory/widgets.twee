@@ -237,15 +237,11 @@
 		<<set $control to $ivoryWraith.possession.pcControlBefore>>
 		<<unset $ivoryWraith.possession.pcControlBefore>>
 	<</if>>
-	<<if $ivoryWraith.hunt.nightmare is 2>>
-		<<set $ivoryWraith.hunt.nightmare to 0>>
+	<<if $ivoryWraith.hunt.nightmare is "wokePc">>
+		<<set $ivoryWraith.hunt.nightmare to "none">>
 	<</if>>
 	<<if $possessed>>
-		<<if $ivoryWraith.timesPossessedPc is undefined>>
-			<<set $ivoryWraith.timesPossessedPc to 1>>
-		<<else>>
-			<<set $ivoryWraith.timesPossessedPc++>>
-		<</if>>
+		<<set $ivoryWraith.timesPossessedPc++>>
 		<<unset $possessed>><<canvas-model-override "clear">>
 	<</if>>
 	<<unset $nextPassage>>
@@ -312,12 +308,9 @@
 <</widget>>
 
 <<widget "checkWraith">>
-	<<if !$ivoryWraith.init>>
-		<<set $ivoryWraith to {init: 1, seen: 0, days: 0, defeated: 0, evaded: 0, nightmare: 0, timer: 0, hunt: 0, state: "", mimic: "", revealed: false, offspring: "", exit: ""}>>
-	<</if>>
 	<<if Time.days gte 32 and Time.monthName isnot "October" and !$ivoryWraith.hunt.sentAway>>
 		<<if $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
-			<<if $ivoryWraith.necklace.takenBy is "player">>
+			<<if $ivoryWraith.necklace.takenBy is "pc">>
 				<<set $ivoryWraith.state to "haunt">>
 			<<else>>
 				<<set $ivoryWraith.state to "despair">>
@@ -327,8 +320,8 @@
 		<</if>>
 	<</if>>
 	<<if _args[0]>>
-		<<if $ivoryWraith.state isnot "" and !$ivoryWraith.hunt.nightmareRolled and $ivoryWraith.hunt.nightmare is 0 and (random(0,2) is 2 or $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead")>>
-			<<set $ivoryWraith.hunt.nightmare to 1>>
+		<<if $ivoryWraith.state isnot "" and !$ivoryWraith.hunt.nightmareRolled and $ivoryWraith.hunt.nightmare is "none" and (random(0,2) is 2 or $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead")>>
+			<<set $ivoryWraith.hunt.nightmare to "tonight">>
 			<<set $ivoryWraith.hunt.nightmareRolled to true>>
 		<</if>>
 		<<if $moonstate isnot "morning" and $ivoryWraith.state isnot "" and $ivoryWraith.hunt.chance lte 0>>
@@ -338,45 +331,39 @@
 <</widget>>
 
 <<widget "clearWraith">>
-	<<if $ivoryWraith>>
-		<<if $foresthunt gte 1>>
-			<<set $foresthunt to 0>>
-		<</if>>
-		<<set $ivoryWraith.mimic.npc to "">>
-		<<set $ivoryWraith.hunt.exitTo to "">>
-		<<set $ivoryWraith.hunt.nightmare to 0>>
-		<<set $ivoryWraith.hunt.progress to 0>>
-		<<set $ivoryWraith.hunt.chance to 0>>
-		<<set $ivoryWraith.hunt.timesPcEscaped to 0>>
-		<<unset $ivoryWraith.hunt.nightmareRolled>>
-		<<unset $ivoryWraith.hunt.followedIntoForest>>
-		<<unset $ivoryWraith.hunt.sentAway>>
-		<<run delete $ivoryWraith.fight.combatType>>
-		<<run delete $ivoryWraith.fight.debugForm>>
-		<<run delete $ivoryWraith.fight.form>>
-		<<run delete $ivoryWraith.possession.holdOnPc>>
-		<<unset $ivoryWraith.fight.formsLeft>>
-		<<unset $ivoryWraith.fight.fightsInARow>>
-		<<unset $ivoryWraith.fight.fightsInARowLimit>>
-		<<unset $ivoryWraith.fight.healthLeft>>
-		<<if $possessed>>
-			<<if $ivoryWraith.timesPossessedPc is undefined>>
-				<<set $ivoryWraith.timesPossessedPc to 1>>
-			<<else>>
-				<<set $ivoryWraith.timesPossessedPc++>>
-			<</if>>
-			<<unset $possessed>><<canvas-model-override "clear">>
-		<</if>>
-		<<set $ivoryWraith.mimic.pcSawThrough to false>>
-		<<unset $ivoryWraith.possession.controlHintShown>>
-		<<unset $nextPassage>>
-		<<unset $nextPassageIntended>>
-		<<unset $nextPassageCheck>>
-		<<unset $ivoryWraith.possession.walkStep>>
-		<<unset $ivoryWraith.possession.paleOffspringVisit>>
-		<<unset $ivoryWraith.fight.pcApologisedThisTurn>>
-		<<unset $ivoryWraith.hunt.pcApologised>>
+	<<if $foresthunt gte 1>>
+		<<set $foresthunt to 0>>
 	<</if>>
+	<<set $ivoryWraith.mimic.npc to "">>
+	<<set $ivoryWraith.hunt.exitTo to "">>
+	<<set $ivoryWraith.hunt.nightmare to "none">>
+	<<set $ivoryWraith.hunt.progress to 0>>
+	<<set $ivoryWraith.hunt.chance to 0>>
+	<<set $ivoryWraith.hunt.timesPcEscaped to 0>>
+	<<unset $ivoryWraith.hunt.nightmareRolled>>
+	<<unset $ivoryWraith.hunt.followedIntoForest>>
+	<<unset $ivoryWraith.hunt.sentAway>>
+	<<run delete $ivoryWraith.fight.combatType>>
+	<<run delete $ivoryWraith.fight.debugForm>>
+	<<run delete $ivoryWraith.fight.form>>
+	<<run delete $ivoryWraith.possession.holdOnPc>>
+	<<unset $ivoryWraith.fight.formsLeft>>
+	<<unset $ivoryWraith.fight.fightsInARow>>
+	<<unset $ivoryWraith.fight.fightsInARowLimit>>
+	<<unset $ivoryWraith.fight.healthLeft>>
+	<<if $possessed>>
+		<<set $ivoryWraith.timesPossessedPc++>>
+		<<unset $possessed>><<canvas-model-override "clear">>
+	<</if>>
+	<<set $ivoryWraith.mimic.pcSawThrough to false>>
+	<<unset $ivoryWraith.possession.controlHintShown>>
+	<<unset $nextPassage>>
+	<<unset $nextPassageIntended>>
+	<<unset $nextPassageCheck>>
+	<<unset $ivoryWraith.possession.walkStep>>
+	<<unset $ivoryWraith.possession.paleOffspringVisit>>
+	<<unset $ivoryWraith.fight.pcApologisedThisTurn>>
+	<<unset $ivoryWraith.hunt.pcApologised>>
 <</widget>>
 
 <<widget "wraithEyes">><<silently>>
@@ -1296,8 +1283,8 @@
 						<br><br>
 						With the rising of the sun, you feel a sense of relief. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
 						<<clearWraith>>
-					<<elseif $ivoryWraith.hunt.followedIntoForest is 1>>
-						<<set $ivoryWraith.hunt.followedIntoForest to 2>>
+					<<elseif $ivoryWraith.hunt.followedIntoForest is "followed">>
+						<<set $ivoryWraith.hunt.followedIntoForest to "pcWarned">>
 						<br><br>
 						The feeling of dread remains. Something's wrong. <span class="red">Whatever was hunting you is still coming.</span><<stress 3>><<gstress>>
 					<<elseif $ivoryWraith.state is "haunt">>
@@ -1442,7 +1429,7 @@
 					<<set $ivoryWraith.hunt.progress to $foresthunt>>
 					<<set $forestHunter to "Ivory Wraith">>
 					<<if !$ivoryWraith.hunt.followedIntoForest>>
-						<<set $ivoryWraith.hunt.followedIntoForest to 1>>
+						<<set $ivoryWraith.hunt.followedIntoForest to "followed">>
 					<</if>>
 				<<else>>
 					<<set $foresthunt to $ivoryWraith.hunt.progress>><<set $forestHunter to "Ivory Wraith">>
@@ -2199,11 +2186,7 @@
 	<<unset $possessed>><<canvas-model-override "clear">>
 
 	<<if _args[0]>>
-		<<if $ivoryWraith.timesPossessedPc is undefined>>
-			<<set $ivoryWraith.timesPossessedPc to 1>>
-		<<else>>
-			<<set $ivoryWraith.timesPossessedPc++>>
-		<</if>>
+		<<set $ivoryWraith.timesPossessedPc++>>
 	<</if>>
 
 	<<if _args[1] and $ivoryWraith.possession.pcControlBefore isnot undefined>>
@@ -2212,7 +2195,7 @@
 <</widget>>
 
 <<widget "gobsession">>
-	<<if !$ivoryWraith.init>>
+	<<if C.npc["Ivory Wraith"].init isnot 1>>
 		<span class="red">ERROR: Wraith is not initialised.</span>
 		<br><br>
 		Offending event: $passage | Location: $location ($bus)
@@ -2233,7 +2216,7 @@
 <</widget>>
 
 <<widget "lobsession">>
-	<<if !$ivoryWraith.init>>
+	<<if C.npc["Ivory Wraith"].init isnot 1>>
 		<span class="red">ERROR: Wraith is not initialised.</span>
 		<br><br>
 		Offending event: $passage | Location: $location ($bus)
@@ -2257,3 +2240,35 @@
 <</widget>>
 
 <<widget "possessedWord">><<set $_colour to _args[1] ? _args[1] : "">><span @class="$possessed ? 'wraith ' + $_colour : '$_colour'"><<print _args[0]>></span><</widget>>
+
+<<widget "initIvoryWraithVariables">>
+	<<set $ivoryWraith to {
+		state: "",
+		daysActive: 0,
+		timesMetPc: 0,
+		timesPcWonFight: 0,
+		timesPossessedPc: 0,
+		compound: {},
+		mimic: {
+			npc: "",
+			pcSawThrough: false
+		},
+		fight: {},
+		hunt: {
+			progress: 0,
+			chance: 0,
+			nightmare: "none",
+			timesPcEscaped: 0,
+			exitTo: ""
+		},
+		necklace: {
+			takenBy: ""
+		},
+		offspring: {
+			status: ""
+		},
+		possession: {},
+		prison: {},
+		schism: {}
+	}>>
+<</widget>>
