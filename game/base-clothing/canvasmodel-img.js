@@ -22,8 +22,8 @@ DefineMacro("modelprepare-player-body", function () {
 	}
 
 	if (V.possessed) {
-		T.modeloptions.left_eye = ["haunt", "despair"].includes(V.wraith.state) ? "red possessed" : "blue possessed";
-		T.modeloptions.right_eye = ["haunt", "despair"].includes(V.wraith.state) ? "red possessed" : "blue possessed";
+		T.modeloptions.left_eye = ["haunt", "despair"].includes(V.ivoryWraith.state) ? "red possessed" : "blue possessed";
+		T.modeloptions.right_eye = ["haunt", "despair"].includes(V.ivoryWraith.state) ? "red possessed" : "blue possessed";
 	} else {
 		T.modeloptions.left_eye = V.makeup.eyelenses.left != 0 ? V.makeup.eyelenses.left : V.leftEyeColour;
 		T.modeloptions.right_eye = V.makeup.eyelenses.right != 0 ? V.makeup.eyelenses.right : V.rightEyeColour;
@@ -74,7 +74,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.bellySize = bellySize;
 	}
 
-	if (V.wraithSkin) {
+	if (V.ivoryWraith.schism.pcDrowned) {
 		T.modeloptions.skin_type = "wraith";
 		T.modeloptions.filters = {
 			tan: {

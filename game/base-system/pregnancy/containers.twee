@@ -56,15 +56,15 @@
 				<<if _container.creatures[_i] is undefined or _container.creatures[_i] is null>>
 					<<continue>>
 				<</if>>
-				<<if _container.creatures[_i].creature.includes("Pale") and $wraith.state>>
+				<<if _container.creatures[_i].creature.includes("Pale") and $ivoryWraith.state>>
 					<!-- If a pale parasite dies, the Ivory Wraith becomes angry, and encounters become more dangerous -->
-					<<set $wraith.offspring to "dead">>
-					<<set $wraithAngerCooldown to 30>>
+					<<set $ivoryWraith.offspring.status to "dead">>
+					<<set $ivoryWraith.offspring.angerDaysLeft to 30>>
 					<<set $wraithShow to true>>
-					<<if !$wraithAngerCount>>
-						<<set $wraithAngerCount to 0>>
+					<<if !$ivoryWraith.offspring.unpunishedDeaths>>
+						<<set $ivoryWraith.offspring.unpunishedDeaths to 0>>
 					<</if>>
-					<<set $wraithAngerCount ++>>
+					<<set $ivoryWraith.offspring.unpunishedDeaths ++>>
 				<</if>>
 			<</for>>
 			<<set _container.count to 0>>
@@ -202,20 +202,20 @@
 			<<hallucinogen _boosts.hallucinogen>><<ghallucinogens>>
 		<</if>>
 
-		<<if $wraith.state and (_paleChance gte random(1, 10) or _paleChance gte 1 and !$wraith.offspringWarning) and !$possessed>>
+		<<if $ivoryWraith.state and (_paleChance gte random(1, 10) or _paleChance gte 1 and !$ivoryWraith.offspringWarning) and !$possessed>>
 			<!-- When you have pale parasites, the Ivory Wraith has a chance of appearing and warning you to keep them alive -->
 			<!-- It's guaranteed to appear if you're viewing pale parasites for the first time -->
 			<br><br>
 			You catch a glimpse of a pale figure standing right next to you. You jump back in shock. It slowly turns to you.
 			<br><br>
 			"<span class="wraith">Beautiful. Keep <<pluralise _container.count "it">> safe.</span>" It disappears with a bright flash. <<stress 6>><<gstress>>
-			<<if !["dead","sold"].includes($wraith.offspring)>>
-				<<set $wraith.offspring to "alive">>
+			<<if !["dead","sold"].includes($ivoryWraith.offspring.status)>>
+				<<set $ivoryWraith.offspring.status to "alive">>
 			<</if>>
-			<<if !$wraith.offspringWarning>>
+			<<if !$ivoryWraith.offspringWarning>>
 				<br>
 				You try to imagine what would happen if you let the pale creature die. <span class="purple">A spike of dread shoots through you.</span>
-				<<set $wraith.offspringWarning to true>>
+				<<set $ivoryWraith.offspringWarning to true>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -377,13 +377,13 @@
 			<<set _traumaMulti to 1>>
 		<</if>>
 		<<trauma `30 * _traumaMulti * _container.deadCreatures`>>
-		<<if $wraith.state and $wraithShow>>
-			<<if !$wraithAngerCount>>
-				<<set $wraithAngerCount to 1>>
+		<<if $ivoryWraith.state and $wraithShow>>
+			<<if !$ivoryWraith.offspring.unpunishedDeaths>>
+				<<set $ivoryWraith.offspring.unpunishedDeaths to 1>>
 			<</if>>
-			<<set _wraithRage to ($wraithAngerCount * 2)>>
+			<<set _wraithRage to ($ivoryWraith.offspring.unpunishedDeaths * 2)>>
 			<<unset $wraithShow>>
-			<<unset $wraithAngerCount>>
+			<<unset $ivoryWraith.offspring.unpunishedDeaths>>
 			You feel something gingerly grab your neck from behind.
 			<br><br>
 			"<span class="wraith">Unforgivable. You'll join <<pluralise _container.count "it">> soon.</span>" <<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>

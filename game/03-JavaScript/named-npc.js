@@ -624,6 +624,6 @@ function npcCanHunt(npc) {
 window.npcCanHunt = npcCanHunt;
 
 function wraithSleepEventCheck() {
-	return V.wraith.state !== "" && V.wraith.nightmare === 1 && npcCanHunt("Ivory Wraith");
+	return V.ivoryWraith.state !== "" && V.ivoryWraith.hunt.nightmare === 1 && npcCanHunt("Ivory Wraith");
 }
 window.wraithSleepEventCheck = wraithSleepEventCheck;

@@ -1,12 +1,12 @@
 :: Elk Compound Wraith Give
 <<effects>><<wraithPossess>>
 
-<<if C.npc["Ivory Wraith"].lust gt 10 and ($wraith.state is "haunt" or $wraith.offspring is "dead")>>
-	<<set $compound.wraith to "accepted">>
+<<if C.npc["Ivory Wraith"].lust gt 10 and ($ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead")>>
+	<<set $ivoryWraith.compound.pcResponse to "accepted">>
 	You can't tell if it's moving or not, but afterimages form around it all the same. You fall to your knees without resistance.
 <<else>>
-	<<set $compound.wraith to "willing">><<canvas-model-override "mouth" "neutral">>
-	<<if $wraith.seen gte 5>>Hesitantly, you<<else>>You<</if>> take the figure's hand, and it gently clasps around yours. It's cold to the touch. <<takeHandholdingVirginity "Ivory Wraith" "consensual">>
+	<<set $ivoryWraith.compound.pcResponse to "willing">><<canvas-model-override "mouth" "neutral">>
+	<<if $ivoryWraith.timesMetPc gte 5>>Hesitantly, you<<else>>You<</if>> take the figure's hand, and it gently clasps around yours. It's cold to the touch. <<takeHandholdingVirginity "Ivory Wraith" "consensual">>
 <</if>>
 <br><br>
 
@@ -19,10 +19,10 @@ The figure begins to rapidly dissipate into white mist from the bottom up. You f
 <span class="nextLink"><<link [[Next|Elk Compound Possessed Intro]]>><</link>></span>
 
 :: Elk Compound Wraith Resist
-<<effects>><<set $compound.wraith to "resisted">>
+<<effects>><<set $ivoryWraith.compound.pcResponse to "resisted">>
 
 You look away, trying to force the swirling shapes out of your mind. The pale figure
-<<if $wraith.state is "haunt" or $wraith.offspring is "dead">>
+<<if $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead">>
 	twitches. "<span class="wraith">And yet, I was not asking.</span>"
 <<else>>
 	frowns. "<span class="wraith">Just once, can't you stay?</span>"
@@ -52,11 +52,11 @@ You look away, trying to force the swirling shapes out of your mind. The pale fi
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
-	<<set $enemytype to $wraith.type>>
+	<<set $enemytype to $ivoryWraith.fight.combatType>>
 <</if>>
 <<effectsWraith>>
 
-<<switch $wraith.type>>
+<<switch $ivoryWraith.fight.combatType>>
 	<<case "man">>
 		<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
 			<span id="next"><<link [[Next|Elk Compound Wraith Fight Finish]]>><</link>></span><<nexttext>>
@@ -79,41 +79,41 @@ You look away, trying to force the swirling shapes out of your mind. The pale fi
 
 :: Elk Compound Wraith Fight Finish
 <<effects>>
-<<if !$wraithCount>>
-	<<if $wraith.state isnot "haunt" and !["dead","sold"].includes($wraith.offspring)>>
-		<<set $wraithCount to 1>><<set $wraithMax to 1>>
+<<if !$ivoryWraith.fight.fightsInARow>>
+	<<if $ivoryWraith.state isnot "haunt" and !["dead","sold"].includes($ivoryWraith.offspring.status)>>
+		<<set $ivoryWraith.fight.fightsInARow to 1>><<set $ivoryWraith.fight.fightsInARowLimit to 1>>
 	<<else>>
-		<<set $wraithCount to 0>>
-		<<set $wraithMax to 3>>
-		<<if ["dead","sold"].includes($wraith.offspring)>>
-			<<set $wraithMax++>>
+		<<set $ivoryWraith.fight.fightsInARow to 0>>
+		<<set $ivoryWraith.fight.fightsInARowLimit to 3>>
+		<<if ["dead","sold"].includes($ivoryWraith.offspring.status)>>
+			<<set $ivoryWraith.fight.fightsInARowLimit++>>
 		<</if>>
 		<<if !$settings.tentaclesEnabled>>
-			<<set $wraithMax -->>
+			<<set $ivoryWraith.fight.fightsInARowLimit -->>
 		<</if>>
 	<</if>>
 <</if>>
 <<if $enemyhealth lte 0>>
 	The <<person>> looks down at you in shock as <<he>> staggers backwards.
-	<<if $wraith.gen is "abomination">>
+	<<if $ivoryWraith.fight.form is "abomination">>
 		The tentacles drop lifelessly to the ground, and sublimate into a pink mist.
-	<<elseif $wraith.gen is "arms">>
+	<<elseif $ivoryWraith.fight.form is "arms">>
 		<<His>> extra arms fold back in.
 	<</if>>
 	<<His>> head snaps back, and <<he>> dissipates into nothingness with a brief shriek that echoes in your mind. Your ears ring, and you think you hear wailing. <<He>> says something, but you can't make it out.
 	<br><br>
 	<<tearful>> you look around, trying to make sure <<hes>> really gone.
 	<<endRainWraith true>>
-	<<set $wraith.defeated++>>
+	<<set $ivoryWraith.timesPcWonFight++>>
 	<<clotheson>>
 	<<endcombat>><<endWraith>><<clearWraith>>
-	<<set $wraithCompoundCooldown to 10>>
-	<<set $wraithCompoundChance to 10>>
+	<<set $ivoryWraith.compound.cooldownDaysLeft to 10>>
+	<<set $ivoryWraith.compound.chance to 10>>
 	<<link [[Next|Elk Compound]]>><</link>>
-<<elseif $enemyarousal gte $enemyarousalmax or $pain gte 100 and $willpowerpain is 0 or ($wraith.type is "tentacles" and $tentacles.active lte ($tentacles.max / 2)) or ($wraith.type is "slime" and $struggle.done gte $struggle.number)>>
-	<<set $wraithCount++>>
+<<elseif $enemyarousal gte $enemyarousalmax or $pain gte 100 and $willpowerpain is 0 or ($ivoryWraith.fight.combatType is "tentacles" and $tentacles.active lte ($tentacles.max / 2)) or ($ivoryWraith.fight.combatType is "slime" and $struggle.done gte $struggle.number)>>
+	<<set $ivoryWraith.fight.fightsInARow++>>
 	<<ejacW>>
-	<<if $wraithCount gte $wraithMax>>
+	<<if $ivoryWraith.fight.fightsInARow gte $ivoryWraith.fight.fightsInARowLimit>>
 		<<kissWraith "stress">>
 		<br><br>
 		<<if $pain gte 100 or $stress gte $stressmax>>
@@ -128,15 +128,15 @@ You look away, trying to force the swirling shapes out of your mind. The pale fi
 			<br><br>
 			<<link [[Next|Elk Compound Possessed Intro]]>><<endWraith>><<clearWraith>><<clotheson>><<endcombat>><<wraithPossess>><</link>>
 			<br>
-		<<elseif $wraith.state is "haunt" or ["dead","sold"].includes($wraith.offspring)>>
+		<<elseif $ivoryWraith.state is "haunt" or ["dead","sold"].includes($ivoryWraith.offspring.status)>>
 			The figure scowls. "<span class="wraith">Have you not taken enough from me? I will find another way.</span>" <<He>> breaks off and vanishes in a torrent of water.
 			<br><br>
 			<<tearful>> you look around, trying to make sure <<hes>> really gone.
 			<<endRainWraith true>>
 			<<clotheson>>
 			<<endcombat>><<endWraith>><<clearWraith>>
-			<<set $wraithCompoundCooldown to 10>>
-			<<set $wraithCompoundChance to 10>>
+			<<set $ivoryWraith.compound.cooldownDaysLeft to 10>>
+			<<set $ivoryWraith.compound.chance to 10>>
 			<<link [[Next|Elk Compound]]>><</link>>
 		<<else>>
 			The figure frowns. "<span class="wraith">Like squeezing blood from a stone. I will find another way.</span>" <<He>> breaks off and vanishes in a torrent of water.
@@ -145,8 +145,8 @@ You look away, trying to force the swirling shapes out of your mind. The pale fi
 			<<endRainWraith true>>
 			<<clotheson>>
 			<<endcombat>><<endWraith>><<clearWraith>>
-			<<set $wraithCompoundCooldown to 10>>
-			<<set $wraithCompoundChance to 10>>
+			<<set $ivoryWraith.compound.cooldownDaysLeft to 10>>
+			<<set $ivoryWraith.compound.chance to 10>>
 			<<link [[Next|Elk Compound]]>><</link>>
 		<</if>>
 	<<else>>
@@ -159,13 +159,13 @@ You look away, trying to force the swirling shapes out of your mind. The pale fi
 
 :: Elk Compound Possessed Intro
 <<effects>>
-<<set $wraithWillMessage to true>>
+<<set $ivoryWraith.possession.controlHintShown to true>>
 <<set $compound.wraithSeen to true>> /* currently unused */
 You <<wraithShamble>> over to a puddle, and look at your reflection. A pale <<girl>> with <<wraithEyes>> eyes stares back.
 <br><br>
 You move each finger individually, as if to test them.
 <br><br>
-<<if $compound.wraith is "willing">>
+<<if $ivoryWraith.compound.pcResponse is "willing">>
 	Your head tilts to the side, making a satisfying pop. You stare at the central building.
 	<br><br>
 	Words come out of your mouth.
@@ -192,7 +192,7 @@ You are in the compound on Elk Street. Three red brick buildings stand surrounde
 You <<wraithShamble>> toward the central building, reaching the door. You reach for the door handle and try to pull it open. It's locked.
 <br><br>
 
-<<if $compound.wraith is "willing">>
+<<if $ivoryWraith.compound.pcResponse is "willing">>
 	<<set $lock to 300>>
 	<<if currentSkillValue('skulduggery') gte $lock>>
 		<<if pcAreArmsBound("both")>>
@@ -244,7 +244,7 @@ The inside of the building is dominated by a large lift. You see no way to opera
 <br><br>
 
 You step into the lift, and it immediately plummets straight down without closing the doors. It slows before you reach the bottom,
-<<if $compound.wraith is "willing">>
+<<if $ivoryWraith.compound.pcResponse is "willing">>
 	landing gently.
 <<else>>
 	though not enough to ensure a completely painless landing.
@@ -280,7 +280,7 @@ Every time they say Quinn's name, an alien anger flashes through you. You suspec
 You step into the room, and the guards turn to look at you. The <<person1>><<person>> immediately sets aside <<his>> clipboard and presses a button on <<his>> hip. Then, <<he>> marches toward you, accompanied by the <<person2>><<person>>.
 <br><br>
 
-<<if $compound.wraith is "willing">>
+<<if $ivoryWraith.compound.pcResponse is "willing">>
 	<span class="nextLink"><<link [[Fight.|Elk Compound Possessed Fight]]>><<set $fightstart to 1>><</link>></span>
 <<else>>
 	<span class="nextLink"><<link [[Lay them low.|Elk Compound Possessed Fight]]>><<set $fightstart to 1>><</link>></span>
@@ -294,25 +294,25 @@ You step into the room, and the guards turn to look at you. The <<person1>><<per
 	<<set $enemytrust -= 100>>
 	<<set $enemyanger += 200>>
 	<<npcidlegenitals>><<set $noAdmire to true>><<set $noBodyWriting to true>>
-	<<if $compound.wraith is "willing">>
+	<<if $ivoryWraith.compound.pcResponse is "willing">>
 		"<span class="wraith">Let me take care of you, let me take care of them,</span>" your voice whispers.
 	<<else>>
 		"<span class="wraith">Fall deeper, deeper still,</span>" your voice sneers.
 	<</if>>
-	<<if !$wraith.will>>
-		<<set $wraith.will to random(1300, 1700)>>
+	<<if !$ivoryWraith.possession.holdOnPc>>
+		<<set $ivoryWraith.possession.holdOnPc to random(1300, 1700)>>
 	<</if>>
 	<br><br>
 <</if>>
 
 <<effects>>
 <<effectsman>><<man>>
-<<if _resist gte 1 and $compound.wraith is "willing">>
+<<if _resist gte 1 and $ivoryWraith.compound.pcResponse is "willing">>
 	<<set $finish to 1>>
 	<span class="black">You feel a brief flash of confusion from the pale figure at your resistance.</span>
 	<br><br>
-<<elseif _resist gte 1 and $compound.wraith is "accepted">>
-	<<set $compound.wraith to "resisted">>
+<<elseif _resist gte 1 and $ivoryWraith.compound.pcResponse is "accepted">>
+	<<set $ivoryWraith.compound.pcResponse to "resisted">>
 	<span class="black">You feel a brief flash of scorn from the pale figure at your resistance.</span>
 	<br><br>
 <</if>>
@@ -333,7 +333,7 @@ You step into the room, and the guards turn to look at you. The <<person1>><<per
 	<br><br>
 
 	<<endcombat>><<clotheson>>
-	<<if $compound.wraith is "willing">>
+	<<if $ivoryWraith.compound.pcResponse is "willing">>
 		<<canvas-model-override "mouth" "smile">>
 	<</if>>
 
@@ -345,7 +345,7 @@ You step into the room, and the guards turn to look at you. The <<person1>><<per
 	<br><br>
 
 	<<endcombat>><<clotheson>>
-	<<if $compound.wraith is "willing">>
+	<<if $ivoryWraith.compound.pcResponse is "willing">>
 		<<canvas-model-override "mouth" "smile">>
 	<</if>>
 
@@ -384,10 +384,10 @@ You step into the room, and the guards turn to look at you. The <<person1>><<per
 	<br><br>
 
 	<<endcombat>><<clotheson>>
-	<<set $wraithCompoundCooldown to 10>>
-	<<set $wraithCompoundChance to 10>>
+	<<set $ivoryWraith.compound.cooldownDaysLeft to 10>>
+	<<set $ivoryWraith.compound.chance to 10>>
 
-	<<link [[Next|Elk Compound]]>><<unset $compound.wraith>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Elk Compound]]>><<unset $ivoryWraith.compound.pcResponse>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
 <</if>>
 
 :: Elk Compound No Longer Possessed Fight
@@ -441,7 +441,7 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 :: Elk Compound Possessed Creatures
 <<effects>>
 <<world_corruption "soft" -3>>
-<<if $possessed and $compound.wraith is "willing">>
+<<if $possessed and $ivoryWraith.compound.pcResponse is "willing">>
 	<<wraithExorcise true true>>
 	You stop mid-stride and feel a tight sensation in your chest. A pale arm emerges, followed by another. The pale figure pulls itself out of your body, making you stumble for a moment.
 	<br><br>
@@ -452,12 +452,12 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 	<br>
 <</if>>
 
-<<if $compound.wraith is "willing">>
+<<if $ivoryWraith.compound.pcResponse is "willing">>
 	The pale figure snaps its fingers, and the metal of each crate warps and deforms. One crate is shorn apart, and a white, almost translucent substance leaks out. It undulates, pulling itself out of the crate and shambling toward the figure. <span class="gold">It's a pale slime.</span>
 	<br><br>
 
 	The pale figure reaches down and picks it up, gently stroking it. More and more crates break open, revealing all sorts of creatures, all pale as ivory. There are slimes, long tentacles, creatures covered in tendrils, and more.
-	<<if $wraith.offspring is "sold">>
+	<<if $ivoryWraith.offspring.status is "sold">>
 		<span class="green">You even see the pale children you sold.</span>
 	<</if>>
 	They all crowd around the pale figure. Its shoulders slump as it finally relaxes.
@@ -467,7 +467,7 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 	<br><br>
 
 	Eventually, the pale figure sets the slime down and waves an arm. A swirling purple disc appears on the floor, and the creatures jump into it without a hint of fear. A hand gently lands on your shoulder from behind; you know it belongs to the pale figure, despite it standing in front of you.
-	<<if $wraith.state is "haunt">>
+	<<if $ivoryWraith.state is "haunt">>
 		"<span class="wraith">You who seeks to repent.</span>"
 	<<else>>
 		"<span class="wraith">You whose charity knows no bounds.</span>"
@@ -486,7 +486,7 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 	<br><br>
 
 	It seems hesitant, but your eyes flash <<wraithEyes>> and it shambles towards you. You pick it up, gently stroking it. More and more crates break open, revealing all sorts of creatures, all pale as ivory. There are slimes, long tentacles, creatures covered in tendrils, and more.
-	<<if $wraith.offspring is "sold">>
+	<<if $ivoryWraith.offspring.status is "sold">>
 		<span class="green">You even see the pale children you sold.</span>
 	<</if>>
 	They all crowd around you. Your shoulders slump as your body finally relaxes.
@@ -497,8 +497,8 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 	Eventually, you set the slime down and wave an arm. A swirling purple disc appears on the floor, and the creatures jump into it without a hint of fear.
 	<br><br>
 
-	<<if $compound.wraith is "accepted">>
-		<<if $wraith.state is "haunt">>
+	<<if $ivoryWraith.compound.pcResponse is "accepted">>
+		<<if $ivoryWraith.state is "haunt">>
 			"<span class="wraith">Graverobber.</span>"
 		<<else>>
 			"<span class="wraith">Butcher.</span>"
@@ -513,15 +513,15 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 			<<set $blackmoney += 1000>>
 			It pulls several devices off the nearby wall with tendrils, giving them to you. Someone on the black market may be interested. "<span class="wraith">A token of appreciation. That it hurts them is but another boon.</span>"
 		<</if>>
-		<<npcincr "Ivory Wraith" love 1>><<glove>><<if $wraith.offspring is "sold">><<lobsession 1>><<else>><<lobsession 3>><</if>>
+		<<npcincr "Ivory Wraith" love 1>><<glove>><<if $ivoryWraith.offspring.status is "sold">><<lobsession 1>><<else>><<lobsession 3>><</if>>
 	<</if>>
 <</if>>
-<<if $wraith.offspring is "sold">>
-	<<unset $wraithAngerCooldown>>
-	<<set $wraith.offspring to "">>
+<<if $ivoryWraith.offspring.status is "sold">>
+	<<unset $ivoryWraith.offspring.angerDaysLeft>>
+	<<set $ivoryWraith.offspring.status to "">>
 <</if>>
-<<set $wraithCompoundCooldown to 30>>
-<<unset $wraithCompoundChance>>
+<<set $ivoryWraith.compound.cooldownDaysLeft to 30>>
+<<unset $ivoryWraith.compound.chance>>
 <br><br>
 
 <<if $possessed>>
@@ -536,7 +536,7 @@ The <<person>> collapses to the ground, groaning. <<He>> tries to push <<himself
 A sudden noise draws your attention. A trio of guards, led by a <<person>>, run into the room. <<He>> takes one look at the guards on the ground, before turning to you. "Grab <<phim>>." The <<fullGroup>> advance.
 <br><br>
 
-<<switch $compound.wraith>>
+<<switch $ivoryWraith.compound.pcResponse>>
 	<<case "willing">>
 		The pale figure places a hand on your shoulder, and two more around your ears. "<span class="wraith">May not a single of their claws touch you. Hie away, <<pcpetname "Wraith">>.</span>" Still keeping its hands around your ears, it lets out a piercing shriek. Even with your ears covered, it's incredibly loud. You can only imagine how loud it is for the guards, who immediately stagger and collapse.
 		<br><br>
@@ -544,7 +544,7 @@ A sudden noise draws your attention. A trio of guards, led by a <<person>>, run 
 		The figure closes its mouth, removes its hands and disappears. You run into the hallway and onto the lift, and the doors automatically close. The lift carries you up, and you walk out the door back into the compound.
 		<br><br>
 
-		<<link [[Next|Elk Compound]]>><<endevent>><<unset $compound.wraith>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Elk Compound]]>><<endevent>><<unset $ivoryWraith.compound.pcResponse>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
 	<<case "accepted">>
 		<<wraithExorcise true true>>
 		Two arms emerge from your back and cover your ears. "<span class="wraith">As you help me, so I you, <<pcpetname "Wraith">>.</span>" Still keeping its hands around your ears, it lets out a piercing shriek through your mouth. Even with your ears covered, it's incredibly loud. You can only imagine how loud it is for the guards, who immediately stagger and collapse. Your throat feels scraped raw.
@@ -554,9 +554,9 @@ A sudden noise draws your attention. A trio of guards, led by a <<person>>, run 
 		The pale figure pulls itself out of your body through your back, making you stumble forward. Your stumble turns into a run as the figure disappears. You run into the hallway and onto the lift, and the doors automatically close. The lift carries you up, and you walk out the door back into the compound.
 		<br><br>
 
-		<<link [[Next|Elk Compound]]>><<endevent>><<unset $compound.wraith>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
+		<<link [[Next|Elk Compound]]>><<endevent>><<unset $ivoryWraith.compound.pcResponse>><<endRainWraith>><<endWraith>><<clearWraith>><<set $compound.alarm += 5>><<set $eventskip to 1>><</link>>
 	<<case "resisted">>
-		<<set _wraithWill to Math.clamp(Math.floor(1 + $wraith.will) - $control, 1, 1000)>>
+		<<set _wraithWill to Math.clamp(Math.floor(1 + $ivoryWraith.possession.holdOnPc) - $control, 1, 1000)>>
 		The guards surround you and grab your arms. "Take <<phim>> to interrogation," the <<person>> says. "<<pShe>> has a lot to answer for." You try to break free, <span class="red">but the pale figure holds your body still.</span>
 		<br><br>
 
@@ -566,7 +566,7 @@ A sudden noise draws your attention. A trio of guards, led by a <<person>>, run 
 <</switch>>
 
 :: Elk Compound Possessed Guards
-<<effects>><<unset $compound.wraith>><<wraithExorcise true true>>
+<<effects>><<unset $ivoryWraith.compound.pcResponse>><<wraithExorcise true true>>
 
 <<if $phase is 0>>
 	You fight for control,

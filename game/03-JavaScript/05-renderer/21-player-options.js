@@ -703,8 +703,8 @@ class PlayerCombatMapper {
 		// Eyes
 		if (V.possessed) {
 			options.trauma = V.possessed;
-			options.leftEye = ["haunt", "despair"].includes(V.wraith.state) ? "red possessed" : "blue possessed";
-			options.rightEye = ["haunt", "despair"].includes(V.wraith.state) ? "red possessed" : "blue possessed";
+			options.leftEye = ["haunt", "despair"].includes(V.ivoryWraith.state) ? "red possessed" : "blue possessed";
+			options.rightEye = ["haunt", "despair"].includes(V.ivoryWraith.state) ? "red possessed" : "blue possessed";
 		} else {
 			options.trauma = V.trauma >= V.traumamax * 0.9;
 			options.leftEye = V.makeup.eyelenses.left || V.leftEyeColour || "blue";

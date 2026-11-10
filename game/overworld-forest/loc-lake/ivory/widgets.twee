@@ -20,7 +20,7 @@
 	<</if>>
 	<<checkWraith>>
 	<<if _args[1]>>
-		<<set $wraith.seen++>>
+		<<set $ivoryWraith.timesMetPc++>>
 	<</if>>
 	<<personSelect _n>>
 <</widget>>
@@ -28,13 +28,13 @@
 <!-- Recursive. With no argument, picks one at random. If option is disabled, runs as another argument. Can not infinite loop. -->
 <<widget "initWraith">>
 	<<if _args[0]>>
-		<<set $wraith.gen to _args.random()>>
+		<<set $ivoryWraith.fight.form to _args.random()>>
 		<<set $pronoun to "i">>
 		<<statsWraith>>
-		<<switch $wraith.gen>>
+		<<switch $ivoryWraith.fight.form>>
 			<<case "man">>
 				<<set $molestationstart to 1>>
-				<<set $wraith.type to "man">>
+				<<set $ivoryWraith.fight.combatType to "man">>
 				<<set _genderKnownBeforehand to true>>
 				<<set $noBodyWriting to true>>
 				<<set $stealtarget to "012345">>
@@ -50,7 +50,7 @@
 					/* Unreachable until swarms are un-fucked */
 					<<if $settings.slimesEnabled and $settings.tentaclesEnabled>>
 						<<set $molestationstart to 1>>
-						<<set $wraith.type to "tentacles">>
+						<<set $ivoryWraith.fight.combatType to "tentacles">>
 						<<swarminit "slimes" "slime mass" "moving towards you" "encircle you" "fend off" _wraithSlimes 0>>
 						<<tentaclestart _wraithTentacles 18 "tentacle" "pale">>
 					<<else>>
@@ -62,10 +62,10 @@
 			<<case "slime">>
 				<<if $settings.slimesEnabled>>
 					<<set $struggle_start to 1>>
-					<<set $wraith.type to "slime">>
+					<<set $ivoryWraith.fight.combatType to "slime">>
 					<<struggle_init>>
 					<<set $struggle.creature to "pale slime">>
-					<<if $wraith.state is "haunt">>
+					<<if $ivoryWraith.state is "haunt">>
 						<<struggle_creatures 4 2>>
 					<<else>>
 						<<struggle_creatures 3 1>>
@@ -76,7 +76,7 @@
 			<<case "tentacles">>
 				<<if $settings.tentaclesEnabled>>
 					<<set $molestationstart to 1>>
-					<<set $wraith.type to "tentacles">>
+					<<set $ivoryWraith.fight.combatType to "tentacles">>
 					<<tentaclestart _wraithTentacles 18 "tentacle" "pale">>
 				<<else>>
 					<<initWraith "arms">>
@@ -84,7 +84,7 @@
 			<<case "abomination">>
 				<<if $settings.tentaclesEnabled>>
 					<<set $molestationstart to 1>>
-					<<set $wraith.type to "man">>
+					<<set $ivoryWraith.fight.combatType to "man">>
 					<<set $abomination to 1>>
 					<<set _genderKnownBeforehand to true>>
 					<<set $noBodyWriting to true>>
@@ -108,7 +108,7 @@
 			<<case "arms">>
 				<<set $molestationstart to 1>>
 				<<set $breakIgnore to true>>
-				<<set $wraith.type to "man">>
+				<<set $ivoryWraith.fight.combatType to "man">>
 				<<set _genderKnownBeforehand to true>>
 				<<set $noBodyWriting to true>>
 				<<set $stealtarget to "012345">>
@@ -131,13 +131,13 @@
 			<<default>>
 				<<initWraith "man">>
 		<</switch>>
-		<<if $wraithHealth>>
-			<<set $enemyhealth to $wraithHealth>>
+		<<if $ivoryWraith.fight.healthLeft>>
+			<<set $enemyhealth to $ivoryWraith.fight.healthLeft>>
 		<</if>>
 	<<else>>
 		<<switch random(1, 6)>>
 			<<case 1>>
-				<<if $wraith.state is "haunt" or Time.isBloodMoon()>>
+				<<if $ivoryWraith.state is "haunt" or Time.isBloodMoon()>>
 					<<initWraith "abomination">>
 				<<else>>
 					<<initWraith "man">>
@@ -166,7 +166,7 @@
 <</widget>>
 
 <<widget "startWraith">>
-	<<switch $wraith.gen>>
+	<<switch $ivoryWraith.fight.form>>
 		<<case "man">>
 			<<He>> raises <<his>> hand, and you're forced to kneel.
 		<<case "abomination">>
@@ -181,29 +181,29 @@
 <</widget>>
 
 <<widget "continueWraith">>
-	<<if !$wraithOptions>>
+	<<if !$ivoryWraith.fight.formsLeft>>
 		<<if $consensual is 1>>
-			<<set $wraithOptions to ["man", "tentacles", "abomination", "arms"]>>
+			<<set $ivoryWraith.fight.formsLeft to ["man", "tentacles", "abomination", "arms"]>>
 		<<else>>
-			<<set $wraithOptions to ["man", "tentacles", "abomination", "slime", "arms"]>>
+			<<set $ivoryWraith.fight.formsLeft to ["man", "tentacles", "abomination", "slime", "arms"]>>
 		<</if>>
 	<</if>>
-	<<set _wraithLast to $wraith.gen>>
-	<<set _wraithSelect to $wraithOptions.pluck()>>
-	<<set $wraithHealth to $enemyhealth>>
+	<<set _wraithLast to $ivoryWraith.fight.form>>
+	<<set _wraithSelect to $ivoryWraith.fight.formsLeft.pluck()>>
+	<<set $ivoryWraith.fight.healthLeft to $enemyhealth>>
 	<<endcombat>>
 	<<generateWraith 1>>
 	<<initWraith _wraithSelect>>
 	<<set $NPCList[0].intro to 0>>
-	<<set $enemyhealth to $wraithHealth>>
+	<<set $enemyhealth to $ivoryWraith.fight.healthLeft>>
 	<<if $pain gte 50 and $bus isnot "lake_ruin_prison">>
 		<<kissWraith>>
 		<br><br>
 	<</if>>
-	<<if _wraithLast is $wraith.gen>>
+	<<if _wraithLast is $ivoryWraith.fight.form>>
 		It looks down at you with a smile. "<span class="wraith">Again.</span>"
 	<<else>>
-		<<switch $wraith.gen>>
+		<<switch $ivoryWraith.fight.form>>
 			<<case "man">>
 				<<He>> raises <<his>> hand, and an invisible force pulls you back in. "<span class="wraith">Forever.</span>"
 			<<case "abomination">>
@@ -220,40 +220,40 @@
 
 <<widget "endWraith">>
 	<<if $enemyhealth gt 0>>
-		<<set $wraithHealth to $enemyhealth + 50>>
+		<<set $ivoryWraith.fight.healthLeft to $enemyhealth + 50>>
 	<<else>>
-		<<unset $wraithHealth>>
+		<<unset $ivoryWraith.fight.healthLeft>>
 	<</if>>
 	<<endevent>>
-	<<run delete $wraith.type>>
-	<<run delete $wraith.select>>
-	<<run delete $wraith.gen>>
-	<<unset $wraithOptions>>
-	<<set $wraith.mimic to "">>
-	<<unset $wraithCount>>
-	<<unset $wraithMax>>
-	<<set $wraith.revealed to false>>
-	<<if $controlSaved>>
-		<<set $control to $controlSaved>>
-		<<unset $controlSaved>>
+	<<run delete $ivoryWraith.fight.combatType>>
+	<<run delete $ivoryWraith.fight.debugForm>>
+	<<run delete $ivoryWraith.fight.form>>
+	<<unset $ivoryWraith.fight.formsLeft>>
+	<<set $ivoryWraith.mimic.npc to "">>
+	<<unset $ivoryWraith.fight.fightsInARow>>
+	<<unset $ivoryWraith.fight.fightsInARowLimit>>
+	<<set $ivoryWraith.mimic.pcSawThrough to false>>
+	<<if $ivoryWraith.possession.pcControlBefore>>
+		<<set $control to $ivoryWraith.possession.pcControlBefore>>
+		<<unset $ivoryWraith.possession.pcControlBefore>>
 	<</if>>
-	<<if $wraith.nightmare is 2>>
-		<<set $wraith.nightmare to 0>>
+	<<if $ivoryWraith.hunt.nightmare is 2>>
+		<<set $ivoryWraith.hunt.nightmare to 0>>
 	<</if>>
 	<<if $possessed>>
-		<<if $wraith.possessCount is undefined>>
-			<<set $wraith.possessCount to 1>>
+		<<if $ivoryWraith.timesPossessedPc is undefined>>
+			<<set $ivoryWraith.timesPossessedPc to 1>>
 		<<else>>
-			<<set $wraith.possessCount++>>
+			<<set $ivoryWraith.timesPossessedPc++>>
 		<</if>>
 		<<unset $possessed>><<canvas-model-override "clear">>
 	<</if>>
 	<<unset $nextPassage>>
 	<<unset $nextPassageIntended>>
 	<<unset $nextPassageCheck>>
-	<<unset $phaseWraith>>
-	<<unset $wraithBedSpeech>>
-	<<unset $gwylanDoesALittleTrolling>>
+	<<unset $ivoryWraith.possession.walkStep>>
+	<<unset $ivoryWraith.possession.pcTouchedPartner>>
+	<<unset $ivoryWraith.possession.gwylanLeftPcInForest>>
 <</widget>>
 
 <<widget "rainWraith">>
@@ -312,80 +312,80 @@
 <</widget>>
 
 <<widget "checkWraith">>
-	<<if !$wraith.init>>
-		<<set $wraith to {init: 1, seen: 0, days: 0, defeated: 0, evaded: 0, nightmare: 0, timer: 0, hunt: 0, state: "", mimic: "", revealed: false, offspring: "", exit: ""}>>
+	<<if !$ivoryWraith.init>>
+		<<set $ivoryWraith to {init: 1, seen: 0, days: 0, defeated: 0, evaded: 0, nightmare: 0, timer: 0, hunt: 0, state: "", mimic: "", revealed: false, offspring: "", exit: ""}>>
 	<</if>>
-	<<if Time.days gte 32 and Time.monthName isnot "October" and !$wraithSkip>>
+	<<if Time.days gte 32 and Time.monthName isnot "October" and !$ivoryWraith.hunt.sentAway>>
 		<<if $museumAntiques.antiques.antiqueivorynecklace isnot "notFound">>
-			<<if $necklaceThief is "player">>
-				<<set $wraith.state to "haunt">>
+			<<if $ivoryWraith.necklace.takenBy is "player">>
+				<<set $ivoryWraith.state to "haunt">>
 			<<else>>
-				<<set $wraith.state to "despair">>
+				<<set $ivoryWraith.state to "despair">>
 			<</if>>
 		<<else>>
-			<<set $wraith.state to "active">>
+			<<set $ivoryWraith.state to "active">>
 		<</if>>
 	<</if>>
 	<<if _args[0]>>
-		<<if $wraith.state isnot "" and !$wraithCheck and $wraith.nightmare is 0 and (random(0,2) is 2 or $wraith.state is "haunt" or $wraith.offspring is "dead")>>
-			<<set $wraith.nightmare to 1>>
-			<<set $wraithCheck to true>>
+		<<if $ivoryWraith.state isnot "" and !$ivoryWraith.hunt.nightmareRolled and $ivoryWraith.hunt.nightmare is 0 and (random(0,2) is 2 or $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead")>>
+			<<set $ivoryWraith.hunt.nightmare to 1>>
+			<<set $ivoryWraith.hunt.nightmareRolled to true>>
 		<</if>>
-		<<if $moonstate isnot "morning" and $wraith.state isnot "" and $wraith.timer lte 0>>
-			<<set $wraith.timer to C.npc["Ivory Wraith"].lust>>
+		<<if $moonstate isnot "morning" and $ivoryWraith.state isnot "" and $ivoryWraith.hunt.chance lte 0>>
+			<<set $ivoryWraith.hunt.chance to C.npc["Ivory Wraith"].lust>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "clearWraith">>
-	<<if $wraith>>
+	<<if $ivoryWraith>>
 		<<if $foresthunt gte 1>>
 			<<set $foresthunt to 0>>
 		<</if>>
-		<<set $wraith.mimic to "">>
-		<<set $wraith.exit to "">>
-		<<set $wraith.nightmare to 0>>
-		<<set $wraith.hunt to 0>>
-		<<set $wraith.timer to 0>>
-		<<set $wraith.evaded to 0>>
-		<<unset $wraithCheck>>
-		<<unset $wPersist>>
-		<<unset $wraithSkip>>
-		<<run delete $wraith.type>>
-		<<run delete $wraith.select>>
-		<<run delete $wraith.gen>>
-		<<run delete $wraith.will>>
-		<<unset $wraithOptions>>
-		<<unset $wraithCount>>
-		<<unset $wraithMax>>
-		<<unset $wraithHealth>>
+		<<set $ivoryWraith.mimic.npc to "">>
+		<<set $ivoryWraith.hunt.exitTo to "">>
+		<<set $ivoryWraith.hunt.nightmare to 0>>
+		<<set $ivoryWraith.hunt.progress to 0>>
+		<<set $ivoryWraith.hunt.chance to 0>>
+		<<set $ivoryWraith.hunt.timesPcEscaped to 0>>
+		<<unset $ivoryWraith.hunt.nightmareRolled>>
+		<<unset $ivoryWraith.hunt.followedIntoForest>>
+		<<unset $ivoryWraith.hunt.sentAway>>
+		<<run delete $ivoryWraith.fight.combatType>>
+		<<run delete $ivoryWraith.fight.debugForm>>
+		<<run delete $ivoryWraith.fight.form>>
+		<<run delete $ivoryWraith.possession.holdOnPc>>
+		<<unset $ivoryWraith.fight.formsLeft>>
+		<<unset $ivoryWraith.fight.fightsInARow>>
+		<<unset $ivoryWraith.fight.fightsInARowLimit>>
+		<<unset $ivoryWraith.fight.healthLeft>>
 		<<if $possessed>>
-			<<if $wraith.possessCount is undefined>>
-				<<set $wraith.possessCount to 1>>
+			<<if $ivoryWraith.timesPossessedPc is undefined>>
+				<<set $ivoryWraith.timesPossessedPc to 1>>
 			<<else>>
-				<<set $wraith.possessCount++>>
+				<<set $ivoryWraith.timesPossessedPc++>>
 			<</if>>
 			<<unset $possessed>><<canvas-model-override "clear">>
 		<</if>>
-		<<set $wraith.revealed to false>>
-		<<unset $wraithWillMessage>>
+		<<set $ivoryWraith.mimic.pcSawThrough to false>>
+		<<unset $ivoryWraith.possession.controlHintShown>>
 		<<unset $nextPassage>>
 		<<unset $nextPassageIntended>>
 		<<unset $nextPassageCheck>>
-		<<unset $phaseWraith>>
-		<<unset $wraithPaleVisit>>
-		<<unset $wraithApologise>>
-		<<unset $wraithApologiseCooldown>>
+		<<unset $ivoryWraith.possession.walkStep>>
+		<<unset $ivoryWraith.possession.paleOffspringVisit>>
+		<<unset $ivoryWraith.fight.pcApologisedThisTurn>>
+		<<unset $ivoryWraith.hunt.pcApologised>>
 	<</if>>
 <</widget>>
 
 <<widget "wraithEyes">><<silently>>
-	<<set _text_output to (["haunt", "despair"].includes($wraith.state) ? "red" : "blue")>>
+	<<set _text_output to (["haunt", "despair"].includes($ivoryWraith.state) ? "red" : "blue")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "wraithShamble">><<silently>>
-	<<if $compound.wraith>>
-		<<set _text_output to ($compound.wraith is "willing" ? "walk" : "shamble")>>
+	<<if $ivoryWraith.compound.pcResponse>>
+		<<set _text_output to ($ivoryWraith.compound.pcResponse is "willing" ? "walk" : "shamble")>>
 	<<else>>
 		<<set _text_output to "shamble">>
 	<</if>>
@@ -538,7 +538,7 @@
 				"Were your grip a little stronger.",
 				"Blistering emerald green, blinding the world. Such is your envy."
 			)>>
-			<<if ["dead","sold"].includes($wraith.offspring)>>
+			<<if ["dead","sold"].includes($ivoryWraith.offspring.status)>>
 				<<run _linePool.pushUnique("You failed them. You failed us.")>>
 			<</if>>
 			<<if $syndromekylar is 1>>
@@ -677,16 +677,16 @@
 		<<else>>
 			<<set _speechWraith to "You _speak. \"_line1\"">>
 		<</if>>
-	<<elseif $wraith.state is "" and _args[0] isnot "lines">>
+	<<elseif $ivoryWraith.state is "" and _args[0] isnot "lines">>
 		<<set _pSpeech to ["The <<person>> whispers incoherently.","The <<person>> giggles quietly.","The <<person>> speaks in a language you don't understand.","The <<person>> opens <<his>> mouth, and your ears begin ringing.","The <<person>> says something, but you immediately forget what it was.","The <<person>> doesn't speak."]>>
-		<<if $necklaceThief isnot ''>>
+		<<if $ivoryWraith.necklace.takenBy isnot ''>>
 			<<set _pSpeech.push("The <<person>> presses <<his>> hand to <<his>> neck.")>>
 		<<else>>
 			<<set _pSpeech.push("The <<person>> holds <<his>> necklace tightly.")>>
 		<</if>>
 		<<set _speechWraith to _pSpeech.pluck()>>
-	<<elseif $wraith.mimic isnot "" and $wraith.revealed is false and _args[0] isnot "lines">>
-		<<switch $wraith.mimic>>
+	<<elseif $ivoryWraith.mimic.npc isnot "" and $ivoryWraith.mimic.pcSawThrough is false and _args[0] isnot "lines">>
+		<<switch $ivoryWraith.mimic.npc>>
 			<<case "Sydney">>
 				<<set _speechWraith to either(
 					"<<He>> speaks. \"Th-the temple will punish me for this... but I don't care anymore!\"",
@@ -718,7 +718,7 @@
 				)>>
 			<<default>>
 		<</switch>>
-	<<elseif $wraith.state is "active" and $rng lte 8 and _args[0] isnot "lines">>
+	<<elseif $ivoryWraith.state is "active" and $rng lte 8 and _args[0] isnot "lines">>
 		<<set _speechWraith to "<<He>> holds <<his>> necklace close.">>
 	<<else>>
 		<<if _args[0] isnot "lines">>
@@ -773,7 +773,7 @@
 			"<<pcPetname \"Wraith\">>.","<<pcPetname \"Wraith\">>.","<<pcPetname \"Wraith\">>.",
 			"<<pcPetname \"Wraith\">>, <<pcpetname \"Wraith\">>.", "<<pcPetname \"Wraith\">>, <<pcpetname \"Wraith\">>."
 		]>>
-		<<if $wraith.state is "haunt">>
+		<<if $ivoryWraith.state is "haunt">>
 			<<run _linePool.pushUnique(
 				"Thief.",
 				"Vulture.",
@@ -795,7 +795,7 @@
 				"Can I pretend you're back, if only for a while?"
 			)>>
 		<</if>>
-		<<if $wraith.state is "despair">>
+		<<if $ivoryWraith.state is "despair">>
 			<<run _linePool.pushUnique(
 				"Where is it?",
 				"You're so warm.",
@@ -837,25 +837,25 @@
 				"Stepped from the past. Steeped in the present. Yet to be stopped."
 			)>>
 		<</if>>
-		<<if $wraith.offspring is "dead">>
+		<<if $ivoryWraith.offspring.status is "dead">>
 			<<run _linePool.pushUnique(
 				"Join them.",
 				"Cast away forever.",
 				"They cried for you, in their last moments."
 			)>>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				<<run _linePool.pushUnique("Have you not stolen enough from me?")>>
 			<</if>>
 		<</if>>
-		<<if $wraith.mimic isnot "">>
+		<<if $ivoryWraith.mimic.npc isnot "">>
 			<<run _linePool.pushUnique(
 				"Pretender.",
-				"$wraith.mimic $wraith.mimic $wraith.mimic $wraith.mimic $wraith.mimic $wraith.mimic $wraith.mimic $wraith.mimic."
+				"$ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc $ivoryWraith.mimic.npc."
 			)>>
 		<<else>>
 			<<run _linePool.pushUnique("No one else. Alone. Desolate. Disappear. Drown.")>>
 		<</if>>
-		<<if $wraith.mimic is "Sydney" or ($wraith.mimic is "" and isLoveInterest("Sydney"))>>
+		<<if $ivoryWraith.mimic.npc is "Sydney" or ($ivoryWraith.mimic.npc is "" and isLoveInterest("Sydney"))>>
 			<<run _linePool.pushUnique(
 				"I was <<nnpc_his \"Sydney\">> only friend, in that dark place beyond the trees.",
 				"You think you can trust <<nnpc_him \"Sydney\">>. That's hilarious, but no one's laughing.",
@@ -993,14 +993,14 @@
 			<<if Time.isBloodMoon()>>
 				<<run _linePool.pushUnique("The truth will ensnare you, reflection.")>>
 			<</if>>
-			<<if $wraithCompoundEvent>>
-				<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.compound.waitingForPc>>
+				<<if $ivoryWraith.state is "haunt">>
 					<<run _linePool.pushUnique("Fill the hole.")>>
 				<<else>>
 					<<run _linePool.pushUnique("A grain of sand can destroy an empire.")>>
 				<</if>>
 			<</if>>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				<<run _linePool.pushUnique("You opened a hole that must be filled.")>>
 			<</if>>
 			<<if C.npc["Ivory Wraith"].love gte 5>>
@@ -1029,10 +1029,10 @@
 <</silently>><<print _speechWraith>><</widget>>
 
 <<widget "effectsWraith">>
-	<<switch $wraith.gen>>
+	<<switch $ivoryWraith.fight.form>>
 		<<case "man">>
 			<<effectsman>>
-			<<if $wraithApologise>>
+			<<if $ivoryWraith.fight.pcApologisedThisTurn>>
 				<<apologyWraith>>
 			<<else>>
 				<<man>>
@@ -1047,7 +1047,7 @@
 			<<for _iw to 1; _iw lt 4; _iw++>>
 				<<set $NPCList[_iw].intro to -1>>
 			<</for>>
-			<<if $wraithApologise>>
+			<<if $ivoryWraith.fight.pcApologisedThisTurn>>
 				<<apologyWraith>>
 			<<else>>
 				<<man>>
@@ -1079,7 +1079,7 @@
 		<<case "abomination">>
 			<<chastityBreakWraith>>
 			<<effectsabomination>>
-			<<if $wraithApologise>>
+			<<if $ivoryWraith.fight.pcApologisedThisTurn>>
 				<<apologyWraith>>
 			<<else>>
 				<<abomination>>
@@ -1102,10 +1102,10 @@
 				causing you immense pain as they struggle against the shining metal. You hear sizzling, and it seems to be harming the tentacles. <<gpain>><<pain 6>>
 				<br><br>
 				With one final pull, the metal fractures and splinters, sending shards of gold clattering to the ground as your $worn.genitals.name yields and shatters in a bright flash of light. Both the figure and the tentacles seem to be considerably weaker after the effort.
-				<<if !$wraith.will>>
-					<<set $wraith.will to random(1300,1700)>>
+				<<if !$ivoryWraith.possession.holdOnPc>>
+					<<set $ivoryWraith.possession.holdOnPc to random(1300,1700)>>
 				<</if>>
-				<<set $wraith.will -= 100>>
+				<<set $ivoryWraith.possession.holdOnPc -= 100>>
 			<<else>>
 				ripping your $worn.genitals.name to shreds.
 			<</if>>
@@ -1163,7 +1163,7 @@
 <</widget>>
 
 <<widget "apologyWraith">>
-	<<unset $wraithApologise>>
+	<<unset $ivoryWraith.fight.pcApologisedThisTurn>>
 	<br>
 	<<He>> freezes, and dissipates slightly. A face you swear you've seen before appears in the mist. <<He>> looks at you with an unreadable expression and raises <<his>> arm, just a bit. <<He>> quickly shies away, reforming the mist around <<himself>>. <span class="green"><<He>> seems unable to act.</span>
 	<br><br>
@@ -1191,7 +1191,7 @@
 <</widget>>
 
 <<widget "ejacW">>
-	<<if $wraith.gen is "slime">>
+	<<if $ivoryWraith.fight.form is "slime">>
 		The <<person>> raises <<his>> hand. Incorporeal lines of energy flow to <<him>> from the slimes. They disengage, retreating back to the <<person>>. <<He>> picks one up, and begins to pet it.
 	<<else>>
 		<<ejaculation>>
@@ -1200,13 +1200,13 @@
 
 <<widget "ejaculation-wraith">>
 	<<if !_ejacRepeatFix>>
-		<<switch $wraith.gen>>
+		<<switch $ivoryWraith.fight.form>>
 			<<case "man">>
 				<<He>> glows a bright white.
 			<<case "abomination">>
 				<<He>> glows a bright white, and begins laughing. <<His>> pale tentacles disperse in the radiance.
 			<<case "tentacles" "slimetentacles">>
-				<<He>> pulls back <<his>> hand, and <<his>> eyes flash <<wraithEyes>>. The tentacles retreat from you, back to <<his>> side.<<if $wraith.gen is "slimetentacles">> The slimes quickly follow.<</if>>
+				<<He>> pulls back <<his>> hand, and <<his>> eyes flash <<wraithEyes>>. The tentacles retreat from you, back to <<his>> side.<<if $ivoryWraith.fight.form is "slimetentacles">> The slimes quickly follow.<</if>>
 			<<case "arms">>
 				<<set $enemyno to 1>>
 				<<He>> glows a bright white, and begins laughing.<<set $NPCList[0].intro to 0>> <<He>> begins to make strange gestures with <<his>> extra arms.
@@ -1224,8 +1224,8 @@
 		<</for>>
 		<<if $pain gte 100>>
 			<<He>> seems to revel in your suffering.
-		<<elseif C.npc["Ivory Wraith"].lust gte random(10,30) and $wraith.state is "haunt" and !playerIsPregnant()>>
-			<<His>> body flickers and <span class="red">something strikes your stomach</span>. You double over and <<he>> <<if ["abomination","arms"].includes($wraith.gen)>>laughs louder<<else>>laughs<</if>>.
+		<<elseif C.npc["Ivory Wraith"].lust gte random(10,30) and $ivoryWraith.state is "haunt" and !playerIsPregnant()>>
+			<<His>> body flickers and <span class="red">something strikes your stomach</span>. You double over and <<he>> <<if ["abomination","arms"].includes($ivoryWraith.fight.form)>>laughs louder<<else>>laughs<</if>>.
 			<<gstress>><<gtrauma>><<gpain>><<violence 10>>
 		<</if>>
 		<br><br>
@@ -1238,7 +1238,7 @@
 	<</if>>
 	<<set $pronoun to "i">>
 	<<He>> approaches you,
-	<<if $wraith.type is "tentacles" or $wraith.gen is "abomination">>
+	<<if $ivoryWraith.fight.combatType is "tentacles" or $ivoryWraith.fight.form is "abomination">>
 		pushing some tentacles aside.
 		<<if $tentacleMouth>>
 			<<set $_outof to (["tentacle", "tentacledeep"].includes($mouthstate) ? "out of" : "away from")>>
@@ -1246,7 +1246,7 @@
 		<</if>>
 	<<else>>
 		<<if C.npc["Ivory Wraith"].lust gte 16>>
-			grabbing your hair in a painful grip with <<if $wraith.gen is "arms">>more than two<<else>>both<</if>> hands.
+			grabbing your hair in a painful grip with <<if $ivoryWraith.fight.form is "arms">>more than two<<else>>both<</if>> hands.
 			<<trauma 12>><<stress 6>><<arousal 1000>>
 		<<elseif C.npc["Ivory Wraith"].lust gte 11>>
 			holding the back of your neck with one hand.
@@ -1278,44 +1278,44 @@
 	<<if !$possessed>>
 		<<switch _args[0]>>
 			<<case "town">>
-				<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 50))>>
+				<<if npcCanHunt("Ivory Wraith") and $ivoryWraith.state and $ivoryWraith.hunt.progress is 0 and $ivoryWraith.hunt.chance gte (random(0, 50))>>
 					<br><br>
-					<<set $wraith.hunt to 1>>
+					<<set $ivoryWraith.hunt.progress to 1>>
 					A wave of dizziness and confusion washes over you. Every time you blink, you see a blurred image.
 					<br><br>
 					You hold your eyes shut, and it begins to come into focus. You see a tall robed figure, bathed in red moonlight, its skin as pale as ivory. As soon as you see it, you can't help but think that it sees you too.
 					The sound of a chain breaking echoes in your ears. <<stress 6>><<gstress>><<trauma 6>><<gtrauma>>
 					<br><br>
-					<<if $wraith.state is "haunt">>
+					<<if $ivoryWraith.state is "haunt">>
 						<span class="red">You are being hunted.</span>
 					<<else>>
 						<span class="red">Dread lingers in the air.</span>
 					<</if>>
-				<<elseif $wraith.hunt>>
+				<<elseif $ivoryWraith.hunt.progress>>
 					<<if $moonstate is "morning" and Time.hour gte 6 and Time.hour lte 20>>
 						<br><br>
 						With the rising of the sun, you feel a sense of relief. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
 						<<clearWraith>>
-					<<elseif $wPersist is 1>>
-						<<set $wPersist to 2>>
+					<<elseif $ivoryWraith.hunt.followedIntoForest is 1>>
+						<<set $ivoryWraith.hunt.followedIntoForest to 2>>
 						<br><br>
 						The feeling of dread remains. Something's wrong. <span class="red">Whatever was hunting you is still coming.</span><<stress 3>><<gstress>>
-					<<elseif $wraith.state is "haunt">>
+					<<elseif $ivoryWraith.state is "haunt">>
 						<span class="red">Something terrible is hunting you.</span>
-						<<set $wraith.hunt += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<<else>>
 						<span class="red">Something unnatural stalks the streets.</span>
-						<<set $wraith.hunt += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<</if>>
 				<</if>>
 			<<case "forest">>
-				<<if $wraith.hunt is 0>>
+				<<if $ivoryWraith.hunt.progress is 0>>
 					<<set $rng2 to random(1, 3)>>
 					<<if $rng2 is 1 and $edenfreedom gte 1>>
 						A chill runs up your spine, a warning from some primal instinct. <span class="red">Something is hunting you.</span>
@@ -1328,76 +1328,76 @@
 						<br><br>
 						<span class="red">Something is hunting you.</span>
 					<</if>>
-					<<set $wraith.hunt to 1>>
+					<<set $ivoryWraith.hunt.progress to 1>>
 				<<else>>
 					You begin to see strange shapes in the air around you. A chill runs up your spine. <span class="red">Something is still hunting you.</span>
 				<</if>>
 				<<set $forestHunter to "Ivory Wraith">>
-				<<set $foresthunt to $wraith.hunt>>
+				<<set $foresthunt to $ivoryWraith.hunt.progress>>
 				<br><br>
 				<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
 			<<case "drain">>
-				<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 60))>>
-					<<set $wraith.hunt to 1>>
+				<<if npcCanHunt("Ivory Wraith") and $ivoryWraith.state and $ivoryWraith.hunt.progress is 0 and $ivoryWraith.hunt.chance gte (random(0, 60))>>
+					<<set $ivoryWraith.hunt.progress to 1>>
 					<br><br>
 					A wave of dizziness and confusion washes over you. Every time you blink, you see a blurred image.
 					<br><br>
 					You hold your eyes shut, and it begins to come into focus. You see a tall robed figure, bathed in red moonlight, its skin as pale as ivory. As soon as you see it, you can't help but think that it sees you too.
 					The sound of a chain breaking echoes in your ears. <<stress 6>><<gstress>><<trauma 6>><<gtrauma>>
 					<br><br>
-					<<if $wraith.state is "haunt">>
+					<<if $ivoryWraith.state is "haunt">>
 						<span class="red">You are being hunted.</span>
 					<<else>>
 						<span class="red">Dread lingers in the air.</span>
 					<</if>>
-				<<elseif $wraith.hunt>>
+				<<elseif $ivoryWraith.hunt.progress>>
 					<<if $moonstate is "morning" and Time.hour gte 6>>
 						<br><br>
 						As the first rays of sunlight trickle through open manholes and grates, you feel a sense of relief. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
 						<<clearWraith>>
-					<<elseif $wraith.state is "haunt">>
+					<<elseif $ivoryWraith.state is "haunt">>
 						<span class="red">Something terrible is hunting you.</span>
-						<<set $wraith.hunt += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<<else>>
 						<span class="red">Something unnatural stalks the streets above.</span>
-						<<set $wraith.hunt += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<</if>>
 				<</if>>
 			<<case "sewers">>
-				<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 60))>>
-					<<set $wraith.hunt to 1>>
+				<<if npcCanHunt("Ivory Wraith") and $ivoryWraith.state and $ivoryWraith.hunt.progress is 0 and $ivoryWraith.hunt.chance gte (random(0, 60))>>
+					<<set $ivoryWraith.hunt.progress to 1>>
 					<br><br>
 					A wave of dizziness and confusion washes over you. Every time you blink, you see a blurred image.
 					<br><br>
 					You hold your eyes shut, and it begins to come into focus. You see a tall robed figure, bathed in red moonlight, its skin as pale as ivory. As soon as you see it, you can't help but think that it sees you too.
 					The sound of a chain breaking echoes in your ears. <<stress 6>><<gstress>><<trauma 6>><<gtrauma>>
 					<br><br>
-					<<if $wraith.state is "haunt">>
+					<<if $ivoryWraith.state is "haunt">>
 						<span class="red">You are being hunted.</span>
 					<<else>>
 						<span class="red">Dread lingers in the air.</span>
 					<</if>>
-				<<elseif $wraith.hunt>>
+				<<elseif $ivoryWraith.hunt.progress>>
 					<<if $moonstate is "morning" and Time.hour gte 6>>
 						<br><br>
 						You feel a sense of relief, and instinctively know the sun has risen. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
 						<<clearWraith>>
-					<<elseif $wraith.state is "haunt">>
+					<<elseif $ivoryWraith.state is "haunt">>
 						<span class="red">Something terrible is hunting you.</span>
-						<<set $wraith.hunt += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += (0.5 + (C.npc["Ivory Wraith"].lust / 40))>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<<else>>
 						<span class="red">Something unnatural stalks the sewers.</span>
-						<<set $wraith.hunt += 0.5>>
-						<<if $wraith.hunt gte ($rng / 10)>>
+						<<set $ivoryWraith.hunt.progress += 0.5>>
+						<<if $ivoryWraith.hunt.progress gte ($rng / 10)>>
 							<<set $eventforced to true>>
 						<</if>>
 					<</if>>
@@ -1417,8 +1417,8 @@
 				<</if>>
 				<span class="red">You're trespassing. Something is hunting you.</span>
 				<<set $forestHunter to "Ivory Wraith">>
-				<<set $wraith.hunt to 1>>
-				<<set $foresthunt to $wraith.hunt>>
+				<<set $ivoryWraith.hunt.progress to 1>>
+				<<set $foresthunt to $ivoryWraith.hunt.progress>>
 				<br><br>
 				<<set $eventskip to 1>>
 				<<if $location is "lake_ruin">>
@@ -1435,21 +1435,21 @@
 <</widget>>
 
 <<widget "wPersist">>
-	<<if $wraith.state and !$possessed>>
-		<<if $wraith.hunt and npcCanHunt("Ivory Wraith")>>
+	<<if $ivoryWraith.state and !$possessed>>
+		<<if $ivoryWraith.hunt.progress and npcCanHunt("Ivory Wraith")>>
 			<<if _args[0] is "forest">>
 				<<if $foresthunt gte 1>>
-					<<set $wraith.hunt to $foresthunt>>
+					<<set $ivoryWraith.hunt.progress to $foresthunt>>
 					<<set $forestHunter to "Ivory Wraith">>
-					<<if !$wPersist>>
-						<<set $wPersist to 1>>
+					<<if !$ivoryWraith.hunt.followedIntoForest>>
+						<<set $ivoryWraith.hunt.followedIntoForest to 1>>
 					<</if>>
 				<<else>>
-					<<set $foresthunt to $wraith.hunt>><<set $forestHunter to "Ivory Wraith">>
+					<<set $foresthunt to $ivoryWraith.hunt.progress>><<set $forestHunter to "Ivory Wraith">>
 					You enter the treeline, <span class="red">but can't shake the feeling that something's still coming for you.</span>
 				<</if>>
 				<<if ($location is "lake" or $location is "lake_ruin") and !$possessed>>
-					<<set $wraith.hunt += 1.5>>
+					<<set $ivoryWraith.hunt.progress += 1.5>>
 					<<set $foresthunt += 1.5>>
 					<<if $moonstate is "morning" and Time.hour gte 6 and Time.hour lte 20>>
 						With the rising of the sun, you feel a sense of relief. The dread passes. <span class="blue"><i>You're safe until the next blood moon.</i></span>
@@ -1477,18 +1477,18 @@
 <</widget>>
 
 <<widget "wTimerProgress">>
-	<<if $wraith.state and $wraith.hunt is 0 and Time.isBloodMoon()>>
-		<<set $wraith.timer++>>
-		<<set $wraith.timer += Math.floor(C.npc["Ivory Wraith"].lust / 10)>>
+	<<if $ivoryWraith.state and $ivoryWraith.hunt.progress is 0 and Time.isBloodMoon()>>
+		<<set $ivoryWraith.hunt.chance++>>
+		<<set $ivoryWraith.hunt.chance += Math.floor(C.npc["Ivory Wraith"].lust / 10)>>
 		<<if $rng gte 61 and numberOfEarSlime()>>
 			You hear the slime in your ear make an unusual sound, <span class="red">as if it's calling out to something.</span>
-			<<set $wraith.timer++>>
+			<<set $ivoryWraith.hunt.chance++>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "exitWraith">>
-	<<switch $wraith.exit>>
+	<<switch $ivoryWraith.hunt.exitTo>>
 		<<case "home">>
 			<<link [[Next|Bedroom]]>><<endevent>><<set $eventskip to 1>><<if _args[0]>><<set $phase2 to 1>><</if>><</link>>
 			<br>
@@ -1557,7 +1557,7 @@
 		<<default>>
 			<span class="red">Something went wrong. There's nowhere to place you due to a failure of the Wraith's code. Please inform PurityGuy.</span>
 			<br><br>
-			Offending event: $passage | Location: $location ($bus) | Exit: $wraith.exit
+			Offending event: $passage | Location: $location ($bus) | Exit: $ivoryWraith.hunt.exitTo
 			<br><br>
 			<<endWraith>>
 			<<clearWraith>>
@@ -1570,7 +1570,7 @@
 <</widget>>
 
 <<widget "rngWraith">>
-	<<if $wraith.state>>
+	<<if $ivoryWraith.state>>
 		<<if _args[1] is "night" and Time.dayState isnot "night" or _args[1] is "noBlood" and Time.isBloodMoon()>>
 			<<set _wraithEvent to false>>
 		<<else>>
@@ -1589,7 +1589,7 @@
 <<widget "rngWraithSocial">>
 	<<if !_rngWraithSocialCheck>>
 		<<set _rngWraithSocialCheck to true>>
-		<<set _rngWraithFace to ($wraith.type ? Math.ceil(Math.random() * 10) : Math.ceil(Math.random() * 30))>>
+		<<set _rngWraithFace to ($ivoryWraith.fight.combatType ? Math.ceil(Math.random() * 10) : Math.ceil(Math.random() * 30))>>
 		<<set _rngWraithLineChance to Math.ceil(Math.random() * 15)>>
 		<<set _rngWraithSocial to 2 + (Math.floor(C.npc["Ivory Wraith"].lust / 10))>>
 		<<if Time.dayState is "night">>
@@ -1598,22 +1598,22 @@
 		<<if ($hallucinations gte 1 and _rngWraithSocial gte Math.ceil(Math.random() * 100)) or Time.isBloodMoon()>>
 			<<set _wraithEventSocial to true>>
 		<</if>>
-		<<if $wraith.mimic isnot "" and $wraith.revealed>>
+		<<if $ivoryWraith.mimic.npc isnot "" and $ivoryWraith.mimic.pcSawThrough>>
 			<<set _wraithTitle to "pretender">>
 		<<else>>
-			<<switch $wraith.gen>>
+			<<switch $ivoryWraith.fight.form>>
 				<<case "tentacles">><<set _wraithTitle to "writhing">>
 				<<case "abomination">><<set _wraithTitle to "profane">>
 				<<case "arms">><<set _wraithTitle to "vain">>
-				<<default>><<set _wraithTitle to (["haunt", "despair"].includes($wraith.state) ? "forlorn" : "reflection")>>
+				<<default>><<set _wraithTitle to (["haunt", "despair"].includes($ivoryWraith.state) ? "forlorn" : "reflection")>>
 			<</switch>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "wraithEventStreet">>
-	<<set $wraith.exit to "town">>
-	<<if $wraith.hunt gte 10>>
+	<<set $ivoryWraith.hunt.exitTo to "town">>
+	<<if $ivoryWraith.hunt.progress gte 10>>
 		<<if !$wraithIntro>>
 			<<wraithIntro>>
 		<<else>>
@@ -1621,7 +1621,7 @@
 		<</if>>
 	<<else>>
 		<<cleareventpool>>
-		<<if $wraith.hunt gte 5>>
+		<<if $ivoryWraith.hunt.progress gte 5>>
 			<<if !$wraithIntro>>
 				<<addevent "wraithIntro" 0.1>>
 			<<else>>
@@ -1632,7 +1632,7 @@
 				A beautiful pale figure floats just above the ground, wearing translucent white robes that flow in the wind. Its eyes flash a bright <<wraithEyes>> as it sees you. Your mind feels cloudy as you see shapes dancing in the air and behind its eyes.
 				<br><br>
 				Before you can look away, it makes a hypnotic motion with its hands.
-				<<if $wraith.state is "haunt">>
+				<<if $ivoryWraith.state is "haunt">>
 					It then raises a hand to its neck, seemingly trying to grab something that isn't there. Its hand clenches.
 					<br><br>
 					"<span class="wraith">Thief. You will never be free again.</span>"
@@ -1641,7 +1641,7 @@
 						<span class="lewd">You feel the slime in your head command you to</span> <span class="red">give it back.</span>
 						<br><br>
 					<</if>>
-				<<elseif $wraith.state is "despair">>
+				<<elseif $ivoryWraith.state is "despair">>
 					It then raises a hand to its neck, seemingly trying to grab something that isn't there. Its hand clenches.
 					<br><br>
 					"<span class="wraith">It's so cold. You're so warm.</span>"
@@ -1668,7 +1668,7 @@
 				<<addinlineevent "wraithClose2" 0.1>>
 					Something whispers your name directly in your ear. You flail to the side, but there's nothing there.
 					<<if $loveInterest.primary isnot "None" and $loveInterest.primary isnot "Black Wolf" and $loveInterest.primary isnot "Great Hawk">>
-						You think it sounded like $loveInterest.primary. <<if $wraith.seen gte 5>>You know better, though.<</if>>
+						You think it sounded like $loveInterest.primary. <<if $ivoryWraith.timesMetPc gte 5>>You know better, though.<</if>>
 					<</if>>
 					<br><br>
 					When you turn around, your blood freezes. The pale figure <<if $location is "park">>floats atop the fountain<<else>>stands at the end of the street<</if>>. <<rainWraith>>
@@ -1701,7 +1701,7 @@
 						<br><br>
 						You scramble to your feet and keep moving.
 						<br><br>
-						<<set $wraith.hunt++>>
+						<<set $ivoryWraith.hunt.progress++>>
 						<<destinationeventend>>
 					<</if>>
 				<</addinlineevent>>
@@ -1727,7 +1727,7 @@
 					A final water spout shoots up from another manhole far behind you. You see a ghostly pale figure standing at the crest, surrounded by translucent watery tendrils. <<stress 12>><<ggstress>>
 					<br><br>
 					You run in the opposite direction.
-					<<set $wraith.hunt++>>
+					<<set $ivoryWraith.hunt.progress++>>
 					<br><br>
 					<<exitWraith>>
 				<</addinlineevent>>
@@ -1783,8 +1783,8 @@
 <</widget>>
 
 <<widget "wraithEventSewers">>
-	<<set $wraith.exit to "sewers">>
-	<<if $wraith.hunt gte 10>>
+	<<set $ivoryWraith.hunt.exitTo to "sewers">>
+	<<if $ivoryWraith.hunt.progress gte 10>>
 		<<if !$wraithIntro>>
 			<<wraithIntro>>
 		<<else>>
@@ -1792,7 +1792,7 @@
 		<</if>>
 	<<else>>
 		<<cleareventpool>>
-		<<if $wraith.hunt gte 5>>
+		<<if $ivoryWraith.hunt.progress gte 5>>
 			<<if !$wraithIntro>>
 				<<addevent "wraithIntro" 0.1>>
 			<<else>>
@@ -1803,7 +1803,7 @@
 					A beautiful pale figure floats just above the ground, wearing translucent white robes that flow in the wind. Its eyes flash a bright <<wraithEyes>> as it sees you. Your mind feels cloudy as you see shapes dancing in the air and behind its eyes.
 					<br><br>
 					Before you can look away, it makes a hypnotic motion with its hands.
-					<<if $wraith.state is "haunt">>
+					<<if $ivoryWraith.state is "haunt">>
 						It then raises a hand to its neck, seemingly trying to grab something that isn't there. Its hand clenches.
 						<br><br>
 						"<span class="wraith">Thief. You will never be free again.</span>"
@@ -1812,7 +1812,7 @@
 							<span class="lewd">You feel the slime in your head command you to</span> <span class="red">give it back.</span>
 							<br><br>
 						<</if>>
-					<<elseif $wraith.state is "despair">>
+					<<elseif $ivoryWraith.state is "despair">>
 						It then raises a hand to its neck, seemingly trying to grab something that isn't there. Its hand clenches.
 						<br><br>
 						"<span class="wraith">It's so cold. You're so warm.</span>"
@@ -1859,7 +1859,7 @@
 						<br><br>
 						You scramble to your feet and keep moving.
 						<br><br>
-						<<set $wraith.hunt++>>
+						<<set $ivoryWraith.hunt.progress++>>
 						<<destinationsewers>>
 					<</if>>
 				<</addinlineevent>>
@@ -1872,7 +1872,7 @@
 					<<else>>
 						You step to the side just as a pale slime drops to the floor with a splat. You run before it gives chase, but feel whatever's hunting you draw closer. <<stress 6>><<gstress>>
 						<br><br>
-						<<set $wraith.hunt++>>
+						<<set $ivoryWraith.hunt.progress++>>
 						<<destinationsewers>>
 					<</if>>
 				<</addinlineevent>>
@@ -1934,7 +1934,7 @@
 	<</if>>
 	You try to turn and run, but your legs won't move, and you can't help but look.
 	A beautiful pale figure floats just above the ground, wearing translucent white robes that flow in the wind. Its eyes flash a bright <<wraithEyes>> as it sees you.
-	<<if $wraith.state is "haunt">>
+	<<if $ivoryWraith.state is "haunt">>
 		It raises a hand to its scarred neck, seemingly trying to grab something that isn't there.
 		<br><br>
 		"<span class="wraith">Thief. Give it back, or <<if Weather.precipitation is "snow">>this blizzard will freeze you<<else>>this deluge will drown you<</if>>.</span>"
@@ -1943,7 +1943,7 @@
 			<span class="lewd">You feel the slime in your head command you to</span> <span class="red">give it back.</span>
 			<br><br>
 		<</if>>
-	<<elseif $wraith.state is "despair">>
+	<<elseif $ivoryWraith.state is "despair">>
 		It then raises a hand to its neck, seemingly trying to grab something that isn't there. Its hand clenches.
 		<br><br>
 		"<span class="wraith">H...have you seen my necklace?</span>"
@@ -1981,11 +1981,11 @@
 		<br><br>
 		<<if $wraithIntro>>
 			A pale figure stands before you.
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				It holds a clenched hand to its neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Drown.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">Where is it? So cold.</span>"
@@ -1998,11 +1998,11 @@
 			<<set $wraithIntro to true>>
 			A beautiful pale figure stands before you. It looks you over, before pulling you closer. It's hard to look away.
 			<br><br>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				It holds a clenched hand to its scarred neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Thief. Give it back.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">H...have you seen my necklace?</span>"
@@ -2016,11 +2016,11 @@
 		<<location "seadocks">>
 		<<if $wraithIntro>>
 			A pale figure floats in the water before you.
-			<<if $wraith.state is "haunt" or $wraith.offspring is "dead">>
+			<<if $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead">>
 				It holds a clenched hand to its neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Drown.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">Where is it? So cold.</span>"
@@ -2033,11 +2033,11 @@
 			<<set $wraithIntro to true>>
 			A beautiful pale figure encircles you. Long streaks of silver hair flow in the water behind it. It almost seems to be inspecting you.
 			<br><br>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				It scratches at its bare neck, and regards you with striking red eyes.
 				<br><br>
 				"<span class="wraith">Thief. Give it back.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">H...have you seen my necklace?</span>"
@@ -2050,11 +2050,11 @@
 	<<elseif $bus is "fishingBeach">>
 		<<if $wraithIntro>>
 			When you look up, a pale figure stands before you, 
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				it holds a clenched hand to its neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Drown.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				it holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">Where is it? So cold.</span>"
@@ -2067,11 +2067,11 @@
 			<<set $wraithIntro to true>>
 			When you look up, a beautiful pale figure stands before you. It looks you over, before pulling you closer. It's hard to look away.
 			<br><br>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				It holds a clenched hand to its scarred neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Thief. Give it back.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">H...have you seen my necklace?</span>"
@@ -2101,11 +2101,11 @@
 		<</if>>
 		<<if $wraithIntro>>
 			A pale figure floats in the water before you.
-			<<if $wraith.state is "haunt" or $wraith.offspring is "dead">>
+			<<if $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead">>
 				It holds a clenched hand to its neck, and bares its teeth at you.
 				<br><br>
 				"<span class="wraith">Drown.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and smiles at you.
 				<br><br>
 				"<span class="wraith"><<pcPetname "Wraith">>. You've returned. Have you seen my necklace?</span>"
@@ -2118,11 +2118,11 @@
 			<<set $wraithIntro to true>>
 			A beautiful pale figure encircles you. Long streaks of silver hair flow in the water behind it. It almost seems to be inspecting you.
 			<br><br>
-			<<if $wraith.state is "haunt">>
+			<<if $ivoryWraith.state is "haunt">>
 				It scratches at its bare neck, and regards you with striking red eyes.
 				<br><br>
 				"<span class="wraith">Thief. You've returned. Give it back at once.</span>"
-			<<elseif $wraith.state is "despair">>
+			<<elseif $ivoryWraith.state is "despair">>
 				It holds a clenched hand to its neck, and frowns at you.
 				<br><br>
 				"<span class="wraith">H...have you seen my necklace?</span>"
@@ -2136,15 +2136,15 @@
 		You suddenly feel like you're walking through waist-high water. Your arms<<if $exposed lte 0>> and clothes<</if>> grow heavy, and your feet don't seem to hit the ground anymore.
 		<br><br>
 		As soon as you look behind you, you feel something violently grab your neck and lift you clear off the ground. A pale figure stands before you.
-		<<if ["haunt", "despair"].includes($wraith.state)>>
+		<<if ["haunt", "despair"].includes($ivoryWraith.state)>>
 			It has a hand pressed to its own bare neck, and regards you with striking red eyes.
 		<<else>>
 			Its silver hair flows in a breeze you can't feel. It places its free hand over its necklace.
 		<</if>>
 		<br><br>
-		<<if $wraith.state is "haunt" or $wraith.offspring is "dead">>
+		<<if $ivoryWraith.state is "haunt" or $ivoryWraith.offspring.status is "dead">>
 			"<span class="wraith">Drown.</span>"
-		<<elseif $wraith.state is "despair">>
+		<<elseif $ivoryWraith.state is "despair">>
 			"<span class="wraith">So cold. Where is it?</span>"
 		<<else>>
 			"<span class="wraith">You belong to me.</span>"
@@ -2153,7 +2153,7 @@
 	<br><br>
 	<<generateWraith 1 true>>
 	<<initWraith "abomination">>
-	<<if $wraith.gen is "abomination">>
+	<<if $ivoryWraith.fight.form is "abomination">>
 		<<if $location is "lake_ruin" or $location is "sea">>
 			Pale tendrils coil around you, holding you beneath the surface.
 		<<else>>
@@ -2170,13 +2170,13 @@
 <<widget "wraith_pass">>
 	<<if _args[0]>>
 		<<pass _args[0]>>
-		<<set $wraithPrison.timer -= _args[0]>>
-		<<if $wraithPrison.timer lte 0 and $wraithPrison.state isnot "gone">>
-			<<set $wraithPrison.state to "present">>
-		<<elseif $wraithPrison.state isnot "gone">>
-			<<set $wraithPrison.state to "recovering">>
+		<<set $ivoryWraith.prison.minutesUntilReturn -= _args[0]>>
+		<<if $ivoryWraith.prison.minutesUntilReturn lte 0 and $ivoryWraith.prison.presence isnot "gone">>
+			<<set $ivoryWraith.prison.presence to "present">>
+		<<elseif $ivoryWraith.prison.presence isnot "gone">>
+			<<set $ivoryWraith.prison.presence to "recovering">>
 		<</if>>
-		<<set $wraithPrison.timePassed += _args[0]>>
+		<<set $ivoryWraith.prison.minutesSpent += _args[0]>>
 		<<hallucinogen `(_args[0] * 3)`>>
 		<<set $arousal += (_args[0] * 3)>>
 	<</if>>
@@ -2184,14 +2184,14 @@
 
 <<widget "wraithPossess">>
 	<<set $possessed to true>><<canvas-model-override "blink" false>>
-	<<set $controlSaved to $control>><<set $control to 0>>
-	<<set $wraith.hunt to 0>>
+	<<set $ivoryWraith.possession.pcControlBefore to $control>><<set $control to 0>>
+	<<set $ivoryWraith.hunt.progress to 0>>
 	<<if $forestHunter is "Ivory Wraith">>
 		<<set $foresthunt to 0>>
 	<</if>>
 
 	<<if _args[0]>>
-		<<set $wraith.exit to _args[0]>>
+		<<set $ivoryWraith.hunt.exitTo to _args[0]>>
 	<</if>>
 <</widget>>
 
@@ -2199,20 +2199,20 @@
 	<<unset $possessed>><<canvas-model-override "clear">>
 
 	<<if _args[0]>>
-		<<if $wraith.possessCount is undefined>>
-			<<set $wraith.possessCount to 1>>
+		<<if $ivoryWraith.timesPossessedPc is undefined>>
+			<<set $ivoryWraith.timesPossessedPc to 1>>
 		<<else>>
-			<<set $wraith.possessCount++>>
+			<<set $ivoryWraith.timesPossessedPc++>>
 		<</if>>
 	<</if>>
 
-	<<if _args[1] and $controlSaved isnot undefined>>
-		<<set $control to $controlSaved>><<unset $controlSaved>>
+	<<if _args[1] and $ivoryWraith.possession.pcControlBefore isnot undefined>>
+		<<set $control to $ivoryWraith.possession.pcControlBefore>><<unset $ivoryWraith.possession.pcControlBefore>>
 	<</if>>
 <</widget>>
 
 <<widget "gobsession">>
-	<<if !$wraith.init>>
+	<<if !$ivoryWraith.init>>
 		<span class="red">ERROR: Wraith is not initialised.</span>
 		<br><br>
 		Offending event: $passage | Location: $location ($bus)
@@ -2233,14 +2233,14 @@
 <</widget>>
 
 <<widget "lobsession">>
-	<<if !$wraith.init>>
+	<<if !$ivoryWraith.init>>
 		<span class="red">ERROR: Wraith is not initialised.</span>
 		<br><br>
 		Offending event: $passage | Location: $location ($bus)
 	<<else>>
 		<<set $_change to (_args[0] ? _args[0] : 1)>>
 		<<set C.npc["Ivory Wraith"].lust -= $_change>>
-		<<if $wraith.state is "haunt" and C.npc["Ivory Wraith"].lust lt 10>>
+		<<if $ivoryWraith.state is "haunt" and C.npc["Ivory Wraith"].lust lt 10>>
 			<<set $_change -= (10 - C.npc["Ivory Wraith"].lust)>>
 		<</if>>
 		<<if !$settings.blindStatsEnabled and $_change gt 0>> |
