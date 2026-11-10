@@ -175,6 +175,12 @@ declare global {
 		pcJustLeft?: true;
 		/** Where the PC was heading when they stopped at Robin's door and heard them crying ("Robin Trauma Visit"). If the PC closes the door, Leave goes here. */
 		whereToGoAfterHearingRobinCrying?: "Bedroom" | "Orphanage" | "Domus Street";
+		/** Saves the names of the fictional characters PC and Robin discuss while flirting.
+		 * Robin can later bring them up during an encounter. */
+		flirtCharacters?: {
+			pc: "Lily" | "Rose" | "Basil" | "Petal";
+			robin: "Sparrow" | "Jay" | "Heron" | "Penguin";
+		};
 		/** A visit to Robin's room. `<<endevent>>` resets it to `{}`. */
 		visit: RobinRoomVisit;
 	}
@@ -251,8 +257,20 @@ declare global {
 
 	/** Robin's sex and encounters with the PC, stored in `$robin.sex`. */
 	export interface RobinSex {
-		/** Once-per-encounter Robin lines already said, so Robin only says each once. Unset when the encounter (combat/sex) ends. */
-		encounterLinesSaid?: ("breastsAcceptance" | "moanDom" | "moanHeal" | "nippleDom" | "suckleDom")[];
+		/** Stat changes Robin's encounter lines have already given (dom, trauma heal, PC insecurity acceptance, etc.).
+		 * Each stat should only be given once per encounter. Unset when the encounter (combat/sex) ends. */
+		encounterLinesSaid?: (
+			| "bigPenisAcceptance"
+			| "bigPenisInsecurityFromFencing"
+			| "domFromPcClumsyNippleSucking"
+			| "domFromPcMoan"
+			| "domFromPcSuckling"
+			| "painFromTraumaIdleLine"
+			| "smallBreastsAcceptance"
+			| "smallPenisInsecurityFromFencing"
+			| "traumaHealFromIdleLine"
+			| "traumaHealFromPcMoan"
+		)[];
 		/** Set to 1 when Robin starts watching the PC masturbate, plus one per PC orgasm. Robin gains 3 lust per point, up to 15. Unset when the scene ends. */
 		pcOrgasmsWhileWatched?: number;
 		/** Times Robin has watched the PC masturbate.

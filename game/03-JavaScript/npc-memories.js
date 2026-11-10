@@ -66,6 +66,12 @@ const VALID_MEMORIES = {
 		// If Robin joked "I'm a mummy!" at the hospital after the docks
 		// Used so Robin remembers it when the PC dresses as a mummy for Halloween
 		"mummyJoke",
+		// If the PC rescued Robin from the docks alone, either by fighting the crew or taking Robin's place
+		// Used for an encounter line
+		"rescuedFromDocksAlone",
+		// If the PC rescued Robin from the docks with the dock workers' help
+		// Used for an encounter line
+		"rescuedFromDocksWithDockers",
 
 		// If the PC found Robin at the landfill with the purple mist
 		// Used to hide the journal hint once Robin is found
@@ -74,6 +80,12 @@ const VALID_MEMORIES = {
 		// Used so Robin apologises in later scenes
 		"rapedPcUnderLandfillMist",
 
+		// If Robin talked about the PC rescuing them from the docks alone during an encounter
+		// Used so talking about it only takes trauma off Robin once
+		"healedDocksAlone",
+		// If Robin talked about the PC and the dockers rescuing them from the docks during an encounter
+		// Used so talking about it only takes trauma off Robin once
+		"healedDocksWithDockers",
 		// If Robin talked about the mansion party during an encounter
 		// Used so talking about it only takes trauma off Robin once
 		"healedMansion",
@@ -122,6 +134,9 @@ const VALID_MEMORIES = {
 		// If the PC found Robin sobbing under the covers in their room, whether or not they went in
 		// Used so it only plays the first time
 		"pcHeardRobinCrying",
+		// If the PC lashed out at Robin in a panic during an encounter
+		// Used to change Robin's line when Robin is hit
+		"pcHitRobinInPanic",
 		// If the PC knows Robin pays Bailey
 		// Used to unlock taking on Robin's debt, stop Robin's night visit that reveals it, and change lines about rent
 		"pcKnowsRobinPaysBailey",
@@ -137,6 +152,15 @@ const VALID_MEMORIES = {
 		// If Robin has seen the PC's big breasts during an encounter
 		// Used so Robin's surprised line only plays the first time
 		"sawPcBigBreasts",
+		// If Robin has seen the PC's chastity device during an encounter
+		// Used so Robin's reaction only plays the first time
+		"sawPcChastity",
+		// If Robin has seen the PC's huge penis during an encounter
+		// Used so Robin's surprised line only plays the first time
+		"sawPcHugePenis",
+		// If Robin has noticed the PC's sex skill during consensual sex
+		// Used so Robin's surprised line only plays the first time
+		"sawPcSexSkill",
 
 		// If Robin was stripped naked in the pillory
 		// Used to change Robin's pillory encounter lines
