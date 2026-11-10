@@ -1670,7 +1670,7 @@ function dailyNPCEffects() {
 			if (V.ivoryWraith.compound.chance >= random(5, 60 - C.npc["Ivory Wraith"].lust)) {
 				V.ivoryWraith.compound.waitingForPc = true;
 				delete V.ivoryWraith.compound.chance;
-				V.ivoryWraith.compound.showMistMessage = 1;
+				V.ivoryWraith.compound.showMistMessage = true;
 				V.effectsmessage = 1;
 			}
 		} else if (V.ivoryWraith.compound.cooldownDaysLeft > 0) V.ivoryWraith.compound.cooldownDaysLeft--;
