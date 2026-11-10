@@ -1124,7 +1124,8 @@ setup.debugMenu.eventList = {
 			widgets: [
 				`<<set $outside to 0>>`,
 				`<<set $location to 'lake_ruin'>>`,
-				`<<set $wraithPrison to {timer: 0, timePassed: 0, search: 0, state: "present", possession: false, masturbation: false}>>`,
+				`<<run Memories.IvoryWraith.add("foundUnderwaterPrison")>>`,
+				`<<set $ivoryWraith.prison to {minutesUntilReturn: 0, minutesSpent: 0, searchProgress: 0, presence: "present", possessedPc: false, madePcMasturbate: false}>>`,
 				`<<set $lakeRuin ??= {}>><<set $lakeRuin.rune to true>>`,
 			],
 		},

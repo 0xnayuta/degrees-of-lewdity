@@ -1657,7 +1657,7 @@ function dailyNPCEffects() {
 		V.ivoryWraith.daysActive++;
 		if (
 			V.ivoryWraith.daysActive >= 31 &&
-			V.wraithIntro &&
+			Memories.IvoryWraith.has("firstEncounter") &&
 			!V.ivoryWraith.compound.cooldownDaysLeft &&
 			!V.ivoryWraith.compound.waitingForPc &&
 			V.compound.discovered

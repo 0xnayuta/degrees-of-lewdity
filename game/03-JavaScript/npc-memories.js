@@ -440,6 +440,26 @@ const VALID_MEMORIES = {
 		// Used so Winter doesn't ask if the PC has been going to the mines when they hand in the rusty pickaxe
 		"pcToldWherePurpleDiamondWasFound",
 	],
+	"Ivory Wraith": [
+		// If the PC has met the Ivory Wraith
+		// Used to play its first meeting when it catches the PC during a blood moon, to unlock its events and appearances, and to show it in the sidebar and the NPC settings
+		"firstEncounter",
+		// If the PC has reached the underwater prison beneath the lake
+		// Used to unlock the Wraith's blood moon mirror scenes and to change some prison and Schism vision text
+		"foundUnderwaterPrison",
+		// If the Wraith joined Remy's encroachment on the farm
+		// Used to change future encounters, and so the PC can tell Gwylan about it
+		"joinedFarmAssault",
+		// If the PC watched the Schism vision to the end
+		// Used to unlock apologising to the Wraith, to lower its obsession, and to change its lines in encounters
+		"pcFinishedSchismVision",
+		// If the Wraith possessed the PC and walked them through the Elk compound
+		// Not currently used
+		"possessedPcAtCompound",
+		// If the Wraith appeared over a living pale offspring and told the PC to keep it safe
+		// Used so its first appearance over a living pale offspring always happens, and so the warning only plays once
+		"toldPcToKeepOffspringSafe",
+	],
 };
 
 /**
@@ -560,6 +580,11 @@ const Memories = {
 		add: memory => addMemory("Winter", memory),
 		has: memory => hasMemory("Winter", memory),
 		delete: memory => deleteMemory("Winter", memory),
+	},
+	IvoryWraith: {
+		add: memory => addMemory("Ivory Wraith", memory),
+		has: memory => hasMemory("Ivory Wraith", memory),
+		delete: memory => deleteMemory("Ivory Wraith", memory),
 	},
 };
 window.Memories = Memories;

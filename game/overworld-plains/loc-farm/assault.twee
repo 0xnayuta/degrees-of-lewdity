@@ -618,12 +618,12 @@ You hear shouting outside.
 		<<for _s to 0; _s lt _assault_keys.length; _s++>>
 			<<if $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
 				<<if $farm_assault.teams[_assault_keys[_s]].location is "done">>
-					<span class="green">The <<farm_assault_thugs>> is walking away, like <<print $ivoryWraith.seenFarm ? "it's" : "they've">> lost interest.</span>
+					<span class="green">The <<farm_assault_thugs>> is walking away, like <<print Memories.IvoryWraith.has("joinedFarmAssault") ? "it's" : "they've">> lost interest.</span>
 					<<if $ivoryWraith.timesMetPc gte 5 and !$farm_assault.wraithStress>>
 						<<stress -6>><<lstress>><<set $farm_assault.wraithStress to true>>
 					<</if>>
 				<<else>>
-					<<if _skill gte random(400, 1400) or !$ivoryWraith.seenFarm>>
+					<<if _skill gte random(400, 1400) or !Memories.IvoryWraith.has("joinedFarmAssault")>>
 						<<switch $farm_assault.teams[_assault_keys[_s]].state>>
 						<<case wall>>
 							The <<farm_assault_thugs>> is <span class="purple">walking through the <<print $farm.wall gte 3 ? "fence" : "wall">></span>.
@@ -788,7 +788,7 @@ You hear shouting outside.
 		<<case "bailey">>
 			<<set _text_output to "<span class=\"red\">Bailey's thugs</span>">>
 		<<case "wraith">>
-			<<if $ivoryWraith.seenFarm>>
+			<<if Memories.IvoryWraith.has("joinedFarmAssault")>>
 				<<set _text_output to "<span class=\"wraith\">pale figure</span>">>
 			<<else>>
 				<<set _text_output to "<span class=\"black\">shifty stranger</span>">>
@@ -957,15 +957,15 @@ You hear shouting outside.
 					<<elseif $_isWraith>>
 						<<set _noOptions to true>>
 						You see the <<farm_assault_thugs>> approach you.
-						<<if !$wraithIntro>>
-							<<set $wraithIntro to true>>
+						<<if !Memories.IvoryWraith.has("firstEncounter")>>
+							<<run Memories.IvoryWraith.add("firstEncounter")>>
 							They're a beautiful pale figure, wearing translucent white robes. They regard you with angry red eyes, clutching at their own neck. A bizarre, slimy substance leaks wherever they walk.
-						<<elseif !$ivoryWraith.seenFarm>>
+						<<elseif !Memories.IvoryWraith.has("joinedFarmAssault")>>
 							<span class="red">Their face is a terrible, familiar pale.</span> A bizarre, slimy substance leaks wherever it walks.
 						<<else>>
 							It smiles a terrible, familiar smile. A bizarre, slimy substance leaks wherever it walks.
 						<</if>>
-						<<set $ivoryWraith.seenFarm to true>>
+						<<run Memories.IvoryWraith.add("joinedFarmAssault")>>
 						<br><br>
 
 						"<span class="wraith">Drown in smoke. Drown in flame.</span>"
@@ -1047,7 +1047,7 @@ You hear shouting outside.
 				<<elseif $_team.state is "field">>
 					<<if $_isWraith>>
 						You see the <<farm_assault_thugs>> wandering in the field.
-						<<if !$ivoryWraith.seenFarm>>
+						<<if !Memories.IvoryWraith.has("joinedFarmAssault")>>
 							They don't look like they're doing anything.
 						<<else>>
 							<span class="purple">You suspect it's spreading flammable slime.</span>
@@ -1137,7 +1137,7 @@ You hear shouting outside.
 			<<set $skulduggerydifficulty to 1000>>
 			<<link [[Pick one off (0:05)|Farm Assault Pick Bailey]]>><<pass 5>><</link>><<skulduggerydifficulty>>
 		<<elseif $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
-			<<set $_them to $ivoryWraith.seenFarm ? "it" : "them">>
+			<<set $_them to Memories.IvoryWraith.has("joinedFarmAssault") ? "it" : "them">>
 			<<link [["Fight " + $_them + " head on"|Farm Assault Intercept Wraith]]>><</link>>
 		<<else>>
 			<<link [[Fight them head-on (0:05)|Farm Assault Intercept]]>><<pass 5>><</link>>
@@ -2448,10 +2448,10 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 :: Farm Assault Intercept Wraith
 <<effects>><<set _assault_keys to Object.keys($farm_assault.teams)>>
 
-<<if !$wraithIntro>>
-	<<set $wraithIntro to true>>
+<<if !Memories.IvoryWraith.has("firstEncounter")>>
+	<<run Memories.IvoryWraith.add("firstEncounter")>>
 	You charge at the stranger. They're a beautiful pale figure, with translucent white robes and flowing silver hair. They regard you with angry red eyes, clawing at their own neck. A bizarre, slimy substance leaks wherever they walk.
-<<elseif !$ivoryWraith.seenFarm>>
+<<elseif !Memories.IvoryWraith.has("joinedFarmAssault")>>
 	You charge at the stranger. They turn to look at you and chuckle. <span class="red">Their face is a terrible, familiar pale.</span> A bizarre, slimy substance leaks wherever it walks.
 <<else>>
 	You charge at the pale figure. It turns to look at you and chuckles. A bizarre, slimy substance leaks wherever it walks.
@@ -2462,7 +2462,7 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 <br><br>
 
 <<generateWraith 1 true>>
-<<initWraith "man" "arms" "abomination">><<startWraith>><<set $ivoryWraith.seenFarm to true>>
+<<initWraith "man" "arms" "abomination">><<startWraith>><<run Memories.IvoryWraith.add("joinedFarmAssault")>>
 An ember crackles at <<his>> finger. <span class="red">The slime begins to spread across the field on its own.</span>
 <br><br>
 
