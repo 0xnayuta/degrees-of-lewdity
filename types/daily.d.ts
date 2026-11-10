@@ -37,6 +37,8 @@ declare global {
 		sam: SamDaily;
 		/** The museum's once-a-day flags, unset at midnight. */
 		museum: MuseumDaily;
+		/** The Ivory Wraith's once-a-day flags, unset at midnight. */
+		ivoryWraith: IvoryWraithDaily;
 	}
 }
 
