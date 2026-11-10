@@ -104,7 +104,17 @@ setup.hair = {
 		{
 			/* immune to being ruined (because devolve list is empty) */
 			name: "special",
-			list: ["dreads", "shaved", "dread bun", "bantu knots", "cornrows", "dreadlock twintails", "french curl ponytail", "french curls", "voluminous curls",],
+			list: [
+				"dreads",
+				"shaved",
+				"dread bun",
+				"bantu knots",
+				"cornrows",
+				"dreadlock twintails",
+				"french curl ponytail",
+				"french curls",
+				"voluminous curls",
+			],
 			devolve: [],
 		},
 	],
@@ -173,7 +183,19 @@ setup.hair = {
 		{
 			/* immune to being ruined (because devolve list is empty) */
 			name: "special",
-			list: ["fro", "dreads", "curtain locks", "bantu crown", "cornrows", "droopy locks", "framing locks", "french curls", "heart rows", "star rows", "voluminous curls",],
+			list: [
+				"fro",
+				"dreads",
+				"curtain locks",
+				"bantu crown",
+				"cornrows",
+				"droopy locks",
+				"framing locks",
+				"french curls",
+				"heart rows",
+				"star rows",
+				"voluminous curls",
+			],
 			devolve: [],
 		},
 	],
