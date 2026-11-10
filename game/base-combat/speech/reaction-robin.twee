@@ -29,12 +29,12 @@
 						`<<He>> smiles, beaming with pride and joy.`
 					)>>
 				<</if>>
-				<<if !$robin.sex.encounterLinesSaid.includes("moanDom")>>
-					<<set $robin.sex.encounterLinesSaid.pushUnique("moanDom")>>
+				<<if !$robin.sex.encounterLinesSaid.includes("domFromPcMoan")>>
+					<<set $robin.sex.encounterLinesSaid.pushUnique("domFromPcMoan")>>
 					<<npcincr Robin dom 1>><<gdom>>
 				<</if>>
-				<<if _moanHeal and !$robin.sex.encounterLinesSaid.includes("moanHeal")>>
-					<<set $robin.sex.encounterLinesSaid.pushUnique("moanHeal")>>
+				<<if _moanHeal and !$robin.sex.encounterLinesSaid.includes("traumaHealFromPcMoan")>>
+					<<set $robin.sex.encounterLinesSaid.pushUnique("traumaHealFromPcMoan")>>
 					<<npcincr Robin trauma -1>><<lrtrauma>>
 				<</if>>
 			<</addPairedSpeechLine>>
@@ -43,7 +43,7 @@
 				<<pcLine>>"I'm gonna melt, you're making me so happy."
 			<<npcLine>>
 				<<if C.npc.Robin.trauma gte 60>>
-					<<His>> eyes become glassy. "I'm very happy too you're here with me."
+					<<His>> eyes become glassy. "I'm very happy that you're here with me too."
 					<<set _moanHeal to true>>
 				<<elseif C.npc.Robin.trauma gte 20>>
 					<<He>> lets out a dry chuckle. "I-is that so? You're making me very happy too."
@@ -53,15 +53,61 @@
 				<<else>>
 					"Aww. I'll make sure you don't wash away when you become a puddle," <<he>> chuckles.
 				<</if>>
-				<<if !$robin.sex.encounterLinesSaid.includes("moanDom")>>
-					<<set $robin.sex.encounterLinesSaid.pushUnique("moanDom")>>
+				<<if !$robin.sex.encounterLinesSaid.includes("domFromPcMoan")>>
+					<<set $robin.sex.encounterLinesSaid.pushUnique("domFromPcMoan")>>
 					<<npcincr Robin dom 1>><<gdom>>
 				<</if>>
-				<<if _moanHeal and !$robin.sex.encounterLinesSaid.includes("moanHeal")>>
-					<<set $robin.sex.encounterLinesSaid.pushUnique("moanHeal")>>
+				<<if _moanHeal and !$robin.sex.encounterLinesSaid.includes("traumaHealFromPcMoan")>>
+					<<set $robin.sex.encounterLinesSaid.pushUnique("traumaHealFromPcMoan")>>
 					<<npcincr Robin trauma -1>><<lrtrauma>>
 				<</if>>
 			<</addPairedSpeechLine>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "reaction-robin-choke">>
+	<<if C.npc.Robin.dom gte 70>>
+		"Tell me if it hurts, alright?" <<he>> says as <<his>> fingers wrap around your neck.
+	<<elseif C.npc.Robin.dom lte 30>>
+		"I'm not sure, but I'll try!" <<He>> gingerly wraps <<his>> fingers around your neck.
+	<<else>>
+		"I'd like to try this for you," <<he>> says as <<his>> fingers wrap around your neck. "Tell me if you want to stop, okay?"
+	<</if>>
+<</widget>>
+
+/* When a low dom Robin asks "S-should I move away?" while facesitting, getting a rimjob, a blowjob, or oral, Robin pulls away from the PC's face. */
+<<widget "reaction-robin-pullAway">>
+	<<set _robinIndex to $NPCList.findIndex(npc => npc.fullDescription === "Robin")>>
+	<<if ["mouth", "mouthotheranus"].includes($NPCList[_robinIndex].penis)>>
+		<<set $NPCList[_robinIndex].penis to 0>>
+	<</if>>
+	<<if ["facesit", "facesitanal", "mouth", "mouthotheranus"].includes($NPCList[_robinIndex].vagina)>>
+		<<set $NPCList[_robinIndex].vagina to 0>>
+	<</if>>
+	<<set $NPCList[_robinIndex].location.genitals to 0>><<set $mouthuse to 0>><<set $mouthstate to 0>>
+	<span class="lblue">Robin pulls away from you, concerned.</span>
+<</widget>>
+
+/* When Robin's genitals are uncovered, by Robin undressing or by the PC undressing Robin.
+   _args[0] is Robin's $NPCList index */
+<<widget "reaction-robin-expose">>
+	<<if $NPCList[_args[0]].penis isnot "clothed" and $NPCList[_args[0]].vagina isnot "clothed">>
+		<<if C.npc.Robin.dom gte 70>>
+			<<print either(
+				`<<He>> chuckles. "What do you think?"`,
+				`<<He>> smiles. "As long as it's you, you can look as much as you want."`
+			)>>
+		<<elseif C.npc.Robin.dom lte 30>>
+			<<print either(
+				`<<He>> smiles, blushing. "I-I only want you to see me like this."`,
+				`<<He>> looks away, blushing. "Just don't look too close, please."`
+			)>>
+		<<else>>
+			<<print either(
+				`<<He>> smiles. "I hope you like what you see."`,
+				`<<He>> giggles. "Only you get to see me like this."`
+			)>>
 		<</if>>
 	<</if>>
 <</widget>>
