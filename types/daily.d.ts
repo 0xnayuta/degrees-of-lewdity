@@ -39,6 +39,9 @@ declare global {
 		museum: MuseumDaily;
 		/** The Ivory Wraith's once-a-day flags, unset at midnight. */
 		ivoryWraith: IvoryWraithDaily;
+
+		/** If a wolf pack hunt failed today. Lets two wolves harass the PC in the cave once, then it's unset. */
+		wolfHuntFailed?: true;
 	}
 }
 
