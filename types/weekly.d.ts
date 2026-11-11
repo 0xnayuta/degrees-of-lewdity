@@ -66,6 +66,8 @@ declare global {
 		winter: WinterWeekly;
 		/** The Ivory Wraith's once-a-week flags, unset when the week ends. */
 		ivoryWraith: IvoryWraithWeekly;
+		/** Doren's once-a-week flags, unset when the week ends. */
+		doren: DorenWeekly;
 	}
 }
 

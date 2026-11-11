@@ -1,0 +1,54 @@
+:: Widgets NNPC Cleanup Migration Doren [widget]
+<<widget "nnpcCleanupMigrationDoren">>
+	<<set $doren ??= {
+		timesPcAskedToShower: 0
+	}>>
+	<<set $weekly.doren ??= {}>>
+	<<set $monthly.doren ??= {}>>
+
+	<!-- Doren's $dorenSeen and one-time flags moved into Doren's memories -->
+	<<if $dorenSeen>>
+		<<set _dorenSeenRenames to {
+			avery_skyscraper_rescue: "joinedSkyscraperRescue",
+			shower_ask: "pcAskedToShowerTogether",
+			soup_kitchen: "firstSoupKitchenMeeting",
+		}>>
+		<<for _memory range $dorenSeen>>
+			<<run $npcMemories.Doren.pushUnique(_dorenSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $dorenSeen>>
+	<</if>>
+	<<if $dorenhonest>><<run Memories.Doren.add("pcToldAboutAttacks")>><</if>>
+	<<if $dorenintro>><<run Memories.Doren.add("tookPcToFlat")>><</if>>
+	<<unset $dorenhonest $dorenintro>>
+
+	<!-- Doren's variables moved onto $doren -->
+	<<if $dorenShowerAsk isnot undefined>>
+		<<set $doren.timesPcAskedToShower to $dorenShowerAsk>>
+		<<unset $dorenShowerAsk>>
+	<</if>>
+	<!-- Hot chocolate price was always twice the number of cups, so only keeping the cups variable. -->
+	<<if $dorenhotchocoamount isnot undefined>>
+		<<set $doren.hotChocolateCupsOrdered to $dorenhotchocoamount>>
+	<</if>>
+	<<unset $dorenhotchocoamount $dorenhotchocoprice>>
+
+	<!-- Doren's weekly and monthly flags moved into $weekly.doren and $monthly.doren -->
+	<<for _oldName, _newName range {
+		dorenparkmeet: "metPcAtLittleLibrary",
+		dorenchocolatebuy: "boughtFromHotChocolateStand",
+		dorenlemonadebuy: "boughtFromLemonadeStand",
+	}>>
+		<<if $weekly[_oldName] isnot undefined>>
+			<<set $weekly.doren[_newName] to $weekly[_oldName]>>
+			<<run delete $weekly[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $monthly.volunteer isnot undefined>>
+		<<set $monthly.doren.pcVolunteeredAtBeach to $monthly.volunteer>>
+		<<run delete $monthly.volunteer>>
+	<</if>>
+
+	<!-- $volunteer is never read -->
+	<<unset $volunteer>>
+<</widget>>
