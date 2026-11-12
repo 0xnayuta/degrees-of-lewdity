@@ -1,0 +1,65 @@
+:: Widgets Museum Cleanup Migration [widget]
+<<widget "museumCleanupMigration">>
+	<<set $museum ??= {}>>
+	<<set $museum.demonstrations ??= {}>>
+	<<set $daily.museum ??= {}>>
+
+	<!-- The museum's variables moved onto $museum -->
+	<<if $museuminterest isnot undefined>>
+		<<set $museum.publicInterest to $museuminterest>>
+	<</if>>
+	<<set $museum.publicInterest ??= 0>>
+	<<if $winterHint isnot undefined and $winterHint isnot "notGiven">>
+		<<set $museum.antiqueHint to $winterHint>>
+	<</if>>
+	<<unset $museuminterest $winterHint>>
+
+	<!-- Winter's demonstrations moved onto $museum.demonstrations -->
+	<<set _demonstrationRenames to {
+		museumhorseintro: "horseDemonstration",
+		museumduckintro: "duckingStoolDemonstration",
+		museumfamoushorseintro: "paidHorseDemonstration",
+	}>>
+	<<for _oldName, _newName range _demonstrationRenames>>
+		<<if V[_oldName] is 0>>
+			<<set $museum.demonstrations[_newName] to "asked">>
+		<<elseif V[_oldName] is 1>>
+			<<set $museum.demonstrations[_newName] to "agreed">>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+	<<if $wintersafeword isnot undefined>>
+		<<set $museum.demonstrations.safeWord to $wintersafeword>>
+	<</if>>
+	<<if $museumhorse>>
+		<<set $museum.demonstrations.horseDoneThisWeek to true>>
+	<</if>>
+	<<if $museumduck>>
+		<<set $museum.demonstrations.duckingStoolDoneThisWeek to true>>
+	<</if>>
+	<<if $museumDemoReward isnot undefined>>
+		<<set $museum.demonstrations.paidHorseShowPay to $museumDemoReward>>
+	<</if>>
+	<<if $museum_horse_success>>
+		<<set $museum.demonstrations.pcEnduredHorse to true>>
+	<</if>>
+	<<if $museum_stool_success>>
+		<<set $museum.demonstrations.pcEnduredDuckingStool to true>>
+	<</if>>
+	<<unset $wintersafeword $museumhorse $museumduck $museumDemoReward $museum_horse_success $museum_stool_success>>
+
+	<!-- The painting story daily flag moved into $daily.museum -->
+	<<if $daily.winterStoryTime isnot undefined>>
+		<<set $daily.museum.toldPaintingStory to $daily.winterStoryTime>>
+	<</if>>
+	<<run delete $daily.winterStoryTime>>
+
+	<!-- Antique money camelCased -->
+	<<if $antiquemoney isnot undefined>>
+		<<set $antiqueMoney to $antiquemoney>>
+	<</if>>
+	<<if $antiquemoneyhistory isnot undefined>>
+		<<set $antiqueMoneyHistory to $antiquemoneyhistory>>
+	<</if>>
+	<<unset $antiquemoney $antiquemoneyhistory>>
+<</widget>>

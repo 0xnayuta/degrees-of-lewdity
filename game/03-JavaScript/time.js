@@ -626,7 +626,7 @@ function dayPassed() {
 	V.physiquechange = 1;
 	V.home_event_timer--;
 	V.park_fame = Math.clamp(V.park_fame - 7, 0, 100);
-	V.museuminterest = Math.clamp(V.museuminterest - (V.museuminterest >= 60 ? 5 : 2), 0, 100);
+	V.museum.publicInterest = Math.clamp(V.museum.publicInterest - (V.museum.publicInterest >= 60 ? 5 : 2), 0, 100);
 
 	if (V.gamemode !== "hard" && V.uncomfortable.lewd) {
 		V.exhibitionism = Math.max(V.exhibitionism - 1, 0);
@@ -655,8 +655,8 @@ function dayPassed() {
 	}
 
 	if (Time.weekDay === 2) {
-		delete V.museumhorse;
-		delete V.museumduck;
+		delete V.museum.demonstrations.horseDoneThisWeek;
+		delete V.museum.demonstrations.duckingStoolDoneThisWeek;
 	}
 
 	if (V.medicated) V.medicated = Math.max(Math.trunc((V.medicated - 1) * 0.5), 0);
@@ -991,7 +991,7 @@ function dayPassed() {
 		V.robin.punishment.pillory.active = true;
 
 	// Save today's HC ending in local storage
-	if (V.daily.winterStoryTime && V.hcEndings)
+	if (V.daily.museum.toldPaintingStory && V.hcEndings)
 		localStorage.setItem("hopelessCycle", localStorage.getItem("hopelessCycle").split(",").concatUnique(V.hcEndings));
 
 	// Reset the daily stats
@@ -1354,7 +1354,7 @@ function dailyNPCEffects() {
 	delete V.robin.locationOverride;
 
 	// Winter
-	if (Time.weekDay === 7) V.winterHint = "notGiven";
+	if (Time.weekDay === 7) delete V.museum.antiqueHint;
 
 	// Whitney
 	if (C.npc.Whitney.lust >= 1) {
@@ -2072,7 +2072,7 @@ function yearlyEventChecks() {
 		delete V.halloween_whitney;
 		delete V.halloween_whitney_proposed;
 		V.robin.halloween = {};
-		delete V.halloween_winter_key;
+		delete V.winter.searchedCupboardsThisHalloween;
 		delete V.halloween_eden;
 		delete V.halloween_eden_bought;
 		delete V.halloween_eden_candy_given;

@@ -551,7 +551,7 @@ function initSpecialClothes() {
 		museum_rags: {
 			text: "rags from the museum",
 			// Second case is for legacy compatibility, because the museum rags were previously feat-locked for some reason
-			requirements: () => V.museum_horse_success && V.museum_stool_success || V.feats?.currentSave["Pain Rider"] !== undefined && V.feats?.currentSave.Submerged !== undefined,
+			requirements: () => V.museum?.demonstrations.pcEnduredHorse && V.museum?.demonstrations.pcEnduredDuckingStool || V.feats?.currentSave["Pain Rider"] !== undefined && V.feats?.currentSave.Submerged !== undefined,
 			hint: "demonstrate historical torture devices to completion",
 			shop: ["forest"],
 			subsetOf: ["historic"],
