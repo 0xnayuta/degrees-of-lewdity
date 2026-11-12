@@ -1628,16 +1628,12 @@ function dailyNPCEffects() {
 
 	// Wren
 	if (C.npc.Wren.state === "active") {
-		if (V.wrenHeistMonthly > 0) V.wrenHeistMonthly--;
-		else if (V.wrenHeistMonthly === 0) {
-			delete V.wrenHeist;
-			delete V.wrenHeistMonthly;
-		}
+		if (V.wren.heist.daysUntilNextOffer > 0) V.wren.heist.daysUntilNextOffer--;
+		else if (V.wren.heist.daysUntilNextOffer === 0) delete V.wren.heist.daysUntilNextOffer;
 
-		if (V.wrenHeist) {
-			V.wrenHeist = false;
-			if (V.wrenHeistDance.attended !== true) V.wrenHeistMissed = true;
-			delete V.wrenHeistDance;
+		if (V.wren.heist.tonight) {
+			if (V.wren.heist.tonight.pcArrived !== true) V.wren.heist.pcMissedLast = true;
+			delete V.wren.heist.tonight;
 		}
 	}
 

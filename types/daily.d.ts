@@ -41,6 +41,8 @@ declare global {
 		ivoryWraith: IvoryWraithDaily;
 		/** Mason's once-a-day flags, unset at midnight. */
 		mason: MasonDaily;
+		/** Wren's once-a-day flags, unset at midnight. */
+		wren: WrenDaily;
 	}
 }
 

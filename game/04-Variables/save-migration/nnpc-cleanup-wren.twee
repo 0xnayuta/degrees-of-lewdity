@@ -1,0 +1,86 @@
+:: Widgets NNPC Cleanup Migration Wren [widget]
+<<widget "nnpcCleanupMigrationWren">>
+	<<set $wren ??= {
+		prisonNamesGiven: [],
+		heist: {}
+	}>>
+	<<set $daily.wren ??= {}>>
+
+	<!-- Wren's $wrenSeen and one-time flags moved into Wren's memories -->
+	<<set _wrenSeenRenames to {
+		cards: "metPcAtEstate",
+		catsuit: "caughtPcAtDocksCatsuit",
+		favouriteFlower: "toldPcFavouriteFlower",
+		heist: "didHeistWithPc",
+		letter: "pcDeliveredMickeysLetter",
+		moorhigh: "pulledPcBackOnHighMoor",
+		pregnancy: "carriedLabouringPcOutOfBeachCave",
+		prison: "metPcInPrison",
+		winter: "metPcWithWinter",
+	}>>
+	<<if $wrenSeen>>
+		<<for _memory range $wrenSeen>>
+			<<run $npcMemories.Wren.pushUnique(_wrenSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $wrenSeen>>
+	<</if>>
+	<<if Memories.Wren.has("didHeistWithPc") or $wrenHeistDance?.car>><<run Memories.Wren.add("pcSawCar")>><</if>>
+	<<if $wren_intro isnot undefined>><<run Memories.Wren.add("toldPcName")>><</if>>
+	<<if $smuggler_pub_wren>><<run Memories.Wren.add("metPcAtSmugglerPub")>><</if>>
+	<<if $prison and $prison_wren_intro isnot 1>><<run Memories.Wren.add("metPcInPrison")>><</if>>
+	<<if $prison and $prison_wren_boat_intro isnot 1>><<run Memories.Wren.add("sawPcOnPrisonBeach")>><</if>>
+	<<if $prison?.wren_names gte 1>><<run Memories.Wren.add("pcAskedForPrisonPassage")>><</if>>
+	<<if $prison?.wren_names is 2>><<run Memories.Wren.add("pcGavePrisonNames")>><</if>>
+	<<if $wrenHeistCricketBall isnot undefined>><<run Memories.Wren.add("pcStoleCricketBall")>><</if>>
+	<<if $wrenHeistCricketBall is false>><<run Memories.Wren.add("mentionedStolenCricketBall")>><</if>>
+	<<if $loft_wren gte 1>><<run Memories.Wren.add("pcToldAboutLoft")>><</if>>
+	<<if $loft_wren gte 2>><<run Memories.Wren.add("uncoveredOrphanageWell")>><</if>>
+	<<if $loft_wren gte 3>><<run Memories.Wren.add("pcAskedAboutWell")>><</if>>
+	<<run delete $prison?.wren_names>>
+	<<unset $wren_intro $smuggler_pub_wren $prison_wren_intro $prison_wren_boat_intro $wrenHeistCricketBall $loft_wren>>
+
+	<!-- Wren's last meeting uses the memory names -->
+	<<if $wrenSeenLast isnot undefined>>
+		<<set $wren.lastMetAt to _wrenSeenRenames[$wrenSeenLast] ?? $wrenSeenLast>>
+		<<unset $wrenSeenLast>>
+	<</if>>
+
+	<!-- Wren's prison name flags moved into one list -->
+	<<for _oldName, _newName range {
+		prison_wren_scarred: "scarredInmate",
+		prison_wren_relaxed: "relaxedGuard",
+		prison_wren_veteran: "veteranGuard",
+		prison_wren_methodical: "methodicalGuard",
+	}>>
+		<<if V[_oldName] is 1>>
+			<<run $wren.prisonNamesGiven.pushUnique(_newName)>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+
+	<!-- Wren's heist moved onto $wren.heist -->
+	<<if $wrenHeistMonthly isnot undefined>>
+		<<set $wren.heist.daysUntilNextOffer to $wrenHeistMonthly>>
+	<</if>>
+	<<if $wrenHeistMissed is true>>
+		<<set $wren.heist.pcMissedLast to true>>
+	<</if>>
+	<<if $wrenHeistDance>>
+		<<set $wren.heist.tonight to {}>>
+		<<for _oldName, _newName range {
+			profits: "profitSplit",
+			attended: "pcArrived",
+			phase: "round",
+			blackMoney: "loot",
+			sneak: "pcSawWrenPocketSomething",
+		}>>
+			<<if $wrenHeistDance[_oldName] isnot undefined>>
+				<<set $wren.heist.tonight[_newName] to $wrenHeistDance[_oldName]>>
+			<</if>>
+		<</for>>
+		<<if $wrenHeistDance.help is false>>
+			<<set $wren.heist.tonight.pcLostKitchenFight to true>>
+		<</if>>
+	<</if>>
+	<<unset $wrenHeist $wrenHeistMonthly $wrenHeistMissed $wrenHeistDance>>
+<</widget>>

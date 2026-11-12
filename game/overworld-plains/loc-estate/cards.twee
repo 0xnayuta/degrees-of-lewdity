@@ -3,13 +3,13 @@
 
 <<npc "Wren">><<person1>>
 <<generate2>><<generate3>><<generate4>><<generate5>><<generate6>>
-<<if $wren_intro is undefined>>
+<<if !Memories.Wren.has("toldPcName")>>
 	"Sneaking where we don't belong?" says a young <<woman_npc>> with <<if $pronoun is "m">>short<<else>>shoulder-length<</if>> hair.
-	<<if $wrenSeenLast is "pregnancy">>
+	<<if $wren.lastMetAt is "carriedLabouringPcOutOfBeachCave">>
 		<span class="gold">It's the person who rescued you when you were in labour.</span> "Dangerous caves aren't the only place you like to poke around, I guess. <<= playerBellyVisible() ? "Already knocked up again, huh?" : "At least you're otherwise staying out of trouble.">>" <<He>> nods at your belly, flashing an amused grin. "Try not to pass out this time."
-	<<elseif $wrenSeenLast is "catsuit">>
+	<<elseif $wren.lastMetAt is "caughtPcAtDocksCatsuit">>
 		<span class="gold">It's Wren.</span> "Just like you were when we met at the docks." <<He>> doesn't look armed this time.
-	<<elseif $wrenSeenLast is "prison">>
+	<<elseif $wren.lastMetAt is "metPcInPrison">>
 		<span class="gold">It's Wren.</span> "Hope you stay out of prison this time."
 	<<else>>
 		"Naughty."
@@ -26,15 +26,17 @@
 	<</if>>
 <<else>>
 
-	<<if $wrenHeistMissed is true or ($wrenHeist is true and $wrenHeistDance.attended isnot true and Time.hour gte 21)>>
-		"Look who it is," Wren says. "You stood me up," <<= C.npc.Wren.love gte 40 ? "You know Wren well enough by now to see" : "You can't tell if">> <<hes>> hurt. "Luckily, I didn't need your help."<<npcincr Wren love -1>><<llove>><<set $wrenHeist to false>><<set $wrenHeistMonthly to 30>><<unset $wrenHeistMissed>><<unset $wrenHeistDance>>
-	<<elseif $wrenSeenLast is "letter">>
+	<<if $wren.heist.pcMissedLast or ($wren.heist.tonight and !$wren.heist.tonight.pcArrived and Time.hour gte 21)>>
+		"Look who it is," Wren says. "You stood me up," <<= C.npc.Wren.love gte 40 ? "You know Wren well enough by now to see" : "You can't tell if">> <<hes>> hurt. "Luckily, I didn't need your help."<<npcincr Wren love -1>><<llove>><<set $wren.heist.daysUntilNextOffer to 30>><<unset $wren.heist.pcMissedLast>><<unset $wren.heist.tonight>>
+	<<elseif $wren.lastMetAt is "didHeistWithPc" or (Memories.Wren.has("pcStoleCricketBall") and !Memories.Wren.has("mentionedStolenCricketBall"))>>
+		"Look who it is," Wren says. "Fancy seeing you here, partner.<<if Memories.Wren.has("pcStoleCricketBall") and !Memories.Wren.has("mentionedStolenCricketBall")>> You owe me. Big.<<run Memories.Wren.add("mentionedStolenCricketBall")>><</if>>"
+	<<elseif $wren.lastMetAt is "pcDeliveredMickeysLetter">>
 		"Look who it is," Wren says. "Got another letter for me<<if $farm_stage gte 5>>, or are you up for a game<</if>>?"
-	<<elseif $wrenSeenLast is "winter">>
+	<<elseif $wren.lastMetAt is "metPcWithWinter">>
 		"Look who it is," Wren says. "Taking a break from helping the fossil dig up graves?"
-	<<elseif $wrenSeenLast is "catsuit">>
+	<<elseif $wren.lastMetAt is "caughtPcAtDocksCatsuit">>
 		"Look who it is," Wren says. "It was fun to run into you during work."
-	<<elseif $wrenSeenLast is "pregnancy">>
+	<<elseif $wren.lastMetAt is "carriedLabouringPcOutOfBeachCave">>
 		"Look who it is," Wren says. "I didn't expect to see you poking around that cave. Naughty <<girl>>." <<His>> eyes land on your belly.
 		<<if playerBellyVisible()>>
 			"You're already knocked up again?" <<He>> laughs. "Careful not to pass out this time.
@@ -42,8 +44,6 @@
 			"At least you're otherwise staying out of trouble. Mind where you pass out next time.
 		<</if>>
 		I won't always be around to save you."
-	<<elseif $wrenSeenLast is "heist">>
-		"Look who it is," Wren says. "Fancy seeing you here, partner.<<if $wrenHeistCricketBall is true>> You owe me. Big.<<set $wrenHeistCricketBall to false>><</if>>"
 	<<elseif $estate_cards_end is "naked">>
 		"Look who it is," Wren says, a smug smile on <<his>> face. "We left you with nothing last time. Hope the journey home wasn't too cold." <<His>> friends laugh.
 	<<elseif $estate_cards_end is "left_early">>
@@ -78,8 +78,8 @@
 	<</if>>
 	<<unset $estate_cards_end>>
 <</if>>
-<<set $wrenSeen.pushUnique("cards")>>
-<<set $wrenSeenLast to "cards">>
+<<run Memories.Wren.add("metPcAtEstate")>>
+<<set $wren.lastMetAt to "metPcAtEstate">>
 
 <br><br>
 <<cards_start_play_options>>
@@ -88,7 +88,7 @@
 <<effects>><<set $outside to 0>>
 
 You turn to leave.
-<<if $wren_intro is undefined>>
+<<if !Memories.Wren.has("toldPcName")>>
 	"Suit yourself," says the young <<personSimple>>. "Come back when there's something you want."
 <<else>>
 	"Suit yourself," Wren says. "Come back when there's something you want."
@@ -347,7 +347,7 @@ Wren smiles. "Alright, it's decided then," <<he>> says. "So, wanna play?"
 :: Estate Cards Run
 <<effects>>
 <!-- estate ends 7 and 8 -->
-<<if $wren_intro isnot undefined>>
+<<if Memories.Wren.has("toldPcName")>>
 	<<set $estate_cards_end to "run">>
 <</if>>
 <<if $estate.cards.state is "ride">>
@@ -404,7 +404,7 @@ Wren smiles. "Alright, it's decided then," <<he>> says. "So, wanna play?"
 You turn and run.
 <!-- estate ends 5 and 6 -->
 <<if $athleticsSuccess>>
-	<<if $wren_intro isnot undefined>>
+	<<if Memories.Wren.has("toldPcName")>>
 		<<set $estate_cards_end to "cheat_run">>
 	<</if>>
 
@@ -447,7 +447,7 @@ You turn and run.
 <<set _plead_success to (_plead_points gte $estate._plead_required_points)>>
 
 <<if not $estate.prev_apologised and _plead_success>>
-	<<if $wren_intro isnot undefined>>
+	<<if Memories.Wren.has("toldPcName")>>
 		<<set $estate_cards_end to "cheat_moor">>
 	<</if>>
 	<br><br>
@@ -529,9 +529,9 @@ You stay in place, allowing Wren's goons to surround you.
 
 <<blackjackStart "Blackjack Finish">>
 <<person1>>
-<<set $wrenSeenLast to "cards">>
-<<if $wren_intro is undefined>>
-	<<set $wren_intro to true>>
+<<set $wren.lastMetAt to "metPcAtEstate">>
+<<if !Memories.Wren.has("toldPcName")>>
+	<<run Memories.Wren.add("toldPcName")>>
 	You pull back a chair, and sit at the table. "Nice," the <<if $pronoun is "m">>blond<<else>>blonde<</if>> <<woman_npc>> says. "<span class="gold">The name's Wren.</span> Now, how about we make this interesting?"
 	<br><br>
 
@@ -2772,10 +2772,10 @@ You walk outside. <<if $exposed gte 2>>A breeze makes you shiver.<</if>>
 <<cards_naked_end>>
 
 :: Estate Fame Letter
-<<effects>><<set $outside to 0>><<person1>><<set $wrenSeen.pushUnique("letter")>><<set $wrenSeenLast to "letter">><<wearProp "manila envelope">>
+<<effects>><<set $outside to 0>><<person1>><<run Memories.Wren.add("pcDeliveredMickeysLetter")>><<set $wren.lastMetAt to "pcDeliveredMickeysLetter">><<wearProp "manila envelope">>
 
-<<if $wren_intro is undefined>>
-	<<set $wren_intro to true>>
+<<if !Memories.Wren.has("toldPcName")>>
+	<<run Memories.Wren.add("toldPcName")>>
 	<<if $speech_attitude is "meek">>
 		"A-Are you Wren?" you ask. "I'm supposed to give something to Wren."
 	<<elseif $speech_attitude is "bratty">>

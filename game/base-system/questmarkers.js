@@ -110,7 +110,7 @@ const events = [
 	{
 		name: "wren heist",
 		condition() {
-			return V.wrenHeist === true && V.wrenHeistDance.attended !== true;
+			return V.wren.heist.tonight !== undefined && V.wren.heist.tonight.pcArrived !== true;
 		},
 		starthour: 19,
 		endhour: 20,
