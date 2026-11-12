@@ -64,6 +64,8 @@ declare global {
 		sam: SamWeekly;
 		/** Winter's once-a-week flags, unset when the week ends. */
 		winter: WinterWeekly;
+		/** The Ivory Wraith's once-a-week flags, unset when the week ends. */
+		ivoryWraith: IvoryWraithWeekly;
 	}
 }
 

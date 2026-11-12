@@ -1,0 +1,163 @@
+:: Widgets NNPC Cleanup Migration Ivory Wraith [widget]
+<<widget "nnpcCleanupMigrationIvoryWraith">>
+	<<set $daily.ivoryWraith ??= {}>>
+	<<set $weekly.ivoryWraith ??= {}>>
+
+	<!-- The Ivory Wraith's $wraith object moved onto $ivoryWraith -->
+	<<if $wraith isnot undefined>>
+		<<for _oldName, _newName range { state: "state", days: "daysActive", seen: "timesMetPc", defeated: "timesPcWonFight", possessCount: "timesPossessedPc" }>>
+			<<if $wraith[_oldName] isnot undefined>>
+				<<set $ivoryWraith[_newName] to $wraith[_oldName]>>
+			<</if>>
+		<</for>>
+		<<for _oldName, _newName range { mimic: "npc", revealed: "pcSawThrough" }>>
+			<<if $wraith[_oldName] isnot undefined>>
+				<<set $ivoryWraith.mimic[_newName] to $wraith[_oldName]>>
+			<</if>>
+		<</for>>
+		<<for _oldName, _newName range { gen: "form", type: "combatType", select: "debugForm" }>>
+			<<if $wraith[_oldName] isnot undefined>>
+				<<set $ivoryWraith.fight[_newName] to $wraith[_oldName]>>
+			<</if>>
+		<</for>>
+		<<for _oldName, _newName range { hunt: "progress", timer: "chance", exit: "exitTo", evaded: "timesPcEscaped" }>>
+			<<if $wraith[_oldName] isnot undefined>>
+				<<set $ivoryWraith.hunt[_newName] to $wraith[_oldName]>>
+			<</if>>
+		<</for>>
+		<<switch $wraith.nightmare>>
+			<<case 1>><<set $ivoryWraith.hunt.nightmare to "tonight">>
+			<<case 2>><<set $ivoryWraith.hunt.nightmare to "wokePc">>
+		<</switch>>
+		<<if $wraith.offspring isnot undefined>>
+			<<set $ivoryWraith.offspring.status to $wraith.offspring>>
+		<</if>>
+		<<if $wraith.will isnot undefined>>
+			<<set $ivoryWraith.possession.holdOnPc to $wraith.will>>
+		<</if>>
+		<<if $wraith.seenFarm>><<run Memories.IvoryWraith.add("joinedFarmAssault")>><</if>>
+		<<if $wraith.offspringWarning>><<run Memories.IvoryWraith.add("toldPcToKeepOffspringSafe")>><</if>>
+		<<unset $wraith>>
+	<</if>>
+
+	<!-- The underwater imprisonment state moved to $ivoryWraith.prison, and finding it is now a memory -->
+	<<if $wraithPrison isnot undefined>>
+		<<run Memories.IvoryWraith.add("foundUnderwaterPrison")>>
+		<<if $wraithPrison.vision>><<run Memories.IvoryWraith.add("pcFinishedSchismVision")>><</if>>
+		<<for _oldName, _newName range { timer: "minutesUntilReturn", timePassed: "minutesSpent", search: "searchProgress", state: "presence", possession: "possessedPc", masturbation: "madePcMasturbate" }>>
+			<<if $wraithPrison[_oldName] isnot undefined>>
+				<<set $ivoryWraith.prison[_newName] to $wraithPrison[_oldName]>>
+			<</if>>
+		<</for>>
+		<<unset $wraithPrison>>
+	<</if>>
+
+	<!-- The Ivory Wraith's other variables moved onto $ivoryWraith -->
+	<<for _oldName, _newName range { christmas_wraith: "pcSawChristmasMirrorVision", wraithUnderground: "visitedPcInUbCell", quicksandWraith: "whisperingInQuicksand" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _oldName, _newName range { wraithCompoundChance: "chance", wraithCompoundCooldown: "cooldownDaysLeft", wraithCompoundEvent: "waitingForPc" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.compound[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $compound.wraith isnot undefined>>
+		<<set $ivoryWraith.compound.pcResponse to $compound.wraith>>
+		<<run delete $compound.wraith>>
+	<</if>>
+	<<if $sleepWraith isnot undefined>>
+		<<set $ivoryWraith.mimic.inBedAsRobin to $sleepWraith>>
+		<<unset $sleepWraith>>
+	<</if>>
+	<<for _oldName, _newName range { wraithOptions: "formsLeft", wraithHealth: "healthLeft", wraithApologise: "pcApologisedThisTurn", wraithMax: "fightsInARowLimit", wraithCount: "fightsInARow" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.fight[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _oldName, _newName range { wraithCheck: "nightmareRolled", wraithApologiseCooldown: "pcApologised", wraithSkip: "sentAway" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.hunt[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<switch $wPersist>>
+		<<case 1>><<set $ivoryWraith.hunt.followedOutOfForest to "followed">>
+		<<case 2>><<set $ivoryWraith.hunt.followedOutOfForest to "pcWarned">>
+	<</switch>>
+	<<unset $wPersist>>
+	<<for _oldName, _newName range { schismTime: "takenAt", necklaceThief: "takenBy", schismWeather: "weatherWhenTaken" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.necklace[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $ivoryWraith.necklace.takenBy is "player">>
+		<<set $ivoryWraith.necklace.takenBy to "pc">>
+	<</if>>
+	<<for _oldName, _newName range { wraithAngerCooldown: "angerDaysLeft", wraithAngerCount: "unpunishedDeaths" }>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.offspring[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<set _possessionMoves to {
+		wraithWillMessage: "controlHintShown",
+		gwylanDoesALittleTrolling: "gwylanLeftPcInForest",
+		wraithPaleVisit: "paleOffspringVisit",
+		controlSaved: "pcControlBefore",
+		wraithBedSpeech: "pcTouchedPartner",
+		phaseWraith: "walkStep",
+	}>>
+	<<for _oldName, _newName range _possessionMoves>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $ivoryWraith.possession[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $wraithParasite isnot undefined>>
+		<<set $ivoryWraith.prison.putEarSlimeInPc to $wraithParasite>>
+		<<unset $wraithParasite>>
+	<</if>>
+	<<if $schismStruggle isnot undefined>>
+		<<set $ivoryWraith.schism.struggleRound to $schismStruggle>>
+		<<unset $schismStruggle>>
+	<</if>>
+
+	<!-- The Ivory Wraith's 0/1 flags turned into booleans -->
+	<<if $wraithcompoundmessage is 1>>
+		<<set $ivoryWraith.compound.showMistMessage to true>>
+	<</if>>
+	<<if $wraithSkin is 1>>
+		<<set $ivoryWraith.schism.pcDrowned to true>>
+	<</if>>
+	<<unset $wraithcompoundmessage $wraithSkin>>
+
+	<!-- The Ivory Wraith's one-off flags became memories -->
+	<<if $wraithIntro>><<run Memories.IvoryWraith.add("firstEncounter")>><</if>>
+	<<if $compound.wraithSeen>><<run Memories.IvoryWraith.add("possessedPcAtCompound")>><</if>>
+	<<unset $wraithIntro $compound.wraithSeen>>
+	<<unset $wraithShow>>
+
+	<!-- The Ivory Wraith's daily and weekly flags moved to $daily.ivoryWraith and $weekly.ivoryWraith -->
+	<<if $daily.wraithFlash>>
+		<<set $daily.ivoryWraith.flashedOnSidebar to true>>
+	<</if>>
+	<<if $daily.wraithNursery>>
+		<<set $daily.ivoryWraith.sangInNursery to true>>
+	<</if>>
+	<<if $daily.wraithConfess>>
+		<<set $daily.ivoryWraith.spokeDuringPcConfession to true>>
+	<</if>>
+	<<if $weekly.wraithConfess>>
+		<<set $weekly.ivoryWraith.cameToPcConfessionBooth to true>>
+	<</if>>
+	<<run delete $daily.wraithFlash>>
+	<<run delete $daily.wraithNursery>>
+	<<run delete $daily.wraithConfess>>
+	<<run delete $weekly.wraithConfess>>
+<</widget>>

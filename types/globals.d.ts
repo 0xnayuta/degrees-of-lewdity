@@ -60,7 +60,7 @@ declare global {
 		 *
 		 * Magic numbers that appear in only 1 function will stay in the function, with a comment marking their current value and where they are used.
 		 *
-		 * The "$wraith.will" variable will need to be adjusted to depend on a proportion of V.willpowermax.
+		 * The "$ivoryWraith.possession.holdOnPc" variable will need to be adjusted to depend on a proportion of V.willpowermax.
 		 */
 		stats: {
 			drunk: {

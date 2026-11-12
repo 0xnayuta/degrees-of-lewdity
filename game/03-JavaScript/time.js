@@ -1646,29 +1646,35 @@ function dailyNPCEffects() {
 	}
 
 	// Wraith
-	if (V.wraith.state) {
-		if (V.wraithAngerCooldown) {
-			V.wraithAngerCooldown--;
-			if (V.wraithAngerCooldown <= 0) {
-				V.wraith.offspring = "";
-				delete V.wraithAngerCooldown;
+	if (V.ivoryWraith.state) {
+		if (V.ivoryWraith.offspring.angerDaysLeft) {
+			V.ivoryWraith.offspring.angerDaysLeft--;
+			if (V.ivoryWraith.offspring.angerDaysLeft <= 0) {
+				V.ivoryWraith.offspring.status = "";
+				delete V.ivoryWraith.offspring.angerDaysLeft;
 			}
 		}
-		V.wraith.days++;
-		if (V.wraith.days >= 31 && V.wraithIntro && !V.wraithCompoundCooldown && !V.wraithCompoundEvent && V.compound.discovered) {
-			if (!V.wraithCompoundChance) {
-				V.wraithCompoundChance = 0;
-				if (V.wraith.offspring === "sold") V.wraithCompoundChance += 10;
+		V.ivoryWraith.daysActive++;
+		if (
+			V.ivoryWraith.daysActive >= 31 &&
+			Memories.IvoryWraith.has("firstEncounter") &&
+			!V.ivoryWraith.compound.cooldownDaysLeft &&
+			!V.ivoryWraith.compound.waitingForPc &&
+			V.compound.discovered
+		) {
+			if (!V.ivoryWraith.compound.chance) {
+				V.ivoryWraith.compound.chance = 0;
+				if (V.ivoryWraith.offspring.status === "sold") V.ivoryWraith.compound.chance += 10;
 			}
-			if (V.world_corruption_soft >= 30) V.wraithCompoundChance++;
-			if (V.wraithCompoundChance >= random(5, 60 - C.npc["Ivory Wraith"].lust)) {
-				V.wraithCompoundEvent = true;
-				delete V.wraithCompoundChance;
-				V.wraithcompoundmessage = 1;
+			if (V.world_corruption_soft >= 30) V.ivoryWraith.compound.chance++;
+			if (V.ivoryWraith.compound.chance >= random(5, 60 - C.npc["Ivory Wraith"].lust)) {
+				V.ivoryWraith.compound.waitingForPc = true;
+				delete V.ivoryWraith.compound.chance;
+				V.ivoryWraith.compound.showMistMessage = true;
 				V.effectsmessage = 1;
 			}
-		} else if (V.wraithCompoundCooldown > 0) V.wraithCompoundCooldown--;
-		else if (V.wraithCompoundCooldown < 1) delete V.wraithCompoundCooldown;
+		} else if (V.ivoryWraith.compound.cooldownDaysLeft > 0) V.ivoryWraith.compound.cooldownDaysLeft--;
+		else if (V.ivoryWraith.compound.cooldownDaysLeft < 1) delete V.ivoryWraith.compound.cooldownDaysLeft;
 	}
 
 	// Gwylan
@@ -2107,7 +2113,7 @@ function yearlyEventChecks() {
 		delete V.christmas_whitney;
 		delete V.edenmeal;
 		delete V.eden_christmas_dinner;
-		delete V.christmas_wraith;
+		delete V.ivoryWraith.pcSawChristmasMirrorVision;
 	}
 }
 

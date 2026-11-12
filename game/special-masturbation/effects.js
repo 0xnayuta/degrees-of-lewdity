@@ -2913,9 +2913,9 @@ function possessedMasturbation(span, br) {
 
 	if (resist === 0) {
 		fragment.append(span("You let it take you.", "pink"));
-		sWikifier("<<pain -2>><<stress -12>><<sub 2>><<lpain>><<llstress>><<set V.wraith.will += 30>><br>");
+		sWikifier("<<pain -2>><<stress -12>><<sub 2>><<lpain>><<llstress>><<set V.ivoryWraith.possession.holdOnPc += 30>><br>");
 	} else {
-		wikifier("willpowerdifficulty", 1, Math.floor(1 + V.wraith.will), true);
+		wikifier("willpowerdifficulty", 1, Math.floor(1 + V.ivoryWraith.possession.holdOnPc), true);
 		if (V.willpowerSuccess) {
 			T.resistSuccess = 1;
 			fragment.append(span(`You fight for control. Your ${resist === 4 ? "arms lock" : "arm locks"} up.`, "green"));
@@ -2924,7 +2924,7 @@ function possessedMasturbation(span, br) {
 			wikifier("trauma", resist);
 			wikifier("def", 2);
 			wikifier("control", (Math.floor(currentSkillValue("willpower") / 24) * resist) / 10);
-			V.wraith.will -= Math.floor(currentSkillValue("willpower") / 24) * resist;
+			V.ivoryWraith.possession.holdOnPc -= Math.floor(currentSkillValue("willpower") / 24) * resist;
 			sWikifier(`<<gpain>><<gtrauma>><<gstress>><<${resist === 4 ? "gg" : "g"}control>>`);
 		} else {
 			fragment.append(span("Your body does not obey.", "red"));
@@ -2947,7 +2947,7 @@ function possessedMasturbation(span, br) {
 				wikifier("trauma", 6);
 				wikifier("willpower", 1);
 				wikifier("def", 1);
-				V.wraith.will -= Math.floor(currentSkillValue("willpower") / 40) * resist;
+				V.ivoryWraith.possession.holdOnPc -= Math.floor(currentSkillValue("willpower") / 40) * resist;
 				sWikifier("<<gtrauma>><<gstress>><<gwillpower>>");
 			});
 		}

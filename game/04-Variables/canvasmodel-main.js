@@ -4278,16 +4278,16 @@ Renderer.CanvasModels.main = {
 			animation: "wraithFlash",
 			showfn(options) {
 				if (!options.wraithFlash || !Time.isBloodMoon() || V.combat) return false;
-				// V.daily.wraithFlash is reused by the accent animation to make sure they always run together.
-				if (V.daily.wraithFlash) return false;
+				// V.daily.ivoryWraith.flashedOnSidebar is reused by the accent animation to make sure they always run together.
+				if (V.daily.ivoryWraith.flashedOnSidebar) return false;
 				if (random(1, 70) === 1) {
-					V.daily.wraithFlash = true;
+					V.daily.ivoryWraith.flashedOnSidebar = true;
 					return true;
 				}
 				return false;
 			},
 			srcfn() {
-				const hasBlueEyes = !["haunt", "despair"].includes(V.wraith.state);
+				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith.state);
 				return hasBlueEyes ? "img/misc/ambient/wraith/wraith-flash-blue.png" : "img/misc/ambient/wraith/wraith-flash-red.png";
 			},
 			scale: false,
@@ -4300,11 +4300,11 @@ Renderer.CanvasModels.main = {
 			animation: "wraithFlashAccent",
 			showfn(options) {
 				if (!options.wraithFlash || !Time.isBloodMoon() || V.combat) return false;
-				const hasBlueEyes = !["haunt", "despair"].includes(V.wraith.state);
-				return !hasBlueEyes && V.daily.wraithFlash;
+				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith.state);
+				return !hasBlueEyes && V.daily.ivoryWraith.flashedOnSidebar;
 			},
 			srcfn() {
-				const hasBlueEyes = !["haunt", "despair"].includes(V.wraith.state);
+				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith.state);
 				return hasBlueEyes ? "img/misc/ambient/wraith/wraith-flash-blue.png" : "img/misc/ambient/wraith/wraith-flash-red.png";
 			},
 			scale: false,
@@ -4319,7 +4319,7 @@ Renderer.CanvasModels.main = {
 				return !!T.wraithMirror;
 			},
 			srcfn() {
-				const hasBlueEyes = !["haunt", "despair"].includes(V.wraith?.state);
+				const hasBlueEyes = !["haunt", "despair"].includes(V.ivoryWraith.state);
 				return hasBlueEyes ? "img/misc/ambient/wraith/wraith-flash-blue.png" : "img/misc/ambient/wraith/wraith-flash-red.png";
 			},
 			scale: false,

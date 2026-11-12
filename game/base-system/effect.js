@@ -1040,9 +1040,9 @@ function effects() {
 			delete V.bookoverduemessage;
 		}
 
-		if (V.wraithcompoundmessage) {
+		if (V.ivoryWraith.compound.showMistMessage) {
 			element("span", "A fell mist hangs over Elk Street.", "red");
-			delete V.wraithcompoundmessage;
+			delete V.ivoryWraith.compound.showMistMessage;
 		}
 
 		if (V.halloweenClothesMessage) {

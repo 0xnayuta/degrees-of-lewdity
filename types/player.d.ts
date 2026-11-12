@@ -103,6 +103,7 @@ declare module "twine-sugarcube" {
 		/* Player states */
 
 		lactating: 0 | 1;
+		/** If the Ivory Wraith is possessing the PC. */
 		possessed?: boolean;
 		virginityProtected: boolean;
 
@@ -188,10 +189,6 @@ declare module "twine-sugarcube" {
 		/* Gay ear slime stuff */
 
 		earSlime: EarSlimeState;
-
-		wraith: {
-			state: string;
-		};
 
 		parasite: {
 			nipples: any;

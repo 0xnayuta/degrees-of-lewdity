@@ -80,9 +80,9 @@ const ObjectAssignDeep = (function () {
 		);
 
 		if (options.arrayBehaviour === "strict-replace") {
-			Object.keys(target).forEach(key => {
+			Object.keys(merged).forEach(key => {
 				if (!(key in source)) {
-					delete target[key];
+					delete merged[key];
 				}
 			});
 		}
