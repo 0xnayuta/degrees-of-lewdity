@@ -17,7 +17,6 @@ declare global {
 	export interface WeeklyVariables extends WeeklySetupVariables {
 		kylarCreep?: number;
 		edenPrey?: boolean;
-		winterLakeTalk?: number;
 		slimeWakeMasturbation?: boolean;
 		alexNightTimeNursery?: 1;
 		whitneyPub?: number;
@@ -63,6 +62,8 @@ declare global {
 		bailey: BaileyWeekly;
 		/** Sam's once-a-week flags, unset when the week ends. */
 		sam: SamWeekly;
+		/** Winter's once-a-week flags, unset when the week ends. */
+		winter: WinterWeekly;
 	}
 }
 

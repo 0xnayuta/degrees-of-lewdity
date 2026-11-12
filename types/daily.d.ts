@@ -35,6 +35,8 @@ declare global {
 		remy: RemyDaily;
 		/** Sam's once-a-day flags, unset at midnight. */
 		sam: SamDaily;
+		/** The museum's once-a-day flags, unset at midnight. */
+		museum: MuseumDaily;
 	}
 }
 

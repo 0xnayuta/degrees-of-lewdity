@@ -84,12 +84,6 @@ declare module "twine-sugarcube" {
 			missed: boolean;
 		};
 
-		museuminterest: number;
-		museumhorseintro?: 1 | 0;
-		museumhorse?: 1;
-		museumduckintro?: 1 | 0;
-		museumduck?: 1;
-
 		pound: {
 			sneak: number;
 			compete: number;

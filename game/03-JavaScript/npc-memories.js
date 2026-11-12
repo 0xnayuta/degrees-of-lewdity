@@ -398,6 +398,24 @@ const VALID_MEMORIES = {
 		// Used so Sam only tells the story once
 		"toldCafeOrigin",
 	],
+	Winter: [
+		// If Winter asked the PC to look for more paintings after they brought in their first one
+		// Used to show the paintings next to the antiques at the museum and in the journal
+		"askedPcToFindPaintings",
+		// If the PC has visited the museum and met Winter there
+		// Used so the intro only plays once, to show the museum's collectibles in the journal, and for Gwylan to compare the PC to an exhibit in Winter's museum
+		"firstMuseumVisit",
+
+		// If the PC repeated the 'Breeding Ward' joke to Winter
+		// Used so the PC can't keep repeating the joke
+		"pcMadeBreedingWardJoke",
+		// If the PC told Winter where the ornate gold necklace was found
+		// Used so Winter asks if the PC remembers the old structures beneath the lake when they meet at the lake shore
+		"pcToldWhereGoldNecklaceWasFound",
+		// If the PC told Winter they found the purple diamond in the mines
+		// Used so Winter doesn't ask if the PC has been going to the mines when they hand in the rusty pickaxe
+		"pcToldWherePurpleDiamondWasFound",
+	],
 };
 
 /**
@@ -513,6 +531,11 @@ const Memories = {
 		add: memory => addMemory("Sam", memory),
 		has: memory => hasMemory("Sam", memory),
 		delete: memory => deleteMemory("Sam", memory),
+	},
+	Winter: {
+		add: memory => addMemory("Winter", memory),
+		has: memory => hasMemory("Winter", memory),
+		delete: memory => deleteMemory("Winter", memory),
 	},
 };
 window.Memories = Memories;

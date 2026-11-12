@@ -85,12 +85,12 @@
 			<</if>>
 		<</capture>>
 	<</for>>
-	<<if !$daily.winterStoryTime>>
+	<<if !$daily.museum.toldPaintingStory>>
 		<<if $bleedingWardCheckpoint and $museumAntiques.paintings.paintingward is "museum">>
-			<<icon _museumPaintingText.paintingward.icon>><<link [[Ask Winter to tell you the 'Bleeding Ward' story from where you left off (0:15)|Bleeding Ward Resume]]>><<set $daily.winterStoryTime to true>><</link>>
+			<<icon _museumPaintingText.paintingward.icon>><<link [[Ask Winter to tell you the 'Bleeding Ward' story from where you left off (0:15)|Bleeding Ward Resume]]>><<set $daily.museum.toldPaintingStory to true>><</link>>
 			<br>
 		<</if>>
-		<<if $museumAntiques.paintings.paintingward is "museum" and !$bleedingWardCheckpoint and !$breedingWard and !$daily.breedingWard>>
+		<<if $museumAntiques.paintings.paintingward is "museum" and !$bleedingWardCheckpoint and !Memories.Winter.has("pcMadeBreedingWardJoke")>>
 			<<icon _museumPaintingText.paintingward.icon>><<link[[Contemplate the 'Bleeding Ward' story again|Museum Breeding Ward]]>><</link>>
 			<br>
 		<</if>>
@@ -99,19 +99,32 @@
 				<<if $museumAntiques.paintings[_labelP] is "talk">>
 					<<set _painting to _museumPaintingText[_labelP].journalName.toLowerCase()>>
 					<<icon _museumPaintingText[_labelP].icon>>
-					<<link [[`Ask about the _painting (0:30)`|`Museum `+ _museumPaintingText[_labelP].name + ` Story`]]>><<set $daily.winterStoryTime to true>><<npcincr Winter love 3>><</link>><<gglove "Winter" "simple">>
+					<<link [[`Ask about the _painting (0:30)`|`Museum `+ _museumPaintingText[_labelP].name + ` Story`]]>><<set $daily.museum.toldPaintingStory to true>><<npcincr Winter love 3>><</link>><<gglove "Winter" "simple">>
 					<<if _labelP is "paintingsnake">><<note "This may be a long story..." "red">> | <span class="red tooltip-anchor" tooltip="<span class='red'>This scene contains disturbing content not found elsewhere, including bodily mutilation. It is not prevented by any toggles or settings. You have been warned.</span>"><i>(!Content Warning!)</i></span><</if>> <!-- Appears even with blind stats enabled. Intentional -->
 					<br>
 				<<elseif $museumAntiques.paintings[_labelP] is "museum">>
 					<<set _painting to "'" + _museumPaintingText[_labelP].name + "'">>
 					<<icon _museumPaintingText[_labelP].icon>>
-					<<link [[`Ask Winter to tell you the _painting story again (0:30)`|`Museum `+ _museumPaintingText[_labelP].name + ` Story`]]>><<set $daily.winterStoryTime to true>><</link>>
+					<<link [[`Ask Winter to tell you the _painting story again (0:30)`|`Museum `+ _museumPaintingText[_labelP].name + ` Story`]]>><<set $daily.museum.toldPaintingStory to true>><</link>>
 					<<if _labelP is "paintingsnake">><<note "This may be a long story..." "red">> | <span class="red tooltip-anchor" tooltip="<span class='red'>This scene contains disturbing content not found elsewhere, including bodily mutilation. It is not prevented by any toggles or settings. You have been warned.</span>"><i>(!Content Warning!)</i></span><</if>> <!-- Appears even with blind stats enabled. Intentional -->
 					<br>
 				<</if>>
 			<</capture>>
 		<</for>>
 	<</if>>
+<</widget>>
+
+<!-- Lets the PC pick the safe word for Winter's demonstrations, then links on to the passage given as the first argument.
+The word is stored escaped so it can be printed in prose, so it's decoded again to fill the textbox. -->
+<<widget "museumSafeWordChoice">>
+	<<if $museum.demonstrations.safeWord is "" or $museum.demonstrations.safeWord is undefined>><<set $museum.demonstrations.safeWord to "Marshmallow">><</if>>
+	<<set _safeWord to Util.unescape($museum.demonstrations.safeWord.replace(/&#91;/g, "[").replace(/&#93;/g, "]"))>>
+	<<textbox "_safeWord" _safeWord>>
+	<br>
+
+	<<link "Next" _args[0]>>
+		<<set $museum.demonstrations.safeWord to Util.escape(_safeWord || "Marshmallow").replace(/\[/g, "&#91;").replace(/\]/g, "&#93;")>>
+	<</link>>
 <</widget>>
 
 :: Museum Lock
@@ -131,8 +144,8 @@ The museum is closed. A sign reads:
 :: Museum
 <<set $outside to 0>><<set $location to "museum">><<effects>>
 
-<<if $museumintro isnot 1 and $passagePrev is "Oxford Street">>
-	<<set $museumintro to 1>><<set $phase to 0>>
+<<if !Memories.Winter.has("firstMuseumVisit") and $passagePrev is "Oxford Street">>
+	<<run Memories.Winter.add("firstMuseumVisit")>><<set $phase to 0>>
 
 	<<npc Winter>><<person1>>You enter the dim museum. Small windows peek down from just beneath the high ceiling, doing little to break the gloom. The other rooms are no better.
 	<br><br>
@@ -165,8 +178,8 @@ The museum is closed. A sign reads:
 	<br>
 	<<link [[Chase the culprit|Museum Attack]]>><</link>>
 	<br>
-<<elseif $museumhorseintro is undefined and $museumAntiques.museumCount gte 10 and $passagePrev is "Oxford Street">>
-	<<set $museumhorseintro to 0>>
+<<elseif $museum.demonstrations.horseDemonstration is undefined and $museumAntiques.museumCount gte 10 and $passagePrev is "Oxford Street">>
+	<<set $museum.demonstrations.horseDemonstration to "asked">>
 	<<npc Winter>><<person1>>You enter the dim museum. Winter stares at a brass pot sitting alone on a display. "I can't find a place for it," <<he>> sighs. <<He>> notices you. "I was hoping you'd visit. I have a favour to ask, seeing as you've been such a help already." <<He>> walks to the corner of the room, where something large hides beneath a dirty sheet. <<He>> tugs it off, revealing a wooden horse.
 	<br><br>
 
@@ -190,8 +203,8 @@ The museum is closed. A sign reads:
 
 	<<link [[Next|Museum]]>><<endevent>><</link>>
 	<br>
-<<elseif $museumduckintro is undefined and $museumAntiques.museumCount gte 20 and $passagePrev is "Oxford Street">>
-	<<set $museumduckintro to 0>>
+<<elseif $museum.demonstrations.duckingStoolDemonstration is undefined and $museumAntiques.museumCount gte 20 and $passagePrev is "Oxford Street">>
+	<<set $museum.demonstrations.duckingStoolDemonstration to "asked">>
 	<<npc Winter>><<generate2>><<person2>>You enter the dim museum. A <<person>> brushes past you.
 	<br><br>
 	<<person1>>
@@ -218,8 +231,8 @@ The museum is closed. A sign reads:
 
 	<<link [[Next|Museum]]>><<endevent>><</link>>
 	<br>
-<<elseif $museumfamoushorseintro is undefined and $museum_horse_success and ((fameSum('business', 'good', 'social', 'model')/8000) gte 0.25) and $passagePrev is "Oxford Street">>
-	<<set $museumfamoushorseintro to 0>>
+<<elseif $museum.demonstrations.paidHorseDemonstration is undefined and $museum.demonstrations.pcEnduredHorse and ((fameSum('business', 'good', 'social', 'model')/8000) gte 0.25) and $passagePrev is "Oxford Street">>
+	<<set $museum.demonstrations.paidHorseDemonstration to "asked">>
 	<<npc Winter>><<person1>>You enter the museum. Winter is chatting with a few visitors when <<he>> meets your gaze and quickly rushes over to you. "The museum is getting more traffic than ever before. Your demonstration drew a lot of attention!" <<he>> says. "I think it's at a point where we could start charging for admission. If you're okay with it, I would like to make it into a bigger event. It would be a great opportunity to help educate the townsfolk, and I would give you a share of the profit, of course. Take a moment to think about it, and let me know."
 	<br><br>
 	Winter moves on to another group of guests looking over a classical theatre mask, giving you a chance to consider your options.
@@ -227,11 +240,11 @@ The museum is closed. A sign reads:
 	<<link [[Next|Museum]]>><<endevent>><</link>>
 <<else>>
 	You are inside the museum. Items of historic value cover the walls and perch on pedestals.
-	<<if $museuminterest gte 100>>
+	<<if $museum.publicInterest gte 100>>
 		Visitors crowd the building, examining the antiques with interest. Winter looks overworked, but content.
-	<<elseif $museuminterest gte 60>>
+	<<elseif $museum.publicInterest gte 60>>
 		The building is full of visitors, here to examine the antiques.
-	<<elseif $museuminterest gte 20>>
+	<<elseif $museum.publicInterest gte 20>>
 		Several other visitors examine the displays.
 	<<else>>
 		The building is empty of visitors, save yourself.
@@ -241,25 +254,25 @@ The museum is closed. A sign reads:
 		<<orgasmLocation "museum">>
 	<</if>>
 
-	<<if $museumhorseintro is 0>>
-		<<museumicon "horse">><<link [[Agree to wood horse demonstration|Museum Horse Agree]]>><<set $museumhorseintro to 1>><</link>>
+	<<if $museum.demonstrations.horseDemonstration is "asked">>
+		<<museumicon "horse">><<link [[Agree to wood horse demonstration|Museum Horse Agree]]>><<set $museum.demonstrations.horseDemonstration to "agreed">><</link>>
 		<br>
-	<<elseif $museumhorseintro is 1 and $museumhorse isnot 1>>
-		<<museumicon "horse">><<link [[Demonstrate wooden horse (1:00)|Museum Horse]]>><<pass 60>><<set $museumhorse to 1>><</link>><<gpain>><<exhibitionist1>>
-		<br>
-	<</if>>
-	<<if $museumfamoushorseintro is 0 and $museumhorse isnot 1>>
-		<<museumicon "horse">><<link [[Agree to paid wood horse demonstration|Museum Famous Horse Agree]]>><<set $museumfamoushorseintro to 1>><</link>>
-		<br>
-	<<elseif $museumfamoushorseintro is 1 and $museumhorse isnot 1>>
-		<<museumicon "horse">><<link [[Demonstrate wooden horse for money (1:30)|Museum Famous Horse]]>><<set $museumhorse to 1>><</link>><<gpain>><<exhibitionist1>>
+	<<elseif $museum.demonstrations.horseDemonstration is "agreed" and !$museum.demonstrations.horseDoneThisWeek>>
+		<<museumicon "horse">><<link [[Demonstrate wooden horse (1:00)|Museum Horse]]>><<pass 60>><<set $museum.demonstrations.horseDoneThisWeek to true>><</link>><<gpain>><<exhibitionist1>>
 		<br>
 	<</if>>
-	<<if $museumduckintro is 0>>
-		<<museumicon "duck">><<link [[Agree to ducking stool demonstration|Museum Duck Agree]]>><<set $museumduckintro to 1>><</link>>
+	<<if $museum.demonstrations.paidHorseDemonstration is "asked" and !$museum.demonstrations.horseDoneThisWeek>>
+		<<museumicon "horse">><<link [[Agree to paid wood horse demonstration|Museum Famous Horse Agree]]>><<set $museum.demonstrations.paidHorseDemonstration to "agreed">><</link>>
 		<br>
-	<<elseif $museumduckintro is 1 and $museumduck isnot 1>>
-		<<museumicon "duck">><<link [[Demonstrate ducking stool (1:00)|Museum Duck]]>><<pass 60>><<set $museumduck to 1>><</link>><<exhibitionist1>>
+	<<elseif $museum.demonstrations.paidHorseDemonstration is "agreed" and !$museum.demonstrations.horseDoneThisWeek>>
+		<<museumicon "horse">><<link [[Demonstrate wooden horse for money (1:30)|Museum Famous Horse]]>><<set $museum.demonstrations.horseDoneThisWeek to true>><</link>><<gpain>><<exhibitionist1>>
+		<br>
+	<</if>>
+	<<if $museum.demonstrations.duckingStoolDemonstration is "asked">>
+		<<museumicon "duck">><<link [[Agree to ducking stool demonstration|Museum Duck Agree]]>><<set $museum.demonstrations.duckingStoolDemonstration to "agreed">><</link>>
+		<br>
+	<<elseif $museum.demonstrations.duckingStoolDemonstration is "agreed" and !$museum.demonstrations.duckingStoolDoneThisWeek>>
+		<<museumicon "duck">><<link [[Demonstrate ducking stool (1:00)|Museum Duck]]>><<pass 60>><<set $museum.demonstrations.duckingStoolDoneThisWeek to true>><</link>><<exhibitionist1>>
 		<br>
 	<</if>>
 	<<if $museumAntiqueJournalHints is undefined>>
@@ -289,7 +302,7 @@ The museum is closed. A sign reads:
 		<<antiqueicon "forest-gem">><<link [[Touch green gem|Museum Green Gem Touch]]>><<stress -9>><<set $daily.museumGreenGemTouch to 1>><</link>><<lstress>>
 		<br>
 	<</if>>
-	<<if $antiquemoney gt 0>>
+	<<if $antiqueMoney gt 0>>
 		<<highicon>><<link [[Sell antiques|Museum Sell]]>><<if $museumAntiques.antiques.antiquesilvermask is "found">><<set $phase to 1>><<else>><<set $phase to 0>><</if>><<if $museumAntiques.antiques.antiqueivorynecklace is "found">><<world_corruption "hard" 2>><</if>><<museumdonate>><</link>>
 		<br>
 	<</if>>
@@ -691,25 +704,25 @@ A vein twitches on <<his>> forehead as <<he>> stares at you. "You shouldn't spea
 
 Winter dons a pair of gloves and appraises the goods.
 <<if $phase is 1>>
-	"Aha," <<he>> says. "The mask. I'm glad you've decided to put it under my care." <<He>> places <<printmoney `$antiquemoney * 100`>> on the table.
+	"Aha," <<he>> says. "The mask. I'm glad you've decided to put it under my care." <<He>> places <<printmoney `$antiqueMoney * 100`>> on the table.
 	<<glove>><<npcincr Winter love 1>>
 
-<<elseif $antiquemoney gte 1000>>
-	<<His>> scepticism fades as <<he>> works. "Where did you get this?" <<he>> asks. <<He>> doesn't wait for an answer, but places <<printmoney `$antiquemoney * 100`>> on the table.
+<<elseif $antiqueMoney gte 1000>>
+	<<His>> scepticism fades as <<he>> works. "Where did you get this?" <<he>> asks. <<He>> doesn't wait for an answer, but places <<printmoney `$antiqueMoney * 100`>> on the table.
 	<<glove>><<npcincr Winter love 1>>
 
-<<elseif $antiquemoney gte 200>>
-	"Thank you," <<he>> says. "Your contribution is noted." <<He>> places <<printmoney `$antiquemoney * 100`>> on the table.
+<<elseif $antiqueMoney gte 200>>
+	"Thank you," <<he>> says. "Your contribution is noted." <<He>> places <<printmoney `$antiqueMoney * 100`>> on the table.
 
 <<else>>
-	Without a word, <<he>> places <<printmoney `$antiquemoney * 100`>> on the table.
+	Without a word, <<he>> places <<printmoney `$antiqueMoney * 100`>> on the table.
 <</if>>
 <br><br>
 
 <<He>> takes the goods into a back room.
 <br><br>
 
-<<money `($antiquemoney * 100)` "museumAntique">><<set $antiquemoneyhistory += $antiquemoney>><<set $antiquemoney to 0>><<set $gold_chastity_count to 0>>
+<<money `($antiqueMoney * 100)` "museumAntique">><<set $antiqueMoneyHistory += $antiqueMoney>><<set $antiqueMoney to 0>><<set $gold_chastity_count to 0>>
 
 <<link [[Next|Museum]]>><<endevent>><</link>>
 <br>
@@ -739,7 +752,7 @@ Winter holds the silver ring up to the light and examines it. "Common jewellery,
 Winter turns the gold necklace in <<his>> palm. "This is magnificent," <<he>> says. "Worn by someone of note, I imagine. Where did you find it?"
 <br><br>
 
-<<link [[Tell|Museum Tell]]>><<set $winterlakeknown to 1>><</link>>
+<<link [[Tell|Museum Tell]]>><<run Memories.Winter.add("pcToldWhereGoldNecklaceWasFound")>><</link>>
 <br>
 <<link [[Keep secret|Museum Secret]]>><</link>>
 <br>
@@ -1499,7 +1512,7 @@ Winter holds the lantern. "This design was common in the 1930s," <<he>> says. "B
 <<npc Winter>><<person1>>
 
 Winter grips the handle. "These were commonly used in the nearby mines," <<he>> says.
-<<if !$mine.diamond_talk>>
+<<if !Memories.Winter.has("pcToldWherePurpleDiamondWasFound")>>
 	"You haven't been going there, have you?"
 <</if>>
 <br><br>
@@ -1510,7 +1523,7 @@ Winter grips the handle. "These were commonly used in the nearby mines," <<he>> 
 
 <<museumClearHint "antiquepurplediamond">>
 <<npc Winter>><<person1>>
-<<set $mine.diamond_talk to 1>>
+<<run Memories.Winter.add("pcToldWherePurpleDiamondWasFound")>>
 
 Winter stares at the diamond, enraptured. You grab <<his>> shoulder and shake <<him>>. It seems to snap <<him>> out of it. "Sorry, I don't know what got into me," <<he>> says looking embarrassed. "Where did you even find this?"
 <br><br>
