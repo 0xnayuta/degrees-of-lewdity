@@ -1,7 +1,7 @@
 :: Doren Intro
 <<set $outside to 0>><<set $location to "flats">><<effects>>
 
-<<set $dorenintro to 1>>
+<<run Memories.Doren.add("tookPcToFlat")>>
 <<person1>>Doren turns to you once outside the station. "I'm so sorry," <<he>> says. "I thought they'd be more helpful. Now I've just stressed you for no reason." <<He>> looks up and behind you, at one of the tall buildings on the street. "I know." Hand on your back, <<he>> leads you towards it.<<npcincr Doren dom 1>><<gdom "Doren">>
 <br><br>
 You climb to the fifth floor and stop at Room 55. Doren unlocks it and holds it open for you. The interior is quite spartan. There's an old television covered in a film of dust and a sofa, but little else. "This is my flat," <<he>> says. "I only really come here to sleep. I like being out and about." <<He>> walks over to the closed blinds and lets the light in. "I didn't know where else to take you. I can't just forget what you told me." <<He>> walks over to what you think is the kitchen. "Make yourself at home. Just gonna get a drink."
@@ -167,10 +167,7 @@ You continue to jog through town, and end up back at Barb Street. You stop outsi
 
 :: Doren Shower Ask
 <<set $outside to 1>><<set $location to "flats">><<effects>>
-<<if $dorenShowerAsk is undefined>>
-	<<set $dorenShowerAsk to 0>>
-<</if>>
-<<set $dorenShowerAsk += 1>>
+<<set $doren.timesPcAskedToShower += 1>>
 
 With a playful smile on your lips, you tilt your head, leaning closer to Doren.
 <<switch $speech_attitude>>
@@ -202,8 +199,8 @@ With a playful smile on your lips, you tilt your head, leaning closer to Doren.
 <</if>>
 <br><br>
 
-<<if !$dorenSeen.includes("shower_ask")>>
-	<<set $dorenSeen.pushUnique("shower_ask")>>
+<<if !Memories.Doren.has("pcAskedToShowerTogether")>>
+	<<run Memories.Doren.add("pcAskedToShowerTogether")>>
 	<<He>> looks at you, horrified. "No."
 <<else>>
 	"No," <<he>> answers curtly.
@@ -446,7 +443,7 @@ When reaching for the iron, <<he>> accidentally touches your hands. "Oh, sorry, 
 		<<link [[Apologise|Doren Loft 7]]>><<npcincr Doren love 1>><<npcincr Doren dom 1>><<set $phase to 2>><</link>><br>
 	<</if>>
 	<<link [[Say you're fine|Doren Loft 7]]>><<set $phase to 3>><</link>><br>
-	<<link [[Break down|Doren Loft 7]]>><<set $phase to 4>><<trauma -6>><<stress -12>><<pain -4>><<npcincr Doren love 1>><<npcincr Doren dom 1>><</link>><<glove>><<gdom "Doren">><<gcontrol>><<ltrauma>><<lstress>><<lpain>><br>
+	<<link [[Break down|Doren Loft 7]]>><<set $phase to 4>><<trauma -6>><<stress -12>><<pain -4>><<npcincr Doren love 1>><<npcincr Doren dom 1>><</link>><<glove>><<gdom "Doren">><<ltrauma>><<lstress>><<lpain>><br>
 	<<link [[Act like nothing happened|Doren Loft 7]]>><<set $phase to 5>><</link>><br>
 <<else>>
 	<<link [[Say it's fine|Doren Loft 7]]>><<set $phase to 0>><</link>><br>
@@ -627,7 +624,7 @@ The group is happy to have a new player joining, particularly the <<person2>><<p
 <<outfitChecks>>
 
 <<if dangerEvent()>>
-	<<if $rng gte 51>>
+	<<if $rng gte 51 and (!$worn.lower.type.includes("naked") or !$worn.under_lower.type.includes("naked"))>>
 		You are so focused on the opposing team you do not notice one of your own sneak up on you. A pair of hands grasp the rim of your _bottom.name.
 		<<if C.npc.Doren.love gte 10 and ((($worn.under_lower.name is "naked" or $worn.lower.name is "naked") and $uncomfortable.nude is true) or $uncomfortable.underwear is true)>>
 			Doren immediately grabs <<person3>><<his>> arms <<if C.npc.Doren.dom gte 10>>in a vice grip<</if>>.
@@ -719,7 +716,7 @@ The group is happy to have a new player joining, particularly the <<person2>><<p
 
 :: Doren Beach Volunteer
 <<location "beach">><<effects>>
-<<set $monthly.volunteer to true>><<wearProp "trash bag">>
+<<set $monthly.doren.pcVolunteeredAtBeach to true>><<wearProp "trash bag">>
 <<upperundress "volunteer">><<lowerundress "volunteer">>
 <<upperwear "utility vest with shirt">><<lowerwear "cargo pants">>
 /* using utility vest with shirt as a placeholder until hi-vis vest sprite is made */
@@ -751,9 +748,13 @@ You take a break at the picnic table, looking at
 				<<else>>
 					the spot where Robin normally set up shop.
 				<</if>>
+			<<else>>
+				the waves crashing into shore.
 			<</if>>
 		<<elseif _robin_location is "beach">>
 			Robin selling lemonade just a few feet away. <<nnpc_He Robin>> catches you looking and waves at you.
+		<<else>>
+			the waves crashing into shore.
 		<</if>>
 	<<case 2>>the waves crashing into shore.
 	<<case 3>>the beachside bar not far from here.

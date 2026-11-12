@@ -468,7 +468,6 @@ function yearPassed() {
 }
 
 function monthPassed() {
-	V.volunteer = "none";
 	V.soupKitchen = "none";
 	V.foodDropoff = "none";
 

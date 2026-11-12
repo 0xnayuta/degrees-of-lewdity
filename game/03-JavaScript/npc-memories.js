@@ -460,6 +460,24 @@ const VALID_MEMORIES = {
 		// Used so its first appearance over a living pale offspring always happens, and so the warning only plays once
 		"toldPcToKeepOffspringSafe",
 	],
+	Doren: [
+		// If Doren found the PC volunteering at the soup kitchen while dropping off food
+		// Used so it only plays once
+		"firstSoupKitchenMeeting",
+		// If Doren was among the firefighters at Avery's burning skyscraper
+		// Used so the PC recognises Doren's voice in the rescue
+		"joinedSkyscraperRescue",
+		// If the PC asked Doren to shower with them at Doren's flat
+		// Used so Doren's horrified first refusal only plays once
+		"pcAskedToShowerTogether",
+
+		// If the PC told Doren in English class that they had been attacked
+		// Used so Doren stops taking the PC outside to ask if they're alright
+		"pcToldAboutAttacks",
+		// If Doren took the PC to their flat after the police turned them away
+		// Used to unlock Doren's flat, more Doren scenes, change Doren's lines, and generally make Doren more protective of the PC.
+		"tookPcToFlat",
+	],
 };
 
 /**
@@ -585,6 +603,11 @@ const Memories = {
 		add: memory => addMemory("Ivory Wraith", memory),
 		has: memory => hasMemory("Ivory Wraith", memory),
 		delete: memory => deleteMemory("Ivory Wraith", memory),
+	},
+	Doren: {
+		add: memory => addMemory("Doren", memory),
+		has: memory => hasMemory("Doren", memory),
+		delete: memory => deleteMemory("Doren", memory),
 	},
 };
 window.Memories = Memories;
