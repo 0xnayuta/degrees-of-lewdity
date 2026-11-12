@@ -39,6 +39,8 @@ declare global {
 		museum: MuseumDaily;
 		/** The Ivory Wraith's once-a-day flags, unset at midnight. */
 		ivoryWraith: IvoryWraithDaily;
+		/** Mason's once-a-day flags, unset at midnight. */
+		mason: MasonDaily;
 	}
 }
 

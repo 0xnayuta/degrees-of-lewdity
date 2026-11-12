@@ -1,0 +1,45 @@
+:: Widgets NNPC Cleanup Migration Mason [widget]
+<<widget "nnpcCleanupMigrationMason">>
+	<<set $mason ??= {
+		chastity: {
+			key: "notCarried",
+			timesRemovedFromPc: 0,
+			pcDeclinedRemoval: false
+		}
+	}>>
+	<<set $daily.mason ??= {}>>
+	<<set $weekly.mason ??= {}>>
+
+	<!-- Mason's lake and ice stages moved into Mason's memories -->
+	<<if $mason_count gte 1>><<run Memories.Mason.add("pcCaughtMasonSwimmingNaked")>><</if>>
+	<<if $mason_count gte 2>><<run Memories.Mason.add("toldPcAboutPond")>><</if>>
+	<<if $mason_count gte 3>><<run Memories.Mason.add("firstPondVisit")>><</if>>
+	<<if $mason_ice_lake gte 1>><<run Memories.Mason.add("rescuedPcUnderIce")>><</if>>
+	<<if $mason_ice_lake gte 2>><<run Memories.Mason.add("letPcDiveUnderIce")>><</if>>
+	<<unset $mason_count $mason_ice_lake>>
+
+	<!-- Mason's chastity variables moved from C.npc.Mason into $mason.chastity -->
+	<<if C.npc.Mason.chastityKeyCarried is 1>>
+		<<set $mason.chastity.key to "carried">>
+	<<elseif C.npc.Mason.chastityKeyCarried is 2>>
+		<<set $mason.chastity.key to "shownToPc">>
+	<</if>>
+	<<if C.npc.Mason.chastityRemoved isnot undefined>>
+		<<set $mason.chastity.timesRemovedFromPc to C.npc.Mason.chastityRemoved>>
+	<</if>>
+	<<if C.npc.Mason.chastityRemovalDeclined is 1>>
+		<<set $mason.chastity.pcDeclinedRemoval to true>>
+	<</if>>
+	<<run delete C.npc.Mason.chastityKeyCarried>>
+	<<run delete C.npc.Mason.chastityRemoved>>
+	<<run delete C.npc.Mason.chastityRemovalDeclined>>
+
+	<!-- Mason's weekly flag moved into $weekly.mason -->
+	<<if $weekly.masonChastityRemovalDeclined>>
+		<<set $weekly.mason.pcDeclinedChastityRemoval to true>>
+	<</if>>
+	<<run delete $weekly.masonChastityRemovalDeclined>>
+
+	<!-- $masonDressed was only used for one vent and now just uses $phase -->
+	<<unset $masonDressed>>
+<</widget>>

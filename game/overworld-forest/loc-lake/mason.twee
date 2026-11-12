@@ -1,5 +1,5 @@
 :: Lake Mason Intro
-<<set $daily.masonLake to true>>
+<<set $daily.mason.metPcAtLake to true>>
 <<effects>>
 <<npc Mason>><<person1>>
 You swim into the middle of the lake. There Mason swims in a wide circle. <<He>> notices you approach, and faces you, treading water.
@@ -17,7 +17,7 @@ You swim into the middle of the lake. There Mason swims in a wide circle. <<He>>
 <<effects>>
 
 <<if $swimmingskill gte 1000>>
-	<<set $mason_count to 1>>
+	<<run Memories.Mason.add("pcCaughtMasonSwimmingNaked")>>
 	You swim after <<him>>, <span class="green">and manage to close the distance.</span> <<He>> glances over <<his>> shoulder, and swims faster, but still you manage to keep up. You're almost close enough to touch <<him>> when <<he>> stops and turns.
 	<br><br>
 
@@ -38,7 +38,7 @@ You swim into the middle of the lake. There Mason swims in a wide circle. <<He>>
 	<br>
 
 <<elseif currentSkillValue('swimmingskill') gte random(1, 300)>>
-	<<set $mason_count to 1>>
+	<<run Memories.Mason.add("pcCaughtMasonSwimmingNaked")>>
 	You swim after <<him>>, but <<hes>> too fast. You'd need to be pretty skilled to match <<him>>, let alone catch up.
 	<br><br>
 
@@ -159,7 +159,7 @@ You ignore <<his>> bashfulness.
 :: Lake Mason
 <<effects>>
 
-<<set $daily.masonLake to true>>
+<<set $daily.mason.metPcAtLake to true>>
 <<npc Mason>><<person1>>
 
 You swim towards Mason. <<He>> doesn't try to outswim you, and starts treading water as you draw close. <<He>> covers <<his>> toned body beneath the water.
@@ -170,7 +170,7 @@ You swim towards Mason. <<He>> doesn't try to outswim you, and starts treading w
 
 <<link [[Just say hello|Lake Mason Greet]]>><<stress -6>><</link>><<lstress>>
 <br>
-<<if $mason_count lte 1>>
+<<if !Memories.Mason.has("toldPcAboutPond")>>
 	<<link [[Ask to chat|Lake Mason Ask]]>><<npcincr Mason love 1>><</link>><<glove>>
 	<br>
 <</if>>
@@ -182,7 +182,7 @@ You swim towards Mason. <<He>> doesn't try to outswim you, and starts treading w
 :: Lake Mason Ask
 <<effects>>
 
-<<set $mason_count to 2>>
+<<run Memories.Mason.add("toldPcAboutPond")>>
 You ask Mason if <<hes>> free to talk. <<He>> glances beneath the water. "N-not right now," <<he>> says. "But there's a place nearby I go to relax in the evening, after my swim. You can find me there if you want to talk."
 <br><br>
 
@@ -254,16 +254,16 @@ You exchange awkward pleasantries. <<He>> remains covered and blushing the whole
 
 You follow one of the streams feeding the lake, to the pond Mason likes to relax in. Water bubbles up from a spring beneath it.
 <br><br>
-<<if Time.dayState is "dusk" and ($daily.masonLake or !Time.schoolDay and Weather.precipitation is "rain")>>
-	<<set $daily.masonLake to true>>
+<<if Time.dayState is "dusk" and ($daily.mason.metPcAtLake or !Time.schoolDay and Weather.precipitation is "rain")>>
+	<<set $daily.mason.metPcAtLake to true>>
 	<<npc Mason>><<person1>>Mason sits in it, wearing a swimsuit. <<His>> arms rest on the rocky bank, and <<his>> eyes are shut.
 	<br><br>
 
 	<<if $exposed gte 2>>
 		<<if hasSexStat("exhibitionism", 5)>>
-			<<icon "actions/swim.png">><<link [[Sit in the pond|Mason In Pond Naked]]>><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist5>><<set $phase to "in">><</if>>
+			<<icon "actions/swim.png">><<link [[Sit in the pond|Mason In Pond Naked]]>><<set $phase to "in">><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist5>><</if>>
 			<br>
-			<<icon "actions/perch-get-up.png">><<link [[Sit beside the pond|Mason Beside Pond Naked]]>><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist5>><<set $phase to "beside">><</if>>
+			<<icon "actions/perch-get-up.png">><<link [[Sit beside the pond|Mason Beside Pond Naked]]>><<set $phase to "beside">><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist5>><</if>>
 			<br>
 		<<else>>
 			<<covered>> You couldn't alert Mason to your presence like this!
@@ -271,9 +271,9 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 		<</if>>
 	<<elseif $exposed gte 1>>
 		<<if hasSexStat("exhibitionism", 3)>>
-			<<icon "actions/swim.png">><<link [[Sit in the pond|Mason In Pond Naked]]>><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist3>><<set $phase to "in">><</if>>
+			<<icon "actions/swim.png">><<link [[Sit in the pond|Mason In Pond Naked]]>><<set $phase to "in">><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist3>><</if>>
 			<br>
-			<<icon "actions/perch-get-up.png">><<link [[Sit beside the pond|Mason Beside Pond Naked]]>><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist3>><<set $phase to "beside">><</if>>
+			<<icon "actions/perch-get-up.png">><<link [[Sit beside the pond|Mason Beside Pond Naked]]>><<set $phase to "beside">><</link>><<if $daily.ex.mason isnot 1>><<exhibitionist3>><</if>>
 			<br>
 		<<else>>
 			<<covered>> You couldn't alert Mason to your presence like this!
@@ -299,7 +299,7 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 :: Mason Beside Pond
 <<effects>>
 
-<<if $mason_count gte 3>>
+<<if Memories.Mason.has("firstPondVisit")>>
 
 	You sit beside the pond. Mason opens <<his>> eyes when <<he>> hears you.
 	<br><br>
@@ -309,7 +309,7 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 
 	<<mason_actions>>
 
-<<else>><<set $mason_count to 3>>
+<<else>><<run Memories.Mason.add("firstPondVisit")>>
 	<<swim_check>>
 	You sit beside the pond. Mason opens <<his>> eyes when <<he>> hears you.
 	<br><br>
@@ -328,7 +328,7 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 :: Mason In Pond
 <<water>><<waterbr 2>><<effects>>
 
-<<if $mason_count gte 3>>
+<<if Memories.Mason.has("firstPondVisit")>>
 	You slip into the pond opposite Mason. <<His>> eyes open when <<he>> hears the splash.
 	<br><br>
 
@@ -336,7 +336,7 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 	<br><br>
 
 	<<mason_actions>>
-<<else>><<set $mason_count to 3>>
+<<else>><<run Memories.Mason.add("firstPondVisit")>>
 	<<swim_check>>
 	You slip into the pond opposite Mason. <<His>> eyes open when <<he>> hears the splash.
 	<br><br>
@@ -354,11 +354,11 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 <<effects>>
 
 <<flaunting>> you sit beside the pond. Mason opens <<his>> eyes when <<he>> hears you, but shuts them again when <<he>> sees your <<lewdness>>.
-<<if !C.npc.Mason.chastityKeyCarried and playerChastity() and $worn.genitals.origin is "Winter" and (C.npc.Mason.love gte 5 or C.npc.Mason.lust gte 10)
+<<if $mason.chastity.key is "notCarried" and playerChastity() and $worn.genitals.origin is "Winter" and (C.npc.Mason.love gte 5 or C.npc.Mason.lust gte 10)
 	and getVisibleClothesList().find(o => o === V.worn.genitals)>>
 	After a moment, <<he>> opens <<his>> eyes again and stares at your $worn.genitals.name.
 	<<He>> stares hard enough that it briefly becomes uncomfortable before <<he>> catches <<himself>> and averts <<his>> gaze with a blush.
-	<<set C.npc.Mason.chastityKeyCarried to 1>><<set $daily.masonChastityRemovalDeclined to 1>>
+	<<set $mason.chastity.key to "carried">><<set $daily.mason.chastityOfferUsed to true>>
 <</if>>
 <<if $exposed gte 2>>
 	<<if $daily.ex.mason isnot 1>>
@@ -376,14 +376,14 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 	<</if>>
 <</if>>
 
-<<if $mason_count gte 3>>
+<<if Memories.Mason.has("firstPondVisit")>>
 
 	<<mason_greet_lust>>
 	<br><br>
 
 	<<mason_actions>>
 
-<<else>><<set $mason_count to 3>>
+<<else>><<run Memories.Mason.add("firstPondVisit")>>
 
 	"I-I'm glad you found me here," <<he>> says. "But could you put some clothes on?"
 	<br><br>
@@ -396,11 +396,11 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 <<water>><<waterbr 2>><<effects>>
 
 <<flaunting>> you slip into the pond. Mason opens <<his>> eyes when <<he>> hears the splash, but shuts them again when <<he>> sees your <<lewdness>>.
-<<if !C.npc.Mason.chastityKeyCarried and playerChastity() and $worn.genitals.origin is "Winter" and (C.npc.Mason.love gte 5 or C.npc.Mason.lust gte 10)
+<<if $mason.chastity.key is "notCarried" and playerChastity() and $worn.genitals.origin is "Winter" and (C.npc.Mason.love gte 5 or C.npc.Mason.lust gte 10)
 	and getVisibleClothesList().find(o => o === V.worn.genitals)>>
 	After a moment, <<he>> opens <<his>> eyes again and stares at your $worn.genitals.name.
 	<<He>> stares hard enough that it briefly becomes uncomfortable before <<he>> catches <<himself>> and averts <<his>> gaze with a blush.
-	<<set C.npc.Mason.chastityKeyCarried to 1>><<set $daily.masonChastityRemovalDeclined to 1>>
+	<<set $mason.chastity.key to "carried">><<set $daily.mason.chastityOfferUsed to true>>
 <</if>>
 <<if $exposed gte 2>>
 	<<if $daily.ex.mason isnot 1>>
@@ -418,14 +418,14 @@ You follow one of the streams feeding the lake, to the pond Mason likes to relax
 	<</if>>
 <</if>>
 
-<<if $mason_count gte 3>>
+<<if Memories.Mason.has("firstPondVisit")>>
 
 	<<mason_greet_lust>>
 	<br><br>
 
 	<<mason_actions>>
 
-<<else>><<set $mason_count to 3>>
+<<else>><<run Memories.Mason.add("firstPondVisit")>>
 
 	"I-I'm glad you found me here," <<he>> says. "But could you put some clothes on?"
 	<br><br>
@@ -484,9 +484,8 @@ You chat with Mason.
 <<effects>>
 <<dry>><<towelup>><<set $foresthunt to 0>>
 Mason gives you some towels to dry with, and wraps one around <<himself>>. Together you walk
-<<if $masonDressed is true>>
+<<if $phase is "changed">>
 	to where you hid your clothes, then after getting dressed, continue
-	<<unset $masonDressed>>
 <</if>>
 through the dark forest in the direction of town.
 <br><br>
@@ -533,14 +532,14 @@ Mason seems unsure, but nods. "If you're sure. Be careful." <<He>> dries <<himse
 			<span class="red">The slime in your ear refuses to allow you to<<if $worn.under_lower.type.includes("naked")>> get changed and<</if>> leave with underwear on.</span>
 			<<set _earSlimeText to true>>
 		<<elseif _storedClothes.length>>
-			<<link [[Get changed, then walk home with Mason (0:40)|Mason Walk]]>><<pass 40>><<storeload "lakeshore">><<set $masonDressed to true>><</link>>
+			<<link [[Get changed, then walk home with Mason (0:40)|Mason Walk]]>><<pass 40>><<storeload "lakeshore">><<set $phase to "changed">><</link>>
 		<<else>>
 			<<link [[Walk home with Mason (0:30)|Mason Walk]]>><<pass 30>><</link>>
 		<</if>>
 		<br>
 		<<link [[Say you'll be okay|Mason Walk Refuse]]>><</link>>
 		<br>
-	<<elseif playerChastity() and $worn.genitals.origin is "Winter" and C.npc.Mason.chastityKeyCarried and !$daily.masonChastityRemovalDeclined
+	<<elseif playerChastity() and $worn.genitals.origin is "Winter" and $mason.chastity.key isnot "notCarried" and !$weekly.mason.pcDeclinedChastityRemoval and !$daily.mason.chastityOfferUsed
 		and getVisibleClothesList().find(o => o === V.worn.genitals) and (C.npc.Mason.love gte 10 or C.npc.Mason.lust gte 15)>>
 		<<include "Mason Chastity Prompt">>
 	<<else>>
@@ -593,7 +592,7 @@ Mason seems unsure, but nods. "If you're sure. Be careful." <<He>> dries <<himse
 <</if>>
 <br><br>
 <<if $swimmingSuccess>>
-	<<set $mason_ice_lake to 2>>
+	<<run Memories.Mason.add("letPcDiveUnderIce")>>
 	Mason watches you a moment, <span class="green">then sighs in resignation.</span>
 
 	<<if $worn.upper.type.includes("diving") and $worn.lower.type.includes("diving")>>
@@ -665,9 +664,9 @@ Mason shakes <<his>> head. "I can't be negligent," <<he>> says. "I don't care if
 <<else>>
 	Pointing to your $worn.genitals.name and blushing, <<he>> says,
 <</if>>
-<<if !C.npc.Mason.chastityRemovalDeclined>>
-	<<switch C.npc.Mason.chastityRemoved>>
-		<<case 0 undefined null>>
+<<if !$mason.chastity.pcDeclinedRemoval>>
+	<<switch $mason.chastity.timesRemovedFromPc>>
+		<<case 0>>
 			"Y-you know, I might have something for that."
 			<<He>> follows up with a hasty, "Only if you want, of course."
 		<<case 1>>
@@ -689,13 +688,13 @@ Mason shakes <<his>> head. "I can't be negligent," <<he>> says. "I don't care if
 <br><br>
 
 
-<<link [[No thanks|Mason Chastity Decline]]>><<set C.npc.Mason.chastityRemovalDeclined to 1>><<set $daily.masonChastityRemovalDeclined to 1>><<set $weekly.masonChastityRemovalDeclined to 1>><</link>>
+<<link [[No thanks|Mason Chastity Decline]]>><<set $mason.chastity.pcDeclinedRemoval to true>><<set $daily.mason.chastityOfferUsed to true>><<set $weekly.mason.pcDeclinedChastityRemoval to true>><</link>>
 <br>
-<<if C.npc.Mason.chastityKeyCarried is 1 or !hasSexStat("exhibitionism", 5)>>
+<<if $mason.chastity.key is "carried" or !hasSexStat("exhibitionism", 5)>>
 	<<link [[Ask|Mason Chastity Ask]]>><</link>>
 <<elseif hasSexStat("exhibitionism", 5)>>
 	<<link [[Accept|Mason Chastity Accept]]>>
-		<<arousal 600>><<exhibitionism5>><<set C.npc.Mason.chastityRemovalDeclined to 0>><<run delete $daily.masonChastityRemovalDeclined>><<run delete $weekly.masonChastityRemovalDeclined>>
+		<<arousal 600>><<exhibitionism5>><<set $mason.chastity.pcDeclinedRemoval to false>><<run delete $daily.mason.chastityOfferUsed>><<run delete $weekly.mason.pcDeclinedChastityRemoval>>
 	<</link>><<garousal>><<exhibitionist5>>
 <<else>>
 	<br><<insufficientStat "exhibitionism" "to let Mason strip you">>
@@ -719,18 +718,18 @@ Mason shakes <<his>> head. "I can't be negligent," <<he>> says. "I don't care if
 
 
 :: Mason Chastity Ask
-<<effects>><<set C.npc.Mason.chastityKeyCarried to 2>>
+<<effects>><<set $mason.chastity.key to "shownToPc">>
 "Like what?" you ask.
 <br><br>
 
 Mason pulls out a small key. "You've had a run in with Old Winter. I think this might fit. W-would you mind if I tried?"
 <br><br>
 
-<<link [[No thanks|Mason Chastity Decline]]>><<set C.npc.Mason.chastityRemovalDeclined to 1>><<set $daily.masonChastityRemovalDeclined to 1>><<set $weekly.masonChastityRemovalDeclined to 1>><</link>>
+<<link [[No thanks|Mason Chastity Decline]]>><<set $mason.chastity.pcDeclinedRemoval to true>><<set $daily.mason.chastityOfferUsed to true>><<set $weekly.mason.pcDeclinedChastityRemoval to true>><</link>>
 <br>
 <<if hasSexStat("exhibitionism", 5)>>
 	<<link [[Accept|Mason Chastity Accept]]>>
-		<<arousal 600>><<exhibitionism5>><<set C.npc.Mason.chastityRemovalDeclined to 0>><<run delete $daily.masonChastityRemovalDeclined>><<run delete $weekly.masonChastityRemovalDeclined>>
+		<<arousal 600>><<exhibitionism5>><<set $mason.chastity.pcDeclinedRemoval to false>><<run delete $daily.mason.chastityOfferUsed>><<run delete $weekly.mason.pcDeclinedChastityRemoval>>
 	<</link>><<garousal>><<exhibitionist5>>
 <<else>>
 	<br><<insufficientStat "exhibitionism" "to let Mason strip you">>
@@ -740,10 +739,9 @@ Mason pulls out a small key. "You've had a run in with Old Winter. I think this 
 
 :: Mason Chastity Accept
 <<effects>>
-<<if C.npc.Mason.chastityRemoved is undefined>><<set C.npc.Mason.chastityRemoved to 0>><</if>>
 
 /* Player */
-<<switch C.npc.Mason.chastityRemoved>>
+<<switch $mason.chastity.timesRemovedFromPc>>
 	<<case 0>>
 		<<if $speech_attitude is "meek">>
 			"O-only if you think it will fit," you say, blushing and averting your eyes.
@@ -793,7 +791,7 @@ The key fits perfectly, and with a loud click, the $worn.genitals.name comes off
 <br><br>
 
 /* Reaction */
-<<switch C.npc.Mason.chastityRemoved>>
+<<switch $mason.chastity.timesRemovedFromPc>>
 	<<case 0>>
 		Mason marvels at your <<genitals 2>> for longer than <<he>> means to and, upon realising it, closes <<his>> eyes and quickly turns away.
 		"Well, it does fit, so you're welcome. It's not the first time I've had a run in with one of these."
@@ -805,11 +803,11 @@ The key fits perfectly, and with a loud click, the $worn.genitals.name comes off
 	<<default>>
 		Mason marvels at your <<genitals 2>> for longer than <<he>> means to. As if it had a mind of its own, <<his>> hand raises.
 <</switch>>
-<<set C.npc.Mason.chastityRemoved += 1>>
+<<set $mason.chastity.timesRemovedFromPc += 1>>
 <br><br>
 
 /* Options */
-<<if C.npc.Mason.chastityRemoved gte 3>>
+<<if $mason.chastity.timesRemovedFromPc gte 3>>
 	<<if !hasSexStat("promiscuity", 3)>>
 		<<insufficientStat "promiscuity" "to take things any further">>
 	<<else>>
