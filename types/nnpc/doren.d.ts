@@ -30,6 +30,9 @@ declare global {
 
 	/** Doren's once-a-month flags, stored in `$monthly.doren`. */
 	export interface DorenMonthly {
+		/** If Doren dropped off food at River's soup kitchen while the PC was helping River this month.
+		 * Stops the event from rolling again this month. */
+		droppedOffFood?: true;
 		/** If the PC joined Doren's Sunday beach clean-up this month.
 		 * Lets River and Doren talk about it at the soup kitchen. */
 		pcVolunteeredAtBeach?: true;
