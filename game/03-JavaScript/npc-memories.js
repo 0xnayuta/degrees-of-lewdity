@@ -507,6 +507,17 @@ const VALID_MEMORIES = {
 		// Used so Mason stops pulling the PC out from under the ice
 		"letPcDiveUnderIce",
 	],
+	Landry: [
+		// If Landry sold the PC their first pepper spray charge
+		// Used so Landry only apologises for the cost the first time
+		"firstPepperSpraySale",
+		// If Landry met the PC at the pub and offered to buy their stolen goods
+		// Used to skip Landry's intro, so Landry steps in when Avery grabs the PC outside the pub, so the PC can name Landry when questioned at the Elk Compound, and for various flavor text during Landry/Mickey's jobs
+		"metPcAtPub",
+		// If the PC asked Landry for help hiring workers for the loft bay window
+		// Used to swap the ask option for handing Landry the money and progressing the loft
+		"pcAskedForLoftWorkers",
+	],
 };
 
 /**
@@ -647,6 +658,11 @@ const Memories = {
 		add: memory => addMemory("Mason", memory),
 		has: memory => hasMemory("Mason", memory),
 		delete: memory => deleteMemory("Mason", memory),
+	},
+	Landry: {
+		add: memory => addMemory("Landry", memory),
+		has: memory => hasMemory("Landry", memory),
+		delete: memory => deleteMemory("Landry", memory),
 	},
 };
 window.Memories = Memories;

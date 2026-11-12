@@ -1,0 +1,44 @@
+:: Widgets NNPC Cleanup Migration Landry [widget]
+<<widget "nnpcCleanupMigrationLandry">>
+	<<set $landry ??= {
+		blackBox: {}
+	}>>
+
+	<!-- Landry's one-time flags moved into Landry's memories -->
+	<<if $pubintro>><<run Memories.Landry.add("metPcAtPub")>><</if>>
+	<<if $landry_loft_known>><<run Memories.Landry.add("pcAskedForLoftWorkers")>><</if>>
+	<<if $pubspray>><<run Memories.Landry.add("firstPepperSpraySale")>><</if>>
+	<<unset $pubintro $landry_loft_known $pubspray>>
+
+	<!-- Landry's black box job moved onto $landry.blackBox -->
+	<<for _oldName, _newName range {
+		pubtask: "location",
+		pubtasksetting: "guardedBy",
+		smugglerBox: "pcLeftSmugglersWithoutBox",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $landry.blackBox[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $landry.blackBox.guardedBy is "pair">>
+		<<set $landry.blackBox.guardedBy to "humanPair">>
+	<<elseif $landry.blackBox.guardedBy is "person">>
+		<<set $landry.blackBox.guardedBy to "human">>
+	<</if>>
+	<<if $sewersBox is "smuggler">>
+		<<set $landry.blackBox.guardedBy ??= "smugglers">>
+	<</if>>
+	<<unset $sewersBox>>
+	<<if $pubtask2 is 1>>
+		<<set $landry.blackBox.pcHasBox to true>>
+	<</if>>
+	<<if $pubstage is 1>>
+		<<set $landry.blackBox.nextLocation to "moor">>
+	<<elseif $pubstage is 2>>
+		<<set $landry.blackBox.nextLocation to "sewers">>
+	<<else>>
+		<<set $landry.blackBox.nextLocation ??= "forest">>
+	<</if>>
+	<<unset $pubtask2 $pubstage>>
+<</widget>>
