@@ -585,6 +585,26 @@ const VALID_MEMORIES = {
 		// Used for various Wren lines and introductions, for unlocking various Wren scenes, and the heist offer
 		"toldPcName",
 	],
+	Harper: [
+		// If Harper declared the PC's asylum treatment finished
+		// Used so Harper's office also refills the asylum's prescription pills
+		"finishedPcsAsylumTreatment",
+		// If the PC had their first appointment in Harper's office
+		// Used so the first appointment only plays once, and so PC recognizes Harper in future meetings
+		"firstAppointment",
+		// If Harper introduced the PC to the first therapy dog
+		// Used so the dog's introduction only plays once, and so Harper has different lines during future dog sessions
+		"firstTherapyDog",
+		// If the PC met Harper as a doctor
+		// Used so that introduction only plays once, for various Harper lines, and so Mickey won't warn about Harper
+		"metAsDoctor",
+		// If the PC met Harper at Avery's mansion party
+		// Used for Harper's introductions when they meet again
+		"metAtAverysParty",
+		// If Harper introduced themselves to the PC at Remy's farm
+		// Used for Harper's introductions when they meet again
+		"metAtRemysFarm",
+	],
 };
 
 /**
@@ -735,6 +755,11 @@ const Memories = {
 		add: memory => addMemory("Wren", memory),
 		has: memory => hasMemory("Wren", memory),
 		delete: memory => deleteMemory("Wren", memory),
+	},
+	Harper: {
+		add: memory => addMemory("Harper", memory),
+		has: memory => hasMemory("Harper", memory),
+		delete: memory => deleteMemory("Harper", memory),
 	},
 };
 window.Memories = Memories;

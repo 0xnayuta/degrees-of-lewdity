@@ -43,6 +43,8 @@ declare global {
 		mason: MasonDaily;
 		/** Wren's once-a-day flags, unset at midnight. */
 		wren: WrenDaily;
+		/** Harper's once-a-day flags, unset at midnight. */
+		harper: HarperDaily;
 	}
 }
 
