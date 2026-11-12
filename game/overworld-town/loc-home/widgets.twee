@@ -249,18 +249,33 @@
 <br>
 <</widget>>
 
-<<widget "bedroomEntryEvent">>
-	<<set _forcedBedroomEntry to _args[0] is "forced">>
-	<<set _linkText to _forcedBedroomEntry ? "Next" : "Bedroom (0:01)">>
+<<widget "bedroomLink" container>>
+	<<set _forcedBedroomEntry to _args.includes("forced")>>
+	<<set _linkText to (_args[0] is "forced" ? _args[1] : _args[0]) || "Bedroom (0:01)">>
+	<<set _bedroomEntryContents to _contents>>
+	<<set _bedroomEntryLink to "Bedroom">>
 	<<if !_forcedBedroomEntry and Time.hour gte 18 and Time.hour lte 20 and statusCheck("Robin").trauma gte 40 and $robin.punishment.current is 0 and !Memories.Robin.has("pcHeardRobinCrying")>>
-		<<bedicon>><<link _linkText "Robin Trauma Visit">><<set $phase to 0>><<pass 1>><</link>>
+		<<set _bedroomEntryLink to "Robin Trauma Visit">>
 	<<elseif $kylar.timer.home gte 100 and $kylar.home is undefined>>
-		<<bedicon>><<link _linkText "Kylar Bedroom 1">><<pass 1>><<set $kylar.timer.home to 0>><<set $kylar.home to 0>><</link>>
+		<<set _bedroomEntryLink to "Kylar Bedroom 1">>
 	<<elseif $kylar.timer.home gte 100 and $kylar.home is 0 and C.npc.Kylar.state is "active">>
-		<<bedicon>><<link _linkText "Kylar Bedroom 2">><<pass 1>><<set $kylar.timer.home to 0>><<set $kylar.home to 1>><</link>>
+		<<set _bedroomEntryLink to "Kylar Bedroom 2">>
 	<<elseif (Time.hour gte 18 or Time.hour lte 3) and $kylarenglish gte 1 and !$kylar.timer.letter and C.npc.Kylar.state is "active" and $rng gte 96>>
-		<<bedicon>><<link _linkText "Kylar Bedroom Letter">><<pass 1>><<set $kylar.timer.letter to 30>><</link>>
-	<<else>>
-		<<bedicon>><<link _linkText "Bedroom">><<pass 1>><</link>>
+		<<set _bedroomEntryLink to "Kylar Bedroom Letter">>
 	<</if>>
+	<<capture _bedroomEntryLink _bedroomEntryContents>>
+		<<link _linkText _bedroomEntryLink>>
+			<<pass 1>>
+			<<if _bedroomEntryLink is "Robin Trauma Visit">>
+				<<set $phase to 0>>
+			<<elseif _bedroomEntryLink is "Kylar Bedroom 1">>
+				<<set $kylar.timer.home to 0>><<set $kylar.home to 0>>
+			<<elseif _bedroomEntryLink is "Kylar Bedroom 2">>
+				<<set $kylar.timer.home to 0>><<set $kylar.home to 1>>
+			<<elseif _bedroomEntryLink is "Kylar Bedroom Letter">>
+				<<set $kylar.timer.letter to 30>>
+			<</if>>
+			<<run Wikifier.wikifyEval(_bedroomEntryContents)>>
+		<</link>>
+	<</capture>>
 <</widget>>
