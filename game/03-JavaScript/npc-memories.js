@@ -478,6 +478,17 @@ const VALID_MEMORIES = {
 		// Used to unlock Doren's flat, more Doren scenes, change Doren's lines, and generally make Doren more protective of the PC.
 		"tookPcToFlat",
 	],
+	River: [
+		// If the PC met River at the soup kitchen
+		// Used so the soup kitchen intro only plays once, change the soup kitchen closed text, and so River can visit the PC in the school infirmary
+		"firstSoupKitchenMeeting",
+		// If River let the PC cook their own food in the soup kitchen
+		// Used to replace asking River if they can cook at the soup kitchen with a "Cook your own food" link
+		"letPcCookInSoupKitchen",
+		// If River tugged the PC's animal ears in maths class
+		// Used so River's later tugs ask if the PC is still wearing that "silly headband"
+		"tuggedPcEars",
+	],
 };
 
 /**
@@ -608,6 +619,11 @@ const Memories = {
 		add: memory => addMemory("Doren", memory),
 		has: memory => hasMemory("Doren", memory),
 		delete: memory => deleteMemory("Doren", memory),
+	},
+	River: {
+		add: memory => addMemory("River", memory),
+		has: memory => hasMemory("River", memory),
+		delete: memory => deleteMemory("River", memory),
 	},
 };
 window.Memories = Memories;
