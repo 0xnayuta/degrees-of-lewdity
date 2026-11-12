@@ -31,13 +31,13 @@ declare global {
 		donor: string;
 		donorSpecies: string;
 		possibleDonors: PossibleDonor[];
-		conceivedDate: number;
+		conceivedDate: TimeStamp;
 		conceivedLocation: string;
 		gestationVariance: number;
 		orifice: "vagina" | "anus";
 		hatchDelay?: number;
 		layCare?: number;
-		deliveredDate: number | null;
+		deliveredDate: TimeStamp | null;
 		deliveredLocation: string | null;
 		waterBreaking?: boolean;
 		birthInProgress?: boolean;
@@ -80,7 +80,7 @@ declare global {
 		gender: "m" | "f" | "h";
 		identical: number | null;
 		development: Development;
-		bornDate: number | null;
+		bornDate: TimeStamp | null;
 		name: string | null;
 		coParents: string[];
 		awareOfChild: string[];
@@ -111,13 +111,13 @@ declare global {
 		firstWord?: string | null;
 		interactions?: number;
 		interactionsTotal?: number;
-		adoptedDate?: number;
+		adoptedDate?: TimeStamp;
 	}
 
 	export interface Load {
 		donor: string;
 		donorSpecies: string;
-		time: number;
+		time: TimeStamp;
 		weight: number;
 		canWash: boolean;
 		lifespan: number;
@@ -131,7 +131,7 @@ declare global {
 		donor: string;
 		donorSpecies: string;
 		possibleDonors: PossibleDonor[];
-		conceivedDate: number;
+		conceivedDate: TimeStamp;
 		conceivedLocation: string;
 	}
 
@@ -212,7 +212,7 @@ declare global {
 		donor: string,
 		donorSpecies: string,
 		possibleDonors: PossibleDonor[],
-		conceivedDate: number,
+		conceivedDate: TimeStamp,
 		orifice: "vagina" | "anus",
 		conceivedLocation: string,
 		litterSize?: number

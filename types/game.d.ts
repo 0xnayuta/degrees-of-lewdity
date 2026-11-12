@@ -19,7 +19,7 @@ declare module "twine-sugarcube" {
 		/**
 		 * Normally a number, although in some situations was assigned as potentially undefined.
 		 */
-		startDate: number | undefined;
+		startDate: TimeStamp | undefined;
 
 		effectsmessage: number;
 		loveInterest_message: number;
@@ -58,7 +58,6 @@ declare module "twine-sugarcube" {
 		park_fame: number;
 
 		syndromewolves: 1;
-		wolfcavepatrol: 1;
 
 		brothelVending: {
 			condomsSold: number;
@@ -80,7 +79,7 @@ declare module "twine-sugarcube" {
 			intro: boolean;
 		};
 		brothel_escortjob: {
-			date: number;
+			date: TimeStamp;
 			missed: boolean;
 		};
 

@@ -517,6 +517,9 @@ declare global {
 	interface ArrayConstructor {
 		between(min: number, max: number): boolean;
 	}
+
+	/** A point in game time as `Time.date.timeStamp`: seconds since midnight on 1 January, 1 AD. */
+	export type TimeStamp = number;
 }
 
 export {};

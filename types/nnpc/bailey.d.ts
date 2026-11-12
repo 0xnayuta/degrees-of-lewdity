@@ -46,7 +46,7 @@ declare global {
 			/** Days before anger can rise again on its own. */
 			angerCountdown: 0 | 1 | 2;
 			/** Places the thugs are lying in wait, and when they give up. At most 3. */
-			traps: Array<{ location: string; endTime: number }>;
+			traps: Array<{ location: string; endTime: TimeStamp }>;
 		} | null;
 		/** Bailey collecting the PC's rent, and what Bailey does when they don't pay. */
 		rent: {

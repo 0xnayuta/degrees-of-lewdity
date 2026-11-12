@@ -47,6 +47,8 @@ declare global {
 		wren: WrenDaily;
 		/** Harper's once-a-day flags, unset at midnight. */
 		harper: HarperDaily;
+		/** The Black Wolf's once-a-day flags, unset at midnight. */
+		blackWolf: BlackWolfDaily;
 	}
 }
 

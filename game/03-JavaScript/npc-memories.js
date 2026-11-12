@@ -205,6 +205,14 @@ const VALID_MEMORIES = {
 		// Used to skip the first-time text on later forest trips and on the Halloween costume trip
 		"visitedForestShop",
 	],
+	"Black Wolf": [
+		// If the Black Wolf has taken the PC up the hill to watch the forest
+		// Used so later trips skip the walk up the hill and the PC thanks the Black Wolf for bringing them again
+		"firstForestWatch",
+		// If the Black Wolf has led the PC to the pups' den after a birth
+		// Used to show the pups' den in the wolf cave, and so later births skip the den introduction
+		"showedPcPupsDen",
+	],
 	Sirris: [
 		// If the PC saw Sirris carrying a box to their car after school, hinting at the adult shop opening
 		// Used so the hint only plays once
@@ -655,6 +663,11 @@ const Memories = {
 		add: memory => addMemory("Robin", memory),
 		has: memory => hasMemory("Robin", memory),
 		delete: memory => deleteMemory("Robin", memory),
+	},
+	BlackWolf: {
+		add: memory => addMemory("Black Wolf", memory),
+		has: memory => hasMemory("Black Wolf", memory),
+		delete: memory => deleteMemory("Black Wolf", memory),
 	},
 	Sirris: {
 		add: memory => addMemory("Sirris", memory),

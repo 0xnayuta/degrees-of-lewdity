@@ -1,0 +1,93 @@
+:: Widgets NNPC Cleanup Migration Black Wolf [widget]
+<<widget "nnpcCleanupMigrationBlackWolf">>
+	<<set $blackWolf ??= {
+		challenge: {},
+		hunt: {}
+	}>>
+	<<set $daily.blackWolf ??= {}>>
+	<<set $weekly.blackWolf ??= {}>>
+
+	<!-- The Black Wolf's one-time flags moved into its memories -->
+	<<if $forestCliffKnown is 1>><<run Memories.BlackWolf.add("firstForestWatch")>><</if>>
+	<<if $knowsAboutDen is 1>><<run Memories.BlackWolf.add("showedPcPupsDen")>><</if>>
+	<<unset $forestCliffKnown $knowsAboutDen>>
+
+	<!-- The Black Wolf's variables moved onto $blackWolf -->
+	<<for _oldName, _newName range {
+		blackWolfSleep: "inBedWithPc",
+		wolfpackpoisoned: "poisonedByPinkMushroom",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $blackWolf[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $wolfchallengereason isnot undefined>>
+		<<set $blackWolf.challenge.pcTalkedDownLast to $wolfchallengereason>>
+		<<unset $wolfchallengereason>>
+	<</if>>
+	<<for _oldName, _newName range {
+		blackWolfNotHunting: "stayedAtCave",
+		blackWolfPregnancyHunt: "huntingForPregnantPc",
+		wolfpackshroom: "mushroomPcCarries",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $blackWolf.hunt[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<!-- The Black Wolf's 0/1 flags turned into booleans -->
+	<<if $blackWolf.poisonedByPinkMushroom is 1>>
+		<<set $blackWolf.poisonedByPinkMushroom to true>>
+	<<elseif $blackWolf.poisonedByPinkMushroom is 0>>
+		<<set $blackWolf.poisonedByPinkMushroom to false>>
+	<</if>>
+	<<if $blackWolf.challenge.pcTalkedDownLast is 1>>
+		<<set $blackWolf.challenge.pcTalkedDownLast to true>>
+	<<elseif $blackWolf.challenge.pcTalkedDownLast is 0>>
+		<<set $blackWolf.challenge.pcTalkedDownLast to false>>
+	<</if>>
+
+	<!-- The Black Wolf's patrol flags moved into $weekly.blackWolf and $daily.blackWolf -->
+	<<if $wolfcavepatrol is 0>>
+		<<set $weekly.blackWolf.wentOnPatrol to true>>
+	<</if>>
+	<<if $wolfcavepatrol is 1 and $wolfcavepatrolchance is 1>>
+		<<set $daily.blackWolf.patrolTonight to true>>
+	<</if>>
+	<<unset $wolfcavepatrol $wolfcavepatrolchance>>
+
+	<!-- The Black Wolf's day and hour countdowns turned into timestamps -->
+	<<if $wolfpatrolsent isnot undefined>>
+		<<set $blackWolf.patrolLeftAt to Time.date.timeStamp - ($wolfpatrolsent - 1) * TimeConstants.secondsPerHour>>
+		<<unset $wolfpatrolsent>>
+	<</if>>
+	<<if $wolfchallengetimer gt 0>>
+		<<set $blackWolf.challenge.nextAllowedAt to Time.date.timeStamp + $wolfchallengetimer * TimeConstants.secondsPerDay>>
+	<</if>>
+	<<unset $wolfchallengetimer>>
+	<<if $daily.blackWolfHeatEvent isnot undefined>>
+		<<set $blackWolf.lastSexAt to Time.date.timeStamp - (Time.hour - $daily.blackWolfHeatEvent) * TimeConstants.secondsPerHour>>
+		<<run delete $daily.blackWolfHeatEvent>>
+	<</if>>
+
+	<!-- The Black Wolf's daily and weekly flags moved into $daily.blackWolf and $weekly.blackWolf -->
+	<<for _oldName, _newName range {
+		blackWolfCleanAway: "triedToCleanPc",
+		blackWolfWash: "markedPcAfterWash",
+	}>>
+		<<if $daily[_oldName] isnot undefined>>
+			<<set $daily.blackWolf[_newName] to $daily[_oldName]>>
+			<<run delete $daily[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $weekly.watchingForest>>
+		<<set $weekly.blackWolf.askedPcToWatchForest to true>>
+	<</if>>
+	<<if $weekly.babyRabbit is 1>>
+		<<set $weekly.blackWolf.babyRabbitChanceUsed to true>>
+	<</if>>
+	<<run delete $weekly.watchingForest>>
+	<<run delete $weekly.babyRabbit>>
+<</widget>>

@@ -549,7 +549,6 @@ function weekPassed() {
 			V.sydneyGlassesNotice = 1;
 		}
 	}
-	if (V.syndromewolves === 1) V.wolfcavepatrol = 1;
 	if (V.photo) {
 		V.photo.job = 0;
 		V.photo.shoot = 0;
@@ -687,13 +686,10 @@ function dayPassed() {
 		if (V.temple_evaluation <= 0) delete V.temple_evaluation;
 	}
 	if (V.wolfcavebreast >= 1) delete V.wolfcavebreast;
-	if (V.wolfcavepatrol === 1) V.wolfcavepatrolchance = random(1, 3);
 	if (V.temple_event !== undefined) V.temple_event = 1;
 	if (V.school_crossdress_message >= 1 || V.school_herm_message >= 1) V.effectsmessage = 1;
 	if (V.syndromewolves === 1) {
 		wikifier("wolf_cave_update");
-		if (V.wolfchallengetimer === undefined) V.wolfchallengetimer = 14;
-		else V.wolfchallengetimer--;
 	}
 	if (V.estatePersistent) {
 		if (V.estatePersistent.suspicion && V.estatePersistent.suspicion >= 1) wikifier("blackjackSuspicion", -5 - C.npc.Wren.love / 5);
@@ -1005,6 +1001,8 @@ function dayPassed() {
 
 	if (random(1, 8) === 1) V.daily.robin.canHaveKitchenEvent = true;
 
+	if (V.syndromewolves === 1 && random(1, 3) === 1) V.daily.blackWolf.patrolTonight = true;
+
 	if (V.avery_skyscraper_fire_time >= 1) {
 		V.avery_skyscraper_fire_time--;
 	}
@@ -1083,7 +1081,6 @@ function hourPassed(hours) {
 			if (numberOfEarSlime() > 1 && V.earSlime.growth < 100) V.earSlime.defyCooldown--;
 			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
 		}
-		if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
 		if (C.npc.Sydney.init === 1) {
 			sydneySchedule();
@@ -1172,7 +1169,6 @@ function hourPassed(hours) {
 	V.timeMessages.pushUnique("feats");
 
 	if (!V.wolfevent) V.wolfevent = 1;
-	if (V.wolfpatrolsent >= 24) delete V.wolfpatrolsent;
 
 	if (V.pillory.tenant.exists && V.pillory.tenant.endTime < V.timeStamp) wikifier("clear_pillory");
 

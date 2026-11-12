@@ -211,7 +211,7 @@ declare global {
 		 * "diver": a diver took it after the PC paid for the lake field office at the town hall. */
 		takenBy: "" | "pc" | "diver";
 		/** Timestamp of when the necklace was taken. */
-		takenAt?: number;
+		takenAt?: TimeStamp;
 		/** The weather when the necklace was taken. */
 		weatherWhenTaken?: {
 			name: string;
