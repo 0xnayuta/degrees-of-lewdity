@@ -15,6 +15,8 @@ declare global {
 		};
 		milkFullPainMessage: boolean;
 		graceUp: boolean;
+		/** If a wolf pack hunt failed today. Lets two wolves harass the PC in the cave once, then it's unset. */
+		wolfHuntFailed?: true;
 		/** Robin's once-a-day flags, unset at midnight. */
 		robin: RobinDaily;
 		/** The Night Monster's once-a-day flags, unset at midnight. */
