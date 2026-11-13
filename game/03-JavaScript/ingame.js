@@ -2302,6 +2302,9 @@ function dailyConvert() {
 				timesPcVisitedOffice: V.baileyvisit,
 				wokePcForSchool: V.bailey_wake_day,
 			},
+			mason: {
+				pcSwamOutToTalk: V.mason_spoken,
+			},
 			kylar: V.kylarDaily || {},
 			morgan: {},
 			eden: {
@@ -2376,7 +2379,6 @@ function dailyConvert() {
 			nightMonsterMonsterRoll: V.nightMonsterMonsterRoll,
 			templePray: V.temple_pray,
 			lakeMeditate: V.lake_meditate,
-			masonSpoken: V.mason_spoken,
 			stallRented: V.stall_rented,
 			rocksPoolInvite: V.rocks_pool_invite,
 			birdWash: V.bird_wash,

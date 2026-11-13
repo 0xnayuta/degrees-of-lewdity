@@ -468,9 +468,6 @@ function yearPassed() {
 }
 
 function monthPassed() {
-	V.soupKitchen = "none";
-	V.foodDropoff = "none";
-
 	V.monthly.clearProperties();
 }
 

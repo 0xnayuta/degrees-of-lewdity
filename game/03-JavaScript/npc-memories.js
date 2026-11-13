@@ -478,6 +478,35 @@ const VALID_MEMORIES = {
 		// Used to unlock Doren's flat, more Doren scenes, change Doren's lines, and generally make Doren more protective of the PC.
 		"tookPcToFlat",
 	],
+	River: [
+		// If the PC met River at the soup kitchen
+		// Used so the soup kitchen intro only plays once, change the soup kitchen closed text, and so River can visit the PC in the school infirmary
+		"firstSoupKitchenMeeting",
+		// If River let the PC cook their own food in the soup kitchen
+		// Used to replace asking River if they can cook at the soup kitchen with a "Cook your own food" link
+		"letPcCookInSoupKitchen",
+		// If River tugged the PC's animal ears in maths class
+		// Used so River's later tugs ask if the PC is still wearing that "silly headband"
+		"tuggedPcEars",
+	],
+	Mason: [
+		// If the PC caught up with Mason swimming naked in the lake
+		// Used so later swims skip the chase, and so Mason recognises the PC as the underwear thief in the locker scene
+		"pcCaughtMasonSwimmingNaked",
+		// If Mason told the PC about the pond by the waterfall where Mason relaxes in the evening
+		// Used to add Mason's pond link to the waterfall and to hide "Ask to chat" when swimming out to Mason
+		"toldPcAboutPond",
+		// If the PC found Mason at the pond for the first time
+		// Used so later visits skip the intro scene
+		"firstPondVisit",
+
+		// If Mason pulled the PC out from under the ice
+		// Used so the PC can glimpse Mason under the water on snowy days, and so Mason pulls the PC out until convinced PC can dive under the ice
+		"rescuedPcUnderIce",
+		// If the PC convinced Mason they can dive under the ice safely
+		// Used so Mason stops pulling the PC out from under the ice
+		"letPcDiveUnderIce",
+	],
 };
 
 /**
@@ -608,6 +637,16 @@ const Memories = {
 		add: memory => addMemory("Doren", memory),
 		has: memory => hasMemory("Doren", memory),
 		delete: memory => deleteMemory("Doren", memory),
+	},
+	River: {
+		add: memory => addMemory("River", memory),
+		has: memory => hasMemory("River", memory),
+		delete: memory => deleteMemory("River", memory),
+	},
+	Mason: {
+		add: memory => addMemory("Mason", memory),
+		has: memory => hasMemory("Mason", memory),
+		delete: memory => deleteMemory("Mason", memory),
 	},
 };
 window.Memories = Memories;
