@@ -75,11 +75,11 @@ const events = [
 	{
 		name: "harper appointment",
 		condition() {
-			return (V.harper_appointments.enabled || V.schoolPsych === 1) && Time.weekDay === 6 && V.daily.harperVisit !== 1;
+			return V.harper.appointments.status !== undefined && Time.weekDay === 6 && V.daily.harper.pcVisitedOffice !== true;
 		},
 		priority: 2,
-		text: "You <<print $harper_appointments.enabled ? 'have an' : 'may get an'>> appointment with Doctor Harper at the hospital today.",
-		failuretext: "You have missed <<print $harper_appointments.enabled ? 'an' : 'a chance to get an'>> appointment with Doctor Harper.",
+		text: "You <<print $harper.appointments.status is 'weekly' ? 'have an' : 'may get an'>> appointment with Doctor Harper at the hospital today.",
+		failuretext: "You have missed <<print $harper.appointments.status is 'weekly' ? 'an' : 'a chance to get an'>> appointment with Doctor Harper.",
 	},
 	{
 		name: "brothel show",
@@ -110,7 +110,7 @@ const events = [
 	{
 		name: "wren heist",
 		condition() {
-			return V.wrenHeist === true && V.wrenHeistDance.attended !== true;
+			return V.wren.heist.tonight !== undefined && V.wren.heist.tonight.pcArrived !== true;
 		},
 		starthour: 19,
 		endhour: 20,

@@ -1,10 +1,10 @@
 :: Widgets Pub [widget]
 
 <<widget "landryoptions">>
-	<<if $loft_gh is 1 and $landry_loft_known isnot 1>>
+	<<if $loft_gh is 1 and !Memories.Landry.has("pcAskedForLoftWorkers")>>
 		<<socialiseicon "ask">><<link [[Ask for help hiring workers|Pub Window Loft Ask]]>><</link>>
 		<br>
-	<<elseif $landry_loft_known is 1 and $loft_gh is 1 and $money gte 500000>>
+	<<elseif Memories.Landry.has("pcAskedForLoftWorkers") and $loft_gh is 1 and $money gte 500000>>
 		<<highicon>><<link [[Hand Landry the money to hire workers|Pub Window Loft Purchase]]>><<money -500000 "orphanageUpgrades">><<endevent>><</link>>
 		<br>
 	<</if>>
@@ -16,7 +16,7 @@
 		<<peppersprayicon>><<link [[Buy pepper spray charge (<<printmoney 250000>>)|Pub Spray]]>><<spray 1>><<money -250000 "pubPepperSpray">><</link>>
 		<br>
 	<</if>>
-	<<if crimeSumCurrent() gte 500 and !$pubtask>>
+	<<if crimeSumCurrent() gte 500 and !$landry.blackBox.location>>
 		<<socialiseicon "ask">><<link [[Ask for help covering your tracks|Pub Task]]>><</link>>
 		<br>
 	<</if>>
@@ -34,7 +34,7 @@
 		<</if>>
 		<br>
 	<</if>>
-	<<if $pubtask2 is 1>>
+	<<if $landry.blackBox.pcHasBox>>
 		<<crimeicon "black box">><<link [[Hand over the black box|Pub Box]]>><<set $pub_task_stat++>><</link>>
 		<br>
 	<</if>>
@@ -446,7 +446,7 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 "I'll be frank," <<he>> says. "I know you need money. Don't ask me how I know, word gets around. I think I can help you. If you come across any jewellery or other items you don't know what to do with, I can take them off your hands. I'll pay well."
 <br><br>
 <<He>> looks over your shoulder, as if making sure you're still alone. "As well as can be expected, anyway. We might also be able to help each other out from time to time. That's all I have to say." <<He>> stands up and puts out <<his>> hand. "Keep me in mind at least. Ask one of the staff when you want to speak with me, they'll know where to find me. My name's Landry."
-<<set $pubintro to 1>>
+<<run Memories.Landry.add("metPcAtPub")>>
 <br><br>
 <<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
@@ -486,9 +486,9 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 	<br><br>
 	<<link [[Next|Pub Avery Note]]>><</link>>
 	<br>
-<<elseif ($wren_intro isnot undefined or $wrenSeen?.includesAny("cards", "prison")) and ($prison?.wren_names is 2 or crimeSumCurrent() gte 5000 or $fame.social gte 600) and $wrenHeist is undefined and Time.hour lte 17>>
+<<elseif (Memories.Wren.has("toldPcName") or Memories.Wren.has("metPcAtEstate") or Memories.Wren.has("metPcInPrison")) and (Memories.Wren.has("pcGavePrisonNames") or crimeSumCurrent() gte 5000 or $fame.social gte 600) and $wren.heist.daysUntilNextOffer is undefined and Time.hour lte 17>>
 	<<npc Landry>><<person1>>You ask the bartender for Landry, who nods and beckons you over to your usual table. You've barely sat down when
-	<<set $wrenHeist to false>><<set $wrenHeistMonthly to 30>>
+	<<set $wren.heist.daysUntilNextOffer to 30>>
 
 	<<npc Wren 2>><<person2>>there's a small disturbance at the front of the pub. Landry sighs and leaves to investigate. You're about to follow when someone sits across from you. <span class="gold">It's Wren.</span>
 	<br><br>
@@ -500,7 +500,7 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 		"Let me guess," you say with a smirk.
 	<</if>>
 
-	<<if $wrenSeenLast is "cards">>
+	<<if $wren.lastMetAt is "metPcAtEstate">>
 		<<if $speech_attitude is "meek">>
 			"Sorry, but I-I can't play cards right now..."
 		<<elseif $speech_attitude is "bratty">>
@@ -554,8 +554,8 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 You put the money on the table. Landry swaps it with a small canister.
 <<gspray>>
 <br><br>
-<<if $pubspray isnot 1>>
-	<<set $pubspray to 1>>
+<<if !Memories.Landry.has("firstPepperSpraySale")>>
+	<<run Memories.Landry.add("firstPepperSpraySale")>>
 	"Sorry about the cost," <<he>> says. "Ingredients are hard to find."
 	<br><br>
 <</if>>
@@ -586,18 +586,18 @@ You make <span class="gold">£<<print $blackmoney>></span>.
 :: Pub Task
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
 
-<<if $pubstage is undefined>>
-	<<set $pubstage to 1>><<set $pubtask to "forest">>
+<<if $landry.blackBox.nextLocation is "forest">>
+	<<set $landry.blackBox.nextLocation to "moor">><<set $landry.blackBox.location to "forest">>
 	"I can help you," Landry says, reclining. "But I need you to do something for me. And no, it's not about money. I was expecting a package that never arrived, I need you to find it for me. Good thing I know exactly where to find it, it had a GPS tracker. <span class="gold">It's deep in the forest beside the town.</span>"
 	<br><br>
 	"Get it for me and I'll prevent any of your past misdemeanours being pinned on you. It's a small black box. You shouldn't get it confused with any rocks or twigs. Oh, and do be careful. People disappear in there all the time."
-<<elseif $pubstage is 1>>
-	<<set $pubstage to 2>><<set $pubtask to "moor">>
+<<elseif $landry.blackBox.nextLocation is "moor">>
+	<<set $landry.blackBox.nextLocation to "sewers">><<set $landry.blackBox.location to "moor">>
 	"I can help again," Landry says, reclining. "But I have another job for you. Another package failed to arrive. <span class="gold">This one was lost on the moor,</span> some distance from town. You'll need to leave on the Harvest road to reach it."
 	<br><br>
 	"Get it for me and I'll prevent any of your past misdemeanours being pinned on you. It's another small black box. Oh, and do be careful. I don't believe the tales of monsters, but there's a sensible reason behind some superstitions."
-<<elseif $pubstage is 2>>
-	<<unset $pubstage>><<set $pubtask to "sewers">>
+<<elseif $landry.blackBox.nextLocation is "sewers">>
+	<<set $landry.blackBox.nextLocation to "forest">><<set $landry.blackBox.location to "sewers">>
 	"I can help you, yes," Landry says, reclining. "But I need you to do something for me. Of course, it's not about money. I was expecting yet another package that didn't arrive. I need you to fetch it for me. Fortunately, I know exactly where to find it, thanks to the GPS tracker on it. <span class="gold">It's deep in the old sewers below town.</span>"
 	<br><br>
 	"Get it for me and I'll prevent any of your past misdemeanours being pinned on you. You probably guessed it; it's a small black box. You shouldn't get it confused with any puddles or grime. Oh, and do be careful. People get swept downstream all the time."
@@ -612,9 +612,9 @@ You make <span class="gold">£<<print $blackmoney>></span>.
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
 "That's it! You're a lifesaver." <<He>> examines the box more closely. "I hope it wasn't too much trouble. Don't worry, I'll fulfil my side of things. You'll be clean as can be." <<He>> stands. "Now if you'll excuse me, I've some favours to call in."
 <br><br>
-<<unset $pubtask>>
-<<unset $pubtask2>>
-<<unset $pubtasksetting>>
+<<unset $landry.blackBox.location>>
+<<unset $landry.blackBox.pcHasBox>>
+<<unset $landry.blackBox.guardedBy>>
 <<crimeDown 10000>>
 <<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
@@ -2205,7 +2205,7 @@ Landry leans forward. "You're already involved, and you're dangerously close to 
 <br>
 
 :: Pub Window Loft Ask
-<<effects>><<set $landry_loft_known to 1>>
+<<effects>><<run Memories.Landry.add("pcAskedForLoftWorkers")>>
 You tell Landry about the loft at the orphanage, and your plan to build a bay window there.
 <br><br>
 "A good place for secrets," Landry muses. "Alright." <<He>> nods, and picks up <<his>> phone.

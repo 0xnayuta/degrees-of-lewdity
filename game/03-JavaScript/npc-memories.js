@@ -507,6 +507,104 @@ const VALID_MEMORIES = {
 		// Used so Mason stops pulling the PC out from under the ice
 		"letPcDiveUnderIce",
 	],
+	Landry: [
+		// If Landry sold the PC their first pepper spray charge
+		// Used so Landry only apologises for the cost the first time
+		"firstPepperSpraySale",
+		// If Landry met the PC at the pub and offered to buy their stolen goods
+		// Used to skip Landry's intro, so Landry steps in when Avery grabs the PC outside the pub, so the PC can name Landry when questioned at the Elk Compound, and for various flavor text during Landry/Mickey's jobs
+		"metPcAtPub",
+		// If the PC asked Landry for help hiring workers for the loft bay window
+		// Used to swap the ask option for handing Landry the money and progressing the loft
+		"pcAskedForLoftWorkers",
+	],
+	Wren: [
+		// If Wren carried the PC out of the beach cave while the PC was in labour
+		// Used for various Wren lines
+		"carriedLabouringPcOutOfBeachCave",
+		// If Wren caught the PC going for the catsuit at the docks
+		// Used for various Wren greetings and lines
+		"caughtPcAtDocksCatsuit",
+		// If the PC did the mansion heist with Wren
+		// Used so the PC can tell Gwylan about the heist
+		"didHeistWithPc",
+		// If Wren met the PC at the estate cottage
+		// Used so Wren greets the PC as someone they know at the lake and the docks, for the heist offer, and a Gwylan line at Avery's mansion
+		"metPcAtEstate",
+		// If Wren greeted the PC at the smuggler pub for the first time
+		// Used so that meeting only plays once, and so Wren can be found at the bar on weekend evenings
+		"metPcAtSmugglerPub",
+		// If Wren met the PC in the prison yard
+		// Used so the prison meeting only plays once, for Wren's boat and the labour scene on the prison beach, the journal's shark teeth reminder, various Wren lines, and the heist offer
+		"metPcInPrison",
+		// If the PC met Wren at Winter's lake tent
+		// Used for various Wren lines and the PC being able to say Wren helped when showing Winter the Bleeding Ward painting
+		"metPcWithWinter",
+
+		// If the PC asked Wren for passage off the prison island
+		// Used to show the names Wren still wants
+		"pcAskedForPrisonPassage",
+		// If the PC gave Wren all four prison names
+		// Used so the PC can get passage from Wren's boat, for various Wren lines, and to unlock the heist offer
+		"pcGavePrisonNames",
+
+		// If the PC delivered Mickey's letter to Wren
+		// Used for various Wren lines
+		"pcDeliveredMickeysLetter",
+		// If the PC saw Wren's car during the heist
+		// Used so the car is only described once
+		"pcSawCar",
+
+		// If the PC stole Wren's signed cricket ball at the end of the heist
+		// Used so the ball can only be taken once, for Gwylan's reaction to the heist story, and so Wren says the PC owes them
+		"pcStoleCricketBall",
+		// If Wren told the PC they owe Wren for the stolen cricket ball
+		// Used so Wren only says it once
+		"mentionedStolenCricketBall",
+
+		// If the PC told Wren about the orphanage loft
+		// Used to hide that option and to start the well scene in the orphanage garden
+		"pcToldAboutLoft",
+		// If the PC found the old well uncovered in the orphanage garden after telling Wren about the loft
+		// Used for the well and sewer ladder routes, adds a random orphanage event where an orphan slips away, leaving a damp footprint, and to unlock asking Wren about the well
+		"uncoveredOrphanageWell",
+		// If the PC asked Wren about the well in the orphanage garden
+		// Used to hide that option
+		"pcAskedAboutWell",
+
+		// If Wren grabbed the PC's wrist and pulled them back on the high moor
+		// Used for Wren's lines the next time, and so the PC only asks what Wren was doing there once
+		"pulledPcBackOnHighMoor",
+		// If Wren saw the PC on the prison beach by the boat
+		// Used so that scene only plays once, and so Wren calls how they get in and out "our" secret instead of "my"
+		"sawPcOnPrisonBeach",
+		// If Wren told the PC their favourite flower is tulips at the smuggler pub
+		// Used so that chat only plays once
+		"toldPcFavouriteFlower",
+		// If Wren told the PC their name
+		// Used for various Wren lines and introductions, for unlocking various Wren scenes, and the heist offer
+		"toldPcName",
+	],
+	Harper: [
+		// If Harper declared the PC's asylum treatment finished
+		// Used so Harper's office also refills the asylum's prescription pills
+		"finishedPcsAsylumTreatment",
+		// If the PC had their first appointment in Harper's office
+		// Used so the first appointment only plays once, and so PC recognizes Harper in future meetings
+		"firstAppointment",
+		// If Harper introduced the PC to the first therapy dog
+		// Used so the dog's introduction only plays once, and so Harper has different lines during future dog sessions
+		"firstTherapyDog",
+		// If the PC met Harper as a doctor
+		// Used so that introduction only plays once, for various Harper lines, and so Mickey won't warn about Harper
+		"metAsDoctor",
+		// If the PC met Harper at Avery's mansion party
+		// Used for Harper's introductions when they meet again
+		"metAtAverysParty",
+		// If Harper introduced themselves to the PC at Remy's farm
+		// Used for Harper's introductions when they meet again
+		"metAtRemysFarm",
+	],
 };
 
 /**
@@ -647,6 +745,21 @@ const Memories = {
 		add: memory => addMemory("Mason", memory),
 		has: memory => hasMemory("Mason", memory),
 		delete: memory => deleteMemory("Mason", memory),
+	},
+	Landry: {
+		add: memory => addMemory("Landry", memory),
+		has: memory => hasMemory("Landry", memory),
+		delete: memory => deleteMemory("Landry", memory),
+	},
+	Wren: {
+		add: memory => addMemory("Wren", memory),
+		has: memory => hasMemory("Wren", memory),
+		delete: memory => deleteMemory("Wren", memory),
+	},
+	Harper: {
+		add: memory => addMemory("Harper", memory),
+		has: memory => hasMemory("Harper", memory),
+		delete: memory => deleteMemory("Harper", memory),
 	},
 };
 window.Memories = Memories;

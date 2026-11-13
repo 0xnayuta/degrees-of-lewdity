@@ -1,0 +1,72 @@
+:: Widgets NNPC Cleanup Migration Harper [widget]
+<<widget "nnpcCleanupMigrationHarper">>
+	<<set $harper ??= {
+		appointments: {
+			hypnosisStage: 0,
+			examStage: 0,
+			dogStage: 0
+		}
+	}>>
+	<<set $daily.harper ??= {}>>
+
+	<!-- Harper's $harperSeen and one-time flags moved into Harper's memories -->
+	<<if $harperSeen>>
+		<<set _harperSeenRenames to {
+			hospital: "metAsDoctor",
+			livestock: "metAtRemysFarm",
+			party: "metAtAverysParty",
+		}>>
+		<<for _memory range $harperSeen>>
+			<<run $npcMemories.Harper.pushUnique(_harperSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $harperSeen>>
+	<</if>>
+	<<if $harper_appointments?.hypnosis_intro>><<run Memories.Harper.add("firstAppointment")>><</if>>
+	<<if $harper_appointments?.dog_intro>><<run Memories.Harper.add("firstTherapyDog")>><</if>>
+	<<if $asyluminnocence is 1>><<run Memories.Harper.add("finishedPcsAsylumTreatment")>><</if>>
+	<<if $asylumintro is 1>><<run Memories.Harper.add("metAsDoctor")>><</if>>
+	<<unset $asyluminnocence>>
+
+	<!-- Harper's appointments moved onto $harper.appointments -->
+	<<if $harper_appointments>>
+		<<for _oldName, _newName range {
+			hypnosis: "hypnosisStage",
+			exam: "examStage",
+			dog: "dogStage",
+			last: "lastType",
+			knottarget: "whereDogKnottedPc",
+			scold: "willWarnDogNotForIntimacy",
+			uncomfortable: "pcWasUncomfortableNude",
+		}>>
+			<<if $harper_appointments[_oldName] isnot undefined>>
+				<<set $harper.appointments[_newName] to $harper_appointments[_oldName]>>
+			<</if>>
+		<</for>>
+		<<if $harper_appointments.enabled>>
+			<<set $harper.appointments.status to "weekly">>
+		<</if>>
+		<<unset $harper_appointments>>
+	<</if>>
+	<<if $schoolPsych and $harper.appointments.status is undefined>>
+		<<set $harper.appointments.status to "referredBySchoolNurse">>
+	<</if>>
+	<<unset $schoolPsych>>
+
+	<!-- Harper's other variables moved onto $harper -->
+	<<if $harper_farm_abduction is 1>>
+		<<set $harper.abductedPcFromPark to true>>
+	<</if>>
+	<<if $harperNightmareMachine isnot undefined>>
+		<<set $harper.nightmare to {
+			machineStrugglesLeft: $harperNightmareMachine,
+			machineTurnsLeft: $harperNightmareTimer
+		}>>
+	<</if>>
+	<<unset $harper_farm_abduction $harperNightmareMachine $harperNightmareTimer>>
+
+	<!-- Harper's daily flag moved into $daily.harper -->
+	<<if $daily.harperVisit>>
+		<<set $daily.harper.pcVisitedOffice to true>>
+		<<run delete $daily.harperVisit>>
+	<</if>>
+<</widget>>
