@@ -13,13 +13,13 @@ declare global {
 		/** If the PC crumbled the pink mushroom onto the Black Wolf's food on a hunt. The Black Wolf will have 200 health instead of 600 in its fights with the PC.
 		 * Set to false when the next hunt starts. */
 		poisonedByPinkMushroom?: boolean;
-		/** When the Black Wolf left the PC alone to check for an intruder on its night patrol. After 2+ hours, the PC sees it come back at the wolf cave.
+		/** When the Black Wolf left the PC alone to check for an intruder on its night patrol. After 2+ hours, the PC sees it come back at the wolf cave clearing.
 		 * Unset afterwards or if PC comes back to the wolf cave 24+ hours later. */
 		patrolLeftAt?: TimeStamp;
 		/** When the Black Wolf last offered to mate during the PC's heat or rut, or last had sex with the PC in the cave.
 		 * When the PC approaches the Black Wolf, it won't offer to mate again until at least 3 hours after this. */
 		lastSexAt?: TimeStamp;
-		/** The Black Wolf challenging the PC for the lead of the pack. Only happens while `$wolfpackleader` is 1.
+		/** The Black Wolf challenging the PC for the lead of the pack. Only happens while `$wolfPack.standing.pcLeadsPack` is true.
 		 * TODO: Black Wolf Rework. Will be removed. */
 		challenge: {
 			/** The earliest the Black Wolf can challenge the PC again. Set to 14 days after each challenge.
@@ -44,7 +44,7 @@ declare global {
 
 	/** The Black Wolf's once-a-day flags, stored in `$daily.blackWolf`. */
 	export interface BlackWolfDaily {
-		/** If the Black Wolf goes on its night patrol tonight. Rolled each day with a 1 in 3 chance while the PC has `$syndromewolves`. */
+		/** If the Black Wolf goes on its night patrol tonight. Rolled each day with a 1 in 3 chance while `$wolfPack.standing.stockholm` is true. */
 		patrolTonight?: true;
 		/** If the Black Wolf licked its scent back onto the PC after a wash in the stream. */
 		markedPcAfterWash?: true;

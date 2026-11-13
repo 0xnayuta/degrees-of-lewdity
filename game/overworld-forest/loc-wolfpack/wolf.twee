@@ -210,7 +210,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 <<if $phase is 1>>
 	<<set $phase to 0>>
 	You make your way toward the Black Wolf.
-	<<if $wolfgirl gte 6 and $wolfpackferocity gte 15 and $wolfpackharmony gte 15 and Time.dayState isnot "night" and ($blackWolf.lastSexAt is undefined or Time.date.timeStamp - $blackWolf.lastSexAt gte 3 * TimeConstants.secondsPerHour) and ((playerHeatMinArousal() and (V.player.vaginaExist or playerCanCarryAnally()) and C.npc["Black Wolf"].penis isnot "none") or
+	<<if $wolfgirl gte 6 and $wolfPack.mood.ferocity gte 15 and $wolfPack.mood.harmony gte 15 and Time.dayState isnot "night" and ($blackWolf.lastSexAt is undefined or Time.date.timeStamp - $blackWolf.lastSexAt gte 3 * TimeConstants.secondsPerHour) and ((playerHeatMinArousal() and (V.player.vaginaExist or playerCanCarryAnally()) and C.npc["Black Wolf"].penis isnot "none") or
 	(playerRutMinArousal() and C.npc["Black Wolf"].vagina isnot "none"))>>
 		<<set $blackWolf.lastSexAt to Time.date.timeStamp>>
 		<<set _blackWolfHeatEvent to true>>
@@ -225,7 +225,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 
 		<<bwpcinteraction>>
 
-	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
+	<<elseif $wolfPack.mood.ferocity gte 20 and $wolfPack.mood.harmony gte 20>>
 		<<bHe>> sits up after noticing you. <<bHis>> tail begins to wag.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -237,7 +237,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 					"<<pPackbrother>> should get ready for tonight. Will be a sporting hunt."
 			<</switch>>
 		<</if>>
-	<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 10>>
+	<<elseif $wolfPack.mood.ferocity gte 10 and $wolfPack.mood.harmony gte 10>>
 		<<bHe>> turns to look at you as you approach.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -251,7 +251,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 		<<else>>
 			<<bHe>> nudges your arm with <<bhis>> nose.
 		<</if>>
-	<<elseif $wolfpackferocity gte 15>>
+	<<elseif $wolfPack.mood.ferocity gte 15>>
 		<<bHe>> chews on a large bone you can't identify. It's not human, at least. <<bHe>> growls at you, but calms down after sniffing you and identifying your scent.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -263,7 +263,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 					"Don't want to be bothered right now."
 			<</switch>>
 		<</if>>
-	<<elseif $wolfpackharmony gte 15>>
+	<<elseif $wolfPack.mood.harmony gte 15>>
 		<<bHe>> begins to drift off, but is awakened by your sudden arrival. <<bHe>> yawns.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -275,7 +275,7 @@ When you return to the cave, the pack is delighted to see you both come back.
 					"Cave too noisy sometimes. Often come here to nap."
 			<</switch>>
 		<</if>>
-	<<elseif $wolfpackferocity gte 1 and $wolfpackharmony gte 1>>
+	<<elseif $wolfPack.mood.ferocity gte 1 and $wolfPack.mood.harmony gte 1>>
 		<<bHis>> ear flicks as you approach, but <<bhe>> doesn't turn to acknowledge you.
 		<<if $monster is 1>>
 			<<switch random(1,3)>>
@@ -309,9 +309,9 @@ When you return to the cave, the pack is delighted to see you both come back.
 	The pack bounds into the forest without you.
 	<<if playerIsPregnant() and playerBellySize() gte 15>>
 		The Black Wolf lets out a huff, and gives your pregnant belly a nudge. You watch the pack leave together.
-	<<elseif $wolfpackleader is 1 and (statusCheck("Black Wolf").love lt 125 or $wolfpackharmony lt 18)>>
+	<<elseif $wolfPack.standing.pcLeadsPack and (statusCheck("Black Wolf").love lt 125 or $wolfPack.mood.harmony lt 18)>>
 		The Black Wolf looks at you questioningly for a moment, but seems to accept your decision. You watch the pack leave together.
-		<<if $wolfpackharmony lt 18>>
+		<<if $wolfPack.mood.harmony lt 18>>
 			<<npcincr "Black Wolf" love -1>><<llove>>
 		<</if>>
 	<<else>>
@@ -430,11 +430,11 @@ When you return to the cave, the pack is delighted to see you both come back.
 <</if>>
 <br><br>
 
-<<if $wolfevent is 1 and ($wolfstate is "cave" and !["finished","ongoing"].includes($huntstate) and ["dusk", "night"].includes(Weather.dayState))>>
-	<<set $huntstate to "ongoing">><<set $blackWolf.poisonedByPinkMushroom to false>>
-	<<if (statusCheck("Black Wolf").love gte random(100,200) or $wolfpackleader is 1 or playerConceivedWith("Black Wolf")) and ($wolfpackharmony + $wolfpackferocity gte 20)>>
+<<if $wolfPack.eventDue and ($wolfPack.hunt.packLocation is "cave" and !["finished","ongoing"].includes($wolfPack.hunt.stage) and ["dusk", "night"].includes(Weather.dayState))>>
+	<<set $wolfPack.hunt.stage to "ongoing">><<set $blackWolf.poisonedByPinkMushroom to false>>
+	<<if (statusCheck("Black Wolf").love gte random(100,200) or $wolfPack.standing.pcLeadsPack or playerConceivedWith("Black Wolf")) and ($wolfPack.mood.harmony + $wolfPack.mood.ferocity gte 20)>>
 		The pack begins to howl in excitement, readying for a hunt. You look to the Black Wolf, expecting <<bhim>> to join them, only to find <<bhim>> looking towards you instead.
-		<<if $wolfpackleader is 1>>
+		<<if $wolfPack.standing.pcLeadsPack>>
 			<<if $monster is 1>>
 				"We hunt, alpha?"
 			<<else>>
@@ -449,15 +449,15 @@ When you return to the cave, the pack is delighted to see you both come back.
 		<</if>>
 		<br><br>
 
-		<<link [[Go with them|Wolf Cave Hunt]]>><<set $wolfstate to "hunt">><<npcincr "Black Wolf" love 1>><<endevent>><</link>><<glove>>
+		<<link [[Go with them|Wolf Cave Hunt]]>><<set $wolfPack.hunt.packLocation to "hunt">><<npcincr "Black Wolf" love 1>><<endevent>><</link>><<glove>>
 		<br>
 		<<link [[Stay with Black Wolf|Wolf Relax]]>><<set $phase to 2>><<set $blackWolf.hunt.stayedAtCave to true>><</link>>
 		<br>
-		<<link [[Encourage Black Wolf to go|Wolf Cave Hunt Leave]]>><<endevent>><<set $phase to 1>><<set $wolfstate to "hunt">><</link>>
+		<<link [[Encourage Black Wolf to go|Wolf Cave Hunt Leave]]>><<endevent>><<set $phase to 1>><<set $wolfPack.hunt.packLocation to "hunt">><</link>>
 		<br>
 	<<else>>
 		<<if npcBellySize("Black Wolf") lte 15>>
-			<<set $wolfstate to "hunt">>
+			<<set $wolfPack.hunt.packLocation to "hunt">>
 			The Black Wolf stands up and howls. The rest of the pack joins in.
 			<<if $monster is 1>>
 				"We hunt soon. Be ready."
@@ -527,7 +527,7 @@ You try to strike a menacing pose and show your <<if $transformationParts.traits
 <<link [[Next|Wolf Challenge Fight]]>><<set $fightstart to 1>><</link>>
 
 :: Wolf Challenge Surrender
-<<effects>><<set $wolfpackleader to 0>><<set $blackWolf.challenge.pcTalkedDownLast to false>>
+<<effects>><<set $wolfPack.standing.pcLeadsPack to false>><<set $blackWolf.challenge.pcTalkedDownLast to false>>
 You drop to the ground and cover your head and neck, hoping that the beast may show you mercy.
 <<if $speech_attitude is "meek">>
 	"N-No!" you cry. "Don't hurt me, please! You can be the alpha!"
@@ -634,7 +634,7 @@ Having lived like the rest of your pack, you feel a deeper connection to them. "
 
 	<<tearful>> you howl. The other <<wolf_cave_plural>> howl with you. <span class="gold">You can still lead the pack on hunts.</span>
 <<else>>
-	<<set $wolfpackleader to 0>>
+	<<set $wolfPack.standing.pcLeadsPack to false>>
 	You are quickly overwhelmed by your opponent's sheer strength and ferocity. The Black Wolf <<if $monster is 1>>grabs<<else>>bites the scruff of<</if>> your neck, but you manage to wriggle free before <<bhe>> can get a good grasp. You stumble back and land face first on the ground.
 	<br><br>
 	<<if $monster is 1>>
@@ -660,8 +660,8 @@ Having lived like the rest of your pack, you feel a deeper connection to them. "
 <<set $weekly.blackWolf.wentOnPatrol to true>>
 <<npc "Black Wolf">>
 
-<<if $wolfpackleader is 1>>
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+<<if $wolfPack.standing.pcLeadsPack>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		<<if $monster is 1>>
 			"Alpha." <<bHis>> ears perk up as you approach, sitting up and stretching <<bhis>> limbs. Looking up at the moon, <<bhe>> sniffs at the air, flicking <<bhis>> tail.
 			<br><br>
@@ -693,7 +693,7 @@ Having lived like the rest of your pack, you feel a deeper connection to them. "
 	<br>
 	<<link [[Order to leave it be|Wolf Patrol Ignore]]>><</link>>
 <<else>>
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		<<if $monster is 1>>
 			"<<pPackbrother>>." <<bHis>> ears perk up as you approach, sitting up and stretching <<bhis>> limbs. Looking up at the moon, <<bhe>> sniffs at the air, flicking <<bhis>> tail.
 			<br><br>
@@ -727,7 +727,7 @@ Having lived like the rest of your pack, you feel a deeper connection to them. "
 :: Wolf Patrol Alone
 <<effects>><<set $blackWolf.patrolLeftAt to Time.date.timeStamp>>
 
-<<if $wolfpackleader is 1>>
+<<if $wolfPack.standing.pcLeadsPack>>
 	<<if $speech_attitude is "meek">>
 		"G-go investigate," you tell <<bhim>>. "Protect the pack."
 	<<elseif $speech_attitude is "bratty">>
@@ -748,7 +748,7 @@ You watch the Black Wolf leave, <<bhis>> large body disappearing between the bus
 <<if $speech_attitude is "meek">>
 	"I-I don't think anything would be brave enough to come close," you say, huddling closer. "You should stay, so you can protect everyone. Just in case."
 	<br><br>
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		The Black Wolf chuffs, letting you lean on <<bhis>> body.
 	<<else>>
 		The Black Wolf pushes you away when you try to lean on <<bhim>>. <<bHe>> obviously disapproves of your decision.
@@ -756,7 +756,7 @@ You watch the Black Wolf leave, <<bhis>> large body disappearing between the bus
 <<elseif $speech_attitude is "bratty">>
 	"It's probably nothing," you say, leaning back onto your elbows. "Just stay and relax for a bit. <<if Weather.precipitation isnot "none">>It's too cold to be going off alone<<else>>It's a nice night<</if>>."
 	<br><br>
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		You huddle closer to <<bhis>> large body, and <<bhe>> leans <<bhis>> head on yours.
 	<<else>>
 		You attempt to huddle close, but <<bhe>> pulls away from your touch. <<bHe>> obviously disapproves of your decision.
@@ -765,7 +765,7 @@ You watch the Black Wolf leave, <<bhis>> large body disappearing between the bus
 	"We need you here more than out there," you point out. "It's probably nothing."
 	<br><br>
 	The Black Wolf seems to sit a little straighter, taking pride in your compliment.
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		<<bHe>> accepts your head resting on <<bhis>> body as you relax.
 	<<else>>
 		However, <<bhe>> still pulls away when you try to touch <<bhim>>.
@@ -821,7 +821,7 @@ After a full loop, nothing is found. You widen the circle and try again, but wha
 	<</if>>
 	<br><br>
 
-	<<if $wolfpackleader is 1>>
+	<<if $wolfPack.standing.pcLeadsPack>>
 		<<if $monster is 1>>
 			"Your idea!" <<bhe>> growls, before quickly stepping away again. <<bHe>> almost looks ashamed. "Sorry. Forgot who was alpha." <<bHis>> shoulders slump as <<bhe>> continues.
 		<<else>>
@@ -859,9 +859,9 @@ Satisfied nothing will attack you in your sleep, you turn to make your way back.
 :: Wolf Patrol Push
 <<effects>>
 
-<<if $wolfpackleader is 1>>
+<<if $wolfPack.standing.pcLeadsPack>>
 	"Not right now." You push past and return to the cave.
-	<<if $wolfpackharmony gte $wolfpackferocity>>
+	<<if $wolfPack.mood.harmony gte $wolfPack.mood.ferocity>>
 		The Black Wolf follows, ears drooping.
 	<<else>>
 		The entire walk back, you can feel <<bhis>> eyes glaring into the back of your head.
@@ -869,7 +869,7 @@ Satisfied nothing will attack you in your sleep, you turn to make your way back.
 	<<npcincr "Black Wolf" love -1>><<llove>>
 	<<endevent>>
 	<br><br>
-	<<link [[Next|Wolf Cave Clearing]]>><<set $wolfevent to 0>><</link>>
+	<<link [[Next|Wolf Cave Clearing]]>><<set $wolfPack.eventDue to false>><</link>>
 <<else>>
 	"Not right now." You hoped that <<bhe>> would stop, <span class="red">but <<bhis>> attention only gets more intimate.</span> <<bHe>> growls, mounting you.
 	<br><br>
@@ -963,7 +963,7 @@ Satisfied nothing will attack you in your sleep, you turn to make your way back.
 	<<endcombat>><<clotheson>>
 <</if>>
 
-<<link [[Next|Wolf Cave Clearing]]>><<set $wolfevent to 0>><</link>>
+<<link [[Next|Wolf Cave Clearing]]>><<set $wolfPack.eventDue to false>><</link>>
 <br>
 
 :: Wolf Liquid Clean
@@ -1097,7 +1097,7 @@ As you catch your breath, the Black Wolf stands over you. <<bHes>> panting heavi
 	<<beastCombatInit>>
 	<<set $NPCList[0].stance to "top">>
 	<<deviancy2>>
-	<<if $wolfpackleader gte 1>><<enable_rescue>><</if>>
+	<<if $wolfPack.standing.pcLeadsPack>><<enable_rescue>><</if>>
 	<<blackwolfhealth>>
 <</if>>
 
@@ -1135,7 +1135,7 @@ As you catch your breath, the Black Wolf stands over you. <<bHes>> panting heavi
 	<br><br>
 	The <<beasttype 1>> comes over to you, inspecting you briefly. After deciding you're alright, <<bhe>> returns to the cave.
 <<else>>
-	<<if $wolfpackharmony gte 12>>
+	<<if $wolfPack.mood.harmony gte 12>>
 		The Black Wolf falters before climbing off of you. <<bHe>> looks at you, tilting <<bhis>> head.
 		<br><br>
 		<<if $pain gte 80>>
@@ -1145,7 +1145,7 @@ As you catch your breath, the Black Wolf stands over you. <<bHes>> panting heavi
 		<</if>>
 	<<else>>
 		The Black Wolf slows to a stop with a grunt. <<bHe>> pants heavily as <<bhe>> gets off of you.
-		<<if $wolfpackleader gte 1>>
+		<<if $wolfPack.standing.pcLeadsPack>>
 			<<bHe>> pays you no more mind as <<bhe>> returns to <<bhis>> resting spot and lies down.
 		<<else>>
 			<<bHe>> nuzzles your cheek before returning to <<bhis>> resting spot and lying down.

@@ -57,8 +57,6 @@ declare module "twine-sugarcube" {
 
 		park_fame: number;
 
-		syndromewolves: 1;
-
 		brothelVending: {
 			condomsSold: number;
 			condomsToRefill: number;

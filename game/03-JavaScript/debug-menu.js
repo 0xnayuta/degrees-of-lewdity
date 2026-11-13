@@ -830,7 +830,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Wolf Pack`, `Forest Wolf Cave`],
-			widgets: [`<<set $wolfpacktrust to 12>>`],
+			widgets: [`<<set $wolfPack.standing.trust to 12>>`],
 		},
 		{
 			link: [`Halloween`, stayOnPassageFn],

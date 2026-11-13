@@ -1735,7 +1735,7 @@ function isPossibleLoveInterest(name) {
 		case "Avery":
 			return V.auriga_artefact && C.npc.Avery.state !== "dismissed";
 		case "Black Wolf":
-			return V.syndromewolves === 1 && hasSexStat("deviancy", 3);
+			return V.wolfPack.standing.stockholm && hasSexStat("deviancy", 3);
 		case "Great Hawk":
 			return V.syndromebird === 1;
 		case "Alex":
@@ -3329,3 +3329,17 @@ function isNNPCOutfitEquippedHereToday(npc) {
 	return !!npc.nam && npc.clothes?.equippedDay === Time.days && npc.clothes.equippedLocation === V.location;
 }
 window.isNNPCOutfitEquippedHereToday = isNNPCOutfitEquippedHereToday;
+
+/**
+ * Which of the pups' daily feeding times it is or was last.
+ *
+ * "morning" is 6:00 to 7:59
+ *
+ * "evening" is 16:00 to 17:59
+ *
+ * @returns {"morning" | "evening"}
+ */
+function getPupsFeedingTime() {
+	return Time.hour < 12 ? "morning" : "evening";
+}
+window.getPupsFeedingTime = getPupsFeedingTime;

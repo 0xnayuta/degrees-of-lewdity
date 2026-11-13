@@ -131,11 +131,6 @@ declare module "twine-sugarcube" {
 
 		asylumstatus: number;
 
-		wolfpacktrust: number;
-		wolfpackfear: number;
-		wolfpackferocity: number;
-		wolfpackharmony: number;
-
 		/* Player weapons */
 
 		spray: number;
