@@ -827,12 +827,12 @@ const statChange = (() => {
 	DefineMacro("humiliation10", humiliation10);
 
 	function wolfpacktrust() {
-		V.wolfpacktrust++;
+		V.wolfPack.standing.trust++;
 		return statDisplay.statChange("The pack trusts you a little more.", 0, "green");
 	}
 
 	function wolfpackfear() {
-		V.wolfpackfear++;
+		V.wolfPack.standing.fear++;
 		return statDisplay.statChange("The pack fears you a little more.", 0, "green");
 	}
 
@@ -840,7 +840,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("ferocity", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.wolfpackferocity = (V.wolfpackferocity || 0) + amount;
+			V.wolfPack.mood.ferocity = (V.wolfPack.mood.ferocity || 0) + amount;
 			if (amount > 0) {
 				return statDisplay.statChange("Ferocity", Math.clamp(amount, 1, 3), "blue");
 			} else if (amount < 0) {
@@ -854,7 +854,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("harmony", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.wolfpackharmony = (V.wolfpackharmony || 0) + amount;
+			V.wolfPack.mood.harmony = (V.wolfPack.mood.harmony || 0) + amount;
 			if (amount > 0) {
 				return statDisplay.statChange("Harmony", Math.clamp(amount, 1, 3), "lblue");
 			} else if (amount < 0) {

@@ -354,7 +354,8 @@ function initSpecialClothes() {
 		},
 		loincloth: {
 			text: "loincloth",
-			requirements: () => V.syndromeeden === 1 || V.syndromewolves === 1,
+			// Checked before $wolfPack exists when a new game starts and when an old save loads
+			requirements: () => V.syndromeeden === 1 || V.wolfPack?.standing.stockholm === true,
 			hint: "befriend a lonely hunter, or join a pack of wolves",
 			shop: ["forest"],
 			subsetOf: ["bad_end", "fox"],

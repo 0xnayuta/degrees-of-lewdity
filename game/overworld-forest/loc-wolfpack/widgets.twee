@@ -4,7 +4,7 @@
 	<<beastNEWinit 1 wolf>>
 	<<rng>>
 	<<cleareventpool>>
-	<<if $wolfstate isnot "cave">>
+	<<if $wolfPack.hunt.packLocation isnot "cave">>
 		<<childrenEvents "wolf_cave" $passage>>
 		<<addinlineevent "wolf cave play fight">>
 			One of the younger <<beastsplural>> approaches you. <<bHe>> wants to play fight.
@@ -47,11 +47,11 @@
 		<<if getBornChildren().find(child => getPregnancyOf(child).carrier === "pc" && child.development.location === "wolf_cave") and $lactating isnot 1 and Time.dayState is "day">>
 			<<addevent "wolfwetnurse" 0.5>>
 		<</if>>
-		<<if $weekly.babyRabbit isnot 1 and $wolfstate isnot "hunt" and $rng gte 56 and $dissociation gte 1 and $syndromewolves gte 1 and $wolfpackharmony gte 10>>
-			<<set $weekly.babyRabbit to 1>>
+		<<if !$weekly.blackWolf.babyRabbitChanceUsed and $wolfPack.hunt.packLocation isnot "hunt" and $rng gte 56 and $dissociation gte 1 and $wolfPack.standing.stockholm and $wolfPack.mood.harmony gte 10>>
+			<<set $weekly.blackWolf.babyRabbitChanceUsed to true>>
 			<<addevent "wolfCaveBabyRabbit" 5000>>
 		<</if>>
-		<<if $wolfpackferocity + random(1, 20) gte $wolfpackharmony + random(1, 20)>>
+		<<if $wolfPack.mood.ferocity + random(1, 20) gte $wolfPack.mood.harmony + random(1, 20)>>
 			<<addinlineevent "wolf cave fight">>
 				One of the <<beastsplural>> paces towards you, growling.
 				<br><br>
@@ -81,7 +81,7 @@
 				<br>
 			<</addinlineevent>>
 			<<addinlineevent "wolf cave blackwolf agitated" 2>>
-				<<if $wolfpackleader is 1>>
+				<<if $wolfPack.standing.pcLeadsPack>>
 					<<endevent>><<npc "Black Wolf">>
 					The Black Wolf is agitated. <<bHe>> bites and growls at the others, agitating them in turn.
 					<br><br>
@@ -94,7 +94,7 @@
 					One of the larger <<beastsplural>> challenges the Black Wolf. The Black Wolf wins after a brief tussle, but <<person2>><<bhis>> anger is not assuaged. <<bHe>> growls and bites at the other <<beastsplural>>, as if daring any to challenge <<bhim>>.
 					<<endevent>><<npc "Black Wolf">><<person1>>
 					<br><br>
-					<<if $wolfpackpoisoned is 1>>
+					<<if $blackWolf.poisonedByPinkMushroom>>
 						<span class="lblue"><<bHe>> staggers slightly. The poisonous mushrooms are having an effect. <<bHe>> will be weaker than usual.</span>
 						<br><br>
 					<</if>>
@@ -164,9 +164,9 @@
 					<br>
 				<</addinlineevent>>
 			<</if>>
-			<<if $daily.wolfHuntFailed and $syndromewolves gte 1>>
+			<<if $daily.wolfPack.huntFailed and $wolfPack.standing.stockholm>>
 				<<addinlineevent "wolf cave hunt failure harassment">>
-					<<unset $daily.wolfHuntFailed>>
+					<<unset $daily.wolfPack.huntFailed>>
 					<<endevent>><<beastNEWinit 2 wolf>>
 					As you enter the wolf cave, a <<beasttype 0>> and a <<beasttype 1>> approach you. Their teeth are bared.
 					<br><br>
@@ -187,7 +187,7 @@
 					<br>
 				<</addinlineevent>>
 			<</if>>
-			<<if $wolfpackharmony gte 20>>
+			<<if $wolfPack.mood.harmony gte 20>>
 				<<addinlineevent "wolf_cave_black_kiss" 1>>
 					<<endevent>><<npc "Black Wolf">><<person1>>
 					<<if $monster is 1>>
@@ -219,35 +219,35 @@
 <</widget>>
 
 <<widget "wolfcavestate">>
-	<<if $wolfpackferocity gte 20 and $wolfpackharmony gte 20>>
+	<<if $wolfPack.mood.ferocity gte 20 and $wolfPack.mood.harmony gte 20>>
 		<span class="green">The pack is unified in lethal purpose.</span>
-	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 10>>
+	<<elseif $wolfPack.mood.ferocity gte 20 and $wolfPack.mood.harmony gte 10>>
 		<span class="purple">The <<wolf_cave_plural>> pace and growl at each other, anxious for a hunt.</span>
-	<<elseif $wolfpackferocity gte 20 and $wolfpackharmony gte 1>>
+	<<elseif $wolfPack.mood.ferocity gte 20 and $wolfPack.mood.harmony gte 1>>
 		<span class="pink">The <<wolf_cave_plural>> are agitated, afraid of losing their place in the pecking order.</span>
-	<<elseif $wolfpackferocity gte 20>>
+	<<elseif $wolfPack.mood.ferocity gte 20>>
 		<span class="red">The <<wolf_cave_plural>> keep a large space between them. Any trespass is met with gnashing teeth.</span>
-	<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 10>>
+	<<elseif $wolfPack.mood.harmony gte 20 and $wolfPack.mood.ferocity gte 10>>
 		<span class="teal">Play fights break out frequently.</span>
-	<<elseif $wolfpackharmony gte 20 and $wolfpackferocity gte 1>>
+	<<elseif $wolfPack.mood.harmony gte 20 and $wolfPack.mood.ferocity gte 1>>
 		<span class="lblue">The <<wolf_cave_plural>> lie together, grooming each other.</span>
-	<<elseif $wolfpackharmony gte 20>>
+	<<elseif $wolfPack.mood.harmony gte 20>>
 		<span class="blue">The <<wolf_cave_plural>> lie together in a big cuddly pile.</span>
-	<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 10>>
+	<<elseif $wolfPack.mood.ferocity gte 10 and $wolfPack.mood.harmony gte 10>>
 		<span class="lblue">Some of the <<wolf_cave_plural>> lie and groom each other, while others pace and watch the trees.</span>
-	<<elseif $wolfpackferocity gte 10 and $wolfpackharmony gte 1>>
+	<<elseif $wolfPack.mood.ferocity gte 10 and $wolfPack.mood.harmony gte 1>>
 		<span class="purple">The <<wolf_cave_plural>> are on edge, growling and baring teeth at each other.</span>
-	<<elseif $wolfpackferocity gte 10>>
+	<<elseif $wolfPack.mood.ferocity gte 10>>
 		<span class="pink">The <<wolf_cave_plural>> eye each other warily.</span>
-	<<elseif $wolfpackharmony gte 10 and $wolfpackferocity gte 1>>
+	<<elseif $wolfPack.mood.harmony gte 10 and $wolfPack.mood.ferocity gte 1>>
 		<span class="blue">Most of the <<wolf_cave_plural>> lie with their eyes shut, while others groom each other.</span>
-	<<elseif $wolfpackharmony gte 10>>
+	<<elseif $wolfPack.mood.harmony gte 10>>
 		<span class="purple">The <<wolf_cave_plural>> groom themselves, and occasionally each other.</span>
-	<<elseif $wolfpackferocity gte 1 and $wolfpackharmony gte 1>>
+	<<elseif $wolfPack.mood.ferocity gte 1 and $wolfPack.mood.harmony gte 1>>
 		<span class="purple">The <<wolf_cave_plural>> groom themselves and ignore each other.</span>
-	<<elseif $wolfpackferocity gte 1>>
+	<<elseif $wolfPack.mood.ferocity gte 1>>
 		<span class="pink">The pack lazes around, barely able to summon the energy to growl at each other.</span>
-	<<elseif $wolfpackharmony gte 1>>
+	<<elseif $wolfPack.mood.harmony gte 1>>
 		<span class="pink">The pack lazes together, able to summon little energy.</span>
 	<<else>>
 		<span class="red">A depressive malaise lies on the pack.</span>
@@ -255,15 +255,15 @@
 <</widget>>
 
 <<widget "wolfcaveselect">>
-	<<if $huntstate is "ongoing" and ["dawn", "day"].includes(Weather.dayState)>>
+	<<if $wolfPack.hunt.stage is "ongoing" and ["dawn", "day"].includes(Weather.dayState)>>
 		<<npc "Black Wolf">>
-		<<if $wolfstate is "hunt">>
-			<<set $wolfstate to "cave">>
-			<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+		<<if $wolfPack.hunt.packLocation is "hunt">>
+			<<set $wolfPack.hunt.packLocation to "cave">>
+			<<if $blackWolf.hunt.huntingForPregnantPc and playerIsPregnant()>>
 				The pack returns from the hunt. Many carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The Black Wolf drops some by your side before moving away. The hunt was successful.
 				<<gharmony>><<gferocity>>
 				<br><br>
-			<<elseif $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+			<<elseif $rng + $wolfPack.mood.ferocity + $wolfPack.mood.harmony gte 80>>
 				The pack returns from the hunt. Some carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave. The hunt was successful.
 				<<gharmony>><<lferocity>>
 				<br><br>
@@ -271,7 +271,7 @@
 				The pack returns from the hunt. They failed to catch anything.
 				<<gferocity>><<lharmony>>
 				<br><br>
-				<<if $blackWolfPregnancyHunt and playerIsPregnant()>>
+				<<if $blackWolf.hunt.huntingForPregnantPc and playerIsPregnant()>>
 					The Black Wolf approaches you.
 					<<if $monster is 1>>
 						Now that <<bhe>> is closer you can see something in <<bhis>> hands.
@@ -293,7 +293,7 @@
 				<</if>>
 			<</if>>
 		<<else>>
-			<<if $rng + $wolfpackferocity + $wolfpackharmony gte 80>>
+			<<if $rng + $wolfPack.mood.ferocity + $wolfPack.mood.harmony gte 80>>
 				The pack returns from the hunt. Some carry pieces of meat for the younger <<wolf_cave_plural>> that stayed at the cave.
 				<<if npcIsPregnant("Black Wolf")>>
 					Some of it is brought to the Black Wolf. <<nnpc_He "Black Wolf">> scarfs it down quickly.
@@ -321,14 +321,14 @@
 				<</if>>
 			<</if>>
 		<</if>>
-		<<unset $blackWolfNotHunting>>
-		<<unset $blackWolfPregnancyHunt>>
+		<<unset $blackWolf.hunt.stayedAtCave>>
+		<<unset $blackWolf.hunt.huntingForPregnantPc>>
 		<<destinationwolfcave>>
-	<<elseif $wolfstate is "cave" and !["finished","ongoing"].includes($huntstate) and ["dusk", "night"].includes(Weather.dayState)>>
-		<<set $huntstate to "ongoing">><<set $wolfpackpoisoned to 0>>
+	<<elseif $wolfPack.hunt.packLocation is "cave" and !["finished","ongoing"].includes($wolfPack.hunt.stage) and ["dusk", "night"].includes(Weather.dayState)>>
+		<<set $wolfPack.hunt.stage to "ongoing">><<set $blackWolf.poisonedByPinkMushroom to false>>
 		<<npc "Black Wolf">>
 		<<if npcBellySize("Black Wolf") lte 15>>
-			<<set $wolfstate to "hunt">>
+			<<set $wolfPack.hunt.packLocation to "hunt">>
 			The Black Wolf howls and the others join in.
 			<<if $monster is 1>>
 				"We hunt soon. Be ready."
@@ -336,7 +336,7 @@
 				They're going hunting.
 			<</if>>
 		<<else>>
-			<<set $blackWolfNotHunting to true>>
+			<<set $blackWolf.hunt.stayedAtCave to true>>
 			The pack begins to howl and bay as they run through the trees. One usual member is missing. Turning, you see the Black Wolf resting on <<bhis>> usual rock, <<if $monster is 1>>stroking<<else>>nudging<</if>> <<bhis>> pregnant belly.
 			<<if $monster is 1>>
 				<br><br>
@@ -351,8 +351,8 @@
 		<<link [[Watch them leave|Wolf Cave Hunt Leave]]>><</link>>
 		<br>
 
-	<<elseif $wolfstate is "cave" and $wolfpackleader is 1 and $wolfpackharmony lte random(0,10) and $wolfpackferocity gte random(11,20) and $wolfchallengetimer lte 0>>
-		<<set $wolfchallengetimer to 14>><<npc "Black Wolf">>
+	<<elseif $wolfPack.hunt.packLocation is "cave" and $wolfPack.standing.pcLeadsPack and $wolfPack.mood.harmony lte random(0,10) and $wolfPack.mood.ferocity gte random(11,20) and ($blackWolf.challenge.nextAllowedAt is undefined or Time.date.timeStamp gte $blackWolf.challenge.nextAllowedAt)>>
+		<<set $blackWolf.challenge.nextAllowedAt to Time.date.timeStamp + 14 * TimeConstants.secondsPerDay>><<npc "Black Wolf">>
 		You hear a loud bark behind you. You turn to face the Black Wolf, who stands firmly and bares <<bhis>> teeth to you.
 		<<if $monster is 1>>
 			"Leader weak!" <<bhe>> snarls. "Pack need strength, courage. Pack will have new leader today. <<pPackbrothers>> time as alpha is over!"
@@ -371,8 +371,8 @@
 			<<link [[Reason|Wolf Challenge Reason]]>><</link>><<wolfgirl>>
 			<br>
 		<</if>>
-	<<elseif !$daily.blackWolfCleanAway and $wolfstate is "cave" and Time.dayState isnot "night" and $passagePrev is "Forest" and ['face', 'chest', 'tummy'].every(part => Object.values($player.bodyliquid[part]).some(value => value >= 3)) and ['penis', 'vagina', 'vaginaoutside'].some(part => Object.values($player.bodyliquid[part]).some(value => value >= 3))>>
-		<<npc "Black Wolf">>
+	<<elseif !$daily.blackWolf.triedToCleanPc and $wolfPack.hunt.packLocation is "cave" and Time.dayState isnot "night" and $passagePrev is "Forest" and ['face', 'chest', 'tummy'].every(part => Object.values($player.bodyliquid[part]).some(value => value >= 3)) and ['penis', 'vagina', 'vaginaoutside'].some(part => Object.values($player.bodyliquid[part]).some(value => value >= 3))>>
+		<<npc "Black Wolf">><<set $daily.blackWolf.triedToCleanPc to true>>
 		As you enter the clearing outside of the wolf cave, the Black Wolf raises <<person1>><<bhis>> head, sniffing the air.
 		<br><br>
 		<<bHe>> gets up, following the scent to you until <<bhe>> locks eyes with you. <<bHe>> lowers <<bhis>> ears, letting out a low growl.
@@ -398,8 +398,8 @@
 	<</if>>
 
 	<<if Weather.dayState is "day" or Weather.dayState is "dawn">>
-		<<set $huntstate to "notStarted">>
-		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+		<<set $wolfPack.hunt.stage to "notStarted">>
+		<<if $wolfPack.hunt.packLocation is "hunt">><<set $wolfPack.hunt.packLocation to "cave">><</if>>
 	<</if>>
 <</widget>>
 
@@ -414,31 +414,31 @@
 <</widget>>
 
 <<widget "wolfhuntevents">>
-	<<if $huntstate is "success">>
-		<<set $huntstate to "finished">>
-		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
-		Satiated, the pack heads back to the cave. Some carry food for the younger <<wolf_cave_plural>><<if $blackWolfNotHunting>> and the Black Wolf. <<nnpc_He "Black Wolf">> scarfs it down quickly<</if>>.
+	<<if $wolfPack.hunt.stage is "success">>
+		<<set $wolfPack.hunt.stage to "finished">>
+		<<if $wolfPack.hunt.packLocation is "hunt">><<set $wolfPack.hunt.packLocation to "cave">><</if>>
+		Satiated, the pack heads back to the cave. Some carry food for the younger <<wolf_cave_plural>><<if $blackWolf.hunt.stayedAtCave>> and the Black Wolf. <<nnpc_He "Black Wolf">> scarfs it down quickly<</if>>.
 		<<lferocity>><<gharmony>>
 		<br><br>
 
-		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolfNotHunting>><</link>>
+		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolf.hunt.stayedAtCave>><</link>>
 		<br>
-	<<elseif $huntstate is "ongoing" and (Weather.dayState is "dawn" or Weather.dayState is "day")>>
-		<<set $huntstate to "finished">>
-		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+	<<elseif $wolfPack.hunt.stage is "ongoing" and (Weather.dayState is "dawn" or Weather.dayState is "day")>>
+		<<set $wolfPack.hunt.stage to "finished">>
+		<<if $wolfPack.hunt.packLocation is "hunt">><<set $wolfPack.hunt.packLocation to "cave">><</if>>
 		With the sun rising on the horizon, the pack returns to the cave. The failure of the hunt has the pack riled.
 		<<gferocity>><<lharmony>>
 		<br><br>
 
-		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolfNotHunting>><</link>>
+		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolf.hunt.stayedAtCave>><</link>>
 		<br>
-	<<elseif $huntstate is "failure">>
-		<<set $huntstate to "finished">>
-		<<set $daily.wolfHuntFailed to true>>
-		<<if $wolfstate is "hunt">><<set $wolfstate to "cave">><</if>>
+	<<elseif $wolfPack.hunt.stage is "failure">>
+		<<set $wolfPack.hunt.stage to "finished">>
+		<<set $daily.wolfPack.huntFailed to true>>
+		<<if $wolfPack.hunt.packLocation is "hunt">><<set $wolfPack.hunt.packLocation to "cave">><</if>>
 		<<gferocity>><<lharmony>>
 		<br><br>
-		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolfNotHunting>><</link>>
+		<<link [[Next|Wolf Cave]]>><<handheldon>><<unset $blackWolf.hunt.stayedAtCave>><</link>>
 		<br>
 	<<else>>
 		<<rng>>
@@ -446,7 +446,7 @@
 			You come to two pairs of tracks. One looks like a deer's hoof prints. The other several pairs of shoes.
 			<br><br>
 
-			<<if $wolfpackleader is 1>>
+			<<if $wolfPack.standing.pcLeadsPack>>
 				The pack waits for your decision.
 				<br><br>
 
@@ -466,7 +466,7 @@
 		<<elseif $bus is "wolfpackcliff">>
 			You come to two pairs of tracks. One of a deer's hooves, but the steps are irregular. The other of large paws, with claws digging into the earth.
 
-			<<if $wolfpackleader is 1>>
+			<<if $wolfPack.standing.pcLeadsPack>>
 				The pack waits for your decision.
 				<br><br>
 
@@ -503,7 +503,7 @@
 		<<else>>
 			You come to a river emerging from the base of the cliff.
 
-			<<if $wolfpackleader is 1>>
+			<<if $wolfPack.standing.pcLeadsPack>>
 				The pack waits for your decision.
 				<br><br>
 
@@ -538,7 +538,7 @@
 <</widget>>
 
 <<widget "blackwolfhealth">>
-	<<if $wolfpackpoisoned is 1>>
+	<<if $blackWolf.poisonedByPinkMushroom>>
 		<<set $enemyhealth to 200>><<set $enemyhealthmax to 200>>
 	<<else>>
 		<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
@@ -546,10 +546,10 @@
 <</widget>>
 
 <<widget "wolfpackhuntoptions">>
-	<<if $wolfpackshroom is "red">>
+	<<if $blackWolf.hunt.mushroomPcCarries is "red">>
 		<<foodstufficon "wolfshroom">><<link [[Add a red mushroom to the Black Wolf's food (3:00)|Wolf Deer2]]>><<endevent>><<set $phase to 0>><<tiredness -12>><<pass 3 hours>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
 		<br>
-	<<elseif $wolfpackshroom is "pink">>
+	<<elseif $blackWolf.hunt.mushroomPcCarries is "pink">>
 		<<icon "tending/mushroom-aphrodisiac.png">><<link [[Add a pink mushroom to the Black Wolf's food (3:00)|Wolf Deer2]]>><<endevent>><<set $phase to 1>><<tiredness -12>><<pass 3 hour>><<tiredness -12>><<tiredness -12>><</link>><<ltiredness>>
 		<br>
 	<</if>>
@@ -572,7 +572,7 @@
 <<widget "ppackbrother">><<silently>>
 	<<if $description is "alpha" and statusCheck("Black Wolf").love gte 100>>
 		<<set _text_output to "mate">>
-	<<elseif $wolfpackleader gte 1>>
+	<<elseif $wolfPack.standing.pcLeadsPack>>
 		<<set _text_output to "pack leader">>
 	<<elseif $player.gender_appearance is "m">>
 		<<set _text_output to "pack brother">>
@@ -588,7 +588,7 @@
 <<widget "ppackbrothers">><<silently>>
 	<<if $description is "alpha" and statusCheck("Black Wolf").love gte 100>>
 		<<set _text_output to "mate's">>
-	<<elseif $wolfpackleader gte 1>>
+	<<elseif $wolfPack.standing.pcLeadsPack>>
 		<<set _text_output to "pack leader's">>
 	<<elseif $player.gender_appearance is "m">>
 		<<set _text_output to "pack brother's">>
@@ -609,14 +609,6 @@
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
-<<widget "wolf_cave_update">>
-	<<if monsterChanceForType("wolf") gte random(1, 100) and ($hallucinations gte 1 or !monsterHallucinationsOnlyForType("wolf"))>>
-		<<set $wolfcave_monster_roll to true>>
-	<<else>>
-		<<set $wolfcave_monster_roll to false>>
-	<</if>>
-<</widget>>
-
 <<widget "wolf_cave_plural">><<silently>>
 	<<if beastMaleChanceForType("wolf") gte 100>>
 		<<set _wolves_plural to "m">>
@@ -625,7 +617,7 @@
 	<<else>>
 		<<set _wolves_plural to "f">>
 	<</if>>
-	<<if $wolfcave_monster_roll or (monsterChanceForType("wolf") gte random(1, 100) and ($hallucinations gte 1 or !monsterHallucinationsOnlyForType("wolf")))>>
+	<<if resolveIfCaveWolvesAreMonsters()>>
 		<<if _wolves_plural is "m">>
 			<<set _text_output to "wolfboys">>
 		<<elseif _wolves_plural is "f">>
@@ -646,7 +638,7 @@
 	<<else>>
 		<<set _wolves_singular to "f">>
 	<</if>>
-	<<if $wolfcave_monster_roll or (monsterChanceForType("wolf") gte random(1, 100) and ($hallucinations gte 1 or !monsterHallucinationsOnlyForType("wolf")))>>
+	<<if resolveIfCaveWolvesAreMonsters()>>
 		<<if _wolves_singular is "m">>
 			<<set _text_output to "wolfboy">>
 		<<else>>
@@ -714,7 +706,7 @@
 
 			<</if>>
 
-		<<elseif Time.hour gte 18 and Time.hour lte 6>>
+		<<elseif Time.hour gte 18 or Time.hour lte 6>>
 
 			<<if $monster is 1>>
 				"No more hunt soon." The Black Wolf grumbles as <<bhe>> looks down at <<bhis>> growing belly. "Dangerous for pups."
@@ -770,4 +762,12 @@
 
 	<<link [[Next|Wolf Cave Baby Bunny]]>><</link>>
 
+<</widget>>
+
+<<widget "joinWolfPack">>
+	<<set $wolfPack.standing.stockholm to true>>
+	<<set $wolfPack.eventDue to false>>
+	<<set $wolfPack.hunt.packLocation to "cave">>
+	<<set $wolfPack.mood.ferocity to 10>>
+	<<set $wolfPack.mood.harmony to 10>>
 <</widget>>

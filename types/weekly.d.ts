@@ -70,6 +70,8 @@ declare global {
 		doren: DorenWeekly;
 		/** Mason's once-a-week flags, unset when the week ends. */
 		mason: MasonWeekly;
+		/** The Black Wolf's once-a-week flags, unset when the week ends. */
+		blackWolf: BlackWolfWeekly;
 	}
 }
 

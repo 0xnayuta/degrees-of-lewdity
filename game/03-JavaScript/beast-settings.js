@@ -152,6 +152,17 @@ function resolveIfNamedBeastIsMonster(beast) {
 window.resolveIfNamedBeastIsMonster = resolveIfNamedBeastIsMonster;
 
 /**
+ * Whether the wolves in the wolf cave are monster people today. Rolled the first time it's needed each day.
+ *
+ * @returns {boolean}
+ */
+function resolveIfCaveWolvesAreMonsters() {
+	V.daily.wolfPack.caveWolvesAreMonsters ??= monsterChanceForType("wolf") >= random(1, 100);
+	return V.daily.wolfPack.caveWolvesAreMonsters && (V.hallucinations >= 1 || !monsterHallucinationsOnlyForType("wolf"));
+}
+window.resolveIfCaveWolvesAreMonsters = resolveIfCaveWolvesAreMonsters;
+
+/**
  * Save Migration
  *
  * Builds $settings.namedBeasts from each named beast's pre-granular settings.

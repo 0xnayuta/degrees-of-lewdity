@@ -29,10 +29,6 @@
 :: Pups Den
 <<set $outside to 0>><<set $location to "wolf_cave">><<effects>>
 
-<<if ((Time.hour gte 8 and Time.hour lte 15) or (Time.hour gte 18))>>
-	<<unset $breastfeedend>>
-<</if>>
-
 You are in a secluded den inside the wolf cave. Makeshift chew toys are scattered around.
 <br><br>
 
@@ -43,7 +39,7 @@ One of your packmates guards the entrance to the pups den.
 	The Black Wolf lies down in a corner of the den, surrounded by a group of puppies.
 	<br><br>
 
-	<<if $breastfeedend isnot 1>>
+	<<if $daily.wolfPack.pupsLastFedWhen isnot getPupsFeedingTime()>>
 		<<wolfcaveicon "bw">><<link [[Approach|BW Pups Breastfeed]]>><</link>>
 		<br>
 
@@ -55,9 +51,9 @@ One of your packmates guards the entrance to the pups den.
 
 <</if>>
 
-<<if animalSexEnabledForType("wolf") and !$wolfcave_monster_roll and $settings.breastFeedingEnabled and $lactating is 1 and hasSexStat("deviancy", 3)>>
+<<if animalSexEnabledForType("wolf") and !resolveIfCaveWolvesAreMonsters() and $settings.breastFeedingEnabled and $lactating is 1 and hasSexStat("deviancy", 3)>>
 
-	<<if $wolfcavebreast is 3>>
+	<<if $daily.wolfPack.pupsBreastfed is 3>>
 		<span class="blue">The pups are full of milk.</span>
 		<br>
 	<<else>>
@@ -66,7 +62,7 @@ One of your packmates guards the entrance to the pups den.
 	<</if>>
 <</if>>
 
-<<if getBornChildren().find(child => getPregnancyOf(child).carrier === "pc" && child.development.location === "wolf_cave") and ((Time.hour gte 6 and Time.hour lte 7) or (Time.hour gte 16 and Time.hour lte 17)) and $breastfeedend isnot 1>>
+<<if getBornChildren().find(child => getPregnancyOf(child).carrier === "pc" && child.development.location === "wolf_cave") and ((Time.hour gte 6 and Time.hour lte 7) or (Time.hour gte 16 and Time.hour lte 17)) and $daily.wolfPack.pupsLastFedWhen isnot getPupsFeedingTime()>>
 	<<wolfcaveicon "children">><<link [[Check on your children|PC Pups Breastfeed]]>><</link>>
 	<br>
 <<else>>
@@ -80,7 +76,7 @@ One of your packmates guards the entrance to the pups den.
 :: BW Pups Breastfeed
 <<effects>><<npc "Black Wolf">>
 
-<<if $breastfeedend isnot 1>>
+<<if $daily.wolfPack.pupsLastFedWhen isnot getPupsFeedingTime()>>
 
 	The pups have gathered around the Black Wolf's breasts. They shove each other away trying to claim their share of the milk.
 	<br><br>
@@ -147,14 +143,14 @@ The <<beasttype>> shoves you away.
 
 <<link [[Insist|BW Pups Breastfeed Insist]]>><</link>>
 <br>
-<<link [[Leave|Pups Den]]>><<set $breastfeedend to 1>><<endevent>><</link>>
+<<link [[Leave|Pups Den]]>><<set $daily.wolfPack.pupsLastFedWhen to getPupsFeedingTime()>><<endevent>><</link>>
 
 :: BW Pups Breastfeed Insist
 <<effects>>
 
 You won't let that stop you. You ignore the <<beasttype>>'s warning and shift closer once again.
 
-<<if $wolfpackharmony gte 15>>
+<<if $wolfPack.mood.harmony gte 15>>
 	<<bHe>> growls again, but in a softer tone this time.
 	<<if $monster is 1>>
 		The Black Wolf moves <<bhis>> arm aside, leaving <<bhis>> bare breasts at your reach.
@@ -194,7 +190,7 @@ You won't let that stop you. You ignore the <<beasttype>>'s warning and shift cl
 
 <</if>>
 
-<<link [[Next|Pups Den]]>><<set $breastfeedend to 1>><<endevent>><</link>>
+<<link [[Next|Pups Den]]>><<set $daily.wolfPack.pupsLastFedWhen to getPupsFeedingTime()>><<endevent>><</link>>
 
 :: BW Pups Breastfeed Help
 <<effects>>
@@ -218,7 +214,7 @@ The pups continue with their feeding for a while longer, before settling down at
 
 <<set $milk_amount -=_pupsCount/2>>
 
-<<link [[Next|Pups Den]]>><<set $breastfeedend to 1>><<endevent>><</link>>
+<<link [[Next|Pups Den]]>><<set $daily.wolfPack.pupsLastFedWhen to getPupsFeedingTime()>><<endevent>><</link>>
 
 :: PC Pups Breastfeed
 <<effects>>
@@ -301,4 +297,4 @@ You approach your pups, who cry and whimper at your arrival. More tiny wolves ga
 
 <</if>>
 
-<<link [[Next|Pups Den]]>><<set $breastfeedend to 1>><<endevent>><</link>>
+<<link [[Next|Pups Den]]>><<set $daily.wolfPack.pupsLastFedWhen to getPupsFeedingTime()>><<endevent>><</link>>
