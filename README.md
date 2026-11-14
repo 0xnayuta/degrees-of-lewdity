@@ -176,11 +176,11 @@ Formatting CSS and other non-JavaScript file is handled by `Prettier`. Formattin
 
 ### Pre-commit hook
 
-On pre-commit [`lint-staged`](https://github.com/okonet/lint-staged) using [`husky`](https://typicode.github.io/husky) lints/formats `.js`, `.css` with ESLint, Stylelint and formats other supported files with Prettier.
+On pre-commit [`lint-staged`](https://github.com/okonet/lint-staged) using [`husky`](https://typicode.github.io/husky) lints/formats `.js`, `.css` with ESLint, Stylelint and formats other supported files with Prettier. This hook also checks to make sure your node packages meet the version requirements defined in package.json, to make sure you stay up-to-date.
 
 Pre-commit hook is the last quality gate to avoid "bad" code getting into the repository. It's better to make sure you aren't committing files with issues beforehand - you can run command `npm run lint-staged` when you've staged the files to check if there are issues.
 
-If for some reason you really want to commit the code that fails linting add `--no-verify` parameter to `commit` call
+If for some reason you really want to commit code that fails linting, add the `--no-verify` parameter to your `git commit` call. **Do not do this without a good reason.**
 
 ```bash
 commit --no-verify

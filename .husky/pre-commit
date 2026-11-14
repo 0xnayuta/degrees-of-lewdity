@@ -1,4 +1,14 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# ensure packages are up to date (so linter doesn't try to apply out-of-date rules), abort commit if discrepancy is found
+echo "Checking if packages are up-to-date..."
+if ! npm ls --depth=0 > /dev/null; then
+	echo "ERROR: 'npm ls' had nonzero exit code! Your packages are probably out of date."
+	echo "Running 'npm ci' should fix this."
+	echo "Aborting..."
+	exit 1
+fi
+echo "Packages are up to date!"
+# lint all files staged for commit and fix all fixable errors, abort commit if any errors are not fixable
 npx --no-install lint-staged
