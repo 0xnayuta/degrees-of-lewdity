@@ -844,6 +844,20 @@ const VALID_MEMORIES = {
 		// If Gwylan has brought up their sex toy collection
 		"toyCollection",
 	],
+	Alex: [
+		// If Alex asked the PC their favourite flower in the sunflowers on the meadow date
+		// Used so the question only plays the first time
+		"askedFavouriteFlower",
+		// If Alex said "God, I love you so much." during oral
+		// Not currently used
+		"saidLoveDuringOral",
+		// If Alex has seen the PC working on the farm naked
+		// Used so Alex's flustered first reaction only plays once
+		"sawPcWorkingNaked",
+		// If the PC has been on the meadow date with Alex
+		// Used so Alex skips the riding lesson and teases the PC about riding on later dates
+		"wentOnMeadowDate",
+	],
 	Sirris: [
 		// If the PC saw Sirris carrying a box to their car after school, hinting at the adult shop opening
 		// Used so the hint only plays once
@@ -1346,6 +1360,13 @@ const Memories = {
 		hasAny: (...memories) => hasAnyMemory("Gwylan", memories),
 		hasAll: (...memories) => hasAllMemories("Gwylan", memories),
 		delete: memory => deleteMemory("Gwylan", memory),
+	},
+	Alex: {
+		add: memory => addMemory("Alex", memory),
+		has: memory => hasMemory("Alex", memory),
+		hasAny: (...memories) => hasAnyMemory("Alex", memories),
+		hasAll: (...memories) => hasAllMemories("Alex", memories),
+		delete: memory => deleteMemory("Alex", memory),
 	},
 	Sirris: {
 		add: memory => addMemory("Sirris", memory),

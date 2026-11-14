@@ -1751,7 +1751,7 @@ function isPossibleLoveInterest(name) {
 		case "Great Hawk":
 			return V.syndromebird === 1;
 		case "Alex":
-			return V.farm_stage >= 7 && V.alex_countdown === undefined;
+			return V.alex.romance;
 		case "Gwylan":
 			return Memories.Gwylan.has("loveInterest") || Memories.Gwylan.has("romance");
 		default:

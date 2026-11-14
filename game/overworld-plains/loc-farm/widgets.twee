@@ -570,7 +570,7 @@
 <<widget "farm_actions">>
 	<<farm_gen_all>>
 	<<set _actions to 0>>
-	<<if $farm_work.alex is "shower" and !$daily.farmAlexShowerSpy>>
+	<<if $farm_work.alex is "shower" and !$daily.alex.pcSpiedInShower>>
 		<<set $skulduggerydifficulty to 700>>
 		<<bathroomicon "shower">><<link [[Spy on Alex (0:20)|Farm Spy]]>><<pass 20>><</link>><<promiscuous1>><<skulduggerydifficulty>>
 		<br>
@@ -706,12 +706,12 @@
 	<<if $farm_work.alex is "relax" and ($exposed lt 2 or hasSexStat("exhibitionism", 5))>>
 		<<farmicon "relax">><<link [[Join Alex (0:20)|Farm Rest]]>><<farm_count 20>><<trauma -2>><<stress -2>><<npcincr Alex love 1>><<set $phase to 1>><<pass 20>><</link>><<glove>><<ltrauma>><<lstress>>
 		<br>
-	<<if $farm_stage gte 4 and $milkshake gte 2>>
-		<<foodicon "milkshake">><<link [[Offer milkshake (0:20)|Alex Give Milkshake]]>><<farm_count 20>><<pass 20>><<set $milkshake -= 2>><<set $daily.alex.milkshake to true>><<npcincr Alex love 1>><<stress -5>><</link>><<glove>><<lstress>>
+	<<if $farm_stage gte 4 and $milkshake gte 2 and !$daily.alex.pcGaveMilkshake>>
+		<<foodicon "milkshake">><<link [[Offer milkshake (0:20)|Alex Give Milkshake]]>><<farm_count 20>><<pass 20>><<set $milkshake -= 2>><<set $daily.alex.pcGaveMilkshake to true>><<npcincr Alex love 1>><<stress -5>><</link>><<glove>><<lstress>>
 		<br>
 	<</if>>
-	<<if $farm_stage gte 7 and $alex_countdown is undefined and $milkshake gte 1>>
-		<<foodicon "milkshake">><<link [[Share milkshake (0:20)|Alex Share Milkshake]]>><<farm_count 20>><<pass 20>><<set $milkshake -= 1>><<set $daily.alex.milkshake to true>><<npcincr Alex love 2>><<stress -10>><</link>><<gglove>><<lstress>>
+	<<if $alex.romance and $milkshake gte 1 and !$daily.alex.pcGaveMilkshake>>
+		<<foodicon "milkshake">><<link [[Share milkshake (0:20)|Alex Share Milkshake]]>><<farm_count 20>><<pass 20>><<set $milkshake -= 1>><<set $daily.alex.pcGaveMilkshake to true>><<npcincr Alex love 2>><<stress -10>><</link>><<gglove>><<lstress>>
 		<br>
 	<</if>>
 	<</if>>
@@ -820,7 +820,6 @@
 	<<set $farm.beasts.horses to 0>>
 	<<set $farm.beasts.cattle to 0>>
 	<<set $farm.beasts.dogs to 0>>
-	<<set $farm_naked_alex to 1>>
 	<<set $farm.clearing to 100>>
 
 	<<farm_update>>
@@ -997,7 +996,7 @@
 		<br><br>
 	<</if>>
 
-	<<if Time.hour is 21 and $farm_end is undefined and $alex_to_bed isnot 1>>
+	<<if Time.hour is 21 and $farm_end is undefined and !$daily.alex.wentUpToBed>>
 		<<set $farm_end to 1>>
 		<<npc Alex>><<person1>>
 		Alex enters the barn, wiping the sweat off <<his>> forehead as <<he>> approaches you. "Done for another day," <<he>> says,
@@ -1155,7 +1154,7 @@
 			<<pcPregnancyRevealToAlex>>
 
 		<<else>>
-			<<link [[Leave|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><</link>>
+			<<link [[Leave|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><</link>>
 			<br>
 
 		<</if>>
@@ -1171,7 +1170,7 @@
 			<<pcPregnancyRevealToAlex>>
 
 		<<else>>
-			<<link [[Next|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+			<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 			<br>
 
 		<</if>>
@@ -1959,7 +1958,7 @@
 			<br><br>
 
 			<<if hasSexStat("promiscuity", 2)>>
-				<<link [[Touch <<him>>|Farm Tending Alex Summer]]>><<set $phase to 2>><<if $farm_stage lt 7 or ($farm_stage gte 7 and $alex_countdown isnot undefined)>><<npcincr Alex love -1>><</if>><<npcincr Alex dom -1>><<npcincr Alex lust 3>><</link>><<promiscuous2>><<if $farm_stage lt 7 or ($farm_stage gte 7 and $alex_countdown isnot undefined)>><<llove>><</if>><<ldom>><<gglust>>
+				<<link [[Touch <<him>>|Farm Tending Alex Summer]]>><<set $phase to 2>><<if !$alex.romance>><<npcincr Alex love -1>><</if>><<npcincr Alex dom -1>><<npcincr Alex lust 3>><</link>><<promiscuous2>><<if !$alex.romance>><<llove>><</if>><<ldom>><<gglust>>
 				<br>
 			<</if>>
 			<<link [[Peek|Farm Tending Alex Summer]]>><<set $phase to 1>><<arousal 300>><<npcincr Alex lust 1>><</link>><<garousal>><<glust>>
@@ -2344,7 +2343,7 @@
 	<<set _alex_rng to random(1, 14)>>
 	<<if _alex_rng is 14 and $fame.model gte 30>>
 		You talk about your modelling gig.
-		<<if $rng gte 61 and $alex_countdown is undefined and $farm_stage gte 7>>
+		<<if $rng gte 61 and $alex.romance>>
 			"You model? I bet." <<He>> blushes. "You're quite the looker."
 		<<elseif $rng gte 31 and $farm_stage gte 6>>
 			<<loadNPC 1 "alexs_parent1">>
@@ -2365,7 +2364,7 @@
 		You tell <<him>> that you go out of your way to help others. Some call you an angel.
 		<<if _alex.love lte -10>>
 			"Something just doesn't add up," <<he>> says, sounding annoyed. "Sorry, I didn't mean to be rude. But you could be a little nicer to me."
-		<<elseif $alex_countdown is undefined and $farm_stage gte 7>>
+		<<elseif $alex.romance>>
 			"You're my angel," <<he>> coos and beams. "And my <<woman>>."
 		<<elseif $angel gte 6 and $transformationParts.angel.halo isnot "hidden" and $transformationParts.angel.wings isnot "hidden">>
 			"I'm glad I'm no exception." <<He>> smiles at you. "You sure do look the part."
@@ -2404,7 +2403,7 @@
 		<</if>>
 	<<elseif _alex_rng is 1 and $fame.sex gte 400>>
 		"Rumours say you've racked up quite the body count." <<He>> smiles in awe.
-		<<if $alex_countdown is undefined and $farm_stage gte 7>>
+		<<if $alex.romance>>
 			"You're a <<woman>> after my own heart, y'know that?"
 		<<else>>
 			"Takes some serious hustle. I respect it."
@@ -2456,7 +2455,7 @@
 		<br><br>
 	<</if>>
 
-	<<if $alex_countdown is undefined>>
+	<<if $alex.romance>>
 		<<couchicon>><<link [[Cuddle Alex (0:20)|Farm Breakfast Cuddle]]>><<npcincr Alex love 1>><<pass 20>><</link>><<glove>>
 		<br>
 		<<farmicon "tv">><<link [[Watch TV with Alex (0:20)|Farm Breakfast TV]]>><<stress -2>><<pass 20>><</link>><<lstress>>
@@ -3100,7 +3099,7 @@
 			<</if>>
 
 		<<else>>
-			<<if $farm_stage gte 7 and $alex_countdown is undefined>>
+			<<if $alex.romance>>
 				"Please take a break whenever you're not feeling well," <<he>> says.
 				<br><br>
 			<<else>>
@@ -3172,7 +3171,7 @@
 					<<else>>
 						<br>
 
-						<<link [[Not now|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+						<<link [[Not now|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 
 					<</if>>
 
@@ -3198,7 +3197,7 @@
 					<<else>>
 						<br>
 
-						<<link [[Not now|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+						<<link [[Not now|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 
 					<</if>>
 
@@ -3226,7 +3225,7 @@
 				<<else>>
 					<br>
 
-					<<link [[Not now|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+					<<link [[Not now|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 
 				<</if>>
 
@@ -3265,7 +3264,7 @@
 					<br>
 				<<else>>
 					<br>
-					<<link [[Not now|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+					<<link [[Not now|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 				<</if>>
 			<<elseif $passage is "Farm Work">>
 				<br>
@@ -3295,7 +3294,7 @@
 					<br>
 				<<else>>
 					<br>
-					<<link [[Not now|Farm Work]]>><<endevent>><<unset $farm_relax_drink>><<set $farm_work.alex to "still">><</link>>
+					<<link [[Not now|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
 				<</if>>
 			<<elseif $passage is "Farm Work">>
 				<br>
@@ -3358,14 +3357,14 @@
 		Through your painful contractions, you manage to give <<him>> a smile and a nod.
 		<br><br>
 
-		<<link [[Next|Farm PC Birth]]>><<set $ambulance to 1>><</link>>
+		<<link [[Next|Farm PC Birth]]>><<set $alex.birth.calledAmbulanceForPc to true>><</link>>
 
 	<</if>>
 
 <</widget>>
 
 <<widget "alexBoozeShopping">>
-	<<if $alexBooze is "noID">>
+	<<if $alex.shoppingListAlcohol is "noID">>
 		A slightly annoyed look appears on <<his>> face as <<he>> turns back toward you.
 
 		<<if C.npc.Alex.dom gte 20>>
@@ -3398,9 +3397,9 @@
 
 		<<link [[Give Alex the money|Farm Shopping Booze]]>><</link>>
 		<br>
-		<<link [[Keep the money|Farm Work]]>><<money $farm_work.shopping_money "farm">><<endevent>><<unset $alexBooze>><</link>>
+		<<link [[Keep the money|Farm Work]]>><<money $farm_work.shopping_money "farm">><<endevent>><<unset $alex.shoppingListAlcohol>><</link>>
 
-	<<elseif $alexBooze is "noBooze">>
+	<<elseif $alex.shoppingListAlcohol is "noBooze">>
 		A slightly annoyed look appears on <<his>> face as <<he>> turns back toward you.
 
 		<<if C.npc.Alex.dom gte 20>>
@@ -3445,38 +3444,35 @@
 
 		<<link [[Give Alex the money|Farm Shopping Booze]]>><</link>>
 		<br>
-		<<link [[Keep the money|Farm Work]]>><<money $farm_work.shopping_money "farm">><<endevent>><<unset $alexBooze>><</link>>
+		<<link [[Keep the money|Farm Work]]>><<money $farm_work.shopping_money "farm">><<endevent>><<unset $alex.shoppingListAlcohol>><</link>>
 
 	<<else>>
 		A wide smile appears at the sight of the alcohol.
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><<endevent>><<unset $alexBooze>><</link>>
+		<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.shoppingListAlcohol>><</link>>
 
 	<</if>>
 <</widget>>
 
 <<widget "alexRemyTattoosCheck">>
-	<<if $alex_countdown is undefined and $farm_stage gte 7>>
+	<<if $alex.romance>>
 		<<bodywritingExposureCheck>>
 
-		<<if $alexRemyTattoosKnow is undefined>>
-			<<set $alexRemyTattoosKnow = []>>
-		<</if>>
-
+		<<set _foundNewRemyTattoo to false>>
 		<<for _bodypart, _tattoos range $skin>>
-			<<if _tattoos.special is "cattle" and _skin_array.includes(_bodypart) and !$alexRemyTattoosKnow.includes(_bodypart) and !$weekly.alexRemyTattoos and $rng gte 91>>
-				<<set $weekly.alexRemyTattoos to 0>>
-				<<run $alexRemyTattoosKnow.push(_bodypart)>>
+			<<if _tattoos.special is "cattle" and _skin_array.includes(_bodypart) and !$alex.remyTattoosSeenOn.includes(_bodypart) and !$weekly.alex.reactedToRemyTattoo and $rng gte 91>>
+				<<set _foundNewRemyTattoo to true>>
+				<<run $alex.remyTattoosSeenOn.push(_bodypart)>>
 				<<break>>
-			<<elseif _tattoos.special isnot "cattle" and $alexRemyTattoosKnow.includes(_bodypart)>>
+			<<elseif _tattoos.special isnot "cattle" and $alex.remyTattoosSeenOn.includes(_bodypart)>>
 				/* Alex discovers that Remy's tattoo on the PC is missing. */
-				<<set $alexRemyTattoosKnow to $alexRemyTattoosKnow.filter(part => part !== _bodypart)>>
+				<<set $alex.remyTattoosSeenOn to $alex.remyTattoosSeenOn.filter(part => part !== _bodypart)>>
 			<</if>>
 		<</for>>
 
-		<<if $weekly.alexRemyTattoos is 0>>
-			<<set $weekly.alexRemyTattoos to 1>>
+		<<if _foundNewRemyTattoo>>
+			<<set $weekly.alex.reactedToRemyTattoo to true>>
 			<<set $phase = _args[0]>>
 			<<switch $phase>>
 				<<case "breakfast">>

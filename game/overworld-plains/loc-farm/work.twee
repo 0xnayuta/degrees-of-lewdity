@@ -208,8 +208,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy and $farm_work.alex isnot "shower">>
-	<<set $weekly.alexHungOver to 1>>
+<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alex.hadHangover and $rng gte 76 and !$daily.alex.pcSpiedInShower and $farm_work.alex isnot "shower">>
+	<<set $weekly.alex.hadHangover to true>>
 
 	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
 	<br><br>
@@ -232,7 +232,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<farmStage6>>
 <<elseif $farm_stage is 6 and ($farm_countdown lte 0 or $farm.clearing lte 50)>>
 	<<farmStage7>>
-<<elseif $farm_stage gte 7 and C.npc.Alex.love gte 50 and $alex_countdown lte 0 and Time.betweenHours(5, 20)>>
+<<elseif $farm_stage gte 7 and C.npc.Alex.love gte 50 and $alex.daysUntilConfession lte 0 and Time.betweenHours(5, 20)>>
 	<<npc Alex>><<person1>>
 	You return to the courtyard in front of the farmhouse. You hear footsteps fast approaching. You turn just in time to see Alex. With a laugh, <<he>> grapples and drags you off your feet.
 	<br><br>
@@ -240,11 +240,11 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	You're left on your back. Alex straddles you, and pins your wrists to the earth. "What's wrong?" <<he>> teases. "Can't you break free?"<<gglust>><<npcincr Alex lust 5>><<gdom>><<npcincr Alex dom 1>>
 	<br><br>
 
-	<<link [[Get on top|Farm Love Get]]>><<unset $alex_countdown>><</link>><<physiquedifficulty 1 15000>>
+	<<link [[Get on top|Farm Love Get]]>><<unset $alex.daysUntilConfession>><<set $alex.romance to true>><</link>><<physiquedifficulty 1 15000>>
 	<br>
-	<<link [[Get annoyed|Farm Love Annoyed]]>><<unset $alex_countdown>><</link>>
+	<<link [[Get annoyed|Farm Love Annoyed]]>><<unset $alex.daysUntilConfession>><<set $alex.romance to true>><</link>>
 	<br>
-	<<link [[Flirt|Farm Love Flirt]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><<unset $alex_countdown>><</link>><<promiscuous1>><<glove>><<gglust>>
+	<<link [[Flirt|Farm Love Flirt]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><<unset $alex.daysUntilConfession>><<set $alex.romance to true>><</link>><<promiscuous1>><<glove>><<gglust>>
 	<br>
 <<elseif $farm_stage is 7 and $farm.clearing lte 0>>
 	<<farmStage8>>
@@ -569,7 +569,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<elseif playerIsPregnant() and playerBellyVisible() and !talkedAboutPregnancy("pc","Alex") and Time.hour isnot 7>>
 		<<npc "Alex">>
 		<<setTalkedAboutPregnancy "pc" "Alex">>
-		<<if $farm_stage gte 7 and $alex_countdown is undefined>>
+		<<if $alex.romance>>
 			You notice Alex staring at your belly in horror. "You're...you're pregnant?! You didn't tell me anything..."
 
 			<<set _preg to getPlayerPregnancy()>>
@@ -655,7 +655,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		Alex approaches you. You can see a nervous expression on <<his>> face. "Hey."
 		<br><br>
 
-		"<<if !$ambulance>>I got a call from the hospital saying that you were in labour.<</if>> <<if C.npc.Alex.pregnancy.pcKnowledge>>Sorry I couldn't be there. I just couldn't leave the farm, not in this state...<<else>> I had no idea I knocked you up; you didn't tell me anything...<</if>>"
+		"<<if !$alex.birth.calledAmbulanceForPc>>I got a call from the hospital saying that you were in labour.<</if>> <<if C.npc.Alex.pregnancy.pcKnowledge>>Sorry I couldn't be there. I just couldn't leave the farm, not in this state...<<else>> I had no idea I knocked you up; you didn't tell me anything...<</if>>"
 		<br><br>
 
 		<<He>> looks at your belly with sad eyes. "Look, I can't stand the idea of our kids somewhere out there, livin' as orphans. There's room here at the cottage for them, I'd just need some help with the fields and then with a nursery. It's an option, if you'll consider it."
@@ -667,7 +667,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<span class="gold">Alex is willing to keep <<his>> kids at the farm, but first you should help <<him>> out.</span>
 		<br><br>
 
-		<<link [[Next|Farm Work]]>><<run delete C.npc.Alex.pregnancy.pcKnowledge>><<unset $ambulance>><</link>>
+		<<link [[Next|Farm Work]]>><<run delete C.npc.Alex.pregnancy.pcKnowledge>><<unset $alex.birth.calledAmbulanceForPc>><</link>>
 
 
 	<<elseif C.npc.Alex.pregnancy.fee is true>>
@@ -697,7 +697,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 		<<link [[Next|Farm Alex Orphanage Trip]]>><</link>>
 
-	<<elseif $exposed lte 0 and (getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).carrier === "Alex") or getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).donor === "Alex")) and !$daily.farmBabyInteraction and $rng gte 56 and Time.betweenHours(8, 15)>>
+	<<elseif $exposed lte 0 and (getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).carrier === "Alex") or getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).donor === "Alex")) and !$daily.alex.hadChildrenScene and $rng gte 56 and Time.betweenHours(8, 15)>>
 		<<alex_baby_interactions>>
 
 	<<elseif $farm_yield_alex gte 1 and !(Time.betweenHours(22, 5) or (Time.hour is 21 and $farm_end is 1)) and $farm_work.alex isnot "shower">>
@@ -848,8 +848,8 @@ Following the slime's command, you find a spot where you think your clothes will
 :: Farm Work Naked
 <<effects>>
 
-<<if $farm_naked_alex is 1 and hasSexStat("exhibitionism", 5)>>
-	<<unset $farm_naked_alex>>
+<<if !Memories.Alex.has("sawPcWorkingNaked") and hasSexStat("exhibitionism", 5)>>
+	<<run Memories.Alex.add("sawPcWorkingNaked")>>
 
 	<<npc Alex>><<person1>>
 	<<flaunting>> you step out from your hiding place, just as Alex enters the yard. "Thanks for he—" <<he>> begins, before looking your way and cutting off.
@@ -879,8 +879,8 @@ Following the slime's command, you find a spot where you think your clothes will
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm_naked_alex is 1>>
-	<<unset $farm_naked_alex>>
+<<elseif !Memories.Alex.has("sawPcWorkingNaked")>>
+	<<run Memories.Alex.add("sawPcWorkingNaked")>>
 
 	<<npc Alex>><<person1>>
 	<<embarrassment>> Despite that you step out from your hiding place, just as Alex enters the yard. "Thanks for he—" <<he>> begins, before looking your way and cutting off. <<stress 10>><<gstress>><<trauma 10>><<gtrauma>>
@@ -1693,7 +1693,7 @@ You empty the buckets in the troughs.
 "Hey! What—" Alex's confused reaction stops short as <<he>> catches sight of the expression on your face. You turn away, leaning forward and placing your hands on your knees. You try to swallow against the spasming in your throat. <<gpain>><<violence 3>>
 <br><br>
 
-<<if $farm_stage gte 7 and $alex_countdown is undefined>>
+<<if $alex.romance>>
 	Suddenly, you feel <<his>> hands <<if $hairlength gte 400>> holding your hair back for you and<</if>> rubbing soothing circles on your back. "It's all right, partner," Alex murmurs, <<his>> voice soothing. "I've got you."
 	<br><br>
 
@@ -2462,7 +2462,7 @@ The <<farm_text_many dog>> help you herd the <<farm_text_many cattle>> into the 
 :: Farm Spy
 <<effects>>
 <<npc Alex>><<person1>>
-<<set $daily.farmAlexShowerSpy to true>>
+<<set $daily.alex.pcSpiedInShower to true>>
 You sneak up to the shed, and push the door open.
 <<promiscuity1>>
 
@@ -2863,9 +2863,9 @@ You sneak up to the shed, and push the door open.
 <<rng>>
 
 <<if (!npcIsPregnant("Alex") and !playerBellyVisible() and !knowsAboutPregnancy("pc","Alex")) and dangerEvent() and $farm_stage gte 4>>
-	<<if $farm_relax_drink is "accept">>
+	<<if $alex.restDrinkAnswer is "accept">>
 		"Another drink?" <<he>> asks, producing another bottle from the hiding place.
-	<<elseif $farm_relax_drink is "refuse">>
+	<<elseif $alex.restDrinkAnswer is "refuse">>
 		"You sure I can't interest you in a drink?" <<he>> asks, pulling the bottle from its hiding place again.
 	<<else>>
 		"Fancy a drink?" <<he>> asks out of nowhere. <<He>> pulls a bottle from an alcove beneath a thick root, and offers it to you. "They say you shouldn't drink alone."
@@ -2881,8 +2881,8 @@ You sneak up to the shed, and push the door open.
 	<<link [[Refuse|Farm Rest Refuse]]>><</link>>
 	<br>
 
-<<elseif C.npc.Alex.love gte 60 and $phase isnot 5 and Weather.precipitation isnot "rain" and $rng gte 81 and $exposed lte 0 and !$daily.alexMeadowDate>>
-	<<set $daily.alexMeadowDate to true>>
+<<elseif C.npc.Alex.love gte 60 and $phase isnot 5 and Weather.precipitation isnot "rain" and $rng gte 81 and $exposed lte 0 and !$daily.alex.askedPcOnMeadowDate>>
+	<<set $daily.alex.askedPcOnMeadowDate to true>>
 	"Want to go out somewhere today? Might be good to stretch our legs."
 	<br><br>
 
@@ -2892,7 +2892,7 @@ You sneak up to the shed, and push the door open.
 	<<He>> smiles and waits for your answer.
 	<br><br>
 
-	<<link [[Agree (0:20)|Farm Meadow Date]]>><<npcincr Alex love 1>><</link>><<glove>>
+	<<link [[Agree (0:20)|Farm Meadow Date]]>><<npcincr Alex love 1>><<unset $alex.restDrinkAnswer>><</link>><<glove>>
 	<br>
 	<<link [[Get some rest|$passage]]>><<set $phase to 5>><</link>>
 
@@ -2955,7 +2955,7 @@ You sit beside Alex, then procure the milkshake. "Fancy a drink?" you ask<<if (!
 You relax on the hammock next to the stables.
 <<if Weather.precipitation isnot "none">>You're glad to have some cover from the <<print Weather.precipitation>>.<</if>>
 
-<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $farm_work.alex isnot "still" and $alex_countdown is undefined and $farm_stage gte 7>>
+<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $farm_work.alex isnot "still" and $alex.romance>>
 	You see Alex approach, waving at you. "Hey, partner." <<He>> smiles and leans across your lap. "Just thought I'd swing by."
 	<br><br>
 
@@ -3435,7 +3435,7 @@ Alex gives you a tired smile. "<<if C.npc.Alex.dom lte 49>>Hey partner, thanks f
 
 You open your mouth to speak, but before you get the chance,
 
-<<if ($alex_countdown is undefined and $farm_stage gte 7) or C.npc.Alex.love gte 50>>
+<<if $alex.romance or C.npc.Alex.love gte 50>>
 	Alex grabs your shoulder, pulling you in for a kiss.
 	<br><br>
 
@@ -3457,7 +3457,7 @@ You open your mouth to speak, but before you get the chance,
 <<if $phase is 1>>
 	You turn your head, and Alex's lips land on your cheek. <<He>> sheepishly looks away. "Let's just get to work then," <<he>> mutters, sounding embarrassed.
 <<else>>
-	<<takeKissVirginity "Alex" `($alex_countdown is undefined?"loveInterest":"loveRape")`>>
+	<<takeKissVirginityNamed "Alex" true>>
 	<<if _pcKissVirginityTaken>>
 		<br><br>
 	<</if>>
@@ -3468,7 +3468,7 @@ You open your mouth to speak, but before you get the chance,
 		You feel <<his>> hand travel down to your ass, giving it a quick squeeze before pulling away.<<garousal>><<arousal 600>>
 
 	<<else>>
-		<<if $alex_countdown is undefined and $farm_stage gte 7>>
+		<<if $alex.romance>>
 			<<He>> nuzzles your nose with <<hers>>.
 		<<else>>
 			It doesn't last long.

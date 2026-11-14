@@ -52,6 +52,8 @@ declare global {
 		kylar: KylarDaily;
 		/** Gwylan's once-a-day values, unset at midnight */
 		gwylan: GwylanDaily;
+		/** Alex's once-a-day flags, unset at midnight. */
+		alex: AlexDaily;
 	}
 }
 

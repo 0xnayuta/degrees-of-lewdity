@@ -1314,11 +1314,7 @@ function dawnCheck() {
 	delete V.skul_dock_init;
 	delete V.skul_dock;
 	delete V.dock_security;
-	delete V.alexwake;
-	delete V.alex_bed;
-	delete V.alex_bed_spurned;
-	delete V.alexSomno;
-	delete V.alexSomnoAngry;
+	V.alex.night = {};
 	delete V.connudatus_stripped;
 	delete V.gwylan.wake;
 	delete V.gwylan.cafeWake;
@@ -2402,16 +2398,13 @@ function dailyFarmEvents() {
 		V.farm_yield_alex += V.farm_yield;
 		delete V.farm_yield;
 	}
-	if (V.alex_countdown >= 1) V.alex_countdown--;
+	if (V.alex.daysUntilConfession >= 1) V.alex.daysUntilConfession--;
 
 	delete V.farm_count;
 	if (V.farm_stage < 7) delete V.farm_naked;
 	delete V.farm_work;
 	delete V.farm_event;
 	delete V.farm_end;
-	delete V.alex_breakfast;
-	delete V.alex_tea;
-	delete V.alex_to_bed;
 }
 
 function dailyDockEffects() {
