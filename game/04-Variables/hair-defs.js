@@ -30,6 +30,8 @@ setup.hair = {
 				"half up half down",
 				"wavy",
 				"emo",
+				"blowout",
+				"skunk stripes"
 			],
 			devolve: ["ruffled", "bedhead", "unkept"],
 		},
@@ -73,6 +75,7 @@ setup.hair = {
 				"ruffled twintails",
 				"wolfcut",
 				"horn buns",
+				"skunk stripes buns",
 			],
 			devolve: ["twintails", "ruffled twintails"],
 		},
@@ -83,7 +86,7 @@ setup.hair = {
 		},
 		{
 			name: "double bun",
-			list: ["sailor buns", "space buns", "fairy low buns"],
+			list: ["sailor buns", "space buns", "fairy low buns", "skunk stripes buns"],
 			devolve: ["sailor buns"],
 		},
 		{
@@ -177,6 +180,8 @@ setup.hair = {
 				"heart shaped",
 				"wavy",
 				"racoon tails",
+				"blowout",
+				"skunk stripes",
 			],
 			devolve: ["messy", "trident", "thin flaps", "ruffled", "bedhead"],
 		},
