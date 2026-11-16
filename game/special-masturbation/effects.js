@@ -1169,7 +1169,7 @@ function masturbationEffectsArms(
 				wikifier("pain", 1 * handsOn);
 				additionalEffect.earSlimeDefy.pushUnique(V.player.virginity.penile === true ? "virgin penis" : "penis");
 				sWikifier(`You gently caress the parasite.`);
-			} else if (!V.canSelfSuckPenis && playerIsPregnant() && playerPregnancyProgress() >= 10 && V.earSlime.corruption >= 100) {
+			} else if (!V.canSelfSuckPenis && playerIsPregnant() && playerPregnancyProgress() >= 0.1 && V.earSlime.corruption >= 100) {
 				altText.eagerly = V.arousal >= V.arousalmax * (1 / 5) ? "eagerly" : "slowly";
 				wikifier("arousal", 500, "masturbationPenis");
 				V.earSlime.vibration += handsOn * 4;

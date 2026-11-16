@@ -1,21 +1,21 @@
-/** The player's parasite pregnancy on $sexStats. Real pregnancies live on records. */
+/** The PC's parasite pregnancy object on $sexStats: the vagina's if the PC has one, otherwise the anus's. */
 function getParasiteObject() {
 	return V.player.vaginaExist ? V.sexStats.vagina.pregnancy : V.sexStats.anus.pregnancy;
 }
 window.getParasiteObject = getParasiteObject;
 
-/** Total births the player's body has been through, across both orifices. */
+/** Total birth events the PC has had, from both orifices. */
 function playerNormalPregnancyTotal() {
 	return V.sexStats.vagina.pregnancy.totalBirthEvents + V.sexStats.anus.pregnancy.totalBirthEvents;
 }
 window.playerNormalPregnancyTotal = playerNormalPregnancyTotal;
 
 /**
- * Pregnancy belly size. Stays hidden until the pregnancy progresses
- * and then ramps up to term size by the due date based on litter.
+ * Belly size from one pregnancy. It is 0 until the pregnancy's progress reaches belly.showFraction,
+ * then grows to the term size by the due date. A bigger litter gives a bigger term size.
  *
- * @param {object} pregnancy a records pregnancy
- * @returns {number} belly contribution on the 0-maxSize belly-sprite scale
+ * @param {Pregnancy} pregnancy
+ * @returns {number} 0 to belly.maxSize
  */
 function pregnancyBellySize(pregnancy) {
 	const litter = getChildrenOf(pregnancy.pregnancyId).length;
@@ -26,19 +26,19 @@ function pregnancyBellySize(pregnancy) {
 }
 window.pregnancyBellySize = pregnancyBellySize;
 
-// pregnancyOnly: count only the belly from pregnancies, excluding parasites and bloat.
-// For checks that ask whether the pregnancy itself shows.
+/**
+ * The PC's belly size.
+ *
+ * @param {boolean} [pregnancyOnly=false] count only pregnancies, leaving out parasites and bloating
+ * @returns {number} 0 to belly.maxSize
+ */
 function playerBellySize(pregnancyOnly = false) {
 	let bellySize = V.bellySizeDebug || 0;
 	if (!V.statFreeze) {
-		// Pregnancies live in records. The belly grows with progress
-		// toward a term size set by the litter count.
 		for (const orifice of ["vagina", "anus"]) {
 			const pregnancy = getActivePregnancy("pc", orifice);
 			if (pregnancy && !pregnancy.litterBorn) bellySize += pregnancyBellySize(pregnancy);
 		}
-		// Parasites are a separate system from real pregnancies. They live directly on
-		// V.sexStats.*.pregnancy, not in records.
 		if (!pregnancyOnly) {
 			if (V.sexStats.vagina.pregnancy.type === "parasite") bellySize += Math.clamp(V.sexStats.vagina.pregnancy.fetus.length, 0, 4);
 			if (V.sexStats.anus.pregnancy.type === "parasite") bellySize += Math.clamp(V.sexStats.anus.pregnancy.fetus.length, 0, 4);
@@ -79,15 +79,19 @@ function npcBellySize(npc) {
 }
 window.npcBellySize = npcBellySize;
 
+/**
+ * Whether an NPC's belly is big enough to see. Clothing is not checked.
+ *
+ * @param {string} npc the NPC's name
+ * @returns {boolean}
+ */
 function npcBellyVisible(npc) {
 	return npcBellySize(npc) >= PregnancyConstants.belly.visibility.bareMin;
 }
 window.npcBellyVisible = npcBellyVisible;
 
-function npcPregnancyProgress(npc, percent = true) {
-	const pregnancy = getActivePregnancies(npc)[0];
-	if (!pregnancy) return null;
-	return percent ? pregnancyProgress(pregnancy) : Time.date.timeStamp - pregnancy.conceivedDate;
+function npcPregnancyProgress(npc) {
+	return pregnancyProgress(getActivePregnancies(npc)[0]);
 }
 window.npcPregnancyProgress = npcPregnancyProgress;
 
@@ -96,6 +100,12 @@ function npcIsPregnant(npc) {
 }
 window.npcIsPregnant = npcIsPregnant;
 
+/**
+ * Whether the NPC's water has broken.
+ *
+ * @param {string} npc the NPC's name
+ * @returns {boolean}
+ */
 function npcPregnancyEnding(npc) {
 	const pregnancy = getLabouringPregnancy(npc);
 	return !!(pregnancy && pregnancy.waterBreaking);
@@ -103,16 +113,19 @@ function npcPregnancyEnding(npc) {
 window.npcPregnancyEnding = npcPregnancyEnding;
 
 /**
- * Whether a bird NPC has an egg ready and if its fertilised.
- * "fertilised" = an active hawk pregnancy that's due to lay.
- * "unfertilised" = not pregnant but in the fertile window.
- * undefined = nothing ready, or egg laying is disabled.
+ * Whether a bird NPC has an egg ready to lay, and whether it is fertilised.
+ *
+ * "fertilised": a hawk pregnancy whose water has broken or that has reached its due date.
+ *
+ * "unfertilised": not pregnant, and two cycle days past cycleDangerousDay.
+ *
+ * undefined: no egg, or egg laying is turned off.
  *
  * @param {string} npc the NPC's name
  * @returns {"fertilised"|"unfertilised"|undefined}
  */
 function birdEggsReady(npc) {
-	if (V.settings.playerPregnancyEggLayingEnabled === false || !C.npc[npc]) return undefined;
+	if (V.settings.playerPregnancyEggLayingEnabled === false) return undefined;
 	const pregnancy = C.npc[npc].pregnancy;
 	if (getActivePregnancies(npc).some(p => childBaseSpecies(p.donorSpecies) === "hawk" && (p.waterBreaking || Time.date.timeStamp >= getDueDate(p))))
 		return "fertilised";
@@ -123,8 +136,9 @@ function birdEggsReady(npc) {
 window.birdEggsReady = birdEggsReady;
 
 /**
- * The active pregnancies belonging to the body the player is in right now.
- * Including stories and paintings.
+ * The PC's active pregnancies in the body they are in right now (can be inside other bodies during stories/paintings).
+ *
+ * @returns {Pregnancy[]}
  */
 function currentBodyPregnancies() {
 	const firstOfThisVision = V.statFreeze && V.frozenValues ? (V.frozenValues.pregnancies ?? V.pregnancies).length : 0;
@@ -132,56 +146,80 @@ function currentBodyPregnancies() {
 }
 window.currentBodyPregnancies = currentBodyPregnancies;
 
+/**
+ * Whether the PC is pregnant in the body they are in right now. See currentBodyPregnancies.
+ *
+ * @returns {boolean}
+ */
 function playerIsPregnant() {
 	return currentBodyPregnancies().length > 0;
 }
 window.playerIsPregnant = playerIsPregnant;
 
-function playerPregnancyProgress(percent = true) {
+/**
+ * Progress of the PC's furthest along active pregnancy, from 0 to 1.
+ *
+ * @returns {number|undefined} undefined when the PC has no active pregnancy
+ */
+function playerPregnancyProgress() {
 	const active = getActivePregnancies("pc");
-	if (!active.length) return null;
-	const furthest = active.reduce((a, b) => (pregnancyProgress(a) >= pregnancyProgress(b) ? a : b));
-	return percent ? pregnancyProgress(furthest) : Time.date.timeStamp - furthest.conceivedDate;
+	if (!active.length) return undefined;
+	return Math.max(...active.map(pregnancyProgress));
 }
 window.playerPregnancyProgress = playerPregnancyProgress;
 
+/**
+ * Whether one of the PC's pregnancies has had its water break and the birth has not started yet.
+ *
+ * @returns {boolean} false while stats are frozen
+ */
 function isPregnancyEnding() {
-	if (V.statFreeze) return null;
+	if (V.statFreeze) return false;
 	return getActivePregnancies("pc").some(pregnancy => pregnancy.waterBreaking && !pregnancy.birthInProgress);
 }
 window.isPregnancyEnding = isPregnancyEnding;
 
+/**
+ * The base species of the PC's labouring pregnancy, or of the first active one if none is labouring.
+ *
+ * @returns {ChildSpecies|undefined} undefined when the PC is not pregnant
+ */
 function playerNormalPregnancyType() {
 	const pregnancy = getLabouringPregnancy("pc");
-	return pregnancy ? childBaseSpecies(pregnancy.donorSpecies) : null;
+	return pregnancy ? childBaseSpecies(pregnancy.donorSpecies) : undefined;
 }
 window.playerNormalPregnancyType = playerNormalPregnancyType;
 
 /**
  * Shared setup for the daily and waking pregnancy symptom events.
  *
- * @returns {object|null} the readings the symptom events need, or null when no symptom event should fire
+ * @returns {{pregnancy: Pregnancy|undefined, menstruation: object, pills: object, pregnancyStage: number|undefined, normalPregnancyEvents: boolean}|undefined}
+ *   undefined when no symptom event should fire
  */
 function pregnancyEventReadings() {
-	if (V.statFreeze) return null;
-	if (!V.player.vaginaExist && playerNormalPregnancyTotal() === 0 && !playerIsPregnant()) return null;
+	if (V.statFreeze) return undefined;
+	if (!V.player.vaginaExist && playerNormalPregnancyTotal() === 0 && !playerIsPregnant()) return undefined;
 	const pregnancy = getPlayerPregnancy();
-	if (!pregnancy && (V.sexStats.vagina.pregnancy.type === "parasite" || V.sexStats.anus.pregnancy.type === "parasite")) return null;
+	if (!pregnancy && (V.sexStats.vagina.pregnancy.type === "parasite" || V.sexStats.anus.pregnancy.type === "parasite")) return undefined;
 	return {
 		pregnancy,
 		menstruation: V.sexStats.vagina.menstruation,
 		pills: V.sexStats.pills,
-		pregnancyStage: pregnancy ? pregnancyProgress(pregnancy) : false,
+		pregnancyStage: pregnancy ? pregnancyProgress(pregnancy) : undefined,
 		normalPregnancyEvents: pregnancy ? childBaseSpecies(pregnancy.donorSpecies) !== "hawk" : false,
 	};
 }
 
 /**
+ * @typedef {"lightHeaded"|"dizzy"|"mildNausea"|"nausea"|"headache"|"sensitiveBreasts"|"dryheaving"|"tired"|"crying"|"angry"|"meatCraving"|"foodCraving"|"lightBabyKick"|"babyKick"|"babyMovement"|"babyHiccup"|"earlyContractions"|"cramping"|"bloated"|"nothing"} PregnancySymptom
+ */
+
+/**
  * Rolls one pregnancy symptom for a chosen event category.
  *
- * @param {string} effectName the event category to roll within
- * @param {object} pregnancy the pregnancy the symptom is for
- * @returns {string} the rolled symptom effect name
+ * @param {"discomfortModerate"|"discomfortSevere"|"midPregnancy"|"nearBirth"|"nearBirthEvent"|"periodIssues"|undefined} effectName the event category to roll within
+ * @param {Pregnancy|undefined} pregnancy the pregnancy the symptom is for
+ * @returns {PregnancySymptom|undefined} the rolled symptom, or undefined without a category
  */
 function pregnancyEventSymptom(effectName, pregnancy) {
 	switch (effectName) {
@@ -210,12 +248,18 @@ function pregnancyEventSymptom(effectName, pregnancy) {
 		case "periodIssues":
 			return weightedRandom(["nothing", 1], ["cramping", 1], ["bloated", 1], ["lightHeaded", 1], ["mildNausea", 1], ["nausea", 1]);
 	}
-	return false;
+	return undefined;
 }
 
+/**
+ * Rolls the pregnancy event or symptom the PC wakes up with. A morning sickness symptom resets
+ * $pregnancyStats.morningSicknessWaking to 0.
+ *
+ * @returns {"bellySize"|"missedPeriod"|"clothesRemoval"|"eggLaying"|PregnancySymptom|undefined} undefined when nothing happens
+ */
 function wakingPregnancyEvent() {
 	const readings = pregnancyEventReadings();
-	if (!readings) return false;
+	if (!readings) return undefined;
 	const { pregnancy, menstruation, pills, pregnancyStage, normalPregnancyEvents } = readings;
 
 	const rng = random(0, 100);
@@ -229,7 +273,7 @@ function wakingPregnancyEvent() {
 		!menstruation.awareOfPeriodDelay &&
 		V.awareness >= 200 &&
 		!playerAwareTheyArePregnant() &&
-		pregnancyStage !== false &&
+		pregnancyStage !== undefined &&
 		between(menstruation.currentDay, 3, 5) &&
 		(random(0, 100) >= 105 - V.sciencetrait * 5 || playerNormalPregnancyTotal() >= 3)
 	) {
@@ -269,9 +313,15 @@ function wakingPregnancyEvent() {
 }
 window.wakingPregnancyEvent = wakingPregnancyEvent;
 
+/**
+ * Rolls a pregnancy or period symptom. $daily.pregnancyEvent raises the roll. A morning sickness
+ * symptom lowers $pregnancyStats.morningSicknessGeneral by 1.
+ *
+ * @returns {PregnancySymptom|undefined} undefined when nothing happens
+ */
 function dailyPregnancyEvent() {
 	const readings = pregnancyEventReadings();
-	if (!readings) return false;
+	if (!readings) return undefined;
 	const { pregnancy, menstruation, pills, pregnancyStage, normalPregnancyEvents } = readings;
 
 	const rng = random(0, 100) + (V.daily.pregnancyEvent || 0);
@@ -309,6 +359,14 @@ function dailyPregnancyEvent() {
 }
 window.dailyPregnancyEvent = dailyPregnancyEvent;
 
+/**
+ * A parent's name as it reads in a sentence: "the Black Wolf", "yourself" for the PC, "a" or "an"
+ * before a lowercase name, and other names as they are.
+ *
+ * @param {string} name "pc", or an NPC's name
+ * @param {boolean} [caps=false] capitalise the first word
+ * @returns {string}
+ */
 function pregnancyNameCorrection(name, caps = false) {
 	switch (name) {
 		case "Black Wolf":
@@ -316,61 +374,54 @@ function pregnancyNameCorrection(name, caps = false) {
 		case "Night Monster":
 		case "Ivory Wraith":
 		case "cum bucket":
-			name = (caps ? "The " : "the ") + name;
-			break;
+			return (caps ? "The " : "the ") + name;
 		case "pc":
-			name = caps ? "Yourself" : "yourself";
-			break;
-		default:
-			name = name[0] === name[0].toLowerCase() ? (caps ? "A" : "a") + (["a", "e", "i", "o", "u"].includes(name[0]) ? "n " : " ") + name : name;
-			break;
+			return caps ? "Yourself" : "yourself";
 	}
-	return name;
+	if (name[0] !== name[0].toLowerCase()) return name;
+	const article = ["a", "e", "i", "o", "u"].includes(name[0]) ? "an" : "a";
+	return (caps ? article.toUpperFirst() : article) + " " + name;
 }
 window.pregnancyNameCorrection = pregnancyNameCorrection;
 
 /**
- * The day of the cycle the PC reaches in a number of real days.
+ * How fertile the PC is over the days a load landing on a day of a cycle could live, after birth
+ * control and fertility boosters. Each day counts by the chance the load is still alive on it.
+ * It leaves out the base pregnancy chance setting.
  *
- * Days past the end of this cycle
- * wrap around using this cycle's length, because the next cycle's length isn't rolled until it starts.
+ * Days past the end of the cycle wrap around using the same cycle's length, because the cycle after
+ * it isn't rolled until it starts.
  *
- * @param {number} days real days ahead
- * @returns {number} a day of the cycle
- */
-function menstrualDayIn(days) {
-	const cycle = PregnancyConstants.menstrualCycle;
-	const menstruation = V.sexStats.vagina.menstruation;
-	let day = menstruation.currentDay + days * cycle.cycleDaysPerTick * cycle.cycleTicksPerDay;
-	while (day >= menstruation.currentDaysMax) day -= menstruation.currentDaysMax;
-	return day;
-}
-window.menstrualDayIn = menstrualDayIn;
-
-/**
- * How fertile the PC is over the days a load landing on a given day could live, after birth control
- * and fertility boosters. Each day counts by the chance the load is still alive on it.
- *
- * This is the fertility meter's reading. It averages over the load's life instead of taking the most
- * fertile day, because the most fertile day jumps straight from safe to dangerous and skips the
- * bands in between. It leaves out the base pregnancy chance setting, which would push every day to
- * one end of the meter. menstrualFertileDates uses it too, so the dates match the label.
- *
- * @param {number} [daysFromNow=0] read the load as landing this many days from today
+ * @param {Menstruation} menstruation the cycle to read: its stages, fertileLeadDays and currentDaysMax
+ * @param {number} cycleDay the day of that cycle the load lands on
+ * @param {number} daysFromNow how many real days from today that is, to read that day's pill doses
  * @returns {number} 0 is no chance, 1 is a load spending its whole life at ovulation with no pills.
  *   Fertility boosters can push it past 1.
  */
-function menstrualExposure(daysFromNow = 0) {
+function cycleExposure(menstruation, cycleDay, daysFromNow) {
 	let sum = 0;
 	let weight = 0;
 	for (let d = 0; d < PregnancyConstants.loadLifespanDays.max; d++) {
 		const alive = loadSurvival(d);
-		if (alive === 0) continue;
 		const ahead = daysFromNow + d;
-		sum += alive * fertilityOnCycleDay(menstrualDayIn(ahead), ahead) * contraceptiveGuard(ahead) * fertilityBoost(ahead);
+		let day = cycleDay + d;
+		while (day >= menstruation.currentDaysMax) day -= menstruation.currentDaysMax;
+		sum += alive * fertilityOnCycleDay(menstruation, day, ahead) * contraceptiveGuard(ahead) * fertilityBoost(ahead);
 		weight += alive;
 	}
-	return weight === 0 ? 0 : sum / weight;
+	return sum / weight;
+}
+
+/**
+ * cycleExposure for a load landing in the PC's current cycle. The fertility meter and
+ * menstrualFertileDates read this.
+ *
+ * @param {number} [daysFromNow=0] read the load as landing this many days from today
+ * @returns {number} see cycleExposure
+ */
+function menstrualExposure(daysFromNow = 0) {
+	const menstruation = V.sexStats.vagina.menstruation;
+	return cycleExposure(menstruation, menstruation.currentDay + daysFromNow, daysFromNow);
 }
 window.menstrualExposure = menstrualExposure;
 
@@ -378,28 +429,28 @@ window.menstrualExposure = menstrualExposure;
  * What the fertility meter reads: today's exposure, once everything that would stop the conception
  * roll outright has been ruled out.
  *
- * @returns {number} 0 for no chance at all, up to 1
+ * @returns {number} 0 for no chance at all. Fertility boosters can push it past 1.
  */
 function menstrualOutlook() {
 	if (!readyToCarry()) return 0;
-	if (V.settings.basePlayerPregnancyChance <= 0) return 0; // the slider's floor turns pregnancy off
-	// An orifice with parasites in it can't conceive, so the meter only reads 0 when every orifice has them.
+	if (V.settings.basePlayerPregnancyChance <= 0) return 0;
+	// Reads 0 only when every orifice the PC can carry in has parasites.
 	const orifices = [V.player.vaginaExist && "vagina", playerCanCarryAnally() && "anus"].filter(Boolean);
-	if (orifices.length && orifices.every(orifice => orificeHasParasites(orifice))) return 0;
+	if (orifices.every(orifice => orificeHasParasites(orifice))) return 0;
 	return menstrualExposure(0);
 }
 window.menstrualOutlook = menstrualOutlook;
 
 /**
- * The character-screen fertility meter. Indexes riskMeterLabels: 0 very safe, 4 dangerous.
+ * The character-screen fertility meter.
  *
- * @returns {number}
+ * @returns {0|1|2|3|4} an index into riskMeterLabels: 0 very safe, 4 dangerous
  */
 function playerPregnancyRisk() {
-	if (V.settings.playerPregnancyHumanEnabled === false && V.settings.playerPregnancyBeastEnabled === false) return 0; // player pregnancy disabled
+	if (V.settings.playerPregnancyHumanEnabled === false && V.settings.playerPregnancyBeastEnabled === false) return 0;
 	if (!V.player.vaginaExist && !playerCanCarryAnally()) return 0;
 	const outlook = menstrualOutlook();
-	// findIndex gives -1 on a NaN outlook, and every caller indexes riskMeterLabels with this.
+	// findIndex gives -1 when outlook is NaN, and the result is used as an index into riskMeterLabels.
 	return Math.max(
 		0,
 		PregnancyConstants.riskMeterLabels.findIndex(label => outlook <= label.upTo)
@@ -408,17 +459,19 @@ function playerPregnancyRisk() {
 window.playerPregnancyRisk = playerPregnancyRisk;
 
 /**
- * The PC's risky and dangerous days this cycle as calendar dates, in the player's date format, for
- * the stats screen.
+ * The PC's risky and dangerous days this cycle as calendar dates, in the date format from the
+ * options, for the stats screen.
  *
  * Only this cycle is shown, because restartMenstruationCycle rolls the next cycle's length and
- * stages when it starts. Once this cycle's window has passed, risky and dangerous are null, and
- * nextWindow gives how many days away the next window could be, as a range.
+ * stages when it starts. When no day left in this cycle is risky, passed is true, risky and
+ * dangerous are undefined, and nextWindow gives how many days away the next window could be, as a range.
+ * nextWindow is also undefined when no day of the next cycle would be risky, for example while pregnant.
  *
- * A window that has already started is reported from today. dangerous is null once ovulation has
- * passed, even while the days after it are still risky.
+ * A window that has already started is reported from today. dangerous is undefined when no day left
+ * is dangerous, even if some are still risky.
  *
- * @returns {{risky: string|null, dangerous: string|null, today: string, todayColour: string, passed: boolean, nextWindow: {min: number, max: number}|null}} today/todayColour are a riskMeterLabels entry
+ * @returns {{risky: string|undefined, dangerous: string|undefined, today: string, todayColour: string, passed: boolean, nextWindow: {min: number, max: number}|undefined}}
+ *   today and todayColour are the text and colour of today's riskMeterLabels entry
  */
 function menstrualFertileDates() {
 	const menstruation = V.sexStats.vagina.menstruation;
@@ -429,48 +482,57 @@ function menstrualFertileDates() {
 		const d = new DateTime(Time.date).addDays(days);
 		return new Date(d.year, d.month - 1, d.day).toLocaleDateString(returnTimeFormat(), { day: "2-digit", month: "2-digit" });
 	};
-	// The same function as the meter label, so the dates match it.
 	const daysLeft = Math.ceil(menstruation.currentDaysMax - menstruation.currentDay);
 	const exposure = [];
 	for (let day = 0; day <= daysLeft; day++) exposure.push(menstrualExposure(day));
 	const spanOver = bound => {
 		const first = exposure.findIndex(e => e > bound);
-		if (first === -1) return null;
+		if (first === -1) return undefined;
 		let last = first;
 		while (last + 1 < exposure.length && exposure[last + 1] > bound) last++;
 		return first === last ? dateIn(first) : `${dateIn(first)} to ${dateIn(last)}`;
 	};
 	const risky = spanOver(riskyBound);
-	const passed = risky === null;
+	const passed = risky === undefined;
 	return {
 		passed,
 		risky,
-		dangerous: passed ? null : spanOver(dangerousBound),
-		nextWindow: passed ? menstrualNextWindowIn() : null,
-		today: labels[playerPregnancyRisk()].text, // the same label the character screen reads
-		todayColour: labels[playerPregnancyRisk()].colour, // ...and the same colour it is printed in there
+		dangerous: passed ? undefined : spanOver(dangerousBound),
+		nextWindow: passed ? menstrualNextWindowIn(riskyBound) : undefined,
+		today: labels[playerPregnancyRisk()].text,
+		todayColour: labels[playerPregnancyRisk()].colour,
 	};
 }
 window.menstrualFertileDates = menstrualFertileDates;
 
 /**
- * How many days away the next cycle's fertile window could be, as a range.
+ * How many days away the next cycle's first risky day could be, as a range.
  *
  * restartMenstruationCycle rolls the next cycle's length from baseDays/baseDaysRng and its lead days
- * from a fixed range, and rollMenstrualStages places ovulation at a fixed fraction of the length. So
- * the earliest and latest the window can open are both known, even though the day it lands on is not.
+ * from fertileLeadDaysMin/Max, and rollMenstrualStages places ovulation at a fixed fraction of the
+ * length and makes it last half a day or a day. This reads cycleExposure on the earliest and the
+ * latest cycle those rolls can give.
  *
- * @returns {{min: number, max: number}} real days from today
+ * @param {number} riskyBound the exposure a day has to be over to count as risky
+ * @returns {{min: number, max: number}|undefined} real days from today. undefined when no day of the next cycle would be risky
  */
-function menstrualNextWindowIn() {
+function menstrualNextWindowIn(riskyBound) {
 	const cycle = PregnancyConstants.menstrualCycle;
 	const menstruation = V.sexStats.vagina.menstruation;
-	const lengths = [menstruation.baseDays, menstruation.baseDays + menstruation.baseDaysRng];
-	const riskyStartFor = (length, leadDays) => Math.round(length * cycle.ovulationStartCycleFraction) - leadDays * (1 - cycle.riskyFertility);
-	const daysAway = cycleDay => menstruation.currentDaysMax - menstruation.currentDay + (cycleDay - cycle.cycleRestartDay);
-	const soonest = daysAway(riskyStartFor(Math.min(...lengths), cycle.fertileLeadDaysMax));
-	const latest = daysAway(riskyStartFor(Math.max(...lengths), cycle.fertileLeadDaysMin));
-	return { min: Math.max(0, Math.round(soonest)), max: Math.max(0, Math.round(latest)) };
+	const daysUntilNextCycle = menstruation.currentDaysMax - menstruation.currentDay;
+	const firstRiskyDayIn = (length, fertileLeadDays, ovulationDays) => {
+		const ovulationStart = Math.round(length * cycle.ovulationStartCycleFraction);
+		const nextCycle = { currentDaysMax: length, fertileLeadDays, stages: [0, 0, ovulationStart, ovulationStart + ovulationDays] };
+		for (let cycleDay = cycle.cycleRestartDay; cycleDay < length; cycleDay += 1 / cycle.cycleTicksPerDay) {
+			const daysFromNow = daysUntilNextCycle + cycleDay - cycle.cycleRestartDay;
+			if (cycleExposure(nextCycle, cycleDay, daysFromNow) > riskyBound) return daysFromNow;
+		}
+		return undefined;
+	};
+	const soonest = firstRiskyDayIn(menstruation.baseDays, cycle.fertileLeadDaysMax, 1);
+	const latest = firstRiskyDayIn(menstruation.baseDays + menstruation.baseDaysRng, cycle.fertileLeadDaysMin, 0.5);
+	if (soonest === undefined || latest === undefined) return undefined;
+	return { min: Math.round(soonest), max: Math.round(latest) };
 }
 window.menstrualNextWindowIn = menstrualNextWindowIn;
 
@@ -484,7 +546,7 @@ window.menstrualNextWindowIn = menstrualNextWindowIn;
  *   [3] ovulationEnd   the fertile window closes, half a day to a day later
  *
  * @param {number} currentDaysMax the cycle's length in days
- * @returns {number[]} [cycleStart, menstrualEnd, ovulationStart, ovulationEnd]
+ * @returns {number[]} always four values: [cycleStart, menstrualEnd, ovulationStart, ovulationEnd]
  */
 function rollMenstrualStages(currentDaysMax) {
 	const cycle = PregnancyConstants.menstrualCycle;
@@ -494,23 +556,29 @@ function rollMenstrualStages(currentDaysMax) {
 }
 window.rollMenstrualStages = rollMenstrualStages;
 
+/**
+ * The minimum arousal the PC's heat gives, from ear slime, beast transformations and fertility boosters.
+ * When ear slime and transformations add nothing, it also sets $pregnancyStats.heatStillEnabled to whether the PC
+ * is not pregnant.
+ *
+ * @returns {number}
+ */
 function playerHeatMinArousal() {
 	if (!V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 	if (!V.player.vaginaExist && !playerCanCarryAnally()) return 0;
 	if (playerIsPregnant() && !V.pregnancyStats.heatStillEnabled) return 0;
 
-	// No heat when player pregnancy is switched off entirely.
 	if (V.settings.playerPregnancyHumanEnabled === false && V.settings.playerPregnancyBeastEnabled === false) return 0;
 
 	const pills = V.sexStats.pills.pills;
 	const heat = PregnancyConstants.menstrualCycle.heatFertility;
 	// Uses the cycle's own curve and not fertilityOnCycleDay, because a fertility booster raises that
-	// on every day of the month and would leave a beast-TF player permanently in heat.
+	// on every day of the month and would leave a PC with a beast transformation always in heat.
 	const fertility = menstrualCycleFertility();
 	const tier = fertility >= heat.full ? 2 : fertility >= heat.partial ? 1 : 0;
 	let minArousal = 0;
 
-	// Should always be the first to modify minArousal
+	// The heatStillEnabled check below needs this to be the only thing added to minArousal before it.
 	if (V.settings.fertilityCycleEnabled !== false && tier > 0 && pills.contraceptive.doseTaken === 0) {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "pregnancy" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5 * tier;
@@ -562,35 +630,56 @@ function playerAwareTheyCanBePregnant() {
 }
 window.playerAwareTheyCanBePregnant = playerAwareTheyCanBePregnant;
 
+/**
+ * Whether the PC knows about a pregnancy in the body they are in right now.
+ *
+ * @returns {boolean}
+ */
 function playerAwareTheyArePregnant() {
 	return currentBodyPregnancies().some(p => knowsPregnancy(p.pregnancyId, "pc"));
 }
 window.playerAwareTheyArePregnant = playerAwareTheyArePregnant;
 
-// How the player found out about their pregnancy
-// ("mirror"/"pharmacy"/"temple"/"wakingUp"/ "pregnancyTest")
-// null if not yet aware. Reads the first active records pregnancy.
+/**
+ * How the PC found out about their pregnancy. Reads the vaginal pregnancy first, then the anal one.
+ *
+ * @returns {"mirror"|"museum"|"pharmacy"|"pregnancyTest"|"temple"|"wakingUp"|null} null when the PC is not pregnant or no source is recorded
+ */
 function playerLearnedPregnancyFrom() {
 	const pregnancy = getPlayerPregnancy();
 	return pregnancy ? pregnancy.playerLearnedFrom : null;
 }
 window.playerLearnedPregnancyFrom = playerLearnedPregnancyFrom;
 
-// Marks the player aware of each active pregnancy and records how they learned.
+/**
+ * Records how the PC found out about each of their active pregnancies, and marks the PC as knowing about them.
+ *
+ * @param {"mirror"|"museum"|"pharmacy"|"pregnancyTest"|"temple"|"wakingUp"} source
+ */
 function setPlayerLearnedPregnancyFrom(source) {
 	getActivePregnancies("pc").forEach(pregnancy => setPlayerLearnedFrom(pregnancy.pregnancyId, source));
 }
 window.setPlayerLearnedPregnancyFrom = setPlayerLearnedPregnancyFrom;
 
-// Whether the player knows their pregnancy's litter details (count/species/gender) due to ultrasound
+/**
+ * Whether the PC knows about the children in this pregnancy. Checks the first child.
+ *
+ * @param {Pregnancy} pregnancy
+ * @returns {boolean}
+ */
 function playerKnowsLitterDetails(pregnancy) {
 	const litter = getChildrenOf(pregnancy.pregnancyId);
 	return litter.length > 0 && knowsChild(litter[0].childId, "pc");
 }
 window.playerKnowsLitterDetails = playerKnowsLitterDetails;
 
-// Whether the player knows the litter's species, either confirmed by ultrasound
-// or deduced when every possible donor is the same base species
+/**
+ * Whether the PC knows the litter's species: they know about the children, or every possible donor
+ * has the same base species.
+ *
+ * @param {Pregnancy} pregnancy
+ * @returns {boolean}
+ */
 function playerKnowsLitterSpecies(pregnancy) {
 	if (playerKnowsLitterDetails(pregnancy)) return true;
 	const donors = pregnancy.possibleDonors;
@@ -599,96 +688,74 @@ function playerKnowsLitterSpecies(pregnancy) {
 window.playerKnowsLitterSpecies = playerKnowsLitterSpecies;
 
 function playerAwareTheyAreInHeat() {
-	return playerHeatMinArousal() && playerAwareTheyCanBePregnant();
+	return playerHeatMinArousal() > 0 && playerAwareTheyCanBePregnant();
 }
 window.playerAwareTheyAreInHeat = playerAwareTheyAreInHeat;
 
+/**
+ * Whole days until the pregnancy's due date, rounded down. Negative once it is overdue.
+ *
+ * @param {Pregnancy} pregnancy
+ * @returns {number}
+ */
 function pregnancyDaysEta(pregnancy) {
-	if (!pregnancy) return null;
 	return Math.floor((getDueDate(pregnancy) - Time.date.timeStamp) / TimeConstants.secondsPerDay);
 }
 window.pregnancyDaysEta = pregnancyDaysEta;
 
 /**
- * The records a (carrier, existingId) pair selects: just that one pregnancy record when existingId is given,
- * otherwise every pregnancy the carrier actively carries.
- *
- * @param {string} carrier "pc", or an NPC's name
- * @param {number} [existingId] a specific pregnancyId
- * @returns {Pregnancy[]}
- */
-function carrierRecords(carrier, existingId) {
-	if (existingId !== undefined) {
-		const record = V.pregnancies[existingId];
-		return record && record.carrier === carrier ? [record] : [];
-	}
-	return getActivePregnancies(carrier);
-}
-
-/**
- * Whether whoToCheck knows about a pregnancy the carrier is carrying. With existingId, checks that one
- * record (active or delivered). Without it, checks any pregnancy the carrier is currently carrying.
+ * Whether whoToCheck knows about a pregnancy the carrier is currently carrying.
+ * For one specific pregnancy, use knowsPregnancy.
  *
  * @param {string} carrier "pc", or an NPC's name
  * @param {string} whoToCheck who might know: "pc", or an NPC's name
- * @param {number} [existingId] a specific pregnancyId to check instead of the carrier's active ones
  * @returns {boolean}
  */
-function knowsAboutPregnancy(carrier, whoToCheck, existingId) {
-	return carrierRecords(carrier, existingId).some(p => knowsPregnancy(p.pregnancyId, whoToCheck));
+function knowsAboutPregnancy(carrier, whoToCheck) {
+	return getActivePregnancies(carrier).some(p => knowsPregnancy(p.pregnancyId, whoToCheck));
 }
 window.knowsAboutPregnancy = knowsAboutPregnancy;
 
 /**
- * Adds a baby introduction entry so a scene can announce newly revealed children to whoNowKnows.
- * Keyed by name, shaped { birthId, mother/carrier, children }
+ * Queues a BabyIntro for introFor, unless one for the same birth is queued already.
  *
  * @param {string} introFor who the introduction is for: "pc", or an NPC's name
- * @param {string} carrier the carrier of the birth
- * @param {number} birthId the pregnancyId of the birth
- * @param {number} children how many children the birth produced
- * @param {string} [description] used for NPCs that did not store information (calls them a "stranger")
+ * @param {number} pregnancyId the birth to introduce
+ * @param {string} [description] for carriers who are not named NPCs ("stranger")
  */
-function addBabyIntro(introFor, carrier, birthId, children, description) {
+function addBabyIntro(introFor, pregnancyId, description) {
 	if (!V.babyIntros) V.babyIntros = {};
 	if (!V.babyIntros[introFor]) V.babyIntros[introFor] = [];
-	if (!V.babyIntros[introFor].find(intro => intro.birthId === birthId && intro.mother === carrier)) {
-		const intro = { birthId, mother: carrier, children };
-		if (description) intro.description = description;
-		V.babyIntros[introFor].push(intro);
-	}
+	if (V.babyIntros[introFor].some(intro => intro.birthId === pregnancyId)) return;
+	const intro = { birthId: pregnancyId, mother: V.pregnancies[pregnancyId].carrier, children: getChildrenOf(pregnancyId).length };
+	if (description) intro.description = description;
+	V.babyIntros[introFor].push(intro);
 }
 window.addBabyIntro = addBabyIntro;
 
 /**
- * Marks whoNowKnows aware of a pregnancy the carrier has. Without existingId, every pregnancy the
- * carrier is actively carrying is marked. With existingId, only that one pregnancy record (active or delivered).
+ * Marks whoNowKnows aware of every pregnancy the carrier is currently carrying. Does nothing while
+ * stats are frozen. For one specific pregnancy, use setKnowsPregnancy.
  *
- * For example `<<setKnowsAboutPregnancy "pc" "Whitney">>` makes Whitney aware of the pc's current pregnancy.
+ * For example `<<setKnowsAboutPregnancy "pc" "Whitney">>` makes Whitney aware of the PC's current pregnancy.
  *
  * @param {string} carrier whose pregnancy it is: "pc", or an NPC's name
  * @param {string} whoNowKnows who now knows: "pc", or an NPC's name
- * @param {number} [existingId] a specific pregnancyId to mark instead of all of the carrier's active ones
- * @param {boolean} [track] also add a baby introduction for a named NPC carrier's birth (not the pc's)
- * @returns {boolean} whether any pregnancy was newly marked
  */
-function setKnowsAboutPregnancy(carrier, whoNowKnows, existingId, track) {
-	if (V.statFreeze) return null;
-	let marked = false;
-	for (const record of carrierRecords(carrier, existingId)) {
-		if (knowsPregnancy(record.pregnancyId, whoNowKnows)) continue;
-		setKnowsPregnancy(record.pregnancyId, whoNowKnows);
-		marked = true;
-		if (track && carrier !== "pc" && C.npc[carrier]) {
-			addBabyIntro(whoNowKnows, record.carrier, record.pregnancyId, getChildrenOf(record.pregnancyId).length);
-		}
+function setKnowsAboutPregnancy(carrier, whoNowKnows) {
+	if (V.statFreeze) return;
+	for (const pregnancy of getActivePregnancies(carrier)) {
+		if (!knowsPregnancy(pregnancy.pregnancyId, whoNowKnows)) setKnowsPregnancy(pregnancy.pregnancyId, whoNowKnows);
 	}
-	return marked;
 }
 DefineMacro("setKnowsAboutPregnancy", setKnowsAboutPregnancy);
 
+/**
+ * When the PC's pregnancy belly can be seen, marks every NPC in $NPCList that has a fullDescription
+ * as knowing about the PC's pregnancy.
+ */
 function setKnowsAboutPregnancyCurrentLoaded() {
-	if (V.statFreeze) return null;
+	if (V.statFreeze) return;
 	if (playerIsPregnant() && playerBellyVisible(true)) {
 		V.NPCList.forEach(npc => {
 			if (npc.fullDescription) setKnowsAboutPregnancy("pc", npc.fullDescription);
@@ -703,11 +770,10 @@ DefineMacro("setKnowsAboutPregnancyCurrentLoaded", setKnowsAboutPregnancyCurrent
  *
  * @param {string} parent the parent (carrier or donor) whose births to count
  * @param {string} whoToCheck who might know: "pc", or an NPC's name
- * @param {string} [location] only count births whose litter is at this location
+ * @param {string} [location] only count births whose first child is at this location
  * @returns {number}
  */
 function knowsAboutPregnancyTotal(parent, whoToCheck, location) {
-	// Group the born children by pregnancy up front, instead of a full scan per pregnancy.
 	const bornByPregnancy = new Map();
 	for (const child of getBornChildren()) {
 		if (!bornByPregnancy.has(child.pregnancyId)) bornByPregnancy.set(child.pregnancyId, []);
@@ -737,7 +803,7 @@ function knowsAboutAnyPregnancy(carrier, whoToCheck) {
 window.knowsAboutAnyPregnancy = knowsAboutAnyPregnancy;
 
 /**
- * How many children of the parent whoToCheck knows about.
+ * How many of the parent's born children come from pregnancies whoToCheck knows about.
  *
  * @param {string} parent the parent (carrier or donor) whose children to count
  * @param {string} whoToCheck who might know: "pc", or an NPC's name
@@ -773,8 +839,8 @@ function childrenFromParents(carrier, donor) {
 /**
  * Born children two people share, whichever of them carried.
  *
- * @param {string} parent1
- * @param {string} parent2
+ * @param {string} parent1 "pc", or an NPC's name
+ * @param {string} parent2 "pc", or an NPC's name
  * @returns {Child[]}
  */
 function childrenBetweenParents(parent1, parent2) {
@@ -785,8 +851,8 @@ window.childrenBetweenParents = childrenBetweenParents;
 /**
  * How many born children two people share, regardless of who carried.
  *
- * @param {string} parent1
- * @param {string} parent2
+ * @param {string} parent1 "pc", or an NPC's name
+ * @param {string} parent2 "pc", or an NPC's name
  * @returns {number}
  */
 function childrenCountBetweenParents(parent1, parent2) {
@@ -795,10 +861,10 @@ function childrenCountBetweenParents(parent1, parent2) {
 window.childrenCountBetweenParents = childrenCountBetweenParents;
 
 /**
- * How many distinct pregnancies two people share, regardless of who carried.
+ * How many pregnancies with born children two people share, regardless of who carried.
  *
- * @param {string} parent1
- * @param {string} parent2
+ * @param {string} parent1 "pc", or an NPC's name
+ * @param {string} parent2 "pc", or an NPC's name
  * @returns {number}
  */
 function pregnancyCountBetweenParents(parent1, parent2) {
@@ -807,7 +873,7 @@ function pregnancyCountBetweenParents(parent1, parent2) {
 window.pregnancyCountBetweenParents = pregnancyCountBetweenParents;
 
 /**
- * How many distinct pregnancies carrier carried that donor sired. Directional.
+ * How many pregnancies with born children carrier carried that donor sired. Directional.
  *
  * @param {string} carrier who carried
  * @param {string} donor who sired
@@ -819,7 +885,7 @@ function pregnancyCountFromParents(carrier, donor) {
 window.pregnancyCountFromParents = pregnancyCountFromParents;
 
 /**
- * Whether the player has ever conceived a pregnancy with an NPC, active or already delivered.
+ * Whether the PC has ever conceived a pregnancy with an NPC, active or already delivered.
  *
  * @param {string} name the NPC's name
  * @returns {boolean}
@@ -830,30 +896,16 @@ function playerConceivedWith(name) {
 window.playerConceivedWith = playerConceivedWith;
 
 /**
- * Queues a baby introduction for a birth.
+ * Queues a baby introduction for the pregnancy getLabouringPregnancy picks for the carrier.
+ * For one specific pregnancy, use addBabyIntro.
  *
  * @param {string} carrier whose birth it is: "pc", or an NPC's name
  * @param {string} introFor who the introduction is for: "pc", or an NPC's name
- * @param {number} [birthId] a specific pregnancyId. If left out, the labouring (pc) or first active (NPC) pregnancy is used.
  */
-function setBabyIntro(carrier, introFor, birthId) {
+function setBabyIntro(carrier, introFor) {
 	if (!carrier || !introFor) throw new Error(`setBabyIntro: got carrier "${carrier}" and introFor "${introFor}"`);
-	if (!V.babyIntros) V.babyIntros = {};
-	if (!V.babyIntros[introFor]) V.babyIntros[introFor] = [];
-
-	if (birthId !== undefined) {
-		// Player already gave birth
-		const children = getBornChildren().filter(child => getPregnancyOf(child).carrier === carrier && child.pregnancyId === birthId);
-		if (children.length) addBabyIntro(introFor, carrier, birthId, children.length);
-	} else if (carrier === "pc") {
-		const pregnancy = getLabouringPregnancy("pc");
-		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
-		if (litter.length) addBabyIntro(introFor, "pc", pregnancy.pregnancyId, litter.length);
-	} else {
-		const pregnancy = getActivePregnancies(carrier)[0];
-		const litter = pregnancy ? getChildrenOf(pregnancy.pregnancyId) : [];
-		if (litter.length) addBabyIntro(introFor, pregnancy.carrier, pregnancy.pregnancyId, litter.length);
-	}
+	const pregnancy = getLabouringPregnancy(carrier);
+	if (pregnancy) addBabyIntro(introFor, pregnancy.pregnancyId);
 }
 DefineMacro("setBabyIntro", setBabyIntro);
 window.setBabyIntro = setBabyIntro;
@@ -861,44 +913,37 @@ window.setBabyIntro = setBabyIntro;
 /**
  * Removes a queued baby introduction for one specific birth.
  *
- * @param {string} carrier whose birth it is: "pc", or an NPC's name
  * @param {string} introFor who the introduction was for: "pc", or an NPC's name
- * @param {number} birthId the birth's pregnancyId. Required.
+ * @param {number} pregnancyId the birth whose introduction to remove
  */
-function removeBabyIntro(carrier, introFor, birthId) {
-	if (!V.babyIntros || !V.babyIntros[introFor] || !carrier || !introFor || birthId === undefined) return false;
-	const children = getBornChildren().filter(child => getPregnancyOf(child).carrier === carrier && child.pregnancyId === birthId);
-	if (children.length) {
-		V.babyIntros[introFor] = V.babyIntros[introFor].filter(intro => !(intro.birthId === birthId && intro.mother === carrier));
-		if (!V.babyIntros[introFor].length) delete V.babyIntros[introFor];
-	}
+function removeBabyIntro(introFor, pregnancyId) {
+	if (!V.babyIntros || !V.babyIntros[introFor]) return;
+	V.babyIntros[introFor] = V.babyIntros[introFor].filter(intro => intro.birthId !== pregnancyId);
+	if (!V.babyIntros[introFor].length) delete V.babyIntros[introFor];
 }
 DefineMacro("removeBabyIntro", removeBabyIntro);
 
 /**
- * Whether the carrier's pregnancy has been discussed with someone. With existingId, that one
- * record; otherwise any pregnancy the carrier actively carries.
+ * Whether a pregnancy the carrier is currently carrying has been discussed with someone.
  *
  * @param {string} carrier "pc", or an NPC's name
  * @param {string} whoToCheck who might have discussed it: "pc", or an NPC's name
- * @param {number} [existingId] a specific pregnancyId
  * @returns {boolean}
  */
-function talkedAboutPregnancy(carrier, whoToCheck, existingId) {
-	return carrierRecords(carrier, existingId).some(p => hasTalkedAbout(p.pregnancyId, whoToCheck));
+function talkedAboutPregnancy(carrier, whoToCheck) {
+	return getActivePregnancies(carrier).some(p => hasTalkedAbout(p.pregnancyId, whoToCheck));
 }
 window.talkedAboutPregnancy = talkedAboutPregnancy;
 
 /**
- * Marks the carrier's pregnancy as discussed with someone. Telling someone covers whatever the
- * carrier is carrying, so without existingId every active pregnancy is flagged.
+ * Marks every pregnancy the carrier is currently carrying as discussed with someone. Does nothing
+ * unless whoToIncrement is "pc" or a named NPC.
  *
  * @param {string} carrier "pc", or an NPC's name
  * @param {string} whoToIncrement who it was discussed with: "pc", or an NPC's name
- * @param {number} [existingId] a specific pregnancyId
  */
-function setTalkedAboutPregnancy(carrier, whoToIncrement, existingId) {
-	if (whoToIncrement !== "pc" && !V.NPCNameList.includes(whoToIncrement)) return; // no junk keys in the record
-	carrierRecords(carrier, existingId).forEach(p => markTalkedAbout(p.pregnancyId, whoToIncrement));
+function setTalkedAboutPregnancy(carrier, whoToIncrement) {
+	if (whoToIncrement !== "pc" && !V.NPCNameList.includes(whoToIncrement)) return;
+	getActivePregnancies(carrier).forEach(p => markTalkedAbout(p.pregnancyId, whoToIncrement));
 }
 DefineMacro("setTalkedAboutPregnancy", setTalkedAboutPregnancy);

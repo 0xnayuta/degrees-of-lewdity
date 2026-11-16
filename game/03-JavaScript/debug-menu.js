@@ -415,7 +415,7 @@ setup.debugMenu.eventList = {
 			link: [`Get Pregnant with humans`, stayOnPassageFn],
 			widgets: [
 				() => {
-					return `<<playerPregnancy "Debug Man" "human" true "vagina" undefined true>>`;
+					return `<<playerPregnancy "Debug Man" "human" true "vagina" true>>`;
 				},
 			],
 			condition() {
@@ -426,7 +426,7 @@ setup.debugMenu.eventList = {
 			link: [`Get Pregnant with wolves`, stayOnPassageFn],
 			widgets: [
 				() => {
-					return `<<playerPregnancy "Debug Wolf" "wolf" true "vagina" undefined true>>`;
+					return `<<playerPregnancy "Debug Wolf" "wolf" true "vagina" true>>`;
 				},
 			],
 			condition() {
