@@ -2979,11 +2979,6 @@
 		<<earnFeat "Robin's Song">>
 	<</if>>
 
-	<!-- v0.3.8.6: Kylar rework -->
-	<<if $kylar.fameStage is undefined>>
-		<<set $kylar.fameStage to 0>>
-	<</if>>
-
 	<!-- v0.3.9.0: update -->
 	<<if $pregnancyspeechdisable is undefined>>
 		<<set $pregnancyspeechdisable to "f">>
@@ -3086,7 +3081,7 @@
 	<</if>>
 
 	<!-- v0.3.10.1: Kylar dominance -->
-	<<if C.npc.Kylar.dom gte 1 and ($bus isnot "kylarmanor" or $syndromekylar is 1)>>
+	<<if C.npc.Kylar.dom gte 1 and ($bus isnot "kylarmanor" or $kylar.stockholm)>>
 		<<npcincr Kylar dom -100>>
 	<</if>>
 
@@ -3131,7 +3126,7 @@
 
 	<!-- v0.3.10.5: Kylar scene viewer scenes -->
 	<<if C.npc.Kylar.state is "prison">>
-		<<set $kylarSeen.pushUnique("basement")>>
+		<<run Memories.Kylar.add("tookPcToBasement")>>
 	<</if>>
 
 	<!-- v0.3.10.5: Hypnotic flaunting -->
@@ -7372,7 +7367,7 @@
 	after the records migration above so getChildrenAt reads the new records. -->
 	<<if !$objectVersion.wardForceUnlock>>
 		<<if !$ward_unlocked>>
-			<<run getChildrenAt("home").filter(child => child.development.birthLocation isnot "hospital").forEach(child => setBabyIntro(getPregnancyOf(child).carrier, "Bailey", child.pregnancyId))>>
+			<<run getChildrenAt("home").filter(child => child.development.birthLocation isnot "hospital").forEach(child => addBabyIntro("Bailey", child.pregnancyId))>>
 		<</if>>
 		<<set $objectVersion.wardForceUnlock to 1>>
 	<</if>>
@@ -7383,7 +7378,7 @@
 			if (pregnancy.carrier === "pc" || C.npc[pregnancy.carrier] || pregnancy.deliveredLocation !== "home" || knowsPregnancy(pregnancy.pregnancyId, "Bailey")) return;
 			const litter = getChildrenOf(pregnancy.pregnancyId).filter(child => childIsBorn(child) && child.development.location === "home");
 			if (!litter.length) return;
-			addBabyIntro("Bailey", pregnancy.carrier, pregnancy.pregnancyId, litter.length, "stranger");
+			addBabyIntro("Bailey", pregnancy.pregnancyId, "stranger");
 			setKnowsPregnancy(pregnancy.pregnancyId, "Bailey");
 		})>>
 		<<set $objectVersion.randomCarrierWardIntro to 1>>
@@ -7720,30 +7715,35 @@
 		<<set $whitneySeen.pushUnique("pillory")>>
 	<</if>>
 
-	<<nnpcCleanupMigrationBailey>>
-	<<nnpcCleanupMigrationSirris>>
-	<<nnpcCleanupMigrationRobin>>
-	<<nnpcCleanupMigrationQuinn>>
-	<<nnpcCleanupMigrationNiki>>
-	<<nnpcCleanupMigrationNightMonster>>
-	<<nnpcCleanupMigrationZephyr>>
-	<<nnpcCleanupMigrationMorgan>>
-	<<nnpcCleanupMigrationLeighton>>
-	<<nnpcCleanupMigrationJordan>>
-	<<nnpcCleanupMigrationDarryl>>
-	<<nnpcCleanupMigrationCharlie>>
-	<<nnpcCleanupMigrationBriar>>
-	<<nnpcCleanupMigrationRemy>>
-	<<nnpcCleanupMigrationSam>>
-	<<nnpcCleanupMigrationWinter>>
-	<<museumCleanupMigration>>
-	<<nnpcCleanupMigrationIvoryWraith>>
-	<<nnpcCleanupMigrationDoren>>
-	<<nnpcCleanupMigrationRiver>>
-	<<nnpcCleanupMigrationMason>>
-	<<nnpcCleanupMigrationLandry>>
-	<<nnpcCleanupMigrationWren>>
-	<<nnpcCleanupMigrationHarper>>
-	<<nnpcCleanupMigrationBlackWolf>>
-	<<wolfPackCleanupMigration>>
+	<!-- NNPC cleanup save migrations -->
+	<<if ($nnpcCleanupBatchDone ?? 0) lt 1>>
+		<<nnpcCleanupMigrationBailey>>
+		<<nnpcCleanupMigrationSirris>>
+		<<nnpcCleanupMigrationRobin>>
+		<<nnpcCleanupMigrationQuinn>>
+		<<nnpcCleanupMigrationNiki>>
+		<<nnpcCleanupMigrationNightMonster>>
+		<<nnpcCleanupMigrationZephyr>>
+		<<nnpcCleanupMigrationMorgan>>
+		<<nnpcCleanupMigrationLeighton>>
+		<<nnpcCleanupMigrationJordan>>
+		<<nnpcCleanupMigrationDarryl>>
+		<<nnpcCleanupMigrationCharlie>>
+		<<nnpcCleanupMigrationBriar>>
+		<<nnpcCleanupMigrationRemy>>
+		<<nnpcCleanupMigrationSam>>
+		<<nnpcCleanupMigrationWinter>>
+		<<museumCleanupMigration>>
+		<<nnpcCleanupMigrationIvoryWraith>>
+		<<nnpcCleanupMigrationDoren>>
+		<<nnpcCleanupMigrationRiver>>
+		<<nnpcCleanupMigrationMason>>
+		<<nnpcCleanupMigrationLandry>>
+		<<nnpcCleanupMigrationWren>>
+		<<nnpcCleanupMigrationHarper>>
+		<<nnpcCleanupMigrationBlackWolf>>
+		<<wolfPackCleanupMigration>>
+		<<nnpcCleanupMigrationKylar>>
+		<<set $nnpcCleanupBatchDone to 1>>
+	<</if>>
 <</widget>>

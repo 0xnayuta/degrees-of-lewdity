@@ -209,7 +209,7 @@ function initSpecialClothes() {
 		},
 		vampire: {
 			text: "vampire costume",
-			requirements: () => V.syndromekylar >= 1,
+			requirements: () => V.kylar.stockholm,
 			hint: "succumb to a jealous lover's longing",
 			shop: ["forest"],
 			subsetOf: ["halloween"],
@@ -295,7 +295,7 @@ function initSpecialClothes() {
 		},
 		rose_wedding: {
 			text: "rose wedding attire",
-			requirements: () => V.kylarSeen?.includes("basement"),
+			requirements: () => Memories.Kylar.has("tookPcToBasement"),
 			hint: "escape a forced wedding",
 			shop: ["forest"],
 			subsetOf: ["valentines"],

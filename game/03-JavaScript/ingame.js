@@ -703,7 +703,7 @@ function isInPark(name) {
 			return C.npc.Kylar.state === "active"
 				&& Weather.precipitation === "none"
 				&& Time.dayState === "day" && !Time.schoolTime
-				&& V.kylarwatched !== 1;
+				&& !V.kylar.stalking.inProgress;
 		case "robin":
 			return getRobinLocation() === "park";
 		case "whitney":
@@ -1727,7 +1727,7 @@ function isPossibleLoveInterest(name) {
 		case "Whitney":
 			return V.whitneyromance === 1 && C.npc.Whitney.state !== "dungeon";
 		case "Kylar":
-			return V.kylarenglish >= 1 && C.npc.Kylar.state !== "prison";
+			return V.kylar.romance && C.npc.Kylar.state !== "prison";
 		case "Sydney":
 			return V.sydneyromance === 1;
 		case "Eden":

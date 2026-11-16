@@ -30,13 +30,13 @@ function getKylarLocation() {
 	switch (state) {
 		case "active":
 			location = getKylarActiveLocation();
-			if (!importantStates.includes(location.state) && V.kylarwatched) {
+			if (!importantStates.includes(location.state) && V.kylar.stalking.inProgress) {
 				location.state = "stalking";
 			}
 			break;
 		case "prison":
 			location = getKylarPrisonLocation();
-			if (!importantStates.includes(location.state) && V.kylarwatched) {
+			if (!importantStates.includes(location.state) && V.kylar.stalking.inProgress) {
 				location.state = "stalking";
 			}
 			break;
@@ -95,14 +95,13 @@ function getKylarLocationInLunchtime() {
 	if (!V.daily.school.lunchEaten) {
 		return { area: "canteen", state: "lunch" };
 	}
-	if (Weather.precipitation === "none") {
-		// NOT Raining or snowing, Kylar goes to the stump in rear courtyard.
-		return { area: "rear_courtyard", state: "stump" };
-	}
-	// Raining or snowing, Kylar goes to library.
+	// Kylar goes to the library when it's raining or snowing, or to stalk the PC there.
 	const libraryState = getKylarLibraryState();
 	if (!["elsewhere", "inactive"].includes(libraryState)) {
 		return { area: "library", state: libraryState };
+	}
+	if (Weather.precipitation === "none") {
+		return { area: "rear_courtyard", state: "stump" };
 	}
 	return UnknownLocation;
 }
@@ -119,7 +118,7 @@ function getKylarPersonalLocation() {
 		if (Weather.precipitation !== "none") {
 			return { area: "arcade", state: "playing" };
 		}
-		const parkState = V.kylar.fountain === 1 ? "fountain" : "bench";
+		const parkState = V.kylar.park.atFountainToday ? "fountain" : "bench";
 		return { area: "park", state: parkState };
 	}
 	return UnknownLocation;

@@ -627,7 +627,7 @@ const Furniture = (() => {
 					});
 					furnitureDelete(Categories.decoration);
 				}
-				if ([2, 4, 7].includes(V.kylar_camera)) {
+				if (["accepted", "pcSawBedroomFootage", "leftInPlace"].includes(V.kylar.owlCamera)) {
 					furnitureSet("owlplushie", Categories.owlplushie, {
 						name: "owl plushie",
 						nameCap: "Owl plushie",

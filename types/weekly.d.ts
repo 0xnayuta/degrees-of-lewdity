@@ -15,7 +15,6 @@ declare global {
 	}
 
 	export interface WeeklyVariables extends WeeklySetupVariables {
-		kylarCreep?: number;
 		edenPrey?: boolean;
 		slimeWakeMasturbation?: boolean;
 		alexNightTimeNursery?: 1;
@@ -72,6 +71,8 @@ declare global {
 		mason: MasonWeekly;
 		/** The Black Wolf's once-a-week flags, unset when the week ends. */
 		blackWolf: BlackWolfWeekly;
+		/** Kylar's once-a-week flags, unset when the week ends. */
+		kylar: KylarWeekly;
 	}
 }
 

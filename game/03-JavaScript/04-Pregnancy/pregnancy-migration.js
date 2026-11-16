@@ -174,9 +174,9 @@ function migrateChildrenToRecords() {
 			oldKeyToNewId[oldKey] = pushChildRecord({
 				pregnancyId,
 				species: oldChild.type,
-				features: migrateChildFeatures(oldChild.features || {}),
+				features: migrateChildFeatures(oldChild.features),
 				gender: oldChild.gender,
-				identical: oldChild.features?.identical ? pregnancyId : null,
+				identical: oldChild.features.identical ? pregnancyId : null,
 				development: {
 					...beginRearingDefaults(),
 					...pickLegacyDev(oldChild.localVariables),
@@ -366,9 +366,9 @@ function migrateInflightPregnanciesToRecords() {
 			pushChildRecord({
 				pregnancyId,
 				species: fetus.type,
-				features: migrateChildFeatures(fetus.features || {}),
+				features: migrateChildFeatures(fetus.features),
 				gender: fetus.gender,
-				identical: null,
+				identical: fetus.features.identical ? pregnancyId : null,
 				development: {},
 				bornDate: null,
 				name: null,
@@ -430,9 +430,9 @@ function migrateNpcInflightPregnanciesToRecords() {
 			pushChildRecord({
 				pregnancyId,
 				species: fetus.type,
-				features: migrateChildFeatures(fetus.features || {}),
+				features: migrateChildFeatures(fetus.features),
 				gender: fetus.gender,
-				identical: null,
+				identical: fetus.features.identical ? pregnancyId : null,
 				development: {},
 				bornDate: null,
 				name: fetus.name || null,

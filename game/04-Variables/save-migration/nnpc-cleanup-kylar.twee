@@ -1,0 +1,290 @@
+:: Widgets NNPC Cleanup Migration Kylar [widget]
+<<widget "nnpcCleanupMigrationKylar">>
+	<<set $kylar.school ??= {}>>
+	<<set $kylar.orphanage ??= {}>>
+	<<set $kylar.park ??= {}>>
+	<<set $kylar.visit ??= {}>>
+	<<set $kylar.stalking ??= {}>>
+	<<set $kylar.abduction ??= {}>>
+	<<set $kylar.altar ??= {}>>
+	<<set $kylar.halloween ??= {}>>
+	<<set $kylar.christmas ??= {}>>
+	<<set $kylar.sex ??= {}>>
+	<<set $daily.kylar ??= {}>>
+	<<set $weekly.kylar ??= {}>>
+
+	<!-- Kylar's $kylarSeen and one-time flags moved into Kylar's memories -->
+	<<if $kylarSeen>>
+		<<set _kylarSeenRenames to {
+			basement: "tookPcToBasement",
+			canteen: "firstLunchTogether",
+			chatIntro: "firstBraveGreeting",
+			commando: "pcToldToGoCommando",
+			crossdress: "sawPcCrossdressing",
+			favouriteFlower: "toldFavouriteFlower",
+			fountainIntro: "firstFountainWish",
+			fountainWinter: "sawFrozenFountain",
+			herm: "sawPcHermGenitals",
+			home: "pcConfrontedInPcBedroom",
+			locket: "sawPcLoveLocket",
+			locketStolen: "tookPcLoveLocket",
+			saidLove: "saidLoveToPc",
+			sydneyWriting: "jealousOfSydney",
+			wallpaper: "pcAskedAboutWallpaper",
+		}>>
+		<<for _memory range $kylarSeen>>
+			<<run $npcMemories.Kylar.pushUnique(_kylarSeenRenames[_memory] ?? _memory)>>
+		<</for>>
+		<<unset $kylarSeen>>
+	<</if>>
+	<<if $kylarignored is 1>><<run Memories.Kylar.add("pcIgnoredBeingBullied")>><</if>>
+	<<if $kylar_tattoo is 1>><<run Memories.Kylar.add("sawPcKylarTattoo")>><</if>>
+	<<if $kylar_sleep_abduction is 1>><<run Memories.Kylar.add("pcSleptAtManor")>><</if>>
+	<<if $kylar.home is 0 or $kylar.home is 1>><<run Memories.Kylar.add("snoopedInPcWardrobe")>><</if>>
+	<<if $kylar.home is 1>><<run Memories.Kylar.add("sniffedPcBedding")>><</if>>
+	<<unset $kylarignored $kylar_tattoo $kylar_sleep_abduction $kylar.home>>
+
+	<!-- Kylar's variables moved onto $kylar -->
+	<!-- $kylarReunionScene was "farm" or "dungeon", for where the PC escaped from -->
+	<<if $kylarReunionScene isnot undefined>>
+		<<set $kylar.searchingForPc to true>>
+		<<unset $kylarReunionScene>>
+	<</if>>
+	<!-- The owl camera's old numbers 0 to 7, in order -->
+	<<if $kylar_camera isnot undefined>>
+		<<set $kylar.owlCamera to ["offered", "opened", "accepted", "givenToOrphan", "pcSawBedroomFootage", "pcSawLivingRoomFootage", "removed", "leftInPlace"][$kylar_camera]>>
+		<<unset $kylar_camera>>
+	<</if>>
+	<<if $syndromekylar is 1>>
+		<<set $kylar.stockholm to true>>
+	<<elseif $syndromekylar is 0>>
+		<<set $kylar.stockholm to false>>
+	<</if>>
+	<<unset $syndromekylar>>
+	<<if $kylarenglishstate is "watching">>
+		<<set $kylar.school.englishClassStatus to "acrossRoom">>
+	<<elseif $kylarenglishstate is "active">>
+		<<set $kylar.school.englishClassStatus to "nextToPc">>
+	<<elseif $kylarenglishstate isnot undefined>>
+		<<set $kylar.school.englishClassStatus to $kylarenglishstate>>
+	<</if>>
+	<<unset $kylarenglishstate>>
+	<<if $christmas_kylar is 1>>
+		<<set $kylar.christmas.visit to "tonight">>
+	<<elseif $christmas_kylar is 2 or $christmas_kylar is 3>>
+		<<set $kylar.christmas.visit to "done">>
+	<</if>>
+	<<unset $christmas_kylar>>
+	<<if $kylarexit is "jealous robin">>
+		<<set $kylar.school.canteenGoodbye to "jealousOfRobin">>
+	<<elseif $kylarexit is "jealous both">>
+		<<set $kylar.school.canteenGoodbye to "jealousOfRobinAndSydney">>
+	<<elseif $kylarexit is "rage">>
+		<<set $kylar.school.canteenGoodbye to "druggedPc">>
+	<<elseif $kylarexit is "rage robin">>
+		<<set $kylar.school.canteenGoodbye to "druggedPcInFrontOfRobin">>
+	<</if>>
+	<<unset $kylarexit>>
+
+	<<if $kylar_abduction_grass is 1>>
+		<<set $kylar.abduction.grass to "pcSawOvergrown">>
+	<<elseif $kylar_abduction_grass is 2>>
+		<<set $kylar.abduction.grass to "kylarMowed">>
+	<<elseif $kylar_abduction_grass is 3>>
+		<<set $kylar.abduction.pcKnowsManorLocation to true>>
+	<</if>>
+	<<unset $kylar_abduction_grass>>
+	<<for _oldName, _newPlace range {
+		kylarBathroomGender: ["school", "toiletsUsed"],
+		kylarLocket: ["orphanage", "locketBreakIn"],
+		kylarStolenUnderwear: ["orphanage", "underwearStolenFromPc"],
+		kylarClothes: ["park", "clothesToGivePc"],
+		kylar_action: ["visit", "lastAction"],
+		kylar_text_trigger: ["visit", "pcJustApproached"],
+		kylarwatchedtimer: ["stalking", "hoursLeft"],
+		lowercoloursaved: ["stalking", "tornClothesColour"],
+		kylar_abduction_binds: ["abduction", "bindsTightness"],
+		kylar_abduction_knife: ["abduction", "knifeDecoration"],
+		kylar_clothes: ["abduction", "outfit"],
+		kylarhypnosisfail: ["abduction", "timesHypnosisFailed"],
+		syndromekylarbuild: ["abduction", "stockholmProgress"],
+		kylar_manor_secret: ["altar", "storyStage"],
+		kylar_altar_research: ["altar", "researchDone"],
+		kylar_altar_library: ["altar", "libraryProgress"],
+		kylar_altar_sydney_accost: ["altar", "sydneyOfferedForbiddenRoom"],
+		kylarsexcycle: ["sex", "combatLineCycle"],
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $kylar[_newPlace[0]][_newPlace[1]] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $halloween_pumpkin_kylar is "win">>
+		<<set $kylar.halloween.pcPumpkinWish to "pcWin">>
+	<<elseif $halloween_pumpkin_kylar is "kylar">>
+		<<set $kylar.halloween.pcPumpkinWish to "kylarWin">>
+	<</if>>
+	<<unset $halloween_pumpkin_kylar>>
+
+	<!-- Kylar's 0/1 flags moved onto $kylar as booleans -->
+	<<for _oldName, _newPlace range {
+		kylarbed: ["orphanage", "inPcBedTonight"],
+		kylarSleepEvent: ["orphanage", "sneakedInTonight"],
+		kylarBodywriting: ["orphanage", "sawRivalBodywriting"],
+		kylarwatched: ["stalking", "inProgress"],
+		kylar_mad: ["stalking", "willAbductPc"],
+		kylar_abduction_key: ["abduction", "pcFoundKey"],
+		kylar_abduction_torch: ["abduction", "pcFoundTorch"],
+		kylar_abduction_password: ["abduction", "pcFoundPassword"],
+		kylar_abduction_bailey: ["abduction", "pcEmailedBailey"],
+		kylar_abduction_stupid: ["abduction", "calledPcStupid"],
+		kylar_clothes_init: ["abduction", "pcJustAskedForOutfit"],
+		halloween_kylar: ["halloween", "invitedPcToPark"],
+		halloween_kylar_proposed: ["halloween", "metPcInPark"],
+		halloween_kylar_whitney: ["halloween", "wentUpstairsWithPc"],
+	}>>
+		<<if V[_oldName] is 1>>
+			<<set $kylar[_newPlace[0]][_newPlace[1]] to true>>
+		<<elseif V[_oldName] is 0>>
+			<<set $kylar[_newPlace[0]][_newPlace[1]] to false>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+
+	<!-- Kylar's old $kylar keys moved into their groups -->
+	<<if $kylar.fameStage isnot undefined>>
+		<<set $kylar.lewdPictureStage to $kylar.fameStage>>
+		<<unset $kylar.fameStage>>
+	<</if>>
+	<<set $kylar.lewdPictureStage ??= 0>>
+	<<if $kylar_parents_trust isnot undefined>>
+		<<set $kylar.parentsTrust to $kylar_parents_trust>>
+		<<unset $kylar_parents_trust>>
+	<</if>>
+	<<set $kylar.parentsTrust ??= 0>>
+	<<if $kylar.raped isnot undefined>>
+		<<set $kylar.sex.timesRapedPc to $kylar.raped>>
+		<<unset $kylar.raped>>
+	<</if>>
+	<<for _oldKey, _newPlace range {
+		fountain: ["park", "atFountainToday"],
+		play: ["visit", "pcPlayedArcadeGame"],
+	}>>
+		<<if $kylar[_oldKey] is 1>>
+			<<set $kylar[_newPlace[0]][_newPlace[1]] to true>>
+		<<elseif $kylar[_oldKey] is 0>>
+			<<set $kylar[_newPlace[0]][_newPlace[1]] to false>>
+		<</if>>
+		<<run delete $kylar[_oldKey]>>
+	<</for>>
+	<!-- Moved into $phase -->
+	<<unset $kylar.fountainCoin>>
+	<<if $kylar.riddle is 1>>
+		<<set $kylar.pcRiddle to "toldToday">>
+	<<elseif $kylar.riddle is 2>>
+		<<set $kylar.pcRiddle to "toldYesterday">>
+	<</if>>
+	<<unset $kylar.riddle>>
+	<<if $kylar.timer>>
+		<<for _oldKey, _newPlace range {
+			halls: ["school", "hallwayEventChance"],
+			street: ["stalking", "chance"],
+			home: ["orphanage", "bedroomVisitProgress"],
+			letter: ["orphanage", "daysUntilNextLetter"],
+			love: ["orphanage", "napsUntilNextLoveConfession"],
+		}>>
+			<<if $kylar.timer[_oldKey] isnot undefined>>
+				<<set $kylar[_newPlace[0]][_newPlace[1]] to $kylar.timer[_oldKey]>>
+			<</if>>
+		<</for>>
+		<<unset $kylar.timer>>
+	<</if>>
+
+	<!-- Kylar's once-a-day and once-a-week flags moved into $daily.kylar and $weekly.kylar -->
+	<<for _oldKey, _newKey range {
+		bodywriting: "commentedOnPcBodywriting",
+		fameConfronted: "broughtUpLewdPictures",
+		leightonPunch: "attackedLeightonForPc",
+		libraryStalk: "stalkingPcInLibrary",
+		manor: "pcComplainedAboutManor",
+		sleepRape: "foughtOffPcSleepRapist",
+		toilets: "toiletsEventPlayed",
+		undies: "gavePcUnderwear",
+		walk: "walkedInPark",
+		walkKiss: "pcKissedOnWalk",
+	}>>
+		<<if $daily.kylar[_oldKey] isnot undefined>>
+			<<set $daily.kylar[_newKey] to $daily.kylar[_oldKey]>>
+			<<run delete $daily.kylar[_oldKey]>>
+		<</if>>
+	<</for>>
+	<<if $daily.kylar.libraryInteract is 1>>
+		<<set $daily.kylar.libraryJealousy to "pcNoticedGlaring">>
+	<<elseif $daily.kylar.libraryInteract is 2>>
+		<<set $daily.kylar.libraryJealousy to "jealousLinePlayed">>
+	<</if>>
+	<<run delete $daily.kylar.libraryInteract>>
+	<<if $daily.manorLab>><<run Memories.Kylar.add("pcCleanedManorLab")>><</if>>
+	<<for _oldKey, _newKey range {
+		manorGarden: "pcTrimmedManorHedges",
+		manorParents: "pcSoothedParents",
+		manorLab: "pcCleanedManorLab",
+		manorKitchen: "pcCleanedManorKitchen",
+		manorForage: "pcPickedManorMushrooms",
+	}>>
+		<<if $daily[_oldKey] isnot undefined>>
+			<<set $daily.kylar[_newKey] to $daily[_oldKey]>>
+			<<run delete $daily[_oldKey]>>
+		<</if>>
+	<</for>>
+	<<if $prison_kylar_cell isnot undefined>>
+		<<set $daily.kylar.chattedInPrison to $prison_kylar_cell>>
+		<<unset $prison_kylar_cell>>
+	<</if>>
+	<<for _oldKey, _newKey range {
+		kylarCreep: "highRageNightVisitPlayed",
+		kylarSpray: "gavePcSprayCharge",
+		kylarBathroom: "hadOrphanageBathEvent",
+		kylarLocketBreakIn: "brokeInForLocket",
+		kylarLovelocket: "noticedPcLoveLocket",
+	}>>
+		<<if $weekly[_oldKey] isnot undefined>>
+			<<set $weekly.kylar[_newKey] to $weekly[_oldKey]>>
+			<<run delete $weekly[_oldKey]>>
+		<</if>>
+	<</for>>
+
+	<!-- $kylarenglish split into $kylar.romance and $kylar.school.englishSeat -->
+	<<if $kylarenglish isnot undefined>>
+		<<set $kylar.school.englishSeat to $kylarenglish>>
+		<<if $kylarenglish gte 1>>
+			<<set $kylar.romance to true>>
+		<</if>>
+		<<unset $kylarenglish>>
+	<</if>>
+
+	<!-- $prison.kylar turned into an object, with $prison_kylar_timer as its daysUntilJoinsPc -->
+	<<if $prison and typeof $prison.kylar isnot "object">>
+		<<if $prison.kylar is "active">>
+			<<set $prison.kylar to { state: "withPc" }>>
+		<<elseif $prison.kylar is "solitary">>
+			<<set $prison.kylar to { state: "inSolitary" }>>
+		<<else>>
+			<<set $prison.kylar to {}>>
+		<</if>>
+	<</if>>
+	<<if $prison_kylar_timer isnot undefined>>
+		<<if $prison>>
+			<<set $prison.kylar.daysUntilJoinsPc to $prison_kylar_timer>>
+		<</if>>
+		<<unset $prison_kylar_timer>>
+	<</if>>
+
+	<!-- $daily.kylar.invite split in two. "home" was Kylar's private invite. Other values was when the PC took the flirting further. -->
+	<<if $daily.kylar.invite is "home">>
+		<<set $daily.kylar.invitedPcSomewherePrivate to true>>
+	<<elseif $daily.kylar.invite isnot undefined>>
+		<<set $daily.kylar.pcTookFlirtingFurther to true>>
+	<</if>>
+	<<run delete $daily.kylar.invite>>
+<</widget>>

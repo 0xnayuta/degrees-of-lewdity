@@ -3,14 +3,14 @@
 // In realistic mode, loads of cum are stored per orifice.
 // Once past their washing grace period, each one takes its own roll, once per day, at that day's fertility.
 // Heavier loads (deeper cum, higher potency) carry a better chance.
-// The winner becomes a pending conception which implants two days later.
+// The winner becomes a pending conception, which turns into a pregnancy after the implantation window.
 // Fetish mode rolls each load's odds the moment it lands (instantConception) and stores nothing.
 
 /**
  * Completes the ear-slime "get sperm into your {orifice}" tasks when cum lands in the PC.
  *
  * @param {"vagina"|"anus"} orifice where the cum landed
- * @param {string} donor who it came from ("pc" for the player's own sperm)
+ * @param {string} donor who it came from ("pc" for the PC's own sperm)
  */
 function completeEarSlimeSpermTask(orifice, donor) {
 	const event = V.earSlime.event;
@@ -28,24 +28,25 @@ function completeEarSlimeSpermTask(orifice, donor) {
  * In fetish mode the caller rolls it on the spot instead, so nothing is kept.
  *
  * The settings and anatomy checks happen in here, so the caller only passes what the scene provides.
- * Player only. An NPC pregnancy is a single roll at its scene, with no loads involved.
+ * PC only. An NPC pregnancy is a single roll at its scene, with no loads involved.
  *
  * @param {"vagina"|"anus"} orifice
  * @param {string} donor who it came from: an NPC's name, or "pc"
- * @param {DonorSpecies} donorSpecies the donor's species
+ * @param {PregnancySpecies} donorSpecies the donor's species
  * @param {"outside"|"imminent"|"deep"} depth where the load landed
  * @param {string} location where the sex happened
  * @param {number} potency scales the weight. 1 for a normal load, 0.5 for the small penis dribble,
  *   1.25 for a knotting beast
- * @param {number|null} lifespan how long the load keeps counting, in seconds. null = 4 to 8 days
+ * @param {number|null} lifespan how long the load keeps counting, in seconds. null rolls it from loadLifespanDays
+ * @param {boolean} [forced=false] the PC's Force Impregnation action, see canPlayerConceive
  * @returns {Load|null} the load, stored in realistic mode. null = pregnancy can't happen here
  */
-function inseminate(orifice, donor, donorSpecies, depth, location, potency, lifespan) {
+function inseminate(orifice, donor, donorSpecies, depth, location, potency, lifespan, forced = false) {
 	const depthWeight = PregnancyConstants.depthWeight[depth];
 	if (depthWeight === undefined) throw new Error(`unknown depth "${depth}"`);
 	if (V.activeNightmare) return null;
 	completeEarSlimeSpermTask(orifice, donor);
-	if (!canPlayerConceive(orifice, donor, donorSpecies)) return null;
+	if (!canPlayerConceive(orifice, donor, donorSpecies, forced)) return null;
 
 	// Cum outside or at the entrance can still be washed away. Deep cum can't.
 	const canWash = depth !== "deep";
@@ -84,7 +85,7 @@ window.washLoads = washLoads;
 /**
  * A fertility pill's dose count as it will stand a number of days from now.
  *
- * @param {string} pill a key of V.sexStats.pills.pills
+ * @param {"contraceptive"|"fertility booster"} pill a key of V.sexStats.pills.pills
  * @param {number} [daysAhead=0] real days from now
  * @returns {number} doses still in effect that day
  */
@@ -94,17 +95,18 @@ function doseTakenIn(pill, daysAhead = 0) {
 window.doseTakenIn = doseTakenIn;
 
 /**
- * Conception modifier that influences how likely pc is to get pregnant.
+ * Conception modifier that influences how likely the PC is to get pregnant.
  *
- * Contraceptive pills are 90% effective, or 100% at 2+ pills.
+ * Contraceptive pills multiply it by contraceptiveMultiplier, or block it at contraceptiveDosesToBlock pills.
  *
- * Fertility boosters add 0.5x per dose, up to 4 doses (1.5x at one dose, 3x at four).
+ * Fertility boosters add fertilityMultiplierPerDose per dose, up to fertilityMaxDoses doses.
  *
- * The magic tattoo gives 1.5x.
+ * The magic tattoo multiplies it by pregnancyTattooMultiplier.
  *
- * Earslime gives 2x when focused on pc conceiving, 0.5x when focused on pc impregnating others.
+ * Fully grown ear slime multiplies it by earSlimeMultiplier, which increases fertility when it is focused on
+ * the PC conceiving and lowers fertility when it is focused on the PC impregnating others.
  *
- * @param {number} [daysAhead=0] real days from now, so a projection reads that day's doses
+ * @param {number} [daysAhead=0] days from now, so a projection reads that day's doses
  * @returns {number} a multiplier on the base pregnancy chance
  */
 function playerConceptionModifier(daysAhead = 0) {
@@ -113,13 +115,13 @@ function playerConceptionModifier(daysAhead = 0) {
 	if (modifier === 0) return 0;
 	modifier *= fertilityBoost(daysAhead);
 	if (hasPregnancyTattoo()) modifier *= modifiers.pregnancyTattooMultiplier;
-	if (V.earSlime.growth >= 100) modifier *= modifiers.earSlimeMultiplier[V.earSlime.focus] ?? 1;
+	if (V.earSlime.growth >= 100) modifier *= modifiers.earSlimeMultiplier[V.earSlime.focus];
 	return modifier;
 }
 window.playerConceptionModifier = playerConceptionModifier;
 
 /**
- * The fertility curve's slope: 1 at the peak, sliding to 0 windowDays away from it.
+ * Fertility falling in a straight line from 1 at the peak to 0 at windowDays away from it.
  *
  * @param {number} daysFromPeak days from the fertile peak (0 or less = at it)
  * @param {number} windowDays how far from the peak fertility reaches 0
@@ -133,9 +135,7 @@ function fertilityRamp(daysFromPeak, windowDays) {
 window.fertilityRamp = fertilityRamp;
 
 /**
- * Whether the body can take on a new pregnancy at all.
- * Already carrying a pregnancy or recovering from one means no.
- * Covers both orifices, in every pregnancy mode, with or without the cycle setting.
+ * Whether the PC can take on a new pregnancy. False while carrying or recovering from one in either orifice.
  *
  * @returns {boolean}
  */
@@ -145,20 +145,20 @@ function readyToCarry() {
 window.readyToCarry = readyToCarry;
 
 /**
- * How much the fertility boosters in the PC lift conception on a given day
+ * How much the fertility boosters in the PC raise the chance of conceiving on a given day.
  *
  * @param {number} [daysAhead=0] days from now
  * @returns {number} 1 with no boosters, rising with the dose
  */
 function fertilityBoost(daysAhead = 0) {
-	const doses = Math.clamp(doseTakenIn("fertility booster", daysAhead), 0, PregnancyConstants.fertilityMaxDoses);
+	const doses = Math.min(doseTakenIn("fertility booster", daysAhead), PregnancyConstants.fertilityMaxDoses);
 	return 1 + PregnancyConstants.conceptionModifiers.fertilityMultiplierPerDose * doses;
 }
 window.fertilityBoost = fertilityBoost;
 
 /**
- * How far birth control holds conception down on a given day, leaving out everything that only
- * scales potency. 1 is no protection at all, 0 is full protection.
+ * The contraceptive pill's multiplier on the chance of conceiving on a given day.
+ * 1 is no protection at all, 0 is full protection.
  *
  * @param {number} [daysAhead=0] days from now
  * @returns {number} 0 to 1
@@ -172,15 +172,15 @@ function contraceptiveGuard(daysAhead = 0) {
 window.contraceptiveGuard = contraceptiveGuard;
 
 /**
- * The floor under any day's fertility, so conception is never flatly impossible.
- * Fertility boosters raise it so a dose makes the body fertile now.
+ * The lowest fertility any day of the cycle can have, so no cycle day reads 0.
+ * Fertility boosters raise it, so a dose works on the least fertile days too.
  *
  * @param {number} [daysAhead=0] days from now
  * @returns {number} 0 to 1
  */
 function fertilityFloor(daysAhead = 0) {
 	const cycle = PregnancyConstants.menstrualCycle;
-	const doses = Math.clamp(doseTakenIn("fertility booster", daysAhead), 0, PregnancyConstants.fertilityMaxDoses);
+	const doses = Math.min(doseTakenIn("fertility booster", daysAhead), PregnancyConstants.fertilityMaxDoses);
 	return Math.clamp(Math.max(cycle.baselineFertility, doses * cycle.fertilityFloorPerDose), 0, 1);
 }
 window.fertilityFloor = fertilityFloor;
@@ -189,48 +189,49 @@ window.fertilityFloor = fertilityFloor;
  * How likely conception is on a day of the cycle: a long rise into ovulation, a short fall out of it.
  * With the fertility cycle setting off, every day is fertile.
  *
- * @param {number} day the day of the cycle to read
+ * @param {Menstruation} menstruation the cycle's stages and fertileLeadDays
+ * @param {number} day the day of that cycle to read
  * @param {number} [daysAhead=0] real days from now, so a projection reads that day's pill doses
  * @returns {number} 0 while carrying or recovering, otherwise the fertility floor at worst, up to 1 at ovulation
  */
-function fertilityOnCycleDay(day, daysAhead = 0) {
+function fertilityOnCycleDay(menstruation, day, daysAhead = 0) {
 	if (!readyToCarry()) return 0;
 	if (V.settings.fertilityCycleEnabled === false) return 1;
-	return Math.max(cycleFertilityRamp(day), fertilityFloor(daysAhead));
+	return Math.max(cycleFertilityRamp(menstruation, day), fertilityFloor(daysAhead));
 }
 window.fertilityOnCycleDay = fertilityOnCycleDay;
 
 /**
  * Where a day sits on the cycle's own curve, with no floor and no pills.
- * Heat reads this rather than fertilityOnCycleDay.
+ * Heat reads this, through menstrualCycleFertility.
  *
- * @param {number} day the day of the cycle to read
+ * @param {Menstruation} menstruation the cycle to read: its stages and fertileLeadDays
+ * @param {number} day the day of that cycle to read
  * @returns {number} 0 well away from ovulation, up to 1 at it
  */
-function cycleFertilityRamp(day) {
+function cycleFertilityRamp(menstruation, day) {
 	const cycle = PregnancyConstants.menstrualCycle;
-	const menstruation = V.sexStats.vagina.menstruation;
 	const [, , ovulationStart, ovulationEnd] = menstruation.stages; // [cycleStart, menstrualEnd, ovulationStart, ovulationEnd]
 	return day > ovulationEnd ? fertilityRamp(day - ovulationEnd, cycle.lutealTailDays) : fertilityRamp(ovulationStart - day, menstruation.fertileLeadDays);
 }
 window.cycleFertilityRamp = cycleFertilityRamp;
 
 /**
- * Today's place on the cycle curve. What heat runs on.
+ * Today's place on the cycle curve, with no floor and no pills. Heat reads this.
  *
- * @returns {number} 0 to 1
+ * @returns {number} 0 while carrying or recovering, 1 with the fertility cycle setting off, otherwise 0 to 1
  */
 function menstrualCycleFertility() {
 	if (!readyToCarry()) return 0;
 	if (V.settings.fertilityCycleEnabled === false) return 1;
-	return cycleFertilityRamp(V.sexStats.vagina.menstruation.currentDay);
+	return cycleFertilityRamp(V.sexStats.vagina.menstruation, V.sexStats.vagina.menstruation.currentDay);
 }
 window.menstrualCycleFertility = menstrualCycleFertility;
 
 /**
  * The share of loads still alive this many days after landing.
- * A load's lifespan is rolled uniformly across loadLifespanDays, so it is certain to see the first
- * min days and progressively less likely to see each one after.
+ * A load's lifespan is rolled uniformly across loadLifespanDays, so it always lives
+ * through the first min days and is less likely to live through each day after.
  *
  * @param {number} daysAfterLanding 0 on the day it landed
  * @returns {number} 0 to 1
@@ -243,18 +244,18 @@ function loadSurvival(daysAfterLanding) {
 window.loadSurvival = loadSurvival;
 
 /**
- * How fertile pc is today.
+ * How fertile the PC is today, including the fertility floor.
  *
  * @returns {number} 0 for no chance up to 1 at ovulation
  */
 function menstrualFertility() {
-	return fertilityOnCycleDay(V.sexStats.vagina.menstruation.currentDay);
+	return fertilityOnCycleDay(V.sexStats.vagina.menstruation, V.sexStats.vagina.menstruation.currentDay);
 }
 window.menstrualFertility = menstrualFertility;
 
 /**
- * Which day of the load's own life this is. A load takes one conception roll per day it lives,
- * counted from when it landed, so no two loads roll on the same hour.
+ * Which day of the load's own life this is, counted from when it landed.
+ * A load takes one conception roll per day it lives.
  *
  * @param {Load} load
  * @returns {number} 0 on the day it landed, 1 the next, and so on
@@ -266,11 +267,12 @@ window.loadAgeDay = loadAgeDay;
 
 /**
  * How fertile an NPC carrier is right now.
- * The NPC fertile window runs from cycleDangerousDay to postOvulationDays past it.
- * The Great Hawk is fertile only from its dangerous day onward.
+ * Fertility rises over fertileLeadDays before cycleDangerousDay, is full from that day to
+ * postOvulationDays past it, and is 0 after. The Great Hawk is fertile only from its dangerous day onward.
  *
  * @param {string} carrier the NPC's name
- * @returns {number} 0 for no chance up to 1 at peak fertility
+ * @returns {number} 0 for no chance up to 1 at peak fertility. 1 for an NPC without a pregnancy cycle,
+ *   or with the fertility cycle setting off
  */
 function npcMenstrualFertility(carrier) {
 	const npcPregnancy = C.npc[carrier] && C.npc[carrier].pregnancy;
@@ -285,8 +287,8 @@ function npcMenstrualFertility(carrier) {
 window.npcMenstrualFertility = npcMenstrualFertility;
 
 /**
- * Conception multiplier from a carrier NPC's birth-control state (C.npc[carrier].pregnancy.pills),
- * mirroring playerConceptionModifier. Contraceptives cut it right down, fertility pills raise it.
+ * The conception multiplier from a carrier NPC's pills (C.npc[carrier].pregnancy.pills).
+ * Contraceptives lower it, fertility pills raise it.
  *
  * @param {string} carrier the NPC who might get pregnant
  * @returns {number} a multiplier on the base NPC pregnancy chance
@@ -302,13 +304,14 @@ function npcConceptionModifier(carrier) {
 window.npcConceptionModifier = npcConceptionModifier;
 
 /**
- * Realistic pregnancy gives every load one roll per day of its life, at that day's fertility.
- * Risk builds up across the fertile window. A winner becomes the pending conception.
+ * Realistic mode's hourly conception roll for one orifice. Each load past its grace period rolls once
+ * per day of its life, at that day's fertility. One winner, picked at random, becomes this orifice's
+ * pending conception.
  *
  * @param {"vagina"|"anus"} orifice
  */
 function rollAndRecordConception(orifice) {
-	// One real pregnancy per body: a pending or active pregnancy in either orifice prevents a new pregnancy.
+	// A pending conception in this orifice, or any active PC pregnancy, stops the roll.
 	if (V.pendingPregnancies[orifice] !== null || getActivePregnancies("pc").length > 0) return;
 	if (orificeHasParasites(orifice)) return;
 	if (!readyToCarry()) return; // carrying or recovering: nothing to roll for
@@ -339,7 +342,7 @@ window.rollAndRecordConception = rollAndRecordConception;
 /**
  * The pregnancy system's hourly upkeep in every pregnancy mode.
  * Removes expired loads and implants due conceptions.
- * hourPassed (time.js) should call this once per game hour.
+ * hourPassed (time.js) calls this once per game hour.
  */
 function hourlyPregnancyUpdate() {
 	trimExpiredLoads();
@@ -356,12 +359,11 @@ window.hourlyPregnancyUpdate = hourlyPregnancyUpdate;
  */
 function recordPendingPregnancy(orifice, load) {
 	V.pendingPregnancies[orifice] = {
-		// The player's own body is the base of the child. Their transformations are read as heritage
-		// when the record is made in generateChildren.
+		// The PC's transformations are passed to the children later, in generateChildren.
 		carrierSpecies: "human",
 		donor: load.donor,
 		donorSpecies: load.donorSpecies,
-		// Loads wash and expire later, so the list is remembered at the pick here or it's gone.
+		// Loads wash and expire later, so the possible donors are saved now.
 		possibleDonors: V.cumLoads[orifice]
 			.filter(loadIsLive)
 			.map(l => ({ name: l.donor, species: l.donorSpecies }))
@@ -373,7 +375,7 @@ function recordPendingPregnancy(orifice, load) {
 window.recordPendingPregnancy = recordPendingPregnancy;
 
 /**
- * Whether hawk seed has already won a draw and is waiting to implant.
+ * Whether either orifice holds a pending conception from a hawk or harpy.
  *
  * @returns {boolean}
  */
@@ -388,7 +390,7 @@ window.birdConceptionPending = birdConceptionPending;
 /**
  * The morning-after pill throws out both orifices' pending conceptions and flushes all stored loads.
  *
- * Returns a result token. The pharmacy scene turns it into the text shown to the player.
+ * Returns a result token. The pharmacy scene picks its text from it.
  *
  * @returns {"notPregnant"|"success"|"aLittleLate"|"late"|"tooLate"} what the pill did
  */
@@ -417,7 +419,8 @@ function takeMorningAfterPill() {
 window.takeMorningAfterPill = takeMorningAfterPill;
 
 /**
- * Make the pregnancy record for any pending conception that has finished its window.
+ * Make the pregnancy record for any pending conception that has finished its implantation window.
+ * A conception in an orifice with parasites is thrown out.
  */
 function startDuePregnancies() {
 	for (const orifice of ["vagina", "anus"]) {
@@ -444,8 +447,8 @@ function startDuePregnancies() {
 window.startDuePregnancies = startDuePregnancies;
 
 /**
- * Fetish pregnancy rolls for pregnancy the moment a load lands.
- * A win is an instant pregnancy. The caller makes the pregnancy record on the spot.
+ * Fetish mode's conception roll, made the moment a load lands.
+ * On a win the caller makes the pregnancy record on the spot.
  *
  * @param {Load} load the load that just landed
  * @returns {Load|null} the load when it took, or null when nothing happened

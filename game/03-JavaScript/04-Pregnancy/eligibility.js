@@ -1,12 +1,15 @@
-// eligibility.js checks anatomy, settings, and scene flags and answers if pregnancy can happen here.
+// Whether a pregnancy can happen, from anatomy, settings and the infertile list.
 
 /**
- * The pregnancy eligibility that doesn't depend on the orifice or the act. The conception gate and the
- * compatibility checks both run through this. The infertile and unfinished-content lists only hold named
- * NPCs, so a generated NPC passes them.
+ * The PC's pregnancy checks that don't depend on the orifice, such as the impregnation and species settings,
+ * the donor's infertility, and unfinished content.
+ *
+ * canPlayerConceive and playerPregnancyPossibleWith both run through this.
+ *
+ * The infertile and unfinished-content checks only match named NPCs, so a generated NPC passes them.
  *
  * @param {string} name the donor's name, or "pc"
- * @param {DonorSpecies} species the donor's species
+ * @param {PregnancySpecies} species the donor's species
  * @param {boolean} forced a forced impregnation bypasses disableNormalImpregnation
  * @returns {boolean}
  */
@@ -20,21 +23,20 @@ function playerPregnancyEligible(name, species, forced) {
 window.playerPregnancyEligible = playerPregnancyEligible;
 
 /**
- * Can the player conceive from this donor here? Yes or no. Impregnation must be enabled, a named
+ * Whether the PC can conceive from this donor in this orifice. Impregnation must be enabled, a named
  * donor must have finished pregnancy content (unless the unfinished-content toggle is on), the
- * species must be enabled, the anus has rules, and neither party is infertile.
+ * species must be enabled, the donor must not be infertile, and the anus needs playerCanCarryAnally.
  * An unknown orifice throws. An unknown species throws.
  *
  * @param {"vagina"|"anus"} orifice which impregnable hole the cum went in
  * @param {string} donor who came inside: an NPC's name, or "pc"
- * @param {DonorSpecies} donorSpecies the donor's species, so the right pregnancy setting gets checked
+ * @param {PregnancySpecies} donorSpecies the donor's species, so the right pregnancy setting gets checked
+ * @param {boolean} [forced=false] the PC's Force Impregnation action, which ignores disableNormalImpregnation
  * @returns {boolean}
  */
-function canPlayerConceive(orifice, donor, donorSpecies) {
+function canPlayerConceive(orifice, donor, donorSpecies, forced = false) {
 	if (orifice !== "vagina" && orifice !== "anus") throw new Error(`unknown orifice "${orifice}"`);
 	childBaseSpecies(donorSpecies); // throws on unknown species
-	// Forced impregnation ignores disableNormalImpregnation.
-	const forced = (orifice === "vagina" && V.vaginaaction === "forceImpregnation") || (orifice === "anus" && V.anusaction === "forceImpregnation");
 	if (!playerPregnancyEligible(donor, donorSpecies, forced)) return false;
 	if (orifice === "anus" && !playerCanCarryAnally()) return false;
 	return true;
@@ -42,29 +44,29 @@ function canPlayerConceive(orifice, donor, donorSpecies) {
 window.canPlayerConceive = canPlayerConceive;
 
 /**
- * Can this NPC conceive here? Yes or no. Proper settings must be on and the anus has rules.
- * An unknown orifice throws.
+ * Whether this NPC can conceive in this orifice. Checks the NPC pregnancy settings and a named
+ * NPC's pregnancy toggles. An unknown orifice throws.
  *
  * @param {"vagina"|"anus"} orifice which impregnable hole the cum went in
  * @param {string} carrier the NPC's name
- * @param {boolean} infertile is the carrier or the other party flagged infertile
+ * @param {string} donor who came inside them: an NPC's name, or "pc"
  * @returns {boolean}
  */
-function canNpcConceive(orifice, carrier, infertile) {
+function canNpcConceive(orifice, carrier, donor) {
 	if (orifice !== "vagina" && orifice !== "anus") throw new Error(`unknown orifice "${orifice}"`);
 	if (!(C.npc[carrier] ? V.settings.nnpcPregnancyEnabled : V.settings.npcPregnancyEnabled)) return false;
-	// A named NPC the player toggled off stays off. The compatibility check enforces this, so the roll must too.
+	// A named NPC with pregnancy turned off can't conceive.
 	if (C.npc[carrier] && C.npc[carrier].pregnancy && !C.npc[carrier].pregnancy.enabled) return false;
 	if (orifice === "anus") {
 		if (!V.settings.npcAnalPregnancyEnabled) return false;
 		if (C.npc[carrier] && C.npc[carrier].pregnancy && C.npc[carrier].pregnancy.analEnabled === false) return false;
 	}
-	return !infertile;
+	return !setup.pregnancy.infertile.includes(carrier) && !setup.pregnancy.infertile.includes(donor);
 }
 window.canNpcConceive = canNpcConceive;
 
 /**
- * Whether the impregnation is disabled. A forced impregnation ignores disableNormalImpregnation.
+ * Whether impregnation is turned off. A forced impregnation ignores disableNormalImpregnation.
  *
  * @param {boolean} forced whether this is a forced impregnation
  * @returns {boolean}
@@ -77,10 +79,10 @@ function impregnationDisabled(forced) {
 window.impregnationDisabled = impregnationDisabled;
 
 /**
- * Whether the player's pregnancy settings permit carrying a pregnancy of this species.
+ * Whether the pregnancy settings let the PC carry a pregnancy from this species.
  *
- * @param {DonorSpecies} species the donor's species
- * @returns {boolean}
+ * @param {PregnancySpecies} species the donor's species
+ * @returns {boolean} false for an unknown species
  */
 function playerSpeciesPregnancyEnabled(species) {
 	switch (species) {
@@ -100,8 +102,9 @@ function playerSpeciesPregnancyEnabled(species) {
 window.playerSpeciesPregnancyEnabled = playerSpeciesPregnancyEnabled;
 
 /**
- * Whether pc has acquired a way to carry an anal pregnancy, like the magic tattoo or earslime.
- * This is what "exceptional circumstances" means. Always false while pc has a vagina.
+ * Whether the PC has a way to carry an anal pregnancy under the "exceptional circumstances" setting (ear slime, magic tattoo).
+ *
+ * Always false while the PC has a vagina.
  *
  * @returns {boolean}
  */
@@ -110,8 +113,7 @@ function hasExceptionalAnalPregnancy() {
 }
 
 /**
- * Whether the PC wears the magic pregnancy tattoo, which raises the chance of conceiving. It doesn't
- * change how fast the cycle runs.
+ * Whether the PC has the magic pregnancy tattoo, which raises the chance of conceiving.
  *
  * @returns {boolean}
  */
@@ -122,8 +124,11 @@ window.hasPregnancyTattoo = hasPregnancyTattoo;
 window.hasExceptionalAnalPregnancy = hasExceptionalAnalPregnancy;
 
 /**
- * Whether pc can carry a pregnancy anally right now. "always" treats it like any other pregnancy,
- * "exceptional" needs one of the acquired methods (earslime, magic tattoo), and false disables it.
+ * Whether the PC can carry a pregnancy anally right now.
+ *
+ * "always" treats it like any other pregnancy,
+ *
+ * "exceptional" needs hasExceptionalAnalPregnancy, and any other value turns it off.
  *
  * @returns {boolean}
  */
@@ -135,7 +140,9 @@ function playerCanCarryAnally() {
 window.playerCanCarryAnally = playerCanCarryAnally;
 
 /**
- * Whether the player can breed with the given NPC. For NPC breeding lines only.
+ * Whether the PC and this NPC have the anatomy to breed.
+ *
+ * A PC who can only carry anally counts only for a named NPC who knows the PC has been pregnant.
  *
  * Accepts either a named NPC's name or a $NPCList entry, e.g.
  * playerCanBreedWith("Kylar") or playerCanBreedWith($NPCList[0]).
@@ -155,7 +162,7 @@ function playerCanBreedWith(NPC) {
 window.playerCanBreedWith = playerCanBreedWith;
 
 /**
- * Whether the player or NPC can conceive.
+ * Whether the PC could get this NPC pregnant, or this NPC could get the PC pregnant.
  *
  * @param {string|object} NPC a named NPC's name, or a $NPCList entry
  * @returns {boolean}
@@ -166,9 +173,9 @@ function pregnancyCompatible(NPC) {
 window.pregnancyCompatible = pregnancyCompatible;
 
 /**
- * Normalizes an NPC argument into one { npc, name, named } shape. `npc` is the resolved NPC, or null.
- * `name` is its key. `named` is true for a persistent named NPC, false for a generated scene one. The
- * `*PossibleWith` consumers read `named` to apply the named-only rules (infertility, unfinished content).
+ * Turns an NPC argument into one { npc, name, named } shape. `npc` is the resolved NPC, or null for an
+ * unknown name. `name` is its key. `named` is true for a named NPC, false for a generated one.
+ * NPCPregnancyPossibleWithPlayer reads `named` to apply the named-only rules.
  *
  * @param {string|object} NPC a named NPC's name, or a $NPCList entry
  * @returns {{npc: object|null, name: string, named: boolean}}
@@ -185,7 +192,7 @@ function resolvePregnancyNpc(NPC) {
 window.resolvePregnancyNpc = resolvePregnancyNpc;
 
 /**
- * Whether the player could get pregnant by this NPC.
+ * Whether the PC could get pregnant by this NPC.
  *
  * @param {string|object} NPC a named NPC's name, or a $NPCList entry
  * @returns {boolean}
@@ -203,7 +210,7 @@ function playerPregnancyPossibleWith(NPC) {
 window.playerPregnancyPossibleWith = playerPregnancyPossibleWith;
 
 /**
- * Whether this NPC could get pregnant by the player.
+ * Whether this NPC could get pregnant by the PC.
  *
  * @param {string|object} NPC a named NPC's name, or a $NPCList entry
  * @returns {boolean}
@@ -213,11 +220,7 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	if (!resolvedNpc) return false;
 	if (impregnationDisabled(true)) return false;
 	if (named) {
-		if (!C.npc[name]) {
-			Errors.report("Named NPC " + name + " is undefined for pregnancy compatibility check.");
-			return false;
-		}
-		// Infertility only applies to named NPCs.
+		// The infertile list and the pregnancy toggles only exist for named NPCs.
 		if (setup.pregnancy.infertile.includes(name) || !resolvedNpc.pregnancy.enabled) return false;
 		if (getActivePregnancies(name).length) return false;
 	} else if (resolvedNpc.pregnancy) {
@@ -226,7 +229,7 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	if ((named ? V.settings.nnpcPregnancyEnabled : V.settings.npcPregnancyEnabled) === false) return false;
 	if (!setup.pregnancy.typesEnabled.includes(resolvedNpc.type)) return false;
 	if (!V.player.penisExist) return false;
-	// A male NPC can carry only anally, so it needs the NPC anal and pregnancy toggle.
+	// A male NPC can only carry anally, so it needs the NPC anal pregnancy setting and its own anal toggle.
 	if (resolvedNpc.gender === "m") {
 		if (!V.settings.npcAnalPregnancyEnabled) return false;
 		if (named && resolvedNpc.pregnancy.analEnabled === false) return false;
