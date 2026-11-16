@@ -482,10 +482,6 @@ You have <span class="red">$prison.time</span> <<pluralise $prison.time "day">> 
 <<set $bus to "walkway">><<effects>><<effects_prison>>
 
 
-<<if $prison_kylar_timer gte 1>>
-	<<set $prison_kylar_timer -= 1>>
-<</if>>
-
 You stand outside your cell and wait as <<methodical_guard 0>> reads out each number.
 <br><br>
 "...prisoner 144."
@@ -497,9 +493,9 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 <</if>>
 <br><br>
 
-<<if C.npc.Kylar.state is "prison" and $prison.kylar is 0 and $prison_kylar_timer lte 0>>
-	<<set $prison.kylar to "active">>
-	<<unset $prison_kylar_timer>>
+<<if C.npc.Kylar.state is "prison" and $prison.kylar.state is undefined and $prison.kylar.daysUntilJoinsPc lte 0>>
+	<<set $prison.kylar.state to "withPc">>
+	<<unset $prison.kylar.daysUntilJoinsPc>>
 	<<endevent>>
 	<<addNNPCOutfit "Kylar" "prisonJumpsuit">>
 	<<npc Kylar>><<person1>>
@@ -905,7 +901,7 @@ You are in the prison showers.
 	<<pregnancyPassout "prisonShowers">>
 <<elseif $prison.schedule is "wake">>
 	Prisoners undress, leaving their clothes on wood benches, before entering the shower. You hear running water.
-	<<if $prison.kylar is "active">>
+	<<if $prison.kylar.state is "withPc">>
 		Kylar stands in the corner, watching you.
 	<</if>>
 	<br><br>
@@ -1080,7 +1076,7 @@ You are at the bottom of the cell block. There are stairs leading to a walkway a
 			<<prisonicon "laundry">><<link [[Laundry|Prison Laundry]]>><</link>>
 			<br><br>
 
-			<<if $prison.kylar is "active" and !$prison_kylar_cell and ($prison.schedule is "free time" or $prison.schedule is "yard")>>
+			<<if $prison.kylar.state is "withPc" and !$daily.kylar.chattedInPrison and ($prison.schedule is "free time" or $prison.schedule is "yard")>>
 				<<npc Kylar>><<person1>>
 				Kylar sits on the bed in <<his>> cell, fussing over something in <<his>> lap.
 				<<endevent>>

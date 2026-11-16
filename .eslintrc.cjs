@@ -167,8 +167,6 @@ module.exports = {
 		isBestialityOnForAnyCreature: "readonly",
 		isBloodmoon: "readonly",
 		isGwylanAbsent: "readonly",
-		isKylarInPlayRole: "readonly",
-		isKylarRehearsing: "readonly",
 		knowsAboutAnyPregnancy: "readonly",
 		listUniqueCarriedSextoys: "readonly",
 		loadCustomColourPreset: "readonly",

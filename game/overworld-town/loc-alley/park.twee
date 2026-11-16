@@ -49,7 +49,7 @@ Tulips grow in great patches near the riverbank.
 <<else>>
 	<<run statusCheck("Robin")>>
 
-	<<if ($halloween_kylar is 1 or C.npc.Kylar.love gte 60) and $halloween_kylar_proposed isnot 1 and Time.dayState is "night" and C.npc.Kylar.init is 1 and C.npc.Kylar.state is "active" and (($halloween is 1 and Time.monthDay is 31 and Time.hour gte 21) or (Time.monthName is "November" and Time.monthDay is 1 and Time.hour lte 6)) and !$possessed>>
+	<<if ($kylar.halloween.invitedPcToPark or C.npc.Kylar.love gte 60) and !$kylar.halloween.metPcInPark and Time.dayState is "night" and C.npc.Kylar.init is 1 and C.npc.Kylar.state is "active" and (($halloween is 1 and Time.monthDay is 31 and Time.hour gte 21) or (Time.monthName is "November" and Time.monthDay is 1 and Time.hour lte 6)) and !$possessed>>
 		<<halloweenkylar>>
 	<<elseif (dangerEvent() or $eventforced) and $eventskip is 0>>
 		<<eventsstreet>>
@@ -211,12 +211,12 @@ Tulips grow in great patches near the riverbank.
 					<br>
 					Kylar sits at the fountain, occasionally tossing coins in.
 					<br>
-					<<parkicon "fountain">><<link [[Approach|Kylar Park]]>><<set $kylar_text_trigger to true>><</link>>
+					<<parkicon "fountain">><<link [[Approach|Kylar Park]]>><<set $kylar.visit.pcJustApproached to true>><</link>>
 				<<else>>
 					<br>
 					Kylar sits on a bench, sketching something.
 					<br>
-					<<parkicon>><<link [[Approach|Kylar Park]]>><<set $kylar_text_trigger to true>><</link>>
+					<<parkicon>><<link [[Approach|Kylar Park]]>><<set $kylar.visit.pcJustApproached to true>><</link>>
 				<</if>>
 				<br><br>
 			<</if>>
@@ -424,7 +424,7 @@ You approach the pumpkin carving tables. Most seats are occupied, with <<people>
 	<br>
 <<else>>
 
-	<<if _kylarLocation.area is "park" and !$halloween_pumpkin_kylar>>
+	<<if _kylarLocation.area is "park" and !$kylar.halloween.pcPumpkinWish>>
 		You see Kylar watching from behind a tree.
 		<br><br>
 	<</if>>
@@ -441,7 +441,7 @@ You approach the pumpkin carving tables. Most seats are occupied, with <<people>
 	<br>
 	<<link [[Find a pumpkin seller (0:10)|Park Pumpkin Seller]]>><<pass 10>><</link>>
 	<br>
-	<<if _kylarLocation.area is "park" and !$halloween_pumpkin_kylar>>
+	<<if _kylarLocation.area is "park" and !$kylar.halloween.pcPumpkinWish>>
 		<<link [[Call Kylar over|Park Pumpkin Kylar]]>><</link>>
 		<br>
 	<</if>>
@@ -749,10 +749,10 @@ Without skipping a beat, you snatch the pumpkin from the <<persons>> hands, and 
 You take a seat at the pumpkin carving table, and get to work, carving away while watching the approach of other people up and down the table.
 <br><br>
 
-<<if _kylarLocation.area is "park" and $halloween_pumpkin_kylar is "win">>
+<<if _kylarLocation.area is "park" and $kylar.halloween.pcPumpkinWish is "pcWin">>
 	You feel Kylar's eyes on you the whole time, watching you across the park.
 	<br><br>
-<<elseif _kylarLocation.area is "park" and $halloween_pumpkin_kylar is "kylar">>
+<<elseif _kylarLocation.area is "park" and $kylar.halloween.pcPumpkinWish is "kylarWin">>
 	Kylar sits beside you, outputting jack-o'-lantern after jack-o'-lantern at tremendous speed. Most are bad, but the sheer volume astounds onlookers.
 	<br><br>
 <</if>>
@@ -793,7 +793,7 @@ Practice Progress: <<print ($pumpkin_carving * 10)>>%
 <</if>>
 
 <<generate1>><<person1>><<generate2>>
-<<if C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar>>
+<<if C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish>>
 	<<npc Kylar 3>>
 	You take your seat among the other competitors. Kylar appears beside you.
 <<else>>
@@ -818,9 +818,9 @@ A crowd gathers to watch, and a <<person>> dressed in a smart outfit steps onto 
 A knife has been provided, a long, thin blade, as well as a selection of stencils. You get to work, carving to the best of your ability.
 <br><br>
 
-<<if C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "win">>
+<<if C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "pcWin">>
 	Beside you, Kylar flicks bits of pumpkin at the other competitors, distracting them.
-<<elseif C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "kylar">>
+<<elseif C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "kylarWin">>
 	<<person3>>Kylar carves beside you. In contrast with <<his>> previous energy, <<hes>> now slow, methodical, sparing no unnecessary movements. <<He>> leans over the pumpkin, concealing it from view.
 <</if>>
 <br><br>
@@ -851,11 +851,11 @@ Knowledge:
 	<span class="red">F</span> 
 <</if>>
 <<set $pumpkin_win_chance to (($pumpkin_carving + ($pumpkin_carving_knowledge?.length * 5)) / 15 * 100)>>
-<<if C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "win">>
+<<if C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "pcWin">>
 	<br>
 	Kylar's assistance: <span class="green">+10%</span>
 	<<set $pumpkin_win_chance += 10>>
-<<elseif C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "kylar">>
+<<elseif C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "kylarWin">>
 	<br>
 	Kylar wants to impress you: <span class="red">-1000%</span>
 	<<set $pumpkin_win_chance -= 1000>>
@@ -872,7 +872,7 @@ Overall: <<print Math.trunc($pumpkin_win_chance)>>%
 
 "Time's up!" You lean back to examine your handiwork, and that of others.
 <<pumpkin_prop>>
-<<if C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "kylar">>
+<<if C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "kylarWin">>
 	<<person3>>
 	<<if $pumpkin_win_chance gte 100>>
 		<<if $pumpkin_carving_knowledge.includes("scriptorium")>>
@@ -906,7 +906,7 @@ Overall: <<print Math.trunc($pumpkin_win_chance)>>%
 		You're surprised to find yours looks pretty good. A bit rough around the edges, but it has character. There are better jack-o'-lanterns, but they resemble each other too closely.
 	<</if>>
 
-	<<if C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "win">>
+	<<if C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "pcWin">>
 		"That's the most beautiful pumpkin I've ever seen," Kylar says, eyes full of awe. "You're sure to win."
 	<</if>>
 	<br><br>
@@ -921,7 +921,7 @@ Overall: <<print Math.trunc($pumpkin_win_chance)>>%
 	<br><br>
 	<<link [[Next|Park Pumpkin Competition Won]]>><</link>>
 	<br>
-<<elseif C.npc.Kylar.state isnot "prison" and $halloween_pumpkin_kylar is "win">>
+<<elseif C.npc.Kylar.state isnot "prison" and $kylar.halloween.pcPumpkinWish is "pcWin">>
 	There are better jack-o'-lanterns on display. Maybe people will think yours has character. Kylar's is similar, except the features are a little more crooked.
 	<br><br>
 	The judge walks the length of the tables, pausing a moment in front of each jack-o'-lantern. <<person1>><<He>> observes yours, then moves on without fanfare.
@@ -1195,9 +1195,9 @@ You beckon Kylar over.
 <</if>>
 <br><br>
 
-<<link [[Say you want to win the pumpkin carving competition|Park Pumpkin Kylar Win]]>><<set $halloween_pumpkin_kylar to "win">><</link>>
+<<link [[Say you want to win the pumpkin carving competition|Park Pumpkin Kylar Win]]>><<set $kylar.halloween.pcPumpkinWish to "pcWin">><</link>>
 <br>
-<<link [[Say you'd be impressed if Kylar won|Park Pumpkin Kylar Kylar Win]]>><<set $halloween_pumpkin_kylar to "kylar">><</link>>
+<<link [[Say you'd be impressed if Kylar won|Park Pumpkin Kylar Kylar Win]]>><<set $kylar.halloween.pcPumpkinWish to "kylarWin">><</link>>
 <br>
 <<link [[Just say hi|Park Pumpkin Kylar Hi]]>><</link>>
 <br>

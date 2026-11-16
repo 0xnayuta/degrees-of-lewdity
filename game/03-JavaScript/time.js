@@ -993,7 +993,7 @@ function dayPassed() {
 	V.daily.clearProperties();
 
 	/* Set flag to determine Kylar's position at lunch */
-	V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
+	V.daily.kylar.stalkingPcInLibrary = rollKylarLibraryStalkFlag();
 
 	if (random(1, 8) === 1) V.daily.robin.canHaveKitchenEvent = true;
 
@@ -1064,7 +1064,7 @@ function hourPassed(hours) {
 		});
 
 		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount) * 10;
-		if (V.kylarwatched) V.kylarwatchedtimer--;
+		if (V.kylar.stalking.inProgress) V.kylar.stalking.hoursLeft--;
 		if (V.parasite.nipples.name) statChange.milkVolume(1);
 		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
 			let count = 0 + (V.worn.head.name === "hairpin" && random(0, 100) >= 75 ? 1 : 0);
@@ -1412,14 +1412,14 @@ function dailyNPCEffects() {
 		C.npc.Kylar.lust = Math.clamp(C.npc.Kylar.lust, 0, 100);
 		C.npc.Kylar.love = Math.clamp(C.npc.Kylar.love, 0, 100);
 		C.npc.Kylar.rage = Math.clamp(C.npc.Kylar.rage, 0, 100);
-		V.kylar.timer.halls += 10 + C.npc.Kylar.lust / 4;
-		V.kylar.timer.home += 10 + C.npc.Kylar.lust / 4;
-		V.kylar.timer.street += 10 + C.npc.Kylar.lust / 4;
-		if (V.kylar.timer.letter >= 1) V.kylar.timer.letter--;
-		if (V.kylar.riddle === 1) V.kylar.riddle = 2;
-		else V.kylar.riddle = 0;
-		if (V.kylarSeen.includes("fountainIntro") && random(1, 10) >= 2) V.kylar.fountain = 1;
-		else V.kylar.fountain = 0;
+		V.kylar.school.hallwayEventChance += 10 + C.npc.Kylar.lust / 4;
+		V.kylar.orphanage.bedroomVisitProgress += 10 + C.npc.Kylar.lust / 4;
+		V.kylar.stalking.chance += 10 + C.npc.Kylar.lust / 4;
+		if (V.kylar.orphanage.daysUntilNextLetter >= 1) V.kylar.orphanage.daysUntilNextLetter--;
+		if (V.kylar.pcRiddle === "toldToday") V.kylar.pcRiddle = "toldYesterday";
+		else delete V.kylar.pcRiddle;
+		if (Memories.Kylar.has("firstFountainWish") && random(1, 10) >= 2) V.kylar.park.atFountainToday = true;
+		else V.kylar.park.atFountainToday = false;
 	}
 
 	// Avery
@@ -2069,14 +2069,14 @@ function yearlyEventChecks() {
 		delete V.halloween_trick_NPC;
 	}
 	if (Time.monthName === "November" && Time.monthDay >= 2) {
-		delete V.halloween_kylar;
-		delete V.halloween_kylar_proposed;
-		delete V.halloween_kylar_whitney;
+		delete V.kylar.halloween.invitedPcToPark;
+		delete V.kylar.halloween.metPcInPark;
+		delete V.kylar.halloween.wentUpstairsWithPc;
 		delete V.halloween_lake;
 		delete V.wolfPack.halloweenWolfHurtAtLake;
 		delete V.halloween_pumpkins_bought;
 		delete V.halloween_pumpkin_competition;
-		delete V.halloween_pumpkin_kylar;
+		delete V.kylar.halloween.pcPumpkinWish;
 		delete V.halloween_domus_pumpkin;
 	}
 
@@ -2093,7 +2093,7 @@ function yearlyEventChecks() {
 		delete V.christmas_wrap;
 		delete V.christmas_gift_eden;
 		delete V.christmas_gift_eden_given;
-		delete V.christmas_kylar;
+		V.kylar.christmas = {};
 		delete V.christmas_whitney;
 		delete V.edenmeal;
 		delete V.eden_christmas_dinner;

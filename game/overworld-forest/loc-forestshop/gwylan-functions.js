@@ -692,7 +692,7 @@ function gwylanRequestIngredients() {
 		.map(entry => [entry.key, entry.weight ?? 1]);
 
 	// Remove ghostshrooms until the you are bffs with kylar
-	if (!V.syndromekylar) {
+	if (!V.kylar.stockholm) {
 		removeIngredient("ghostshroom");
 	}
 

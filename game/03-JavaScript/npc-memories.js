@@ -205,6 +205,73 @@ const VALID_MEMORIES = {
 		// Used to skip the first-time text on later forest trips and on the Halloween costume trip
 		"visitedForestShop",
 	],
+	Kylar: [
+		// If Kylar looked the PC in the eye and greeted them when they approached for the first time
+		// Used so the greeting only plays once
+		"firstBraveGreeting",
+		// If the PC told Kylar to make a wish at the park fountain and tossed a coin in
+		// Used so the first wish text only plays once and makes Kylar more likely to wait at the park fountain. It also adds more lines and money to the scene where Whitney digs for change in the fountain.
+		"firstFountainWish",
+		// If Kylar first has lunch with the PC in the canteen
+		// Used so Kylar's thanks for sitting with them only plays the first time
+		"firstLunchTogether",
+		// If Kylar saw Sydney kiss and write on the PC's face in the library, saw lewd bodywriting from Sydney on the PC, or heard the PC moan Sydney's name during an encounter
+		// Used to add new scenes and lines where Kylar is jealous of Sydney
+		"jealousOfSydney",
+		// If the PC asked Kylar about their desktop wallpaper at the manor
+		// Used to hide the option to ask again
+		"pcAskedAboutWallpaper",
+		// If the PC cleaned the lab in Kylar's manor
+		// Used for a line when the PC tells Kylar about the orphanage loft
+		"pcCleanedManorLab",
+		// If the PC got angry at or teased Kylar after catching Kylar sniffing their bedding
+		// Used as one way to unlock asking for Kylar's underwear and Kylar can apologize for it during their firstBraveGreeting
+		"pcConfrontedInPcBedroom",
+		// If the PC ignored Kylar being bullied in the school hallway
+		// Used so the bullying intro doesn't play again and for some lines from Kylar
+		"pcIgnoredBeingBullied",
+		// If the PC slept in Kylar's bed at the manor and woke up to and Kylar's parents carrying them to a stone altar in the forest
+		// Used to hide the option to sleep there again, and to unlock researching the altar in the school library and its journal entry
+		"pcSleptAtManor",
+		// If the PC took Kylar's underwear and asked Kylar to keep going without
+		// Used so Kylar goes commando, to unlock checking for it when flirting, to hide asking for it again, and for various lines and scenes
+		"pcToldToGoCommando",
+		// If Kylar said "I love you" to the PC during an encounter or on being given a strap-on
+		// Used for lines in the orphanage cuddle scene about Kylar having said it before
+		"saidLoveToPc",
+		// If Kylar saw the park fountain frozen over in winter with the PC
+		// Used so Kylar's reaction only plays once
+		"sawFrozenFountain",
+		// If Kylar found during an encounter that the PC's genitals aren't what their appearance suggests
+		// Used so Kylar's reaction only plays once
+		"sawPcCrossdressing",
+		// If Kylar saw the PC's herm genitals during an encounter
+		// Used so Kylar's reaction only plays once
+		"sawPcHermGenitals",
+		// If Kylar, while in love with and dating the PC ($kylar.romance), found a tattoo of Kylar's writing on the PC while chatting
+		// Used so Kylar's overjoyed reaction only plays once
+		"sawPcKylarTattoo",
+		// If Kylar first noticed the PC wearing a love locket while chatting
+		// Used to let Kylar break into the PC's bedroom at night when a love locket is in their wardrobe
+		"sawPcLoveLocket",
+
+		// If Kylar went through the PC's orphanage wardrobe and took a pair of underwear, if there were any
+		// Used so `Kylar Bedroom 1` only plays once when $kylar.orphanage.bedroomVisitProgress reaches 100, and so `Kylar Bedroom 2` plays next time
+		"snoopedInPcWardrobe",
+		// If the PC peeked into their bedroom and saw Kylar sniffing their bedding
+		// Used so `Kylar Bedroom 2` only plays once
+		"sniffedPcBedding",
+
+		// If Kylar told the PC while chatting that Kylar's favourite flower is nightshade and asked for the PC's
+		// Used so the question is only asked the first time
+		"toldFavouriteFlower",
+		// If Kylar broke into the PC's bedroom at night and took the love locket from their wardrobe
+		// Not currently used
+		"tookPcLoveLocket",
+		// If the PC woke up chained in the manor basement after Kylar kidnapped them
+		// Used to unlock the rose wedding attire at the forest shop
+		"tookPcToBasement",
+	],
 	"Black Wolf": [
 		// If the Black Wolf has taken the PC up the hill to watch the forest
 		// Used so later trips skip the walk up the hill and the PC thanks the Black Wolf for bringing them again
@@ -234,6 +301,9 @@ const VALID_MEMORIES = {
 		// If the PC helped another orphan fight off an attacker at the orphanage, with Bailey watching
 		// Used so Bailey only reacts and gains respect the first time
 		"pcStoppedOrphanAttack",
+		// If the PC emailed Bailey from Kylar's laptop during the abduction, and Bailey came to Kylar's manor with Jordan to rescue them
+		// Used for Bailey's lines when the PC moans Kylar's name during an encounter
+		"rescuedPcFromKylar",
 		// If Bailey took the PC to the docks after winning Avery's card game
 		// Used so Bailey drives straight to the orphanage in later games
 		"tookPcToDocksAfterCards",
@@ -663,6 +733,11 @@ const Memories = {
 		add: memory => addMemory("Robin", memory),
 		has: memory => hasMemory("Robin", memory),
 		delete: memory => deleteMemory("Robin", memory),
+	},
+	Kylar: {
+		add: memory => addMemory("Kylar", memory),
+		has: memory => hasMemory("Kylar", memory),
+		delete: memory => deleteMemory("Kylar", memory),
 	},
 	BlackWolf: {
 		add: memory => addMemory("Black Wolf", memory),

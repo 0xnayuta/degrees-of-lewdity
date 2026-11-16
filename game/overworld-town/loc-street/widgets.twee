@@ -1749,7 +1749,7 @@
 <<widget "kylarwatched">>
 	<<run statusCheck("Kylar")>>
 
-	<<if _kylarStatus.includes("Love") and $kylar_mad is 1 and $syndromekylar isnot 1>>
+	<<if _kylarStatus.includes("Love") and $kylar.stalking.willAbductPc and !$kylar.stockholm>>
 		<<kylarStreetAbduction>>
 	<<else>>
 		<<cleareventpool>>
@@ -1772,12 +1772,12 @@
 
 	<span class="red">A sharp pain pricks your neck.</span> You raise a weak hand, and feel a dart sticking from your flesh. You black out.
 	<br><br>
-	<<link [[Next|Kylar Abduction Intro]]>><<endevent>><<unset $kylar_mad>><<badEndTracking "Kylar Abduction" { reason: "kylarAbduction" }>><</link>>
+	<<link [[Next|Kylar Abduction Intro]]>><<endevent>><<unset $kylar.stalking.willAbductPc>><<badEndTracking "Kylar Abduction" { reason: "kylarAbduction" }>><</link>>
 	<br>
 <</widget>>
 
 <<widget "kylarWatchDart">>
-	<<set $kylarwatchedtimer -= 1>>
+	<<set $kylar.stalking.hoursLeft -= 1>>
 
 	<<generate1>><<person1>>You hear a <<person>> behind you. <<catcall>> Before you can respond, a pair of intruding hands grasp you, but only for a moment. <<He>> winces and clutches <<his>> neck. <<He>> pulls out a small dart, looks at it, and collapses.
 	<br><br>
@@ -1791,7 +1791,7 @@
 <</widget>>
 
 <<widget "kylarWatchWink">>
-	<<set $kylarwatchedtimer -= 1>>
+	<<set $kylar.stalking.hoursLeft -= 1>>
 
 	<<generate1>><<person1>>You catch a <<person>> checking you out. <<He>> winks.
 	<br><br>
@@ -1803,11 +1803,11 @@
 <</widget>>
 
 <<widget "kylarWatchClothingTear">>
-	<<set $kylarwatchedtimer -= 1>>
+	<<set $kylar.stalking.hoursLeft -= 1>>
 
 	<<if $worn.over_lower.name isnot "naked">>
 		You feel a tug on your $worn.over_lower.name,
-		<<set $lowercoloursaved to $worn.over_lower.colour>><<set $worn.over_lower.integrity -= 30>>
+		<<set $kylar.stalking.tornClothesColour to $worn.over_lower.colour>><<set $worn.over_lower.integrity -= 30>>
 		<<if $worn.over_lower.integrity lte 0>>
 			<<set _name to clone($worn.lower.name)>>
 			<<overlowerruined>><<exposure>>
@@ -1833,7 +1833,7 @@
 		<</if>>
 	<<elseif $worn.lower.name isnot "naked">>
 		You feel a tug on your $worn.lower.name,
-		<<set $lowercoloursaved to $worn.lower.colour>><<set $worn.lower.integrity -= 30>>
+		<<set $kylar.stalking.tornClothesColour to $worn.lower.colour>><<set $worn.lower.integrity -= 30>>
 		<<if $worn.lower.integrity lte 0>>
 			<<lowerruined>><<exposure>>
 			then a tear as it is torn from your body by an invisible force. <<covered>> The fabric flies away from you.
@@ -1855,7 +1855,7 @@
 <</widget>>
 
 <<widget "kylarWatchStalkSex">>
-	<<set $kylarwatchedtimer to 0>><<rngWraith 2 "night">>
+	<<set $kylar.stalking.hoursLeft to 0>><<rngWraith 2 "night">>
 
 	<<npc Kylar>><<person1>>Something tugs your arm. It's Kylar. "H-hi," <<he>> gulps. <<He>> tries to pull you toward a dark alley. "We need privacy. I need you to do things to me."
 	<br><br>
@@ -1873,7 +1873,7 @@
 <</widget>>
 
 <<widget "kylarWatchStalkMolestation">>
-	<<set $kylarwatchedtimer to 0>>
+	<<set $kylar.stalking.hoursLeft to 0>>
 	<<npc Kylar>><<person1>>
 	<<set $NPCList[0].skills to {athletics: random(750, 1500), security: random(750, 1500)}>>
 
@@ -3590,9 +3590,9 @@
 	/* Events that must bypass eventpool and any conditions */
 	<<if $ivoryWraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
 		<<wraithEventStreet>>
-	<<elseif $kylarwatched is 1>>
+	<<elseif $kylar.stalking.inProgress>>
 		<<kylarwatched>>
-	<<elseif $kylar_manor_secret is 2>>
+	<<elseif $kylar.altar.storyStage is 2>>
 		<<monstrance_accost>>
 	<<elseif $averyseen isnot 1 and !$avery_injury and $exposed lte 0 and Time.dayState is "day" and C.npc.Avery.state isnot "dismissed" and Time.weekDay is 7 and ($scienceproject is "won" or $scienceproject is "done" or C.npc.Avery.init is 1) and !$averydate>>
 		<<set $averyseen to 1>>
@@ -3666,7 +3666,7 @@
 				<</addinlineevent>>
 			<</if>>
 
-			<<if $kylarReunionScene isnot undefined and C.npc.Kylar.state is "active" and Time.dayState is "day">>
+			<<if $kylar.searchingForPc and C.npc.Kylar.state is "active" and Time.dayState is "day">>
 				<<addinlineevent "kylarReunion" 5>>
 					<<kylarReunionScene>>
 				<</addinlineevent>>
@@ -4213,13 +4213,13 @@
 			<<wHunt "town">>
 		<<elseif $ivoryWraith.hunt.progress>>
 			<<wHunt "town">>
-		<<elseif $kylar?.timer.street gte ($rng + 65) and C.npc.Kylar.state is "active" and $kylarwatched isnot 1 and $exposed lte 0 and _kylarLocation.area isnot $location>>
-			<<set $kylar.timer.street to 0>><<set $kylarwatchedtimer to 2>>
+		<<elseif $kylar.stalking.chance gte ($rng + 65) and C.npc.Kylar.state is "active" and !$kylar.stalking.inProgress and $exposed lte 0 and _kylarLocation.area isnot $location>>
+			<<set $kylar.stalking.chance to 0>><<set $kylar.stalking.hoursLeft to 2>>
 			You shiver, a warning from some primal instinct. <span class="blue">Something is watching you.</span>
-			<<set $kylarwatched to 1>><<set $eventskip to 1>>
-		<<elseif $kylarwatched is 1>>
-			<<if $exposed gte 1 or C.npc.Kylar.state isnot "active" or $kylarwatchedtimer lte 0 or _kylarLocation.area is $location>>
-				<<set $kylarwatched to 0>>
+			<<set $kylar.stalking.inProgress to true>><<set $eventskip to 1>>
+		<<elseif $kylar.stalking.inProgress>>
+			<<if $exposed gte 1 or C.npc.Kylar.state isnot "active" or $kylar.stalking.hoursLeft lte 0 or _kylarLocation.area is $location>>
+				<<set $kylar.stalking.inProgress to false>>
 			<<else>>
 				<span class="blue">Something is watching you.</span>
 			<</if>>

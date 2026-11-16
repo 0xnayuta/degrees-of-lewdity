@@ -3,13 +3,6 @@ declare module "twine-sugarcube" {
 		NPCList: [Npc, Npc, Npc, Npc, Npc, Npc];
 
 		enemytype: string;
-
-		kylarwatched: boolean;
-		kylar: {
-			timer: any;
-			riddle: number;
-			fountain: 0 | 1;
-		};
 	}
 }
 

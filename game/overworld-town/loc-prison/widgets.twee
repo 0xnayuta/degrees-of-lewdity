@@ -38,7 +38,7 @@
 		<<set $prison.spire_intro to 0>>
 		<<set $prison.hours_worked to 9>>
 		<<set $prison.work_check to 1>>
-		<<set $prison.kylar to 0>>
+		<<set $prison.kylar to {}>>
 
 		<<set $wardrobe_location to "prison">>
 		<<wardrobeSelection true>>
@@ -61,8 +61,8 @@
 		<</if>>
 
 	<</if>>
-	<<if C.npc.Kylar.state is "prison" and $prison.kylar is 0>>
-		<<set $prison_kylar_timer to 2>>
+	<<if C.npc.Kylar.state is "prison" and $prison.kylar.state is undefined>>
+		<<set $prison.kylar.daysUntilJoinsPc to 2>>
 	<</if>>
 	<<set $prison.morning to 1>>
 <</widget>>
@@ -246,16 +246,16 @@
 			<<set $prison.time -= 1>>
 			<<set $stat_police.prison += 1>>
 		<</if>>
-		<<if $prison.kylar is "active">>
+		<<if $prison.kylar.state is "withPc">>
 			<<npcincr Kylar lust 10>>
-			<<unset $prison_kylar_cell>>
+			<<unset $daily.kylar.chattedInPrison>>
 		<</if>>
-		<<if $prison_kylar_timer gte 1>>
-			<<set $prison_kylar_timer -= 1>>
+		<<if $prison.kylar.daysUntilJoinsPc gte 1>>
+			<<set $prison.kylar.daysUntilJoinsPc -= 1>>
 		<</if>>
-		<<if $prison.kylar is "solitary" and $prison_kylar_timer lte 0>>
-			<<unset $prison_kylar_timer>>
-			<<set $prison.kylar to "active">>
+		<<if $prison.kylar.state is "inSolitary" and $prison.kylar.daysUntilJoinsPc lte 0>>
+			<<unset $prison.kylar.daysUntilJoinsPc>>
+			<<set $prison.kylar.state to "withPc">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -1252,15 +1252,15 @@
 		<br>
 		<<link [[Fight|Prison Attention Fight Refuse]]>><</link>>
 		<br>
-		<<if $prison.kylar is "active">>
+		<<if $prison.kylar.state is "withPc">>
 			<<if $worn.face.type.includes("gag")>>
 				<span class="blue">Kylar would rescue you, but you can't call them with your mouth gagged.</span>
 				<br>
 			<<else>>
-				<<link [[Call Kylar|Prison Attention Kylar]]>><<set $prison.attention_level to 1>><<set $prison.attention to 0>><<set $prison.kylar to "solitary">><<set $prison_kylar_timer to 3>><</link>>
+				<<link [[Call Kylar|Prison Attention Kylar]]>><<set $prison.attention_level to 1>><<set $prison.attention to 0>><<set $prison.kylar.state to "inSolitary">><<set $prison.kylar.daysUntilJoinsPc to 3>><</link>>
 				<br>
 			<</if>>
-		<<elseif $prison.kylar is "solitary">>
+		<<elseif $prison.kylar.state is "inSolitary">>
 			<span class="blue">Kylar can't help you from solitary.</span>
 			<br>
 		<</if>>

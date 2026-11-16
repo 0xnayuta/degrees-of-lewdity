@@ -8,7 +8,6 @@ declare global {
 	export interface DailyVariables {
 		dawnCheck: any;
 		noonCheck: any;
-		kylar: any;
 		school: {
 			attended(attended: any): unknown;
 			lunchEaten: boolean;
@@ -49,6 +48,8 @@ declare global {
 		blackWolf: BlackWolfDaily;
 		/** The wolf cave's once-a-day values, unset at midnight. */
 		wolfPack: WolfPackDaily;
+		/** Kylar's once-a-day flags, unset at midnight. */
+		kylar: KylarDaily;
 	}
 }
 

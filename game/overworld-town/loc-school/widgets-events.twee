@@ -123,8 +123,8 @@
 					<</if>>
 				<</if>>
 			<</if>>
-		<<elseif $settings.watersportsEnabled and C.npc.Kylar.state is "active" and $kylarenglish gte 1 and C.npc.Kylar.lust gte 60 and $rng gte 51 and $daily.kylar.toilets isnot 1>>
-			<<set $daily.kylar.toilets to 1>>
+		<<elseif $settings.watersportsEnabled and C.npc.Kylar.state is "active" and $kylar.romance and C.npc.Kylar.lust gte 60 and $rng gte 51 and !$daily.kylar.toiletsEventPlayed>>
+			<<set $daily.kylar.toiletsEventPlayed to true>>
 			<<npc Kylar>><<person1>>
 
 			As you walk into the <<print $changingRoomGender>>'s toilets, you hear footsteps behind you. You <<if $submissive lte 850>>turn around to see<<else>>pause before a hand lands on your shoulder. It's<</if>> Kylar. <<if $NPCList[0].pronouns.boy + "s" isnot $changingRoomGender>>You're not exactly sure what <<hes>> doing in here.<</if>>
@@ -258,7 +258,7 @@
 <</widget>>
 
 <<widget "eventsschoolhallways">>
-	<<rng>> /* Used by $bullytimer and $kylar.timer.halls to regulate LI event frequency */
+	<<rng>> /* Used by $bullytimer and $kylar.school.hallwayEventChance to regulate LI event frequency */
 
 	<<if $halloween is 1 and !$halloween_lake>>
 		<<halloween_lake_invite>>
@@ -266,7 +266,7 @@
 		/* Runs Whitney's intro, via its old implementation in <<schoolbully>> */
 		<<set $bullytimer to 0>>
 		<<schoolbully>>
-	<<elseif Time.days gte 7 and C.npc.Kylar.init isnot 1 and $kylarignored isnot 1>>
+	<<elseif Time.days gte 7 and C.npc.Kylar.init isnot 1 and !Memories.Kylar.has("pcIgnoredBeingBullied")>>
 		<<npc Kylar>><<generatey2>><<generatey3>><span class="purple">Someone's bag lands in front of you.</span> It spills its contents, scattering pens and books across the floor. You turn the corner and see its owner, a <<nnpc_gendery "Kylar">> held aloft by <<person1>><<his>> collar and pushed against a locker.
 		<br><br>
 		The <<personSimple>> kicks at the <<person2>><<person>> holding <<person1>><<him>> up, but the <<person2>><<person>> just laughs. "That your best?" <<person2>><<he>> says. <<He>> grasps <<his>> victim's unkempt dark hair with <<his>> free hand. "Lucky you. Hurting me would be stupid."
@@ -278,9 +278,9 @@
 		<br>
 		<<link [[Watch but make sure <<person1>><<hes>> okay after|Kylar Intro Help]]>><<npcset Kylar state "active">><<npcincr Kylar love 1>><</link>><<glove>>
 		<br>
-		<<link [[Ignore|Kylar Intro Ignore]]>><<set $kylarignored to 1>><</link>>
+		<<link [[Ignore|Kylar Intro Ignore]]>><<run Memories.Kylar.add("pcIgnoredBeingBullied")>><</link>>
 		<br>
-	<<elseif Time.days gte 14 and $kylarignored is 1 and C.npc.Kylar.state isnot "active" and C.npc.Kylar.state isnot "prison">>
+	<<elseif Time.days gte 14 and Memories.Kylar.has("pcIgnoredBeingBullied") and C.npc.Kylar.state isnot "active" and C.npc.Kylar.state isnot "prison">>
 		<<npcset Kylar state "active">>
 		<<npc Kylar>><<person1>>You round a corner and bump into a dark-haired <<personSimple>>. <<He>> scowls and looks up at you, but then <<his>> face softens and <<his>> mouth gapes.
 		<br><br>
@@ -313,9 +313,9 @@
 		<</if>>
 
 		<<set _kylarLocation to getKylarLocation()>>
-		<<if C.npc.Kylar.state is "active" and $kylar.timer.halls gte $rng and _kylarLocation.area isnot "english">>
+		<<if C.npc.Kylar.state is "active" and $kylar.school.hallwayEventChance gte $rng and _kylarLocation.area isnot "english">>
 			<<addinlineevent "kylar_hallways" 50>>
-				<<set $kylar.timer.halls to 0>>
+				<<set $kylar.school.hallwayEventChance to 0>>
 				<<kylarhallways>>
 			<</addinlineevent>>
 		<</if>>
@@ -3424,7 +3424,7 @@
 <<widget "kylarhallways">>
 	<<run statusCheck("Kylar")>>
 	<<rng>>
-	<<if $kylarReunionScene isnot undefined>>
+	<<if $kylar.searchingForPc>>
 		<<kylarReunionScene>>
 	<<elseif _kylarStatus?.includes("Love")>>
 		<<if $rng gte 61>>
@@ -3462,7 +3462,7 @@
 			<br>
 			<<link [[Walk away|Kylar Walk 2]]>><<npcincr Kylar love -1>><<npcincr Kylar rage 1>><</link>><<llove>><<gksuspicion>>
 			<br>
-			<<if $syndromekylar gte 1>>
+			<<if $kylar.stockholm>>
 				<<link [[Seize Kylar and kiss|Kylar Kiss]]>><<npcincr Kylar love 10>><<npcincr Kylar rage -10>><<status -20>><</link>><<kissvirginitywarning>><<lllcool>><<ggglove>>
 				<br>
 			<</if>>
@@ -3894,7 +3894,7 @@
 <</widget>>
 
 <<widget "kylarReunionScene">>
-	<<unset $kylarReunionScene>><<npc Kylar>>
+	<<unset $kylar.searchingForPc>><<npc Kylar>>
 	You come across a small, hooded figure desperately handing out flyers to anyone who will take one, sometimes shoving it directly in their face.
 	<br><br>
 	"Have you seen my <<girlfriend>>? Have you seen my <<girlfriend>>?" It's Kylar. <<He>> begs for answers, on the verge of tears. The passers-by with enough interest to read the flyer look shocked, but a select few light up with lusty grins and pocket it for themselves.

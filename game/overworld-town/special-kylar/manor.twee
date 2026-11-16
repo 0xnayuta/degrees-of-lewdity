@@ -4,8 +4,8 @@
 You are in the front garden of Kylar's manor. Choking weeds and thorny bushes surround the grass.
 <br><br>
 
-<<if $daily.manorGarden is undefined and $kylar_parents_trust lt 100>>
-	<<choreicon "trim">><<link [[Trim the hedges (1:00)|Manor Garden Trim]]>><<kylar_parents_trust 1>><<set $daily.manorGarden to 1>><<pass 60>><</link>><<tendingdifficulty 1 1000>><<gtrust>>
+<<if !$daily.kylar.pcTrimmedManorHedges and $kylar.parentsTrust lt 100>>
+	<<choreicon "trim">><<link [[Trim the hedges (1:00)|Manor Garden Trim]]>><<kylar_parents_trust 1>><<set $daily.kylar.pcTrimmedManorHedges to true>><<pass 60>><</link>><<tendingdifficulty 1 1000>><<gtrust>>
 	<br><br>
 <</if>>
 
@@ -18,7 +18,7 @@ You are in the front garden of Kylar's manor. Choking weeds and thorny bushes su
 
 :: Manor Hall
 <<set $outside to 0>><<location "kylarmanor">><<effects>>
-<<set _state to ($kylar_parents_trust < 100) ? "pot_messy" : "pot">>
+<<set _state to ($kylar.parentsTrust < 100) ? "pot_messy" : "pot">>
 
 You are in the front hall of Kylar's manor. A chemical scent lingers in the air. You hear a disturbing noise upstairs.
 <br><br>
@@ -42,13 +42,13 @@ You are in the front hall of Kylar's manor. A chemical scent lingers in the air.
 Kylar's parents' room looks like the master bedroom. The four-poster bed is untouched, but the rest of the furniture has been torn to pieces. Splinters and old fabric litter the carpet. You hear breathing beneath the bed.
 <br><br>
 
-<<if $daily.manorParents is undefined and $kylar_parents_trust lt 100>>
-	<<socialiseicon>><<link [[Soothe Kylar's parents (1:00)|Manor Parents Room Soothe]]>><<set $daily.manorParents to 1>><<kylar_parents_trust 1>><<stress 6>><<pass 60>><</link>><<gstress>><<gtrust>>
+<<if !$daily.kylar.pcSoothedParents and $kylar.parentsTrust lt 100>>
+	<<socialiseicon>><<link [[Soothe Kylar's parents (1:00)|Manor Parents Room Soothe]]>><<set $daily.kylar.pcSoothedParents to true>><<kylar_parents_trust 1>><<stress 6>><<pass 60>><</link>><<gstress>><<gtrust>>
 	<br><br>
 <</if>>
 /*
-<<if $kylar_altar_research and $kylar_altar_research.includes("tape") and !$kylar_altar_research.includes("pages")>>
-	<<link [[Show Kylar's parents the pages you found at the temple (0:10)|Manor Pages Room]]>><<set $kylar_altar_research.pushUnique("pages")>><<pass 10>><</link>>
+<<if $kylar.altar.researchDone and $kylar.altar.researchDone.includes("tape") and !$kylar.altar.researchDone.includes("pages")>>
+	<<link [[Show Kylar's parents the pages you found at the temple (0:10)|Manor Pages Room]]>><<set $kylar.altar.researchDone.pushUnique("pages")>><<pass 10>><</link>>
 	<br>
 <</if>>
  */
@@ -61,8 +61,8 @@ Kylar's parents' room looks like the master bedroom. The four-poster bed is unto
 You are in the lab in Kylar's manor. A peppery chemical smell fills the air.
 <br><br>
 
-<<if $daily.manorLab is undefined and $kylar_parents_trust lt 100>>
-	<<choreicon "wash">><<link [[Clean (1:00)|Manor Lab Clean]]>><<set $daily.manorLab to 1>><<kylar_parents_trust 1>><<pass 60>><</link>><<skill_difficulty `currentSkillValue("science")` "Science" 1 1000>><<gtrust>>
+<<if !$daily.kylar.pcCleanedManorLab and $kylar.parentsTrust lt 100>>
+	<<choreicon "wash">><<link [[Clean (1:00)|Manor Lab Clean]]>><<set $daily.kylar.pcCleanedManorLab to true>><<run Memories.Kylar.add("pcCleanedManorLab")>><<kylar_parents_trust 1>><<pass 60>><</link>><<skill_difficulty `currentSkillValue("science")` "Science" 1 1000>><<gtrust>>
 	<br><br>
 <</if>>
 
@@ -76,8 +76,8 @@ You are in the kitchen in Kylar's manor.
 
 <br><br>
 
-<<if $daily.manorKitchen isnot 1 and $kylar_parents_trust lt 100>>
-	<<choreicon "wash">><<link [[Clean (1:00)|Manor Kitchen Clean]]>><<set $daily.manorKitchen to 1>><<kylar_parents_trust 1>><<pass 60>><</link>><<gtrust>>
+<<if !$daily.kylar.pcCleanedManorKitchen and $kylar.parentsTrust lt 100>>
+	<<choreicon "wash">><<link [[Clean (1:00)|Manor Kitchen Clean]]>><<set $daily.kylar.pcCleanedManorKitchen to true>><<kylar_parents_trust 1>><<pass 60>><</link>><<gtrust>>
 	<br>
 <</if>>
 
@@ -88,16 +88,16 @@ You are in the kitchen in Kylar's manor.
 
 :: Manor Grounds
 <<set $outside to 1>><<location "kylarmanor_grounds">><<effects>>
-<<set _state to ($kylar_parents_trust >= 100) ? "kylar" : "overgrown">>
+<<set _state to ($kylar.parentsTrust >= 100) ? "kylar" : "overgrown">>
 
 You are in the grounds behind Kylar's manor, an elevated patch of woodland full of curious mushrooms.
 <br><br>
 
-<<if $daily.manorForage is undefined>>
+<<if !$daily.kylar.pcPickedManorMushrooms>>
 	<<if pcAreArmsBound("both")>>
 		<span class="red">Both of your arms are bound</span>, so you are unable to pick mushrooms.
 	<<else>>
-		<<foodstufficon "ghostshroom">> <<link [[Pick mushrooms (1:00)|Manor Forage]]>><<set $daily.manorForage to 1>><<pass 60>><</link>><<tendingdifficulty 1 500>>
+		<<foodstufficon "ghostshroom">> <<link [[Pick mushrooms (1:00)|Manor Forage]]>><<set $daily.kylar.pcPickedManorMushrooms to true>><<pass 60>><</link>><<tendingdifficulty 1 500>>
 	<</if>>
 	<br>
 <</if>>
@@ -154,7 +154,7 @@ You are in Kylar's bedroom. A perpetually active computer sits on the far side, 
 <br><br>
 
 <<set _kylar to statusCheck("Kylar")>>
-<<if $kylar_altar_research and $kylar_altar_research.includes("temple") and !$kylar_altar_research.includes("tape")>>
+<<if $kylar.altar.researchDone and $kylar.altar.researchDone.includes("temple") and !$kylar.altar.researchDone.includes("tape")>>
 	<<if _kylar.state isnot "prison" and (Time.hour gte 18 or Time.hour lte 6)>>
 		There's a video player attached to Kylar's computer via arcane means. It could play the tape you found at the temple.
 		<br><br>
@@ -177,18 +177,18 @@ You are in Kylar's bedroom. A perpetually active computer sits on the far side, 
 		<br><br>
 	<</if>>
 
-	<<if $kylar_sleep_abduction is undefined>>
-		<<bedicon "kylar">><<link [[Sleep|Manor Sleep Abduction]]>><<set $kylar_sleep_abduction to 1>><</link>>
+	<<if !Memories.Kylar.has("pcSleptAtManor")>>
+		<<bedicon "kylar">><<link [[Sleep|Manor Sleep Abduction]]>><<run Memories.Kylar.add("pcSleptAtManor")>><</link>>
 		<br>
 	<</if>>
 <</if>>
 
-<<if _kylar.state isnot "prison" and $kylar_altar_research and $kylar_altar_research.includes("temple") and !$kylar_altar_research.includes("tape")>>
+<<if _kylar.state isnot "prison" and $kylar.altar.researchDone and $kylar.altar.researchDone.includes("temple") and !$kylar.altar.researchDone.includes("tape")>>
 	<<if Time.hour lte 6>>
-		<<ind>><<link [[Ask Kylar to play the video tape you found in the temple (0:30)|Manor Tape Wake]]>><<pass 30>><<set $kylar_altar_research.pushUnique("tape")>><</link>>
+		<<ind>><<link [[Ask Kylar to play the video tape you found in the temple (0:30)|Manor Tape Wake]]>><<pass 30>><<set $kylar.altar.researchDone.pushUnique("tape")>><</link>>
 		<br>
 	<<elseif Time.hour gte 18>>
-		<<ind>><<link [[Ask Kylar to play the video tape you found in the temple (0:30)|Manor Tape Ask]]>><<pass 30>><<set $kylar_altar_research.pushUnique("tape")>><</link>>
+		<<ind>><<link [[Ask Kylar to play the video tape you found in the temple (0:30)|Manor Tape Ask]]>><<pass 30>><<set $kylar.altar.researchDone.pushUnique("tape")>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -823,20 +823,20 @@ You use a pair of shears to trim the near-wild hedge growing around the garden.
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 80>>
+<<if $kylar.parentsTrust gte 80>>
 	You think you see movement in your periphery, as if an arm were reaching from the hedge and helping you cut the barbs. But when you turn, nothing's there.
-<<elseif $kylar_parents_trust gte 60>>
+<<elseif $kylar.parentsTrust gte 60>>
 	Your heart skips a beat at the sight of pale eyes, half-visible through the branches. Or did you imagine them?
-<<elseif $kylar_parents_trust gte 40>>
+<<elseif $kylar.parentsTrust gte 40>>
 	You catch snippets of a song, half-heard on the wind.
-<<elseif $kylar_parents_trust gte 20>>
+<<elseif $kylar.parentsTrust gte 20>>
 	You think you hear something behind you. It might just be the wind.
 <<else>>
 	You shiver, and see a figure watching from the manor through a window on the second storey.<<gstress>><<stress 6>>
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 100>>
+<<if $kylar.parentsTrust gte 100>>
 	<span class="green">The manor is much more tidy than when you arrived. You should visit Kylar in <<nnpc_his "Kylar">> room.</span>
 	<br><br>
 <</if>>
@@ -868,20 +868,20 @@ You grab a bottle of rubbing alcohol, and get to work. You start with the exteri
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 80>>
+<<if $kylar.parentsTrust gte 80>>
 	The lab is much cleaner than when you arrived. This should help Kylar.
-<<elseif $kylar_parents_trust gte 60>>
+<<elseif $kylar.parentsTrust gte 60>>
 	You wipe down the walls. They're caked in a flakey orange substance, a black tar-like substance, and worse.
-<<elseif $kylar_parents_trust gte 40>>
+<<elseif $kylar.parentsTrust gte 40>>
 	You scoop a chemical sludge out of a copper alembic. The alembic itself looks like an antique, but it's too heavy to move.
-<<elseif $kylar_parents_trust gte 20>>
+<<elseif $kylar.parentsTrust gte 20>>
 	You clear some of the paper scattered on the ground, storing the sheets in a cupboard. They detail complex chemical formulae. You're not sure if they're still useful to anyone.
 <<else>>
 	You clear some of the paper scattered on the ground. They're covered in thick blood-red chemical stains. You hope they're chemical stains, at least.<<gstress>><<stress 6>>
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 100>>
+<<if $kylar.parentsTrust gte 100>>
 	<span class="green">The manor is much more tidy than when you arrived. You should visit Kylar in <<nnpc_his "Kylar">> room.</span>
 	<br><br>
 <</if>>
@@ -895,16 +895,16 @@ You grab a bottle of rubbing alcohol, and get to work. You start with the exteri
 
 Kylar isn't great at cleaning up after <<nnpc_himself "Kylar">>.
 
-<<if $kylar_parents_trust gte 80>>
+<<if $kylar.parentsTrust gte 80>>
 	<<wearProp "broom">>
 	You clean the wooden floor, though you fear you'll have to live with some of these stains.
-<<elseif $kylar_parents_trust gte 60>>
+<<elseif $kylar.parentsTrust gte 60>>
 	<<wearProp "sponge">>
 	You wipe down the counters with a sponge, removing all sorts of gunk.
-<<elseif $kylar_parents_trust gte 40>>
+<<elseif $kylar.parentsTrust gte 40>>
 	<<wearProp "sponge">>
 	You work on the mountain of unwashed dishes teetering on the counter. At least the taps work.
-<<elseif $kylar_parents_trust gte 20>>
+<<elseif $kylar.parentsTrust gte 20>>
 	<<wearProp "feather duster">>
 	You check the cupboards for expired food. There's a lot. You dust the empty shelves.
 <<else>>
@@ -913,7 +913,7 @@ Kylar isn't great at cleaning up after <<nnpc_himself "Kylar">>.
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 100>>
+<<if $kylar.parentsTrust gte 100>>
 	<span class="green">The manor is much more tidy than when you arrived. You should visit Kylar in <<nnpc_his "Kylar">> room.</span>
 	<br><br>
 <</if>>
@@ -927,20 +927,20 @@ Kylar isn't great at cleaning up after <<nnpc_himself "Kylar">>.
 
 You're not sure if one, or both, are beneath the bed, but you sit atop it and talk about yourself. You're their <<nnpc_daughter "Kylar">>'s <<girlfriend>>, after all. They should get to know you.
 <br><br>
-<<if $kylar_parents_trust gte 80>>
+<<if $kylar.parentsTrust gte 80>>
 	A figure rises from beneath the bed, and a gaunt face greets you. It extends a handful of silver nails towards you, and strokes your skin. You don't dare move until it retreats into the dark.
-<<elseif $kylar_parents_trust gte 60>>
+<<elseif $kylar.parentsTrust gte 60>>
 	A hand extends from beneath the bed as you talk, and rests on the sheet beside you. You touch the cold silver, and colder flesh, before it withdraws.
-<<elseif $kylar_parents_trust gte 40>>
+<<elseif $kylar.parentsTrust gte 40>>
 	A head rises from beneath the bed. Pale eyes observe you a moment, before it disappears once more.
-<<elseif $kylar_parents_trust gte 20>>
+<<elseif $kylar.parentsTrust gte 20>>
 	There's no response, except a dismissive hiss.
 <<else>>
 	There's no response.
 <</if>>
 <br><br>
 
-<<if $kylar_parents_trust gte 100>>
+<<if $kylar.parentsTrust gte 100>>
 	<span class="green">The manor is much more tidy than when you arrived. You should visit Kylar in <<nnpc_his "Kylar">> room.</span>
 	<br><br>
 <</if>>
@@ -978,6 +978,7 @@ You walk to the manor together. Kylar gives you a hug before sitting at <<his>> 
 
 :: Manor Kylar Wallpaper
 <<effects>>
+<<run Memories.Kylar.add("pcAskedAboutWallpaper")>>
 
 You ask Kylar to tell you about <<his>> desktop wallpaper.
 <br><br>
