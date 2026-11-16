@@ -12,22 +12,21 @@ const PregnancyConstants = ConstantsLoader.init({
 	// outside (washable), imminent (washable), deep (inside, not washable)
 	depthWeight: { outside: 0.05, imminent: 0.15, deep: 1 },
 	// Fertility-booster doses past this stop counting.
-	// Cap for playerConceptionModifier's fertility-booster bonus.
 	fertilityMaxDoses: 4,
-	// PC conception chance modifiers, read in playerConceptionModifier.
+	// Conception chance multipliers for the PC (playerConceptionModifier) and carrier NPCs (npcConceptionModifier).
 	conceptionModifiers: {
 		contraceptiveMultiplier: 0.1, // conception multiplier after a single contraceptive dose
-		contraceptiveDosesToBlock: 2, // 2 pills = "overdose" and 100% effective
+		contraceptiveDosesToBlock: 2, // this many contraceptive doses block conception completely
 		fertilityMultiplierPerDose: 0.5, // each fertility booster dose adds this to the multiplier
 		pregnancyTattooMultiplier: 1.5, // magic pregnancy tattoo multiplier
-		earSlimeMultiplier: { pregnancy: 2, impregnation: 0.5 }, // ear slime multipliers
-		npcContraceptiveMultiplier: 0.1, // a carrier NPC on contraceptives, ~90% effective
+		earSlimeMultiplier: { pregnancy: 2, impregnation: 0.5, mixed: 1, none: 1 }, // ear slime multipliers, by its focus
+		npcContraceptiveMultiplier: 0.1, // a carrier NPC on contraceptives
 		npcFertilityMultiplier: 1.25, // a carrier NPC on fertility pills
 	},
 	// takeMorningAfterPill outcomes, as fractions of the implantation window
 	morningAfterPill: {
-		successFraction: 1 / 3, // caught within the first third of the window
-		aLittleLateFraction: 2 / 3, // beyond two thirds is too late
+		successFraction: 1 / 3, // taken before this: "success"
+		aLittleLateFraction: 2 / 3, // taken before this: "aLittleLate", after it: "late"
 	},
 
 	/* === MENSTRUAL/FERTILITY CYCLE === */
@@ -41,32 +40,22 @@ const PregnancyConstants = ConstantsLoader.init({
 		fertileLeadDaysMin: 5, // fertile from this many days before ovulation...
 		fertileLeadDaysMax: 7, // ...up to this many, rolled per cycle.
 		lutealTailDays: 2, // fertility fades away over this many days after the window closes
-		// How far the cycle moves each <<menstruationCycle>>. dayPassed and noonCheck each call it
-		// once, so the cycle moves one day per real day.
-		cycleDaysPerTick: 0.5,
 		// The day a new cycle starts on. menstrualNextWindowIn reads it too, to project the next cycle.
 		cycleRestartDay: 0.5,
-		// How many <<menstruationCycle>> ticks a real day holds: dayPassed and noonCheck, one each.
+		// <<menstruationCycle>> ticks per game day, one from dayPassed and one from noonCheck.
+		// Each tick moves the cycle by 1 / cycleTicksPerDay, so the cycle moves one day per game day.
 		cycleTicksPerDay: 2,
 		baselineFertility: 0.01, // baseline fertility so pregnancy chance is never 0
-		// How much each fertility booster dose raises the lowest fertility any day can have, up to
-		// fertilityMaxDoses. This is what lets a dose work on the least fertile days, while
-		// conceptionModifiers.fertilityMultiplierPerDose strengthens the fertile ones.
-		// The pill menu allows 0, 1 or 2 doses, and 2 counts as an overdose (traits.twee). At 0.3,
-		// one dose on the least fertile day reads "safe" and an overdose reads "risky", so a single
-		// dose visibly does something.
+		// How much each fertility booster dose raises the lowest fertility any day can have, up to fertilityMaxDoses.
 		fertilityFloorPerDose: 0.3,
-		riskyFertility: 0.375, // what fertility counts as "risky"
 		postOvulationDays: 1, // NPC fertile window stays this many days past cycleDangerousDay
-		// playerHeatMinArousal's two tiers. They read the day's fertility, not the meter label, so
-		// changing the meter's bands doesn't change heat.
+		// Cycle fertility at which playerHeatMinArousal's partial and full heat start.
 		heatFertility: { partial: 0.625, full: 0.875 },
 	},
 
 	/* === GESTATION / SYMPTOMS / DETECTION === */
-	// Adds variance to a pregnancy's gestation time
 	gestation: {
-		variancePercent: 10,
+		variancePercent: 10, // a pregnancy's gestation is up to this percent shorter or longer, rolled per pregnancy
 	},
 	// NPC pregnancy timing (npcPregnancyCycle)
 	npcGestation: {
@@ -76,13 +65,12 @@ const PregnancyConstants = ConstantsLoader.init({
 	// advancePregnancy morning-sickness windows, as gestation fractions
 	morningSickness: {
 		earlyStart: 0.15, // light early nausea from here...
-		earlyEnd: 0.25, // ...to here
-		mainStart: 0.25, // main nausea from here...
+		mainStart: 0.25, // ...to here, then main nausea...
 		mainEnd: 0.45, // ...to here
 	},
 	// Pregnancy belly (playerBellySize / npcBellySize)
 	belly: {
-		maxSize: 24, // the belly sprite has 24 frames, so bellySize is capped here
+		maxSize: 24, // largest belly size
 		showFraction: 0.15, // belly stays hidden until this far into gestation, then ramps to term size
 		termBase: 21, // term size is this plus the litter count, capped at maxSize
 		// playerBellyVisible/npcBellyVisible size thresholds:
@@ -92,15 +80,8 @@ const PregnancyConstants = ConstantsLoader.init({
 		visibility: { bareMin: 8, clothedMin: 13, hiddenMin: 18 },
 	},
 	// The character screen's fertility meter. playerPregnancyRisk() picks the first label whose upTo
-	// menstrualExposure() is at or under. menstrualFertileDates() uses the same function and bounds
-	// for its dates, so the dates always match the label.
-	//
-	// upTo is a menstrualExposure() value from 0 to 1. It leaves out the base pregnancy chance
-	// setting, which would push every day to one end of the meter. Exposure stays proportional to the
-	// real odds whatever that setting is (within 3% across the whole cycle), so the bands still mean
-	// something.
-	//
-	// Tuned so a 30-day cycle spends 17/3/2/3/5 days in the five bands.
+	// today's menstrualExposure() is at or under, and menstrualFertileDates() uses the same bounds for
+	// its dates. upTo is an exposure value from 0 to 1.
 	riskMeterLabels: [
 		{ text: "very safe", colour: "green", upTo: 0.05 },
 		{ text: "safe", colour: "teal", upTo: 0.15 },
@@ -119,7 +100,7 @@ const PregnancyConstants = ConstantsLoader.init({
 	/* === CHILD GENERATION === */
 	// Litter sizes and per-child trait rolls.
 	childGen: {
-		// litter-size distribution; triplets kept rare, a Feat depends on it
+		// [litter size, weight]
 		humanLitterWeights: [
 			[1, 900],
 			[2, 90],
@@ -142,8 +123,8 @@ const PregnancyConstants = ConstantsLoader.init({
 			[3, 4], // 40%
 			[4, 1], // 10%
 		],
-		childSizeSameMax: 50,
-		childSizeSmallerMax: 75,
+		childSizeSameMax: 50, // rollChildSize's 1-100 roll at or under this: the carrier's size
+		childSizeSmallerMax: 75, // at or under this: one size smaller, above it: one size larger
 	},
 	// Child appearance gene pools
 	genePool: {
@@ -174,7 +155,7 @@ const PregnancyConstants = ConstantsLoader.init({
 	birdNestTime: 604800, // 7 days
 	// Egg pregnancies hatch up to this much later (in seconds), rolled per clutch when the record is created.
 	birdHatchDelay: 259200, // 3 days
-	// layCare can shave at most this fraction of the gestation length off the lay.
+	// layCare can take at most this fraction of the gestation length off the lay.
 	maxLayCareFraction: 0.5,
 });
 window.PregnancyConstants = PregnancyConstants;

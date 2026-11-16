@@ -26,7 +26,7 @@ function parasiteProgressDay(orifice = "anus") {
 			if (parasite.stats.gender === "Hermaphrodite" && parasite.daysLeft <= 3) {
 				if (parasite.stats.lastEgg > 0) {
 					parasite.stats.lastEgg--;
-				} else if (V.sexStats[orifice].pregnancy.fetus.length < maxParasites(orifice)) {
+				} else if (pregnancy.fetus.length < maxParasites(orifice)) {
 					impregnate = clone(parasite);
 				}
 			}
@@ -55,7 +55,7 @@ function parasiteProgressTime(pass, orifice = "anus") {
 					}
 					const eventCount = V.daily.parasiteEvent.length;
 					if (parasite.stats.gender === "Hermaphrodite" && parasite.daysLeft <= 3) {
-						if ((parasite.daysLeft <= 3 && random(0, 100) < 20) || (parasite.daysLeft === 0 && random(0, 100) < 50)) {
+						if (random(0, 100) < 20 || (parasite.daysLeft === 0 && random(0, 100) < 50)) {
 							V.daily.parasiteEvent.pushUnique(orifice + 0);
 							if (V.pregnancyStats.parasiteDoctorEvents === 2) V.pregnancyStats.parasiteDoctorEvents = 3;
 						} else if (parasite.daysLeft === 0 || random(0, 100) < 60) {
@@ -93,12 +93,15 @@ function parasiteProgressTime(pass, orifice = "anus") {
  * @returns {boolean} whether one took
  */
 function impregnateParasite(parasiteType, chance, orifice = "anus", hermParasite) {
+	// Tentacle combat calls this once per tentacle and reads _impregnatedParasite after each call.
+	T.impregnatedParasite = undefined;
 	if (V.settings.parasitePregnancyEnabled === false || !parasiteType || (!V.player.vaginaExist && orifice === "vagina")) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken && !hermParasite) return false;
 
 	const pregnancy = V.sexStats[orifice].pregnancy;
 
 	if (pregnancy.fetus.length >= maxParasites(orifice) || (pregnancy.type !== null && pregnancy.type !== "parasite")) return false;
+	if (getActivePregnancy("pc", orifice)) return false;
 
 	const rngCheck = chance === true || random(0, 100) <= 1 + chance / (pregnancy.fetus.length + 1);
 
@@ -120,19 +123,12 @@ function impregnateParasite(parasiteType, chance, orifice = "anus", hermParasite
 				break;
 		}
 
-		const newPregnancy = generateParasitePregnancy({
-			parasiteType,
-			orifice,
-			hermParasite,
-		});
-		if (newPregnancy && typeof newPregnancy !== "string") {
-			V.sexStats[orifice].pregnancy = {
-				...pregnancy,
-				...newPregnancy,
-			};
-			if (!hermParasite) T.impreg = true;
-			return true;
-		}
+		V.sexStats[orifice].pregnancy = {
+			...pregnancy,
+			...generateParasitePregnancy({ parasiteType, orifice, hermParasite }),
+		};
+		if (!hermParasite) T.impreg = true;
+		return true;
 	}
 	return false;
 }
@@ -187,39 +183,16 @@ function canImpregnateParasite(orifice = "anus") {
 window.canImpregnateParasite = canImpregnateParasite;
 
 /**
- * Checks if pc can host a pregnancy in this orifice and returns the parasite pregnancy object
- * ($sexStats[orifice].pregnancy) to add to or an error string when something blocks it.
- *
- * @param {string} parasiteType the parasite to add
- * @param {"anus"|"vagina"} orifice the orifice it targets
- * @returns {object|string} the pregnancy object to add to, or an error string when blocked
- */
-function parasitePrep(parasiteType, orifice) {
-	if (!["anus", "vagina"].includes(orifice)) return `Invalid orifice '${orifice}' set`;
-	if (orifice === "vagina" && !V.player.vaginaExist) return "Player doesn't have a vagina for pregnancy";
-
-	const pregnancy = V.sexStats[orifice].pregnancy;
-	// An active pregnancy, or a non-parasite occupant, blocks the orifice.
-	if (getActivePregnancy("pc", orifice) || (pregnancy.type !== "parasite" && pregnancy.fetus.length)) {
-		return "Player currently pregnant and cannot support other types";
-	}
-	if (pregnancy.fetus.length >= maxParasites(orifice)) return "Player does not have room for more parasites";
-
-	return pregnancy;
-}
-
-/**
  * Builds the replacement parasite pregnancy state for an orifice.
  *
  * @param {object} opts
  * @param {string} opts.parasiteType the parasite to add
  * @param {object|null} [opts.hermParasite] the parent parasite when a herm parasite seeds a new one
  * @param {"anus"|"vagina"} [opts.orifice] the orifice it targets
- * @returns {object|string} the new pregnancy fields to merge in, or an error string when blocked
+ * @returns {object} the new pregnancy fields to merge in. impregnateParasite checks there is room first
  */
 function generateParasitePregnancy({ parasiteType, hermParasite = null, orifice = "anus" }) {
-	const pregnancy = parasitePrep(parasiteType, orifice);
-	if (typeof pregnancy === "string") return pregnancy;
+	const pregnancy = V.sexStats[orifice].pregnancy;
 
 	/*
 		creature: the type of creature it is. "Lurker", "Slime", "Pale Tentacle", etc

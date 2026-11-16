@@ -3,7 +3,7 @@
 // Story scenes call <<sceneInseminate>> and provide the details themselves.
 // Cum inside an NPC is one <<npcPregnancyRoll>> on the spot, NPCs store no loads.
 
-// Which impregnable hole and landing depth each penis state means.
+// The orifice and landing depth for each penis state.
 // The names come from the $NPCList[n].penis states during combat/sex.
 // States not listed here (mouth, thighs, etc.) leave nothing behind.
 const depthFromPenisState = {
@@ -22,7 +22,7 @@ const depthFromPenisState = {
 	cheeks: ["anus", "outside"],
 };
 
-// The generated NPC types with birth content.
+// A generated NPC can only get pregnant as one of these species.
 const randomCarrierTypes = ["human", "wolf", "wolfboy", "wolfgirl"];
 
 /**
@@ -34,7 +34,7 @@ const randomCarrierTypes = ["human", "wolf", "wolfboy", "wolfgirl"];
  * @param {0|1|2|3|4|5} slot which $NPCList slot climaxed
  * @param {boolean} [beast=false] pass true from the beast widget to keep the beast's species
  * @param {number} [knotBoost=0] percent added to the load's potency, from the beast widget's knot
- * @returns {Load|null} the stored load. null = nothing was stored
+ * @returns {Load|null} the load, which is only stored in realistic mode. null when nothing landed or it can't get the PC pregnant
  */
 function combatInseminate(slot, beast = false, knotBoost = 0) {
 	const npc = V.NPCList[slot];
@@ -46,7 +46,7 @@ function combatInseminate(slot, beast = false, knotBoost = 0) {
 	if (condomState(slot) === "worn") return null;
 	if (playerChastity(orifice)) return null;
 	const donorSpecies = !beast && V.enemytype === "man" ? "human" : npc.type;
-	// canPlayerConceive treats an unlisted species as a bug and throws
+	// canPlayerConceive throws on a species it doesn't know
 	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null;
 
 	// A knot makes the load more potent. A size 1 penis dribbles at half potency.
@@ -54,17 +54,15 @@ function combatInseminate(slot, beast = false, knotBoost = 0) {
 	if (knotBoost) potency = 1 + knotBoost / 100;
 	else if (npc.penissize === 1) potency = 0.5;
 
-	const load = inseminate(orifice, npc.fullDescription, donorSpecies, depth, V.location, potency, null);
-	if (load) {
-		const carrierAction = orifice === "vagina" ? V.vaginaaction : V.anusaction;
-		instantConception(orifice, load, carrierAction === "forceImpregnation");
-	}
+	const forced = (orifice === "vagina" ? V.vaginaaction : V.anusaction) === "forceImpregnation";
+	const load = inseminate(orifice, npc.fullDescription, donorSpecies, depth, V.location, potency, null, forced);
+	if (load) instantConception(orifice, load, forced);
 	return load;
 }
 window.combatInseminate = combatInseminate;
 
 /**
- * Conceive from a load right now. Creates the PC's pregnancy and displays the fetish mode banner.
+ * Creates the PC's pregnancy from a load right now.
  * Shared by the Force Impregnation action and the fetish pregnancy roll.
  *
  * @param {"vagina"|"anus"} orifice
@@ -89,13 +87,14 @@ function conceiveNow(orifice, load) {
 }
 
 /**
- * Instant conception when a load lands. Demon PC's Force Impregnation action
- * conceives on the spot in every pregnancy mode. Fetish mode rolls the load's
- * realistic-mode odds in the moment.
+ * Instant conception when a load lands, if it can. The Force Impregnation action conceives
+ * in every pregnancy mode, but only from a load that can't be washed away. Otherwise only fetish
+ * mode conceives here, from a roll. Nothing happens if the PC is already pregnant or the orifice
+ * has parasites.
  *
  * @param {"vagina"|"anus"} orifice
  * @param {Load} load the load that just landed
- * @param {boolean} [force=false] conceive unconditionally instead of the fetish-mode roll
+ * @param {boolean} [force=false] the Force Impregnation action, which skips the fetish-mode roll
  */
 function instantConception(orifice, load, force = false) {
 	const forced = force && !load.canWash;
@@ -108,7 +107,7 @@ function instantConception(orifice, load, force = false) {
 window.instantConception = instantConception;
 
 /**
- * Call this when a scene puts cum inside the player outside of combat.
+ * Call this when a scene puts cum inside the PC outside of combat.
  * Say who and where, the pregnancy system does the rest.
  *
  * For a creampie, `<<sceneInseminate "vagina" "Whitney" "human" "deep">>`
@@ -117,22 +116,22 @@ window.instantConception = instantConception;
  *
  * @param {"vagina"|"anus"} orifice vagina or anus
  * @param {string} donor who it came from: an NPC's name, or "pc"
- * @param {DonorSpecies} donorSpecies the donor's species
+ * @param {PregnancySpecies} donorSpecies the donor's species
  * @param {"outside"|"imminent"|"deep"} depth where it landed
  * @param {number} [quantity=1] how many loads. Optional (default = 1)
  * @param {number|null} [days] how long the loads last in days. Optional (default = 4 to 8 days)
- * @returns {Load|null} the last stored load. null = nothing was stored
+ * @returns {Load|null} the last load, which is only stored in realistic mode. null when the loads can't get the PC pregnant
  */
 function sceneInseminate(orifice, donor, donorSpecies, depth, quantity = 1, days = null) {
 	if (PregnancyConstants.depthWeight[depth] === undefined) throw new Error(`unknown depth "${depth}"`);
 	if (!donorSpecies) throw new Error(`no donor species given for "${donor}"`);
-	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // a quiet no for everyday non-impregnating species
+	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // species that can't impregnate return null without an error
 	let lifespan = null;
 	if (days !== null) lifespan = days * TimeConstants.secondsPerDay;
 	let stored = null;
 	for (let i = 0; i < quantity; i++) {
 		const load = inseminate(orifice, donor, donorSpecies, depth, V.location, 1, lifespan);
-		if (load === null) return null; // if the first load refuses, they all would
+		if (load === null) return null; // every load has the same details, so if one is refused they all are
 		stored = load;
 		instantConception(orifice, load);
 	}
@@ -141,11 +140,12 @@ function sceneInseminate(orifice, donor, donorSpecies, depth, quantity = 1, days
 window.sceneInseminate = sceneInseminate;
 
 /**
- * Whether a generated NPC's pregnancy is followed to term, filing them in $storedNPCs if so.
+ * Decides whether the game keeps track of a generated NPC's pregnancy, and files them in $storedNPCs if so.
+ * Only consensual sex is kept.
  *
  * @param {number} slot the carrier's $NPCList slot
  * @param {string} location where it happened
- * @returns {string|null} the key to record their pregnancy under, null when the game lets them walk away
+ * @returns {string|null} the key to record their pregnancy under. null when they are not kept
  */
 function rememberRandomCarrier(slot, location) {
 	if (V.consensual !== 1) return null;
@@ -158,7 +158,7 @@ function rememberRandomCarrier(slot, location) {
 /**
  * Call this when someone cums inside an NPC who could get pregnant from it.
  * One roll on the spot decides it, scaled by depth. NPCs store no loads, this roll is their whole conception.
- * An NPC with no pregnancy content written for them can only conceive when the player has turned unfinished content on.
+ * A named NPC missing from setup.pregnancy.canBePregnant can only conceive when the unfinished pregnancy content setting is on.
  *
  * For a creampie, `<<npcPregnancyRoll "Robin" "human" "pc" "human" "vagina">>`
  *
@@ -170,11 +170,11 @@ function rememberRandomCarrier(slot, location) {
  * @param {string} carrier the NPC who might get pregnant: a name, or a generated one like "lissome man"
  * @param {string} carrierSpecies what the carrier is, e.g. "human"
  * @param {string} donor who came inside them: an NPC's name, or "pc"
- * @param {DonorSpecies} donorSpecies the donor's species
+ * @param {PregnancySpecies} donorSpecies the donor's species
  * @param {"vagina"|"anus"} orifice where the cum went
  * @param {"outside"|"imminent"|"deep"} [depth="deep"] where it landed. Can be left out for a creampie, a spill scales the chance down
- * @param {string} [location] where it happened. Left out reads the player's location, pass one when the scene runs off-screen
- * @param {number} [donorFertility=1] extra multiplier on the conception chance from the donor's side (e.g. the pc's low-semen or earSlime state)
+ * @param {string} [location] where it happened. Defaults to $location, pass one when the scene runs off-screen
+ * @param {number} [donorFertility=1] extra multiplier on the conception chance from the donor's side (e.g. the PC's low-semen or earSlime state)
  * @param {number|null} [slot=null] the carrier's $NPCList slot. A generated NPC in a slot is filed in $storedNPCs
  * @param {boolean} [forced=false] the PC's Force Impregnation action, which skips the chance roll and the normal-impregnation toggle
  * @returns {number|null} the new pregnancyId. null = no conception, or a generated carrier the game does not follow
@@ -194,20 +194,18 @@ function npcPregnancyRoll(
 	const depthWeight = PregnancyConstants.depthWeight[depth];
 	if (depthWeight === undefined) throw new Error(`unknown depth "${depth}"`);
 	if (!donorSpecies) throw new Error(`no donor species given for "${donor}"`);
-	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // a quiet no for everyday non-impregnating species
+	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // species that can't impregnate return null without an error
 	const generated = slot !== null && !C.npc[carrier];
 	if (generated && (V.NPCList[slot].pregnancy || !randomCarrierTypes.includes(carrierSpecies))) return null;
-	if (getActivePregnancies(carrier).length) return null; // one pregnancy per body, as the player has
-	// Unfinished pregnancy content toggle
+	if (getActivePregnancies(carrier).length) return null; // one pregnancy at a time, same as the PC
+	// Unfinished pregnancy content setting
 	if (!V.settings.incompletePregnancyEnabled && C.npc[carrier] && !setup.pregnancy.canBePregnant.includes(carrier)) return null;
 	// Dream sex leaves nothing behind, so a nightmare counts as a disabled scene.
 	if (V.activeNightmare || impregnationDisabled(forced)) return null;
-	const infertile = setup.pregnancy.infertile.includes(carrier) || setup.pregnancy.infertile.includes(donor);
-	if (!canNpcConceive(orifice, carrier, infertile)) return null;
-	// GH bears eggs, BW bears pups
+	if (!canNpcConceive(orifice, carrier, donor)) return null;
+	// null when these two species can't have children together
 	const offspring = offspringSpecies(donorSpecies, carrierSpecies);
 	if (!offspring) return null;
-	// A forced impregnation skips the chance roll entirely.
 	if (
 		!forced &&
 		State.random() >=
@@ -215,7 +213,7 @@ function npcPregnancyRoll(
 	)
 		return null;
 
-	// Fetish mode only, and only when the player is the donor/the one impregnating
+	// Fetish mode only, when the PC is the donor
 	const playerImpregnated = donor === "pc" && V.settings.pregnancyType === "fetish";
 	if (playerImpregnated) T.pregnantNpc = carrier; // the fetishPregnancyImg widget prints the banner from this
 	let recorded = carrier;

@@ -7,7 +7,7 @@ const CLEARED_PREGNANCY = "cleared";
 /**
  * Adds a new pregnancy record and returns its id.
  *
- * @param {object} fields the record's fields. Optional ones left out take their default
+ * @param {Pregnancy} fields the record's fields. Optional ones left out take their default
  * @returns {number} the new pregnancyId (also stored on the record itself)
  */
 function pushPregnancyRecord(fields) {
@@ -31,8 +31,6 @@ function pushPregnancyRecord(fields) {
 		talkedAbout: fields.talkedAbout ?? {},
 		playerLearnedFrom: fields.playerLearnedFrom ?? null,
 	};
-	// egg pregnancies get hatchDelay + layCare
-	// labouring pregnancies get waterBreaking
 	if (fields.hatchDelay !== undefined) record.hatchDelay = fields.hatchDelay;
 	if (fields.layCare !== undefined) record.layCare = fields.layCare;
 	if (fields.waterBreaking !== undefined) record.waterBreaking = fields.waterBreaking;
@@ -44,7 +42,7 @@ window.pushPregnancyRecord = pushPregnancyRecord;
 /**
  * Same as pushPregnancyRecord, for child records.
  *
- * @param {object} fields the record's fields. Optional ones left out take their default
+ * @param {Child} fields the record's fields. Optional ones left out take their default
  * @returns {number} the new childId (also stored on the record itself)
  */
 function pushChildRecord(fields) {
@@ -59,7 +57,7 @@ function pushChildRecord(fields) {
 		development: fields.development ?? {},
 		bornDate: fields.bornDate ?? null,
 		name: fields.name ?? null,
-		coParents: fields.coParents ?? [], // reserved for adoption
+		coParents: fields.coParents ?? [], // TODO: nothing reads this yet, it is meant for adoption
 		awareOfChild: fields.awareOfChild ?? [],
 		awareOfGender: fields.awareOfGender ?? [],
 	});
@@ -71,20 +69,21 @@ window.pushChildRecord = pushChildRecord;
  * Makes a pregnancy record once conception has already happened, generates its children, and
  * returns the new pregnancyId.
  *
- * @param {string} carrier who's carrying: "pc" for the player, or an NPC's name
- * @param {string} carrierSpecies the carrier's base species, e.g. "human" for the player, the NPC's species otherwise
+ * @param {string} carrier who's carrying: "pc" for the PC, or an NPC's name
+ * @param {string} carrierSpecies the carrier's base species, e.g. "human" for the PC, the NPC's species otherwise
  * @param {string} donor the other genetic parent: "pc", an NPC's name, or a placeholder like "lissome man" if unknown
- * @param {DonorSpecies} donorSpecies the donor's species, what the pregnancy grows as
+ * @param {PregnancySpecies} donorSpecies the species the litter grows as. For a PC carrier this is the donor's
+ *   species. NPC carriers pass the offspring species from offspringSpecies.
  * @param {PossibleDonor[]} possibleDonors everyone who could be the donor, kept for the paternity checks later
  * @param {number} conceivedDate timestamp of the conception
  * @param {"vagina"|"anus"} orifice which orifice the pregnancy is in
  * @param {string} conceivedLocation where the conception happened
- * @param {number} [litterSize] how many children the pregnancy has, rolled randomly when left out
+ * @param {number} [litterSize] how many children the pregnancy has
  * @returns {number} the new pregnancyId
  */
 function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation, litterSize) {
-	// layCare brings laying time down and hatchDelay brings hatching time down.
-	// addEggCare feeds whichever stage the clutch is currently in.
+	// An egg clutch starts with no layCare and a random hatchDelay added to its hatch date.
+	// addEggCare changes whichever of the two applies to the clutch's current stage.
 	const isEggClutch = donorSpecies === "hawk" || donorSpecies === "harpy";
 	const hatchDelay = isEggClutch ? random(0, PregnancyConstants.birdHatchDelay) : undefined;
 	const layCare = isEggClutch ? 0 : undefined;
@@ -101,9 +100,10 @@ function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleD
 		layCare,
 		gestationVariance: 1 + random(-PregnancyConstants.gestation.variancePercent, PregnancyConstants.gestation.variancePercent) / 100,
 	});
+	if (litterSize === undefined && carrier === "pc" && isEggClutch && V.harpyEggs) litterSize = V.harpyEggs.count;
 	generateChildren(pregnancyId, litterSize);
-	// A PC pregnancy pauses the menstrual cycle and voids any pending conception in the other orifice,
-	// so a body only ever carries one real pregnancy at a time.
+	// A PC pregnancy pauses the menstrual cycle and clears both orifices' pending conceptions.
+	// Nothing here checks for an existing pregnancy, so playerPregnancy can give the PC a second one.
 	if (carrier === "pc") {
 		V.sexStats.vagina.menstruation.currentState = "pregnant";
 		V.pendingPregnancies = { vagina: null, anus: null };
@@ -131,7 +131,7 @@ window.createChild = createChild;
 /**
  * Gestation span for a species, in seconds. getDueDate adds it to the conception date.
  *
- * @param {ChildSpecies} species the child base species, e.g. "human", "wolf", "hawk"
+ * @param {PregnancySpecies} species a pregnancy's donorSpecies, reduced to its base species here
  * @returns {number} the full gestation length in seconds
  */
 function gestationSeconds(species) {
@@ -153,6 +153,7 @@ window.gestationSeconds = gestationSeconds;
  * When a pregnancy is due to deliver (the lay, for an egg species), per its gestation setting. Can be sped up by layCare.
  *
  * @param {Pregnancy} pregnancy its donorSpecies picks which gestation setting applies
+ * @returns {number} timestamp of the due date
  */
 function getDueDate(pregnancy) {
 	return pregnancy.conceivedDate + gestationSeconds(pregnancy.donorSpecies) * pregnancy.gestationVariance - (pregnancy.layCare ?? 0);
@@ -160,9 +161,10 @@ function getDueDate(pregnancy) {
 window.getDueDate = getDueDate;
 
 /**
- * When a laid clutch hatches. The lay date plus nest time, shifted by the clutch's hatchDelay.
+ * When a laid clutch hatches: the lay date plus nest time plus the clutch's hatchDelay.
  *
  * @param {Pregnancy} pregnancy must be an egg species (hawk/harpy) that has already been laid
+ * @returns {number} timestamp of the hatch
  */
 function getHatchDate(pregnancy) {
 	switch (pregnancy.donorSpecies) {
@@ -181,6 +183,7 @@ window.getHatchDate = getHatchDate;
  * The hatch clock that follows is getHatchDate.
  *
  * @param {Pregnancy} pregnancy any pregnancy, delivered or still active
+ * @returns {number} 0 to 1
  */
 function pregnancyProgress(pregnancy) {
 	const gestationSpan = getDueDate(pregnancy) - pregnancy.conceivedDate;
@@ -201,21 +204,23 @@ function daysAlong(pregnancy) {
 window.daysAlong = daysAlong;
 
 /**
- * The active, undelivered pregnancy a carrier has in an orifice. Both orifices can carry at once.
+ * The active, undelivered pregnancy a carrier has in an orifice.
  *
- * @param {string} carrier "pc" for the player, or an NPC's name
+ * @param {string} carrier "pc" for the PC, or an NPC's name
  * @param {"vagina"|"anus"} orifice which orifice to check
+ * @returns {Pregnancy|undefined} undefined when there is none
  */
 function getActivePregnancy(carrier, orifice) {
-	// initnpcgendersingle calls this before a new game initialises $pregnancies, as getActivePregnancies notes.
+	// <<initnpcgendersingle>> can call this before a new game sets $pregnancies.
 	return (V.pregnancies ?? []).find(p => p.carrier === carrier && p.orifice === orifice && p.deliveredDate === null);
 }
 window.getActivePregnancy = getActivePregnancy;
 
 /**
- * Every active (undelivered) pregnancy a carrier has. 0, 1, or 2, one per orifice.
+ * Every active (undelivered) pregnancy a carrier has.
  *
- * @param {string} carrier "pc" for the player, or an NPC's name
+ * @param {string} carrier "pc" for the PC, or an NPC's name
+ * @returns {Pregnancy[]}
  */
 function getActivePregnancies(carrier) {
 	// The character-creation settings screen calls this before a new game initialises $pregnancies.
@@ -224,9 +229,9 @@ function getActivePregnancies(carrier) {
 window.getActivePregnancies = getActivePregnancies;
 
 /**
- * The player's current pregnancy. Prioritizes vaginal over anal.
+ * The PC's current pregnancy. A vaginal one comes before an anal one.
  *
- * @returns {Pregnancy|undefined} undefined when the player isn't pregnant
+ * @returns {Pregnancy|undefined} undefined when the PC isn't pregnant
  */
 function getPlayerPregnancy() {
 	return getActivePregnancy("pc", "vagina") ?? getActivePregnancy("pc", "anus");
@@ -234,10 +239,10 @@ function getPlayerPregnancy() {
 window.getPlayerPregnancy = getPlayerPregnancy;
 
 /**
- * The carrier's pregnancy that's currently giving birth. The player can carry two at once
- * (a vaginal and an anal one), so this picks the one whose water broke, not just the first active.
+ * The carrier's pregnancy whose water broke, or else its first active pregnancy, which may not be
+ * in labour.
  *
- * @param {string} carrier "pc" for the player, or an NPC's name
+ * @param {string} carrier "pc" for the PC, or an NPC's name
  * @returns {Pregnancy|undefined} undefined when the carrier has nothing active
  */
 function getLabouringPregnancy(carrier) {
@@ -247,9 +252,9 @@ function getLabouringPregnancy(carrier) {
 window.getLabouringPregnancy = getLabouringPregnancy;
 
 /**
- * The litter being delivered.
+ * The children of the pregnancy getLabouringPregnancy picks.
  *
- * @param {string} carrier "pc" for the player, or an NPC's name
+ * @param {string} carrier "pc" for the PC, or an NPC's name
  * @returns {Child[]} empty when the carrier has no active pregnancy
  */
 function getLabouringLitter(carrier) {
@@ -259,8 +264,8 @@ function getLabouringLitter(carrier) {
 window.getLabouringLitter = getLabouringLitter;
 
 /**
- * The orifice of the player's labouring pregnancy, or a sensible default when they aren't labouring
- * (their vagina if they have one, otherwise anus). Used to place laid eggs on the right orifice.
+ * The orifice of the pregnancy getLabouringPregnancy picks for the PC. With no active pregnancy,
+ * the vagina if the PC has one, otherwise the anus. Used to place laid eggs on the right orifice.
  *
  * @returns {"vagina"|"anus"}
  */
@@ -271,7 +276,8 @@ function playerLabouringOrifice() {
 window.playerLabouringOrifice = playerLabouringOrifice;
 
 /**
- * Mark the player's labouring litter as born. The pregnancy is active until birthUi.
+ * Marks the litter of the pregnancy getLabouringPregnancy picks for the PC as born, and the birth as
+ * in progress. Does nothing when the PC has no active pregnancy. The pregnancy stays active until birthUi.
  */
 function setPlayerLitterBorn() {
 	const pregnancy = getLabouringPregnancy("pc");
@@ -297,8 +303,7 @@ window.recordDelivery = recordDelivery;
 
 /**
  * Marks a child as born (or hatched) now. The name is set beforehand by the birth flow.
- * Kept separate from recordDelivery because eggs hatch at different times,
- * so each child's bornDate is set individually.
+ * An egg hatches after its delivery, so bornDate is set apart from deliveredDate.
  *
  * @param {number} childId the child's index in V.childRecords
  */
@@ -308,8 +313,8 @@ function recordBirth(childId) {
 window.recordBirth = recordBirth;
 
 /**
- * The full development bag a reared child starts with. A function (not a constant) so the
- * activity timestamps are read at call time. beginRearing and the save migration both use it.
+ * The development fields a reared child starts with. activityDay and activityHour are the current
+ * time. beginRearing and the save migration both use it.
  */
 function beginRearingDefaults() {
 	return {
@@ -362,7 +367,7 @@ window.addEggCare = addEggCare;
 
 /**
  * Once a PC pregnancy reaches its due date, starts labour. Waters break, and eventskip suppresses
- * events for the next passage so the player can head for a birth location.
+ * events for the next passage so the PC can head for a birth location. Egg pregnancies are skipped.
  * Deferred while stats are frozen, an event NPC is loaded, in combat, or possessed.
  */
 function checkLabour() {
@@ -379,7 +384,7 @@ function checkLabour() {
 window.checkLabour = checkLabour;
 
 /**
- * Tombstones a pregnancy record.
+ * Clears a pregnancy by setting its carrier to CLEARED_PREGNANCY, so no carrier lookup finds it.
  *
  * @param {number} pregnancyId the pregnancy to clear
  */
@@ -402,6 +407,7 @@ window.clearPlayerPregnancies = clearPlayerPregnancies;
  * The pregnancy record a child belongs to.
  *
  * @param {Child} child looked up by its pregnancyId
+ * @returns {Pregnancy}
  */
 function getPregnancyOf(child) {
 	return V.pregnancies[child.pregnancyId];
@@ -412,6 +418,7 @@ window.getPregnancyOf = getPregnancyOf;
  * All children belonging to a pregnancy.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
+ * @returns {Child[]}
  */
 function getChildrenOf(pregnancyId) {
 	return V.childRecords.filter(child => child.pregnancyId === pregnancyId);
@@ -421,7 +428,8 @@ window.getChildrenOf = getChildrenOf;
 /**
  * Whether a child has been born (or hatched).
  *
- * @param {Child} child true when its bornDate has been set
+ * @param {Child} child
+ * @returns {boolean} true when its bornDate has been set
  */
 function childIsBorn(child) {
 	return child.bornDate !== null;
@@ -431,17 +439,18 @@ window.childIsBorn = childIsBorn;
 /**
  * Whether a child is a laid-but-unhatched egg. Species is always a base, so a harpy litter is "hawk".
  *
- * @param {Child} child false if it's not a bird species, already hatched, or not laid yet
+ * @param {Child} child
+ * @returns {boolean} false if it's not a bird species, already hatched, or not laid yet
  */
 function childIsUnhatchedEgg(child) {
 	if (child.species !== "hawk") return false;
-	if (child.bornDate !== null) return false; // already hatched
+	if (child.bornDate !== null) return false;
 	return getPregnancyOf(child).deliveredDate !== null; // laid, still in the nest
 }
 window.childIsUnhatchedEgg = childIsUnhatchedEgg;
 
 /**
- * Every child that exists in the world, born kids plus laid-but-unhatched eggs. A still-gestating
+ * Every child that exists in the world, born children plus laid-but-unhatched eggs. A still-gestating
  * child (bornDate null, not yet laid) isn't in the world yet.
  *
  * @returns {Child[]}
@@ -452,7 +461,7 @@ function getBornChildren() {
 window.getBornChildren = getBornChildren;
 
 /**
- * Born children currently at a location ("home", "tower", "wolf_cave", "inventory", ...).
+ * Born children and laid-but-unhatched eggs currently at a location ("home", "tower", "wolf_cave", "inventory", ...).
  *
  * @param {string} location the location name to filter by
  * @returns {Child[]}
@@ -476,7 +485,7 @@ window.nestEggCount = nestEggCount;
  * A born child's age in whole days, floored from the seconds since bornDate. Around midnight
  * this can read a day younger than a calendar-date difference would.
  *
- * @param {Child} child must already be born (bornDate set) or this returns garbage
+ * @param {Child} child must already be born. With a null bornDate this counts days from timestamp 0.
  * @returns {number} whole days since bornDate
  */
 function childAgeOf(child) {
@@ -499,11 +508,10 @@ function setKnowsPregnancy(pregnancyId, who) {
 window.setKnowsPregnancy = setKnowsPregnancy;
 
 /**
- * Records how the player found out about a pregnancy, and marks them aware of it.
+ * Records how the PC found out about a pregnancy, and marks the PC aware of it.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
- * @param {string} source a free-form label for how they found out ("mirror", "pharmacy", "wakingUp",
- *   ...), read back by playerLearnedPregnancyFrom
+ * @param {"mirror"|"museum"|"pharmacy"|"pregnancyTest"|"temple"|"wakingUp"} source how they found out, read back by playerLearnedPregnancyFrom
  */
 function setPlayerLearnedFrom(pregnancyId, source) {
 	V.pregnancies[pregnancyId].playerLearnedFrom = source;
@@ -534,7 +542,7 @@ function setKnowsDonor(pregnancyId, who) {
 window.setKnowsDonor = setKnowsDonor;
 
 /**
- * The player knows both parents of a birth when they're the only possible donor.
+ * When the PC is the only possible donor, marks the PC as knowing both the carrier and the donor.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  */
@@ -576,6 +584,7 @@ window.setKnowsGender = setKnowsGender;
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  * @param {string} who "pc", or an NPC's name
+ * @returns {boolean}
  */
 function knowsPregnancy(pregnancyId, who) {
 	const record = V.pregnancies[pregnancyId];
@@ -585,11 +594,13 @@ window.knowsPregnancy = knowsPregnancy;
 
 /**
  * Whether someone knows who's carrying a pregnancy. Knowing the pregnancy exists is enough, because
- * awareness is always recorded against one carrier's record. Knowing only the donor is not.
- * The carrier always knows once their children are born.
+ * awareness is always recorded against one carrier's record. For anyone but the carrier, knowing
+ * only the donor is not. The carrier knows once they know anything about the pregnancy, or once
+ * the litter is born.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  * @param {string} who "pc", or an NPC's name
+ * @returns {boolean}
  */
 function knowsCarrier(pregnancyId, who) {
 	const record = V.pregnancies[pregnancyId];
@@ -607,6 +618,7 @@ window.knowsCarrier = knowsCarrier;
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  * @param {string} who "pc", or an NPC's name
+ * @returns {boolean}
  */
 function knowsDonor(pregnancyId, who) {
 	return V.pregnancies[pregnancyId].awareOfDonor.includes(who);
@@ -643,6 +655,7 @@ window.markTalkedAbout = markTalkedAbout;
  *
  * @param {Pregnancy} pregnancy the pregnancy to check
  * @param {string} name "pc", or an NPC's name
+ * @returns {boolean}
  */
 function couldBeDonor(pregnancy, name) {
 	return pregnancy.donor === name || pregnancy.possibleDonors.some(donor => donor.name === name);
@@ -650,14 +663,14 @@ function couldBeDonor(pregnancy, name) {
 window.couldBeDonor = couldBeDonor;
 
 /**
- * If only one suspect's species matches the litter, the donor stops being a mystery and is
- * marked known. Reads possibleDonors without changing it.
+ * If exactly one possible donor's species matches the litter, marks the donor as known to the PC.
+ * Reads possibleDonors without changing it.
  *
  * @param {number} pregnancyId the pregnancy's index in V.pregnancies
  */
 function resolvePaternity(pregnancyId) {
 	const pregnancy = V.pregnancies[pregnancyId];
-	if (knowsDonor(pregnancyId, "pc")) return; // already resolved
+	if (knowsDonor(pregnancyId, "pc")) return;
 	const litter = getChildrenOf(pregnancyId);
 	const litterBase = litter[0].species; // child.species is already the base (human/wolf/hawk)
 	const fits = pregnancy.possibleDonors.filter(donor => childBaseSpecies(donor.species) === litterBase);
@@ -670,6 +683,7 @@ window.resolvePaternity = resolvePaternity;
  *
  * @param {number} childId the child's index in V.childRecords
  * @param {string} who "pc", or an NPC's name
+ * @returns {boolean}
  */
 function knowsChild(childId, who) {
 	return V.childRecords[childId].awareOfChild.includes(who);
@@ -681,6 +695,7 @@ window.knowsChild = knowsChild;
  *
  * @param {number} childId the child's index in V.childRecords
  * @param {string} who "pc", or an NPC's name
+ * @returns {boolean}
  */
 function knowsGender(childId, who) {
 	return V.childRecords[childId].awareOfGender.includes(who);

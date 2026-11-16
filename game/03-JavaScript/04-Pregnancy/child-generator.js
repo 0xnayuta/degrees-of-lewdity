@@ -6,7 +6,7 @@
  * generateChildren calls this to set the litter's body from the donor.
  * resolvePaternity calls this to test a suspected donor's species against the litter.
  *
- * @param {DonorSpecies} donorSpecies the donor's species
+ * @param {PregnancySpecies} donorSpecies the donor's species
  * @returns {ChildSpecies}
  */
 function childBaseSpecies(donorSpecies) {
@@ -30,7 +30,7 @@ window.childBaseSpecies = childBaseSpecies;
  * Whether the donor is a monster person, which gives the child the "monster" trait.
  * A monster person's species name always differs from their base species name.
  *
- * @param {DonorSpecies} donorSpecies
+ * @param {PregnancySpecies} donorSpecies
  * @returns {boolean}
  */
 function isMonsterPerson(donorSpecies) {
@@ -52,8 +52,8 @@ window.rollLitterSize = rollLitterSize;
 /**
  * What a parent contributes to the child's skin gene.
  *
- * @param {object} npc a named or stored NPC
- * @returns {string|undefined} undefined for beasts, which have no skin tone to pass on
+ * @param {Npc} npc a named or stored NPC
+ * @returns {"ghost"|"light"|"medium"|"dark"|undefined} "ghost" when the parent is the Ivory Wraith, undefined when the parent has no numeric skin tone
  */
 function parentSkinGene(npc) {
 	if (npc.skinType === "ghost") return "ghost";
@@ -65,7 +65,7 @@ window.parentSkinGene = parentSkinGene;
  * The child gene pool's name for a skin tone.
  *
  * @param {number} tone 0-100
- * @returns {string} "light", "medium" or "dark"
+ * @returns {"light"|"medium"|"dark"}
  */
 function parentSkinColour(tone) {
 	if (tone < 30) return "light";
@@ -106,12 +106,11 @@ function resolveChildParent(name) {
 window.resolveChildParent = resolveChildParent;
 
 /**
- * A child's gender. Even 50/50 male/female split.
- * A herm parent gives a 1/4 chance of a herm child, or 100% chance for herm self-pregnancy.
+ * A child's gender, male or female at even odds. A herm parent can give a herm child when breeding with a non-herm at hermChildPercent, or always if they self-impregnate.
  *
  * @param {ChildParent} carrierParent
  * @param {ChildParent} donorParent
- * @param {boolean} sameParent
+ * @param {boolean} sameParent the carrier is also the donor
  * @returns {"m"|"f"|"h"}
  */
 function rollChildGender(carrierParent, donorParent, sameParent) {
@@ -145,27 +144,28 @@ function pcHeritage() {
 window.pcHeritage = pcHeritage;
 
 /**
- * A child's size, weighted toward the pc's build. Half the time it matches, otherwise it's a step
- * smaller or larger. NPC carriers with no build roll evenly.
+ * A child's size. If the PC is the carrier, the child will be their build or one step smaller or larger. For NPC carriers, every size is equally likely.
  *
- * @param {0|1|2|3|undefined} bodySize the carrier's build
+ * @param {0|1|2|3|undefined} bodySize the carrier's build, undefined for an NPC carrier
  * @returns {"tiny"|"small"|"normal"|"large"}
  */
 function rollChildSize(bodySize) {
 	const childSizes = PregnancyConstants.genePool.childSize;
 	if (bodySize === undefined) return childSizes.random();
 	const roll = random(1, 100);
-	const step = roll <= PregnancyConstants.childGen.childSizeSameMax ? 0 : roll <= PregnancyConstants.childGen.childSizeSmallerMax ? -1 : 1;
+	let step = 1;
+	if (roll <= PregnancyConstants.childGen.childSizeSameMax) step = 0;
+	else if (roll <= PregnancyConstants.childGen.childSizeSmallerMax) step = -1;
 	return childSizes[Math.clamp(bodySize + step, 0, childSizes.length - 1)];
 }
 
 /**
- * A child's trait, taken from one parent at random, with a fallback when that parent has none (an unknown donor).
+ * A child's trait, taken from one parent at random, with a fallback when that parent has none.
  *
- * @param {*} carrierVal the carrier parent's value for this trait
- * @param {*} donorVal the donor parent's value for this trait
- * @param {Function} fallback produces a value when the donor is not known
- * @returns {*} the inherited trait, or fallback() trait if donor is not known
+ * @param {string|null} carrierVal the carrier parent's value for this trait
+ * @param {string|null} donorVal the donor parent's value for this trait
+ * @param {function(): string} fallback makes a value when the picked parent has none
+ * @returns {string} the picked parent's value, or fallback()
  */
 function inheritTrait(carrierVal, donorVal, fallback) {
 	const inherited = random(0, 1) === 0 ? carrierVal : donorVal;
@@ -214,7 +214,7 @@ function rollChildHairColour(base, carrierParent, donorParent, wolfFur) {
 window.rollChildHairColour = rollChildHairColour;
 
 /**
- * Returns colour if given, otherwise a random eye colour from the gene pool.
+ * The given eye colour, or a random one from the gene pool.
  *
  * @param {string} [colour] a specific eye colour, or falsy to roll one
  * @returns {string}
@@ -228,29 +228,22 @@ window.eyeColourCalc = eyeColourCalc;
 /**
  * Create the child/children for a new pregnancy record. Called once per pregnancy from createPregnancy.
  *
- * @param {number} pregnancyId
- * @param {number} [fixedLitterSize] how many children the pregnancy has, rolled randomly when left out
+ * @param {number} pregnancyId the pregnancy's index in V.pregnancies
+ * @param {number} [litterSize] how many children the pregnancy has, rolled randomly when left out
  */
-function generateChildren(pregnancyId, fixedLitterSize) {
+function generateChildren(pregnancyId, litterSize) {
 	const pregnancy = V.pregnancies[pregnancyId];
 	const base = childBaseSpecies(pregnancy.donorSpecies);
 	const isMonster = isMonsterPerson(pregnancy.donorSpecies);
-	let litterSize = rollLitterSize(base);
-	// A harpy PC grows their clutch in advance (giveHarpyEggs). Its count replaces the rolled
-	// litter size. createPregnancy clears the clutch afterwards.
-	if (base === "hawk" && pregnancy.carrier === "pc" && V.harpyEggs) {
-		litterSize = V.harpyEggs.count;
-	}
-	if (fixedLitterSize) litterSize = fixedLitterSize;
+	if (litterSize === undefined) litterSize = rollLitterSize(base);
 	const carrierParent = resolveChildParent(pregnancy.carrier);
 	const donorParent = resolveChildParent(pregnancy.donor);
 	const sameParent = pregnancy.carrier === pregnancy.donor;
-	// The player's beast/divine transformations only pass down when the player is a parent.
+	// The PC's beast/divine transformations only pass down when the PC is a parent.
 	const heritage = pregnancy.carrier === "pc" || pregnancy.donor === "pc" ? pcHeritage() : { beast: null, divine: null };
 	const bodySize = pregnancy.carrier === "pc" ? V.bodysize : undefined;
 	// The Black Wolf's pups are always black. Every other wolf rolls the fur pool.
 	const wolfFur = pregnancy.carrier === "Black Wolf" || pregnancy.donor === "Black Wolf" ? ["black"] : PregnancyConstants.genePool.wolfFur;
-
 	// Identical twins/triplets rolling for humans.
 	// Self-impregnation births always make identical twins/triplets.
 	// Twins have a 1/3 chance of being identical.
@@ -283,7 +276,6 @@ function generateChildren(pregnancyId, fixedLitterSize) {
 
 	// Identical siblings are copies of one generated child and share an id that links them.
 	// Every other child is rolled on its own.
-	// identicalCount is 0, 2, or 3 (never exactly 1), so "there are identicals" is a single condition.
 	const hasIdenticals = identicalCount > 1;
 	const identicalId = hasIdenticals ? pregnancyId : null;
 	const original = hasIdenticals ? rollChildTraits() : null;
@@ -299,16 +291,18 @@ function generateChildren(pregnancyId, fixedLitterSize) {
 window.generateChildren = generateChildren;
 
 /**
- * Generates a baby's name from name pools.
+ * A baby's name. A typed name is kept with any disallowed characters removed and cut to 30 characters.
+ * With no usable typed name, picks a name no other child has from the name pools.
  *
- * @param {string} name the child's name
+ * @param {string|undefined} name the typed name, or undefined (or "Unnamed") to pick one
  * @param {"m"|"f"|"h"} gender determines which name pool the name pulls from
  * @param {number} childId the child being named
- * @returns {string} the name, or "Unnamed" if every name is taken
+ * @returns {string} the name, or "Unnamed" if every pool name is taken
  */
 function generateBabyName(name, gender, childId) {
 	if (!!name && name !== "Unnamed") {
-		return name.replace(/[^a-zA-ZÀ-ÿ\u4e00-\u9fa5 ]+/g, "").substring(0, 30);
+		const allowedName = name.replace(/[^a-zA-ZÀ-ÿ\u4e00-\u9fa5 ]+/g, "").substring(0, 30);
+		if (allowedName.trim()) return allowedName;
 	}
 	const usedNames = new Set();
 	getBornChildren().forEach(child => {

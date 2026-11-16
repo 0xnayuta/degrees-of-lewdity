@@ -1,31 +1,23 @@
-/* eslint-disable no-undef */
-
 /**
  * Creates the player's pregnancy from a donor based on pregnancy settings.
  *
  * @param {string} npc the donor's name
- * @param {DonorSpecies} npcType the donor's species
+ * @param {PregnancySpecies} npcType the donor's species
  * @param {boolean} [donorKnown=false] whether the player knows the donor
  * @param {"vagina"|"anus"} [orifice="vagina"] which orifice conceives
- * @param {TrackedNpc[]} [trackedNPCs] multiple donors when paternity is uncertain
  * @param {boolean} [awareOf=false] whether the player knows they are pregnant
  * @param {number} [litterSize] how many children the pregnancy has, rolled randomly when left out
  * @returns {boolean} true if a pregnancy was created
  */
-function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", trackedNPCs, awareOf = false, litterSize) {
+function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", awareOf = false, litterSize) {
 	if (!playerSpeciesPregnancyEnabled(npcType)) return false; // species disabled in settings, or a species that can't conceive
-	const donors = trackedNPCs ? trackedNPCs.map(t => ({ name: t.source, species: t.type })) : [{ name: npc, species: npcType }];
+	const donors = [{ name: npc, species: npcType }];
 	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, orifice, V.location, litterSize);
 	if (awareOf) setKnowsPregnancy(pregnancyId, "pc"); // this pregnancy only, not every active one
 	if (donorKnown) setKnowsDonor(pregnancyId, "pc");
 	return true;
 }
 DefineMacro("playerPregnancy", playerPregnancy);
-// debug-only wrapper, inert unless V.pregnancyTesting is set
-function playerPregnancyTest(npc, npcType, donorKnown, orifice, trackedNPCs, awareOf) {
-	if (V.pregnancyTesting) return playerPregnancy(npc, npcType, donorKnown, orifice, trackedNPCs, awareOf);
-}
-window.playerPregnancyTest = playerPregnancyTest;
 
 /**
  * Twice a day player pregnancy side effects, per orifice. Day counting, morning sickness, and the
@@ -33,18 +25,17 @@ window.playerPregnancyTest = playerPregnancyTest;
  *
  * @param {"vagina"|"anus"} orifice which orifice's pregnancy to advance
  */
-// eslint-disable-next-line no-unused-vars
 function advancePregnancy(orifice) {
-	if (V.statFreeze) return null;
+	if (V.statFreeze) return;
 	const pregnancy = getActivePregnancy("pc", orifice);
-	if (!pregnancy) return null;
+	if (!pregnancy) return;
 
 	V.pregnancyStats.totalDaysPregnant += 0.5;
 	if (knowsPregnancy(pregnancy.pregnancyId, "pc")) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
 
 	const progress = pregnancyProgress(pregnancy);
 
-	if (between(progress, PregnancyConstants.morningSickness.earlyStart, PregnancyConstants.morningSickness.earlyEnd)) {
+	if (between(progress, PregnancyConstants.morningSickness.earlyStart, PregnancyConstants.morningSickness.mainStart)) {
 		/* Early Morning sickness */
 		/* Light Nausea/dizzyness at any time of day, but mostly when waking up */
 		if (random(1, 100) <= 70) {
@@ -73,12 +64,13 @@ function advancePregnancy(orifice) {
 		if (V.lactating !== 1 && V.settings.breastFeedingEnabled === true && V.player.breastsize > 0) {
 			V.lactating = 1;
 			V.lactation_pressure = 100;
-			Wikifier.wikifyEval("<<milkVolume 50>>");
+			statChange.milkVolume(50);
 			V.effectsmessage = 1;
 			V.lactationmessage = 1;
 		}
 	}
 }
+window.advancePregnancy = advancePregnancy;
 
 /**
  * How long labour lasts, in minutes. A base time for birth, plus a bit more for
@@ -98,6 +90,30 @@ function birthLaborTime() {
 window.birthLaborTime = birthLaborTime;
 
 /**
+ * Marks who finds out about a birth from where the children are placed.
+ * Bailey at the orphanage, the Black Wolf at the wolf cave, and the Great Hawk at the tower.
+ *
+ * Bailey also gets a baby introduction for a birth the PC didn't carry, unless Bailey already knew about the pregnancy.
+ *
+ * @param {number} pregnancyId the pregnancy being birthed
+ * @param {string} location where the children are placed
+ */
+function onBirthAtLocation(pregnancyId, location) {
+	switch (location) {
+		case "home":
+			if (V.pregnancies[pregnancyId].carrier !== "pc" && !knowsPregnancy(pregnancyId, "Bailey")) addBabyIntro("Bailey", pregnancyId);
+			setKnowsPregnancy(pregnancyId, "Bailey");
+			break;
+		case "wolf_cave":
+			setKnowsPregnancy(pregnancyId, "Black Wolf");
+			break;
+		case "tower":
+			setKnowsPregnancy(pregnancyId, "Great Hawk");
+			break;
+	}
+}
+
+/**
  * Births a records pregnancy. Lays or delivers each child, sets up its rearing state, and carries
  * the pregnancy-wide side effects (counts, toy unlocks, who now knows).
  *
@@ -111,11 +127,7 @@ function birthRecordedLitter(pregnancyId, birthLocation, location) {
 	const pregnancy = V.pregnancies[pregnancyId];
 	const litter = getChildrenOf(pregnancyId);
 	if (!litter.length) throw new Error(`birthRecordedLitter: pregnancy ${pregnancyId} has no children to birth`);
-	if (pregnancy.carrier === "pc") {
-		if (location === "home") setKnowsAboutPregnancy(pregnancy.carrier, "Bailey");
-		else if (location === "wolf_cave") setKnowsAboutPregnancy(pregnancy.carrier, "Black Wolf");
-		else if (location === "tower") setKnowsAboutPregnancy(pregnancy.carrier, "Great Hawk");
-	}
+	if (!V.statFreeze) onBirthAtLocation(pregnancyId, location);
 
 	recordDelivery(pregnancyId, location);
 	learnPlayerFatheredBirth(pregnancyId);
@@ -240,11 +252,6 @@ function endPlayerPregnancy(birthLocation, location) {
 	return true;
 }
 DefineMacro("endPlayerPregnancy", endPlayerPregnancy);
-// debug-only wrapper, inert unless V.pregnancyTesting is set
-function endPlayerPregnancyTest(birthLocation, location) {
-	if (V.pregnancyTesting && birthLocation && location) return endPlayerPregnancy(birthLocation, location);
-}
-window.endPlayerPregnancyTest = endPlayerPregnancyTest;
 /* Player pregnancy ends here */
 
 /* Named NPC pregnancy starts here */
@@ -253,20 +260,13 @@ window.endPlayerPregnancyTest = endPlayerPregnancyTest;
  * Marks the NPC aware once gestation passes npcGestation.awareProgressFraction.
  * Resolves a birth offscreen once it is past due by npcGestation.offscreenBirthGraceDays.
  */
-// eslint-disable-next-line no-unused-vars
 function npcPregnancyCycle() {
-	if (V.statFreeze) return null;
+	if (V.statFreeze) return;
 	for (const npcName of V.NPCNameList) {
-		const npc = C.npc[npcName];
-		if (!npc) continue;
-		const pregnancy = npc.pregnancy;
-		if (!pregnancy) continue;
+		const pregnancy = C.npc[npcName].pregnancy;
 		const record = getActivePregnancies(npcName)[0];
 		if (record) {
-			if (
-				Time.date.timeStamp - record.conceivedDate > gestationSeconds(record.donorSpecies) * PregnancyConstants.npcGestation.awareProgressFraction &&
-				!knowsAboutPregnancy(npcName, npcName)
-			) {
+			if (pregnancyProgress(record) > PregnancyConstants.npcGestation.awareProgressFraction && !knowsAboutPregnancy(npcName, npcName)) {
 				setKnowsAboutPregnancy(npcName, npcName);
 			}
 			const dueDate = getDueDate(record);
@@ -311,6 +311,7 @@ function npcPregnancyCycle() {
 		}
 	}
 }
+window.npcPregnancyCycle = npcPregnancyCycle;
 /**
  * The species a pregnancy grows as. An unrecognised pairing conceives nothing.
  *
@@ -334,7 +335,7 @@ window.offspringSpecies = offspringSpecies;
  *
  * @param {string} carrier the pregnant NPC's name
  * @param {string} donor the donor's name, usually pc
- * @param {DonorSpecies} donorInputSpecies the donor's species
+ * @param {PregnancySpecies} donorInputSpecies the donor's species
  * @param {boolean} [donorKnown=false] whether the player learns who the donor is
  * @param {boolean} [awareOf=false] whether the player learns about the pregnancy
  * @returns {boolean} true if a pregnancy was created
@@ -364,11 +365,6 @@ function namedNpcPregnancy(carrier, donor, donorInputSpecies, donorKnown = false
 	return true;
 }
 DefineMacro("namedNpcPregnancy", namedNpcPregnancy);
-// V.pregnancyTesting Check should not be removed, debugging purposes only
-function namedNpcPregnancyTest(carrier, donor, pregnancyType, donorKnown, awareOf) {
-	if (V.pregnancyTesting) return namedNpcPregnancy(carrier, donor, pregnancyType, donorKnown, awareOf);
-}
-window.namedNpcPregnancyTest = namedNpcPregnancyTest;
 
 /**
  * Ends an NPC's pregnancy. Delivers the pregnancy off screen and runs clean up.
@@ -376,12 +372,9 @@ window.namedNpcPregnancyTest = namedNpcPregnancyTest;
  * @param {string} npcName the pregnant NPC's name
  * @param {string} birthLocation where the birth takes place
  * @param {string} location where the children live
- * @returns {boolean} true once delivered, false if the NPC has no pregnancy
+ * @returns {boolean} true once delivered, false if the NPC has no pregnancy with children to deliver
  */
 function endNpcPregnancy(npcName, birthLocation, location) {
-	if (!C.npc[npcName] || !C.npc[npcName].pregnancy) {
-		return false;
-	}
 	const pregnancy = C.npc[npcName].pregnancy;
 
 	const record = getLabouringPregnancy(npcName);
@@ -389,14 +382,6 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 		// Handled by Baileys Orphanage event and when naming them, this is backup for other situations
 		if (record.donor === "pc" && location !== "home") {
 			document.getElementById("passages").children[0].append(Wikifier.wikifyEval('<<earnFeat "First Fatherhood">>'));
-		}
-		switch (location) {
-			case "home":
-				setKnowsAboutPregnancy(npcName, "Bailey", record.pregnancyId, true);
-				break;
-			case "wolf_cave":
-				setKnowsAboutPregnancy(npcName, "Black Wolf", record.pregnancyId);
-				break;
 		}
 		birthRecordedLitter(record.pregnancyId, birthLocation, location);
 		pregnancy.cycleDay = (pregnancy.cycleDaysTotal || 0) - 3;
@@ -417,11 +402,6 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 	return false;
 }
 DefineMacro("endNpcPregnancy", endNpcPregnancy);
-// V.pregnancyTesting Check should not be removed, debugging purposes only
-function endNpcPregnancyTest(npcName, birthLocation, location) {
-	if (V.pregnancyTesting && npcName && birthLocation && location) return endNpcPregnancy(npcName, birthLocation, location);
-}
-window.endNpcPregnancyTest = endNpcPregnancyTest;
 /* Named NPC pregnancy ends here */
 
 /**
@@ -472,36 +452,28 @@ window.storeNPC = storeNPC;
 /**
  * Ages every stored NPC's records pregnancy.
  * Births each one that is now due at its species' default location, then removes the stored NPC.
- *
- * @returns {boolean} false when there is nothing to process (stats frozen or no stored NPCs), else true
  */
-// eslint-disable-next-line no-unused-vars
 function randomPregnancyProgress() {
-	if (V.statFreeze) return false;
+	if (V.statFreeze) return;
 	const toDelete = [];
 	Object.keys(V.storedNPCs).forEach(npcKey => {
 		const record = getActivePregnancies(npcKey)[0];
 		if (record && Time.date.timeStamp >= getDueDate(record)) {
 			const [birthLocation, location] = defaultBirthLocations(record.donorSpecies);
-			birthRecordedLitter(record.pregnancyId, birthLocation, location);
+			// The stored NPC is deleted below, so the record keeps their description as its carrier.
 			record.carrier = V.storedNPCs[npcKey].npc.fullDescription;
-			if (location === "home") {
-				addBabyIntro("Bailey", record.carrier, record.pregnancyId, getChildrenOf(record.pregnancyId).length);
-				setKnowsPregnancy(record.pregnancyId, "Bailey");
-			} else if (location === "wolf_cave") {
-				setKnowsPregnancy(record.pregnancyId, "Black Wolf");
-			}
+			birthRecordedLitter(record.pregnancyId, birthLocation, location);
 			toDelete.push(npcKey);
 		}
 	});
 	toDelete.forEach(npcKey => delete V.storedNPCs[npcKey]);
-	return true;
 }
+window.randomPregnancyProgress = randomPregnancyProgress;
 
 /**
  * Fills in the default birth and placement locations for a species when a caller leaves them blank.
  *
- * @param {DonorSpecies} type the child's species
+ * @param {PregnancySpecies} type the child's species
  * @param {string} [birthLocation] where the birth happens, defaulted if missing
  * @param {string} [location] where the children go afterwards, defaulted if missing
  * @returns {string[]} the resolved [birthLocation, location]
