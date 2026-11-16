@@ -70,7 +70,7 @@ You are on the docks.
 <<if $exposed lte 0 and Time.dayState isnot "night" and $docks.status gte 80 and $docks.wage lt 2500>>
 	/* <<dockstatus>> multiplies inputs by 2 and clamps, so asking for a raise is -40 status */
 	/* At the earliest fame to ask for a raise, this sets you to 40, and at the highest, 60 */
-	<<socialiseicon "ask">><<link [[Ask for raise (0:05)|Docks Raise]]>><<pass 5>><<set $docks.wage += 100>><<dockstatus -20>><</link>><<lllcool>>
+	<<socialiseicon "ask">><<link [[Ask for a raise (0:05)|Docks Raise]]>><<pass 5>><<set $docks.wage += 100>><<dockstatus -20>><</link>><<lllcool>>
 	<br>
 <</if>>
 <<if Time.dayState is "night">>
@@ -111,10 +111,162 @@ You ask a manager for a raise. "Well..." <<He>> adjusts <<his>> glasses and taps
 	<br><br>
 <</if>>
 
-The other dockers overheard and grumble as you leave. They're just jealous.
+The other dockers overheard and grumble. They're just jealous.
 <br><br>
 
-<<endevent>>
+/* Option to increase pay raise further using English or seduction. This accomplishes the following goals: 
+   1) Allows getting raises faster to keep up with Bailey's demands
+   2) Encourages diversifying activities to gain stats instead of focusing on dockwork exclusively
+   3) Encourages getting status to 100 first, which in turn gives more opportunities to join a bar crawl at 60+, making it easier to gain status and raises
+*/
+<<if $docks.wage lt 2500>>
+	/* The new wage and status are set in the link to this passage, so wage here ranges from 16-24, status ranges from 40-60, and suspicion ranges from 0-4 */
+	/* Passing difficulty table for reference:
+	    £16.00/hour, 40 remaining status = 600 
+		£16.00/hour, 50 remaining status = 400
+		£16.00/hour, 60 remaining status = 200
+	    £24.00/hour, 40 remaining status = 1400
+		£24.00/hour, 50 remaining status = 1200
+		£24.00/hour, 60 remaining status = 1000
+	*/
+	<<set _englishDifficultyTarget to (200 + ($docks.wage - 1600) + ((60 - $docks.status) * 20) + ($docks.suspicion * 100))>>
+
+	<<link [[Ask for a larger raise (0:01)|Docks Raise Argue]]>><<pass 1>><</link>> <<englishdifficulty 1 _englishDifficultyTarget>> - <span class="blue">Higher status and lower suspicion increases chance of success.</span>
+	<br>
+	<<if hasSexStat("promiscuity", 2)>>
+		<<link [[Seduce for a larger raise (0:01)|Docks Raise Seduce]]>><<pass 1>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+<</if>>
+
+<<link [[Leave|Docks]]>><<endevent>><</link>>
+<br>
+
+:: Docks Raise Argue
+<<effects>>
+
+<<if $englishSuccess>>
+	<<set $docks.wage += 100>>
+	You argue that you deserve a higher raise. <<if $docks.suspicion gt 0>>The<<else>>You've been a model worker, after all, and the<</if>> other dockers can vouch for your performance.
+	<br><br>
+
+	The <<person>> pauses for a moment, <span class="green">then nods.</span> "Yes, it's true that everyone seems to have something good to say about you," <<he>> muses. "Tell you what: We can bump your wage to <span class="gold">£<<print (($docks.wage * 8) / 100)>></span> a shift, plus <span class="gold">£<<print (($docks.wage / 100) * 1.5)>></span> for every hour of overtime, but no more. That's the most we can justify<<if $docks.wage gte 2500>>. It's more than any other worker<<else>> right now<</if>>."
+	<br><br>
+
+	<<link [[Next|Docks]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	You argue that you deserve a higher raise, <span class="red">but your arguments fall on deaf ears.</span> "Don't push your luck," <<he>> says. "Your wage is <span class="gold">£<<print (($docks.wage * 8) / 100)>></span> a shift, take it or leave it."
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 2)>>
+		<<link [[Seduce for a larger raise (0:01)|Docks Raise Seduce]]>><<pass 1>><</link>><<promiscuous2>>
+		<br>
+		<<link [[Leave|Docks]]>><<endevent>><</link>>
+	<<else>>
+		<<link [[Next|Docks]]>><<endevent>><</link>>
+	<</if>>
+	<br>
+<</if>>
+
+:: Docks Raise Seduce
+<<effects>>
+
+You lean in close to suggest a personal favor in exchange for a larger raise.
+
+<<promiscuity2>>
+
+/* Increase in difficulty based on current wage */
+<<if $docks.wage gte 2200>>
+	<<set $seductiondifficulty to 8000>>
+<<elseif $docks.wage gte 1900>>
+	<<set $seductiondifficulty to 6000>>
+<<else>>
+	<<set $seductiondifficulty to 4000>>
+<</if>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+
+<<if $seductionrating gte $seductionrequired>>
+	The manager's eyes widen. "Well..." <<he>> says. "I wouldn't be opposed to some convincing. How about you get under the desk and show me that you've earned it?"
+	<br><br>
+
+	You do as instructed. <<npcExposeText>>
+	<br><br>
+
+	<<link [[Next|Docks Raise Sex]]>><<set $sexstart to 1>><</link>>
+	<br>
+<<else>>
+	The manager balks at your request. "No, we don't do that kind of thing here. You'll need to earn your keep like everyone else. If you want to sell your body, find a brothel." <<He>> gestures for you to leave before you can get in another word.
+	<br><br>
+
+	<<link [[Next|Docks]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Docks Raise Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+
+	<<maninit>><<npcoral>>
+	<<set $NPCList[0].lefthand to "none">><<set $NPCList[0].righthand to "none">>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Docks Raise Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Docks Raise Sex]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Docks Raise Sex Finish
+<<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<set $docks.wage += 100>>
+	The <<person>> lets out a satisfied groan as <<he>> fixes <<his>> clothing. "Good work. That's the kind of hands-on initiative we need more of around here." <<He>> chuckles. "Consider your wage raised to <span class="gold">£<<print (($docks.wage * 8) / 100)>></span> a shift, plus <span class="gold">£<<print (($docks.wage / 100) * 1.5)>></span> for every hour of overtime."
+	<br><br>
+
+	<<if $docks.wage gte 2500>>
+		"That's more than any other worker," <<he>> adds. "You deserve it after that performance."
+		<br><br>
+	<<elseif $docks.wage lt 2400>>
+		"I hope you'll demonstrate how much you've earned it next time, too," <<he>> adds with a wink.
+		<br><br>
+	<</if>>
+
+	<<endcombat>>
+	<<clotheson>>
+
+	<<tearful>> you collect yourself and walk out of the manager's office.
+	<br><br>
+<<elseif $enemyhealth lte 0>>
+	<<tearful>> you manage to run away as the <<person>> clutches <<himself>> in agony. "You sadistic bitch!" <<he>> shouts, but you're already out of the building. At least <<he>> won't be able to retaliate without outing <<himself>> as well.
+	<br><br>
+
+	<<endcombat>>
+	<<clotheson>>
+<<else>>
+	The <<person>> pulls away from you, startled. "Did I do something wrong?" <<he>> asks, then shakes <<his>> head. "Whatever. Deal's off. Get out of my office. Next time, you better work for it."
+	<br><br>
+
+	<<endcombat>>
+	<<clotheson>>
+
+	<<tearful>> you get up and return to the docks.
+	<br><br>
+<</if>>
 
 <<link [[Next|Docks]]>><</link>>
 <br>
@@ -1629,7 +1781,7 @@ The pair cheer their colleague on.
 	<<if $money gte 6000>>
 		<<link [[Match their bet (£60)|Docks Pub Crawl Bet]]>><<money -6000>><</link>>
 		<br>
-		<</if>>
+	<</if>>
 	<<link [[Don't bet anything|Docks Pub Crawl Quiz Refuse]]>><<set $phase to 0>><</link>>
 	<br>
 	<<link [[Don't take part|Docks Pub Crawl Quiz Refuse]]>><<set $phase to 1>><</link>>
@@ -1704,10 +1856,10 @@ The pair cheer their colleague on.
 
 		<<link [[Flirt|Docks Pub Crawl Flirt]]>><</link>><<promiscuous1>>
 		<br>
-			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
 			<<link [[Tease|Docks Pub Crawl Tease]]>><</link>><<exhibitionist1>>
 			<br>
-			<</if>>
+		<</if>>
 		<<link [[Ignore|Docks Pub Crawl Flirt Ignore]]>><</link>>
 		<br>
 
