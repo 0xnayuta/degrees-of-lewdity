@@ -130,9 +130,6 @@
 				<br>
 			<</if>>
 		</div>
-		<<set _loveIntStart1 to $loveInterest.primary>>
-		<<set _loveIntStart2 to $loveInterest.secondary>>
-		<<set _loveIntStart3 to $loveInterest.tertiary>>
 		<div id="loveInterest" class="settingsToggleItem">
 			<div class="gold bold">Who do you consider to be your love interest?</div>
 			<<loveInterest>>
@@ -815,6 +812,9 @@
 	<<set _npc = ["None"].concat(setup.loveInterestNpc)>>
 	/* Love interest requirements defined in function isPossibleLoveInterest() */
 	<<set _potentialLoveInterests = ["None"].concat(setup.loveInterestNpc.filter(LI => isPossibleLoveInterest(LI)))>>
+	<<if !$currentLoveInterest>>
+		<<set $currentLoveInterest to Object.assign({}, $loveInterest)>>
+	<</if>>
 	<<if _potentialLoveInterests.length lte 1>>
 		<span class="black"><i>You haven't developed feelings for anyone yet.</i></span>
 	<<else>>
@@ -860,9 +860,9 @@
 			<<set $loveInterest.tertiary to "None">>
 		<</if>>
 	<</if>>
-	<<if $transformationParts.traits.mateForLife isnot "disabled" and (!isLoveInterest(_loveIntStart1) or (_loveIntStart2 isnot "None" and !isLoveInterest(_loveIntStart2)) or (_loveIntStart3 isnot "None" and !isLoveInterest(_loveIntStart3)))>>
+	<<if $transformationParts.traits.mateForLife isnot "disabled" and $currentLoveInterest and (($currentLoveInterest.primary isnot "None" and !isLoveInterest($currentLoveInterest.primary)) or($currentLoveInterest.secondary isnot "None" and !isLoveInterest($currentLoveInterest.secondary)) or($currentLoveInterest.tertiary isnot "None" and !isLoveInterest($currentLoveInterest.tertiary)))>>
 		<<set $LIChanged to true>>
-		<br>
+		<br><br>
 		<span class="red">Changing your partners goes against your instincts to mate for life. It will take a toll on your mental state.</span>
 	<<else>>
 		<<unset $LIChanged>>
@@ -871,16 +871,19 @@
 
 <<widget "loveInterestAdd">>
 	<<set $_LI to _args[0]>>
+	<<if !$currentLoveInterest>>
+		<<set $currentLoveInterest to Object.assign({}, $loveInterest)>>
+	<</if>>
 	<<if setup.loveInterestNpc.includes($_LI)>>
 		<span class="gold">
 		<<if $loveInterest.primary is "None">>
-			<<set $loveInterest.primary to $_LI>><<set $_assigned to true>>
+			<<set $loveInterest.primary to $_LI>><<set _assigned to true>>
 		<<elseif $loveInterest.secondary is "None" and $awarelevel gte 2>>
-			<<set $loveInterest.secondary to $_LI>><<set $_assigned to true>>
+			<<set $loveInterest.secondary to $_LI>><<set _assigned to true>>
 		<<elseif $loveInterest.tertiary is "None" and $awarelevel gte 3>>
-			<<set $loveInterest.tertiary to $_LI>><<set $_assigned to true>>
+			<<set $loveInterest.tertiary to $_LI>><<set _assigned to true>>
 		<</if>>
-		<<if $_assigned>>
+		<<if _assigned>>
 			<<= $_LI>> is now your love interest!
 		<<else>>
 			<<= $_LI>> can now be claimed as your love interest!
@@ -908,9 +911,29 @@
 				<</if>>
 		<</switch>>
 		<br>
-		You can change your love interest<<if $awarelevel gte 2>>s<</if>> in the "Attitudes" menu.
+		You can change your love interest<<if $awarelevel gte 2>>s<</if>> now, or later in the "Attitudes" menu.
 		</span>
+		<br><br>
+		<<if !_skipLoveInterestSelection>>
+			<<loveInterestSelection>>
+		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "loveInterestSelection">>
+	<div class="loveInterestSelection">
+		<<run window.foldoutStates && delete window.foldoutStates._loveInterestSelection>>
+		<<foldout false "_loveInterestSelection">>
+			<div class="gold bold"><img class="loveInterestSelectionIcon" src="img/ui/sym-love.png"> Manage your love interests</div>
+			<div id="loveInterest" class="loveInterestSelectionContent"></div>
+		<</foldout>>
+	</div>
+	<<loveInterestFunction>>
+	<<done>>
+		<<replace "#loveInterest">>
+			<<loveInterest>>
+		<</replace>>
+	<</done>>
 <</widget>>
 
 <<widget "loveInterestRemove">>
@@ -936,6 +959,7 @@
 
 <<widget "debugUnlockAllLoveInterests">>
 	/* Debug widget that unlocks all love interests  */
+	<<set _skipLoveInterestSelection to true>>
 	<<for _li range setup.loveInterestNpc>>
 		<<npc _li>> /* Declares the LI */
 
@@ -977,6 +1001,7 @@
 		/* Finally add the LI as selectable */
 		<<loveInterestAdd _li>>
 	<</for>>
+	<<loveInterestSelection>>
 <</widget>>
 
 <<widget "attitudesControlCheck">>
