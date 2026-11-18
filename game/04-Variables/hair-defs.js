@@ -31,7 +31,7 @@ setup.hair = {
 				"wavy",
 				"emo",
 				"blowout",
-				"skunk stripes"
+				"skunk stripes",
 			],
 			devolve: ["ruffled", "bedhead", "unkept"],
 		},
