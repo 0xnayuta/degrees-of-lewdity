@@ -387,15 +387,21 @@ function NPCSettingsReset() {
 DefineMacro("NPCSettingsReset", NPCSettingsReset);
 
 function loveInterestFunction() {
-	jQuery(document).on("change", "#listbox-loveinterestprimary", function (e) {
-		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
-	});
-	jQuery(document).on("change", "#listbox-loveinterestsecondary", function (e) {
-		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
-	});
-	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
-		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
-	});
+	jQuery(document)
+		.off("change.loveInterest")
+		.on("change.loveInterest", "#listbox-loveinterestprimary, #listbox-loveinterestsecondary, #listbox-loveinteresttertiary", () => {
+			Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
+		});
+	jQuery(document)
+		.off(":passagestart.loveInterest")
+		.one(":passagestart.loveInterest", () => {
+			if (V.LIChanged) {
+				V.stress += 2000;
+				V.trauma += 600;
+			}
+			delete V.LIChanged;
+			delete V.currentLoveInterest;
+		});
 }
 DefineMacro("loveInterestFunction", loveInterestFunction);
 
