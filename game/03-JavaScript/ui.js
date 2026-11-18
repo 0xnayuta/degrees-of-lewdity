@@ -588,3 +588,11 @@ function toggleRelationCollapse(element) {
 	}
 }
 window.toggleRelationCollapse = toggleRelationCollapse;
+
+// Number keys skip links hidden in a closed <details> (like the farm dropdowns). The passage is renumbered when one opens or closes.
+Links.skipElements += ", details:not([open]) .link-internal:not(summary)";
+function onDetailsToggle() {
+	Links.generateLinkNumbers($(".passage"));
+}
+
+document.addEventListener("toggle", onDetailsToggle, { capture: true });
