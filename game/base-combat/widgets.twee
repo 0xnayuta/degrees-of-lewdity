@@ -118,7 +118,6 @@
 						<</if>>
 					<<case "anal">><<purity -25>>
 					<<case "oral">><<purity -25>>
-					<<case "handholding">><<purity -10>>
 					<<case "kiss">><<purity -10>>
 				<</switch>>
 			<</if>>
@@ -166,47 +165,34 @@
 	<</if>>
 <</widget>>
 
-<<widget "takeHandholdingVirginity">>
-	<<if typeof _args[0] === 'string' or _args[0] instanceof String>>
-		<<set $_fullDescription to _args[0]>>
-		<<if C.npc[_args[0]]>>
-			<<set $_type to C.npc[_args[0]].type>>
-		<<else>>
-			<<set $_type to _args[2]>>
-		<</if>>
-	<<else>>
-		<<set $_fullDescription to _args[0].fullDescription>>
-		<<set $_type to _args[0].type>>
+<<widget "holdHands">>
+	<<unset _npc>>
+	<<if C.npc[_args[0]]>>
+		<<set $_npc to _args[0]>>
+	<<elseif C.npc[_args[0].fullDescription]>>
+		<<set $_npc to _args[0].fullDescription>>
 	<</if>>
 
-	<<switch _args[1]>>
-		<<case "romantic" "consensual">>
-			<<set _npcConsensualOverride to true>>
-		<<case "rape">>
-			<<set _npcConsensualOverride to true>>
-	<</switch>>
-	<<takeNPCVirginity $_fullDescription "handholding" "pc">>
-	<<unset _npcConsensualOverride>>
+	<<set $_newIndex to true>>
+	<<for $_i, $_entry range $player.heldHandsWith>>
+		<<if Array.isArray($_entry) and $_entry[0] is $_npc>>
+			<<set $_newIndex to false>>
+			<<break>>
+		<</if>>
+	<</for>>
 
-	<<if $player.virginity.handholding is true>>
-		<<switch _args[1]>>
-			<<case "romantic">>
-				<span class="lewd">You aren't used to this kind of romantic handholding.</span><<arousal 2000>><<ggarousal>>
-				<<set _consensualOverride to true>>
-			<<case "rape">>
-				<span class="red">You feel horrible, being forced to hold hands like this.</span><<stress 40>><<ggstress>>
-				<<set _consensualOverride to false>>
-			<<case "consensual">>
-				<span class="green">Having your hand held feels nice.</span><<lltrauma>><<trauma -18>>
-				<<set _consensualOverride to true>>
-			<<case "tentacle">>
-				<<set $_handTentacle to _args[2] or "tentacle">>
-				<span class="lewd">You wonder what others would say about a $_handTentacle holding your hand, if they would even believe you.</span><<arousal 1000>>
-			<<default>>
-				<span class="blue">You feel nervous holding the hands of someone you're not close to.</span><<stress 20>><<gstress>>
-		<</switch>>
-		<<if _args[3]>><br><br><</if>>
-		<<takeVirginity $_fullDescription "handholding">>
+	<<if $_newIndex and C.npc[$_npc]>>
+		<<set $_info to {
+			timestamp: Time.date.timeStamp,
+			passage: $passage
+		}>>
+		<<if _args[1] is "romantic" or _args[1] is "consensual">>
+			<<set $_info.consensual to true>>
+		<<elseif _args[1] is "rape">>
+			<<set $_info.consensual to false>>
+		<</if>>
+		<<run $player.heldHandsWith.push([$_npc, $_info])>>
+		<span class="blue">It's the first time you're holding hands with <<print pregnancyNameCorrection($_npc)>>.</span>
 	<</if>>
 <</widget>>
 
@@ -351,9 +337,6 @@
 				<<case "kiss">>
 					<<set $speechNPCKissVirgin to 1>>
 					<<set _npcKissVirginTemp to 1>>
-				<<case "handholding">>
-					<<set $speechNPCHandholdingVirgin to 1>>
-					<span class="green"><<His>> hand clenches, and <<he>> looks slightly nervous.</span>
 				<<default>>
 			<</switch>>
 
