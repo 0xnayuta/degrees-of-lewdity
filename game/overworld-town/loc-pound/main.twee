@@ -48,17 +48,68 @@ You are in the dog pound on Starfish Street. Stray <<pound_text>> fill the cages
 	<br>
 
 	<<if Time.openingHours() and $exposed lt 1>>
+		<<if !$daily.poundDescriptionBadEndFlashback and $flashbacks gte 1 and $controlled is 0 and $badEndStats.find(stat => stat.source === "Pound")>>
+			<<set $daily.poundDescriptionBadEndFlashback to true>>
+			<br>
+			<span class="red">Flashbacks to your captivity at the pound intrude.</span> You don't feel safe here.<<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
+			<br>
+		<</if>>
 		<br>
 		Staff go about their business.
-		<<if Time.hour gte 18>>
-			Some stand around chatting in the rear courtyard, as if they have nothing better to do.
-		<<elseif Time.hour gte 14>>
-			A well-dressed couple examine a line-up of <<pound_text>> in the rear courtyard, considering adoption.
-		<<elseif Time.hour gte 10>>
-			Some <<pound_text>> have been let loose in the rear courtyard.
-		<<else>>
 
+		<<cleareventpool>>
+
+		<<addinlineevent "pound_description_normal" 1>>
+			<<if Time.hour gte 18>>
+				Some stand around chatting in the rear courtyard, as if they have nothing better to do.
+			<<elseif Time.hour gte 14>>
+				A well-dressed couple examine a line-up of <<pound_text>> in the rear courtyard, considering adoption.
+			<<elseif Time.hour gte 10>>
+				Some <<pound_text>> have been let loose in the rear courtyard.
+			<<else>>
+
+			<</if>>
+		<</addinlineevent>>
+
+		<<if !$daily.poundDescriptionBestialityFame and $fame.bestiality gte 400>>
+			<<addinlineevent "pound_description_bestiality_fame" 0.2>>
+				<<set $daily.poundDescriptionBestialityFame to true>>
+				<<generate2>>
+				A <<person2>><<person>> notices you enter and whispers something to another staff member. You feel their eyes follow you for the rest of your visit.<<stress 6>><<gstress>>
+			<</addinlineevent>>
 		<</if>>
+
+		<<if !$daily.poundDescriptionCollarTease and $worn.neck.collared>>
+			<<addinlineevent "pound_description_collar_tease" 0.2>>
+				<<set $daily.poundDescriptionCollarTease to true>>
+				<<generate2>>
+				A <<person2>><<person>> regards you.
+				<<if $worn.neck.type.includes("leash")>>
+					"Nice leash," <<he>> says. "Looking for a <<master>>?"
+				<<else>>
+					"Nice collar," <<he>> says. "You'd fit right in."
+				<</if>>
+				<<He>> leers at your body with obvious desire.<<stress 6>><<gstress>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<if !$daily.poundDescriptionBadEndTease and $badEndStats.find(stat => stat.source === "Pound")>>
+			<<addinlineevent "pound_description_bad_end_tease" 0.2>>
+				<<set $daily.poundDescriptionBadEndTease to true>>
+				<<generate2>>
+				A <<person2>><<person>> stops working to regard you.
+				<<print either(
+					`"Back for more?" <<he>> says.`,
+					`"Dogs like you belong in a cage," <<he>> says.`,
+					`"Aren't you supposed to be wearing a muzzle?" <<he>> says.`,
+					`<<if $worn.neck.type.includes("leash")>>"Leashed and everything," <<he>> says. "You ready to join the strays again?"<<elseif $worn.neck.collared>>"That collar suits you," <<he>> says. "You ready to join the strays again?"<<else>>"You'd look better in a collar," <<he>> says.<</if>>`
+				)>>
+				You recognise <<him>> as one of the people who held you captive here.<<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
+			<</addinlineevent>>
+		<</if>>
+
+		<<runeventpool>>
+
 		<br>
 		<<if $pound.progress is 0>>
 			<<socialiseicon "ask">><<link [[Ask for work|Pound Ask]]>><<set $pound.progress to 1>><<endevent>><</link>>
@@ -725,8 +776,10 @@ You take a broom and
 <</switch>>
 <br><br>
 
-<<generateBeastVictim 1 dog>>
-<<if random(1, 3) is 3>>
+<<cleareventpool>>
+
+<<addinlineevent "pound_sweep_broom" 1>>
+	<<generateBeastVictim 1 dog>>
 	The broom snags as a <<beasttype>> grabs it between <<bhis>> teeth.
 	<br><br>
 
@@ -734,7 +787,10 @@ You take a broom and
 	<br>
 	<<link [[Wrestle|Pound Work Sweep Wrestle]]>><</link>><<physiquedifficulty 1 6000>>
 	<br>
-<<elseif random(1, 2) is 2>>
+<</addinlineevent>>
+
+<<addinlineevent "pound_sweep_dustpan" 1>>
+	<<generateBeastVictim 1 dog>>
 	While attending to a corner of a cage, you see a <<beasttype>> walk over to the dustpan. <<bHe>> sniffs it and paws at the handle.
 	<br><br>
 
@@ -742,9 +798,10 @@ You take a broom and
 	<br>
 	<<link [[Tell off|Pound Work Sweep Stop]]>><</link>><<tendingdifficulty 1 200>>
 	<br>
+<</addinlineevent>>
 
-<<else>>
-	<<endevent>><<generate1>><<person1>>
+<<addinlineevent "pound_sweep_creep" 1>>
+	<<generate1>><<person1>>
 	A <<person>> grasps the handle as you pass by, stopping you. <<He>> moves in, resting a hand on your <<bottom>>.<<gstress>><<stress 6>>
 	<br><br>
 	"Let me show you how to sweep properly," <<he>> says, stepping closer still.
@@ -770,7 +827,44 @@ You take a broom and
 		<<link [[Shove|Pound Work Sweep Shove]]>><<pound_status 1>><<stress 6>><</link>><<gstress>><<gpound_status>>
 		<br>
 	<</if>>
+<</addinlineevent>>
+
+<<if !$daily.poundSweepMoney>>
+	<<addinlineevent "pound_sweep_money" 0.1>>
+		<<set $daily.poundSweepMoney to true>>
+		You spot a <<printmoney 2000>> note in front of a cage. Someone must have dropped it.
+		<br><br>
+
+		<<link [[Take it|Pound Work Sweep Money]]>><<set $phase to 1>><</link>>
+		<br>
+		<<link [[Report it|Pound Work Sweep Money]]>><<set $phase to 2>><</link>>
+		<br>
+	<</addinlineevent>>
 <</if>>
+
+<<if !$weekly.poundSweepBadEndTalk and $badEndStats.find(stat => stat.source === "Pound")>>
+	<<set $weekly.poundSweepBadEndTalk to true>>
+	<<addinlineevent "pound_sweep_bad_end_talk" 0.1>>
+		<<generate1>>
+		A <<person1>><<person>> wanders by, whistling as <<he>> twirls a collar around a finger. <<He>> abruptly stops behind you.
+		<br><br>
+
+		"Well, look who's back?" <<he>> says. You freeze. You recognise <<him>> as one of the staff who held you captive here. "Couldn't stay away, now could you? A needy <<bitch>> like you knows where you belong."
+		<br><br>
+
+		<<if $wolfgirl gte 6>>
+			<<link [[Growl|Pound Work Sweep Bad End Talk]]>><<set $phase to 1>><</link>><<wolfgirl>>
+			<br>
+		<</if>>
+		<<link [[Confront|Pound Work Sweep Bad End Talk]]>><<set $phase to 2>><</link>>
+		<br>
+		<<link [[Ignore|Pound Work Sweep Bad End Talk]]>><<set $phase to 3>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<runeventpool>>
+
 <<wearProp "broom">>
 
 :: Pound Work Sweep Go
@@ -790,7 +884,12 @@ The <<person>> presses <<his>> body awfully close as <<he>> holds your arms and 
 :: Pound Work Sweep Shove
 <<effects>>
 
-You shove the <<person>> away from you. <<He>> glares at you, then glances at the supervisor, before deciding not to press things.
+You shove the <<person>> away from you. <<He>> glares at you, then 
+<<if $badEndStats.find(stat => stat.source === "Pound")>>
+	smiles darkly. "Better be careful, <<girl>>. Don't make us show you your place again."<<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
+<<else>>
+	glances at the supervisor, before deciding not to press things.
+<</if>>
 <br><br>
 
 The <<pound_text>> watch with blank expressions.
@@ -872,6 +971,58 @@ The <<beasttype>> eventually tires and walks away, leaving behind a huge mess. Y
 	<br><br>
 
 <</if>>
+
+<<poundEndEvent>>
+
+:: Pound Work Sweep Money
+<<effects>>
+
+<<if $phase is 1>>
+	You look around to see if anyone is watching before pocketing the money.
+	<<if $money gte $bailey.rent.amount + ($bailey.rent.extraForChildren or 0)>>
+		With several staff working right now, you doubt anyone could trace it back to you.
+	<<else>>
+		You probably need it more than they do.
+	<</if>>
+	<<money 2000 "thievery">>
+<<else>>
+	<<generate1>>
+	You inform a <<person1>><<person>> at the front counter that someone dropped a banknote by one of the cages. <<He>> grabs the money from your hand to inspect it.
+	<br><br>
+
+	"Doubt anyone will come looking for this. It's not like they lost their wallet or something." <<He>> opens a cash register and places the note inside. "Let's just call it an accounting error for now. Thanks, though."
+	<<famegood 3>>
+<</if>>
+<br><br>
+
+<<poundEndEvent>>
+
+:: Pound Work Sweep Bad End Talk
+<<effects>>
+
+<<if $phase is 1>>
+	You let out a warning growl and bare your fangs. "Easy now," <<he>> says, taking a step back. "No need to get feisty. You'll learn your place soon enough."
+	<br><br>
+<<elseif $phase is 2>>
+	<<if $speech_attitude is "meek">>
+		"Please leave me alone," you say.
+	<<elseif $speech_attitude is "bratty">>
+		"Piss off," you say. "Keep your paws to yourself."
+	<<else>>
+		"Go away," you say. "Don't touch me."
+	<</if>>
+	<br><br>
+
+	The <<person>> smiles. "You'll be back on all fours soon, you'll see. It's where dogs like you belong."
+	<br><br>
+<<else>>
+	You don't dignify <<his>> words with a response. "What's the matter?" <<he>> says. "Thinking about how much better it felt to be on all fours?"
+	<br><br>
+
+	The <<person>> continues to try to get a reaction out of you, but eventually loses interest.
+<</if>>
+
+<<He>> turns away to resume <<his>> patrol, whistling and spinning the collar around <<his>> finger. You try to tune out the sound as you finish your work.<<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
 
 <<poundEndEvent>>
 
@@ -1148,16 +1299,16 @@ You glance around to ensure you're not being watched, then drop to all fours. "R
 		<br><br>
 		<<tearful>> you try to work yourself free.
 		<br><br>
-			It takes a while. So long, in fact, that you're still trying when you hear footsteps approach. <span class="red">Someone is coming.</span>
-			<br><br>
-			<<clotheson>>
-			<<endcombat>>
-			<<generate1>><<person1>><<generate2>><<generate3>><<generate4>>
-			You grab hold of the bars of the cage for leverage, but it's no use. A <<person>> walks into view, and stops at the sight of you. "Everyone!" <<he>> shouts. "Come get a look at this!"<<ggtrauma>><<ggstress>><<famebestiality 4>>
-			<br><br>
+		It takes a while. So long, in fact, that you're still trying when you hear footsteps approach. <span class="red">Someone is coming.</span>
+		<br><br>
+		<<clotheson>>
+		<<endcombat>>
+		<<generate1>><<person1>><<generate2>><<generate3>><<generate4>>
+		You grab hold of the bars of the cage for leverage, but it's no use. A <<person>> walks into view, and stops at the sight of you. "Everyone!" <<he>> shouts. "Come get a look at this!"<<ggtrauma>><<ggstress>><<famebestiality 4>>
+		<br><br>
 
-			<<link [[Next|Pound Assault Caught]]>><<set $phase to 1>><</link>>
-			<br>
+		<<link [[Next|Pound Assault Caught]]>><<set $phase to 1>><</link>>
+		<br>
 	<<else>>
 		The <<beasttype>> returns to the corner of <<bhis>> cage, and lies down to sleep. <<tearful>> you close the door.
 		<br><br>
