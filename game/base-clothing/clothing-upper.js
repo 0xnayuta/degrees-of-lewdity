@@ -3278,7 +3278,7 @@ function initUpper() {
 			breast_img: { 0: null, 1: null, 2: null, 3: 4, 4: 4, 5: 5, 6: 6 },
 			breast_acc_img: { 0: 1, 1: 1, 2: 1, 3: 4, 4: 4, 5: 5, 6: 6 },
 			// altposition: "none",
-			// altdisabled: ["sleeves"], commented out bc for some reason the acc layer refuses to behave
+			// altdisabled: ["sleeves"], // commented out bc for some reason the acc layer refuses to behave
 			cursed: 0,
 			location: 0,
 			iconFile: "letterman_jacket.png",
