@@ -3274,7 +3274,7 @@ function initUpper() {
 			shop: ["clothing"],
 			sleeve_img: 1,
 			sleeve_acc_img: 1,
-			sleeve_colour: "secondary",
+			sleeve_colour: "primary",
 			breast_img: { 0: null, 1: null, 2: null, 3: 4, 4: 4, 5: 5, 6: 6 },
 			breast_acc_img: { 0: 1, 1: 1, 2: 1, 3: 4, 4: 4, 5: 5, 6: 6 },
 			// altposition: "none",
