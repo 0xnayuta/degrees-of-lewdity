@@ -357,6 +357,12 @@ function hairdressersReset() {
 			Wikifier.wikifyEval('<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>><<numberify "#passages > .passage">>');
 		})
 	);
+	$(() =>
+		$("#hairDressers").on("click", "#swap-colours-button", function (e) {
+			Wikifier.wikifyEval("<<replace #hairDressers>><<hairDressersOptions>><</replace>>");
+			Wikifier.wikifyEval('<<replace #currentCost>>To pay: £<<print _currentCost / 100>><</replace>><<numberify "#passages > .passage">>');
+		})
+	);
 }
 DefineMacro("hairdressersReset", hairdressersReset);
 
