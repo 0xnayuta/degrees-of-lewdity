@@ -391,13 +391,15 @@ function updateClothesItem(slot, item, debug) {
 		case "long johns":
 			item.type = ["normal", "lower_covering"];
 			break;
-		case "unitard bottom":
-		case "leotard bottom":
 		case "unitard":
 		case "leotard":
 		case "turtleneck leotard":
 		case "skimpy leotard":
 			item.type = ["dance", "torso_covering"];
+			break;
+		case "unitard bottom":
+		case "leotard bottom":
+			item.type = ["dance", "lower_covering"];
 			break;
 		case "turtleneck leotard bottom":
 		case "skimpy leotard bottom":

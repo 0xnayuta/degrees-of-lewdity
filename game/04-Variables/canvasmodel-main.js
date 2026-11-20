@@ -720,8 +720,8 @@ Renderer.CanvasModels.main = {
 		options.zupperleft = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 		options.zupperright = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 
-		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.right_cover_arm + 1;
-		if (options.arm_left === "cover") options.zupperleft = ZIndices.left_cover_arm + 1;
+		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.right_cover_arm + 2;
+		if (options.arm_left === "cover") options.zupperleft = ZIndices.left_cover_arm + 2;
 		if (options.worn.head.setup.name === "sage witch hat") {
 			const ears = isPartEnabled(options.fox_ears_type) || isPartEnabled(options.wolf_ears_type) || isPartEnabled(options.cat_ears_type)
 			if (ears) options.hideHeadAcc = true;
