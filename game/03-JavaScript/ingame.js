@@ -1716,7 +1716,7 @@ function npcClothes(npc, type) {
 window.npcClothes = npcClothes;
 
 function waterproofCheck(clothing) {
-	return clothing.type.includesAny("swim", "stealthy", "rainproof", "waterproof");
+	return clothing.type.includesAny("swim", "stealthy", "rainproof", "waterproof") || V.cheatClothesAutoDry;
 }
 window.waterproofCheck = waterproofCheck;
 

@@ -1275,6 +1275,14 @@ function effects() {
 		});
 	}
 
+	if (V.cheatClothesAutoDry) {
+		const _clCheatAutoDrySlot = ["upper", "lower", "underupper", "underlower", "overupper", "overlower"];
+		_clCheatAutoDrySlot.forEach(slot => {
+			V[`${slot}wet`] = 0;
+			V[`${slot}wetstage`] = 0;
+		});
+	}
+
 	if (Array.isArray(V.timeMessages) && V.timeMessages.length) {
 		/*
 			Calls to <<earnFeat "x">> here and within earnHourlyFeats are intended to show feats to the user.
