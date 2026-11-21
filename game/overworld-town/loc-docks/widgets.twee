@@ -71,7 +71,7 @@
 		<<if hasSexStat("exhibitionism", 5) and !$daily.docksExhibitionism>>
 			<<icon "actions/dock-work.png">>
 			<<link [["Strip and work (" + _time_to_display + ")"|Docks Work]]>>
-				<<undressclothes "docks">><<dockstatus 1>>
+				<<undressclothes "docks">><<dockstatus 2>>
 				<<set $phase to 2>><<tiredness _fatigue_value>><<pass _time_to_pass>>
 				<<set $docks.dailyHours.overtime.total += 1>><<set $docks.dailyHours.overtime.workedHard += 1>>
 				<<if $docks.dayType is "lewd">><<arousal 1200>><</if>>
@@ -108,7 +108,7 @@
 		<<if hasSexStat("exhibitionism", 5) and !$daily.docksExhibitionism>>
 			<<skinicon "strip">>
 			<<link [["Strip and work (" + _time_to_display + ")"|Docks Work]]>>
-				<<undressclothes "docks">><<dockstatus 1>>
+				<<undressclothes "docks">><<dockstatus 2>>
 				<<set $phase to 2>><<tiredness _fatigue_value>><<pass _time_to_pass>>
 				<<set $docks.dailyHours.shift.total += 1>><<set $docks.dailyHours.shift.workedHard += 1>>
 				<<if $docks.dayType is "lewd">><<arousal 1200>><</if>>
@@ -153,7 +153,7 @@
 /* Used to go to the right widget based on the current time */
 <<widget "docklunchprompt">>
 	<<if Time.hour is 11>>
-		<<if $phase is "prompt">> /* Currently unused, but lets displaying a Next prompt */
+		<<if $phase is "prompt">> /* Currently unused, but allows displaying a Next prompt */
 			<<foodicon "eat">><<link [[Next|Docks Lunch]]>><</link>>
 		<<else>>
 			<<docklunchoptions>>
@@ -198,6 +198,11 @@
 
 	<<if !$worn.face.type.includes("gag")>>
 		<<socialiseicon>><<link [["Socialise " + printTime(_time_to_pass, true)|Docks Lunch Socialise]]>><<pass _time_to_pass>><</link>>
+		<<if $docks.status gte 20>>
+			<<gcool>>
+		<<else>>
+			<span class="green">+ Status?</span>
+		<</if>>
 		<br>
 		<<if Time.minute < 50>>
 			<<brothelicon>><<link [[Flirt (0:05)|Docks Lunch Flirt]]>><<pass 5>><</link>><<promiscuous1>>
@@ -247,7 +252,7 @@
 
 <<widget "dockstatus">>
 	<<if _args[0]>>
-		<<set $docks.status += (_args[0] * 2)>>
+		<<set $docks.status += _args[0]>>
 		<<set $docks.status to Math.clamp($docks.status, 0, 100)>>
 	<</if>>
 <</widget>>
@@ -257,6 +262,13 @@
 	<<if Time.hour gte 16>>
 		<<if Time.hour gte 19>>
 			You help put away equipment and make sure the containers are locked for the evening.
+			<<if $docks.dayType is "busy">>
+				After a busy day, the other dockers who stayed through overtime are exhausted and greatly appreciate your assistance.<<dockstatus 6>><<ggcool>>
+			<<elseif $docks.dayType is "lewd">>
+				After handling the unusual cargo all day, the other dockers who stayed through overtime can barely focus and greatly appreciate your assistance.<<dockstatus 6>><<ggcool>>
+			<<else>>
+				The other dockers who stayed through overtime appreciate your assistance.<<dockstatus 2>><<gcool>>
+			<</if>>
 			<br><br>
 		<<elseif $docks.dayType is "slow" and Time.hour gte 16>>
 			There's no more cargo left to move today, so nobody is allowed to work overtime. You help put away equipment and make sure the containers are locked for evening.
@@ -313,7 +325,7 @@
 		<br><br>
 
 		<<if $docks.status gte 60 and $docks.pub.cooldown is 0>>
-			<<set $docks.pub.cooldown to 2>> /* reduced in dailyDockEffects() */
+			<<set $docks.pub.cooldown to 3>> /* reduced in dailyDockEffects() */
 			<<generate2>><<person2>>
 
 			A group of your colleagues gather at the gate. A <<person>> waves you over. "We're going on a pub crawl," <<he>> says.
@@ -331,7 +343,7 @@
 				<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 					<span class="blue">You can't bring yourself to a night of such debauchery while you know you're with child.</span><br>
 				<<elseif $money gte 500>>
-					<<pubicon>><<link [[Accept (1:00 £5)|Docks Pub Crawl]]>><<endevent>><<set $docks.pub.count to 0>><<money -500>><<drunk 120>><<dockstatus 1>><<stress -6>><<pass 60>><</link>><<gcool>><<lstress>><<ggdrunk>>
+					<<pubicon>><<link [[Accept (1:00 £5)|Docks Pub Crawl]]>><<endevent>><<set $docks.pub.count to 0>><<money -500>><<drunk 120>><<dockstatus 2>><<stress -6>><<pass 60>><</link>><<gcool>><<lstress>><<ggdrunk>>
 					<br>
 				<</if>>
 				<<refuseicon>><<link [[Decline|Docks]]>><<endevent>><</link>>
@@ -381,7 +393,7 @@
 		<<set $docks.wage to ($docks.wage - 100)>>
 		"Performance reviews indicate that you're not pulling your weight around here, so <span class="red">we're cutting your wage to</span> <span class="gold">£<<print ($docks.wage / 100)>></span> <span class="red">an hour.</span> Your end-of-shift payment will use the new rate. Do better."<<stress 12>><<trauma 12>><<ggstress>><<ggtrauma>>
 		<br><br>
-		The other dockers overheard the news. Some look vindicated that you got your comeuppance. Many give sympathetic glances before returning to work.<<dockstatus 30>><<gggcool>>
+		The other dockers overheard. Some look vindicated, though many give sympathetic glances before returning to work.<<dockstatus 30>><<gggcool>>
 		<br><br>
 		<<endevent>>
 		<<dockoptions>>
@@ -440,14 +452,15 @@
 		A vessel requests help making it to the dock. You, a <<generate1>><<person1>><<person>>, and a <<generate2>><<person2>><<person>> are tasked with helping. You board a small ship and sail to meet it.
 		<br><br>
 
-		<<if dangerEvent()>>
+		<<if dangerEvent() and !$daily.docksVesselRape>>
+			<<set $daily.docksVesselRape to true>>
 			You're halfway there when the <<person>> cuts out the engine. <<He>> and the <<person1>><<person>> stare at you. "A fresh <<girl>>, all alone at sea," <<he>> says. "Hows about you let us have some fun, and we won't need to hurt you." The <<person>> brandishes a length of rope.
 			<br><br>
 			<<link [[Nod|Docks Rape]]>><<set $molestationstart to 1>><</link>>
 			<br>
 			<<link [[Fight|Docks Rape]]>><<set $fightstart to 1>><</link>>
 			<br>
-			<<link [[Capsize the boat|Docks Rape Capsize]]>><<dockstatus -1>><</link>><<lcool>>
+			<<link [[Capsize the boat|Docks Rape Capsize]]>><<dockstatus -2>><</link>><<lcool>>
 			<br>
 		<<else>>
 			The <<person>> guides the captain while you and the <<person1>><<person>> help the crew with the spring lines. <<if $exposed gte 1>>The sailors ogle you, though they try to hide it. <</if>>You swing the vessel around and make a successful landing.
@@ -482,7 +495,7 @@
 			<br>
 		<</if>>
 		<<if displayDefiantOption(500)>>
-			<<link [[Scare the passengers|Docks Tourist Intimidate]]>><<dockstatus 3>><<wolfDefiant 500>><</link>><<defianttext 500>><<ggcool>>
+			<<link [[Scare the passengers|Docks Tourist Intimidate]]>><<dockstatus 6>><<wolfDefiant 500>><</link>><<defianttext 500>><<ggcool>>
 			<br>
 		<</if>>
 		<<link [[Return to dock|Docks Tourist Return]]>><</link>>
@@ -535,9 +548,9 @@
 	<<addinlineevent "docks_work_moving_crates">>
 		You're tasked with moving some crates so they can be loaded onto vehicles. <<generate1>><<person1>>"You'll need a forklift," the supervisor says. "Let me find the keys."
 		<br><br>
-		<<if currentSkillValue('physique') gte 14000>>
-			The crates don't look too heavy. By the time <<he>> returns you've already finished. "You're stronger than you look," <<he>> chuckles.
-			<<gcool>><<dockstatus 1>>
+		<<if currentSkillValue('physique') gte 11000>>
+			The crates don't look too heavy. By the time <<he>> returns, you've already finished. "You're stronger than you look," <<he>> chuckles.
+			<<dockstatus 2>><<gcool>>
 			<br><br>
 			<<dockoptions>>
 		<<else>>
@@ -556,9 +569,9 @@
 		<<else>>
 			You manage to make it in time. Just.
 			<<if $feetuse is "bound">>
-				<span class="pink">It's sort of miraculous that you did so while your legs were restrained.</span>
+				<span class="pink">It's miraculous that you did so while your legs were restrained.</span>
 			<</if>>
-			<<gtiredness>><<tiredness 6>>
+			<<tiredness 6>><<gtiredness>>
 			<br><br>
 		<</if>>
 
@@ -572,7 +585,7 @@
 	<<if $exposed lte 0>>
 		<<addinlineevent "docks_work_lubricating_machinery">>
 			You're tasked with lubricating machinery.
-			<<if $docks.status gte 30>>
+			<<if $docks.status gte 40>>
 				You manage it without a problem.
 				<br><br>
 				<<dockoptions>>
@@ -585,7 +598,7 @@
 				<<if $worn.over_lower.integrity lte 0 and !$worn.lower.type.includes("naked")>>
 					<<overlowerruined>><<exposure>>
 					Your weight tears you free of your clothing. <<generate2>><<person2>>A <<person>> catches you. <<He>> ogles your <<lewdness>>. So does everyone else. <<covered>> You squirm free and dash for safety, chased by jeers. You find a sheet to cover with.
-					<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+					<<trauma 6>><<stress 6>><<arousal 600>><<gtrauma>><<gstress>><<garousal>>
 					<br><br>
 					<<towelup>>
 					<<dockoptions>>
@@ -596,9 +609,9 @@
 						Your weight tears you free from the hook.
 					<</if>>
 					<<generate2>><<person2>>A <<person>> catches you, but you squirm free.
-					<<gstress>><<stress 6>>
+					<<stress 6>><<gstress>>
 					<br><br>
-					<<link [[Get angry|Docks Angry]]>><<stress -3>><<dockstatus 1>><</link>><<gcool>><<lstress>>
+					<<link [[Get angry|Docks Angry]]>><<stress -3>><<dockstatus 2>><</link>><<gcool>><<lstress>>
 					<br>
 					<<link [[Walk away|Docks Walk]]>><</link>>
 					<br>
@@ -612,15 +625,15 @@
 				<<if $worn.lower.integrity lte 0>>
 					<<lowerruined>><<exposure>>
 					Your weight tears you free of your clothing. <<generate2>><<person2>>A <<person>> catches you. <<He>> ogles your <<lewdness>>. So does everyone else. <<covered>> You squirm free and dash for safety, chased by jeers. You find a sheet to cover with.
-					<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 600>>
+					<<trauma 6>><<stress 6>><<arousal 600>><<gtrauma>><<gstress>><<garousal>>
 					<br><br>
 					<<towelup>>
 					<<dockoptions>>
 				<<else>>
 					Your weight tears you free from the hook. <<generate2>><<person2>>A <<person>> catches you, but you squirm free.
-					<<gstress>><<stress 6>>
+					<<stress 6>><<gstress>>
 					<br><br>
-					<<link [[Get angry|Docks Angry]]>><<stress -3>><<dockstatus 1>><</link>><<gcool>><<lstress>>
+					<<link [[Get angry|Docks Angry]]>><<stress -3>><<dockstatus 2>><</link>><<gcool>><<lstress>>
 					<br>
 					<<link [[Walk away|Docks Walk]]>><</link>>
 					<br>
@@ -631,9 +644,9 @@
 
 	<<addinlineevent "docks_work_lifting_crates">>
 		You lift crates from a moored ship and drop them off on the dock. They're small compared to the rest of the cargo, but heavy.
-		<<if currentSkillValue('physique') gte 15000 and !pcAreArmsBound("any")>>
+		<<if currentSkillValue('physique') gte 11000 and !pcAreArmsBound("any")>>
 			You have no trouble. You keep going while the other dockers stop to rest.
-			<<gcool>><<dockstatus 1>>
+			<<dockstatus 2>><<gcool>>
 			<br><br>
 		<<elseif currentSkillValue('physique') gte 5000 and !pcAreArmsBound("any")>>
 			You manage to keep up with the other dockers.
@@ -645,7 +658,7 @@
 			<</if>>
 			<br><br>
 			You're struggling with the second crate when a muscular docker takes it from your hands. "Last one," <<generate1>><<person1>><<he>> says. <<He>> doesn't look at you.
-			<<lcool>><<dockstatus -1>>
+			<<dockstatus -2>><<lcool>>
 			<br><br>
 		<</if>>
 		<<endevent>>
@@ -756,14 +769,21 @@
 	<</addinlineevent>>
 
 	<<addinlineevent "docks_overhear_pub_crawl">>
-		"You joining us at the pub later?"
 		<br>
 		<<if $rng gte 51>>
-			<<if $docks.pub.cooldown gt 0>>
-				"Again? I'm still recovering from last time."
+			<<if $docks.pub.cooldown gte 2>>
+				"I'm still hungover from last night."
 				<br>
-				"That's fair. Maybe we should lay off for a bit."
+				"Me too. Had a great time with the mates, though. We should do that again sometime."
+			<<elseif $docks.pub.cooldown is 1>>
+				"Hey, you want to go to the pub later?"
+				<br>
+				"Again? I'm still recovering from a couple nights ago."
+				<br>
+				"That's fair. Maybe we should lay off until tomorrow."
 			<<else>>
+				"You joining us at the pub later?"
+				<br>
 				"Me? Yeah, I'm down to get wasted."
 				<br>
 				"I'll get the mates together after our shift."
@@ -984,7 +1004,7 @@
 			<<if $fame.bestiality gte 600>>
 				"Don't tell anyone, but rumour has it <<pshe>> sleeps with them."
 				<br>
-				"Gross. What a freak."<<stress 6>><<trauma 6>><<dockstatus -1>><<gstress>><<gtrauma>><<lcool>>
+				"Wow. What a freak."<<stress 6>><<trauma 6>><<gstress>><<gtrauma>>
 			<<elseif $halloween is 1>>
 				<<if Time.monthDay is 31>>
 					"Did you forget? It's Halloween. <<pShes>> probably going trick-or-treating later."
@@ -1000,9 +1020,10 @@
 	/* Fame events */
 
 	/* Divides the chance for each fame event by total fame, up to 2200 */
-	<<set _fame_total to fameTotal()>>
-	<<if _fame_total gte 2200>>
+	<<if fameTotal() gte 2200>>
 		<<set _fame_total to 2200>>
+	<<else>>
+		<<set _fame_total to fameTotal()>>
 	<</if>>
 	<<set _chance_divisor to (600 / _fame_total)>>
 
@@ -1145,7 +1166,7 @@
 			"Oh, <<phim>>? Way out of my league."
 			<br>
 			"Yeah. Same. Sorry, I'm just a bit starstruck. Not every day you find yourself working with someone on magazine covers. Especially not in this line of work."
-			<<if $docks.status lte 20>>
+			<<if $docks.status lt 20>>
 				<br>
 				"Eh. I'd be more enamoured if <<pshe>> ever lifted a finger to help us."
 			<</if>>
@@ -1271,7 +1292,7 @@
 <<widget "dockpuboptions">>
 	<<endevent>>
 	<<if $money gte 500>>
-		<<link [[Continue (1:00 £5)|Docks Pub Crawl]]>><<set $docks.pub.count to 0>><<money -500>><<drunk 120>><<dockstatus 1>><<stress -6>><<pass 60>><</link>><<gcool>><<lstress>><<ggdrunk>>
+		<<link [[Continue (1:00 £5)|Docks Pub Crawl]]>><<set $docks.pub.count to 0>><<money -500>><<drunk 120>><<dockstatus 2>><<stress -6>><<pass 60>><</link>><<gcool>><<lstress>><<ggdrunk>>
 		<br>
 	<</if>>
 	<<dockpubdestination>>
@@ -1333,9 +1354,9 @@
 
 		<<link [[Let your colleagues answer|Docks Pub Crawl Love]]>><<set $phase2 to 0>><</link>>
 		<br>
-		<<link [[Answer yourself|Docks Pub Crawl Love]]>><<set $phase2 to 1>><<dockstatus 1>><</link>><<skill_difficulty $promiscuity "Promiscuity" 1 100>><<gcool>>
+		<<link [[Answer yourself|Docks Pub Crawl Love]]>><<set $phase2 to 1>><<dockstatus 2>><</link>><<skill_difficulty $promiscuity "Promiscuity" 1 100>><<gcool>>
 		<br>
-		<<link [[Give the wrong answers|Docks Pub Crawl Love]]>><<set $phase2 to 2>><<dockstatus 1>><</link>><<gcool>>
+		<<link [[Give the wrong answers|Docks Pub Crawl Love]]>><<set $phase2 to 2>><<dockstatus 2>><</link>><<gcool>>
 		<br>
 
 	<</if>>
