@@ -65,26 +65,28 @@ declare global {
 		stayedUp?: 0 | 1 | 2;
 	}
 
-	/** Robin being upset with the PC, stored in `$robin.hurt`. */
+	/** Robin being upset with the PC, stored in `$robin.hurt`. Add to it with `addRobinHurt`. */
 	export interface RobinHurt {
 		/**
-		 * Days Robin stays upset with the PC. While above 0, Robin is cold to the PC and many friendly events are skipped.
-		 * "betrayed" at 2 or more and "conflicted" at 1.
+		 * Days Robin stays upset with the PC, 0 to 30. While above 0, Robin is cold to the PC and many friendly events are skipped.
+		 * Above 8, Robin won't let the PC into Robin's room and feels "betrayed"; from 1 to 8, "conflicted".
 		 * On Valentine's Day, Robin forgives it if it's 5 or less.
 		 */
-		daysLeft: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
-		/** Why Robin is upset with the PC.
-		 * Reset to "nothing" at midnight once `daysLeft` is 0. */
-		reason:
-			| "nothing"
-			| "the balloon stand situation"
-			| "the thing that happened in the infirmary"
-			| "what you did while studying"
-			| "you having Eden in your love locket"
-			| "you kissing Gwylan"
-			| "you kissing Kylar"
-			| "you saying that you two aren't a couple";
+		daysLeft: number;
+		/** Everything Robin is upset about. Kept after `daysLeft` reaches 0, until the next hurt starts a fresh list or `clearRobinHurt` ends it. */
+		reasons: RobinHurtReason[];
 	}
+
+	/** Why Robin is upset with the PC, worded to follow "upset about". */
+	export type RobinHurtReason =
+		| "the balloon stand situation"
+		| "the thing that happened in the infirmary"
+		| "what you did while studying"
+		| "you having Eden in your love locket"
+		| "you kissing Gwylan"
+		| "you kissing Kylar"
+		| "you saying that you two aren't a couple"
+		| "you leaving Robin at the docks";
 
 	/** Robin's savings and the balloon stand's effect on them, stored in `$robin.money`. */
 	export interface RobinMoney {
@@ -363,6 +365,9 @@ declare global {
 
 	/** Places Robin can be sent by Bailey. */
 	export type RobinPunishmentPlace = "docks" | "landfill" | "dinner" | "pillory" | "mansion" | "underground";
+
+	/** Where Robin is right now, from `getRobinLocation()`. */
+	export type RobinLocation = "orphanage" | "sleep" | "school" | "bath" | "garden" | "beach" | "park" | "halloween" | "englishPlay" | RobinPunishmentPlace;
 
 	/**
 	 * Robin's time in the pillory, stored in `$robin.punishment.pillory`.
