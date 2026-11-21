@@ -671,35 +671,27 @@ function setRobinLocationOverride(loc, hour) {
 }
 window.setRobinLocationOverride = setRobinLocationOverride;
 
+/**
+ * If Robin will crossdress at the current location. On the `crossdressing` scale `npcClothes` reads 2 for always and 0 for not at all.
+ * A Robin with >=40 trauma will not crossdress at all.
+ *
+ * @param {number} crossdressLevel how comfortable Robin is with crossdressing (`C.npc.Robin.crossdress`)
+ * @returns {0|2}
+ */
 function getRobinCrossdressingStatus(crossdressLevel) {
-	// Note returns 2 if Robin is crossdressing or 0 if not comfortable enough at that location
-	// Traumatised Robin will not crossdress.
-	if (C.npc.Robin.init !== 1) {
-		return;
-	}
-	T.robin_cd = 0;
-	if (C.npc.Robin.trauma >= 40) {
-		return;
-	}
+	if (C.npc.Robin.init !== 1 || C.npc.Robin.trauma >= 40) return 0;
 	switch (getRobinLocation()) {
 		case "orphanage":
 		case "sleep":
-			if (crossdressLevel >= 2) T.robin_cd = 2;
-			break;
+			return crossdressLevel >= 2 ? 2 : 0;
 		case "park":
 		case "beach":
-			if (crossdressLevel >= 4) T.robin_cd = 2;
-			break;
+			return crossdressLevel >= 4 ? 2 : 0;
 		case "school":
-			if (crossdressLevel >= 5) T.robin_cd = 2;
-			break;
-		case "missing":
-			T.robin_cd = 0;
-			break;
+			return crossdressLevel >= 5 ? 2 : 0;
 		default:
-			T.robin_cd = 0;
+			return 0;
 	}
-	return T.robin_cd;
 }
 window.getRobinCrossdressingStatus = getRobinCrossdressingStatus;
 
