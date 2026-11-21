@@ -122,6 +122,11 @@
 	})>>
 	<<set _blockedSeeds to $plants_known.filter(type => setup.foodstuff[type]?.tending && !_readyBeds.some(bed => _seedsByBed[bed].includes(type)))>>
 
+	<<if _readyBeds.length gte 1 and $plants_known.length gt _brokenSeeds.length>>
+		<<link "<span class='collapse-all-dropdowns-label'>Collapse all</span><span class='expand-all-dropdowns-label'>Expand all</span>">><<run toggleAllDropdowns()>><</link>>
+		<br><br>
+	<</if>>
+
 	<<set $_i to 0>>
 
 	<<for _plantbed range $_plotsHere>>
@@ -181,7 +186,7 @@
 						<span class="blue">None of your seeds can be planted here right now.</span>
 						<br>
 					<<else>>
-						<details class="journal">
+						<details class="journal" open @data-dropdown-id="_location + 'PlantSeeds' + $_i">
 							<summary class="journal link-internal"><span class="numbered-label-text">Plant seeds (<<= _seedsByBed[_plantbed.bed].length>> available)</span></summary>
 							<div class="px-2 py-1">
 								<<tendingPlantSeedsOptions _location _plantbed `_seedsByBed[_plantbed.bed]`>>
@@ -243,7 +248,10 @@
 			<br>
 		<</for>>
 		<<if _blockedSeeds.length gte 1>>
-			<details class="journal">
+			<<if _water_needed gte 1>>
+				<br>
+			<</if>>
+			<details class="journal" open @data-dropdown-id="_location + 'UnplantableSeeds'">
 				<summary class="journal link-internal"><span class="numbered-label-text">Seeds you can't plant (<<= _blockedSeeds.length>>)</span></summary>
 				<div class="px-2 py-1">
 					<<tendingUnplantableSeeds _readyBeds `_blockedSeeds`>>

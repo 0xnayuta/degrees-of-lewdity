@@ -592,8 +592,51 @@ window.toggleRelationCollapse = toggleRelationCollapse;
 
 // Number keys skip links hidden in a closed <details> (like the farm dropdowns). The passage is renumbered when one opens or closes.
 Links.skipElements += ", details:not([open]) .link-internal:not(summary)";
-function onDetailsToggle() {
+
+/**
+ * Shows "Collapse all" on the link while a dropdown is open, and "Expand all" once they are all closed.
+ *
+ * @param {HTMLElement} passage The passage holding the link and its dropdowns.
+ */
+function updateToggleAllDropdownsLabel(passage) {
+	const isAnyOpen = $(passage).find("details[data-dropdown-id]").is("[open]");
+	$(passage).find(".collapse-all-dropdowns-label").toggle(isAnyOpen);
+	$(passage).find(".expand-all-dropdowns-label").toggle(!isAnyOpen);
+}
+
+/**
+ * Closes every remembered dropdown in the passage, or opens them all when none are open.
+ */
+function toggleAllDropdowns() {
+	const dropdowns = $(".passage").find("details[data-dropdown-id]");
+	dropdowns.prop("open", !dropdowns.is("[open]"));
+}
+window.toggleAllDropdowns = toggleAllDropdowns;
+
+/**
+ * Saves whether a dropdown is open, so it is shown the same way in the next passage.
+ *
+ * @param {HTMLDetailsElement} dropdown
+ */
+function saveDropdownState(dropdown) {
+	if (dropdown.open) V.collapsedDropdowns = V.collapsedDropdowns.filter(id => id !== dropdown.dataset.dropdownId);
+	else V.collapsedDropdowns.pushUnique(dropdown.dataset.dropdownId);
+}
+
+/**
+ * @param {Event} event
+ */
+function onDetailsToggle(event) {
+	if (event.target.dataset.dropdownId) saveDropdownState(event.target);
+	updateToggleAllDropdownsLabel(document.querySelector(".passage"));
 	Links.generateLinkNumbers($(".passage"));
 }
 
 document.addEventListener("toggle", onDetailsToggle, { capture: true });
+
+$(document).on(":passagerender", function (ev) {
+	ev.content.querySelectorAll("details[data-dropdown-id]").forEach(dropdown => {
+		if (V.collapsedDropdowns.includes(dropdown.dataset.dropdownId)) dropdown.open = false;
+	});
+	updateToggleAllDropdownsLabel(ev.content);
+});
