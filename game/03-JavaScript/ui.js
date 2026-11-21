@@ -165,6 +165,7 @@ function updatehistorycontrols() {
 	// if undefined, initiate new variable based on engine config
 	if (V.options.maxStates === undefined) V.options.maxStates = Config.history.maxStates;
 	else Config.history.maxStates = V.options.maxStates; // update engine config
+	Config.history.maxSessionStates = Config.history.maxStates;
 
 	// enable fast rng re-roll on "keypad *" for debug and testing
 	if (V.debug || V.cheatsEnabled === true || V.testing) Links.disableRNGReload = false;
