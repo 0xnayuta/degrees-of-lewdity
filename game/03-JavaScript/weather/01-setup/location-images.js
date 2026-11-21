@@ -2099,11 +2099,11 @@ setup.LocationImages = {
 		emissive: {
 			lights: {
 				image: "emissive.png",
-				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && !V.yearningLetter,
+				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && V.gwylan?.yearningLetter === undefined,
 			},
 			tower: {
 				image: "emissive-tower-only.png",
-				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && V.yearningLetter,
+				condition: () => Weather.lightsOn && !V.gwylan?.timer?.nobody && !!V.gwylan?.yearningLetter,
 			},
 		},
 		weather: {

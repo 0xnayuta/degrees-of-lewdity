@@ -397,9 +397,9 @@ With that, <<he>> leaves.
 <<set C.npc.Sam.love = Math.clamp(C.npc.Sam.love, -50, 50)>>
 <<set _gwylanLocation to gwylanSchedule()>>
 
-<<if (_gwylanLocation is "walking_to_cafe" or _gwylanLocation is "sulking") and $gwylan_cafe_intro and !$daily.gwylan.cafe>>
+<<if (_gwylanLocation is "walking_to_cafe" or _gwylanLocation is "sulking") and Memories.Gwylan.has("cafeIntro") and !$daily.gwylan.cafe>>
 	<<set $daily.gwylan.cafe to true>>
-	<<if $gwylanSeen?.includes("cafe") and C.npc.Gwylan.love gte 30>>
+	<<if Memories.Gwylan.has("cafeIntro") and C.npc.Gwylan.love gte 30>>
 		You leave a plate of <<seagullFood>> next to the register for Gwylan, and start your shift.
 		<<if _gwylanLocation is "sulking">>
 			<span class="red"><<nnpc_He "Gwylan">> never shows up to take it.</span>
@@ -410,7 +410,7 @@ With that, <<he>> leaves.
 	<br><br>
 <</if>>
 
-<<if !$gwylan_cafe_intro and ["cafe", "walking_to_cafe"].includes(_gwylanLocation)>>
+<<if !Memories.Gwylan.has("cafeIntro") and ["cafe", "walking_to_cafe"].includes(_gwylanLocation)>>
 	<<npc Gwylan 1>><<npc Sam 2>><<person1>>
 	<<set $daily.gwylan.cafe to true>>
 	<<run statusCheck("Gwylan")>>
@@ -429,7 +429,7 @@ With that, <<he>> leaves.
 		<</if>>
 	<</if>>
 
-	<<if $gwylanSeen?.includes("cafe")>>
+	<<if Memories.Gwylan.has("cafeIntro")>>
 		<<He>> neatly leaves a few bills and coins on the counter, stacked by coin size.
 		<<He>> notices you, and gives you a smile and a wave before taking the plate
 		<<if _gwylanLocation is "cafe">>
@@ -447,7 +447,7 @@ With that, <<he>> leaves.
 	<</if>>
 	<br><br>
 
-	<<if $gwylanSeen?.includes("cafe")>>
+	<<if Memories.Gwylan.has("cafeIntro")>>
 		"Looks like our little seagull found a friend,"
 	<<else>>
 		"That's just our little seagull,"
@@ -469,14 +469,14 @@ With that, <<he>> leaves.
 
 	<<if !$weekly.robin.hadCafeVisitChance and C.npc.Robin.init is 1 and $robin.punishment.current is 0 and !["school", "sleep"].includes(getRobinLocation())>>
 		<<set $weekly.robin.hadCafeVisitChance to true>>
-		<<if _gwylanLocation is "cafe" and $gwylanSeen?.includes("cafe") and $gwylan_cafe_intro and $gwylan?.robin gte 5>>
+		<<if _gwylanLocation is "cafe" and Memories.Gwylan.has("cafeIntro") and Memories.Gwylan.has("cafeIntro") and $gwylan?.robinInterest gte 5>>
 			<<addinlineevent "robin_cafe_gwylan" 4>>
 				<<npc Robin 1>><<npc Gwylan 2>><<person1>>
 				You are cleaning off a table after a previous customer when you see a familiar face in the corner of your eye. It's Robin. <<person1>><<Hes>> sitting at a table on the balcony, talking to someone.
 				<br><br>
 
 				<<if C.npc.Robin.trauma gte 40>>
-					<<set $gwylanSeen.pushUnique("robin_cafe_trauma")>>
+					<<run Memories.Gwylan.add("robinCafeTrauma")>>
 					<<gwylanRobin 3 25>>
 					You can't quite hear their conversation, as Robin speaks in hushed tones.
 					You crane your neck to get a look at the other person. It's Gwylan. There's a look of mixed sadness and fascination on <<person2>><<his>> face as <<he>> listens to Robin.
@@ -501,7 +501,7 @@ With that, <<he>> leaves.
 
 					The rest of the shift passes uneventfully. You earn <<money 500 "cafeWaiter">><<printmoney 500>>.
 				<<else>>
-					<<set $gwylanSeen.pushUnique("robin_cafe")>>
+					<<run Memories.Gwylan.add("robinCafe")>>
 					<<gwylanRobin 1 25>>
 					<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 					It's Gwylan. You overhear their conversation.
@@ -615,7 +615,7 @@ With that, <<he>> leaves.
 				<</if>>
 			<</addinlineevent>>
 		<</if>>
-	<<elseif _gwylanLocation is "cafe" and $gwylan_cafe_intro and !$daily.gwylan.cafeServe>>
+	<<elseif _gwylanLocation is "cafe" and Memories.Gwylan.has("cafeIntro") and !$daily.gwylan.cafeServe>>
 		<<addinlineevent "cafe_serve_gwylan" 2>>
 			<<run statusCheck("Gwylan")>>
 			<<set $daily.gwylan.cafeServe to true>>
@@ -623,7 +623,7 @@ With that, <<he>> leaves.
 			<br><br>
 
 			Gwylan waves you over when you're done.
-			<<if $gwylanSeen.includes("partners")>>
+			<<if Memories.Gwylan.has("loveInterest")>>
 				The two of you chat for a short while, before Sam calls you back in. As you turn, Gwylan grabs you by your
 				<<if $worn.upper.type.includes("naked")>>
 					$worn.lower.name and pulls you back
@@ -715,7 +715,7 @@ With that, <<he>> leaves.
 				<br><br>
 
 				The rest of the shift passes uneventfully.
-				<<if _gwylanLocation is "cafe" and $gwylan_cafe_intro>>
+				<<if _gwylanLocation is "cafe" and Memories.Gwylan.has("cafeIntro")>>
 					<<set $tipmod to 0.2>><<tipset "serving">>
 					<<set $tip += 500>>
 					Gwylan left you a tip. <<tipreceive "cafeWaiter">>
@@ -1134,7 +1134,7 @@ seems to be lost in thought as <<he>> stares out at the ocean. You place the dri
 	<br><br>
 
 	"But enough of that. Thank you for the drink, dear."
-<<elseif !$forest_shop_intro>>
+<<elseif !Memories.Gwylan.has("forestShopIntro")>>
 	"Thank you. I'm still looking forward to you visiting my shop," <<he>> says.
 <<elseif $gwylan.request.event is "meetAtShop">>
 	"Thank you. Don't forget to stop by the forest shop later. You still need to make up for breaking into my garden."
@@ -1145,7 +1145,7 @@ seems to be lost in thought as <<he>> stares out at the ocean. You place the dri
 <<He>> returns to gazing at the ocean.
 <br><br>
 
-<<set $gwylan_cafe_intro to true>>
+<<run Memories.Gwylan.add("cafeIntro")>>
 <<set $tipmod to 0.2>><<tipset "serving">>
 
 <<set $tip += 500>>
@@ -1281,7 +1281,7 @@ You turn on the spot and glare at the <<person1>><<person>>.
 The grin falls off <<his>> face. "Just having a laugh. No need to pout." Sam looks over at you disapprovingly.<<npcincr Sam love -1>><<llove Sam>>
 <br><br>
 
-<<if gwylanSchedule() is "cafe" and $gwylan_cafe_intro>>
+<<if gwylanSchedule() is "cafe" and Memories.Gwylan.has("cafeIntro")>>
 	You carefully watch the two of them leave some time later. As soon as they're outside, before the front door even closes, <span class="teal">the <<person1>><<person>> is struck in the head with half-eaten <<seagullFood>></span>.
 	Some of it sticks to <<him>>, and some falls to the floor.
 	<br><br>
@@ -1315,7 +1315,7 @@ The grin falls off <<his>> face. "Just having a laugh. No need to pout." Sam loo
 <<set $outside to 0>><<set $location to "cafe">><<effects>>
 <<run statusCheck("Gwylan")>>
 
-<<if gwylanSchedule() is "cafe" and $gwylan_cafe_intro>>
+<<if gwylanSchedule() is "cafe" and Memories.Gwylan.has("cafeIntro")>>
 	<<if $phase is 0 or $phase is 1>>
 		You rearrange your $worn.lower.name and continue as if nothing happened.
 	<<else>>
@@ -1704,7 +1704,7 @@ You decide not to risk it and go back inside. Sam says <<he>> understands, but d
 
 <<elseif $alarm gte 1>>
 	<<run statusCheck("Gwylan")>>
-	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and $gwylanSeen?.includes("ritual_beast")>>
+	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and Memories.Gwylan.has("ritualBeast")>>
 		The door to the cafe's back entrance slowly creaks open. The <<beasttype>> freezes. No one comes out, but the hairs on the back of your neck stand on end.
 		<br><br>
 
@@ -1999,9 +1999,9 @@ You do your best to ignore <<him>>. Sam hears the yelling from across the cafe, 
 	<<ggwillpower>><<willpower 1>>
 	<br><br>
 
-	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and ($gwylanSeen?.includes("cafe") or $gwylan_cafe_intro) and !$gwylanSeen?.includes("ear_slime_intro")>>
+	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and (Memories.Gwylan.has("cafeIntro") or Memories.Gwylan.has("cafeIntro")) and !Memories.Gwylan.has("earSlimeIntro")>>
 		<<npc Gwylan>><<person1>>
-		<<set $gwylanSeen.pushUnique("ear_slime_intro")>><<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
+		<<run Memories.Gwylan.add("earSlimeIntro")>><<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 		"Are you having trouble deciding?" a familiar voice says from behind you. You try to turn your head, <span class="red">but the effort is painful. The slime doesn't want you to.</span>
 		<br><br>
 
@@ -2026,9 +2026,9 @@ You do your best to ignore <<him>>. Sam hears the yelling from across the cafe, 
 	You try to ignore the command from the slime and continue on. You feel it try, <span class="green">but fail,</span> to force you to buy the $daily.earSlimeOceanBreezeCafeEat.
 	<br><br>
 
-	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and ($gwylanSeen?.includes("cafe") or $gwylan_cafe_intro) and !$gwylanSeen?.includes("ear_slime_intro")>>
+	<<if ["cafe", "walking_to_cafe"].includes(gwylanSchedule()) and (Memories.Gwylan.has("cafeIntro") or Memories.Gwylan.has("cafeIntro")) and !Memories.Gwylan.has("ear_slime_intro")>>
 		<<npc Gwylan>><<person1>>
-		<<set $gwylanSeen.pushUnique("ear_slime_intro")>><<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
+		<<run Memories.Gwylan.add("earSlimeIntro")>><<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 		"Are you having trouble deciding?" a familiar voice says from behind you. You turn.
 		<<if !$daily.gwylan.cafe>>
 			It's Gwylan, holding a plate of <<seagullFood>>.

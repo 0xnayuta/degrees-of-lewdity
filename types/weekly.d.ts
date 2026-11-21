@@ -73,6 +73,8 @@ declare global {
 		blackWolf: BlackWolfWeekly;
 		/** Kylar's once-a-week flags, unset when the week ends. */
 		kylar: KylarWeekly;
+		/** Gwylan's once-a-week values, unset when the week ends */
+		gwylan: GwylanWeekly;
 	}
 }
 

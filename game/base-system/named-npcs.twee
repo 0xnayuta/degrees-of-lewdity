@@ -490,8 +490,6 @@ Zohar
 				<</if>>
 				<<set C.npc["Ivory Wraith"].skinType to "ghost">>
 			<<case Gwylan>>
-				<<set $gwylanSeen to []>>
-				<<set $gwylanTalked to []>>
 				<<set $gwylan to {
 					progress: 0,
 					stage: 0,
@@ -503,6 +501,7 @@ Zohar
 					request: {},
 					requestCount: 0,
 					requestDone: false,
+					clothesTalkedAbout: [],
 				}>>
 				<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 			<<default>>
@@ -1163,7 +1162,7 @@ Zohar
 		<</if>>
 		<<if _nam is "Gwylan" and _val gt 0>>
 			<<set $_stage to Math.floor(C.npc[_nam].dom / 25)>>
-			<<if $_stage gte 1 and !$gwylanSeen?.includes("yearning") or $_stage gte 3 and !$gwylanSeen?.includes("partners") or $gwylan?.wary gt 1>>
+			<<if $_stage gte 1 and !Memories.Gwylan.has("yearning") or $_stage gte 3 and !Memories.Gwylan.has("loveInterest") or $gwylan?.wary gt 1>>
 				<!-- No increase -->
 			<<else>>
 				<<set C.npc[_nam].dom += _val>>
@@ -1769,16 +1768,16 @@ Zohar
 			<<run statusCheck("Gwylan")>>
 			<<if isGwylanAbsent() is "nobody">><span class="red">Nobody</span><<else>>Gwylan<</if>>
 			<<if C.npc.Gwylan.state is "scorned">>
-				<<if $yearningLetter is 2>>
+				<<if $gwylan.yearningLetter is "seen">>
 					is <span class="blue">waiting for you at the forest shop</span>.
-				<<elseif $gwylanSeen?.includes("yearning_pub")>>
+				<<elseif Memories.Gwylan.has("pubSulk")>>
 					is <span class="pink">sulking</span>.
 				<<else>>
 					has <span class="red">scorned your affections</span>.
 				<</if>>
-			<<elseif $gwylanSeen?.includes("ritual_sex") and $gwylan?.timer.ritual and Time.date.dayDifference(new DateTime($gwylan.timer.ritual)) lte 0>>
-				<<if $gwylan.hunting gte 2>>
-					<<if $gwylanSeen?.includes("romance")>>
+			<<elseif Memories.Gwylan.has("ritualSex") and $gwylan?.timer.ritual and Time.date.dayDifference(new DateTime($gwylan.timer.ritual)) lte 0>>
+				<<if ["ritualMissed", "ritualMissedRomanceState"].includes($gwylan.hunting)>>
+					<<if Memories.Gwylan.has("romance")>>
 						<span class="red">can't do this without you anymore</span>.
 					<<else>>
 						is <span class="red">looking for you</span>.
@@ -1790,7 +1789,7 @@ Zohar
 				<<else>>
 					is <span class="blue">ready to enact the ritual with you</span>.
 				<</if>>
-			<<elseif $gwylanSeen?.includes("romance")>>
+			<<elseif Memories.Gwylan.has("romance")>>
 				<<if isGwylanAbsent() is "nobody">>
 					is home.
 				<<elseif $gwylan.taken>>
@@ -1801,7 +1800,7 @@ Zohar
 					<<else>>
 						will <span class="lewd">care for you</span>.
 					<</if>>
-				<<elseif $gwylan?.wary gte 2 && ($brownFoxRevealed or $gwylanSeen?.includes("auriga_scar"))>>
+				<<elseif $gwylan?.wary gte 2 && (Memories.Gwylan.has("brownFoxRevealed") or Memories.Gwylan.has("aurigaScar"))>>
 					<<if $avery_fate is "ascended" and $auriga_scar gte 1>>
 						has been <span class="red">broken by your betrayal</span>.
 					<<else>>
@@ -1818,8 +1817,8 @@ Zohar
 				<<else>>
 					<span class="teal">thinks of you fondly</span>.
 				<</if>>
-			<<elseif $gwylanSeen?.includes("partners")>>
-				<<if $gwylan?.wary gte 2 && ($brownFoxRevealed or $gwylanSeen?.includes("auriga_scar"))>>
+			<<elseif Memories.Gwylan.has("loveInterest")>>
+				<<if $gwylan?.wary gte 2 && (Memories.Gwylan.has("brownFoxRevealed") or Memories.Gwylan.has("aurigaScar"))>>
 					<<if $avery_fate is "ascended" and $auriga_scar gte 1>>
 						feels <span class="red">betrayed</span>.
 					<<else>>
@@ -1844,8 +1843,8 @@ Zohar
 				<<else>>
 					<span class="teal">thinks of you fondly</span>.
 				<</if>>
-			<<elseif $gwylanSeen?.includes("yearning") and C.npc.Gwylan.dom gte 25>>
-				<<if $gwylan?.wary gte 2 && ($brownFoxRevealed or $gwylanSeen?.includes("auriga_scar"))>>
+			<<elseif Memories.Gwylan.has("yearning") and C.npc.Gwylan.dom gte 25>>
+				<<if $gwylan?.wary gte 2 && (Memories.Gwylan.has("brownFoxRevealed") or Memories.Gwylan.has("aurigaScar"))>>
 					<<if $avery_fate is "ascended" and $auriga_scar gte 1>>
 						feels <span class="red">betrayed</span>.
 					<<else>>
@@ -1861,13 +1860,13 @@ Zohar
 					wants things to go <span class="purple">back to the way they were</span>.
 				<</if>>
 			<<else>>
-				<<if $gwylan?.wary gt 1 && ($brownFoxRevealed or $gwylanSeen?.includes("auriga_scar"))>>
+				<<if $gwylan?.wary gt 1 && (Memories.Gwylan.has("brownFoxRevealed") or Memories.Gwylan.has("aurigaScar"))>>
 					is <span class="red">wary of you</span>.
 				<<elseif _gwylanStatus.includes("aroused")>>
 					is <span class="pink">nervous about how close you are becoming</span>.
 				<<elseif _gwylanLovePercent gte 70>>
 					<span class="green">knows there's something special about you</span>.
-				<<elseif _gwylanLovePercent lt 55 and $gwylanTalked?.length gte 6 and !$daily.gwylan.clothesTalk>>
+				<<elseif _gwylanLovePercent lt 55 and $gwylan.clothesTalkedAbout?.length gte 6 and !$daily.gwylan.clothesTalk>>
 					is <span class="blue">eager to hear more of your stories</span>.
 				<<elseif _gwylanLovePercent gte 50>>
 					<span class="teal">thinks there's something special about you</span>.
@@ -2390,5 +2389,6 @@ Zohar
 	<<set $npcMemories.Harper ??= []>>
 	<<set $npcMemories["Black Wolf"] ??= []>>
 	<<set $npcMemories.Kylar ??= []>>
+	<<set $npcMemories.Gwylan ??= []>>
 <</widget>>
 

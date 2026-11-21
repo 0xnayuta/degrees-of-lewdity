@@ -42,7 +42,7 @@ function initSpecialClothes() {
 		{ name: "reindeer slippers", 			sets: ["christmas"] },
 		{ name: "candy cane", 					sets: ["christmas"] },
 
-		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => V.gwylanSeen?.includes("rose_kiss"), hint: "get kissed by a rose" },
+		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => Memories.Gwylan.has("roseKiss"), hint: "get kissed by a rose" },
 		{ name: "rose eyepatch", 				sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding veil", 			sets: ["valentines", "rose_wedding"] },
 		{ name: "long rose wedding veil", 		sets: ["valentines", "rose_wedding"] },
@@ -309,7 +309,7 @@ function initSpecialClothes() {
 		},
 		wrap: {
 			text: "gift wrappings",
-			requirements: () => Memories.Robin.has("pcUnwrappedRobin") || V.gwylanSeen?.includes("steal_wrap"),
+			requirements: () => Memories.Robin.has("pcUnwrappedRobin") || Memories.Gwylan.has("stealWrap"),
 			hint: "face a unique punishment for stealing clothes",
 			shop: ["forest"],
 			subsetOf: ["valentines"],
@@ -705,7 +705,7 @@ function initSpecialClothes() {
 		},
 		sage_witch_hat: {
 			text: "strange witch hat",
-			requirements: () => V.gwylanSeen?.includes("ritual_sex"),
+			requirements: () => Memories.Gwylan.has("ritualSex"),
 			hint: "take part in an intimate concord",
 			shop: ["forest"],
 			feat: false,
@@ -713,7 +713,7 @@ function initSpecialClothes() {
 		},
 		familiar_collar: {
 			text: "familiar collar",
-			requirements: () => V.gwylanSeen?.includes("familiar_collar"),
+			requirements: () => Memories.Gwylan.has("familiarCollar"),
 			hint: "at last, yours to keep",
 			shop: ["forest"],
 			feat: false,
@@ -737,7 +737,7 @@ function initSpecialClothes() {
 		},
 		jasper: {
 			text: "jasper pendant",
-			requirements: () => V.gwylanSeen?.includesAny("request_gold_accessories", "chastity_gold"),
+			requirements: () => Memories.Gwylan.hasAny("requestGoldAccessories", "goldChastityBeltRemoved"),
 			hint: "get an impromptu science lesson",
 			shop: ["forest"],
 			subsetOf: ["fox"],
@@ -921,7 +921,7 @@ DefineMacroS("specialClothesUnlock", specialClothesUnlock);
  */
 function specialClothesUnlockText(toUnlock, group) {
 	let output = "";
-	if (V.forest_shop_intro === 1) {
+	if (Memories.Gwylan.has("forestShopIntro")) {
 		if (toUnlock.length) {
 			output += "<<shopicon 'forest'>>";
 			if (group === "halloween") {

@@ -280,6 +280,570 @@ const VALID_MEMORIES = {
 		// Used to show the pups' den in the wolf cave, and so later births skip the den introduction
 		"showedPcPupsDen",
 	],
+	Gwylan: [
+		// If Robin has visited the forest shop
+		// Mainly used when Gwylan talks to/about Robin, usually asking PC to bring them to the shop again.
+		"robinVisitedShop",
+
+		// If Gwylan has seen that PC has both genitals
+		// Used so Gwylan's reaction only plays once
+		"sawPcHermGenitals",
+
+		// If Gwylan has seen PC crossdressing
+		// Used so Gwylan's reaction only plays once
+		"sawPcCrossdressing",
+
+		// If Gwylan has walked to cafe with Robin
+		// Not yet implemented
+		"walkedToCafeWithRobin",
+
+		// If Gwylan Romance state has been reached
+		// Not yet implemented
+		"romance",
+
+		// If Gwylan is an LI
+		"loveInterest",
+
+		// If Yearning has been revealed
+		"yearning",
+
+		// If 2nd Ritual has been done
+		"ritualSex",
+
+		// If Gwylan has confronted PC about the Auriga Scar
+		"aurigaScar",
+
+		// If Gwylan has forgiven PC for siding with the cult
+		"aurigaScarForgiven",
+
+		// If seen door to forest shop garden
+		"gardenDoor",
+
+		// If Gwylan's TF has been revealed
+		// Used by gwylanStatusCheck() to see if Gwylan's TF can be shown
+		"gwylanTfRevealed",
+
+		// If Gwylan's fox ears have been seen
+		// Used to ask about Gwylan's ears
+		"gwylanEarsSeen",
+
+		// If the PC has talked with Gwylan about their fox ears
+		// Used to reveal Gwylan's TF after the other parts are talked about
+		"gwylanEarsTalk",
+
+		// If Gwylan's fox tail has been seen
+		// Used to ask about Gwylan's tail
+		"gwylanTailSeen",
+
+		// If the PC has talked with Gwylan about their fox tail
+		// Used to reveal Gwylan's TF after the other parts are talked about
+		"gwylanTailTalk",
+
+		// If Gwylan's fox fangs have been seen
+		// Used to ask about Gwylan's fangs
+		"gwylanFangsSeen",
+
+		// If the PC has talked with Gwylan about their fox fangs
+		// Used to reveal Gwylan's TF after the other parts are talked about
+		"gwylanFangsTalk",
+
+		// If the PC has talked to Gwylan at the pub while they're sulking
+		"pubSulk",
+
+		// If the PC has kissed Gwylan at the pub while they're sulking
+		"pubSulkKiss",
+
+		// If the PC has has found Gwylan in the shop
+		// Used so the intro lines when finding them the first time plays once
+		"findGwylanIntro",
+
+		// If the PC has asked Gwylan about the shop
+		// Clothing talk scenes are locked behind this
+		"clothesTalkIntro",
+
+		// If Gwylan has seen PC drinking during the day at high stress/trauma or low Gwylan love
+		"badDayDrinking",
+
+		// If the PC has aiding Gwylan when they were injured
+		// Not used yet
+		"brownFoxAided",
+
+		// If the PC drank in celebration with Gwylan after failed skyscraper ritual
+		// Not used yet
+		"brownFoxDrink",
+
+		// If the PC passed the Brown Fox seduction check
+		// Not used yet
+		"brownFoxFlirted",
+
+		// If the PC told Gwylan that they swapped Harper's mixture
+		// Not used yet
+		"brownFoxHarperMixtureSwap",
+
+		// If the PC has seen Gwylan's scar
+		// Used to prevent PC noticing it multiple times
+		"brownFoxScarSeen",
+
+		// If the Brown Fox's identity has been revealed
+		"brownFoxRevealed",
+
+		// If the PC has talked Gwylan about the Brown Fox's mask
+		"brownFoxMaskTalk",
+
+		// If the PC has seen Gwylan's wound or scar
+		"brownFoxWoundedHint",
+
+		// If the PC has blown Gwylan's cover
+		"brownFoxCoverBlown",
+
+		// If the PC has seen the charms at the shop before progressing enough to replace them
+		// Used to prevent Gwylan from talking about them more than once
+		"charms",
+
+		// If the PC has been inside the shop on a blood moon
+		// Used to allow PC in the shop without the shop letting PC in as Gwylan
+		"bloodMoon",
+
+		// If Gwylan has asked or been to the cafe with PC
+		"cafeIntro",
+
+		// If Gwylan has asked PC about the cream buns
+		"cafeCreamBunsAsk",
+
+		// If the PC has talked to Gwylan after they learn the secret ingredient of the cream buns
+		"cafeCreamBunsTold",
+
+		// If Gwylan was at the cafe reopening
+		"atCafeOpening",
+
+		// If the PC saw Gwylan at the cafe reopening
+		"seenAtCafeOpening",
+
+		// If the PC talked to Gwylan at the cafe reopening
+		"talkedAtCafeOpening",
+
+		// If Gwylan has asked PC to walk with to or from the cafe with them
+		"cafeWalk",
+
+		// If the PC has watched Gwylan perform the ritual
+		"ritualCaught",
+
+		// If the PC has watched Gwylan perform the ritual without lewdness
+		// Happens if wolf sex is disabled or soft world corruption is below 25
+		"ritualCaughtNoLewd",
+
+		// If the PC masturbated while watching Gwylan perform the ritual
+		"ritualCaughtMasturbate",
+
+		// If the PC chose to distract the beast after interrupting Gwylan's ritual
+		"ritualCaughtDistract",
+
+		// If the PC chose to help after interrupting Gwylan's ritual
+		"ritualCaughtHelp",
+
+		// If the PC chose to watch after interrupting Gwylan's ritual
+		"ritualCaughtWatch",
+
+		// If the PC has done the true mating ritual
+		// Not used currently
+		"trueMatingRitual",
+
+		// If Gwylan has seen PC wearing a chastity belt outside of combat
+		// Not used currently
+		"chastityBelt",
+
+		// If Gwylan has removed a gold chastity belt
+		// Used to prevent PC talking about it again
+		"goldChastityBeltRemoved",
+
+		// If the PC talked about the science behind gold chastity belt removal
+		// Used to prevent PC talking about it again
+		"goldChastityBeltRemovedScience",
+
+		// If the PC told Gwylan that they left money for a poor family when talking about the christmas clothes
+		"leftMoneyForFamily",
+
+		// If the PC tried talking about a clothes item obtained via feats
+		// Not used currently
+		"featSpecialClothesTalked",
+
+		// If the PC tried talking about a clothes item obtained via cheats
+		// Not used currently
+		"cheatedSpecialClothesTalked",
+
+		// If the PC tried talking about a clothes item after savescumming
+		"savescumSpecialClothesTalked",
+
+		// If the PC has licked cream off of Gwylan
+		"creamLickRequest",
+
+		// If Gwylan has pulled out the dog bowl for PC
+		"dogBowl",
+
+		// If Gwylan has decorated the dog bowl
+		"dogBowlDecorated",
+
+		// If Gwylan has given PC a pet bed in the forest shop
+		"petBedIntro",
+
+		// If Gwylan has seen PC's ear slimes
+		"earSlime",
+
+		// If Gwylan has noticed PC's ear slime but hasn't actually seen them
+		// Usually via a denied orgasm
+		"earSlimeIntro",
+
+		// If Gwylan has rescued PC in the forest
+		"forestRescue",
+
+		// If the PC has been caught by Gwylan during a safe hunt early during their content
+		"caughtDuringSafeHunt",
+
+		// If the PC has visited the forest shop
+		"forestShopIntro",
+
+		// If the PC has seen Eden and Gwylan getting along
+		"edenFrenemies",
+
+		// If the PC has told Gwylan about their relationship with Eden
+		"edenStockholm",
+
+		// If Gwylan has given Eden the bullet necklace
+		"edenBulletNecklace",
+
+		// If the PC noticed that Gwylan is pretending to be afraid of Eden
+		"edenFearFake",
+
+		// If Gwylan has excised a lesser elkspawn during the second ritual
+		// Not used currently
+		"ritualElkspawnExcised",
+
+		// If the PC has talked to Gwylan about their fallen angel TF when talking about the succubus outfit
+		"fallFromGrace",
+
+		// If the PC fell from sex with Gwylan
+		"fallenAngel",
+
+		// If the PC fell from sex during the 1st ritual
+		"fallenFault",
+
+		// If Gwylan has given PC the familiar collar
+		"familiarCollar",
+
+		// If Whitney has visited the forest shop
+		// Not used currently
+		"whitneyVisitedShop",
+
+		// If the PC has been directed to the forest shop by the bishop's hand for a chastity parasite
+		"jordanChastityParasite",
+
+		// If the PC has been directed to the forest shop by Jordan for an ear slime
+		"jordanEarSlime",
+
+		// If the PC told Gwylan about defending the farm from Remy
+		"farmDefended",
+
+		// If the PC held Gwylan's hand during the 1st ritual
+		"beastRitualHandheld",
+
+		// If the PC got a fox plushie from the promenade event
+		"foxPlushie",
+
+		// If the PC bought Gwylan a fox plushie during the promenade event
+		"foxPlushieGwylan",
+
+		// If the PC has seen the garden
+		"gardenSeen",
+
+		// If the PC has found the garden own their own
+		"gardenFound",
+
+		// If Gwylan has knotted the PC
+		"gwylanKnottedPlayer",
+
+		// If the PC has knotted Gwylan
+		"playerKnottedGwylan",
+
+		// If Gwylan has bitten the player for pulling their hair
+		"hairPullBite",
+
+		// If scene where Gwylan makes a new hat
+		"newHat",
+
+		// If the PC has noticed the ears on Gwylan's hat matches their hair
+		"hatEarColour",
+
+		// If the PC has found Gwylan's hat
+		"hatFound",
+
+		// If Gwylan has mentioned horse hooves are similar to human fingers
+		// Used to prevent Gwylan talking about it again
+		"horseFingers",
+
+		// If the PC has unlocked sublime devotion
+		"hypnosisDeepest",
+
+		// If the PC has been hypnotised by Gwylan
+		"hypnosisFirst",
+
+		// If the PC has received hypnotic insight
+		// Not used currently
+		"hypnosisInsight",
+
+		// The possible answers the PC can give during the hypnotic insight scene
+		// None of these are used currently
+		"hypnosisInsightHoles",
+		"hypnosisInsightLots",
+		"hypnosisInsightMonsters",
+		"hypnosisInsightPlants",
+		"hypnosisInsightSlimes",
+		"hypnosisInsightTentacles",
+
+		// If Gwylan has introduced their hypnosis to the PC
+		"hypnosisIntro",
+
+		// If the PC has received hypnotic peace
+		"hypnosisPeace",
+
+		// If Gwylan has removed hypnosis from PC
+		"hypnosisRemoval",
+
+		// The hypnosis traits that Gwylan has removed
+		// Only suggestion is used currently
+		"hypnosisRemovalCover",
+		"hypnosisRemovalDeviancy",
+		"hypnosisRemovalScream",
+		"hypnosisRemovalSuggestion",
+
+		// If the PC has received hypnotic silence
+		"hypnosisSilence",
+
+		// If the PC has received hypnotic insight
+		"hypnosisSlumber",
+
+		// If the PC has seen the hypnosis text while at sublime devotion
+		"hypnosisSublime",
+
+		// If the PC has seen the wolf rush out of the shop
+		"intruder",
+
+		// If the PC has seen the hypnosis text from kissing Gwylan
+		"kissHypno",
+
+		// If the PC has seen Gwylan getting knotted
+		"knotted",
+
+		// If the PC has told Gwylan about Kylar's school kidnapping
+		"kylarSchoolKidnap",
+
+		// If the PC has told Gwylan about Kylar's parents
+		"kylarParents",
+
+		// If the PC has told Gwylan that they like tentacles
+		"likesTentacles",
+
+		// If the PC has told Gwylan that they like wolves
+		"likesWolves",
+
+		// If Gwylan told the PC about Seabird's Lullaby
+		"lullaby",
+
+		// If the PC got the snowglobe for 'Mickey'
+		"mickeySnowglobe",
+
+		// If the PC sunk their fangs into Gwylan's neck
+		"neckBite",
+
+		// If the PC has licked nectar off of Gwylan
+		"nectarLick",
+
+		// If the PC knows Nobody is Gwylan
+		"nobody",
+
+		// If the PC has shown Gwylan the orphanage photo
+		"orphanagePhoto",
+
+		// If the PC has been saved by Gwylan after a temperature passout
+		// Not used currently
+		"temperaturePassout",
+
+		// If the PC has gotten pissed at Gwylan after forced ritual
+		"pcResentGwylan",
+
+		// If the PC has seen Gwylan's petplay
+		"petplay",
+
+		// If the PC has gotten pink rose seeds from the flower crown scene
+		"pinkRose",
+
+		// If Gwylan has given PC the tip on collecting nectar
+		"nectarTip",
+
+		// If the PC tells Gwylan about the secret of the cream buns after they taste PC's fluids
+		// TODO: implement "playerFluidsTaste"
+		"playerFluidsRealisation",
+
+		// If Gwylan has tasted PC's fluids
+		// TODO: implement this memory
+		"playerFluidsTaste",
+
+		// If Gwylan has acknowledged PC's tf
+		"playerTf",
+
+		// If Gwylan has ask to preen PC's bird wings
+		"preen",
+
+		// If Gwylan has seen PC's promise ring
+		// Not currently used
+		"promised",
+
+		// If Gwylan has requested PC bring them a gas mask
+		"requestGasMask",
+
+		// If Gwylan has requested PC bring them the gold accessories
+		"requestGoldAccessories",
+
+		// If Gwylan has introduced their requests
+		"requestIntro",
+
+		// If Gwylan has preened PC
+		"requestPreen",
+
+		// If the request tutorial has been completed
+		"requestTutorial",
+
+		// If the PC has requested to be bound during the 2nd ritual
+		"requestedBondage",
+
+		// If the PC has banished a tentacle during the 1st ritual
+		"ritualBanish",
+
+		// If the PC has done the 1st ritual
+		"ritualBeast",
+
+		// If Gwylan has drank the poison after the 1st ritual
+		"ritualBeastCorruption",
+
+		// If the PC has shared the poison with Gwylan
+		"ritualBeastCorruptionShare",
+
+		// If the PC has intimately shared the poison with Gwylan
+		"ritualBeastCorruptionShareIntimate",
+
+		// If Gwylan has eaten the poisoned leaves after the 1st ritual
+		"ritualDryadCorruption",
+
+		// If the PC has shared the poisoned leaves with Gwylan
+		"ritualDryadCorruptionShare",
+
+		// If Gwylan has introduced the 1st ritual
+		"ritualSexIntro",
+
+		// If the PC has stayed with Gwylan after the 1st ritual
+		"ritualStay",
+
+		// If Gwylan has talked to Robin at the cafe
+		// Not used currently
+		"robinCafe",
+
+		// If Gwylan has talked to Robin at the cafe at high Robin trauma
+		// Not used currently
+		"robinCafeTrauma",
+
+		// If Robin has visited the forest shop on halloween
+		"robinHalloween",
+
+		// If the PC has mentioned Robin's lemonade stand
+		// Not used currently TODO: Gwybin
+		"robinLemonade",
+
+		// If Gwylan has tasted Robin's lemonade
+		// Unimplemented TODO: Gwybin
+		"robinLemonadeGet",
+
+		// If Gwylan has kissed PC when giving them a rose during the 2nd ritual
+		"roseKiss",
+
+		// If the PC has completed a fluid sample request
+		"sample",
+
+		// If the PC has found the sex toy cabinet in the forest shop
+		"sexToys",
+
+		// If Gwylan has been tagged during the shop tag game
+		// Unimplemented
+		"shopHuntFallPoint",
+
+		// If the PC has stolen from the shop twice
+		"stealAgain",
+
+		// If the PC has stolen from the shop
+		"stealFirst",
+
+		// If the shop has wrapped the PC in gift wraps
+		"stealWrap",
+
+		// If the PC has given Gwylan a strap on
+		"strapOnGifted",
+
+		// If Gwylan has talked to PC about their struggles
+		"struggles",
+
+		// If the PC has asked about the triquetra tattoo
+		"tattoosIntro",
+
+		// If the PC has told Gwylan about tenyclus
+		"tenyclus",
+
+		// If the PC has gotten the high trauma scene in the forest shop
+		"trauma",
+
+		// If the PC ate the fruit during the high trauma scene
+		"traumaEat",
+
+		// If the PC saw the end of the high trauma scene
+		"traumaLove",
+
+		// If Gwylan has bound PC for the 2nd ritual
+		"vineBondage",
+
+		// If Gwylan has seen PC's virginity
+		"virgin",
+
+		// If Gwylan has taken PC's penis virginity
+		// Not used currently
+		"virginityPenile",
+
+		// If Gwylan has taken PC's vaginal virginity
+		// Not used currently
+		"virginityVaginal",
+
+		// If the PC has succeeded in the beginning willpower check in the 2nd ritual
+		"vision",
+
+		// If Gwylan has asked for a fluid sample from the PC
+		// Unimplemented
+		"playerSampleRequest",
+
+		// If Gwylan has gotten fluid samples from PC
+		// Unimplemented
+		"playerSample",
+
+		// If Gwylan has introduced butterfly pea flower tea
+		"butterflyPeaFlowerTea",
+
+		// If Gwylan has removed a chastity parasite
+		"chastityParasite",
+
+		// If the PC told Gwylan that they're a part of the wolf pack
+		"wolvesKnown",
+
+		// If Gwylan brought up people extending their lives with poison after the 1st ritual
+		"ritualPoisonTalk",
+
+		// If Gwylan has brought up their sex toy collection
+		"toyCollection",
+	],
 	Sirris: [
 		// If the PC saw Sirris carrying a box to their car after school, hinting at the adult shop opening
 		// Used so the hint only plays once
@@ -719,6 +1283,34 @@ function hasMemory(npcName, memory) {
 
 /**
  * @param {NpcNames} npcName
+ * @param {string[]} memories
+ * @returns {boolean}
+ */
+function hasAnyMemory(npcName, memories) {
+	memories.forEach(memory => {
+		if (!isMemoryValid(npcName, memory)) {
+			throw new Error(`"${memory}" is not a valid ${npcName} memory.`);
+		}
+	});
+	return V.npcMemories[npcName].includesAny(memories);
+}
+
+/**
+ * @param {NpcNames} npcName
+ * @param {string[]} memories
+ * @returns {boolean}
+ */
+function hasAllMemories(npcName, memories) {
+	memories.forEach(memory => {
+		if (!isMemoryValid(npcName, memory)) {
+			throw new Error(`"${memory}" is not a valid ${npcName} memory.`);
+		}
+	});
+	return V.npcMemories[npcName].includesAll(memories);
+}
+
+/**
+ * @param {NpcNames} npcName
  * @param {string} memory
  */
 function deleteMemory(npcName, memory) {
@@ -732,6 +1324,8 @@ const Memories = {
 	Robin: {
 		add: memory => addMemory("Robin", memory),
 		has: memory => hasMemory("Robin", memory),
+		hasAny: (...memories) => hasAnyMemory("Robin", memories),
+		hasAll: (...memories) => hasAllMemories("Robin", memories),
 		delete: memory => deleteMemory("Robin", memory),
 	},
 	Kylar: {
@@ -742,111 +1336,162 @@ const Memories = {
 	BlackWolf: {
 		add: memory => addMemory("Black Wolf", memory),
 		has: memory => hasMemory("Black Wolf", memory),
+		hasAny: (...memories) => hasAnyMemory("Black Wolf", memories),
+		hasAll: (...memories) => hasAllMemories("Black Wolf", memories),
 		delete: memory => deleteMemory("Black Wolf", memory),
+	},
+	Gwylan: {
+		add: memory => addMemory("Gwylan", memory),
+		has: memory => hasMemory("Gwylan", memory),
+		hasAny: (...memories) => hasAnyMemory("Gwylan", memories),
+		hasAll: (...memories) => hasAllMemories("Gwylan", memories),
+		delete: memory => deleteMemory("Gwylan", memory),
 	},
 	Sirris: {
 		add: memory => addMemory("Sirris", memory),
 		has: memory => hasMemory("Sirris", memory),
+		hasAny: (...memories) => hasAnyMemory("Sirris", memories),
+		hasAll: (...memories) => hasAllMemories("Sirris", memories),
 		delete: memory => deleteMemory("Sirris", memory),
 	},
 	Bailey: {
 		add: memory => addMemory("Bailey", memory),
 		has: memory => hasMemory("Bailey", memory),
+		hasAny: (...memories) => hasAnyMemory("Bailey", memories),
+		hasAll: (...memories) => hasAllMemories("Bailey", memories),
 		delete: memory => deleteMemory("Bailey", memory),
 	},
 	Leighton: {
 		add: memory => addMemory("Leighton", memory),
 		has: memory => hasMemory("Leighton", memory),
+		hasAny: (...memories) => hasAnyMemory("Leighton", memories),
+		hasAll: (...memories) => hasAllMemories("Leighton", memories),
 		delete: memory => deleteMemory("Leighton", memory),
 	},
 	Quinn: {
 		add: memory => addMemory("Quinn", memory),
 		has: memory => hasMemory("Quinn", memory),
+		hasAny: (...memories) => hasAnyMemory("Quinn", memories),
+		hasAll: (...memories) => hasAllMemories("Quinn", memories),
 		delete: memory => deleteMemory("Quinn", memory),
 	},
 	Niki: {
 		add: memory => addMemory("Niki", memory),
 		has: memory => hasMemory("Niki", memory),
+		hasAny: (...memories) => hasAnyMemory("Niki", memories),
+		hasAll: (...memories) => hasAllMemories("Niki", memories),
 		delete: memory => deleteMemory("Niki", memory),
 	},
 	NightMonster: {
 		add: memory => addMemory("Night Monster", memory),
 		has: memory => hasMemory("Night Monster", memory),
+		hasAny: (...memories) => hasAnyMemory("Night Monster", memories),
+		hasAll: (...memories) => hasAllMemories("Night Monster", memories),
 		delete: memory => deleteMemory("Night Monster", memory),
 	},
 	Zephyr: {
 		add: memory => addMemory("Zephyr", memory),
 		has: memory => hasMemory("Zephyr", memory),
+		hasAny: (...memories) => hasAnyMemory("Zephyr", memories),
+		hasAll: (...memories) => hasAllMemories("Zephyr", memories),
 		delete: memory => deleteMemory("Zephyr", memory),
 	},
 	Jordan: {
 		add: memory => addMemory("Jordan", memory),
 		has: memory => hasMemory("Jordan", memory),
+		hasAny: (...memories) => hasAnyMemory("Jordan", memories),
+		hasAll: (...memories) => hasAllMemories("Jordan", memories),
 		delete: memory => deleteMemory("Jordan", memory),
 	},
 	Darryl: {
 		add: memory => addMemory("Darryl", memory),
 		has: memory => hasMemory("Darryl", memory),
+		hasAny: (...memories) => hasAnyMemory("Darryl", memories),
+		hasAll: (...memories) => hasAllMemories("Darryl", memories),
 		delete: memory => deleteMemory("Darryl", memory),
 	},
 	Charlie: {
 		add: memory => addMemory("Charlie", memory),
 		has: memory => hasMemory("Charlie", memory),
+		hasAny: (...memories) => hasAnyMemory("Charlie", memories),
+		hasAll: (...memories) => hasAllMemories("Charlie", memories),
 		delete: memory => deleteMemory("Charlie", memory),
 	},
 	Briar: {
 		add: memory => addMemory("Briar", memory),
 		has: memory => hasMemory("Briar", memory),
+		hasAny: (...memories) => hasAnyMemory("Briar", memories),
+		hasAll: (...memories) => hasAllMemories("Briar", memories),
 		delete: memory => deleteMemory("Briar", memory),
 	},
 	Remy: {
 		add: memory => addMemory("Remy", memory),
 		has: memory => hasMemory("Remy", memory),
+		hasAny: (...memories) => hasAnyMemory("Remy", memories),
+		hasAll: (...memories) => hasAllMemories("Remy", memories),
 		delete: memory => deleteMemory("Remy", memory),
 	},
 	Sam: {
 		add: memory => addMemory("Sam", memory),
 		has: memory => hasMemory("Sam", memory),
+		hasAny: (...memories) => hasAnyMemory("Sam", memories),
+		hasAll: (...memories) => hasAllMemories("Sam", memories),
 		delete: memory => deleteMemory("Sam", memory),
 	},
 	Winter: {
 		add: memory => addMemory("Winter", memory),
 		has: memory => hasMemory("Winter", memory),
+		hasAny: (...memories) => hasAnyMemory("Winter", memories),
+		hasAll: (...memories) => hasAllMemories("Winter", memories),
 		delete: memory => deleteMemory("Winter", memory),
 	},
 	IvoryWraith: {
 		add: memory => addMemory("Ivory Wraith", memory),
 		has: memory => hasMemory("Ivory Wraith", memory),
+		hasAny: (...memories) => hasAnyMemory("Ivory Wraith", memories),
+		hasAll: (...memories) => hasAllMemories("Ivory Wraith", memories),
 		delete: memory => deleteMemory("Ivory Wraith", memory),
 	},
 	Doren: {
 		add: memory => addMemory("Doren", memory),
 		has: memory => hasMemory("Doren", memory),
+		hasAny: (...memories) => hasAnyMemory("Doren", memories),
+		hasAll: (...memories) => hasAllMemories("Doren", memories),
 		delete: memory => deleteMemory("Doren", memory),
 	},
 	River: {
 		add: memory => addMemory("River", memory),
 		has: memory => hasMemory("River", memory),
+		hasAny: (...memories) => hasAnyMemory("River", memories),
+		hasAll: (...memories) => hasAllMemories("River", memories),
 		delete: memory => deleteMemory("River", memory),
 	},
 	Mason: {
 		add: memory => addMemory("Mason", memory),
 		has: memory => hasMemory("Mason", memory),
+		hasAny: (...memories) => hasAnyMemory("Mason", memories),
+		hasAll: (...memories) => hasAllMemories("Mason", memories),
 		delete: memory => deleteMemory("Mason", memory),
 	},
 	Landry: {
 		add: memory => addMemory("Landry", memory),
 		has: memory => hasMemory("Landry", memory),
+		hasAny: (...memories) => hasAnyMemory("Landry", memories),
+		hasAll: (...memories) => hasAllMemories("Landry", memories),
 		delete: memory => deleteMemory("Landry", memory),
 	},
 	Wren: {
 		add: memory => addMemory("Wren", memory),
 		has: memory => hasMemory("Wren", memory),
+		hasAny: (...memories) => hasAnyMemory("Wren", memories),
+		hasAll: (...memories) => hasAllMemories("Wren", memories),
 		delete: memory => deleteMemory("Wren", memory),
 	},
 	Harper: {
 		add: memory => addMemory("Harper", memory),
 		has: memory => hasMemory("Harper", memory),
+		hasAny: (...memories) => hasAnyMemory("Harper", memories),
+		hasAll: (...memories) => hasAllMemories("Harper", memories),
 		delete: memory => deleteMemory("Harper", memory),
 	},
 };
