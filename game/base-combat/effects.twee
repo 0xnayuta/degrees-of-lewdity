@@ -3255,12 +3255,12 @@
 			<<set $mouthaction to 0>><<set $mouthactiondefault to "kisslips">><<personSelect $mouthtarget>><<combatpromiscuity1>>
 			<<if $NPCList[$mouthtarget].fullDescription is "Gwylan" and (C.npc.Gwylan.dom lt 50 or !Memories.Gwylan.has("yearning"))>>
 				You move your lips close to <<hers>>,
-				<<if $NPCList[$mouthtarget].lefthand is 0 or $NPCList[$mouthtarget].rightthand is 0>>
+				<<if $NPCList[$mouthtarget].lefthand is 0 or $NPCList[$mouthtarget].righthand is 0>>
 					<<if $NPCList[$mouthtarget].lefthand is 0>>
-						<<set $NPCList[0].lefthand to "mouth">>but <<he>> clasps <<his>> hand over your mouth.
+						<<set $NPCList[$mouthtarget].lefthand to "mouth">>but <<he>> clasps <<his>> hand over your mouth.
 						<<set $mouthuse to "lefthand">>
 					<<else>>
-						<<set $NPCList[0].righthand to "mouth">>but <<he>> clasps <<his>> hand over your mouth.
+						<<set $NPCList[$mouthtarget].righthand to "mouth">>but <<he>> clasps <<his>> hand over your mouth.
 						<<set $mouthuse to "righthand">>
 					<</if>>
 				<<else>>
@@ -3672,12 +3672,15 @@
 					<</if>>
 				<</if>>
 				<<brat 10>><<set $alarm to 1>><<set $mouthactiondefault to "scream">><<set $speechScreamForHelp to 1>>
-				<<if $NPCList[0].lefthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robin.rent.inFightWithBaileyOverRobin>>
-					<<set $NPCList[0].lefthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
-					<<set $enemytrust -= 40>><<set $mouthuse to "lefthand">>
-				<<elseif $NPCList[0].righthand is 0 and $mouthuse is 0 and $position isnot "wall" and !$robin.rent.inFightWithBaileyOverRobin>>
-					<<set $NPCList[0].righthand to "mouth">><<person1>><<He>> clasps <<his>> hand over your mouth to silence you.
-					<<set $enemytrust -= 40>><<set $mouthuse to "righthand">>
+				<<set _silencer to $NPCList.findIndex(npc => npc.active === "active" && npc.stance !== "defeated" && (npc.lefthand === 0 || npc.righthand === 0))>>
+				<<if _silencer gte 0 and $mouthuse is 0 and $position isnot "wall" and !$robin.rent.inFightWithBaileyOverRobin>>
+					<<if $NPCList[_silencer].lefthand is 0>>
+						<<set $NPCList[_silencer].lefthand to "mouth">><<set $mouthuse to "lefthand">>
+					<<else>>
+						<<set $NPCList[_silencer].righthand to "mouth">><<set $mouthuse to "righthand">>
+					<</if>>
+					<<personSelect _silencer>><<He>> clasps <<his>> hand over your mouth to silence you.
+					<<set $enemytrust -= 40>>
 				<</if>>
 			<</if>>
 		<</if>>
