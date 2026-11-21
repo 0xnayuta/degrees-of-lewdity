@@ -624,7 +624,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
 	T.modeloptions.temperature = V.options.showSidebarEffects && !T.modeloptions.fire && !T.modeloptions.water && V.outside === 1 && Weather.temperature <= 5;
 	T.modeloptions.petals = V.options.showSidebarEffects && T.tempEffects?.petals;
-	if (T.modeloptions.petals) T.modeloptions.petalColour = V.sexRitual && V.gwylanSeen?.includes("romance") ? "pink" : "red-white";
+	if (T.modeloptions.petals) T.modeloptions.petalColour = V.sexRitual && Memories.Gwylan.has("romance") ? "pink" : "red-white";
 	T.modeloptions.vines = T.tempEffects?.vines;
 });
 

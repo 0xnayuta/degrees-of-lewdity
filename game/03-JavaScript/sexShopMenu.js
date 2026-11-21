@@ -749,7 +749,7 @@ function determineRecipient(index) {
 			optionBuilder += `<option value="${li}">${li}</option>`;
 		}
 	}
-	if (V.gwylanSeen?.includes("yearning")) {
+	if (Memories.Gwylan.has("yearning")) {
 		optionBuilder += `<option value="${"Gwylan"}">${"Gwylan"}</option>`;
 	}
 

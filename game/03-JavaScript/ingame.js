@@ -611,7 +611,7 @@ function getRobinLocation() {
 		// if hour is 6 or lower, or 21 or higher.
 		T.robin_location = "sleep";
 	} else if (
-		V.gwylanSeen?.includes("cafe_walk_robin") &&
+		Memories.Gwylan.has("walkedToCafeWithRobin") &&
 		V.robin.hurt.daysLeft === 0 &&
 		V.daily.robin.inCafe &&
 		!between(V.chef_state, 7, 8) &&
@@ -1753,7 +1753,7 @@ function isPossibleLoveInterest(name) {
 		case "Alex":
 			return V.farm_stage >= 7 && V.alex_countdown === undefined;
 		case "Gwylan":
-			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
+			return Memories.Gwylan.has("loveInterest") || Memories.Gwylan.has("romance");
 		default:
 			return false;
 	}

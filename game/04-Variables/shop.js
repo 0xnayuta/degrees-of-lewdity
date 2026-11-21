@@ -272,14 +272,14 @@ setup.shopDetails = {
 	curious: {
 		name: "Curious",
 		get desc() {
-			return V.gwylanSeen?.includes("hypnosis_first")
+			return Memories.Gwylan.has("hypnosisFirst")
 				? V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1
 					? "Nurtures your bottomless <span class='red'>Devotion</span>."
 					: "Feeds your hungry <span class='blue'>Curiosity</span>."
 				: "<span class='blue'>???</span>";
 		},
 		get details() {
-			return V.gwylanSeen?.includes("hypnosis_first")
+			return Memories.Gwylan.has("hypnosisFirst")
 				? V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1
 					? "Prevents <span class='red'>Hypnotic Devotion</span> from decaying over time."
 					: "Prevents <span class='blue'>Hypnotic Curiosity</span> from decaying over time."

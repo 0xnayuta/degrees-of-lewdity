@@ -843,29 +843,6 @@
 		<<set $home_event_count to 0>>
 	<</if>>
 
-	<<if $gwylangender is undefined>>
-		<<if $malechance lt random(1, 100)>>
-			<<set $gwylangender to "f">>
-		<<else>>
-			<<set $gwylangender to "m">>
-		<</if>>
-	<</if>>
-	<<if $gwylangenitals is undefined>>
-		<<if $gwylangender is "m">>
-			<<if random(0, 99) gte $cbchance>>
-				<<set $gwylangenitals to "penis">>
-			<<else>>
-				<<set $gwylangenitals to "vagina">>
-			<</if>>
-		<<elseif $gwylangender is "f">>
-			<<if random(0, 99) gte $dgchance>>
-				<<set $gwylangenitals to "vagina">>
-			<<else>>
-				<<set $gwylangenitals to "penis">>
-			<</if>>
-		<</if>>
-	<</if>>
-
 	<<if $spiderdisable is undefined>>
 		<<set $spiderdisable to "f">>
 	<</if>>
@@ -6396,7 +6373,7 @@
 	/* Fixing some clumsy BF code and var nesting */
 	<<if $avery_mansion?.fox?.wounded>>
 		<<if $avery_mansion.fox.cover_blown_wounded>>
-			<<set $brownFoxCoverBlown to true>>
+			<<run Memories.Gwylan.add("brownFoxCoverBlown")>>
 			<<run delete $avery_mansion.fox.cover_blown_wounded>>
 			<<set $_woundDays to 40>>
 		<<elseif $avery_mansion.fox.remy_warn>>
@@ -6414,8 +6391,6 @@
 	<</if>>
 
 	<<if C.npc.Gwylan.init is 1 and !$gwylan>>
-		<<set $gwylanSeen to []>>
-		<<set $gwylanTalked to []>>
 		<<set $gwylan to {
 			progress: 0,
 			stage: 0,
@@ -6427,15 +6402,16 @@
 			request: {},
 			requestCount: 0,
 			requestDone: false,
+			clothesTalkedAbout: [],
 		}>>
 		<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 		<<if $robin_forest_visited>>
-			<<set $gwylanSeen.pushUnique("robin_halloween")>>
-			<<set $gwylan.robinShop to true>>
-			<<set $gwylan.robin += 5>>
+			<<run Memories.Gwylan.add("robinHalloween")>>
+			<<run Memories.Gwylan.add("robinVisitedShop")>>
+			<<set $gwylan.robinInterest += 5>>
 		<</if>>
 		<<if $gwylanTea>>
-			<<set $gwylanSeen.pushUnique("passout_hot_cold")>>
+			<<run Memories.Gwylan.add("temperaturePassout")>>
 		<</if>>
 		<<if C.npc.Gwylan.outfits>>
 			<<initNNPCClothes "Gwylan" "update">>
@@ -6447,25 +6423,25 @@
 		<<if $avery_mansion?.fox>>
 			<<if $avery_mansion.fox.flirt>>
 				<<run delete $avery_mansion.fox.flirt>>
-				<<set $gwylanSeen.pushUnique("bf_flirt")>>
+				<<run Memories.Gwylan.add("brownFoxFlirted")>>
 				<<npcincr Gwylan lust 15>><<npcincr Gwylan dom 2>>
 			<</if>>
 			<<if $avery_mansion.fox.harper_sabotage>>
 				<<run delete $avery_mansion.fox.harper_sabotage>>
-				<<set $gwylanSeen.pushUnique("bf_harper")>>
+				<<run Memories.Gwylan.add("brownFoxHarperMixtureSwap")>>
 				<<npcincr Gwylan dom 1>>
 			<</if>>
 			<<if $avery_mansion.fox.aid>>
 				<<run delete $avery_mansion.fox.aid>>
-				<<set $gwylanSeen.pushUnique("bf_aid")>>
+				<<run Memories.Gwylan.add("brownFoxAided")>>
 				<<npcincr Gwylan dom 2>>
 			<</if>>
 			<<if $avery_mansion.fox.drink>>
 				<<run delete $avery_mansion.fox.drink>>
-				<<set $gwylanSeen.pushUnique("bf_drink")>>
+				<<run Memories.Gwylan.add("brownFoxDrink")>>
 				<<npcincr Gwylan dom 2>>
 			<</if>>
-			<<if $brownFoxCoverBlown>>
+			<<if Memories.Gwylan.has("brownFoxCoverBlown")>>
 				<<npcincr Gwylan dom -10>>
 				<<if !$avery_fate or $avery_fate is "ascended">>
 					<<set $gwylan.wary += 2>>
@@ -6481,8 +6457,8 @@
 			<</if>>
 		<</if>>
 
-		<<if !$gwylanRescue and ($gwylan_aborted isnot undefined or $gwylan_eden_coop)>>
-			<<set $gwylanRescue to {
+		<<if !$gwylan.rescue and ($gwylan_aborted isnot undefined or $gwylan_eden_coop)>>
+			<<set $gwylan.rescue to {
 				seen: [],
 				failed: ["","Eden","Black Wolf","Wraith"][$gwylan_aborted] || "",
 				count: 0,
@@ -7233,7 +7209,7 @@
 		<<set $daily.stall_lewdity to Math.min(4,$stall_rejected)>>
 	<</if>>
 
-	<<if $specialClothes[$specialClothes.findIndex(x => x.name === "sage witch hat")].unlocked is 3 and !$gwylanSeen?.includes("ritual_sex")>>
+	<<if $specialClothes[$specialClothes.findIndex(x => x.name === "sage witch hat")].unlocked is 3 and !Memories.Gwylan.has("ritualSex")>>
 		<<set $specialClothes[$specialClothes.findIndex(x => x.name === "sage witch hat")].unlocked to 0>>
 	<</if>>
 
@@ -7743,6 +7719,7 @@
 		<<nnpcCleanupMigrationBlackWolf>>
 		<<wolfPackCleanupMigration>>
 		<<nnpcCleanupMigrationKylar>>
+		<<nnpcCleanupMigrationGwylan>>
 		<<set $nnpcCleanupBatchDone to 1>>
 	<</if>>
 

@@ -410,12 +410,17 @@ window.edenFreedomStatus = edenFreedomStatus;
 function gwylanStatusCheck() {
 	const gwylanStatus = [];
 
-	if (V.forest_shop_intro || V.gwylan_rescue || V.gwylan_cafe_intro || V.gwylan_hunt_intro) {
+	if (
+		Memories.Gwylan.has("forestShopIntro") ||
+		Memories.Gwylan.has("forestRescue") ||
+		Memories.Gwylan.has("cafeIntro") ||
+		Memories.Gwylan.has("caughtDuringSafeHunt")
+	) {
 		gwylanStatus.push("met");
 	}
 
 	// return early if called before core vars are set
-	if (!V.gwylanTalked || !V.gwylanSeen || !V.gwylan) return (T.gwylanStatus = gwylanStatus);
+	if (!V.gwylan) return (T.gwylanStatus = gwylanStatus);
 
 	if (V.gwylan?.timer?.lastSeen) T.gwylanLastSeenDays = Math.abs(Time.date.dayDifference(new DateTime(V.gwylan.timer.lastSeen)));
 
@@ -423,7 +428,9 @@ function gwylanStatusCheck() {
 	const unlockedSets = getUnlockedSpecialSets(V.specialClothes.filter(c => c.unlocked >= 2).map(c => c.name)).filter(set =>
 		setup.specialClothesSets[set].shop.includes("forest")
 	);
-	C.npc.Gwylan.love = Math.ceil(unlockedSets.length + V.gwylanTalked.filter(set => setup.specialClothesSets[set]?.shop.includes("forest")).length);
+	C.npc.Gwylan.love = Math.ceil(
+		unlockedSets.length + V.gwylan.clothesTalkedAbout.filter(set => setup.specialClothesSets[set]?.shop.includes("forest")).length
+	);
 	if (V.gwylan.wary > 1 && ["active", "scorned"].includes(C.npc.Gwylan.state)) {
 		/* If Gwylan is around, temporarily lower love if player has worked against them until amends are made */
 		C.npc.Gwylan.love -= V.gwylan.wary * 2;
@@ -433,20 +440,20 @@ function gwylanStatusCheck() {
 
 	if (
 		T.gwylanLovePercent >= 55 &&
-		V.gwylanSeen.includes("ritual_sex") &&
+		Memories.Gwylan.has("ritualSex") &&
 		C.npc.Gwylan.dom >= 20 &&
 		C.npc.Gwylan.lust >= 40 &&
 		!gwylanStatus.includes("cautious")
 	) {
 		/* Gwylan allows themselves to become comfortable with the player before yearning unlock */
-		if (!V.gwylanSeen.includes("yearning")) gwylanStatus.push("aroused");
+		if (!Memories.Gwylan.has("yearning")) gwylanStatus.push("aroused");
 		/* Gwylan is dominant over the player */
 		if (C.npc.Gwylan.dom >= 100 || V.hypnosis_traits.devotion >= 3) gwylanStatus.push("dom");
 	}
 
 	if (
 		T.gwylanLovePercent >= 65 &&
-		V.gwylanSeen.includes("yearning") &&
+		Memories.Gwylan.has("yearning") &&
 		C.npc.Gwylan.dom >= 50 &&
 		C.npc.Gwylan.lust >= 30 &&
 		C.npc.Gwylan.dom + C.npc.Gwylan.lust >= 90 &&
@@ -454,8 +461,8 @@ function gwylanStatusCheck() {
 	) {
 		/* Gwylan allows themselves to become comfortable with the player again after 'breakup' */
 		gwylanStatus.push("lust");
-		if (V.gwylanSeen.includes("partners") && C.npc.Gwylan.dom >= 100 && C.npc.Gwylan.lust >= 40 && C.npc.Gwylan.dom + C.npc.Gwylan.lust >= 160)
-			if (!V.weekly.gwylanNoHeat) {
+		if (Memories.Gwylan.has("loveInterest") && C.npc.Gwylan.dom >= 100 && C.npc.Gwylan.lust >= 40 && C.npc.Gwylan.dom + C.npc.Gwylan.lust >= 160)
+			if (!V.weekly.gwylan.noHeat) {
 				/* In heat/rut */
 				gwylanStatus.push("heat");
 			}
@@ -472,24 +479,27 @@ function gwylanStatusCheck() {
 	}
 
 	/* Event handlers */
-	if (V.avery_fate === "ascended" && V.auriga_scar >= 1 && !V.gwylanSeen.includes("auriga_scar") && V.gwylanSeen.includes("ritual_sex")) {
+	if (V.avery_fate === "ascended" && V.auriga_scar >= 1 && !Memories.Gwylan.has("aurigaScar") && Memories.Gwylan.has("ritualSex")) {
 		gwylanStatus.push("aurigaScarConfront");
 	}
 	if (
 		V.badEndStats.last()?.source !== "Gwylan" &&
 		V.badEndStats.last()?.trackedStart >= V.gwylan.timer.lastSeen &&
 		T.gwylanLastSeenDays >= 14 &&
-		V.gwylanSeen.includes("lights")
+		Memories.Gwylan.has("gardenDoor")
 	) {
 		gwylanStatus.push("reunion");
 	}
 	if (
-		V.gwylanSeen.includes("romance") &&
+		// prevents badEndReady from happening before it's implemented
+		// eslint-disable-next-line no-constant-condition
+		false &&
+		Memories.Gwylan.has("romance") &&
 		(gwylanStatus.includes("aurigaScarConfront") ||
 			(C.npc.Gwylan.dom >= 125 &&
 				V.hypnosis_traits.devotion &&
 				!(V.avery_mansion && !V.avery_fate) &&
-				(gwylanStatus.includes("reunion") || V.gwylan.hunting === 3)))
+				(gwylanStatus.includes("reunion") || V.gwylan.hunting === "ritualMissedRomanceState")))
 	) {
 		gwylanStatus.push("badEndReady");
 	}
@@ -502,7 +512,7 @@ function gwylanStatusCheck() {
 		known: false,
 	};
 	if (V.settings?.transformAnimalEnabled) {
-		if (V.gwylanSeen.includes("gwylan_tf_revealed")) {
+		if (Memories.Gwylan.has("gwylanTfRevealed")) {
 			// No longer hiding it from the player
 			if (V.hallucinations >= 1) {
 				T.gwylanTF.ears = "revealed";
@@ -525,9 +535,9 @@ function gwylanStatusCheck() {
 				T.gwylanTF.tail = "visible";
 				T.gwylanTF.fangs = "visible";
 			}
-			if (V.gwylanSeen.includes("gwylan_ears")) T.gwylanTF.ears = V.hallucinations >= 1 ? "revealed" : "fake";
-			if (V.gwylanSeen.includes("gwylan_tail")) T.gwylanTF.tail = V.hallucinations >= 1 ? "revealed" : "fake";
-			if (V.gwylanSeen.includes("gwylan_fangs")) T.gwylanTF.fangs = V.hallucinations >= 1 ? "revealed" : "fake";
+			if (Memories.Gwylan.has("gwylanEarsSeen")) T.gwylanTF.ears = V.hallucinations >= 1 ? "revealed" : "fake";
+			if (Memories.Gwylan.has("gwylanTailSeen")) T.gwylanTF.tail = V.hallucinations >= 1 ? "revealed" : "fake";
+			if (Memories.Gwylan.has("gwylanFangsSeen")) T.gwylanTF.fangs = V.hallucinations >= 1 ? "revealed" : "fake";
 		}
 	}
 
@@ -542,7 +552,7 @@ function gwylanSchedule() {
 	if (V.gwylan?.timer?.nobody >= Time.date.timeStamp) {
 		return "nowhere";
 	} else if (C.npc.Gwylan.state === "scorned") {
-		if (Time.hour >= 17 && Time.hour <= 23 && !V.gwylanSeen?.includes("yearning_pub") && !V.yearningLetter && !V.daily.gwylan.preventProgress) {
+		if (Time.hour >= 17 && Time.hour <= 23 && !Memories.Gwylan.has("pubSulk") && !V.gwylan.yearningLetter && !V.daily.gwylan.preventProgress) {
 			return "pub";
 		} else {
 			return "sulking";
@@ -608,12 +618,12 @@ function npcCanHunt(npc) {
 				V.forest > 0 &&
 				(V.forest <= 25 || V.gwylan?.hunting || T.gwylanStatus?.includesAny("reunion", "heat")) &&
 				!V.daily.gwylan.noHunt &&
-				!V.weekly.gwylanNoHunt &&
+				!V.weekly.gwylan.noHunt &&
 				!V.daily.gwylan.noTalk &&
-				!V.daily.gwylan.locked &&
+				!V.daily.gwylan.shopLocked &&
 				!T.gwylanStatus?.includes("wounded") &&
 				["shop", "garden", "nowhere"].includes(gwylanSchedule()) &&
-				(C.npc.Gwylan.init === 0 || (C.npc.Gwylan.state === "active" && V.gwylanSeen?.includes("talk_intro")))
+				(C.npc.Gwylan.init === 0 || (C.npc.Gwylan.state === "active" && Memories.Gwylan.has("findGwylanIntro")))
 			);
 		case "forest trio":
 			return npcCanHunt("Eden") || npcCanHunt("Black Wolf") || npcCanHunt("Gwylan");

@@ -11,32 +11,32 @@
 <</if>>
 <<set _shopEvent to (!$robin.outings.inForestShop and !$daily.gwylan.eventShop and !Time.isBloodMoon() and ["garden", "shop"].includes(gwylanSchedule()) and C.npc.Gwylan.state is "active")>>
 
-<<if $forest_shop_intro isnot 1>>
+<<if !Memories.Gwylan.has("forestShopIntro")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Intro">>
 <<elseif _justEntered and _shopEvent and _gwylanStatus.includes("reunion")>>
-	<<set $daily.gwylan.eventShop to true>><<unset $gwylanSteal>>
+	<<set $daily.gwylan.eventShop to true>><<unset $gwylan.steal>>
 	<<include "Forest Shop Reunion">>
 <<elseif _justEntered and !$robin.outings.inForestShop and _gwylanStatus.includes("aurigaScarConfront")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Nowhere">>
 	/* ToDo: Gwylan bad end - walking into the shop after escaping  */
-<<elseif _justEntered and _shopEvent and $dissociation gte 1 and !$weekly.gwylanTrauma>>
-	<<set $daily.gwylan.eventShop to true>><<set $weekly.gwylanTrauma to true>>
+<<elseif _justEntered and _shopEvent and $dissociation gte 1 and !$weekly.gwylan.trauma>>
+	<<set $daily.gwylan.eventShop to true>><<set $weekly.gwylan.trauma to true>>
 	<<include "Forest Shop Trauma">>
-<<elseif _justEntered and !$robin.outings.inForestShop and $gwylanSteal and !Time.isBloodMoon()>>
-	<<set $daily.gwylan.eventShop to true>><<unset $gwylanSteal>>
+<<elseif _justEntered and !$robin.outings.inForestShop and $gwylan.steal and !Time.isBloodMoon()>>
+	<<set $daily.gwylan.eventShop to true>><<unset $gwylan.steal>>
 	<<include "Forest Shop Thief">>
-<<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 10 and !$gwylanSeen.includes("intruder")>>
+<<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 10 and !Memories.Gwylan.has("intruder")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Intruder">>
-<<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 75 and C.npc.Gwylan.dom gte 120 and $hypnosis_traits.devotion gte 3 and $gwylanSeen.includesAll("partners", "hypnosis_deepest", "petplay") and !$gwylanSeen.includes("familiar_collar")>>
+<<elseif _justEntered and _shopEvent and _gwylanLovePercent gte 75 and C.npc.Gwylan.dom gte 120 and $hypnosis_traits.devotion gte 3 and Memories.Gwylan.hasAll("loveInterest", "hypnosisDeepest", "petplay") and !Memories.Gwylan.has("familiarCollar")>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Familiar Collar">>
 <<elseif _justEntered and $whitney_familiar_seen is 1 and !["dungeon", "pillory"].includes(C.npc.Whitney.state) and C.npc.Whitney.init is 1 and $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
 	<<set $daily.gwylan.eventShop to true>>
 	<<include "Forest Shop Familiar Whitney">>
-<<elseif _justEntered and !$gwylan.timer.randomOrgasm and $hypnosis_traits.devotion and ($arousal gte 10000 or $gwylanSeen.includes("ritual_beast") and random(1, 40) is 1)>>
+<<elseif _justEntered and !$gwylan.timer.randomOrgasm and $hypnosis_traits.devotion and ($arousal gte 10000 or Memories.Gwylan.has("ritualBeast") and random(1, 40) is 1)>>
 	<<set $gwylan.timer.randomOrgasm to new DateTime(Time.date).addDays(14).timeStamp>>
 	<<include "Forest Shop Mystery Orgasm">>
 <<else>>
@@ -54,7 +54,7 @@
 		<<pregnancyPassout "forestShop">>
 	<<else>>
 
-		<<if _gwylanLovePercent gte 40 and !$gwylan.punishment and !$gwylan.taken and !$gwylan.timer.wrap and (pcAreArmsBound("any") or $feetuse is "bound")>>
+		<<if _gwylanLovePercent gte 40 and !$gwylan.annoyed and !$gwylan.taken and !$gwylan.timer.wrap and (pcAreArmsBound("any") or $feetuse is "bound")>>
 			Your bindings catch on <<print either("a loose shelf", "a clothes hanger", "a low-hanging branch", "some unpleasantly sticky vines")>>. You try to pull away, and <span class="green">your bindings fall to tatters at your feet.</span>
 			<<unbind>>
 			<br><br>
@@ -73,7 +73,7 @@
 					Gwylan doesn't seem to be here.
 				<</if>>
 			<<else>>
-				<<if $gwylanSeen.includes("fox_plushie_gwylan")>>
+				<<if Memories.Gwylan.has("foxPlushieGwylan")>>
 					A small sign hangs from the neck of a large fox plushie sitting on a counter.<br>
 					It reads
 				<<else>>
@@ -94,17 +94,17 @@
 				<<if !$robin.halloween.costumeWorn or $robin.halloween.costumeWorn is "ghost">>
 					<<socialiseicon>><<link [[Talk to Robin|Robin Forest Costume Intro]]>><</link>>
 				<</if>>
-			<<elseif _snoopEvent and _gwylanLovePercent gte 20 and $gwylanSeen.includesAll("intruder", "clothes_intro") and !$gwylanSeen.includes("hat_found")>>
+			<<elseif _snoopEvent and _gwylanLovePercent gte 20 and Memories.Gwylan.hasAll("intruder", "clothesTalkIntro") and !Memories.Gwylan.has("hatFound")>>
 				<<set $gwylan.timer.eventShopEnd to new DateTime(Time.date).addHours(3).timeStamp>>
 				The shop is silent, and you see no sign of Gwylan anywhere. <span class="purple">It's a little darker than usual, too.</span>
 				<br>
 				<<investigateicon>><<link [[Try to find Gwylan|Forest Shop Hat]]>><</link>>
-			<<elseif _snoopEvent and _gwylanLovePercent gte 30 and $gwylanSeen.includes("hat_found") and !$gwylanSeen.includes("lights") and $gwylan.progress gte 3 and $gwylan.requestCount gte 2>>
+			<<elseif _snoopEvent and _gwylanLovePercent gte 30 and Memories.Gwylan.has("hatFound") and !Memories.Gwylan.has("gardenDoor") and $gwylan.progress gte 3 and $gwylan.requestCount gte 2>>
 				<<set $gwylan.timer.eventShopEnd to new DateTime(Time.date).addHours(2).timeStamp>>
 				The shop is silent, and you see no sign of Gwylan. <span class="purple">It's darker than usual.</span>
 				<br>
 				<<investigateicon>><<link [[Try to find Gwylan again|Forest Shop Lights]]>><</link>>
-			<<elseif _snoopEvent and _gwylanLovePercent gte 40 and $gwylanSeen.includes("lights") and !$gwylanSeen.includesAny("caught", "caught_no_lewd") and $gwylanTalked.length gte 10 and $gwylan.progress gte 6 and !(["clothing"].includes($gwylan.request.event) && gwylanRequestMet())>>
+			<<elseif _snoopEvent and _gwylanLovePercent gte 40 and Memories.Gwylan.has("gardenDoor") and !Memories.Gwylan.hasAny("ritualCaught", "ritualCaughtNoLewd") and $gwylan.clothesTalkedAbout.length gte 10 and $gwylan.progress gte 6 and !(["clothing"].includes($gwylan.request.event) && gwylanRequestMet())>>
 				<<set $gwylan.timer.eventShopEnd to new DateTime(Time.date).addHours(2).timeStamp>>
 				The shop is silent, and you see no sign of Gwylan. <span class="purple">It's darker than usual.</span>
 				<br>
@@ -119,7 +119,7 @@
 				<br>
 				<<socialiseicon>><<link [[Look for Gwylan|Gwylan Talk Shop]]>><</link>>
 				<<if gwylanSchedule() is "shop" and !$daily.gwylan.noTalk and !Time.isBloodMoon()
-				and $avery_fate and !$saved_orphanage_picture and !$gwylanSeen.includes("orphanagePhoto")
+				and $avery_fate and !$saved_orphanage_picture and !Memories.Gwylan.has("orphanagePhoto")
 				and !(["ascended", "saved"].includes($avery_fate) and $avery_mansion.folder gte 1)
 				and ($avery_mansion_robin is 2 or ["fallen", "kicked"].includes($avery_fate))>>
 					<br>
@@ -138,8 +138,8 @@
 		<<icon "clothing-shop.png">><<link [[Browse clothes|Forest Shop]]>><</link>>
 		<br>
 
-		<<if $gwylanSeen.includes("lights")>>
-			<<if !$gwylanSeen.includes("sample")>>
+		<<if Memories.Gwylan.has("gardenDoor")>>
+			<<if !Memories.Gwylan.has("sample")>>
 				Some strips of decorated cloth hang from a line of rope.
 				<br>
 				<<investigateicon>><<link [[Examine them|Forest Shop Charms]]>><</link>>
@@ -156,7 +156,7 @@
 			<</if>>
 		<</if>>
 
-		<<if !$robin.outings.inForestShop and $gwylanSeen.includes("doggy_bed")>>
+		<<if !$robin.outings.inForestShop and Memories.Gwylan.has("petBedIntro")>>
 			<<if !$gwylan.timer.petBed>>
 				<<bedicon "gwylanpet">><span class="purple">You can't find <<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>your pet bed<<else>>the bed Gwylan left out for you<</if>>.</span>
 			<<else>>
@@ -202,7 +202,7 @@
 :: Forest Shop Locked
 <<set $location to "forest_shop">><<effects>>
 
-<<if $yearningLetter is 2 and C.npc.Gwylan.state is "scorned" and !isGwylanAbsent()>>
+<<if $gwylan.yearningLetter is "seen" and C.npc.Gwylan.state is "scorned" and !isGwylanAbsent()>>
 	You raise your hand to the door. It creaks open. You didn't hear it unlock.
 	<br><br>
 
@@ -225,7 +225,7 @@
 
 :: Forest Shop Knock
 <<effects>>
-<<if $daily.gwylan.locked or $forest_shop_intro isnot 1 or C.npc.Gwylan.state is "scorned" or isGwylanAbsent()>>
+<<if $daily.gwylan.shopLocked or !Memories.Gwylan.has("forestShopIntro") or C.npc.Gwylan.state is "scorned" or isGwylanAbsent()>>
 	You knock on the door. There's no answer.
 	<br><br>
 
@@ -235,7 +235,7 @@
 	<</if>>
 	<<link [[Leave|Forest]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
-<<elseif Time.isBloodMoon() and C.npc.Gwylan.love gte 10 and !$gwylanSteal>>
+<<elseif Time.isBloodMoon() and C.npc.Gwylan.love gte 10 and !$gwylan.steal>>
 	You knock on the door.
 	<<if $ivoryWraith.hunt.progress>>
 		<<set $gwylan.timer.bloodKnock to new DateTime(Time.date).addDays(1).timeStamp>>
@@ -249,7 +249,7 @@
 		After a moment of silence, you hear Gwylan's voice. "Enter." <span class="blue"><<nnpc_He "Gwylan">> sounds strangely monotone.</span> You hear multiple locks click, and the door's handle twists to let you in.
 		<br><br>
 
-		<<if $gwylanSeen.includes("bloodmoon")>>
+		<<if Memories.Gwylan.has("bloodMoon")>>
 			<<link [[Next|Forest Shop Entrance]]>><<endevent>><<set $enteringForestShop to true>><</link>>
 		<<else>>
 			<<link [[Next|Forest Shop Blood]]>><</link>>
@@ -298,7 +298,7 @@ There's still no response.
 
 :: Forest Shop Blood
 <<set $outside to 0>><<set $location to "forest_shop">><<effects>>
-<<set $gwylanSeen.pushUnique("bloodmoon")>><<set $gwylan.timer.bloodVisit to new DateTime(Time.date).addDays(1).timeStamp>>
+<<run Memories.Gwylan.add("bloodMoon")>><<set $gwylan.timer.bloodVisit to new DateTime(Time.date).addDays(1).timeStamp>>
 <<npc Gwylan 1>><<person1>>
 
 You enter, and the door slowly closes itself behind you. <span class="red">You can't see Gwylan anywhere.</span>
@@ -347,7 +347,7 @@ You enter the strange building. The interior is dark and crowded by tall shelves
 <</if>>
 <br><br>
 
-<<if $gwylan_rescue is 1 and $gwylanRescue.failed>>
+<<if Memories.Gwylan.has("forestRescue") and $gwylan.rescue.failed>>
 	<<gwylanRescueApology "shop" "intro">>
 	<br><br>
 
@@ -373,7 +373,7 @@ You enter the strange building. The interior is dark and crowded by tall shelves
 	<<He>> seems to remember something. "I'm actually just about to leave, but don't worry, the shop can take care of itself. Just leave exact change on the second counter on the left." With that, <<he>> grabs an oversized hat from a spindly stand, hangs up <<his>> apron in the same spot, and darts out the door behind you.
 	<br><br>
 <</if>>
-<<set $forest_shop_intro to 1>>
+<<run Memories.Gwylan.add("forestShopIntro")>>
 
 <<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
 <br>
@@ -393,7 +393,7 @@ You enter the strange building. The interior is dark and crowded by tall shelves
 		<<top>> <<is _top>>
 	<</if>>
 	caught on the doorhook.
-	<<if $gwylanSeen.includes("steal_again")>>
+	<<if Memories.Gwylan.has("stealAgain")>>
 		Knowing what's about to happen, you try to grab onto something to steady yourself, but your balance is further thrown off as you trip over a ?gwylanItem.
 	<</if>>
 <</if>>
@@ -634,12 +634,12 @@ You stumble.
 <</if>>
 <<outfitChecks>>
 
-<<if $gwylanSeen.includes("steal_first") and _fullyNaked and !$gwylan.timer.wrap or _startedNaked>>
+<<if Memories.Gwylan.has("stealFirst") and _fullyNaked and !$gwylan.timer.wrap or _startedNaked>>
 	Another wardrobe yawns open, and you fall in.
 	<<if gwylanSchedule() is "shop">>
 		<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
 		You look up to see Gwylan at the end of an aisle, looking right at you.
-		<<if $gwylanSeen.includes("partners")>>
+		<<if Memories.Gwylan.has("loveInterest")>>
 			<<He>> blows a kiss and waves as the doors of the wardrobe slam shut.
 		<<else>>
 			<<He>> smiles and waves as the doors of the wardrobe slam shut.
@@ -658,15 +658,15 @@ You stumble.
 	The wooden floor creaks as if mocking you with each tortured, clumsy step you take.
 	<<if gwylanSchedule() is "shop">>
 		<<set $gwylan.timer.lastSeen to Time.date.timeStamp>>
-		<<if !$gwylanSeen.includes("steal_first")>>
-			<<set $gwylanSeen.pushUnique("steal_first")>>
+		<<if !Memories.Gwylan.has("stealFirst")>>
+			<<run Memories.Gwylan.add("stealFirst")>>
 			Gwylan claps as you <<if _strippedAmount gte 4>>finally <</if>>end up right in front of <<him>> at the counter, <<if _fullyNaked>>now stark-naked<<else>>sore and humiliated<</if>>.
 			"What a dance! I've never seen someone lose a fight with a building so gracefully." <<He>> gives you a sweet smile, which slowly turns into a serious glare. <<He>> points behind you, at the entrance. There's a ladder at the door. You must have walked right under it.
 			<br><br>
 
 			"Bad luck, I suppose. Thieves with bad luck won't be thieves for long." <<He>> puts a finger under your chin. "Might as well buy some new clothes while you're here!" <<He>> returns to a sweet smile as <<he>> claps once more.
 		<<else>>
-			<<set $gwylanSeen.pushUnique("steal_again")>>
+			<<run Memories.Gwylan.add("stealAgain")>>
 			Gwylan claps as you finally end up right in front of <<him>> at the counter, <<if _fullyNaked>>now stark-naked<<else>>sore and humiliated<</if>> once again.
 			"You make bad luck look so beautiful."
 			<<if Time.monthDay is 13 and Time.weekDay is 6>>
@@ -696,7 +696,7 @@ You stumble.
 :: Forest Shop Trauma
 /* included, no effects */
 <<npc Gwylan>><<person1>>
-<<if $gwylanRescue?.failed>>
+<<if $gwylan.rescue?.failed>>
 	<<gwylanRescueApology "shop">>
 	<<He>> walks up to you, and <<his>> normally bright smile sullens after getting a closer look at you.
 <<else>>
@@ -727,11 +727,11 @@ This place is no better than outside. You back yourself against the door. Your e
 <br>
 
 :: Forest Shop Trauma 2
-<<effects>><<run statusCheck("Gwylan")>><<set $gwylanSeen.pushUnique("trauma")>>
+<<effects>><<run statusCheck("Gwylan")>><<run Memories.Gwylan.add("trauma")>>
 <<if $phase is 0>>
 	<<canvas-model-override "mouth" "chew">>
-	<<if !$gwylanSeen.includes("trauma_eat")>>
-		<<set $gwylanSeen.pushUnique("trauma_eat")>>
+	<<if !Memories.Gwylan.has("traumaEat")>>
+		<<run Memories.Gwylan.add("traumaEat")>>
 		You walk with slow steps over to the plate. You haven't seen these types of fruits before. Carefully, you pick one up and take a small bite. You feel a pleasant warmth and your muscles relax. They seem safe to eat. <<stress -6>><<trauma -12>><<lstress>><<lltrauma>>
 	<<else>>
 		You walk with slow steps over to the plate. Carefully, you pick one up and take a small bite. You feel a pleasant warmth and your muscles relax. <<stress -6>><<trauma -12>><<lstress>><<lltrauma>>
@@ -812,14 +812,14 @@ Your head is in <<his>> lap.
 <br>
 <<link [[Go back to sleep|Forest Shop Trauma 5]]>><<npcincr Gwylan lust 2>><<set $phase to 1>><</link>><<glust>><<gwylanHypnoNote>>
 <br>
-<<if !$gwylanSeen.includes("trauma_love")>>
+<<if !Memories.Gwylan.has("traumaLove")>>
 	<<link [[Get angry|Forest Shop Trauma 5]]>><<npcincr Gwylan lust -2>><<set $phase to 2>><</link>><<llust>>
 	<br>
 <</if>>
 
 :: Forest Shop Trauma 5
 <<effects>><<run statusCheck("Gwylan")>>
-<<set $gwylanSeen.pushUnique("trauma_love")>>
+<<run Memories.Gwylan.add("traumaLove")>>
 <<if $phase is 0>>
 	You nod your head wordlessly. You really do feel better. You can't remember why you were so upset.
 	<br><br>
@@ -827,7 +827,7 @@ Your head is in <<his>> lap.
 	Gwylan lets you up. "Sorry, I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
 	<br><br>
 
-	<<if $gwylanSeen.includes("romance")>>
+	<<if Memories.Gwylan.has("romance")>>
 		<<He>> sadly smiles. "To love someone is not to rescue them, but to stand ready when they dare to rescue themselves."
 		<<He>> leans in and kisses you. <<gwylanKiss 0>>
 		<br><br>
@@ -866,7 +866,7 @@ Your head is in <<his>> lap.
 	"Sorry, I can't give you more, those fruits don't grow on tr—" <<He>> pauses. "They're not easy to grow."
 	<br><br>
 
-	<<if $gwylanSeen.includes("romance")>>
+	<<if Memories.Gwylan.has("romance")>>
 		<<He>> sadly smiles. "To love someone is not to rescue them, but to stand ready when they dare to rescue themselves."
 		<<He>> leans in and kisses you. <<gwylanKiss 0>>
 		<br><br>
@@ -909,7 +909,7 @@ Your head is in <<his>> lap.
 
 :: Forest Shop Intruder
 /* included, no effects */
-<<set $gwylanSeen.pushUnique("intruder")>>
+<<run Memories.Gwylan.add("intruder")>>
 <<npc Gwylan>><<beastPARTNERinit 1 wolf 0>>
 As you move to open the forest shop's door, it's flung open from the inside. A dark, fuzzy shape barrels into you as it flees the shop, knocking you to the ground. <<gpain>><<pain 3>>
 <br><br>
@@ -934,7 +934,7 @@ I need to remember to leave some wolfshrooms out." <<He>> collects <<himself>>, 
 
 :: Forest Shop Hat
 <<effects>>
-<<set $daily.gwylan.eventShop to true>><<set $gwylanSeen.pushUnique("hat_found")>>
+<<set $daily.gwylan.eventShop to true>><<run Memories.Gwylan.add("hatFound")>>
 <<npc Gwylan>><<person1>>
 
 As you walk around, it becomes apparent that the shop isn't the same as the last time you were here. None of the shelves are in the same place. You quickly notice that there doesn't seem to be any clothing in this section, despite the abundance of wooden mannequins.
@@ -990,7 +990,7 @@ Gwylan leads you around, showing you how to get back to the main section of the 
 :: Forest Shop Lights
 <<effects>>
 
-<<set $daily.gwylan.eventShop to true>><<set $gwylanSeen.pushUnique("lights")>>
+<<set $daily.gwylan.eventShop to true>><<run Memories.Gwylan.add("gardenDoor")>>
 You wander around the shop again, looking for Gwylan or anything of interest. Everything on the shelves seems completely mundane to you, and you pass them by without thinking about it. You can't remember a single thing you see for more than a few seconds.
 <br><br>
 
@@ -1144,9 +1144,9 @@ You slowly approach the frame, and peek around the corner.
 
 :: Forest Shop Caught No Lewd
 <<set $location to "forest_shop_garden">><<effects>><<run statusCheck("Gwylan")>><<set _tf to checkTFparts()>>
-<<set $gwylanSeen.pushUnique("caught_no_lewd")>><<set $gwylanSeen.pushUnique("garden_seen")>>
+<<run Memories.Gwylan.add("ritualCaughtNoLewd")>><<run Memories.Gwylan.add("gardenFound")>>
 
-<<if $gwylanSeen.includes("garden")>>
+<<if Memories.Gwylan.has("gardenSeen")>>
 	You're in Gwylan's garden. You weren't allowed to see the way here before.
 	<br><br>
 
@@ -1158,7 +1158,7 @@ You slowly approach the frame, and peek around the corner.
 
 	Nearby, there's a wooden bath filled with steaming water. You also
 <<else>>
-	<<set $gwylanSeen.pushUnique("garden")>>
+	<<run Memories.Gwylan.add("gardenSeen")>>
 	A large expanse of square stone tiles stretch along the ground, connecting patches of grass and raised sections filled with dirt, flowers and herbs.
 	Surrounding it all is an impressive weaving of crossed wooden stakes at least eight feet high, with gaps just large enough to allow vines to grab and climb through, shielding the whole area from prying outside eyes.
 	It's an enclosed garden.
@@ -1174,8 +1174,8 @@ You slowly approach the frame, and peek around the corner.
 	Nearby, there's a wooden bath filled with steaming water. More interestingly, however, you
 <</if>>
 see Gwylan standing in front of it with <<his>> back to you. <<Hes>> wearing a silk robe and <<his>> large witch hat.
-<<if !$gwylanSeen.includes("hat_colour") and $awarelevel gte 1 and !_gwylanTF.known>>
-	<<set $gwylanSeen.pushUnique("hat_colour")>>
+<<if !Memories.Gwylan.has("hatEarColour") and $awarelevel gte 1 and !_gwylanTF.known>>
+	<<run Memories.Gwylan.add("hatEarColour")>>
 	In this light, you notice just how well the fake ears on the hat match <<his>> hair colour.
 <</if>>
 <br><br>
@@ -1188,7 +1188,7 @@ see Gwylan standing in front of it with <<his>> back to you. <<Hes>> wearing a s
 		Your hair stands on end instinctively.
 	<</if>>
 	<<if _gwylanTF.tail is "visible">>
-		<<set $gwylanSeen.pushUnique("gwylan_tail")>>
+		<<run Memories.Gwylan.add("gwylanTailSeen")>>
 		As you look closer, you realise it's a fake one. However, just as the thought crosses your mind, <span class="pink">it moves from side to side on its own</span>.
 	<<else>>
 		However, as you look closer, it quickly becomes apparent that it's fake.
@@ -1336,7 +1336,7 @@ It makes beasts more aggressive, seeking out human prey when they otherwise woul
 	<</if>>
 	I hope you can forgive my caution around you."
 	<br><br>
-<<elseif $gwylanTalked.includes("temple_confessor")>>
+<<elseif $gwylan.clothesTalkedAbout.includes("temple_confessor")>>
 	<<He>> smiles. "This might all look familiar to you, <i>confessor</i>. Cleansing the forest often requires... <span class="lewd">release</span>. I hope you don't find me too heretical for using your methods."
 	<br><br>
 <</if>>
@@ -1428,7 +1428,7 @@ Despite appearing close to your age, Gwylan's tone makes you feel like a child b
 :: Forest Shop Caught 2
 <<set $location to "forest_shop_garden">><<effects>><<set _tf to checkTFparts()>><<run statusCheck("Gwylan")>>
 
-<<if $gwylanSeen.includes("garden")>>
+<<if Memories.Gwylan.has("gardenSeen")>>
 	You're in Gwylan's garden. You weren't allowed to see the way here before.
 	<br><br>
 
@@ -1440,7 +1440,7 @@ Despite appearing close to your age, Gwylan's tone makes you feel like a child b
 
 	You
 <<else>>
-	<<set $gwylanSeen.pushUnique("garden")>>
+	<<run Memories.Gwylan.add("gardenSeen")>>
 	A large expanse of square stone tiles stretch along the ground, connecting patches of grass and raised sections filled with dirt, flowers and herbs.
 	Surrounding it all is an impressive weaving of crossed wooden stakes at least eight feet high, with gaps just large enough to allow vines to grab and climb through, shielding the whole area from prying outside eyes.
 	It's an enclosed garden.
@@ -1456,8 +1456,8 @@ Despite appearing close to your age, Gwylan's tone makes you feel like a child b
 	More interestingly, however, you
 <</if>>
 see Gwylan standing in front of it with <<his>> back to you, <span class="pink">entirely naked</span> save for <<his>> large witch hat.
-<<if !$gwylanSeen.includes("hat_colour") and $awarelevel gte 1 and !_gwylanTF.known>>
-	<<set $gwylanSeen.pushUnique("hat_colour")>>
+<<if !Memories.Gwylan.has("hatEarColour") and $awarelevel gte 1 and !_gwylanTF.known>>
+	<<run Memories.Gwylan.add("hatEarColour")>>
 	In this light, you notice just how well the fake ears on the hat match <<his>> hair colour.
 <</if>>
 <<if _gwylanTF.tail isnot "revealed">>
@@ -1470,7 +1470,7 @@ see Gwylan standing in front of it with <<his>> back to you, <span class="pink">
 		Your hair stands on end instinctively.
 	<</if>>
 	<<if _gwylanTF.tail is "visible" and C.npc.Gwylan.penis is "none" and $settings.analEnabled>>
-		<<set $gwylanSeen.pushUnique("gwylan_tail")>>
+		<<run Memories.Gwylan.add("gwylanTailSeen")>>
 		As you look closer, you realise it's a fake one. <span class="lewd">It must be attached to a buttplug</span>.
 		However, just as the thought crosses your mind, <span class="lewd">it moves from side to side on its own</span>.
 	<<elseif $awarelevel gte 1 and C.npc.Gwylan.penis is "none" and $settings.analEnabled>>
@@ -1480,7 +1480,7 @@ see Gwylan standing in front of it with <<his>> back to you, <span class="pink">
 	<</if>>
 <<else>>
 	<<if _gwylanTF.tail is "visible" and C.npc.Gwylan.penis is "none" and $settings.analEnabled>>
-		<<set $gwylanSeen.pushUnique("gwylan_tail")>>
+		<<run Memories.Gwylan.add("gwylanTailSeen")>>
 		<<Hes>> wearing <<his>> fake tail, too. <span class="lewd">It must be attached to a buttplug</span>.
 		However, just as the thought crosses your mind, <span class="lewd">it moves from side to side on its own</span>.
 	<<elseif $awarelevel gte 1 and C.npc.Gwylan.penis is "none" and $settings.analEnabled>>
@@ -1565,7 +1565,7 @@ You do your best to forget that this ever happened.
 <br>
 
 :: Forest Shop Caught 4
-<<effects>><<set $gwylanSeen.pushUnique("garden_seen")>>
+<<effects>><<run Memories.Gwylan.add("gardenFound")>>
 <<set _gwylan to C.npc.Gwylan>>
 <<set _partner to $NPCList[1]>>
 
@@ -1683,7 +1683,7 @@ You get an unobstructed view of <<his>> <<npcGenitals 0>>, but there's something
 <<effects>>
 <<set _gwylan to C.npc.Gwylan>>
 <<set _partner to $NPCList[1]>>
-<<set $gwylanSeen.pushUnique("caught")>>
+<<run Memories.Gwylan.add("ritualCaught")>>
 
 <<if $phase2 is 1>>
 	<<outfitChecks>>
@@ -1742,7 +1742,7 @@ Your head begins to spin as the <<beasttype 1>> approaches climax.
 
 <<if $phase2 is 1 or ($arousal gte $arousalmax and ($wolfgirl gte 6 or $fox gte 6))>>
 	<<if $phase2 is 1>>
-		<<set $gwylanSeen.pushUnique("caught_masturbate")>>
+		<<run Memories.Gwylan.add("ritualCaughtMasturbate")>>
 		You manage to time your own orgasm well.
 	<<else>>
 		The heat within you boils over. You're hit with a rush of pleasure and cover your mouth.
@@ -1854,7 +1854,7 @@ Your head begins to spin as the <<beasttype 1>> approaches climax.
 <<effects>>
 <<set _gwylan to C.npc.Gwylan>>
 <<set _partner to $NPCList[1]>>
-<<set $gwylanSeen.pushUnique("caught_action_help")>>
+<<run Memories.Gwylan.add("ritualCaughtHelp")>>
 
 You rush over to the side table, opening the small jar. It smells of the ocean and cools the heat within you. <<arousal -1000>><<larousal>>
 <br><br>
@@ -1892,7 +1892,7 @@ Gwylan stops in front of a small hatch. <<He>> opens it, revealing a mossy hole 
 <<effects>>
 <<set _gwylan to C.npc.Gwylan>>
 <<set _partner to $NPCList[1]>>
-<<set $gwylanSeen.pushUnique("caught_action_distract")>>
+<<run Memories.Gwylan.add("ritualCaughtDistract")>>
 You rush to Gwylan's side.
 
 <<switch $phase>>
@@ -1951,7 +1951,7 @@ Gwylan stops in front of a small hatch. <<He>> opens it, revealing a mossy hole 
 <<effects>>
 <<set _gwylan to C.npc.Gwylan>>
 <<set _partner to $NPCList[1]>>
-<<set $gwylanSeen.pushUnique("caught_action_watch")>>
+<<run Memories.Gwylan.add("ritualCaughtWatch")>>
 
 You stay rooted to the spot, not wanting to risk the <<beasttype 1>>'s ire.
 <br><br>
@@ -1992,7 +1992,7 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 <<if $phase is 2>>
 	Some of the <<beasttype 0>>'s semen lingers on the corner of <<his>> mouth.
 <</if>>
-"Rude," <<he>> says flatly, grabbing your cheeks. "You interrupted my ritual, <<if $gwylanSeen.includes("caught_masturbate")>>pleasured yourself watching me, <</if>>stood there gawking while I lost control, and wouldn't even clean up your mess." <<His>> face is still beetroot-red in embarrassment. "I don't think I even owe you an explanation now." <<He>> huffs and turns away.
+"Rude," <<he>> says flatly, grabbing your cheeks. "You interrupted my ritual, <<if Memories.Gwylan.has("ritualCaughtMasturbate")>>pleasured yourself watching me, <</if>>stood there gawking while I lost control, and wouldn't even clean up your mess." <<His>> face is still beetroot-red in embarrassment. "I don't think I even owe you an explanation now." <<He>> huffs and turns away.
 <br><br>
 
 <<link [[Reassure Gwylan|Forest Shop Caught 9]]>><<set $phase2 to 1>><</link>>
@@ -2030,7 +2030,7 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 	<br><br>
 
 	"So rude!" <<he>> says, punching you on the shoulder.
-	<<if $gwylanSeen.includes("wolves_known")>>
+	<<if Memories.Gwylan.has("wolvesKnown")>>
 		"I didn't poke fun when you told me about your escapades with the wolf pack. You could at least give me the same courtesy," <<he>> pouts.
 	<</if>>
 	Despite that, <<he>> composes <<himself>>.
@@ -2050,38 +2050,38 @@ Gwylan just lays there for a few minutes, breathing heavily and covering <<his>>
 	<</if>>
 	<<deviancy2>>
 
-	<<if $gwylanSeen.includes("caught_action_distract")>>
+	<<if Memories.Gwylan.has("ritualCaughtDistract")>>
 		Gwylan nods. "I guessed as much, with the way you helped pull <<bhim 1>> off of me.
-		<<if $gwylanSeen.includes("caught_masturbate")>>
+		<<if Memories.Gwylan.has("ritualCaughtMasturbate")>>
 			Not to mention you pleasuring yourself just around the corner.
-			<<if $gwylanSeen.includes("wolves_known")>>
+			<<if Memories.Gwylan.has("wolvesKnown")>>
 				Or what you told me about your time with the wolf pack.
 			<</if>>
-		<<elseif $gwylanSeen.includes("wolves_known")>>
+		<<elseif Memories.Gwylan.has("wolvesKnown")>>
 			Not to mention what you told me about your time with the wolf pack.
 		<</if>>
 		You seemed to enjoy it." <<He>> smiles at you.
-	<<elseif $gwylanSeen.includes("caught_action_watch")>>
+	<<elseif Memories.Gwylan.has("ritualCaughtWatch")>>
 		Gwylan stares at you for a moment. "I suppose that explains why you were just standing there enjoying the show.
-		<<if $gwylanSeen.includes("caught_masturbate")>> Maybe a little too much.<</if>>
-		<<if $gwylanSeen.includes("wolves_known")>>
+		<<if Memories.Gwylan.has("ritualCaughtMasturbate")>> Maybe a little too much.<</if>>
+		<<if Memories.Gwylan.has("wolvesKnown")>>
 			Not to mention what you told me about your time with the wolf pack.
 		<</if>>
 		I hope it was gratifying." <<He>> loosens up and smiles at you.
-	<<elseif $gwylanSeen.includes("wolves_known")>>
-		<<if $gwylanSeen.includes("caught_masturbate")>>
+	<<elseif Memories.Gwylan.has("wolvesKnown")>>
+		<<if Memories.Gwylan.has("ritualCaughtMasturbate")>>
 			Gwylan nods. "I guessed as much, you certainly seemed to enjoy watching. Not to mention what you told me about your time with the wolf pack." <<He>> loosens up.
 		<<else>>
 			Gwylan looks at you with surprise. "So, you meant what you said about your time with the wolf pack." <<He>> smiles at you.
 		<</if>>
 	<<else>>
-		<<if $gwylanSeen.includes("caught_masturbate")>>
+		<<if Memories.Gwylan.has("ritualCaughtMasturbate")>>
 			Gwylan nods. "I guessed as much, you certainly seemed to enjoy watching." <<He>> loosens up.
 		<<else>>
 			Gwylan looks at you with surprise. "You... really? You're full of surprises." <<He>> smiles at you.
 		<</if>>
 	<</if>>
-	<<set $gwylanSeen.pushUnique("likes_wolves")>>
+	<<run Memories.Gwylan.add("likesWolves")>>
 <</if>>
 <br><br>
 
@@ -2115,7 +2115,7 @@ Here, I can make sure it doesn't spread further, and neutralise it." <<He>> poin
 	<</if>>
 	I hope you can forgive my caution around you."
 	<br><br>
-<<elseif $gwylanTalked.includes("temple_confessor")>>
+<<elseif $gwylan.clothesTalkedAbout.includes("temple_confessor")>>
 	<<He>> smiles. "That might all sound familiar to you, <i>confessor</i>. I hope you don't find me too heretical for using your methods."
 	<br><br>
 <</if>>
@@ -2199,7 +2199,7 @@ Despite appearing close to your age, Gwylan's tone makes you feel like a child b
 <br><br>
 
 <<He>> leads you back into the shop. The floorboards creak with each step <<he>> takes, as if mocking <<him>>.
-<<if $gwylanSeen.includes("caught_masturbate")>>
+<<if Memories.Gwylan.has("ritualCaughtMasturbate")>>
 	<<npcincr Gwylan lust 8>><<ggglust>>
 <<else>>
 	<<npcincr Gwylan lust 4>><<gglust>>
@@ -2212,7 +2212,7 @@ Despite appearing close to your age, Gwylan's tone makes you feel like a child b
 :: Forest Shop Familiar Collar
 /* no effects, included */
 <<npc Gwylan>><<person1>>
-<<set $gwylanSeen.pushUnique("familiar_collar")>>
+<<run Memories.Gwylan.add("familiarCollar")>>
 Gwylan excitedly skips up to you as you enter the shop. "<<pcPetname "Gwylan">>! I have a surprise for you," <<he>> says in a sing-song voice.
 <br><br>
 
@@ -2333,7 +2333,7 @@ You look down. There's no sign of what just happened to you. You look around. Th
 /* no effects, included */
 <<npc Gwylan>><<person1>>
 You enter the forest shop.
-<<if $gwylanSeen.includes("partners")>>
+<<if Memories.Gwylan.has("loveInterest")>>
 	Before you can get your bearings, you're wrapped up in a warm embrace. Gwylan clings to you. <<if _gwylanTF.known>><<His>> tail curls around you. It's very soft.<</if>>
 	<br><br>
 
@@ -2630,7 +2630,7 @@ Nowhere.
 :: Forest Shop Nowhere Passout
 <<set $location to "forest_shop">><<set $outside to 0>><<effects>>
 <<npc Gwylan>><<person1>><<run statusCheck("Gwylan")>>
-<<set $gwylanSeen.pushUnique("auriga_scar")>><<drugs 120>><<hallucinogen 120>>
+<<run Memories.Gwylan.add("aurigaScar")>><<drugs 120>><<hallucinogen 120>>
 <<pain 1>>
 <<set $gwylan.wary += 2>>
 <<if $worn.under_upper.name isnot "naked">>
@@ -2653,7 +2653,7 @@ Nowhere.
 <</if>>
 
 You awaken harshly, feeling as though you just hit the ground back-first. You gasp and thrash.
-<<if $gwylanSeen.includes("romance")>>
+<<if Memories.Gwylan.has("romance")>>
 	You try to, at least. <span class="red">Your limbs feel impossibly heavy.</span> You try to move your neck, but even that comes with great effort.
 	<br><br>
 
@@ -2676,8 +2676,8 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 
 	"Why? You know all that's at stake. You know what <i>they</i> do to people like us. Why did you play right into their schemes? Why did you let them do this to you?"
 	<<He>> winces as a single black tear rolls down <<his>> cheek.
-	<<if $avery_mansion and $brownFoxCoverBlown>>
-		<<set $avery_mansion.fox.known to true>><<set $brownFoxRevealed to true>>
+	<<if $avery_mansion and Memories.Gwylan.has("brownFoxCoverBlown")>>
+		<<set $avery_mansion.fox.known to true>><<run Memories.Gwylan.add("brownFoxRevealed")>>
 		"<span class="red">Why did you scream for them when you saw me?</span> Have they swayed you?"
 	<<else>>
 		"Have they swayed you?"
@@ -2690,7 +2690,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 	Something holds you still, though. "Shhhhh. It's alright. You're safe." Your arms and legs feel heavy, and you have trouble moving.
 	<br><br>
 
-	You look up. Your head is in Gwylan's lap. <<if $gwylanSeen.includes("yearning")>><<His>> expression is blank.<<else>><<He>> gently smiles.<</if>> You're in the forest shop. Everything around you looks normal.
+	You look up. Your head is in Gwylan's lap. <<if Memories.Gwylan.has("yearning")>><<His>> expression is blank.<<else>><<He>> gently smiles.<</if>> You're in the forest shop. Everything around you looks normal.
 	<<if _upperStrippedHere or _underUpperStrippedHere>>
 		You spot your clothes neatly folded next to you.
 	<</if>>
@@ -2702,9 +2702,9 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 	<span class="purple">Your vision blurs. Behind Gwylan's head, stuck to <<his>> shadow on the wall, is a pair of antlers.</span> <<He>> removes <<his>> hand, and your vision clears. It's just some branches behind <<him>>. <<stress 12>><<ggstress>>
 	<br><br>
 
-	<<if $gwylanSeen.includes("yearning")>>
+	<<if Memories.Gwylan.has("yearning")>>
 		"Have you thrown your lot in with those who seek to poison my forest?
-		<<if $gwylanSeen.includes("partners")>>
+		<<if Memories.Gwylan.has("loveInterest")>>
 			<<set $gwylan.wary += 3>>
 			I thought I could trust you, after I opened my home and my body to you. You know well what's at stake. You've seen what I..."
 			<br><br>
@@ -2761,7 +2761,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 <br>
 <<link [[Say you wanted to defy Bailey|Forest Shop Nowhere Talk]]>><<set $gwylan.trouble to "Bailey">><</link>>
 <br>
-<<if $brownFoxRevealed>>
+<<if Memories.Gwylan.has("brownFoxRevealed")>>
 	<<link [[Say you didn't trust Landry|Forest Shop Nowhere Talk]]>><<set $gwylan.trouble to "Landry">><</link>>
 	<br>
 <</if>>
@@ -2769,7 +2769,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 	<<link [[Say you wanted to get close to Harper|Forest Shop Nowhere Talk]]>><<set $gwylan.trouble to "Harper">><</link>>
 	<br>
 <</if>>
-<<if $gwylanSeen.includesAll("romance", "nobody") and $gwylan.triumph is "Gwylan">>
+<<if Memories.Gwylan.hasAll("romance", "nobody") and $gwylan.triumph is "Gwylan">>
 	<<link [[Say you wanted to become like <<him>>|Forest Shop Nowhere Talk Forever]]>><<set $gwylan.trouble to "Gwylan">><</link>>
 	<br>
 <</if>>
@@ -2782,12 +2782,12 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 	<<set Weather.Temperature.override.increase.inside(5, "A thick blanket keeps you warm.")>>
 <</if>>
 <<unset $passoutReason>>
-<<if $gwylanSeen.includes("romance")>>
+<<if Memories.Gwylan.has("romance")>>
 	<<set $gwylan.trouble to "silenced">>
 	You open your mouth to speak as <<his>> finger trails up your neck. A faint blue mist exits and swirls in between Gwylan's fingers. <span class="red">You have been silenced.</span>
 	<br><br>
 
-	<<if $avery_mansion and $brownFoxCoverBlown>>
+	<<if $avery_mansion and Memories.Gwylan.has("brownFoxCoverBlown")>>
 		"Shhh... no more screaming, my dear child. I can't bear to hear you sing for the elks again.
 	<<else>>
 		"Shhh... you needn't say anything, my dear child.
@@ -2828,7 +2828,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 				<<if $gwylan.wary gt 1>><<set $gwylan.wary-->><</if>>
 				Gwylan scowls briefly, but seems to remember something. "You poor, naive child. You truly believe you're helpless, don't you?" <<He>> shakes <<his>> head. "Someone has taught you that helplessness. It is not who you are."
 				<<He>> continues petting your hair, now looking almost protective of you. "We must break you out of this, or this world will chew you up."
-			<<elseif $gwylanSeen.includes("yearning") or ["spite", "survival", "revenge", "divine"].includes($gwylan.triumph)>>
+			<<elseif Memories.Gwylan.has("yearning") or ["spite", "survival", "revenge", "divine"].includes($gwylan.triumph)>>
 				<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 				Gwylan frowns, <span class="red">looking disappointed</span>. "Nonsense. You've merely forgotten how strong you are." <<He>> leans in. "I haven't. I still remember everything you've told me. You are far from helpless.
 				Why do you lie to yourself? What has made your heart waver like this?" <<He>> shakes <<his>> head, lifting yours out of <<his>> lap and laying you down on the floor. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -2865,7 +2865,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 					<<He>> shakes <<his>> head, lifting yours out of <<his>> lap and laying you down on the floor. <<npcincr Gwylan dom -25>><<llyearning>>
 				<<case "survival">>
 					<<if $gwylan.wary gt 1>><<set $gwylan.wary-->><</if>>
-					<<if $gwylanSeen.includes("yearning")>><<His>> expression falters.<<else>><<He>> smiles sadly.<</if>> "You told me that survival comes before all else. You were just following your instincts, then."
+					<<if Memories.Gwylan.has("yearning")>><<His>> expression falters.<<else>><<He>> smiles sadly.<</if>> "You told me that survival comes before all else. You were just following your instincts, then."
 					<<He>> looks down at <<his>> arms. "Anything it takes to survive. Even if one has to submit and take the beatings." <<npcincr Gwylan dom 5>><<gyearning>>
 				<<case "child" "children" "orphans" "kind" "Gwylan">>
 					<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
@@ -2874,7 +2874,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 				<<case "special">>
 					<<if isLoveInterest("Avery")>>
 						<<if $gwylan.wary gt 1>><<set $gwylan.wary-->><</if>>
-						<<if $gwylanSeen.includes("yearning")>><<His>> expression falters.<<else>><<He>> smiles sadly.<</if>> "I understand. It can be so, so very difficult to refuse the hand that feeds you, even when the same hand strikes you.
+						<<if Memories.Gwylan.has("yearning")>><<His>> expression falters.<<else>><<He>> smiles sadly.<</if>> "I understand. It can be so, so very difficult to refuse the hand that feeds you, even when the same hand strikes you.
 						Even when your body flinches by instinct." <<He>> looks down at <<his>> arms. "Anything it takes to survive." <<npcincr Gwylan dom 5>><<gyearning>>
 					<<else>>
 						<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
@@ -2886,7 +2886,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 					Gwylan frowns, <span class="red">looking disappointed</span>. "So your curiosity is only as deep as a puddle, unable to break through something as weak as fear. How troublesome."
 					<<He>> shakes <<his>> head, lifting yours out of <<his>> lap and laying you down on the floor. <<npcincr Gwylan dom -25>><<llyearning>>
 				<<default>>
-					<<if $gwylanSeen.includes("yearning")>>
+					<<if Memories.Gwylan.has("yearning")>>
 						<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 						Gwylan frowns, <span class="red">looking disappointed</span>. "After all you've told me, something as weak as fear is enough to make you heel? What of the fear I felt, worrying whether the fool Elk-puppets swayed you?"
 						<<He>> shakes <<his>> head, lifting yours out of <<his>> lap and laying you down on the floor. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -2897,14 +2897,14 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 					<</if>>
 			<</switch>>
 		<<case "pride">>
-			<<if !$gwylanSeen.includes("yearning")>>
+			<<if !Memories.Gwylan.has("yearning")>>
 				<<if ["spite", "revenge"].includes($gwylan.triumph)>>
 					A smile breaks through Gwylan's stern expression. "You told me you were spiteful, but I didn't expect it to go this deep.
 				<<else>>
 					<<He>> sighs, but continues to pet your head. "I hope you know how foolish that was.
 				<</if>>
 				It won't be worth it. Avery will drag us all down to Hell with <<nnpc_him "Avery">>, now.
-				<<if $brownFoxRevealed>>
+				<<if Memories.Gwylan.has("brownFoxRevealed")>>
 					This is exactly what Landry and I were trying to prevent. Spite isn't worth condemning the world, and the chance to spur the fall has long since passed."
 				<<else>>
 					It's exactly what La—" <<He>> catches <<himself>>. "Spite isn't worth condemning the world."
@@ -2912,7 +2912,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 			<<else>>
 				<<set $gwylan.wary += 2>><<set _gwylanDisappointed to 1>>
 				Gwylan scoffs. <span class="red"><<He>> looks disappointed.</span> "It's too late for that. When Avery falls, <<nnpc_He "Avery">>'ll be dragging us all down to Hell with <<nnpc_him "Avery">>.
-				<<if $brownFoxRevealed>>
+				<<if Memories.Gwylan.has("brownFoxRevealed")>>
 					It's exactly what Landry and I were trying to prevent, and you've fed right into it. Spite isn't worth condemning the world, and the chance to spur the fall has long since passed."
 				<<else>>
 					It's exactly what La—" <<He>> catches <<himself>>. "Spite isn't worth condemning the world."
@@ -2966,7 +2966,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 					<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 					Gwylan frowns, <span class="red">looking disappointed</span>. "All for what, your desire for lust? I remember, dear. You fear they'll punish the hedonism that keeps you afloat in this sea of torment."
 					<<He>> lifts your head and lays you flat on the ground. <<npcincr Gwylan dom -25>><<llyearning>>
-				<<elseif $gwylanSeen.includes("yearning")>>
+				<<elseif Memories.Gwylan.has("yearning")>>
 					<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 					Gwylan frowns, <span class="red">looking disappointed</span>. "A fool's errand. You know by now that the best way to oppose the Cloister would be to remove the reason they take such extreme measures."
 					<<He>> lifts your head and lays you flat on the ground. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -2979,12 +2979,12 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 			Gwylan stares down at you. <<He>> blinks, saying nothing, waiting for you to continue. You have nothing more to say.
 			<br><br>
 
-			<<if $gwylan.triumph is $gwylan.trouble and $gwylanSeen.includes("yearning")>>
+			<<if $gwylan.triumph is $gwylan.trouble and Memories.Gwylan.has("yearning")>>
 				"So, what you told me that day holds true, but it's been twisted. Darkened." <<He>> holds <<his>> hand over your heart. "What happened to you? I want <<pcpetname "Gwylan" "my">> back."
-			<<elseif $gwylanSeen.includes("partners")>>
+			<<elseif Memories.Gwylan.has("loveInterest")>>
 				<<He>> looks wounded. "You have given me your heart, dear, and I know this is not its true rhythm."
 				<<He>> then slaps you across the face. "You're being incredibly stupid. Give me back <<pcpetname "Gwylan" "my">>." <<He>> slaps you again. You can't even move to block it. <<pain 8>><<ggpain>>
-			<<elseif $gwylanSeen.includes("yearning")>>
+			<<elseif Memories.Gwylan.has("yearning")>>
 				<<He>> then slaps you across the face. "You're being incredibly stupid. Give me back <<pcpetname "Gwylan" "my">>." <<He>> slaps you again. You can't even move to block it. <<pain 8>><<ggpain>>
 			<<else>>
 				"That's it?" <<He>> giggles. "That reason is so utterly mundane that I can't tell if you're serious. Is that all it would take for you to throw the world away?" <<He>> smiles. It makes you uncomfortable.
@@ -3050,7 +3050,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 			<<elseif ["child", "children"].includes($gwylan.triumph)>>
 				<<He>> sighs. "I understand. You can't stand having your <<= $gwylan.triumph is "child" ? "child" : "children">> stuck under <<nnpc_his "Bailey">> care. Still, these are far worse people than Bailey you're getting mixed up with, dear.
 				I can't say I don't understand, though." <<He>> continues petting your head. "It's a rotten thing, to be forced to put a personal struggle aside for the sake of the world. I understand. I understand more than you know."
-			<<elseif $gwylanSeen.includes("yearning")>>
+			<<elseif Memories.Gwylan.has("yearning")>>
 				<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 				Gwylan frowns, <span class="red">looking disappointed</span>. "You know by now that there are bigger threats than Bailey."
 				<<He>> lifts your head and lays you flat on the ground. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -3070,7 +3070,7 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 
 			<<if $gwylan.triumph is "kind">>
 				<<He>> frowns. "Landry hides much. Someone as kind-hearted as you couldn't understand the darkness bubbling up under the surface of this conflict. It's a terrible choice to have to make."
-			<<elseif $gwylanSeen.includes("yearning")>>
+			<<elseif Memories.Gwylan.has("yearning")>>
 				<<set $gwylan.wary++>><<set _gwylanDisappointed to 1>>
 				Gwylan frowns, <span class="red">looking disappointed</span>. "You know the stakes. You know that the world can't become clean without us getting dirty."
 				<<He>> lifts your head and lays you flat on the ground. <<npcincr Gwylan dom -25>><<llyearning>>
@@ -3093,13 +3093,13 @@ You awaken harshly, feeling as though you just hit the ground back-first. You ga
 	<</if>>
 	"Forgive me, but I've already taken precautions while you were unconscious. Your wound shouldn't flare up from my mere presence anymore."
 	<<if _gwylanDisappointed is 2>>
-		<<set $daily.gwylan.locked to true>>
+		<<set $daily.gwylan.shopLocked to true>>
 		<<His>> hands open and close at <<his>> sides. "This is not your truest heart. You wouldn't dare enter my forest again if that was how you really felt."
 		<<He>> produces a red phial, opens it, and holds it under your nose. <span class="green">The weight lifts from your limbs.</span>
 		<br><br>
 
 		<<He>> helps you stand, and hugs you. "I'd like to be alone for today.
-		<<if $gwylanSeen.includes("partners")>>
+		<<if Memories.Gwylan.has("loveInterest")>>
 			Look at me. Hey. Look at me." <<He>> turns your head to look into <<his>> eyes. "I won't abandon you, no matter how much you lash out at the world." <<He>> gives you a peck on the lips.
 		<<else>>
 			I hope you return soon, though. There's much work to be done. I've made terrible mistakes of my own. Some worse than this."
@@ -3252,14 +3252,14 @@ You feel something leave you, alongside <<his>> tongue. Gwylan has taken somethi
 
 <!-- Events that happen when leaving the shop -->
 :: Forest Shop Stolen
-<<effects>><<set $gwylanSteal to true>>
+<<effects>><<set $gwylan.steal to true>>
 
-<<if !$gwylanSeen.includes("steal_first")>>
+<<if !Memories.Gwylan.has("stealFirst")>>
 	Your eyes dart around, looking for Gwylan. The way out seems clear. You hastily make for the exit with your stolen clothes.
 	<br><br>
 
 	Just before you make it out, the entire store seems to <span class="red">creak</span>. You look down at your feet, searching for loose floorboards, but find nothing. You quickly exit the shop.
-<<elseif !$gwylanSeen.includes("steal_again")>>
+<<elseif !Memories.Gwylan.has("stealAgain")>>
 	Your eyes dart around, looking for Gwylan. The way out seems clear. You hastily make for the exit with your stolen clothes.
 	<br><br>
 
@@ -3278,7 +3278,7 @@ You feel something leave you, alongside <<his>> tongue. Gwylan has taken somethi
 	<br><br>
 
 	You finally stumble out the front door. It slams shut behind you, and you hear a click shortly after.
-	<<set $daily.gwylan.locked to true>>
+	<<set $daily.gwylan.shopLocked to true>>
 <</if>>
 <br><br>
 
@@ -3286,9 +3286,9 @@ You feel something leave you, alongside <<his>> tongue. Gwylan has taken somethi
 <br>
 
 :: Forest Shop Stolen Wrap
-<<effects>><<set $gwylanSeen.pushUnique("steal_wrap")>>
+<<effects>><<run Memories.Gwylan.add("stealWrap")>>
 
-<<underupperwear "gift wrappings">><<upperwear "gift wrap top">><<lowerwear "gift wrap bottom">><<bind>><<set $gwylan.timer.wrap to new DateTime(Time.date).addDays(14).timeStamp>><<set $daily.gwylan.locked to true>>
+<<underupperwear "gift wrappings">><<upperwear "gift wrap top">><<lowerwear "gift wrap bottom">><<bind>><<set $gwylan.timer.wrap to new DateTime(Time.date).addDays(14).timeStamp>><<set $daily.gwylan.shopLocked to true>>
 You're blinded as the doors open, revealing the forest. You're harshly spit out on the grass in front of the shop. You hear a door slam shut behind you, <span class="red">and a lock click into place</span>.
 <br><br>
 
@@ -3391,8 +3391,8 @@ You prowl around the shop, looking under cloaks, on top of shelves and behind dr
 
 You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 
-<<if $pubfame.tasksDone.includes("gwylan") and !$gwylanSeen.includes("mickey_snowglobe") and $gwylan.stage gte 3>>
-	<<set $gwylanSeen.pushUnique("mickey_snowglobe")>><<set $pubfame.gwylan.niceDay to true>>
+<<if $pubfame.tasksDone.includes("gwylan") and !Memories.Gwylan.has("mickeySnowglobe") and $gwylan.loveMilestone gte 3>>
+	<<run Memories.Gwylan.add("mickeySnowglobe")>><<set $pubfame.gwylan.niceDay to true>>
 	"It's not the first time you asked for a snow globe with a weird code. Is there any chance you're getting that for..."
 	<br><br>
 
@@ -3409,7 +3409,7 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 
 :: Forest Shop Charms
 <<effects>><<run statusCheck("Gwylan")>>
-<<if !$gwylanSeen.includes("sample")>>
+<<if !Memories.Gwylan.has("sample")>>
 	You examine the strips of cloth. They're decorated with strange branching patterns. Most are the same size, but one is significantly larger than the rest, around the size of a small rug.
 	<br><br>
 
@@ -3421,8 +3421,8 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 		You don't notice anything unusual about them, though. <span class="green">This fills you with a strange comfort.</span>
 	<</if>>
 
-	<<if ["shop", "garden"].includes(gwylanSchedule()) and !$gwylanSeen.includes("charms") and !$gwylan.timer.eventShopEnd>>
-		<<set $gwylanSeen.pushUnique("charms")>>
+	<<if ["shop", "garden"].includes(gwylanSchedule()) and !Memories.Gwylan.has("charms") and !$gwylan.timer.eventShopEnd>>
+		<<run Memories.Gwylan.add("charms")>>
 		<<npc Gwylan>><<person1>>
 		<br><br>
 
@@ -3532,7 +3532,7 @@ You hand over the money to Gwylan, and <<he>> hands you the snow globe.
 
 :: Forest Shop Sex Toys Intro
 <<effects>><<npc Gwylan>>
-<<set $gwylanSeen.pushUnique("sexToys")>>
+<<run Memories.Gwylan.add("sexToys")>>
 
 You approach the unfamiliar cabinet and peek inside it. <span class="lewd">It's filled with unusual devices.</span> Some look like <<= $awareness lte 200 ? "silicone sculptures" : "dildos">> fashioned after fantastical creatures. <<= $awareness lte 200 ? "Some of them have" : "A few of them appear to be buttplugs with">> tails attached. Others are clearly antique: a leather saddle with a phallus affixed to it; a hand-cranked mechanism with an oscillating end; a percussion massager with a thick cord that appears to screw into a lightbulb socket. A fragile sheet of paper tacked to the back of the cabinet claims that its "vibratory massage" cures insomnia, intestinal and digestive disorders, rheumatism, and gout.
 <br><br>
@@ -3547,7 +3547,7 @@ You jump. "Sorry, I didn't mean to pry," you say, unable to mask your guilt. "I'
 <br><br>
 
 <<He>> wipes some dust off one of the dildos and examines it.
-<<if $gwylanSeen.includes("strapOnGifted")>>
+<<if Memories.Gwylan.has("strapOnGifted")>>
 	"I suppose it's reminding me that I have a place to store that gift you gave me. Thank you, again."
 <<else>>
 	"This is a collection of vintage or novelty items I've picked up over the years. I'll admit, I don't tend to use them on my own. There's plenty of other ways to alleviate any masturbatory urges. But sharing a toy with a fluid-bonded partner... well. It's rather intimate." <<He>> gives you a fond smile. "I suppose it's telling me that it might be time to break them out again. The non-antique ones, anyway. I doubt either of us could get off using some of the more archaic devices here."
@@ -3632,7 +3632,7 @@ You sip the tea. It soothes your pain. <<pain -6>><<arousal -1000>><<lpain>><<la
 
 :: Forest Shop Wraith Talk 2
 <<effects>><<run statusCheck("Gwylan")>>
-<<set $gwylanSeen.pushUnique("bloodmoon")>>
+<<run Memories.Gwylan.add("bloodMoon")>>
 <<if $phase is "thief">>
 	<<switch $speech_attitude>>
 		<<case "meek">>"I stole something I shouldn't have, and now it won't leave me alone," you say.
@@ -3718,7 +3718,7 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 <<He>> pours you some tea, and sits down opposite you. It soothes your pain. <<pain -6>><<arousal -1000>><<lpain>><<larousal>>
 <br><br>
 
-"You're lucky that you're so interesting. I wouldn't stick my neck out like that for anyone else, you know." <<He>> reaches forward and pinches your cheek. <<if $gwylanSeen.includes("partners")>>"I can't have the Wraith stealing my little treasure."<</if>>
+"You're lucky that you're so interesting. I wouldn't stick my neck out like that for anyone else, you know." <<He>> reaches forward and pinches your cheek. <<if Memories.Gwylan.has("loveInterest")>>"I can't have the Wraith stealing my little treasure."<</if>>
 <br><br>
 
 <<if _gwylanStatus.includes("badEndReady")>>
@@ -3809,12 +3809,12 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 <<if isPregnancyEnding()>>
 	<<pregnancyPassout "forestShop">>
 <<elseif _gwylanCafeWake>>
-	<<if !$gwylanbed>> /* Don't generate Gwylan again if they're already generated in _gwylanWake */
+	<<if !$gwylan.inBed>> /* Don't generate Gwylan again if they're already generated in _gwylanWake */
 		<<npc Gwylan>><<person1>>
 	<</if>>
 	You wake up to Gwylan gently petting your head. "<<pcPetname "Gwylan" "simple">>, it's breakfast time. Come on, let's go for a walk!" <<He>> kisses you on the cheek.
 	<br><br>
-	<<unset $gwylanbed>>
+	<<unset $gwylan.inBed>>
 
 	<<hypnosisText "The word 'walk' fills you with vigor and excitement.">> You stand and stretch, and your head ends up finding Gwylan's hand again. <<tiredness -2>><<ltiredness>>
 	<br><br>
@@ -3822,7 +3822,7 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	<<link [[Walk with Gwylan to the cafe (0:15)|Gwylan Walk Cafe Solo]]>><<pass 15>><</link>>
 	<br>
 <<elseif _gwylanWake>>
-	<<set $bedGuest to "Gwylan">><<set $gwylanbed to true>>
+	<<set $bedGuest to "Gwylan">><<set $gwylan.inBed to true>>
 	<<npc Gwylan>><<person1>>You feel your blanket briefly get lifted, and someone crawls into the pet bed with you. Gwylan spoons you. "Shh... go back to sleep, <<pcpetname "Gwylan" "simple">>."
 	<br><br>
 
@@ -3840,13 +3840,13 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 		<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
 			<br>
 			You slept soundly, but now feel a little rough.
-			<<if $gwylanbed>>
+			<<if $gwylan.inBed>>
 				Gwylan rubs your back for comfort.
 			<</if>>
 			<br><br>
 		<<elseif ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
 			<<wetDream>>
-			<<if $gwylanbed>>
+			<<if $gwylan.inBed>>
 				Gwylan giggles. "Oh my, someone was pent up." <<npcincr Gwylan lust 3>><<gglust>>
 				<br><br>
 
@@ -3855,7 +3855,7 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 			<br><br>
 		<<elseif !_wakingEffect>>
 			You sleep soundly, and wake up refreshed.
-			<<if $gwylanbed>>
+			<<if $gwylan.inBed>>
 				Gwylan kisses you on the cheek, and leaves you alone in the bed.
 			<</if>>
 			<br><br>
@@ -3865,13 +3865,13 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	<</if>>
 	<<getouticon>><<link [[Get out of bed|Forest Shop Entrance]]>><<endevent>><</link>>
 	<br>
-	<<unset $gwylanbed>>
+	<<unset $gwylan.inBed>>
 <</if>>
 
 :: Forest Shop Familiar Whitney
 <<effects>>
 
-<<set $gwylanSeen.pushUnique("familiar_whitney")>>
+<<run Memories.Gwylan.add("whitneyVisitedShop")>>
 <<set $whitney_familiar_seen to 2>>
 <<npc Gwylan>><<npc Whitney 2>>
 
@@ -3969,7 +3969,7 @@ Gwylan sets to work righting the objects Whitney's friends knocked down, and ret
 
 :: Forest Shop Photo
 <<effects>>
-<<set $gwylanSeen.pushUnique("orphanagePhoto")>>
+<<run Memories.Gwylan.add("orphanagePhoto")>>
 <<set _photoLoss to getOrphanagePhotoLoss()>>
 <<if ["avery", "fire"].includes(_photoLoss)>>
 	You approach the shelf<<if $bodysize lte 1>> and stand on your toes<</if>> to get a better look at the small laminated photo. You've seen it before. You, Robin, Bailey, and a fourth person stand in front of the orphanage. Bailey is staring right at the blurred stranger standing behind you and Robin. The stranger rests a hand each on your and Robin's shoulders. Their face is marred beyond recognition, but their smile is clear.
@@ -3997,7 +3997,7 @@ Gwylan sets to work righting the objects Whitney's friends knocked down, and ret
 <<effects>>
 <<npc Gwylan>><<person1>>
 <<set _photoLoss to getOrphanagePhotoLoss()>>
-A hand drops on to your shoulder and another reaches past it to lift the photo from its pin. It's Gwylan. <<He>> holds the photo close to <<his>> face, wearing a small smile. "What a lovely photo," <<he>> says. "You and <<if $gwylan.robin gte 10>>Robin<<else>>your friend<</if>> look so cute, <<pcpetname "Gwylan" "name">>."
+A hand drops on to your shoulder and another reaches past it to lift the photo from its pin. It's Gwylan. <<He>> holds the photo close to <<his>> face, wearing a small smile. "What a lovely photo," <<he>> says. "You and <<if $gwylan.robinInterest gte 10>>Robin<<else>>your friend<</if>> look so cute, <<pcpetname "Gwylan" "name">>."
 <br><br>
 
 <<if $chef_speech is "bailey">>
@@ -4107,9 +4107,9 @@ A hand drops on to your shoulder and another reaches past it to lift the photo f
 :: Gwylan Talk Photo
 <<effects>><<run statusCheck("Gwylan")>><<set $daily.gwylan.clothesTalk++>>
 <<if $saved_orphanage_picture is 2>>
-	<<set $gwylanTalked.pushUnique("orphanagePhotoCut")>>
+	<<set $gwylan.clothesTalkedAbout.pushUnique("orphanagePhotoCut")>>
 <<else>>
-	<<set $gwylanTalked.pushUnique("orphanagePhoto")>>
+	<<set $gwylan.clothesTalkedAbout.pushUnique("orphanagePhoto")>>
 <</if>>
 You show Gwylan the photo from the folder. <<He>> goes still, then takes it from you, holding it carefully by the edges. <<He>> looks at the photo for a long moment,
 <<if $saved_orphanage_picture is 2>>

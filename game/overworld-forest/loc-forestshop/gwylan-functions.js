@@ -15,7 +15,7 @@ function gwylanRequest(override = null) {
 		* Example usage in sugarcube:
 		<<set _customRequestPool to []>>
 		<<set _customRequestPool.push(["clothing", 1])>>
-		<<if $gwylanTalked.includes("bird")>>
+		<<if $gwylan.clothesTalkedAbout.includes("bird")>>
 			<<set _customRequestPool.push(["preen", 4])>>
 		<</if>>
 		<<run gwylanRequest(_customRequestPool)>>
@@ -45,19 +45,19 @@ function gwylanRequest(override = null) {
 	allPossibleRequests.push(["ingredients", 1]);
 
 	// One-time event modifiers and custom modifiers for base events
-	if (!V.gwylanSeen.includes("request_gas_mask") && V.gwylanTalked?.length >= 5) allPossibleRequests.push(["clothingGasMask", 3]);
-	if (!V.gwylanSeen.includes("request_gold_accessories") && V.adultshopunlocked && C.npc.Gwylan.love >= 30) allPossibleRequests.push(["clothingGold", 3]);
+	if (!Memories.Gwylan.has("requestGasMask") && V.gwylan.clothesTalkedAbout?.length >= 5) allPossibleRequests.push(["clothingGasMask", 3]);
+	if (!Memories.Gwylan.has("requestGoldAccessories") && V.adultshopunlocked && C.npc.Gwylan.love >= 30) allPossibleRequests.push(["clothingGold", 3]);
 	if (window.npcIsPregnant("Gwylan") && V.farm?.woodland >= 2) allPossibleRequests.push(["plums", 5]);
 
 	// Unlockable events
-	if (V.gwylanSeen?.includes("ritual_beast") && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample)) < 7))
+	if (Memories.Gwylan.has("ritualBeast") && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample)) < 7))
 		allPossibleRequests.push(["sample", 1]); // Lewd fluid sample
 	/* ToDo: Gwylan - Asking for a sample of the player's fluids
-	if (V.gwylanSeen.includes("cafe_chef_truth") && (!V.gwylan.timer.samplePlayer || V.gwylan.timer.samplePlayer < Time.date.timeStamp))
+	if (Memories.Gwylan.has("cafeCreamBunsTold") && (!V.gwylan.timer.samplePlayer || V.gwylan.timer.samplePlayer < Time.date.timeStamp))
 		allPossibleRequests.push(["samplePlayer", 3]); // Player fluid sample
 	*/
 	if (
-		V.gwylanTalked.includes("bird") &&
+		V.gwylan.clothesTalkedAbout.includes("bird") &&
 		!V.plucked &&
 		(!V.gwylan.timer.preen || V.gwylan.timer.preen < Time.date.timeStamp) &&
 		((V.harpy >= 6 && V.birdFly >= 1) || V.gwylan.requestCount >= 10)
@@ -71,12 +71,12 @@ function gwylanRequest(override = null) {
 	if (
 		T.gwylanStatus.includesAny("dom", "lust") &&
 		V.gwylan.requestCount >= 5 &&
-		(V.gwylanSeen.includesAny("cream_lick", "cafe_chef_truth", "nectar_lick") || V.cat >= 6) &&
+		(Memories.Gwylan.hasAny("creamLickRequest", "cafeCreamBunsTold", "nectarLick") || V.cat >= 6) &&
 		(!V.gwylan.timer.cream || V.gwylan.timer.cream < Time.date.timeStamp)
 	)
 		allPossibleRequests.push(["cream", 1]); // Lewd event
 	// ToDo: Gwylan: Bringing Robin back to the forest shop to try clothes
-	// if (V.gwylan.robin >= 5) && C.npc.Robin.state === "active" && (!V.gwylan.timer.robin || V.gwylan.timer.robin < Time.date.timeStamp)) allPossibleRequests.push(["robin", 1]);
+	// if (V.gwylan.robinInterest >= 5) && C.npc.Robin.state === "active" && (!V.gwylan.timer.robin || V.gwylan.timer.robin < Time.date.timeStamp)) allPossibleRequests.push(["robin", 1]);
 
 	// Prevent events from happening twice in a row if possible
 	const filteredRequests =
@@ -100,7 +100,7 @@ function gwylanRequest(override = null) {
 			V.gwylan.request.event = "ingredients";
 			V.gwylan.request.special = "tutorial";
 			V.gwylan.request.items = [{ category: "tending", name: "wolfshroom", type: "mushroom", need: 3, root: true }];
-			V.gwylanTutorialShrooms = 0;
+			V.gwylan.tutorialShrooms = 0;
 			V.gwylan.request.timer = null;
 			V.gwylan.request.command = true;
 			return V.gwylan.request;
@@ -1024,13 +1024,13 @@ function gwylanCanRescueFromWraith() {
 		return (
 			C.npc.Gwylan.init === 1 &&
 			C.npc.Gwylan.state === "active" &&
-			(V.gwylanSeen?.includes("partners") || (V.gwylanSeen?.includes("yearning") && C.npc.Gwylan.dom >= 50))
+			(Memories.Gwylan.has("loveInterest") || (Memories.Gwylan.has("yearning") && C.npc.Gwylan.dom >= 50))
 		);
 	} else {
 		return (
 			C.npc.Gwylan.init === 1 &&
 			C.npc.Gwylan.state === "active" &&
-			V.gwylanSeen?.includes("ritual_sex") &&
+			Memories.Gwylan.has("ritualSex") &&
 			V.ivoryWraith.timesMetPc >= 1 &&
 			V.ivoryWraith.timesPossessedPc >= 1
 		);
@@ -1071,17 +1071,17 @@ function gwylanHypnoMax(param = "trait", level = V.hypnosis_traits.devotion) {
 		if (level <= 95) return 5;
 		return 6;
 	} else {
-		if (V.gwylanSeen.includes("forever")) return 6;
-		if (V.gwylanSeen.includes("hypnosis_deepest")) return 5;
-		if (V.gwylanSeen.includes("yearning")) return 4;
-		if (V.gwylanSeen.includes("ritual_beast")) return 3;
+		if (Memories.Gwylan.has("forever")) return 6;
+		if (Memories.Gwylan.has("hypnosisDeepest")) return 5;
+		if (Memories.Gwylan.has("yearning")) return 4;
+		if (Memories.Gwylan.has("ritualBeast")) return 3;
 		return 2;
 	}
 }
 window.gwylanHypnoMax = gwylanHypnoMax;
 
 function gwylanForestRescueRange() {
-	if (!V.gwylanSeen?.includes("ritual_sex")) return 25;
+	if (!Memories.Gwylan.has("ritualSex")) return 25;
 	if (V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1) return 100;
 	if (V.fox >= 6) return 50;
 	return 25;

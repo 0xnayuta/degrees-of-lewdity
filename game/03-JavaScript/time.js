@@ -1320,8 +1320,8 @@ function dawnCheck() {
 	delete V.alexSomno;
 	delete V.alexSomnoAngry;
 	delete V.connudatus_stripped;
-	delete V.gwylanWake;
-	delete V.gwylanCafeWake;
+	delete V.gwylan.wake;
+	delete V.gwylan.cafeWake;
 	delete V.whitney_night_knock;
 
 	if (V.schoolBlocked) delete V.schoolBlocked;
@@ -1663,7 +1663,7 @@ function dailyNPCEffects() {
 
 	// Gwylan
 	if (C.npc.Gwylan.init === 1 && V.gwylan) {
-		if (C.npc.Gwylan.state === "active" && !isGwylanAbsent() && !V.daily.gwylan.noTalk && !V.daily.gwylan.locked) {
+		if (C.npc.Gwylan.state === "active" && !isGwylanAbsent() && !V.daily.gwylan.noTalk && !V.daily.gwylan.shopLocked) {
 			if (V.gwylan.request.event && V.gwylan.request.timer) {
 				if (V.hypnosis_traits.devotion >= 1 && V.gwylan.request.timer < Time.date.timeStamp) {
 					V.gwylan.request.timer = V.gwylan.request.missed
@@ -1686,10 +1686,10 @@ function dailyNPCEffects() {
 					V.gwylan.request.missed = 1;
 				}
 				if (V.gwylan.request.timer < Time.date.timeStamp && ["meetAtShop", "meetAtCafe"].includes(V.gwylan.request.event)) {
-					V.gwylan.hunting = 1;
+					V.gwylan.hunting = "meetupMissed";
 				}
 			}
-			if (V.gwylan.timer.ritual && Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) <= 0 && V.gwylanSeen.includes("ritual_sex")) {
+			if (V.gwylan.timer.ritual && Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) <= 0 && Memories.Gwylan.has("ritualSex")) {
 				if (Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) <= -7 && !V.gwylan.ritualMissed) {
 					V.gwylan.ritualMissed = true;
 					if (V.hypnosis_traits.devotion >= 1) {
@@ -1697,16 +1697,17 @@ function dailyNPCEffects() {
 						V.hypnosis_devotion_message = "ritual";
 					}
 				}
-				if (V.gwylanSeen.includes("partners") && V.gwylan.ritualMissed) C.npc.Gwylan.lust += 1;
+				if (Memories.Gwylan.has("loveInterest") && V.gwylan.ritualMissed) C.npc.Gwylan.lust += 1;
 				if (
-					V.gwylanSeen.includes("yearning") &&
+					Memories.Gwylan.has("yearning") &&
 					C.npc.Gwylan.dom >= 50 &&
 					V.gwylan.ritualMissed &&
 					random(1, 200) <= C.npc.Gwylan.dom + C.npc.Gwylan.lust &&
 					V.gwylan.wary <= 1
 				) {
-					if (V.gwylanSeen.includes("romance") && Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) <= -14) V.gwylan.hunting = 3;
-					else V.gwylan.hunting = 2;
+					if (Memories.Gwylan.has("romance") && Time.date.dayDifference(new DateTime(V.gwylan.timer.ritual)) <= -14)
+						V.gwylan.hunting = "ritualMissedRomanceState";
+					else V.gwylan.hunting = "ritualMissed";
 				}
 			}
 		}
@@ -1717,7 +1718,7 @@ function dailyNPCEffects() {
 		if (V.gwylan.timer.nobody && Time.date.dayDifference(new DateTime(V.gwylan.timer.nobody)) <= 0) delete V.gwylan.timer.nobody;
 		if (C.npc.Gwylan.state === "scorned" && V.gwylan.timer.scorned && V.gwylan.request.event !== "yearning") {
 			if (Time.date.dayDifference(new DateTime(V.gwylan.timer.scorned)) <= 0) {
-				V.yearningLetter = 1;
+				V.gwylan.yearningLetter = "sent";
 				delete V.gwylan.timer.scorned;
 			}
 		}
