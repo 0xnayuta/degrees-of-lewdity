@@ -65,7 +65,7 @@ function getRobinLocation() {
 window.getRobinLocation = getRobinLocation;
 
 /**
- * Keeps Robin at a location during the given hours as Robin's schedule dictates.
+ * Keeps Robin at a location during the given hours, instead of where Robin's schedule says.
  * Cleared at midnight in the `<<day>>` widget.
  *
  * @param {string} loc where Robin should be
@@ -107,7 +107,7 @@ function getRobinCrossdressingStatus(crossdressLevel) {
 window.getRobinCrossdressingStatus = getRobinCrossdressingStatus;
 
 /**
- * Makes Robin upset with the PC for up to 30. Adds the reason to the list Robin is upset about. A hurt that starts after the last one ran out starts a fresh list.
+ * Makes Robin upset with the PC for up to 30 days. Adds the reason to the list Robin is upset about. A hurt that starts after the last one ran out starts a fresh list.
  *
  * @param {number} days how many days to add
  * @param {RobinHurtReason} reason why, make sure to word it like it's after "upset about"
