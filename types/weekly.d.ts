@@ -76,6 +76,8 @@ declare global {
 		gwylan: GwylanWeekly;
 		/** Alex's once-a-week flags, unset when the week ends. */
 		alex: AlexWeekly;
+		/** Alex's farm's once-a-week flags, unset when the week ends. */
+		alexFarm: AlexFarmWeekly;
 	}
 }
 

@@ -276,12 +276,12 @@ statDisplay.create("gattention", loc => statDisplay.statChange("Attention", 1, "
 statDisplay.create("ggattention", loc => statDisplay.statChange("Attention", 2, "lewd", () => !loc || (loc === "prison" && !V.daily.prison.attentionDay)));
 statDisplay.create("gggattention", loc => statDisplay.statChange("Attention", 3, "lewd", () => !loc || (loc === "prison" && !V.daily.prison.attentionDay)));
 
-statDisplay.create("laggro", () => statDisplay.statChange("Remy's Encroachment", -1, "green", () => V.farm));
-statDisplay.create("llaggro", () => statDisplay.statChange("Remy's Encroachment", -2, "green", () => V.farm));
-statDisplay.create("lllaggro", () => statDisplay.statChange("Remy's Encroachment", -3, "green", () => V.farm));
-statDisplay.create("gaggro", () => statDisplay.statChange("Remy's Encroachment", 1, "red", () => V.farm));
-statDisplay.create("ggaggro", () => statDisplay.statChange("Remy's Encroachment", 2, "red", () => V.farm));
-statDisplay.create("gggaggro", () => statDisplay.statChange("Remy's Encroachment", 3, "red", () => V.farm));
+statDisplay.create("laggro", () => statDisplay.statChange("Remy's Encroachment", -1, "green", () => V.alexFarm.stage >= 2));
+statDisplay.create("llaggro", () => statDisplay.statChange("Remy's Encroachment", -2, "green", () => V.alexFarm.stage >= 2));
+statDisplay.create("lllaggro", () => statDisplay.statChange("Remy's Encroachment", -3, "green", () => V.alexFarm.stage >= 2));
+statDisplay.create("gaggro", () => statDisplay.statChange("Remy's Encroachment", 1, "red", () => V.alexFarm.stage >= 2));
+statDisplay.create("ggaggro", () => statDisplay.statChange("Remy's Encroachment", 2, "red", () => V.alexFarm.stage >= 2));
+statDisplay.create("gggaggro", () => statDisplay.statChange("Remy's Encroachment", 3, "red", () => V.alexFarm.stage >= 2));
 
 statDisplay.create("lksuspicion", () => statDisplay.statChange("Jealousy", -1, "green"));
 statDisplay.create("llksuspicion", () => statDisplay.statChange("Jealousy", -2, "green"));

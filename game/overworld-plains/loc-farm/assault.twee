@@ -1,23 +1,23 @@
 :: Farm Assault
 <<set $outside to 1>><<set $location to "alex_farm">><<effects>>
 <<farm_work_update>>
-<<if $farm_assault.movement is "field">>
+<<if $alexFarm.assault.fight.movement is "field">>
 	You keep low as you hurry across the farm.
-<<elseif $farm_assault.movement is "tower">>
+<<elseif $alexFarm.assault.fight.movement is "tower">>
 	You keep low as you hurry towards the watchtower.
-<<elseif $farm_assault.movement is "climb">>
+<<elseif $alexFarm.assault.fight.movement is "climb">>
 	You enter the watchtower. The stairs creak as you climb.
-<<elseif $farm_assault.movement is "wait">>
+<<elseif $alexFarm.assault.fight.movement is "wait">>
 	You wait in the shadows, watching for intruders.
-<<elseif $farm_assault.movement is "struggle">>
-	<<if $farm_assault.bindings lte 0>>
+<<elseif $alexFarm.assault.fight.movement is "struggle">>
+	<<if $alexFarm.assault.fight.pcBindings lte 0>>
 		You struggle against your bindings. <span class="green">They come loose.</span>
 		<<if $worn.face.type.includes("gag")>>You tear the gag from your mouth.<</if>>
-		<<if $farm_assault.alex is "bound">>
+		<<if $alexFarm.assault.fight.alexState is "bound">>
 			<<npc Alex>><<person1>>
 			You find Alex not far away, remove the gag from <<his>> mouth, and untie <<his>> bonds. "Fuckers," <<he>> says. "There's no time to waste."
-			<<set $farm_assault.bindings_alex to 0>>
-			<<set $farm_assault.alex to "patrol">>
+			<<set $alexFarm.assault.fight.alexBindings to 0>>
+			<<set $alexFarm.assault.fight.alexState to "patrol">>
 			<<endevent>>
 		<</if>>
 		<<farm_assault_unbind>>
@@ -27,40 +27,41 @@
 <<else>>
 	You keep your head on a swivel, watching for intruders.
 <</if>>
-<<set $farm_assault.movement to "none">>
+<<set $alexFarm.assault.fight.movement to "none">>
 <br><br>
 <<wearProp "walkie talkie">>
-<<farm_assault_progress>>
+<<set _turn to {}>>
+<<farm_assault_progress _turn>>
 
-<<farm_assault_alex>>
+<<farm_assault_alex _turn>>
 
-<<if _smoke>>
+<<if _turn.fieldSetAlight>>
 	<span class="red">You smell smoke on the breeze.</span>
 	<br><br>
 <</if>>
 
-<<if $farm_assault.tower is "manned" or $farm_assault.tower is "attacked" or _guard_won is true or _guard_lost is true>>
-	<<farm_assault_info guard>>
-<<elseif $farm_assault.tower is "defeated">>
-	<span class="red">$farm.tower_guard has been defeated, and can't help for the remainder of the assault.</span>
+<<if $alexFarm.assault.fight.towerState is "manned" or $alexFarm.assault.fight.towerState is "attacked" or _turn.guardWon or _turn.guardLost>>
+	<<farm_assault_info _turn "guard">>
+<<elseif $alexFarm.assault.fight.towerState is "defeated">>
+	<span class="red">$alexFarm.towerGuard.name has been defeated, and can't help for the remainder of the assault.</span>
 	<br><br>
 <</if>>
 
 <<if $bus is "tower_top">>
-	<<farm_assault_info>>
+	<<farm_assault_info _turn>>
 <</if>>
 
-<<if _dogs_status is "victorious">>
+<<if _turn.dogsResult is "victorious">>
 	<span class="green">You hear a triumphant howling.</span>
 	<br><br>
-<<elseif _dogs_status is "defeated">>
+<<elseif _turn.dogsResult is "defeated">>
 	<span class="red">You hear a panicked howling.</span>
 	<br><br>
 <</if>>
 
-<<if $farm_destroyed is true>>
+<<if $alexFarm.assault.noFieldsLeftToBurn is true>>
 	<<farm_assault_unbind>>
-	<<if $fields_damaged.length is 0>>
+	<<if $alexFarm.assault.burntFields.length is 0>>
 		<span class="purple">With no fields to burn, the thugs flee the field.</span><<lcontrol>><<gtrauma>><<control -10>><<trauma 6>>
 		<br><br>
 		<<npc Remy>><<person1>>
@@ -79,16 +80,16 @@
 		<<link [[Next|Farm Assault Defeat]]>><<endevent>><</link>>
 		<br>
 	<</if>>
-<<elseif _farm_assault_active isnot true>>
+<<elseif !_turn.teamsStillAttacking>>
 	<<farm_assault_unbind>>
 	<span class="green">Driven back, the thugs flee the farm.</span>
-	<<if $fields_damaged.length gte 2>>
-		<span class="pink">They managed to torch the <<ordinalList $fields_damaged.map(x=>x+1).toSorted()>> fields.</span><<llcontrol>><<ggtrauma>><<control -25>><<trauma 12>>
-	<<elseif $fields_damaged.length gte 1>>
+	<<if $alexFarm.assault.burntFields.length gte 2>>
+		<span class="pink">They managed to torch the <<ordinalList $alexFarm.assault.burntFields.map(x=>x+1).toSorted()>> fields.</span><<llcontrol>><<ggtrauma>><<control -25>><<trauma 12>>
+	<<elseif $alexFarm.assault.burntFields.length gte 1>>
 		<span class="blue">They managed to torch a field.</span><<lcontrol>><<gtrauma>><<control -10>><<trauma 6>>
 	<<else>>
 		<span class="green">They failed to torch a single field.</span><<ggcontrol>><<lltrauma>><<control 25>><<trauma -25>>
-		<<if $farm_stage gte 12>>
+		<<if $alexFarm.stage gte 12>>
 			<<earnFeat "Heroic Victory">>
 			<<set $specialClothesEvents.pushUnique("farm_defended")>>
 			<<specialClothesUnlock "set" "scarecrow">>
@@ -102,7 +103,7 @@
 	<br>
 <<else>>
 
-	<<farm_assault_actions>>
+	<<farm_assault_actions _turn>>
 
 <</if>>
 
@@ -114,8 +115,8 @@
 You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unconscious.<<llldom>><<npcincr Alex dom -15>>
 <br><br>
 
-<<if $farm_assault.tower is "defeated">>
-	You carry <<him>> back to the cottage, and lay <<him>> in <<his>> bed, before returning to search for $farm.tower_guard.
+<<if $alexFarm.assault.fight.towerState is "defeated">>
+	You carry <<him>> back to the cottage, and lay <<him>> in <<his>> bed, before returning to search for $alexFarm.towerGuard.name.
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	You find <<him>> sitting at the base of the watchtower,
@@ -141,8 +142,8 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<br><br>
 	You return to the cottage. Remy won this round, but the war continues.
 	<br><br>
-<<elseif $farm_assault.tower is "manned" or $farm_assault.tower is "attacked">>
-	$farm.tower_guard limps over.
+<<elseif $alexFarm.assault.fight.towerState is "manned" or $alexFarm.assault.fight.towerState is "attacked">>
+	$alexFarm.towerGuard.name limps over.
 
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
@@ -177,10 +178,10 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 
 <<npc Alex>><<person1>>
 
-<<if $farm_destroyed is true>>
+<<if $alexFarm.assault.noFieldsLeftToBurn is true>>
 	"You better stay the fuck away," Alex shouts after them. <<He>> turns to you. "I'm glad they wasted their time, but we shouldn't let them run rampant through the farm."
 	<br><br>
-<<elseif $fields_damaged.length gte 1>>
+<<elseif $alexFarm.assault.burntFields.length gte 1>>
 	"You better stay the fuck away," Alex shouts after them. <<He>> turns to you, then to the smouldering field behind <<him>>. "We limited the damage," <<he>> says. "We'll be more prepared next time."
 	<br><br>
 <<else>>
@@ -188,8 +189,8 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<br><br>
 <</if>>
 
-<<if $farm_assault.tower is "defeated">>
-	<<He>> looks at the watchtower. "Fuck, is $farm.tower_guard okay?"
+<<if $alexFarm.assault.fight.towerState is "defeated">>
+	<<He>> looks at the watchtower. "Fuck, is $alexFarm.towerGuard.name okay?"
 	<br><br>
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
@@ -215,8 +216,8 @@ You find Alex lying on <<his>> face, an empty bottle beside <<him>>. <<Hes>> unc
 	<</if>>
 	<br><br>
 
-<<elseif $farm_assault.tower is "manned" or $farm_assault.tower is "attacked">>
-	$farm.tower_guard approaches.
+<<elseif $alexFarm.assault.fight.towerState is "manned" or $alexFarm.assault.fight.towerState is "attacked">>
+	$alexFarm.towerGuard.name approaches.
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
@@ -243,7 +244,7 @@ You walk back to the cottage.
 <</if>>
 "We won, but Remy will be back. We'll be ready."
 <br><br>
-<span class="red">Remy will attack again in <<number $farm_attack_timer>> days.</span>
+<span class="red">Remy will attack again in <<number $alexFarm.assault.daysUntilNext>> days.</span>
 <br><br>
 
 <<farm_assault_end>>
@@ -258,18 +259,18 @@ You walk back to the cottage.
 
 You rush outside, and find Alex stood in the yard.
 <br><br>
-<<set $farm_attack_timer to random(17, 24)>>
+<<set $alexFarm.assault.daysUntilNext to random(17, 24)>>
 <<npc Alex>><<person1>>
 "They're not coming through here," <<he>> says, nodding at the road. "They'll try to sneak in." <<He>> hands you a walkie talkie. "There's a lot of ground to cover, so we'll need to split up. We'll be stronger if we team up to fight them though."
 <br><br>
 
-<<if $farm.tower gte 2 and $farm.tower_guard>>
-	<<He>> waves at the watchtower, and $farm.tower_guard flashes the searchlight in response.
+<<if $alexFarm.upgrades.tower gte 2 and $alexFarm.towerGuard.name>>
+	<<He>> waves at the watchtower, and $alexFarm.towerGuard.name flashes the searchlight in response.
 	<br><br>
-<<elseif $farm.tower and $farm.tower_guard>>
-	<<He>> waves at the watchtower, and you make out $farm.tower_guard wave in response.
+<<elseif $alexFarm.upgrades.tower and $alexFarm.towerGuard.name>>
+	<<He>> waves at the watchtower, and you make out $alexFarm.towerGuard.name wave in response.
 	<br><br>
-<<elseif $farm.tower>>
+<<elseif $alexFarm.upgrades.tower>>
 	<<He>> points at the watchtower. "We can climb it if we need a better view."
 	<br><br>
 <</if>>
@@ -308,329 +309,322 @@ You hear shouting outside.
 
 :: Farm Assault Widgets [widget]
 <<widget "farm_assault_init">>
-	<<set $farm_assault to {}>>
-	<<set $farm_assault.no to [0, 1, 2, 3]>>
-	<<if $farm_stage gte 8>>
-		<<set $farm_assault.no.push(4)>>
-	<</if>>
-	<<if $farm_stage gte 9>>
-		<<set $farm_assault.no.push(5)>>
-	<</if>>
-	<<if $farm_stage gte 10>>
-		<<set $farm_assault.no.push(6)>>
-	<</if>>
-	<<if $farm_stage gte 11>>
-		<<set $farm_assault.no.push(7)>>
-	<</if>>
-	<<if $farm_stage gte 12>>
-		<<set $farm_assault.no.push(8)>>
-	<</if>>
-	<<set $farm_assault.teams to {}>>
-
-	<<if $farm_stage gte 12>>
-		<<set $farm_assault.teams.team_1 to {}>>
-		<<set $farm_assault.teams.team_2 to {}>>
-		<<set $farm_assault.teams.team_3 to {}>>
-		<<set $farm_assault.teams.team_4 to {}>>
-		<<set $farm_assault.teams.team_5 to {}>>
-		<<if $bailey.rent.timesPcRefusedBaileyAtFarm>>
-			<<set $farm_assault.teams.team_6 to {}>>
-			<<set $farm_assault.teams.team_6.type to "bailey">>
-		<</if>>
-	<<elseif $farm_stage gte 10>>
-		<<set $farm_assault.teams.team_1 to {}>>
-		<<set $farm_assault.teams.team_2 to {}>>
-		<<set $farm_assault.teams.team_3 to {}>>
-		<<set $farm_assault.teams.team_4 to {}>>
-		<<if $bailey.rent.timesPcRefusedBaileyAtFarm>>
-			<<set $farm_assault.teams.team_5 to {}>>
-			<<set $farm_assault.teams.team_5.type to "bailey">>
-		<</if>>
-	<<elseif $farm_stage gte 8>>
-		<<set $farm_assault.teams.team_1 to {}>>
-		<<set $farm_assault.teams.team_2 to {}>>
-		<<set $farm_assault.teams.team_3 to {}>>
-		<<if $bailey.rent.timesPcRefusedBaileyAtFarm>>
-			<<set $farm_assault.teams.team_4 to {}>>
-			<<set $farm_assault.teams.team_4.type to "bailey">>
-		<</if>>
-	<<else>>
-		<<set $farm_assault.teams.team_1 to {}>>
-		<<set $farm_assault.teams.team_2 to {}>>
-		<<if $bailey.rent.timesPcRefusedBaileyAtFarm>>
-			<<set $farm_assault.teams.team_3 to {}>>
-			<<set $farm_assault.teams.team_3.type to "bailey">>
-		<</if>>
-	<</if>>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-		<<set $farm_assault.teams[_assault_keys[_s]].wall_progress to 0>>
-		<<set $farm_assault.teams[_assault_keys[_s]].field_progress to 0>>
-		<<set $farm_assault.teams[_assault_keys[_s]].number to 3>>
-		<<if $ivoryWraith.state is "haunt" and $farm_assault.wraith is undefined and $hallucinations gte 2 and random(1,15-Math.floor(C.npc["Ivory Wraith"].lust/5)) is 1>>
-			<<set $farm_assault.teams[_assault_keys[_s]].type to "wraith">>
-			<<set $farm_assault.teams[_assault_keys[_s]].number to 1>>
-			<<set $farm_assault.teams[_assault_keys[_s]].torched to 0>>
-			<<set $farm_assault.wraith to _s>>
-		<</if>>
-		<<if !$farm_assault.teams[_assault_keys[_s]].type>>
-			<<set $farm_assault.teams[_assault_keys[_s]].type to "remy">>
+	<<set $alexFarm.assault.fight to {}>>
+	<<set $alexFarm.assault.fight.freeFieldsForTeams to []>>
+	<<set _emptyFields to []>>
+	<<for _fieldIndex, _field range $plots.farm>>
+		<<if _field.stage gte 1>>
+			<<set $alexFarm.assault.fight.freeFieldsForTeams.push(_fieldIndex)>>
+		<<else>>
+			<<set _emptyFields.push(_fieldIndex)>>
 		<</if>>
 	<</for>>
-	<<if $farm.kennel gte 1>>
-		<<set $farm_assault.dogs to 2>>
+	<<set $alexFarm.assault.fight.teams to []>>
+	<<if $alexFarm.stage gte 12>>
+		<<set _remyTeamCount to 5>>
+	<<elseif $alexFarm.stage gte 10>>
+		<<set _remyTeamCount to 4>>
+	<<elseif $alexFarm.stage gte 8>>
+		<<set _remyTeamCount to 3>>
 	<<else>>
-		<<set $farm_assault.dogs to 1>>
+		<<set _remyTeamCount to 2>>
 	<</if>>
-	<<set $farm_assault.dogs_state to "guarding">>
-	<<if $farm.tower_guard>>
-		<<set $farm_assault.tower to "manned">>
+	<<for _teamNumber to 1; _teamNumber lte _remyTeamCount; _teamNumber++>>
+		<<run $alexFarm.assault.fight.teams.push({})>>
+	<</for>>
+	<<if $bailey.rent.timesPcRefusedBaileyAtFarm>>
+		<<run $alexFarm.assault.fight.teams.push({ type: "bailey" })>>
+	<</if>>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined>>/*No planted field left for this team.*/
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to _emptyFields.pluck()>>
+		<</if>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress to 0>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].fieldProgress to 0>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft to 3>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type isnot "bailey" and $ivoryWraith.state is "haunt" and $alexFarm.assault.fight.wraithTeamIndex is undefined and $hallucinations gte 2 and random(1,15-Math.floor(C.npc["Ivory Wraith"].lust/5)) is 1>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].type to "wraith">>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft to 1>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].fieldsTorched to 0>>
+			<<set $alexFarm.assault.fight.wraithTeamIndex to _teamIndex>>
+		<</if>>
+		<<if !$alexFarm.assault.fight.teams[_teamIndex].type>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].type to "remy">>
+		<</if>>
+	<</for>>
+	<<if $alexFarm.upgrades.kennel gte 1>>
+		<<set $alexFarm.assault.fight.dogTeamsLeft to 2>>
 	<<else>>
-		<<set $farm_assault.tower to "empty">>
+		<<set $alexFarm.assault.fight.dogTeamsLeft to 1>>
 	<</if>>
-	<<set $farm_assault.alex to "patrol">>
-	<<set $fields_damaged to []>>
+	<<set $alexFarm.assault.fight.dogsState to "guarding">>
+	<<if $alexFarm.towerGuard.name>>
+		<<set $alexFarm.assault.fight.towerState to "manned">>
+	<<else>>
+		<<set $alexFarm.assault.fight.towerState to "empty">>
+	<</if>>
+	<<set $alexFarm.assault.fight.alexState to "patrol">>
+	<<set $alexFarm.assault.burntFields to []>>
+	<<unset $alexFarm.assault.noFieldsLeftToBurn $alexFarm.assault.happenedWhilePcAway>>
 <</widget>>
 
 <<widget "farm_assault_end">>
-	<<unset $farm_assault>>
-	<<unset $farm_destroyed>>
-	<<set $fields_damaged to []>>
+	<<unset $alexFarm.assault.fight>>
+	<<unset $alexFarm.assault.noFieldsLeftToBurn>>
+	<<set $alexFarm.assault.burntFields to []>>
 <</widget>>
 
+<!-- Moves every team on by one turn. _args[0] is the turn's result, which the Farm Assault passage hands to the widgets that describe it:
+	towerThreatened: a team is at the watchtower, and its fight with the guard had no result this turn
+	guardWon, guardLost: the guard took out a thug, or was beaten, this turn
+	fieldSetAlight: a team finished setting a field alight this turn
+	dogsResult: "victorious" or "defeated" if the dogs' fight with a team ended this turn
+	alexBeatThug: Alex took out a thug this turn
+	teamsStillAttacking: at least one team hasn't left -->
 <<widget "farm_assault_progress">>
-	<<set $farm_assault_done to 0>>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $farm_assault.teams[_assault_keys[_s]].state is undefined>>
-			<<set $farm_assault.teams[_assault_keys[_s]].state to "wall">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].state is undefined>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].state to "wall">>
 		<</if>>
 		/*Fleeing checked before and after other actions. */
-		<<farm_assault_flight>>
-		<<if $farm_assault.teams[_assault_keys[_s]].location isnot "done">>
+		<<farm_assault_flight _args[0]>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].location isnot "done">>
 			/*Assaulting the tower. */
-			<<if $farm_assault.teams[_assault_keys[_s]].location is "tower">>
-				<<set _tower to "threatened">>
-				<<if $farm_assault.teams[_assault_keys[_s]].state is "approach">>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "climb">>
-				<<elseif $farm_assault.teams[_assault_keys[_s]].state is "climb">>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "fight">>
-				<<elseif $farm_assault.teams[_assault_keys[_s]].state is "fight">>
-					<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
-						<<if $farm.tower_guard_skill gte random(1, 2000)>>
-							<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
-							<<if $farm_assault.teams[_assault_keys[_s]].number lte 0>>
-								<<set $farm_assault.tower to "manned">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].location is "tower">>
+				<<set _args[0].towerThreatened to true>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].state is "approach">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "climb">>
+				<<elseif $alexFarm.assault.fight.teams[_teamIndex].state is "climb">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "fight">>
+				<<elseif $alexFarm.assault.fight.teams[_teamIndex].state is "fight">>
+					<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
+						<<if $alexFarm.towerGuard.skill gte random(1, 2000)>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
+							<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft lte 0>>
+								<<set $alexFarm.assault.fight.towerState to "manned">>
 							<</if>>
-							<<set _guard_won to true>>
-							<<unset _tower>>
+							<<set _args[0].guardWon to true>>
+							<<set _args[0].towerThreatened to false>>
 						<<else>>
-							<<set $farm_assault.tower to "defeated">>
-							<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-							<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
-							<<set _guard_lost to true>>
-							<<unset _tower>>
+							<<set $alexFarm.assault.fight.towerState to "defeated">>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+							<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined>>/*No free field left.*/
+								<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
+							<</if>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+							<<set _args[0].guardLost to true>>
+							<<set _args[0].towerThreatened to false>>
 						<</if>>
 					<<else>>
-						<<if $farm.tower_guard_skill gte random(1, 1000)>>
-							<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
-							<<if $farm_assault.teams[_assault_keys[_s]].number lte 0>>
-								<<set $farm_assault.tower to "manned">>
+						<<if $alexFarm.towerGuard.skill gte random(1, 1000)>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
+							<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft lte 0>>
+								<<set $alexFarm.assault.fight.towerState to "manned">>
 							<</if>>
-							<<set _guard_won to true>>
-							<<unset _tower>>
+							<<set _args[0].guardWon to true>>
+							<<set _args[0].towerThreatened to false>>
 						<<else>>
-							<<set $farm_assault.tower to "defeated">>
-							<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-							<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
-							<<set _guard_lost to true>>
-							<<unset _tower>>
+							<<set $alexFarm.assault.fight.towerState to "defeated">>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+							<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined>>/*No free field left.*/
+								<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
+							<</if>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+							<<set _args[0].guardLost to true>>
+							<<set _args[0].towerThreatened to false>>
 						<</if>>
 					<</if>>
 				<</if>>
 			<</if>>
 			/*Successfully burning. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "celebrate">>
-				<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
-				<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-				<<if $farm_assault.teams[_assault_keys[_s]].location is undefined or $farm_assault.teams[_assault_keys[_s]].torched gte Math.floor(C.npc["Ivory Wraith"].lust/4)>>
-					<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "celebrate">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined or $alexFarm.assault.fight.teams[_teamIndex].fieldsTorched gte Math.floor(C.npc["Ivory Wraith"].lust/4)>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 				<</if>>
 			<</if>>
 			/*Burning a field. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "field">>
-				<<if $farm_assault.teams[_assault_keys[_s]].field_progress gte 4>>
-					<<set $farm_assault.teams[_assault_keys[_s]].field_progress to 0>>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "celebrate">>
-					<<set _smoke to true>>
-					<<damage_farm "target" $farm_assault.teams[_assault_keys[_s]].location>>
-					<<if $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
-						<<set $farm_assault.teams[_assault_keys[_s]].torched++>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "field">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].fieldProgress gte 4>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].fieldProgress to 0>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "celebrate">>
+					<<set _args[0].fieldSetAlight to true>>
+					<<damage_farm "target" $alexFarm.assault.fight.teams[_teamIndex].location>>
+					<<if $alexFarm.assault.fight.teams[_teamIndex].type is "wraith">>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].fieldsTorched++>>
 					<</if>>
 				<<else>>
-					<<set $farm_assault.teams[_assault_keys[_s]].field_progress++>>
-					<<if $farm_assault.teams[_assault_keys[_s]].type is "wraith" and random(0,1) is 1>>
-						<<set $farm_assault.teams[_assault_keys[_s]].field_progress++>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].fieldProgress++>>
+					<<if $alexFarm.assault.fight.teams[_teamIndex].type is "wraith" and random(0,1) is 1>>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].fieldProgress++>>
 					<</if>>
 				<</if>>
 			<</if>>
 			/*Responding to hounds. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "dogs_recover">>
-				<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
-					<<if $farm_assault.tower is "manned">>
-						<<set $farm_assault.no.push($farm_assault.teams[_assault_keys[_s]].location)>>/*Add their location back to the pool.*/
-						<<set $farm_assault.teams[_assault_keys[_s]].location to "tower">>
-						<<set $farm_assault.teams[_assault_keys[_s]].state to "approach">>
-						<<set $farm_assault.tower to "attacked">>
-					<<else>>
-						<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "dogs_recover">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
+					<<set _teamFieldPlanted to $plots.farm[$alexFarm.assault.fight.teams[_teamIndex].location]?.stage gte 1>>
+					<<if $alexFarm.assault.fight.towerState is "manned">>
+						<<if _teamFieldPlanted>>
+							<<set $alexFarm.assault.fight.freeFieldsForTeams.push($alexFarm.assault.fight.teams[_teamIndex].location)>>/*Add their location back to the pool.*/
+						<</if>>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].location to "tower">>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].state to "approach">>
+						<<set $alexFarm.assault.fight.towerState to "attacked">>
+					<<elseif _teamFieldPlanted>>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+					<<else>>/*Nothing to burn here.*/
+						<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 					<</if>>
 				<<else>>
-					<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 				<</if>>
-				<<set $farm_assault.dogs -= 1>>
-				<<if $farm_assault.dogs gte 1>>
-					<<set $farm_assault.dogs_state to "guarding">>
-					<<set _dogs_status to "victorious">>
+				<<set $alexFarm.assault.fight.dogTeamsLeft -= 1>>
+				<<if $alexFarm.assault.fight.dogTeamsLeft gte 1>>
+					<<set $alexFarm.assault.fight.dogsState to "guarding">>
+					<<set _args[0].dogsResult to "victorious">>
 				<<else>>
-					<<set $farm_assault.dogs_state to "defeated">>
-					<<set _dogs_status to "defeated">>
+					<<set $alexFarm.assault.fight.dogsState to "defeated">>
+					<<set _args[0].dogsResult to "defeated">>
 				<</if>>
-				<<set $farm_assault.dogs_target to _assault_keys[_s]>>
 			<</if>>
 			/*Intercepted by hounds. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "dogs">>
-				<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
-					<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "dogs">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 				<</if>>
-				<<set $farm_assault.teams[_assault_keys[_s]].state to "dogs_recover">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].state to "dogs_recover">>
 			<</if>>
 			/*Entering. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "entry">>
-				<<if $farm_assault.dogs gte 1 and $farm_assault.dogs_state is "guarding" and $farm_assault.teams[_assault_keys[_s]].type isnot "wraith">>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "dogs">>
-					<<set $farm_assault.dogs_state to "fighting">>
-				<<elseif ($farm_assault.teams[_assault_keys[_s]].type is "bailey" or random(1, 2) is 2) and $farm_assault.tower is "manned" and $farm_assault.teams[_assault_keys[_s]].type isnot "wraith">>
-					<<set $farm_assault.no.push($farm_assault.teams[_assault_keys[_s]].location)>>/*Add their location back to the pool.*/
-					<<set $farm_assault.teams[_assault_keys[_s]].location to "tower">>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "approach">>
-					<<set $farm_assault.tower to "attacked">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "entry">>
+				<<set _teamFieldPlanted to $plots.farm[$alexFarm.assault.fight.teams[_teamIndex].location]?.stage gte 1>>
+				<<if $alexFarm.assault.fight.dogTeamsLeft gte 1 and $alexFarm.assault.fight.dogsState is "guarding" and $alexFarm.assault.fight.teams[_teamIndex].type isnot "wraith">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "dogs">>
+					<<set $alexFarm.assault.fight.dogsState to "fighting">>
+				<<elseif ($alexFarm.assault.fight.teams[_teamIndex].type is "bailey" or random(1, 2) is 2 or !_teamFieldPlanted) and $alexFarm.assault.fight.towerState is "manned" and $alexFarm.assault.fight.teams[_teamIndex].type isnot "wraith">>
+					<<if _teamFieldPlanted>>
+						<<set $alexFarm.assault.fight.freeFieldsForTeams.push($alexFarm.assault.fight.teams[_teamIndex].location)>>/*Add their location back to the pool.*/
+					<</if>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "tower">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "approach">>
+					<<set $alexFarm.assault.fight.towerState to "attacked">>
+				<<elseif !_teamFieldPlanted>>/*Nothing to burn here.*/
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 				<<else>>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
 				<</if>>
 			<</if>>
 			/*Breaking in. */
-			<<if $farm_assault.teams[_assault_keys[_s]].state is "wall">>
-				<<if $farm_assault.teams[_assault_keys[_s]].wall_progress gte $farm.wall>>
-					<<set $farm_assault.teams[_assault_keys[_s]].state to "entry">>
-					<<set $farm_assault.teams[_assault_keys[_s]].wall_progress to 0>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].state is "wall">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].wallProgress gte $alexFarm.upgrades.wall>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].state to "entry">>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress to 0>>
 				<<else>>
-					<<if $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
-						<<set $farm_assault.teams[_assault_keys[_s]].wall_progress to $farm.wall>>
-					<<elseif $farm.wall gte 4 and $farm_assault.teams[_assault_keys[_s]].type isnot "bailey">>
+					<<if $alexFarm.assault.fight.teams[_teamIndex].type is "wraith">>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress to $alexFarm.upgrades.wall>>
+					<<elseif $alexFarm.upgrades.wall gte 4 and $alexFarm.assault.fight.teams[_teamIndex].type isnot "bailey">>
 						<<if random(1, 3) is 3>>
-							<<set $farm_assault.teams[_assault_keys[_s]].wall_progress++>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress++>>
 						<</if>>
-					<<elseif $farm.wall gte 3 and $farm_assault.teams[_assault_keys[_s]].type isnot "bailey">>
+					<<elseif $alexFarm.upgrades.wall gte 3 and $alexFarm.assault.fight.teams[_teamIndex].type isnot "bailey">>
 						<<if random(1, 3) gte 2>>
-							<<set $farm_assault.teams[_assault_keys[_s]].wall_progress++>>
+							<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress++>>
 						<</if>>
 					<<else>>
-						<<set $farm_assault.teams[_assault_keys[_s]].wall_progress++>>
+						<<set $alexFarm.assault.fight.teams[_teamIndex].wallProgress++>>
 					<</if>>
 				<</if>>
 			<</if>>
 		<</if>>
 		/*Fleeing. */
-		<<farm_assault_flight>>
+		<<farm_assault_flight _args[0]>>
 		/*Alex. */
-		<<if $farm_assault.alex is "patrol">>
-			<<if $farm_assault.teams[_assault_keys[_s]].location isnot "done" and $farm_assault.teams[_assault_keys[_s]].type isnot "wraith">>
-				<<set $farm_assault.alex to _assault_keys[_s]>>
+		<<if $alexFarm.assault.fight.alexState is "patrol">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].location isnot "done" and $alexFarm.assault.fight.teams[_teamIndex].type isnot "wraith">>
+				<<set $alexFarm.assault.fight.alexState to "fighting">>
+				<<set $alexFarm.assault.fight.alexTeamIndex to _teamIndex>>
 			<</if>>
-		<<elseif $farm_assault.alex is _assault_keys[_s]>>
-			<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+		<<elseif $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 				<<if random(1, 100) gte 80>>
-					<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
-					<<set _alex_success to true>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
+					<<set _args[0].alexBeatThug to true>>
 				<</if>>
 			<<else>>
 				<<if random(1, 100) gte 60>>
-					<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
-					<<set _alex_success to true>>
+					<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
+					<<set _args[0].alexBeatThug to true>>
 				<</if>>
 			<</if>>
 		<</if>>
 		/*Fleeing. */
-		<<farm_assault_flight>>
+		<<farm_assault_flight _args[0]>>
 	<</for>>
+	<<if !_args[0].teamsStillAttacking and !$plots.farm.some(plot => plot.stage gte 1)>>
+		<<set $alexFarm.assault.noFieldsLeftToBurn to true>>
+	<</if>>
 <</widget>>
 
 <<widget "farm_assault_flight">>
-	<<if $farm_assault.teams[_assault_keys[_s]].number lte 0>>/*Flee if numbers reduced to 0.*/
-		<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
-		<<if $farm_assault.alex is _assault_keys[_s]>>/*Alex patrols again. */
-			<<set $farm_assault.alex to "patrol">>
+	<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft lte 0>>/*Flee if numbers reduced to 0.*/
+		<<if typeof $alexFarm.assault.fight.teams[_teamIndex].location is "number" and $alexFarm.assault.fight.teams[_teamIndex].state isnot "celebrate" and $plots.farm[$alexFarm.assault.fight.teams[_teamIndex].location].stage gte 1>>
+			<<set $alexFarm.assault.fight.freeFieldsForTeams.push($alexFarm.assault.fight.teams[_teamIndex].location)>>/*Add their location back to the pool.*/
 		<</if>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 	<</if>>
-	<<if $farm_assault.teams[_assault_keys[_s]].location isnot "done">>/*Assault ends when !_farm_assault_active.*/
-		<<set _farm_assault_active to true>>
-	<<elseif $farm_assault.teams[_assault_keys[_s]].location gte 0>>
-		<<set $farm_assault.no.push($farm_assault.teams[_assault_keys[_s]].location)>>/*Add their location back to the pool.*/
-		<<if $farm_assault.alex is _assault_keys[_s]>>/*Alex patrols again. */
-			<<set $farm_assault.alex to "patrol">>
-		<</if>>
-	<<elseif $farm_assault.alex is _assault_keys[_s] and $farm_assault.teams[_assault_keys[_s]].location is "done">>
-		<<set $farm_assault.alex to "patrol">>
+	<<if $alexFarm.assault.fight.teams[_teamIndex].location isnot "done">>
+		<<set _args[0].teamsStillAttacking to true>>
+	<<elseif $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>/*Alex patrols again. */
+		<<set $alexFarm.assault.fight.alexState to "patrol">>
+		<<unset $alexFarm.assault.fight.alexTeamIndex>>
 	<</if>>
 <</widget>>
 
 <<widget "farm_assault_info">>
-	<<if _args[0] is "guard">>
-		<<set _skill to $farm.tower_guard_skill>>
+	<<if _args[1] is "guard">>
+		<<set _guardSkill to $alexFarm.towerGuard.skill>>
 	<<else>>
-		<<set _skill to 0>>
+		<<set _guardSkill to 0>>
 	<</if>>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $farm_assault.teams[_assault_keys[_s]].location is "tower" and $farm_assault.teams[_assault_keys[_s]].state is "fight">>
-			<<set _fighting to true>>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].location is "tower" and $alexFarm.assault.fight.teams[_teamIndex].state is "fight">>
+			<<set _guardIsFighting to true>>
 		<</if>>
 	<</for>>
 
-	<<if _fighting is true or _guard_won is true or _guard_lost is true>>
+	<<if _guardIsFighting or _args[0].guardWon or _args[0].guardLost>>
 		Your walkie talkie picks up another signal. <span class="red">You hear a struggle, punctuated by static.</span>
-		<<if _guard_won is true>>
-			You peer at the watchtower. A body falls from the top. <span class="green">It's not $farm.tower_guard.</span> Seems $per_npc.farm_tower_guard.pronouns.he got the better of one of $per_npc.farm_tower_guard.pronouns.his attackers.
-		<<elseif _guard_lost is true>>
-			You peer at the watchtower. A body falls from the top. <span class="red">It's $farm.tower_guard.</span> <<print toTitleCase($per_npc.farm_tower_guard.pronouns.he)>> won't be helping for the rest of the assault.
+		<<if _args[0].guardWon>>
+			You peer at the watchtower. A body falls from the top. <span class="green">It's not $alexFarm.towerGuard.name.</span> Seems $per_npc.farm_tower_guard.pronouns.he got the better of one of $per_npc.farm_tower_guard.pronouns.his attackers.
+		<<elseif _args[0].guardLost>>
+			You peer at the watchtower. A body falls from the top. <span class="red">It's $alexFarm.towerGuard.name.</span> <<print toTitleCase($per_npc.farm_tower_guard.pronouns.he)>> won't be helping for the rest of the assault.
 		<</if>>
 		<br><br>
 	<<else>>
-		<<if _args[0] is "guard">>
-			Your walkie talkie picks up another signal. It's $farm.tower_guard, keeping you informed of enemy activity:
+		<<if _args[1] is "guard">>
+			Your walkie talkie picks up another signal. It's $alexFarm.towerGuard.name, keeping you informed of enemy activity:
 		<<else>>
 			You look across the farm, trying to spot enemy movements:
 		<</if>>
 		<br>
-		<<set _assault_keys to Object.keys($farm_assault.teams)>>
-		<<for _s to 0; _s lt _assault_keys.length; _s++>>
-			<<if $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
-				<<if $farm_assault.teams[_assault_keys[_s]].location is "done">>
+		<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].type is "wraith">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].location is "done">>
 					<span class="green">The <<farm_assault_thugs>> is walking away, like <<print Memories.IvoryWraith.has("joinedFarmAssault") ? "it's" : "they've">> lost interest.</span>
-					<<if $ivoryWraith.timesMetPc gte 5 and !$farm_assault.wraithStress>>
-						<<stress -6>><<lstress>><<set $farm_assault.wraithStress to true>>
+					<<if $ivoryWraith.timesMetPc gte 5 and !$alexFarm.assault.fight.pcLostStressToWraith>>
+						<<stress -6>><<lstress>><<set $alexFarm.assault.fight.pcLostStressToWraith to true>>
 					<</if>>
 				<<else>>
-					<<if _skill gte random(400, 1400) or !Memories.IvoryWraith.has("joinedFarmAssault")>>
-						<<switch $farm_assault.teams[_assault_keys[_s]].state>>
+					<<if _guardSkill gte random(400, 1400) or !Memories.IvoryWraith.has("joinedFarmAssault")>>
+						<<switch $alexFarm.assault.fight.teams[_teamIndex].state>>
 						<<case wall>>
-							The <<farm_assault_thugs>> is <span class="purple">walking through the <<print $farm.wall gte 3 ? "fence" : "wall">></span>.
+							The <<farm_assault_thugs>> is <span class="purple">walking through the <<print $alexFarm.upgrades.wall gte 3 ? "fence" : "wall">></span>.
 						<<case entry>>
 							The <<farm_assault_thugs>> is shambling toward <<farm_assault_location>>.
 						<<case field>>
-							<<if $farm_assault.teams[_assault_keys[_s]].field_progress lte 1>>
+							<<if $alexFarm.assault.fight.teams[_teamIndex].fieldProgress lte 1>>
 								<span class="blue">The <<farm_assault_thugs>> enters <<farm_assault_location>>.</span>
 							<<else>>
 								<span class="blue">The <<farm_assault_thugs>> wanders around <<farm_assault_location>>.</span>
@@ -643,25 +637,25 @@ You hear shouting outside.
 					<</if>>
 				<</if>>
 			<<else>>
-				<<if $farm_assault.teams[_assault_keys[_s]].location is "done">>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].location is "done">>
 					<span class="green">The <<farm_assault_no>> group of <<farm_assault_thugs>> are running for the hills.</span>
-				<<elseif $farm_assault.teams[_assault_keys[_s]].state is "dogs">>
+				<<elseif $alexFarm.assault.fight.teams[_teamIndex].state is "dogs">>
 					You hear barking from <<farm_assault_location>>.
-				<<elseif $farm_assault.teams[_assault_keys[_s]].state is "dogs_recover">>
-					You hear barking and shouts of <<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>pain<<else>>terror<</if>> from <<farm_assault_location>>.
-				<<elseif $farm_assault.teams[_assault_keys[_s]].location is "tower">>
-					<<switch $farm_assault.teams[_assault_keys[_s]].state>>
+				<<elseif $alexFarm.assault.fight.teams[_teamIndex].state is "dogs_recover">>
+					You hear barking and shouts of <<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>pain<<else>>terror<</if>> from <<farm_assault_location>>.
+				<<elseif $alexFarm.assault.fight.teams[_teamIndex].location is "tower">>
+					<<switch $alexFarm.assault.fight.teams[_teamIndex].state>>
 					<<case "approach">>
 						<span class="purple">The <<farm_assault_no>> group of <<farm_assault_thugs>> are approaching the watchtower.</span>
 					<<case "climb">>
 						<span class="pink">The <<farm_assault_no>> group of <<farm_assault_thugs>> are climbing the watchtower.</span>
 					<</switch>>
 				<<else>>
-					<<if _skill gte random(1, 1000)>>
-						<<switch $farm_assault.teams[_assault_keys[_s]].state>>
+					<<if _guardSkill gte random(1, 1000)>>
+						<<switch $alexFarm.assault.fight.teams[_teamIndex].state>>
 						<<case wall>>
 							The <<farm_assault_no>> group of <<farm_assault_thugs>> are
-							<<if $farm.wall gte 3>>
+							<<if $alexFarm.upgrades.wall gte 3>>
 								<span class="pink">cutting through the fence</span> at <<farm_assault_location>>.
 							<<else>>
 								climbing the wall near <<farm_assault_location>>.
@@ -669,7 +663,7 @@ You hear shouting outside.
 						<<case entry>>
 							The <<farm_assault_no>> group of <<farm_assault_thugs>> are rushing into <<farm_assault_location>>.
 						<<case field>>
-						<<switch $farm_assault.teams[_assault_keys[_s]].field_progress>>
+						<<switch $alexFarm.assault.fight.teams[_teamIndex].fieldProgress>>
 						<<case 1>>
 								<span class="blue">The <<farm_assault_no>> group of <<farm_assault_thugs>> are entering <<farm_assault_location>>.</span>
 						<<case 2>>
@@ -694,30 +688,29 @@ You hear shouting outside.
 <</widget>>
 
 <<widget "farm_assault_alex">>
-	<<if _farm_assault_active isnot true or $farm_destroyed is true>>
-	<<elseif $farm_assault.alex is "bound">>
-		<<if $farm_assault.bindings_alex gte 1>>
-			<<set $farm_assault.bindings_alex -= 1>>
+	<<if !_args[0].teamsStillAttacking or $alexFarm.assault.noFieldsLeftToBurn is true>>
+	<<elseif $alexFarm.assault.fight.alexState is "bound">>
+		<<if $alexFarm.assault.fight.alexBindings gte 1>>
+			<<set $alexFarm.assault.fight.alexBindings -= 1>>
 		<<else>>
-			<<set $farm_assault.alex to "patrol">>
+			<<set $alexFarm.assault.fight.alexState to "patrol">>
 		<</if>>
-	<<elseif $farm_assault.alex is "patrol">>
+	<<elseif $alexFarm.assault.fight.alexState is "patrol">>
 		Your walkie talkie picks up a signal. "I'm looking for intruders," Alex says. "Just checking in."
 		<br><br>
 	<<else>>
-		<<set _assault_keys to Object.keys($farm_assault.teams)>>
-		<<for _s to 0; _s lt _assault_keys.length; _s++>>
-			<<if $bus is $farm_assault.teams[_assault_keys[_s]].location and $farm_assault.alex is _assault_keys[_s]>>
+		<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+			<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location and $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
 				<span class="teal">Alex crouches beside you.</span>
-				<<if $farm_assault.bindings gte 1>>
+				<<if $alexFarm.assault.fight.pcBindings gte 1>>
 					<span class="green">Your bindings come loose.</span>
 					<<farm_assault_unbind>>
 				<</if>>
 				"What's the plan?"
 				<br><br>
-			<<elseif $farm_assault.alex is _assault_keys[_s]>>
+			<<elseif $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
 				Your walkie talkie picks up a signal. "I'm <<print either("pursuing","stalking","following","hunting","harrying")>> <<farm_assault_thugs>> at <<farm_assault_location>>," Alex says in a hushed voice.
-				<<if _alex_success>>
+				<<if _args[0].alexBeatThug>>
 					<<set _rng to random(1, 5)>>
 					<<switch _rng>>
 					<<case 1>>
@@ -754,7 +747,7 @@ You hear shouting outside.
 <</widget>>
 
 <<widget "farm_assault_location">><<silently>>
-	<<switch $farm_assault.teams[_assault_keys[_s]].location>>
+	<<switch $alexFarm.assault.fight.teams[_teamIndex].location>>
 		<<case 0>>
 			<<set _text_output to "the first field">>
 		<<case 1>>
@@ -784,7 +777,7 @@ You hear shouting outside.
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "farm_assault_thugs">><<silently>>
-	<<switch $farm_assault.teams[_assault_keys[_s]].type>>
+	<<switch $alexFarm.assault.fight.teams[_teamIndex].type>>
 		<<case "bailey">>
 			<<set _text_output to "<span class=\"red\">Bailey's thugs</span>">>
 		<<case "wraith">>
@@ -803,50 +796,50 @@ You hear shouting outside.
 
 <<widget "farm_assault_options">>
 	<<if !_noOptions>>
-		<<link [[Wait (0:05)|Farm Assault]]>><<pass 5>><<set $farm_assault.movement to "wait">><</link>>
+		<<link [[Wait (0:05)|Farm Assault]]>><<pass 5>><<set $alexFarm.assault.fight.movement to "wait">><</link>>
 		<br>
-		<<if $bus is "tower" and _tower isnot "threatened" and $farm_assault.tower isnot "manned">>
-			<<link [[Climb the watchtower (0:05)|Farm Assault]]>><<pass 5>><<set $bus to "tower_top">><<set $farm_assault.movement to "climb">><</link>>
+		<<if $bus is "tower" and !_args[0].towerThreatened and $alexFarm.assault.fight.towerState isnot "manned">>
+			<<link [[Climb the watchtower (0:05)|Farm Assault]]>><<pass 5>><<set $bus to "tower_top">><<set $alexFarm.assault.fight.movement to "climb">><</link>>
 			<br>
 		<</if>>
 		<<if $bus isnot 0>>
-			<<link [[First field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 0>><<set $farm_assault.movement to "field">><</link>>
+			<<link [[First field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 0>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
 		<<if $bus isnot 1>>
-			<<link [[Second field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 1>><<set $farm_assault.movement to "field">><</link>>
+			<<link [[Second field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 1>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
 		<<if $bus isnot 2>>
-			<<link [[Third field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 2>><<set $farm_assault.movement to "field">><</link>>
+			<<link [[Third field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 2>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
 		<<if $bus isnot 3>>
-			<<link [[Fourth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 3>><<set $farm_assault.movement to "field">><</link>>
+			<<link [[Fourth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 3>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot 4 and $farm_stage gte 8>>
-			<<link [[Fifth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 4>><<set $farm_assault.movement to "field">><</link>>
+		<<if $bus isnot 4 and $alexFarm.stage gte 8>>
+			<<link [[Fifth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 4>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot 5 and $farm_stage gte 9>>
-			<<link [[Sixth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 5>><<set $farm_assault.movement to "field">><</link>>
+		<<if $bus isnot 5 and $alexFarm.stage gte 9>>
+			<<link [[Sixth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 5>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot 6 and $farm_stage gte 10>>
-			<<link [[Seventh field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 6>><<set $farm_assault.movement to "field">><</link>>
+		<<if $bus isnot 6 and $alexFarm.stage gte 10>>
+			<<link [[Seventh field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 6>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot 7 and $farm_stage gte 11>>
-			<<link [[Eighth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 7>><<set $farm_assault.movement to "field">><</link>>
+		<<if $bus isnot 7 and $alexFarm.stage gte 11>>
+			<<link [[Eighth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 7>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot 8 and $farm_stage gte 12>>
-			<<link [[Ninth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 8>><<set $farm_assault.movement to "field">><</link>>
+		<<if $bus isnot 8 and $alexFarm.stage gte 12>>
+			<<link [[Ninth field (0:05)|Farm Assault]]>><<pass 5>><<set $bus to 8>><<set $alexFarm.assault.fight.movement to "field">><</link>>
 			<br>
 		<</if>>
-		<<if $bus isnot "tower" and $bus isnot "tower_top" and $farm.tower gte 1>>
-			<<link [[Watchtower (0:05)|Farm Assault]]>><<pass 5>><<set $bus to "tower">><<set $farm_assault.movement to "tower">><</link>>
+		<<if $bus isnot "tower" and $bus isnot "tower_top" and $alexFarm.upgrades.tower gte 1>>
+			<<link [[Watchtower (0:05)|Farm Assault]]>><<pass 5>><<set $bus to "tower">><<set $alexFarm.assault.fight.movement to "tower">><</link>>
 			<br>
 		<</if>>
 	<</if>>
@@ -875,21 +868,19 @@ You hear shouting outside.
 		<<case 8>>
 			You are near the ninth field.
 	<</switch>>
-	<<if $fields_damaged.includes($bus)>>
+	<<if $alexFarm.assault.burntFields.includes($bus)>>
 		<span class="red">It's engulfed in flames.</span>
 	<</if>>
 	<br>
-	<<if $farm_assault.bindings gte 1>>
+	<<if $alexFarm.assault.fight.pcBindings gte 1>>
 		You lie in the dirt, unable to move much.
 		<br><br>
 
-		<<link [[Struggle (0:05)|Farm Assault]]>><<pass 5>><<set $farm_assault.bindings -= 1>><<set $farm_assault.movement to "struggle">><</link>>
+		<<link [[Struggle (0:05)|Farm Assault]]>><<pass 5>><<set $alexFarm.assault.fight.pcBindings -= 1>><<set $alexFarm.assault.fight.movement to "struggle">><</link>>
 		<br>
 	<<else>>
-		<<set _assault_keys to Object.keys($farm_assault.teams)>>
-		<<for _s to 0; _s lt _assault_keys.length; _s++>>
-			<<set $_key to _assault_keys[_s]>>
-			<<set $_team to $farm_assault.teams[$_key]>>
+		<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+			<<set $_team to $alexFarm.assault.fight.teams[_teamIndex]>>
 			<<set $_isBaileyTeam to $_team.type is "bailey">>
 			<<set $_isWraith to $_team.type is "wraith">>
 			<<if $bus is $_team.location>>
@@ -905,7 +896,7 @@ You hear shouting outside.
 						<<link [[Defend the watchtower (0:05)|Farm Assault Tower Defend]]>><<pass 5>><</link>>
 						<br>
 					<<elseif $_team.state is "fight">>
-						<span class="pink">You hear $farm.tower_guard fighting <<farm_assault_thugs>> at the top of the tower!</span>
+						<span class="pink">You hear $alexFarm.towerGuard.name fighting <<farm_assault_thugs>> at the top of the tower!</span>
 						<br><br>
 
 						<<link [[Defend the watchtower (0:05)|Farm Assault Tower Defend]]>><<pass 5>><</link>>
@@ -913,40 +904,40 @@ You hear shouting outside.
 					<</if>>
 				<<elseif $_team.state is "wall">>
 					<<if $_isWraith>>
-						You see the <<farm_assault_thugs>> <span class="pink">walking through the <<print $farm.wall gte 3 ? "fence" : "wall">></span>.
+						You see the <<farm_assault_thugs>> <span class="pink">walking through the <<print $alexFarm.upgrades.wall gte 3 ? "fence" : "wall">></span>.
 					<<else>>
-						<<if $farm.wall gte 3>>
+						<<if $alexFarm.upgrades.wall gte 3>>
 							You see <<farm_assault_thugs>> sawing through the fence.
 						<<else>>
 							You see <<farm_assault_thugs>> climbing over the wall.
 						<</if>>
-						<<if $_team.number is 1>>
+						<<if $_team.thugsLeft is 1>>
 							There's only one here.
 						<<else>>
-							There are <<number $_team.number>> of them.
+							There are <<number $_team.thugsLeft>> of them.
 						<</if>>
 					<</if>>
 					<<if $_isBaileyTeam>>
 						<span class="red">They move with surety.</span>
 					<</if>>
 					<br>
-					<<if $farm_assault.alex is $_key>>
+					<<if $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
 						<<link [[Throw rocks with Alex (0:05)|Farm Assault Rocks Alex]]>><<pass 5>><</link>>
 						<br>
 					<<else>>
-						<<set $_min to ($_isBaileyTeam ? 6000 : 1)>>
-						<<set $_max to ($_isBaileyTeam ? 20000 : 15000)>>
-						<<link [[Throw rocks (0:05)|Farm Assault Rocks]]>><<pass 5>><</link>><<physiquedifficulty $_min $_max>>
+						<<set $_difficultyMin to ($_isBaileyTeam ? 6000 : 1)>>
+						<<set $_difficultyMax to ($_isBaileyTeam ? 20000 : 15000)>>
+						<<link [[Throw rocks (0:05)|Farm Assault Rocks]]>><<pass 5>><</link>><<physiquedifficulty $_difficultyMin $_difficultyMax>>
 						<br>
 					<</if>>
-					<<set $_min to ($_isBaileyTeam ? 3000 : 200)>>
-					<<set $_max to ($_isBaileyTeam ? 3000 : 1000)>>
-					<<link [[Threaten (0:05)|Farm Assault Threaten]]>><<pass 5>><</link>><<skill_difficulty $fame.scrap "Combat Fame" $_min $_max>>
+					<<set $_difficultyMin to ($_isBaileyTeam ? 3000 : 200)>>
+					<<set $_difficultyMax to ($_isBaileyTeam ? 3000 : 1000)>>
+					<<link [[Threaten (0:05)|Farm Assault Threaten]]>><<pass 5>><</link>><<skill_difficulty $fame.scrap "Combat Fame" $_difficultyMin $_difficultyMax>>
 					<br>
 				<<elseif $_team.state is "entry">>
 					<<if $_isBaileyTeam>>
-						<<if $_team.number gte 2>>
-							You see <<number $_team.number>> of <<farm_assault_thugs>> rush into the farm. They ignore you, instead heading into the fields.
+						<<if $_team.thugsLeft gte 2>>
+							You see <<number $_team.thugsLeft>> of <<farm_assault_thugs>> rush into the farm. They ignore you, instead heading into the fields.
 							<br>
 							<<farm_assault_attack_options>>
 						<<else>>
@@ -971,9 +962,10 @@ You hear shouting outside.
 						"<span class="wraith">Drown in smoke. Drown in flame.</span>"
 						<br><br>
 
-						<<if $farm_assault.alex is $_key>>
+						<<if $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
 							"I'm doubling back," Alex whispers, <span class="red">seemingly not noticing the pale figure. <<nnpc_He "Alex">> creeps away.</span>
-							<<set $farm_assault.alex to "patrol">>
+							<<set $alexFarm.assault.fight.alexState to "patrol">>
+							<<unset $alexFarm.assault.fight.alexTeamIndex>>
 							<br><br>
 						<</if>>
 
@@ -983,8 +975,8 @@ You hear shouting outside.
 
 						<<link [[Next|Farm Assault Wraith Fight]]>><<set $fightstart to 1>><</link>>
 					<<else>>
-						<<if $_team.number gte 2>>
-							You see <<number $_team.number>> of <<farm_assault_thugs>> rush into the farm. They ignore you, instead heading into the fields.
+						<<if $_team.thugsLeft gte 2>>
+							You see <<number $_team.thugsLeft>> of <<farm_assault_thugs>> rush into the farm. They ignore you, instead heading into the fields.
 							<br><br>
 
 							<<farm_assault_attack_options>>
@@ -1000,8 +992,8 @@ You hear shouting outside.
 					<br><br>
 				<<elseif $_team.state is "dogs_recover">>
 					<<if $_isBaileyTeam>>
-						<<if $_team.number gte 2>>
-							<<if $farm_assault.dogs gte 2>>
+						<<if $_team.thugsLeft gte 2>>
+							<<if $alexFarm.assault.fight.dogTeamsLeft gte 2>>
 								<<farm_assault_thugs>> seem unperturbed, and meet the hounds head-on. The first <<farm_text dog>> receives a solid kick to the face, and rolls away, whimpering, but the others manage to sink teeth into arms and legs. The thugs shake them free, but are left bloodied. <span class="green">A <<generate1>><<person1>><<person>> limps from the field,</span> too hurt to continue the assault.
 								<br><br>
 							<<else>>
@@ -1012,7 +1004,7 @@ You hear shouting outside.
 
 							<</if>>
 						<<else>>
-							<<if $farm_assault.dogs gte 2>>
+							<<if $alexFarm.assault.fight.dogTeamsLeft gte 2>>
 								<<generate1>><<person1>>
 								The thug, a <<person>>, startles the hounds by barking back. One growls before lunging, grabbing the <<persons>> forearm between <<his>> teeth. <<He>> shakes the <<farm_text dog>> off, but is in no condition to continue the assault. <span class="green"><<He>> runs from the field,</span> cradling one arm in the other.
 								<br><br>
@@ -1023,8 +1015,8 @@ You hear shouting outside.
 							<</if>>
 						<</if>>
 					<<else>>
-						<<if $_team.number gte 2>>
-							<<if $farm_assault.dogs gte 2>>
+						<<if $_team.thugsLeft gte 2>>
+							<<if $alexFarm.assault.fight.dogTeamsLeft gte 2>>
 								<<farm_assault_thugs>> panic, <span class="green">and run.</span> The hounds pursue them to the <<farm_fence>>, and howl triumphant into the night.
 							<<else>>
 								<<farm_assault_thugs>> panic, <span class="green">and run.</span> The hounds pursue a little too eagerly, <span class="red">and chase their quarry into the night,</span> leaving the farm unguarded. They'll be too tired to help when they make it back.
@@ -1032,7 +1024,7 @@ You hear shouting outside.
 							<br><br>
 						<<else>>
 							<<generate1>><<person1>>
-							<<if $farm_assault.dogs gte 2>>
+							<<if $alexFarm.assault.fight.dogTeamsLeft gte 2>>
 								The lone <<person>> panics, <span class="green">and runs.</span> The hounds pursue <<him>> to the <<farm_fence>>, and howl triumphant into the night.
 							<<else>>
 								The lone <<person>> panics, <span class="green">and runs.</span> The hounds pursue a little too eagerly, <span class="red">and chase their quarry into the night,</span> leaving the farm unguarded. They'll be too tired to help when they make it back.
@@ -1041,7 +1033,7 @@ You hear shouting outside.
 						<</if>>
 					<</if>>
 					<<endevent>>
-					<<if $_isBaileyTeam and $_team.number gte 2>> /* Don't show attack options if team was defeated */
+					<<if $_isBaileyTeam and $_team.thugsLeft gte 2>> /* Don't show attack options if team was defeated */
 						<<farm_assault_attack_options>>
 					<</if>>
 				<<elseif $_team.state is "field">>
@@ -1053,11 +1045,11 @@ You hear shouting outside.
 							<span class="purple">You suspect it's spreading flammable slime.</span>
 						<</if>>
 					<<else>>
-						<<if $_team.field_progress gte 4>>
+						<<if $_team.fieldProgress gte 4>>
 							<span class="pink">You see <<farm_assault_thugs>> lighting matches!</span>
-						<<elseif $_team.field_progress gte 3>>
+						<<elseif $_team.fieldProgress gte 3>>
 							<span class="purple">You see <<farm_assault_thugs>> covering the field in petrol.</span>
-						<<elseif $_team.field_progress gte 2>>
+						<<elseif $_team.fieldProgress gte 2>>
 							<span class="blue">You see <<farm_assault_thugs>> opening petrol canisters.</span>
 						<<else>>
 							<span class="lblue">You see <<farm_assault_thugs>> prowling through the field.</span>
@@ -1071,12 +1063,12 @@ You hear shouting outside.
 
 		<br>
 
-		<<farm_assault_options>>
+		<<farm_assault_options _args[0]>>
 	<</if>>
 <</widget>>
 
 <<widget "farm_assault_intruders">>
-	<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+	<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 		<<set _text_output to "intruders">>
 	<<else>>
 		<<set _text_output to "intruder">>
@@ -1085,10 +1077,10 @@ You hear shouting outside.
 <</widget>>
 
 <<widget "farm_assault_no">>
-	<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+	<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 		vicious
 	<<else>>
-		<<switch _s>>
+		<<switch _teamIndex>>
 		<<case 0>>
 			first
 		<<case 1>>
@@ -1105,7 +1097,7 @@ You hear shouting outside.
 
 <<widget "farm_assault_unbind">>
 	<<unbind>>
-	<<set $farm_assault.bindings to 0>>
+	<<set $alexFarm.assault.fight.pcBindings to 0>>
 	<<if $worn.face.type.includes("gag")>>
 		<<set $worn.face.type.push("broken")>>
 		<<faceruined>>
@@ -1114,8 +1106,8 @@ You hear shouting outside.
 <</widget>>
 
 <<widget "farm_assault_attack_options">>
-	<<if $farm_assault.alex is _assault_keys[_s]>>
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+	<<if $alexFarm.assault.fight.alexTeamIndex is _teamIndex>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 			<<link [[Work with Alex to pick one off (0:05)|Farm Assault Pick Alex]]>><<pass 5>><</link>>
 			<br>
 			<<if $pain gte 100>>
@@ -1123,7 +1115,7 @@ You hear shouting outside.
 			<<else>>
 				<<link [[Charge with Alex (0:05)|Farm Assault Charge]]>><<pass 5>><</link>>
 			<</if>>
-		<<elseif $farm_assault.teams[_assault_keys[_s]].number gte 1 and $farm_assault.teams[_assault_keys[_s]].location isnot "done" and $farm_assault.teams[_assault_keys[_s]].state isnot "dogs_recover">>
+		<<elseif $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 1 and $alexFarm.assault.fight.teams[_teamIndex].location isnot "done" and $alexFarm.assault.fight.teams[_teamIndex].state isnot "dogs_recover">>
 			The intruder is alone.
 			<br><br>
 			<<link [[Overpower|Farm Assault Overpower]]>><</link>>
@@ -1131,12 +1123,12 @@ You hear shouting outside.
 	<<elseif $pain gte 100>>
 		<span class="red">You're in too much pain to fight them head-on.</span>
 	<<else>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 			<<link [[Fight them head-on (0:05)|Farm Assault Intercept Bailey]]>><<pass 5>><</link>>
 			<br>
 			<<set $skulduggerydifficulty to 1000>>
 			<<link [[Pick one off (0:05)|Farm Assault Pick Bailey]]>><<pass 5>><</link>><<skulduggerydifficulty>>
-		<<elseif $farm_assault.teams[_assault_keys[_s]].type is "wraith">>
+		<<elseif $alexFarm.assault.fight.teams[_teamIndex].type is "wraith">>
 			<<set $_them to Memories.IvoryWraith.has("joinedFarmAssault") ? "it" : "them">>
 			<<link [["Fight " + $_them + " head on"|Farm Assault Intercept Wraith]]>><</link>>
 		<<else>>
@@ -1152,14 +1144,13 @@ You hear shouting outside.
 :: Farm Assault Rocks
 <<effects>><<wearProp "rock">>
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
 		<<if $physiqueSuccess>>
 			<<generate1>><<person1>>
 			You and Alex pelt the <<farm_assault_intruders>> from the shadows. Most miss, <span class="green">but one lands true</span>, hitting the <<person>> right on the noggin. <<He>> tumbles away from the <<farm_fence>>.
 			<br><br>
-			<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 		<<else>>
 			<<generate1>><<person1>>
 			You pelt the <<farm_assault_intruders>> from the shadows. They've chosen a sheltered spot to break in, shielded by earth from most angles, and trees by others. <span class="red">You fail to hit any.</span>
@@ -1174,10 +1165,9 @@ You hear shouting outside.
 :: Farm Assault Rocks Alex
 <<effects>><<wearProp "rock">>
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey" and random(1, 2) is 2>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey" and random(1, 2) is 2>>
 			<<generate1>><<person1>>
 			You and Alex pelt the <<farm_assault_intruders>> from the shadows. They've chosen a sheltered spot to break in, shielded by earth from most angles, and trees by the others. <span class="red">You fail to hit any.</span>
 			<br><br>
@@ -1185,7 +1175,7 @@ You hear shouting outside.
 			<<generate1>><<person1>>
 			You and Alex pelt the <<farm_assault_intruders>> from the shadows. Most miss, <span class="green">but one lands true</span>, hitting the <<person>> right on the noggin. <<He>> tumbles away from the <<farm_fence>>.
 			<br><br>
-			<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 		<</if>>
 	<</if>>
 <</for>>
@@ -1205,11 +1195,10 @@ You march into the open.
 	"If you leave now," you say, "I won't follow."
 <</if>>
 <br><br>
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<<generate1>><<person1>>
 				<span class="red">The intruders laugh.</span>
 				<<if $fame.scrap gte 400>>
@@ -1229,7 +1218,7 @@ You march into the open.
 				<<He>> continues forcing their way in.
 			<</if>>
 		<<elseif $fame.scrap gte random(200, 1000)>>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<<generate1>><<person1>><<generate2>>
 				The intruders glance at each other.
 				<br>
@@ -1239,15 +1228,15 @@ You march into the open.
 				<br>
 				"I'm not getting paid to get my shit kicked in. I'm out." <span class="green">They turn and run.</span>
 
-				<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 			<<else>>
 				<<generate1>><<person1>>
 				The intruder, a <<person>>, stares at you. "I'm just getting paid to clear some fields," <<he>> says. "I don't want no trouble." <span class="green"><<He>> turns and leaves.</span>
 
-				<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 			<</if>>
 		<<else>>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<<generate1>><<person1>><<generate2>>
 				The intruders glance at each other, <span class="red">and laugh.</span> "This <<girl>> thinks <<pshes>> tough or something," a <<person>> says. "About to learn a hard lesson."
 				<br><br>
@@ -1268,14 +1257,13 @@ You march into the open.
 :: Farm Assault Intercept
 <<effects>>
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 			<<generate1>><<generate2>><<generate3>>
 			You charge Remy's thugs, a <<fullGroup>>. They plant their feet, ready to face you.
 			<br><br>
-		<<elseif $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+		<<elseif $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 			<<generate1>><<generate2>>
 			You charge Remy's thugs, a <<fullGroup>>. They plant their feet, ready to face you.
 			<br><br>
@@ -1294,14 +1282,13 @@ You march into the open.
 :: Farm Assault Intercept Bailey
 <<effects>>
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 			<<generate1>><<generate2>><<generate3>>
 			You charge Bailey's thugs, a <<fullGroup>>. They turn to meet you. The <<person1>><<person>> cracks <<his>> knuckles.
 			<br><br>
-		<<elseif $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+		<<elseif $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 			<<generate1>><<generate2>>
 			You charge Bailey's thugs, a <<fullGroup>>. They turn to meet you. The <<person1>><<person>> cracks <<his>> knuckles.
 			<br><br>
@@ -1358,10 +1345,9 @@ You march into the open.
 	<<endcombat>>
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<elseif $enemyhealth lte 0>>
@@ -1377,10 +1363,9 @@ You march into the open.
 	<<endcombat>>
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 
@@ -1394,7 +1379,7 @@ You march into the open.
 	<<tearful>> you struggle against the rope. It was a rough job, and you should be able to work free.
 	<br><br>
 	<<endcombat>>
-	<<set $farm_assault.bindings to 3>>
+	<<set $alexFarm.assault.fight.pcBindings to 3>>
 	<<bind>>
 	<<facewear "bit gag">>
 	<<link [[Next|Farm Assault]]>><</link>>
@@ -1445,10 +1430,9 @@ You march into the open.
 	<<endcombat>>
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<elseif $enemyhealth lte 0>>
@@ -1465,10 +1449,9 @@ You march into the open.
 	<<endcombat>>
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 
@@ -1482,7 +1465,7 @@ You march into the open.
 	<<tearful>> you struggle against the rope. It was a rough job, and you should be able to work free.
 	<br><br>
 	<<endcombat>>
-	<<set $farm_assault.bindings to 3>>
+	<<set $alexFarm.assault.fight.pcBindings to 3>>
 	<<bind>>
 	<<facewear "bit gag">>
 	<<link [[Next|Farm Assault]]>><</link>>
@@ -1495,11 +1478,10 @@ You march into the open.
 <<effects>>
 
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
 
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 			You keep to the shadows as you stalk the intruders, waiting for an opening.
 		<<else>>
 			You keep to the shadows as you stalk the intruder, waiting for an opening.
@@ -1509,14 +1491,14 @@ You march into the open.
 		<<skulduggerycheck>>
 		<<if $skulduggerysuccess is 1>>
 
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<span class="green">You find one.</span> A <<generate1>><<person1>><<person>> strays too far from <<his>> fellows. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
 				<<endevent>>
-				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 			<<else>>
 				<span class="green">You find one.</span> The <<generate1>><<person1>><<person>> stands too close to a hedge, letting you sneak right behind <<him>>. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
 				<<endevent>>
-				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 			<</if>>
 			<br><br>
 
@@ -1527,9 +1509,9 @@ You march into the open.
 
 		<<else>>
 			<<generate1>>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<<generate2>>
-				<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 					<<generate3>>
 				<</if>>
 				A <<person1>><<person>> strays apart from the others, and you make your move, sneaking closer. You lunge from the dark, <span class="red">but the <<person>> spins and catches your arm.</span>
@@ -1554,11 +1536,10 @@ You march into the open.
 
 
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
 
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 			You keep to the shadows as you stalk the intruders, waiting for an opening.
 		<<else>>
 			You keep to the shadows as you stalk the intruder, waiting for an opening.
@@ -1568,14 +1549,14 @@ You march into the open.
 		<<skulduggerycheck>>
 		<<if $skulduggerysuccess is 1>>
 
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<span class="green">You find one.</span> A <<generate1>><<person1>><<person>> strays too far from <<his>> fellows. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
 				<<endevent>>
-				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 			<<else>>
 				<span class="green">You find one.</span> The <<generate1>><<person1>><<person>> stands too close to a hedge, letting you sneak right behind <<him>>. You lunge from the dark, and smack <<him>> over the head. <<His>> body slumps to the earth, unconscious.
 				<<endevent>>
-				<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 			<</if>>
 			<br><br>
 
@@ -1586,8 +1567,8 @@ You march into the open.
 
 		<<else>>
 
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 2>>
-				<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 					<<generate1>>
 				<<else>>
 					<<generate1>>
@@ -1632,10 +1613,9 @@ You turn and flee into the darkness.
 :: Farm Assault Pick Alex
 <<effects>>
 You and Alex stalk the intruders, waiting for one to stray too close to the dark.
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 			<<generate1>><<person1>>
 			One, a <<person>>, stands with <<his>> back to a hedge, seeming to think it impenetrable.
 			<br><br>
@@ -1649,7 +1629,7 @@ You and Alex stalk the intruders, waiting for one to stray too close to the dark
 			They don't seem like they'll play along, until Alex emerges into the light, and taunts them, before vanishing into tall grass.
 			<br><br>
 			<<generate1>><<person1>>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 				Two rush after, leaving a <<person>> behind.
 			<<else>>
 				One rushes after, leaving a <<person>> behind.
@@ -1662,7 +1642,7 @@ You and Alex stalk the intruders, waiting for one to stray too close to the dark
 			<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 			<br>
 		<</if>>
-		<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 	<</if>>
 <</for>>
 
@@ -1670,10 +1650,9 @@ You and Alex stalk the intruders, waiting for one to stray too close to the dark
 <<effects>>
 
 You charge the intruders, Alex at your side.
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 			<<generate1>><<generate2>>
 			There are three of them. One splits off to intercept Alex, leaving the <<fullGroup>> to you.
 			<br><br>
@@ -1683,7 +1662,7 @@ You charge the intruders, Alex at your side.
 			There are two of them. One intercepts Alex, leaving the <<person>> to you.
 			<br><br>
 		<</if>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 
 			<<link [[Next|Farm Assault Alex Fight Bailey]]>><<set $fightstart to 1>><</link>>
 			<br>
@@ -1698,10 +1677,9 @@ You charge the intruders, Alex at your side.
 <<effects>>
 
 <<generate1>><<person1>>You rush the lone intruder, a <<person>>, while Alex circles around.
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
 			<<He>> turns to face you, planting <<his>> feet. Alex rushes <<him>> from behind. The <<person>> swivels and deflects the blow with <<his>> arms, but this leaves <<him>> open to you. You whack <<him>> over the head, and <<he>> slumps to the ground.<<glove>><<npcincr Alex love 1>>
 			<br><br>
 
@@ -1713,7 +1691,7 @@ You charge the intruders, Alex at your side.
 			<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 			<br>
 		<</if>>
-		<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+		<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 	<</if>>
 <</for>>
 
@@ -1761,10 +1739,9 @@ You hear Alex fighting the other intruder.
 	<br><br>
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<elseif $enemyhealth lte 0>>
@@ -1782,10 +1759,9 @@ You hear Alex fighting the other intruder.
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<else>>
@@ -1805,10 +1781,9 @@ You hear Alex fighting the other intruder.
 
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].number -= 1>>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].thugsLeft -= 1>>
 		<</if>>
 	<</for>>
 <</if>>
@@ -1863,10 +1838,9 @@ You hear Alex fighting the other intruder.
 	<br><br>
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<elseif $enemyhealth lte 0>>
@@ -1887,10 +1861,9 @@ You hear Alex fighting the other intruder.
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
 <<else>>
@@ -1907,8 +1880,10 @@ You hear Alex fighting the other intruder.
 	<<tearful>> you struggle against the rope. It was a rough job, and you should be able to work free.
 	<br><br>
 	<<endevent>>
-	<<set $farm_assault.bindings to 3>>
-	<<set $farm_assault.bindings_alex to 3>>
+	<<set $alexFarm.assault.fight.pcBindings to 3>>
+	<<set $alexFarm.assault.fight.alexBindings to 3>>
+	<<set $alexFarm.assault.fight.alexState to "bound">>
+	<<unset $alexFarm.assault.fight.alexTeamIndex>>
 	<<bind>>
 	<<facewear "bit gag">>
 	<<link [[Next|Farm Assault]]>><</link>>
@@ -1922,10 +1897,9 @@ You hear Alex fighting the other intruder.
 
 You arrive at the base of the tower. You already hear a struggle at the top. The stairs creak as you climb.
 <br><br>
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<for _s to 0; _s lt _assault_keys.length; _s++>>
-	<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-		You emerge to find <<farm_assault_thugs>> besetting $farm.tower_guard.
+<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+	<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+		You emerge to find <<farm_assault_thugs>> besetting $alexFarm.towerGuard.name.
 		<<endevent>>
 		<<loadNPC 0 "farm_tower_guard">><<person1>>
 
@@ -1940,11 +1914,11 @@ You arrive at the base of the tower. You already hear a struggle at the top. The
 		<</if>>
 		<<endevent>>
 		<br><br>
-		<<if $farm_assault.teams[_assault_keys[_s]].type is "bailey">>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+		<<if $alexFarm.assault.fight.teams[_teamIndex].type is "bailey">>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 				<<generate1>><<generate2>><<person1>><<set $skulduggerydifficulty to 1200>>
 				The three thugs step closer, wary. They haven't noticed you.
-			<<elseif $farm_assault.teams[_assault_keys[_s]].number gte 2>>
+			<<elseif $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>>
 				<<generate1>><<person1>><<set $skulduggerydifficulty to 1000>>
 				The three thugs step closer, wary. They haven't noticed you.
 			<<else>>
@@ -1959,10 +1933,10 @@ You arrive at the base of the tower. You already hear a struggle at the top. The
 			<<link [[Sneak up|Farm Assault Sneak Bailey]]>><</link>><<skulduggerydifficulty>>
 			<br>
 		<<else>>
-			<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+			<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 				<<generate1>><<generate2>><<person1>><<set $skulduggerydifficulty to 800>>
 				The three thugs walk closer, smiling and unthreatened. They haven't noticed you.
-			<<elseif $farm_assault.teams[_assault_keys[_s]].number gte 2>><<set $skulduggerydifficulty to 600>>
+			<<elseif $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 2>><<set $skulduggerydifficulty to 600>>
 				<<generate1>><<person1>>
 				The three thugs step closer, seeming unthreatened. They haven't noticed you.
 			<<else>><<set $skulduggerydifficulty to 0>>
@@ -1986,7 +1960,7 @@ You arrive at the base of the tower. You already hear a struggle at the top. The
 :: Farm Assault Tower Charge
 <<effects>>
 
-You charge the thugs. They spin to face you, giving $farm.tower_guard an opening.
+You charge the thugs. They spin to face you, giving $alexFarm.towerGuard.name an opening.
 <br><br>
 
 <<link [[Next|Farm Assault Tower Fight]]>><<set $fightstart to 1>><</link>>
@@ -2004,7 +1978,7 @@ You charge the thugs. They spin to face you, giving $farm.tower_guard an opening
 	<<npcidlegenitals>>
 <</if>>
 
-$farm.tower_guard fights nearby.
+$alexFarm.towerGuard.name fights nearby.
 <br><br>
 
 <<effects>>
@@ -2025,9 +1999,9 @@ $farm.tower_guard fights nearby.
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	<<if $enemynomax gte 2>>
-		The thugs stagger away from you. They need a breather, but look ready to continue fighting. Until $farm.tower_guard sends <<his>> colleague plummeting from the tower. They turn and run down the stairs.
+		The thugs stagger away from you. They need a breather, but look ready to continue fighting. Until $alexFarm.towerGuard.name sends <<his>> colleague plummeting from the tower. They turn and run down the stairs.
 	<<else>>
-		<<He>> staggers away from you. <<He>> needs a breather, but looks ready to continue fighting. Until $farm.tower_guard sends <<his>> colleague plummeting from the tower. <<He>> turns and runs down the stairs.
+		<<He>> staggers away from you. <<He>> needs a breather, but looks ready to continue fighting. Until $alexFarm.towerGuard.name sends <<his>> colleague plummeting from the tower. <<He>> turns and runs down the stairs.
 	<</if>>
 	<br><br>
 	<<tearful>> you rest against the railing.
@@ -2037,13 +2011,13 @@ $farm.tower_guard fights nearby.
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"That's a strange way to fight," $farm.tower_guard says. "If it works, it works."
+		"That's a strange way to fight," $alexFarm.towerGuard.name says. "If it works, it works."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"I've some friends who want to get into sex work," $farm.tower_guard says. "They could learn from you."
+		"I've some friends who want to get into sex work," $alexFarm.towerGuard.name says. "They could learn from you."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"That's one way to do it," $farm.tower_guard says. "I don't judge. We survive the way we can."
+		"That's one way to do it," $alexFarm.towerGuard.name says. "I don't judge. We survive the way we can."
 	<<else>>
-		"Wish you gave me that treatment," $farm.tower_guard laughs.
+		"Wish you gave me that treatment," $alexFarm.towerGuard.name laughs.
 	<</if>>
 	<<gstress>><<stress 6>>
 	<<endevent>>
@@ -2051,19 +2025,18 @@ $farm.tower_guard fights nearby.
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<elseif $enemyhealth lte 0>>
 	<<if $enemynomax gte 2>>
-		You smack the <<person1>><<person>> from the tower. $farm.tower_guard's opponent follows suit. The <<person2>><<person>> turns and runs, almost falling down the stairs.
+		You smack the <<person1>><<person>> from the tower. $alexFarm.towerGuard.name's opponent follows suit. The <<person2>><<person>> turns and runs, almost falling down the stairs.
 	<<else>>
-		You smack the <<person1>><<person>> from the tower. $farm.tower_guard's opponent follows suit.
+		You smack the <<person1>><<person>> from the tower. $alexFarm.towerGuard.name's opponent follows suit.
 	<</if>>
 	<br><br>
 	<<tearful>> you rest on the railing.
@@ -2073,13 +2046,13 @@ $farm.tower_guard fights nearby.
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"Couldn't end any other way," $farm.tower_guard laughs. "We'll send the next ones packing too."
+		"Couldn't end any other way," $alexFarm.towerGuard.name laughs. "We'll send the next ones packing too."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"That was almost fun," $farm.tower_guard laughs. "Maybe next time we'll break a sweat."
+		"That was almost fun," $alexFarm.towerGuard.name laughs. "Maybe next time we'll break a sweat."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"Job done, but there might be more coming," $farm.tower_guard says. "Thanks for the assist."
+		"Job done, but there might be more coming," $alexFarm.towerGuard.name says. "Thanks for the assist."
 	<<else>>
-		$farm.tower_guard holds out <<his>> hand for a high five. "We showed em," <<he>> says. "Maybe you'll reward me later? A <<girl_npc>> can dream."
+		$alexFarm.towerGuard.name holds out <<his>> hand for a high five. "We showed em," <<he>> says. "Maybe you'll reward me later? A <<girl_npc>> can dream."
 	<</if>>
 	<br><br>
 	<<endevent>>
@@ -2087,38 +2060,36 @@ $farm.tower_guard fights nearby.
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<else>>
 	You fall against the railing, too hurt to continue fighting.
 	<<if $enemynomax gte 2>>
-		The thugs turn their attention to $farm.tower_guard, and rush to their colleague's aid.
+		The thugs turn their attention to $alexFarm.towerGuard.name, and rush to their colleague's aid.
 	<<else>>
-		The <<person1>><<person>> turns <<his>> attention to $farm.tower_guard, and rushes to <<his>> colleague's aid.
+		The <<person1>><<person>> turns <<his>> attention to $alexFarm.towerGuard.name, and rushes to <<his>> colleague's aid.
 	<</if>>
 	<br><br>
 	<<endcombat>>
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
 			There's a struggle, until
-			<<if $farm.tower_guard_skill gte random(1, ($farm_assault.teams[_assault_keys[_s]].number * 500))>>
-				$farm.tower_guard <span class="green">punches one assailant off the tower.</span>
-				<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+			<<if $alexFarm.towerGuard.skill gte random(1, ($alexFarm.assault.fight.teams[_teamIndex].thugsLeft * 500))>>
+				$alexFarm.towerGuard.name <span class="green">punches one assailant off the tower.</span>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 					The other thugs turn and flee down the stairs.
 				<<else>>
 					The other thug turns and flees down the stairs.
 				<</if>>
 				<br><br>
-				$farm.tower_guard helps you to your feet.
+				$alexFarm.towerGuard.name helps you to your feet.
 
 				<<if $NPCList[0].traits.includes("relaxed")>>
 					"You alright?" <<he>> asks. "Sit the rest of this out if you need to. I'll keep Alex up to speed."
@@ -2132,17 +2103,20 @@ $farm.tower_guard fights nearby.
 				<br><br>
 				<<tearful>> you climb down the stairs.
 				<br><br>
-				<<set $farm_assault.tower to "manned">>
-				<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+				<<set $alexFarm.assault.fight.towerState to "manned">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 			<<else>>
-				<<farm_assault_thugs>> <span class="red">overpower $farm.tower_guard, and knock <<him>> from the tower.</span> They cheer before rushing down the stairs, paying you no heed.
+				<<farm_assault_thugs>> <span class="red">overpower $alexFarm.towerGuard.name, and knock <<him>> from the tower.</span> They cheer before rushing down the stairs, paying you no heed.
 				<br><br>
 
 				<<tearful>> you climb to your feet, then down the tower.
 				<br><br>
-				<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-				<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
-				<<set $farm_assault.tower to "defeated">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined>>/*No free field left.*/
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
+				<</if>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+				<<set $alexFarm.assault.fight.towerState to "defeated">>
 			<</if>>
 		<</if>>
 	<</for>>
@@ -2158,7 +2132,7 @@ $farm.tower_guard fights nearby.
 :: Farm Assault Charge Bailey
 <<effects>>
 
-You charge the thugs. They spin to face you, giving $farm.tower_guard an opening.
+You charge the thugs. They spin to face you, giving $alexFarm.towerGuard.name an opening.
 <br><br>
 
 <<link [[Next|Farm Assault Tower Bailey Fight]]>><<set $fightstart to 1>><</link>>
@@ -2178,7 +2152,7 @@ You charge the thugs. They spin to face you, giving $farm.tower_guard an opening
 	<<set $enemyarousalmax *= 1.3>>
 <</if>>
 
-$farm.tower_guard fights nearby.
+$alexFarm.towerGuard.name fights nearby.
 <br><br>
 
 <<effects>>
@@ -2199,9 +2173,9 @@ $farm.tower_guard fights nearby.
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>>
 	<<if $enemynomax gte 2>>
-		The thugs stagger away from you. They need a breather, but look ready to continue fighting. Until $farm.tower_guard sends <<his>> colleague plummeting from the tower. They turn and run down the stairs.
+		The thugs stagger away from you. They need a breather, but look ready to continue fighting. Until $alexFarm.towerGuard.name sends <<his>> colleague plummeting from the tower. They turn and run down the stairs.
 	<<else>>
-		<<He>> staggers away from you. <<He>> needs a breather, but looks ready to continue fighting. Until $farm.tower_guard sends <<his>> colleague plummeting from the tower. <<He>> turns and runs down the stairs.
+		<<He>> staggers away from you. <<He>> needs a breather, but looks ready to continue fighting. Until $alexFarm.towerGuard.name sends <<his>> colleague plummeting from the tower. <<He>> turns and runs down the stairs.
 	<</if>>
 	<br><br>
 	<<tearful>> you rest against the railing.
@@ -2211,13 +2185,13 @@ $farm.tower_guard fights nearby.
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"That's a strange way to fight," $farm.tower_guard says. "If it works, it works."
+		"That's a strange way to fight," $alexFarm.towerGuard.name says. "If it works, it works."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"I've some friends who want to get into sex work," $farm.tower_guard says. "They could learn from you."
+		"I've some friends who want to get into sex work," $alexFarm.towerGuard.name says. "They could learn from you."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"That's one way to do it," $farm.tower_guard says. "I don't judge. We survive the way we can."
+		"That's one way to do it," $alexFarm.towerGuard.name says. "I don't judge. We survive the way we can."
 	<<else>>
-		"Wish you gave me that treatment," $farm.tower_guard laughs.
+		"Wish you gave me that treatment," $alexFarm.towerGuard.name laughs.
 	<</if>>
 	<<gstress>><<stress 6>>
 	<<endevent>>
@@ -2225,19 +2199,18 @@ $farm.tower_guard fights nearby.
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<elseif $enemyhealth lte 0>>
 	<<if $enemynomax gte 2>>
-		You smack the <<person1>><<person>> from the tower. $farm.tower_guard's opponent follows suit. The <<person2>><<person>> smirks, before turning and running down the stairs.
+		You smack the <<person1>><<person>> from the tower. $alexFarm.towerGuard.name's opponent follows suit. The <<person2>><<person>> smirks, before turning and running down the stairs.
 	<<else>>
-		You smack the <<person1>><<person>> from the tower. $farm.tower_guard's opponent follows suit.
+		You smack the <<person1>><<person>> from the tower. $alexFarm.towerGuard.name's opponent follows suit.
 	<</if>>
 	<br><br>
 	<<tearful>> you rest on the railing.
@@ -2247,13 +2220,13 @@ $farm.tower_guard fights nearby.
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"Couldn't end any other way," $farm.tower_guard laughs. "We'll send the next ones packing too."
+		"Couldn't end any other way," $alexFarm.towerGuard.name laughs. "We'll send the next ones packing too."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"That was almost fun," $farm.tower_guard laughs. "Maybe next time we'll break a sweat."
+		"That was almost fun," $alexFarm.towerGuard.name laughs. "Maybe next time we'll break a sweat."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"Job done, but there might be more coming," $farm.tower_guard says. "Thanks for the assist."
+		"Job done, but there might be more coming," $alexFarm.towerGuard.name says. "Thanks for the assist."
 	<<else>>
-		$farm.tower_guard holds out <<his>> hand for a high five. "We showed em," <<he>> says. "Maybe you'll reward me later? A <<girl_npc>> can dream."
+		$alexFarm.towerGuard.name holds out <<his>> hand for a high five. "We showed em," <<he>> says. "Maybe you'll reward me later? A <<girl_npc>> can dream."
 	<</if>>
 	<br><br>
 	<<endevent>>
@@ -2261,38 +2234,36 @@ $farm.tower_guard fights nearby.
 	<<link [[Next|Farm Assault]]>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<else>>
 	You fall against the railing, too hurt to continue fighting.
 	<<if $enemynomax gte 2>>
-		The thugs turn their attention to $farm.tower_guard, and rush to their colleague's aid.
+		The thugs turn their attention to $alexFarm.towerGuard.name, and rush to their colleague's aid.
 	<<else>>
-		The <<person1>><<person>> turns <<his>> attention to $farm.tower_guard, and rushes to <<his>> colleague's aid.
+		The <<person1>><<person>> turns <<his>> attention to $alexFarm.towerGuard.name, and rushes to <<his>> colleague's aid.
 	<</if>>
 	<br><br>
 	<<endcombat>>
 
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
 			There's a struggle, until
-			<<if $farm.tower_guard_skill gte random(1, ($farm_assault.teams[_assault_keys[_s]].number * 1000))>>
-				$farm.tower_guard <span class="green">punches one assailant off the tower.</span>
-				<<if $farm_assault.teams[_assault_keys[_s]].number gte 3>>
+			<<if $alexFarm.towerGuard.skill gte random(1, ($alexFarm.assault.fight.teams[_teamIndex].thugsLeft * 1000))>>
+				$alexFarm.towerGuard.name <span class="green">punches one assailant off the tower.</span>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].thugsLeft gte 3>>
 					The other thugs laugh, then turn and flee down the stairs.
 				<<else>>
 					The other thug laughs, then turns and flees down the stairs.
 				<</if>>
 				<br><br>
-				$farm.tower_guard helps you to your feet.
+				$alexFarm.towerGuard.name helps you to your feet.
 
 				<<if $NPCList[0].traits.includes("relaxed")>>
 					"You alright?" <<he>> asks. "Sit the rest of this out if you need to. I'll keep Alex up to speed."
@@ -2306,17 +2277,20 @@ $farm.tower_guard fights nearby.
 				<br><br>
 				<<tearful>> you climb down the stairs.
 				<br><br>
-				<<set $farm_assault.tower to "manned">>
-				<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+				<<set $alexFarm.assault.fight.towerState to "manned">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 			<<else>>
-				<<farm_assault_thugs>> <span class="red">overpower $farm.tower_guard, and knock <<him>> from the tower.</span> They cheer before rushing down the stairs, paying you no heed.
+				<<farm_assault_thugs>> <span class="red">overpower $alexFarm.towerGuard.name, and knock <<him>> from the tower.</span> They cheer before rushing down the stairs, paying you no heed.
 				<br><br>
 
 				<<tearful>> you climb to your feet, then down the tower.
 				<br><br>
-				<<set $farm_assault.teams[_assault_keys[_s]].location to $farm_assault.no.pluck()>>
-				<<set $farm_assault.teams[_assault_keys[_s]].state to "field">>
-				<<set $farm_assault.tower to "defeated">>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].location to $alexFarm.assault.fight.freeFieldsForTeams.pluck()>>
+				<<if $alexFarm.assault.fight.teams[_teamIndex].location is undefined>>/*No free field left.*/
+					<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
+				<</if>>
+				<<set $alexFarm.assault.fight.teams[_teamIndex].state to "field">>
+				<<set $alexFarm.assault.fight.towerState to "defeated">>
 			<</if>>
 		<</if>>
 	<</for>>
@@ -2332,7 +2306,7 @@ $farm.tower_guard fights nearby.
 <<effects>>
 
 
-You move as fast as you think you can get away with. $farm.tower_guard tries to keep the thugs' attention.
+You move as fast as you think you can get away with. $alexFarm.towerGuard.name tries to keep the thugs' attention.
 <br><br>
 
 <<skulduggerycheck>>
@@ -2340,13 +2314,13 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 
 	<span class="green">You make it right up to a <<person>>, and shove.</span> <<He>> cries out in surprise as <<he>> flips over the railing, plummeting from the tower.
 	<<if $enemynomax gte 2>>
-		<<His>> colleagues turn in surprise. $farm.tower_guard seizes the opening, and smacks a <<person2>><<person>> in the face. <<He>> staggers back, then trips and tumbles down the stairs.
+		<<His>> colleagues turn in surprise. $alexFarm.towerGuard.name seizes the opening, and smacks a <<person2>><<person>> in the face. <<He>> staggers back, then trips and tumbles down the stairs.
 		<br><br>
 
 		The remaining thug runs after <<him>>.
 		<br><br>
 	<<else>>
-		<<His>> colleague turns in surprise. $farm.tower_guard seizes the opening with a punch, and sends the remaining thug tumbling down the stairs.
+		<<His>> colleague turns in surprise. $alexFarm.towerGuard.name seizes the opening with a punch, and sends the remaining thug tumbling down the stairs.
 		<br><br>
 	<</if>>
 
@@ -2354,30 +2328,29 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"You can think on your feet," $farm.tower_guard says. "I'm glad you were here."
+		"You can think on your feet," $alexFarm.towerGuard.name says. "I'm glad you were here."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"That's what you get," $farm.tower_guard shouts off the tower. <<He>> turns to you. "Thanks for the backup. I'll get back to spotting."
+		"That's what you get," $alexFarm.towerGuard.name shouts off the tower. <<He>> turns to you. "Thanks for the backup. I'll get back to spotting."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"Nice one," $farm.tower_guard says. "I'll get back to work."
+		"Nice one," $alexFarm.towerGuard.name says. "I'll get back to work."
 	<<else>>
-		"We make a good team," $farm.tower_guard says. "Maybe we'll team up in other ways later." <<He>> laughs.
+		"We make a good team," $alexFarm.towerGuard.name says. "Maybe we'll team up in other ways later." <<He>> laughs.
 	<</if>>
 	<br><br>
 
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<else>>
 
-	<span class="red">The floorboards creak,</span> and the thugs swivel to face you. $farm.tower_guard capitalises on the distraction, and punches the closest.
+	<span class="red">The floorboards creak,</span> and the thugs swivel to face you. $alexFarm.towerGuard.name capitalises on the distraction, and punches the closest.
 	<br><br>
 
 	<<skulduggeryuse>>
@@ -2390,7 +2363,7 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 :: Farm Assault Sneak Bailey
 <<effects>>
 
-You move as fast as you think you can get away with. $farm.tower_guard tries to keep the thugs' attention.
+You move as fast as you think you can get away with. $alexFarm.towerGuard.name tries to keep the thugs' attention.
 <br><br>
 
 <<skulduggerycheck>>
@@ -2398,13 +2371,13 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 
 	<span class="green">You make it right up to a <<person>>, and shove.</span> <<He>> cries out in surprise as <<he>> flips over the railing, plummeting from the tower.
 	<<if $enemynomax gte 2>>
-		<<His>> colleagues turn in surprise. $farm.tower_guard seizes the opening, and smacks a <<person2>><<person>> in the face. <<He>> staggers back, then trips and tumbles down the stairs.
+		<<His>> colleagues turn in surprise. $alexFarm.towerGuard.name seizes the opening, and smacks a <<person2>><<person>> in the face. <<He>> staggers back, then trips and tumbles down the stairs.
 		<br><br>
 
 		The remaining thug flashes you a smile, then runs after <<him>>.
 		<br><br>
 	<<else>>
-		<<His>> colleague turns in surprise. $farm.tower_guard seizes the opening with a punch, and sends the remaining thug tumbling down the stairs.
+		<<His>> colleague turns in surprise. $alexFarm.towerGuard.name seizes the opening with a punch, and sends the remaining thug tumbling down the stairs.
 		<br><br>
 	<</if>>
 
@@ -2412,30 +2385,29 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 	<<endevent>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
-		"You can think on your feet," $farm.tower_guard says. "I'm glad you were here."
+		"You can think on your feet," $alexFarm.towerGuard.name says. "I'm glad you were here."
 	<<elseif $NPCList[0].traits.includes("sociable")>>
-		"That's what you get," $farm.tower_guard shouts off the tower. <<He>> turns to you. "Thanks for the backup. I'll get back to spotting."
+		"That's what you get," $alexFarm.towerGuard.name shouts off the tower. <<He>> turns to you. "Thanks for the backup. I'll get back to spotting."
 	<<elseif $NPCList[0].traits.includes("brooding")>>
-		"Nice one," $farm.tower_guard says. "I'll get back to work."
+		"Nice one," $alexFarm.towerGuard.name says. "I'll get back to work."
 	<<else>>
-		"We make a good team," $farm.tower_guard says. "Maybe we'll team up in other ways later." <<He>> laughs.
+		"We make a good team," $alexFarm.towerGuard.name says. "Maybe we'll team up in other ways later." <<He>> laughs.
 	<</if>>
 	<br><br>
 
 	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
 	<br>
 
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<for _s to 0; _s lt _assault_keys.length; _s++>>
-		<<if $bus is $farm_assault.teams[_assault_keys[_s]].location>>
-			<<set $farm_assault.teams[_assault_keys[_s]].location to "done">>
+	<<for _teamIndex to 0; _teamIndex lt $alexFarm.assault.fight.teams.length; _teamIndex++>>
+		<<if $bus is $alexFarm.assault.fight.teams[_teamIndex].location>>
+			<<set $alexFarm.assault.fight.teams[_teamIndex].location to "done">>
 		<</if>>
 	<</for>>
-	<<set $farm_assault.tower to "manned">>
+	<<set $alexFarm.assault.fight.towerState to "manned">>
 
 <<else>>
 
-	<span class="red">The floorboards creak,</span> and the thugs swivel to face you. $farm.tower_guard capitalises on the distraction, and punches the closest.
+	<span class="red">The floorboards creak,</span> and the thugs swivel to face you. $alexFarm.towerGuard.name capitalises on the distraction, and punches the closest.
 	<br><br>
 
 	<<skulduggeryuse>>
@@ -2446,7 +2418,7 @@ You move as fast as you think you can get away with. $farm.tower_guard tries to 
 <</if>>
 
 :: Farm Assault Intercept Wraith
-<<effects>><<set _assault_keys to Object.keys($farm_assault.teams)>>
+<<effects>>
 
 <<if !Memories.IvoryWraith.has("firstEncounter")>>
 	<<run Memories.IvoryWraith.add("firstEncounter")>>
@@ -2480,8 +2452,7 @@ An ember crackles at <<his>> finger. <span class="red">The slime begins to sprea
 	<<set $rescue to 0>>
 	<<set $enemytype to $ivoryWraith.fight.combatType>>
 	<<set $ivoryWraith.hunt.exitTo to "farm_assault">>
-	<<set _assault_keys to Object.keys($farm_assault.teams)>>
-	<<set $timer to 12 - $farm_assault.teams[_assault_keys[$farm_assault.wraith]].field_progress - Math.floor(C.npc["Ivory Wraith"].lust/4)>>
+	<<set $timer to 12 - $alexFarm.assault.fight.teams[$alexFarm.assault.fight.wraithTeamIndex].fieldProgress - Math.floor(C.npc["Ivory Wraith"].lust/4)>>
 <</if>>
 <<set $enemyanger += 10>>
 
@@ -2511,7 +2482,7 @@ An ember crackles at <<his>> finger. <span class="red">The slime begins to sprea
 :: Farm Assault Wraith Fight Finish
 <<effects>>
 <<if $enemyarousal gte $enemyarousalmax>>
-	<<set _bind to 1>>
+	<<set _wraithBindsPc to true>>
 	With a hiss, <span class="green">the embers fizz out</span>.
 	<<ejaculation>>
 
@@ -2555,7 +2526,7 @@ An ember crackles at <<his>> finger. <span class="red">The slime begins to sprea
 	<<exitWraith>>
 
 <<elseif $timer lte 0>>
-	<<set _torch to 1>>
+	<<set _wraithTorchesField to true>>
 	The pale figure flicks a single spark off its fingertip, onto the slime coating the field. It spreads, and <span class="red">the field bursts into flames.</span> You're not burnt, but the field is torched in front of your eyes. Your heart sinks.
 	<<control -10>><<stress 12>><<trauma 6>><<lcontrol>><<ggstress>><<gtrauma>>
 	<br><br>
@@ -2572,7 +2543,7 @@ An ember crackles at <<his>> finger. <span class="red">The slime begins to sprea
 	<<exitWraith>>
 
 <<else>>
-	<<set _bind to 1>><<set _torch to 1>>
+	<<set _wraithBindsPc to true>><<set _wraithTorchesField to true>>
 	You fall to the earth, too hurt to continue fighting.
 	<br><br>
 
@@ -2599,12 +2570,11 @@ An ember crackles at <<his>> finger. <span class="red">The slime begins to sprea
 <</if>>
 <br>
 
-<<set _assault_keys to Object.keys($farm_assault.teams)>>
-<<if _bind is 1>>
-	<<set $farm_assault.bindings to 6>>
+<<if _wraithBindsPc>>
+	<<set $alexFarm.assault.fight.pcBindings to 6>>
 	<<bind>>
 <</if>>
-<<if _torch is 1>>
-	<<damage_farm "target" $farm_assault.teams[_assault_keys[$farm_assault.wraith]].location>>
+<<if _wraithTorchesField>>
+	<<damage_farm "target" $alexFarm.assault.fight.teams[$alexFarm.assault.fight.wraithTeamIndex].location>>
 <</if>>
-<<set $farm_assault.teams[_assault_keys[$farm_assault.wraith]].location to "done">>
+<<set $alexFarm.assault.fight.teams[$alexFarm.assault.fight.wraithTeamIndex].location to "done">>

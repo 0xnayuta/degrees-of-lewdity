@@ -2,13 +2,13 @@
 <<set $outside to 1>><<set $location to "alex_farm">><<set $bus to "farm">><<effects>>
 <<farm_work_update>>
 You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Other buildings nestle between trees and hedgerows.
-<<if !hasSexStat("exhibitionism", 5) and $exposed gte 2 and $farm_naked is 1>>
+<<if !hasSexStat("exhibitionism", 5) and $exposed gte 2 and $alexFarm.pcWorkingNaked>>
 	With so many places to hide your <<lewdness>>, you do your best to avoid exposing yourself and avoid Alex where you can.
 	<br><br>
 <</if>>
 
-<<if $farm.build>>
-	<<switch $farm.build>>
+<<if $alexFarm.upgrades.buildInProgress>>
+	<<switch $alexFarm.upgrades.buildInProgress>>
 	<<case "wall 1">>
 		<span class="lblue">The wall is being repaired.</span>
 	<<case "wall 2">>
@@ -52,15 +52,15 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br><br>
 <</if>>
 
-<<if $farm_stage lte 6>>
-	You'll earn <<moneyGainDisplay $farm.wage>> for every hour worked.
+<<if $alexFarm.stage lte 6>>
+	You'll earn <<moneyGainDisplay $alexFarm.hourlyWage>> for every hour worked.
 	<br><br>
-<<elseif !$farm.build>>
+<<elseif !$alexFarm.upgrades.buildInProgress>>
 	<br><br>
 <</if>>
 
 <<if ($exposed gte 2 and $uncomfortable.nude is true) or ($exposed is 1 and $uncomfortable.underwear is true)>>
-	<<if $farm.build_timer gte 1 and Time.hour gte 6>>
+	<<if $alexFarm.upgrades.daysUntilBuilt gte 1 and Time.hour gte 6>>
 		You sneak across the farm, keeping your <<lewdness>> covered as best you can. You hope you aren't spotted by the workers.
 	<<else>>
 		You sneak across the farm, keeping your <<lewdness>> covered as best you can.
@@ -69,36 +69,36 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <</if>>
 
 
-<<if $farm_stage lt 12>>
-	<<set _clearing to (100 - $farm.clearing)>>
+<<if $alexFarm.stage lt 12>>
+	<<set _clearing to (100 - $alexFarm.clearingLeft)>>
 	<<set _percent=Math.floor((_clearing/100)*100)>>
 	One of the fields is being cleared,
-	<<if $farm.clearing lte 0>>
+	<<if $alexFarm.clearingLeft lte 0>>
 		<span class="green">and is ready for planting!</span>
 		<div class="meter">
 		<<print '<div class="greenbar" style="width:' + _percent + '%"></div>'>>
 		</div>
-	<<elseif $farm.clearing lte 20>>
+	<<elseif $alexFarm.clearingLeft lte 20>>
 		<span class="teal">and is almost ready for planting.</span>
 		<div class="meter">
 		<<print '<div class="tealbar" style="width:' + _percent + '%"></div>'>>
 		</div>
-	<<elseif $farm.clearing lte 40>>
+	<<elseif $alexFarm.clearingLeft lte 40>>
 		<span class="lblue">and is starting to look civilised.</span>
 		<div class="meter">
 		<<print '<div class="lbluebar" style="width:' + _percent + '%"></div>'>>
 		</div>
-	<<elseif $farm.clearing lte 60>>
+	<<elseif $alexFarm.clearingLeft lte 60>>
 		<span class="blue">and soil has been exposed in places.</span>
 		<div class="meter">
 		<<print '<div class="bluebar" style="width:' + _percent + '%"></div>'>>
 		</div>
-	<<elseif $farm.clearing lte 80>>
+	<<elseif $alexFarm.clearingLeft lte 80>>
 		<span class="purple">but the tangle remains defiant.</span>
 		<div class="meter">
 		<<print '<div class="purplebar" style="width:' + _percent + '%"></div>'>>
 		</div>
-	<<elseif $farm.clearing lte 99>>
+	<<elseif $alexFarm.clearingLeft lte 99>>
 		<span class="pink">but little progress has been made.</span>
 		<div class="meter">
 		<<print '<div class="pinkbar" style="width:' + _percent + '%"></div>'>>
@@ -113,12 +113,12 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <</if>>
 
 
-<<if $farm_count is undefined>>
-	<<set $farm_count to 0>>
-<<elseif $farm_count gte 60>>
-	<<set $farm_count -= 60>>
-	<<if $farm_stage lte 6>>
-		You've earned <<moneyGain $farm.wage>>.
+<<if $daily.alexFarm.minutesTowardsWage is undefined>>
+	<<set $daily.alexFarm.minutesTowardsWage to 0>>
+<<elseif $daily.alexFarm.minutesTowardsWage gte 60>>
+	<<set $daily.alexFarm.minutesTowardsWage -= 60>>
+	<<if $alexFarm.stage lte 6>>
+		You've earned <<moneyGain $alexFarm.hourlyWage>>.
 		<br><br>
 	<</if>>
 <</if>>
@@ -126,18 +126,18 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<if isPregnancyEnding()>>
 	<<pcFarmBirth>>
 
-<<elseif $farm_attacked>>
+<<elseif $alexFarm.assault.happenedWhilePcAway>>
 	<<farm_damage_report>>
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
 <<elseif $stress gte 10000>>
 	<<passoutfarmroad>>
-<<elseif $farm_attack_timer is 0 and Time.hour gte 21>>
+<<elseif $alexFarm.assault.daysUntilNext is 0 and Time.hour gte 21>>
 	<<npc Alex>><<person1>>
 	Alex rushes over. <span class="red">"Remy's here,"</span> <<he>> says. "We can do this. Go get ready, I'll
-	<<if $farm.tower_guard>>
-		check on $farm.tower_guard."
+	<<if $alexFarm.towerGuard.name>>
+		check on $alexFarm.towerGuard.name."
 	<<else>>
 		see if I can spot them."
 	<</if>>
@@ -159,24 +159,24 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 <<elseif numberOfEarSlime() and $daily.slimeFarmNaked is true and $slimeFarmNakedStored is undefined>>
 	Following the slime's command, you find a spot where you think your clothes will be safe and strip before heading to work.
 	<<undressclothes "farmHidingSpot">><<set $slimeFarmNakedStored to true>><<set $daily.slimeFarmNaked to true>>
-	<<if $farm_stage gte 7>><<set $farm_naked to 1>><</if>>
+	<<if $alexFarm.stage gte 7>><<set $alexFarm.pcWorkingNaked to true>><</if>>
 	<br><br>
 	<<link [[Next|Farm Work]]>><</link>>
-<<elseif numberOfEarSlime() and $daily.slimeFarmNaked is true and ($worn.lower.name.includes("towel") or $worn.upper.name.includes("towel")) and $farm_naked is 1>>
+<<elseif numberOfEarSlime() and $daily.slimeFarmNaked is true and ($worn.lower.name.includes("towel") or $worn.upper.name.includes("towel")) and $alexFarm.pcWorkingNaked>>
 	<<generalRuined "upper">><<generalRuined "lower">>
 	Following the slime's command, you leave the towel for Alex to find.
 	<br><br>
 	<<link [[Next|Farm Work]]>><</link>>
-<<elseif (Time.betweenHours(22, 5) or (Time.hour is 21 and $farm_end is 1)) and $farm_stage lt 7>>
+<<elseif (Time.betweenHours(22, 5) or (Time.hour is 21 and $daily.alexFarm.alexEndedWorkday)) and $alexFarm.stage lt 7>>
 	<<sneakicon>><<link [[Sneak into the barn (0:05)|Farm Barn]]>><<pass 5>><</link>>
 	<br><br>
 	<<farmicon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
-<<elseif $exposed gte 2 and $farm_naked isnot 1 and $farm_stage lt 7>>
+<<elseif $exposed gte 2 and !$alexFarm.pcWorkingNaked and $alexFarm.stage lt 7>>
 	You hide behind a fence, concealing your <<lewdness>>.
 	<br><br>
 	<<if hasSexStat("exhibitionism", 5)>>
-		<<ind>><<link [[Work anyway|Farm Work Naked]]>><<npcincr Alex lust 3>><<set $farm_naked to 1>><</link>><<exhibitionist5>><<gglust>>
+		<<ind>><<link [[Work anyway|Farm Work Naked]]>><<npcincr Alex lust 3>><<set $alexFarm.pcWorkingNaked to true>><</link>><<exhibitionist5>><<gglust>>
 		<br>
 	<<elseif $slimeFarmNakedStored is true>>
 		<<if hasSexStat("exhibitionism", 4)>>
@@ -189,12 +189,12 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 			<<set _stress to 40>>
 			<<set _trauma to 40>>
 		<</if>>
-		<<ind>><<link [[Work anyway|Farm Work Naked]]>><<npcincr Alex lust 3>><<set $farm_naked to 1>><<stress _stress>><<trauma _trauma>><</link>><<gglust>>
+		<<ind>><<link [[Work anyway|Farm Work Naked]]>><<npcincr Alex lust 3>><<set $alexFarm.pcWorkingNaked to true>><<stress _stress>><<trauma _trauma>><</link>><<gglust>>
 		<<if _stress is 40>><<ggstress>><<else>><<gstress>><</if>>
 		<<if _trauma is 40>><<ggtrauma>><<elseif _trauma is 5>><<gtrauma>><</if>>
 		<br>
 	<</if>>
-	<<if $farm_work.alex isnot undefined and $farm_work.alex isnot "shower" and Time.betweenHours(6, 20) and $slimeFarmNakedStored is undefined>>
+	<<if $alexFarm.workday.alexTask isnot undefined and $alexFarm.workday.alexTask isnot "shower" and Time.betweenHours(6, 20) and $slimeFarmNakedStored is undefined>>
 		<<outfitChecks>>
 		<<if (_shirtless and $player.gender_appearance is "f") or _bottomExposed>>
 			<<shopicon "clothing">><<link [[Ask Alex for clothes (0:05)|Farm Alex Clothes]]>><<pass 5>><<farm_yield -1>><<npcincr Alex dom 1>><<npcincr Alex lust 1>><</link>><<exhibitionist1>><<lfarm>><<gdom "Alex">><<glust>>
@@ -208,7 +208,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alex.hadHangover and $rng gte 76 and !$daily.alex.pcSpiedInShower and $farm_work.alex isnot "shower">>
+<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alex.hadHangover and $rng gte 76 and !$daily.alex.pcSpiedInShower and $alexFarm.workday.alexTask isnot "shower">>
 	<<set $weekly.alex.hadHangover to true>>
 
 	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
@@ -216,23 +216,23 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Alex Hungover]]>><</link>>
 
-<<elseif ($farm_shift gte 360 or $farm.clearing lte 50) and $farm_stage is 2>>
+<<elseif ($alexFarm.totalMinutesWorked gte 360 or $alexFarm.clearingLeft lte 50) and $alexFarm.stage is 2>>
 	<<farmVisitor>>
-<<elseif $farm_stage is 3 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 3 and $alexFarm.clearingLeft lte 0>>
 	<<earnFeat "Farmhand">>
 	<<farmStage4>>
-<<elseif $farm_stage is 4 and $farm.clearing lte 0>>
-	<<set $farm.aggro to 0>>
+<<elseif $alexFarm.stage is 4 and $alexFarm.clearingLeft lte 0>>
+	<<set $alexFarm.remyEncroachment to 0>>
 	<<farmStage5>>
 	<<run Memories.Remy.add("cameToAlexFarm")>>
 	<<set $remy.lastMetAt to "alexFarm">>
-<<elseif $farm_stage is 5 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 5 and $alexFarm.clearingLeft lte 0>>
 	<<earnFeat "Farmer">>
-	<<set $farm_countdown to 3>>
+	<<set $alexFarm.daysUntilFire to 3>>
 	<<farmStage6>>
-<<elseif $farm_stage is 6 and ($farm_countdown lte 0 or $farm.clearing lte 50)>>
+<<elseif $alexFarm.stage is 6 and ($alexFarm.daysUntilFire lte 0 or $alexFarm.clearingLeft lte 50)>>
 	<<farmStage7>>
-<<elseif $farm_stage gte 7 and C.npc.Alex.love gte 50 and $alex.daysUntilConfession lte 0 and Time.betweenHours(5, 20)>>
+<<elseif $alexFarm.stage gte 7 and C.npc.Alex.love gte 50 and $alex.daysUntilConfession lte 0 and Time.betweenHours(5, 20)>>
 	<<npc Alex>><<person1>>
 	You return to the courtyard in front of the farmhouse. You hear footsteps fast approaching. You turn just in time to see Alex. With a laugh, <<he>> grapples and drags you off your feet.
 	<br><br>
@@ -246,19 +246,19 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br>
 	<<link [[Flirt|Farm Love Flirt]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><<unset $alex.daysUntilConfession>><<set $alex.romance to true>><</link>><<promiscuous1>><<glove>><<gglust>>
 	<br>
-<<elseif $farm_stage is 7 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 7 and $alexFarm.clearingLeft lte 0>>
 	<<farmStage8>>
-<<elseif $farm_stage is 8 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 8 and $alexFarm.clearingLeft lte 0>>
 	<<farmStage9>>
-<<elseif $farm_stage is 9 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 9 and $alexFarm.clearingLeft lte 0>>
 	<<farmStage10>>
-<<elseif $farm_stage is 10 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 10 and $alexFarm.clearingLeft lte 0>>
 	<<farmStage11>>
-<<elseif $farm_stage is 11 and $farm.clearing lte 0>>
+<<elseif $alexFarm.stage is 11 and $alexFarm.clearingLeft lte 0>>
 	<<earnFeat "Cultivator">>
 	<<farmStage12>>
-<<elseif Time.hour is 21 and $farm_end is undefined and $farm_stage lt 7>>
-	<<set $farm_end to 1>>
+<<elseif Time.hour is 21 and !$daily.alexFarm.alexEndedWorkday and $alexFarm.stage lt 7>>
+	<<set $daily.alexFarm.alexEndedWorkday to true>>
 	<<npc Alex>><<person1>>
 	<<if $exposed gt 0 and Time.season is "winter">>
 		Alex wipes the sweat off <<his>> forehead as <<he>> approaches you. "Done for another day," <<he>> says, blushing. "It's getting rather cold, you might want to wear something warmer." <<glust>><<npcincr Alex lust 1>>
@@ -270,9 +270,9 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		Alex wipes the sweat off <<his>> forehead as <<he>> approaches you. "Done for another day," <<he>> says, smiling.
 		<br><br>
 	<</if>>
-	<<if $farm_count gte 1 and $farm_stage lte 6>>
+	<<if $daily.alexFarm.minutesTowardsWage gte 1 and $alexFarm.stage lte 6>>
 		<<wearProp "cash">>
-		"Here's a little extra." <<He>> hands you <<moneyGain $farm.wage>>.
+		"Here's a little extra." <<He>> hands you <<moneyGain $alexFarm.hourlyWage>>.
 		<br><br>
 	<</if>>
 
@@ -285,34 +285,34 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<<link [[Next|Farmland]]>><<endevent>><</link>>
 
 	<</if>>
-<<elseif $farm.build_finished.includes("wall 1")>>
-	<<run $farm.build_finished.delete("wall 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("wall 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("wall 1")>>
 	You examine the perimeter wall. <span class="gold">The stonework is repaired,</span> and now envelops the entire farm. Aside from the entrance, the river, and the great hedge. You feel more secure.<<lltrauma>><<llstress>><<trauma -12>><<stress -12>>
 	<br><br>
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("wall 2")>>
-	<<run $farm.build_finished.delete("wall 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("wall 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("wall 2")>>
 	You examine the perimeter wall. <span class="gold">The stone has been reinforced with cement.</span> Remy's goons will have a harder time damaging it.
 	<br><br>
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("wall 3")>>
-	<<run $farm.build_finished.delete("wall 3")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("wall 3")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("wall 3")>>
 	The project is complete. <span class="gold">A tall metal fence now surrounds the farm.</span> Intruders will have a harder time getting in. You feel more secure.
 	<<lltrauma>><<llstress>><<trauma -12>><<stress -12>>
 	<br><br>
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("wall 4")>>
-	<<run $farm.build_finished.delete("wall 4")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("wall 4")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("wall 4")>>
 	<span class="gold">The fence now menaces with barbed wire.</span> No one's getting over.
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("tower 1")>>
-	<<run $farm.build_finished.delete("tower 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("tower 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("tower 1")>>
 	<<npc Alex>><<person1>>
 	<<loadNPC 1 "alexs_parent1">>
 	<span class="gold">A watchtower now stands guard over the fields.</span> You stand at its base. It looms above you. A head appears, leaning out the top. It's Alex.
@@ -329,15 +329,15 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("tower 2")>>
-	<<run $farm.build_finished.delete("tower 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("tower 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("tower 2")>>
 	<span class="gold">A searchlight now gazes from the watchtower.</span> No more hiding in the dark.
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("woodland 1")>>
-	<<run $farm.build_finished.delete("woodland 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("woodland 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("woodland 1")>>
 	<<location "forest">>
 	<span class="gold">You enter the farm's new woodland.</span>
 	<<if Time.dayState is "night">>
@@ -350,16 +350,16 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("woodland 2")>>
-	<<run $farm.build_finished.delete("woodland 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("woodland 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("woodland 2")>>
 	<<location "forest">>
 	<span class="gold">You enter the new woodland. Fruit hangs overhead, and fat mushrooms grow all around.</span> You glimpse the fence between the trees, separating you from outside threats, and feel at ease.<<ltrauma>><<llstress>><<trauma -6>><<stress -12>>
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("woodland 3")>>
-	<<run $farm.build_finished.delete("woodland 3")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("woodland 3")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("woodland 3")>>
 	<<location "forest">>
 	<span class="gold">You explore the farm's new woodland, now large enough to get lost in.</span> You find Alex already lazing beneath a tree atop a hillock.
 	<br><br>
@@ -378,8 +378,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<<link [[Say Alex should come indoors (0:05)|Farm Woodland Safe Indoors]]>><<npcincr Alex dom 1>><<pass 5>><</link>><<gdom>>
 		<br>
 	<</if>>
-<<elseif $farm.build_finished.includes("kennel 1")>>
-	<<run $farm.build_finished.delete("kennel 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("kennel 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("kennel 1")>>
 	You hear the baying of hounds. You follow the sound to the kennel. <span class="gold">A yard has been enclosed outside, a safe training area for the <<farm_text_many dog>>.</span> You watch as one rips the head off a human-shaped dummy.
 	<br><br>
 
@@ -388,8 +388,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("barn 1")>>
-	<<run $farm.build_finished.delete("barn 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("barn 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("barn 1")>>
 	"Hey," it's Alex. "Come check this out."
 	<br><br>
 	<<npc Alex>><<person1>>
@@ -397,7 +397,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br><br>
 
 	"We'll get more milk now." <<He>> scratches a <<farm_text cattle>> behind the ear. "I think our
-	<<if $farm_work.cattle.gender is "m">>
+	<<if $alexFarm.workday.cattle.gender is "m">>
 		boys
 	<<else>>
 		girls
@@ -410,8 +410,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("barn 2")>>
-	<<run $farm.build_finished.delete("barn 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("barn 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("barn 2")>>
 	<<npc Alex>><<person1>>
 	<<loadNPC 1 "alexs_parent1">>
 	<span class="gold">You enter the expanded barn.</span> Alex is already there, calming one of the newcomers, an ill-tempered <<farm_text cattle>>. <<He>> waves at you. "We've got a lively herd," <<he>> says. "Almost as big as <<person2>><<mum>>'s. The one <<he>> manages directly, anyway."
@@ -422,11 +422,11 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("stable 1")>>
-	<<run $farm.build_finished.delete("stable 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("stable 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("stable 1")>>
 	<span class="gold">You approach the expanded stable.</span> Soft classical music plays within.
 	<br><br>
-	<<if $farm_work.horse.monster>>
+	<<if $alexFarm.workday.horse.monster>>
 		"This is more suitable," a <<farm_text horse>> says as you pass. "Thank you."
 		<br><br>
 	<<else>>
@@ -436,10 +436,10 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("coop 1")>>
-	<<run $farm.build_finished.delete("coop 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("coop 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("coop 1")>>
 	<span class="gold">You approach the expanded coop.</span>
-	<<if $farm_work.chickens_out is 1>>
+	<<if $alexFarm.workday.chickensOut is 1>>
 		The yard is busier than it's ever been.
 	<<else>>
 		It's much longer, with roosting perches extending along the entire length.
@@ -449,10 +449,10 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("coop 2")>>
-	<<run $farm.build_finished.delete("coop 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("coop 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("coop 2")>>
 	<span class="gold">You approach the expanded coop.</span>
-	<<if $farm_work.chickens_out is 1>>
+	<<if $alexFarm.workday.chickensOut is 1>>
 		You're greeted by a sea of chickens. They swarm across the yard, looking for food.
 	<<else>>
 		It now has multiple rooms, each sheltering many chickens.
@@ -464,8 +464,8 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("parasites 1")>>
-	<<run $farm.build_finished.delete("parasites 1")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("parasites 1")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("parasites 1")>>
 	<span class="gold">You approach the newly built parasite barn.</span>
 	The inside is filled with plenty of space for your parasites, with some basic equipment to look after them.
 	<br><br>
@@ -474,17 +474,17 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br><br>
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("parasites 2")>>
-	<<run $farm.build_finished.delete("parasites 2")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("parasites 2")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("parasites 2")>>
 	<span class="gold">You approach the expanded parasite barn.</span>
 	The expanded interior is filled with a little more space for your parasites, with some more advanced equipment to better look after them.
 	<br><br>
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.build_finished.includes("irrigation")>>
-	<<run $farm.build_finished.delete("irrigation")>>
+<<elseif $alexFarm.upgrades.finishedUnseen.includes("irrigation")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("irrigation")>>
 	<span class="gold">You approach the fields.</span>
-	<<switch $farm.irrigation>>
+	<<switch $alexFarm.upgrades.irrigatedFields>>
 		<<case 1>>
 			The irrigation system for the first field is completed, the first step in many.
 		<<case 2 3 4>>
@@ -501,7 +501,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<br><br>
 	<<link [[Next|Farm Work]]>><<endevent>><</link>>
 	<br>
-<<elseif $farm.tower_guard and $farm.tower_guard_unpaid gte 2 and $farm.tower_guard_patience isnot 1>>
+<<elseif $alexFarm.towerGuard.name and $alexFarm.towerGuard.weeksUnpaid gte 2 and !$weekly.alexFarm.guardAgreedToWait>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
 		"Hey, farmer <<girl>>," says <<print $NPCList[0].name>>, your guard. <<He>> approaches you. "Here to get my pay."
@@ -547,7 +547,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 		<<link [[Next|Farm Alex Birth]]>><</link>>
 
-	<<elseif $farm_work isnot undefined and $farm_work.alex isnot undefined and npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1 and !$farm_work.alex.includes("shower","admin","clearing") and between(Time.hour, 6, 21)>>
+	<<elseif $alexFarm.workday isnot undefined and $alexFarm.workday.alexTask isnot undefined and npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1 and !["shower","admin"].includes($alexFarm.workday.alexTask) and !($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12) and between(Time.hour, 6, 21)>>
 		<<npc "Alex">>
 		Alex approaches you. You can see a nervous expression on <<his>> face.
 		<br><br>
@@ -700,32 +700,32 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<elseif $exposed lte 0 and (getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).carrier === "Alex") or getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).donor === "Alex")) and !$daily.alex.hadChildrenScene and $rng gte 56 and Time.betweenHours(8, 15)>>
 		<<alex_baby_interactions>>
 
-	<<elseif $farm_yield_alex gte 1 and !(Time.betweenHours(22, 5) or (Time.hour is 21 and $farm_end is 1)) and $farm_work.alex isnot "shower">>
+	<<elseif $alexFarm.yieldOwedToPc gte 1 and !(Time.betweenHours(22, 5) or (Time.hour is 21 and $daily.alexFarm.alexEndedWorkday)) and $alexFarm.workday.alexTask isnot "shower">>
 		<<npc Alex>><<person1>>
 		<<set _alex to C.npc.Alex>>
 		"Hey," shouts Alex, striding towards you. "We've had a better yield than expected lately," <<he>> says, grasping your hand in <<his>> own and pressing something into your palm.
 		<<if _alex.dom gte 30>>
-			<<if $farm_stage gte 7>>
+			<<if $alexFarm.stage gte 7>>
 				<span class="pink">"You deserve a little for your help, partner."</span>
 			<<else>>
 				<span class="pink">"Keep at it. You'll make a fine farmer someday."</span>
-			<</if>> <span class="gold">You've earned <<moneyGain `$farm_yield_alex * 9`>>.</span>
+			<</if>> <span class="gold">You've earned <<moneyGain `$alexFarm.yieldOwedToPc * 9`>>.</span>
 			<br><br>
 
 		<<elseif _alex.dom lte -30>>
-			<<if $farm_stage gte 7>>
+			<<if $alexFarm.stage gte 7>>
 				<span class="teal">"Hope you don't mind handling the profits, partner."</span>
 			<<else>>
 				<span class="teal">"Dunno what I'd do without you, so this is fair."</span>
-			<</if>> <span class="gold">You've earned <<moneyGain `$farm_yield_alex * 24`>>.</span>
+			<</if>> <span class="gold">You've earned <<moneyGain `$alexFarm.yieldOwedToPc * 24`>>.</span>
 			<br><br>
 
 		<<else>>
-			<<if $farm_stage gte 7>>
+			<<if $alexFarm.stage gte 7>>
 				<span class="blue">"Here's your share of the profits, partner."</span>
 			<<else>>
 				<span class="blue">"Your doing, so this is fair. You've a way with the animals."</span>
-			<</if>> <span class="gold">You've earned <<moneyGain `$farm_yield_alex * 18`>>.</span>
+			<</if>> <span class="gold">You've earned <<moneyGain `$alexFarm.yieldOwedToPc * 18`>>.</span>
 			<br><br>
 
 		<</if>>
@@ -739,28 +739,28 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 		<</if>>
 
-		<<unset $farm_yield_alex>>
-	<<elseif $farm_work.recent_shift gte $farm_work.event_time and $farm_event isnot 1 and Time.dayState isnot "night">>
-		<<set $farm_event to 1>>
+		<<unset $alexFarm.yieldOwedToPc>>
+	<<elseif $alexFarm.workday.minutesWorked gte $alexFarm.workday.eventAfterMinutes and !$daily.alexFarm.workEventPlayed and Time.dayState isnot "night">>
+		<<set $daily.alexFarm.workEventPlayed to true>>
 		<<eventsfarm>>
 	<<else>>
 		<<if $arousal gte $arousalmax>>
 			<<orgasmLocation "alexFarmWork">>
 		<</if>>
-		<<if $farm_stage gte 7>>
+		<<if $alexFarm.stage gte 7>>
 			<<farmicon "cottage">><<link [[Cottage (0:01)|Farm Cottage]]>><<pass 1>><</link>>
 			<br>
 			<<gardenicon "plot">><<link [[Fields (0:05)|Farm Fields]]>><<pass 5>><<set $eventskip to 1>><</link>>
 			<br>
 
-			<<if $farm_work.alex isnot "shower">>
+			<<if $alexFarm.workday.alexTask isnot "shower">>
 				<<bathroomicon "shower">><<link [[Shower shed (0:01)|Farm Shed]]>><<pass 1>><</link>>
 				<br>
 			<</if>>
 			<!-- Go to farm barn passage if outside of farming hours, go to cattle milking passage otherwise. -->
-			<<if Time.betweenHours(22, 5) or (Time.hour is 21 and $farm_end is 1)>>
+			<<if Time.betweenHours(22, 5) or (Time.hour is 21 and $daily.alexFarm.alexEndedWorkday)>>
 				<!-- Determine whether you can access the barn normally with Alex's consent. -->
-				<<if $farm.milking isnot undefined and $farm.milking.dayMilking>>
+				<<if $alexFarm.milking.alexAllowsDayMilking>>
 					<<farmicon "barn">><<link [[Barn (0:02)|Farm Barn]]>><<pass 2>><</link>>
 				<<else>>
 					<<farmicon "barn">><<link [[Sneak into the barn (0:05)|Farm Barn]]>><<pass 5>><</link>>
@@ -770,27 +770,27 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 			<</if>>
 			<br>
 		<</if>>
-		<<if $farm_stage gte 9>>
+		<<if $alexFarm.stage gte 9>>
 			<<farmicon "lab">><<link [[Lab (0:01)|Farm Still]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
-		<<if $farm.woodland gte 1>>
+		<<if $alexFarm.upgrades.woodland gte 1>>
 			<<foresticon>><<link [[Woodland (0:05)|Farm Woodland]]>><<pass 5>><</link>>
 			<br>
 		<</if>>
-		<<if $farm_stage gte 7 and !$farm_kennel>>
+		<<if $alexFarm.stage gte 7 and !$daily.alexFarm.pcUsedKennelToday>>
 			<<farmicon "kennel">><<link [[Kennel (0:03)|Farm Kennel]]>><<pass 3>><</link>>
 			<br>
 		<</if>>
-		<<if $farm.parasitebarn gte 1>>
+		<<if $alexFarm.upgrades.parasiteBarn gte 1>>
 			<<containersLink>>
 		<</if>>
 		<br>
 
 		<<farm_work>>
 
-		<<if $farm_stage gte 7>>
-			<<if $farm.steed>>
+		<<if $alexFarm.stage gte 7>>
+			<<if $per_npc.saddled_steed>>
 				<<steedicon>><<link [[Saddle a steed|Farm Saddle]]>><</link>>
 				<br>
 			<<else>>
@@ -811,7 +811,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 Following the slime's command, you find a spot where you think your clothes will be safe and strip before heading to work.
 
 <<undressclothes "farmHidingSpot">><<set $slimeFarmNakedStored to true>><<set $daily.slimeFarmNaked to true>>
-<<if $farm_stage gte 7>><<set $farm_naked to 1>><</if>>
+<<if $alexFarm.stage gte 7>><<set $alexFarm.pcWorkingNaked to true>><</if>>
 
 <br><br>
 
@@ -829,7 +829,7 @@ Following the slime's command, you find a spot where you think your clothes will
 	<br><br>
 	Following the slime's command, you find a spot where you think your clothes will be safe and strip before heading to work.
 	<<undressclothes "farmHidingSpot">><<set $slimeFarmNakedStored to true>><<set $daily.slimeFarmNaked to true>>
-	<<if $farm_stage gte 7>><<set $farm_naked to 1>><</if>>
+	<<if $alexFarm.stage gte 7>><<set $alexFarm.pcWorkingNaked to true>><</if>>
 	<br><br>
 
 	<<link [[Next|Farm Work]]>><</link>>
@@ -1039,13 +1039,13 @@ You get dressed in the kitchen. You hear Alex come down the stairs. <<He>> asks 
 <<effects>>
 
 You walk around the edge of the farm.
-<<if $farm.wall gte 4>>
+<<if $alexFarm.upgrades.wall gte 4>>
 	It is surrounded by a stone wall that serves as a foundation for a tall metal fence. The top menaces with barbed wire.
-<<elseif $farm.wall is 3>>
+<<elseif $alexFarm.upgrades.wall is 3>>
 	It is surrounded by a stone wall that serves as a foundation for a tall metal fence.
-<<elseif $farm.wall is 2>>
+<<elseif $alexFarm.upgrades.wall is 2>>
 	It is surrounded by a stone and cement wall, which looks much older in places.
-<<elseif $farm.wall is 1>>
+<<elseif $alexFarm.upgrades.wall is 1>>
 	It is surrounded by a stone wall, which looks much older in places.
 <<else>>
 	Most of it is bordered by a wooden fence, which gives way to an ancient stone wall in places. You find traces of the stone elsewhere, as if it once surrounded the whole farm.
@@ -1055,11 +1055,11 @@ You walk around the edge of the farm.
 A great hedge shields most of the fields from the forest beyond, though some are bordered instead by a river. The lands around the farm are wild. You're not sure if they've ever been cultivated.
 <br><br>
 
-<<if $farm_work.fence_damage gte 10>>
+<<if $alexFarm.workday.fenceDamage gte 10>>
 	The damage is extensive. <span class="red">It looks deliberate.</span>
-<<elseif $farm_work.fence_damage gte 5>>
+<<elseif $alexFarm.workday.fenceDamage gte 5>>
 	<span class="pink">The damage is extensive, as if it were deliberate.</span>
-<<elseif $farm_work.fence_damage gte 1>>
+<<elseif $alexFarm.workday.fenceDamage gte 1>>
 	<span class="purple">The wall and fence are in need of repair.</span>
 <<else>>
 	Everything seems to be in order.
@@ -1095,7 +1095,7 @@ A great hedge shields most of the fields from the forest beyond, though some are
 		<br>
 		<<link [[Scream|Farm Yard Scream]]>><</link>><<gdom "Alex">>
 		<br>
-		<<if $farm_stage gte 10 and $lurkers_held lt 1>>
+		<<if $alexFarm.stage gte 10 and $lurkers_held lt 1>>
 			<<link [[Hurl net|Farm Yard Hurl net]]>><</link>><<dancedifficulty 1 1200>><<athleticsdifficulty 0 1200>>
 			<br>
 		<</if>>
@@ -1121,11 +1121,11 @@ You release the chickens from their coop, then enter to clean up. It's large eno
 
 <<if dangerEvent()>>
 	<<farm_gen dog>>
-	<<if beastSexEnabledForType("dog", $farm_work.dog.monster)>>
-		<<if $farm_work.dog.monster is true>>
-			<<beastNEWinit 1 dog $farm_work.dog.gender $farm_work.dog.genitals monster>>
+	<<if beastSexEnabledForType("dog", $alexFarm.workday.dog.monster)>>
+		<<if $alexFarm.workday.dog.monster is true>>
+			<<beastNEWinit 1 dog $alexFarm.workday.dog.gender $alexFarm.workday.dog.genitals monster>>
 		<<else>>
-			<<beastNEWinit 1 dog $farm_work.dog.gender $farm_work.dog.genitals beast>>
+			<<beastNEWinit 1 dog $alexFarm.workday.dog.gender $alexFarm.workday.dog.genitals beast>>
 		<</if>>
 		You hear movement behind you. Before you can turn to investigate, something leaps on you from behind. You drop to your knees, clutching the wire fence for support.
 		<br><br>
@@ -1257,8 +1257,8 @@ You enter the sty, and release the <<farm_text_many pig>>. They walk down the ai
 -->
 <<if _fullyNaked or dangerEvent(1.25)>>
 <!-- Modified for monster people -->
-	<<if beastSexEnabledForType("pig", $farm_work.pig.monster)>>
-		<<if $farm_work.pig.monster is true>>
+	<<if beastSexEnabledForType("pig", $alexFarm.workday.pig.monster)>>
+		<<if $alexFarm.workday.pig.monster is true>>
 			The last one grasps your <<hairDetails>>, and tries to force you to the ground.
 		<<else>>
 			The last one rears on its hind legs, and tries to force you to the ground.
@@ -1315,7 +1315,7 @@ Alex smiles as you take the bucket. "Thanks. Will be faster with both of us."
 
 You help Alex carry feed across the yard, spilling it over the fence and into the troughs.
 
-<<if $farm_work.pigs_fed gte 6>>
+<<if $alexFarm.workday.pigsFed gte 6>>
 	The <<farm_text_many pig>> eat the feed with gusto, but by the end<span class="green"> lie on their sides, content.</span>
 <<else>>
 	<span class="blue">The <<farm_text_many pig>> devour the feed. Seems they're still hungry.</span>
@@ -1323,7 +1323,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 <br><br>
 
 <<if _fullyNaked or dangerEvent(1.25)>>
-	<<if !$weekly.farmNauseaEvent and $rng gte 86 and playerIsPregnant() and playerAwareTheyArePregnant() and between(pregnancyProgress(getPlayerPregnancy()), 0.1, 0.3)>>
+	<<if !$weekly.alexFarm.pcFeltNauseous and $rng gte 86 and playerIsPregnant() and playerAwareTheyArePregnant() and between(pregnancyProgress(getPlayerPregnancy()), 0.1, 0.3)>>
 		As you lift the bucket, you catch a strong whiff of the slop within. Immediately, your stomach churns,
 		and you all but drop the bucket in your haste to get away from the smell. You stumble back a few steps,
 		trying to will your stomach to settle.
@@ -1347,7 +1347,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 			currentSkillValue("skulduggery") gte random(100, 300)
 		]>>
 		<<set _attemptOne to random(0, 2)>>
-		<<if beastSexEnabledForType("pig", $farm_work.pig.monster) and _checkResults[_attemptOne]>>
+		<<if beastSexEnabledForType("pig", $alexFarm.workday.pig.monster) and _checkResults[_attemptOne]>>
 			Something catches your
 			<<if _attemptOne is 0>> <<hairDetails>>
 			<<elseif _attemptOne is 1>> _top.name
@@ -1355,14 +1355,14 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 			<</if>>
 			as you turn away from the trough.
 
-			<<if $farm.beasts.pigs lte -20 and $rng gte 51>>
+			<<if $alexFarm.animalRespect.pigs lte -20 and $rng gte 51>>
 				One of the <<farm_text_many pig>> has reached over the fence.
-				<<if $farm_work.pig.monster is true>>"You're not finished here," <<farm_he pig>> says. <</if>>
+				<<if $alexFarm.workday.pig.monster is true>>"You're not finished here," <<farm_he pig>> says. <</if>>
 				<<farm_He pig>> tries to pull you inside.
 				<br><br>
 
 				<<if _checkResults[4]>>
-					"Down!" you say. You tug against <<farm_his pig>> <<= $farm_work.pig.monster is true ? "arm," : "snout,">>
+					"Down!" you say. You tug against <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "arm," : "snout,">>
 					<span class="green">and <<farm_he pig>> hesitates.</span> <<farm_He pig>> spots Alex grabbing a rake, and decides to let you go.
 					<<farm_pigs 3>><<ggrespect>>
 					<br><br>
@@ -1371,7 +1371,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 					<<npcincr Alex love 1>><<npcincr Alex dom -1>><<glove>><<ldom>>
 					<br><br>
 				<<else>>
-					"D-Down!" you say. You tug against <<farm_his pig>> <<= $farm_work.pig.monster is true ? "arm," : "snout,">> but your voice trembles and the <<farm_text pig>> ignores you. <<farm_He pig>> yanks you over the fence.
+					"D-Down!" you say. You tug against <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "arm," : "snout,">> but your voice trembles and the <<farm_text pig>> ignores you. <<farm_He pig>> yanks you over the fence.
 					<!-- Bonus pain if the PC was grabbed by their hair. -->
 					<<if _attemptOne is 0>> <<violence 1>><<gpain>> <</if>>
 					<br><br>
@@ -1384,11 +1384,11 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 				<<link [[Next|Farm Work]]>><<endevent>><</link>>
 				<br>
 			<<else>>
-				One of the <<farm_text_many pig>> has stuck <<farm_his pig>> <<= $farm_work.pig.monster is true ? "arm" : "snout">> through the fence, and grasps your
+				One of the <<farm_text_many pig>> has stuck <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "arm" : "snout">> through the fence, and grasps your
 				<<if _attemptOne is 0>> hair
 				<<else>> clothing
 				<</if>>
-				in <<farm_his pig>> <<= $farm_work.pig.monster is true ? "hand." : "mouth.">>
+				in <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "hand." : "mouth.">>
 				<br><br>
 
 				<<if _checkResults[3]>>
@@ -1476,7 +1476,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 		<</if>>
 	<<else>>
 		"Down!" Alex says behind you. You turn. One of the <<farm_text pig>>s has grasped Alex's
-		<<if $pronoun is "f">>skirt<<else>>shorts<</if>> in <<farm_his pig>> <<= $farm_work.pig.monster is true ? "hands" : "mouth">>.
+		<<if $pronoun is "f">>skirt<<else>>shorts<</if>> in <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "hands" : "mouth">>.
 		<br><br>
 
 		<<link [[Scold the <<farm_text pig>>|Farm Pigs Alex Scold]]>><</link>><<tendingdifficulty 1 600>>
@@ -1502,7 +1502,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 -->
 <<if currentSkillValue('physique') gte 14000>>
 	You pour feed into a couple of buckets and traipse across the field. The buckets are heavy, <span class="green">but no trouble for someone of your strength.</span>
-	<<set $farm_work.pigs_fed += 1>><<physique 2>><<grespect>><<farm_pigs 1>>
+	<<set $alexFarm.workday.pigsFed += 1>><<physique 2>><<grespect>><<farm_pigs 1>>
 	<br><br>
 <<else>>
 	You pour feed into a couple of buckets and traipse across the field. Your arms ache by the time you arrive at the sty.<<physique 2>>
@@ -1512,7 +1512,7 @@ You help Alex carry feed across the yard, spilling it over the fence and into th
 
 You empty the buckets in the troughs.
 
-<<if $farm_work.pigs_fed gte 6>>
+<<if $alexFarm.workday.pigsFed gte 6>>
 	The <<farm_text_many pig>> eat the feed with gusto, but by the end they <span class="green">lie on their sides, content.</span>
 <<else>>
 	<span class="blue">The <<farm_text_many pig>> devour the feed. Seems they're still hungry.</span>
@@ -1533,13 +1533,14 @@ You empty the buckets in the troughs.
 	<<set _attemptTwo to random(0, 2)>>
 	<<set _grabbed to ((_checkResults[_attemptOne]) or (not _checkResults[3] and _checkResults[_attemptTwo]))>>
 
-	<<if beastSexEnabledForType("pig", $farm_work.pig.monster) and !$weekly.farmNauseaEvent and $rng gte 86 and playerIsPregnant() and playerAwareTheyArePregnant() and between(pregnancyProgress(getPlayerPregnancy()), 0.1, 0.3)>>
+	<<if beastSexEnabledForType("pig", $alexFarm.workday.pig.monster) and !$weekly.alexFarm.pcFeltNauseous and $rng gte 86 and playerIsPregnant() and playerAwareTheyArePregnant() and between(pregnancyProgress(getPlayerPregnancy()), 0.1, 0.3)>>
+		<<set $weekly.alexFarm.pcFeltNauseous to true>>
 		As you lift the bucket, you catch a strong whiff of the slop within. Immediately, your stomach churns, and you all but drop the bucket in your haste to get away from the smell. You stumble back a few steps, trying to will your stomach to settle.
 		<br><br>
 
 		<<if random(0, 2) is 0>>
 			You lean on the fence for support. Closing your eyes to fight down the waves of nausea, you hear a growl from behind you. You look back to see a <<farm_text dog>> sniffing your rear.
-			<<if $farm_work.dog.monster is true>> "Smells good. I like it. I want it," <<farm_he dog>> says. <</if>><<farm_He dog>> tries to mount you. You try to fend <<farm_him dog>> off, but feel too weak to resist.
+			<<if $alexFarm.workday.dog.monster is true>> "Smells good. I like it. I want it," <<farm_he dog>> says. <</if>><<farm_He dog>> tries to mount you. You try to fend <<farm_him dog>> off, but feel too weak to resist.
 			<br><br>
 
 			<<link [[Next|Farm Dogs Rape]]>><<set $molestationstart to 1>><</link>>
@@ -1606,7 +1607,7 @@ You empty the buckets in the troughs.
 				<<link [[Next|Farm Work]]>><</link>>
 			<</if>>
 		<</if>>
-	<<elseif beastSexEnabledForType("pig", $farm_work.pig.monster) and _grabbed>>
+	<<elseif beastSexEnabledForType("pig", $alexFarm.workday.pig.monster) and _grabbed>>
 		<<if _checkResults[_attemptOne]>>
 			<<set _firstSuccess to _attemptOne>>
 		<<else>>
@@ -1620,9 +1621,9 @@ You empty the buckets in the troughs.
 		<</if>>
 		as you turn away from the trough.
 
-		<<if $farm.beasts.pigs lte -20 and $rng gte 51>>
+		<<if $alexFarm.animalRespect.pigs lte -20 and $rng gte 51>>
 			One of the <<farm_text_many pig>> has reached over the fence.
-			<<if $farm_work.pig.monster is true>>"You're not finished here," <<farm_he pig>> says. <</if>>
+			<<if $alexFarm.workday.pig.monster is true>>"You're not finished here," <<farm_he pig>> says. <</if>>
 			<<farm_He pig>> tries to pull you inside.
 			<br><br>
 
@@ -1631,11 +1632,11 @@ You empty the buckets in the troughs.
 			<<link [[Call for help|Farm Pigs Feed Extreme Help]]>><<npcincr Alex dom 1>><<farm_pigs -1>><</link>><<gdom "Alex">><<lrespect>>
 			<br>
 		<<else>>
-			One of the <<farm_text_many pig>> has stuck <<farm_his pig>> <<= $farm_work.pig.monster is true ? "arm" : "snout">> through the fence, and grasps your
+			One of the <<farm_text_many pig>> has stuck <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "arm" : "snout">> through the fence, and grasps your
 			<<if _firstSuccess is 0>> hair
 			<<else>> clothing
 			<</if>>
-			in <<farm_his pig>> <<= $farm_work.pig.monster is true ? "hand." : "mouth.">>
+			in <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "hand." : "mouth.">>
 			<br><br>
 
 			<<set $phase to _firstSuccess>>
@@ -1665,7 +1666,7 @@ You empty the buckets in the troughs.
 			<<else>> waist,
 			<</if>>
 		<</if>>
-		but you smack away <<farm_his pig>> <<= $farm_work.pig.monster is true ? "arm." : "snout.">> "No! Bad <<farm_text pig>>!" you say,
+		but you smack away <<farm_his pig>> <<= $alexFarm.workday.pig.monster is true ? "arm." : "snout.">> "No! Bad <<farm_text pig>>!" you say,
 		as the <<farm_text pig>> backs away. <<farm_He pig>> eyes you warily.<<farm_pigs 1>><<grespect>>
 		<br><br>
 
@@ -1688,7 +1689,7 @@ You empty the buckets in the troughs.
 <</if>>
 
 :: Farm Pigs Feed Nausea
-<<effects>><<set $weekly.farmNauseaEvent to true>>
+<<effects>><<set $weekly.alexFarm.pcFeltNauseous to true>>
 
 "Hey! What—" Alex's confused reaction stops short as <<he>> catches sight of the expression on your face. You turn away, leaning forward and placing your hands on your knees. You try to swallow against the spasming in your throat. <<gpain>><<violence 3>>
 <br><br>
@@ -1748,9 +1749,9 @@ You spend a few minutes resting in the kitchen and drinking your tea. Feeling re
 You herd the <<farm_text_many pig>> back into the sty. Some of them remain lying down, reluctant to move, and need cajoling.
 
 <<if _fullyNaked or dangerEvent(1.25)>>
-	<<if beastSexEnabledForType("pig", $farm_work.pig.monster)>>
+	<<if beastSexEnabledForType("pig", $alexFarm.workday.pig.monster)>>
 		You manage to get the last to stand. You're leading <<farm_him pig>> inside when <<farm_he pig>>
-		<<= $farm_work.pig.monster is true ? "grasps your arms" : "rears on its hind legs">> and tries to force you to the ground.
+		<<= $alexFarm.workday.pig.monster is true ? "grasps your arms" : "rears on its hind legs">> and tries to force you to the ground.
 		<br><br>
 
 		<<link [[Scold|Farm Pigs Scold]]>><</link>><<tendingdifficulty 1 600>>
@@ -1788,9 +1789,9 @@ You open each stall, releasing the <<farm_text_many horse>> within. They know wh
 
 <<if dangerEvent() and beastSexEnabledForType("horse")>>
 <!-- Modified for Monster People -->
-	<<if beastSexEnabledForType("horse", $farm_work.horse.monster)>>
+	<<if beastSexEnabledForType("horse", $alexFarm.workday.horse.monster)>>
 		Most run by, eager to stretch their legs, but a couple hang back.
-		<<if $farm_work.horse.monster is true>>
+		<<if $alexFarm.workday.horse.monster is true>>
 			One of them steps in front of you, and pushes you away from the gate. "We don't appreciate being penned up," <<farm_he horse>> says as a pair of powerful hands grasp your shoulders from behind. "How's about you give us a little something by way of apology?"
 			<br><br>
 			The hands travel down your arms, pinning them to your side as the centaur in front runs a finger down your chest.<<gstress>><<stress 6>>
@@ -1806,7 +1807,7 @@ You open each stall, releasing the <<farm_text_many horse>> within. They know wh
 			One of them shoves you away from the gate with its nose, while another blocks your escape.<<gstress>><<stress 6>>
 			<br><br>
 
-			<<if $farm.beasts.horses lte -20>>
+			<<if $alexFarm.animalRespect.horses lte -20>>
 				<<link [[Scold|Farm Horses Scold]]>><</link>><<tendingdifficulty 1 1200>>
 				<br>
 			<<else>>
@@ -1841,7 +1842,7 @@ You open each stall, releasing the <<farm_text_many horse>> within. They know wh
 
 	You approach a <<farm_text horse>>, brush in hand.
 
-	<<if $farm.beasts.horses gte 5>>
+	<<if $alexFarm.animalRespect.horses gte 5>>
 		<<farm_He horse>> runs towards you, eager.
 	<<else>>
 		<<farm_He horse>> watches you warily.
@@ -1857,7 +1858,7 @@ You open each stall, releasing the <<farm_text_many horse>> within. They know wh
 	<<link [[Chase|Farm Horses Chase]]>><<tiredness 2>><</link>><<athleticsdifficulty 1 1000>><<gtiredness>>
 	<br>
 	<!-- Modified for Monster People -->
-	<<if hasSexStat("deviancy", 2) and beastSexEnabledForType("horse", $farm_work.horse.monster)>>
+	<<if hasSexStat("deviancy", 2) and beastSexEnabledForType("horse", $alexFarm.workday.horse.monster)>>
 		<<link [[Seduce|Farm Horses Seduce]]>><</link>><<deviant2>>
 		<br>
 	<</if>>
@@ -1872,10 +1873,10 @@ You approach a <<farm_text horse>>. You take <<farm_his horse>> bridle in hand a
 <br><br>
 
 
-<<link [[Use your hands (0:05)|Farm Horses Lewd Hands]]>><<pass 5>><<farm_count 5>><<farm_yield 1>><<set $farm_work.horses_satisfied += 1>><<handskill 5>><<set $handstat += 1>><<set $handejacstat += 1>><</link>><<deviant3>><<gfarm>><<ghandskill>>
+<<link [[Use your hands (0:05)|Farm Horses Lewd Hands]]>><<pass 5>><<farm_count 5>><<farm_yield 1>><<set $alexFarm.workday.horsesSatisfied += 1>><<handskill 5>><<set $handstat += 1>><<set $handejacstat += 1>><</link>><<deviant3>><<gfarm>><<ghandskill>>
 <br>
 <<if hasSexStat("deviancy", 4)>>
-	<<link [[Use your mouth (0:05)|Farm Horses Lewd Mouth]]>><<pass 5>><<farm_count 5>><<farm_yield 1>><<set $farm_work.horses_satisfied += 1>><<oralskill 5>><</link>><<deviant4>><<gfarm>><<goralskill>>
+	<<link [[Use your mouth (0:05)|Farm Horses Lewd Mouth]]>><<pass 5>><<farm_count 5>><<farm_yield 1>><<set $alexFarm.workday.horsesSatisfied += 1>><<oralskill 5>><</link>><<deviant4>><<gfarm>><<goralskill>>
 	<br>
 <</if>>
 <<if hasSexStat("deviancy", 5)>>
@@ -1891,16 +1892,16 @@ You approach a <<farm_text horse>>. You take <<farm_his horse>> bridle in hand a
 :: Farm Horses Lewd Hands
 <<effects>>
 
-You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his horse>> <<if $farm_work.horse.genitals is "vagina">>equine pussy<<else>>huge penis<</if>>. You reach out, and touch it.
+You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his horse>> <<if $alexFarm.workday.horse.genitals is "vagina">>equine pussy<<else>>huge penis<</if>>. You reach out, and touch it.
 <<deviancy3>>
 
-<<if $farm_work.horse.monster is true>>
+<<if $alexFarm.workday.horse.monster is true>>
 	"I like how you think," the <<farm_text horse>> says. "No need to be gentle."
 <<else>>
 
 <</if>>
 
-<<if $farm_work.horse.genitals is "vagina">>
+<<if $alexFarm.workday.horse.genitals is "vagina">>
 	You rub with both hands, pushing your fingers inside. You shift your body so you can get a better angle.
 <<else>>
 	You take <<farm_his horse>> length in both hands, and feel <<farm_him horse>> erect beneath your touch. You rub, shifting your body to a better angle.
@@ -1911,7 +1912,7 @@ You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his ho
 	<<farm_He horse>> starts bucking against your hands, <span class="green">but you manage to keep up.</span> <<farm_He horse>> moves faster, until <<farm_his horse>> whole body shudders in orgasm.
 
 
-	<<if $farm_work.horse.genitals is "penis">>
+	<<if $alexFarm.workday.horse.genitals is "penis">>
 		Semen shoots from <<farm_his horse>> penis, pooling on the grass below.
 	<</if>>
 	<br><br>
@@ -1936,7 +1937,7 @@ You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his ho
 
 You keep it up, until the <<farm_text horse>> shudders in orgasm.
 
-<<if $farm_work.horse.genitals is "penis">>
+<<if $alexFarm.workday.horse.genitals is "penis">>
 	Semen shoots from <<farm_his horse>> penis, pooling on the grass below.
 <</if>>
 <br><br>
@@ -1952,16 +1953,16 @@ You give <<farm_him horse>> a moment to recover, then lead <<farm_him horse>> ba
 :: Farm Horses Lewd Mouth
 <<effects>>
 
-You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his horse>> <<if $farm_work.horse.genitals is "vagina">>equine pussy<<else>>huge penis<</if>>. You lean forward, tongue first, and lick.
+You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his horse>> <<if $alexFarm.workday.horse.genitals is "vagina">>equine pussy<<else>>huge penis<</if>>. You lean forward, tongue first, and lick.
 <<deviancy4>>
 
-<<if $farm_work.horse.monster is true>>
+<<if $alexFarm.workday.horse.monster is true>>
 	"I was hoping you'd do that," the <<farm_text horse>> says.
 <<else>>
 
 <</if>>
 
-<<if $farm_work.horse.genitals is "vagina">>
+<<if $alexFarm.workday.horse.genitals is "vagina">>
 	You wiggle your tongue inside. It was meant for something much larger, so you compensate with dexterity, wriggling this way and that, trying to find a weak spot.
 <<else>>
 	You run your tongue along its length, feeling <<farm_his horse>> cock erect with each pulse. There's no way you could fit something so large in your mouth, but your tongue gives it as much attention as it can.
@@ -1973,7 +1974,7 @@ You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his ho
 	<<farm_He horse>> starts bucking against your face. You grasp <<farm_his horse>> hind legs, <span class="green">and manage to remain steady.</span> <<farm_He horse>> moves faster, until <<farm_his horse>> whole body shudders in orgasm.
 
 
-	<<if $farm_work.horse.genitals is "penis">>
+	<<if $alexFarm.workday.horse.genitals is "penis">>
 		Semen shoots from <<farm_his horse>> penis, splattering over your face and dripping on your <<breasts>>.
 		<<bodyliquid "face" "semen">><<bodyliquid "chest" "semen">><<faceejacstat>><<ejacstat>>
 	<</if>>
@@ -1997,7 +1998,7 @@ You drop to your knees beside the <<farm_text horse>>, and observe <<farm_his ho
 
 Despite the difficulty, you persevere until the <<farm_text horse>>'s body shudders in orgasm.
 
-<<if $farm_work.horse.genitals is "penis">>
+<<if $alexFarm.workday.horse.genitals is "penis">>
 	Semen shoots from <<farm_his horse>> penis, splattering over your face and dripping on your <<breasts>>.
 	<<bodyliquid "face" "semen">><<bodyliquid "chest" "semen">><<faceejacstat>><<ejacstat>>
 <</if>>
@@ -2026,15 +2027,15 @@ You bend over a bale of hay, and pull the <<farm_text horse>> until <<farm_he ho
 	<<set $consensual to 1>>
 	<<neutral 1>>
 
-	<<if $farm_work.horse.monster is true>>
-		<<beastNEWinit 1 horse $farm_work.horse.gender $farm_work.horse.genitals monster>>
+	<<if $alexFarm.workday.horse.monster is true>>
+		<<beastNEWinit 1 horse $alexFarm.workday.horse.gender $alexFarm.workday.horse.genitals monster>>
 	<<else>>
-		<<beastNEWinit 1 horse $farm_work.horse.gender $farm_work.horse.genitals beast>>
+		<<beastNEWinit 1 horse $alexFarm.workday.horse.gender $alexFarm.workday.horse.genitals beast>>
 	<</if>>
 	<<beastCombatInit>>
 
 	<<set $NPCList[0].stance to "top">>
-	<<if $farm_work.horse.genitals is "penis">>
+	<<if $alexFarm.workday.horse.genitals is "penis">>
 		<<set $position to "doggy">>
 	<<else>>
 		<<set $position to "missionary">>
@@ -2066,7 +2067,7 @@ You bend over a bale of hay, and pull the <<farm_text horse>> until <<farm_he ho
 
 	<<beastejaculation>>
 
-	You hold the <<farm_text horse>>'s bridle as <<farm_he horse>> shakes above you. You climb off the hay bale.<<gfarm>><<farm_yield 1>><<set $farm_work.horses_satisfied += 1>>
+	You hold the <<farm_text horse>>'s bridle as <<farm_he horse>> shakes above you. You climb off the hay bale.<<gfarm>><<farm_yield 1>><<set $alexFarm.workday.horsesSatisfied += 1>>
 	<br><br>
 
 	<<clotheson>>
@@ -2095,7 +2096,7 @@ You bend over a bale of hay, and pull the <<farm_text horse>> until <<farm_he ho
 
 <<else>>
 
-	<<if $farm_work.horse.monster is true>>
+	<<if $alexFarm.workday.horse.monster is true>>
 		"You're such a tease," the centaur says. <<farm_He horse>> turns and runs back to the field.
 	<<else>>
 		The <<farm_text horse>> neighs in frustration, and runs back to the field.
@@ -2130,7 +2131,7 @@ You call the <<farm_text_many horse>>, and lead them from the field. They seem h
 	<<link [[Call Alex|Farm Horses In Alex]]>><<npcincr Alex dom 1>><<farm_horses -1>><</link>><<lrespect>><<gdom "Alex">>
 	<br>
 	<!-- Modified for Monster People -->
-	<<if hasSexStat("deviancy", 2) and beastSexEnabledForType("horse", $farm_work.horse.monster)>>
+	<<if hasSexStat("deviancy", 2) and beastSexEnabledForType("horse", $alexFarm.workday.horse.monster)>>
 		<<link [[Seduce|Farm Horses In Seduce]]>><</link>><<deviant2>>
 	<</if>>
 	<br>
@@ -2178,7 +2179,7 @@ You open the barn doors, and release the <<farm_text_many cattle>> from their pe
 <<effects>>
 
 You enter the cattle barn.
-<<if $farm.barn gte 1>>
+<<if $alexFarm.upgrades.barn gte 1>>
 	A large, glowing milking machine sits in the middle.
 <<else>>
 	A large milking machine sits in the middle.
@@ -2194,17 +2195,17 @@ The <<farm_text_many cattle>> prefer to be milked by hand, but the machine can m
 
 You lead the <<farm_text_many cattle>> into the barn, and strap them into the machine.
 
-<<if beastSexEnabledForType("cow", $farm_work.cattle.monster)>>
-	<<if $cattle_milked lte 6>>
-		<<if $farm_work.cattle.monster>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+<<if beastSexEnabledForType("cow", $alexFarm.workday.cattle.monster)>>
+	<<if $alexFarm.totalCattleMilked lte 6>>
+		<<if $alexFarm.workday.cattle.monster>>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				<<if $settings.maleNPCVaginaChance gte 100>>
 					Alex gave you simple instructions, but you hesitate when it comes time to attach the suction tubes to their nipples.
 				<<else>>
 					Alex gave you simple instructions, but you hesitate when it comes time to attach the suction tubes to their cocks.
 				<</if>>
 				You remind yourself that there's nothing lewd about this. The bullboys moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				<<if $settings.femaleNPCPenisChance gte 1>>
 					Alex gave you simple instructions, but you hesitate when it comes time to attach the suction tubes to their breasts and cocks.
 				<<else>>
@@ -2215,24 +2216,24 @@ You lead the <<farm_text_many cattle>> into the barn, and strap them into the ma
 				Alex gave you simple instructions, but you hesitate when it comes time to attach the suction tubes to their breasts and cocks. You remind yourself that there's nothing lewd about this. The cowgirls and bullboys moo in anticipation.
 			<</if>>
 		<<else>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				Alex gave you simple instructions, but you hesitate when it comes time to attach the suction tubes to their cocks. You remind yourself that there's nothing lewd about this. The bulls moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				Alex gave you simple instructions, but you find the process awkward. The cows moo in anticipation as you attach the tubes to their udders.
 			<<else>>
 				Alex gave you simple instructions. The udders are awkward enough, but you hesitate when it comes time to attach the suction tubes to their cocks. You remind yourself that there's nothing lewd about this. The cattle moo in anticipation.
 			<</if>>
 		<</if>>
-	<<elseif $cattle_milked lte 1200>>
-		<<if $farm_work.cattle.monster>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+	<<elseif $alexFarm.totalCattleMilked lte 1200>>
+		<<if $alexFarm.workday.cattle.monster>>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				<<if $settings.maleNPCVaginaChance gte 100>>
 					You think you're getting the hang of things, but you still look away when it comes time to attach the suction tubes to their nipples.
 				<<else>>
 					You think you're getting the hang of things, but you still look away when it comes time to attach the suction tubes to their cocks.
 				<</if>>
 				You remind yourself that there's nothing lewd about this. The bullboys moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				<<if $settings.femaleNPCPenisChance gte 1>>
 					You think you're getting the hang of things, but you still look away when it comes time to attach the suction tubes to their breasts and cocks.
 				<<else>>
@@ -2243,24 +2244,24 @@ You lead the <<farm_text_many cattle>> into the barn, and strap them into the ma
 				You think you're getting the hang of things, but you still look away when it comes time to attach the suction tubes to their breasts and cocks. You remind yourself that there's nothing lewd about this. The cowgirls and bullboys moo in anticipation.
 			<</if>>
 		<<else>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				You think you're getting the hang of things, but you still look away when it comes time to attach the suction tubes to their cocks. You remind yourself that there's nothing lewd about this. The bulls moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				You think you're getting the hang of things. The cows moo in anticipation as you attach the tubes to their udders.
 			<<else>>
 				You think you're getting the hang of things. The udders are easy enough, but you hesitate when it comes time to attach the suction tubes to their cocks. You remind yourself that there's nothing lewd about this. The cattle moo in anticipation.
 			<</if>>
 		<</if>>
 	<<else>>
-		<<if $farm_work.cattle.monster>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+		<<if $alexFarm.workday.cattle.monster>>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				<<if $settings.maleNPCVaginaChance gte 100>>
 					You daydream as you attach the suction tubes to their nipples, your practised hands moving automatically.
 				<<else>>
 					You daydream as you attach the suction tubes to their cocks, your practised hands moving automatically.
 				<</if>>
 				The bullboys moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				<<if $settings.femaleNPCPenisChance gte 1>>
 					You daydream as you attach the suction tubes to their breasts and cocks, your practised hands moving automatically.
 				<<else>>
@@ -2271,9 +2272,9 @@ You lead the <<farm_text_many cattle>> into the barn, and strap them into the ma
 				You daydream as you attach the suction tubes to their breasts and cocks, your practised hands moving automatically. The cowgirls and bullboys moo in anticipation.
 			<</if>>
 		<<else>>
-			<<if $farm_work.cattle.gender_plural is "m">>
+			<<if $alexFarm.workday.cattle.genderPlural is "m">>
 				You daydream as you attach the suction tubes to their cocks, your practised hands moving automatically. The bulls moo in anticipation.
-			<<elseif $farm_work.cattle.gender_plural is "f">>
+			<<elseif $alexFarm.workday.cattle.genderPlural is "f">>
 				You daydream as you attach the suction tubes to their udders, your practised hands moving automatically. The cows moo in anticipation.
 			<<else>>
 				You daydream as you attach the suction tubes to their udders and cocks, your practised hands moving automatically. The cattle moo in anticipation.
@@ -2315,9 +2316,9 @@ The milking machine works fast, and soon finishes gathering fluid. You release t
 	in both hands and get to work.
 <</if>>
 <br><br>
-<<if $cattle_milked lte 6 or !hasSexStat("deviancy", 2)>>
+<<if $alexFarm.totalCattleMilked lte 6 or !hasSexStat("deviancy", 2)>>
 	It feels strange to get so hands-on. You remind yourself that there's nothing odd about this, but it's a hard feeling to shake.
-<<elseif $cattle_milked lte 1200 or !hasSexStat("deviancy", 3)>>
+<<elseif $alexFarm.totalCattleMilked lte 1200 or !hasSexStat("deviancy", 3)>>
 	You're used to milking cattle, and the <<beasttype>> appreciates the attention.
 <<else>>
 	You daydream as you work, your practised hands moving on their own. The <<beasttype>> appreciates the attention.
@@ -2343,24 +2344,24 @@ You <<tendingtext>> squeeze and rub.
 <</if>>
 <br><br>
 
-<<if $farm_work.cattle_text is undefined>>
-	<<set $farm_work.cattle_text to 0>>
+<<if $alexFarm.workday.handMilkingLine is undefined>>
+	<<set $alexFarm.workday.handMilkingLine to 0>>
 <</if>>
-<<switch $farm_work.cattle_text>>
+<<switch $alexFarm.workday.handMilkingLine>>
 	<<case 0>>
-		<<set $farm_work.cattle_text += 1>>
+		<<set $alexFarm.workday.handMilkingLine += 1>>
 		The <<beasttype>> trots away.
 	<<case 1>>
-		<<set $farm_work.cattle_text += 1>>
+		<<set $alexFarm.workday.handMilkingLine += 1>>
 		The <<beasttype>> licks your hand before trotting away.<<lstress>><<stress -1>>
 	<<case 2>>
-		<<set $farm_work.cattle_text += 1>>
+		<<set $alexFarm.workday.handMilkingLine += 1>>
 		The <<beasttype>> needs cajoling before <<bhe>> will return to the field.
 	<<case 3>>
-		<<set $farm_work.cattle_text += 1>>
+		<<set $alexFarm.workday.handMilkingLine += 1>>
 		The <<beasttype>> leaves in a hurry, eager to return to the field.
 	<<case 4>>
-		<<set $farm_work.cattle_text to 0>>
+		<<set $alexFarm.workday.handMilkingLine to 0>>
 		The <<beasttype>> has some trouble finding the exit but soon trots back to the field.
 <</switch>>
 
@@ -2432,14 +2433,14 @@ The <<farm_text_many dog>> help you herd the <<farm_text_many cattle>> into the 
 
 
 <<if dangerEvent()>>
-	<<if $farm.beasts.dogs gte 20>>
+	<<if $alexFarm.animalRespect.dogs gte 20>>
 		The <<farm_text_many dog>> seem agitated, <span class="green">but a firm look is enough to keep them on target.</span>
 		<br><br>
 
 		<<link [[Next|Farm Work]]>><</link>>
 		<br>
 	<<else>>
-		<<if $farm.beasts.cattle gte 20>>
+		<<if $alexFarm.animalRespect.cattle gte 20>>
 			The <<farm_text_many dog>> seem agitated. One growls and bares its teeth at you, <span class="green">until a <<farm_text cattle>> breaks from the herd and stands between you and the <<farm_text dog>> in a protective gesture.</span>
 			<br><br>
 			The <<farm_text_many dog>> leave you alone.<<grespect>><<farm_dogs 1>>
@@ -2589,7 +2590,7 @@ You sneak up to the shed, and push the door open.
 <</if>>
 <<tendingdifficulty 1 1000 true>>
 <<if $tendingSuccess>>
-	It's hard work, <span class="green">but you make good time.</span><<set $farm_work.tending += 1>>
+	It's hard work, <span class="green">but you make good time.</span><<set $alexFarm.workday.cropsTended += 1>>
 <<else>>
 	It's hard work, but you make progress.
 <</if>>
@@ -2645,7 +2646,7 @@ You sneak up to the shed, and push the door open.
 <</if>>
 <<tendingdifficulty 1 1000 true>>
 <<if $tendingSuccess>>
-	It's hard work, <span class="green">but you make good time.</span><<set $farm_work.tending += 1>>
+	It's hard work, <span class="green">but you make good time.</span><<set $alexFarm.workday.cropsTended += 1>>
 <<else>>
 	It's hard work, but you make progress.
 <</if>>
@@ -2686,11 +2687,11 @@ You sneak up to the shed, and push the door open.
 <</if>>
 <br><br>
 
-<<if $farm.clearing gte 50>>
+<<if $alexFarm.clearingLeft gte 50>>
 	You make good progress, <span class="blue">but there's still a long way to go.</span>
-<<elseif $farm.clearing gte 10>>
+<<elseif $alexFarm.clearingLeft gte 10>>
 	You make good progress. <span class="lblue">Most of the field is clear.</span>
-<<elseif $farm.clearing gte 1>>
+<<elseif $alexFarm.clearingLeft gte 1>>
 	You make good progress. <span class="teal">The field is almost cleared.</span>
 <<else>>
 	You make good progress, <span class="green">and remove the last of the weeds!</span>
@@ -2751,11 +2752,11 @@ You sneak up to the shed, and push the door open.
 	You trip over a tangle of brambles, falling to the ground with a thud. <<pain 5>> <<gpain>>
 <</if>>
 <br><br>
-<<if $farm.clearing gte 50>>
+<<if $alexFarm.clearingLeft gte 50>>
 	You make some progress, <span class="blue">but there's still a long way to go. It's slow work without Alex.</span>
-<<elseif $farm.clearing gte 10>>
+<<elseif $alexFarm.clearingLeft gte 10>>
 	You make some progress. <span class="lblue">Most of the field is clear. It's slow work without Alex.</span>
-<<elseif $farm.clearing gte 1>>
+<<elseif $alexFarm.clearingLeft gte 1>>
 	You make some progress. <span class="teal">The field is almost cleared. It's slow work without Alex.</span>
 <<else>>
 	You make good progress, <span class="green">and remove the last of the weeds!</span>
@@ -2852,7 +2853,7 @@ You sneak up to the shed, and push the door open.
 <</if>>
 
 <<rng 2>>
-<<if $rng is 1 and $farm_stage gte 4>>
+<<if $rng is 1 and $alexFarm.stage gte 4>>
 	Alex asks about you.
 	<<farm_tell_alex>>
 <<else>>
@@ -2862,7 +2863,7 @@ You sneak up to the shed, and push the door open.
 
 <<rng>>
 
-<<if (!npcIsPregnant("Alex") and !playerBellyVisible() and !knowsAboutPregnancy("pc","Alex")) and dangerEvent() and $farm_stage gte 4>>
+<<if (!npcIsPregnant("Alex") and !playerBellyVisible() and !knowsAboutPregnancy("pc","Alex")) and dangerEvent() and $alexFarm.stage gte 4>>
 	<<if $alex.restDrinkAnswer is "accept">>
 		"Another drink?" <<he>> asks, producing another bottle from the hiding place.
 	<<elseif $alex.restDrinkAnswer is "refuse">>
@@ -2955,7 +2956,7 @@ You sit beside Alex, then procure the milkshake. "Fancy a drink?" you ask<<if (!
 You relax on the hammock next to the stables.
 <<if Weather.precipitation isnot "none">>You're glad to have some cover from the <<print Weather.precipitation>>.<</if>>
 
-<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $farm_work.alex isnot "still" and $alex.romance>>
+<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $alexFarm.workday.alexTask isnot "still" and $alex.romance>>
 	You see Alex approach, waving at you. "Hey, partner." <<He>> smiles and leans across your lap. "Just thought I'd swing by."
 	<br><br>
 
@@ -2973,7 +2974,7 @@ You relax on the hammock next to the stables.
 <<elseif Time.dayState is "night">>
 	With the <<farm_text_many "horse">> sleeping, you're able to enjoy the peace and quiet.
 
-<<elseif $farm_work.horses_out is 1>>
+<<elseif $alexFarm.workday.horsesOut is 1>>
 	With the <<farm_text_many "horse">> out running in the fields, you're able to enjoy the peace and quiet.
 
 <<else>>
@@ -2987,7 +2988,7 @@ You relax on the hammock next to the stables.
 :: Farm Perimeter
 <<effects>>
 
-<<if $rng gte 51 or $farm.wall is 1>>
+<<if $rng gte 51 or $alexFarm.upgrades.wall is 1>>
 	You follow the farm perimeter, picking up stones from the ground and returning them to the old wall.
 	<br><br>
 <<else>>
@@ -3009,7 +3010,7 @@ You relax on the hammock next to the stables.
 <<npc Alex>><<person1>>
 <<alexRemyTattoosCheck "chores">>
 
-<<if $rng gte 51 or $farm.wall is 1>>
+<<if $rng gte 51 or $alexFarm.upgrades.wall is 1>>
 	You help Alex follow the farm perimeter, picking up stones from the ground and returning them to the old wall. <<He>> suggests you split up to cover more ground.
 	<br><br>
 <<else>>
@@ -3032,9 +3033,9 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 <br><br>
 
 <!-- Modified for Monster People -->
-<<if dangerEvent() and $farm.beasts.dogs lte -20 and beastSexEnabledForType("dog", $farm_work.dog.monster)>>
+<<if dangerEvent() and $alexFarm.animalRespect.dogs lte -20 and beastSexEnabledForType("dog", $alexFarm.workday.dog.monster)>>
 	You leave the <<farm_text_many dog>> to feed, but hear footsteps approach as you walk from the field.
-	<<if $farm_work.dog.monster is true>>
+	<<if $alexFarm.workday.dog.monster is true>>
 		Before you can turn, a pair of hands land on your shoulders. A weight forces you to the ground.
 	<<else>>
 		Before you can turn, a pair of paws land on your shoulders, and a jaw clamps around your neck. The weight forces you to the ground.
@@ -3044,9 +3045,9 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 	<<link [[Next|Farm Dogs Rape]]>><<set $molestationstart to 1>><</link>>
 	<br>
 <!-- Modified for Monster People -->
-<<elseif (dangerEvent() or $farm.beasts.dogs lte -5) and beastSexEnabledForType("dog", $farm_work.dog.monster)>>
+<<elseif (dangerEvent() or $alexFarm.animalRespect.dogs lte -5) and beastSexEnabledForType("dog", $alexFarm.workday.dog.monster)>>
 	You leave the <<farm_text_many dog>> to feed, but hear footsteps approach as you walk from the field.
-	<<if $farm_work.dog.monster is true>>
+	<<if $alexFarm.workday.dog.monster is true>>
 		A <<farm_text dog>> wraps <<farm_his dog>> arms around your neck, and humps <<farm_his dog>> pelvis against you.
 	<<else>>
 		A <<farm_text dog>> rests <<farm_his dog>> paws on your shoulders, and humps against your <<bottom>>.
@@ -3056,7 +3057,7 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 	<br>
 	<<link [[Endure|Farm Dogs Endure]]>><<sub 1>><<farm_dogs -1>><<trauma 6>><<stress 6>><</link>><<lrespect>><<gtrauma>><<gstress>>
 	<br>
-	<<if beastSexEnabledForType("dog", $farm_work.dog.monster)>>
+	<<if beastSexEnabledForType("dog", $alexFarm.workday.dog.monster)>>
 		<<if hasSexStat("deviancy", 2)>>
 			<<link [[Drop to your knees|Farm Dogs Drop]]>><</link>><<deviant2>>
 			<br>
@@ -3083,7 +3084,7 @@ You carry the feed to the field. Some of the younger <<farm_text_many dog>> beg 
 <<set $outside to 0>><<effects>>
 <<farm_work_update>>
 You are in the barn. The <<farm_text_many cattle>> sleep soundly.
-<<if $farm.barn gte 1>>
+<<if $alexFarm.upgrades.barn gte 1>>
 	A large, glowing milking machine stands in the centre.
 <<else>>
 	A large milking machine stands in the centre.
@@ -3156,48 +3157,47 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 
 	You remain on your hands and knees, two suction tubes attached to your <<breasts>>, until the machine finishes drinking.
 
-	<<if $farm.barn gte 1>>
-		<<set $farm_breast_milk to ($milk_amount / 1.5)>>
+	<<if $alexFarm.upgrades.barn gte 1>>
+		<<set _milkCollected to ($milk_amount / 1.5)>>
 	<<else>>
-		<<set $farm_breast_milk to ($milk_amount / 2)>>
+		<<set _milkCollected to ($milk_amount / 2)>>
 	<</if>>
-	<<milk_amount `-$farm_breast_milk`>>
-	<<set $milk_produced_stat += Math.trunc($farm_breast_milk)>>
+	<<milk_amount `-_milkCollected`>>
+	<<set $milk_produced_stat += Math.trunc(_milkCollected)>>
 
-	<<if $farm_breast_milk gte 3000>>
+	<<if _milkCollected gte 3000>>
 		<span class="green">The tank almost overflows with milk.</span>
-	<<elseif $farm_breast_milk gte 2000>>
+	<<elseif _milkCollected gte 2000>>
 		<span class="teal">The tanks are over half full with your milk.</span>
-	<<elseif $farm_breast_milk gte 1000>>
+	<<elseif _milkCollected gte 1000>>
 		<span class="lblue">There's a large volume of milk in the tank.</span>
-	<<elseif $farm_breast_milk gte 300>>
+	<<elseif _milkCollected gte 300>>
 		<span class="blue">There's a decent volume of milk in the tank.</span>
 	<<else>>
 		<span class="purple">There's only a dribble of milk in the tank.</span>
 	<</if>>
-	<<farmCatchChance `$farm_breast_milk / 1000`>>
+	<<farmCatchChance `_milkCollected / 1000`>>
 	<br><br>
-	<<if $farm_breast_milk gte 2000>>
+	<<if _milkCollected gte 2000>>
 		<<wearProp "bottle of breast milk">>
-		<<set $farm_breast_milk to Math.trunc($farm_breast_milk / 1000)>>
-		<span class="gold">You've filled $farm_breast_milk bottles of milk.</span>
-		<<tending_give bottle_of_breast_milk $farm_breast_milk>>
-	<<elseif $farm_breast_milk gte 1000>>
+		<<set _milkCollected to Math.trunc(_milkCollected / 1000)>>
+		<span class="gold">You've filled _milkCollected bottles of milk.</span>
+		<<tending_give bottle_of_breast_milk _milkCollected>>
+	<<elseif _milkCollected gte 1000>>
 		<<wearProp "bottle of breast milk">>
-		<<set $farm_breast_milk to Math.trunc($farm_breast_milk / 1000)>>
+		<<set _milkCollected to Math.trunc(_milkCollected / 1000)>>
 		<span class="gold">You've filled a bottle with milk.</span>
-		<<tending_give bottle_of_breast_milk $farm_breast_milk>>
+		<<tending_give bottle_of_breast_milk _milkCollected>>
 	<<else>>
-		<<set $farm_breast_milk to Math.trunc($farm_breast_milk / 300)>>
-		<<if $farm_breast_milk lte 0>>
-			<<set $farm_breast_milk to 1>>
+		<<set _milkCollected to Math.trunc(_milkCollected / 300)>>
+		<<if _milkCollected lte 0>>
+			<<set _milkCollected to 1>>
 		<</if>>
 		You don't have enough to fill a bottle. You mix it with the cattle milk.<<gfarm>>
-		<<farm_yield $farm_breast_milk>>
+		<<farm_yield _milkCollected>>
 	<</if>>
 	<br><br>
 
-	<<unset $farm_breast_milk>>
 	<<barn_img breasts>>
 <<else>>
 
@@ -3210,15 +3210,15 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	<<set $earSlime.noSleep to false>>
 <</if>>
 
-<<if $farm.milking.dayMilking is true and Time.betweenHours(7, 21) and $farm_end is undefined>>
+<<if $alexFarm.milking.alexAllowsDayMilking is true and Time.betweenHours(7, 21) and !$daily.alexFarm.alexEndedWorkday>>
 	You remove the suction tube with a shaking hand, and rise to your feet.
 	<<deviancy2>>
 
 	<<link [[Next|Farm Cattle Milk]]>><<clotheson>><<machine_end>><</link>>
 	<br>
-<<elseif $farm.milking.caught is true and $farm.milking.alexNightEvent is false>>
-	<<set $farm.milking.alexNightEvent to true>>
-	<<set $farm.milking.dayMilking to true>>
+<<elseif $alexFarm.milking.alexWillCatchPc is true and $alexFarm.milking.alexCaughtPcAtNight is false>>
+	<<set $alexFarm.milking.alexCaughtPcAtNight to true>>
+	<<set $alexFarm.milking.alexAllowsDayMilking to true>>
 	As you remove the suction tubes with shaking hands.
 	<<deviancy2>>
 	<<link [[Next|Farm Barn Caught]]>><<machine_end>><<endevent>><</link>>
@@ -3261,10 +3261,10 @@ You take one of the suction tubes, and attach it to your <<penis>>.
 :: Farm Barn Penis 2
 <<effects>>
 
-<<if $farm.barn gte 1>>
-	<<set $farm_penis_milk to ($semen_amount / 1.5)>>
+<<if $alexFarm.upgrades.barn gte 1>>
+	<<set _semenCollected to ($semen_amount / 1.5)>>
 <<else>>
-	<<set $farm_penis_milk to ($semen_amount / 2)>>
+	<<set _semenCollected to ($semen_amount / 2)>>
 <</if>>
 <<set _original_amount to $semen_amount>>
 The machine continues its devilish work, sucking with more intensity. You feel a warmth build.<<gggarousal>><<arousal 10000>>
@@ -3302,53 +3302,53 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 	<br><br>
 
 	<!-- Either use the amount of semen produced by those three orgasms, or the original amount calculated for
-	$farm_penis_milk, whichever is larger -->
+	_semenCollected, whichever is larger -->
 	<<set _orgasm_semen to _original_amount - $semen_amount>>
-	<<if _femaleclimaxAmount>><<set $farm_penis_milk *= (3 - _femaleclimaxAmount) / 3>><</if>>
+	<<if _femaleclimaxAmount>><<set _semenCollected *= (3 - _femaleclimaxAmount) / 3>><</if>>
 	<<if _femaleclimaxAmount gte 3>>
-		<<set $farm_penis_milk to 0>>
-	<<elseif _orgasm_semen gt $farm_penis_milk>>
-		<<set $farm_penis_milk to _orgasm_semen>>
+		<<set _semenCollected to 0>>
+	<<elseif _orgasm_semen gt _semenCollected>>
+		<<set _semenCollected to _orgasm_semen>>
 	<<else>>
-		<<semen_amount `-($farm_penis_milk - _orgasm_semen)`>>
-		<<set $semen_produced_stat += ($farm_penis_milk - _orgasm_semen)>>
+		<<semen_amount `-(_semenCollected - _orgasm_semen)`>>
+		<<set $semen_produced_stat += (_semenCollected - _orgasm_semen)>>
 	<</if>>
 
-	<<if $farm_penis_milk gte 3000>>
+	<<if _semenCollected gte 3000>>
 		<span class="green">The tank almost overflows with semen.</span>
-	<<elseif $farm_penis_milk gte 2000>>
+	<<elseif _semenCollected gte 2000>>
 		<span class="teal">The tanks are over half full with your semen.</span>
-	<<elseif $farm_penis_milk gte 1000>>
+	<<elseif _semenCollected gte 1000>>
 		<span class="lblue">There's a large volume of semen in the tank.</span>
-	<<elseif $farm_penis_milk gte 300>>
+	<<elseif _semenCollected gte 300>>
 		<span class="blue">There's a decent volume of semen in the tank.</span>
-	<<elseif $farm_penis_milk gte 1>>
+	<<elseif _semenCollected gte 1>>
 		<span class="purple">There's only a dribble of semen in the tank.</span>
 	<<else>>
 		<span class="red">There's no semen in the tank.</span>
 	<</if>>
-	<<farmCatchChance `$farm_penis_milk / 1000`>>
+	<<farmCatchChance `_semenCollected / 1000`>>
 	<br><br>
 
-	<<if $farm_penis_milk gte 2000>>
+	<<if _semenCollected gte 2000>>
 		<<wearProp "bottle of semen">>
-		<<set $farm_penis_milk to Math.trunc($farm_penis_milk / 1000)>>
-		<span class="gold">You've filled $farm_penis_milk bottles of semen.</span>
-		<<tending_give bottle_of_semen $farm_penis_milk>>
+		<<set _semenCollected to Math.trunc(_semenCollected / 1000)>>
+		<span class="gold">You've filled _semenCollected bottles of semen.</span>
+		<<tending_give bottle_of_semen _semenCollected>>
 		<br><br>
-	<<elseif $farm_penis_milk gte 1000>>
+	<<elseif _semenCollected gte 1000>>
 		<<wearProp "bottle of semen">>
-		<<set $farm_penis_milk to Math.trunc($farm_penis_milk / 1000)>>
+		<<set _semenCollected to Math.trunc(_semenCollected / 1000)>>
 		<span class="gold">You've filled a bottle with semen.</span>
-		<<tending_give bottle_of_semen $farm_penis_milk>>
+		<<tending_give bottle_of_semen _semenCollected>>
 		<br><br>
-	<<elseif $farm_penis_milk gte 1>>
-		<<set $farm_penis_milk to Math.trunc($farm_penis_milk / 300)>>
-		<<if $farm_penis_milk lte 0>>
-			<<set $farm_penis_milk to 1>>
+	<<elseif _semenCollected gte 1>>
+		<<set _semenCollected to Math.trunc(_semenCollected / 300)>>
+		<<if _semenCollected lte 0>>
+			<<set _semenCollected to 1>>
 		<</if>>
 		You don't have enough to fill a bottle. You mix it with the cattle milk.<<gfarm>>
-		<<farm_yield $farm_penis_milk>>
+		<<farm_yield _semenCollected>>
 		<br><br>
 	<</if>>
 
@@ -3357,19 +3357,18 @@ The machine continues its devilish work, sucking with more intensity. You feel a
 		<<set $earSlime.noSleep to false>>
 	<</if>>
 <</if>>
-<<unset $farm_penis_milk>>
 <<barn_img penis>>
 
 
-<<if $farm.milking.dayMilking is true and Time.betweenHours(7, 21) and $farm_end is undefined>>
+<<if $alexFarm.milking.alexAllowsDayMilking is true and Time.betweenHours(7, 21) and !$daily.alexFarm.alexEndedWorkday>>
 	You remove the suction tube with a shaking hand, and rise to your feet.
 	<<deviancy2>>
 
 	<<link [[Next|Farm Cattle Milk]]>><<clotheson>><<machine_end>><</link>>
 	<br>
-<<elseif $farm.milking.caught is true and $farm.milking.alexNightEvent is false>>
-	<<set $farm.milking.alexNightEvent to true>>
-	<<set $farm.milking.dayMilking to true>>
+<<elseif $alexFarm.milking.alexWillCatchPc is true and $alexFarm.milking.alexCaughtPcAtNight is false>>
+	<<set $alexFarm.milking.alexCaughtPcAtNight to true>>
+	<<set $alexFarm.milking.alexAllowsDayMilking to true>>
 	As you remove the suction tube with a shaking hand.
 	<<deviancy2>>
 	<<link [[Next|Farm Barn Caught]]>><<machine_end>><<endevent>><</link>>
@@ -3403,7 +3402,7 @@ You walk up to the farmhouse, knocking on the door a few times. Nothing. You giv
 <<link [[Call for Alex (0:01)|Farm Alex Hungover Call]]>><<pass 1>><</link>>
 <br>
 
-<<if $farm_stage gte 7>>
+<<if $alexFarm.stage gte 7>>
 	<<link [[Unlock the door (0:01)|Farm Alex Hungover Keys]]>><<pass 1>><</link>>
 <<else>>
 	<<set $skulduggerydifficulty to 400>>
@@ -3517,7 +3516,7 @@ It takes a few minutes, but Alex finally gives up, opening <<his>> eyes to look 
 :: Farm Alex Hungover Keys 2
 <<effects>>
 
-<<if $farm_stage gte 7>>
+<<if $alexFarm.stage gte 7>>
 	"Mooorning parrtnerrr... I think I drank a little too much last night," Alex slurs, giving you a lazy smile.
 
 <<else>>

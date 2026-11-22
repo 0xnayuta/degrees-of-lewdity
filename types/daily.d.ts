@@ -54,6 +54,8 @@ declare global {
 		gwylan: GwylanDaily;
 		/** Alex's once-a-day flags, unset at midnight. */
 		alex: AlexDaily;
+		/** Alex's farm's once-a-day values, unset at midnight. */
+		alexFarm: AlexFarmDaily;
 	}
 }
 

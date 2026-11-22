@@ -7,7 +7,7 @@
 	<<exposure>>
 	<<unset $slimeFarmNakedStored>>
 <</if>>
-<<if $farm_stage gte 7>><<unset $farm_naked>><</if>>
+<<if $alexFarm.stage gte 7>><<unset $alexFarm.pcWorkingNaked>><</if>>
 
 <<if $alex.night.somnoOutcome is "wokeAngry" and !$alex.night.glaredAtPc>>
 	Alex glares at you when you come downstairs.
@@ -19,10 +19,10 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 <br><br>
 
 <!-- Flavour text of Alex coming down, going up, or being upstairs -->
-<<if Time.hour is 21 and !$daily.alex.wentUpToBed and $farm_end isnot 1>>
+<<if Time.hour is 21 and !$daily.alex.wentUpToBed and !$daily.alexFarm.alexEndedWorkday>>
 	<<npc Alex>><<person1>>
-	<<if $farm_end isnot 1>>
-		<<set $farm_end to 1>>
+	<<if !$daily.alexFarm.alexEndedWorkday>>
+		<<set $daily.alexFarm.alexEndedWorkday to true>>
 		/* If it's 21:00 and you go to the cottage, the farm work needs to be stopped. */
 		Alex enters the cottage. "Done for another day," <<he>> says,
 		<<if $exposed gt 0>>
@@ -30,8 +30,8 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 		<<else>>
 			smiling.
 		<</if>>
-		<<if $farm_count gte 1 and $farm_stage lte 6>>
-			"Here's a little extra." <<He>> hands you <<moneyGain $farm.wage>>.
+		<<if $daily.alexFarm.minutesTowardsWage gte 1 and $alexFarm.stage lte 6>>
+			"Here's a little extra." <<He>> hands you <<moneyGain $alexFarm.hourlyWage>>.
 		<</if>>
 		<br><br>
 	<</if>>
@@ -50,17 +50,16 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 	<</if>>
 	<<endevent>>
 	<br><br>
-<<elseif $farm_work.alex is "admin" or ($farm_work.alex is "clearing" and $farm_stage is 12)>>
+<<elseif $alexFarm.workday.alexTask is "admin" or ($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12)>>
 	You hear Alex talking on the phone upstairs.
 	<br><br>
 <</if>>
 
 <!-- Main options of available actions -->
 
-<<if $farm.build_finished.includes("nursery")>>
-	<<run $farm.build_finished.delete("nursery")>>
+<<if $alexFarm.upgrades.finishedUnseen.includes("nursery")>>
+	<<run $alexFarm.upgrades.finishedUnseen.delete("nursery")>>
 	<<set C.npc.Alex.pregnancy.nursery to true>>
-	<<unset $cottage_nursery_prep>>
 
 	A new nursery room has been added. <span class="gold">Yours and Alex's children can now live at the farm.</span>
 	<br><br>
@@ -91,7 +90,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 <<elseif playerIsPregnant() and playerBellyVisible() and !talkedAboutPregnancy("pc","Alex")>>
 	<<npc "Alex">>
 	<<setTalkedAboutPregnancy "pc" "Alex">>
-	<<if $farm_stage gte 7>>
+	<<if $alex.romance>>
 		You notice Alex staring at your belly in horror. "You're...you're pregnant?! You didn't tell me anything..."
 
 		<<set _preg to getPlayerPregnancy()>>
@@ -126,8 +125,8 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 <<elseif npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1>>
 	<<alex_cottage_pregnancy_reveal>>
 
-<<elseif ($farm_countdown lte 0 or $farm_countdown is undefined) and ($bailey.rent.daysUntilDue lte -2 or ($bailey.rent.daysUntilDue lte 0 and Time.hour gte 4 and Time.hour lte 21)) and (isRentDue() or isBaileyLookingForPlayer())>>
-	<<unset $farm_countdown>><<unset $bailey.reunionToPlay>>
+<<elseif ($alexFarm.daysUntilBaileyVisits lte 0 or $alexFarm.daysUntilBaileyVisits is undefined) and ($bailey.rent.daysUntilDue lte -2 or ($bailey.rent.daysUntilDue lte 0 and Time.hour gte 4 and Time.hour lte 21)) and (isRentDue() or isBaileyLookingForPlayer())>>
+	<<unset $alexFarm.daysUntilBaileyVisits>><<unset $bailey.reunionToPlay>>
 	<span class="red">You hear a knock at the door.</span>
 	<br><br>
 
@@ -156,11 +155,11 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 	<</if>>
 <<elseif $stress gte $stressmax>>
 	<<passoutfarmroad>>
-<<elseif $farm_attack_timer is 0 and Time.hour gte 21>>
+<<elseif $alexFarm.assault.daysUntilNext is 0 and Time.hour gte 21>>
 	<<npc Alex>><<person1>>
 	Alex thunders down the stairs. <span class="red">"<<nnpc_Hes Remy>> here,"</span> <<he>> says. "Remy. We can do this. Go get ready, I'll
-	<<if $farm.tower_guard>>
-		check on $farm.tower_guard."
+	<<if $alexFarm.towerGuard.name>>
+		check on $alexFarm.towerGuard.name."
 	<<else>>
 		see if I can spot them."
 	<</if>>
@@ -278,11 +277,11 @@ You are in your room at Alex's cottage. It's cramped, but larger than your room 
 
 <<if $stress gte $stressmax and !$possessed>>
 	<<passoutfarmroad>>
-<<elseif $farm_attack_timer is 0 and Time.hour gte 21 and !$possessed>>
+<<elseif $alexFarm.assault.daysUntilNext is 0 and Time.hour gte 21 and !$possessed>>
 	<<npc Alex>><<person1>>
 	Alex thunders down the stairs. <span class="red">"<<nnpc_Hes Remy>> here,"</span> <<he>> says. "Remy. We can do this. Go get ready, I'll
-	<<if $farm.tower_guard>>
-		check on $farm.tower_guard."
+	<<if $alexFarm.towerGuard.name>>
+		check on $alexFarm.towerGuard.name."
 	<<else>>
 		see if I can spot them."
 	<</if>>
@@ -466,12 +465,12 @@ You snuggle under the covers.
 		<</if>>
 	<</if>>
 	<<sleepeffects>>
-	<<if $remywake is 1>>
+	<<if _remyWake>>
 		<br><br>
 		<<npc Alex>><<person1>>
 		"Wake up!" Someone shakes your shoulders. It's Alex. <span class="red">"<<nnpc_Hes Remy>> here,"</span> <<he>> says. "Remy. We can do this. Get ready, I'll
-		<<if $farm.tower_guard>>
-			check on $farm.tower_guard."
+		<<if $alexFarm.towerGuard.name>>
+			check on $alexFarm.towerGuard.name."
 		<<else>>
 			see if I can spot them."
 		<</if>>
@@ -487,7 +486,7 @@ You snuggle under the covers.
 		<<if _store_check is 1>>
 			<<storeon _bedroom>>
 		<</if>>
-		<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 1>><<unset $remywake>><</link>>
+		<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 1>><</link>>
 		<br>
 	<<elseif _sleepinterrupt>>
 		<br><br>
@@ -1468,11 +1467,11 @@ You are in Alex's bedroom. It's similar to yours. Clothes tumble from the wardro
 	<<alex_cottage_pregnancy_reveal>>
 
 <<else>>
-	<<if $farm_attack_timer is 0 and Time.hour gte 21 and !$possessed>>
+	<<if $alexFarm.assault.daysUntilNext is 0 and Time.hour gte 21 and !$possessed>>
 		<<npc Alex>><<person1>>
 		You hear shouting. Alex bolts up. <span class="red">"<<nnpc_Hes Remy>> here,"</span> <<he>> says. "Remy. We can do this. Go get ready, I'll
-		<<if $farm.tower_guard>>
-			check on $farm.tower_guard."
+		<<if $alexFarm.towerGuard.name>>
+			check on $alexFarm.towerGuard.name."
 		<<else>>
 			see if I can spot them."
 		<</if>>
@@ -1517,7 +1516,7 @@ You are in Alex's bedroom. It's similar to yours. Clothes tumble from the wardro
 		<<endevent>>
 		<br><br>
 
-	<<elseif !$alex.night.inPcBed and $farm_work.alex is "admin" or ($farm_work.alex is "clearing" and $farm_stage is 12) and !$possessed>>
+	<<elseif !$alex.night.inPcBed and ($alexFarm.workday.alexTask is "admin" or ($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12)) and !$possessed>>
 		<<npc Alex>><<person1>>
 		Alex sits at <<his>> desk, in front of an open laptop and sprawl of paper, talking on the phone.
 		<<if $exposed gte 1>>
@@ -1553,12 +1552,12 @@ You are in Alex's bedroom. It's similar to yours. Clothes tumble from the wardro
 			<<sextoysicon "strap-on">><<link [[Gift Alex a strap-on|Alex Gift Strap-on]]>><<npc Alex>><<person1>><</link>>
 			<br>
 		<</if>>
-		<<if canGiftFood("Alex") and $farm_stage gte 7>>
+		<<if canGiftFood("Alex") and $alexFarm.stage gte 7>>
 			<<skinicon "give">><<link [[Gift Alex food|Alex Gifts List]]>><</link>>
 			<br>
 		<</if>>
 	<</if>>
-	<<if $farm_stage gte 7>>
+	<<if $alexFarm.stage gte 7>>
 		There's a desk here. You could work on farm projects.
 		<br>
 		<<farmicon "alexdesk">><<link [[Sit at the desk|Farm Upgrades]]>><</link>>
@@ -1745,9 +1744,9 @@ Alex digs in as soon as <<he>> sits.
 				"I've had a lot of practice."
 			<</if>>
 		<<case 2>>
-			<<if $farm.build_finished.includes("coop 2")>>
+			<<if $alexFarm.upgrades.finishedUnseen.includes("coop 2")>>
 				"I've more eggs than I know what to do with, thanks to you."
-			<<elseif $farm.build_finished.includes("coop 1")>>
+			<<elseif $alexFarm.upgrades.finishedUnseen.includes("coop 1")>>
 				"Egg surplus. Those chickens multiplied like rabbits. Speaking of...
 				<<if C.npc.Alex.lust gte 20>>
 					can't wait 'til we get some time to ourselves." <<He>> winks.
@@ -1759,7 +1758,7 @@ Alex digs in as soon as <<he>> sits.
 			<</if>>
 		<<case 3>>
 			"I'm in a good mood.
-			<<if $farm_attack_timer is 0>>
+			<<if $alexFarm.assault.daysUntilNext is 0>>
 				Whatever goes down tonight, I'm ready for it."
 			<<elseif isLoveInterest("Alex")>>
 				I've got my
@@ -1773,7 +1772,7 @@ Alex digs in as soon as <<he>> sits.
 				Fingers crossed it stays."
 			<</if>>
 		<<case 4>>
-			<<if $farm.milking.dayMilking is true>>
+			<<if $alexFarm.milking.alexAllowsDayMilking is true>>
 				<<if _alex.dom gte 30>>
 					"I'm glad you took the initiative to milk yourself. Tastes great."
 				<<elseif _alex.dom lte -30>>
@@ -1781,7 +1780,7 @@ Alex digs in as soon as <<he>> sits.
 				<<else>>
 					"I used your milk in this dish. Hope you don't mind. Paid off well, if you ask my tummy."
 				<</if>>
-			<<elseif $farm_work.cattle.gender is "m">>
+			<<elseif $alexFarm.workday.cattle.gender is "m">>
 				"Our boys make fine milk."
 			<<else>>
 				"Our girls make fine milk."
@@ -1809,7 +1808,7 @@ Alex digs in as soon as <<he>> sits.
 			<<farm_tell_alex>>
 		<<case 2>>
 			<<silently>><<farm_upgrades_status>><</silently>>
-			<<if $farm_attack_timer is 0>>
+			<<if $alexFarm.assault.daysUntilNext is 0>>
 				"Remy's paying a visit tonight," <<he>> says after properly swallowing.
 				<<if _alex.dom gte 30>>
 					"I can take 'em." <<He>> palms <<his>> fist. "Those fuckers will regret setting foot on my property."
@@ -1822,7 +1821,7 @@ Alex digs in as soon as <<he>> sits.
 				"The farm couldn't be in a better shape." <<He>> gulps <<his>> food, then grins. "Not much else left to do, but to stay on top of things. For now.
 				Never thought I'd get this far, to be honest. All thanks to your doing."
 			<<else>>
-				<<if $farm.aggro gte 60>>
+				<<if $alexFarm.remyEncroachment gte 60>>
 					"The work just keeps piling up, I'm afraid. Doesn't help that thugs keep breathing down our necks,"
 				<<else>>
 					"The work just keeps piling up, I'm afraid,"
@@ -3352,7 +3351,7 @@ Alex slams the door.
 <<effects>><<npc "Alex">><<setKnowsAboutPregnancy "Alex" "pc">><<setTalkedAboutPregnancy "Alex" "pc">>
 <<set C.npc.Alex.pregnancy.selfKnowledge to true>>
 
-<<if $farm_stage gte 7>>
+<<if $alex.romance>>
 	You sit next to Alex on the sofa. "So, what is it?" you ask.
 
 	<<if npcBellyVisible("Alex")>>
@@ -3428,7 +3427,7 @@ Alex slams the door.
 :: Farm Alex Pregnancy Reveal 2
 <<effects>>
 
-<<if $farm_stage gte 7>>
+<<if $alex.romance>>
 	<<He>> releases you and looks at <<his>> belly for a moment. "Gonna have to take a break from the booze.
 
 	<<if pregnancyCountBetweenParents("Alex", "pc") lte 0 or pregnancyCountBetweenParents("pc", "Alex") lte 0>>
@@ -3534,7 +3533,7 @@ Alex slams the door.
 		<br><br>
 		<<if $phase isnot 3>><<set $phase to 4>><</if>>
 	<<elseif C.npc.Alex.pregnancy.test is true>>
-		You hand the paternity test results to Alex. <<He>> freezes in place<<if $farm_stage gte 7>>, but you can see a smile forming on <<his>> face<</if>>.
+		You hand the paternity test results to Alex. <<He>> freezes in place<<if $alex.romance>>, but you can see a smile forming on <<his>> face<</if>>.
 		<br><br>
 
 	<<else>>
@@ -3667,7 +3666,7 @@ Alex slams the door.
 	<</if>>
 
 	<<if C.npc.Alex.pregnancy.test is true>>
-		<<if $farm_stage gte 7>>
+		<<if $alex.romance>>
 			"Wow," <<he>> says, breaking the silence. "I sure wasn't expecting that."
 			<br>
 
@@ -3706,7 +3705,7 @@ Alex slams the door.
 	<<else>>
 		<<set C.npc.Alex.pregnancy.sample to true>>
 
-		<<He>> <<if $farm_work.alex is "relax">>stands up but <</if>>freezes in place. "H-Hold on, partner. How sure are you about this?" <<he>> asks.
+		<<He>> <<if $alexFarm.workday.alexTask is "relax">>stands up but <</if>>freezes in place. "H-Hold on, partner. How sure are you about this?" <<he>> asks.
 		<br><br>
 
 		You open your mouth to speak, but <<he>> interrupts you. "Actually...here..." <<He>> pulls out a strand of <<his>> hair. "Please take a paternity test, then we can talk. I just don't know if I can trust you yet."
@@ -3715,8 +3714,8 @@ Alex slams the door.
 		<span class="blue">You'll need a paternity test to convince Alex that <<hes>> the father. Maybe the town hospital can provide one.</span>
 		<br><br>
 
-		<<if $farm_work.alex is "relax">>
-			<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
+		<<if $alexFarm.workday.alexTask is "relax">>
+			<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $alexFarm.workday.alexTask to "still">><</link>>
 
 		<<else>>
 			<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -3796,7 +3795,7 @@ Alex slams the door.
 :: Farm PC Pregnancy Reveal 2
 <<effects>>
 
-<<if $farm_stage gte 7>>
+<<if $alex.romance>>
 	<<if C.npc.Alex.dom gte 30>>
 		<<He>> leans in again, pressing you tight against <<his>> body. "This also means that you're mine." <<He>> scowls darkly as <<he>> adds, "And I'm not letting Remy take what's mine."
 		<br><br>
@@ -3829,7 +3828,7 @@ Alex slams the door.
 
 	<</if>>
 
-	<<if $farm_work isnot undefined and $farm_work.alex isnot undefined and $farm_work.alex.includes("admin","clearing")>>
+	<<if $alexFarm.workday isnot undefined and ($alexFarm.workday.alexTask is "admin" or ($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12))>>
 		<<link [[Next|Farm Alex Bedroom]]>><<endevent>><</link>>
 
 	<<else>>
@@ -3952,7 +3951,7 @@ Alex is willing to build a Nursery at the cottage, but first <span class="gold">
 
 <</if>>
 
-<<if $farm_stage gte 7>>
+<<if $alex.romance>>
 	Alex looks at you in horror. "You...you think?!"
 	<br><br>
 
@@ -3968,7 +3967,7 @@ Alex is willing to build a Nursery at the cottage, but first <span class="gold">
 
 <<else>>
 
-	<<He>> <<if $farm_work.alex is "relax">>stands up but <</if>>freezes in place. "H-Hold on, partner. How sure are you about this?" <<he>> asks.
+	<<He>> <<if $alexFarm.workday.alexTask is "relax">>stands up but <</if>>freezes in place. "H-Hold on, partner. How sure are you about this?" <<he>> asks.
 	<br><br>
 
 	You open your mouth to speak, but <<he>> interrupts you. "Actually...here..." <<He>> pulls out a strand of <<his>> hair. "Please take a paternity test, then we can talk. I just don't know if I can trust you yet."
@@ -3977,8 +3976,8 @@ Alex is willing to build a Nursery at the cottage, but first <span class="gold">
 	<span class="blue">You'll need a paternity test to convince Alex that <<hes>> the father. Maybe the town hospital can provide one.</span>
 	<br><br>
 
-	<<if $farm_work.alex is "relax">>
-		<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $farm_work.alex to "still">><</link>>
+	<<if $alexFarm.workday.alexTask is "relax">>
+		<<link [[Next|Farm Work]]>><<endevent>><<unset $alex.restDrinkAnswer>><<set $alexFarm.workday.alexTask to "still">><</link>>
 
 	<<else>>
 		<<link [[Next|Farm Work]]>><<endevent>><</link>>
@@ -4385,7 +4384,7 @@ Tears roll down <<his>> face, but <<he>> does <<his>> best to keep up <<his>> st
 <<he>> says, trying to sound confident.
 <br><br>
 
-<<if $farm_stage gte 7>>
+<<if $alexFarm.stage gte 7>>
 	<<link [[Next|Farm Cottage]]>><<endevent>><</link>>
 
 <<else>>
@@ -4476,7 +4475,7 @@ Harper turns to Alex. "I'll take <<phim>> to <<pher>> bed, could you get some dr
 :: Farm PC Birth 3
 <<effects>>
 
-You climb the stairs with Harper's assistance, heading towards <<if $farm_stage gte 7>>your<<else>> Alex's<</if>> room. <<He>> helps you to lie on the bed.
+You climb the stairs with Harper's assistance, heading towards <<if $alexFarm.stage gte 7>>your<<else>> Alex's<</if>> room. <<He>> helps you to lie on the bed.
 <br><br>
 
 "Keep working on your breathing; I'll get everything I need ready," <<he>> says. <<He>> reaches for some medical tools from <<his>> bag and places them on the bedroom's desk on a sterile sheet of paper.
@@ -4775,7 +4774,7 @@ Alex hugs you. "I'm so sorry. This is all my fault, I should've worked harder, b
 <<he>> says, trying to sound confident.
 <br><br>
 
-<<if $farm_stage gte 7>>
+<<if $alexFarm.stage gte 7>>
 	<<link [[Next|Farm Cottage]]>><<endevent>><</link>>
 
 <<else>>
@@ -4850,7 +4849,7 @@ You keep listening to Alex, not daring to interrupt <<him>>. <<He>> constantly a
 <<He>> stands up and take the empty mugs. "I can't take this responsibility all by myself... I should get back to work now," <<he>> says as <<he>> place the mugs in the kitchen and heads to the farm again
 <br><br>
 
-<<if $farm_stage gte 7>>
+<<if $alexFarm.stage gte 7>>
 	<span class="gold">Alex is willing to keep <<his>> kids at the farm, but first you should help <<him>> out.</span>
 	<br><br>
 

@@ -4196,11 +4196,11 @@ Renderer.CanvasModels.main = {
 		},
 		"fire_back": {
 			animationfn() {
-				const intensity = V.farm_assault ? 2 : T.tempEffects?.fire || V.fire;
+				const intensity = V.alexFarm.assault.fight ? 2 : T.tempEffects?.fire || V.fire;
 				return `fireBack${intensity}`;
 			},
 			srcfn() {
-				const intensity = V.farm_assault ? 2 : T.tempEffects?.fire || V.fire;
+				const intensity = V.alexFarm.assault.fight ? 2 : T.tempEffects?.fire || V.fire;
 				return `img/misc/ambient/fire/back-${intensity}.png`;
 			},
 			showfn(options) {

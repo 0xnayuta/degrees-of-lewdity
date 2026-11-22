@@ -1,0 +1,322 @@
+:: Widgets Alex Farm Cleanup Migration [widget]
+<<widget "alexFarmCleanupMigration">>
+	<<if $alexFarm is undefined>>
+		<<initAlexFarmVariables>>
+	<</if>>
+	<<set $daily.alexFarm ??= {}>>
+	<<set $weekly.alexFarm ??= {}>>
+
+	<!-- The farm's loose variables moved onto $alexFarm -->
+	<<for _oldName, _newName range {
+		farm_stage: "stage",
+		farm_yield_alex: "yieldOwedToPc",
+		kennel_treats: "dogTreats",
+		farm_shift: "totalMinutesWorked",
+		cattle_milked: "totalCattleMilked",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $alexFarm[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _oldName, _newPlace range {
+		lurkers_stored: ["lab", "lurkersCaged"],
+		phials_stored: ["lab", "phialsStored"],
+		farm_attack_timer: ["assault", "daysUntilNext"],
+		fields_damaged: ["assault", "burntFields"],
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $alexFarm[_newPlace[0]][_newPlace[1]] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+
+	<<if $farm_countdown isnot undefined>>
+		<<if $alexFarm.stage lt 7>>
+			<<set $alexFarm.daysUntilFire to $farm_countdown>>
+		<<else>>
+			<<set $alexFarm.daysUntilBaileyVisits to $farm_countdown>>
+		<</if>>
+		<<unset $farm_countdown>>
+	<</if>>
+
+	<!-- The farm's 0/1 and true-only flags moved onto $alexFarm as booleans -->
+	<<for _oldName, _newName range {
+		farm_naked: "pcWorkingNaked",
+		kennel_intro: "pcSawKennelIntro",
+	}>>
+		<<if V[_oldName] is 1 or V[_oldName] is true>>
+			<<set $alexFarm[_newName] to true>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+	<<for _oldName, _newPlace range {
+		farm_aphrodisiac_corruption_reaction: ["lab", "monkPcDreadedPhials"],
+		farm_attacked: ["assault", "happenedWhilePcAway"],
+		farm_destroyed: ["assault", "noFieldsLeftToBurn"],
+		farm_fields_intro: ["assault", "fireDamageToShow"],
+	}>>
+		<<if V[_oldName] is 1 or V[_oldName] is true>>
+			<<set $alexFarm[_newPlace[0]][_newPlace[1]] to true>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+
+	<!-- $farm's keys moved into their groups on $alexFarm -->
+	<<if $farm>>
+		<<if $farm.beasts>>
+			<<set $alexFarm.animalRespect to $farm.beasts>>
+		<</if>>
+		<<if $farm.stock>>
+			<<set $alexFarm.stock to $farm.stock>>
+		<</if>>
+		<<for _oldKey, _newKey range {
+			clearing: "clearingLeft",
+			aggro: "remyEncroachment",
+			wage: "hourlyWage",
+		}>>
+			<<if $farm[_oldKey] isnot undefined>>
+				<<set $alexFarm[_newKey] to $farm[_oldKey]>>
+			<</if>>
+		<</for>>
+		<<if $farm.tower_guard>>
+			<<set $alexFarm.towerGuard.name to $farm.tower_guard>>
+			<<for _oldKey, _newKey range {
+				tower_guard_skill: "skill",
+				tower_guard_wage: "weeklyWage",
+				tower_guard_unpaid: "weeksUnpaid",
+			}>>
+				<<if $farm[_oldKey] isnot undefined>>
+					<<set $alexFarm.towerGuard[_newKey] to $farm[_oldKey]>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<if $farm.build>>
+			<<set $alexFarm.upgrades.buildInProgress to $farm.build>>
+		<</if>>
+		<<if $farm.tower_guard_patience is 1>>
+			<<set $weekly.alexFarm.guardAgreedToWait to true>>
+		<</if>>
+		<<for _oldKey, _newKey range {
+			wall: "wall",
+			tower: "tower",
+			woodland: "woodland",
+			kennel: "kennel",
+			barn: "barn",
+			stable: "stable",
+			coop: "coop",
+			parasitebarn: "parasiteBarn",
+			irrigation: "irrigatedFields",
+			build_timer: "daysUntilBuilt",
+		}>>
+			<<if $farm[_oldKey] isnot undefined>>
+				<<set $alexFarm.upgrades[_newKey] to $farm[_oldKey]>>
+			<</if>>
+		<</for>>
+		<!-- $farm.build_finished could hold a 0 pushed by a day with nothing being built -->
+		<<if Array.isArray($farm.build_finished)>>
+			<<set $alexFarm.upgrades.finishedUnseen to $farm.build_finished.filter(build => build)>>
+		<</if>>
+		<<if $farm.still_timer isnot undefined>>
+			<<set $alexFarm.lab.daysUntilNextPhial to $farm.still_timer>>
+		<</if>>
+		<<if $farm.milking>>
+			<<set $alexFarm.milking.catchChance to Number($farm.milking.catchChance) || 0>>
+			<<set $alexFarm.milking.alexWillCatchPc to $farm.milking.caught is true>>
+			<<set $alexFarm.milking.alexCaughtPcAtNight to $farm.milking.alexNightEvent is true>>
+			<<set $alexFarm.milking.alexAllowsDayMilking to $farm.milking.dayMilking is true>>
+		<</if>>
+		<<unset $farm>>
+	<</if>>
+
+	<!-- $farm_work moved to $alexFarm.workday, with its keys camelCased -->
+	<<if $farm_work>>
+		<<set $alexFarm.workday to {}>>
+		<<set _workdayRenames to {
+			alex: "alexTask",
+			alex_relax: "alexRests",
+			time: "lastUpdateSlot",
+			recent_shift: "minutesWorked",
+			event_time: "eventAfterMinutes",
+			shower: "alexShowered",
+			border: "borderChecked",
+			yard: "yardCleared",
+			still: "stillVisits",
+			admin: "adminCalls",
+			hay: "hayJobs",
+			tending: "cropsTended",
+			woodland: "woodlandTended",
+			chickens_fed: "chickensFed",
+			chickens_out: "chickensOut",
+			pigs_fed: "pigsFed",
+			pigs_out: "pigsOut",
+			horses_brushed: "horsesBrushed",
+			horses_out: "horsesOut",
+			horses_satisfied: "horsesSatisfied",
+			cattle_out: "cattleOut",
+			cattle_milked: "cattleMilked",
+			cattle_need: "cattleNeed",
+			dogs_fed: "dogsFed",
+			chicken_eggs: "eggsCollected",
+			fence_damage: "fenceDamage",
+			chickens_panic: "chickensPanicking",
+			pigs_panic: "pigsPanicking",
+			horses_panic: "horsesPanicking",
+			cattle_panic: "cattlePanicking",
+			dogs_panic: "dogsPanicking",
+			cattle_text: "handMilkingLine",
+			forage: "timesForaged",
+			shopping_money: "alexShoppingMoney",
+		}>>
+		<<set _animalRenames to {
+			monster_roll: "monsterRoll",
+			gender_plural: "genderPlural",
+		}>>
+		<<set _workdayBooleans to ["shower", "border", "yard", "chickens_fed", "chickens_panic", "pigs_panic", "horses_panic", "cattle_panic", "dogs_panic"]>>
+		<<for _oldKey, _value range $farm_work>>
+			<<set _newKey to _workdayRenames[_oldKey] ?? _oldKey>>
+			<<if ["dog", "pig", "horse", "cattle"].includes(_oldKey)>>
+				<<set $alexFarm.workday[_newKey] to {}>>
+				<<for _oldAnimalKey, _animalValue range _value>>
+					<<set $alexFarm.workday[_newKey][_animalRenames[_oldAnimalKey] ?? _oldAnimalKey] to _animalValue>>
+				<</for>>
+			<<elseif _workdayBooleans.includes(_oldKey) and (_value is 0 or _value is 1)>>
+				<<set $alexFarm.workday[_newKey] to _value is 1>>
+			<<else>>
+				<<set $alexFarm.workday[_newKey] to _value>>
+			<</if>>
+		<</for>>
+		<<unset $farm_work>>
+	<</if>>
+
+	<!-- The farm's once-a-day and once-a-week values moved into $daily.alexFarm and $weekly.alexFarm -->
+	<<if $farm_count isnot undefined>>
+		<<set $daily.alexFarm.minutesTowardsWage to $farm_count>>
+	<</if>>
+	<<if $farm_yield isnot undefined>>
+		<<set $daily.alexFarm.yieldToday to $farm_yield>>
+	<</if>>
+	<<for _oldName, _newKey range {
+		farm_end: "alexEndedWorkday",
+		farm_event: "workEventPlayed",
+		farm_kennel: "pcUsedKennelToday",
+	}>>
+		<<if V[_oldName] is 1>>
+			<<set $daily.alexFarm[_newKey] to true>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+	<<unset $farm_count $farm_yield>>
+	<<if $weekly.farmNauseaEvent>>
+		<<set $weekly.alexFarm.pcFeltNauseous to true>>
+	<</if>>
+	<<run delete $weekly.farmNauseaEvent>>
+
+	<!-- Scene variables. The shed fight and Remy's assault are kept only if the save is in the middle of them -->
+	<<if $farm_fight>>
+		<<if $passage.startsWith("Farm Fight") or $passage.startsWith("Farm Stage 7")>>
+			<<set $alexFarm.shedFight to { searched: {}, flashed: {} }>>
+			<<set _shedFightRenames to {
+				stage: "round",
+				door: "doorStrength",
+			}>>
+			<<set _shedFightFlags to {
+				shelf: ["searched", "shelf"],
+				toolbox: ["searched", "toolbox"],
+				cupboard: ["searched", "cupboard"],
+				rakes: ["searched", "rakes"],
+				sheet: ["searched", "sheet"],
+				breasts: ["flashed", "chest"],
+				bottom: ["flashed", "bottom"],
+				genitals: ["flashed", "genitals"],
+			}>>
+			<<for _oldKey, _value range $farm_fight>>
+				<<set _newPlace to _shedFightFlags[_oldKey]>>
+				<<if _oldKey is "action" and (_value is 0 or _value is "rest")>>
+				<<elseif _oldKey is "action" and _value is "science">>
+					<<set $alexFarm.shedFight.action to "inspectChainsaw">>
+				<<elseif _newPlace is undefined>>
+					<<set $alexFarm.shedFight[_shedFightRenames[_oldKey] ?? _oldKey] to _value>>
+				<<elseif _value is 1>>
+					<<set $alexFarm.shedFight[_newPlace[0]][_newPlace[1]] to true>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<unset $farm_fight>>
+	<</if>>
+	<<if $farm_assault>>
+		<<set $alexFarm.assault.fight to {}>>
+		<<set _fightRenames to {
+			bindings_alex: "alexBindings",
+			bindings: "pcBindings",
+			dogs: "dogTeamsLeft",
+			dogs_state: "dogsState",
+			no: "freeFieldsForTeams",
+			alex: "alexState",
+			tower: "towerState",
+			wraith: "wraithTeamIndex",
+			wraithStress: "pcLostStressToWraith",
+		}>>
+		<<set _teamRenames to {
+			wall_progress: "wallProgress",
+			field_progress: "fieldProgress",
+			number: "thugsLeft",
+			torched: "fieldsTorched",
+		}>>
+		<!-- dogs_target isn't copied, nothing reads it -->
+		<<for _oldKey, _value range $farm_assault>>
+			<<if _oldKey is "teams">>
+				<!-- The teams were an object with the keys team_1 to team_6, and are a list now -->
+				<<set $alexFarm.assault.fight.teams to []>>
+				<<for _teamKey, _oldTeam range _value>>
+					<<set _team to {}>>
+					<<for _oldTeamKey, _teamValue range _oldTeam>>
+						<<set _team[_teamRenames[_oldTeamKey] ?? _oldTeamKey] to _teamValue>>
+					<</for>>
+					<<run $alexFarm.assault.fight.teams.push(_team)>>
+				<</for>>
+			<<elseif _oldKey is "alex" and _value isnot "patrol" and _value isnot "bound">>
+				<<set $alexFarm.assault.fight.alexState to "fighting">>
+				<<set $alexFarm.assault.fight.alexTeamIndex to Object.keys($farm_assault.teams).indexOf(_value)>>
+			<<elseif _oldKey isnot "dogs_target">>
+				<<set $alexFarm.assault.fight[_fightRenames[_oldKey] ?? _oldKey] to _value>>
+			<</if>>
+		<</for>>
+		<<unset $farm_assault>>
+	<</if>>
+	<!-- The forage basket was a list by position, and is keyed by item now -->
+	<<if $tempBasket isnot undefined>>
+		<<if $tempForageType is "fungi">>
+			<<set $alexFarm.woodlandForage.basket to { mushroom: $tempBasket[0], truffle: $tempBasket[1] }>>
+		<<else>>
+			<<set $alexFarm.woodlandForage.basket to { strawberry: $tempBasket[0], peach: $tempBasket[1], plum: $tempBasket[2] }>>
+		<</if>>
+		<<unset $tempBasket>>
+	<</if>>
+	<<for _oldName, _newKey range {
+		tempAttempts: "attemptsLeft",
+		tempForageType: "type",
+		tempExtreme: "pigsLedPcDeep",
+		tempRewardType: "rewardType",
+		tempRewardQuantity: "rewardQuantity",
+		tempPosition: "position",
+		tempRewardHelpful: "rewardedHelpfulPig",
+		tempGenderHelpful: "helpfulPigGender",
+		tempTrueConsensual: "pcCanStopSex",
+		tempResponse: "response",
+		tempLocation: "location",
+		tempPigTracker: "watchingPigGenders",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $alexFarm.woodlandForage[_newKey] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<!-- Now temporary variables -->
+	<<unset $farm_breast_milk $farm_penis_milk $foxGen $remywake>>
+	<!-- Removed -->
+	<<unset $farm_assault_done $cottage_nursery_prep>>
+	<<if $alexFarm.stage gte 7 and !Number.isFinite($alexFarm.assault.daysUntilNext)>>
+		<<set $alexFarm.assault.daysUntilNext to 30>>
+	<</if>>
+<</widget>>

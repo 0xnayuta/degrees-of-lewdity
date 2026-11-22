@@ -1136,7 +1136,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("farmYield", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.farm_yield = (V.farm_yield || 0) + amount;
+			V.daily.alexFarm.yieldToday = (V.daily.alexFarm.yieldToday || 0) + amount;
 		}
 	}
 	DefineMacro("farm_yield", farmYield);

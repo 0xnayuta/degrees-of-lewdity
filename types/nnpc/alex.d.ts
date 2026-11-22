@@ -21,7 +21,7 @@ declare global {
 		/** What the PC said the last time Alex offered a drink during a rest. Changes Alex's line when Alex offers again.
 		 * Unset when the rest ends. */
 		restDrinkAnswer?: "accept" | "refuse";
-		/** Alex pregnancy content. Includes Alex or the PC giving birth at the cottage and the hospital births Alex comes to. */
+		/** Births Alex is part of. Alex or the PC giving birth at the cottage, and the PC's hospital births Alex comes to. */
 		birth: {
 			/** How many babies Alex is giving birth to at the cottage. There are unique lines for twins and triplets. Unset at each end of the birth. */
 			numberOfBabies?: number;
@@ -29,7 +29,7 @@ declare global {
 			numberOfPcBabies?: number;
 			/** If Alex called an ambulance when the PC went into labour at the farm.
 			 * Sends the PC to the hospital instead of the cottage birth, and changes Alex's line when the PC comes back.
-			 * Unset at the end of the hospital birth, */
+			 * Unset at the end of the hospital birth. */
 			calledAmbulanceForPc?: true;
 			/** If Alex found the PC in labour on the farm road and got them to the hospital. Changes Alex's greeting in the hospital foyer.
 			 * Unset at the end of the hospital birth. */
