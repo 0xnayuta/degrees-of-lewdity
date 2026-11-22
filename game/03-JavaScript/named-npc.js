@@ -420,7 +420,7 @@ function gwylanStatusCheck() {
 	}
 
 	// return early if called before core vars are set
-	if (!V.gwylan) return (T.gwylanStatus = gwylanStatus);
+	if (!V.gwylan?.clothesTalkedAbout) return (T.gwylanStatus = gwylanStatus);
 
 	if (V.gwylan?.timer?.lastSeen) T.gwylanLastSeenDays = Math.abs(Time.date.dayDifference(new DateTime(V.gwylan.timer.lastSeen)));
 

@@ -1020,7 +1020,7 @@ function gwylanCanRescueFromWraith() {
 	if (isGwylanAbsent()) {
 		return false;
 	}
-	if (V.gwylanRescue?.seen?.includes("Wraith")) {
+	if (V.gwylan.rescue?.seen?.includes("Wraith")) {
 		return (
 			C.npc.Gwylan.init === 1 &&
 			C.npc.Gwylan.state === "active" &&

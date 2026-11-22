@@ -843,6 +843,18 @@ const VALID_MEMORIES = {
 
 		// If Gwylan has brought up their sex toy collection
 		"toyCollection",
+
+		// If Gwylan has removed a temple chastity belt
+		// Not used currently
+		"templeChastityBeltRemoved",
+
+		// Not set anywhere yet
+		// Used by gwylanHypnoMax() to allow devotion level 6
+		"forever",
+
+		// Not set anywhere yet
+		// Used to say "Devotion" instead of "Curiosity" in a combat hypnosis line
+		"devotion",
 	],
 	Alex: [
 		// If Alex asked the PC their favourite flower in the sunflowers on the meadow date
