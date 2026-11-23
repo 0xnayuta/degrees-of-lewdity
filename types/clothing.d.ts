@@ -386,6 +386,7 @@ declare global {
 		penisSize?: boolean;
 		zIndex?: string;
 		hood?: 0 | 1;
+		coversHandheld?: 0 | 1;
 		// Handheld item held over head, or alternate limb position used
 		holdPosition?: ArmPosition;
 		coverBackImage?: 0 | 1;
