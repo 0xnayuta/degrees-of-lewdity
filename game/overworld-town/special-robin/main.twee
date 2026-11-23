@@ -52,6 +52,7 @@
 <<elseif _robin_location is "school">>
 	You go to Robin's room. There's a note on the door. "Gone to school!"
 	<br><br>
+	<<robinRoomHurtAway>>
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
 <<elseif _robin_location is "sleep">>
@@ -90,27 +91,32 @@
 <<elseif _robin_location is "beach">>
 	You go to Robin's room. There's a note on the door. "Out selling lemonade!"
 	<br><br>
+	<<robinRoomHurtAway>>
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
 <<elseif _robin_location is "park">>
 	You go to Robin's room. There's a note on the door. "Out selling hot chocolate!"
 	<br><br>
+	<<robinRoomHurtAway>>
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
 <<elseif _robin_location is "halloween">>
 	You go to Robin's room. There's a note on the door. "Out trick-or-treating!"
 	<br><br>
+	<<robinRoomHurtAway>>
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
 <<elseif _robin_location is "englishPlay">>
 	You go to Robin's room. There's a note on the door. "Attending the school plays!"
 	<br><br>
+	<<robinRoomHurtAway>>
 	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 	<br>
-<<elseif false /*$daily.robin.askedPcToLeave*/>>
-	You to go Robin's room. Robin doesn't want to see you right now.
+<<elseif isRobinTooHurtToSeePc()>>
+	<<npc Robin>><<person1>>
+	You knock on the door. There's no answer. Robin is upset with you about <<print formatList($robin.hurt.reasons)>>. <<He>> doesn't want to see you right now.
 	<br><br>
-	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
+	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
 	<br>
 <<elseif Time.hour is 17 and _robin.trauma lte 60 and $daily.robin.homework isnot "stoppedForPc" and Time.schoolTerm>>
 	<<npc Robin>><<person1>>
@@ -815,7 +821,7 @@ You shove the note <<if !$worn.under_lower.type.includes("naked")>>into your $wo
 	<<He>> gets up and storms out. You see Robin run into the bathroom, then you hear water splashing. <<He>> walks back into the room with <<his>> face dripping wet.
 	<br><br>
 	<<if Memories.Robin.has("confessionNoteRead") and !$robin.romance>>
-		"You shouldn't do that in front of me," <<he>> says while closing the door. "Only in front of your lov..." <<He>> turns away from you, unwilling to let you see <<his>> face.<<set $robin.hurt.reason to "what you did while studying">><<set $robin.hurt.daysLeft to 1>>
+		"You shouldn't do that in front of me," <<he>> says while closing the door. "Only in front of your lov..." <<He>> turns away from you, unwilling to let you see <<his>> face.<<run addRobinHurt(1, "what you did while studying")>>
 	<<else>>
 		"You...I..." <<he>> says nothing in the end, but hugs you tightly after closing the door. You can't see <<his>> face.
 	<</if>><<npcincr Robin lust 5>><<glust>>
@@ -991,7 +997,7 @@ You shove the note <<if !$worn.under_lower.type.includes("naked")>>into your $wo
 				You stay near <<him>>, not touching or being too invasive, but close enough to remind <<him>> that you're with <<him>>. Eventually, <<his>> breathing slows.
 				<br><br>
 				"Sorry. I couldn't save you then. But," <<He>> looks into your eyes. "If <<nnpc_he "Eden">> ever harasses you again, I'll protect you.<<if $robin.romance>> For you, I will do it no matter how scared it makes me.<</if>>"
-				<<set $robin.hurt.reason to "you having Eden in your love locket">><<set $robin.hurt.daysLeft to 1>>
+				<<run addRobinHurt(1, "you having Eden in your love locket")>>
 				<<if $robin.romance>>
 					<br><br>
 					<<He>> looks at you<<if C.npc.Robin.dom gte 60>>. "Do you love <<nnpc_him "Eden">> more than me? How could you?"<<else>>, but seems unable to bring <<himself>> to say something.<</if>><<npcincr Robin love -1>><<llove>>
@@ -4708,7 +4714,7 @@ When it's done, Robin looks a little relieved. "Are you feeling better now?" <<h
 	<<if Memories.Robin.has("confessionNoteRead") and !$robin.romance>>
 		<<He>> waits for you to finish without saying a word. The nurse has slipped away at some point. An unbearable silence fills the room until <<he>> finally breaks it.
 		<br><br>
-		"So... why are you always trying to save me, then?" Robin keeps <<his>> head down. "You could just... leave me alone, you know you could..." <<set $robin.hurt.reason to "the thing that happened in the infirmary">><<set $robin.hurt.daysLeft to 1>><<npcincr Robin love -2>><<npcincr Robin dom -2>><<npcincr Robin trauma 2>><<llove>><<ldom>><<grtrauma>>
+		"So... why are you always trying to save me, then?" Robin keeps <<his>> head down. "You could just... leave me alone, you know you could..." <<run addRobinHurt(3, "the thing that happened in the infirmary")>><<npcincr Robin love -2>><<npcincr Robin dom -2>><<npcincr Robin trauma 2>><<llove>><<ldom>><<grtrauma>>
 		<br><br>
 		Before you can respond, <<he>> turns back to the door. "I-I'm going to class." <<He>> leaves in a hurry.
 		<br><br>
@@ -4727,7 +4733,7 @@ When it's done, Robin looks a little relieved. "Are you feeling better now?" <<h
 			Before things get too serious, the nurse interrupts. "Hey, I don't know what happened, but don't fight, okay?"
 			You calm down. Robin clenches <<his>> fist, keeping <<his>> head down. You can't see <<his>> face, but tears are falling on the back of <<his>> hand.
 			<br><br>
-			"I-I didn't know that was how you saw me..." <<His>> voice cracks. "Sorry, I don't mean to be a burden. I know... it's better to learn how to take care of myself." <<set $robin.hurt.reason to "the thing that happened in the infirmary">><<set $robin.hurt.daysLeft to 1>><<npcincr Robin love -2>><<npcincr Robin dom -2>><<npcincr Robin trauma 2>><<llove>><<ldom>><<grtrauma>>
+			"I-I didn't know that was how you saw me..." <<His>> voice cracks. "Sorry, I don't mean to be a burden. I know... it's better to learn how to take care of myself." <<run addRobinHurt(3, "the thing that happened in the infirmary")>><<npcincr Robin love -2>><<npcincr Robin dom -2>><<npcincr Robin trauma 2>><<llove>><<ldom>><<grtrauma>>
 			<br><br>
 			Before you can respond, <<he>> turns back to the door. "I-I'm going to class." <<He>> leaves in a hurry.
 			<br><br>
@@ -8581,7 +8587,12 @@ You get up from the bed and leave the room. Robin doesn't look at you.
 	<</if>>
 <<else>>
 	You open the bathroom door. You see Robin bathing in the tub.
-	<<if $robin.romance>>
+	<<if isRobinTooHurtToSeePc()>>
+		<<He>> turns around and yelps, frowning upon seeing you. <<He>> covers <<himself>>. "P-please leave. I don't want to talk to you right now."
+		<br><br>
+		Robin is upset with you about <<print formatList($robin.hurt.reasons)>>. <<He>> won't even look at you.
+		<br>
+	<<elseif $robin.romance>>
 		<<He>> turns around and yelps, but visibly relaxes upon seeing it's you. <<He>> smiles and waves.
 		<br><br>
 

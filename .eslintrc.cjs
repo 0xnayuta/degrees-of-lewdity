@@ -438,6 +438,11 @@ module.exports = {
 		wearingCondom: "readonly",
 		npcHasStrapon: "readonly",
 		rollWeightedRandomFromArray: "readonly",
+		orphanagePlotsPlanted: "readonly",
+		orphanagePlotsWatered: "readonly",
+		isRobinTooHurtToSeePc: "readonly",
+		waterPlotsIfRaining: "readonly",
+		isPregnancyEnding: "readonly",
 	},
 
 	ignorePatterns: [
@@ -550,6 +555,8 @@ module.exports = {
 					"FishingTrashConfig",
 					"FishingClothingConfig",
 					"FameTypes",
+					"RobinLocation",
+					"RobinHurtReason",
 				],
 			},
 		],

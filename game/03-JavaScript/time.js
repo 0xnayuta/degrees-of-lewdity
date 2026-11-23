@@ -1,4 +1,3 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered waterPlotsIfRaining */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -528,7 +527,12 @@ function weekPassed() {
 			V.robin.rent.missedPayments++;
 		}
 	}
-	if (!V.robin.rent.pcPaysForRobin && V.robin.rent.missedPayments >= V.robin.rent.missedPaymentLimit && V.robin.punishment.daysLeft <= 0) {
+	if (
+		!V.robin.rent.pcPaysForRobin &&
+		V.robin.rent.missedPayments >= V.robin.rent.missedPaymentLimit &&
+		V.robin.punishment.daysLeft <= 0 &&
+		V.robin.punishment.current !== "underground"
+	) {
 		wikifier("robinPunishment", "docks");
 		V.robin.rent.pcThinksOfPayingBaileyForRobin = true;
 		V.robin.rent.missedPayments = 0;
@@ -696,7 +700,6 @@ function dayPassed() {
 	if (V.balloonStand.robin.status === "closed") V.balloonStand.robin.status = "sabotaged";
 	if (V.robin.money.balloonStandDaysUntilTalk >= 1) V.robin.money.balloonStandDaysUntilTalk--;
 	if (V.robin.hurt.daysLeft >= 1) V.robin.hurt.daysLeft--;
-	if (V.robin.hurt.daysLeft === 0) V.robin.hurt.reason = "nothing";
 
 	V.robin.stayedUp = V.robin.stayedUp === 1 ? 2 : 0;
 
@@ -1102,6 +1105,7 @@ function hourPassed(hours) {
 			Time.hour === 17 &&
 			V.robin.orphanage.watersGarden &&
 			C.npc.Robin.trauma < 50 &&
+			!isRobinTooHurtToSeePc() &&
 			["orphanage", "garden", "bath"].includes(getRobinLocation()) &&
 			Weather.precipitation !== "rain" &&
 			(Weather.precipitation !== "snow" || V.alex_greenhouse >= 3) &&
@@ -1184,7 +1188,6 @@ function minutePassed(minutes) {
 
 	parasiteProgressTime(minutes);
 	parasiteProgressTime(minutes, "vagina");
-	// eslint-disable-next-line no-undef
 	if (isPregnancyEnding()) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
@@ -1357,8 +1360,7 @@ function dailyNPCEffects() {
 		}
 	}
 	if (C.npc.Robin.trauma > 0) wikifier("npcincr", "Robin", "trauma", -1);
-
-	if (V.robin.punishment.daysLeft === 0) V.robin.punishment.current = 0;
+	if (V.robin.punishment.daysLeft === 0 && V.robin.punishment.current !== "underground") V.robin.punishment.current = 0;
 	if (V.robin.rent.pcPaysForRobin) {
 		// Edge case for when the PC is in combat at midnight.
 		if (V.combat === 1) statChange.trauma(-25, "combat");
