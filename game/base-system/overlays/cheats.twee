@@ -866,23 +866,27 @@
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Fame</div>
 		<div class="settingsToggleItem">
-			<<set _positiveFames to ["good", "business", "scrap", "social", "model"]>>
-			<<set _negativeFames to ["exhibitionism", "prostitution", "bestiality", "sex", "rape", "pregnancy", "impreg"]>>
 			<span class="gold">Negative Fame</span>
 			<br>
 			<<link "Set all to 0">>
-				<<for _i range _negativeFames>>
-					<<set $fame[_i] to 0>>
-				<</for>>
-				<<fameclamp>>
+				<<fameexhibitionism -2000 true>>
+				<<fameprostitution -2000 true>>
+				<<famebestiality -2000 true>>
+				<<famesex -2000 true>>
+				<<famerape -2000 true>>
+				<<famepregnancy -2000 true>>
+				<<fameimpreg -2000 true>>
 				<<replace #cheatsNegative>><<cheatSection "negative">><</replace>>
 			<</link>>
 			|
 			<<link "Set all to max">>
-				<<for _i range _negativeFames>>
-					<<set $fame[_i] to 2000>>
-				<</for>>
-				<<fameclamp>>
+				<<fameexhibitionism 2000 true>>
+				<<fameprostitution 2000 true>>
+				<<famebestiality 2000 true>>
+				<<famesex 2000 true>>
+				<<famerape 2000 true>>
+				<<famepregnancy 2000 true>>
+				<<fameimpreg 2000 true>>
 				<<replace #cheatsNegative>><<cheatSection "negative">><</replace>>
 			<</link>>
 			<br><br>
@@ -893,18 +897,20 @@
 			<span class="gold">Positive Fame</span>
 			<br>
 			<<link "Set all to 0">>
-				<<for _i range _positiveFames>>
-					<<set $fame[_i] to 0>>
-				<</for>>
-				<<fameclamp>>
+				<<famegood -2000 true>>
+				<<famebusiness -2000 true>>
+				<<famescrap -2000 true>>
+				<<famesocial -2000 true>>
+				<<famemodel -2000 true>>
 				<<replace #cheatsPositive>><<cheatSection "positive">><</replace>>
 			<</link>>
 			|
 			<<link "Set all to max">>
-				<<for _i range _positiveFames>>
-					<<set $fame[_i] to 2000>>
-				<</for>>
-				<<fameclamp>>
+				<<famegood 2000 true>>
+				<<famebusiness 2000 true>>
+				<<famescrap 2000 true>>
+				<<famesocial 2000 true>>
+				<<famemodel 2000 true>>
 				<<replace #cheatsPositive>><<cheatSection "positive">><</replace>>
 			<</link>>
 			<br><br>
@@ -2556,23 +2562,23 @@
 			<</for>>
 			<<unset _cr>>
 		<<case "negative">>
-			<<numberStepper "Sex" $fame.sex { callback: value => { V.fame.sex = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Prostitution" $fame.prostitution { callback: value => { V.fame.prostitution = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Rape" $fame.rape { callback: value => { V.fame.rape = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Bestiality" $fame.bestiality { callback: value => { V.fame.bestiality = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Pregnancy" $fame.pregnancy { callback: value => { V.fame.pregnancy = value }, max: Math.clamp(playerNormalPregnancyTotal(),1,8) * 250, step: 2000 / 100, percentage: false, reverse: true, valueFormat: (value) => `<b>${Math.round(((value - 0) / (2000 - 0)) * 100)}%</b>`}>>
-			<<numberStepper "Impregnation" $fame.impreg { callback: value => { V.fame.impreg = value }, max: 2000, reverse: true}>>
-			<<numberStepper "Exhibitionism" $fame.exhibitionism { callback: value => { V.fame.exhibitionism = value }, max: 2000, reverse: true}>>
-			<<if playerNormalPregnancyTotal() lt 8>>
-				<span class="description"><<set _pregsNeeded to Math.trunc(8-playerNormalPregnancyTotal())>>
-				Your pregnancy fame is capped by the amount of pregnancies you've had. You need to get pregnant <span class="gold"><<number _pregsNeeded>></span> more <<pluralise _pregsNeeded "time">> to reach maximum pregnancy fame.</span>
+			<<numberStepper "Sex" $fame.sex { callback: value => { Fame.sex(value - V.fame.sex, true) }, max: 2000, reverse: true}>>
+			<<numberStepper "Prostitution" $fame.prostitution { callback: value => { Fame.prostitution(value - V.fame.prostitution, true) }, max: 2000, reverse: true}>>
+			<<numberStepper "Rape" $fame.rape { callback: value => { Fame.rape(value - V.fame.rape, true) }, max: 2000, reverse: true}>>
+			<<numberStepper "Bestiality" $fame.bestiality { callback: value => { Fame.bestiality(value - V.fame.bestiality, true) }, max: 2000, reverse: true}>>
+			<<numberStepper "Pregnancy" $fame.pregnancy { callback: value => { Fame.pregnancy(value - V.fame.pregnancy, true) }, max: Math.clamp(playerNormalPregnancyTotal() + 1, 1, 8) * 250, step: 2000 / 100, percentage: false, reverse: true, valueFormat: (value) => `<b>${Math.round(((value - 0) / (2000 - 0)) * 100)}%</b>`}>>
+			<<numberStepper "Impregnation" $fame.impreg { callback: value => { Fame.impreg(value - V.fame.impreg, true) }, max: 2000, reverse: true}>>
+			<<numberStepper "Exhibitionism" $fame.exhibitionism { callback: value => { Fame.exhibitionism(value - V.fame.exhibitionism, true) }, max: 2000, reverse: true}>>
+			<<if playerNormalPregnancyTotal() lt 7>>
+				<span class="description"><<set _pregsNeeded to Math.trunc(7-playerNormalPregnancyTotal())>>
+				Your pregnancy fame is capped by the number of times you've given birth. You need to give birth <span class="gold"><<number _pregsNeeded>></span> more <<pluralise _pregsNeeded "time">> to reach maximum pregnancy fame.</span>
 			<</if>>
 		<<case "positive">>
-			<<numberStepper "Combat" $fame.scrap { callback: value => { V.fame.scrap = value }, max: 2000}>>
-			<<numberStepper "Kindness" $fame.good { callback: value => { V.fame.good = value }, max: 2000}>>
-			<<numberStepper "Business" $fame.business { callback: value => { V.fame.business = value }, max: 2000}>>
-			<<numberStepper "Socialite" $fame.social { callback: value => { V.fame.social = value }, max: 2000}>>
-			<<numberStepper "Model" $fame.model { callback: value => { V.fame.model = value }, max: 2000}>>
+			<<numberStepper "Combat" $fame.scrap { callback: value => { Fame.scrap(value - V.fame.scrap, true) }, max: 2000}>>
+			<<numberStepper "Kindness" $fame.good { callback: value => { Fame.good(value - V.fame.good, true) }, max: 2000}>>
+			<<numberStepper "Business" $fame.business { callback: value => { Fame.business(value - V.fame.business, true) }, max: 2000}>>
+			<<numberStepper "Socialite" $fame.social { callback: value => { Fame.social(value - V.fame.social, true) }, max: 2000}>>
+			<<numberStepper "Model" $fame.model { callback: value => { Fame.model(value - V.fame.model, true) }, max: 2000}>>
 		<<case "skills">>
 			<<numberStepper "Skulduggery" $skulduggery "skulduggery" {max: 1000}>>
 			<<numberStepper "Dance" $danceskill "danceskill" {max: 1000}>>

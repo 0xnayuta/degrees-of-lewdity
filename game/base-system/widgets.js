@@ -651,7 +651,7 @@ function calculateallure() {
 	// Allure changes from fame
 	if (!["island"].includes(V.location)) {
 		for (const badfame of ["sex", "prostitution", "rape", "bestiality", "exhibitionism", "pregnancy", "impreg"]) allure += V.fame[badfame] / 10;
-		for (const goodfame of ["good", "scrap", "business", "social", "model", "pimp"]) allure -= V.fame[goodfame] / 2;
+		for (const goodfame of ["good", "scrap", "business", "social", "model"]) allure -= V.fame[goodfame] / 2;
 	}
 
 	// Allure changes from the bloodmoon

@@ -854,7 +854,7 @@ function dayPassed() {
 		for (const fameKeys of Object.keys(V.fameDecay)) {
 			if (V.fameDecayTimer[fameKeys] >= 1) {
 				V.fameDecayTimer[fameKeys]--;
-				V.fame[fameKeys] -= V.fameDecay[fameKeys];
+				Fame.change(fameKeys, -V.fameDecay[fameKeys], true);
 			} else if (V.fameDecayTimer[fameKeys] <= 0) {
 				delete V.fameDecayTimer[fameKeys];
 				delete V.fameDecay[fameKeys];

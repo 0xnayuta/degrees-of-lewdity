@@ -400,10 +400,6 @@ const constants = {
 	// 		max: 2000,
 	// 		min: 0,
 	// 	},
-	// 	pimp: {
-	// 		max: 2000,
-	// 		min: 0,
-	// 	},
 	// 	pregnancy: {
 	// 		max: 2000,
 	// 		min: 0,

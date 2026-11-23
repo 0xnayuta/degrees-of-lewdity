@@ -250,6 +250,20 @@ declare global {
 		| "ears"
 		| "pits";
 
+	export type FameTypes =
+		| "exhibitionism"
+		| "prostitution"
+		| "bestiality"
+		| "rape"
+		| "sex"
+		| "pregnancy"
+		| "impreg"
+		| "good"
+		| "business"
+		| "scrap"
+		| "social"
+		| "model";
+
 	export interface AngelTransformationParts {
 		halo: string;
 		wings: string;
