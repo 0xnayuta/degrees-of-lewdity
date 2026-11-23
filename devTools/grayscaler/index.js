@@ -120,6 +120,8 @@ function processSlot(setupfile,imgdir,varname,hasIntegrity) {
 				"back_img_colour",
 				"sleeve_img",
 				"sleeve_colour",
+				"sleeve_acc_img",
+				"sleeve_acc_colour",
 				"penis_img",
 				"hood"
 			]);
@@ -167,6 +169,11 @@ function processSlot(setupfile,imgdir,varname,hasIntegrity) {
 				if (json.sleeve_img) {
 					if (colorByOption(json.sleeve_colour, json.colour_sidebar)) {
 						files.push("right", "right_cover", "left", "left_cover");
+					}
+					if (json.sleeve_acc_img) {
+						if (colorByOption(json.sleeve_acc_colour, json.colour_sidebar)) {
+							files.push("right_acc", "right_cover_acc", "left_acc", "left_cover_acc");
+						}
 					}
 				}
 				if (json.accessory === 1 && json.accessory_colour_sidebar) {
