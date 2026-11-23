@@ -264,6 +264,7 @@ declare global {
 		pattern_name?: string;
 		pattern_caption?: boolean;
 		pattern_layer?: "primary" | "secondary" | "tertiary";
+		pattern_integrity?: boolean;
 		accessory: number;
 		accessory_colour?: 0 | string;
 		accessory_colour_options?: string[];
@@ -306,6 +307,15 @@ declare global {
 		sleeve_acc_img?: number;
 		/**
 		 * (For upper, over_upper, under_upper slots)
+		 * Recolouring of sleeve accessory images:
+		 * * "" (default) - depending on accessory_colour_sidebar
+		 * * "primary" - use primary/main colour
+		 * * "secondary" - use secondary/accessory colour
+		 * * "tertiary" - do not recolour image
+		 */
+		sleeve_acc_colour?: 0 | "primary" | "secondary" | "tertiary";
+		/**
+		 * (For upper, over_upper, under_upper slots)
 		 * Recolouring of sleeves images:
 		 * * "" (default) - depending on colour_sidebar
 		 * * "pattern" - apply pattern to sleeves using pattern_layer colour (primary, secondary, or tertiary)
@@ -332,7 +342,12 @@ declare global {
 		outfitPrimary?: object;
 		outfitSecondary?: string[];
 		notuck?: number | "tie";
-		has_collar?: 0 | 1;
+		/**
+		 * * 0 for no collar
+		 * * 1 for normal collar
+		 * * 2 for high collar
+		 */
+		has_collar?: 0 | 1 | 2;
 		/**
 		 * (For head slots)
 		 * if 1, this item has mask.png image to cut out hair & animal ears layers
@@ -352,6 +367,7 @@ declare global {
 			variable: string;
 		}[];
 		breast_acc_img?: object | 1 | 0;
+		breast_acc_alt?: 0 | 1;
 		breast_pattern?: boolean;
 		accImage?: 0 | 1;
 		breast_combat?: 0 | 1;

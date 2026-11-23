@@ -393,6 +393,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				genitals: {
@@ -402,6 +403,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				over_upper: {
@@ -411,6 +413,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				lower: {
@@ -420,6 +423,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				over_lower: {
@@ -429,6 +433,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				under_lower: {
@@ -438,6 +443,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				under_upper: {
@@ -447,6 +453,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				hands: {
@@ -456,6 +463,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				handheld: {
@@ -465,6 +473,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				head: {
@@ -474,6 +483,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				over_head: {
@@ -483,6 +493,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				face: {
@@ -492,6 +503,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				neck: {
@@ -501,6 +513,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				legs: {
@@ -510,6 +523,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				},
 				feet: {
@@ -519,6 +533,7 @@ Renderer.CanvasModels.main = {
 					colour: "white",
 					accColour: "white",
 					pattern: 0,
+					pattern_integrity: 0,
 					setup: { type: [] },
 				}
 			},
@@ -933,7 +948,8 @@ Renderer.CanvasModels.main = {
 
 
 		/*clothes whose sleeves cannot be rolled up*/
-		if (options.worn.upper.setup.variable === "schoolcardigan" && options.worn.upper.alt !== "alt") {
+		if ((options.worn.upper.setup.variable === "schoolcardigan" && options.worn.upper.alt !== "alt")
+			|| (options.worn.upper.setup.variable === "flannel shirt and t-shirt" && options.worn.upper.alt == "alt")) {
 			options.alt_sleeve_state = null;
 		} else {
 			options.alt_sleeve_state = true;
@@ -3670,7 +3686,11 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				const dmg = options.worn.head.setup.accessory_integrity_img ? `-${options.worn.upper.integrity}` : '';
 				const pattern = options.worn.head.pattern && options.worn.head.setup.pattern_layer === "secondary" ? "-" + options.worn.head.pattern?.replace(/ /g,"-") : '';
-				return `img/clothes/head/${options.worn.head.setup.variable}/acc${dmg}${pattern}.png`;
+				const isAltPosition = !options.alt_override && options.worn.head.setup.altposition !== undefined
+					&& options.worn.head.alt === "alt" 
+					&& !options.worn.head.setup.altdisabled.includes("acc");
+				const end = isAltPosition ? '-alt' : '';
+				return `img/clothes/head/${options.worn.head.setup.variable}/acc${dmg}${pattern}${end}.png`;
 			},
 			showfn(options) {
 				return options.show_clothes
@@ -3793,7 +3813,10 @@ Renderer.CanvasModels.main = {
 					&& options.worn.neck.alt === "alt";
 
 				let collar = "";
-				if (options.worn.neck.setup.has_collar === 1 && options.worn.upper.setup.has_collar === 1 && !(options.worn.upper.setup.name === "dress shirt" && options.worn.upper.alt === "alt")) {
+				if (((options.worn.neck.setup.has_collar === 1 && options.worn.upper.setup.has_collar === 1) || (options.worn.neck.setup.has_collar === 1 && options.worn.upper.setup.has_collar === 2))
+						&& !(options.worn.upper.setup.name === "dress shirt" && options.worn.upper.alt === "alt")
+						&& !(options.worn.upper.setup.name === "button-down" && options.worn.upper.alt === "alt")
+						&& !(options.worn.upper.setup.name === "oversized button-down" && options.worn.upper.alt === "alt")) {
 					collar = '-nocollar';
 				} else if (options.worn.neck.setup.name === "sailor ribbon" && options.worn.upper.setup.name === "serafuku") {
 					collar = "-serafuku";
@@ -3819,6 +3842,13 @@ Renderer.CanvasModels.main = {
 				if (setup.zIndex) return ZIndices[setup.zIndex];
 				return options.hood_mask ? ZIndices.collar : ZIndices.neck;
 			},
+			dyfn(options) {
+				return (options.worn.upper.setup.has_collar === 2 && (options.worn.neck.name === "ribbon tie" || options.worn.neck.name === "large ribbon tie")) ? -5 : options.worn.upper.setup.has_collar === 2 ? -3 : 0;
+			},
+			dxfn(options) {
+				return (options.worn.upper.setup.has_collar === 2 && (options.worn.neck.name === "ribbon tie" || options.worn.neck.name === "large ribbon tie")) ? -2 : options.worn.upper.setup.has_collar === 2 ? -1 : 0;
+			},
+
 		}),
 		"neck_acc": genlayer_clothing_accessory('neck', {
 			srcfn(options) {
@@ -3849,7 +3879,10 @@ Renderer.CanvasModels.main = {
 				return check ? ZIndices.collar : ZIndices.neck;
 			},
 			dyfn(options) {
-				return options.high_waist_suspenders ? -8 : 0;
+				return options.high_waist_suspenders ? -8 : (options.worn.upper.setup.has_collar === 2 && (options.worn.neck.name === "ribbon tie" || options.worn.neck.name === "large ribbon tie")) ? -5 : options.worn.upper.setup.has_collar === 2 ? -3 : 0;
+			},
+			dxfn(options) {
+				return (options.worn.upper.setup.has_collar === 2 && (options.worn.neck.name === "ribbon tie" || options.worn.neck.name === "large ribbon tie")) ? -2 : options.worn.upper.setup.has_collar === 2 ? -1 : 0;
 			},
 		}),
 		/***
@@ -4511,15 +4544,6 @@ function generateClothingAccFilter(options, slot, item) {
 window.generateClothingAccFilter = generateClothingAccFilter;
 
 // Layer generating functions.
-function getClothingPathBreastsAcc(slot, options) {
-	const breastImg = options.worn[slot].setup.breast_img;
-	const breastAccImg = options.worn[slot].setup.breast_acc_img;
-	const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
-	const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-	const folder = normaliseFileName(slot);
-	return `img/clothes/${folder}/${options.worn[slot].setup.variable}/${breastSize}-acc${pattern}.png`;
-}
-
 function filterFnArm(state, slot, options) {
 	const altFilterSwap = !options.alt_override
 	&& options.worn[slot].setup.altposition !== undefined
@@ -4797,13 +4821,12 @@ function genlayer_clothing_detail(slot, overrideOptions) {
 		},
 		srcfn(options) {
 			const setup = options.worn[slot].setup;
-
 			const isAltPosition = !options.alt_override && setup.altposition !== undefined
 				&& options.worn[slot].alt === "alt"
 				&& !setup.altdisabled.includes("full");
 
-			const pattern = options.worn[slot].pattern ? options.worn[slot].pattern?.replace(/ /g,"-") : '';
-
+			const integrity = options.worn[slot].integrity;
+			const pattern = options.worn[slot].pattern && setup.pattern_integrity===1 ? options.worn[slot].pattern?.replace(/ /g,"-") + '-' + integrity : (options.worn[slot].pattern ? options.worn[slot].pattern?.replace(/ /g,"-") : '');
 			const end = isAltPosition ? '-alt' : '';
 			const folder = normaliseFileName(slot);
 			return `img/clothes/${folder}/${setup.variable}/${pattern}${end}.png`;
@@ -5053,7 +5076,21 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 		filters: [`worn_${slot}_acc`],
 
 		srcfn(options) {
-			return getClothingPathBreastsAcc(slot, options);
+			const setup = options.worn[slot].setup;
+			const breastImg = setup.breast_img;
+
+			const isAltPosition = !options.alt_override
+				&& setup.altposition !== undefined
+				&& options.worn[slot].alt === "alt"
+				&& !setup.altdisabled.includes("breasts")
+				&& !setup.altdisabled.includes("breasts_acc")
+				&& setup.breast_acc_alt === 1;
+
+			let breastSize = typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
+			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
+			const end = isAltPosition ? '-acc-alt' : '-acc';
+			const folder = normaliseFileName(slot);
+			return `img/clothes/${folder}/${setup.variable}/${breastSize}${pattern}${end}.png`;
 		},
 		showfn(options) {
 			const breastAccImg = options.worn[slot].setup.breast_acc_img;
@@ -5235,7 +5272,7 @@ function genlayer_clothing_arm_fitted(arm, slot, overrideOptions) {
 function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 	return genlayer_clothing_basic(slot, Object.assign({
 		filtersfn(options) {
-			return filterFnArm(options.worn[slot].setup.accessory_colour_sidebar, slot, options);
+			return filterFnArm(options.worn[slot].setup.sleeve_acc_colour === 0 || options.worn[slot].setup.sleeve_acc_colour === "tertiary" ? options.worn[slot].setup.sleeve_acc_colour : options.worn[slot].setup.accessory_colour_sidebar, slot, options);
 		},
 		showfn(options) {
 			return options.worn[slot].index > 0
