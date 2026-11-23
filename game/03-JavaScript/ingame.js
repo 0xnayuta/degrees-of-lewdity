@@ -418,14 +418,6 @@ function cheatPregnancyNPCReset() {
 }
 DefineMacro("cheatPregnancyNPCReset", cheatPregnancyNPCReset);
 
-function featsPointsMenuReset() {
-	jQuery(document).on("change", "#listbox--upgradenameid", () => {
-		Wikifier.wikifyEval("<<updateFeatsPointsMenu>>");
-	});
-	return "";
-}
-DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
-
 function startingPlayerImageReset() {
 	jQuery(document).on("change", "#settingsDiv", () => {
 		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
