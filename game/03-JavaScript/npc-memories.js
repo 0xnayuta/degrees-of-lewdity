@@ -891,6 +891,12 @@ const VALID_MEMORIES = {
 		// If the PC helped another orphan fight off an attacker at the orphanage, with Bailey watching
 		// Used so Bailey only reacts and gains respect the first time
 		"pcStoppedOrphanAttack",
+		// If the PC told Remy's worker at the estate that Bailey sent them after knocking over the phials
+		// Not currently used
+		"pcUsedNameAtEstate",
+		// If the PC convinced the captors in the alleyways that Bailey wants the missing orphan back, and they let the orphan go
+		// Used so Bailey only gains respect the first time
+		"pcUsedNameToRescueOrphan",
 		// If the PC emailed Bailey from Kylar's laptop during the abduction, and Bailey came to Kylar's manor with Jordan to rescue them
 		// Used for Bailey's lines when the PC moans Kylar's name during an encounter
 		"rescuedPcFromKylar",
