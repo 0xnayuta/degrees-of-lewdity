@@ -1349,25 +1349,25 @@
 	<hr>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Reputation</div>
-		<<if $farm_stage gte 2>>
+		<<if $alexFarm.stage gte 2>>
 			<div class="settingsToggleItem">
 				<<farmicon>><span class="gold">Farm Status</span>
-				<<numberStepper "Steeds' Respect" `V.farm.beasts.horses` { callback: value => { V.farm.beasts.horses = value }, min: -30, max: 30 }>>
-				<<numberStepper "Pigs' Respect" `V.farm.beasts.pigs` { callback: value => { V.farm.beasts.pigs = value }, min: -30, max: 30}>>
-				<<numberStepper "Cattle' Respect" `V.farm.beasts.cattle` { callback: value => { V.farm.beasts.cattle = value }, min: -30, max: 30 }>>
-				<<numberStepper "Dogs' Respect" `V.farm.beasts.dogs` { callback: value => { V.farm.beasts.dogs = value }, min: -30, max: 30 }>>
+				<<numberStepper "Steeds' Respect" `V.alexFarm.animalRespect.horses` { callback: value => { V.alexFarm.animalRespect.horses = value }, min: -30, max: 30 }>>
+				<<numberStepper "Pigs' Respect" `V.alexFarm.animalRespect.pigs` { callback: value => { V.alexFarm.animalRespect.pigs = value }, min: -30, max: 30}>>
+				<<numberStepper "Cattle' Respect" `V.alexFarm.animalRespect.cattle` { callback: value => { V.alexFarm.animalRespect.cattle = value }, min: -30, max: 30 }>>
+				<<numberStepper "Dogs' Respect" `V.alexFarm.animalRespect.dogs` { callback: value => { V.alexFarm.animalRespect.dogs = value }, min: -30, max: 30 }>>
 			</div>
 			<div class="settingsToggleItem">
 				<<farmicon>><span class="gold">Farm Progress</span>
 				<br>
-				<<if $farm_stage gte 12>>
+				<<if $alexFarm.stage gte 12>>
 					You've cleared <span class="green">all</span> of the fields.
 				<<else>>
 					<span id="farmYard"><<cheatsRep "farm">></span>
 				<</if>>
-				<<if $farm_stage gte 5>>
+				<<if $alexFarm.stage gte 5>>
 					<hr>
-					<<numberStepper "Remy's Encroachment" `V.farm.aggro` { reverse: true, callback: value => { V.farm.aggro = value; Wikifier.wikifyEval("<<replace #farmAggro>><<cheatsRep aggro>><</replace>>") } }>>
+					<<numberStepper "Remy's Encroachment" `V.alexFarm.remyEncroachment` { reverse: true, callback: value => { V.alexFarm.remyEncroachment = value; Wikifier.wikifyEval("<<replace #farmAggro>><<cheatsRep aggro>><</replace>>") } }>>
 					<span id="farmAggro"><<cheatsRep "aggro">></span>
 				<</if>>
 			</div>
@@ -1473,40 +1473,40 @@
 <<widget "cheatsRep">>
 	<<switch _args[0]>>
 		<<case "aggro">>
-			<<if $farm.aggro gte 100>>
+			<<if $alexFarm.remyEncroachment gte 100>>
 				<span class="red">Remy's goons operate in the open, sabotaging the farm and its business.</span>
-			<<elseif $farm.aggro gte 60>>
+			<<elseif $alexFarm.remyEncroachment gte 60>>
 				<span class="pink">The farm is being sabotaged, day and night.</span>
-			<<elseif $farm.aggro gte 40>>
+			<<elseif $alexFarm.remyEncroachment gte 40>>
 				<span class="purple">The farm is being sabotaged at night.</span>
-			<<elseif $farm.aggro gte 20>>
+			<<elseif $alexFarm.remyEncroachment gte 20>>
 				<span class="blue">Something is spooking the beasts of the farm.</span>
-			<<elseif $farm.aggro gte 10>>
+			<<elseif $alexFarm.remyEncroachment gte 10>>
 				<span class="lblue">Signs of intrusion have been found around the farm.</span>
-			<<elseif $farm.aggro gte 1>>
+			<<elseif $alexFarm.remyEncroachment gte 1>>
 				<span class="teal">Strange people have been seen watching the farm.</span>
 			<<else>>
 				<span class="green">The farm is peaceful.</span>
 			<</if>>
 		<<case "farm">>
 			One of the fields is being cleared,
-			<<if $farm.clearing lte 0>>
+			<<if $alexFarm.clearingLeft lte 0>>
 				<span class="green">and is ready for planting!</span>
-			<<elseif $farm.clearing lte 20>>
+			<<elseif $alexFarm.clearingLeft lte 20>>
 				<span class="teal">and is almost ready for planting.</span>
-			<<elseif $farm.clearing lte 40>>
+			<<elseif $alexFarm.clearingLeft lte 40>>
 				<span class="lblue">and is starting to look civilised.</span>
-			<<elseif $farm.clearing lte 60>>
+			<<elseif $alexFarm.clearingLeft lte 60>>
 				<span class="blue">and soil has been exposed in places.</span>
-			<<elseif $farm.clearing lte 80>>
+			<<elseif $alexFarm.clearingLeft lte 80>>
 				<span class="purple">but the tangle remains defiant.</span>
-			<<elseif $farm.clearing lte 99>>
+			<<elseif $alexFarm.clearingLeft lte 99>>
 				<span class="pink">but little progress has been made.</span>
 			<<else>>
 				<span class="red">but remains a jungle of weeds.</span>
 			<</if>>
-			<<if $farm.clearing gt 0>>
-				| <<farmicon "clear yard">><<link "Clear field">><<set $farm.clearing to 0>><<replace "#farmYard">><<cheatsRep "farm">><</replace>><</link>>
+			<<if $alexFarm.clearingLeft gt 0>>
+				| <<farmicon "clear yard">><<link "Clear field">><<set $alexFarm.clearingLeft to 0>><<replace "#farmYard">><<cheatsRep "farm">><</replace>><</link>>
 			<<else>>
 				<span class="green">Talk to Alex to advance farm progress.</span>
 			<</if>>
@@ -1632,7 +1632,7 @@
 					<<landfillicon>><<link [[Landfill|Trash Gate Enter]]>><<cheats-teleport-function>><</link>>
 					<br>
 				<</if>>
-				<<if $compound.card or $farm_stage gte 9>>
+				<<if $compound.card or $alexFarm.stage gte 9>>
 					<<landfillicon>><<link [[Elk Compound]]>><<cheats-teleport-function>><</link>>
 					<br>
 				<</if>>

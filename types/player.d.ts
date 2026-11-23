@@ -127,7 +127,6 @@ declare module "twine-sugarcube" {
 		temple_rank: "prospective" | "initiate" | "monk" | "priest" | "bishop";
 
 		livestock_obey: number;
-		farm_yield: number;
 
 		asylumstatus: number;
 

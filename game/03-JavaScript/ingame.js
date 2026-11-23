@@ -1751,7 +1751,7 @@ function isPossibleLoveInterest(name) {
 		case "Great Hawk":
 			return V.syndromebird === 1;
 		case "Alex":
-			return V.farm_stage >= 7 && V.alex_countdown === undefined;
+			return V.alex.romance;
 		case "Gwylan":
 			return Memories.Gwylan.has("loveInterest") || Memories.Gwylan.has("romance");
 		default:
@@ -2767,7 +2767,7 @@ window.orphanagePlotsWatered = orphanagePlotsWatered;
 // Apparently the sugarcube <<script>> parser don't parse the following correctly - so made it a function instead
 function tendingDay() {
 	Object.entries(V.plots).forEach(([location, plots]) => {
-		let irrigation = location === "farm" ? V.farm?.irrigation || 0 : 0;
+		let irrigation = location === "farm" ? V.alexFarm.upgrades.irrigatedFields || 0 : 0;
 
 		plots.forEach(plot => {
 			// Growth check

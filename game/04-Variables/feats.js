@@ -2522,7 +2522,13 @@ function earnHourlyFeats() {
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
-	if (V.farm_stage >= 2 && V.farm.beasts.horses >= 20 && V.farm.beasts.cattle >= 20 && V.farm.beasts.dogs >= 20 && V.farm.beasts.pigs >= 20) {
+	if (
+		V.alexFarm.stage >= 2 &&
+		V.alexFarm.animalRespect.horses >= 20 &&
+		V.alexFarm.animalRespect.cattle >= 20 &&
+		V.alexFarm.animalRespect.dogs >= 20 &&
+		V.alexFarm.animalRespect.pigs >= 20
+	) {
 		earnFeat("Animal Tender");
 	}
 

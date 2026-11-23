@@ -1848,7 +1848,7 @@ setup.LocationImages = {
 		folder: "fields",
 		base: {
 			watchtower: {
-				condition: () => V.farm.tower >= 1,
+				condition: () => V.alexFarm.upgrades.tower >= 1,
 				image: "watchtower.png",
 			},
 			spring: {
@@ -1881,7 +1881,7 @@ setup.LocationImages = {
 			},
 		},
 		emissive: {
-			condition: () => V.farm.tower >= 1 && Weather.lightsOn,
+			condition: () => V.alexFarm.upgrades.tower >= 1 && Weather.lightsOn,
 			image: "emissive.png",
 			color: "#deae66",
 			blur: 0,

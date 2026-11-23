@@ -537,12 +537,7 @@ function weekPassed() {
 	if (V.robin.money.savings > 4000) V.robin.money.savings = 4000;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 	if (V.loft_kylar) V.loft_spray = 0;
-	if (V.farm) {
-		if (V.farm.tower_guard) {
-			V.farm.tower_guard_unpaid++;
-			V.farm.tower_guard_patience = 0;
-		}
-	}
+	if (V.alexFarm.towerGuard.name) V.alexFarm.towerGuard.weeksUnpaid++;
 	if (V.sydney) {
 		if (V.sydney.glasses === "broken" || V.sydney.glasses === "playerbroken") {
 			V.sydney.glasses = "glasses";
@@ -803,10 +798,10 @@ function dayPassed() {
 		V.adultShop = { ban: 0, banExtension: false, spotted: false, stolenClothes: 0, totalStolenClothes: 0, banCount: 0, rng: random(0, 1000) };
 	}
 
-	if (V.farm) {
-		if (V.farm.milking.catchChance > random(10, 1000) / 10) V.farm.milking.caught = true;
-		if (V.farm.milking.catchChance >= 25) V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.95, 0, 100).toFixed(3);
-		else V.farm.milking.catchChance = Math.clamp(V.farm.milking.catchChance * 0.98, 0, 100).toFixed(3);
+	if (V.alexFarm.stage >= 2) {
+		if (V.alexFarm.milking.catchChance > random(10, 1000) / 10) V.alexFarm.milking.alexWillCatchPc = true;
+		if (V.alexFarm.milking.catchChance >= 25) V.alexFarm.milking.catchChance = Number(Math.clamp(V.alexFarm.milking.catchChance * 0.95, 0, 100).toFixed(3));
+		else V.alexFarm.milking.catchChance = Number(Math.clamp(V.alexFarm.milking.catchChance * 0.98, 0, 100).toFixed(3));
 	}
 
 	if (V.livestock.winter.active === false) {
@@ -1314,11 +1309,7 @@ function dawnCheck() {
 	delete V.skul_dock_init;
 	delete V.skul_dock;
 	delete V.dock_security;
-	delete V.alexwake;
-	delete V.alex_bed;
-	delete V.alex_bed_spurned;
-	delete V.alexSomno;
-	delete V.alexSomnoAngry;
+	V.alex.night = {};
 	delete V.connudatus_stripped;
 	delete V.gwylan.wake;
 	delete V.gwylan.cafeWake;
@@ -1377,7 +1368,7 @@ function dailyNPCEffects() {
 	if (V.robin.punishment.pillory?.rescueFailed) delete V.robin.punishment.pillory;
 
 	// Alex
-	if (V.farm_stage >= 7 && C.npc.Alex.dom >= 40) wikifier("npcincr", "Alex", "lust", 1);
+	if (V.alexFarm.stage >= 7 && C.npc.Alex.dom >= 40) wikifier("npcincr", "Alex", "lust", 1);
 
 	// Mason
 	if (V.mason_pond === 3) {
@@ -1745,7 +1736,7 @@ function dailyPlayerEffects() {
 	}
 
 	if (V.physique >= 1000) {
-		if (V.farm_stage >= 6) V.physique = V.physique - V.physique / 3000;
+		if (V.alexFarm.stage >= 6) V.physique = V.physique - V.physique / 3000;
 		else V.physique = V.physique - V.physique / 2500;
 	}
 
@@ -2322,60 +2313,58 @@ function dailyFarmEvents() {
 			V.alex_greenhouse = 2;
 		}
 	}
-	if (V.farm_stage >= 2) {
+	if (V.alexFarm.stage >= 2) {
 		T.disableFarmWorkFeat = true;
 		wikifier("farm_work_update", "midnight");
 	}
-	if (V.farm_stage >= 5) {
+	if (V.alexFarm.stage >= 5) {
 		if (V.bailey.rent.timesPcRefusedBaileyAtFarm >= 1) wikifier("farm_aggro", 15);
 		if (V.bailey.rent.timesPcRefusedBaileyAtFarm >= 2) wikifier("farm_aggro", V.bailey.rent.timesPcRefusedBaileyAtFarm * 3);
-		if (V.farm_stage >= 7) wikifier("farm_aggro", 5);
+		if (V.alexFarm.stage >= 7) wikifier("farm_aggro", 5);
 		wikifier("farm_aggro", 5);
 	}
-	if (V.farm_stage >= 7) {
-		V.farm_attack_timer--;
-		if (V.farm_attack_timer < 0) wikifier("farm_attack_auto");
-		if (V.farm.stock) {
-			/**
-			 * Alex's Cottage can store up to 10 days of food, or up to £2,169 when sold in a Market Stall.
-			 *
-			 * The food should realistically expire at different rates, but doing so would make the mechanic more
-			 * complex without providing a meaningful improvement to gameplay.
-			 */
-			V.farm.stock.truffles = Math.trunc(V.farm.stock.truffles * 0.9);
-			V.farm.stock.milk = Math.trunc(V.farm.stock.milk * 0.9);
-			V.farm.stock.eggs = Math.trunc(V.farm.stock.eggs * 0.9);
-			V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.9);
-		}
-		if (V.farm.woodland >= 3) {
+	if (V.alexFarm.stage >= 7) {
+		V.alexFarm.assault.daysUntilNext--;
+		if (V.alexFarm.assault.daysUntilNext < 0) wikifier("farm_attack_auto");
+		/**
+		 * Alex's Cottage can store up to 10 days of food, or up to £2,169 when sold in a Market Stall.
+		 *
+		 * The food should realistically expire at different rates, but doing so would make the mechanic more
+		 * complex without providing a meaningful improvement to gameplay.
+		 */
+		V.alexFarm.stock.truffles = Math.trunc(V.alexFarm.stock.truffles * 0.9);
+		V.alexFarm.stock.milk = Math.trunc(V.alexFarm.stock.milk * 0.9);
+		V.alexFarm.stock.eggs = Math.trunc(V.alexFarm.stock.eggs * 0.9);
+		V.alexFarm.stock.cream = Math.trunc(V.alexFarm.stock.cream * 0.9);
+		if (V.alexFarm.upgrades.woodland >= 3) {
 			// Truffles sell for £8.00 on the market.
 			// This generates £8.00 * 16.5 = £132.00 each day
 			wikifier("farm_stock", "truffles", 9, 24);
 			wikifier("farm_pigs", -1);
-		} else if (V.farm.woodland >= 1) {
+		} else if (V.alexFarm.upgrades.woodland >= 1) {
 			// This generates £8.00 * 4.5 = £36.00 each day
 			wikifier("farm_stock", "truffles", 3, 6);
 			wikifier("farm_pigs", -0.5);
 		}
-		if (V.farm.barn >= 2) {
+		if (V.alexFarm.upgrades.barn >= 2) {
 			// Milk and Cream each sell for £1.00 on the market.
 			// This generates £1.00 * (37.5 + 27) = £64.50 each day
 			wikifier("farm_stock", "milk", 27, 48);
 			wikifier("farm_stock", "cream", 18, 36);
-		} else if (V.farm.barn >= 1) {
+		} else if (V.alexFarm.upgrades.barn >= 1) {
 			// This generates £1.00 * (10.5 + 7.5) = £18.00 each day
 			wikifier("farm_stock", "milk", 9, 12);
 			wikifier("farm_stock", "cream", 6, 9);
 		}
-		if (V.farm.coop >= 2) {
+		if (V.alexFarm.upgrades.coop >= 2) {
 			// Eggs sell for £0.40 on the market.
 			// This generates £0.40 * (51) = £20.40 each day
 			wikifier("farm_stock", "eggs", 30, 72);
-		} else if (V.farm.coop >= 1) {
+		} else if (V.alexFarm.upgrades.coop >= 1) {
 			// This generates £0.40 * (18) = £7.20 each day
 			wikifier("farm_stock", "eggs", 12, 24);
 		}
-		if (V.farm.kennel >= 1) {
+		if (V.alexFarm.upgrades.kennel >= 1) {
 			/**
 			 * I think it would be very funny if the Kennel also gave -1 Horse Respect per day. That way, if the player returns to the farm with every animal at -30 respect, there will be an Animal Farm easter egg saying stuff like, "The animals are plotting." or "You hear singing in the barn +Stress" after midnight.
 			 *
@@ -2386,32 +2375,26 @@ function dailyFarmEvents() {
 		}
 		wikifier("farm_build_day");
 	}
-	if (V.farm_stage >= 9) {
-		if (V.lurkers_stored >= 1) {
-			V.farm.still_timer--;
-			if (V.farm.still_timer < 1) {
-				V.lurkers_stored--;
-				V.phials_stored++;
-				V.farm.still_timer = 7;
+	if (V.alexFarm.stage >= 9) {
+		if (V.alexFarm.lab.lurkersCaged >= 1) {
+			V.alexFarm.lab.daysUntilNextPhial--;
+			if (V.alexFarm.lab.daysUntilNextPhial < 1) {
+				V.alexFarm.lab.lurkersCaged--;
+				V.alexFarm.lab.phialsStored++;
+				V.alexFarm.lab.daysUntilNextPhial = 7;
 			}
 		}
 	}
-	if (V.farm_countdown >= 1) V.farm_countdown--;
-	if (V.farm_yield !== undefined) {
-		if (!V.farm_yield_alex) V.farm_yield_alex = 0;
-		V.farm_yield_alex += V.farm_yield;
-		delete V.farm_yield;
+	if (V.alexFarm.daysUntilFire >= 1) V.alexFarm.daysUntilFire--;
+	if (V.alexFarm.daysUntilBaileyVisits >= 1) V.alexFarm.daysUntilBaileyVisits--;
+	if (V.daily.alexFarm.yieldToday !== undefined) {
+		if (!V.alexFarm.yieldOwedToPc) V.alexFarm.yieldOwedToPc = 0;
+		V.alexFarm.yieldOwedToPc += V.daily.alexFarm.yieldToday;
 	}
-	if (V.alex_countdown >= 1) V.alex_countdown--;
+	if (V.alex.daysUntilConfession >= 1) V.alex.daysUntilConfession--;
 
-	delete V.farm_count;
-	if (V.farm_stage < 7) delete V.farm_naked;
-	delete V.farm_work;
-	delete V.farm_event;
-	delete V.farm_end;
-	delete V.alex_breakfast;
-	delete V.alex_tea;
-	delete V.alex_to_bed;
+	if (V.alexFarm.stage < 7) delete V.alexFarm.pcWorkingNaked;
+	delete V.alexFarm.workday;
 }
 
 function dailyDockEffects() {

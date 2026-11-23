@@ -130,7 +130,7 @@ const events = [
 	{
 		name: "remy attacc",
 		condition() {
-			return V.farm_stage >= 7 && V.farm_attack_timer === 0;
+			return V.alexFarm.stage >= 7 && V.alexFarm.assault.daysUntilNext === 0;
 		},
 		starthour: 21,
 		endhour: 24,

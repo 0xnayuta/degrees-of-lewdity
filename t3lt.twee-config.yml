@@ -669,6 +669,10 @@ sugarcube-2:
       name: alex_pregnancy_comment
     alexclamp:
       name: alexclamp
+    alexFarmCleanupMigration:
+      name: alexFarmCleanupMigration
+      description: |-
+        Updates old saves for the Alex's farm variable clean up. Called at the end of `<<backComp>>`.
     allBottoms:
       description: |-
         Prints worn over and middle bottom clothing names
@@ -5869,16 +5873,9 @@ sugarcube-2:
     farm_horses:
       name: farm_horses
     farm_init:
+      name: farm_init
       description: |-
-        Initializes the farm variables if the player accepts to work at the farm after Alex's introduction. Also calls the `<<farm_work_update>>` and `<<farm_update>>` widgets. This widget first readjusts `$farm_work` variables before initializing the `$farm` object. 
-
-        The `$farm` object has the following attributes:
-        - **beasts**: `Object` - Contains the level of affection from each beast category at the farm.
-          - **[beast]**: `{-30..30}` - The level of respect each category of beast has for the player. Defaults to 0 as the neutral value. Can be `pigs`, `horses`, `cattle` or `dogs`.
-        - **clearing**: `{0..100}` - The level of clearing of the field. Defaults to 100 and must be lowered down to 0 to expand the farm.
-
-        The widget also enables `$farm_naked_alex`, a flag that can be set off once the player asks to work at the farm naked. 
-        It also enables `$fields_damaged`, an array of numbers corresponding to the fields that have been damaged during the farm's attacks.
+        Sets up the first farm work day when the PC accepts work at the farm. Calls `<<farm_work_update>>`, then lets the horses, chickens and cattle out and milks the cattle.
     farm_knotted:
       name: farm_knotted
     farm_milk_actions:
@@ -5899,8 +5896,6 @@ sugarcube-2:
       name: farm_status
     farm_stock:
       name: farm_stock
-    farm_stock_init:
-      name: farm_stock_init
     farm_tell_alex:
       name: farm_tell_alex
     farm_tending_alex_events:
@@ -5948,17 +5943,6 @@ sugarcube-2:
       tags: ["text"]
     farm_trust:
       name: farm_trust
-    farm_update:
-      description: |-
-        Adds the `milking` object and the `build_finished` array of strings to the `$farm` object.
-
-        `$farm.build_finished` is an array of strings containing the number of farm upgrades the player purchased that are currently operational.
-
-        `$farm.milking` contains the following attributes:
-        - **caught**: `boolean` - Indicates if Alex caught the player milking themselves or not.
-        - **alexNightEvent**: `boolean` - Allows the player to replay the `"AlexFarmSelfMilkingCaught"` event in the scene viewer.
-        - **catchChance**: `number` - The probability of Alex catching the player milking themselves, computed by `<<farmCatchChance>>`.
-        - **dayMilking**: `boolean` - Allows the player to milk themselves in the barn during the day after Alex caught them.
     farm_upgrades_current:
       name: farm_upgrades_current
     farm_upgrades_status:
@@ -5986,11 +5970,11 @@ sugarcube-2:
       name: farm_work_update
     farm_yield:
       description: |-
-        Adds tier to daily farm_yield gain
+        Adds to the day's farm yield, shown as + Farm or - Farm
 
-        `$farm_yield` is the daily buildup of extra farm productivity where 0 is none (0+)
+        `$daily.alexFarm.yieldToday` is today's total, and can be below 0
 
-        `$farm_yield_alex` is the total built-up extra farm productivity Alex will award pc as money where 0 is none (0+)
+        `$alexFarm.yieldOwedToPc` is the total Alex hasn't paid the PC yet. It gets today's total at midnight and can be below 0. Alex pays it as money once it's 1+
 
         `<<farm_yield change>>`
         - **change**: `number` - +/- change to apply
@@ -9809,6 +9793,10 @@ sugarcube-2:
       name: init_npc_clothes
     init_tips:
       name: init_tips
+    initAlexFarmVariables:
+      name: initAlexFarmVariables
+      description: |-
+        Creates `$alexFarm` with its default variables. Called from `<<variablesStart2>>` and by the Alex's farm save migration.
     initAllNNPCVirginities:
       description: |-
         Sets all named NPC to canonical starting virginities
@@ -12314,7 +12302,7 @@ sugarcube-2:
 
         Example:
         ```
-        <<timer $farm.build_timer>> prints "in 2 days" if $farm.build_timer is 2, "tomorrow" if it's 1, and "today" if it's 0.
+        <<timer $alexFarm.upgrades.daysUntilBuilt>> prints "in 2 days" if $alexFarm.upgrades.daysUntilBuilt is 2, "tomorrow" if it's 1, and "today" if it's 0.
         ```
 
         `<<nDays timerValue>>`
@@ -12461,6 +12449,10 @@ sugarcube-2:
       name: nippleFlavorText
     nipples:
       name: nipples
+    nnpcCleanupMigrationAlex:
+      name: nnpcCleanupMigrationAlex
+      description: |-
+        Updates old saves for the Alex variable clean up. Called at the end of `<<backComp>>`.
     nnpcCleanupMigrationBailey:
       name: nnpcCleanupMigrationBailey
       description: |-

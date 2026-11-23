@@ -87,25 +87,6 @@ declare module "twine-sugarcube" {
 			tasks: any[];
 		};
 
-		farm: {
-			milking: {
-				alexNightEvent: boolean;
-				catchChance: string /* Why tf is this a string */;
-				caught: boolean;
-				dayMilking: boolean;
-			};
-			stock?: {};
-			woodland: number;
-			barn: number;
-			coop: number;
-			kennel: number;
-			still_timer: {};
-			tower: number;
-			tower_guard: boolean;
-			tower_guard_unpaid: number;
-			tower_guard_patience: number;
-		};
-
 		photo: {
 			silly: "paid" | 0;
 			shoot: 0;

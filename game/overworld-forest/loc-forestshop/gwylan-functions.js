@@ -47,7 +47,7 @@ function gwylanRequest(override = null) {
 	// One-time event modifiers and custom modifiers for base events
 	if (!Memories.Gwylan.has("requestGasMask") && V.gwylan.clothesTalkedAbout?.length >= 5) allPossibleRequests.push(["clothingGasMask", 3]);
 	if (!Memories.Gwylan.has("requestGoldAccessories") && V.adultshopunlocked && C.npc.Gwylan.love >= 30) allPossibleRequests.push(["clothingGold", 3]);
-	if (window.npcIsPregnant("Gwylan") && V.farm?.woodland >= 2) allPossibleRequests.push(["plums", 5]);
+	if (window.npcIsPregnant("Gwylan") && V.alexFarm.upgrades.woodland >= 2) allPossibleRequests.push(["plums", 5]);
 
 	// Unlockable events
 	if (Memories.Gwylan.has("ritualBeast") && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample)) < 7))
@@ -702,7 +702,7 @@ function gwylanRequestIngredients() {
 	}
 
 	// Remove woodland ingredients until the woodland upgrade is unlocked.
-	if (!V.farm?.woodland || V.farm?.woodland < 2) {
+	if (!V.alexFarm.upgrades.woodland || V.alexFarm.upgrades.woodland < 2) {
 		removeIngredient("strawberry");
 		removeIngredient("plum");
 		removeIngredient("peach");
@@ -1020,7 +1020,7 @@ function gwylanCanRescueFromWraith() {
 	if (isGwylanAbsent()) {
 		return false;
 	}
-	if (V.gwylanRescue?.seen?.includes("Wraith")) {
+	if (V.gwylan.rescue?.seen?.includes("Wraith")) {
 		return (
 			C.npc.Gwylan.init === 1 &&
 			C.npc.Gwylan.state === "active" &&

@@ -1,0 +1,151 @@
+:: Widgets NNPC Cleanup Migration Alex [widget]
+<<widget "nnpcCleanupMigrationAlex">>
+	<!-- Only saves from before the cleanup have no $alex -->
+	<<if $alex is undefined>>
+		<<set $alex to {
+			romance: false,
+			remyTattoosSeenOn: [],
+			birth: {},
+			night: {}
+		}>>
+		<!-- $alex_countdown was unset at the confession, so from farm stage 7 an unset countdown meant Alex was the PC's partner -->
+		<<if $farm_stage gte 7 and $alex_countdown is undefined>>
+			<<set $alex.romance to true>>
+		<</if>>
+		<!-- $farm_naked_alex was set when the farm started and unset once Alex saw the PC working naked -->
+		<<if $farm and $farm_naked_alex isnot 1>>
+			<<run Memories.Alex.add("sawPcWorkingNaked")>>
+		<</if>>
+	<</if>>
+	<<set $daily.alex ??= {}>>
+	<<set $weekly.alex ??= {}>>
+
+	<!-- Alex's $alexSeen and one-time flags moved into Alex's memories. Whitney's own memories already record the cafe scene, so "Whitney" key isn't kept -->
+	<<if $alexSeen?.includes("favouriteFlower")>><<run Memories.Alex.add("askedFavouriteFlower")>><</if>>
+	<<if $alexSeen?.includes("saidLove")>><<run Memories.Alex.add("saidLoveDuringOral")>><</if>>
+	<<if $alex_meadow_date is 1>><<run Memories.Alex.add("wentOnMeadowDate")>><</if>>
+	<<unset $alexSeen $alex_meadow_date $farm_naked_alex>>
+
+	<!-- Alex's variables moved onto $alex -->
+	<<if $alex_countdown isnot undefined>>
+		<<set $alex.daysUntilConfession to $alex_countdown>>
+		<<unset $alex_countdown>>
+	<</if>>
+	<<for _oldName, _newName range {
+		alexRemyTattoosKnow: "remyTattoosSeenOn",
+		farm_relax_drink: "restDrinkAnswer",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $alex[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<for _oldName, _newName range {
+		alexBabiesCount: "numberOfBabies",
+		pcBabyCount: "numberOfPcBabies",
+		alex_pregnancy: "hospitalBabiesAreAlexs",
+	}>>
+		<<if V[_oldName] isnot undefined>>
+			<<set $alex.birth[_newName] to V[_oldName]>>
+			<<run delete V[_oldName]>>
+		<</if>>
+	<</for>>
+	<<if $alexBooze is true>>
+		<<set $alex.shoppingListAlcohol to "onList">>
+	<<elseif $alexBooze isnot undefined>>
+		<<set $alex.shoppingListAlcohol to $alexBooze>>
+	<</if>>
+	<<unset $alexBooze>>
+	<<if $alex_bed is "player">>
+		<<set $alex.night.inPcBed to true>>
+	<<elseif $alex_bed is "none">>
+		<<set $alex.night.gotUp to true>>
+	<</if>>
+	<<if $alexSomno is 0>>
+		<<set $alex.night.somnoOutcome to "stayedAsleep">>
+	<<elseif $alexSomno is 1>>
+		<<set $alex.night.somnoOutcome to "wokeAndHadSex">>
+	<<elseif $alexSomno is 2>>
+		<<set $alex.night.somnoOutcome to "wokeWithoutSex">>
+	<</if>>
+	<!-- $alexSomnoAngry was 0 when Alex woke up angry and 1 once Alex had glared at the PC -->
+	<<if $alexSomnoAngry is 0 or $alexSomnoAngry is 1>>
+		<<set $alex.night.somnoOutcome to "wokeAngry">>
+	<</if>>
+	<<if $alexSomnoAngry is 1>>
+		<<set $alex.night.glaredAtPc to true>>
+	<</if>>
+	<<unset $alex_bed $alexSomno $alexSomnoAngry>>
+	<!-- Moved into $phase -->
+	<<unset $alex_meadow_date_scold>>
+	<!-- C.npc.Alex.breastsdesc is read directly now -->
+	<<unset $alexBreasts>>
+
+	<!-- Alex's 0/1 flags moved onto $alex as booleans -->
+	<<for _oldName, _newPlace range {
+		alex_bed_spurned: ["night", "refusedPcInBed"],
+		alexwake: ["night", "wokePc"],
+	}>>
+		<<if V[_oldName] is 1>>
+			<<set $alex[_newPlace[0]][_newPlace[1]] to true>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+	<<for _oldName, _newKey range {
+		alex_breakfast: "pcWentToBreakfast",
+		alex_tea: "watchedMorningTv",
+		alex_to_bed: "wentUpToBed",
+	}>>
+		<<if V[_oldName] is 1>>
+			<<set $daily.alex[_newKey] to true>>
+		<</if>>
+		<<run delete V[_oldName]>>
+	<</for>>
+
+	<!-- $ambulance and $alexRescued are left over from an earlier birth -->
+	<<set _inBirth to $passage.startsWith("Pregnancy Birth Hospital") or $passage.startsWith("Farm PC Birth")>>
+	<<if $ambulance is 1 and (_inBirth or C.npc.Alex.pregnancy.hospitalBirth)>>
+		<<set $alex.birth.calledAmbulanceForPc to true>>
+	<</if>>
+	<<if $alexRescued is 1 and _inBirth>>
+		<<set $alex.birth.rescuedPcInLabour to true>>
+	<</if>>
+	<<unset $ambulance $alexRescued>>
+
+	<!-- Alex's once-a-day and once-a-week flags moved into $daily.alex and $weekly.alex -->
+	<<for _oldKey, _newKey range {
+		adminOral: "pcCrawledUnderDesk",
+		breakfastSex: "pcHadBreakfastOral",
+		spank: "pcAskedToSpankHarder",
+		tvTease: "pcBroughtUpTvFilm",
+		milkshake: "pcGaveMilkshake",
+		bedOrgasm: "pcHadWetDreamInBed",
+	}>>
+		<<if $daily.alex[_oldKey] isnot undefined>>
+			<<set $daily.alex[_newKey] to $daily.alex[_oldKey]>>
+			<<run delete $daily.alex[_oldKey]>>
+		<</if>>
+	<</for>>
+	<<for _oldKey, _newKey range {
+		alexMeadowDate: "askedPcOnMeadowDate",
+		alexStreetEvent: "metPcInTown",
+		farmAlexShowerSpy: "pcSpiedInShower",
+		farmBabyInteraction: "hadChildrenScene",
+	}>>
+		<<if $daily[_oldKey]>>
+			<<set $daily.alex[_newKey] to true>>
+		<</if>>
+		<<run delete $daily[_oldKey]>>
+	<</for>>
+	<!-- $weekly.alexRemyTattoos was only 0 inside the widget that set it -->
+	<<for _oldKey, _newKey range {
+		alexHungOver: "hadHangover",
+		alexNightTimeNursery: "wokePcForNursery",
+		alexRemyTattoos: "reactedToRemyTattoo",
+	}>>
+		<<if $weekly[_oldKey] isnot undefined>>
+			<<set $weekly.alex[_newKey] to true>>
+			<<run delete $weekly[_oldKey]>>
+		<</if>>
+	<</for>>
+<</widget>>
