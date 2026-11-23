@@ -1,20 +1,6 @@
 /* global statDisplay */
 
 const statChange = (() => {
-	function paramError(functionName = "", param = "", value, expectedValues = "") {
-		if (typeof value === "object") value = JSON.stringify(value);
-		/* Included both types of error reporting, since this often will only occur in a link */
-		Errors.report(
-			`Unexpected value for the function "${functionName}" in the passage "${V.passage}". Param "${param}" had unexpected value of "${value}".${
-				expectedValues ? ` ${expectedValues}` : ""
-			}`
-		);
-		throw new Error(
-			`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
-				expectedValues ? ` ${expectedValues}` : ""
-			}`
-		);
-	}
 	// Overflow (Clamp) Code Section
 
 	/**
@@ -1014,11 +1000,9 @@ const statChange = (() => {
 		if (amount) {
 			// Male players always gain insecurity when breast size is above 0
 			if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
-			// eslint-disable-next-line prettier/prettier
-			const insecurityMod = amount > 0 ? (Math.ceil(V["insecurity_" + type] / 200) + 1) : 1;
+			const insecurityMod = amount > 0 ? Math.ceil(V["insecurity_" + type] / 200) + 1 : 1;
 
-			// eslint-disable-next-line prettier/prettier
-			V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] + (amount * insecurityMod), 0, 1000);
+			V["acceptance_" + type] = Math.clamp(V["acceptance_" + type] + amount * insecurityMod, 0, 1000);
 		}
 	}
 	DefineMacro("acceptance", acceptance);
@@ -1640,3 +1624,26 @@ const statChange = (() => {
 	};
 })();
 window.statChange = statChange;
+
+/**
+ * Throws an error for a bad param.
+ *
+ * @param {string} functionName The function that got the bad value
+ * @param {string} param The param's name
+ * @param {any} value The bad value, objects are stringified
+ * @param {string} [expectedValues] The expected value(s) for the param
+ * @throws {Error}
+ */
+function paramError(functionName = "", param = "", value, expectedValues = "") {
+	if (typeof value === "object") value = JSON.stringify(value);
+	/* Included both types of error reporting, since this often will only occur in a link */
+	Errors.report(
+		`Unexpected value for the function "${functionName}" in the passage "${V.passage}". Param "${param}" had unexpected value of "${value}".${
+			expectedValues ? ` ${expectedValues}` : ""
+		}`
+	);
+	throw new Error(
+		`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${expectedValues ? ` ${expectedValues}` : ""}`
+	);
+}
+window.paramError = paramError;

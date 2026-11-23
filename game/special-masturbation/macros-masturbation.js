@@ -112,7 +112,7 @@ function masturbationDetentionPaddle() {
 function masturbationPrivateShow() {
 	if (random(1, 5) === 1) {
 		wikifier("arousal", 100, "genitals");
-		wikifier("fameexhibitionism", 2, "pic");
+		Fame.exhibitionism(2);
 	} else {
 		wikifier("arousal", 100);
 	}

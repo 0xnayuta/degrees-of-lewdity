@@ -398,10 +398,6 @@ declare global {
 		// 		max: number,
 		// 		min: number,
 		// 	},
-		// 	pimp: {
-		// 		max: number,
-		// 		min: number,
-		// 	},
 		// 	pregnancy: {
 		// 		max: number,
 		// 		min: number,

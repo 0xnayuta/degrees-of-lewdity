@@ -1769,22 +1769,6 @@ function isPossibleLoveInterestVirginity(taker) {
 }
 window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
 
-function fameTotal() {
-	let result = 0;
-	for (const key in V.fame) {
-		result += V.fame[key];
-	}
-	return result;
-}
-window.fameTotal = fameTotal;
-
-function fameSum(...fameTypes) {
-	let result = 0;
-	fameTypes.forEach(fameType => (result += V.fame[fameType]));
-	return result;
-}
-window.fameSum = fameSum;
-
 function checkTFparts() {
 	const tfParts = {};
 	// Iterate over each transformation

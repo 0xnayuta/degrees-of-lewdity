@@ -2530,7 +2530,6 @@ function earnHourlyFeats() {
 	if (V.masochism_level >= 4) earnFeat("Twisted Desire");
 	if (V.sadism_level >= 4) earnFeat("Served Hot");
 
-	// V.fame.pimp has been excluded, should be added back in if enabled
 	if (
 		V.fame.sex <= 29 &&
 		V.fame.prostitution <= 29 &&
