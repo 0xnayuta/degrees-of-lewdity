@@ -156,6 +156,8 @@ declare module "twine-sugarcube" {
 		chimera: ChimeraState;
 
 		facelayer: "back" | "front";
+
+		collapsedDropdowns: string[];
 	}
 
 	export interface SugarCubeSetupObject {
