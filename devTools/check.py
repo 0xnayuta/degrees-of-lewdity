@@ -37,6 +37,7 @@ try:
 					myprint("Found", tag, "but with no opening tag:")
 					myprint("  ", linenumber,":", whole)
 					fileinput.nextfile()
+					break
 				lasttag = tagfound[-1]
 				if (tag == "else" and lasttag["tag"] != "if") or (tag == "case" and lasttag["tag"] != "switch"):
 					myprint("Mismatched else: Opening tag was:")

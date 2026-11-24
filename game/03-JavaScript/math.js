@@ -265,7 +265,7 @@ window.calculateBinomial = calculateBinomial;
  * @param {number} deg Degrees
  */
 function degToRad(deg) {
-	return deg * (Math.PI / 100);
+	return deg * (Math.PI / 180);
 }
 window.degToRad = degToRad;
 
@@ -430,36 +430,12 @@ function applyArrays(a, b, math = "addition") {
 }
 window.applyArrays = applyArrays;
 
+// Kept as bubbleSort for backwards compatibility.
 function bubbleSort(array, order = "descending") {
-	let done = false;
-
-	if (order === "ascending") {
-		while (!done) {
-			done = true;
-			for (let i = 1; i < array.length; i++) {
-				if (array[i - 1][1] > array[i][1]) {
-					done = false;
-					const tmp = array[i - 1];
-					array[i - 1] = array[i];
-					array[i] = tmp;
-				}
-			}
-		}
-	} else {
-		while (!done) {
-			done = true;
-			for (let i = array.length - 1; i > 0; i--) {
-				if (array[i - 1][1] < array[i][1]) {
-					done = false;
-					const tmp = array[i - 1];
-					array[i - 1] = array[i];
-					array[i] = tmp;
-				}
-			}
-		}
-	}
-
-	return array;
+	const comparator = order === "ascending"
+		? (a, b) => a[1] - b[1]
+		: (a, b) => b[1] - a[1];
+	return array.sort(comparator);
 }
 window.bubbleSort = bubbleSort;
 
@@ -475,8 +451,11 @@ function arrayClamp(array, lower, upper) {
 	if (!(array instanceof Array)) return false;
 	const output = [];
 	for (let i = 0; i < array.length; i++) {
-		if (typeof array[i] !== "number") output.push(array[i]);
-		output.push(Math.clamp(array[i], lower, upper));
+		if (typeof array[i] !== "number") {
+			output.push(array[i]);
+		} else {
+			output.push(Math.clamp(array[i], lower, upper));
+		}
 	}
 	return output;
 }

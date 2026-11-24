@@ -38,7 +38,7 @@ window.isCrossdressing = isCrossdressing;
  * Returns true if player is a herm or crossdresser
  * Should be called in cases where NPCs are judging the PC's genitals to be different from their gender, such as scenes where a crossdressing or hermaphrodite PC's genitals are exposed
  *
- * @returns {boolean}
+ * @returns {"herm" | boolean}
  */
 function isHermOrCrossdresser() {
 	if (V.player.sex === "h") {
