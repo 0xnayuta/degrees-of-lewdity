@@ -1,0 +1,97 @@
+:: Clothing Filter Widgets [widget]
+
+<<widget "clothingFilterChoices">>
+	<<switch _args[0]>>
+		<<case "warmth">>
+			<label>From <input type="number" class="clothingFilterRange" data-bound="from" min="0" @value="_args[1].warmth.from ?? ''"></label>
+			<label>To <input type="number" class="clothingFilterRange" data-bound="to" min="0" @value="_args[1].warmth.to ?? ''"></label>
+		<<case "reveal">>
+			<label>From <select class="clothingFilterRange" data-bound="from"><optgroup label="From">
+				<option value="">Any</option>
+				<<for _revealLevel range revealLevels>>
+					<<print '<option value="' + _revealLevel.from + '"' + (_args[1].reveal.from is _revealLevel.from ? ' selected' : '') + '>' + _revealLevel.label + '</option>'>>
+				<</for>>
+			</optgroup></select></label>
+			<label>To <select class="clothingFilterRange" data-bound="to"><optgroup label="To">
+				<option value="">Any</option>
+				<<for _revealLevel range revealLevels>>
+					<<print '<option value="' + _revealLevel.to + '"' + (_args[1].reveal.to is _revealLevel.to ? ' selected' : '') + '>' + _revealLevel.label + '</option>'>>
+				<</for>>
+			</optgroup></select></label>
+		<<case "colours">>
+			<<for _filterOption range _args[2]>>
+				<label>
+					<<clothingFilterCheckbox _filterOption.value `_args[1].colours.includes(_filterOption.value)`>>
+					<span @class="'clothingFilterSwatch ' + _filterOption.value.replace(/ /g, '-')">■</span> _filterOption.label
+				</label>
+			<</for>>
+		<<case "traits">>
+			<<for _filterOption range _args[2]>>
+				<label>
+					<<clothingFilterCheckbox _filterOption.value `_args[1].traits.includes(_filterOption.value)`>>
+					<<if $options.images is 1>>
+						<<clothingtrait _filterOption.value "display_normal" "name">>
+					<<else>>
+						_filterOption.label
+					<</if>>
+				</label>
+			<</for>>
+		<<case "gender">>
+			<<for _filterOption range _args[2]>>
+				<label><<clothingFilterCheckbox _filterOption.value `_args[1].gender.includes(_filterOption.value)`>> _filterOption.label</label>
+			<</for>>
+		<<default>>
+			<span class="red">No choices for clothing filter: _args[0]</span>
+	<</switch>>
+<</widget>>
+
+<<widget "clothingSortChoices">>
+	<<for _sortProperty range _args[1]>>
+		<label><<clothingFilterRadio "clothingFilter-sort-property" _sortProperty `_args[0].property is _sortProperty`>> <<print clothingSortLabels[_sortProperty]>></label>
+	<</for>>
+	<hr>
+	<label><<clothingFilterRadio "clothingFilter-sort-direction" "false" `!_args[0].isDescending` "descending">> ↑ Ascending</label>
+	<label><<clothingFilterRadio "clothingFilter-sort-direction" "true" `_args[0].isDescending` "descending">> ↓ Descending</label>
+<</widget>>
+
+<<widget "clothingSetChoices">>
+	<label><<clothingFilterRadio "clothingFilter-clothingSet" "" `_args[0].clothingSetIndex is null`>> Any</label>
+	<<for _clothingSetChoice range _args[1]>>
+		<label><<clothingFilterRadio "clothingFilter-clothingSet" _clothingSetChoice `_args[0].clothingSetIndex is _clothingSetChoice`>> <<print $outfit[_clothingSetChoice].name>></label>
+	<</for>>
+<</widget>>
+
+<<widget "clothingFilterRadio">>
+	<<print '<input type="radio" class="clothingFilterOption" name="' + _args[0] + '" value="' + _args[1] + '"' + (_args[3] ? ' data-sort-part="' + _args[3] + '"' : '') + (_args[2] ? ' checked' : '') + '>'>>
+<</widget>>
+
+<<widget "clothingFilterCheckbox">>
+	<<print '<input type="checkbox" class="clothingFilterOption" value="' + _args[0] + '"' + (_args[1] ? ' checked' : '') + '>'>>
+<</widget>>
+
+<<widget "clothingItemsPerPage">>
+	<label class="itemsPerPageLabel">
+		Items per page:
+		<<listbox _args[0] autoselect>>
+			<<optionsfrom _args[1]>>
+		<</listbox>>
+	</label>
+<</widget>>
+
+<<widget "clothingPager">>
+	<<if _args[1] gt 1>>
+		<span class="clothingPager">
+			<<if _args[0] gt 0>>
+				<button type="button" class="clothingPagerButton" @data-page="_args[0] - 1">‹ Previous</button>
+			<<else>>
+				<button type="button" class="clothingPagerButton" disabled>‹ Previous</button>
+			<</if>>
+			<span><<print (_args[0] + 1) + " / " + _args[1]>></span>
+			<<if _args[0] lt _args[1] - 1>>
+				<button type="button" class="clothingPagerButton" @data-page="_args[0] + 1">Next ›</button>
+			<<else>>
+				<button type="button" class="clothingPagerButton" disabled>Next ›</button>
+			<</if>>
+		</span>
+	<</if>>
+<</widget>>

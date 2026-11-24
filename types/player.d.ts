@@ -87,6 +87,8 @@ declare module "twine-sugarcube" {
 		fringelengthstage: string;
 		hairtype: string;
 		fringetype: string;
+		/** True while hair gel or hairdresser prevents the PC's hair from being ruffled. Choosing a new hairstyle sets it back to false. */
+		isHairRuffleProof: boolean;
 		hairColourStyle: "simple" | "gradient";
 		hairFringeColourStyle: "simple" | "gradient";
 		hairColourGradient: Gradient;

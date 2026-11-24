@@ -2,7 +2,7 @@ class ClothesItem {
 	/* Index of Clothing | REQUIRED | MUST BE UNIQUE TO SLOT | INT */
 	index;
 
-	/* Clothing Slot | REQUIRED | STRING */
+	/** Clothing Slot | REQUIRED | @type {ClothedSlots} */
 	slot;
 
 	/* Lowercase name of clothing | REQUIRED | STRING */
@@ -30,6 +30,7 @@ class ClothesItem {
 	word;
 
 	/* Does clothing have multiple parts? | AUTOFILL | INT */
+	/** @type {0 | 1 | "split" | "broken"} */
 	one_piece = 0;
 
 	/* */
@@ -53,7 +54,8 @@ class ClothesItem {
 	/* */
 	plural;
 
-	/* Filter storage, always 0 | REQUIRED | AUTOFILL | INT */
+	/* The item's colour: 0 in the clothing catalogue, and the chosen colour on owned clothing items (still 0 if it has no colour choices) | REQUIRED | AUTOFILL */
+	/** @type {0 | string} */
 	colour = 0;
 
 	/* Filter options | REQUIRED | AUTOFILL | ARRAY */
@@ -89,7 +91,8 @@ class ClothesItem {
 	/* Whether have acc | REQUIRED | INT */
 	accessory = 0;
 
-	/* Acc filter storage, always 0 | REQUIRED | AUTOFILL | INT */
+	/* The accessory's colour: 0 in the clothing catalogue, and the chosen colour on owned clothing items (still 0 if it has no accessory colours) | REQUIRED | AUTOFILL */
+	/** @type {0 | string} */
 	accessory_colour = 0;
 
 	/* Acc filter options | REQUIRED | ARRAY */
@@ -155,7 +158,8 @@ class ClothesItem {
 	/* */
 	formfitting;
 
-	/* Pattern choice storage | AUTOFILL | INT */
+	/* The item's pattern: 0 or missing in the clothing catalogue, and the chosen pattern on owned clothing items | AUTOFILL */
+	/** @type {0 | string | undefined} */
 	pattern;
 
 	/* */

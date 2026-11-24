@@ -244,10 +244,10 @@ Weather.BodyTemperature = (() => {
 		},
 		// For compatibility with /base-combat/ - since I don't want to touch it
 		get state() {
-			if (this.get() < 35) return "cold";
-			if (this.get() < 36.5) return "chilly";
-			if (this.get() < 37.5) return "comfy";
-			if (this.get() < 39) return "warm";
+			if (this.get() < settings.coldBodyTemperature) return "cold";
+			if (this.get() < settings.comfortableBodyTemperature.min) return "chilly";
+			if (this.get() < settings.comfortableBodyTemperature.max) return "comfy";
+			if (this.get() < settings.hotBodyTemperature) return "warm";
 			return "hot";
 		},
 		// Goes from 1 (no change) to 3 (+200% increase)

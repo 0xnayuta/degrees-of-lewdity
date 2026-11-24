@@ -1,0 +1,229 @@
+:: Widgets Wardrobe Actions [widget]
+
+<<widget "wardrobeAction" container>>
+	<<replace "#wardrobeMessage">><<= _contents>><</replace>>
+	<<if window.scrollY > 130>>
+		<<run $('#action-popup').html($('#wardrobeMessage').html())>>
+		<<run $('#action-popup').css('transform', 'translateY(0)'); setTimeout(() => { $('#action-popup').css('transform', 'translateY(-100%)') }, 3200);>>
+	<</if>>
+	<<run $('#wardrobeMessage').addClass('notransition flash'); setTimeout(() => { $('#wardrobeMessage').removeClass('notransition flash') }, 100);>>
+	<<wardrobeRedrawAll>>
+<</widget>>
+
+<<widget "wardrobeUpdateExposure">>
+	<<if $worn.under_lower.type.includes("naked")>>
+		<<set $worn.under_lower.exposedType to "notWorn">>
+	<</if>>
+	<<exposure>>
+<</widget>>
+
+<<widget "wardrobeCursedMessage">>
+	<<set _cursedSlot to getCursedWornSlot(_args[0])>>
+	<<if _cursedSlot is _args[0]>>
+		You try to remove the <<print $worn[_cursedSlot].name>>, but fail. <<cursedtext $worn[_cursedSlot].name>>
+		<br>
+	<<else>>
+		<<cursedtext $worn[_cursedSlot].name>>
+	<</if>>
+<</widget>>
+
+<<widget "wardrobeRemoveStrapOn">>
+	<<set _strapSlot to _args[0]>>
+	<<set _strap to $player.inventory.sextoys[$worn[_strapSlot].name].find(toy => toy.worn)>>
+	<<set _strap.worn to false>>
+	You remove your <<= $worn[_strapSlot].name>>.
+	<<set $worn[_strapSlot] to clone(setup.clothes[_strapSlot][0])>>
+<</widget>>
+
+<<widget "wardrobeWearItem">>
+	<<set _wearItem to _args[0]>>
+	<<set _wearBlockedSlot to getWornSlotBlockedByCurse(_wearItem)>>
+	<<if _wearBlockedSlot>>
+		<<wardrobeCursedMessage _wearBlockedSlot>>
+	<<else>>
+		<<if $worn[_wearItem.slot].type.includes("strap-on")>>
+			<<wardrobeRemoveStrapOn _wearItem.slot>>
+		<</if>>
+		<<set _isWearBlocked to false>>
+		<<if playerBellySize() gte 12 and _wearItem.type.includes("constricting")>>
+			<<if _wearItem.type.includes("chest_bind")>>
+				<span class="red">Your pregnant body is too sensitive to wear your _wearItem.name.</span>
+			<<else>>
+				<span class="red">Your <<bellyDescription "pc">> is too large to wear your _wearItem.name.</span>
+			<</if>>
+			<br>
+			<<set _isWearBlocked to true>>
+		<</if>>
+		<<if !_isWearBlocked and ["upper", "lower", "under_upper", "under_lower"].includes(_wearItem.slot) and $earSlime.corruption gte 10 and $hypnosis_traits?.silence isnot 1>>
+			<<if $earSlime.forcedCommando isnot undefined and (_wearItem.slot is "under_lower" or (_wearItem.outfitPrimary and _wearItem.outfitPrimary.under_lower and !["broken","split"].includes(_wearItem.outfitPrimary.under_lower)))>>
+				<<if _wearItem.type.includes("naked") or (_earSlimeEnableSwimwear and _wearItem.type.includes("swim")) or (_earSlimeEnableDancewear and _wearItem.type.includes("dance"))>>
+				<<elseif $earSlime.forcedCommando gte 0>>
+					<span class="red">You are unable to equip your _wearItem.name, as the slime in your ear is forcing you to go commando.</span>
+					<br>
+					<<set _isWearBlocked to true>>
+				<<else>>
+					<<run delete $earSlime.forcedCommando>>
+				<</if>>
+			<<elseif _wearItem.reveal lt earSlimeCorruptionClothes() and (["prison", "asylum"].includes($location) or !_allowSchoolClothes) and !_wearItem.type.includesAny("event")>>
+				<span class="red">You were unable to equip your _wearItem.name as the slime in your ear did not permit it.</span>
+				<br>
+				<<set _isWearBlocked to true>>
+			<<elseif $earSlime.forcedDressing and _wearItem.gender isnot $earSlime.forcedDressing.type and _wearItem.gender isnot "n" and !_wearItem.type.includesAny("event")>>
+				<<if $earSlime.forcedDressing.days gt 0>>
+					<span class="red">You are unable to equip your _wearItem.name, as the slime in your ear is only permitting more <<print $earSlime.forcedDressing.type is "f" ? "feminine" : "masculine">> clothing.</span>
+					<br>
+					<<set _isWearBlocked to true>>
+				<<else>>
+					<<run delete $earSlime.forcedDressing>>
+				<</if>>
+			<</if>>
+		<</if>>
+		<<if !_isWearBlocked>>
+			/* Find the other pieces first, because undressing puts the worn outfit's pieces back in the wardrobe. */
+			<<set _wearPieces to getOutfitPieces(_wearItem)>>
+			<<generalUndress $wardrobe_location _wearItem.slot>>
+			<<for _wearPiece range _wearPieces>>
+				<<generalUndress $wardrobe_location _wearPiece.slot>>
+				<<set $worn[_wearPiece.slot] to clone(_wearPiece)>>
+				<<set $worn[_wearPiece.slot].lastTaken to $wardrobe_location>>
+				<<run removeFromWardrobe(_wearPiece)>>
+				<<run resetClothingState(_wearPiece.slot)>>
+			<</for>>
+			<<set $worn[_wearItem.slot] to clone(_wearItem)>>
+			<<set $worn[_wearItem.slot].lastTaken to $wardrobe_location>>
+			<<run resetClothingState(_wearItem.slot)>>
+			<<run removeFromWardrobe(_wearItem)>>
+			You put on the <<print _wearItem.name>>.
+			<br>
+		<</if>>
+	<</if>>
+	<<wardrobeUpdateExposure>>
+<</widget>>
+
+<<widget "wardrobeTakeOff">>
+	<<set _takeOffSlot to _args[0]>>
+	<<if getCursedWornSlot(_takeOffSlot)>>
+		<<wardrobeCursedMessage _takeOffSlot>>
+	<<elseif $worn[_takeOffSlot].type.includes("strap-on")>>
+		<<wardrobeRemoveStrapOn _takeOffSlot>>
+	<<else>>
+		You remove the <<print $worn[_takeOffSlot].name>>.
+		<<generalUndress $wardrobe_location _takeOffSlot>>
+		<br>
+	<</if>>
+	<<wardrobeUpdateExposure>>
+<</widget>>
+
+<<widget "wardrobeWearTowel">>
+	<<set _towelSlot to _args[0]>>
+	<<if getCursedWornSlot(_towelSlot)>>
+		<<wardrobeCursedMessage _towelSlot>>
+	<<else>>
+		<<generalUndress $wardrobe_location _towelSlot>>
+		<<set $worn[_towelSlot] to clone(setup.clothes[_towelSlot][3])>><<set $worn[_towelSlot].colour to clone($worn[_towelSlot].colour_options.random())>>
+		<<if _towelSlot is "upper">>
+			You tie a towel around your chest.
+		<<else>>
+			You tie a towel around your waist.
+		<</if>>
+		<br><br>
+	<</if>>
+	<<wardrobeUpdateExposure>>
+<</widget>>
+
+<<widget "wardrobeWearLargeTowel">>
+	<<if getCursedWornSlot("upper")>>
+		<<wardrobeCursedMessage "upper">>
+	<<elseif getCursedWornSlot("lower")>>
+		<<wardrobeCursedMessage "lower">>
+	<<else>>
+		<<generalUndress $wardrobe_location "upper">><<generalUndress $wardrobe_location "lower">>
+		<<set $worn.upper to clone(setup.clothes.upper[14])>><<set $worn.upper.colour to clone($worn.upper.colour_options.random())>>
+		<<set $worn.lower to clone(setup.clothes.lower[15])>><<set $worn.lower.colour to clone($worn.upper.colour)>>
+		You tie a large towel around your chest.
+		<br><br>
+	<</if>>
+	<<wardrobeUpdateExposure>>
+<</widget>>
+
+<<widget "wardrobeStripAll">>
+	You remove your clothing.
+	<br><br>
+	<<if $worn.under_lower.type.includes("strap-on")>>
+		<<undressKeepSlot $wardrobe_location "under_lower">>
+	<<else>>
+		<<undress $wardrobe_location>>
+	<</if>>
+	<<wardrobeUpdateExposure>>
+<</widget>>
+
+<<widget "wardrobeDryClothes">>
+	<<dry>>
+	You wring out your clothes.
+	<<effectswater "liquid">>
+	<br><br>
+<</widget>>
+
+<<widget "wardrobeWearRandom">>
+	<<set _randomSlots to setup.clothingLayer.all.filter(slot => $randomEquipConfigure[slot] and !$worn[slot].type.includes("strap-on"))>>
+	<<for _randomSlot range _randomSlots>>
+		<<generalUndress $wardrobe_location _randomSlot>>
+	<</for>>
+	<<for _randomSlot range _randomSlots>>
+		<<if $worn[_randomSlot].name is "naked">>
+			<<set _randomItem to selectWardrobe()[_randomSlot].filter(isWardrobeItemListed).random()>>
+			<<if _randomItem>>
+				<<wardrobeWearItem _randomItem>>
+			<</if>>
+		<</if>>
+	<</for>>
+<</widget>>
+
+<<widget "wardrobeDiscardItems">>
+	<<for _discardItem range _args[0]>>
+		You discard the <<print _discardItem.name>>.
+		<br>
+	<</for>>
+	<<set _wardrobeDiscardUndo to discardWardrobeItems(_args[0])>>
+<</widget>>
+
+<<widget "wardrobeRepairItems">>
+	<<for _repairItem range _args[0]>>
+		<<set _repairMinutes to getWardrobeRepairMinutes(_repairItem)>>
+		<<if _repairMinutes gt 0>>
+			<<run repairWardrobeItem(_repairItem)>>
+			<<pass _repairMinutes>>
+			You repair the <<print _repairItem.name>>.
+			<br>
+		<</if>>
+	<</for>>
+<</widget>>
+
+<<widget "wardrobeSendItems">>
+	<<set _sendTarget to _args[1]>>
+	<<for _sendItem range _args[0]>>
+		<<if hasWardrobeRoomFor(_sendItem, _sendTarget)>>
+			You transferred the <<print _sendItem.name>> to the <<print getWardrobeName(_sendTarget)>> storage.
+			<<run sendWardrobeItem(_sendItem, _sendTarget)>>
+		<<else>>
+			You were unable to transfer the <<print _sendItem.name>> to the <<print getWardrobeName(_sendTarget)>> wardrobe due to lack of space there.
+		<</if>>
+		<br>
+	<</for>>
+<</widget>>
+
+<<widget "wardrobeSeparateOutfit">>
+	<<set _separateItem to _args[0]>>
+	<<for _separatePiece range getOutfitPieces(_separateItem)>>
+		<<set _separatePiece.outfitSecondary[1] to "split">>
+		<<set _separatePiece.one_piece to "split">>
+
+		/* Each piece remembers the main piece's accessory colour and pattern, so repairs keep them. */
+		<<inheritOutfitAttributes _separatePiece _separateItem>>
+		<<set _separateItem.outfitPrimary[_separatePiece.slot] to "split">>
+	<</for>>
+	<<set _separateItem.one_piece to "split">>
+	You cut up the <<print _separateItem.name>>.
+	<<pass `wardrobeSeparateOutfitMinutes`>>
+	<br>
+<</widget>>
