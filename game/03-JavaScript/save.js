@@ -824,22 +824,27 @@ function applyOptions(options) {
 }
 
 function applyShopDefaults(shopDefaults) {
-	V.shopDefaults.alwaysBackToShopButton = shopDefaults.alwaysBackToShopButton ?? V.shopDefaults.alwaysBackToShopButton;
+	V.shopDefaults.alwaysShowBackToShop = shopDefaults.alwaysShowBackToShop ?? shopDefaults.alwaysBackToShopButton ?? V.shopDefaults.alwaysShowBackToShop;
 	V.shopDefaults.color = shopDefaults.color ?? V.shopDefaults.color;
 	V.shopDefaults.colourItems = shopDefaults.colourItems ?? V.shopDefaults.colourItems;
-	V.shopDefaults.compactMode = shopDefaults.compactMode ?? V.shopDefaults.compactMode;
-	V.shopDefaults.disableReturn = shopDefaults.disableReturn ?? V.shopDefaults.disableReturn;
-	V.shopDefaults.highContrast = shopDefaults.highContrast ?? V.shopDefaults.highContrast;
+	V.shopDefaults.compactModeEnabled = shopDefaults.compactModeEnabled ?? shopDefaults.compactMode ?? V.shopDefaults.compactModeEnabled;
+	V.shopDefaults.stayOnItemAfterBuying = shopDefaults.stayOnItemAfterBuying ?? shopDefaults.disableReturn ?? V.shopDefaults.stayOnItemAfterBuying;
+	V.shopDefaults.highContrastEnabled = shopDefaults.highContrastEnabled ?? shopDefaults.highContrast ?? V.shopDefaults.highContrastEnabled;
 	V.shopDefaults.mannequinGender = shopDefaults.mannequinGender ?? V.shopDefaults.mannequinGender;
-	V.shopDefaults.mannequinGenderFromClothes = shopDefaults.mannequinGenderFromClothes ?? V.shopDefaults.mannequinGenderFromClothes;
-	V.shopDefaults.noHelp = shopDefaults.noHelp ?? V.shopDefaults.noHelp;
-	V.shopDefaults.noTraits = shopDefaults.noTraits ?? V.shopDefaults.noTraits;
+	V.shopDefaults.useClothingGenderForMannequin =
+		shopDefaults.useClothingGenderForMannequin ?? shopDefaults.mannequinGenderFromClothes ?? V.shopDefaults.useClothingGenderForMannequin;
+	V.shopDefaults.hideHelp = shopDefaults.hideHelp ?? shopDefaults.noHelp ?? V.shopDefaults.hideHelp;
+	V.shopDefaults.hideTraits = shopDefaults.hideTraits ?? shopDefaults.noTraits ?? V.shopDefaults.hideTraits;
 	V.shopDefaults.secColor = shopDefaults.secColor ?? V.shopDefaults.secColor;
+	V.shopDefaults.hideUnavailable = shopDefaults.hideUnavailable ?? V.shopDefaults.hideUnavailable;
+	V.shopDefaults.hideAvailable = shopDefaults.hideAvailable ?? V.shopDefaults.hideAvailable;
 }
 
 function applyWardrobeDefaults(wardrobeDefaults) {
 	V.wardrobeDefaults.showTraits = wardrobeDefaults.showTraits ?? V.wardrobeDefaults.showTraits;
-	V.wardrobeDefaults.extraInfo = wardrobeDefaults.extraInfo ?? V.wardrobeDefaults.extraInfo;
+	V.wardrobeDefaults.showExtraInfo = wardrobeDefaults.showExtraInfo ?? wardrobeDefaults.extraInfo ?? V.wardrobeDefaults.showExtraInfo;
+	if (isValidWardrobeSort(wardrobeDefaults.sort)) V.wardrobeDefaults.sort = wardrobeDefaults.sort;
+	if (wardrobeItemsPerPageOptions.includes(wardrobeDefaults.itemsPerPage)) V.wardrobeDefaults.itemsPerPage = wardrobeDefaults.itemsPerPage;
 }
 
 /**
@@ -1045,21 +1050,25 @@ function settingsToExportObject() {
 				dateFormat: V.options.dateFormat,
 			},
 			shopDefaults: {
-				alwaysBackToShopButton: V.shopDefaults.alwaysBackToShopButton,
+				alwaysShowBackToShop: V.shopDefaults.alwaysShowBackToShop,
 				color: V.shopDefaults.color,
 				colourItems: V.shopDefaults.colourItems,
-				compactMode: V.shopDefaults.compactMode,
-				disableReturn: V.shopDefaults.disableReturn,
-				highContrast: V.shopDefaults.highContrast,
+				compactModeEnabled: V.shopDefaults.compactModeEnabled,
+				stayOnItemAfterBuying: V.shopDefaults.stayOnItemAfterBuying,
+				highContrastEnabled: V.shopDefaults.highContrastEnabled,
 				mannequinGender: V.shopDefaults.mannequinGender,
-				mannequinGenderFromClothes: V.shopDefaults.mannequinGenderFromClothes,
-				noHelp: V.shopDefaults.noHelp,
-				noTraits: V.shopDefaults.noTraits,
+				useClothingGenderForMannequin: V.shopDefaults.useClothingGenderForMannequin,
+				hideHelp: V.shopDefaults.hideHelp,
+				hideTraits: V.shopDefaults.hideTraits,
 				secColor: V.shopDefaults.secColor,
+				hideUnavailable: V.shopDefaults.hideUnavailable,
+				hideAvailable: V.shopDefaults.hideAvailable,
 			},
 			wardrobeDefaults: {
 				showTraits: V.wardrobeDefaults.showTraits,
-				extraInfo: V.wardrobeDefaults.extraInfo,
+				showExtraInfo: V.wardrobeDefaults.showExtraInfo,
+				sort: V.wardrobeDefaults.sort,
+				itemsPerPage: V.wardrobeDefaults.itemsPerPage,
 			},
 		},
 		npc: {},
@@ -1483,32 +1492,40 @@ window.settingNameFromVarName = function (varName) {
 			return "Notes auto saving";
 		case "dateFormat":
 			return "Date format";
-		case "alwaysBackToShopButton":
+		case "alwaysShowBackToShop":
 			return "Always show back-to-shop button";
 		case "color":
 			return "Default clothing colour";
 		case "colourItems":
 			return "Colour items";
-		case "compactMode":
+		case "compactModeEnabled":
 			return "Compact mode";
-		case "disableReturn":
-			return "Hide return button";
-		case "highContrast":
+		case "stayOnItemAfterBuying":
+			return "Don't return to catalogue after buying";
+		case "highContrastEnabled":
 			return "High contrast";
 		case "mannequinGender":
 			return "Mannequin gender";
-		case "mannequinGenderFromClothes":
+		case "useClothingGenderForMannequin":
 			return "Mannequin gender from clothes";
-		case "noHelp":
+		case "hideHelp":
 			return "Hide help";
-		case "noTraits":
+		case "hideTraits":
 			return "Hide traits";
 		case "secColor":
 			return "Default secondary clothing colour";
 		case "showTraits":
 			return "Show traits";
-		case "extraInfo":
+		case "showExtraInfo":
 			return "Show extra info";
+		case "itemsPerPage":
+			return "Wardrobe items per page";
+		case "sort":
+			return "Wardrobe sort";
+		case "hideUnavailable":
+			return "Hide unavailable shop items";
+		case "hideAvailable":
+			return "Hide available shop items";
 		case "monsterChance":
 			return "Monster person chance";
 		case "hallucinationsOnly":
@@ -2374,6 +2391,8 @@ function settingValueNameFromValue(varName, value) {
 		case "skinToneMode":
 		case "skinToneMax":
 			return `${value} (${setup.colours.getSkinToneLabel(value)})`;
+		case "sort":
+			return getClothingSortName(value);
 	}
 
 	switch (varName) {

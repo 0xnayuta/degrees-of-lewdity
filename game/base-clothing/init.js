@@ -118,21 +118,6 @@ function clothingInit() {
 	V.underupperwetstage = 0;
 	V.underlowerwetstage = 0;
 	V.waterwash = 0;
-	V.wear_over_upper = "none";
-	V.wear_over_lower = "none";
-	V.wear_upper = "none";
-	V.wear_lower = "none";
-	V.wear_under_upper = "none";
-	V.wear_under_lower = "none";
-	V.wear_over_head = "none";
-	V.wear_head = "none";
-	V.wear_face = "none";
-	V.wear_neck = "none";
-	V.wear_hands = "none";
-	V.wear_handheld = "none";
-	V.wear_legs = "none";
-	V.wear_feet = "none";
-	V.wear_genitals = "none";
 	V.wear_outfit = "none";
 }
 DefineMacro("clothinginit", clothingInit);
@@ -159,7 +144,6 @@ function givestartclothing() {
 	if (clothesType === "female") {
 		V.outfit.push(
 			{
-				index: V.outfit.length,
 				name: "Everyday",
 				over_upper: "naked",
 				over_lower: "naked",
@@ -179,7 +163,6 @@ function givestartclothing() {
 				colors: false,
 			},
 			{
-				index: V.outfit.length,
 				name: "School",
 				over_upper: "naked",
 				over_lower: "naked",
@@ -199,7 +182,6 @@ function givestartclothing() {
 				colors: false,
 			},
 			{
-				index: V.outfit.length,
 				name: "Swimwear",
 				over_upper: "naked",
 				over_lower: "naked",
@@ -260,7 +242,6 @@ function givestartclothing() {
 	} else {
 		V.outfit.push(
 			{
-				index: V.outfit.length,
 				name: "Everyday",
 				over_upper: "naked",
 				over_lower: "naked",
@@ -280,7 +261,6 @@ function givestartclothing() {
 				colors: false,
 			},
 			{
-				index: V.outfit.length,
 				name: "School",
 				over_upper: "naked",
 				over_lower: "naked",
@@ -300,7 +280,6 @@ function givestartclothing() {
 				colors: false,
 			},
 			{
-				index: V.outfit.length,
 				name: "Swimwear",
 				over_upper: "naked",
 				over_lower: "naked",

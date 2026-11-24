@@ -463,7 +463,7 @@ function exportOutfit(outfitIndex) {
 	const outfit = { ...V.outfit[outfitIndex] };
 
 	for (const property in outfit) {
-		if (["index", "location", "hairStyle"].includes(property) || outfit[property] === "naked") {
+		if (["location", "hairStyle"].includes(property) || outfit[property] === "naked") {
 			Reflect.deleteProperty(outfit, property);
 		}
 	}
@@ -518,7 +518,6 @@ function importOutfit() {
 			}
 		}
 
-		outfit.index = V.outfit.length;
 		outfit.location = undefined;
 		V.outfit.push(outfit);
 	} catch (error) {

@@ -17,10 +17,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "postMirror">>
-	<<shopClothingFilterReset>> /* Due to the reusing of shop code */
-<</widget>>
-
 <<widget "mirrorDisplay">>
 	<<switch $mirrorMenu>>
 		<<case "appearance">>
@@ -1235,6 +1231,99 @@
 	<</if>>
 <</widget>>
 
+<<widget "hairMirrorRefresh">>
+	<<updatesidebarimg>>
+	<<replace #hairDescription>><<hairDescription>><</replace>>
+	<<replace #hairgelLinks>><<hairgelLinks>><</replace>>
+<</widget>>
+
+<<widget "hairGridRefresh">>
+	<<if $("#hairContainerElements").length>>
+		<<replace "#hairContainerElements">><<mirrorhairdisplayElements>><</replace>>
+		<<replace "#hairContainerPages">><<mirrorhairControls>><</replace>>
+	<</if>>
+<</widget>>
+
+<<widget "hairPositionLinks">>
+	<div class="no-numberify">
+		<<link "Randomise your hairstyle">>
+			<<set _hairType to getVisibleHairStyles(setup.hairstyles.sides).map(style => style.variable)>>
+			<<if _hairType.length gt 0>>
+				<<set $hairtype to _hairType[random(0,_hairType.length - 1)]>>
+			<</if>>
+			<<set _fringeType to getVisibleHairStyles(setup.hairstyles.fringe).map(style => style.variable)>>
+			<<if _fringeType.length gt 0>>
+				<<set $fringetype to _fringeType[random(0,_fringeType.length - 1)]>>
+			<</if>>
+			<<set $hairposition to ["front","back"][random(0,1)]>>
+			<<set $isHairRuffleProof to false>>
+			<<hairMirrorRefresh>>
+			<<hairGridRefresh>>
+		<</link>>
+		|
+		<<switch $hairposition>>
+			<<case "front">>
+				<<link "Position sides behind body">>
+					<<set $hairposition to "back">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+			<<case "back">>
+				<<link "Position sides in front of body">>
+					<<set $hairposition to "front">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+			<<default>>
+				<<link "Position sides in front of body">>
+					<<set $hairposition to "front">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+		<</switch>>
+		|
+		<<switch $earsposition>>
+			<<case "front">>
+				<<link "Position hair in front of ears">>
+					<<set $earsposition to "back">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+			<<case "back">>
+				<<link "Tuck hair behind ears">>
+					<<set $earsposition to "front">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+			<<default>>
+				<<link "Tuck hair behind ears">>
+					<<set $earsposition to "front">>
+					<<hairMirrorRefresh>>
+					<<hairGridRefresh>>
+				<</link>>
+		<</switch>>
+		|
+		<<switch $browsposition>>
+			<<case "front">>
+				<<link "Position brows behind hair">>
+					<<set $browsposition to "back">>
+					<<hairMirrorRefresh>>
+				<</link>>
+			<<case "back">>
+				<<link "Position brows in front of hair">>
+					<<set $browsposition to "front">>
+					<<hairMirrorRefresh>>
+				<</link>>
+			<<default>>
+				<<link "Position brows behind hair">>
+					<<set $browsposition to "back">>
+					<<hairMirrorRefresh>>
+				<</link>>
+		<</switch>>
+		<br><br>
+	</div>
+<</widget>>
+
 <<widget "hairDescription">>
 	You check your hair in the mirror.
 	<<if $hairtype is "default" and $fringetype is "default">>
@@ -1247,7 +1336,7 @@
 			<span class="gold">hangs in front of your ears</span>
 	<</if>>
 	and is
-	<<if $ruffledisable is "t">>
+	<<if $isHairRuffleProof>>
 		<mouse class = "gold tooltip-small" style="border-bottom-color:white">
 			fixed in place.
 			<span class="black">Your hairstyle cannot be ruined. <br> <i class="red">Selecting a new hairstyle will re-enable hair ruffling. <<print ($hairgelBottles is 0 ? "Hair gel can be acquired at the shops." : "Hair gel will need to be re-applied.")>></i></span>
@@ -1258,70 +1347,7 @@
 			<span class="black">Certain situations may change your hair to a messier style. <br> <i class="teal">You can apply hair gel to disable hair ruffling.<<print ($hairgelBottles is 0 ? " Hair gel can be acquired at the shops." : "")>></i> </span>
 		</mouse>
 	<</if>>
-		<div class="no-numberify">
-			<<link [[Randomise your hairstyle|$passage]]>>
-				<<set _hairType to Object.values(_hairTypeByName)>>
-				<<set $hairtype to _hairType[random(0,_hairType.length - 1)]>>
-				<<set _fringeType to Object.values(_fringeTypeByName)>>
-				<<set $fringetype to _fringeType[random(0,_fringeType.length - 1)]>>
-				<<set $hairposition to ["front","back"][random(0,1)]>>
-			<</link>>
-			|
-			<<switch $hairposition>>
-				<<case "front">>
-					<<link "Position sides behind body">>
-						<<run State.setVar("$hairposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Position sides in front of body">>
-						<<run State.setVar("$hairposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Position sides in front of body">>
-						<<run State.setVar("$hairposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-			|
-			<<switch $earsposition>>
-				<<case "front">>
-					<<link "Position hair in front of ears">>
-						<<run State.setVar("$earsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Tuck hair behind ears">>
-						<<run State.setVar("$earsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Tuck hair behind ears">>
-						<<run State.setVar("$earsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-			|
-			<<switch $browsposition>>
-				<<case "front">>
-					<<link "Position brows behind hair">>
-						<<run State.setVar("$browsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Position brows in front of hair">>
-						<<run State.setVar("$browsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Position brows behind hair">>
-						<<run State.setVar("$browsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-			<br><br>
-		</div>
+		<<hairPositionLinks>>
 	<<else>>
 		<<if $hairtype is "default">>
 			Currently, your fringe is in the <span class="gold">$fringetype</span> style. Your sides are left <span class="gold">natural</span> and are positioned <<if $hairposition is "front">>in front of<<else>>behind<</if>> your body.
@@ -1338,7 +1364,7 @@
 				<span class="gold">hangs in front of your ears</span>
 			<</if>>
 			and is
-			<<if $ruffledisable is "t">>
+			<<if $isHairRuffleProof>>
 				<mouse class = "gold tooltip-small" style="border-bottom-color:white">
 					fixed in place.
 					<span class="black">Your hairstyle cannot be ruined. <br> <i class="red">Selecting a new hairstyle will re-enable hair ruffling. <<print ($hairgelBottles is 0 ? "Hair gel can be acquired at the shops." : "Hair gel will need to be re-applied.")>></i></span>
@@ -1349,77 +1375,13 @@
 					<span class="black">Certain situations may change your hair to a messier style. <br> <i class="teal">You can apply hair gel to disable hair ruffling.<<print ($hairgelBottles is 0 ? " Hair gel can be acquired at the shops." : "")>></i> </span>
 				</mouse>
 			<</if>>
-		<div class="no-numberify">
-			<<link [[Randomise your hairstyle|$passage]]>>
-				<<set _hairType to Object.values(_hairTypeByName)>>
-				<<set $hairtype to _hairType[random(0,_hairType.length - 1)]>>
-				<<set _fringeType to Object.values(_fringeTypeByName)>>
-				<<set $fringetype to _fringeType[random(0,_fringeType.length - 1)]>>
-				<<set $hairposition to ["front","back"][random(0,1)]>>
-			<</link>>
-			|
-			<<switch $hairposition>>
-				<<case "front">>
-					<<link "Position sides behind body">>
-						<<run State.setVar("$hairposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Position sides in front of body">>
-						<<run State.setVar("$hairposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Position sides in front of body">>
-						<<run State.setVar("$hairposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-			|
-			<<switch $earsposition>>
-				<<case "front">>
-					<<link "Position hair in front of ears">>
-						<<run State.setVar("$earsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Tuck hair behind ears">>
-						<<run State.setVar("$earsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Tuck hair behind ears">>
-						<<run State.setVar("$earsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-			|
-			<<switch $browsposition>>
-				<<case "front">>
-					<<link "Position brows behind hair">>
-						<<run State.setVar("$browsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<case "back">>
-					<<link "Position brows in front of hair">>
-						<<run State.setVar("$browsposition", "front")>>
-						<<run Engine.show()>>
-					<</link>>
-				<<default>>
-					<<link "Position brows behind hair">>
-						<<run State.setVar("$browsposition", "back")>>
-						<<run Engine.show()>>
-					<</link>>
-			<</switch>>
-		<br><br>
-		</div>
+		<<hairPositionLinks>>
 	<</if>>
 <</widget>>
 
 <<widget "mirrorHair">>
 	<<set _wraithMirror to false>>
 	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
-	<<shopClothingFilterSettingsDefault>> /* Due to reusing the traits filtering */
 	<br><br>
 	<div id="hairDescription">
 	<<hairDescription>>
@@ -1431,43 +1393,33 @@
 
 	<br>
 
-	<<set _hairTypeByName to {}>>
 	<<run setup.hairstyles.sides.sort((a, b) => {
 		if (a.name === "natural") return -1;
 		if (b.name === "natural") return 1;
 		return a.name.localeCompare(b.name);
-	}).forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) {
-			T.hairTypeByName[style.name] = style.variable;
-		}
 	})>>
-	<<set _fringeTypeByName to {}>>
 	<<run setup.hairstyles.fringe.sort((a, b) => {
 		if (a.name === "natural") return -1;
 		if (b.name === "natural") return 1;
 		return a.name.localeCompare(b.name);
-	}).forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) {
-			T.fringeTypeByName[style.name] = style.variable;
-		}
 	})>>
 
 	<div id="hairContainer">
 		<div class="containerHeader" class="no-numberify">
 			<<mirrorhairdisplayLinks "hair">>
 		</div>
-		<<mirrorhairdisplay "$hairtype" "sides">>
+		<<mirrorhairdisplay "sides">>
 	</div>
 	<br><br>
 <</widget>>
 
 <<widget "hairgelLinks">>
 	<div class="no-numberify">
-	<<link [[($showMannequins ? "Hide" : "Show") + " Mannequins"|$passage]]>><<set $showMannequins to 1 - ($showMannequins or 0)>><</link>>
+	<span id="hairMannequinToggle"><<hairMannequinToggle>></span>
 	<mouse class="tooltip-small linkBlue">(?)<span>Disable preview images for hairstyles. <i class="red">Enabling mannequins may cause performance issues on some devices.</i></span></mouse>
 	<<if $hairgelBottles isnot undefined and $hairgelBottles gte 1>>
 		| <<hairdressericon "gel">>
-		<<if $ruffledisable is "f">>
+		<<if !$isHairRuffleProof>>
 			<<link "Apply hair gel">><<replace #hairDescription>><<hairgelApply>><</replace>><<replace #hairgelDesc>><<hairgelDesc>><</replace>><<replace#hairgelLinks>><<hairgelLinks>><</replace>><</link>>
 		|
 		<</if>>
@@ -1478,7 +1430,7 @@
 
 <<widget "hairgelApply">>
 	<<if !pcAreArmsBound("any")>>
-		<<set $ruffledisable to "t">>
+		<<set $isHairRuffleProof to true>>
 		<<set $hairgelBottles += -1>>
 	<</if>>
 	<<hairDescription>>
@@ -1497,87 +1449,48 @@
 <</widget>>
 
 <<widget "mirrorhairdisplay">>
-	<<if _hairCategory isnot _args[0]>>
-		<<set _perPage to $showMannequins ? 14 : 100>>
-		<<set _page to 1>>
-	<</if>>
-	<<set _hairCategory to _args[0]>>
-	<<mirrorhairOptions _args[1]>>
-
+	<<run setHairMirrorCategory(_args[0])>>
 	<div id="hairContainerElements">
-		<<mirrorhairdisplayElements _hairOptions>>
+		<<mirrorhairdisplayElements>>
 	</div>
 	<div id="hairContainerPages" class="no-numberify">
-		<<mirrorhairControls _args[1]>>
+		<<mirrorhairControls>>
 	</div>
 <</widget>>
 
 <<widget "mirrorhairControls">>
+	<<set _hairPage to getHairMirrorPageContents()>>
 	<<if $showMannequins>>
 		<div class="containerFooter">
 			<div class="tab">
-			<<if _page gt 1>>
+			<<if _hairPage.page gt 0>>
 				<<button '<span class="fa-icon fa-left"></span> Previous'>>
-					<<if _page gt 1>><<set _page-->><</if>>
-					<<mirrorhairOptions _args[0]>>
-					<<replace "#hairContainerElements">><<mirrorhairdisplayElements _hairOptions>><</replace>>
-					<<replace "#hairContainerPages">><<mirrorhairControls _args[0]>><</replace>>
+					<<run setHairMirrorPage(_hairPage.page - 1)>>
+					<<hairGridRefresh>>
 				<</button>>
 			<<else>>
 				<button class="link-internal macro-button no-numberify buttonDisabled" disabled>Previous</button>
 			<</if>>
 			</div>
 			<div class="tab">
-			<<if _page lt _pageMax>>
+			<<if _hairPage.page lt _hairPage.pageCount - 1>>
 				<<button 'Next <span class="fa-icon fa-right"></span>'>>
-					<<if _page lt _pageMax>><<set _page++>><</if>>
-					<<mirrorhairOptions _args[0]>>
-					<<replace "#hairContainerElements">><<mirrorhairdisplayElements _hairOptions>><</replace>>
-					<<replace "#hairContainerPages">><<mirrorhairControls _args[0]>><</replace>>
+					<<run setHairMirrorPage(_hairPage.page + 1)>>
+					<<hairGridRefresh>>
 				<</button>>
 			<</if>>
 			</div>
 			<div class="tab">
 				<div class="buttonPage">
-					<<button '_page/_pageMax'>>
+					<<button `(_hairPage.page + 1) + "/" + _hairPage.pageCount`>>
 					<</button>>
 				</div>
 			</div>
 		</div>
 	<</if>>
-<</widget>>
-
-<<widget "mirrorhairTraits">>
-	<div id="hairContainerFilter">
-		<div class="tab">
-				<<button "<span class='fa-icon fa-check'></span> Apply">>
-					<<set $shopClothingFilter.active = true>>
-					<<run updateMoment()>>
-				<</button>>
-				<<button "<span class='fa-icon fa-reset'></span> Reset Filters">>
-					<<shopClothingFilterReset>>
-					<<replace "#hairContainerTraits">><<mirrorHairTraitList>><</replace>>
-					<<run updateMoment()>>
-				<</button>>
-				<<button "<span class='fa-icon fa-selected'></span> Select/Deselect All">>
-					<<run toggleAllHairTraitsFilter()>>
-				<</button>>
-		</div>
-	</div>
-<</widget>>
-
-<<widget "mirrorhairOptions">>
-	<<set _hairOptions to {}>>
-	<<run setup.hairstyles[_args[0]].forEach(style => {
-		if (!V.shopClothingFilter.active || !V.shopClothingFilter.traits.length || style.type.find(type => V.shopClothingFilter.traits.includes(type))) T.hairOptions[style.name] = style.variable;
-	})>>
-	<<set _pageMax to Math.ceil(Object.keys(_hairOptions).length / _perPage)>>
-
-	<<run Object.keys(_hairOptions).forEach((key, index) => {
-	if (!between(index, T.perPage * (T.page - 1), (T.perPage * T.page) - 1)) {
-			delete T.hairOptions[key];
-		}
-	})>>
+	<<if _hairPage.shown lt _hairPage.total>>
+		<span class="hairShownCount grey"><<print _hairPage.shown + " of " + _hairPage.total + " hairstyles shown">></span>
+	<</if>>
 <</widget>>
 
 <<widget "mirrorhairdisplayLinks">>
@@ -1588,7 +1501,7 @@
 					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "hair">>
 					</div>
-					<<mirrorhairdisplay "$hairtype" "sides">>
+					<<mirrorhairdisplay "sides">>
 				<</replace>>
 			<</button>>
 		</span>
@@ -1600,7 +1513,7 @@
 					<div class="containerHeader" class="no-numberify">
 						<<mirrorhairdisplayLinks "fringe">>
 					</div>
-					<<mirrorhairdisplay "$fringetype" "fringe">>
+					<<mirrorhairdisplay "fringe">>
 				<</replace>>
 			<</button>>
 		</span>
@@ -1620,24 +1533,15 @@
 		</span>
 	</div>
 	<div class="tab">
-		<span @class="_args[0] is 'filter' ? 'tab-selected' : ''">
-			<<button "Filters">>
-				<<replace "#hairContainer">>
-					<div class="containerHeader" class="no-numberify">
-						<<mirrorhairdisplayLinks "filter">>
-					</div>
-					<<mirrorhairdisplayFilter>>
-				<</replace>>
-			<</button>>
-		</span>
+		<<hairTraitsDropdown>>
 	</div>
 <</widget>>
 
 <<widget "mirrorhairdisplayElements">>
-	<div id="hairGridSides" class="no-numberify hairGrid">
-		<<for _label, _hairName range _args[0]>>
-			<<capture _hairCategory, _hairName>>
-				<div @id="'hairGrid-' + _hairCategory.replace('$','') + '-' + _hairName.replace(/ /g,'')" @class="'gridItem' + (_hairName is V[_hairCategory.replace('$','')] ? ' selectedHair' : '')" @onclick="`wikifier('mirrorhairdisplayClick', '${T.hairCategory.replace('$','')}', '${T.hairName.replace(/ /g,'_')}');`">
+	<div id="hairGrid" class="no-numberify hairGrid">
+		<<for _mirrorHairStyle range getHairMirrorPageContents().items>>
+			<<capture _mirrorHairStyle>>
+				<div @class="'gridItem' + (_mirrorHairStyle.variable is getWornHairStyle() ? ' selectedHair' : '')" @data-hair-style="_mirrorHairStyle.variable">
 					<<if $options.images is 1 and $showMannequins is 1>>
 						<<selectmodel "main">>
 						<<set _modeloptions.tanningEnabled to false>>
@@ -1658,38 +1562,22 @@
 						<<set _modeloptions.hair_sides_length to $hairlengthstage>>
 						<<set _modeloptions.hair_sides_position to $hairposition>>
 						<<set _modeloptions.hair_fringe_length to $fringelengthstage>>
-						<<if _hairCategory is "$hairtype">>
-							<<set _modeloptions.hair_sides_type to _hairName>>
+						<<if getHairMirrorView().category is "sides">>
+							<<set _modeloptions.hair_sides_type to _mirrorHairStyle.variable>>
 							<<set _modeloptions.hair_fringe_type to $fringetype>>
 						<<else>>
-							<<set _modeloptions.hair_fringe_type to _hairName>>
+							<<set _modeloptions.hair_fringe_type to _mirrorHairStyle.variable>>
 							<<set _modeloptions.hair_sides_type to $hairtype>>
 						<</if>>
 						<<set _modeloptions.ears_position to $earsposition>>
 						<<rendermodel "hairstyleMannequin">>
 						<br>
 					<</if>>
-					<<print toTitleCase(_label)>>
+					<<print toTitleCase(_mirrorHairStyle.name)>>
 				</div>
 			<</capture>>
 		<</for>>
 	</div>
-<</widget>>
-
-<<widget "mirrorhairdisplayClick">>
-	<<if _args[0] and _args[1]>>
-		<<if Object.values(_hairOptions).includes(V[_args[0]])>>
-			<<set _id to "#hairGrid-" + _args[0] + "-" + V[_args[0]].replace(/ /g,"")>>
-			<<removeclass _id "selectedHair">>
-		<</if>>
-		<<set V[_args[0]] to _args[1].replace(/_/g," ")>>
-		<<set _id2 to "#hairGrid-" + _args[0] + "-" + _args[1].replace(/_/g,"")>>
-		<<set $ruffledisable to "f">>
-		<<addclass _id2 "selectedHair">>
-		<<updatesidebarimg>>
-		<<replace #hairDescription>><<hairDescription>><</replace>>
-		<<replace #hairgelLinks>><<hairgelLinks>><</replace>>
-	<</if>>
 <</widget>>
 
 <<widget "mirrorhairdisplaySave">>
@@ -1728,90 +1616,6 @@
 <</widget>>
 
 
-<<widget "mirrorhairdisplayFilter">>
-	<div id="hairContainerTraits" class="no-numberify">
-		<<mirrorHairTraitList>>
-	</div>
-	<div id="hairContainerFilter">
-		<<mirrorhairTraits>>
-	</div>
-<</widget>>
-
-<<widget "mirrorHairTraitList">>
-	<<set _shopLocation to "mirrorhair">>
-	<div class="hairGridTraits">
-		<div class="traitCategory">
-			<<set _textureTraits to ["curly", "sleek", "wavy", "textured"]>>
-			<span class="gold" style="padding-left:5px">Texture:</span>
-				<<for _trait range _textureTraits.sort()>>
-					<<silently>><< _trait>><</silently>>
-					<<set _traitObj to setup.shopDetails[_trait]>>
-					<div class="filters-trait-row">
-						<label>
-							<<set _checked = $shopClothingFilter.traits.includes(_trait) ? 'checked="checked"' : ''>>
-							<<clothingtrait _trait 'display_normal'>>
-							<<print '<input type="checkbox" @id="_trait" @value="_trait" ' + _checked + ' onclick="window.shopClothingFilterToggleTrait(this.value)">'>>
-							<<if !_traitObj.desc>>
-								<<print _traitObj.name>>
-							<<else>>
-								<mouse class = "tooltip-small">
-									<<print _traitObj.name>>
-									<span class="black"><<print _traitObj.desc>></span>
-								</mouse>
-							<</if>>
-						</label>
-					</div>
-				<</for>>
-		</div>
-		<div class="traitCategory">
-			<span class="gold" style="padding-left:5px">Style:</span>
-			<<set _styleTraits to ["braids", "buns", "pigtails", "ponytail"]>>
-				<<for _trait range _styleTraits.sort()>>
-					<<silently>><< _trait>><</silently>>
-					<<set _traitObj to setup.shopDetails[_trait]>>
-					<div class="filters-trait-row">
-						<label>
-							<<set _checked = $shopClothingFilter.traits.includes(_trait) ? 'checked="checked"' : ''>>
-							<<clothingtrait _trait 'display_normal'>>
-							<<print '<input type="checkbox" @id="_trait" @value="_trait" ' + _checked + ' onclick="window.shopClothingFilterToggleTrait(this.value)">'>>
-							<<if !_traitObj.desc>>
-								<<print _traitObj.name>>
-							<<else>>
-								<mouse class = "tooltip-small">
-									<<print _traitObj.name>>
-									<span class="black"><<print _traitObj.desc>></span>
-								</mouse>
-							<</if>>
-						</label>
-					</div>
-				<</for>>
-		</div>
-		<div class="traitCategory">
-			<span class="gold" style="padding-left:5px">Other</span>
-			<<set _otherTraits to ["loose","short"]>>
-				<<for _trait range _otherTraits.sort()>>
-					<<silently>><< _trait>><</silently>>
-					<<set _traitObj to setup.shopDetails[_trait]>>
-					<div class="filters-trait-row">
-						<label>
-							<<set _checked = $shopClothingFilter.traits.includes(_trait) ? 'checked="checked"' : ''>>
-							<<clothingtrait _trait 'display_normal'>>
-							<<print '<input type="checkbox" @id="_trait" @value="_trait" ' + _checked + ' onclick="window.shopClothingFilterToggleTrait(this.value)">'>>
-							<<if !_traitObj.desc>>
-								<<print _traitObj.name>>
-							<<else>>
-								<mouse class = "tooltip-small">
-									<<print _traitObj.name>>
-									<span class="black"><<print _traitObj.desc>></span>
-								</mouse>
-							<</if>>
-						</label>
-					</div>
-				<</for>>
-		</div>
-	</div>
-<</widget>>
-
 <<widget "mirrorHairSave">>
 	<div class="hairContainerSave">
 	<<if _savedHairStylesKeys.length gt 0>>
@@ -1820,7 +1624,7 @@
 			<<set $hairtype to $savedHairStyles[_selectedSavedHairStyle].hairtype>>
 			<<set $fringetype to $savedHairStyles[_selectedSavedHairStyle].fringetype>>
 			<<set $hairposition to $savedHairStyles[_selectedSavedHairStyle].hairposition>>
-			<<set $ruffledisable to "f">>
+			<<set $isHairRuffleProof to false>>
 			<<updatesidebarimg>>
 		<</button>>
 		<<button '<span class="fa-icon fa-overwrite"></span> Overwrite'>>
@@ -2870,4 +2674,33 @@
 			Wikifier.wikifyEval('<<updatesidebarimg true>>');
 		});
 	<</script>>
+<</widget>>
+
+<<widget "hairTraitsDropdown">>
+	<details class="clothingFilterDropdown hairTraitsDropdown no-numberify">
+		<summary>
+			Filters
+			<mouse class="tooltip-small linkBlue" onclick="event.preventDefault()">(?)<span>When filtering in the same group, you'll see hair that matches any of those picks. When filtering across groups, you'll only see hair that matches all of them.</span></mouse>
+		</summary>
+		<div class="clothingFilterMenu">
+			<<for _traitGroup range hairTraitGroups>>
+				<div class="hairTraitGroupHeading">_traitGroup.heading</div>
+				<<for _trait range _traitGroup.traits>>
+					<<set _hairTraitTooltip to '<span class="black">' + setup.hairDetails[_trait].desc + '</span>'>>
+					<label>
+						<<print '<input type="checkbox" class="hairTraitOption" value="' + _trait + '"' + (getHairMirrorView().traitFilters.includes(_trait) ? ' checked' : '') + '>'>>
+						<span class="noDivider" @tooltip-title="_trait.toUpperFirst()" @tooltip="_hairTraitTooltip" tooltip-settings="{delay: 0}"><span class="tooltip-anchor"><<print _trait.toUpperFirst()>></span></span>
+					</label>
+				<</for>>
+			<</for>>
+		</div>
+	</details>
+<</widget>>
+
+<<widget "hairMannequinToggle">>
+	<<link `($showMannequins ? "Hide" : "Show") + " Mannequins"`>>
+		<<set $showMannequins to 1 - ($showMannequins or 0)>>
+		<<replace "#hairMannequinToggle">><<hairMannequinToggle>><</replace>>
+		<<hairGridRefresh>>
+	<</link>>
 <</widget>>

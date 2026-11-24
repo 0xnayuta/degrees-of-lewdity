@@ -632,24 +632,8 @@
 		<<set $position to 0>>
 	<</if>>
 
-	<<if $wear_upper is undefined>>
-		<<set $wear_upper to "none">>
-		<<set $wear_lower to "none">>
-		<<set $wear_under_upper to "none">>
-		<<set $wear_under_lower to "none">>
-		<<set $wear_head to "none">>
-		<<set $wear_face to "none">>
-		<<set $wear_neck to "none">>
-		<<set $wear_legs to "none">>
-		<<set $wear_feet to "none">>
-		<<set $wear_genitals to "none">>
+	<<if $wear_outfit is undefined>>
 		<<set $wear_outfit to "none">>
-	<</if>>
-
-	<<if $wear_over_upper is undefined>>
-		<<set $wear_over_upper to "none">>
-		<<set $wear_over_lower to "none">>
-		<<set $wear_over_head to "none">>
 	<</if>>
 
 	<<if $no_underwear is undefined>>
@@ -742,11 +726,11 @@
 			"colorSet":null,
 			"secColor":"black",
 			"secColorSet":null,
-			"disableReturn": false
+			"stayOnItemAfterBuying": false
 		}>>
 	<</if>>
-	<<if $shopDefaults.alwaysBackToShopButton is undefined>>
-		<<set $shopDefaults.alwaysBackToShopButton to false>>
+	<<if $shopDefaults.alwaysShowBackToShop is undefined>>
+		<<set $shopDefaults.alwaysShowBackToShop to false>>
 	<</if>>
 	<<if $shopDefaults.colourItems is undefined>>
 		<<set $shopDefaults.colourItems = "random">>
@@ -754,12 +738,12 @@
 	<<if $shopDefaults.mannequinGender is undefined>>
 		<<set $shopDefaults.mannequinGender = "same">>
 	<</if>>
-	<<if $shopDefaults.noHelp is undefined>>
-		<<set $shopDefaults.compactMode to false>>
-		<<set $shopDefaults.mannequinGenderFromClothes to false>>
-		<<set $shopDefaults.highContrast to false>>
-		<<set $shopDefaults.noTraits to false>>
-		<<set $shopDefaults.noHelp to false>>
+	<<if $shopDefaults.hideHelp is undefined>>
+		<<set $shopDefaults.compactModeEnabled to false>>
+		<<set $shopDefaults.useClothingGenderForMannequin to false>>
+		<<set $shopDefaults.highContrastEnabled to false>>
+		<<set $shopDefaults.hideTraits to false>>
+		<<set $shopDefaults.hideHelp to false>>
 	<</if>>
 
 	<<if $tentacles is undefined>>
@@ -1189,7 +1173,6 @@
 		<<set $carried.hands to clone(setup.clothes.hands[0])>>
 		<<set $wardrobe.hands to []>>
 		<<set $store.hands to []>>
-		<<set $wear_hands to "none">>
 	<</if>>
 
 	<!-- updateClothes was moved to <<backcomp>> at the bottom of this file -->
@@ -1880,9 +1863,6 @@
 	<</if>>
 	<<if $shopPage is undefined>>
 		<<set $shopPage = 0>>
-	<</if>>
-	<<if $shopClothingFilter is undefined>>
-		<<shopClothingFilterReset>>
 	<</if>>
 	<<if $shopItemsPerPage is undefined>>
 		<<set $shopItemsPerPage = 12>>
@@ -4450,9 +4430,6 @@
 	<<if $town_projects is undefined>>
 		<<set $town_projects to {}>>
 	<</if>>
-	<<if $ruffledisable is undefined>>
-		<<set $ruffledisable to "f">>
-	<</if>>
 	<<if $child_played is undefined>>
 		<<set $child_played to []>>
 	<</if>>
@@ -4929,7 +4906,6 @@
 		<<set $carried.handheld to clone(setup.clothes.handheld[0])>>
 		<<set $wardrobe.handheld to []>>
 		<<set $store.handheld to []>>
-		<<set $wear_handheld to "none">>
 		<<if ($player.sex is "f" and $background isnot "crossdresser") or
 		($player.sex is "m" and $background is "crossdresser") or
 		($player.sex is "h" and
@@ -6175,15 +6151,15 @@
 	<<if $wardrobeDefaults is undefined>>
 		<<set $wardrobeDefaults to {
 			"showTraits": false,
-			"extraInfo": false
+			"showExtraInfo": false
 		}>>
 	<</if>>
 
 	<<if $wardrobeDefaults.showTraits is undefined>>
 		<<set $wardrobeDefaults.showTraits to false>>
 	<</if>>
-	<<if $wardrobeDefaults.extraInfo is undefined>>
-		<<set $wardrobeDefaults.extraInfo to false>>
+	<<if $wardrobeDefaults.showExtraInfo is undefined>>
+		<<set $wardrobeDefaults.showExtraInfo to false>>
 	<</if>>
 
 	<!-- add $hourly -->
@@ -7759,4 +7735,84 @@
 	<</if>>
 
 	<<set $collapsedDropdowns ??= []>>
+
+	<!-- Wardrobe rework -->
+	<<unset $wardrobeOption>>
+	<<unset $wardrobeRepeat>>
+	<<unset $delete_outfit>>
+	<<unset $clothingTraitTypes>>
+	<<if $shopClothingFilter isnot undefined>>
+		<<set $shopDefaults.hideUnavailable to $shopClothingFilter.availableOnly is true>>
+		<<set $shopDefaults.hideAvailable to $shopClothingFilter.unavailableOnly is true>>
+		<<unset $shopClothingFilter>>
+	<</if>>
+	<<unset $shopClothingFilterTraits>>
+	<<unset $shopClothingFilterGender>>
+	<<if $shopDefaults.hideUnavailable is undefined>>
+		<<set $shopDefaults.hideUnavailable to false>>
+		<<set $shopDefaults.hideAvailable to false>>
+	<</if>>
+	<<if $wardrobeDefaults.itemsPerPage is undefined>>
+		<<set $wardrobeDefaults.itemsPerPage to 20>>
+	<</if>>
+	<<if !isValidWardrobeSort($wardrobeDefaults.sort)>>
+		<<set $wardrobeDefaults.sort to { property: "none", isDescending: false }>>
+	<</if>>
+	<<if $wardrobe_location is "mansion_wardrobe">>
+		<<set $wardrobe_location to "avery_mansion">>
+	<</if>>
+	<<unset $wear_over_upper>>
+	<<unset $wear_over_lower>>
+	<<unset $wear_upper>>
+	<<unset $wear_lower>>
+	<<unset $wear_under_upper>>
+	<<unset $wear_under_lower>>
+	<<unset $wear_over_head>>
+	<<unset $wear_head>>
+	<<unset $wear_face>>
+	<<unset $wear_neck>>
+	<<unset $wear_hands>>
+	<<unset $wear_handheld>>
+	<<unset $wear_legs>>
+	<<unset $wear_feet>>
+	<<unset $wear_genitals>>
+	<<unset $randomWear>>
+	<<if $isHairRuffleProof is undefined>>
+		<<set $isHairRuffleProof to $ruffledisable is "t">>
+		<<unset $ruffledisable>>
+	<</if>>
+	<<if $shopDefaults.disableReturn isnot undefined>>
+		<<set $shopDefaults.stayOnItemAfterBuying to $shopDefaults.disableReturn>>
+		<<run delete $shopDefaults.disableReturn>>
+	<</if>>
+	<<if $shopDefaults.alwaysBackToShopButton isnot undefined>>
+		<<set $shopDefaults.alwaysShowBackToShop to $shopDefaults.alwaysBackToShopButton>>
+		<<run delete $shopDefaults.alwaysBackToShopButton>>
+	<</if>>
+	<<if $shopDefaults.noHelp isnot undefined>>
+		<<set $shopDefaults.hideHelp to $shopDefaults.noHelp>>
+		<<run delete $shopDefaults.noHelp>>
+	<</if>>
+	<<if $shopDefaults.noTraits isnot undefined>>
+		<<set $shopDefaults.hideTraits to $shopDefaults.noTraits>>
+		<<run delete $shopDefaults.noTraits>>
+	<</if>>
+	<<if $shopDefaults.highContrast isnot undefined>>
+		<<set $shopDefaults.highContrastEnabled to $shopDefaults.highContrast>>
+		<<run delete $shopDefaults.highContrast>>
+	<</if>>
+	<<if $shopDefaults.mannequinGenderFromClothes isnot undefined>>
+		<<set $shopDefaults.useClothingGenderForMannequin to $shopDefaults.mannequinGenderFromClothes>>
+		<<run delete $shopDefaults.mannequinGenderFromClothes>>
+	<</if>>
+	<<if $shopDefaults.compactMode isnot undefined>>
+		<<set $shopDefaults.compactModeEnabled to $shopDefaults.compactMode>>
+		<<run delete $shopDefaults.compactMode>>
+	<</if>>
+	<<if $wardrobeDefaults.extraInfo isnot undefined>>
+		<<set $wardrobeDefaults.showExtraInfo to $wardrobeDefaults.extraInfo>>
+		<<run delete $wardrobeDefaults.extraInfo>>
+	<</if>>
+	<<unset $outfit_name>>
+	<<run V.outfit.forEach(clothingSet => delete clothingSet.index)>>
 <</widget>>

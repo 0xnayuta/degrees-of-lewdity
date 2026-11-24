@@ -707,9 +707,9 @@ Groups littermates by pregnancyId.*/
 <<widget "childViewerDisplay">>
 	<<set _idList to _args[0]>>
 	<<set _listMaxItems to 10>>
-	<<set _listPage to 1>>
 	<<set _listPageMax to Math.ceil(_idList.length / _listMaxItems)>>
-	<<set _childStart to 0>>
+	<<set $childViewerPage to Math.clamp($childViewerPage || 1, 1, _listPageMax)>>
+	<<set _childStart to _listMaxItems * ($childViewerPage - 1)>>
 	<<set _childEnd to (_childStart + _listMaxItems gt _idList.length ? _idList.length : _childStart + _listMaxItems)>>
 	<div id="childViewer">
 		<<childViewerDisplayElements>>
@@ -717,7 +717,7 @@ Groups littermates by pregnancyId.*/
 <</widget>>
 
 <<widget "childViewerPageUpdate">>
-	<<set _childStart to _listMaxItems * (_listPage - 1)>>
+	<<set _childStart to _listMaxItems * ($childViewerPage - 1)>>
 	<<set _childEnd to (_childStart + _listMaxItems lte _idList.length ? _childStart + _listMaxItems : _idList.length)>>
 	<<replace '#childViewer'>>
 		<<childViewerDisplayElements>>
@@ -737,24 +737,24 @@ Groups littermates by pregnancyId.*/
 	</div>
 	<br>
 	<div class="childrenUiControls">
-		<<set _disabled = _listPage > 1 ? "" : "disabled">>
+		<<set _disabled = $childViewerPage > 1 ? "" : "disabled">>
 		<div @class="'div-link btn-pagination prev ' + _disabled">
 			<<link "Previous">>
-				<<if _listPage > 1>>
-					<<set _listPage -= 1>>
+				<<if $childViewerPage > 1>>
+					<<set $childViewerPage -= 1>>
 					<<childViewerPageUpdate>>
 				<</if>>
 			<</link>>
 			<div class="btn-pagination-arrow">&lt;</div>
 		</div>
 		<div>
-			<<print (_listPage) + " out of " + _listPageMax>>
+			<<print $childViewerPage + " out of " + _listPageMax>>
 		</div>
-		<<set _disabled = _listPage < _listPageMax ? "" : "disabled">>
+		<<set _disabled = $childViewerPage < _listPageMax ? "" : "disabled">>
 		<div @class="'div-link btn-pagination next ' + _disabled">
 			<<link "Next">>
-				<<if _listPage < _listPageMax>>
-					<<set _listPage += 1>>
+				<<if $childViewerPage < _listPageMax>>
+					<<set $childViewerPage += 1>>
 					<<childViewerPageUpdate>>
 				<</if>>
 			<</link>>

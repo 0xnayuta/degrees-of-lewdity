@@ -1,31 +1,94 @@
 :: Widgets Outfits [widget]
 <<widget "listoutfits">>
-	<label class="no-numberify"><<link "Create new set from current clothing">><<toggleclass "#newClothingSetFromCurrent" "hidden">><</link>></label> |
-	<label class="no-numberify"><<link "Edit all sets">><<overlayReplace "outfitEditor">><</link>></label>
-	<br>
-	<div id="newClothingSetFromCurrent" class="wardrobeSubSection hidden">
-		<<wardrobeNewOutfit>>
-		<br>
-	</div>
-	<br>
+	<<clothingSetSaveLine>>
+	<div id="clothingSetUndoBanner" class="no-numberify"><<clothingSetUndoBanner>></div>
+	<div id="clothingSetGrid"><<clothingSetGrid>></div>
+	<div id="clothingSetMenu" class="no-numberify"><<clothingSetMenu>></div>
+<</widget>>
 
-	<label><<radiobutton "$delete_outfit" "none" checked>> Wear</label> |
-	<label><<radiobutton "$delete_outfit" 1>> Delete</label> |
-	<label><<radiobutton "$delete_outfit" 2>> Overwrite with current clothing</label>
-	<br><br>
-
-	<!-- List the currently saved outfits -->
+<<widget "clothingSetGrid">>
 	<div class="outfitContainer no-numberify">
-		<<for _index, $_outfit range $outfit>>
-			<<if $_outfit.location and $_outfit.location isnot $wardrobe_location>>
-				<<continue>>
-			<</if>>
-			<<set _outfitname to $_outfit.name + ($_outfit.colors is false ? "" : " [C]") + ($_outfit.location is undefined ? "" : " [L]")>>
+		<div @class="'clothingSetCell clothingSetCellFixed' + (setup.clothingLayer.all.every(slot => $worn[slot].name is 'naked') ? ' worn' : '')">
+			<<button "Strip all">><<wardrobeAction>><<wardrobeStripAll>><</wardrobeAction>><</button>>
+		</div>
+		<<set _wornClothingSetName to currentOutfit()>>
+		<<for _index range getClothingSetIndexesInWardrobe($wardrobe_location)>>
+			<<set _outfitname to $outfit[_index].name + ($outfit[_index].colors is false ? "" : " [C]") + ($outfit[_index].location is undefined ? "" : " [L]")>>
 			<<capture _index>>
-				<<button _outfitname>><<set $wear_outfit to _index>><<updatewardrobe "outfits">><</button>>
+				<div @class="'clothingSetCell' + (_wornClothingSetName is $outfit[_index].name ? ' worn' : '') + (getWardrobeView().openClothingSetIndex is _index ? ' open' : '')" @data-index="_index">
+					<span class="clothingSetDragHandle" title="Drag to reorder">⠿</span>
+					<<button _outfitname>><<set $wear_outfit to _index>><<wardrobeAction>><<wearoutfit>><<wardrobeUpdateExposure>><</wardrobeAction>><</button>>
+					<span class="clothingSetMenuButton">
+						<<button "⋮">><<run toggleClothingSetMenu(_index)>><<clothingSetGridRefresh>><</button>>
+					</span>
+				</div>
 			<</capture>>
 		<</for>>
 	</div>
+<</widget>>
+
+<<widget "clothingSetMenu">>
+	<<if getWardrobeView().openClothingSetIndex isnot null>>
+		<<set _setMenuIndex to getWardrobeView().openClothingSetIndex>>
+		<<set _visibleSets to getClothingSetIndexesInWardrobe($wardrobe_location)>>
+		<<set _visibleSetIndex to _visibleSets.indexOf(_setMenuIndex)>>
+		<<capture _setMenuIndex _visibleSets _visibleSetIndex>>
+			<div class="clothingSetMenu">
+				<<if getWardrobeView().isRenamingClothingSet>>
+					<<textbox "_clothingSetNewName" $outfit[_setMenuIndex].name>>
+					<span id="clothingSetRenameApply"><<link "✓">><<run renameClothingSet(_setMenuIndex, _clothingSetNewName)>><<run openClothingSetMenu(_setMenuIndex)>><<clothingSetGridRefresh>><</link>></span>
+					<<run $(() => {
+						$("#textbox--clothingsetnewname").on("keydown", e => {
+							if (e.key !== "Enter") return;
+							T.clothingSetNewName = e.target.value;
+							$("#clothingSetRenameApply a").trigger("click");
+						}).trigger("focus");
+					})>>
+				<<else>>
+					<span class="bold"><<print $outfit[_setMenuIndex].name>></span>
+					<<if $outfit[_setMenuIndex].colors>><span class="grey">colours saved</span><</if>>
+					<<if $outfit[_setMenuIndex].location>><span class="grey">this wardrobe only</span><</if>>
+				<</if>>
+				<span class="menuActions">
+					<span class="menuAction"><<link "Overwrite with current clothes">><<run overwriteClothingSet(_setMenuIndex)>><<clothingSetGridRefresh>><</link>></span>
+					<<if !getWardrobeView().isRenamingClothingSet>>
+						<span class="menuAction"><<link "Rename">><<run startRenamingClothingSet()>><<clothingSetGridRefresh>><</link>></span>
+					<</if>>
+					<<if _visibleSets.length gt 1>>
+						<span class="menuAction">
+							<<if _visibleSetIndex gt 0>>
+								<<link "◀">><<run moveClothingSet(_setMenuIndex, _visibleSets[_visibleSetIndex - 1])>><<run openClothingSetMenu(_visibleSets[_visibleSetIndex - 1])>><<clothingSetGridRefresh>><</link>>
+							<<else>>
+								<span class="link-disabled">◀</span>
+							<</if>>
+							<<if _visibleSetIndex lt _visibleSets.length - 1>>
+								<<link "▶">><<run moveClothingSet(_setMenuIndex, _visibleSets[_visibleSetIndex + 1])>><<run openClothingSetMenu(_visibleSets[_visibleSetIndex + 1])>><<clothingSetGridRefresh>><</link>>
+							<<else>>
+								<span class="link-disabled">▶</span>
+							<</if>>
+						</span>
+					<</if>>
+					<span class="menuAction red"><<link "Delete">><<set _clothingSetDeleteUndo to deleteClothingSet(_setMenuIndex)>><<run closeClothingSetMenu()>><<clothingSetGridRefresh>><</link>></span>
+					<span class="menuAction"><<link "✕">><<run closeClothingSetMenu()>><<clothingSetGridRefresh>><</link>></span>
+				</span>
+			</div>
+		<</capture>>
+	<</if>>
+<</widget>>
+
+<<widget "clothingSetUndoBanner">>
+	<<if _clothingSetDeleteUndo>>
+		<div class="wardrobeUndoBanner">
+			Deleted "<<print _clothingSetDeleteUndo.clothingSet.name>>".
+			<<link "Undo">><<run undoClothingSetDelete(_clothingSetDeleteUndo)>><<unset _clothingSetDeleteUndo>><<run closeClothingSetMenu()>><<clothingSetGridRefresh>><</link>>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "clothingSetGridRefresh">>
+	<<replace "#clothingSetGrid">><<clothingSetGrid>><</replace>>
+	<<replace "#clothingSetMenu">><<clothingSetMenu>><</replace>>
+	<<wardrobeRedrawUndoBanners>>
 <</widget>>
 
 <<widget "listoutfitsPassage">>
@@ -232,13 +295,6 @@
 	<</if>>
 <</widget>>
 
-<<widget "deleteoutfit">>
-	<<if $delete_outfit is 1 and $wear_outfit isnot "none">>
-		<<set $outfit.deleteAt($wear_outfit)>>
-		<<set $wear_outfit to "none">>
-	<</if>>
-<</widget>>
-
 <<widget "saveTempHairStyle">>
 	<<set $tempSavedHairStyles to {hairtype:$hairtype, fringetype:$fringetype, hairposition:$hairposition}>>
 <</widget>>
@@ -261,9 +317,6 @@
 	<</if>>
 	<<set _selectedWardrobe to selectWardrobe()>>
 	<<updateWornClothingLocation $wardrobe_location>>
-	<<deleteoutfit>>
-	<<overwriteoutfit>>
-	<<set $delete_outfit to "none">>
 	<<if $wear_outfit is "clotheson">>
 		<<storeon $storeLocation>>
 	<<elseif $wear_outfit isnot "none">>
@@ -861,36 +914,6 @@
 	<<unset $storeLocation>>
 <</widget>>
 
-<<widget "overwriteoutfit">>
-	<<if $delete_outfit is 2 and $wear_outfit isnot "none">>
-		<<set _equip to setup.clothingLayer.all>>
-		<<set _outfit to $outfit[$wear_outfit]>>
-		<<set _positions to {}>>
-		<<for $_slot range _equip>>
-			<<set _outfit[$_slot] to $worn[$_slot].name>>
-			<<if _outfit.colors>>
-				<<set _outfit.colors[$_slot] to [clone($worn[$_slot].colour),clone($worn[$_slot].accessory_colour)]>>
-				<<if $worn[$_slot].pattern>>
-					<<run _outfit.colors[$_slot].push(clone($worn[$_slot].pattern))>>
-				<</if>>
-				<<if $worn[$_slot].colour is "custom" or $worn[$_slot].accessory_colour is "custom">>
-					<<run _outfit.colors[$_slot+"custom"] to [clone($worn[$_slot].colourCustom),clone($worn[$_slot].accessory_colourCustom)]>>
-				<</if>>
-			<</if>>
-			<<if $worn[$_slot].altposition>>
-				<<set _positions[$_slot] to $worn[$_slot].altposition>>
-			<</if>>
-			<<if $worn[$_slot].altsleeve>>
-				<<set _positions.sleeves to $worn[$_slot].altsleeve>>
-			<</if>>
-		<</for>>
-		<<if Object.keys(_positions).length > 0>>
-			<<set _outfit.positions to _positions>>
-		<</if>>
-		<<set $wear_outfit to "none">>
-	<</if>>
-<</widget>>
-
 <<widget "outfitEditor">>
 	<<link "Filter Options">><<toggleclass "#outfitEditorFilter" "hidden">><</link>> |
 	<<link "Import">><<toggleclass "#outfitEditorImport" "hidden">><</link>> |
@@ -1075,7 +1098,7 @@
 			<!--Runs too many times for some reason, needs to be improved-->
 			<<run $(() => { $('.outfitEditorItem .name .macro-textbox').on('input change', e => {
 				let index = e.target.name.replace(/\D/g,'');
-				V.outfit[index].name = V.outfit[index].name.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9.!()]+/g,"").substr(0,30);
+				V.outfit[index].name = sanitiseClothingSetName(V.outfit[index].name);
 			}).trigger('input change') })>>
 		</div>
 		<div>

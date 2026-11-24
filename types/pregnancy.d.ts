@@ -21,6 +21,7 @@ declare module "twine-sugarcube" {
 		/** Days before giveHarpyEggs can give the PC eggs again. */
 		harpyEggsPrevent?: number;
 		childSelected?: Child;
+		childViewerPage?: number;
 		recentBirthId?: PregnancyId;
 	}
 }

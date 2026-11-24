@@ -28,16 +28,15 @@ declare module "twine-sugarcube" {
 		carried: {
 			[x in ClothedSlots]: ClothesItem;
 		};
-		wardrobe: {
-			[x in ClothedSlots]: ClothesItem;
-		};
+		wardrobe: Wardrobe;
 		wardrobes: {
 			shopReturn: string;
 			wardrobe: {
 				NOTE: string;
+				name: string;
 				unlocked: boolean;
 				shopSend: boolean;
-				name: string;
+				transfer: boolean;
 			};
 			changingRoom: Wardrobe;
 			edensCabin: Wardrobe;
@@ -48,18 +47,59 @@ declare module "twine-sugarcube" {
 			schoolBoys: Wardrobe;
 			schoolGirls: Wardrobe;
 			prison: Wardrobe;
+			temple: Wardrobe;
+			pirate: Wardrobe;
+			officeBuilding: Wardrobe;
+			birdTower: Wardrobe;
+			avery_mansion: Wardrobe;
 		};
-		outfit: {
-			[x in ClothedSlots]: string;
-		}[];
+		outfit: ClothingSet[];
 		lowerwetstage: number;
 		underlowerwetstage: number;
 		specialClothes: specialClothesItem[];
+		wardrobe_location: WardrobeLocation;
+		lastWardrobeSlot: ClothedSlots | "all";
+		wardrobeDefaults: {
+			showTraits: boolean;
+			showExtraInfo: boolean;
+			sort: WardrobeSort;
+			itemsPerPage: number;
+		};
+		shopName: string;
+		clothingShopSlot: ClothedSlots | "all";
+		shopItemSlot?: ClothedSlots;
+		clothes_choice?: number;
+		colouraction?: string;
+		accessorycolouraction?: string;
+		customColors: ShopCustomColours;
+		shopPage: number;
+		shopItemsPerPage: number;
+		showMannequins?: 0 | 1;
+		shopDefaults: {
+			color: string;
+			colorSet: string | null;
+			secColor: string;
+			secColorSet: string | null;
+			stayOnItemAfterBuying: boolean;
+			alwaysShowBackToShop: boolean;
+			hideHelp: boolean;
+			hideTraits: boolean;
+			highContrastEnabled: boolean;
+			mannequinGender: "same" | "opposite" | "male" | "female";
+			useClothingGenderForMannequin: boolean;
+			colourItems: "disable" | "random" | "default";
+			compactModeEnabled: boolean;
+			hideUnavailable: boolean;
+			hideAvailable: boolean;
+		};
 	}
 
 	export interface SugarCubeSetupObject {
 		clothes: {
 			[x in ClothesSlots]: ClothesItem[];
+		} & {
+			/** Every item from every slot, built by init.js. */
+			all: ClothesItem[];
 		};
 		moddedClothes: {
 			[x in ClothesSlots]: ClothesItem[];
@@ -78,6 +118,14 @@ declare module "twine-sugarcube" {
 		moddedProps: {
 			[x: string]: PropSetup;
 		};
+		clothingLayer: Record<"all" | "body" | "torso" | "torso_inner" | "torso_outer" | "over" | "upper" | "lower", ClothedSlots[]>;
+		shopDetails: Record<string, { name: string; desc?: string; details?: string }>;
+	}
+
+	export interface SugarCubeTemporaryVariables {
+		wardrobeView?: WardrobeView;
+		shopView?: ShopView;
+		hairMirrorView?: HairMirrorView;
 	}
 }
 
@@ -201,7 +249,14 @@ declare global {
 		reveal?: number;
 		/**Breast size modifier e.g. chest wrap*/
 		bustresize?: number;
-		one_piece?: number;
+		/**
+		 * 1 for a piece of an outfit, 0 for anything else.
+		 *
+		 * "split" once the outfit is cut into separate pieces
+		 *
+		 * "broken" once another of its pieces was destroyed.
+		 */
+		one_piece?: 0 | 1 | "split" | "broken";
 		/**For uppers, text flag like 'untie the strap behind your neck.'*/
 		strap?: number;
 		/** Combat related */
@@ -338,8 +393,8 @@ declare global {
 		iconFile?: 0 | string;
 		accIcon?: 0 | string;
 		detailIcon?: 0 | string;
-		/** For clothing sets */
-		outfitPrimary?: object;
+		/** The other pieces of this outfit, including their slot and the name of the piece in it. A separated or broken piece's name is "split" or "broken". */
+		outfitPrimary?: Partial<Record<ClothedSlots, string>>;
 		outfitSecondary?: string[];
 		notuck?: number | "tie";
 		/**
@@ -394,6 +449,7 @@ declare global {
 		rightImage?: 0 | 1;
 		mask_img_ponytail?: 0 | 1;
 		head_type?: "veil" | "hat";
+		isFavourite?: boolean;
 		// Modded clothing only
 		modder?: string;
 		// TODO list and document other options
@@ -417,10 +473,11 @@ declare global {
 		genitals: ClothesItem[];
 		space: number;
 		isolated: boolean;
-		locationRequirement: any[];
+		locationRequirement: string[];
+		name: string;
+		unlocked: boolean;
 		shopSend: boolean;
 		transfer: boolean;
-		unlocked: boolean;
 	}
 
 	export interface specialClothesItem {
@@ -466,6 +523,208 @@ declare global {
 	function getCustomClothesColourCanvasFilter(hue: number, saturation: number, brightness: number, contrast: number, sepia = 0): CompositeLayerSpec;
 
 	function getCustomClothesColourCanvasFilter(filter: string): CompositeLayerSpec;
+
+	type WardrobeSortProperty = "none" | "name" | "colour" | "reveal" | "integrity" | "warmth" | "outfit";
+
+	type ShopSortProperty = "none" | "price" | "protection" | "reveal" | "warmth";
+
+	type ClothingSortProperty = WardrobeSortProperty | ShopSortProperty;
+
+	interface ClothingListSort {
+		property: ClothingSortProperty;
+		isDescending: boolean;
+	}
+
+	interface WardrobeSort extends ClothingListSort {
+		property: WardrobeSortProperty;
+	}
+
+	interface ShopSort extends ClothingListSort {
+		property: ShopSortProperty;
+	}
+
+	interface ClothingListRange {
+		from: number | null;
+		to: number | null;
+	}
+
+	interface ClothingListFilters {
+		search: string;
+		colours: string[];
+		traits: string[];
+		reveal: ClothingListRange;
+		gender: string[];
+		warmth: ClothingListRange;
+		clothingSetIndex: number | null;
+	}
+
+	type ClothingFilterName = Exclude<keyof ClothingListFilters, "search">;
+
+	interface ClothingListEntry {
+		name: string;
+		patterns: string[];
+		colours: string[];
+		traits: string[];
+		reveal: number;
+		warmth: number;
+		gender: string;
+	}
+
+	interface WardrobeEntry extends ClothingListEntry {
+		slot: ClothedSlots;
+		index: number;
+		isFavourite: boolean;
+		integrityRatio: number;
+		isBroken: boolean;
+		outfitStatus: ClothesItem["one_piece"];
+	}
+
+	interface ShopEntry extends ClothingListEntry {
+		item: ClothesItem;
+		price: number;
+		protection: number;
+	}
+
+	type WardrobeSortComparers = Record<Exclude<WardrobeSortProperty, "none">, (a: WardrobeEntry, b: WardrobeEntry) => number>;
+
+	type ShopSortComparers = Record<Exclude<ShopSortProperty, "none">, (a: ShopEntry, b: ShopEntry) => number>;
+
+	interface ClothingFilterOption {
+		value: string;
+		label: string;
+	}
+
+	interface WardrobeRow {
+		slot: ClothedSlots;
+		index: number;
+	}
+
+	interface WardrobeView extends ClothingListFilters {
+		isPanelOpen: boolean;
+		page: number;
+		openRow: WardrobeRow | null;
+		openClothingSetIndex: number | null;
+		isRenamingClothingSet: boolean;
+		isSelectingMultiple: boolean;
+		ticked: WardrobeRow[];
+	}
+
+	interface ShopView extends ClothingListFilters {
+		sort: ShopSort;
+		isPanelOpen: boolean;
+		showOutfitsOnly: boolean;
+		pageCount: number;
+	}
+
+	type WardrobeLocation =
+		| "wardrobe"
+		| "changingRoom"
+		| "edensCabin"
+		| "asylum"
+		| "alexFarm"
+		| "stripClub"
+		| "brothel"
+		| "schoolBoys"
+		| "schoolGirls"
+		| "prison"
+		| "temple"
+		| "pirate"
+		| "officeBuilding"
+		| "birdTower"
+		| "avery_mansion";
+
+	/** The set types offered when saving or editing a clothing set. */
+	type ClothingSetType = "normal" | "sleep" | "swim" | "school";
+
+	/** A clothing set in $outfit. */
+	interface ClothingSet extends ClothingSetItems {
+		name: string;
+		location?: WardrobeLocation;
+		colors: false | ClothingSetColours;
+		type: ClothingSetType[];
+		hairStyle?: string;
+		facevariant?: string;
+		defaultSidebarMouth?: "smile" | "neutral";
+		positions?: ClothingSetPositions;
+	}
+
+	interface HairStyle {
+		name: string;
+		name_cap: string;
+		variable: string;
+		type: string[];
+		shop: string[];
+		hasCombatImg?: boolean;
+		alt?: string;
+		alt_head_type?: string[];
+	}
+
+	interface WardrobeTab {
+		id: ClothedSlots | "all";
+		label: string;
+		icon?: string;
+		isDebugOnly?: boolean;
+	}
+
+	type ClothingSetColours = Partial<Record<ClothedSlots | `${ClothedSlots}custom`, (0 | string | undefined)[]>>;
+
+	type ClothingSetPositions = Partial<Record<ClothedSlots | "sleeves", string>>;
+
+	/** The name of the clothing item in each slot of a clothing set. */
+	type ClothingSetItems = { [x in ClothedSlots]: string };
+
+	type ShopCustomColourSetting = "color" | "saturation" | "brightness" | "contrast" | "value" | "sepia";
+
+	interface ShopCustomColourPair {
+		primary: number;
+		secondary: number;
+	}
+
+	interface ShopCustomColourPreset {
+		ver?: number;
+		color: number | ShopCustomColourPair;
+		saturation: number | ShopCustomColourPair;
+		brightness: number | ShopCustomColourPair;
+		contrast: number | ShopCustomColourPair;
+		value?: number;
+		sepia?: ShopCustomColourPair;
+	}
+
+	interface ShopCustomColours extends Record<ShopCustomColourSetting, ShopCustomColourPair> {
+		presets: Record<string, ShopCustomColourPreset>;
+		action: string;
+		currentType: string;
+	}
+
+	interface HairMirrorView {
+		traitFilters: string[];
+		page: number;
+		category: "sides" | "fringe";
+	}
+
+	interface WardrobeDiscardUndo {
+		entries: { index: number; item: ClothesItem }[];
+	}
+
+	interface ClothingSetDeleteUndo {
+		index: number;
+		clothingSet: ClothingSet;
+	}
+
+	interface Window {
+		hairTraitGroups: { heading: string; traits: string[] }[];
+		revealLevels: { label: string; from: number; to: number }[];
+		wardrobeItemsPerPageOptions: number[];
+		wardrobeSeparateOutfitMinutes: number;
+		wardrobeSortProperties: WardrobeSortProperty[];
+		wardrobePanelFilters: ClothingFilterName[];
+		shopPanelFilters: ClothingFilterName[];
+		shopSortProperties: ShopSortProperty[];
+		shopItemsPerPageOptions: number[];
+		clothingFilterLabels: Record<ClothingFilterName | "sort", string>;
+		clothingSortLabels: Record<ClothingSortProperty, string>;
+		clothingGenderOptions: ClothingFilterOption[];
+	}
 }
 
 export {};

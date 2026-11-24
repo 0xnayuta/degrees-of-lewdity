@@ -21,26 +21,6 @@ function mapMove(moveTo) {
 }
 window.mapMove = mapMove;
 
-function shopClothingFilterToggleTrait(trait) {
-	const traits = V.shopClothingFilter.traits;
-	if (traits) {
-		const index = traits.indexOf(trait);
-		if (index === -1) {
-			traits.push(trait);
-		} else {
-			traits.splice(index, 1);
-		}
-	}
-}
-window.shopClothingFilterToggleTrait = shopClothingFilterToggleTrait;
-
-function toggleAllHairTraitsFilter() {
-	const chboxes = $("#hairContainerTraits input:not(:checked)");
-	if (chboxes.length > 0) chboxes.click();
-	else $("#hairContainerTraits input:checked").click();
-}
-window.toggleAllHairTraitsFilter = toggleAllHairTraitsFilter;
-
 /**
  * A wrapper for wikifyEval, only use for singular macro calls.
  *
@@ -824,6 +804,15 @@ window.DefaultActions = {
 	},
 };
 
+/**
+ * Gets the wardrobe the PC is using. Gives the orphanage wardrobe when multiple wardrobes are turned off.
+ *
+ * Some wardrobes can only be used in certain locations. If the PC isn't in one of them, this switches $wardrobe_location to the orphanage wardrobe and gives that instead.
+ *
+ * @param {string} [targetLocation] a different wardrobe to get, as a key of $wardrobes
+ * @param {"return"} [type] "return" skips the location check, for putting clothes into a wardrobe the PC isn't at
+ * @returns {Wardrobe}
+ */
 function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 	if (!V.settings.multipleWardrobes) return V.wardrobe;
 	let wardrobe = V.wardrobes[targetLocation];

@@ -226,161 +226,6 @@ function loadCustomColourPreset(slot = "primary") {
 }
 window.loadCustomColourPreset = loadCustomColourPreset;
 
-// adjusts available options for reveal dropdowns (makes sure upper bound is not below lower bound and vice versa)
-function getFilterRevealOptions(type) {
-	const optionsFrom = { unassuming: 0, smart: 100, tasteful: 200, comfy: 300, seductive: 500, risqué: 700, lewd: 900 };
-	const optionsTo = { unassuming: 100, smart: 200, tasteful: 300, comfy: 500, seductive: 700, risqué: 900, lewd: 9999 };
-
-	if (type === "from") {
-		// this line removes values that are larger than reveal.to
-		return Object.keys(optionsFrom)
-			.filter(x => optionsFrom[x] < V.shopClothingFilter.reveal.to)
-			.reduce((res, key) => {
-				res[key] = optionsFrom[key];
-				return res;
-			}, {});
-	} else {
-		// this line removes values that are smaller than reveal.from
-		return Object.keys(optionsTo)
-			.filter(x => optionsTo[x] > V.shopClothingFilter.reveal.from)
-			.reduce((res, key) => {
-				res[key] = optionsTo[key];
-				return res;
-			}, {});
-	}
-}
-window.getFilterRevealOptions = getFilterRevealOptions;
-
-function getFilterOutfitOptions() {
-	const options = { None: "none" };
-	for (let i = 0; i < V.outfit.length; i++) {
-		const outfit = V.outfit[i];
-		let name = outfit.name;
-		for (let j = 1; options[name] !== undefined; j++) {
-			name = outfit.name + " (" + j + ")";
-		}
-		options[name] = i;
-	}
-	return options;
-}
-window.getFilterOutfitOptions = getFilterOutfitOptions;
-
-// toggles checkboxes in filters menu
-function toggleAllTraitsFilter() {
-	const chboxes = $("#filter-traits input:not(:checked)");
-	if (chboxes.length > 0) chboxes.click();
-	else $("#filter-traits input:checked").click();
-}
-window.toggleAllTraitsFilter = toggleAllTraitsFilter;
-
-// accepts a list of clothes, returns a filtered list of clothes
-function applyClothingShopFilters(items) {
-	const f = V.shopClothingFilter;
-	if (!f.active) return items;
-
-	// (example) turns f.gender object {female: true, neutral: true, male: false} into ["f", "n"], ready to compare with gender in items
-	const allowedGenders = Object.keys(f.gender)
-		.filter(x => f.gender[x])
-		.map(x => x.first());
-
-	let filterOutfit = f.outfit.index !== "none";
-	if (filterOutfit && f.outfit.index >= V.outfit.length) {
-		filterOutfit = false;
-	}
-
-	const filteredOutfitClothes = new Set();
-	if (filterOutfit) {
-		const outfit = V.outfit[f.outfit.index];
-		for (const slot of setup.clothingLayer.all) {
-			if (outfit[slot] != null) {
-				filteredOutfitClothes.add(outfit[slot]);
-			}
-		}
-	}
-
-	items = items.filter(
-		x =>
-			allowedGenders.includes(x.gender) &&
-			x.reveal >= f.reveal.from &&
-			x.reveal < f.reveal.to &&
-			x.warmth >= f.warmth.from &&
-			x.warmth < f.warmth.to &&
-			(f.traits.length === 0 || f.traits.includesAny(x.type)) &&
-			(!filterOutfit || filteredOutfitClothes.has(x.name))
-	);
-
-	if (f.sorting.enabled) {
-		const prop = f.sorting.prop;
-		const isAsc = f.sorting.order === "asc";
-
-		/* this is not good, I'm just doing this not to avoid refactoring the setup.clothes object again
-
-		currently...
-		we have a dedicated clothing.all array that has clones of all clothing objects spread out over different arrays per clothing
-		then the cloned object is assigned the "realSlot" property, which contains the name of the slot from the array of which the object was cloned
-		and so, when you click on "all items" in the shop, clothingShopSlot is all and can't be used to figure out the item's slot,
-		but the items the function fetches are from the "all" slot so they have the realSlot property
-		and when you click on a specific slot, clothingShopSlot is the name of the slot, and realSlot is null because we only added realSlot to the "all" slot's clones
-
-		and we only really need the slot so that we can give it to the function that gets the properties of the item,
-		  but the function uses findIndex with an arrow function for the lookup, so we might as well go through the "all" slot to find the item rather than
-		  find the specific array (which does narrow down the search but when you could implement this in O(1) but you're using findIndex - the milliseconds are evidently not a priority)
-
-		so really we don't even need the "slot" property at all, this all needs a refactor
-
-
-		Here's how I would refactor it:
-		1) we need to have a map, mapping the item's ID (or ID + modder name, I think both are only unique together?) to the item's setup object
-		2) have an array of item IDs (just the strings) for each slot (or a set - doesn't matter, lookup is unnecessary if we implement point 3)
-		   If we need to find all items in a specific slot - we simply iterate the Set/array. Lookup of the setup object is O(1), so it's just as fast as it is now.
-		3) item instance objects would contain the ID of the item and all the dynamic information (so just like it is currently)
-		4) (optional) I'd personally remove any and all dynamic properties from the setup object (stuff like integrity),
-			and get rid of all static/const properties from the item instance objects (stuff like integrity_max)
-			additionally, instead of using a function to "trim" the setup object (cloning it and removing the const properties and adding the dynamic ones),
-			  I'd just create an object, since ideally none of the values should be repeated/overlapped between the setup and instance (worn/bought) objects
-
-		As a result, we'd have one setup.clothes map that contains all the actual setup objects, and a set for each slot that only contains IDs.
-		No more clones of the same clothing, no more "all" slot. If you need all clothing - you simply iterate the map's values.
-		If you need specific slots - you iterate the IDs from the set and get the setup object from the map with O(1) lookup.
-
-		If that sounds like a pain (even though that's less work than what we currently do to just get the price of an item), we can even have a generator function that
-		  will yield the actual setup objects in a slot without you having to do clothing.items.get(id) every time (and since it's a generator - we wouldn't be looping twice).
-
-		This way, we don't need to loop through items in order to find an item, and we don't need to do all this weird ritual dancing with V.clothingShopSlot and _realSlot
-
-		This would necessitate a few changes and fixes (I'm only listing stuff I've seen, there's probably plenty more)
-		1) currently the outfits store item names, instead of the IDs. The outfits should contain the IDs instead.
-		2) I forgor.
-
-		Just to clarify - this is mainly supposed to make the clothing data more organised, easier to manage and work with, less side-effects and weird lookup/cloning techniques.
-		It will definitely drastically improve speed, but it will probably not have a noticable difference in performance.
-		*/
-
-		const getSlot = item_ => item_.slot;
-
-		// items is a shallow copy, so we're not mutating the passed array
-		if (prop === "price") {
-			items.sort((a, b) =>
-				isAsc ? getClothingCost(a, getSlot(a)) - getClothingCost(b, getSlot(b)) : getClothingCost(b, getSlot(b)) - getClothingCost(a, getSlot(a))
-			);
-		} else if (prop === "protection") {
-			items.sort((a, b) => (isAsc ? a.integrity_max - b.integrity_max : b.integrity_max - a.integrity_max));
-		} else if (prop === "reveal") {
-			items.sort((a, b) => (isAsc ? a.reveal - b.reveal : b.reveal - a.reveal));
-		} else if (prop === "warmth") {
-			items.sort((a, b) => (isAsc ? getTrueWarmth(a) - getTrueWarmth(b) : getTrueWarmth(b) - getTrueWarmth(a)));
-		}
-	}
-
-	return items;
-}
-window.applyClothingShopFilters = applyClothingShopFilters;
-
-function shopSearchReplacer(name) {
-	return name.replace(/[^a-zA-Z0-9\u4e00-\u9fa5' -]+/g, "");
-}
-window.shopSearchReplacer = shopSearchReplacer;
-
 function getOwnedClothingCount(index, type) {
 	const wardrobe = V.wardrobes.shopReturn === "wardrobe" ? V.wardrobe : V.wardrobes[V.wardrobes.shopReturn] || V.wardrobe;
 	return wardrobe[type].reduce((p, c) => p + Number(c.index === index), 0);
@@ -508,6 +353,57 @@ function updateHueSlider(newValue, acc) {
 }
 window.updateHueSlider = updateHueSlider;
 
+/**
+ * Whether the primary and secondary colours picked for the clothing item open in the shop can be swapped.
+ *
+ * @returns {boolean}
+ */
+function canSwapShopItemColours() {
+	const item = setup.clothes[V.shopItemSlot][V.clothes_choice];
+	return item.accessory_colour_options.includes(V.colouraction) && item.colour_options.includes(V.accessorycolouraction);
+}
+window.canSwapShopItemColours = canSwapShopItemColours;
+
+/**
+ * Picks a colour for the clothing item open in the shop.
+ *
+ * @param {"primary" | "secondary"} colourType
+ * @param {string} colour
+ */
+function pickShopItemColour(colourType, colour) {
+	$(`.colour-options-div.${colourType} > .colour-button > .bg-${colour.replace(/ /g, "-")} > a`).trigger("click");
+}
+
+/**
+ * Swaps the primary and secondary custom colour settings in the shop and moves their sliders to match.
+ */
+function swapShopCustomColourSettings() {
+	const primaryWheelColour = colourPickerShopCustom.primary.color.hsv;
+	colourPickerShopCustom.primary.color.hsv = colourPickerShopCustom.secondary.color.hsv;
+	colourPickerShopCustom.secondary.color.hsv = primaryWheelColour;
+
+	for (const setting of ["contrast", "sepia"]) {
+		[V.customColors[setting].primary, V.customColors[setting].secondary] = [V.customColors[setting].secondary, V.customColors[setting].primary];
+	}
+	for (const colourType of ["primary", "secondary"]) {
+		$(`#numberslider-input-customcolorscontrast${colourType}`).val(V.customColors.contrast[colourType]);
+		$(`#numberslider-value-customcolorscontrast${colourType}`).text(V.customColors.contrast[colourType]);
+		updateCustomColour(colourType, V.shopItemSlot);
+	}
+}
+
+/**
+ * Swaps the primary and secondary colours picked for the clothing item open in the shop, along with their custom colour settings.
+ */
+function swapShopItemColours() {
+	const primaryColour = V.colouraction;
+	const secondaryColour = V.accessorycolouraction;
+	swapShopCustomColourSettings();
+	pickShopItemColour("primary", secondaryColour);
+	pickShopItemColour("secondary", primaryColour);
+}
+window.swapShopItemColours = swapShopItemColours;
+
 window.addEventListener(
 	"resize",
 	function (event) {
@@ -534,23 +430,24 @@ function filterShopGroup(clothingItems) {
 	T.itemGroups = {};
 	return clothingItems.filter(item => {
 		if (!item.shopGroup) return true;
-		if (!T.itemGroups[item.shopGroup]) {
-			T.itemGroups[item.shopGroup] = [item.index];
+		T.itemGroups[item.slot] ??= {};
+		if (!T.itemGroups[item.slot][item.shopGroup]) {
+			T.itemGroups[item.slot][item.shopGroup] = [item.index];
 			return true;
 		} else {
-			T.itemGroups[item.shopGroup].push(item.index);
+			T.itemGroups[item.slot][item.shopGroup].push(item.index);
 			return false;
 		}
 	});
 }
 window.filterShopGroup = filterShopGroup;
 
+/** Body temperatures at the two ends of the warmth bar. */
+const warmthScale = { min: 34, max: 40 };
+
 function clothingWarmthScale(element, value) {
 	$(() => {
-		const minValue = 34;
-		const maxValue = 40;
-
-		const positionPercent = normalise(value, maxValue, minValue) * 100;
+		const positionPercent = normalise(value, warmthScale.max, warmthScale.min) * 100;
 		element.css("left", `${positionPercent}%`);
 	});
 }
@@ -582,13 +479,28 @@ DefineMacro("updatewarmthscale", () => {
 		const indicatorNew = $("#warmthIndicatorNew");
 		const currentWarmth = Weather.BodyTemperature.getWarmth();
 		clothingWarmthScale(indicator, Weather.BodyTemperature.getRestingPoint(8, currentWarmth, 37, true));
+		clothingWarmthScale($("#warmthZoneMin"), Weather.tempSettings.comfortableBodyTemperature.min);
+		clothingWarmthScale($("#warmthZoneMax, .warmth-scale-dim-hot"), Weather.tempSettings.comfortableBodyTemperature.max);
+		$(".warmth-scale-dim-cold").css("width", `${normalise(Weather.tempSettings.comfortableBodyTemperature.min, warmthScale.max, warmthScale.min) * 100}%`);
+		$(".warmth-scale-dim-hot").css(
+			"width",
+			`${(1 - normalise(Weather.tempSettings.comfortableBodyTemperature.max, warmthScale.max, warmthScale.min)) * 100}%`
+		);
+		const zoneMin = getTargetWarmth(Weather.tempSettings.comfortableBodyTemperature.min);
+		const zoneMax = getTargetWarmth(Weather.tempSettings.comfortableBodyTemperature.max);
+		$("#warmthZoneMin")
+			.text(zoneMin ?? "")
+			.toggle(zoneMin !== null);
+		$("#warmthZoneMax")
+			.text(zoneMax ?? "")
+			.toggle(zoneMax !== null);
 		indicator.tooltip({
 			message: "Warmth: " + currentWarmth,
 			delay: 200,
 			position: "cursor",
 		});
-		if (V.clothes_choice && T.realSlot && T.realIndex) {
-			const newWarmth = currentWarmth - V.worn[T.realSlot].warmth + setup.clothes[T.realSlot][T.realIndex].warmth;
+		if (V.clothes_choice && V.shopItemSlot && T.realIndex) {
+			const newWarmth = currentWarmth - V.worn[V.shopItemSlot].warmth + setup.clothes[V.shopItemSlot][T.realIndex].warmth;
 			if (newWarmth !== currentWarmth) {
 				indicatorNew.show();
 				clothingWarmthScale(indicatorNew, Weather.BodyTemperature.getRestingPoint(8, newWarmth, 37, true));

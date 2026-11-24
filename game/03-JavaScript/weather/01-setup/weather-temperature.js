@@ -32,8 +32,11 @@ setup.WeatherTemperature = {
 	},
 	// Body temperature general
 	baseBodyTemperature: 37, // The normal body temperature in degrees Celsius.
-	minTemperature: 33, // Below this point will result in player passing out from hypothermia
-	maxTemperature: 41, // Above this point will result in player passing out from hyperthermia
+	coldBodyTemperature: 35, // Below this the PC feels cold
+	comfortableBodyTemperature: { min: 36.5, max: 37.5 }, // The PC feels comfortable between these
+	hotBodyTemperature: 39, // From this up the PC feels hot
+	minTemperature: 33, // Below this point will result in the PC passing out from hypothermia
+	maxTemperature: 41, // Above this point will result in the PC passing out from hyperthermia
 	tempApproachRate: 0.012, // Will nudge the temperature towards the base temperature by this rate (per degree celcius)
 
 	// Heat generation
