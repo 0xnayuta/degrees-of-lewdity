@@ -374,6 +374,7 @@ function pregnancyNameCorrection(name, caps = false) {
 		case "Night Monster":
 		case "Ivory Wraith":
 		case "cum bucket":
+		case "cum tankard":
 			return (caps ? "The " : "the ") + name;
 		case "pc":
 			return caps ? "Yourself" : "yourself";

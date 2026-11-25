@@ -3217,3 +3217,111 @@ function getPupsFeedingTime() {
 	return Time.hour < 12 ? "morning" : "evening";
 }
 window.getPupsFeedingTime = getPupsFeedingTime;
+
+/**
+ * Increases audience excitement from dancing.
+ * Default is 1.25 per round at low dance skill, and 2.5 at max dance skill.
+ * Balanced around being able to dance for roughly 30 rounds.
+ * Multiplier depends on the current dance action ("rousing", "seductive", or default).
+ *
+ * @returns {number}
+ */
+function danceAudienceExcitementIncrease() {
+	if (V.dance.action === "rousing") {
+		return ((1 + currentSkillValue("danceskill") / 1000) / 2) * 4;
+	} else if (V.dance.action === "seductive") {
+		return ((1 + currentSkillValue("danceskill") / 1000) / 2) * 1.5;
+	} else {
+		return ((1 + currentSkillValue("danceskill") / 1000) / 2) * 2.5;
+	}
+}
+window.danceAudienceExcitementIncrease = danceAudienceExcitementIncrease;
+
+/**
+ * Gives a random arousal increase between 1 and 40, strongly skewed towards lower values to be unpredictable.
+ * On average, you can dance for 30 rounds.
+ * Lower allure also decreases the arousal gained, up to 33%.
+ * This has 1% chance to increase arousal by 40, so 2 * danceAudienceArousalIncrease() has a very different behaviour from danceAudienceArousalIncrease() + danceAudienceArousalIncrease().
+ * Floor and multiplier are further adjusted by the current dance action ("growl", "languorous", "provocative").
+ *
+ * @returns {number}
+ */
+function danceAudienceArousalIncrease() {
+	let floorArousal = 1;
+	let multiplier = (2 + V.allure / 8000) / 3;
+	if (V.dance.action === "growl") {
+		multiplier *= 0.9;
+	}
+	if (V.dance.action === "languorous") {
+		floorArousal = 8;
+	} else if (V.dance.action === "provocative") {
+		floorArousal = (random(1, 2) * random(1, 2) * random(1, 2) * random(1, 2) * random(1, 2) * random(1, 3) - 16) / 2;
+	}
+	return multiplier * Math.max(floorArousal, (random(1, 2) * random(1, 2) * random(1, 2) * random(1, 2) * random(1, 2) * random(1, 3) - 16) / 2);
+}
+window.danceAudienceArousalIncrease = danceAudienceArousalIncrease;
+
+/**
+ * Gives a random arousal increase between 5 and 40, slightly skewed towards lower values.
+ * On average, a customer reaches max arousal in 6 rounds.
+ * Lower allure also decreases the arousal gained, up to 33%.
+ * Dancing in the "seductive" style takes the highest of 2 rolls.
+ *
+ * @param {number} [personIndex=0] Index of the customer/person being danced for.
+ * @returns {number}
+ */
+function danceCustomerArousalIncrease(personIndex = 0) {
+	let secondRoll = 0;
+	if (V.dance.action === "seductive" && V.dance_place === personIndex)
+		secondRoll = ((2 + V.allure / 8000) / 3) * random(1, 2) * random(1, 2) * random(1, 2) * 5;
+	return Math.max(secondRoll, ((2 + V.allure / 8000) / 3) * random(1, 2) * random(1, 2) * random(1, 2) * 5);
+}
+window.danceCustomerArousalIncrease = danceCustomerArousalIncrease;
+
+/**
+ * Chance for someone to join the dance audience.
+ *
+ * @returns {number}
+ */
+function danceAudienceGrowthChance() {
+	let heelBonus = -4;
+	if (V.worn.feet.type.includes("heels")) heelBonus = V.worn.feet.reveal / 100;
+	return Math.max(25, V.allure / 100 + currentSkillValue("danceskill") / 20 + V.audienceexcitement / 5 + V.audiencearousal / 5 + heelBonus);
+}
+window.danceAudienceGrowthChance = danceAudienceGrowthChance;
+
+/**
+ * Chance for getting a tip when dancing.
+ *
+ * @returns {number}
+ */
+function danceTipChance() {
+	return Math.max(25, ((V.allure / 100 + currentSkillValue("danceskill") / 20 + V.audienceexcitement / 5 + V.audiencearousal / 5) * 2) / 3);
+}
+window.danceTipChance = danceTipChance;
+
+/**
+ * Applies arousal increases to the audience.
+ * Scaled by danceAudienceArousalIncrease().
+ *
+ * @param {number} amount
+ * @returns {void}
+ */
+function danceArousal(amount) {
+	for (let i = 0; i < amount; i++) {
+		V.audiencearousal += danceAudienceArousalIncrease();
+	}
+}
+DefineMacro("danceArousal", danceArousal);
+
+/**
+ * Applies excitement increase to the audience.
+ * Scaled by danceAudienceExcitementIncrease().
+ *
+ * @param {number} amount
+ * @returns {void}
+ */
+function danceExcitement(amount) {
+	V.audienceexcitement += amount * danceAudienceExcitementIncrease();
+}
+DefineMacro("danceExcitement", danceExcitement);

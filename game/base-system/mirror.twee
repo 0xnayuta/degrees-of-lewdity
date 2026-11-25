@@ -35,6 +35,8 @@
 			<<mirrorMakeup>>
 		<<case "transformation">>
 			<<mirrorTransformation>>
+		<<case "dance">>
+			<<mirrorDance>>
 		<<default>>
 			<<mirrorMenu _args[0]>>
 	<</switch>>
@@ -145,7 +147,10 @@
 	<br>
 	<<cosmeticsicon>><<link "Apply makeup">><<set $mirrorMenu to "makeup">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br><br>
-
+	__Dance__
+	<br>
+	<<dancestudioicon>><<link "Repeat your dancing moves">><<set $mirrorMenu to "dance">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+	<br><br>
 	<<if $worn.neck.name is "love locket">>
 		__Locket__
 		<br>
@@ -2703,4 +2708,230 @@
 		<<replace "#hairMannequinToggle">><<hairMannequinToggle>><</replace>>
 		<<hairGridRefresh>>
 	<</link>>
+<</widget>>
+
+<<widget "mirrorDance">>
+	<<mirroricon>><<link "Back">><<unset $dance.editing>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<br><br>
+
+	<<danceUpdateTF>>
+	<<if $dance.editing isnot undefined>>
+		/* Swap / Select */
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<<if $dance.editing gte 0>>
+					Replace dance in slot <<= $dance.editing + 1 >>
+				<<else>>
+					Add a dance
+				<</if>>
+			</div>
+			<div class="settingsToggleItemWide">
+				<<link "Cancel">><<unset $dance.editing>><<replace #mirror>><<mirrorDance>><</replace>><</link>>
+				<<if $dance.editing gte 0 and $dance.selected.length gte 2>>
+					|
+					<<link "Remove this dance">><<run $dance.selected.splice($dance.editing, 1)>><<unset $dance.editing>><<replace #mirror>><<mirrorDance>><</replace>><</link>>
+				<</if>>
+			</div>
+		</div>
+		<hr>
+
+		<div class="settingsGrid">
+			<div class="settingsHeader">Available Dances</div>
+			<div class="settingsToggleItemWide">
+				<<for _key, _data range setup.dance.normal>>
+					<<set _isKnown to $dance.known.includes(_key)>>
+					<<set _isSelected to $dance.selected.includes(_key)>>
+					<<set _isCurrent to ($dance.editing gte 0 and $dance.selected[$dance.editing] is _key)>>
+
+					<<if !_isKnown>>
+						/* Unknown */
+						<span class="small-description">Unknown:</span>
+						<<danceHint _key>>
+					<<elseif _isSelected and !_isCurrent>>
+						/* Already selected AND not being replaced */
+						<<print '<span class="' + _data.span + '">' + _data.name + '</span>'>>:
+						<<danceDescription _key _data.span>>
+					<<else>>
+						/* Known + (unselected OR the one currently being replaced) -> selectable */
+						<<capture _key>>
+							<span class="no-numberify">
+								<<link "Select">>
+									<<if $dance.editing gte 0>>
+										<<set $dance.selected[$dance.editing] to _key>>
+									<<else>>
+										<<run $dance.selected.push(_key)>>
+									<</if>>
+									<<unset $dance.editing>>
+									<<replace #mirror>><<mirrorDance>><</replace>>
+								<</link>>
+							</span>
+						<</capture>>
+						<<print '<span class="' + _data.span + '">' + _data.name + '</span>'>>:
+						<<danceDescription _key _data.span>>
+					<</if>>
+					<br><br>
+				<</for>>
+
+				/* Active transformation dances (always available, shown for reference) */
+				<<if $dance.transformation.length gt 0>>
+					<span class="gold bold">Special dances:</span>
+					<br><br>
+					<<for _key range $dance.transformation>>
+						<<set _data to setup.dance.special[_key]>>
+						<<print '<span class="' + (_data.span || "") + '">' + _data.name + '</span>'>>:
+						<<danceDescription _key>>
+						<br><br>
+					<</for>>
+				<</if>>
+			</div>
+		</div>
+	<<else>>
+		/* Normal dances */
+		<div class="settingsGrid">
+			<div class="settingsHeader">Selected Dances</div>
+			<div class="settingsToggleItemWide">
+				You may select up to four dances.
+				<br><br>
+				<<for _i to 0; _i lt $dance.selected.length; _i++>>
+					<<set _key to $dance.selected[_i]>>
+					<<set _data to setup.dance.normal[_key]>>
+					<span class="gold bold">Slot <<= _i + 1 >>:</span>
+					<<print '<span class="' + _data.span + '">' + _data.name + '</span>'>>
+					<<capture _i>>
+						<<link "Change">>
+							<<set $dance.editing to _i>>
+							<<replace #mirror>><<mirrorDance>><</replace>>
+						<</link>>
+					<</capture>>
+					<br>
+				<</for>>
+
+				<<if $dance.selected.length lt 4>>
+					<br>
+					<<link "Add a dance">>
+						<<set $dance.editing to -1>> /* special value = append */
+						<<replace #mirror>><<mirrorDance>><</replace>>
+					<</link>>
+				<</if>>
+			</div>
+		</div>
+		<hr>
+
+		/* Transformation dances */
+		<<if $dance.transformation.length gt 0>>
+			<div class="settingsGrid">
+				<div class="settingsHeader">Transformation Dances</div>
+				<div class="settingsToggleItemWide">
+					These dances are always available.
+					<br><br>
+					<<for _i to 0; _i lt $dance.transformation.length; _i++>>
+						<<set _key to $dance.transformation[_i]>>
+						<<set _data to setup.dance.special[_key]>>
+						<span class="gold bold">Slot <<= $dance.selected.length + _i + 1 >>:</span>
+						<<print '<span class="' + (_data.span || "") + '">' + _data.name + '</span>'>>
+						<br>
+					<</for>>
+
+					<<if $dance.transformation.length is 2>>
+						<br>
+						<span class="no-numberify">
+							<<link "Invert order">>
+								<<set $dance.transformation to [$dance.transformation[1], $dance.transformation[0]]>>
+								<<replace #mirror>><<mirrorDance>><</replace>>
+							<</link>>
+						</span>
+					<</if>>
+				</div>
+			</div>
+			<hr>
+		<</if>>
+
+		/* Presets */
+		<div class="settingsGrid">
+			<div class="settingsHeader">Dance Presets</div>
+			<<for _p to 0; _p lt 4; _p++>>
+				<div class="settingsToggleItem">
+					<span class="gold bold">Preset <<= _p + 1 >>:</span>
+					<br>
+					<<if !$dance.presets[_p] or $dance.presets[_p].length is 0>>
+						<em>Empty</em>
+					<<else>>
+						<<for _k range $dance.presets[_p]>>
+							<<= setup.dance.normal[_k].name >><<= _k isnot $dance.presets[_p].last() ? ", " : "">>
+						<</for>>
+					<</if>>
+					<br>
+					<<capture _p>>
+						<span class="no-numberify">
+							<<link "Save current">>
+								<<set $dance.presets[_p] to clone($dance.selected)>>
+								<<replace #mirror>><<mirrorDance>><</replace>>
+							<</link>>
+						</span>
+						|
+						<<if $dance.presets[_p] and $dance.presets[_p].length gt 0>>
+							<span class="no-numberify">
+								<<link "Load">>
+									<<set $dance.selected to clone($dance.presets[_p])>>
+									<<replace #mirror>><<mirrorDance>><</replace>>
+								<</link>>
+							</span>
+							|
+							<span class="no-numberify">
+								<<link "Clear">>
+									<<set $dance.presets[_p] to []>>
+									<<replace #mirror>><<mirrorDance>><</replace>>
+								<</link>>
+							</span>
+						<</if>>
+					<</capture>>
+				</div>
+			<</for>>
+		</div>
+	<</if>>
+<</widget>>
+
+
+<<widget "danceHint">>
+	<<if _args[0] and setup.dance.normal[_args[0]] and setup.dance.normal[_args[0]].hint>>
+		<span class="small-description"><i><<= setup.dance.normal[_args[0]].hint >></i></span>
+	<</if>>
+<</widget>>
+
+
+<<widget "danceDescription">>
+	<<if _args[1] is "" or _args[1]>>
+		<<danceType _args[1]>>
+		<br>
+	<</if>>
+
+	<<if _args[0]>>
+		<<set _key to _args[0]>>
+		<<if setup.dance.normal[_key]>>
+			/* Normal dance */
+			<<= setup.dance.normal[_key].details>>
+		<<elseif setup.dance.special[_key]>>
+			/* Special / transformation dance */
+			<<set _data to setup.dance.special[_key]>>
+			<span class="grey"><<= _data.desc>></span>
+			<br>
+			<<= _data.details >>
+		<</if>>
+	<</if>>
+<</widget>>
+
+
+<<widget "danceType">>
+	<<if _args[0] is "" or _args[0]>>
+		<<switch _args[0]>>
+			<<case "">>
+				<span class="grey">A reliable dance.</span>
+			<<case "sub">>
+				<span class="grey">A finishing dance.</span>
+			<<case "brat">>
+				<span class="grey">A situational dance.</span>
+			<<case "meek">>
+				<span class="grey">An opening dance.</span>
+		<</switch>>
+	<</if>>
 <</widget>>

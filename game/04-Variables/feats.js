@@ -1219,6 +1219,22 @@ setup.feats = {
 		hint: "Hint: Harvest all of nature's secrets.",
 		softLockable: true,
 	},
+	"Just Grooving": {
+		title: "Just Grooving",
+		desc: "Learned enough dances to perform a full routine.",
+		difficulty: 1,
+		series: "dancing",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Find your rhythm.",
+	},
+	"Revolutionary Groove": {
+		title: "Revolutionary Groove",
+		desc: "Learned every available dance.",
+		difficulty: 2,
+		series: "dancing",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Leave no move unturned.",
+	},
 	"Wet Rod": {
 		title: "Wet Rod",
 		desc: "Caught one of every fish.",
