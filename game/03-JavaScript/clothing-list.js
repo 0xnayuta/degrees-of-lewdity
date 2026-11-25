@@ -224,3 +224,20 @@ document.addEventListener(
 	},
 	true
 );
+
+document.addEventListener(
+	"toggle",
+	event => {
+		if (event.target instanceof HTMLDetailsElement && event.target.matches(".clothingFilterDropdown") && event.target.open)
+			$(".clothingFilterDropdown[open]").not(event.target).prop("open", false);
+	},
+	true
+);
+
+document.addEventListener(
+	"click",
+	event => {
+		$(".clothingFilterDropdown[open]").not($(event.target).closest(".clothingFilterDropdown")).prop("open", false);
+	},
+	true
+);
