@@ -792,7 +792,7 @@ Renderer.CanvasModels.main = {
 				options.headMask.push(`img/clothes/head/${options.worn.head.setup.variable}/mask.png`);
 			}
 		}
-		if (options.worn.handheld.setup.mask_img === 1) {
+		if (options.worn.handheld.setup.mask_img === 1 && options.headMask.length === 0) {
 			options.headMask.push(`img/clothes/handheld/${options.worn.handheld.setup.variable}/mask.png`);
 		}
 
