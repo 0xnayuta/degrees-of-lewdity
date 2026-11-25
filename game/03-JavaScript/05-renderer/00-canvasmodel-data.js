@@ -100,6 +100,7 @@ const ZIndices = {
 	horns: 140,
 	facewear: 145,
 	head: 149,
+	handheld_over_headwear: 149.5,
 	handheld: 131,
 	handheld_over_sleeve: 160,
 

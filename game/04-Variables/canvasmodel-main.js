@@ -3516,10 +3516,9 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				const setup = options.worn.handheld.setup;
-				if (setup.zIndex) return ZIndices[setup.zIndex];
+				if (setup.zIndex) return handheldZIndex(options, setup.zIndex);
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 			animationfn(options) {
 				return options.handheld_animation
@@ -3545,10 +3544,9 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				const setup = options.worn.handheld.setup;
-				if (setup.zIndex) return ZIndices[setup.zIndex];
+				if (setup.zIndex) return handheldZIndex(options, setup.zIndex);
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 		}),
 		"handheld_right_detail": genlayer_clothing_detail('handheld', {
@@ -3566,10 +3564,9 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				const setup = options.worn.handheld.setup;
-				if (options.arm_right === "cover" && V.worn.handheld.holdPosition === "right_cover" && setup.zIndex) return ZIndices[setup.zIndex];
+				if (options.arm_right === "cover" && V.worn.handheld.holdPosition === "right_cover" && setup.zIndex) return handheldZIndex(options, setup.zIndex);
 				if (options.arm_right === "cover") return ZIndices.arms_cover;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 		}),
 		"handheld_left": {
@@ -3584,8 +3581,7 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				if (options.arm_left === "cover") return ZIndices.old_over_upper;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 			filtersfn() {
 				return ["worn_handheld"];
@@ -3605,8 +3601,7 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				if (options.arm_left === "cover") return ZIndices.old_over_upper;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 			filtersfn() {
 				return ["worn_handheld_acc"];
@@ -3628,8 +3623,7 @@ Renderer.CanvasModels.main = {
 			},
 			zfn(options) {
 				if (options.arm_left === "cover") return ZIndices.old_over_upper;
-				if (!options.worn.handheld.setup.zIndex) return ZIndices.handheld;
-				return ZIndices[options.worn.handheld.setup.zIndex];
+				return handheldZIndex(options, options.worn.handheld.setup.zIndex);
 			},
 		}),
 		"handheld_back": genlayer_clothing_back_img('handheld', {
@@ -4437,6 +4431,16 @@ function createHairColourGradient(hairPart, gradient, hairType, hairLength, pref
 
 	Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
 	return filter;
+}
+
+/**
+ * Z-index for a held item. While a raised hood or headwear with coversHandheld is worn, the item is drawn above it so it isn't hidden.
+ */
+function handheldZIndex(options, zIndex) {
+	const z = ZIndices[zIndex || "handheld"];
+	const head = options.worn.head.setup;
+	const hoodUp = head.hood && !(options.hood_down && head.outfitSecondary !== undefined);
+	return hoodUp || head.coversHandheld ? Math.max(z, ZIndices.handheld_over_headwear) : z;
 }
 
 function isPartEnabled(type) {

@@ -297,6 +297,9 @@ class ClothesItem {
 	/* */
 	hood;
 
+	/* Held items are drawn in front of this headwear. Set it if the headwear hides part of a held item | INT */
+	coversHandheld;
+
 	/* */
 	collared;
 
