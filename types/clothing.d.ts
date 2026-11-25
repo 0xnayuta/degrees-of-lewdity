@@ -362,13 +362,21 @@ declare global {
 		sleeve_acc_img?: number;
 		/**
 		 * (For upper, over_upper, under_upper slots)
+		 * 1 if has sleeve pattern images, named (left|right)[_cover][_pattern].png".
+		 * These images are not colored.
+		 * Requires sleeve_img: 1.
+		 * Requires main body pattern.
+		 */
+		sleeve_pattern?: 0 | 1;
+		/**
+		 * (For upper, over_upper, under_upper slots)
 		 * Recolouring of sleeve accessory images:
 		 * * "" (default) - depending on accessory_colour_sidebar
 		 * * "primary" - use primary/main colour
 		 * * "secondary" - use secondary/accessory colour
 		 * * "tertiary" - do not recolour image
 		 */
-		sleeve_acc_colour?: 0 | "primary" | "secondary" | "tertiary";
+		sleeve_acc_colour?: 0 | "primary" | "secondary" | "tertiary" | "pattern";
 		/**
 		 * (For upper, over_upper, under_upper slots)
 		 * Recolouring of sleeves images:
