@@ -5276,7 +5276,7 @@ function genlayer_clothing_arm_fitted(arm, slot, overrideOptions) {
 function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 	return genlayer_clothing_basic(slot, Object.assign({
 		filtersfn(options) {
-			return filterFnArm(options.worn[slot].setup.sleeve_acc_colour === 0 || options.worn[slot].setup.sleeve_acc_colour === "tertiary" ? options.worn[slot].setup.sleeve_acc_colour : options.worn[slot].setup.accessory_colour_sidebar, slot, options);
+			return filterFnArm(options.worn[slot].setup.sleeve_acc_colour === 0 || options.worn[slot].setup.sleeve_acc_colour === "tertiary" || options.worn[slot].setup.sleeve_acc_colour === "pattern" ? options.worn[slot].setup.sleeve_acc_colour : options.worn[slot].setup.accessory_colour_sidebar, slot, options);
 		},
 		showfn(options) {
 			return options.worn[slot].index > 0
@@ -5290,13 +5290,16 @@ function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 				&& setup.altposition !== undefined
 				&& options.worn[slot].alt === "alt"
 				&& !setup.altdisabled.includes("sleeves")
-				&& !setup.altdisabled.includes("sleeve_acc");
+				&& !setup.altdisabled.includes("sleeve_acc")
+				&& (options.worn[slot].setup.sleeve_acc_colour != "pattern");
 
 			let filename = `${arm}-${options[`arm_${arm}`]}`;
 			filename += (isAltPosition) ? '-alt-acc' : '-acc';
 
+			const pattern = options.worn[slot].setup.sleeve_acc_colour === "pattern" ? '-' + options.worn[slot].pattern?.replace(/ /g,"-") : '';
+
 			const folder = normaliseFileName(slot);
-			return `img/clothes/${folder}/${setup.variable}/${filename}.png`;
+			return `img/clothes/${folder}/${setup.variable}/${filename}${pattern}.png`;
 		},
 	}, overrideOptions));
 }
