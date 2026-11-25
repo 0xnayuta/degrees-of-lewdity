@@ -232,4 +232,7 @@ $(document)
 	.on("click", "#shopPager .clothingPagerButton", event => {
 		showShopPage(Number(event.currentTarget.dataset.page));
 	})
+	.on("change", "#shopPager .clothingPager select", event => {
+		showShopPage(event.target.selectedIndex);
+	})
 	.on("change", "#shopItemList .itemsPerPageLabel select", () => onShopViewChanged());
