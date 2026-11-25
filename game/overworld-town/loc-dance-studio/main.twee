@@ -195,66 +195,82 @@ The dance studio is closed. <<openinghours>>
 		<</if>>
 	<</if>>
 	<<tiredness 4>><<set $danceStudio.stage += 1>><<danceskill 14>><<danceskilluse>><<wearandtear "dance">><<physique 2>><<npc Charlie>><<person1>>
-	<<if $rng lte 20>>
-		<<set $danceStudio.lesson to "barre">>
-		You stretch and work your muscles using a barre.
-		<<if currentSkillValue('danceskill') lte 200>>
-			It's hard work to stay balanced. You can see in the mirror that you look a bit silly, especially compared to the more experienced students.
-		<<elseif currentSkillValue('danceskill') lte 800>>
-			You're pretty good at staying balanced. You are able to practise more advanced techniques.
+	<<if !$dance.known.includes("sophisticated") and random(1, 100) lte (20 + currentSkillValue('danceskill') / 12.5)>> 
+		/* 20% base chance to trigger,  up to 100% at max skill */
+		Charlie takes a moment to demonstrate a refined set of movements, emphasising posture with a graceful finish.
+		<br><br>
+		"This one is for when you want to leave an elegant impression," <<he>> says.
+		<br><br>
+		<span class="gold">You can now attempt a sophisticated dance.</span>
+		<<set $dance.known.pushUnique("sophisticated")>>
+		<<if $dance.selected.length lt 4>>
+			<<set $dance.selected.pushUnique("sophisticated")>>
 		<<else>>
-			You are able to use it as a surrogate partner, supporting your weight as you practise airborne techniques. Some of the other students look on with envy.
+			<span class="gold"> You can prepare and add it to your dance moves at a mirror.</span>
 		<</if>>
 		<br><br>
-	<<elseif $rng lte 40>>
-		<<set $danceStudio.lesson to "duo">><<generate2>><<person2>>
-		You partner up with a <<person>>.
-		<<if currentSkillValue('danceskill') lte 200>>
-			<<He>> has more experience than you, so you let <<him>> take the lead.
-		<<elseif currentSkillValue('danceskill') lte 800>>
-			You practise techniques requiring a partner, taking turns supporting one another.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
-			Being so experienced, you take the lead, careful not to push <<him>> too hard.
-		<</if>>
-		<br><br>
-	<<elseif $rng lte 60>>
-		<<set $danceStudio.lesson to "airbarre">>
-		You stretch and work your muscles using an aerial hammock.
-		<<if currentSkillValue('danceskill') lte 200>>
-			More experienced students use it to develop strength and poise. You just have fun swinging around.
-		<<elseif currentSkillValue('danceskill') lte 800>>
-			You work on developing your poise.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
-			Held aloft, you are able to fully demonstrate your grace and skill.
-		<</if>>
-		<br><br>
-		<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
-			You realise it may have been a mistake to wear a skirt. Performing airborne exercises without displaying your <<undies>> for the whole class to see proves to be virtually impossible.
-			<<set _uncomVar to ($worn.under_lower.type.includes("naked") ? "nude" : "underwear")>>
-			<<if $uncomfortable[_uncomVar] is false>>
-				<span class="lewd">You don't mind people looking.</span>
-				<<garousal>><<arousal 600>>
-				<br><br>
+	<<else>>
+		<<if $rng lte 20>>
+			<<set $danceStudio.lesson to "barre">>
+			You stretch and work your muscles using a barre.
+			<<if currentSkillValue('danceskill') lte 200>>
+				It's hard work to stay balanced. You can see in the mirror that you look a bit silly, especially compared to the more experienced students.
+			<<elseif currentSkillValue('danceskill') lte 800>>
+				You're pretty good at staying balanced. You are able to practise more advanced techniques.
 			<<else>>
-				<<garousal>><<gstress>><<gtrauma>><<arousal 600>><<stress 6>><<trauma 6>>
-				<br><br>
+				You are able to use it as a surrogate partner, supporting your weight as you practise airborne techniques. Some of the other students look on with envy.
 			<</if>>
+			<br><br>
+		<<elseif $rng lte 40>>
+			<<set $danceStudio.lesson to "duo">><<generate2>><<person2>>
+			You partner up with a <<person>>.
+			<<if currentSkillValue('danceskill') lte 200>>
+				<<He>> has more experience than you, so you let <<him>> take the lead.
+			<<elseif currentSkillValue('danceskill') lte 800>>
+				You practise techniques requiring a partner, taking turns supporting one another.
+			<<elseif currentSkillValue('danceskill') lte 1000>>
+				Being so experienced, you take the lead, careful not to push <<him>> too hard.
+			<</if>>
+			<br><br>
+		<<elseif $rng lte 60>>
+			<<set $danceStudio.lesson to "airbarre">>
+			You stretch and work your muscles using an aerial hammock.
+			<<if currentSkillValue('danceskill') lte 200>>
+				More experienced students use it to develop strength and poise. You just have fun swinging around.
+			<<elseif currentSkillValue('danceskill') lte 800>>
+				You work on developing your poise.
+			<<elseif currentSkillValue('danceskill') lte 1000>>
+				Held aloft, you are able to fully demonstrate your grace and skill.
+			<</if>>
+			<br><br>
+			<<if setup.clothes.lower[clothesIndex('lower', $worn.lower)].skirt is 1>>
+				You realise it may have been a mistake to wear a skirt. Performing airborne exercises without displaying your <<undies>> for the whole class to see proves to be virtually impossible.
+				<<set _uncomVar to ($worn.under_lower.type.includes("naked") ? "nude" : "underwear")>>
+				<<if $uncomfortable[_uncomVar] is false>>
+					<span class="lewd">You don't mind people looking.</span>
+					<<garousal>><<arousal 600>>
+					<br><br>
+				<<else>>
+					<<garousal>><<gstress>><<gtrauma>><<arousal 600>><<stress 6>><<trauma 6>>
+					<br><br>
+				<</if>>
+			<</if>>
+		<<elseif $rng lte 80 and !$daily.charlie.reachedForPcHands>>
+			<<set $danceStudio.lesson to "instructor">>
+			Charlie gives you some personal attention.
+			<<if currentSkillValue('danceskill') lte 200>>
+				<<He>> helps you with the basics.
+			<<elseif currentSkillValue('danceskill') lte 800>>
+				<<He>> demonstrates some new steps for you to try.
+			<<elseif currentSkillValue('danceskill') lte 1000>>
+				<<He>> helps you iron out some flaws in your posture.
+			<</if>>
+			<br><br>
+		<<elseif $rng lte 100>>
+			<<set $danceStudio.lesson to "noinstructor">>
+			Charlie demonstrates some moves in front of the class, who do their best to emulate <<him>>.
+			<br><br>
 		<</if>>
-	<<elseif $rng lte 80 and !$daily.charlie.reachedForPcHands>>
-		<<set $danceStudio.lesson to "instructor">>
-		Charlie gives you some personal attention.
-		<<if currentSkillValue('danceskill') lte 200>>
-			<<He>> helps you with the basics.
-		<<elseif currentSkillValue('danceskill') lte 800>>
-			<<He>> demonstrates some new steps for you to try.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
-			<<He>> helps you iron out some flaws in your posture.
-		<</if>>
-		<br><br>
-	<<elseif $rng lte 100>>
-		<<set $danceStudio.lesson to "noinstructor">>
-		Charlie demonstrates some moves in front of the class, who do their best to emulate <<him>>.
-		<br><br>
 	<</if>>
 
 	<<if dangerEvent() and $eventskip is 0>>
