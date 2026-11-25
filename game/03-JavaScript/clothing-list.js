@@ -237,7 +237,9 @@ document.addEventListener(
 document.addEventListener(
 	"click",
 	event => {
-		$(".clothingFilterDropdown[open]").not($(event.target).closest(".clothingFilterDropdown")).prop("open", false);
+		$(".clothingFilterDropdown[open]")
+			.not($(/** @type {Element} */ (event.target)).closest(".clothingFilterDropdown"))
+			.prop("open", false);
 	},
 	true
 );
