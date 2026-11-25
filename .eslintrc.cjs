@@ -111,6 +111,7 @@ module.exports = {
 		DoLSave: "readonly",
 		// DoL functions
 		tendingDay: "readonly",
+		addFeatBoostCost: "readonly",
 		ampm: "readonly",
 		animalSexEnabledForType: "readonly",
 		applyKinkPreset: "readonly",
@@ -130,6 +131,7 @@ module.exports = {
 		combatListColor: "readonly",
 		currentSkillValue: "readonly",
 		dangerEvent: "readonly",
+		disableUnaffordableFeatBoostUnlocks: "readonly",
 		eCheckbox: "readonly",
 		earnHourlyFeats: "readonly",
 		eInput: "readonly",

@@ -172,7 +172,7 @@
 						<</for>>
 					<</if>>
 					<<set _upgradeName to _upgradeNames[_upgradeNameID]>>
-					<<updateFeatsPointsMenu>>
+					<<replace #featsPointsMenu>><<featsPointsMenu>><</replace>>
 					<<updateFeatName>>
 				<</link>> |
 				<<link "Next">>
@@ -189,7 +189,7 @@
 						<</for>>
 					<</if>>
 					<<set _upgradeName to _upgradeNames[_upgradeNameID]>>
-					<<updateFeatsPointsMenu>>
+					<<replace #featsPointsMenu>><<featsPointsMenu>><</replace>>
 					<<updateFeatName>>
 				<</link>>
 			</span>
@@ -197,52 +197,56 @@
 		/*<<set _upgradeName to _upgradeNames[_upgradeNameID]>>*/
 		<div @id="'feats-' + _upgradeName" class="settingsToggleItem">
 			<<featsMenu _upgradeName>>
-			<<if $featsBoosts.pointsUsed isnot 0>>
-				<hr>
-				Purchased Feat Boosts:
-				<ul>
-					<<for $_i to 0; $_i lt _upgradeNames.length; $_i++>>
-						<<if $featsBoosts.upgrades[_upgradeNames[$_i]] gt 0>>
-							<li>
-							<<switch _upgradeNames[$_i]>>
-								<<case "randomClothing">>
-									<<= ($featsBoosts.clothingGender is "Either" ? "Male and Female" : $featsBoosts.clothingGender)>> <<print $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
-								<<case "specialClothing">>
-									Special Clothing: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
-									<br>
-										<<foldout false "_unlockedSets">>
-											<span class="gold">Unlocked Sets</span>
-											<span class="descriptunlocked-hint">
-												<<= Object.keys($featsBoosts.specialClothesSets)
-												.filter(k => $featsBoosts.specialClothesSets[k])
-												.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.specialClothesSets[k].featCost}</span> coins`)
-												.join("<br>")>>
-											</span>
-										<</foldout>>
-								<<case "seeds">>
-									Starting Seeds: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
-									<br>
-										<<foldout false "_unlockedSeed">>
-											<span class="gold">Unlocked Seeds</span>
-											<span class="descriptunlocked-hint">
-												<<= Object.keys($featsBoosts.seeds)
-												.filter(k => $featsBoosts.seeds[k])
-												.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.foodstuff[k].tending.featCost}</span> coins`)
-												.join("<br>")>>
-											</span>
-										<</foldout>>
-								<<default>>
-									<<= $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
-							<</switch>>
-							</li>
-						<</if>>
-					<</for>>
-				</ul>
-				<<set _pointsRemaining to $feats.allSaves.points - $featsBoosts.pointsUsed>>
-				You have<span class="green"> <<print _pointsRemaining>> <<pluralise _pointsRemaining "VrelCoin">></span> left to spend on Feat Boosts.
-			<</if>>
+			<div id="featsPurchasedBoosts"><<featsPurchasedBoosts>></div>
 		</div>
 	</div>
+<</widget>>
+
+<<widget "featsPurchasedBoosts">>
+	<<if $featsBoosts.pointsUsed isnot 0>>
+		<hr>
+		Purchased Feat Boosts:
+		<ul>
+			<<for $_i to 0; $_i lt _upgradeNames.length; $_i++>>
+				<<if $featsBoosts.upgrades[_upgradeNames[$_i]] gt 0>>
+					<li>
+					<<switch _upgradeNames[$_i]>>
+						<<case "randomClothing">>
+							<<= ($featsBoosts.clothingGender is "Either" ? "Male and Female" : $featsBoosts.clothingGender)>> <<print $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+						<<case "specialClothing">>
+							Special Clothing: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+							<br>
+								<<foldout false "_unlockedSets">>
+									<span class="gold">Unlocked Sets</span>
+									<span class="descriptunlocked-hint">
+										<<= Object.keys($featsBoosts.specialClothesSets)
+										.filter(k => $featsBoosts.specialClothesSets[k])
+										.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.specialClothesSets[k].featCost}</span> coins`)
+										.join("<br>")>>
+									</span>
+								<</foldout>>
+						<<case "seeds">>
+							Starting Seeds: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+							<br>
+								<<foldout false "_unlockedSeed">>
+									<span class="gold">Unlocked Seeds</span>
+									<span class="descriptunlocked-hint">
+										<<= Object.keys($featsBoosts.seeds)
+										.filter(k => $featsBoosts.seeds[k])
+										.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.foodstuff[k].tending.featCost}</span> coins`)
+										.join("<br>")>>
+									</span>
+								<</foldout>>
+						<<default>>
+							<<= $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+					<</switch>>
+					</li>
+				<</if>>
+			<</for>>
+		</ul>
+		<<set _pointsRemaining to $feats.allSaves.points - $featsBoosts.pointsUsed>>
+		You have<span class="green"> <<print _pointsRemaining>> <<pluralise _pointsRemaining "VrelCoin">></span> left to spend on Feat Boosts.
+	<</if>>
 <</widget>>
 
 <<widget "updateFeatName">>
@@ -683,7 +687,7 @@
 						<</button>>
 					<<elseif $featsBoosts.upgrades.greenThumb>>
 						<<button "Remove this trait">>
-							<<updateFeatsPointsMenu "greenThumb" $featsBoosts.upgradeDetails.greenThumb.cost "subtract">>
+							<<updateFeatsPointsMenu "greenThumb" `-$featsBoosts.upgradeDetails.greenThumb.cost`>>
 						<</button>>
 					<</if>>
 				</div>
@@ -776,7 +780,10 @@
 				<<set $featsBoosts.specialClothesSets[$_valuePop] to false>>
 			<</for>>
 		<</if>>
-		<<run $(() => { $('[data-limit-group]').first().trigger('change.macros') })>>
+		<<run $(() => {
+			$('[data-limit-group]').first().trigger('change.macros');
+			disableUnaffordableFeatBoostUnlocks();
+		})>>
 		<br>
 		<div class="settingsHeader" style="margin-bottom: 0.5em">Sets To Unlock</div>
 		<form>
@@ -786,68 +793,53 @@
 					<div class="settingsGridSmall">
 						<<for $_labelC, $_valueC range $featsBoosts.specialClothesSets>>
 							<label>
-								<div class="settingsToggleItem" id="specialClothesFeatBooster">
-									<<capture $_labelC>>
-										<<set $_clothingObject to clone(setup.specialClothesSets[$_labelC])>>
-										<<set $_listFromSets to []>><<set $_hints to []>>
-										<<set $_clothesToPush to setup.specialClothes.filter(fromSets => fromSets.sets.includes($_labelC))>>
-										<<run $_clothesToPush.forEach(clothing => $_listFromSets.push(clothing.name.toUpperFirst()))>>
-										<<set $_canAfford to ($feats.allSaves.points - $featsBoosts.pointsUsed) - $_clothingObject.featCost gte 0>>
-										<<set $_costDisplay to "<<print setup.specialClothesSets[$_labelC].featCost>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
+								<<capture $_labelC>>
+									<<set $_clothingObject to clone(setup.specialClothesSets[$_labelC])>>
+									<<set $_listFromSets to []>><<set $_hints to []>>
+									<<set $_clothesToPush to setup.specialClothes.filter(fromSets => fromSets.sets.includes($_labelC))>>
+									<<run $_clothesToPush.forEach(clothing => $_listFromSets.push(clothing.name.toUpperFirst()))>>
+									<<set $_costDisplay to "<<print setup.specialClothesSets[$_labelC].featCost>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
 
-										<<if _totalUnlockedSets.includes($_labelC)>>
-											<<if $_canAfford or $featsBoosts.specialClothesSets[$_labelC]>>
-												<<set $_listText to "Includes: <span class='green'>" + formatList($_listFromSets, 'and', true) + "</span>">>
-												<<checkbox "$featsBoosts.specialClothesSets[$_labelC]" false true autocheck "specialClothingFeatSets" _totalUnlockedSetsLimit "<span class='red'>Selection limit reached!</span>">>
+									<<if _totalUnlockedSets.includes($_labelC)>>
+										<<set $_listText to "Includes: <span class='green'>" + formatList($_listFromSets, 'and', true) + "</span>">>
+										<<set $_notEnoughCoinsText to "<span class='red'>Not enough VrelCoins!</span><br> " + $_listText>>
+										<div class="settingsToggleItem" data-upgrade-name="specialClothing" @data-feat-cost="$_clothingObject.featCost" @data-tooltip-affordable="$_listText" @data-tooltip-unaffordable="$_notEnoughCoinsText">
+											<<checkbox "$featsBoosts.specialClothesSets[$_labelC]" false true autocheck "specialClothingFeatSets" _totalUnlockedSetsLimit "<span class='red'>Selection limit reached!</span>">>
+											<<if $_clothingObject.icon is "clothes">>
+												<<set $_cIcon to clone(setup.clothes[$_clothingObject.iconSlot][$_clothingObject.iconIndex])>>
+												<<set $_cIcon.colour to $_clothingObject.iconColor>><<set $_cIcon.accessory_colour to $_clothingObject.iconAccColor>>
+												<<clothingicon $_cIcon $_clothingObject.iconSlot>>
 											<<else>>
-												<<set $_listText to "<span class='red'>Not enough VrelCoins!</span><br> Includes: <span class='green'>" + formatList($_listFromSets, 'and', true) + "</span>">>
-												<input type="checkbox" class="black tooltip-anchor" @tooltip="Includes: $_listText" disabled>
+												<<set $_cIcon to $_clothingObject.icon>>
+												<<icon $_cIcon>>
 											<</if>>
-												<<if $_clothingObject.icon is "clothes">>
-													<<set $_cIcon to clone(setup.clothes[$_clothingObject.iconSlot][$_clothingObject.iconIndex])>>
-													<<set $_cIcon.colour to $_clothingObject.iconColor>><<set $_cIcon.accessory_colour to $_clothingObject.iconAccColor>>
-													<<clothingicon $_cIcon $_clothingObject.iconSlot>>
-												<<else>>
-													<<set $_cIcon to $_clothingObject.icon>>
-													<<icon $_cIcon>>
-												<</if>>
-												<span class="gold tooltip-anchor" @tooltip="$_listText"><<print $_labelC.replace(/_/g," ").toUpperFirst()>></span>
-												<div class="gold" style="display:inline-block">($_costDisplay)</div>
-										<<else>>
-												<<if setup.specialClothesSets[$_labelC].subsetOf>>
-													<<run setup.specialClothesSets[$_labelC].subsetOf.forEach(subset => {
-														if (setup.specialClothesSets[subset].hint) $_hints.pushUnique(setup.specialClothesSets[subset].hint);
-													})>>
-												<</if>>
-												<<if setup.specialClothesSets[$_labelC].hint>>
-													<<set $_hints.pushUnique(setup.specialClothesSets[$_labelC].hint)>>
-												<</if>>
-												<<set $_hintText to $_hints.length ? "<br><span class='black'>Hint: " + formatList($_hints, 'or', true).toUpperFirst() + "</span>" : "">>
-												<<set $_listText to "<span class='red'>Not earned!</span><br> Includes: <span class='black'>" + formatList($_listFromSets, 'and', true) + "</span>" + $_hintText>>
-												<input type="checkbox" class="black tooltip-anchor" @tooltip="Includes: $_listText" disabled>
-												<<lockicon>>
-												<span class="black tooltip-anchor" @tooltip="Includes: $_listText"><<print $_labelC.replace(/_/g," ").toUpperFirst()>></span>
-												<div class="black" style="display:inline-block">($_costDisplay)</div>
-										<</if>>
-									<</capture>>
-								</div>
+											<span class="gold feat-boost-unlock-name"><<print $_labelC.replace(/_/g," ").toUpperFirst()>></span>
+											<div class="gold" style="display:inline-block">($_costDisplay)</div>
+										</div>
+									<<else>>
+										<div class="settingsToggleItem">
+											<<if setup.specialClothesSets[$_labelC].subsetOf>>
+												<<run setup.specialClothesSets[$_labelC].subsetOf.forEach(subset => {
+													if (setup.specialClothesSets[subset].hint) $_hints.pushUnique(setup.specialClothesSets[subset].hint);
+												})>>
+											<</if>>
+											<<if setup.specialClothesSets[$_labelC].hint>>
+												<<set $_hints.pushUnique(setup.specialClothesSets[$_labelC].hint)>>
+											<</if>>
+											<<set $_hintText to $_hints.length ? "<br><span class='black'>Hint: " + formatList($_hints, 'or', true).toUpperFirst() + "</span>" : "">>
+											<<set $_listText to "<span class='red'>Not earned!</span><br> Includes: <span class='black'>" + formatList($_listFromSets, 'and', true) + "</span>" + $_hintText>>
+											<input type="checkbox" class="black tooltip-anchor" @tooltip="Includes: $_listText" disabled>
+											<<lockicon>>
+											<span class="black tooltip-anchor" @tooltip="Includes: $_listText"><<print $_labelC.replace(/_/g," ").toUpperFirst()>></span>
+											<div class="black" style="display:inline-block">($_costDisplay)</div>
+										</div>
+									<</if>>
+								<</capture>>
 							</label>
 						<</for>>
 					</div>
 			</fieldset>
 		</form>
-			<<run $(document).off("change.specialClothesFeat").on("change.specialClothesFeat",
-				'input[type="checkbox"][data-limit-group="specialClothingFeatSets"]',
-				function () {
-					const id = $(this).attr("id").replace(/^checkbox-featsboostsspecialclothessets-/, "").replace(/-/g, "_");
-					if ($(this).prop("checked")) {
-						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" setup.specialClothesSets["${id}"].featCost>>`);
-					} else {
-						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" setup.specialClothesSets["${id}"].featCost "subtract">>`);
-					}
-				}
-			);
-		>>
 	<</if>>
 <</widget>>
 
@@ -862,7 +854,10 @@
 				<<set $featsBoosts.seeds[$_valuePop] to false>>
 			<</for>>
 		<</if>>
-		<<run $(() => { $('[data-limit-group]').first().trigger('change.macros') })>>
+		<<run $(() => {
+			$('[data-limit-group]').first().trigger('change.macros');
+			disableUnaffordableFeatBoostUnlocks();
+		})>>
 		<br>
 		<div class="settingsHeader" style="margin-bottom: 0.5em">Seeds To Unlock</div>
 		<form>
@@ -872,25 +867,20 @@
 					<div class="settingsGridSmall">
 						<<for $_labelC, $_valueC range $featsBoosts.seeds>>
 							<label>
-								<div class="settingsToggleItem" id="specialClothesFeatBooster">
-									<<capture $_labelC>>
-										<<set $_seed to clone(setup.foodstuff[$_labelC])>>
-										<<set $_canAfford to ($feats.allSaves.points - $featsBoosts.pointsUsed) - $_seed.tending.featCost gte 0>>
-										<<set $_costDisplay to "<<print $_seed.tending.featCost>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
+								<<capture $_labelC>>
+									<<set $_seed to clone(setup.foodstuff[$_labelC])>>
+									<<set $_costDisplay to "<<print $_seed.tending.featCost>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
 
-										<<if _totalUnlockedSeeds.includes($_labelC)>>
-											<<if $_canAfford or $featsBoosts.seeds[$_labelC]>>
-												<<checkbox "$featsBoosts.seeds[$_labelC]" false true autocheck "seedsFeatSelect" _totalUnlockedSeedsLimit "<span class='red'>Selection limit reached!</span>">>
-												<<icon `"tending/" + $_seed.icon`>>
-												<span class="gold"><<print $_seed.name.toUpperFirst()>></span>
-											<<else>>
-												<<set $_listText to "<span class='red'>Not enough VrelCoins!</span>">>
-												<input type="checkbox" class="black tooltip-anchor" @tooltip="$_listText" disabled>
-												<<icon `"tending/" + $_seed.icon`>>
-												<span class="gold tooltip-anchor" @tooltip="$_listText"><<print $_seed.name.toUpperFirst()>></span>
-											<</if>>
+									<<if _totalUnlockedSeeds.includes($_labelC)>>
+										<<set $_notEnoughCoinsText to "<span class='red'>Not enough VrelCoins!</span>">>
+										<div class="settingsToggleItem" data-upgrade-name="seeds" @data-feat-cost="$_seed.tending.featCost" @data-tooltip-unaffordable="$_notEnoughCoinsText">
+											<<checkbox "$featsBoosts.seeds[$_labelC]" false true autocheck "seedsFeatSelect" _totalUnlockedSeedsLimit "<span class='red'>Selection limit reached!</span>">>
+											<<icon `"tending/" + $_seed.icon`>>
+											<span class="gold feat-boost-unlock-name"><<print $_seed.name.toUpperFirst()>></span>
 											<div class="gold" style="display:inline-block">($_costDisplay)</div>
-										<<else>>
+										</div>
+									<<else>>
+										<div class="settingsToggleItem">
 											<<set $_hints to []>>
 											<<set $_hintText to $_hints.length ? "<br><span class='black'>Hint: " + formatList($_hints, 'or', true).toUpperFirst() + "</span>" : "">>
 											<<set $_listText to "<span class='red'>Not earned!</span>" + $_hintText>>
@@ -898,36 +888,19 @@
 											<<lockicon>>
 											<span class="black tooltip-anchor" @tooltip="$_listText"><<print $_seed.name.toUpperFirst()>></span>
 											<div class="black" style="display:inline-block">($_costDisplay)</div>
-										<</if>>
-									<</capture>>
-								</div>
+										</div>
+									<</if>>
+								<</capture>>
 							</label>
 						<</for>>
 					</div>
 			</fieldset>
 		</form>
-			<<run $(document).off("change.specialClothesFeat").on("change.specialClothesFeat", /* ???? */
-				'input[type="checkbox"][data-limit-group="seedsFeatSelect"]',
-				function () {
-					const id = $(this).attr("id").replace(/^checkbox-featsboostsseeds-/, "").replace(/-/g, "_"); /* featsboostsseeds is $featsBoosts.seeds[$_labelC] */
-					if ($(this).prop("checked")) {
-						new Wikifier(null, `<<updateFeatsPointsMenu "seeds" setup.foodstuff["${id}"].tending.featCost>>`);
-					} else {
-						new Wikifier(null, `<<updateFeatsPointsMenu "seeds" setup.foodstuff["${id}"].tending.featCost "subtract">>`);
-					}
-				}
-			);
-		>>
 	<</if>>
 <</widget>>
 
 <<widget "updateFeatsPointsMenu">>
-	<<set _cost to _args[2] is "subtract" ? _args[1] * -1 : _args[1]>>
-	<<if $feats.allSaves.points - $featsBoosts.pointsUsed gte _cost or _cost lt 0>>
-		<<set $featsBoosts.upgrades[_args[0]] += _cost>>
-		<<set $featsBoosts.pointsUsed += _cost>>
-		<<set $featsBoosts.pointsUsed = Math.max(0, $featsBoosts.pointsUsed)>>
-	<</if>>
+	<<run addFeatBoostCost(_args[0], _args[1])>>
 	<<replace #featsPointsMenu>>
 		<<featsPointsMenu>>
 	<</replace>>
