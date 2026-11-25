@@ -2133,10 +2133,10 @@ Renderer.CanvasModels.main = {
 		},
 
 		/*
-				███████ ██████  ███████  ██████ ██   ██ ██      ███████ ███████ 
-				██      ██   ██ ██      ██      ██  ██  ██      ██      ██      
-				█████   ██████  █████   ██      █████   ██      █████   ███████ 
-				██      ██   ██ ██      ██      ██  ██  ██      ██           ██ 
+				███████ ██████  ███████  ██████ ██   ██ ██      ███████ ███████
+				██      ██   ██ ██      ██      ██  ██  ██      ██      ██
+				█████   ██████  █████   ██      █████   ██      █████   ███████
+				██      ██   ██ ██      ██      ██  ██  ██      ██           ██
 				██      ██   ██ ███████  ██████ ██   ██ ███████ ███████ ███████
 		*/
 		"freckles_base": {
@@ -3687,7 +3687,7 @@ Renderer.CanvasModels.main = {
 				const dmg = options.worn.head.setup.accessory_integrity_img ? `-${options.worn.upper.integrity}` : '';
 				const pattern = options.worn.head.pattern && options.worn.head.setup.pattern_layer === "secondary" ? "-" + options.worn.head.pattern?.replace(/ /g,"-") : '';
 				const isAltPosition = !options.alt_override && options.worn.head.setup.altposition !== undefined
-					&& options.worn.head.alt === "alt" 
+					&& options.worn.head.alt === "alt"
 					&& !options.worn.head.setup.altdisabled.includes("acc");
 				const end = isAltPosition ? '-alt' : '';
 				return `img/clothes/head/${options.worn.head.setup.variable}/acc${dmg}${pattern}${end}.png`;
@@ -4655,7 +4655,7 @@ function genlayer_clothing_main(slot, overrideOptions) {
 			const pattern = options.worn[slot].pattern && !["secondary", "tertiary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
 			let end = isAltPosition ? '-alt' : '';
-			
+
 			end = isHoodDown ? `${end}-down` : end;
 
 			return `img/clothes/${folder}/${setup.variable}/${options.worn[slot].integrity}${pattern}${end}.png`;
@@ -4720,7 +4720,7 @@ function genlayer_clothing_fitted_left_acc(slot, overrideOptions) {
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
 			let end = isAltPosition ? '-alt' : '';
-			
+
 			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
@@ -4756,7 +4756,7 @@ function genlayer_clothing_fitted_right_acc(slot, overrideOptions) {
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
 			let end = isAltPosition ? '-alt' : '';
-			
+
 			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
@@ -4793,9 +4793,9 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			
+
 			let end = isAltPosition ? '-alt' : '';
-			
+
 			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);
@@ -4990,7 +4990,7 @@ function genlayer_clothing_belly_split_acc(slot, overrideOptions) {
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 			let end = isAltPosition ? '-alt' : '';
-			
+
 			end = isHoodDown ? `${end}-down` : end;
 
 			const folder = normaliseFileName(slot);

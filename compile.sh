@@ -8,7 +8,7 @@ function echoError() {
 function compile() {
 	# set working directory
 	pushd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null || {
-		echoError "ERROR: failed to set working directory to script location"	
+		echoError "ERROR: failed to set working directory to script location"
 		read -r -p "Press [Enter] key to exit"
 		exit 1
 	}
@@ -107,7 +107,7 @@ function compile() {
 	else
 		echo "the tweego in your PATH"
 	fi
-	
+
 	local build_failed="false"
 	"$TWEEGO_EXE" "${tweego_args[@]}" -o  "$TARGET" --head "devTools/head.html" --module "modules" game/ || build_failed="true"
 
