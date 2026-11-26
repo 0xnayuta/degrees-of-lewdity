@@ -4435,6 +4435,8 @@ function createHairColourGradient(hairPart, gradient, hairType, hairLength, pref
 
 /**
  * Z-index for a held item. While a raised hood or headwear with coversHandheld is worn, the item is drawn above it so it isn't hidden.
+ * @param options
+ * @param zIndex
  */
 function handheldZIndex(options, zIndex) {
 	const z = ZIndices[zIndex || "handheld"];
@@ -5286,12 +5288,19 @@ function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 		srcfn(options) {
 			const setup = options.worn[slot].setup;
 
+			const isAltSleeve = !options.alt_override
+				&& options.alt_sleeve_state
+				&& V.worn[slot]?.altsleeve === 'alt'
+				&& options.altAccRolled != 0;
+			const rolled = isAltSleeve ? '-rolled' : '';
+
 			const isAltPosition = !options.alt_override
 				&& setup.altposition !== undefined
 				&& options.worn[slot].alt === "alt"
 				&& !setup.altdisabled.includes("sleeves")
 				&& !setup.altdisabled.includes("sleeve_acc")
-				&& (options.worn[slot].setup.sleeve_acc_colour != "pattern");
+				&& (options.worn[slot].setup.sleeve_acc_colour != "pattern")
+				&& options.altAccRolled != 1;
 
 			let filename = `${arm}-${options[`arm_${arm}`]}`;
 			filename += (isAltPosition) ? '-alt-acc' : '-acc';
@@ -5299,7 +5308,8 @@ function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 			const pattern = options.worn[slot].setup.sleeve_acc_colour === "pattern" ? '-' + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
 			const folder = normaliseFileName(slot);
-			return `img/clothes/${folder}/${setup.variable}/${filename}${pattern}.png`;
+			
+			return `img/clothes/${folder}/${setup.variable}/${filename}${pattern}${rolled}.png`;
 		},
 	}, overrideOptions));
 }

@@ -192,6 +192,9 @@ class ClothesItem {
 	/* */
 	altsleeve;
 
+	/* Allows for a sleeve acc to be rolled alongside the main sleeve sprite with 1. | INT */
+	altAccRolled;
+
 	/* */
 	has_collar;
 

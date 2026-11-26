@@ -441,6 +441,10 @@ declare global {
 		hideUnderLower?: string[];
 		size?: number;
 		altsleeve?: string;
+		/**
+		 * if 1, arm acc searches for a rolled variant in case altsleeve is valid
+		 */
+		altAccRolled?: 0 | 1;
 		altposition?: string;
 		altdisabled?: string[];
 		zip?: 0 | 1;
