@@ -37,6 +37,9 @@ declare global {
 			/** If Alex is the only possible donor of the babies at a hospital birth. Sends the PC to Alex at the end if Alex's nursery is ready.
 			 * Unset at the end of the hospital birth. */
 			hospitalBabiesAreAlexs?: boolean;
+			/** If Alex knew the babies at a hospital birth were Alex's. Changes Alex's line when the PC comes back to the farm.
+			 * Unset when the PC comes back, or at the end of the hospital birth if Alex's nursery is ready. */
+			alexKnewHospitalBabies?: true;
 		};
 		/** Alex's night at the cottage. Emptied at 06:00. */
 		night: {
