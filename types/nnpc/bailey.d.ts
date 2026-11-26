@@ -149,9 +149,12 @@ declare global {
 
 	/** Bailey's once-a-month flags, stored in `$monthly.bailey`. */
 	export interface BaileyMonthly {
-		/** If the PC saw Bailey standing by the lotus pond at night this month. */
+		/** If the PC saw Bailey standing by the lotus pond this month. */
 		stoodAtLotusPond?: true;
 	}
+
+	/** Where Bailey is right now, from `getBaileyLocation()`. */
+	export type BaileyLocation = "office" | "unknown";
 }
 
 export {};
