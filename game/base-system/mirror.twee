@@ -1,11 +1,7 @@
 :: Widgets Mirror [widget]
 <<widget "mirror">>
 	<div id="mirror">
-		<<if _args[0] isnot undefined>>
-			<<mirrorDisplay _args[0]>>
-		<<else>>
-			<<mirrorDisplay>>
-		<</if>>
+		<<mirrorDisplay _args[0] _args[1]>>
 	</div>
 <</widget>>
 
@@ -17,28 +13,39 @@
 	<</if>>
 <</widget>>
 
+<<widget "onMirrorExit">>
+	<<if $mirrorMenu is "locket">>
+		<<neckon>>
+	<</if>>
+	<<unset $mirrorMenu>>
+	<<unset $bodywritingSet>>
+	<<unset $dance.editing>>
+<</widget>>
+
 <<widget "mirrorDisplay">>
 	<<switch $mirrorMenu>>
 		<<case "appearance">>
 			<<if playerBellyVisible(true) and !playerAwareTheyArePregnant()>>
 				<<mirrorAppearancePregnancy>>
 			<<else>>
-				<<mirrorAppearance>>
+				<<mirrorAppearance _args[0] _args[1]>>
 			<</if>>
 		<<case "body">>
-			<<visual-settings>>
+			<<visual-settings _args[0] _args[1]>>
 		<<case "skin">>
-			<<mirrorSkin>>
+			<<mirrorSkin _args[0] _args[1]>>
 		<<case "hair">>
-			<<mirrorHair>>
+			<<mirrorHair _args[0] _args[1]>>
 		<<case "makeup">>
-			<<mirrorMakeup>>
+			<<mirrorMakeup _args[0] _args[1]>>
 		<<case "transformation">>
-			<<mirrorTransformation>>
+			<<mirrorTransformation _args[0] _args[1]>>
 		<<case "dance">>
-			<<mirrorDance>>
+			<<mirrorDance _args[0] _args[1]>>
+		<<case "locket">>
+			<<mirrorLocket _args[0] _args[1]>>
 		<<default>>
-			<<mirrorMenu _args[0]>>
+			<<mirrorMenu _args[0] _args[1]>>
 	<</switch>>
 	<<calchairlengthstage>>
 	<br><br>
@@ -131,50 +138,39 @@
 		Supportive, half hidden smiles watch from the shadows.<<lawareness>><<ltrauma>><<awareness -6>><<trauma -6>>
 	<</if>>
 	<br><br>
-	<<crimeicon "mark">><<link "Examine how you are seen by others">><<set $mirrorMenu to "appearance">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
-	<br><br>
-	<<if !$simpleMirror>>
-		__Appearance__
+	<<crimeicon "mark">><<link "Examine how you are seen by others">><<set $mirrorMenu to "appearance">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
+	<br>
+	<<if _args[1] isnot "public">>
+		<<investigateicon>><<link "Examine your body">><<set $mirrorMenu to "skin">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 		<br>
-		<<investigateicon>><<link "Examine your body">><<set $mirrorMenu to "skin">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
-		<br><br>
 	<</if>>
-	__Hair__
+	<<hairdressericon "hairspray">><<link "Change your hair style">><<set $mirrorMenu to "hair">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br>
-	<<hairdressericon "hairspray">><<link "Change your hair style">><<set $mirrorMenu to "hair">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
-	<br><br>
-	__Makeup__
+	<<cosmeticsicon>><<link "Apply makeup">><<set $mirrorMenu to "makeup">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br>
-	<<cosmeticsicon>><<link "Apply makeup">><<set $mirrorMenu to "makeup">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
-	<br><br>
-	__Dance__
+	<<dancestudioicon>><<link "Repeat your dancing moves">><<set $mirrorMenu to "dance">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 	<br>
-	<<dancestudioicon>><<link "Repeat your dancing moves">><<set $mirrorMenu to "dance">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
-	<br><br>
 	<<if $worn.neck.name is "love locket">>
-		__Locket__
+		<span @class="'clothes-'+$worn.neck.colour.replace(' ','-')"><<icon "locket.png">></span><<link "Customise locket">><<set $mirrorMenu to "locket">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 		<br>
-		<span @class="'clothes-'+$worn.neck.colour.replace(' ','-')"><<icon "locket.png">></span><<link [[Customise locket|Mirror Locket]]>><<set $passage_mirror to $passage>><</link>>
-		<br><br>
 	<</if>>
-
-	<<if !$simpleMirror>>
+	<<if _args[1] isnot "public">>
 		/* only display the tf menu if there's actually some options that can be changed */
 		<<set $_tfs to setup.transformations.filter(tf => tf.parts?.some(part => tf.level >= part.tfRequired))>>
 		<<if $_tfs.length >= 1>>
-			__Transformation__
-			<br>
 			/* show the icon of the highest levelled transform with parts unlocked */
 			/* assumes maximum of 2 simultaneous transformations */
 			<<set $_icon to ($_tfs[1]?.level gt $_tfs[0].level) ? $_tfs[1].name : $_tfs[0].name>>
 			<<if !$_icon>><<set $_icon to "angel">><</if>>
 			<<tficon $_icon>>
-			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay>><</replace>><<numberify "#passages > .passage">><</link>>
+			<<link "Examine your inner self">><<set $mirrorMenu to "transformation">><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
+			<br>
 		<<else>>
+			<br>
 			Obtain otherworldly powers to examine further.
+			<br>
 		<</if>>
 	<</if>>
-	<br><br>
 <</widget>>
 
 <<widget "mirrorGender">>
@@ -254,7 +250,7 @@
 <</widget>>
 
 <<widget "mirrorAppearance">>
-	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	<span id="mirrorGender">
 		<<mirrorGender>>
@@ -573,7 +569,7 @@
 <</widget>>
 
 <<widget "visual-settings">>
-	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 <</widget>>
 
 <<widget "faceStyleOptions">>
@@ -616,7 +612,7 @@
 <</widget>>
 
 <<widget "mirrorSkin">>
-	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 
 	<div class="settingsGrid">
@@ -1386,7 +1382,7 @@
 
 <<widget "mirrorHair">>
 	<<set _wraithMirror to false>>
-	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<updatesidebarimg>><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	<div id="hairDescription">
 	<<hairDescription>>
@@ -1735,7 +1731,7 @@
 									<<wearProp _itemType>>
 								<</if>>
 								<<updatesidebarimg>>
-								<<mirrorDisplay>>
+								<<mirrorDisplay _args[1] _args[2]>>
 							<</replace>>
 						<</button>>
 					<</capture>>
@@ -1746,7 +1742,7 @@
 <</widget>>
 
 <<widget "mirrorMakeup">>
-	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 	<div class="settingsGrid">
 		<div class="settingsHeader">Makeup</div>
@@ -1861,16 +1857,16 @@
 			<</if>>
 		</div>
 		<div class="settingsToggleItem">
-			<<mirrorMakeupPart "lipstick">>
+			<<mirrorMakeupPart "lipstick" _args[0] _args[1]>>
 		</div>
 		<div class="settingsToggleItem">
-			<<mirrorMakeupPart "eyeshadow">>
+			<<mirrorMakeupPart "eyeshadow" _args[0] _args[1]>>
 		</div>
 		<div class="settingsToggleItem">
-			<<mirrorMakeupPart "mascara">>
+			<<mirrorMakeupPart "mascara" _args[0] _args[1]>>
 		</div>
 		<div class="settingsToggleItem">
-			<<mirrorMakeupPart "blusher">>
+			<<mirrorMakeupPart "blusher" _args[0] _args[1]>>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold bold">New Makeup Preset</span>
@@ -1891,7 +1887,7 @@
 				}>>
 			<</link>>
 		</div>
-		<<if !$simpleMirror>>
+		<<if _args[1] isnot "public">>
 			<div class="settingsToggleItemWide">
 				<<cosmeticsicon "contacts">>
 				<<if $makeup.owned.eyelenses.length == 0 and $makeup.owned.custom_eyelenses.length == 0>>
@@ -1904,7 +1900,7 @@
 								<<set $makeup.eyelenses = { left: 0, right: 0 }>>
 									<<replace #mirror>>
 										<<updatesidebarimg>>
-										<<mirrorDisplay>>
+										<<mirrorDisplay _args[0] _args[1]>>
 									<</replace>>
 								<</link>>
 						</span>
@@ -1951,7 +1947,7 @@
 										<</if>>
 										<<replace #mirror>>
 											<<updatesidebarimg>>
-											<<mirrorDisplay>>
+											<<mirrorDisplay _args[0] _args[1]>>
 										<</replace>>
 									<</button>>
 								<</capture>>
@@ -1981,7 +1977,7 @@
 										<</if>>
 										<<replace #mirror>>
 											<<updatesidebarimg>>
-											<<mirrorDisplay>>
+											<<mirrorDisplay _args[0] _args[1]>>
 										<</replace>>
 									<</button>>
 								<</capture>>
@@ -2097,7 +2093,7 @@
 <</widget>>
 
 <<widget "mirrorTransformation">>
-	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<<set _angel to $transformationParts.angel>>
 	<<set _fallen to $transformationParts.fallenAngel>>
 	<<set _demon to $transformationParts.demon>>
@@ -2711,7 +2707,7 @@
 <</widget>>
 
 <<widget "mirrorDance">>
-	<<mirroricon>><<link "Back">><<unset $dance.editing>><<replace #mirror>><<mirrorMenu>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<<mirroricon>><<link "Back">><<unset $dance.editing>><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
 	<br><br>
 
 	<<danceUpdateTF>>
@@ -2726,10 +2722,10 @@
 				<</if>>
 			</div>
 			<div class="settingsToggleItemWide">
-				<<link "Cancel">><<unset $dance.editing>><<replace #mirror>><<mirrorDance>><</replace>><</link>>
+				<<link "Cancel">><<unset $dance.editing>><<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>><</link>>
 				<<if $dance.editing gte 0 and $dance.selected.length gte 2>>
 					|
-					<<link "Remove this dance">><<run $dance.selected.splice($dance.editing, 1)>><<unset $dance.editing>><<replace #mirror>><<mirrorDance>><</replace>><</link>>
+					<<link "Remove this dance">><<run $dance.selected.splice($dance.editing, 1)>><<unset $dance.editing>><<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>><</link>>
 				<</if>>
 			</div>
 		</div>
@@ -2762,7 +2758,7 @@
 										<<run $dance.selected.push(_key)>>
 									<</if>>
 									<<unset $dance.editing>>
-									<<replace #mirror>><<mirrorDance>><</replace>>
+									<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 								<</link>>
 							</span>
 						<</capture>>
@@ -2800,7 +2796,7 @@
 					<<capture _i>>
 						<<link "Change">>
 							<<set $dance.editing to _i>>
-							<<replace #mirror>><<mirrorDance>><</replace>>
+							<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 						<</link>>
 					<</capture>>
 					<br>
@@ -2810,7 +2806,7 @@
 					<br>
 					<<link "Add a dance">>
 						<<set $dance.editing to -1>> /* special value = append */
-						<<replace #mirror>><<mirrorDance>><</replace>>
+						<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 					<</link>>
 				<</if>>
 			</div>
@@ -2837,7 +2833,7 @@
 						<span class="no-numberify">
 							<<link "Invert order">>
 								<<set $dance.transformation to [$dance.transformation[1], $dance.transformation[0]]>>
-								<<replace #mirror>><<mirrorDance>><</replace>>
+								<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 							<</link>>
 						</span>
 					<</if>>
@@ -2865,7 +2861,7 @@
 						<span class="no-numberify">
 							<<link "Save current">>
 								<<set $dance.presets[_p] to clone($dance.selected)>>
-								<<replace #mirror>><<mirrorDance>><</replace>>
+								<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 							<</link>>
 						</span>
 						|
@@ -2873,14 +2869,14 @@
 							<span class="no-numberify">
 								<<link "Load">>
 									<<set $dance.selected to clone($dance.presets[_p])>>
-									<<replace #mirror>><<mirrorDance>><</replace>>
+									<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 								<</link>>
 							</span>
 							|
 							<span class="no-numberify">
 								<<link "Clear">>
 									<<set $dance.presets[_p] to []>>
-									<<replace #mirror>><<mirrorDance>><</replace>>
+									<<replace #mirror>><<mirrorDance _args[0] _args[1]>><</replace>>
 								<</link>>
 							</span>
 						<</if>>
@@ -2934,4 +2930,134 @@
 				<span class="grey">An opening dance.</span>
 		<</switch>>
 	<</if>>
+<</widget>>
+
+<<widget "mirrorLocket">>
+	<<mirroricon>><<link "Back">><<neckon>><<unset _prop>><<updatesidebarimg>><<replace #mirror>><<mirrorMenu _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><<unset $mirrorMenu>><</link>>
+	<br><br>
+	<<neckstrip>><<set _colour to $carried.neck.colour>>
+	<<wearProp "love locket" _colour>>
+	<<updatesidebarimg>>
+	You open the locket around your neck.
+	<br><br>
+	<<switch $carried.neck.photo>>
+		<<case "Robin">>
+			<<set _locket_text to "A photo of Robin smiles back.">>
+		<<case "Whitney">>
+			<<set _locket_text to "A photo of Whitney grins back.">>
+		<<case "Kylar">>
+			<<set _locket_text to "A photo of Kylar gazes back.">>
+		<<case "Eden">>
+			<<set _locket_text to "Eden's stern expression greets you.">>
+		<<case "Avery">>
+			<<set _locket_text to "In the photo, Avery looks to the side, head tilted up.">>
+		<<case "Alex">>
+			<<set _locket_text to "A photo of Alex on a steed greets you.">>
+		<<case "Sydney">>
+			<<set _locket_text to "A photo of Sydney deep in prayer greets you.">>
+		<<case "Black Wolf">>
+			<<set _locket_text to "There's a photo inside of the Black Wolf, sleeping peacefully.">>
+		<<case "Great Hawk">>
+			<<set _locket_text to "There's a photo inside of the Great Hawk, looking statuesque.">>
+		<<case "Gwylan">>
+			<<if $gwylan?.timer?.nobody gte Time.date.timeStamp>>
+				<<set _locket_text to "The picture within is distorted and unrecognisable.">>
+			<<elseif $hypnosis_traits.devotion gte 4>>
+				<<set _locket_text to "Gwylan's seductive smile greets you. The picture almost seems to be shining.">>
+			<<else>>
+				<<set _locket_text to "Gwylan's cheery smile greets you, although the rest of <<nnpc_his 'Gwylan'>> face is blurry.">>
+			<</if>>
+		<<default>>
+			<<set _locket_text to "It's empty, but there's space for a single photograph.">><<set _noLocketPhoto to true>>
+	<</switch>>
+
+	<<if $options.images>>
+		<div class="img-txt">
+			<<if $carried.neck.photo>>
+				<div id="locket">
+					<span>
+						<img class="icon infront" @src="'img/ui/locket-'+$carried.neck.colour.replace(' ', '-')+'-photo.png'" style="height:128px; width:128px">
+						<img class="icon" @src="'img/ui/locket/'+$carried.neck.photo?.replace(' ', '-').toLowerCase()+'.png'" onerror="this.onerror=null; this.src='img/ui/locket-empty.png';" style="height:128px; width:128px">
+					</span>
+				</div>
+			<<else>>
+				<div id="locket">
+					<span>
+						<img class="icon" @src="'img/ui/locket-'+$carried.neck.colour.replace(' ', '-')+'.png'" style="height:128px; width:128px">
+					</span>
+				</div>
+			<</if>>
+			<div id="locket-txt">
+				<<if !_noLocketPhoto and C.npc["Ivory Wraith"].love gte 10 and (["haunt", "despair"].includes($ivoryWraith.state) or C.npc["Ivory Wraith"].lust gt 10) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+					<<fadeText "<span class='wraith'>A pale figure's <<wraithEyes>> gaze pierces you.</span>" "<<print _locket_text>>">>
+				<<else>>
+					<<print _locket_text>>
+				<</if>>
+				<br><br>
+			</div>
+		</div>
+	<<else>>
+		<<if !_noLocketPhoto and C.npc["Ivory Wraith"].love gte 10 and (["haunt", "despair"].includes($ivoryWraith.state) or C.npc["Ivory Wraith"].lust gt 10) and $hallucinations gte 1 and ((random(1, 100) is 1) or ($controlled is 0 and random(1, 100) lte 5))>>
+			<<fadeText "<span class='wraith'>A pale figure's <<wraithEyes>> gaze pierces you.</span>" "<<print _locket_text>>">>
+		<<else>>
+			<<print _locket_text>>
+		<</if>>
+		<br><br>
+	<</if>>
+
+	<<for _npc range setup.NPCNameList>>
+		<<capture _npc>>
+			<<if $carried.neck.photo != _npc and (isLoveInterest(_npc))>>
+				<span @class="'clothes-'+$carried.neck.colour.replace(' ', '-')"><<icon "locket.png">></span>
+				<<if $carried.neck.photo>>
+					<<link `"Replace the photo with one of " + (["Black Wolf", "Great Hawk"].includes(_npc) ? "the " : "") + _npc`>><<set $carried.neck.photo to _npc>><<replace #mirror>><<mirrorLocketPhotoChanged _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
+					<br>
+				<<else>>
+					<<link `"Add a photo of " + (["Black Wolf", "Great Hawk"].includes(_npc) ? "the " : "") + _npc`>><<set $carried.neck.photo to _npc>><<replace #mirror>><<mirrorLocketPhotoChanged _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
+					<br>
+				<</if>>
+			<</if>>
+		<</capture>>
+	<</for>>
+	<<if $carried.neck.photo>>
+		<span @class="'clothes-'+$carried.neck.colour.replace(' ', '-')"><<icon "locket.png">></span><<link "Remove the photo">><<set _removedPhoto to $carried.neck.photo>><<unset $carried.neck.photo>><<replace #mirror>><<mirrorLocketPhotoChanged _args[0] _args[1] _removedPhoto>><</replace>><<numberify "#passages > .passage">><</link>>
+		<br>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "mirrorLocketPhotoChanged">>
+	<<switch $carried.neck.photo>>
+		<<case "Robin">>
+			You insert a small photograph of Robin, smiling happily.
+		<<case "Whitney">>
+			You insert a small photograph of Whitney, grinning deviously.
+		<<case "Kylar">>
+			You insert a small photograph of Kylar, gazing obsessively.
+		<<case "Eden">>
+			You insert a small photograph of Eden, frowning sternly.
+		<<case "Avery">>
+			You insert a small photograph of Avery, looking unconcerned.
+		<<case "Alex">>
+			You insert a small photograph of Alex, on horseback.
+		<<case "Sydney">>
+			You insert a small photograph of Sydney, hands clasped in prayer.
+		<<case "Black Wolf">>
+			You insert a small photograph of the Black Wolf, slumbering peacefully.
+		<<case "Great Hawk">>
+			You insert a small photograph of the Great Hawk, striking a statuesque pose.
+		<<case "Gwylan">>
+			<<if $gwylan?.timer?.nobody gte Time.date.timeStamp>>
+				You insert a small photograph of nobody.
+			<<elseif $hypnosis_traits.devotion gte 4>>
+				You insert a small photograph of Gwylan, smiling seductively with a belted collar in <<nnpc_his "Gwylan">> hand.
+			<<else>>
+				You insert a small photograph of Gwylan, smiling and waving cheerfully.
+			<</if>>
+		<<default>>
+			You remove the small photograph of <<if ["Black Wolf", "Great Hawk"].includes(_args[2])>>the <</if>><<= _args[2]>>, leaving the locket empty once more.
+	<</switch>>
+	<br><br>
+
+	<<link "Next">><<endevent>><<neckon>><<replace #mirror>><<mirrorDisplay _args[0] _args[1]>><</replace>><<numberify "#passages > .passage">><</link>>
 <</widget>>

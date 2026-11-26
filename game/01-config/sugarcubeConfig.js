@@ -805,6 +805,14 @@ Config.navigation.override = function (dest) {
 			case "Mines Escape":
 				return "Flats Auction";
 
+			case "Simple Mirror":
+				return V.previousPassage ?? "Bedroom";
+
+			case "Mirror Locket":
+			case "Mirror Locket 2":
+				V.mirrorMenu = "locket";
+				return V.passage_mirror ?? "Mirror";
+
 			default:
 				return false;
 		}
