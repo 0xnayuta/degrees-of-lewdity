@@ -7,6 +7,9 @@ declare module "twine-sugarcube" {
 		statFreeze?: boolean;
 		gamemode?: "normal" | "hard" | "soft";
 		passage: string;
+		previousPassage?: string;
+		/** @deprecated Old saves only. */
+		passage_mirror?: string;
 		location: string;
 		phase: number | string;
 		rng: number;
