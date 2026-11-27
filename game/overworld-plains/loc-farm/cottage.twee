@@ -19,40 +19,42 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 <br><br>
 
 <!-- Flavour text of Alex coming down, going up, or being upstairs -->
-<<if Time.hour is 21 and !$daily.alex.wentUpToBed and !$daily.alexFarm.alexEndedWorkday>>
-	<<npc Alex>><<person1>>
-	<<if !$daily.alexFarm.alexEndedWorkday>>
-		<<set $daily.alexFarm.alexEndedWorkday to true>>
-		/* If it's 21:00 and you go to the cottage, the farm work needs to be stopped. */
-		Alex enters the cottage. "Done for another day," <<he>> says,
-		<<if $exposed gt 0>>
-			blushing. "It'll be getting colder, you might want to wear a little more." <<glust>><<npcincr Alex lust 1>>
-		<<else>>
-			smiling.
+<<if $alexFarm.workday.alexTask isnot "pubSulk">>
+	<<if Time.hour is 21 and !$daily.alex.wentUpToBed and !$daily.alexFarm.alexEndedWorkday>>
+		<<npc Alex>><<person1>>
+		<<if !$daily.alexFarm.alexEndedWorkday>>
+			<<set $daily.alexFarm.alexEndedWorkday to true>>
+			/* If it's 21:00 and you go to the cottage, the farm work needs to be stopped. */
+			Alex enters the cottage. "Done for another day," <<he>> says,
+			<<if $exposed gt 0>>
+				blushing. "It'll be getting colder, you might want to wear a little more." <<glust>><<npcincr Alex lust 1>>
+			<<else>>
+				smiling.
+			<</if>>
+			<<if $daily.alexFarm.minutesTowardsWage gte 1 and $alexFarm.stage lte 6>>
+				"Here's a little extra." <<He>> hands you <<moneyGain $alexFarm.hourlyWage>>.
+			<</if>>
+			<br><br>
 		<</if>>
-		<<if $daily.alexFarm.minutesTowardsWage gte 1 and $alexFarm.stage lte 6>>
-			"Here's a little extra." <<He>> hands you <<moneyGain $alexFarm.hourlyWage>>.
+		<<set $daily.alex.wentUpToBed to true>>
+		The staircase creaks as Alex climbs to <<his>> room.
+		<<endevent>>
+		<br><br>
+	<<elseif Time.hour gte 21 or Time.hour lte 4>>
+		You hear Alex snore upstairs.
+		<br><br>
+	<<elseif Time.hour is 5 and !$alex.night.gotUp and $alex.night.somnoOutcome isnot "wokeAngry">>
+		<<unset $alex.night.inPcBed>><<set $alex.night.gotUp to true>><<npc Alex>><<person1>>
+		The stairs creak as Alex climbs down. <<covered>> "I'll start breakfast," <<he>> says, walking to the kitchen.
+		<<if $exposed gte 1>>
+			<<He>> pretends not to ogle as <<he>> passes.<<glust>><<npcincr Alex lust 1>>
 		<</if>>
+		<<endevent>>
+		<br><br>
+	<<elseif $alexFarm.workday.alexTask is "admin" or ($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12)>>
+		You hear Alex talking on the phone upstairs.
 		<br><br>
 	<</if>>
-	<<set $daily.alex.wentUpToBed to true>>
-	The staircase creaks as Alex climbs to <<his>> room.
-	<<endevent>>
-	<br><br>
-<<elseif Time.hour gte 21 or Time.hour lte 4>>
-	You hear Alex snore upstairs.
-	<br><br>
-<<elseif Time.hour is 5 and !$alex.night.gotUp and $alex.night.somnoOutcome isnot "wokeAngry">>
-	<<unset $alex.night.inPcBed>><<set $alex.night.gotUp to true>><<npc Alex>><<person1>>
-	The stairs creak as Alex climbs down. <<covered>> "I'll start breakfast," <<he>> says, walking to the kitchen.
-	<<if $exposed gte 1>>
-		<<He>> pretends not to ogle as <<he>> passes.<<glust>><<npcincr Alex lust 1>>
-	<</if>>
-	<<endevent>>
-	<br><br>
-<<elseif $alexFarm.workday.alexTask is "admin" or ($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12)>>
-	You hear Alex talking on the phone upstairs.
-	<br><br>
 <</if>>
 
 <!-- Main options of available actions -->
@@ -87,7 +89,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 
 	<<link [[Next|Farm Alex Birth]]>><</link>>
 
-<<elseif playerIsPregnant() and playerBellyVisible() and !talkedAboutPregnancy("pc","Alex")>>
+<<elseif playerIsPregnant() and playerBellyVisible() and !talkedAboutPregnancy("pc","Alex") and $alexFarm.workday.alexTask isnot "pubSulk">>
 	<<npc "Alex">>
 	<<setTalkedAboutPregnancy "pc" "Alex">>
 	<<if $alex.romance>>
@@ -122,7 +124,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 
 	<</if>>
 
-<<elseif npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1>>
+<<elseif npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1 and $alexFarm.workday.alexTask isnot "pubSulk">>
 	<<alex_cottage_pregnancy_reveal>>
 
 <<elseif ($alexFarm.daysUntilBaileyVisits lte 0 or $alexFarm.daysUntilBaileyVisits is undefined) and ($bailey.rent.daysUntilDue lte -2 or ($bailey.rent.daysUntilDue lte 0 and Time.hour gte 4 and Time.hour lte 21)) and (isRentDue() or isBaileyLookingForPlayer())>>

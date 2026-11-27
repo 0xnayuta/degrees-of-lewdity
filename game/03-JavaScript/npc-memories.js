@@ -869,6 +869,9 @@ const VALID_MEMORIES = {
 		// If the PC has been on the meadow date with Alex
 		// Used so Alex skips the riding lesson and teases the PC about riding on later dates
 		"wentOnMeadowDate",
+		// If the PC has had the aphrodisiac lab accident encounter with Alex
+		// Used so it doesn't repeat
+		"aphrodisiacLabAccident",
 	],
 	Sirris: [
 		// If the PC saw Sirris carrying a box to their car after school, hinting at the adult shop opening

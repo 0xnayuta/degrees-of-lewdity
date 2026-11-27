@@ -89,6 +89,8 @@ declare global {
 		/** If the PC came in a wet dream while sleeping at the cottage.
 		 * Changes Alex's line when Alex gets up at 05:00. */
 		pcHadWetDreamInBed?: true;
+		/** If PC has scorned Alex in the pub after confronting them over the rape*/
+		alexPubNotScorn?: true;
 	}
 
 	/** Alex's once-a-week flags, stored in `$weekly.alex`. */

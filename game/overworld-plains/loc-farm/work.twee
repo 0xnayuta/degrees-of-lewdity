@@ -194,7 +194,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 		<<if _trauma is 40>><<ggtrauma>><<elseif _trauma is 5>><<gtrauma>><</if>>
 		<br>
 	<</if>>
-	<<if $alexFarm.workday.alexTask isnot undefined and $alexFarm.workday.alexTask isnot "shower" and Time.betweenHours(6, 20) and $slimeFarmNakedStored is undefined>>
+	<<if $alexFarm.workday.alexTask isnot undefined and $alexFarm.workday.alexTask isnot "shower" and $alexFarm.workday.alexTask isnot "pubSulk" and Time.betweenHours(6, 20) and $slimeFarmNakedStored is undefined>>
 		<<outfitChecks>>
 		<<if (_shirtless and $player.gender_appearance is "f") or _bottomExposed>>
 			<<shopicon "clothing">><<link [[Ask Alex for clothes (0:05)|Farm Alex Clothes]]>><<pass 5>><<farm_yield -1>><<npcincr Alex dom 1>><<npcincr Alex lust 1>><</link>><<exhibitionist1>><<lfarm>><<gdom "Alex">><<glust>>
@@ -208,7 +208,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alex.hadHangover and $rng gte 76 and !$daily.alex.pcSpiedInShower and $alexFarm.workday.alexTask isnot "shower">>
+<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alex.hadHangover and $rng gte 76 and !$daily.alex.pcSpiedInShower and $alexFarm.workday.alexTask isnot "shower" and $alexFarm.workday.alexTask isnot "pubSulk">>
 	<<set $weekly.alex.hadHangover to true>>
 
 	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
@@ -547,7 +547,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 
 		<<link [[Next|Farm Alex Birth]]>><</link>>
 
-	<<elseif $alexFarm.workday isnot undefined and $alexFarm.workday.alexTask isnot undefined and npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1 and !["shower","admin"].includes($alexFarm.workday.alexTask) and !($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12) and between(Time.hour, 6, 21)>>
+	<<elseif $alexFarm.workday isnot undefined and $alexFarm.workday.alexTask isnot undefined and $alexFarm.workday.alexTask isnot "pubSulk" and npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1 and !["shower","admin"].includes($alexFarm.workday.alexTask) and !($alexFarm.workday.alexTask is "clearing" and $alexFarm.stage is 12) and between(Time.hour, 6, 21)>>
 		<<npc "Alex">>
 		Alex approaches you. You can see a nervous expression on <<his>> face.
 		<br><br>
@@ -700,7 +700,7 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<elseif $exposed lte 0 and (getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).carrier === "Alex") or getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).donor === "Alex")) and !$daily.alex.hadChildrenScene and $rng gte 56 and Time.betweenHours(8, 15)>>
 		<<alex_baby_interactions>>
 
-	<<elseif $alexFarm.yieldOwedToPc gte 1 and !(Time.betweenHours(22, 5) or (Time.hour is 21 and $daily.alexFarm.alexEndedWorkday)) and $alexFarm.workday.alexTask isnot "shower">>
+	<<elseif $alexFarm.yieldOwedToPc gte 1 and !(Time.betweenHours(22, 5) or (Time.hour is 21 and $daily.alexFarm.alexEndedWorkday)) and $alexFarm.workday.alexTask isnot "shower" and $alexFarm.workday.alexTask isnot "pubSulk">>
 		<<npc Alex>><<person1>>
 		<<set _alex to C.npc.Alex>>
 		"Hey," shouts Alex, striding towards you. "We've had a better yield than expected lately," <<he>> says, grasping your hand in <<his>> own and pressing something into your palm.
@@ -771,7 +771,23 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 			<br>
 		<</if>>
 		<<if $alexFarm.stage gte 9>>
-			<<farmicon "lab">><<link [[Lab (0:01)|Farm Still]]>><<pass 1>><</link>>
+			<br>
+			<<if $alexFarm.lab.daysUntilNextAccident is undefined>><<set $alexFarm.lab.daysUntilNextAccident to random(7,25)>><</if>>
+			<<if $alexFarm.lab.daysUntilNextAccident lte 0 and random(0,25) is 25>>
+				<<rng 10>>
+				You hear a crash coming from Alex's lab <<if $alexFarm.workday.alexTask is "still">> followed by a muffled yell. <<else>> followed by silence. <</if>>
+				<br>
+				<<if $alexFarm.workday.AlexTask is "still" and !Memories.Alex.has("aphrodisiacLabAccident")>>
+					<<investigateicon>><<link [[Investigate|Alex Lab Accident Encounter Intro]]>><<set $alexFarm.lab.daysUntilNextAccident to random(7,25)>><<run Memories.Alex.add("aphrodisiacLabAccident")>><</link>>
+				<<elseif $alexFarm.lab.lurkersCaged gte 1 and $rng gt 5>>
+					<<investigateicon>><<link [[Investigate|Alex Lab Lurker Escape Intro]]>><<set $alexFarm.lab.daysUntilNextAccident to random(7,25)>><</link>>
+				<<else>>
+					<<investigateicon>><<link [[Investigate|Alex Lab Remy Sabotage Intro]]>><<set $alexFarm.lab.daysUntilNextAccident to random(7,25)>><</link>>
+				<</if>>
+				<br>
+			<<else>>
+				<<farmicon "lab">><<link [[Lab (0:01)|Farm Still]]>><<pass 1>><</link>>
+			<</if>>
 			<br>
 		<</if>>
 		<<if $alexFarm.upgrades.woodland gte 1>>
@@ -2956,7 +2972,7 @@ You sit beside Alex, then procure the milkshake. "Fancy a drink?" you ask<<if (!
 You relax on the hammock next to the stables.
 <<if Weather.precipitation isnot "none">>You're glad to have some cover from the <<print Weather.precipitation>>.<</if>>
 
-<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $alexFarm.workday.alexTask isnot "still" and $alex.romance>>
+<<if $rng gte 76 and Time.dayState isnot "night" and C.npc.Alex.love gte 80 and $alexFarm.workday.alexTask isnot "still" and $alexFarm.workday.alexTask isnot "pubSulk" and $alex.romance>>
 	You see Alex approach, waving at you. "Hey, partner." <<He>> smiles and leans across your lap. "Just thought I'd swing by."
 	<br><br>
 
