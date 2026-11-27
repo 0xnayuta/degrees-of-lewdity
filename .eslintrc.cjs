@@ -396,7 +396,7 @@ module.exports = {
 		arrayIntersect: "readonly",
 		countMatchesInNestedArray: "readonly",
 		applyArrays: "readonly",
-		bubbleSort: "readonly",
+		timSort: "readonly",
 		arrayClamp: "readonly",
 		// DoL object functions
 		formatList: "readonly",

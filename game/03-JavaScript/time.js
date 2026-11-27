@@ -1314,8 +1314,8 @@ function dawnCheck() {
 	delete V.dock_security;
 	V.alex.night = {};
 	delete V.connudatus_stripped;
-	delete V.gwylan.wake;
-	delete V.gwylan.cafeWake;
+	delete V.gwylan?.wake;
+	delete V.gwylan?.cafeWake;
 	delete V.whitney_night_knock;
 
 	if (V.schoolBlocked) delete V.schoolBlocked;
