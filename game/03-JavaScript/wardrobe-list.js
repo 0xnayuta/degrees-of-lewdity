@@ -470,6 +470,10 @@ $(document)
 		setWardrobePage(Number(event.currentTarget.dataset.page));
 		redrawWardrobeItems();
 	})
+	.on("change", "#wardrobeListBar .clothingPager select", event => {
+		setWardrobePage(event.target.selectedIndex);
+		redrawWardrobeItems();
+	})
 	.on("change", "#wardrobeListBar .itemsPerPageLabel select", () => onWardrobeViewChanged())
 	.on("mousedown", ".wardrobe-action a", event => {
 		const row = $(event.currentTarget).parent();
