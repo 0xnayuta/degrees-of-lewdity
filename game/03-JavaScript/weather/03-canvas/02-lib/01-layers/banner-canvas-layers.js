@@ -886,7 +886,10 @@ Weather.Renderer.Layers.add({
 	effects: [
 		{
 			effect: "lightning",
-			drawCondition: () => Weather.enableLightning && !this.renderInstance.sidebarSkyDisabled,
+			// eslint-disable-next-line object-shorthand
+			drawCondition: function () {
+				return Weather.enableLightning && !this.renderInstance.sidebarSkyDisabled;
+			},
 			params: {},
 			bindings: {
 				lightningFrequency() {

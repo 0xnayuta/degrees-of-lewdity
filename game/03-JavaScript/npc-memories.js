@@ -848,8 +848,9 @@ const VALID_MEMORIES = {
 		// Not used currently
 		"templeChastityBeltRemoved",
 
-		// Not set anywhere yet
+		// If the Gwylan SBE has been accessed
 		// Used by gwylanHypnoMax() to allow devotion level 6
+		// Unimplemented
 		"forever",
 
 		// Not set anywhere yet

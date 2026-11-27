@@ -697,7 +697,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (amount) {
 			if (amount > 0) V.detention += amount * 10;
-			V.delinquency = Math.clamp(V.delinquency + amount * 4, 0, 1000);
+			delinquency(amount);
 		}
 	}
 	DefineMacro("detention", detention);

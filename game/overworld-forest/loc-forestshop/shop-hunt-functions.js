@@ -501,7 +501,7 @@ function shopHuntLocationsByDistance(start, sort = "both", order = "descending",
 		}
 	}
 
-	list = bubbleSort(list, order);
+	list = timSort(list, order);
 
 	T.gridConsoleDisable = false;
 	return list;

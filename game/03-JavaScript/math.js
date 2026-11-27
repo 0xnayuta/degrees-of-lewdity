@@ -430,12 +430,11 @@ function applyArrays(a, b, math = "addition") {
 }
 window.applyArrays = applyArrays;
 
-// Kept as bubbleSort for backwards compatibility.
-function bubbleSort(array, order = "descending") {
+function timSort(array, order = "descending") {
 	const comparator = order === "ascending" ? (a, b) => a[1] - b[1] : (a, b) => b[1] - a[1];
 	return array.sort(comparator);
 }
-window.bubbleSort = bubbleSort;
+window.timSort = timSort;
 
 /**
  * Clamps all values in an array. Leaves non-number elements in arrays untouched
