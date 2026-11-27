@@ -637,3 +637,14 @@ function wraithSleepEventCheck() {
 	return V.ivoryWraith.state !== "" && V.ivoryWraith.hunt.nightmare === "tonight" && npcCanHunt("Ivory Wraith");
 }
 window.wraithSleepEventCheck = wraithSleepEventCheck;
+
+/**
+ * Where Bailey is right now.
+ *
+ * @returns {BaileyLocation}
+ */
+function getBaileyLocation() {
+	if (between(Time.hour, 7, 9)) return "office";
+	return "unknown";
+}
+window.getBaileyLocation = getBaileyLocation;
