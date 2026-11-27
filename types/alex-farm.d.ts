@@ -62,7 +62,8 @@ declare global {
 		| "still"
 		| "tending"
 		| "woodland"
-		| "yard";
+		| "yard"
+		| "pubSulk";
 
 	/** Alex's farm. Hourly wage up to `stage` 6, then PC co-owns the farm with Alex from `stage` 7 on. */
 	export interface AlexFarmState {
@@ -249,6 +250,9 @@ declare global {
 		daysUntilNextPhial?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 		/** If a monk PC has felt the dread at the phials, so it only plays once. */
 		monkPcDreadedPhials?: true;
+		/** Days until the next accident.
+		 * Unset until the stage 9 (lab unlock) is obtained. */
+		daysUntilNextAccident: number;
 	}
 
 	/** Remy's attacks on the farm, after `stage` 7. */
@@ -550,6 +554,8 @@ declare global {
 		pcUsedKennelToday?: true;
 		/** Today's extra yield, added to `yieldOwedToPc` for the PC's extra pay. Can be negative. */
 		yieldToday?: number;
+		/** If Alex is sulking in the pub after raping pc in the lab*/
+		alexIsPubSulk?: true;
 	}
 
 	/** Alex's farm's once-a-week flags, stored in `$weekly.alexFarm`. */

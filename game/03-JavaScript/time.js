@@ -2386,6 +2386,7 @@ function dailyFarmEvents() {
 				V.alexFarm.lab.daysUntilNextPhial = 7;
 			}
 		}
+		if (V.alexFarm.lab.daysUntilNextAccident >= 1) V.alexFarm.lab.daysUntilNextAccident--;
 	}
 	if (V.alexFarm.daysUntilFire >= 1) V.alexFarm.daysUntilFire--;
 	if (V.alexFarm.daysUntilBaileyVisits >= 1) V.alexFarm.daysUntilBaileyVisits--;

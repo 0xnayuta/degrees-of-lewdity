@@ -132,6 +132,10 @@
 	<<set _farm_alex_actions to _farm_work_time - $alexFarm.workday.lastUpdateSlot>>
 
 	<<for _i = 0; _i < _farm_alex_actions; _i++>>
+		<<if $daily.alexFarm.alexIsPubSulk>>
+			<<set $alexFarm.workday.alexTask to "pubSulk">>
+			<<continue>>
+		<</if>>
 		<<if $alexFarm.workday.chickensPanicking>>
 			<<set $alexFarm.workday.chickensPanicking to false>>
 			<<set $alexFarm.workday.alexTask to "chickens_panic">>
@@ -313,7 +317,6 @@
 		<<set $alexFarm.workday.alexTask to "clearing">>
 	<</for>>
 
-
 	<<if _farm_work_time gte 0 or _args[0] is "midnight">>
 		<<set $alexFarm.workday.lastUpdateSlot to _farm_work_time>>
 	<</if>>
@@ -322,6 +325,8 @@
 <<widget "farm_alex">>
 	<span class="lblue">
 		<<switch $alexFarm.workday.alexTask>>
+			<<case "pubSulk">>
+				Alex is nowhere to be found.
 			<<case "shower">>
 				You hear running water in the shed beside the farmhouse. Alex is taking a shower.
 			<<case "border">>
@@ -1270,10 +1275,12 @@
 				A screech tears through the air. It came from the moor, and <span class="pink">it drives the animals into a panicked frenzy.</span><<llfarm>><<farm_yield -5>>
 				<br><br>
 
-				Alex runs through the yard, rushing to calm the animals.
-				<<set $alexFarm.workday.alexTask to "panic">>
-				<br><br>
-
+				<<if $alexFarm.workday.alexTask isnot "pubSulk">>
+					Alex runs through the yard, rushing to calm the animals.
+					<<set $alexFarm.workday.alexTask to "panic">>
+					<br><br>
+				<</if>>
+				
 				<<link [[Next|Farm Work]]>><</link>>
 				<br>
 				<<set $alexFarm.workday.horsesPanicking to true>>
