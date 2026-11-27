@@ -1695,6 +1695,7 @@ Renderer.CanvasModels.main = {
 			},
 			srcfn(options) {
 				if (options.mannequin) return "img/body/mannequin/penis.png";
+				if (V.worn.genitals.name === "flat chastity cage") return;
 				if (options.genitals_chastity) return "img/body/penis/chastity.png";
 				const penis = options.balls ? "penis" : "penis-no-balls";
 				return `img/body/${penis}/${options.penis}.png`;
